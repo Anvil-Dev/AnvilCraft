@@ -1,0 +1,52 @@
+on:
+  push:
+    paths:
+      - src/**
+      - build.gradle
+      - gradle.properties
+      - settings.gradle
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        java: [ 17 ]
+        os: [ ubuntu-latest ]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3.1.0
+      - name: validate gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
+      - name: setup java ${{ matrix.java }}
+        uses: actions/setup-java@v3.6.0
+        with:
+          distribution: 'zulu'
+          java-version: ${{ matrix.java }}
+      - name: Setup cache
+        uses: actions/cache@v3.0.11
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+
+      - name: make gradle wrapper executable
+        if: ${{ runner.os != 'Windows' }}
+        run: chmod +x ./gradlew
+      - name: Set build number
+        run: sed -i "s/undefined/$GITHUB_RUN_NUMBER/g" gradle.properties
+      - name: build
+        run: ./gradlew build
+      - name: Find correct JAR
+        id: find-jar
+        run: |
+          output="$(find build/libs/ ! -name "*-dev.jar" ! -name "*-sources.jar" -type f -printf "%f\n")"
+          echo "jarname=$output" >> $GITHUB_OUTPUT
+      - name: capture build artifacts
+        if: ${{ runner.os == 'Linux' && matrix.java == '17' }}
+        uses: actions/upload-artifact@v3.1.1
+        with:
+          name: ${{ steps.find-jar.outputs.jarname }}
+          path: build/libs/${{ steps.find-jar.outputs.jarname }}
