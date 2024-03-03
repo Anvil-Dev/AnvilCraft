@@ -3,7 +3,8 @@ plugins {
     id 'maven-publish'
 }
 
-version = build_number == 'undefined' ? project.mod_version : "${project.mod_version}.build+${project.build_number}"
+mod_id = project.mod_id
+version = project.build_number == 'undefined' ? project.mod_version : "${project.mod_version}.build+${project.build_number}"
 group = project.maven_group
 
 base {
@@ -16,6 +17,21 @@ repositories {
     // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
     // See https://docs.gradle.org/current/userguide/declaring_repositories.html
     // for more information about repositories.
+}
+
+loom {
+    runs {
+        // 这会添加一个运行数据生成 API 的新 gradle 任务："gradlew runDatagen"
+        datagen {
+            inherit server
+            name "Data Generation"
+            vmArg "-Dfabric-api.datagen"
+            vmArg "-Dfabric-api.datagen.output-dir=${file("src/main/generated")}"
+            vmArg "-Dfabric-api.datagen.modid=${mod_id}"
+
+            runDir "build/datagen"
+        }
+    }
 }
 
 dependencies {
@@ -64,9 +80,23 @@ java {
     withSourcesJar()
 }
 
+jar.dependsOn(runDatagen)
 jar {
+    from("src/main/generated"){
+        duplicatesStrategy DuplicatesStrategy.INCLUDE
+    }
     from("LICENSE") {
         rename { "${it}_${project.archivesBaseName}" }
+    }
+}
+
+sourceSets {
+    main {
+        resources {
+            srcDirs += [
+                    'src/main/generated'
+            ]
+        }
     }
 }
 

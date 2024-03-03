@@ -110,6 +110,7 @@ gradle-app.setting
 .gradletasknamecache
 
 **/build/
+**/generated/
 
 # Common working directory
 run/
