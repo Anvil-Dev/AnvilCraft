@@ -4,7 +4,7 @@ plugins {
 }
 
 mod_id = project.mod_id
-version = project.build_number == 'undefined' ? project.mod_version : "${project.mod_version}.build+${project.build_number}"
+version = project.build_number == 'undefined' ? project.mod_version : "${project.mod_version}+build.${project.build_number}"
 group = project.maven_group
 
 base {
