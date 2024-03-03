@@ -3,7 +3,7 @@ plugins {
     id 'maven-publish'
 }
 
-version = project.mod_version
+version = build_number == 'undefined' ? project.mod_version : "${project.mod_version}.build+${project.build_number}"
 group = project.maven_group
 
 base {
@@ -66,7 +66,7 @@ java {
 
 jar {
     from("LICENSE") {
-        rename { "${it}_${project.archivesBaseName}"}
+        rename { "${it}_${project.archivesBaseName}" }
     }
 }
 

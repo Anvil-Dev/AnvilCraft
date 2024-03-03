@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "anvilcraft:item/blade_of_the_sea"
+  }
+}

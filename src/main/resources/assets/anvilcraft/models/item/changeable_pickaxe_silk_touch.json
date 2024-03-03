@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "anvilcraft:item/changeable_pickaxe_silk_touch"
+  }
+}

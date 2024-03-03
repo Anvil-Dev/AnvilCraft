@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "anvilcraft:item/kernel_of_the_sea"
+  }
+}
