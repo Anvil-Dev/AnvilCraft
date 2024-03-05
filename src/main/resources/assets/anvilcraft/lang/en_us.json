@@ -1,8 +1,6 @@
 {
-    "itemGroup.anvilcraft.material": "AnvilCraft Materials",
-    "itemGroup.anvilcraft.tool": "AnvilCraft Tools",
-    "itemGroup.anvilcraft.food": "AnvilCraft Foods",
-    "itemGroup.anvilcraft.machine": "AnvilCraft Machines",
+    "itemGroup.anvilcraft.block": "AnvilCraft Blocks",
+    "itemGroup.anvilcraft.item": "AnvilCraft Items",
     "item.anvilcraft.protocol_empty": "Empty Protocol",
     "item.anvilcraft.protocol_absorb": "Absorb Protocol",
     "item.anvilcraft.protocol_repair": "Repair Protocol",
@@ -50,10 +48,14 @@
     "item.anvilcraft.amethyst_axe": "Amethyst Axe",
     "item.anvilcraft.amethyst_hoe": "Amethyst Hoe",
     "item.anvilcraft.amethyst_pickaxe": "Amethyst Pickaxe",
+    "item.anvilcraft.amethyst_pickaxe.tooltip": "Stone pickaxe quality, can mine iron ore, not diamonds!",
     "item.anvilcraft.amethyst_shovel": "Amethyst Shovel",
     "item.anvilcraft.amethyst_sword": "Amethyst Sword",
     "item.anvilcraft.bark": "Bark",
     "item.anvilcraft.pulp": "Pulp",
     "item.anvilcraft.changeable_pickaxe_silk_touch": "Changeable Pickaxe Silk Touch",
-    "item.anvilcraft.changeable_pickaxe_fortune": "Changeable Pickaxe Fortune"
+    "item.anvilcraft.changeable_pickaxe_fortune": "Changeable Pickaxe Fortune",
+    "block.anvilcraft.magnet_block": "Magnet Block",
+    "block.anvilcraft.hollow_magnet_block": "Hollow Magnet Block",
+    "block.anvilcraft.ferrite_core_magnet_block": "Ferrite Core Magnet Block"
 }

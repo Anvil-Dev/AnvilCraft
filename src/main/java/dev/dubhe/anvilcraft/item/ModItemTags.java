@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.items;
+package dev.dubhe.anvilcraft.item;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.core.registries.Registries;

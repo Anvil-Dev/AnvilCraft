@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.items;
+package dev.dubhe.anvilcraft.item;
 
 import net.minecraft.util.LazyLoadedValue;
 import net.minecraft.world.item.Items;

@@ -1,8 +1,6 @@
 {
-  "itemGroup.anvilcraft.material": "铁砧工艺 - 材料",
-  "itemGroup.anvilcraft.tool": "铁砧工艺 - 工具",
-  "itemGroup.anvilcraft.food": "铁砧工艺 - 食物",
-  "itemGroup.anvilcraft.machine": "铁砧工艺 - 机器",
+  "itemGroup.anvilcraft.block": "铁砧工艺 - 方块",
+  "itemGroup.anvilcraft.item": "铁砧工艺 - 物品",
   "item.anvilcraft.seed_of_the_sea": "海洋种子",
   "item.anvilcraft.fruit_of_the_sea": "海洋之果",
   "item.anvilcraft.kernel_of_the_sea": "海洋之核",
@@ -50,10 +48,14 @@
   "item.anvilcraft.amethyst_axe": "紫水晶斧",
   "item.anvilcraft.amethyst_hoe": "紫水晶锄",
   "item.anvilcraft.amethyst_pickaxe": "紫水晶镐",
+  "item.anvilcraft.amethyst_pickaxe.tooltip": "石镐品质，可以挖铁矿，不能挖钻石！",
   "item.anvilcraft.amethyst_shovel": "紫水晶锹",
   "item.anvilcraft.amethyst_sword": "紫水晶剑",
   "item.anvilcraft.bark": "树皮",
   "item.anvilcraft.pulp": "纸浆",
   "item.anvilcraft.changeable_pickaxe_silk_touch": "应变之镐（丝触）",
-  "item.anvilcraft.changeable_pickaxe_fortune": "应变之镐（时运）"
+  "item.anvilcraft.changeable_pickaxe_fortune": "应变之镐（时运）",
+  "block.anvilcraft.magnet_block": "磁铁块",
+  "block.anvilcraft.hollow_magnet_block": "空心磁铁块",
+  "block.anvilcraft.ferrite_core_magnet_block": "铁芯磁铁块"
 }

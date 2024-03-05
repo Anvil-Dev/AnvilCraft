@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.data;
 
-import dev.dubhe.anvilcraft.items.ModItemTags;
-import dev.dubhe.anvilcraft.items.ModItems;
+import dev.dubhe.anvilcraft.item.ModItemTags;
+import dev.dubhe.anvilcraft.item.ModItems;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.minecraft.core.HolderLookup;

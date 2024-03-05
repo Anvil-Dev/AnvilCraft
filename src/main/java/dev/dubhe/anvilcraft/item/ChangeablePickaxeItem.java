@@ -1,6 +1,5 @@
-package dev.dubhe.anvilcraft.items;
+package dev.dubhe.anvilcraft.item;
 
-import dev.dubhe.anvilcraft.utils.ItemUtils;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -37,9 +36,8 @@ public class ChangeablePickaxeItem extends PickaxeItem {
         Enchantment fromEnchant = fromItem.equals(ModItems.CHANGEABLE_PICKAXE_FORTUNE) ? Enchantments.BLOCK_FORTUNE : Enchantments.SILK_TOUCH;
         Enchantment toEnchant = toItem.equals(ModItems.CHANGEABLE_PICKAXE_FORTUNE) ? Enchantments.BLOCK_FORTUNE : Enchantments.SILK_TOUCH;
         int toLevel = toItem.equals(ModItems.CHANGEABLE_PICKAXE_FORTUNE) ? 3 : 1;
-        ItemStack toStack = new ItemStack(toItem);
-        ItemUtils.ItemStackDataCopy(fromStack, toStack);
-        if (ItemUtils.removeEnchant(toStack, fromEnchant)) toStack.enchant(toEnchant, toLevel);
+        ItemStack toStack = fromStack.dataCopy(new ItemStack(toItem));
+        if (fromStack.removeEnchant(fromEnchant)) toStack.enchant(toEnchant, toLevel);
         return InteractionResultHolder.success(toStack);
     }
 }

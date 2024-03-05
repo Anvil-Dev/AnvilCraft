@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.items;
+package dev.dubhe.anvilcraft.item;
 
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.server.level.ServerPlayer;
