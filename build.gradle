@@ -13,8 +13,16 @@ base {
 
 repositories {
     maven {
-        name = 'ParchmentMC'
-        url = 'https://maven.parchmentmc.org'
+        name 'ParchmentMC'
+        url 'https://maven.parchmentmc.org'
+    }
+    maven {
+        name 'REI'
+        url 'https://maven.shedaniel.me/'
+    }
+    maven {
+        name 'ModMenu'
+        url 'https://maven.terraformersmc.com/releases/'
     }
 }
 
@@ -42,6 +50,10 @@ dependencies {
 
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    modApi "com.terraformersmc:modmenu:${project.modmenu_version}"
+    modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-fabric:${project.rei_version}"
+    modCompileOnly "me.shedaniel:RoughlyEnoughItems-api-fabric:${project.rei_version}"
+    modCompileOnly "me.shedaniel:RoughlyEnoughItems-default-plugin-fabric:${project.rei_version}"
     compileOnly "org.projectlombok:lombok:${lombok_version}"
     annotationProcessor "org.projectlombok:lombok:${lombok_version}"
 }

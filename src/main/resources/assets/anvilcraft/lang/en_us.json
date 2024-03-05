@@ -57,5 +57,8 @@
     "item.anvilcraft.changeable_pickaxe_fortune": "Changeable Pickaxe Fortune",
     "block.anvilcraft.magnet_block": "Magnet Block",
     "block.anvilcraft.hollow_magnet_block": "Hollow Magnet Block",
-    "block.anvilcraft.ferrite_core_magnet_block": "Ferrite Core Magnet Block"
+    "block.anvilcraft.ferrite_core_magnet_block": "Ferrite Core Magnet Block",
+    "block.anvilcraft.interact_machine": "Interact Machine",
+    "commands.anvilcraft.config.reload.success": "Config reloaded!",
+    "commands.anvilcraft.config.check.success": "The config file reads as follows:"
 }

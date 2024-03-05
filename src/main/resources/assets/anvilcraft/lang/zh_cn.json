@@ -57,5 +57,8 @@
   "item.anvilcraft.changeable_pickaxe_fortune": "应变之镐（时运）",
   "block.anvilcraft.magnet_block": "磁铁块",
   "block.anvilcraft.hollow_magnet_block": "空心磁铁块",
-  "block.anvilcraft.ferrite_core_magnet_block": "铁芯磁铁块"
+  "block.anvilcraft.ferrite_core_magnet_block": "铁芯磁铁块",
+  "block.anvilcraft.interact_machine": "交互机",
+  "commands.anvilcraft.config.reload.success": "配置文件已重载!",
+  "commands.anvilcraft.config.check.success": "配置文件内容如下："
 }

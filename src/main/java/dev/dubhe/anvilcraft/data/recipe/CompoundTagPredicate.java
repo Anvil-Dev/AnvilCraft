@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.data.crafting;
+package dev.dubhe.anvilcraft.data.recipe;
 
 import com.google.gson.*;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -14,17 +14,17 @@ import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-public class TagPredicate implements Predicate<CompoundTag> {
-    public static final TagPredicate EMPTY = new TagPredicate(new ArrayList<>());
+public class CompoundTagPredicate implements Predicate<CompoundTag> {
+    public static final CompoundTagPredicate EMPTY = new CompoundTagPredicate(new ArrayList<>());
     public final List<CompoundTag> tags;
     private String[] stringTags = null;
 
-    private TagPredicate(List<CompoundTag> tags) {
+    private CompoundTagPredicate(List<CompoundTag> tags) {
         this.tags = tags;
     }
 
-    public static TagPredicate of(CompoundTag... tags) {
-        return new TagPredicate(Arrays.asList(tags));
+    public static CompoundTagPredicate of(CompoundTag... tags) {
+        return new CompoundTagPredicate(Arrays.asList(tags));
     }
 
     @Override
@@ -51,16 +51,16 @@ public class TagPredicate implements Predicate<CompoundTag> {
         return bl;
     }
 
-    static TagPredicate fromJson(JsonElement json) {
+    public static CompoundTagPredicate fromJson(JsonElement json) {
         if (null == json || json.isJsonNull()) {
             throw new JsonSyntaxException("Item cannot be null");
         }
         if (json.isJsonObject()) {
             JsonObject object = json.getAsJsonObject();
-            if (!object.has("data")) return TagPredicate.EMPTY;
+            if (!object.has("data")) return CompoundTagPredicate.EMPTY;
             JsonElement data = object.get("data");
             if (!data.isJsonPrimitive()) throw new JsonSyntaxException("Expected item to be string");
-            return new TagPredicate(List.of(TagPredicate.parseTag(data.getAsString())));
+            return new CompoundTagPredicate(List.of(CompoundTagPredicate.parseTag(data.getAsString())));
         }
         if (json.isJsonArray()) {
             JsonArray array = json.getAsJsonArray();
@@ -72,13 +72,13 @@ public class TagPredicate implements Predicate<CompoundTag> {
                     JsonElement data = object.get("data");
                     if (!data.isJsonPrimitive() && !data.isJsonArray())
                         throw new JsonSyntaxException("Expected item to be string");
-                    if (data.isJsonPrimitive()) list.add(TagPredicate.parseTag(data.getAsString()));
+                    if (data.isJsonPrimitive()) list.add(CompoundTagPredicate.parseTag(data.getAsString()));
                     else for (JsonElement elem : data.getAsJsonArray()) {
-                        if (elem.isJsonPrimitive()) list.add(TagPredicate.parseTag(elem.getAsString()));
+                        if (elem.isJsonPrimitive()) list.add(CompoundTagPredicate.parseTag(elem.getAsString()));
                     }
                 } else throw new JsonSyntaxException("Expected item to be object or array of objects");
             }
-            return new TagPredicate(list);
+            return new CompoundTagPredicate(list);
         }
         throw new JsonSyntaxException("Expected item to be object or array of objects");
     }
@@ -94,11 +94,11 @@ public class TagPredicate implements Predicate<CompoundTag> {
         return jsonArray;
     }
 
-    public static @NotNull TagPredicate fromNetwork(@NotNull FriendlyByteBuf buffer) {
-        return TagPredicate.fromValues(buffer.readList(FriendlyByteBuf::readUtf).stream().map(TagPredicate::parseTag));
+    public static @NotNull CompoundTagPredicate fromNetwork(@NotNull FriendlyByteBuf buffer) {
+        return CompoundTagPredicate.fromValues(buffer.readList(FriendlyByteBuf::readUtf).stream().map(CompoundTagPredicate::parseTag));
     }
 
-    static @NotNull CompoundTag parseTag(String string) {
+    public static @NotNull CompoundTag parseTag(String string) {
         try {
             return TagParser.parseTag(string);
         } catch (CommandSyntaxException ignored) {
@@ -106,8 +106,8 @@ public class TagPredicate implements Predicate<CompoundTag> {
         throw new JsonSyntaxException("Invalid NBT string");
     }
 
-    private static @NotNull TagPredicate fromValues(@NotNull Stream<CompoundTag> stream) {
-        return new TagPredicate(stream.toList());
+    private static @NotNull CompoundTagPredicate fromValues(@NotNull Stream<CompoundTag> stream) {
+        return new CompoundTagPredicate(stream.toList());
     }
 
     public void toNetwork(@NotNull FriendlyByteBuf buffer) {

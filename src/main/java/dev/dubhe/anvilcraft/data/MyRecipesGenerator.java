@@ -1,6 +1,11 @@
 package dev.dubhe.anvilcraft.data;
 
-import dev.dubhe.anvilcraft.data.crafting.ShapedTagRecipeBuilder;
+import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.data.recipe.Component;
+import dev.dubhe.anvilcraft.data.recipe.anvil.block.BlockAnvilRecipeBuilder;
+import dev.dubhe.anvilcraft.data.recipe.anvil.item.ItemAnvilRecipe;
+import dev.dubhe.anvilcraft.data.recipe.anvil.item.ItemAnvilRecipeBuilder;
+import dev.dubhe.anvilcraft.data.recipe.crafting_table.ShapedTagRecipeBuilder;
 import dev.dubhe.anvilcraft.item.ModItemTags;
 import dev.dubhe.anvilcraft.item.ModItems;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
@@ -10,6 +15,8 @@ import net.minecraft.data.recipes.*;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LayeredCauldronBlock;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
@@ -244,8 +251,36 @@ public class MyRecipesGenerator extends FabricRecipeProvider {
                 .unlockedBy(hasItem(Items.LILY_OF_THE_VALLEY), FabricRecipeProvider.has(Items.LILY_OF_THE_VALLEY))
                 .unlockedBy(hasItem(Items.WITHER_ROSE), FabricRecipeProvider.has(Items.WITHER_ROSE))
                 .save(exporter);
-        SimpleCookingRecipeBuilder.campfireCooking(Ingredient.of(ModItemTags.DOUGH), RecipeCategory.FOOD, Items.BREAD, 0.35f, 600);
-        SimpleCookingRecipeBuilder.smoking(Ingredient.of(ModItemTags.DOUGH), RecipeCategory.FOOD, Items.BREAD, 0.35f, 100);
+        SimpleCookingRecipeBuilder.campfireCooking(Ingredient.of(ModItemTags.DOUGH), RecipeCategory.FOOD, Items.BREAD, 0.35f, 600)
+                .unlockedBy(hasItem(ModItems.DOUGH), FabricRecipeProvider.has(ModItems.DOUGH))
+                .save(exporter, AnvilCraft.of("campfire_cooking_bread"));
+        SimpleCookingRecipeBuilder.smoking(Ingredient.of(ModItemTags.DOUGH), RecipeCategory.FOOD, Items.BREAD, 0.35f, 100)
+                .unlockedBy(hasItem(ModItems.DOUGH), FabricRecipeProvider.has(ModItems.DOUGH))
+                .save(exporter, AnvilCraft.of("smoking_bread"));
+        ItemAnvilRecipeBuilder.item(RecipeCategory.TOOLS, ModItems.INTERACT_MACHINE)
+                .requires(Items.ANVIL)
+                .requires(Items.DISPENSER)
+                .component(Blocks.CAULDRON)
+                .location(ItemAnvilRecipe.Location.IN)
+                .resultLocation(ItemAnvilRecipe.Location.IN)
+                .unlockedBy(hasItem(Items.ANVIL), FabricRecipeProvider.has(Items.ANVIL))
+                .unlockedBy(hasItem(Items.DISPENSER), FabricRecipeProvider.has(Items.DISPENSER))
+                .save(exporter);
+        BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.ICE.defaultBlockState(), Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 1))
+                .component(Blocks.SNOW_BLOCK)
+                .component(Blocks.CAULDRON)
+                .unlockedBy(hasItem(Items.SNOW), FabricRecipeProvider.has(Items.SNOW))
+                .save(exporter, AnvilCraft.of("snow_2_water_cauldron_1"));
+        BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.ICE.defaultBlockState(), Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 2))
+                .component(Blocks.SNOW_BLOCK)
+                .component(Component.of(Blocks.WATER_CAULDRON).withState("level", 1))
+                .unlockedBy(hasItem(Items.SNOW), FabricRecipeProvider.has(Items.SNOW))
+                .save(exporter, AnvilCraft.of("snow_2_water_cauldron_2"));
+        BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.ICE.defaultBlockState(), Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3))
+                .component(Blocks.SNOW_BLOCK)
+                .component(Component.of(Blocks.WATER_CAULDRON).withState("level", 2))
+                .unlockedBy(hasItem(Items.SNOW), FabricRecipeProvider.has(Items.SNOW))
+                .save(exporter, AnvilCraft.of("snow_2_water_cauldron_3"));
     }
 
     public static @NotNull String hasItem(@NotNull Item item) {

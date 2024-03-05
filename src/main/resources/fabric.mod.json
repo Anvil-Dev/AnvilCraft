@@ -37,6 +37,9 @@
     "loom:injected_interfaces": {
       "net/minecraft/class_1799": [
         "dev/dubhe/anvilcraft/util/IItemStackInjector"
+      ],
+      "net/minecraft/class_2371": [
+        "dev/dubhe/anvilcraft/util/INonNullListInjector"
       ]
     }
   }

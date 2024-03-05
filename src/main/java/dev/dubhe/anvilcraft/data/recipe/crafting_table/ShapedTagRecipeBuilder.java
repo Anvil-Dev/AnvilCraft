@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.data.crafting;
+package dev.dubhe.anvilcraft.data.recipe.crafting_table;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -7,6 +7,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Pair;
+import dev.dubhe.anvilcraft.data.recipe.CompoundTagPredicate;
 import lombok.Getter;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
@@ -32,29 +33,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public class ShapedTagRecipeBuilder
-        extends ShapedRecipeBuilder {
+@SuppressWarnings("unused")
+public class ShapedTagRecipeBuilder extends ShapedRecipeBuilder {
     @Getter
     private final RecipeCategory category;
     @Getter
     private final ItemStack stackResult;
     @Getter
-    private final int count;
-    @Getter
     private final List<String> rows = Lists.newArrayList();
     @Getter
-    private final Map<Character, Pair<Ingredient, TagPredicate>> key = Maps.newLinkedHashMap();
+    private final Map<Character, Pair<Ingredient, CompoundTagPredicate>> key = Maps.newLinkedHashMap();
     @Getter
     private final Advancement.Builder advancement = Advancement.Builder.recipeAdvancement();
     @Nullable
     private String group;
     private boolean showNotification = true;
 
-    public ShapedTagRecipeBuilder(RecipeCategory category, @NotNull ItemStack stackResult, int count) {
-        super(category, stackResult.getItem(), count);
+    public ShapedTagRecipeBuilder(RecipeCategory category, @NotNull ItemStack stack) {
+        super(category, stack.getItem(), stack.getCount());
         this.category = category;
-        this.stackResult = stackResult;
-        this.count = count;
+        this.stackResult = stack;
     }
 
     /**
@@ -68,21 +66,16 @@ public class ShapedTagRecipeBuilder
      * 创建新的有序配方生成器。
      */
     public static @NotNull ShapedTagRecipeBuilder shaped(RecipeCategory category, @NotNull ItemLike result, int count) {
-        return ShapedTagRecipeBuilder.shaped(category, result.asItem().getDefaultInstance(), count);
+        ItemStack stack = result.asItem().getDefaultInstance();
+        stack.setCount(count);
+        return ShapedTagRecipeBuilder.shaped(category, stack);
     }
 
     /**
      * 创建新的有序配方生成器。
      */
     public static @NotNull ShapedTagRecipeBuilder shaped(RecipeCategory category, ItemStack result) {
-        return ShapedTagRecipeBuilder.shaped(category, result, 1);
-    }
-
-    /**
-     * 创建新的有序配方生成器。
-     */
-    public static @NotNull ShapedTagRecipeBuilder shaped(RecipeCategory category, ItemStack result, int count) {
-        return new ShapedTagRecipeBuilder(category, result, count);
+        return new ShapedTagRecipeBuilder(category, result);
     }
 
     /**
@@ -90,7 +83,7 @@ public class ShapedTagRecipeBuilder
      */
     @Override
     public @NotNull ShapedTagRecipeBuilder define(Character symbol, Ingredient ingredient) {
-        return this.define(symbol, ingredient, TagPredicate.EMPTY);
+        return this.define(symbol, ingredient, CompoundTagPredicate.EMPTY);
     }
 
     /**
@@ -108,7 +101,7 @@ public class ShapedTagRecipeBuilder
     /**
      * 向配方模式添加一个键。
      */
-    public @NotNull ShapedTagRecipeBuilder define(Character symbol, Ingredient ingredient, TagPredicate tagPredicate) {
+    public @NotNull ShapedTagRecipeBuilder define(Character symbol, Ingredient ingredient, CompoundTagPredicate compoundTagPredicate) {
         super.define(symbol, ingredient);
         if (this.key.containsKey(symbol)) {
             throw new IllegalArgumentException("Symbol '" + symbol + "' is already defined!");
@@ -116,7 +109,7 @@ public class ShapedTagRecipeBuilder
         if (symbol == ' ') {
             throw new IllegalArgumentException("Symbol ' ' (whitespace) is reserved and cannot be defined");
         }
-        this.key.put(symbol, new Pair<>(ingredient, tagPredicate));
+        this.key.put(symbol, new Pair<>(ingredient, compoundTagPredicate));
         return this;
     }
 
@@ -144,7 +137,7 @@ public class ShapedTagRecipeBuilder
     public void save(Consumer<FinishedRecipe> finishedRecipeConsumer, ResourceLocation recipeId) {
         this.ensureValid(recipeId);
         this.advancement.parent(ROOT_RECIPE_ADVANCEMENT).addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(recipeId)).rewards(AdvancementRewards.Builder.recipe(recipeId)).requirements(RequirementsStrategy.OR);
-        finishedRecipeConsumer.accept(new Result(recipeId, this.stackResult, this.count, null == this.group ? "" : this.group, ShapedTagRecipeBuilder.determineBookCategory(this.category), this.rows, this.key, this.advancement, recipeId.withPrefix("recipes/" + this.category.getFolderName() + "/"), this.showNotification));
+        finishedRecipeConsumer.accept(new Result(recipeId, this.stackResult, this.stackResult.getCount(), null == this.group ? "" : this.group, ShapedTagRecipeBuilder.determineBookCategory(this.category), this.rows, this.key, this.advancement, recipeId.withPrefix("recipes/" + this.category.getFolderName() + "/"), this.showNotification));
     }
 
     /**
@@ -180,20 +173,19 @@ public class ShapedTagRecipeBuilder
         @Getter
         private final ResourceLocation id;
         private final ItemStack result;
-        private final int count;
         private final String group;
         private final List<String> pattern;
-        private final Map<Character, Pair<Ingredient, TagPredicate>> key;
+        private final Map<Character, Pair<Ingredient, CompoundTagPredicate>> key;
         private final Advancement.Builder advancement;
         @Getter
         private final ResourceLocation advancementId;
         private final boolean showNotification;
 
-        public Result(ResourceLocation id, ItemStack result, int count, String group, CraftingBookCategory category, List<String> pattern, Map<Character, Pair<Ingredient, TagPredicate>> key, Advancement.Builder advancement, ResourceLocation advancementId, boolean showNotification) {
+        public Result(ResourceLocation id, ItemStack result, int count, String group, CraftingBookCategory category, List<String> pattern, Map<Character, Pair<Ingredient, CompoundTagPredicate>> key, Advancement.Builder advancement, ResourceLocation advancementId, boolean showNotification) {
             super(category);
             this.id = id;
             this.result = result;
-            this.count = count;
+            this.result.setCount(count);
             this.group = group;
             this.pattern = pattern;
             this.key = key;
@@ -214,6 +206,7 @@ public class ShapedTagRecipeBuilder
         }
 
         @Override
+        @SuppressWarnings("DuplicatedCode")
         public void serializeRecipeData(JsonObject json) {
             super.serializeRecipeData(json);
             if (!this.group.isEmpty()) {
@@ -225,7 +218,7 @@ public class ShapedTagRecipeBuilder
             }
             json.add("pattern", jsonArray);
             JsonObject jsonObject = new JsonObject();
-            for (Map.Entry<Character, Pair<Ingredient, TagPredicate>> entry : this.key.entrySet()) {
+            for (Map.Entry<Character, Pair<Ingredient, CompoundTagPredicate>> entry : this.key.entrySet()) {
                 JsonElement value = entry.getValue().getFirst().toJson();
                 jsonObject.add(String.valueOf(entry.getKey()), entry.getValue().getFirst().toJson());
                 if (value.isJsonObject()) {
@@ -234,13 +227,11 @@ public class ShapedTagRecipeBuilder
                 }
             }
             json.add("key", jsonObject);
-            JsonObject jsonObject2 = new JsonObject();
-            jsonObject2.addProperty("item", BuiltInRegistries.ITEM.getKey(this.result.getItem()).toString());
-            if (this.result.hasTag()) jsonObject2.addProperty("data", this.result.getOrCreateTag().toString());
-            if (this.count > 1) {
-                jsonObject2.addProperty("count", this.count);
-            }
-            json.add("result", jsonObject2);
+            JsonObject result = new JsonObject();
+            result.addProperty("item", BuiltInRegistries.ITEM.getKey(this.result.getItem()).toString());
+            if (this.result.hasTag()) result.addProperty("data", this.result.getOrCreateTag().toString());
+            if (this.result.getCount() > 1) result.addProperty("count", this.result.getCount());
+            json.add("result", result);
             json.addProperty("show_notification", this.showNotification);
         }
     }
