@@ -76,8 +76,8 @@ public class ModItems {
                 entries.accept(ModItems.BARK.getDefaultInstance());
                 entries.accept(ModItems.PULP.getDefaultInstance());
                 entries.accept(ModItems.SPONGE_GEMMULE.getDefaultInstance());
-                entries.accept(ModItems.COCOA_BUTTER.getDefaultInstance());
                 entries.accept(ModItems.COCOA_LIQUOR.getDefaultInstance());
+                entries.accept(ModItems.COCOA_BUTTER.getDefaultInstance());
                 entries.accept(ModItems.COCOA_POWDER.getDefaultInstance());
             });
     public static final Item MAGNET = registerItem("magnet", Item::new, defaultProperties());
@@ -136,8 +136,8 @@ public class ModItems {
     public static final Item PROTOCOL_REPAIR = registerItem("protocol_repair", Item::new, defaultProperties());
     public static final Item PROTOCOL_RESTOCK = registerItem("protocol_restock", Item::new, defaultProperties());
     public static final Item PROTOCOL_ABSORB = registerItem("protocol_absorb", Item::new, defaultProperties());
-    public static final Item COCOA_BUTTER = registerItem("cocoa_butter", Item::new, defaultProperties());
     public static final Item COCOA_LIQUOR = registerItem("cocoa_liquor", Item::new, defaultProperties());
+    public static final Item COCOA_BUTTER = registerItem("cocoa_butter", Item::new, defaultProperties());
     public static final Item COCOA_POWDER = registerItem("cocoa_powder", Item::new, defaultProperties());
     public static final Item GREASE = registerItem("grease", Item::new, defaultProperties());
     public static final Item CREAM = registerItem("cream", Item::new, defaultProperties());

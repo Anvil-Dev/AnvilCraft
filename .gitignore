@@ -111,6 +111,7 @@ gradle-app.setting
 
 **/build/
 **/generated/
+**/.cache/
 
 # Common working directory
 run/
