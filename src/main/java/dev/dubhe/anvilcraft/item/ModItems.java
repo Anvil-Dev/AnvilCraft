@@ -69,9 +69,9 @@ public class ModItems {
                 entries.accept(ModItems.ELYTRA_FRAME.getDefaultInstance());
                 entries.accept(ModItems.ELYTRA_MEMBRANE.getDefaultInstance());
                 entries.accept(ModItems.SEED_OF_THE_SEA.getDefaultInstance());
-                entries.accept(ModItems.TEAR_OF_THE_SEA.getDefaultInstance());
                 entries.accept(ModItems.FRUIT_OF_THE_SEA.getDefaultInstance());
                 entries.accept(ModItems.KERNEL_OF_THE_SEA.getDefaultInstance());
+                entries.accept(ModItems.TEAR_OF_THE_SEA.getDefaultInstance());
                 entries.accept(ModItems.BLADE_OF_THE_SEA.getDefaultInstance());
                 entries.accept(ModItems.BARK.getDefaultInstance());
                 entries.accept(ModItems.PULP.getDefaultInstance());
@@ -169,9 +169,9 @@ public class ModItems {
     public static final Item ELYTRA_FRAME = registerItem("elytra_frame", Item::new, defaultProperties());
     public static final Item ELYTRA_MEMBRANE = registerItem("elytra_membrane", Item::new, defaultProperties());
     public static final Item SEED_OF_THE_SEA = registerItem("seed_of_the_sea", Item::new, defaultProperties());
-    public static final Item TEAR_OF_THE_SEA = registerItem("tear_of_the_sea", Item::new, defaultProperties());
     public static final Item FRUIT_OF_THE_SEA = registerItem("fruit_of_the_sea", Item::new, defaultProperties());
     public static final Item KERNEL_OF_THE_SEA = registerItem("kernel_of_the_sea", Item::new, defaultProperties());
+    public static final Item TEAR_OF_THE_SEA = registerItem("tear_of_the_sea", Item::new, defaultProperties());
     public static final Item BLADE_OF_THE_SEA = registerItem("blade_of_the_sea", Item::new, defaultProperties());
     public static final Item BARK = registerItem("bark", Item::new, defaultProperties());
     public static final Item PULP = registerItem("pulp", Item::new, defaultProperties());

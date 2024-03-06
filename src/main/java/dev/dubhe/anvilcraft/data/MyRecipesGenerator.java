@@ -15,6 +15,7 @@ import net.minecraft.data.recipes.*;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import org.jetbrains.annotations.NotNull;
@@ -28,6 +29,7 @@ public class MyRecipesGenerator extends FabricRecipeProvider {
 
     @Override
     public void buildRecipes(Consumer<FinishedRecipe> exporter) {
+        // 工作台配方
         ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.FERRITE_CORE_MAGNET_BLOCK)
                 .pattern("AAA")
                 .pattern("ABA")
@@ -251,12 +253,17 @@ public class MyRecipesGenerator extends FabricRecipeProvider {
                 .unlockedBy(hasItem(Items.LILY_OF_THE_VALLEY), FabricRecipeProvider.has(Items.LILY_OF_THE_VALLEY))
                 .unlockedBy(hasItem(Items.WITHER_ROSE), FabricRecipeProvider.has(Items.WITHER_ROSE))
                 .save(exporter);
+        // 烹饪配方
         SimpleCookingRecipeBuilder.campfireCooking(Ingredient.of(ModItemTags.DOUGH), RecipeCategory.FOOD, Items.BREAD, 0.35f, 600)
                 .unlockedBy(hasItem(ModItems.DOUGH), FabricRecipeProvider.has(ModItems.DOUGH))
                 .save(exporter, AnvilCraft.of("campfire_cooking_bread"));
         SimpleCookingRecipeBuilder.smoking(Ingredient.of(ModItemTags.DOUGH), RecipeCategory.FOOD, Items.BREAD, 0.35f, 100)
                 .unlockedBy(hasItem(ModItems.DOUGH), FabricRecipeProvider.has(ModItems.DOUGH))
                 .save(exporter, AnvilCraft.of("smoking_bread"));
+        SimpleCookingRecipeBuilder.generic(Ingredient.of(ModItemTags.DOUGH), RecipeCategory.FOOD, Items.BREAD, 0.35f, 600, RecipeSerializer.SMOKING_RECIPE)
+                .unlockedBy(hasItem(ModItems.DOUGH), FabricRecipeProvider.has(ModItems.DOUGH))
+                .save(exporter, AnvilCraft.of("generic_cooking_bread"));
+        // 铁砧物品处理
         ItemAnvilRecipeBuilder.item(RecipeCategory.TOOLS, ModItems.INTERACT_MACHINE)
                 .requires(Items.ANVIL)
                 .requires(Items.DISPENSER)
@@ -266,6 +273,37 @@ public class MyRecipesGenerator extends FabricRecipeProvider {
                 .unlockedBy(hasItem(Items.ANVIL), FabricRecipeProvider.has(Items.ANVIL))
                 .unlockedBy(hasItem(Items.DISPENSER), FabricRecipeProvider.has(Items.DISPENSER))
                 .save(exporter);
+        // 粉碎
+        smash(ModItems.HOLLOW_MAGNET_BLOCK, ModItems.MAGNET_INGOT, 8, exporter);
+        smash(ModItems.MAGNET_BLOCK, ModItems.MAGNET_INGOT, 9, exporter);
+        smash(Items.NETHER_STAR, ModItems.NETHER_STAR_SHARD, 4, exporter);
+        smash(Items.HEART_OF_THE_SEA, ModItems.SEED_OF_THE_SEA, 4, exporter);
+        smash(Items.IRON_BLOCK, Items.IRON_INGOT, 9, exporter);
+        smash(Items.IRON_INGOT, Items.IRON_NUGGET, 9, exporter);
+        smash(Items.GOLD_BLOCK, Items.GOLD_INGOT, 9, exporter);
+        smash(Items.GOLD_INGOT, Items.GOLD_NUGGET, 9, exporter);
+        smash(Items.COPPER_BLOCK, Items.COPPER_INGOT, 9, exporter);
+        smash(Items.NETHERITE_BLOCK, Items.NETHERITE_INGOT, 9, exporter);
+        smash(Items.RAW_IRON_BLOCK, Items.RAW_IRON, 9, exporter);
+        smash(Items.RAW_GOLD_BLOCK, Items.RAW_GOLD, 9, exporter);
+        smash(Items.RAW_COPPER_BLOCK, Items.RAW_COPPER, 9, exporter);
+        smash(Items.REDSTONE_BLOCK, Items.REDSTONE, 9, exporter);
+        smash(Items.COAL_BLOCK, Items.COAL, 9, exporter);
+        smash(Items.LAPIS_BLOCK, Items.LAPIS_LAZULI, 9, exporter);
+        smash(Items.EMERALD_BLOCK, Items.EMERALD, 9, exporter);
+        smash(Items.DIAMOND_BLOCK, Items.DIAMOND, 9, exporter);
+        smash(Items.SLIME_BLOCK, Items.SLIME_BALL, 9, exporter);
+        smash(Items.MELON, Items.MELON_SLICE, 9, exporter);
+        smash(Items.HAY_BLOCK, Items.WHEAT, 9, exporter);
+        smash(Items.BONE_BLOCK, Items.BONE_MEAL, 9, exporter);
+        smash(Items.BONE, Items.BONE_MEAL, 3, exporter);
+        smash(Items.DRIED_KELP_BLOCK, Items.DRIED_KELP, 9, exporter);
+        smash(Items.SNOW_BLOCK, Items.SNOWBALL, 4, exporter);
+        smash(Items.CLAY, Items.CLAY_BALL, 4, exporter);
+        smash(Items.WHEAT, ModItems.FLOUR, 1, exporter);
+        smash(Items.BEEF, ModItems.MEAT_STUFFING, 2, exporter);
+        smash(Items.PORKCHOP, ModItems.MEAT_STUFFING, 2, exporter);
+        // 铁砧方块处理
         BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.ICE.defaultBlockState(), Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 1))
                 .component(Blocks.SNOW_BLOCK)
                 .component(Blocks.CAULDRON)
@@ -281,6 +319,16 @@ public class MyRecipesGenerator extends FabricRecipeProvider {
                 .component(Component.of(Component.Value.of(Blocks.WATER_CAULDRON).with("level", 2)))
                 .unlockedBy(hasItem(Items.SNOW), FabricRecipeProvider.has(Items.SNOW))
                 .save(exporter, AnvilCraft.of("snow_2_water_cauldron_3"));
+    }
+
+    public static void smash(Item item, Item result, int count, Consumer<FinishedRecipe> exporter) {
+        ItemAnvilRecipeBuilder.item(RecipeCategory.MISC, result, count)
+                .requires(item)
+                .component(Blocks.IRON_TRAPDOOR)
+                .location(ItemAnvilRecipe.Location.UP)
+                .resultLocation(ItemAnvilRecipe.Location.IN)
+                .unlockedBy(hasItem(item), FabricRecipeProvider.has(item))
+                .save(exporter, AnvilCraft.of("%s_smash_2_%s".formatted(BuiltInRegistries.ITEM.getKey(item).getPath(), BuiltInRegistries.ITEM.getKey(result).getPath())));
     }
 
     public static @NotNull String hasItem(@NotNull Item item) {
