@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -22,8 +23,9 @@ public class EventManager {
     }
 
     @SuppressWarnings("all")
-    public <E> void post(E event) {
-        List<Consumer<?>> triggers = EVENT_LISTENER.getOrDefault(event.getClass(), new Vector<>());
+    public <E> void post(@NotNull E event) {
+        List<Consumer<?>> triggers = new ArrayList<>();
+        EVENT_LISTENER.entrySet().stream().filter((k) -> event.getClass().isAssignableFrom(k.getKey())).map(Map.Entry::getValue).forEach(triggers::addAll);
         for (Consumer<?> trigger : triggers) {
             ((Consumer<E>) trigger).accept(event);
         }

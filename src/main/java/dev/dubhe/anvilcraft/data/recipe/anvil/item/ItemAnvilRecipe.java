@@ -93,7 +93,7 @@ public class ItemAnvilRecipe implements Recipe<AnvilCraftingContainer> {
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean craft(@NotNull AnvilCraftingContainer container, Level level) {
-        if (this.matches(container, level)) return false;
+        if (!this.matches(container, level)) return false;
         BlockPos pos = new BlockPos(container.pos());
         if (this.location == Location.IN) pos = pos.below();
         if (this.location == Location.UNDER) pos = pos.below(2);

@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.command.ModCommands;
 import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
 import dev.dubhe.anvilcraft.data.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.event.listener.AnvilEventListener;
+import dev.dubhe.anvilcraft.event.listener.LightningEventListener;
 import dev.dubhe.anvilcraft.item.ModItems;
 import dev.dubhe.anvilcraft.log.Logger;
 import net.fabricmc.api.ModInitializer;
@@ -43,6 +44,7 @@ public class AnvilCraft implements ModInitializer {
     @Override
     public void onInitialize() {
         AnvilCraft.EVENT_BUS.register(new AnvilEventListener());
+        AnvilCraft.EVENT_BUS.register(new LightningEventListener());
         for (Map.Entry<String, Block> entry : ModBlocks.BLOCK_MAP.entrySet()) {
             Registry.register(BuiltInRegistries.BLOCK, AnvilCraft.of(entry.getKey()), entry.getValue());
         }

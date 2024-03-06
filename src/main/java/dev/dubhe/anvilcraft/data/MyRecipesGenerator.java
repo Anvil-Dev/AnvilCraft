@@ -273,12 +273,12 @@ public class MyRecipesGenerator extends FabricRecipeProvider {
                 .save(exporter, AnvilCraft.of("snow_2_water_cauldron_1"));
         BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.ICE.defaultBlockState(), Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 2))
                 .component(Blocks.SNOW_BLOCK)
-                .component(Component.of(Blocks.WATER_CAULDRON).withState("level", 1))
+                .component(Component.of(Component.Value.of(Blocks.WATER_CAULDRON).with("level", 1)))
                 .unlockedBy(hasItem(Items.SNOW), FabricRecipeProvider.has(Items.SNOW))
                 .save(exporter, AnvilCraft.of("snow_2_water_cauldron_2"));
         BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.ICE.defaultBlockState(), Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3))
                 .component(Blocks.SNOW_BLOCK)
-                .component(Component.of(Blocks.WATER_CAULDRON).withState("level", 2))
+                .component(Component.of(Component.Value.of(Blocks.WATER_CAULDRON).with("level", 2)))
                 .unlockedBy(hasItem(Items.SNOW), FabricRecipeProvider.has(Items.SNOW))
                 .save(exporter, AnvilCraft.of("snow_2_water_cauldron_3"));
     }

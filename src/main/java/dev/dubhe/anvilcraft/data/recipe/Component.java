@@ -1,9 +1,8 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
-import com.google.common.collect.Lists;
 import com.google.gson.*;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import net.minecraft.core.Holder;
+import dev.dubhe.anvilcraft.util.Serializable;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
@@ -18,264 +17,314 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-@SuppressWarnings("unused")
-public class Component implements Predicate<BlockState> {
+public class Component implements Predicate<BlockState>, Serializable {
     public static final Component EMPTY = new Component(Stream.empty());
-    private final Block[] values;
-    private final List<TagKey<Block>> tags;
-    private Collection<Block> blocks = null;
-    private String[] stringTags = null;
-    private final Map<String, Comparable<?>> states = new HashMap<>();
+    private final List<Value<?>> values;
 
-    public Component(@NotNull Stream<? extends Block> values) {
-        this(values, new ArrayList<>());
-    }
-
-    public Component(List<TagKey<Block>> tags) {
-        this(Stream.of(), tags);
-    }
-
-    public Component(@NotNull Stream<? extends Block> values, List<TagKey<Block>> tags) {
-        this.values = values.toArray(Block[]::new);
-        this.tags = tags;
+    public Component(@NotNull Stream<Value<?>> values) {
+        this.values = values.toList();
     }
 
     public static @NotNull Component of() {
         return Component.EMPTY;
     }
 
-    public static @NotNull Component of(Block... components) {
-        return of(Arrays.stream(components));
+    public static @NotNull Component of(Block... blocks) {
+        return new Component(Arrays.stream(blocks).map(Value::of));
     }
 
-    public static @NotNull Component of(@NotNull Stream<Block> components) {
-        return fromValues(components.filter((component) -> !component.defaultBlockState().isAir()));
+    public static @NotNull Component ofBlocks(Stream<Block> blocks) {
+        return new Component(blocks.map(Value::of));
+    }
+
+    public static @NotNull Component of(BlockState... states) {
+        return Component.ofStates(Arrays.stream(states));
+    }
+
+    public static @NotNull Component ofStates(@NotNull Stream<BlockState> states) {
+        Stream<Value<?>> values = states.map(state -> {
+            Block block = state.getBlock();
+            Value<?> value = Value.of(block);
+            state.getValues().forEach((k, v) -> value.with(k.getName(), v));
+            return value;
+        });
+        return new Component(values);
+    }
+
+    public static @NotNull Component of(Value<?>... values) {
+        return new Component(Arrays.stream(values));
+    }
+
+    public static @NotNull Component of(@NotNull Stream<Value<?>> values) {
+        return new Component(values);
     }
 
     @SafeVarargs
     public static @NotNull Component of(TagKey<Block>... tags) {
-        return new Component(Arrays.stream(tags).toList());
-    }
-
-    public static @NotNull Component of(List<TagKey<Block>> tags) {
-        return new Component(tags);
-    }
-
-    @SuppressWarnings("UnusedReturnValue")
-    public Component withState(String key, Comparable<?> value) {
-        this.states.put(key, value);
-        return this;
-    }
-
-    public static Component fromJson(JsonElement json) {
-        if (null == json || json.isJsonNull()) {
-            throw new JsonSyntaxException("Item cannot be null");
-        }
-        if (json.isJsonObject()) return fromJsonObj(json.getAsJsonObject());
-        if (json.isJsonArray()) {
-            JsonArray array = json.getAsJsonArray();
-            List<Block> blocks = new ArrayList<>();
-            List<TagKey<Block>> tags = new ArrayList<>();
-            Map<String, Comparable<?>> states = new HashMap<>();
-            for (JsonElement element : array) {
-                if (element.isJsonObject()) {
-                    JsonObject object = element.getAsJsonObject();
-                    if (!object.has("block")) continue;
-                    JsonElement data = object.get("block");
-                    if (!data.isJsonPrimitive()) throw new JsonSyntaxException("Expected item to be string");
-                    String id = data.getAsString();
-                    if (!id.startsWith("#"))
-                        blocks.add(BuiltInRegistries.BLOCK.get(new ResourceLocation(data.getAsString())));
-                    else tags.add(TagKey.create(Registries.BLOCK, new ResourceLocation(id.substring(1))));
-                    if (!object.has("state")) continue;
-                    JsonElement state = object.get("state");
-                    if (!state.isJsonObject()) throw new JsonSyntaxException("Expected item to be object");
-                    JsonObject object1 = state.getAsJsonObject();
-                    for (Map.Entry<String, JsonElement> entry : object1.entrySet()) {
-                        Object obj = getObject(entry);
-                        if (obj instanceof Comparable<?> comparable) states.put(entry.getKey(), comparable);
-                    }
-                }
-            }
-            Component component = new Component(blocks.stream(), tags);
-            states.forEach(component::withState);
-            return component;
-        }
-        throw new JsonSyntaxException("Expected item to be object or array of objects");
-    }
-
-    private static Component fromJsonObj(@NotNull JsonObject object) {
-        boolean hasBlock = object.has("block");
-        boolean hasState = object.has("state");
-        if (!hasBlock && !hasState) return Component.EMPTY;
-        Component component;
-        if (hasBlock) {
-            Block block = null;
-            TagKey<Block> tag = null;
-            JsonElement data = object.get("block");
-            if (!data.isJsonPrimitive()) throw new JsonSyntaxException("Expected item to be string");
-            String id = data.getAsString();
-            if (!id.startsWith("#"))
-                block = BuiltInRegistries.BLOCK.get(new ResourceLocation(data.getAsString()));
-            else tag = TagKey.create(Registries.BLOCK, new ResourceLocation(id.substring(1)));
-            component = null != block ? Component.of(block) : Component.of(tag);
-        } else component = Component.of();
-        if (!hasState) return component;
-        JsonElement data = object.get("state");
-        if (!data.isJsonObject()) throw new JsonSyntaxException("Expected item to be object");
-        JsonObject jsonObject = data.getAsJsonObject();
-        for (Map.Entry<String, JsonElement> element : jsonObject.entrySet()) {
-            Object obj = getObject(element);
-            if (obj instanceof Comparable<?> comparable) component.withState(element.getKey(), comparable);
-        }
-        return component;
-    }
-
-    @Nullable
-    private static Object getObject(Map.@NotNull Entry<String, JsonElement> element) {
-        if (!element.getValue().isJsonPrimitive())
-            throw new JsonSyntaxException("Expected item to be primitive");
-        JsonPrimitive primitive = element.getValue().getAsJsonPrimitive();
-        Object obj = null;
-        if (primitive.isString()) {
-            obj = primitive.getAsString();
-        } else if (primitive.isBoolean()) {
-            obj = primitive.getAsBoolean();
-        } else if (primitive.isNumber()) {
-            Number number = primitive.getAsNumber();
-            if (number instanceof Long || number instanceof Integer || number instanceof Short || number instanceof Byte) {
-                obj = primitive.getAsLong();
-            } else obj = primitive.getAsDouble();
-        }
-        return obj;
-    }
-
-    @SuppressWarnings("DuplicatedCode")
-    private @NotNull JsonObject stateToJson() {
-        JsonObject state = new JsonObject();
-        for (Map.Entry<String, Comparable<?>> entry : this.states.entrySet()) {
-            String key = entry.getKey();
-            Comparable<?> comparable = entry.getValue();
-            if (comparable instanceof String obj) {
-                state.addProperty(key, obj);
-            } else if (comparable instanceof Boolean obj) {
-                state.addProperty(key, obj);
-            } else if (comparable instanceof Number obj) {
-                state.addProperty(key, obj);
-            } else if (comparable instanceof Character obj) {
-                state.addProperty(key, obj);
-            }
-        }
-        return state;
-    }
-
-    public JsonElement toJson() {
-        if (this.tags.size() + this.values.length == 1) {
-            JsonObject object = new JsonObject();
-            if (this.tags.isEmpty())
-                object.addProperty("block", BuiltInRegistries.BLOCK.getKey(this.values[0]).toString());
-            else object.addProperty("block", "#" + this.tags.get(0).location());
-            if (!this.states.isEmpty()) object.add("state", this.stateToJson());
-            return object;
-        }
-        JsonArray array = new JsonArray();
-        for (TagKey<Block> tag : this.tags) {
-            JsonObject object = new JsonObject();
-            object.addProperty("block", "#" + tag.location());
-            if (!this.states.isEmpty()) object.add("state", this.stateToJson());
-            array.add(object);
-        }
-        for (Block value : values) {
-            JsonObject object = new JsonObject();
-            object.addProperty("block", BuiltInRegistries.BLOCK.getKey(value).toString());
-            if (!this.states.isEmpty()) object.add("state", this.stateToJson());
-            array.add(object);
-        }
-        return array;
-    }
-
-    public static @NotNull Component fromNetwork(@NotNull FriendlyByteBuf buffer) {
-        return Component.fromValues(buffer.readList(FriendlyByteBuf::readUtf).stream().map(Component::parseBlock));
-    }
-
-    public void toNetwork(@NotNull FriendlyByteBuf buffer) {
-        buffer.writeCollection(Arrays.asList(this.getStringTags()), FriendlyByteBuf::writeUtf);
-    }
-
-    public static @NotNull Block parseBlock(String id) {
-        return BuiltInRegistries.BLOCK.get(new ResourceLocation(id));
-    }
-
-    public String[] getStringTags() {
-        if (null == this.stringTags) {
-            this.stringTags = this.getBlocks()
-                    .stream()
-                    .map(BuiltInRegistries.BLOCK::getKey)
-                    .map(ResourceLocation::toString)
-                    .distinct()
-                    .toArray(String[]::new);
-        }
-        return this.stringTags;
-    }
-
-    public Collection<Block> getBlocks() {
-        if (this.blocks != null) return this.blocks;
-        List<Block> list = Lists.newArrayList(values);
-        for (TagKey<Block> tag : this.tags) {
-            if (null != tag) for (Holder<Block> blockHolder : BuiltInRegistries.BLOCK.getTagOrEmpty(tag)) {
-                list.add(blockHolder.value());
-            }
-        }
-        this.blocks = list;
-        return list;
-    }
-
-    private static Component fromValues(Stream<? extends Block> stream) {
-        Component ingredient = new Component(stream);
-        return ingredient.isEmpty() ? EMPTY : ingredient;
-    }
-
-    public boolean isEmpty() {
-        return this.tags.isEmpty() && this.values.length == 0;
+        return new Component(Arrays.stream(tags).map(Value::of));
     }
 
     @Override
-    @SuppressWarnings("all")
     public boolean test(BlockState state) {
-        boolean hasBlock = false;
-        for (TagKey<Block> tag : this.tags) {
-            if (state.is(tag)) hasBlock = true;
+        for (Value<?> value : this.values) {
+            if (value.test(state)) return true;
         }
-        if (this.isEmpty() || Arrays.stream(this.values).toList().contains(state.getBlock())) hasBlock = true;
-        if (this.states.isEmpty()) return hasBlock;
-        boolean checkStates = true;
-        Map<String, Comparable<?>> states = new HashMap<>() {{
-            state.getValues().forEach((key, value) -> this.put(key.getName(), value));
-        }};
-        for (Map.Entry<String, Comparable<?>> entry1 : this.states.entrySet()) {
-            String key = entry1.getKey();
-            if (!states.containsKey(key)) {
-                checkStates = false;
-                break;
+        return false;
+    }
+
+    @Override
+    public void toNetwork(@NotNull FriendlyByteBuf buffer) {
+        buffer.writeVarInt(this.values.size());
+        values.forEach(value -> value.toNetwork(buffer));
+    }
+
+    public static Component fromNetwork(@NotNull FriendlyByteBuf buffer) {
+        int size = buffer.readVarInt();
+        List<Value<?>> values = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            values.add(Value.fromNetwork(buffer));
+        }
+        return Component.of(values.stream());
+    }
+
+    @Override
+    public @NotNull JsonElement toJson() {
+        if (this.values.size() == 1) return this.values.get(0).toJson();
+        JsonArray array = new JsonArray();
+        this.values.forEach(value -> array.add(value.toJson()));
+        return array;
+    }
+
+    public static Component fromJson(@NotNull JsonElement element) {
+        if (element.isJsonObject()) return Component.of(Value.fromJson(element));
+        if (element.isJsonArray()) {
+            JsonArray array = element.getAsJsonArray();
+            List<Value<?>> values = new ArrayList<>();
+            array.forEach(value -> values.add(Value.fromJson(value)));
+            return Component.of(values.stream());
+        }
+        return Component.of();
+    }
+
+    public static class TagValue extends Value<TagKey<Block>> {
+        private TagValue(TagKey<Block> tag) {
+            super(tag);
+        }
+
+        @Override
+        public boolean test(@NotNull BlockState state) {
+            return state.is(this.block) && super.test(state);
+        }
+
+        @Override
+        public void toNetwork(@NotNull FriendlyByteBuf buffer) {
+            buffer.writeUtf("#%s".formatted(this.block.location().toString()));
+            super.toNetwork(buffer);
+        }
+
+        @Override
+        public @NotNull JsonElement toJson() {
+            JsonObject object = super.toJson().getAsJsonObject();
+            object.addProperty("block", "#%s".formatted(this.block.location().toString()));
+            return object;
+        }
+    }
+
+    public static class BlockValue extends Value<Block> {
+        private BlockValue(Block block) {
+            super(block);
+        }
+
+        @Override
+        public boolean test(@NotNull BlockState state) {
+            return state.is(this.block) && super.test(state);
+        }
+
+        @Override
+        public void toNetwork(@NotNull FriendlyByteBuf buffer) {
+            buffer.writeUtf(BuiltInRegistries.BLOCK.getKey(this.block).toString());
+            super.toNetwork(buffer);
+        }
+
+        @Override
+        public @NotNull JsonElement toJson() {
+            JsonObject object = super.toJson().getAsJsonObject();
+            object.addProperty("block", BuiltInRegistries.BLOCK.getKey(this.block).toString());
+            return object;
+        }
+    }
+
+    public abstract static class Value<T> implements Predicate<BlockState>, Serializable {
+        protected final T block;
+        protected final Map<String, Comparable<?>> states = new HashMap<>();
+
+        protected Value(T block) {
+            this.block = block;
+        }
+
+        public static @NotNull Value<?> of(Block block) {
+            return new BlockValue(block);
+        }
+
+        public static @NotNull Value<?> of(TagKey<Block> block) {
+            return new TagValue(block);
+        }
+
+        @SuppressWarnings("UnusedReturnValue")
+        public Value<?> with(String key, Comparable<?> value) {
+            this.states.put(key, value);
+            return this;
+        }
+
+        public static @NotNull Value<?> fromJson(@NotNull JsonElement element) {
+            if (!element.isJsonObject()) throw new JsonSyntaxException("Expected item to be object");
+            JsonObject object = element.getAsJsonObject();
+            if (!object.has("block")) throw new JsonSyntaxException("Missing block element");
+            JsonElement element1 = object.get("block");
+            if (!element1.isJsonPrimitive()) throw new JsonSyntaxException("Expected item to be string");
+            String id = element1.getAsString();
+            Value<?> value;
+            if (!id.startsWith("#"))
+                value = new BlockValue(BuiltInRegistries.BLOCK.get(new ResourceLocation(id)));
+            else value = new TagValue(TagKey.create(Registries.BLOCK, new ResourceLocation(id.substring(1))));
+            value.states.putAll(Value.statesFromJson(element));
+            return value;
+        }
+
+        public static @NotNull Map<String, Comparable<?>> statesFromJson(@NotNull JsonElement element) {
+            Map<String, Comparable<?>> map = new HashMap<>();
+            if (!element.isJsonObject()) throw new JsonSyntaxException("Expected item to be object");
+            JsonObject object = element.getAsJsonObject();
+            if (!object.has("state")) return map;
+            element = object.get("state");
+            if (!element.isJsonObject()) throw new JsonSyntaxException("Expected item to be object");
+            object = element.getAsJsonObject();
+            for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
+                String key = entry.getKey();
+                Object obj = Value.getObject(entry.getValue());
+                if (obj instanceof Comparable<?> value) map.put(key, value);
             }
-            Comparable<?> value1 = entry1.getValue();
-            Comparable<?> value2 = states.get(key);
-            if (value1 instanceof Number number1 && value2 instanceof Number number2) {
-                double double1 = number1.doubleValue();
-                double double2 = number2.doubleValue();
-                if (double1 != double2) {
+            return map;
+        }
+
+        public @NotNull JsonElement toJson() {
+            JsonObject object = new JsonObject();
+            if (this.states.isEmpty()) return object;
+            JsonObject state = new JsonObject();
+            for (Map.Entry<String, Comparable<?>> entry : this.states.entrySet()) {
+                String key = entry.getKey();
+                Comparable<?> comparable = entry.getValue();
+                if (comparable instanceof String obj) {
+                    state.addProperty(key, obj);
+                } else if (comparable instanceof Boolean obj) {
+                    state.addProperty(key, obj);
+                } else if (comparable instanceof Number obj) {
+                    state.addProperty(key, obj);
+                } else if (comparable instanceof Character obj) {
+                    state.addProperty(key, obj);
+                }
+            }
+            object.add("state", state);
+            return object;
+        }
+
+        public static @NotNull Value<?> fromNetwork(@NotNull FriendlyByteBuf buffer) {
+            String id = buffer.readUtf();
+            Value<?> value;
+            if (!id.startsWith("#"))
+                value = new BlockValue(BuiltInRegistries.BLOCK.get(new ResourceLocation(id)));
+            else value = new TagValue(TagKey.create(Registries.BLOCK, new ResourceLocation(id.substring(1))));
+            value.states.putAll(Value.statesFromNetwork(buffer));
+            return value;
+        }
+
+        public static @NotNull Map<String, Comparable<?>> statesFromNetwork(@NotNull FriendlyByteBuf buffer) {
+            Map<String, Comparable<?>> map = new HashMap<>();
+            String string = buffer.readUtf();
+            String[] strings = string.substring(1, string.length() - 2).split(", ");
+            for (String str : strings) {
+                String[] strings1 = str.split("=");
+                if (strings1.length != 2) continue;
+                String key = strings1[0];
+                String valueStr = strings1[1];
+                Object object = valueStr;
+                try {
+                    object = Long.valueOf(valueStr);
+                } catch (NumberFormatException ignored) {
+                    try {
+                        object = Double.valueOf(valueStr);
+                    } catch (NumberFormatException _ignored) {
+                        if ("true".equals(valueStr)) object = true;
+                        else if ("false".equals(valueStr)) object = false;
+                    }
+                }
+                if (object instanceof Comparable<?> value) map.put(key, value);
+            }
+            return map;
+        }
+
+        public void toNetwork(@NotNull FriendlyByteBuf buffer) {
+            StringBuilder builder = new StringBuilder("[");
+            Iterator<Map.Entry<String, Comparable<?>>> iterator = this.states.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<String, Comparable<?>> entry = iterator.next();
+                builder.append("%s=%s".formatted(entry.getKey(), entry.getValue()));
+                if (iterator.hasNext()) builder.append(", ");
+            }
+            builder.append("]");
+            buffer.writeUtf(builder.toString());
+        }
+
+        @Nullable
+        private static Object getObject(@NotNull JsonElement element) {
+            if (!element.isJsonPrimitive())
+                throw new JsonSyntaxException("Expected item to be primitive");
+            JsonPrimitive primitive = element.getAsJsonPrimitive();
+            Object obj = null;
+            if (primitive.isString()) {
+                obj = primitive.getAsString();
+            } else if (primitive.isBoolean()) {
+                obj = primitive.getAsBoolean();
+            } else if (primitive.isNumber()) {
+                Number number = primitive.getAsNumber();
+                if (number instanceof Long || number instanceof Integer || number instanceof Short || number instanceof Byte) {
+                    obj = primitive.getAsLong();
+                } else obj = primitive.getAsDouble();
+            }
+            return obj;
+        }
+
+        @Override
+        public boolean test(@NotNull BlockState state) {
+            boolean checkStates = true;
+            Map<String, Comparable<?>> states = new HashMap<>() {{
+                state.getValues().forEach((key, value) -> this.put(key.getName(), value));
+            }};
+            for (Map.Entry<String, Comparable<?>> entry1 : this.states.entrySet()) {
+                String key = entry1.getKey();
+                if (!states.containsKey(key)) {
                     checkStates = false;
                     break;
                 }
-            } else try {
-                if (((Comparable) value1).compareTo(value2) != 0) {
-                    checkStates = false;
-                    break;
+                Comparable<?> value1 = entry1.getValue();
+                Comparable<?> value2 = states.get(key);
+                if (value1 instanceof Number number1 && value2 instanceof Number number2) {
+                    double double1 = number1.doubleValue();
+                    double double2 = number2.doubleValue();
+                    if (double1 != double2) {
+                        checkStates = false;
+                        break;
+                    }
+                } else try {
+                    if (value1.equals(value2)) {
+                        checkStates = false;
+                        break;
+                    }
+                } catch (Exception e) {
+                    AnvilCraft.LOGGER.printStackTrace(e);
                 }
-            } catch (Exception e) {
-                AnvilCraft.LOGGER.printStackTrace(e);
             }
+            return checkStates;
         }
-        return hasBlock && checkStates;
     }
 }
