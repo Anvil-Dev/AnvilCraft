@@ -1,10 +1,11 @@
 package dev.dubhe.anvilcraft.data.recipe.anvil.item;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mojang.datafixers.util.Pair;
 import dev.dubhe.anvilcraft.data.recipe.Component;
-import dev.dubhe.anvilcraft.data.recipe.CompoundTagPredicate;
 import dev.dubhe.anvilcraft.data.recipe.RecipeSerializerBase;
+import dev.dubhe.anvilcraft.data.recipe.TagIngredient;
 import dev.dubhe.anvilcraft.inventory.AnvilCraftingContainer;
 import dev.dubhe.anvilcraft.util.INonNullListInjector;
 import lombok.Getter;
@@ -17,7 +18,6 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -27,35 +27,24 @@ import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+@Getter
 public class ItemAnvilRecipe implements Recipe<AnvilCraftingContainer> {
-    @Getter
     private final ResourceLocation id;
-    @Getter
-    private final NonNullList<Ingredient> recipeItems;
-    @Getter
-    final NonNullList<CompoundTagPredicate> compoundTagPredicates;
-    @Getter
+    private final NonNullList<TagIngredient> recipeItems;
     private final Location location;
-    @Getter
     private final NonNullList<Component> components;
-    private final ItemStack result;
-    @Getter
+    private final List<ItemStack> results;
     private final Location resultLocation;
-    @Getter
     private final boolean isAnvilDamage;
 
-    public ItemAnvilRecipe(ResourceLocation id, NonNullList<Ingredient> recipeItems, NonNullList<CompoundTagPredicate> compoundTagPredicates, Location location, NonNullList<Component> components, ItemStack result, Location resultLocation, boolean isAnvilDamage) {
+    public ItemAnvilRecipe(ResourceLocation id, NonNullList<TagIngredient> recipeItems, Location location, NonNullList<Component> components, List<ItemStack> results, Location resultLocation, boolean isAnvilDamage) {
         this.id = id;
         this.recipeItems = recipeItems;
-        this.compoundTagPredicates = compoundTagPredicates;
         this.location = location;
         this.components = components;
-        this.result = result;
+        this.results = results;
         this.resultLocation = resultLocation;
         this.isAnvilDamage = isAnvilDamage;
     }
@@ -74,21 +63,17 @@ public class ItemAnvilRecipe implements Recipe<AnvilCraftingContainer> {
         AABB aabb = new AABB(pos);
         List<ItemEntity> itemEntities = level.getEntities(EntityTypeTest.forClass(ItemEntity.class), aabb, Entity::isAlive);
         List<ItemStack> itemStacks = itemEntities.stream().map(ItemEntity::getItem).map(ItemStack::copy).toList();
-        NonNullList<Ingredient> recipeItems = INonNullListInjector.copy(this.recipeItems);
-        NonNullList<CompoundTagPredicate> compoundTagPredicates = INonNullListInjector.copy(this.compoundTagPredicates);
-        Iterator<Ingredient> iterator1 = recipeItems.iterator();
-        Iterator<CompoundTagPredicate> iterator2 = compoundTagPredicates.iterator();
-        while (iterator1.hasNext() && iterator2.hasNext()) {
-            Ingredient ingredient = iterator1.next();
-            CompoundTagPredicate compoundTagPredicate = iterator2.next();
+        NonNullList<TagIngredient> recipeItems = INonNullListInjector.copy(this.recipeItems);
+        Iterator<TagIngredient> iterator1 = recipeItems.iterator();
+        while (iterator1.hasNext()) {
+            TagIngredient ingredient = iterator1.next();
             for (ItemStack itemStack : itemStacks) {
-                if (!ingredient.test(itemStack) || !compoundTagPredicate.test(itemStack.getOrCreateTag())) continue;
+                if (!ingredient.test(itemStack)) continue;
                 iterator1.remove();
-                iterator2.remove();
                 itemStack.setCount(itemStack.getCount() - 1);
             }
         }
-        return recipeItems.isEmpty() && compoundTagPredicates.isEmpty();
+        return recipeItems.isEmpty();
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
@@ -102,17 +87,13 @@ public class ItemAnvilRecipe implements Recipe<AnvilCraftingContainer> {
         for (ItemEntity itemEntity : itemEntities) {
             itemStackMap.put(itemEntity.getItem(), itemEntity);
         }
-        NonNullList<Ingredient> recipeItems = INonNullListInjector.copy(this.recipeItems);
-        NonNullList<CompoundTagPredicate> compoundTagPredicates = INonNullListInjector.copy(this.compoundTagPredicates);
-        Iterator<Ingredient> iterator1 = recipeItems.iterator();
-        Iterator<CompoundTagPredicate> iterator2 = compoundTagPredicates.iterator();
-        while (iterator1.hasNext() && iterator2.hasNext()) {
-            Ingredient ingredient = iterator1.next();
-            CompoundTagPredicate compoundTagPredicate = iterator2.next();
+        NonNullList<TagIngredient> recipeItems = INonNullListInjector.copy(this.recipeItems);
+        Iterator<TagIngredient> iterator1 = recipeItems.iterator();
+        while (iterator1.hasNext()) {
+            TagIngredient ingredient = iterator1.next();
             for (ItemStack itemStack : itemStackMap.keySet()) {
-                if (!ingredient.test(itemStack) || !compoundTagPredicate.test(itemStack.getOrCreateTag())) continue;
+                if (!ingredient.test(itemStack)) continue;
                 iterator1.remove();
-                iterator2.remove();
                 itemStack.setCount(itemStack.getCount() - 1);
                 itemStackMap.get(itemStack).setItem(itemStack);
             }
@@ -132,7 +113,7 @@ public class ItemAnvilRecipe implements Recipe<AnvilCraftingContainer> {
 
     @Override
     public @NotNull ItemStack getResultItem(RegistryAccess registryAccess) {
-        return this.result;
+        return this.results.isEmpty() ? ItemStack.EMPTY : this.results.get(0);
     }
 
     @Override
@@ -145,8 +126,7 @@ public class ItemAnvilRecipe implements Recipe<AnvilCraftingContainer> {
         return Type.INSTANCE;
     }
 
-    @Override
-    public @NotNull NonNullList<Ingredient> getIngredients() {
+    public @NotNull NonNullList<TagIngredient> getTagIngredients() {
         return this.recipeItems;
     }
 
@@ -165,46 +145,51 @@ public class ItemAnvilRecipe implements Recipe<AnvilCraftingContainer> {
 
         @Override
         public @NotNull ItemAnvilRecipe fromJson(ResourceLocation id, JsonObject json) {
-            Pair<NonNullList<Ingredient>, NonNullList<CompoundTagPredicate>> input = shapelessFromJson(GsonHelper.getAsJsonArray(json, "ingredients"));
+            NonNullList<TagIngredient> input = shapelessFromJson(GsonHelper.getAsJsonArray(json, "ingredients"));
             Location location = !json.has("location") ? Location.UP : Location.byId(json.get("location").getAsString());
             NonNullList<Component> components = componentsFromJson(GsonHelper.getAsJsonArray(json, "components"));
-            ItemStack result = itemStackFromJson(GsonHelper.getAsJsonObject(json, "result"));
+            JsonArray array = GsonHelper.getAsJsonArray(json, "results");
+            List<ItemStack> results = new ArrayList<>();
+            for (JsonElement element : array) {
+                results.add(itemStackFromJson(element));
+            }
             Location resultLocation = !json.has("result_location") ? Location.UP : Location.byId(json.get("result_location").getAsString());
             boolean isAnvilDamage = json.has("is_anvil_damage") && json.get("is_anvil_damage").getAsBoolean();
-            return new ItemAnvilRecipe(id, input.getFirst(), input.getSecond(), location, components, result, resultLocation, isAnvilDamage);
+            return new ItemAnvilRecipe(id, input, location, components, results, resultLocation, isAnvilDamage);
         }
 
         @Override
-        public @NotNull ItemAnvilRecipe fromNetwork(ResourceLocation id, FriendlyByteBuf buffer) {
-            NonNullList<Ingredient> ingredients = NonNullList.withSize(buffer.readVarInt(), Ingredient.EMPTY);
-            ingredients.replaceAll(ignored -> Ingredient.fromNetwork(buffer));
-            NonNullList<CompoundTagPredicate> compoundTagPredicates = NonNullList.withSize(buffer.readVarInt(), CompoundTagPredicate.EMPTY);
-            compoundTagPredicates.replaceAll(ignored -> CompoundTagPredicate.fromNetwork(buffer));
+        public @NotNull ItemAnvilRecipe fromNetwork(ResourceLocation id, @NotNull FriendlyByteBuf buffer) {
+            NonNullList<TagIngredient> ingredients = NonNullList.withSize(buffer.readVarInt(), TagIngredient.EMPTY);
+            ingredients.replaceAll(ignored -> TagIngredient.fromNetwork(buffer));
             NonNullList<Component> components = NonNullList.withSize(buffer.readVarInt(), Component.EMPTY);
             components.replaceAll(ignored -> Component.fromNetwork(buffer));
             Location location = buffer.readEnum(Location.class);
-            ItemStack result = buffer.readItem();
+            List<ItemStack> results = new ArrayList<>();
+            int size = buffer.readVarInt();
+            for (int i = 0; i < size; i++) {
+                results.add(buffer.readItem());
+            }
             Location resultLocation = buffer.readEnum(Location.class);
             boolean isAnvilDamage = buffer.readBoolean();
-            return new ItemAnvilRecipe(id, ingredients, compoundTagPredicates, location, components, result, resultLocation, isAnvilDamage);
+            return new ItemAnvilRecipe(id, ingredients, location, components, results, resultLocation, isAnvilDamage);
         }
 
         @Override
         public void toNetwork(@NotNull FriendlyByteBuf buffer, @NotNull ItemAnvilRecipe recipe) {
-            buffer.writeVarInt(recipe.getIngredients().size());
-            for (Ingredient ingredient : recipe.getIngredients()) {
+            buffer.writeVarInt(recipe.getTagIngredients().size());
+            for (TagIngredient ingredient : recipe.getTagIngredients()) {
                 ingredient.toNetwork(buffer);
-            }
-            buffer.writeVarInt(recipe.getCompoundTagPredicates().size());
-            for (CompoundTagPredicate predicate : recipe.getCompoundTagPredicates()) {
-                predicate.toNetwork(buffer);
             }
             buffer.writeVarInt(recipe.getComponents().size());
             for (Component component : recipe.getComponents()) {
                 component.toNetwork(buffer);
             }
             buffer.writeEnum(recipe.location);
-            buffer.writeItem(recipe.result);
+            buffer.writeVarInt(recipe.results.size());
+            for (ItemStack result : recipe.results) {
+                buffer.writeItem(result);
+            }
             buffer.writeEnum(recipe.resultLocation);
             buffer.writeBoolean(recipe.isAnvilDamage);
         }

@@ -1,9 +1,8 @@
 package dev.dubhe.anvilcraft.data.recipe.crafting_table;
 
 import com.google.gson.JsonObject;
-import com.mojang.datafixers.util.Pair;
-import dev.dubhe.anvilcraft.data.recipe.CompoundTagPredicate;
 import dev.dubhe.anvilcraft.data.recipe.RecipeSerializerBase;
+import dev.dubhe.anvilcraft.data.recipe.TagIngredient;
 import lombok.Getter;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
@@ -24,7 +23,7 @@ public class ShapedTagRecipe extends CustomRecipe implements CraftingRecipe {
     @Getter
     final int height;
     @Getter
-    final NonNullList<Ingredient> recipeItems;
+    final NonNullList<TagIngredient> recipeItems;
     final ItemStack result;
     @Getter
     private final ResourceLocation id;
@@ -32,10 +31,8 @@ public class ShapedTagRecipe extends CustomRecipe implements CraftingRecipe {
     final String group;
     final CraftingBookCategory category;
     final boolean showNotification;
-    @Getter
-    final NonNullList<CompoundTagPredicate> compoundTagPredicates;
 
-    public ShapedTagRecipe(ResourceLocation id, String group, CraftingBookCategory category, int width, int height, NonNullList<Ingredient> recipeItems, NonNullList<CompoundTagPredicate> compoundTagPredicates, ItemStack result, boolean showNotification) {
+    public ShapedTagRecipe(ResourceLocation id, String group, CraftingBookCategory category, int width, int height, NonNullList<TagIngredient> recipeItems, ItemStack result, boolean showNotification) {
         super(id, category);
         this.id = id;
         this.group = group;
@@ -43,7 +40,6 @@ public class ShapedTagRecipe extends CustomRecipe implements CraftingRecipe {
         this.width = width;
         this.height = height;
         this.recipeItems = recipeItems;
-        this.compoundTagPredicates = compoundTagPredicates;
         this.result = result;
         this.showNotification = showNotification;
     }
@@ -63,9 +59,13 @@ public class ShapedTagRecipe extends CustomRecipe implements CraftingRecipe {
         return this.result;
     }
 
+    public @NotNull NonNullList<TagIngredient> getTagIngredients() {
+        return this.recipeItems;
+    }
+
     @Override
     public @NotNull NonNullList<Ingredient> getIngredients() {
-        return this.recipeItems;
+        return NonNullList.of(Ingredient.EMPTY, (Ingredient[]) this.recipeItems.stream().map(TagIngredient::toVanilla).toArray());
     }
 
     @Override
@@ -105,14 +105,12 @@ public class ShapedTagRecipe extends CustomRecipe implements CraftingRecipe {
             for (int j = 0; j < craftingInventory.getHeight(); ++j) {
                 int k = i - width;
                 int l = j - height;
-                Ingredient ingredient = Ingredient.EMPTY;
-                CompoundTagPredicate tag = CompoundTagPredicate.EMPTY;
+                TagIngredient ingredient = TagIngredient.EMPTY;
                 if (k >= 0 && l >= 0 && k < this.width && l < this.height) {
-                    ingredient = mirrored ? this.getIngredients().get(this.width - k - 1 + l * this.width) : this.getIngredients().get(k + l * this.width);
-                    tag = mirrored ? this.compoundTagPredicates.get(this.width - k - 1 + l * this.width) : this.compoundTagPredicates.get(k + l * this.width);
+                    ingredient = mirrored ? this.getTagIngredients().get(this.width - k - 1 + l * this.width) : this.getTagIngredients().get(k + l * this.width);
                 }
                 ItemStack stack = craftingInventory.getItem(i + j * craftingInventory.getWidth());
-                if (ingredient.test(stack) && tag.test(stack.getOrCreateTag())) continue;
+                if (ingredient.test(stack)) continue;
                 return false;
             }
         }
@@ -129,16 +127,14 @@ public class ShapedTagRecipe extends CustomRecipe implements CraftingRecipe {
         public @NotNull ShapedTagRecipe fromJson(ResourceLocation recipeId, JsonObject json) {
             String group = GsonHelper.getAsString(json, "group", "");
             CraftingBookCategory category = CraftingBookCategory.CODEC.byName(GsonHelper.getAsString(json, "category", null), CraftingBookCategory.MISC);
-            Pair<Map<String, Ingredient>, Map<String, CompoundTagPredicate>> input = shapedFromJson(GsonHelper.getAsJsonObject(json, "key"));
+            Map<String, TagIngredient> input = shapedFromJson(GsonHelper.getAsJsonObject(json, "key"));
             String[] strings = shrink(patternFromJson(GsonHelper.getAsJsonArray(json, "pattern")));
             int weight = strings[0].length();
             int height = strings.length;
-            Pair<NonNullList<Ingredient>, NonNullList<CompoundTagPredicate>> pair = dissolveShaped(strings, input.getFirst(), input.getSecond(), weight, height);
-            NonNullList<Ingredient> ingredients = pair.getFirst();
-            NonNullList<CompoundTagPredicate> tags = pair.getSecond();
+            NonNullList<TagIngredient> ingredients = dissolveShaped(strings, input, weight, height);
             ItemStack stack = itemStackFromJson(GsonHelper.getAsJsonObject(json, "result"));
             boolean bl = GsonHelper.getAsBoolean(json, "show_notification", true);
-            return new ShapedTagRecipe(recipeId, group, category, weight, height, ingredients, tags, stack, bl);
+            return new ShapedTagRecipe(recipeId, group, category, weight, height, ingredients, stack, bl);
         }
 
         @Override
@@ -147,13 +143,11 @@ public class ShapedTagRecipe extends CustomRecipe implements CraftingRecipe {
             int j = buffer.readVarInt();
             String string = buffer.readUtf();
             CraftingBookCategory craftingBookCategory = buffer.readEnum(CraftingBookCategory.class);
-            NonNullList<Ingredient> ingredients = NonNullList.withSize(i * j, Ingredient.EMPTY);
-            ingredients.replaceAll(ignored -> Ingredient.fromNetwork(buffer));
-            NonNullList<CompoundTagPredicate> predicates = NonNullList.withSize(i * j, CompoundTagPredicate.EMPTY);
-            predicates.replaceAll(ignored -> CompoundTagPredicate.fromNetwork(buffer));
+            NonNullList<TagIngredient> ingredients = NonNullList.withSize(i * j, TagIngredient.EMPTY);
+            ingredients.replaceAll(ignored -> TagIngredient.fromNetwork(buffer));
             ItemStack itemStack = buffer.readItem();
             boolean bl = buffer.readBoolean();
-            return new ShapedTagRecipe(recipeId, string, craftingBookCategory, i, j, ingredients, predicates, itemStack, bl);
+            return new ShapedTagRecipe(recipeId, string, craftingBookCategory, i, j, ingredients, itemStack, bl);
         }
 
         @Override
@@ -162,11 +156,8 @@ public class ShapedTagRecipe extends CustomRecipe implements CraftingRecipe {
             buffer.writeVarInt(recipe.height);
             buffer.writeUtf(recipe.getGroup());
             buffer.writeEnum(recipe.category());
-            for (Ingredient ingredient : recipe.getIngredients()) {
+            for (TagIngredient ingredient : recipe.getTagIngredients()) {
                 ingredient.toNetwork(buffer);
-            }
-            for (CompoundTagPredicate predicate : recipe.getCompoundTagPredicates()) {
-                predicate.toNetwork(buffer);
             }
             buffer.writeItem(recipe.result);
             buffer.writeBoolean(recipe.showNotification());

@@ -4,7 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.dubhe.anvilcraft.data.recipe.Component;
-import dev.dubhe.anvilcraft.data.recipe.CompoundTagPredicate;
+import dev.dubhe.anvilcraft.data.recipe.TagIngredient;
 import lombok.Getter;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
@@ -21,14 +21,16 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Consumer;
 
 @SuppressWarnings("unused")
@@ -36,14 +38,12 @@ public class ItemAnvilRecipeBuilder implements RecipeBuilder {
     @Getter
     private final RecipeCategory category;
     @Getter
-    private final NonNullList<Ingredient> recipeItems = NonNullList.create();
-    @Getter
-    final NonNullList<CompoundTagPredicate> compoundTagPredicates = NonNullList.create();
+    private final NonNullList<TagIngredient> recipeItems = NonNullList.create();
     @Getter
     private ItemAnvilRecipe.Location location = ItemAnvilRecipe.Location.UP;
     @Getter
     private final NonNullList<Component> components = NonNullList.create();
-    private final ItemStack result;
+    private final List<ItemStack> results = new ArrayList<>();
     @Getter
     private ItemAnvilRecipe.Location resultLocation = ItemAnvilRecipe.Location.UP;
     @Getter
@@ -53,27 +53,37 @@ public class ItemAnvilRecipeBuilder implements RecipeBuilder {
     @Getter
     private final Advancement.Builder advancement = Advancement.Builder.recipeAdvancement();
 
-    public ItemAnvilRecipeBuilder(RecipeCategory category, ItemStack result) {
+    public ItemAnvilRecipeBuilder(RecipeCategory category, ItemStack... result) {
         this.category = category;
-        this.result = result;
+        this.results.addAll(Arrays.stream(result).toList());
     }
 
-    public static ItemAnvilRecipeBuilder item(RecipeCategory category, ItemLike result) {
+    public static @NotNull ItemAnvilRecipeBuilder item(RecipeCategory category, ItemLike result) {
         return ItemAnvilRecipeBuilder.item(category, result, 1);
     }
 
-    public static ItemAnvilRecipeBuilder item(RecipeCategory category, ItemLike result, int count) {
+    public static @NotNull ItemAnvilRecipeBuilder item(RecipeCategory category, ItemLike result, int count) {
         ItemStack stack = new ItemStack(result);
         stack.setCount(count);
         return ItemAnvilRecipeBuilder.item(category, stack);
     }
 
-    public static ItemAnvilRecipeBuilder item(RecipeCategory category, ItemStack result) {
+    public static @NotNull ItemAnvilRecipeBuilder item(RecipeCategory category, ItemStack result) {
         return new ItemAnvilRecipeBuilder(category, result);
     }
 
+    public ItemAnvilRecipeBuilder result(ItemStack... stack) {
+        this.results.addAll(Arrays.stream(stack).toList());
+        return this;
+    }
+
+    public ItemAnvilRecipeBuilder result(ItemLike item, int count) {
+        this.results.add(new ItemStack(item, count));
+        return this;
+    }
+
     public ItemAnvilRecipeBuilder requires(TagKey<Item> tag) {
-        return this.requires(Ingredient.of(tag));
+        return this.requires(TagIngredient.of(tag));
     }
 
     public ItemAnvilRecipeBuilder requires(ItemLike item) {
@@ -82,29 +92,24 @@ public class ItemAnvilRecipeBuilder implements RecipeBuilder {
 
     public ItemAnvilRecipeBuilder requires(ItemLike item, int quantity) {
         for (int i = 0; i < quantity; ++i) {
-            this.requires(Ingredient.of(item));
+            this.requires(TagIngredient.of(item));
         }
         return this;
     }
 
-    public ItemAnvilRecipeBuilder requires(Ingredient ingredient) {
+    public ItemAnvilRecipeBuilder requires(TagIngredient ingredient) {
         return this.requires(ingredient, 1);
     }
 
-    public ItemAnvilRecipeBuilder requires(Ingredient ingredient, int quantity) {
-        return this.requires(ingredient, CompoundTagPredicate.EMPTY, quantity);
-    }
-
-    public ItemAnvilRecipeBuilder requires(Ingredient ingredient, CompoundTagPredicate compoundTagPredicate, int quantity) {
+    public ItemAnvilRecipeBuilder requires(TagIngredient ingredient, int quantity) {
         for (int i = 0; i < quantity; ++i) {
             this.recipeItems.add(ingredient);
-            this.compoundTagPredicates.add(compoundTagPredicate);
         }
         return this;
     }
 
     public ItemAnvilRecipeBuilder requires(@NotNull ItemStack stack) {
-        return this.requires(Ingredient.of(stack.getItem()), CompoundTagPredicate.of(stack.getOrCreateTag()), stack.getCount());
+        return this.requires(TagIngredient.of(stack), stack.getCount());
     }
 
     public ItemAnvilRecipeBuilder location(ItemAnvilRecipe.Location location) {
@@ -152,14 +157,14 @@ public class ItemAnvilRecipeBuilder implements RecipeBuilder {
 
     @Override
     public @NotNull Item getResult() {
-        return result.getItem();
+        return this.results.isEmpty() ? Items.AIR : this.results.get(0).getItem();
     }
 
     @Override
     public void save(Consumer<FinishedRecipe> finishedRecipeConsumer, ResourceLocation recipeId) {
         this.ensureValid(recipeId);
         this.advancement.parent(ROOT_RECIPE_ADVANCEMENT).addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(recipeId)).rewards(AdvancementRewards.Builder.recipe(recipeId)).requirements(RequirementsStrategy.OR);
-        finishedRecipeConsumer.accept(new Result(recipeId, this.recipeItems, this.compoundTagPredicates, this.location, this.components, this.result, this.resultLocation, this.isAnvilDamage, null == this.group ? "" : this.group, this.advancement, recipeId.withPrefix("recipes/" + this.category.getFolderName() + "/")));
+        finishedRecipeConsumer.accept(new Result(recipeId, this.recipeItems, this.location, this.components, this.results, this.resultLocation, this.isAnvilDamage, null == this.group ? "" : this.group, this.advancement, recipeId.withPrefix("recipes/" + this.category.getFolderName() + "/")));
     }
 
     private void ensureValid(ResourceLocation id) {
@@ -172,14 +177,12 @@ public class ItemAnvilRecipeBuilder implements RecipeBuilder {
         @Getter
         private final ResourceLocation id;
         @Getter
-        private final NonNullList<Ingredient> recipeItems;
-        @Getter
-        private final NonNullList<CompoundTagPredicate> compoundTagPredicates;
+        private final NonNullList<TagIngredient> recipeItems;
         @Getter
         private final ItemAnvilRecipe.Location location;
         @Getter
         private final NonNullList<Component> components;
-        private final ItemStack result;
+        private final List<ItemStack> results;
         @Getter
         private final ItemAnvilRecipe.Location resultLocation;
         @Getter
@@ -189,11 +192,10 @@ public class ItemAnvilRecipeBuilder implements RecipeBuilder {
         @Getter
         private final ResourceLocation advancementId;
 
-        Result(ResourceLocation id, NonNullList<Ingredient> recipeItems, NonNullList<CompoundTagPredicate> compoundTagPredicates, ItemAnvilRecipe.Location location, NonNullList<Component> components, ItemStack result, ItemAnvilRecipe.Location resultLocation, boolean isAnvilDamage, String group, Advancement.Builder advancement, ResourceLocation advancementId) {
+        Result(ResourceLocation id, NonNullList<TagIngredient> recipeItems, ItemAnvilRecipe.Location location, NonNullList<Component> components, List<ItemStack> results, ItemAnvilRecipe.Location resultLocation, boolean isAnvilDamage, String group, Advancement.Builder advancement, ResourceLocation advancementId) {
             this.id = id;
-            this.result = result;
+            this.results = results;
             this.recipeItems = recipeItems;
-            this.compoundTagPredicates = compoundTagPredicates;
             this.location = location;
             this.components = components;
             this.resultLocation = resultLocation;
@@ -210,20 +212,8 @@ public class ItemAnvilRecipeBuilder implements RecipeBuilder {
                 json.addProperty("group", this.group);
             }
             JsonArray ingredients = new JsonArray();
-            for (int i = 0; i < this.recipeItems.size(); i++) {
-                JsonElement jsonElement = this.recipeItems.get(i).toJson();
-                if (jsonElement instanceof JsonObject object) {
-                    JsonElement elem = this.compoundTagPredicates.get(i).toJson();
-                    if (!elem.isJsonArray() || !elem.getAsJsonArray().isEmpty()) object.add("data", elem);
-                }
-                if (jsonElement instanceof JsonArray array) {
-                    for (JsonElement element : array) {
-                        if (element instanceof JsonObject obj) {
-                            JsonElement elem = this.compoundTagPredicates.get(i).toJson();
-                            if (!elem.isJsonArray() || !elem.getAsJsonArray().isEmpty()) obj.add("data", elem);
-                        }
-                    }
-                }
+            for (TagIngredient recipeItem : this.recipeItems) {
+                JsonElement jsonElement = recipeItem.toJson();
                 ingredients.add(jsonElement);
             }
             json.add("ingredients", ingredients);
@@ -234,11 +224,15 @@ public class ItemAnvilRecipeBuilder implements RecipeBuilder {
                 componentsJson.add(component.toJson());
             }
             json.add("components", componentsJson);
-            JsonObject result = new JsonObject();
-            result.addProperty("item", BuiltInRegistries.ITEM.getKey(this.result.getItem()).toString());
-            if (this.result.hasTag()) result.addProperty("data", this.result.getOrCreateTag().toString());
-            if (this.result.getCount() > 1) result.addProperty("count", this.result.getCount());
-            json.add("result", result);
+            JsonArray results = new JsonArray();
+            for (ItemStack result : this.results) {
+                JsonObject object = new JsonObject();
+                object.addProperty("item", BuiltInRegistries.ITEM.getKey(result.getItem()).toString());
+                if (result.hasTag()) object.addProperty("data", result.getOrCreateTag().toString());
+                if (result.getCount() > 1) object.addProperty("count", result.getCount());
+                results.add(object);
+            }
+            json.add("results", results);
             if (null != resultLocation && resultLocation != ItemAnvilRecipe.Location.UP)
                 json.addProperty("result_location", resultLocation.getId());
             json.addProperty("is_anvil_damage", this.isAnvilDamage);

@@ -13,13 +13,13 @@ import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.TagParser;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.ShapedRecipe;
@@ -35,41 +35,35 @@ import java.util.stream.Stream;
 
 @SuppressWarnings("unused")
 public interface RecipeSerializerBase<T extends Recipe<?>> extends RecipeSerializer<T> {
-    default @NotNull NonNullList<Ingredient> itemsFromJson(@NotNull JsonArray ingredientArray) {
-        NonNullList<Ingredient> nonNullList = NonNullList.create();
+    default @NotNull NonNullList<TagIngredient> itemsFromJson(@NotNull JsonArray ingredientArray) {
+        NonNullList<TagIngredient> nonNullList = NonNullList.create();
         for (int i = 0; i < ingredientArray.size(); ++i) {
-            Ingredient ingredient = Ingredient.fromJson(ingredientArray.get(i), false);
+            TagIngredient ingredient = TagIngredient.fromJson(ingredientArray.get(i));
             if (ingredient.isEmpty()) continue;
             nonNullList.add(ingredient);
         }
         return nonNullList;
     }
 
-    default Pair<NonNullList<Ingredient>, NonNullList<CompoundTagPredicate>> dissolveShaped(String[] pattern, Map<String, Ingredient> keys, Map<String, CompoundTagPredicate> tags, int patternWidth, int patternHeight) {
-        NonNullList<Ingredient> ingredients = NonNullList.withSize(patternWidth * patternHeight, Ingredient.EMPTY);
-        NonNullList<CompoundTagPredicate> compoundTagPredicates = NonNullList.withSize(patternWidth * patternHeight, CompoundTagPredicate.EMPTY);
+    default NonNullList<TagIngredient> dissolveShaped(String[] pattern, Map<String, TagIngredient> keys, int patternWidth, int patternHeight) {
+        NonNullList<TagIngredient> ingredients = NonNullList.withSize(patternWidth * patternHeight, TagIngredient.EMPTY);
         HashSet<String> set1 = Sets.newHashSet(keys.keySet());
-        HashSet<String> set2 = Sets.newHashSet(tags.keySet());
         set1.remove(" ");
-        set2.remove(" ");
         for (int i = 0; i < pattern.length; ++i) {
             for (int j = 0; j < pattern[i].length(); ++j) {
                 String string = pattern[i].substring(j, j + 1);
-                Ingredient ingredient = keys.get(string);
-                CompoundTagPredicate compoundTagPredicate = tags.get(string);
-                if (null == ingredient || null == compoundTagPredicate) {
+                TagIngredient ingredient = keys.get(string);
+                if (null == ingredient) {
                     throw new JsonSyntaxException("Pattern references symbol '" + string + "' but it's not defined in the key");
                 }
                 set1.remove(string);
-                set2.remove(string);
                 ingredients.set(j + patternWidth * i, ingredient);
-                compoundTagPredicates.set(j + patternWidth * i, compoundTagPredicate);
             }
         }
-        if (!set1.isEmpty() || !set2.isEmpty()) {
-            throw new JsonSyntaxException("Key defines symbols that aren't used in pattern: " + set1.addAll(set2));
+        if (!set1.isEmpty()) {
+            throw new JsonSyntaxException("Key defines symbols that aren't used in pattern: " + set1);
         }
-        return new Pair<>(ingredients, compoundTagPredicates);
+        return ingredients;
     }
 
     default String[] patternFromJson(JsonArray patternArray) {
@@ -93,9 +87,8 @@ public interface RecipeSerializerBase<T extends Recipe<?>> extends RecipeSeriali
         return strings;
     }
 
-    default @NotNull Pair<Map<String, Ingredient>, Map<String, CompoundTagPredicate>> shapedFromJson(@NotNull JsonObject keyEntry) {
-        HashMap<String, Ingredient> ingredientHashMap = Maps.newHashMap();
-        HashMap<String, CompoundTagPredicate> tagPredicateHashMap = Maps.newHashMap();
+    default @NotNull Map<String, TagIngredient> shapedFromJson(@NotNull JsonObject keyEntry) {
+        HashMap<String, TagIngredient> ingredientHashMap = Maps.newHashMap();
         for (Map.Entry<String, JsonElement> entry : keyEntry.entrySet()) {
             if (entry.getKey().length() != 1) {
                 throw new JsonSyntaxException("Invalid key entry: '" + entry.getKey() + "' is an invalid symbol (must be 1 character only).");
@@ -103,22 +96,18 @@ public interface RecipeSerializerBase<T extends Recipe<?>> extends RecipeSeriali
             if (" ".equals(entry.getKey())) {
                 throw new JsonSyntaxException("Invalid key entry: ' ' is a reserved symbol.");
             }
-            tagPredicateHashMap.put(entry.getKey(), CompoundTagPredicate.fromJson(entry.getValue()));
-            ingredientHashMap.put(entry.getKey(), Ingredient.fromJson(entry.getValue(), false));
+            ingredientHashMap.put(entry.getKey(), TagIngredient.fromJson(entry.getValue()));
         }
-        tagPredicateHashMap.put(" ", CompoundTagPredicate.EMPTY);
-        ingredientHashMap.put(" ", Ingredient.EMPTY);
-        return new Pair<>(ingredientHashMap, tagPredicateHashMap);
+        ingredientHashMap.put(" ", TagIngredient.EMPTY);
+        return ingredientHashMap;
     }
 
-    default Pair<NonNullList<Ingredient>, NonNullList<CompoundTagPredicate>> shapelessFromJson(@NotNull JsonArray array) {
-        NonNullList<Ingredient> ingredients = NonNullList.create();
-        NonNullList<CompoundTagPredicate> tagPredicates = NonNullList.create();
+    default NonNullList<TagIngredient> shapelessFromJson(@NotNull JsonArray array) {
+        NonNullList<TagIngredient> ingredients = NonNullList.create();
         for (JsonElement element : array) {
-            ingredients.add(Ingredient.fromJson(element, false));
-            tagPredicates.add(CompoundTagPredicate.fromJson(element));
+            ingredients.add(TagIngredient.fromJson(element));
         }
-        return new Pair<>(ingredients, tagPredicates);
+        return ingredients;
     }
 
     default NonNullList<Component> componentsFromJson(@NotNull JsonArray array) {
@@ -171,7 +160,9 @@ public interface RecipeSerializerBase<T extends Recipe<?>> extends RecipeSeriali
         return i;
     }
 
-    default @NotNull ItemStack itemStackFromJson(JsonObject object) {
+    default @NotNull ItemStack itemStackFromJson(JsonElement element) {
+        if(!element.isJsonObject()) throw new JsonSyntaxException("Expected item to be string");
+        JsonObject object = element.getAsJsonObject();
         Item item = ShapedRecipe.itemFromJson(object);
         int i = GsonHelper.getAsInt(object, "count", 1);
         if (i < 1) {
@@ -181,7 +172,12 @@ public interface RecipeSerializerBase<T extends Recipe<?>> extends RecipeSeriali
         stack.setCount(i);
         if (object.has("data")) {
             if (!object.get("data").isJsonPrimitive()) throw new JsonSyntaxException("Expected item to be string");
-            CompoundTag tag = CompoundTagPredicate.parseTag(object.get("data").getAsString());
+            CompoundTag tag;
+            try {
+                tag = TagParser.parseTag(object.get("data").getAsString());
+            } catch (CommandSyntaxException ignored) {
+                throw new JsonSyntaxException("Invalid NBT string");
+            }
             stack.setTag(stack.getOrCreateTag().merge(tag));
         }
         return stack;

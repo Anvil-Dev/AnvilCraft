@@ -38,27 +38,28 @@ public class AnvilEventListener {
             if (!recipe.craft(container, level)) break;
             counts++;
         }
-        ItemStack itemStack = recipe.getResultItem(level.registryAccess()).copy();
-        int maxSize = itemStack.getItem().getMaxStackSize();
-        counts = counts * itemStack.getCount();
         BlockPos resultPos = new BlockPos(container.pos());
         if (recipe.getResultLocation() == ItemAnvilRecipe.Location.IN) resultPos = resultPos.below();
         if (recipe.getResultLocation() == ItemAnvilRecipe.Location.UNDER) resultPos = resultPos.below(2);
-        Vec3 vec3 = resultPos.getCenter();
-        for (int i = 0; i < counts / maxSize; i++) {
+        for (ItemStack itemStack : recipe.getResults()) {
+            int maxSize = itemStack.getItem().getMaxStackSize();
+            counts = counts * itemStack.getCount();
+            Vec3 vec3 = resultPos.getCenter();
+            for (int i = 0; i < counts / maxSize; i++) {
+                ItemStack stack = itemStack.copy();
+                stack.setCount(maxSize);
+                ItemEntity entity = new ItemEntity(EntityType.ITEM, level);
+                entity.setItem(stack);
+                entity.teleportRelative(vec3.x, vec3.y, vec3.z);
+                level.addFreshEntity(entity);
+            }
             ItemStack stack = itemStack.copy();
-            stack.setCount(maxSize);
+            stack.setCount(counts % maxSize);
             ItemEntity entity = new ItemEntity(EntityType.ITEM, level);
             entity.setItem(stack);
             entity.teleportRelative(vec3.x, vec3.y, vec3.z);
             level.addFreshEntity(entity);
         }
-        ItemStack stack = itemStack.copy();
-        stack.setCount(counts % maxSize);
-        ItemEntity entity = new ItemEntity(EntityType.ITEM, level);
-        entity.setItem(stack);
-        entity.teleportRelative(vec3.x, vec3.y, vec3.z);
-        level.addFreshEntity(entity);
         if (recipe.isAnvilDamage()) event.setAnvilDamage(true);
     }
 

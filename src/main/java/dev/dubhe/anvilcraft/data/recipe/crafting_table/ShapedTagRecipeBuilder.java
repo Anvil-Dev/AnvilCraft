@@ -6,8 +6,7 @@ import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mojang.datafixers.util.Pair;
-import dev.dubhe.anvilcraft.data.recipe.CompoundTagPredicate;
+import dev.dubhe.anvilcraft.data.recipe.TagIngredient;
 import lombok.Getter;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
@@ -20,9 +19,10 @@ import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.ItemLike;
 import org.jetbrains.annotations.NotNull;
@@ -42,7 +42,7 @@ public class ShapedTagRecipeBuilder extends ShapedRecipeBuilder {
     @Getter
     private final List<String> rows = Lists.newArrayList();
     @Getter
-    private final Map<Character, Pair<Ingredient, CompoundTagPredicate>> key = Maps.newLinkedHashMap();
+    private final Map<Character, TagIngredient> key = Maps.newLinkedHashMap();
     @Getter
     private final Advancement.Builder advancement = Advancement.Builder.recipeAdvancement();
     @Nullable
@@ -79,14 +79,6 @@ public class ShapedTagRecipeBuilder extends ShapedRecipeBuilder {
     }
 
     /**
-     * 向配方模式添加一个键。
-     */
-    @Override
-    public @NotNull ShapedTagRecipeBuilder define(Character symbol, Ingredient ingredient) {
-        return this.define(symbol, ingredient, CompoundTagPredicate.EMPTY);
-    }
-
-    /**
      * 向此配方的模式添加一个新条目。
      */
     public @NotNull ShapedTagRecipeBuilder pattern(String pattern) {
@@ -101,16 +93,25 @@ public class ShapedTagRecipeBuilder extends ShapedRecipeBuilder {
     /**
      * 向配方模式添加一个键。
      */
-    public @NotNull ShapedTagRecipeBuilder define(Character symbol, Ingredient ingredient, CompoundTagPredicate compoundTagPredicate) {
-        super.define(symbol, ingredient);
+    public @NotNull ShapedTagRecipeBuilder define(Character symbol, TagIngredient ingredient) {
         if (this.key.containsKey(symbol)) {
             throw new IllegalArgumentException("Symbol '" + symbol + "' is already defined!");
         }
         if (symbol == ' ') {
             throw new IllegalArgumentException("Symbol ' ' (whitespace) is reserved and cannot be defined");
         }
-        this.key.put(symbol, new Pair<>(ingredient, compoundTagPredicate));
+        this.key.put(symbol, ingredient);
         return this;
+    }
+
+    @Override
+    public @NotNull ShapedRecipeBuilder define(Character symbol, ItemLike item) {
+        return this.define(symbol, TagIngredient.of(item));
+    }
+
+    @Override
+    public @NotNull ShapedRecipeBuilder define(Character symbol, TagKey<Item> item) {
+        return this.define(symbol, TagIngredient.of(item));
     }
 
     @Override
@@ -159,7 +160,7 @@ public class ShapedTagRecipeBuilder extends ShapedRecipeBuilder {
             }
         }
         if (!set.isEmpty()) {
-            throw new IllegalStateException("Ingredients are defined but not used in pattern for recipe " + id);
+            throw new IllegalStateException("TagIngredients are defined but not used in pattern for recipe " + id);
         }
         if (this.rows.size() == 1 && this.rows.get(0).length() == 1) {
             throw new IllegalStateException("Shaped recipe " + id + " only takes in a single item - should it be a shapeless recipe instead?");
@@ -175,13 +176,13 @@ public class ShapedTagRecipeBuilder extends ShapedRecipeBuilder {
         private final ItemStack result;
         private final String group;
         private final List<String> pattern;
-        private final Map<Character, Pair<Ingredient, CompoundTagPredicate>> key;
+        private final Map<Character, TagIngredient> key;
         private final Advancement.Builder advancement;
         @Getter
         private final ResourceLocation advancementId;
         private final boolean showNotification;
 
-        public Result(ResourceLocation id, ItemStack result, int count, String group, CraftingBookCategory category, List<String> pattern, Map<Character, Pair<Ingredient, CompoundTagPredicate>> key, Advancement.Builder advancement, ResourceLocation advancementId, boolean showNotification) {
+        public Result(ResourceLocation id, ItemStack result, int count, String group, CraftingBookCategory category, List<String> pattern, Map<Character, TagIngredient> key, Advancement.Builder advancement, ResourceLocation advancementId, boolean showNotification) {
             super(category);
             this.id = id;
             this.result = result;
@@ -218,13 +219,9 @@ public class ShapedTagRecipeBuilder extends ShapedRecipeBuilder {
             }
             json.add("pattern", jsonArray);
             JsonObject jsonObject = new JsonObject();
-            for (Map.Entry<Character, Pair<Ingredient, CompoundTagPredicate>> entry : this.key.entrySet()) {
-                JsonElement value = entry.getValue().getFirst().toJson();
-                jsonObject.add(String.valueOf(entry.getKey()), entry.getValue().getFirst().toJson());
-                if (value.isJsonObject()) {
-                    JsonObject object = value.getAsJsonObject();
-                    object.add("data", entry.getValue().getSecond().toJson());
-                }
+            for (Map.Entry<Character, TagIngredient> entry : this.key.entrySet()) {
+                JsonElement value = entry.getValue().toJson();
+                jsonObject.add(String.valueOf(entry.getKey()), entry.getValue().toJson());
             }
             json.add("key", jsonObject);
             JsonObject result = new JsonObject();
