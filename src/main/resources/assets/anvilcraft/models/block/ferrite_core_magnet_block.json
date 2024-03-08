@@ -6,7 +6,7 @@
 		"side": "anvilcraft:block/magnet_block_side",
 		"top": "anvilcraft:block/magnet_block_top",
 		"bottom": "anvilcraft:block/magnet_block_bottom",
-		"core": "block/iron_block"
+		"core": "minecraft:block/iron_block"
 	},
 	"elements": [
 		{
