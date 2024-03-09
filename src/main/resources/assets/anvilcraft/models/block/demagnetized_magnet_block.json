@@ -1,0 +1,9 @@
+{
+  "parent": "anvilcraft:block/magnet_block",
+  "textures": {
+		"particle": "anvilcraft:block/demagnetized_magnet_block_side",
+		"side": "anvilcraft:block/demagnetized_magnet_block_side",
+		"top": "anvilcraft:block/demagnetized_magnet_block_top",
+		"bottom": "anvilcraft:block/demagnetized_magnet_block_bottom"
+	}
+}

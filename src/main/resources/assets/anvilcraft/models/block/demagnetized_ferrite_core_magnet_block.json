@@ -1,0 +1,10 @@
+{
+  "parent": "anvilcraft:block/ferrite_core_magnet_block",
+  "textures": {
+		"particle": "anvilcraft:block/demagnetized_magnet_block_side",
+		"side": "anvilcraft:block/demagnetized_magnet_block_side",
+		"top": "anvilcraft:block/demagnetized_magnet_block_top",
+		"bottom": "anvilcraft:block/demagnetized_magnet_block_bottom",
+		"core": "minecraft:block/iron_block"
+	}
+}
