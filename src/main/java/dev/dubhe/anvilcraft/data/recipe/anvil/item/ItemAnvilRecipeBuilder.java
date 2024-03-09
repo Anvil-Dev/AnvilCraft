@@ -57,6 +57,9 @@ public class ItemAnvilRecipeBuilder implements RecipeBuilder {
         this.category = category;
         this.results.addAll(Arrays.stream(result).toList());
     }
+    public static @NotNull ItemAnvilRecipeBuilder item(RecipeCategory category) {
+        return new ItemAnvilRecipeBuilder(category);
+    }
 
     public static @NotNull ItemAnvilRecipeBuilder item(RecipeCategory category, ItemLike result) {
         return ItemAnvilRecipeBuilder.item(category, result, 1);

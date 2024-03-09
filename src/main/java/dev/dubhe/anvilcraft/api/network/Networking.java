@@ -34,7 +34,7 @@ public abstract class Networking<C> {
             }
         }
     };
-    @Environment(EnvType.CLIENT)
+
     public static final Networking<ClientPlayNetworking.PlayChannelHandler> CLIENT = new Networking<>() {
         public <T extends Packet> @NotNull PacketType<T> register(ResourceLocation location, Class<T> packet, Function<FriendlyByteBuf, T> deserializer) {
             this.handlerMap.put(location, (server, handler, buf, sender) -> this.receive(location, server, handler, buf, sender));

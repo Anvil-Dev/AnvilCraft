@@ -7,6 +7,7 @@ public class AnvilCraftDataGenerator implements DataGeneratorEntrypoint {
     @Override
     public void onInitializeDataGenerator(FabricDataGenerator fabricDataGenerator) {
         FabricDataGenerator.Pack pack = fabricDataGenerator.createPack();
+        pack.addProvider(MyBlockTagGenerator::new);
         pack.addProvider(MyItemTagGenerator::new);
         pack.addProvider(MyRecipesGenerator::new);
     }

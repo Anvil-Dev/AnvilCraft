@@ -9,19 +9,18 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
+import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Getter
-public abstract class BaseMachineBlockEntity extends BaseContainerBlockEntity {
+public abstract class BaseMachineBlockEntity extends RandomizableContainerBlockEntity {
     protected NonNullList<ItemStack> items;
     @Setter
     protected Direction direction = Direction.DOWN;
@@ -107,11 +106,6 @@ public abstract class BaseMachineBlockEntity extends BaseContainerBlockEntity {
     }
 
     @Override
-    public boolean stillValid(Player player) {
-        return Container.stillValidBlockEntity(this, player);
-    }
-
-    @Override
     public void clearContent() {
         this.items.clear();
     }
@@ -130,5 +124,10 @@ public abstract class BaseMachineBlockEntity extends BaseContainerBlockEntity {
 
     ItemStack getResult() {
         return this.getItem(this.getContainerSize() - 1);
+    }
+
+    @Override
+    protected void setItems(NonNullList<ItemStack> itemStacks) {
+        this.items = itemStacks;
     }
 }

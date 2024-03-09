@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.data;
 
-import dev.dubhe.anvilcraft.item.ModItemTags;
+import dev.dubhe.anvilcraft.init.ModItemTags;
 import dev.dubhe.anvilcraft.init.ModItems;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;

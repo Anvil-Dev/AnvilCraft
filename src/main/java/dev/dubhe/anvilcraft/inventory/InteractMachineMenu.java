@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.inventory;
 
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.component.LimitSlot;
-import dev.dubhe.anvilcraft.item.ModItemTags;
+import dev.dubhe.anvilcraft.init.ModItemTags;
 import lombok.Getter;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;

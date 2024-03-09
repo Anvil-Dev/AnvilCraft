@@ -25,6 +25,7 @@ public class AnvilCraft implements ModInitializer {
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     public static final Logger LOGGER = new Logger(LogUtils.getLogger());
     public static final EventManager EVENT_BUS = new EventManager();
+    public static final File COMMON_CONFIG_FILE = FabricLoader.getInstance().getConfigDir().resolve("anvilcraft-common.json").toFile();
     public static AnvilCraftConfig config = new AnvilCraftConfig();
 
     @Override
@@ -44,18 +45,28 @@ public class AnvilCraft implements ModInitializer {
 
     @SuppressWarnings("all")
     public static void loadOrCreateConfig() {
-        Path commonConfigPath = FabricLoader.getInstance().getConfigDir().resolve("anvilcraft-common.json");
-        File commonConfigFile = commonConfigPath.toFile();
         try {
-            if (!commonConfigFile.isFile()) {
-                commonConfigFile.createNewFile();
-                try (FileWriter writer = new FileWriter(commonConfigFile)) {
-                    AnvilCraft.GSON.toJson(AnvilCraft.config, writer);
-                }
+            if (!COMMON_CONFIG_FILE.isFile()) {
+                AnvilCraft.saveConfigFile();
             } else {
-                try (FileReader reader = new FileReader(commonConfigFile)) {
+                try (FileReader reader = new FileReader(COMMON_CONFIG_FILE)) {
                     AnvilCraft.config = AnvilCraft.GSON.fromJson(reader, AnvilCraftConfig.class);
+                    AnvilCraft.saveConfigFile();
                 }
+            }
+        } catch (IOException e) {
+            AnvilCraft.LOGGER.printStackTrace(e);
+        }
+    }
+
+    @SuppressWarnings("all")
+    public static void saveConfigFile() {
+        try {
+            if (!COMMON_CONFIG_FILE.isFile()) {
+                COMMON_CONFIG_FILE.createNewFile();
+            }
+            try (FileWriter writer = new FileWriter(COMMON_CONFIG_FILE)) {
+                AnvilCraft.GSON.toJson(AnvilCraft.config, writer);
             }
         } catch (IOException e) {
             AnvilCraft.LOGGER.printStackTrace(e);
