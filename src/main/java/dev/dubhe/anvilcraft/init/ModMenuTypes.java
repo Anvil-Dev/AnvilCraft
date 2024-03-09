@@ -1,0 +1,22 @@
+package dev.dubhe.anvilcraft.init;
+
+import dev.dubhe.anvilcraft.inventory.CraftingMachineMenu;
+import dev.dubhe.anvilcraft.inventory.InteractMachineMenu;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.flag.FeatureFlags;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
+import org.jetbrains.annotations.NotNull;
+
+public class ModMenuTypes {
+    public static final MenuType<InteractMachineMenu> INTERACT_MACHINE = ModMenuTypes.register("interact_machine", InteractMachineMenu::new);
+    public static final MenuType<CraftingMachineMenu> CRAFTING_MACHINE = ModMenuTypes.register("crafting_machine", CraftingMachineMenu::new);
+
+    public static void register() {
+    }
+
+    private static <T extends AbstractContainerMenu> @NotNull MenuType<T> register(@NotNull String key, @NotNull MenuType.MenuSupplier<T> factory) {
+        return Registry.register(BuiltInRegistries.MENU, key, new MenuType<>(factory, FeatureFlags.VANILLA_SET));
+    }
+}

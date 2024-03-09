@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.event.LightningStrikeEvent;
+import dev.dubhe.anvilcraft.api.event.entity.LightningStrikeEvent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LightningBolt;
 import org.spongepowered.asm.mixin.Mixin;

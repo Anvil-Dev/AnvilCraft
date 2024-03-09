@@ -59,6 +59,9 @@
   "block.anvilcraft.hollow_magnet_block": "空心磁铁块",
   "block.anvilcraft.ferrite_core_magnet_block": "铁芯磁铁块",
   "block.anvilcraft.interact_machine": "交互机",
-  "commands.anvilcraft.config.reload.success": "配置文件已重载!",
-  "commands.anvilcraft.config.check.success": "配置文件内容如下："
+  "block.anvilcraft.crafting_machine": "合成器",
+  "command.anvilcraft.config.reload.success": "配置文件已重载!",
+  "command.anvilcraft.config.check.success": "配置文件内容如下：",
+  "screen.anvilcraft.button.direction": "输出方向",
+  "screen.anvilcraft.button.record": "保留一份材料"
 }

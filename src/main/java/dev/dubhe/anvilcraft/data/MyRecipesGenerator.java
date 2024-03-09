@@ -7,7 +7,7 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.item.ItemAnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.anvil.item.ItemAnvilRecipeBuilder;
 import dev.dubhe.anvilcraft.data.recipe.crafting_table.ShapedTagRecipeBuilder;
 import dev.dubhe.anvilcraft.item.ModItemTags;
-import dev.dubhe.anvilcraft.item.ModItems;
+import dev.dubhe.anvilcraft.init.ModItems;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 import net.minecraft.core.registries.BuiltInRegistries;

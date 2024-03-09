@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.command;
 
-import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import dev.dubhe.anvilcraft.AnvilCraft;
@@ -21,7 +20,7 @@ public class AnvilCraftConfigCommand {
 
     public static int configReload(@NotNull CommandContext<CommandSourceStack> context) {
         AnvilCraft.loadOrCreateConfig();
-        Supplier<Component> success = () -> Component.translatable("commands.anvilcraft.config.reload.success")
+        Supplier<Component> success = () -> Component.translatable("command.anvilcraft.config.reload.success")
                 .withStyle(ChatFormatting.GREEN)
                 .withStyle(ChatFormatting.BOLD);
         context.getSource().sendSuccess(success, false);
@@ -30,7 +29,7 @@ public class AnvilCraftConfigCommand {
 
     public static int configCheck(@NotNull CommandContext<CommandSourceStack> context) {
         String configStr = AnvilCraft.GSON.toJson(AnvilCraft.config);
-        Supplier<Component> success = () -> Component.translatable("commands.anvilcraft.config.check.success")
+        Supplier<Component> success = () -> Component.translatable("command.anvilcraft.config.check.success")
                 .withStyle(ChatFormatting.GREEN)
                 .withStyle(ChatFormatting.BOLD);
         Supplier<Component> config = () -> Component.literal(configStr).withStyle(ChatFormatting.GRAY);

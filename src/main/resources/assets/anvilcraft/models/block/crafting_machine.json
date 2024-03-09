@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "anvilcraft:block/crafting_machine_side",
+    "up": "anvilcraft:block/crafting_machine_top",
+    "down": "anvilcraft:block/crafting_machine_bottom",
+    "east": "anvilcraft:block/crafting_machine_side",
+    "north": "anvilcraft:block/crafting_machine_side",
+    "south": "anvilcraft:block/crafting_machine_side",
+    "west": "anvilcraft:block/crafting_machine_side"
+  }
+}

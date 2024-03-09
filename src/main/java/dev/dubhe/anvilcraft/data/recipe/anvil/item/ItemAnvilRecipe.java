@@ -6,7 +6,7 @@ import com.google.gson.JsonObject;
 import dev.dubhe.anvilcraft.data.recipe.Component;
 import dev.dubhe.anvilcraft.data.recipe.RecipeSerializerBase;
 import dev.dubhe.anvilcraft.data.recipe.TagIngredient;
-import dev.dubhe.anvilcraft.inventory.AnvilCraftingContainer;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
 import dev.dubhe.anvilcraft.util.INonNullListInjector;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;

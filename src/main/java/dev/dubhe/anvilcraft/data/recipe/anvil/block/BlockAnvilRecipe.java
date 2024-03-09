@@ -6,7 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import dev.dubhe.anvilcraft.data.recipe.Component;
 import dev.dubhe.anvilcraft.data.recipe.RecipeSerializerBase;
-import dev.dubhe.anvilcraft.inventory.AnvilCraftingContainer;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
