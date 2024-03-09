@@ -1,11 +1,10 @@
 package dev.dubhe.anvilcraft.inventory;
 
-import dev.dubhe.anvilcraft.block.entity.BaseMachineBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CraftingMachineBlockEntity;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.component.LimitSlot;
+import dev.dubhe.anvilcraft.inventory.component.CraftingMachineSlot;
 import lombok.Getter;
-import net.minecraft.core.Direction;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -15,7 +14,6 @@ import org.jetbrains.annotations.NotNull;
 
 @Getter
 public class CraftingMachineMenu extends BaseMachineMenu {
-
     public CraftingMachineMenu(int containerId, Inventory inventory) {
         this(containerId, inventory, new SimpleContainer(10));
     }
@@ -26,7 +24,7 @@ public class CraftingMachineMenu extends BaseMachineMenu {
         int i, j;
         for (i = 0; i < 3; ++i) {
             for (j = 0; j < 3; ++j) {
-                this.addSlot(new Slot(this.machine, j + i * 3, 26 + j * 18, 18 + i * 18));
+                this.addSlot(new CraftingMachineSlot(this.machine, j + i * 3, 26 + j * 18, 18 + i * 18, this));
             }
         }
         this.addSlot(new LimitSlot(this.machine, 9, 134, 54));
@@ -48,5 +46,16 @@ public class CraftingMachineMenu extends BaseMachineMenu {
 
     public void setRecordMaterial(boolean record) {
         if (this.machine instanceof CraftingMachineBlockEntity entity) entity.setRecord(record);
+    }
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public boolean isSlotDisabled(int index) {
+        if (!(this.machine instanceof CraftingMachineBlockEntity entity)) return false;
+        return entity.getDisabled().get(index);
+    }
+
+    public void setSlotDisabled(int index, boolean state) {
+        if (!(this.machine instanceof CraftingMachineBlockEntity entity)) return;
+        entity.getDisabled().set(index, state);
     }
 }

@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab_top",
+  "textures": {
+    "bottom": "anvilcraft:block/cut_royal_steel_block",
+    "side": "anvilcraft:block/cut_royal_steel_block",
+    "top": "anvilcraft:block/cut_royal_steel_block"
+  }
+}

@@ -8,6 +8,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -32,6 +34,8 @@ public class CraftingMachineBlockEntity extends BaseMachineBlockEntity {
     @Setter
     private boolean record = false;
     private final CraftingMachineBlockEntity entity = this;
+    @Getter
+    private final NonNullList<Boolean> disabled = NonNullList.withSize(9, false);
     private final CraftingContainer container = new CraftingContainer() {
         @Override
         public void fillStackedContents(StackedContents contents) {
@@ -124,6 +128,9 @@ public class CraftingMachineBlockEntity extends BaseMachineBlockEntity {
     public static void tick(Level level, BlockPos pos, BlockEntity e) {
         if (!(e instanceof CraftingMachineBlockEntity entity)) return;
         BaseMachineBlockEntity.tick(level, pos, entity);
+    }
+
+    public static void craft(@NotNull Level level, CraftingMachineBlockEntity entity) {
         if (level.getServer() == null) return;
         ItemStack itemStack = entity.getResult();
         ItemStack itemStack2;
@@ -168,11 +175,46 @@ public class CraftingMachineBlockEntity extends BaseMachineBlockEntity {
     public void load(CompoundTag tag) {
         super.load(tag);
         this.setRecord(tag.getBoolean("record"));
+        byte[] disabled = tag.getByteArray("disabled");
+        for (int i = 0; i < tag.getByteArray("disabled").length; i++) {
+            this.disabled.set(i, disabled[i] != 0);
+        }
     }
 
     @Override
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         tag.put("record", ByteTag.valueOf(this.isRecord()));
+        ListTag tags = new ListTag();
+        for (Boolean b : this.getDisabled()) {
+            tags.add(ByteTag.valueOf(b));
+        }
+        tag.put("disabled", tags);
+    }
+
+    @Override
+    public boolean canPlaceItem(int index, ItemStack itemStack) {
+        if (index != this.getContainerSize() - 1 && this.disabled.get(index)) {
+            return false;
+        }
+        ItemStack itemStack2 = this.items.get(index);
+        int j = itemStack2.getCount();
+        if (j >= itemStack2.getMaxStackSize()) {
+            return false;
+        }
+        if (itemStack2.isEmpty()) {
+            return true;
+        }
+        return !this.smallerStackExist(j, itemStack2, index);
+    }
+
+    private boolean smallerStackExist(int i, ItemStack itemStack, int j) {
+        for (int k = j + 1; k < 9; ++k) {
+            ItemStack itemStack2;
+            if (this.disabled.get(k) || !(itemStack2 = this.getItem(k)).isEmpty() && (itemStack2.getCount() >= i || !ItemStack.isSameItemSameTags(itemStack2, itemStack)))
+                continue;
+            return true;
+        }
+        return false;
     }
 }

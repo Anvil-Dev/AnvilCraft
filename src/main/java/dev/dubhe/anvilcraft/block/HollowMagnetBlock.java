@@ -19,7 +19,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
-public class HollowMagnetBlock extends Block implements SimpleWaterloggedBlock {
+public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedBlock {
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     private static final VoxelShape REDUCE_AABB = Block.box(5.0, 0.0, 5.0, 11.0, 16.0, 11.0);
     private static final VoxelShape AABB = Shapes.join(Shapes.block(), REDUCE_AABB, BooleanOp.NOT_SAME);
@@ -31,6 +31,7 @@ public class HollowMagnetBlock extends Block implements SimpleWaterloggedBlock {
 
     @Override
     protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
+        super.createBlockStateDefinition(builder);
         builder.add(WATERLOGGED);
     }
 
@@ -50,7 +51,9 @@ public class HollowMagnetBlock extends Block implements SimpleWaterloggedBlock {
     public BlockState getStateForPlacement(@NotNull BlockPlaceContext blockPlaceContext) {
         BlockPos blockPos = blockPlaceContext.getClickedPos();
         FluidState fluidState = blockPlaceContext.getLevel().getFluidState(blockPos);
-        return this.defaultBlockState().setValue(WATERLOGGED, fluidState.getType() == Fluids.WATER);
+        BlockState state = super.getStateForPlacement(blockPlaceContext);
+        state = null != state ? state : this.defaultBlockState();
+        return state.setValue(WATERLOGGED, fluidState.getType() == Fluids.WATER);
     }
 
     @Override

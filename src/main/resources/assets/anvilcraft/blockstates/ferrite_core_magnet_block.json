@@ -1,7 +1,10 @@
 {
   "variants": {
-    "": {
+    "lit=false": {
       "model": "anvilcraft:block/ferrite_core_magnet_block"
+    },
+    "lit=true": {
+      "model": "anvilcraft:block/demagnetized_ferrite_core_magnet_block"
     }
   }
 }

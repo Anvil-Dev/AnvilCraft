@@ -27,6 +27,7 @@ repositories {
 }
 
 loom {
+    accessWidenerPath = file("src/main/resources/anvilcraft.accesswidener")
     runs {
         datagen {
             inherit server

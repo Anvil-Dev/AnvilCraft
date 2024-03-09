@@ -56,6 +56,7 @@ public class ModItemGroups {
                 entries.accept(ModItems.UTUSAN_RAW.getDefaultInstance());
                 entries.accept(ModItems.UTUSAN.getDefaultInstance());
                 entries.accept(ModItems.MAGNET_INGOT.getDefaultInstance());
+                entries.accept(ModItems.ROYAL_STEEL_INGOT.getDefaultInstance());
                 entries.accept(ModItems.DEBRIS_SCRAP.getDefaultInstance());
                 entries.accept(ModItems.NETHER_STAR_SHARD.getDefaultInstance());
                 entries.accept(ModItems.NETHERITE_CORE.getDefaultInstance());
@@ -80,11 +81,17 @@ public class ModItemGroups {
                 entries.accept(Items.ANVIL.getDefaultInstance());
                 entries.accept(Items.CHIPPED_ANVIL.getDefaultInstance());
                 entries.accept(Items.DAMAGED_ANVIL.getDefaultInstance());
+                entries.accept(ModItems.ROYAL_ANVIL.getDefaultInstance());
                 entries.accept(ModItems.MAGNET_BLOCK.getDefaultInstance());
                 entries.accept(ModItems.HOLLOW_MAGNET_BLOCK.getDefaultInstance());
                 entries.accept(ModItems.FERRITE_CORE_MAGNET_BLOCK.getDefaultInstance());
                 entries.accept(ModItems.INTERACT_MACHINE.getDefaultInstance());
                 entries.accept(ModItems.CRAFTING_MACHINE.getDefaultInstance());
+                entries.accept(ModItems.ROYAL_STEEL_BLOCK.getDefaultInstance());
+                entries.accept(ModItems.SMOOTH_ROYAL_STEEL_BLOCK.getDefaultInstance());
+                entries.accept(ModItems.CUT_ROYAL_STEEL_BLOCK.getDefaultInstance());
+                entries.accept(ModItems.CUT_ROYAL_STEEL_SLAB.getDefaultInstance());
+                entries.accept(ModItems.CUT_ROYAL_STEEL_STAIRS.getDefaultInstance());
             });
 
     private static CreativeModeTab.@NotNull Builder createItemGroup(String id, @NotNull Supplier<CreativeModeTab.Builder> itemGroupBuilder) {
