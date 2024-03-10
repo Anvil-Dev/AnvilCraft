@@ -5,11 +5,11 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "AnvilBlockMixin",
-    "FallingBlockEntityMixin",
     "ItemEntityMixin",
     "ItemStackInjector",
-    "LightningBoltMixin",
-    "NonNullListInjector"
+    "event.FallingBlockEntityMixin",
+    "event.LightningBoltMixin",
+    "event.MinecraftServerMixin"
   ],
   "client": [
   ],

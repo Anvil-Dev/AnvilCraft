@@ -1,2 +1,4 @@
 accessWidener	v1	named
 extendable method net/minecraft/client/gui/screens/inventory/AbstractContainerScreen renderSlot (Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/world/inventory/Slot;)V
+accessible class net/minecraft/server/MinecraftServer$ReloadableResources
+accessible method net/minecraft/server/MinecraftServer$ReloadableResources resourceManager ()Lnet/minecraft/server/packs/resources/CloseableResourceManager;

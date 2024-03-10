@@ -7,7 +7,7 @@ import dev.dubhe.anvilcraft.data.recipe.Component;
 import dev.dubhe.anvilcraft.data.recipe.RecipeSerializerBase;
 import dev.dubhe.anvilcraft.data.recipe.TagIngredient;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
-import dev.dubhe.anvilcraft.util.INonNullListInjector;
+import dev.dubhe.anvilcraft.util.NonNullListUtils;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
@@ -63,7 +63,7 @@ public class ItemAnvilRecipe implements Recipe<AnvilCraftingContainer> {
         AABB aabb = new AABB(pos);
         List<ItemEntity> itemEntities = level.getEntities(EntityTypeTest.forClass(ItemEntity.class), aabb, Entity::isAlive);
         List<ItemStack> itemStacks = itemEntities.stream().map(ItemEntity::getItem).map(ItemStack::copy).toList();
-        NonNullList<TagIngredient> recipeItems = INonNullListInjector.copy(this.recipeItems);
+        NonNullList<TagIngredient> recipeItems = NonNullListUtils.copy(this.recipeItems);
         Iterator<TagIngredient> iterator1 = recipeItems.iterator();
         while (iterator1.hasNext()) {
             TagIngredient ingredient = iterator1.next();
@@ -87,7 +87,7 @@ public class ItemAnvilRecipe implements Recipe<AnvilCraftingContainer> {
         for (ItemEntity itemEntity : itemEntities) {
             itemStackMap.put(itemEntity.getItem(), itemEntity);
         }
-        NonNullList<TagIngredient> recipeItems = INonNullListInjector.copy(this.recipeItems);
+        NonNullList<TagIngredient> recipeItems = NonNullListUtils.copy(this.recipeItems);
         Iterator<TagIngredient> iterator1 = recipeItems.iterator();
         while (iterator1.hasNext()) {
             TagIngredient ingredient = iterator1.next();

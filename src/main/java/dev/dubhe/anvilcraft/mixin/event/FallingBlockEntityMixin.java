@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.mixin;
+package dev.dubhe.anvilcraft.mixin.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
