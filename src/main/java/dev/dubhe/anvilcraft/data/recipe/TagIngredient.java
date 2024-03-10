@@ -84,6 +84,15 @@ public class TagIngredient implements Predicate<ItemStack>, Serializable {
         return new TagIngredient(values);
     }
 
+    public static @NotNull TagIngredient of(@NotNull Ingredient ingredient) {
+        List<Value<?>> valueList = new ArrayList<>();
+        for (Ingredient.Value value : ingredient.values) {
+            if (value instanceof Ingredient.TagValue tagValue) valueList.add(TagValue.of(tagValue.tag));
+            if (value instanceof Ingredient.ItemValue itemValue) valueList.add(TagValue.of(itemValue.item));
+        }
+        return new TagIngredient(valueList.stream());
+    }
+
     private @NotNull Collection<ItemStack> getItems() {
         Collection<ItemStack> stacks = new ArrayList<>();
         this.values.forEach(value -> stacks.addAll(value.getItems()));

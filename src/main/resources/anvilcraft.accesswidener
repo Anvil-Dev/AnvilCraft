@@ -2,3 +2,10 @@ accessWidener	v1	named
 extendable method net/minecraft/client/gui/screens/inventory/AbstractContainerScreen renderSlot (Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/world/inventory/Slot;)V
 accessible class net/minecraft/server/MinecraftServer$ReloadableResources
 accessible method net/minecraft/server/MinecraftServer$ReloadableResources resourceManager ()Lnet/minecraft/server/packs/resources/CloseableResourceManager;
+accessible field net/minecraft/world/item/crafting/RecipeManager recipes Ljava/util/Map;
+accessible field net/minecraft/world/item/crafting/Ingredient values [Lnet/minecraft/world/item/crafting/Ingredient$Value;
+accessible class net/minecraft/world/item/crafting/Ingredient$Value
+accessible class net/minecraft/world/item/crafting/Ingredient$TagValue
+accessible field net/minecraft/world/item/crafting/Ingredient$TagValue tag Lnet/minecraft/tags/TagKey;
+accessible class net/minecraft/world/item/crafting/Ingredient$ItemValue
+accessible field net/minecraft/world/item/crafting/Ingredient$ItemValue item Lnet/minecraft/world/item/ItemStack;

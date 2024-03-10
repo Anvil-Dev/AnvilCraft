@@ -32,6 +32,8 @@ public class AnvilEventListener {
         } else itemProcess(optional.get(), container, level, event);
     }
 
+    // TODO: 最大只能处理64次
+    // TODO：无法处理多个相同输入
     private void itemProcess(ItemAnvilRecipe recipe, AnvilCraftingContainer container, Level level, AnvilFallOnLandEvent event) {
         int counts = 0;
         while (counts < AnvilCraft.config.anvilEfficiency) {
