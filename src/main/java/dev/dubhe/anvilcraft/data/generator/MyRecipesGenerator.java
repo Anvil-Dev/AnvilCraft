@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.data.generator;
 
 import dev.dubhe.anvilcraft.data.generator.recipe.CompressRecipesGenerator;
+import dev.dubhe.anvilcraft.data.generator.recipe.SmashBlockRecipesGenerator;
 import dev.dubhe.anvilcraft.data.generator.recipe.SqueezeRecipesGenerator;
 import dev.dubhe.anvilcraft.data.generator.recipe.VanillaRecipesGenerator;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
@@ -24,6 +25,7 @@ public class MyRecipesGenerator extends FabricRecipeProvider {
         CompressRecipesGenerator.buildRecipes(exporter);
         // 铁砧方块处理
         SqueezeRecipesGenerator.buildRecipes(exporter);
+        SmashBlockRecipesGenerator.buildRecipes(exporter);
     }
 
     public static @NotNull String hasItem(@NotNull Item item) {

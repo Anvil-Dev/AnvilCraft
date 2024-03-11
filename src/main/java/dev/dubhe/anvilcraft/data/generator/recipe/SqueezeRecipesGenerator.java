@@ -23,64 +23,64 @@ public abstract class SqueezeRecipesGenerator {
                 .component(Blocks.MAGMA_BLOCK)
                 .component(Blocks.CAULDRON)
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.WET_SPONGE), FabricRecipeProvider.has(Items.WET_SPONGE))
-                .save(exporter, AnvilCraft.of("wet_sponge_2_water_cauldron_1"));
+                .save(exporter, AnvilCraft.of("squeeze/magma_block_lava_cauldron_1"));
         BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.NETHERRACK.defaultBlockState(), ModBlocks.LAVA_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 2))
                 .component(Blocks.MAGMA_BLOCK)
                 .component(Component.of(Component.Value.of(Blocks.LAVA_CAULDRON).with("level", 1)))
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.WET_SPONGE), FabricRecipeProvider.has(Items.WET_SPONGE))
-                .save(exporter, AnvilCraft.of("wet_sponge_2_water_cauldron_2"));
+                .save(exporter, AnvilCraft.of("squeeze/magma_block_lava_cauldron_2"));
         BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.NETHERRACK.defaultBlockState(), Blocks.LAVA_CAULDRON.defaultBlockState())
                 .component(Blocks.MAGMA_BLOCK)
                 .component(Component.of(Component.Value.of(Blocks.LAVA_CAULDRON).with("level", 2)))
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.WET_SPONGE), FabricRecipeProvider.has(Items.WET_SPONGE))
-                .save(exporter, AnvilCraft.of("wet_sponge_2_water_cauldron_3"));
+                .save(exporter, AnvilCraft.of("squeeze/magma_block_lava_cauldron_3"));
 
         BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.SPONGE.defaultBlockState(), Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 1))
                 .component(Blocks.WET_SPONGE)
                 .component(Blocks.CAULDRON)
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.WET_SPONGE), FabricRecipeProvider.has(Items.WET_SPONGE))
-                .save(exporter, AnvilCraft.of("wet_sponge_2_water_cauldron_1"));
+                .save(exporter, AnvilCraft.of("squeeze/wet_sponge_2_water_cauldron_1"));
         BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.SPONGE.defaultBlockState(), Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 2))
                 .component(Blocks.WET_SPONGE)
                 .component(Component.of(Component.Value.of(Blocks.WATER_CAULDRON).with("level", 1)))
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.WET_SPONGE), FabricRecipeProvider.has(Items.WET_SPONGE))
-                .save(exporter, AnvilCraft.of("wet_sponge_2_water_cauldron_2"));
+                .save(exporter, AnvilCraft.of("squeeze/wet_sponge_2_water_cauldron_2"));
         BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.SPONGE.defaultBlockState(), Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3))
                 .component(Blocks.WET_SPONGE)
                 .component(Component.of(Component.Value.of(Blocks.WATER_CAULDRON).with("level", 2)))
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.WET_SPONGE), FabricRecipeProvider.has(Items.WET_SPONGE))
-                .save(exporter, AnvilCraft.of("wet_sponge_2_water_cauldron_3"));
+                .save(exporter, AnvilCraft.of("squeeze/wet_sponge_2_water_cauldron_3"));
 
         BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.MOSS_CARPET.defaultBlockState(), Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 1))
                 .component(Blocks.MOSS_BLOCK)
                 .component(Blocks.CAULDRON)
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.MOSS_BLOCK), FabricRecipeProvider.has(Items.MOSS_BLOCK))
-                .save(exporter, AnvilCraft.of("moss_2_water_cauldron_1"));
+                .save(exporter, AnvilCraft.of("squeeze/moss_2_water_cauldron_1"));
         BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.MOSS_CARPET.defaultBlockState(), Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 2))
                 .component(Blocks.MOSS_BLOCK)
                 .component(Component.of(Component.Value.of(Blocks.WATER_CAULDRON).with("level", 1)))
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.MOSS_BLOCK), FabricRecipeProvider.has(Items.MOSS_BLOCK))
-                .save(exporter, AnvilCraft.of("moss_2_water_cauldron_2"));
+                .save(exporter, AnvilCraft.of("squeeze/moss_2_water_cauldron_2"));
         BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.MOSS_CARPET.defaultBlockState(), Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3))
                 .component(Blocks.MOSS_BLOCK)
                 .component(Component.of(Component.Value.of(Blocks.WATER_CAULDRON).with("level", 2)))
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.MOSS_BLOCK), FabricRecipeProvider.has(Items.MOSS_BLOCK))
-                .save(exporter, AnvilCraft.of("moss_2_water_cauldron_3"));
+                .save(exporter, AnvilCraft.of("squeeze/moss_2_water_cauldron_3"));
 
         BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.ICE.defaultBlockState(), Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 1))
                 .component(Blocks.SNOW_BLOCK)
                 .component(Blocks.CAULDRON)
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.SNOW_BLOCK), FabricRecipeProvider.has(Items.SNOW_BLOCK))
-                .save(exporter, AnvilCraft.of("snow_2_water_cauldron_1"));
+                .save(exporter, AnvilCraft.of("squeeze/snow_2_water_cauldron_1"));
         BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.ICE.defaultBlockState(), Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 2))
                 .component(Blocks.SNOW_BLOCK)
                 .component(Component.of(Component.Value.of(Blocks.WATER_CAULDRON).with("level", 1)))
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.SNOW_BLOCK), FabricRecipeProvider.has(Items.SNOW_BLOCK))
-                .save(exporter, AnvilCraft.of("snow_2_water_cauldron_2"));
+                .save(exporter, AnvilCraft.of("squeeze/snow_2_water_cauldron_2"));
         BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.ICE.defaultBlockState(), Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3))
                 .component(Blocks.SNOW_BLOCK)
                 .component(Component.of(Component.Value.of(Blocks.WATER_CAULDRON).with("level", 2)))
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.SNOW_BLOCK), FabricRecipeProvider.has(Items.SNOW_BLOCK))
-                .save(exporter, AnvilCraft.of("snow_2_water_cauldron_3"));
+                .save(exporter, AnvilCraft.of("squeeze/snow_2_water_cauldron_3"));
     }
 }
