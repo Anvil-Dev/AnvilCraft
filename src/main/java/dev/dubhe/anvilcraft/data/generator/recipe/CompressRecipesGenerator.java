@@ -44,20 +44,5 @@ public abstract class CompressRecipesGenerator {
                 .resultLocation(ItemAnvilRecipe.Location.IN)
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.BONE), FabricRecipeProvider.has(Items.BONE))
                 .save(exporter);
-        ItemAnvilRecipeBuilder.item(RecipeCategory.MISC)
-                .component(Blocks.CAULDRON)
-                .component(BlockTags.CAMPFIRES)
-                .result(ModItems.ROYAL_STEEL_INGOT.getDefaultInstance())
-                .requires(Items.IRON_INGOT)
-                .requires(Items.EMERALD)
-                .requires(Items.DIAMOND)
-                .requires(Items.AMETHYST_SHARD)
-                .location(ItemAnvilRecipe.Location.IN)
-                .resultLocation(ItemAnvilRecipe.Location.IN)
-                .unlockedBy(MyRecipesGenerator.hasItem(Items.IRON_INGOT), FabricRecipeProvider.has(Items.IRON_INGOT))
-                .unlockedBy(MyRecipesGenerator.hasItem(Items.EMERALD), FabricRecipeProvider.has(Items.EMERALD))
-                .unlockedBy(MyRecipesGenerator.hasItem(Items.DIAMOND), FabricRecipeProvider.has(Items.DIAMOND))
-                .unlockedBy(MyRecipesGenerator.hasItem(Items.AMETHYST_SHARD), FabricRecipeProvider.has(Items.AMETHYST_SHARD))
-                .save(exporter, AnvilCraft.of("craft_a_royal_steel_ingot"));
     }
 }

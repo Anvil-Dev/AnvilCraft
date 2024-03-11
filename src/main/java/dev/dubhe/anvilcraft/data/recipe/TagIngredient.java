@@ -237,8 +237,9 @@ public class TagIngredient implements Predicate<ItemStack>, Serializable {
             return value;
         }
 
-        public void with(String key, Tag value) {
+        public Value<?> with(String key, Tag value) {
             this.tag.put(key, value);
+            return this;
         }
 
         public abstract Collection<ItemStack> getItems();

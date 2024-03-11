@@ -57,6 +57,7 @@ public class ItemAnvilRecipeBuilder implements RecipeBuilder {
         this.category = category;
         this.results.addAll(Arrays.stream(result).toList());
     }
+
     public static @NotNull ItemAnvilRecipeBuilder item(RecipeCategory category) {
         return new ItemAnvilRecipeBuilder(category);
     }
@@ -83,6 +84,10 @@ public class ItemAnvilRecipeBuilder implements RecipeBuilder {
     public ItemAnvilRecipeBuilder result(ItemLike item, int count) {
         this.results.add(new ItemStack(item, count));
         return this;
+    }
+
+    public ItemAnvilRecipeBuilder result(ItemLike item) {
+        return this.result(item, 1);
     }
 
     public ItemAnvilRecipeBuilder requires(TagKey<Item> tag) {

@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.data.generator.MyRecipesGenerator;
 import dev.dubhe.anvilcraft.data.recipe.Component;
 import dev.dubhe.anvilcraft.data.recipe.anvil.item.ItemAnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.anvil.item.ItemAnvilRecipeBuilder;
+import dev.dubhe.anvilcraft.init.ModItems;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -32,6 +33,7 @@ public abstract class BulgingRecipesGenerator {
         bulging(Items.FIRE_CORAL, Items.FIRE_CORAL_BLOCK, exporter);
         bulging(Items.HORN_CORAL, Items.HORN_CORAL_BLOCK, exporter);
         bulging(Items.TUBE_CORAL, Items.TUBE_CORAL_BLOCK, exporter);
+        bulging(ModItems.FLOUR, ModItems.DOUGH, exporter);
     }
 
     public static void bulging(Item item, Item item1, Consumer<FinishedRecipe> exporter) {
