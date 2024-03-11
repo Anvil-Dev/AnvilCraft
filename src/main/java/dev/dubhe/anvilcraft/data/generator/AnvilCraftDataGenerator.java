@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.data;
+package dev.dubhe.anvilcraft.data.generator;
 
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;

@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.*;
+import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.*;
@@ -26,6 +27,7 @@ public class ModBlocks {
     public static final Block CUT_ROYAL_STEEL_BLOCK = registerBlock("cut_royal_steel_block", Block::new, BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK));
     public static final Block CUT_ROYAL_STEEL_SLAB = registerBlock("cut_royal_steel_slab", SlabBlock::new, BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK));
     public static final Block CUT_ROYAL_STEEL_STAIRS = registerBlock("cut_royal_steel_stairs", (properties) -> new StairBlock(ModBlocks.CUT_ROYAL_STEEL_BLOCK.defaultBlockState(), properties), BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK));
+    public static final Block LAVA_CAULDRON = registerBlock("lava_cauldron", LavaCauldronBlock::new, BlockBehaviour.Properties.copy(Blocks.LAVA_CAULDRON).lightLevel(blockState -> blockState.getValue(LayeredCauldronBlock.LEVEL) * 5));
 
     public static void register() {
         for (Map.Entry<String, Block> entry : ModBlocks.BLOCK_MAP.entrySet()) {

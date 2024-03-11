@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.data;
+package dev.dubhe.anvilcraft.data.generator;
 
 import dev.dubhe.anvilcraft.init.ModItemTags;
 import dev.dubhe.anvilcraft.init.ModItems;

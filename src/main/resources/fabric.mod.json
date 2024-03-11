@@ -22,7 +22,7 @@
       "dev.dubhe.anvilcraft.AnvilCraft"
     ],
     "fabric-datagen": [
-      "dev.dubhe.anvilcraft.data.AnvilCraftDataGenerator"
+      "dev.dubhe.anvilcraft.data.generator.AnvilCraftDataGenerator"
     ]
   },
   "mixins": [
