@@ -3,27 +3,35 @@ package dev.dubhe.anvilcraft.event;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.SubscribeEvent;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
+import dev.dubhe.anvilcraft.api.event.entity.AnvilHurtEntityEvent;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
 import dev.dubhe.anvilcraft.data.recipe.anvil.block.BlockAnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.anvil.item.ItemAnvilRecipe;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.RedstoneTorchBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.DispenserBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Optional;
 
 public class AnvilEventListener {
@@ -90,6 +98,39 @@ public class AnvilEventListener {
                 state = state.setValue(RedstoneTorchBlock.LIT, false);
                 level.setBlock(pos1, state, 3);
             }
+        }
+    }
+
+    @SubscribeEvent
+    public void onAnvilHurtEntity(@NotNull AnvilHurtEntityEvent event) {
+        Entity hurtedEntity = event.getHurtedEntity();
+        if (!(hurtedEntity instanceof LivingEntity entity)) return;
+        if (!(hurtedEntity.level() instanceof ServerLevel serverLevel)) return;
+        float damage = event.getDamage();
+        float maxHealth = entity.getMaxHealth();
+        double rate = damage / maxHealth;
+        if (rate < 0.4) return;
+        FallingBlockEntity eventEntity = event.getEntity();
+        DamageSource source = entity.level().damageSources().anvil(eventEntity);
+        LootParams.Builder builder = new LootParams.Builder(serverLevel);
+        builder.withParameter(LootContextParams.DAMAGE_SOURCE, source);
+        builder.withOptionalParameter(LootContextParams.DIRECT_KILLER_ENTITY, eventEntity);
+        builder.withOptionalParameter(LootContextParams.KILLER_ENTITY, eventEntity);
+        builder.withParameter(LootContextParams.THIS_ENTITY, entity);
+        Vec3 pos = entity.position();
+        builder.withParameter(LootContextParams.ORIGIN, pos);
+        LootParams lootParams = builder.create(LootContextParamSets.ENTITY);
+        LootTable lootTable = serverLevel.getServer().getLootData().getLootTable(entity.getLootTable());
+        dropItems(lootTable.getRandomItems(lootParams), serverLevel, pos);
+        if (rate >= 0.6) dropItems(lootTable.getRandomItems(lootParams), serverLevel, pos);
+        if (rate >= 0.8) dropItems(lootTable.getRandomItems(lootParams), serverLevel, pos);
+    }
+
+    private void dropItems(@NotNull List<ItemStack> items, Level level, Vec3 pos) {
+        for (ItemStack item : items) {
+            if (item.isEmpty()) continue;
+            ItemEntity entity = new ItemEntity(level, pos.x, pos.y, pos.z, item.copy());
+            level.addFreshEntity(entity);
         }
     }
 }
