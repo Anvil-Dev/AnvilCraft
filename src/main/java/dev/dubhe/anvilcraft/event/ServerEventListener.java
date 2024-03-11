@@ -77,7 +77,7 @@ public class ServerEventListener {
                         ItemAnvilRecipe.Location.UP,
                         NonNullList.withSize(1, Component.of(Blocks.IRON_TRAPDOOR)),
                         List.of(result),
-                        ItemAnvilRecipe.Location.UNDER,
+                        ItemAnvilRecipe.Location.IN,
                         false
                 );
                 return new Pair<>(location, recipe1);
@@ -97,7 +97,7 @@ public class ServerEventListener {
                         location,
                         NonNullList.withSize(ingredientCount, ingredient1),
                         ItemAnvilRecipe.Location.IN,
-                        NonNullList.withSize(1, Component.of(Blocks.IRON_TRAPDOOR)),
+                        NonNullList.withSize(1, Component.of(Blocks.CAULDRON)),
                         List.of(result),
                         ItemAnvilRecipe.Location.IN,
                         false
