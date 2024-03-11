@@ -1,10 +1,11 @@
 package dev.dubhe.anvilcraft.block;
 
-import dev.dubhe.anvilcraft.block.entity.CraftingMachineBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.AutoCrafterBlockEntity;
 import dev.dubhe.anvilcraft.network.MachineOutputDirectionPack;
 import dev.dubhe.anvilcraft.network.MachineRecordMaterialPack;
 import dev.dubhe.anvilcraft.network.SlotChangePack;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
@@ -15,26 +16,25 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.BaseEntityBlock;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.RedstoneTorchBlock;
-import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class CraftingMachineBlock extends BaseEntityBlock {
+public class AutoCrafterBlock extends BaseEntityBlock {
+    public static final DirectionProperty FACING = DirectionalBlock.FACING;
     public static final BooleanProperty LIT = RedstoneTorchBlock.LIT;
 
-    public CraftingMachineBlock(Properties properties) {
+    public AutoCrafterBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(LIT, false));
+        this.registerDefaultState(this.stateDefinition.any().setValue(LIT, false).setValue(FACING, Direction.NORTH));
     }
 
     @Override
@@ -44,7 +44,7 @@ public class CraftingMachineBlock extends BaseEntityBlock {
             return InteractionResult.SUCCESS;
         }
         BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity instanceof CraftingMachineBlockEntity entity) {
+        if (blockEntity instanceof AutoCrafterBlockEntity entity) {
             player.openMenu(entity);
             if (player instanceof ServerPlayer serverPlayer) {
                 new MachineOutputDirectionPack(entity.getDirection()).send(serverPlayer);
@@ -74,13 +74,13 @@ public class CraftingMachineBlock extends BaseEntityBlock {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new CraftingMachineBlockEntity(pos, state);
+        return new AutoCrafterBlockEntity(pos, state);
     }
 
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
-        return (level1, pos, state1, e) -> CraftingMachineBlockEntity.tick(level1, pos, e);
+        return (level1, pos, state1, e) -> AutoCrafterBlockEntity.tick(level1, pos, e);
     }
 
     @Override
@@ -91,12 +91,12 @@ public class CraftingMachineBlock extends BaseEntityBlock {
     @Override
     @Nullable
     public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
-        return this.defaultBlockState().setValue(LIT, context.getLevel().hasNeighborSignal(context.getClickedPos()));
+        return this.defaultBlockState().setValue(FACING, context.getNearestLookingDirection().getOpposite()).setValue(LIT, context.getLevel().hasNeighborSignal(context.getClickedPos()));
     }
 
     @Override
     protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(LIT);
+        builder.add(LIT).add(FACING);
     }
 
     @Override
@@ -117,8 +117,8 @@ public class CraftingMachineBlock extends BaseEntityBlock {
     }
 
     private void craft(@NotNull Level level, BlockPos pos) {
-        if (!(level.getBlockEntity(pos) instanceof CraftingMachineBlockEntity entity)) return;
-        CraftingMachineBlockEntity.craft(level, entity);
+        if (!(level.getBlockEntity(pos) instanceof AutoCrafterBlockEntity entity)) return;
+        AutoCrafterBlockEntity.craft(level, entity);
     }
 
     @Override
@@ -127,5 +127,17 @@ public class CraftingMachineBlock extends BaseEntityBlock {
         if (state.getValue(LIT) && !level.hasNeighborSignal(pos)) {
             level.setBlock(pos, state.cycle(LIT), 2);
         }
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public @NotNull BlockState rotate(@NotNull BlockState state, @NotNull Rotation rotation) {
+        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public @NotNull BlockState mirror(@NotNull BlockState state, @NotNull Mirror mirror) {
+        return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }
 }

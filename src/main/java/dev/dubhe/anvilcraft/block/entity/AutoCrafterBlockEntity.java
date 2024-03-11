@@ -1,15 +1,17 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
-import dev.dubhe.anvilcraft.inventory.CraftingMachineMenu;
+import dev.dubhe.anvilcraft.init.ModBlocks;
+import dev.dubhe.anvilcraft.inventory.AutoCrafterMenu;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -29,11 +31,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Optional;
 
-public class CraftingMachineBlockEntity extends BaseMachineBlockEntity {
+public class AutoCrafterBlockEntity extends BaseMachineBlockEntity {
     @Getter
     @Setter
     private boolean record = false;
-    private final CraftingMachineBlockEntity entity = this;
+    private final AutoCrafterBlockEntity entity = this;
     @Getter
     private final NonNullList<Boolean> disabled = NonNullList.withSize(9, false);
     private final CraftingContainer container = new CraftingContainer() {
@@ -116,21 +118,22 @@ public class CraftingMachineBlockEntity extends BaseMachineBlockEntity {
         }
     };
 
-    public CraftingMachineBlockEntity(BlockPos pos, BlockState blockState) {
-        super(ModBlockEntities.CRAFTING_MACHINE, pos, blockState, 10);
+    public AutoCrafterBlockEntity(BlockPos pos, BlockState blockState) {
+        super(ModBlockEntities.AUTO_CRAFTER, pos, blockState, 10);
+        this.direction = blockState.getValue(AutoCrafterBlock.FACING);
     }
 
     @Override
     protected @NotNull Component getDefaultName() {
-        return Component.translatable("block.anvilcraft.crafting_machine");
+        return Component.translatable("block.anvilcraft.auto_crafter");
     }
 
     public static void tick(Level level, BlockPos pos, BlockEntity e) {
-        if (!(e instanceof CraftingMachineBlockEntity entity)) return;
+        if (!(e instanceof AutoCrafterBlockEntity entity)) return;
         BaseMachineBlockEntity.tick(level, pos, entity);
     }
 
-    public static void craft(@NotNull Level level, CraftingMachineBlockEntity entity) {
+    public static void craft(@NotNull Level level, AutoCrafterBlockEntity entity) {
         if (level.getServer() == null) return;
         ItemStack itemStack = entity.getResult();
         ItemStack itemStack2;
@@ -157,7 +160,7 @@ public class CraftingMachineBlockEntity extends BaseMachineBlockEntity {
 
     @Override
     protected @NotNull AbstractContainerMenu createMenu(int containerId, Inventory inventory) {
-        return new CraftingMachineMenu(containerId, inventory, this);
+        return new AutoCrafterMenu(containerId, inventory, this);
     }
 
     public boolean shouldRecord() {
@@ -216,5 +219,16 @@ public class CraftingMachineBlockEntity extends BaseMachineBlockEntity {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void setDirection(Direction direction) {
+        super.setDirection(direction);
+        BlockPos pos = this.getBlockPos();
+        Level level = this.getLevel();
+        if (null == level) return;
+        BlockState state = level.getBlockState(pos);
+        if (!state.is(ModBlocks.AUTO_CRAFTER)) return;
+        level.setBlock(pos, state.setValue(AutoCrafterBlock.FACING, direction), 3);
     }
 }

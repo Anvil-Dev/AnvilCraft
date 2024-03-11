@@ -1,9 +1,9 @@
 package dev.dubhe.anvilcraft.network;
 
 import dev.dubhe.anvilcraft.api.network.Packet;
-import dev.dubhe.anvilcraft.client.gui.screen.inventory.CraftingMachineScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.inventory.AutoCrafterScreen;
 import dev.dubhe.anvilcraft.init.ModNetworks;
-import dev.dubhe.anvilcraft.inventory.CraftingMachineMenu;
+import dev.dubhe.anvilcraft.inventory.AutoCrafterMenu;
 import lombok.Getter;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -43,7 +43,7 @@ public class MachineRecordMaterialPack implements Packet {
     public void receive(@NotNull MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, PacketSender sender) {
         server.execute(() -> {
             if (!player.hasContainerOpen()) return;
-            if (!(player.containerMenu instanceof CraftingMachineMenu menu)) return;
+            if (!(player.containerMenu instanceof AutoCrafterMenu menu)) return;
             menu.setRecordMaterial(this.isRecordMaterial());
             this.send(player);
         });
@@ -53,7 +53,7 @@ public class MachineRecordMaterialPack implements Packet {
     @Environment(EnvType.CLIENT)
     public void receive(@NotNull Minecraft client, ClientPacketListener handler, PacketSender responseSender) {
         client.execute(() -> {
-            if (!(client.screen instanceof CraftingMachineScreen screen)) return;
+            if (!(client.screen instanceof AutoCrafterScreen screen)) return;
             if (screen.getRecordButton() == null) return;
             screen.getRecordButton().setRecord(this.isRecordMaterial());
         });

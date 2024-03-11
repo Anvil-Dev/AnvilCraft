@@ -3,8 +3,8 @@ package dev.dubhe.anvilcraft.client.gui.screen.inventory;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.gui.component.RecordMaterialButton;
-import dev.dubhe.anvilcraft.inventory.CraftingMachineMenu;
-import dev.dubhe.anvilcraft.inventory.component.CraftingMachineSlot;
+import dev.dubhe.anvilcraft.inventory.AutoCrafterMenu;
+import dev.dubhe.anvilcraft.inventory.component.AutoCrafterSlot;
 import dev.dubhe.anvilcraft.network.MachineRecordMaterialPack;
 import dev.dubhe.anvilcraft.network.SlotChangePack;
 import lombok.Getter;
@@ -21,9 +21,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 
-public class CraftingMachineScreen extends BaseMachineScreen<CraftingMachineMenu> {
+public class AutoCrafterScreen extends BaseMachineScreen<AutoCrafterMenu> {
     private final NonNullList<Boolean> disabled = NonNullList.withSize(11, false);
-    private static final ResourceLocation CONTAINER_LOCATION = AnvilCraft.of("textures/gui/container/crafting_machine.png");
+    private static final ResourceLocation CONTAINER_LOCATION = AnvilCraft.of("textures/gui/container/auto_crafter.png");
     private static final ResourceLocation DISABLED_SLOT = AnvilCraft.of("textures/gui/container/disabled_slot.png");
     Supplier<RecordMaterialButton> materialButtonSupplier = () -> new RecordMaterialButton(this.leftPos + 116, this.topPos + 18, button -> {
         if (button instanceof RecordMaterialButton button1) {
@@ -36,14 +36,14 @@ public class CraftingMachineScreen extends BaseMachineScreen<CraftingMachineMenu
     @Getter
     private final Player player;
 
-    public CraftingMachineScreen(CraftingMachineMenu menu, Inventory playerInventory, Component title) {
+    public AutoCrafterScreen(AutoCrafterMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.player = playerInventory.player;
     }
 
     @Override
     protected void slotClicked(Slot slot, int i, int j, ClickType clickType) {
-        if (slot instanceof CraftingMachineSlot && !slot.hasItem() && !this.getPlayer().isSpectator()) {
+        if (slot instanceof AutoCrafterSlot && !slot.hasItem() && !this.getPlayer().isSpectator()) {
             switch (clickType) {
                 case PICKUP: {
                     if (this.disabled.get(i)) {
@@ -79,7 +79,7 @@ public class CraftingMachineScreen extends BaseMachineScreen<CraftingMachineMenu
 
     @Override
     public void renderSlot(GuiGraphics guiGraphics, Slot slot) {
-        if (slot instanceof CraftingMachineSlot crafterSlot) {
+        if (slot instanceof AutoCrafterSlot crafterSlot) {
             if (this.disabled.get(slot.index)) {
                 this.renderDisabledSlot(guiGraphics, crafterSlot);
                 return;
@@ -88,7 +88,7 @@ public class CraftingMachineScreen extends BaseMachineScreen<CraftingMachineMenu
         super.renderSlot(guiGraphics, slot);
     }
 
-    private void renderDisabledSlot(@NotNull GuiGraphics guiGraphics, @NotNull CraftingMachineSlot crafterSlot) {
+    private void renderDisabledSlot(@NotNull GuiGraphics guiGraphics, @NotNull AutoCrafterSlot crafterSlot) {
         RenderSystem.enableDepthTest();
         guiGraphics.blit(DISABLED_SLOT, crafterSlot.x, crafterSlot.y, 0, 0, 16, 16,16,16);
     }

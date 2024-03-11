@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.init;
 
-import dev.dubhe.anvilcraft.inventory.CraftingMachineMenu;
+import dev.dubhe.anvilcraft.inventory.AutoCrafterMenu;
 import dev.dubhe.anvilcraft.inventory.InteractMachineMenu;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class ModMenuTypes {
     public static final MenuType<InteractMachineMenu> INTERACT_MACHINE = ModMenuTypes.register("interact_machine", InteractMachineMenu::new);
-    public static final MenuType<CraftingMachineMenu> CRAFTING_MACHINE = ModMenuTypes.register("crafting_machine", CraftingMachineMenu::new);
+    public static final MenuType<AutoCrafterMenu> AUTO_CRAFTER = ModMenuTypes.register("auto_crafter", AutoCrafterMenu::new);
 
     public static void register() {
     }

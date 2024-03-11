@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.client;
 
 import dev.dubhe.anvilcraft.api.network.Networking;
-import dev.dubhe.anvilcraft.client.gui.screen.inventory.CraftingMachineScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.inventory.AutoCrafterScreen;
 import dev.dubhe.anvilcraft.client.init.ModNetworks;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.InteractMachineScreen;
@@ -16,7 +16,7 @@ public class AnvilCraftClient implements ClientModInitializer {
     public void onInitializeClient() {
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.HOLLOW_MAGNET_BLOCK, RenderType.cutout());
         MenuScreens.register(ModMenuTypes.INTERACT_MACHINE, InteractMachineScreen::new);
-        MenuScreens.register(ModMenuTypes.CRAFTING_MACHINE, CraftingMachineScreen::new);
+        MenuScreens.register(ModMenuTypes.AUTO_CRAFTER, AutoCrafterScreen::new);
         ModNetworks.register();
         Networking.CLIENT.register();
     }

@@ -19,7 +19,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.StonecutterRecipe;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import org.jetbrains.annotations.NotNull;
@@ -305,7 +304,7 @@ public class MyRecipesGenerator extends FabricRecipeProvider {
                 .unlockedBy(hasItem(Items.ANVIL), FabricRecipeProvider.has(Items.ANVIL))
                 .unlockedBy(hasItem(Items.DISPENSER), FabricRecipeProvider.has(Items.DISPENSER))
                 .save(exporter);
-        ItemAnvilRecipeBuilder.item(RecipeCategory.TOOLS, ModItems.CRAFTING_MACHINE)
+        ItemAnvilRecipeBuilder.item(RecipeCategory.TOOLS, ModItems.AUTO_CRAFTER)
                 .requires(Items.ANVIL)
                 .requires(Items.CRAFTING_TABLE)
                 .component(Blocks.CAULDRON)

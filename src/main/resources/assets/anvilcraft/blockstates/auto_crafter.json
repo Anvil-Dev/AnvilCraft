@@ -1,25 +1,25 @@
 {
   "variants": {
     "facing=down": {
-      "model": "minecraft:block/auto_crafter_vertical",
+      "model": "anvilcraft:block/auto_crafter_vertical",
       "x": 180
     },
     "facing=east": {
-      "model": "minecraft:block/auto_crafter",
+      "model": "anvilcraft:block/auto_crafter",
       "y": 90
     },
     "facing=north": {
-      "model": "minecraft:block/auto_crafter"
+      "model": "anvilcraft:block/auto_crafter"
     },
     "facing=south": {
-      "model": "minecraft:block/auto_crafter",
+      "model": "anvilcraft:block/auto_crafter",
       "y": 180
     },
     "facing=up": {
-      "model": "minecraft:block/auto_crafter_vertical"
+      "model": "anvilcraft:block/auto_crafter_vertical"
     },
     "facing=west": {
-      "model": "minecraft:block/auto_crafter",
+      "model": "anvilcraft:block/auto_crafter",
       "y": 270
     }
   }

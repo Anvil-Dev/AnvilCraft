@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.init;
 
 import com.mojang.datafixers.types.Type;
-import dev.dubhe.anvilcraft.block.entity.CraftingMachineBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.AutoCrafterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.InteractMachineBlockEntity;
 import net.minecraft.Util;
 import net.minecraft.core.Registry;
@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class ModBlockEntities {
     public static final BlockEntityType<InteractMachineBlockEntity> INTERACT_MACHINE = ModBlockEntities.register("interact_machine", BlockEntityType.Builder.of(InteractMachineBlockEntity::new, ModBlocks.INTERACT_MACHINE));
-    public static final BlockEntityType<CraftingMachineBlockEntity> CRAFTING_MACHINE = ModBlockEntities.register("crefting_machine", BlockEntityType.Builder.of(CraftingMachineBlockEntity::new, ModBlocks.CRAFTING_MACHINE));
+    public static final BlockEntityType<AutoCrafterBlockEntity> AUTO_CRAFTER = ModBlockEntities.register("crefting_machine", BlockEntityType.Builder.of(AutoCrafterBlockEntity::new, ModBlocks.AUTO_CRAFTER));
 
     public static void register() {}
 
