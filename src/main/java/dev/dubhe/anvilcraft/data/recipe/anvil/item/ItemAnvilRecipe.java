@@ -22,6 +22,8 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
@@ -93,6 +95,14 @@ public class ItemAnvilRecipe implements Recipe<AnvilCraftingContainer> {
                 itemStack.shrink(1);
                 itemStackMap.get(itemStack).setItem(itemStack);
                 break;
+            }
+        }
+        BlockState state = level.getBlockState(pos);
+        if (state.is(Blocks.WATER_CAULDRON)) {
+            if (state.getValue(LayeredCauldronBlock.LEVEL) == 1) {
+                level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
+            } else {
+                level.setBlock(pos, state.setValue(LayeredCauldronBlock.LEVEL, state.getValue(LayeredCauldronBlock.LEVEL) - 1), 3);
             }
         }
         return true;

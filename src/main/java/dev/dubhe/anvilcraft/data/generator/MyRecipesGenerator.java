@@ -20,6 +20,8 @@ public class MyRecipesGenerator extends FabricRecipeProvider {
         VanillaRecipesGenerator.buildRecipes(exporter);
         // 铁砧物品处理
         CompressRecipesGenerator.buildRecipes(exporter);
+        StampingRecipesGenerator.buildRecipes(exporter);
+        BulgingRecipesGenerator.buildRecipes(exporter);
         // 铁砧方块处理
         SqueezeRecipesGenerator.buildRecipes(exporter);
         SmashBlockRecipesGenerator.buildRecipes(exporter);

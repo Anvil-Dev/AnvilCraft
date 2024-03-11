@@ -125,6 +125,11 @@ public class ItemAnvilRecipeBuilder implements RecipeBuilder {
         return this;
     }
 
+    public ItemAnvilRecipeBuilder component(Component... block) {
+        this.components.addAll(Arrays.stream(block).toList());
+        return this;
+    }
+
     public ItemAnvilRecipeBuilder component(BlockItem... block) {
         this.components.add(Component.ofBlocks(Arrays.stream(block).map(BlockItem::getBlock)));
         return this;
