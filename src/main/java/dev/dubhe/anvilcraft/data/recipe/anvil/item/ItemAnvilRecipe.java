@@ -64,15 +64,14 @@ public class ItemAnvilRecipe implements Recipe<AnvilCraftingContainer> {
         List<ItemEntity> itemEntities = level.getEntities(EntityTypeTest.forClass(ItemEntity.class), aabb, Entity::isAlive);
         List<ItemStack> itemStacks = itemEntities.stream().map(ItemEntity::getItem).map(ItemStack::copy).toList();
         NonNullList<TagIngredient> recipeItems = NonNullListUtils.copy(this.recipeItems);
-        Iterator<TagIngredient> iterator1 = recipeItems.iterator();
-        while (iterator1.hasNext()) {
-            TagIngredient ingredient = iterator1.next();
+        recipeItems.removeIf(it -> {
             for (ItemStack itemStack : itemStacks) {
-                if (!ingredient.test(itemStack)) continue;
-                iterator1.remove();
-                itemStack.setCount(itemStack.getCount() - 1);
+                if (!it.test(itemStack)) continue;
+                itemStack.shrink(1);
+                return true;
             }
-        }
+            return false;
+        });
         return recipeItems.isEmpty();
     }
 
@@ -88,14 +87,12 @@ public class ItemAnvilRecipe implements Recipe<AnvilCraftingContainer> {
             itemStackMap.put(itemEntity.getItem(), itemEntity);
         }
         NonNullList<TagIngredient> recipeItems = NonNullListUtils.copy(this.recipeItems);
-        Iterator<TagIngredient> iterator1 = recipeItems.iterator();
-        while (iterator1.hasNext()) {
-            TagIngredient ingredient = iterator1.next();
+        for (TagIngredient ingredient : recipeItems) {
             for (ItemStack itemStack : itemStackMap.keySet()) {
                 if (!ingredient.test(itemStack)) continue;
-                iterator1.remove();
-                itemStack.setCount(itemStack.getCount() - 1);
+                itemStack.shrink(1);
                 itemStackMap.get(itemStack).setItem(itemStack);
+                break;
             }
         }
         return true;
