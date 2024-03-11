@@ -1,0 +1,29 @@
+package dev.dubhe.anvilcraft.item;
+
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.entity.EntityTypeTest;
+import net.minecraft.world.phys.AABB;
+import org.jetbrains.annotations.NotNull;
+
+public class MagnetItem extends Item {
+    public MagnetItem(Properties properties) {
+        super(properties);
+    }
+
+    @Override
+    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, Player player, InteractionHand usedHand) {
+        if (level.isClientSide()) return InteractionResultHolder.success(ItemStack.EMPTY);
+        ItemStack item = player.getItemInHand(usedHand);
+        AABB aabb = new AABB(player.position().add(-2.5, -2.5, -2.5), player.position().add(2.5, 2.5, 2.5));
+        level.getEntities(EntityTypeTest.forClass(ItemEntity.class), aabb, Entity::isAlive).forEach(e -> e.moveTo(player.position()));
+        item.setDamageValue(item.getDamageValue() + 1);
+        return InteractionResultHolder.success(item);
+    }
+}

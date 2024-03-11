@@ -1,10 +1,7 @@
 package dev.dubhe.anvilcraft.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.item.ChangeablePickaxeItem;
-import dev.dubhe.anvilcraft.item.ModFoods;
-import dev.dubhe.anvilcraft.item.ModTiers;
-import dev.dubhe.anvilcraft.item.UtusanItem;
+import dev.dubhe.anvilcraft.item.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -25,7 +22,7 @@ import java.util.function.Function;
 @SuppressWarnings("unused")
 public class ModItems {
     private static final Map<String, Item> ITEM_MAP = new HashMap<>();
-    public static final Item MAGNET = registerItem("magnet", Item::new, defaultProperties());
+    public static final Item MAGNET = registerItem("magnet", MagnetItem::new, defaultProperties().durability(114));
     public static final Item CHANGEABLE_PICKAXE_FORTUNE = registerItem("changeable_pickaxe_fortune", ChangeablePickaxeItem::new, defaultProperties());
     public static final Item CHANGEABLE_PICKAXE_SILK_TOUCH = registerItem("changeable_pickaxe_silk_touch", ChangeablePickaxeItem::new, defaultProperties());
     public static final Item AMETHYST_PICKAXE = registerItem("amethyst_pickaxe", properties -> new PickaxeItem(ModTiers.AMETHYST, 1, -2.8f, properties) {
