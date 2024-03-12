@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.Level;
@@ -65,7 +64,10 @@ public abstract class AnvilBlockMixin extends FallingBlock {
         for (int i = 0; i < distance; i++) {
             magnet = magnet.above();
             BlockState state1 = level.getBlockState(magnet);
-            if (!(state1.getBlock() instanceof MagnetBlock) || state1.getValue(LIT)) continue;
+            if (!(state1.getBlock() instanceof MagnetBlock) || state1.getValue(LIT)) {
+                if (state1.is(Blocks.AIR) || state1.is(Blocks.CAVE_AIR) || state1.is(Blocks.VOID_AIR)) continue;
+                else return;
+            }
             BlockState state2 = level.getBlockState(magnet.below());
             if (!state2.is(Blocks.AIR) && !state2.is(Blocks.CAVE_AIR) && !state2.is(Blocks.VOID_AIR)) return;
             level.setBlock(magnet.below(), state, 3);

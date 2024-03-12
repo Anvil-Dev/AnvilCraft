@@ -23,6 +23,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RedstoneTorchBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -50,6 +51,9 @@ public class AnvilEventListener {
         BlockPos belowPos = pos.below();
         BlockState state = level.getBlockState(belowPos);
         if (state.is(Blocks.REDSTONE_BLOCK)) redstoneEMP(level, belowPos);
+        belowPos = belowPos.below();
+        state = level.getBlockState(belowPos);
+        if (state.is(Blocks.STONECUTTER)) brokeBlock(level, belowPos.above(), event);
     }
 
     private void itemProcess(ItemAnvilRecipe recipe, AnvilCraftingContainer container, Level level, AnvilFallOnLandEvent event) {
@@ -86,6 +90,18 @@ public class AnvilEventListener {
     private void blockProcess(@NotNull BlockAnvilRecipe recipe, AnvilCraftingContainer container, Level level, AnvilFallOnLandEvent event) {
         recipe.craft(container, level);
         if (recipe.isAnvilDamage()) event.setAnvilDamage(true);
+    }
+
+    private void brokeBlock(@NotNull Level level, BlockPos pos, AnvilFallOnLandEvent event) {
+        if (!(level instanceof ServerLevel serverLevel)) return;
+        BlockState state = level.getBlockState(pos);
+        if (state.getBlock().getExplosionResistance() >= 1200.0) event.setAnvilDamage(true);
+        if (state.getDestroySpeed(level, pos) < 0) return;
+        BlockEntity blockEntity = state.hasBlockEntity() ? level.getBlockEntity(pos) : null;
+        LootParams.Builder builder = new LootParams.Builder(serverLevel).withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos)).withParameter(LootContextParams.TOOL, ItemStack.EMPTY).withOptionalParameter(LootContextParams.BLOCK_ENTITY, blockEntity);
+        state.spawnAfterBreak(serverLevel, pos, ItemStack.EMPTY, false);
+        dropItems(state.getDrops(builder), level, pos.getCenter());
+        level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
     }
 
     private void redstoneEMP(Level level, BlockPos pos) {

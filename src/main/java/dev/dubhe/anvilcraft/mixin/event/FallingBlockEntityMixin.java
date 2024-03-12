@@ -10,6 +10,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
@@ -39,7 +40,11 @@ public abstract class FallingBlockEntityMixin {
         if (event.isAnvilDamage()) {
             BlockState state = AnvilBlock.damage(this.blockState);
             if (state != null) ths.level().setBlock(blockPos, state, 3);
-            else this.cancelDrop = true;
+            else {
+                ths.level().setBlock(blockPos, Blocks.AIR.defaultBlockState(), 3);
+                if (!ths.isSilent()) ths.level().levelEvent(1029, ths.getOnPos(), 0);
+                this.cancelDrop = true;
+            }
         }
     }
 
