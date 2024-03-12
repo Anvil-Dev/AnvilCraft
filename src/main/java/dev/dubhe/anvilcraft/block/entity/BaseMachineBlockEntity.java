@@ -38,7 +38,7 @@ public abstract class BaseMachineBlockEntity extends RandomizableContainerBlockE
     }
 
     public static void tick(Level level, BlockPos pos, BaseMachineBlockEntity entity) {
-        Container outContainer = BaseMachineBlockEntity.getOutputContainer(level, pos, entity.direction);
+        Container outContainer = HopperBlockEntity.getContainerAt(level, pos.relative(entity.direction));
         if (outContainer == null) return;
         int slot = entity.getContainerSize() - 1;
         ItemStack itemStack = entity.getItem(slot);

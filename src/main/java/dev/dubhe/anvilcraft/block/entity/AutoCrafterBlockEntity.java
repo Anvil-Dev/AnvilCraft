@@ -242,7 +242,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity {
     }
 
     private boolean dropItem(Direction direction, Level level, @NotNull BlockPos pos, ItemStack item) {
-        Container outContainer = BaseMachineBlockEntity.getOutputContainer(level, pos, direction);
+        Container outContainer = HopperBlockEntity.getContainerAt(level, pos.relative(direction));
         if (null == outContainer) {
             BlockPos out = pos.relative(direction);
             Vec3 vec3 = out.getCenter().relative(direction, -0.5);
