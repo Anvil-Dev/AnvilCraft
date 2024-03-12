@@ -1,5 +1,10 @@
 # 铁砧工艺 | [AnvilCraft](./README_en.md)
 
+[![Development Builds](https://github.com/Gu-ZT/AnvilCraftMod/actions/workflows/ci.yml/badge.svg)](https://github.com/Gu-ZT/AnvilCraftMod/actions/workflows/ci.yml)
+[![CurseForge downloads](http://cf.way2muchnoise.eu/full_986251_downloads.svg)](https://www.curseforge.com/minecraft/mc-mods/anvilcraft)
+[![Modrinth downloads](https://img.shields.io/modrinth/dt/anvilcraft?color=00AF5C&label=Modrinth%20downloads&logo=modrinth)](https://modrinth.com/mod/anvilcraft)
+[![GitHub downloads](https://img.shields.io/github/downloads/Gu-ZT/AnvilCraftMod/total?label=Github%20downloads&logo=github)](https://github.com/Gu-ZT/AnvilCraftMod/releases)
+
 ## Minecraft模组 by [古镇天Gugle@bilibili](https://space.bilibili.com/19822751) & [XeKr@bilibili](https://space.bilibili.com/5930630)
 
 > 欢迎来到模组《铁砧工艺》的页面！模组是以铁砧为核心的原版生存拓展，主要内容有：
