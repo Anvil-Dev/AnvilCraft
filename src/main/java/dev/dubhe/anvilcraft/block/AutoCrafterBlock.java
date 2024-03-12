@@ -111,14 +111,8 @@ public class AutoCrafterBlock extends BaseEntityBlock {
                 level.scheduleTick(pos, this, 4);
             } else {
                 level.setBlock(pos, state.cycle(LIT), 2);
-                this.craft(level, pos);
             }
         }
-    }
-
-    private void craft(@NotNull Level level, BlockPos pos) {
-        if (!(level.getBlockEntity(pos) instanceof AutoCrafterBlockEntity entity)) return;
-        AutoCrafterBlockEntity.craft(level, entity);
     }
 
     @Override

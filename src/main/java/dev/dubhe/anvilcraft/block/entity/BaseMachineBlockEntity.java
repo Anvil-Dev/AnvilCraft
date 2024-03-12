@@ -30,15 +30,15 @@ public abstract class BaseMachineBlockEntity extends RandomizableContainerBlockE
         items = NonNullList.withSize(size, ItemStack.EMPTY);
     }
 
-    public static @Nullable Container getOutputContainer(Level level, BlockPos pos, BaseMachineBlockEntity machine) {
+    protected static @Nullable Container getOutputContainer(Level level, BlockPos pos, Direction direction) {
         if (level == null) return null;
-        BlockEntity entity = level.getBlockEntity(pos.relative(machine.getDirection()));
+        BlockEntity entity = level.getBlockEntity(pos.relative(direction));
         if (entity instanceof Container container) return container;
         return null;
     }
 
     public static void tick(Level level, BlockPos pos, BaseMachineBlockEntity entity) {
-        Container outContainer = BaseMachineBlockEntity.getOutputContainer(level, pos, entity);
+        Container outContainer = BaseMachineBlockEntity.getOutputContainer(level, pos, entity.direction);
         if (outContainer == null) return;
         int slot = entity.getContainerSize() - 1;
         ItemStack itemStack = entity.getItem(slot);

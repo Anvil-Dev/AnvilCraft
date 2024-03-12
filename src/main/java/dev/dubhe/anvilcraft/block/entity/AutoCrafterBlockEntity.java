@@ -12,9 +12,10 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.StackedContents;
@@ -25,7 +26,9 @@ import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -130,19 +133,24 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity {
 
     public static void tick(Level level, BlockPos pos, BlockEntity e) {
         if (!(e instanceof AutoCrafterBlockEntity entity)) return;
-        BaseMachineBlockEntity.tick(level, pos, entity);
+        BlockState state = level.getBlockState(pos);
+        if (state.getValue(AutoCrafterBlock.LIT)) AutoCrafterBlockEntity.craft(level, entity);
+        int slot = entity.getContainerSize() - 1;
+        ItemStack result = entity.getItem(slot);
+        if (result.isEmpty()) return;
+        boolean bl = entity.dropItem(entity.direction, level, pos, result.copy().split(1));
+        if (bl) {
+            result.shrink(1);
+        }
+        entity.setItem(slot, result);
     }
 
-    public static void craft(@NotNull Level level, AutoCrafterBlockEntity entity) {
-        if (level.getServer() == null) return;
+    private static void craft(@NotNull Level level, @NotNull AutoCrafterBlockEntity entity) {
         ItemStack itemStack = entity.getResult();
         ItemStack itemStack2;
-        Container container = new SimpleContainer(9);
-        for (int i = 0; i < 9; i++) {
-            container.setItem(i, entity.getItem(i));
-        }
         if (entity.shouldRecord()) return;
-        Optional<CraftingRecipe> optional = level.getServer().getRecipeManager().getRecipeFor(RecipeType.CRAFTING, entity.container, level);
+        Optional<CraftingRecipe> optional = level.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, entity.container, level);
+        NonNullList<ItemStack> nonNullList = level.getRecipeManager().getRemainingItemsFor(RecipeType.CRAFTING, entity.container, level);
         if (optional.isEmpty()) return;
         itemStack2 = optional.get().assemble(entity.container, level.registryAccess());
         if (!itemStack2.isItemEnabled(level.enabledFeatures())) return;
@@ -156,6 +164,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity {
             stack.shrink(1);
             entity.setItem(i, stack);
         }
+        nonNullList.forEach(stack -> entity.dropItem(entity.direction, level, entity.getBlockPos(), stack));
     }
 
     @Override
@@ -178,9 +187,9 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity {
     public void load(CompoundTag tag) {
         super.load(tag);
         this.setRecord(tag.getBoolean("record"));
-        byte[] disabled = tag.getByteArray("disabled");
-        for (int i = 0; i < tag.getByteArray("disabled").length; i++) {
-            this.disabled.set(i, disabled[i] != 0);
+        ListTag tags = tag.getList("disabled", Tag.TAG_BYTE);
+        for (int i = 0; i < tags.size(); i++) {
+            this.disabled.set(i, ((ByteTag) tags.get(i)).getAsByte() != 0);
         }
     }
 
@@ -230,5 +239,19 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity {
         BlockState state = level.getBlockState(pos);
         if (!state.is(ModBlocks.AUTO_CRAFTER)) return;
         level.setBlock(pos, state.setValue(AutoCrafterBlock.FACING, direction), 3);
+    }
+
+    private boolean dropItem(Direction direction, Level level, @NotNull BlockPos pos, ItemStack item) {
+        Container outContainer = BaseMachineBlockEntity.getOutputContainer(level, pos, direction);
+        if (null == outContainer) {
+            BlockPos out = pos.relative(direction);
+            Vec3 vec3 = out.getCenter().relative(direction, -0.5);
+            Vec3 move = out.getCenter().subtract(vec3);
+            ItemEntity entity = new ItemEntity(level, vec3.x, vec3.y, vec3.z, item, move.x, move.y, move.z);
+            return level.addFreshEntity(entity);
+        } else {
+            ItemStack itemStack2 = HopperBlockEntity.addItem(entity, outContainer, item, entity.direction.getOpposite());
+            return itemStack2.isEmpty();
+        }
     }
 }
