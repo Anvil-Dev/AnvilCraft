@@ -43,7 +43,7 @@ public abstract class FallingBlockEntityMixin {
         }
     }
 
-    @Redirect(method = "method_32879", remap = false, at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z"))
+    @Redirect(method = "method_32879", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z"))
     private static boolean anvilHurtEntity(@NotNull Entity instance, DamageSource source, float amount) {
         boolean bl = instance.hurt(source, amount);
         Entity directEntity = source.getDirectEntity();
