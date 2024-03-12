@@ -14,6 +14,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.NotNull;
@@ -65,12 +66,13 @@ public class ServerEventListener {
     }
 
     public static @Nullable Pair<ResourceLocation, Recipe<?>> processRecipes(ResourceLocation id, @NotNull Recipe<?> oldRecipe) {
+        ItemStack result = oldRecipe.getResultItem(new RegistryAccess.ImmutableRegistryAccess(List.of()));
+        if (result.is(Items.IRON_TRAPDOOR)) return null;
         if (oldRecipe instanceof ShapelessRecipe recipe) {
             if (recipe.getIngredients().size() == 1) {
                 ResourceLocation location = AnvilCraft.of("smash/" + id.getPath());
                 Ingredient ingredient = recipe.getIngredients().get(0);
                 TagIngredient ingredient1 = TagIngredient.of(ingredient);
-                ItemStack result = recipe.getResultItem(new RegistryAccess.ImmutableRegistryAccess(List.of()));
                 ItemAnvilRecipe recipe1 = new ItemAnvilRecipe(
                         location,
                         NonNullList.withSize(1, ingredient1),
@@ -82,8 +84,7 @@ public class ServerEventListener {
                 );
                 return new Pair<>(location, recipe1);
             }
-        }
-        if (oldRecipe instanceof ShapedRecipe recipe) {
+        } else if (oldRecipe instanceof ShapedRecipe recipe) {
             List<Ingredient> ingredients = recipe.getIngredients();
             if (isIngredientsSame(ingredients)) {
                 if (recipe.getHeight() != recipe.getWidth()) return null;
@@ -92,7 +93,6 @@ public class ServerEventListener {
                 Ingredient ingredient = recipe.getIngredients().get(0);
                 TagIngredient ingredient1 = TagIngredient.of(ingredient);
                 int ingredientCount = recipe.getIngredients().size();
-                ItemStack result = recipe.getResultItem(new RegistryAccess.ImmutableRegistryAccess(List.of()));
                 ItemAnvilRecipe recipe1 = new ItemAnvilRecipe(
                         location,
                         NonNullList.withSize(ingredientCount, ingredient1),

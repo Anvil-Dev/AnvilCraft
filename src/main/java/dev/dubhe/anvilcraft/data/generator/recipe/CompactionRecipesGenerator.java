@@ -28,7 +28,7 @@ public abstract class CompactionRecipesGenerator {
     }
 
     public static void compaction(Block block, @NotNull Block block1, @NotNull Block block2, Consumer<FinishedRecipe> exporter) {
-        BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, block2.defaultBlockState())
+        BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.AIR.defaultBlockState(), block2.defaultBlockState())
                 .component(block)
                 .component(block1)
                 .unlockedBy(MyRecipesGenerator.hasItem(block.asItem()), FabricRecipeProvider.has(block.asItem()))

@@ -26,12 +26,12 @@ public abstract class SqueezeRecipesGenerator {
                 .save(exporter, AnvilCraft.of("squeeze/magma_block_lava_cauldron_1"));
         BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.NETHERRACK.defaultBlockState(), ModBlocks.LAVA_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 2))
                 .component(Blocks.MAGMA_BLOCK)
-                .component(Component.of(Component.Value.of(Blocks.LAVA_CAULDRON).with("level", 1)))
+                .component(Component.of(Component.Value.of(ModBlocks.LAVA_CAULDRON).with("level", 1)))
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.WET_SPONGE), FabricRecipeProvider.has(Items.WET_SPONGE))
                 .save(exporter, AnvilCraft.of("squeeze/magma_block_lava_cauldron_2"));
         BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.NETHERRACK.defaultBlockState(), Blocks.LAVA_CAULDRON.defaultBlockState())
                 .component(Blocks.MAGMA_BLOCK)
-                .component(Component.of(Component.Value.of(Blocks.LAVA_CAULDRON).with("level", 2)))
+                .component(Component.of(Component.Value.of(ModBlocks.LAVA_CAULDRON).with("level", 2)))
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.WET_SPONGE), FabricRecipeProvider.has(Items.WET_SPONGE))
                 .save(exporter, AnvilCraft.of("squeeze/magma_block_lava_cauldron_3"));
 
