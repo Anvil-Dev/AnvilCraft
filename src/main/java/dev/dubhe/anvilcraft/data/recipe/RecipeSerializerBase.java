@@ -9,6 +9,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Pair;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.*;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -161,7 +162,7 @@ public interface RecipeSerializerBase<T extends Recipe<?>> extends RecipeSeriali
     }
 
     default @NotNull ItemStack itemStackFromJson(JsonElement element) {
-        if(!element.isJsonObject()) throw new JsonSyntaxException("Expected item to be string");
+        if (!element.isJsonObject()) throw new JsonSyntaxException("Expected item to be string");
         JsonObject object = element.getAsJsonObject();
         Item item = ShapedRecipe.itemFromJson(object);
         int i = GsonHelper.getAsInt(object, "count", 1);
@@ -228,7 +229,7 @@ public interface RecipeSerializerBase<T extends Recipe<?>> extends RecipeSeriali
     }
 
     default void stateToNetwork(@NotNull FriendlyByteBuf buffer, @NotNull BlockState state) {
-        buffer.writeUtf(state.toString());
+        buffer.writeUtf(state.toString().replace("Block{", "").replace("}", ""));
     }
 
     class BlockHolderLookup implements HolderLookup<Block>, HolderOwner<Block> {

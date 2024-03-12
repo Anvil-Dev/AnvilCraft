@@ -241,7 +241,7 @@ public class Component implements Predicate<BlockState>, Serializable {
         public static @NotNull Map<String, Comparable<?>> statesFromNetwork(@NotNull FriendlyByteBuf buffer) {
             Map<String, Comparable<?>> map = new HashMap<>();
             String string = buffer.readUtf();
-            String[] strings = string.substring(1, string.length() - 2).split(", ");
+            String[] strings = string.substring(1, string.length() - 1).split(", ");
             for (String str : strings) {
                 String[] strings1 = str.split("=");
                 if (strings1.length != 2) continue;
