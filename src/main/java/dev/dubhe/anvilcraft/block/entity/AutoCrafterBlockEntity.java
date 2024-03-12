@@ -206,9 +206,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity {
 
     @Override
     public boolean canPlaceItem(int index, ItemStack itemStack) {
-        if (index != this.getContainerSize() - 1 && this.disabled.get(index)) {
-            return false;
-        }
+        if (index == this.getContainerSize() - 1 || this.disabled.get(index)) return false;
         ItemStack itemStack2 = this.items.get(index);
         int j = itemStack2.getCount();
         if (j >= itemStack2.getMaxStackSize()) {
