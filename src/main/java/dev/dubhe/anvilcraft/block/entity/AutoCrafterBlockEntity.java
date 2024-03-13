@@ -243,7 +243,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity {
         Container outContainer = HopperBlockEntity.getContainerAt(level, pos.relative(direction));
         if (null == outContainer) {
             BlockPos out = pos.relative(direction);
-            Vec3 vec3 = out.getCenter().relative(direction, -0.5);
+            Vec3 vec3 = out.getCenter().relative(direction, -0.375);
             Vec3 move = out.getCenter().subtract(vec3);
             ItemEntity entity = new ItemEntity(level, vec3.x, vec3.y, vec3.z, item, move.x, move.y, move.z);
             return level.addFreshEntity(entity);

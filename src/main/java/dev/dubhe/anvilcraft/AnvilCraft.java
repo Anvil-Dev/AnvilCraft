@@ -4,11 +4,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mojang.logging.LogUtils;
 import dev.dubhe.anvilcraft.api.event.EventManager;
-import dev.dubhe.anvilcraft.api.network.Networking;
-import dev.dubhe.anvilcraft.init.*;
-import dev.dubhe.anvilcraft.init.ModBlockEntities;
-import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
 import dev.dubhe.anvilcraft.api.log.Logger;
+import dev.dubhe.anvilcraft.api.network.Networking;
+import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
+import dev.dubhe.anvilcraft.init.*;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resources.ResourceLocation;
@@ -18,7 +17,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Path;
 
 public class AnvilCraft implements ModInitializer {
     public static final String MOD_ID = "anvilcraft";

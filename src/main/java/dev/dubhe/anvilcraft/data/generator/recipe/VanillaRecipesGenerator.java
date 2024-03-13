@@ -30,6 +30,20 @@ public abstract class VanillaRecipesGenerator {
                 .unlockedBy(MyRecipesGenerator.hasItem(ModItems.MAGNET_INGOT), FabricRecipeProvider.has(ModItems.MAGNET_INGOT))
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.IRON_INGOT), FabricRecipeProvider.has(Items.IRON_INGOT))
                 .save(exporter);
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.MAGNET_BLOCK)
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItems.MAGNET_INGOT)
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.MAGNET_INGOT), FabricRecipeProvider.has(ModItems.MAGNET_INGOT))
+                .save(exporter);
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.HOLLOW_MAGNET_BLOCK)
+                .pattern("AAA")
+                .pattern("A A")
+                .pattern("AAA")
+                .define('A', ModItems.MAGNET_INGOT)
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.MAGNET_INGOT), FabricRecipeProvider.has(ModItems.MAGNET_INGOT))
+                .save(exporter);
         ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.MAGNET)
                 .pattern(" A ")
                 .pattern("BCB")

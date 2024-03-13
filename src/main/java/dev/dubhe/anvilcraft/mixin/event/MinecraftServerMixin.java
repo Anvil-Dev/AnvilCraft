@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BooleanSupplier;
 
-@Mixin(MinecraftServer.class)
+@Mixin(value = MinecraftServer.class)
 public abstract class MinecraftServerMixin {
     @Shadow
     private MinecraftServer.ReloadableResources resources;
@@ -61,7 +61,7 @@ public abstract class MinecraftServerMixin {
         AnvilCraft.EVENT_BUS.post(new ServerStoppedEvent(server));
     }
 
-    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/server/MinecraftServer;tickChildren(Ljava/util/function/BooleanSupplier;)V"), method = "tickServer")
+    @Inject(method = "tickServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/MinecraftServer;tickChildren(Ljava/util/function/BooleanSupplier;)V"))
     private void onStartTick(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
         AnvilCraft.EVENT_BUS.post(new ServerStartTickEvent(server));
     }
