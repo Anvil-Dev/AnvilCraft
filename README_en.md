@@ -23,7 +23,7 @@
 
 ## Contact us:
 
-* Please go to our [KOOK Server（mFBCbM）](https://kook.top/mFBCbM) to communicate and give feedback。
+* Please go to our [Discord Server（gAnWeZNKGh）](https://discord.com/invite/gAnWeZNKGh) to communicate and give feedback
 
 ## List of contributors:
 
