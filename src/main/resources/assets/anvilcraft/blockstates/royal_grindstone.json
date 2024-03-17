@@ -1,0 +1,57 @@
+{
+  "variants": {
+    "face=ceiling,facing=east": {
+      "model": "anvilcraft:block/royal_grindstone",
+      "x": 180,
+      "y": 270
+    },
+    "face=ceiling,facing=north": {
+      "model": "anvilcraft:block/royal_grindstone",
+      "x": 180,
+      "y": 180
+    },
+    "face=ceiling,facing=south": {
+      "model": "anvilcraft:block/royal_grindstone",
+      "x": 180
+    },
+    "face=ceiling,facing=west": {
+      "model": "anvilcraft:block/royal_grindstone",
+      "x": 180,
+      "y": 90
+    },
+    "face=floor,facing=east": {
+      "model": "anvilcraft:block/royal_grindstone",
+      "y": 90
+    },
+    "face=floor,facing=north": {
+      "model": "anvilcraft:block/royal_grindstone"
+    },
+    "face=floor,facing=south": {
+      "model": "anvilcraft:block/royal_grindstone",
+      "y": 180
+    },
+    "face=floor,facing=west": {
+      "model": "anvilcraft:block/royal_grindstone",
+      "y": 270
+    },
+    "face=wall,facing=east": {
+      "model": "anvilcraft:block/royal_grindstone",
+      "x": 90,
+      "y": 90
+    },
+    "face=wall,facing=north": {
+      "model": "anvilcraft:block/royal_grindstone",
+      "x": 90
+    },
+    "face=wall,facing=south": {
+      "model": "anvilcraft:block/royal_grindstone",
+      "x": 90,
+      "y": 180
+    },
+    "face=wall,facing=west": {
+      "model": "anvilcraft:block/royal_grindstone",
+      "x": 90,
+      "y": 270
+    }
+  }
+}

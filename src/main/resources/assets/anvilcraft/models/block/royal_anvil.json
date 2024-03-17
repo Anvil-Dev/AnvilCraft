@@ -5,7 +5,8 @@
 		"particle": "anvilcraft:block/royal_anvil",
 		"body": "anvilcraft:block/royal_anvil",
 		"side": "anvilcraft:block/royal_anvil_side",
-		"bottom": "anvilcraft:block/smooth_royal_steel_block"
+		"top": "anvilcraft:block/royal_anvil_top",
+		"bottom": "anvilcraft:block/royal_anvil_bottom"
 	},
 	"elements": [
 		{
@@ -66,8 +67,8 @@
 				"east": {"uv": [0, 0, 16, 6], "texture": "#body"},
 				"south": {"uv": [3, 0, 13, 6], "texture": "#side"},
 				"west": {"uv": [0, 0, 16, 6], "texture": "#body"},
-				"up": {"uv": [3, 0, 13, 16], "texture": "#bottom"},
-				"down": {"uv": [3, 0, 13, 16], "texture": "#bottom"}
+				"up": {"uv": [3, 0, 13, 16], "texture": "#top"},
+				"down": {"uv": [3, 0, 13, 16], "texture": "#top"}
 			}
 		}
 	],
