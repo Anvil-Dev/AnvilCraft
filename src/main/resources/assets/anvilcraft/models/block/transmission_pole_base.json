@@ -1,0 +1,69 @@
+{
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/block",
+	"textures": {
+		"particle": "anvilcraft:block/transmission_pole_base",
+		"base": "anvilcraft:block/transmission_pole_base",
+		"bottom": "anvilcraft:block/transmission_pole_bottom",
+		"head": "anvilcraft:block/transmission_pole_head"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 0],
+			"to": [16, 4, 16],
+			"faces": {
+				"north": {"uv": [0, 12, 16, 16], "texture": "#base"},
+				"east": {"uv": [0, 12, 16, 16], "texture": "#base"},
+				"south": {"uv": [0, 12, 16, 16], "texture": "#base"},
+				"west": {"uv": [0, 12, 16, 16], "texture": "#base"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#bottom"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#bottom", "cullface": "down"}
+			}
+		},
+		{
+			"from": [5, 4, 5],
+			"to": [11, 11, 11],
+			"faces": {
+				"north": {"uv": [5, 5, 11, 12], "texture": "#base"},
+				"east": {"uv": [5, 5, 11, 12], "texture": "#base"},
+				"south": {"uv": [5, 5, 11, 12], "texture": "#base"},
+				"west": {"uv": [5, 5, 11, 12], "texture": "#base"},
+				"up": {"uv": [5, 5, 11, 11], "texture": "#bottom"}
+			}
+		},
+		{
+			"from": [6, 11, 6],
+			"to": [10, 16, 10],
+			"faces": {
+				"north": {"uv": [10, 11, 14, 16], "texture": "#head"},
+				"east": {"uv": [10, 11, 14, 16], "texture": "#head"},
+				"south": {"uv": [10, 11, 14, 16], "texture": "#head"},
+				"west": {"uv": [10, 11, 14, 16], "texture": "#head"}
+			}
+		},
+		{
+			"from": [3, 5, 3],
+			"to": [13, 7, 13],
+			"faces": {
+				"north": {"uv": [3, 9, 13, 11], "texture": "#base"},
+				"east": {"uv": [3, 9, 13, 11], "texture": "#base"},
+				"south": {"uv": [3, 9, 13, 11], "texture": "#base"},
+				"west": {"uv": [3, 9, 13, 11], "texture": "#base"},
+				"up": {"uv": [3, 3, 13, 13], "texture": "#bottom"},
+				"down": {"uv": [3, 3, 13, 13], "texture": "#bottom"}
+			}
+		},
+		{
+			"from": [3, 8, 3],
+			"to": [13, 10, 13],
+			"faces": {
+				"north": {"uv": [3, 6, 13, 8], "texture": "#base"},
+				"east": {"uv": [3, 6, 13, 8], "texture": "#base"},
+				"south": {"uv": [3, 6, 13, 8], "texture": "#base"},
+				"west": {"uv": [3, 6, 13, 8], "texture": "#base"},
+				"up": {"uv": [3, 3, 13, 13], "texture": "#bottom"},
+				"down": {"uv": [3, 3, 13, 13], "texture": "#bottom"}
+			}
+		}
+	]
+}
