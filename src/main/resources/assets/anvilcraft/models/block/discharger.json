@@ -1,0 +1,69 @@
+{
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/block",
+	"textures": {
+		"particle": "anvilcraft:block/discharger",
+		"side": "anvilcraft:block/discharger",
+		"bottom": "anvilcraft:block/discharger_bottom",
+		"top": "anvilcraft:block/discharger_top"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 0],
+			"to": [16, 4, 16],
+			"faces": {
+				"north": {"uv": [0, 12, 16, 16], "texture": "#side"},
+				"east": {"uv": [0, 12, 16, 16], "texture": "#side"},
+				"south": {"uv": [0, 12, 16, 16], "texture": "#side"},
+				"west": {"uv": [0, 12, 16, 16], "texture": "#side"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#bottom"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#bottom", "cullface": "down"}
+			}
+		},
+		{
+			"from": [2, 14, 2],
+			"to": [14, 16, 14],
+			"faces": {
+				"north": {"uv": [2, 0, 14, 2], "texture": "#side"},
+				"east": {"uv": [2, 0, 14, 2], "texture": "#side"},
+				"south": {"uv": [2, 0, 14, 2], "texture": "#side"},
+				"west": {"uv": [2, 0, 14, 2], "texture": "#side"},
+				"up": {"uv": [2, 2, 14, 14], "texture": "#bottom"},
+				"down": {"uv": [2, 2, 14, 14], "texture": "#bottom"}
+			}
+		},
+		{
+			"from": [3, 4, 3],
+			"to": [13, 5, 13],
+			"faces": {
+				"north": {"uv": [3, 11, 13, 12], "texture": "#side"},
+				"east": {"uv": [3, 11, 13, 12], "texture": "#side"},
+				"south": {"uv": [3, 11, 13, 12], "texture": "#side"},
+				"west": {"uv": [3, 11, 13, 12], "texture": "#side"},
+				"up": {"uv": [3, 3, 13, 13], "texture": "#top"}
+			}
+		},
+		{
+			"from": [3, 13, 3],
+			"to": [13, 14, 13],
+			"faces": {
+				"north": {"uv": [3, 2, 13, 3], "texture": "#side"},
+				"east": {"uv": [3, 2, 13, 3], "texture": "#side"},
+				"south": {"uv": [3, 2, 13, 3], "texture": "#side"},
+				"west": {"uv": [3, 2, 13, 3], "texture": "#side"},
+				"down": {"uv": [3, 3, 13, 13], "texture": "#top"}
+			}
+		},
+		{
+			"from": [6, 5, 6],
+			"to": [10, 13, 10],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 0, 8]},
+			"faces": {
+				"north": {"uv": [6, 3, 10, 11], "texture": "#side"},
+				"east": {"uv": [6, 3, 10, 11], "texture": "#side"},
+				"south": {"uv": [10, 3, 6, 11], "texture": "#side"},
+				"west": {"uv": [6, 3, 10, 11], "texture": "#side"}
+			}
+		}
+	]
+}
