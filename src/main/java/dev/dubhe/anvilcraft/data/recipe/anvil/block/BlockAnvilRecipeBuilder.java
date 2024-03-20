@@ -15,6 +15,7 @@ import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -61,6 +62,11 @@ public class BlockAnvilRecipeBuilder implements RecipeBuilder {
     }
 
     public BlockAnvilRecipeBuilder component(Block... components) {
+        return this.component(Arrays.stream(components).map(Component::of));
+    }
+
+    @SafeVarargs
+    public final BlockAnvilRecipeBuilder component(TagKey<Block>... components) {
         return this.component(Arrays.stream(components).map(Component::of));
     }
 

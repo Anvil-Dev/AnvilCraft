@@ -28,5 +28,9 @@ public class MyBlockTagGenerator extends FabricTagProvider<Block> {
                 .add(Blocks.REDSTONE_TORCH);
         this.getOrCreateTagBuilder(BlockTags.ANVIL).setReplace(false)
                 .add(ModBlocks.ROYAL_ANVIL);
+        this.getOrCreateTagBuilder(ModBlockTags.MUSHROOM_BLOCK).setReplace(false)
+                .add(Blocks.BROWN_MUSHROOM_BLOCK)
+                .add(Blocks.RED_MUSHROOM_BLOCK)
+                .add(Blocks.MUSHROOM_STEM);
     }
 }

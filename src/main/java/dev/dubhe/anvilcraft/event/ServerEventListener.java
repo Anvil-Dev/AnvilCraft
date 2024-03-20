@@ -68,9 +68,10 @@ public class ServerEventListener {
     public static @Nullable Pair<ResourceLocation, Recipe<?>> processRecipes(ResourceLocation id, @NotNull Recipe<?> oldRecipe) {
         ItemStack result = oldRecipe.getResultItem(new RegistryAccess.ImmutableRegistryAccess(List.of()));
         if (result.is(Items.IRON_TRAPDOOR)) return null;
+        ResourceLocation location = AnvilCraft.of("compress/" + id.getPath());
         if (oldRecipe instanceof ShapelessRecipe recipe) {
             if (recipe.getIngredients().size() == 1) {
-                ResourceLocation location = AnvilCraft.of("smash/" + id.getPath());
+                location = AnvilCraft.of("smash/" + id.getPath());
                 Ingredient ingredient = recipe.getIngredients().get(0);
                 TagIngredient ingredient1 = TagIngredient.of(ingredient);
                 ItemAnvilRecipe recipe1 = new ItemAnvilRecipe(
@@ -83,13 +84,26 @@ public class ServerEventListener {
                         false
                 );
                 return new Pair<>(location, recipe1);
+            } else if(isIngredientsSame(recipe.getIngredients())){
+                Ingredient ingredient = recipe.getIngredients().get(0);
+                TagIngredient ingredient1 = TagIngredient.of(ingredient);
+                int ingredientCount = recipe.getIngredients().size();
+                ItemAnvilRecipe recipe1 = new ItemAnvilRecipe(
+                        location,
+                        NonNullList.withSize(ingredientCount, ingredient1),
+                        ItemAnvilRecipe.Location.IN,
+                        NonNullList.withSize(1, Component.of(Blocks.CAULDRON)),
+                        List.of(result),
+                        ItemAnvilRecipe.Location.IN,
+                        false
+                );
+                return new Pair<>(location, recipe1);
             }
         } else if (oldRecipe instanceof ShapedRecipe recipe) {
             List<Ingredient> ingredients = recipe.getIngredients();
             if (isIngredientsSame(ingredients)) {
                 if (recipe.getHeight() != recipe.getWidth()) return null;
                 if (recipe.getIngredients().size() != recipe.getWidth() * recipe.getHeight()) return null;
-                ResourceLocation location = AnvilCraft.of("compress/" + id.getPath());
                 Ingredient ingredient = recipe.getIngredients().get(0);
                 TagIngredient ingredient1 = TagIngredient.of(ingredient);
                 int ingredientCount = recipe.getIngredients().size();

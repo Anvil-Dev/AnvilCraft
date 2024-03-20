@@ -67,20 +67,128 @@ public abstract class SqueezeRecipesGenerator {
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.MOSS_BLOCK), FabricRecipeProvider.has(Items.MOSS_BLOCK))
                 .save(exporter, AnvilCraft.of("squeeze/moss_2_water_cauldron_3"));
 
-        BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.ICE.defaultBlockState(), Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 1))
+        BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.ICE.defaultBlockState(), Blocks.POWDER_SNOW_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 1))
                 .component(Blocks.SNOW_BLOCK)
                 .component(Blocks.CAULDRON)
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.SNOW_BLOCK), FabricRecipeProvider.has(Items.SNOW_BLOCK))
-                .save(exporter, AnvilCraft.of("squeeze/snow_2_water_cauldron_1"));
-        BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.ICE.defaultBlockState(), Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 2))
+                .save(exporter, AnvilCraft.of("squeeze/snow_2_powder_snow_cauldron_1"));
+        BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.ICE.defaultBlockState(), Blocks.POWDER_SNOW_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 2))
                 .component(Blocks.SNOW_BLOCK)
-                .component(Component.of(Component.Value.of(Blocks.WATER_CAULDRON).with("level", 1)))
+                .component(Component.of(Component.Value.of(Blocks.POWDER_SNOW_CAULDRON).with("level", 1)))
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.SNOW_BLOCK), FabricRecipeProvider.has(Items.SNOW_BLOCK))
-                .save(exporter, AnvilCraft.of("squeeze/snow_2_water_cauldron_2"));
-        BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.ICE.defaultBlockState(), Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3))
+                .save(exporter, AnvilCraft.of("squeeze/snow_2_powder_snow_cauldron_2"));
+        BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.ICE.defaultBlockState(), Blocks.POWDER_SNOW_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3))
                 .component(Blocks.SNOW_BLOCK)
-                .component(Component.of(Component.Value.of(Blocks.WATER_CAULDRON).with("level", 2)))
+                .component(Component.of(Component.Value.of(Blocks.POWDER_SNOW_CAULDRON).with("level", 2)))
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.SNOW_BLOCK), FabricRecipeProvider.has(Items.SNOW_BLOCK))
-                .save(exporter, AnvilCraft.of("squeeze/snow_2_water_cauldron_3"));
+                .save(exporter, AnvilCraft.of("squeeze/snow_2_powder_snow_cauldron_3"));
+
+        BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.MOSS_BLOCK.defaultBlockState(), Blocks.MOSSY_COBBLESTONE.defaultBlockState())
+                .component(Blocks.MOSS_BLOCK)
+                .component(Blocks.COBBLESTONE)
+                .unlockedBy(MyRecipesGenerator.hasItem(Items.MOSS_BLOCK), FabricRecipeProvider.has(Items.MOSS_BLOCK))
+                .save(exporter, AnvilCraft.of("squeeze/mossy_cobblestone"));
+
+        BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.MOSS_BLOCK.defaultBlockState(), Blocks.MOSSY_STONE_BRICKS.defaultBlockState())
+                .component(Blocks.MOSS_BLOCK)
+                .component(Blocks.STONE_BRICKS)
+                .unlockedBy(MyRecipesGenerator.hasItem(Items.MOSS_BLOCK), FabricRecipeProvider.has(Items.MOSS_BLOCK))
+                .save(exporter, AnvilCraft.of("squeeze/mossy_stone_bricks"));
+
+        BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.HONEYCOMB_BLOCK.defaultBlockState(), Blocks.WAXED_COPPER_BLOCK.defaultBlockState())
+                .component(Blocks.HONEYCOMB_BLOCK)
+                .component(Blocks.COPPER_BLOCK)
+                .unlockedBy(MyRecipesGenerator.hasItem(Items.HONEYCOMB_BLOCK), FabricRecipeProvider.has(Items.HONEYCOMB_BLOCK))
+                .save(exporter, AnvilCraft.of("squeeze/waxed_copper_block"));
+
+        BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.HONEYCOMB_BLOCK.defaultBlockState(), Blocks.WAXED_WEATHERED_COPPER.defaultBlockState())
+                .component(Blocks.HONEYCOMB_BLOCK)
+                .component(Blocks.WEATHERED_COPPER)
+                .unlockedBy(MyRecipesGenerator.hasItem(Items.HONEYCOMB_BLOCK), FabricRecipeProvider.has(Items.HONEYCOMB_BLOCK))
+                .save(exporter, AnvilCraft.of("squeeze/waxed_weathered_copper"));
+
+        BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.HONEYCOMB_BLOCK.defaultBlockState(), Blocks.WAXED_EXPOSED_COPPER.defaultBlockState())
+                .component(Blocks.HONEYCOMB_BLOCK)
+                .component(Blocks.EXPOSED_COPPER)
+                .unlockedBy(MyRecipesGenerator.hasItem(Items.HONEYCOMB_BLOCK), FabricRecipeProvider.has(Items.HONEYCOMB_BLOCK))
+                .save(exporter, AnvilCraft.of("squeeze/waxed_exposed_copper"));
+
+        BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.HONEYCOMB_BLOCK.defaultBlockState(), Blocks.WAXED_OXIDIZED_COPPER.defaultBlockState())
+                .component(Blocks.HONEYCOMB_BLOCK)
+                .component(Blocks.OXIDIZED_COPPER)
+                .unlockedBy(MyRecipesGenerator.hasItem(Items.HONEYCOMB_BLOCK), FabricRecipeProvider.has(Items.HONEYCOMB_BLOCK))
+                .save(exporter, AnvilCraft.of("squeeze/waxed_oxidized_copper"));
+
+        BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.HONEYCOMB_BLOCK.defaultBlockState(), Blocks.WAXED_OXIDIZED_CUT_COPPER.defaultBlockState())
+                .component(Blocks.HONEYCOMB_BLOCK)
+                .component(Blocks.OXIDIZED_CUT_COPPER)
+                .unlockedBy(MyRecipesGenerator.hasItem(Items.HONEYCOMB_BLOCK), FabricRecipeProvider.has(Items.HONEYCOMB_BLOCK))
+                .save(exporter, AnvilCraft.of("squeeze/waxed_oxidized_cut_copper"));
+
+        BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.HONEYCOMB_BLOCK.defaultBlockState(), Blocks.WAXED_WEATHERED_CUT_COPPER.defaultBlockState())
+                .component(Blocks.HONEYCOMB_BLOCK)
+                .component(Blocks.WEATHERED_CUT_COPPER)
+                .unlockedBy(MyRecipesGenerator.hasItem(Items.HONEYCOMB_BLOCK), FabricRecipeProvider.has(Items.HONEYCOMB_BLOCK))
+                .save(exporter, AnvilCraft.of("squeeze/waxed_weathered_cut_copper"));
+
+        BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.HONEYCOMB_BLOCK.defaultBlockState(), Blocks.WAXED_EXPOSED_CUT_COPPER.defaultBlockState())
+                .component(Blocks.HONEYCOMB_BLOCK)
+                .component(Blocks.EXPOSED_CUT_COPPER)
+                .unlockedBy(MyRecipesGenerator.hasItem(Items.HONEYCOMB_BLOCK), FabricRecipeProvider.has(Items.HONEYCOMB_BLOCK))
+                .save(exporter, AnvilCraft.of("squeeze/waxed_exposed_cut_copper"));
+
+        BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.HONEYCOMB_BLOCK.defaultBlockState(), Blocks.WAXED_CUT_COPPER.defaultBlockState())
+                .component(Blocks.HONEYCOMB_BLOCK)
+                .component(Blocks.CUT_COPPER)
+                .unlockedBy(MyRecipesGenerator.hasItem(Items.HONEYCOMB_BLOCK), FabricRecipeProvider.has(Items.HONEYCOMB_BLOCK))
+                .save(exporter, AnvilCraft.of("squeeze/waxed_cut_copper"));
+
+        BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.HONEYCOMB_BLOCK.defaultBlockState(), Blocks.WAXED_OXIDIZED_CUT_COPPER_STAIRS.defaultBlockState())
+                .component(Blocks.HONEYCOMB_BLOCK)
+                .component(Blocks.OXIDIZED_CUT_COPPER_STAIRS)
+                .unlockedBy(MyRecipesGenerator.hasItem(Items.HONEYCOMB_BLOCK), FabricRecipeProvider.has(Items.HONEYCOMB_BLOCK))
+                .save(exporter, AnvilCraft.of("squeeze/waxed_oxidized_cut_copper_stairs"));
+
+        BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.HONEYCOMB_BLOCK.defaultBlockState(), Blocks.WAXED_WEATHERED_CUT_COPPER_STAIRS.defaultBlockState())
+                .component(Blocks.HONEYCOMB_BLOCK)
+                .component(Blocks.WEATHERED_CUT_COPPER_STAIRS)
+                .unlockedBy(MyRecipesGenerator.hasItem(Items.HONEYCOMB_BLOCK), FabricRecipeProvider.has(Items.HONEYCOMB_BLOCK))
+                .save(exporter, AnvilCraft.of("squeeze/waxed_weathered_cut_copper_stairs"));
+
+        BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.HONEYCOMB_BLOCK.defaultBlockState(), Blocks.WAXED_EXPOSED_CUT_COPPER_STAIRS.defaultBlockState())
+                .component(Blocks.HONEYCOMB_BLOCK)
+                .component(Blocks.EXPOSED_CUT_COPPER_STAIRS)
+                .unlockedBy(MyRecipesGenerator.hasItem(Items.HONEYCOMB_BLOCK), FabricRecipeProvider.has(Items.HONEYCOMB_BLOCK))
+                .save(exporter, AnvilCraft.of("squeeze/waxed_exposed_cut_copper_stairs"));
+
+        BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.HONEYCOMB_BLOCK.defaultBlockState(), Blocks.WAXED_CUT_COPPER_STAIRS.defaultBlockState())
+                .component(Blocks.HONEYCOMB_BLOCK)
+                .component(Blocks.CUT_COPPER_STAIRS)
+                .unlockedBy(MyRecipesGenerator.hasItem(Items.HONEYCOMB_BLOCK), FabricRecipeProvider.has(Items.HONEYCOMB_BLOCK))
+                .save(exporter, AnvilCraft.of("squeeze/waxed_cut_copper_stairs"));
+
+        BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.HONEYCOMB_BLOCK.defaultBlockState(), Blocks.WAXED_OXIDIZED_CUT_COPPER_SLAB.defaultBlockState())
+                .component(Blocks.HONEYCOMB_BLOCK)
+                .component(Blocks.OXIDIZED_CUT_COPPER_SLAB)
+                .unlockedBy(MyRecipesGenerator.hasItem(Items.HONEYCOMB_BLOCK), FabricRecipeProvider.has(Items.HONEYCOMB_BLOCK))
+                .save(exporter, AnvilCraft.of("squeeze/waxed_oxidized_cut_copper_slab"));
+
+        BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.HONEYCOMB_BLOCK.defaultBlockState(), Blocks.WAXED_WEATHERED_CUT_COPPER_SLAB.defaultBlockState())
+                .component(Blocks.HONEYCOMB_BLOCK)
+                .component(Blocks.WEATHERED_CUT_COPPER_SLAB)
+                .unlockedBy(MyRecipesGenerator.hasItem(Items.HONEYCOMB_BLOCK), FabricRecipeProvider.has(Items.HONEYCOMB_BLOCK))
+                .save(exporter, AnvilCraft.of("squeeze/waxed_weathered_cut_copper_slab"));
+
+        BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.HONEYCOMB_BLOCK.defaultBlockState(), Blocks.WAXED_EXPOSED_CUT_COPPER_SLAB.defaultBlockState())
+                .component(Blocks.HONEYCOMB_BLOCK)
+                .component(Blocks.EXPOSED_CUT_COPPER_SLAB)
+                .unlockedBy(MyRecipesGenerator.hasItem(Items.HONEYCOMB_BLOCK), FabricRecipeProvider.has(Items.HONEYCOMB_BLOCK))
+                .save(exporter, AnvilCraft.of("squeeze/waxed_exposed_cut_copper_slab"));
+
+        BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, Blocks.HONEYCOMB_BLOCK.defaultBlockState(), Blocks.WAXED_CUT_COPPER_SLAB.defaultBlockState())
+                .component(Blocks.HONEYCOMB_BLOCK)
+                .component(Blocks.CUT_COPPER_SLAB)
+                .unlockedBy(MyRecipesGenerator.hasItem(Items.HONEYCOMB_BLOCK), FabricRecipeProvider.has(Items.HONEYCOMB_BLOCK))
+                .save(exporter, AnvilCraft.of("squeeze/waxed_cut_copper_slab"));
     }
 }
