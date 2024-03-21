@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "anvilcraft:block/cursed_gold_block"
+  }
+}
