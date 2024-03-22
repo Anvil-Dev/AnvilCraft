@@ -35,7 +35,7 @@ public abstract class CompactionRecipesGenerator {
                 .component(block)
                 .component(block1)
                 .unlockedBy(MyRecipesGenerator.hasItem(block.asItem()), FabricRecipeProvider.has(block.asItem()))
-                .save(exporter, AnvilCraft.of("smash_block/" + BuiltInRegistries.BLOCK.getKey(block2).getPath()));
+                .save(exporter, AnvilCraft.of("smash_block/" + BuiltInRegistries.BLOCK.getKey(block).getPath() + "_and_" + BuiltInRegistries.BLOCK.getKey(block1).getPath() + "_2_" + BuiltInRegistries.BLOCK.getKey(block2).getPath()));
     }
 
     public static void compaction(TagKey<Block> block, @NotNull Block block1, @NotNull Block block2, Consumer<FinishedRecipe> exporter) {
@@ -43,6 +43,6 @@ public abstract class CompactionRecipesGenerator {
                 .component(block)
                 .component(block1)
                 .unlockedBy(MyRecipesGenerator.hasItem(block1.asItem()), FabricRecipeProvider.has(block1.asItem()))
-                .save(exporter, AnvilCraft.of("smash_block/" + BuiltInRegistries.BLOCK.getKey(block2).getPath()));
+                .save(exporter, AnvilCraft.of("smash_block/" + block.location().getPath() + "_and_" + BuiltInRegistries.BLOCK.getKey(block1).getPath() + "_2_" + BuiltInRegistries.BLOCK.getKey(block2).getPath()));
     }
 }

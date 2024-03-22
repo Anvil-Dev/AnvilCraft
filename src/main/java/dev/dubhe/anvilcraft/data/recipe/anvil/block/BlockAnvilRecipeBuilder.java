@@ -93,7 +93,7 @@ public class BlockAnvilRecipeBuilder implements RecipeBuilder {
     }
 
     @Override
-    public void save(Consumer<FinishedRecipe> finishedRecipeConsumer, ResourceLocation recipeId) {
+    public void save(@NotNull Consumer<FinishedRecipe> finishedRecipeConsumer, ResourceLocation recipeId) {
         this.ensureValid(recipeId);
         this.advancement.parent(ROOT_RECIPE_ADVANCEMENT).addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(recipeId)).rewards(AdvancementRewards.Builder.recipe(recipeId)).requirements(RequirementsStrategy.OR);
         finishedRecipeConsumer.accept(new Result(recipeId, this.components, this.results, this.dropItems, this.isAnvilDamage, null == this.group ? "" : this.group, this.advancement, recipeId.withPrefix("recipes/" + this.category.getFolderName() + "/")));
