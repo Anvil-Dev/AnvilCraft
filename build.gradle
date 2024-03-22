@@ -118,6 +118,7 @@ sourceSets {
 // configure the maven publication
 publishing {
     publications {
+        //noinspection GroovyAssignabilityCheck
         mavenJava(MavenPublication) {
             from components.java
         }

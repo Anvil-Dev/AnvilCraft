@@ -11,13 +11,17 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
+import net.minecraft.world.item.crafting.CustomRecipe;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
-public class ShapedTagRecipe extends CustomRecipe implements CraftingRecipe {
+@SuppressWarnings("deprecation")
+public class ShapedTagRecipe extends CustomRecipe {
     @Getter
     final int width;
     @Getter
@@ -65,7 +69,7 @@ public class ShapedTagRecipe extends CustomRecipe implements CraftingRecipe {
 
     @Override
     public @NotNull NonNullList<Ingredient> getIngredients() {
-        return NonNullList.of(Ingredient.EMPTY, (Ingredient[]) this.recipeItems.stream().map(TagIngredient::toVanilla).toArray());
+        return NonNullList.of(Ingredient.EMPTY, this.recipeItems.stream().map(TagIngredient::toVanilla).toArray(Ingredient[]::new));
     }
 
     @Override
