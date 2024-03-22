@@ -29,7 +29,10 @@ import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Getter
 public class ItemAnvilRecipe implements Recipe<AnvilCraftingContainer> {
@@ -93,7 +96,7 @@ public class ItemAnvilRecipe implements Recipe<AnvilCraftingContainer> {
             for (ItemStack itemStack : itemStackMap.keySet()) {
                 if (!ingredient.test(itemStack)) continue;
                 itemStack.shrink(1);
-                itemStackMap.get(itemStack).setItem(itemStack);
+                itemStackMap.get(itemStack).setItem(itemStack.copy());//只有前后不相等才会成功设置并同步到客户端，但是傻逼ItemStack没有重写equals
                 break;
             }
         }
