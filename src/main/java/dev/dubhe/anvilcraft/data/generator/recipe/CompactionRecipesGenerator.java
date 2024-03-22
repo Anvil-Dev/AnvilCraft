@@ -22,10 +22,11 @@ public abstract class CompactionRecipesGenerator {
 
     public static void buildRecipes(Consumer<FinishedRecipe> exporter) {
         compaction(Blocks.STONE, Blocks.STONE, Blocks.DEEPSLATE, exporter);
-        compaction(Blocks.ICE, Blocks.ICE, Blocks.BLUE_ICE, exporter);
+        compaction(Blocks.ICE, Blocks.ICE, Blocks.PACKED_ICE, exporter);
+        compaction(Blocks.PACKED_ICE, Blocks.PACKED_ICE, Blocks.BLUE_ICE, exporter);
         compaction(Blocks.MOSS_BLOCK, Blocks.DIRT, Blocks.GRASS_BLOCK, exporter);
-        compaction(BlockTags.LEAVES, Blocks.DIRT, Blocks.GRASS_BLOCK, exporter);
-        compaction(ModBlockTags.MUSHROOM_BLOCK, Blocks.DIRT, Blocks.GRASS_BLOCK, exporter);
+        compaction(BlockTags.LEAVES, Blocks.DIRT, Blocks.PODZOL, exporter);
+        compaction(ModBlockTags.MUSHROOM_BLOCK, Blocks.DIRT, Blocks.MYCELIUM, exporter);
         compaction(Blocks.NETHER_WART_BLOCK, Blocks.NETHERRACK, Blocks.CRIMSON_NYLIUM, exporter);
         compaction(Blocks.WARPED_WART_BLOCK, Blocks.NETHERRACK, Blocks.WARPED_NYLIUM, exporter);
     }
