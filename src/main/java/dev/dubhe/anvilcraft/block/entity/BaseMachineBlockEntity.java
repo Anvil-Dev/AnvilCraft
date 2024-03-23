@@ -11,13 +11,11 @@ import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 @Getter
 public abstract class BaseMachineBlockEntity extends RandomizableContainerBlockEntity {
@@ -28,13 +26,6 @@ public abstract class BaseMachineBlockEntity extends RandomizableContainerBlockE
     protected BaseMachineBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState, int size) {
         super(type, pos, blockState);
         items = NonNullList.withSize(size, ItemStack.EMPTY);
-    }
-
-    protected static @Nullable Container getOutputContainer(Level level, BlockPos pos, Direction direction) {
-        if (level == null) return null;
-        BlockEntity entity = level.getBlockEntity(pos.relative(direction));
-        if (entity instanceof Container container) return container;
-        return null;
     }
 
     public static void tick(Level level, BlockPos pos, BaseMachineBlockEntity entity) {
@@ -108,22 +99,6 @@ public abstract class BaseMachineBlockEntity extends RandomizableContainerBlockE
     @Override
     public void clearContent() {
         this.items.clear();
-    }
-
-    @Override
-    public boolean canPlaceItem(int index, ItemStack stack) {
-        return index != this.getContainerSize() - 1;
-    }
-
-    public void setResult(ItemStack stack) {
-        this.items.set(this.getContainerSize() - 1, stack);
-        if (stack.getCount() > this.getMaxStackSize()) {
-            stack.setCount(this.getMaxStackSize());
-        }
-    }
-
-    ItemStack getResult() {
-        return this.getItem(this.getContainerSize() - 1);
     }
 
     @Override
