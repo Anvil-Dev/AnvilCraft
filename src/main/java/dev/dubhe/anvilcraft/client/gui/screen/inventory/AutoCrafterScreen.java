@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.client.gui.screen.inventory;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.gui.component.RecordMaterialButton;
+import dev.dubhe.anvilcraft.inventory.AutoCrafterContainer;
 import dev.dubhe.anvilcraft.inventory.AutoCrafterMenu;
 import dev.dubhe.anvilcraft.inventory.component.AutoCrafterSlot;
 import dev.dubhe.anvilcraft.network.MachineRecordMaterialPack;
@@ -15,10 +16,15 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public class AutoCrafterScreen extends BaseMachineScreen<AutoCrafterMenu> {
@@ -90,7 +96,7 @@ public class AutoCrafterScreen extends BaseMachineScreen<AutoCrafterMenu> {
 
     private void renderDisabledSlot(@NotNull GuiGraphics guiGraphics, @NotNull AutoCrafterSlot crafterSlot) {
         RenderSystem.enableDepthTest();
-        guiGraphics.blit(DISABLED_SLOT, crafterSlot.x, crafterSlot.y, 0, 0, 16, 16,16,16);
+        guiGraphics.blit(DISABLED_SLOT, crafterSlot.x, crafterSlot.y, 0, 0, 16, 16, 16, 16);
     }
 
     @Override
@@ -104,6 +110,7 @@ public class AutoCrafterScreen extends BaseMachineScreen<AutoCrafterMenu> {
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(guiGraphics);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
+        this.renderResultItem(guiGraphics, 134, 54);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
     }
 
@@ -112,5 +119,23 @@ public class AutoCrafterScreen extends BaseMachineScreen<AutoCrafterMenu> {
         int i = (this.width - this.imageWidth) / 2;
         int j = (this.height - this.imageHeight) / 2;
         guiGraphics.blit(CONTAINER_LOCATION, i, j, 0, 0, this.imageWidth, this.imageHeight);
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    protected void renderResultItem(@NotNull GuiGraphics guiGraphics, int x, int y) {
+        NonNullList<ItemStack> stacks = NonNullList.withSize(9, ItemStack.EMPTY);
+        for (int i = 0; i < 9; i++) stacks.set(i, this.menu.slots.get(i).getItem());
+        CraftingContainer container = new AutoCrafterContainer(stacks);
+        Level level = this.menu.getInventory().player.level();
+        Optional<CraftingRecipe> optional = level.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, container, level);
+        if (optional.isEmpty()) return;
+        ItemStack stack = optional.get().assemble(container, level.registryAccess());
+        int i = (this.width - this.imageWidth) / 2 + x;
+        int j = (this.height - this.imageHeight) / 2 + y;
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(0.0f, 0.0f, 232.0f);
+        guiGraphics.renderItem(stack, i, j);
+        guiGraphics.renderItemDecorations(this.font, stack, i, j, null);
+        guiGraphics.pose().popPose();
     }
 }

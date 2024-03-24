@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.inventory;
 
 import dev.dubhe.anvilcraft.block.entity.BaseMachineBlockEntity;
+import lombok.Getter;
 import net.minecraft.core.Direction;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
@@ -11,6 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+@Getter
 public abstract class BaseMachineMenu extends AbstractContainerMenu {
     protected final Container machine;
 

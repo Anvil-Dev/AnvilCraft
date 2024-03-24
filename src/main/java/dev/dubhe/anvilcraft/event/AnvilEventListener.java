@@ -9,7 +9,6 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.block.BlockAnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.anvil.item.ItemAnvilRecipe;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
