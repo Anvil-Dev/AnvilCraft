@@ -24,10 +24,6 @@ public class ModItemGroups {
                 entries.accept(ModItems.CHANGEABLE_PICKAXE_FORTUNE.getDefaultInstance());
                 entries.accept(ModItems.CHANGEABLE_PICKAXE_SILK_TOUCH.getDefaultInstance());
                 entries.accept(ModItems.AMETHYST_PICKAXE.getDefaultInstance());
-                entries.accept(ModItems.AMETHYST_AXE.getDefaultInstance());
-                entries.accept(ModItems.AMETHYST_HOE.getDefaultInstance());
-                entries.accept(ModItems.AMETHYST_SWORD.getDefaultInstance());
-                entries.accept(ModItems.AMETHYST_SHOVEL.getDefaultInstance());
                 entries.accept(ModItems.PROTOCOL_EMPTY.getDefaultInstance());
                 entries.accept(ModItems.PROTOCOL_PROTECT.getDefaultInstance());
                 entries.accept(ModItems.PROTOCOL_REPAIR.getDefaultInstance());
