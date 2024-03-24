@@ -40,7 +40,7 @@ public class ModItems {
             tooltipComponents.add(Component.translatable("item.anvilcraft.amethyst_pickaxe.tooltip").withStyle(ChatFormatting.GRAY));
         }
     }, defaultProperties());
-    public static final Item AMETHYST_AXE = registerItem("amethyst_axe", properties -> new AxeItem(ModTiers.AMETHYST, 1, -2.8f, properties) {
+    public static final Item AMETHYST_AXE = registerItem("amethyst_axe", properties -> new AxeItem(ModTiers.AMETHYST, 7, -3.2f, properties) {
         @Override
         public @NotNull ItemStack getDefaultInstance() {
             ItemStack stack = super.getDefaultInstance();
@@ -49,7 +49,7 @@ public class ModItems {
             return stack;
         }
     }, defaultProperties());
-    public static final Item AMETHYST_HOE = registerItem("amethyst_hoe", properties -> new HoeItem(ModTiers.AMETHYST, 1, -2.8f, properties) {
+    public static final Item AMETHYST_HOE = registerItem("amethyst_hoe", properties -> new HoeItem(ModTiers.AMETHYST, -1, -2.0f, properties) {
         @Override
         public @NotNull ItemStack getDefaultInstance() {
             ItemStack stack = super.getDefaultInstance();
@@ -57,7 +57,7 @@ public class ModItems {
             return stack;
         }
     }, defaultProperties());
-    public static final Item AMETHYST_SWORD = registerItem("amethyst_sword", properties -> new SwordItem(ModTiers.AMETHYST, 1, -2.8f, properties) {
+    public static final Item AMETHYST_SWORD = registerItem("amethyst_sword", properties -> new SwordItem(ModTiers.AMETHYST, 3, -2.4f, properties) {
         @Override
         public @NotNull ItemStack getDefaultInstance() {
             ItemStack stack = super.getDefaultInstance();
@@ -65,7 +65,7 @@ public class ModItems {
             return stack;
         }
     }, defaultProperties());
-    public static final Item AMETHYST_SHOVEL = registerItem("amethyst_shovel", properties -> new ShovelItem(ModTiers.AMETHYST, 1, -2.8f, properties) {
+    public static final Item AMETHYST_SHOVEL = registerItem("amethyst_shovel", properties -> new ShovelItem(ModTiers.AMETHYST, 1.5, -3.0f, properties) {
         @Override
         public @NotNull ItemStack getDefaultInstance() {
             ItemStack stack = super.getDefaultInstance();
