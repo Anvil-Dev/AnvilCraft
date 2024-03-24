@@ -65,7 +65,7 @@ public class ModItems {
             return stack;
         }
     }, defaultProperties());
-    public static final Item AMETHYST_SHOVEL = registerItem("amethyst_shovel", properties -> new ShovelItem(ModTiers.AMETHYST, 1.5, -3.0f, properties) {
+    public static final Item AMETHYST_SHOVEL = registerItem("amethyst_shovel", properties -> new ShovelItem(ModTiers.AMETHYST, 1.5f, -3.0f, properties) {
         @Override
         public @NotNull ItemStack getDefaultInstance() {
             ItemStack stack = super.getDefaultInstance();
