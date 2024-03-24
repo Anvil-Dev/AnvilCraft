@@ -47,30 +47,6 @@ public class MyRecipesGenerator extends FabricRecipeProvider {
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.AMETHYST_SHARD), FabricRecipeProvider.has(Items.AMETHYST_SHARD))
                 .save(exporter, AnvilCraft.of("craft_a_royal_steel_ingot"));
         ItemAnvilRecipeBuilder.item(RecipeCategory.MISC)
-                .component(Blocks.IRON_TRAPDOOR)
-                .requires(Items.HEART_OF_THE_SEA)
-                .result(ModItems.SEED_OF_THE_SEA, 4)
-                .unlockedBy(MyRecipesGenerator.hasItem(Items.HEART_OF_THE_SEA), FabricRecipeProvider.has(Items.HEART_OF_THE_SEA))
-                .location(ItemAnvilRecipe.Location.UP)
-                .resultLocation(ItemAnvilRecipe.Location.IN)
-                .save(exporter);
-        ItemAnvilRecipeBuilder.item(RecipeCategory.MISC)
-                .component(Blocks.IRON_TRAPDOOR)
-                .requires(Items.WET_SPONGE)
-                .result(ModItems.SPONGE_GEMMULE, 2)
-                .unlockedBy(MyRecipesGenerator.hasItem(Items.WET_SPONGE), FabricRecipeProvider.has(Items.WET_SPONGE))
-                .location(ItemAnvilRecipe.Location.UP)
-                .resultLocation(ItemAnvilRecipe.Location.IN)
-                .save(exporter);
-        ItemAnvilRecipeBuilder.item(RecipeCategory.MISC)
-                .component(Blocks.IRON_TRAPDOOR)
-                .requires(Items.NETHER_STAR)
-                .result(ModItems.NETHER_STAR_SHARD, 4)
-                .unlockedBy(MyRecipesGenerator.hasItem(Items.NETHER_STAR), FabricRecipeProvider.has(Items.NETHER_STAR))
-                .location(ItemAnvilRecipe.Location.UP)
-                .resultLocation(ItemAnvilRecipe.Location.IN)
-                .save(exporter);
-        ItemAnvilRecipeBuilder.item(RecipeCategory.MISC)
                 .component(Blocks.SMITHING_TABLE)
                 .requires(Items.ANCIENT_DEBRIS)
                 .result(ModItems.DEBRIS_SCRAP, 1)
@@ -153,6 +129,7 @@ public class MyRecipesGenerator extends FabricRecipeProvider {
                 .location(ItemAnvilRecipe.Location.IN)
                 .resultLocation(ItemAnvilRecipe.Location.IN)
                 .save(exporter);
+        SmashRecipesGenerator.buildRecipes(exporter);
         CookingRecipesGenerator.buildRecipes(exporter);
         CompressRecipesGenerator.buildRecipes(exporter);
         StampingRecipesGenerator.buildRecipes(exporter);
