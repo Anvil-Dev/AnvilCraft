@@ -26,12 +26,77 @@
 
 ## 贡献者名单:
 
-* 代码：
-    * [古镇天Gugle](https://space.bilibili.com/19822751)
-    * [Cjsah](https://space.bilibili.com/19170004)
-* 策划&纹理：
-    * [XeKr](https://space.bilibili.com/5930630)
-* 特别鸣谢：
-    * 赞助名单：
-        * [塔壳take](https://space.bilibili.com/13029727)
-        * [GeT_RiGhT_D](https://space.bilibili.com/17486924)
+<div style="text-align: center">
+  <table style="display: inline">
+    <tr>
+      <td style="min-width: 100px"><img  height="100" width="100" src="https://avatars.githubusercontent.com/u/34372427?s=60&v=4" alt="古镇天Gugle"/></td>
+    </tr>
+    <tr>
+      <td><a href="https://space.bilibili.com/19822751">古镇天Gugle</a></td>
+    </tr>
+    <tr>
+      <td>💻</td>
+    </tr>
+  </table>
+  <table style="display: inline">
+    <tr>
+      <td style="min-width: 100px"><img  height="100" width="100" src="https://avatars.githubusercontent.com/u/45423407?s=60&v=4" alt="XeKr"/></td>
+    </tr>
+    <tr>
+      <td><a href="https://space.bilibili.com/5930630">XeKr</a></td>
+    </tr>
+    <tr>
+      <td>💡🎨</td>
+    </tr>
+  </table>
+  <table style="display: inline">
+    <tr>
+      <td style="min-width: 100px"><img  height="100" width="100" src="https://avatars.githubusercontent.com/u/46415647?v=4" alt="Cjsah"/></td>
+    </tr>
+    <tr>
+      <td><a href="https://space.bilibili.com/19170004">Cjsah</a></td>
+    </tr>
+    <tr>
+      <td>💻</td>
+    </tr>
+  </table>
+  <table style="display: inline">
+    <tr>
+      <td style="min-width: 100px"><img  height="100" width="100" src="https://avatars.githubusercontent.com/u/50520903?s=60&v=4" alt="Ph-苯"/></td>
+    </tr>
+    <tr>
+      <td><a href="https://space.bilibili.com/43760886">Ph-苯</a></td>
+    </tr>
+    <tr>
+      <td>💻</td>
+    </tr>
+  </table>
+  <table style="display: inline">
+    <tr>
+      <td style="min-width: 100px"><img  height="100" width="100" src="https://avatars.githubusercontent.com/u/104829942?s=60&v=4" alt="BOTXue"/></td>
+    </tr>
+    <tr>
+      <td><a href="https://space.bilibili.com/17486924">BOTXue</a></td>
+    </tr>
+    <tr>
+      <td>🌏</td>
+    </tr>
+  </table>
+  <table style="display: inline">
+    <tr>
+      <td style="min-width: 100px"><img  height="100" width="100" src="https://avatars.githubusercontent.com/u/80801884?s=60&v=4" alt="YocyCraft"/></td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/YocyCraft">YocyCraft</a></td>
+    </tr>
+    <tr>
+      <td>💻</td>
+    </tr>
+  </table>
+</div>
+
+## 特别鸣谢：
+
+* 赞助名单：
+    * [塔壳take](https://space.bilibili.com/13029727)
+    * [GeT_RiGhT_D](https://space.bilibili.com/17486924)
