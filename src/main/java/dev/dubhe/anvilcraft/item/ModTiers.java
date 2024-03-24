@@ -16,6 +16,7 @@ public enum ModTiers implements Tier {
     private final float speed;
     private final float damage;
     private final int enchantmentValue;
+    @SuppressWarnings("deprecation")
     private final LazyLoadedValue<Ingredient> repairIngredient;
 
     private ModTiers(int j, int k, float f, float g, int l, Supplier<Ingredient> supplier) {
@@ -24,6 +25,7 @@ public enum ModTiers implements Tier {
         this.speed = f;
         this.damage = g;
         this.enchantmentValue = l;
+        //noinspection deprecation
         this.repairIngredient = new LazyLoadedValue<>(supplier);
     }
 

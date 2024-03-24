@@ -8,6 +8,7 @@
     "ClientboundUpdateRecipesPacketMixin",
     "ItemEntityMixin",
     "ItemStackInjector",
+    "ShapedRecipeMixin",
     "event.FallingBlockEntityMixin",
     "event.LightningBoltMixin",
     "event.MinecraftServerMixin"

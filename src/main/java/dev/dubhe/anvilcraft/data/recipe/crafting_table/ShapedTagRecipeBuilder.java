@@ -33,20 +33,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-@SuppressWarnings("unused")
+@Getter
 public class ShapedTagRecipeBuilder extends ShapedRecipeBuilder {
-    @Getter
     private final RecipeCategory category;
-    @Getter
     private final ItemStack stackResult;
-    @Getter
     private final List<String> rows = Lists.newArrayList();
-    @Getter
     private final Map<Character, TagIngredient> key = Maps.newLinkedHashMap();
-    @Getter
     private final Advancement.Builder advancement = Advancement.Builder.recipeAdvancement();
-    @Nullable
-    private String group;
+    private @Nullable String group;
     private boolean showNotification = true;
 
     public ShapedTagRecipeBuilder(RecipeCategory category, @NotNull ItemStack stack) {
@@ -197,7 +191,7 @@ public class ShapedTagRecipeBuilder extends ShapedRecipeBuilder {
 
         @Override
         public @NotNull RecipeSerializer<?> getType() {
-            return ShapedTagRecipe.Serializer.INSTANCE;
+            return RecipeSerializer.SHAPED_RECIPE;
         }
 
         @Nullable
