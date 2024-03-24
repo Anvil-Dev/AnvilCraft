@@ -9,7 +9,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Pair;
-import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.*;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -35,6 +34,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 @SuppressWarnings("unused")
+@Deprecated
 public interface RecipeSerializerBase<T extends Recipe<?>> extends RecipeSerializer<T> {
     default @NotNull NonNullList<TagIngredient> itemsFromJson(@NotNull JsonArray ingredientArray) {
         NonNullList<TagIngredient> nonNullList = NonNullList.create();
@@ -161,6 +161,7 @@ public interface RecipeSerializerBase<T extends Recipe<?>> extends RecipeSeriali
         return i;
     }
 
+    @SuppressWarnings("DuplicatedCode")
     default @NotNull ItemStack itemStackFromJson(JsonElement element) {
         if (!element.isJsonObject()) throw new JsonSyntaxException("Expected item to be string");
         JsonObject object = element.getAsJsonObject();

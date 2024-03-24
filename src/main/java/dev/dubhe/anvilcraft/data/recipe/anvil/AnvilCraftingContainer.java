@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.data.recipe.anvil;
 
+import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.item.FallingBlockEntity;
@@ -10,8 +12,20 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
-public record AnvilCraftingContainer(Level level, BlockPos pos, FallingBlockEntity entity)
+@Getter
+public class AnvilCraftingContainer
         implements Container, StackedContentsCompatible {
+    private final Level level;
+    private final BlockPos pos;
+    private final FallingBlockEntity entity;
+    @Setter
+    private boolean isAnvilDamage = false;
+
+    public AnvilCraftingContainer(Level level, BlockPos pos, FallingBlockEntity entity) {
+        this.level = level;
+        this.pos = pos;
+        this.entity = entity;
+    }
 
     @Override
     public int getContainerSize() {

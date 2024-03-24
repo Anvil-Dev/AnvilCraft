@@ -13,10 +13,11 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(ShapedRecipe.class)
 abstract class ShapedRecipeMixin {
-    @ModifyExpressionValue(method = "itemStackFromJson", at = @At(value = "INVOKE", target = "Lcom/google/gson/JsonObject;has(Ljava/lang/String;)Z"))
+    @ModifyExpressionValue(method = "itemStackFromJson", at = @At(value = "INVOKE", target = "Lcom/google/gson/JsonObject;has(Ljava/lang/String;)Z", remap = false))
     private static boolean validNbt(boolean original) {
         return false;
     }
+
     @ModifyExpressionValue(method = "itemStackFromJson", at = @At(value = "NEW", target = "(Lnet/minecraft/world/level/ItemLike;I)Lnet/minecraft/world/item/ItemStack;"))
     private static ItemStack readNbt(ItemStack original, JsonObject stackObject) {
         if (stackObject.has("data")) {

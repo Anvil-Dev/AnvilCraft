@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.init;
 
 import com.mojang.datafixers.util.Pair;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.anvil.block.BlockAnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.anvil.item.ItemAnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.crafting_table.ShapedTagRecipe;
@@ -24,6 +25,8 @@ public class ModRecipeTypes {
     public static final @Nullable RecipeType<ShapedTagRecipe> TAG_CRAFTING_SHAPED = ModRecipeTypes.registerRecipeType("tag_crafting_shaped", ShapedTagRecipe.Serializer.INSTANCE, null);
     public static final RecipeType<ItemAnvilRecipe> ANVIL_ITEM = ModRecipeTypes.registerRecipeType("anvil_item_processing", ItemAnvilRecipe.Serializer.INSTANCE, ItemAnvilRecipe.Type.INSTANCE);
     public static final RecipeType<BlockAnvilRecipe> ANVIL_BLOCK = ModRecipeTypes.registerRecipeType("anvil_block_processing", BlockAnvilRecipe.Serializer.INSTANCE, BlockAnvilRecipe.Type.INSTANCE);
+    public static final RecipeType<AnvilRecipe> ANVIL_RECIPE = ModRecipeTypes.registerRecipeType("anvil_processing", AnvilRecipe.Serializer.INSTANCE, AnvilRecipe.Type.INSTANCE);
+
     private static <T extends Recipe<?>> @Nullable RecipeType<T> registerRecipeType(String id, @Nullable RecipeSerializer<T> serializer, @Nullable RecipeType<T> type) {
         RECIPE_TYPES.put(id, new Pair<>(serializer, type));
         return type;

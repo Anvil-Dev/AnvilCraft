@@ -9,3 +9,4 @@ accessible class net/minecraft/world/item/crafting/Ingredient$TagValue
 accessible field net/minecraft/world/item/crafting/Ingredient$TagValue tag Lnet/minecraft/tags/TagKey;
 accessible class net/minecraft/world/item/crafting/Ingredient$ItemValue
 accessible field net/minecraft/world/item/crafting/Ingredient$ItemValue item Lnet/minecraft/world/item/ItemStack;
+accessible field net/minecraft/advancements/critereon/ItemPredicate count Lnet/minecraft/advancements/critereon/MinMaxBounds$Ints;

@@ -36,6 +36,8 @@ import java.util.List;
 import java.util.Set;
 
 @Getter
+@Deprecated
+@SuppressWarnings("ClassCanBeRecord")
 public class ItemAnvilRecipe implements Recipe<AnvilCraftingContainer> {
     private final ResourceLocation id;
     private final NonNullList<TagIngredient> recipeItems;
@@ -44,6 +46,7 @@ public class ItemAnvilRecipe implements Recipe<AnvilCraftingContainer> {
     private final List<ItemStack> results;
     private final Location resultLocation;
     private final boolean isAnvilDamage;
+
     public ItemAnvilRecipe(ResourceLocation id, NonNullList<TagIngredient> recipeItems, Location location, NonNullList<Component> components, List<ItemStack> results, Location resultLocation, boolean isAnvilDamage) {
         this.id = id;
         this.recipeItems = recipeItems;
@@ -53,15 +56,16 @@ public class ItemAnvilRecipe implements Recipe<AnvilCraftingContainer> {
         this.resultLocation = resultLocation;
         this.isAnvilDamage = isAnvilDamage;
     }
+
     @Override
     public boolean matches(@NotNull AnvilCraftingContainer container, Level level) {
-        BlockPos pos = new BlockPos(container.pos());
+        BlockPos pos = new BlockPos(container.getPos());
         for (Component component : this.components) {
             pos = pos.below();
             BlockState state = level.getBlockState(pos);
             if (!component.test(state)) return false;
         }
-        pos = new BlockPos(container.pos());
+        pos = new BlockPos(container.getPos());
         if (this.location == Location.IN) pos = pos.below();
         if (this.location == Location.UNDER) pos = pos.below(2);
         AABB aabb = new AABB(pos);
@@ -78,10 +82,11 @@ public class ItemAnvilRecipe implements Recipe<AnvilCraftingContainer> {
         });
         return recipeItems.isEmpty();
     }
+
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean craft(@NotNull AnvilCraftingContainer container, Level level) {
         if (!this.matches(container, level)) return false;
-        BlockPos pos = new BlockPos(container.pos());
+        BlockPos pos = new BlockPos(container.getPos());
         if (this.location == Location.IN) pos = pos.below();
         if (this.location == Location.UNDER) pos = pos.below(2);
         List<ItemEntity> itemEntities = level.getEntities(EntityTypeTest.forClass(ItemEntity.class), new AABB(pos), Entity::isAlive);
@@ -113,39 +118,49 @@ public class ItemAnvilRecipe implements Recipe<AnvilCraftingContainer> {
         }
         return true;
     }
+
     @Override
     public @NotNull ItemStack assemble(AnvilCraftingContainer container, RegistryAccess registryAccess) {
         return this.getResultItem(registryAccess).copy();
     }
+
     @Override
     public boolean canCraftInDimensions(int width, int height) {
         return true;
     }
+
     @Override
     public @NotNull ItemStack getResultItem(RegistryAccess registryAccess) {
         return this.results.isEmpty() ? ItemStack.EMPTY : this.results.get(0);
     }
+
     @Override
     public @NotNull RecipeSerializer<?> getSerializer() {
         return Serializer.INSTANCE;
     }
+
     @Override
     public @NotNull RecipeType<?> getType() {
         return Type.INSTANCE;
     }
+
     public @NotNull NonNullList<TagIngredient> getTagIngredients() {
         return this.recipeItems;
     }
+
     public static class Type implements RecipeType<ItemAnvilRecipe> {
         public static final Type INSTANCE = new Type();
+
         private Type() {
         }
     }
-    
+
     public static class Serializer implements RecipeSerializerBase<ItemAnvilRecipe> {
         public static final Serializer INSTANCE = new Serializer();
+
         private Serializer() {
         }
+
         @Override
         public @NotNull ItemAnvilRecipe fromJson(ResourceLocation id, JsonObject json) {
             NonNullList<TagIngredient> input = shapelessFromJson(GsonHelper.getAsJsonArray(json, "ingredients"));
@@ -160,6 +175,7 @@ public class ItemAnvilRecipe implements Recipe<AnvilCraftingContainer> {
             boolean isAnvilDamage = json.has("is_anvil_damage") && json.get("is_anvil_damage").getAsBoolean();
             return new ItemAnvilRecipe(id, input, location, components, results, resultLocation, isAnvilDamage);
         }
+
         @Override
         public @NotNull ItemAnvilRecipe fromNetwork(ResourceLocation id, @NotNull FriendlyByteBuf buffer) {
             NonNullList<TagIngredient> ingredients = NonNullList.withSize(buffer.readVarInt(), TagIngredient.EMPTY);
@@ -176,6 +192,7 @@ public class ItemAnvilRecipe implements Recipe<AnvilCraftingContainer> {
             boolean isAnvilDamage = buffer.readBoolean();
             return new ItemAnvilRecipe(id, ingredients, location, components, results, resultLocation, isAnvilDamage);
         }
+
         @Override
         public void toNetwork(@NotNull FriendlyByteBuf buffer, @NotNull ItemAnvilRecipe recipe) {
             buffer.writeVarInt(recipe.getTagIngredients().size());
@@ -195,12 +212,14 @@ public class ItemAnvilRecipe implements Recipe<AnvilCraftingContainer> {
             buffer.writeBoolean(recipe.isAnvilDamage);
         }
     }
-    
+
     public enum Location {
         UP, UNDER, IN;
+
         public @NotNull String getId() {
             return this.name().toLowerCase();
         }
+
         public static Location byId(@NotNull String id) {
             return Location.valueOf(id.toUpperCase());
         }
