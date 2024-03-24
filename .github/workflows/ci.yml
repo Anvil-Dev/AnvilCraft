@@ -1,4 +1,10 @@
 on:
+  pull_request:
+    paths:
+      - src/**
+      - build.gradle
+      - gradle.properties
+      - settings.gradle
   push:
     paths:
       - src/**
