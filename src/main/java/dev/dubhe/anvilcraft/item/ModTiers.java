@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.item;
 
-import net.minecraft.util.LazyLoadedValue;
+import com.google.common.base.Suppliers;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -16,15 +16,14 @@ public enum ModTiers implements Tier {
     private final float speed;
     private final float damage;
     private final int enchantmentValue;
-    private final LazyLoadedValue<Ingredient> repairIngredient;
-
-    private ModTiers(int j, int k, float f, float g, int l, Supplier<Ingredient> supplier) {
-        this.level = j;
-        this.uses = k;
-        this.speed = f;
-        this.damage = g;
-        this.enchantmentValue = l;
-        this.repairIngredient = new LazyLoadedValue<>(supplier);
+    private final Supplier<Ingredient> repairIngredient;
+    ModTiers(int level, int uses, float speed, float damage, int enchantmentValue, Supplier<Ingredient> supplier) {
+        this.level = level;
+        this.uses = uses;
+        this.speed = speed;
+        this.damage = damage;
+        this.enchantmentValue = enchantmentValue;
+        this.repairIngredient = Suppliers.memoize(supplier::get);
     }
 
     @Override

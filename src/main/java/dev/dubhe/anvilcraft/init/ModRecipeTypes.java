@@ -15,9 +15,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
-@SuppressWarnings("unused")
 public class ModRecipeTypes {
     private static final Map<String, Pair<RecipeSerializer<?>, RecipeType<?>>> RECIPE_TYPES = new HashMap<>();
+    /**
+     * @deprecated {@link RecipeType#CRAFTING} {@link RecipeSerializer#SHAPED_RECIPE}
+     */
+    @Deprecated
     public static final @Nullable RecipeType<ShapedTagRecipe> TAG_CRAFTING_SHAPED = ModRecipeTypes.registerRecipeType("tag_crafting_shaped", ShapedTagRecipe.Serializer.INSTANCE, null);
     public static final RecipeType<ItemAnvilRecipe> ANVIL_ITEM = ModRecipeTypes.registerRecipeType("anvil_item_processing", ItemAnvilRecipe.Serializer.INSTANCE, ItemAnvilRecipe.Type.INSTANCE);
     public static final RecipeType<BlockAnvilRecipe> ANVIL_BLOCK = ModRecipeTypes.registerRecipeType("anvil_block_processing", BlockAnvilRecipe.Serializer.INSTANCE, BlockAnvilRecipe.Type.INSTANCE);

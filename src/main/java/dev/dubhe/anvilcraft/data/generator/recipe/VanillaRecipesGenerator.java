@@ -55,12 +55,12 @@ public abstract class VanillaRecipesGenerator {
                 .unlockedBy(MyRecipesGenerator.hasItem(ModItems.MAGNET_INGOT), FabricRecipeProvider.has(ModItems.MAGNET_INGOT))
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.ENDER_PEARL), FabricRecipeProvider.has(Items.ENDER_PEARL))
                 .save(exporter);
-        ShapedTagRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.AMETHYST_PICKAXE)
+        ShapedTagRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.AMETHYST_PICKAXE.getDefaultInstance())
                 .pattern("AAA")
                 .pattern(" B ")
                 .pattern(" B ")
                 .define('A', Items.AMETHYST_SHARD)
-                .define('B', Items.BAMBOO)
+          .define('B', Items.STICK)
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.AMETHYST_SHARD), FabricRecipeProvider.has(Items.AMETHYST_SHARD))
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.BAMBOO), FabricRecipeProvider.has(Items.BAMBOO))
                 .save(exporter);
