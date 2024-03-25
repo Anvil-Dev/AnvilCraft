@@ -45,4 +45,8 @@ public interface IItemStackInjector {
         }
         return stack;
     }
+
+    default JsonElement toJson() {
+        return new JsonObject();
+    }
 }

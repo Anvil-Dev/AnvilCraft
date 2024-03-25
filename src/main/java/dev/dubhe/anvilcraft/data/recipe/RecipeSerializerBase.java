@@ -185,6 +185,7 @@ public interface RecipeSerializerBase<T extends Recipe<?>> extends RecipeSeriali
         return stack;
     }
 
+    @SuppressWarnings("DuplicatedCode")
     default NonNullList<BlockState> getBlockResults(@NotNull JsonArray array) {
         NonNullList<BlockState> results = NonNullList.create();
         for (JsonElement element : array) {

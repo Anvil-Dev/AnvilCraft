@@ -4,6 +4,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.DamageAnvil;
+import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SetBlock;
+import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SpawnItem;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasBlock;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasBlockIngredient;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItem;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItemIngredient;
 import dev.dubhe.anvilcraft.util.IItemStackInjector;
@@ -153,5 +158,10 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
     static {
         RecipePredicate.register("has_item", HasItem::new, HasItem::new);
         RecipePredicate.register("has_item_ingredient", HasItemIngredient::new, HasItemIngredient::new);
+        RecipePredicate.register("has_block", HasBlock::new, HasBlock::new);
+        RecipePredicate.register("has_block_ingredient", HasBlockIngredient::new, HasBlockIngredient::new);
+        RecipeOutcome.register("damage_anvil", DamageAnvil::new, DamageAnvil::new);
+        RecipeOutcome.register("set_block", SetBlock::new, SetBlock::new);
+        RecipeOutcome.register("spawn_item", SpawnItem::new, SpawnItem::new);
     }
 }

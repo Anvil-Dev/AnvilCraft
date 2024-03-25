@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.data.recipe.anvil;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.GsonHelper;
@@ -19,7 +20,7 @@ public interface RecipeOutcome {
         RecipeOutcome.NETWORK_DECODER.put(id, networkDecoder);
     }
 
-    String getId();
+    String getType();
 
     boolean process(AnvilCraftingContainer container);
 
@@ -40,4 +41,6 @@ public interface RecipeOutcome {
     }
 
     void toNetwork(FriendlyByteBuf buffer);
+
+    JsonElement toJson();
 }

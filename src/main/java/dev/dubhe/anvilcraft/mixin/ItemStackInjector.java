@@ -1,12 +1,16 @@
 package dev.dubhe.anvilcraft.mixin;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import dev.dubhe.anvilcraft.util.IItemStackInjector;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -54,6 +58,9 @@ public abstract class ItemStackInjector implements IItemStackInjector {
     @Shadow
     public abstract CompoundTag getOrCreateTag();
 
+    @Shadow
+    public abstract Item getItem();
+
     @Override
     public ItemStack dataCopy(@NotNull ItemStack stack) {
         stack.setDamageValue(this.getDamageValue());
@@ -80,7 +87,7 @@ public abstract class ItemStackInjector implements IItemStackInjector {
             if (!(tag1 instanceof CompoundTag tag2)) continue;
             ResourceLocation id = EnchantmentHelper.getEnchantmentId(tag2);
             ResourceLocation id1 = EnchantmentHelper.getEnchantmentId(enchantment);
-            if (null == id|| null == id1) return false;
+            if (null == id || null == id1) return false;
             if (!id.equals(id1)) continue;
             listTag.remove(tag1);
             bl = true;
@@ -89,5 +96,17 @@ public abstract class ItemStackInjector implements IItemStackInjector {
         tag.put(TAG_ENCH, listTag);
         this.setTag(tag);
         return bl;
+    }
+
+    @Override
+    public JsonElement toJson() {
+        JsonObject object = new JsonObject();
+        object.addProperty("item", BuiltInRegistries.ITEM.getKey(this.getItem()).toString());
+        object.addProperty("count", this.getCount());
+        CompoundTag tag = this.getTag();
+        if (tag != null) {
+            object.addProperty("data", tag.toString());
+        }
+        return object;
     }
 }

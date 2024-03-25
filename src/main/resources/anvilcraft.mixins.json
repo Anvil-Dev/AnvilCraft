@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "AnvilBlockMixin",
+    "BlockStateInjector",
     "ClientboundUpdateRecipesPacketMixin",
     "ItemEntityMixin",
     "ItemStackInjector",
