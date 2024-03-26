@@ -2,8 +2,7 @@ package dev.dubhe.anvilcraft.data.generator.recipe;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.generator.MyRecipesGenerator;
-import dev.dubhe.anvilcraft.data.recipe.anvil.item.ItemAnvilRecipe;
-import dev.dubhe.anvilcraft.data.recipe.anvil.item.ItemAnvilRecipeBuilder;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.init.ModItems;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -29,12 +28,10 @@ public abstract class SmashRecipesGenerator {
     }
 
     public static void smash(Item item, @NotNull Item item1, int count, Consumer<FinishedRecipe> exporter) {
-        ItemAnvilRecipeBuilder.item(RecipeCategory.MISC)
-                .requires(item)
-                .result(item1, count)
-                .component(Blocks.IRON_TRAPDOOR)
-                .location(ItemAnvilRecipe.Location.UP)
-                .resultLocation(ItemAnvilRecipe.Location.IN)
+        AnvilRecipe.Builder.create(RecipeCategory.MISC)
+                .hasBlock(Blocks.IRON_TRAPDOOR)
+                .hasItemIngredient(item)
+                .spawnItem(item1, count)
                 .unlockedBy(MyRecipesGenerator.hasItem(item), FabricRecipeProvider.has(item))
                 .save(exporter, AnvilCraft.of("smash/" + BuiltInRegistries.ITEM.getKey(item).getPath() + "_2_" + BuiltInRegistries.ITEM.getKey(item1).getPath()));
     }

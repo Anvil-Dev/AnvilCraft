@@ -25,13 +25,12 @@ public abstract class BlockStateInjector extends BlockBehaviour.BlockStateBase i
     public JsonElement toJson() {
         JsonObject object = new JsonObject();
         object.addProperty("block", BuiltInRegistries.BLOCK.getKey(this.getBlock()).toString());
-        StringBuilder stringBuilder = new StringBuilder();
         if (!this.getValues().isEmpty()) {
-            stringBuilder.append('[');
-            stringBuilder.append(this.getValues().entrySet().stream().map(PROPERTY_ENTRY_TO_STRING_FUNCTION).collect(Collectors.joining(",")));
-            stringBuilder.append(']');
+            String stringBuilder = '[' +
+                    this.getValues().entrySet().stream().map(PROPERTY_ENTRY_TO_STRING_FUNCTION).collect(Collectors.joining(",")) +
+                    ']';
+            object.addProperty("state", stringBuilder);
         }
-        object.addProperty("state", stringBuilder.toString());
         return object;
     }
 }

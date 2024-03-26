@@ -1,40 +1,43 @@
 package dev.dubhe.anvilcraft.data.recipe.anvil.outcome;
 
 import com.google.gson.*;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipeOutcome;
-import dev.dubhe.anvilcraft.util.IItemStackInjector;
 import lombok.Getter;
-import net.minecraft.core.BlockPos;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.dedicated.DedicatedServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
-public class SpawnItem implements RecipeOutcome {
+public class RunCommand implements RecipeOutcome {
     @Getter
-    private final String type = "spawn_item";
+    private final String type = "run_command";
     private final Vec3 offset;
     private final double chance;
-    private final ItemStack result;
+    private final String command;
 
-    public SpawnItem(Vec3 offset, double chance, ItemStack result) {
+    public RunCommand(Vec3 offset, double chance, String command) {
         this.offset = offset;
         this.chance = chance;
-        this.result = result;
+        this.command = command;
     }
 
-    public SpawnItem(@NotNull FriendlyByteBuf buffer) {
+    public RunCommand(@NotNull FriendlyByteBuf buffer) {
         this.offset = new Vec3(buffer.readVector3f());
         this.chance = buffer.readDouble();
-        this.result = buffer.readItem();
+        this.command = buffer.readUtf();
     }
 
-    public SpawnItem(@NotNull JsonObject serializedRecipe) {
+    public RunCommand(@NotNull JsonObject serializedRecipe) {
         double[] vec3 = {0.0d, 0.0d, 0.0d};
         if (serializedRecipe.has("offset")) {
             JsonArray array = GsonHelper.getAsJsonArray(serializedRecipe, "offset");
@@ -50,18 +53,25 @@ public class SpawnItem implements RecipeOutcome {
         if (serializedRecipe.has("chance")) {
             this.chance = GsonHelper.getAsDouble(serializedRecipe, "chance");
         } else this.chance = 1.0;
-        this.result = IItemStackInjector.fromJson(GsonHelper.getAsJsonObject(serializedRecipe, "result"));
+        this.command = GsonHelper.getAsString(serializedRecipe, "command");
     }
 
     @Override
     public boolean process(@NotNull AnvilCraftingContainer container) {
         Level level = container.getLevel();
-        RandomSource random = level.getRandom();
-        if (random.nextDouble() > this.chance) return true;
-        BlockPos pos = container.getPos();
-        Vec3 vec3 = pos.getCenter().add(this.offset);
-        ItemEntity entity = new ItemEntity(level, vec3.x, vec3.y, vec3.z, this.result.copy(), 0.0d, 0.0d, 0.0d);
-        return level.addFreshEntity(entity);
+        if (!(level instanceof ServerLevel serverLevel)) return true;
+        FallingBlockEntity entity = container.getEntity();
+        CommandSourceStack stack = new CommandSourceStack(entity, this.offset, new Vec2(entity.getXRot(), entity.getYRot()),
+                serverLevel,
+                (level.getServer() instanceof DedicatedServer server) ? server.getProperties().functionPermissionLevel : 2,
+                "Anvil", Component.literal("Anvil"), serverLevel.getServer(), entity
+        );
+        try {
+            serverLevel.getServer().getCommands().getDispatcher().execute(this.command, stack);
+        } catch (CommandSyntaxException exception) {
+            AnvilCraft.LOGGER.printStackTrace(exception);
+        }
+        return false;
     }
 
     @Override
@@ -69,19 +79,19 @@ public class SpawnItem implements RecipeOutcome {
         buffer.writeUtf(this.getType());
         buffer.writeVector3f(this.offset.toVector3f());
         buffer.writeDouble(this.chance);
-        buffer.writeItem(this.result);
+        buffer.writeUtf(this.command);
     }
 
     @Override
     public JsonElement toJson() {
-        JsonObject object = new JsonObject();
         double[] vec3 = {this.offset.x(), this.offset.y(), this.offset.z()};
         JsonArray offset = new JsonArray();
         for (double v : vec3) offset.add(new JsonPrimitive(v));
+        JsonObject object = new JsonObject();
         object.addProperty("type", this.getType());
         object.add("offset", offset);
         object.addProperty("chance", this.chance);
-        object.add("result", this.result.toJson());
+        object.addProperty("command", this.command);
         return object;
     }
 }

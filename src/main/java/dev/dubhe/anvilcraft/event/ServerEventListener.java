@@ -6,9 +6,11 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.SubscribeEvent;
 import dev.dubhe.anvilcraft.api.event.server.ServerEndDataPackReloadEvent;
 import dev.dubhe.anvilcraft.api.event.server.ServerStartedEvent;
-import dev.dubhe.anvilcraft.data.recipe.Component;
-import dev.dubhe.anvilcraft.data.recipe.TagIngredient;
-import dev.dubhe.anvilcraft.data.recipe.anvil.item.ItemAnvilRecipe;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
+import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SpawnItem;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasBlock;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItemIngredient;
+import net.minecraft.advancements.critereon.BlockPredicate;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
@@ -17,10 +19,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ServerEventListener {
     @SubscribeEvent
@@ -72,54 +77,39 @@ public class ServerEventListener {
         if (oldRecipe instanceof ShapelessRecipe recipe) {
             if (recipe.getIngredients().size() == 1) {
                 location = AnvilCraft.of("smash/" + id.getPath());
+                AnvilRecipe recipe1 = new AnvilRecipe(location, result);
                 Ingredient ingredient = recipe.getIngredients().get(0);
-                TagIngredient ingredient1 = TagIngredient.of(ingredient);
-                ItemAnvilRecipe recipe1 = new ItemAnvilRecipe(
-                        location,
-                        NonNullList.withSize(1, ingredient1),
-                        ItemAnvilRecipe.Location.UP,
-                        NonNullList.withSize(1, Component.of(Blocks.IRON_TRAPDOOR)),
-                        List.of(result),
-                        ItemAnvilRecipe.Location.IN,
-                        false
+                recipe1.addPredicates(
+                        HasItemIngredient.of(Vec3.ZERO, ingredient),
+                        new HasBlock(new Vec3(0.0, -1.0, 0.0), BlockPredicate.Builder.block().of(Blocks.IRON_TRAPDOOR).build())
                 );
+                recipe1.addOutcomes(new SpawnItem(new Vec3(0.0, -1.0, 0.0), 1.0, result.copy()));
                 return new Pair<>(location, recipe1);
-            } else if(isIngredientsSame(recipe.getIngredients())){
-                Ingredient ingredient = recipe.getIngredients().get(0);
-                TagIngredient ingredient1 = TagIngredient.of(ingredient);
-                int ingredientCount = recipe.getIngredients().size();
-                ItemAnvilRecipe recipe1 = new ItemAnvilRecipe(
-                        location,
-                        NonNullList.withSize(ingredientCount, ingredient1),
-                        ItemAnvilRecipe.Location.IN,
-                        NonNullList.withSize(1, Component.of(Blocks.CAULDRON)),
-                        List.of(result),
-                        ItemAnvilRecipe.Location.IN,
-                        false
-                );
-                return new Pair<>(location, recipe1);
+            } else if (isIngredientsSame(recipe.getIngredients())) {
+                return getResourceLocationRecipePair(result, location, recipe.getIngredients());
             }
         } else if (oldRecipe instanceof ShapedRecipe recipe) {
             List<Ingredient> ingredients = recipe.getIngredients();
             if (isIngredientsSame(ingredients)) {
                 if (recipe.getHeight() != recipe.getWidth()) return null;
                 if (recipe.getIngredients().size() != recipe.getWidth() * recipe.getHeight()) return null;
-                Ingredient ingredient = recipe.getIngredients().get(0);
-                TagIngredient ingredient1 = TagIngredient.of(ingredient);
-                int ingredientCount = recipe.getIngredients().size();
-                ItemAnvilRecipe recipe1 = new ItemAnvilRecipe(
-                        location,
-                        NonNullList.withSize(ingredientCount, ingredient1),
-                        ItemAnvilRecipe.Location.IN,
-                        NonNullList.withSize(1, Component.of(Blocks.CAULDRON)),
-                        List.of(result),
-                        ItemAnvilRecipe.Location.IN,
-                        false
-                );
-                return new Pair<>(location, recipe1);
+                return getResourceLocationRecipePair(result, location, recipe.getIngredients());
             }
         }
         return null;
+    }
+
+    @NotNull
+    private static Pair<ResourceLocation, Recipe<?>> getResourceLocationRecipePair(ItemStack result, ResourceLocation location, @NotNull NonNullList<Ingredient> ingredients) {
+        Ingredient ingredient = ingredients.get(0);
+        int ingredientCount = ingredients.size();
+        AnvilRecipe recipe = new AnvilRecipe(location, result);
+        recipe.addPredicates(
+                HasItemIngredient.of(new Vec3(0.0, -1.0, 0.0), ingredient, ingredientCount),
+                new HasBlock(new Vec3(0.0, -1.0, 0.0), BlockPredicate.Builder.block().of(Blocks.CAULDRON).build())
+        );
+        recipe.addOutcomes(new SpawnItem(new Vec3(0.0, -1.0, 0.0), 1.0, result.copy()));
+        return new Pair<>(location, recipe);
     }
 
     public static boolean isIngredientsSame(@NotNull List<Ingredient> ingredients) {

@@ -35,16 +35,21 @@ public class SetBlock implements RecipeOutcome {
     }
 
     public SetBlock(@NotNull JsonObject serializedRecipe) {
-        JsonArray array = GsonHelper.getAsJsonArray(serializedRecipe, "offset");
         double[] vec3 = {0.0d, 0.0d, 0.0d};
-        for (int i = 0; i < array.size() && i < 3; i++) {
-            JsonElement element = array.get(i);
-            if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isNumber()) {
-                vec3[i] = element.getAsDouble();
-            } else throw new JsonSyntaxException("Expected offset to be a Double, was " + GsonHelper.getType(element));
+        if (serializedRecipe.has("offset")) {
+            JsonArray array = GsonHelper.getAsJsonArray(serializedRecipe, "offset");
+            for (int i = 0; i < array.size() && i < 3; i++) {
+                JsonElement element = array.get(i);
+                if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isNumber()) {
+                    vec3[i] = element.getAsDouble();
+                } else
+                    throw new JsonSyntaxException("Expected offset to be a Double, was " + GsonHelper.getType(element));
+            }
         }
         this.offset = new Vec3(vec3[0], vec3[1], vec3[2]);
-        this.chance = GsonHelper.getAsDouble(serializedRecipe, "chance");
+        if (serializedRecipe.has("chance")) {
+            this.chance = GsonHelper.getAsDouble(serializedRecipe, "chance");
+        } else this.chance = 1.0;
         this.result = IBlockStateInjector.fromJson(GsonHelper.getAsJsonObject(serializedRecipe, "result"));
     }
 
@@ -71,13 +76,12 @@ public class SetBlock implements RecipeOutcome {
     public JsonElement toJson() {
         double[] vec3 = {this.offset.x(), this.offset.y(), this.offset.z()};
         JsonArray offset = new JsonArray();
-        for (double v : vec3) {
-            offset.add(new JsonPrimitive(v));
-        }
+        for (double v : vec3) offset.add(new JsonPrimitive(v));
         JsonObject object = new JsonObject();
         object.addProperty("type", this.getType());
         object.add("offset", offset);
-        object.addProperty("change", this.chance);
+        object.addProperty("chance", this.chance);
+        object.add("result", this.result.toJson());
         return object;
     }
 }

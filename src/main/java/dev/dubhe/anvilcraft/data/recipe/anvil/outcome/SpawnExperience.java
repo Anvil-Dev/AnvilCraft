@@ -3,38 +3,34 @@ package dev.dubhe.anvilcraft.data.recipe.anvil.outcome;
 import com.google.gson.*;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipeOutcome;
-import dev.dubhe.anvilcraft.util.IItemStackInjector;
 import lombok.Getter;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
-public class SpawnItem implements RecipeOutcome {
+public class SpawnExperience implements RecipeOutcome {
     @Getter
-    private final String type = "spawn_item";
+    private final String type = "spawn_experience";
     private final Vec3 offset;
     private final double chance;
-    private final ItemStack result;
+    private final int experience;
 
-    public SpawnItem(Vec3 offset, double chance, ItemStack result) {
+    public SpawnExperience(Vec3 offset, double chance, int experience) {
         this.offset = offset;
         this.chance = chance;
-        this.result = result;
+        this.experience = experience;
     }
 
-    public SpawnItem(@NotNull FriendlyByteBuf buffer) {
+    public SpawnExperience(@NotNull FriendlyByteBuf buffer) {
         this.offset = new Vec3(buffer.readVector3f());
         this.chance = buffer.readDouble();
-        this.result = buffer.readItem();
+        this.experience = buffer.readVarInt();
     }
 
-    public SpawnItem(@NotNull JsonObject serializedRecipe) {
+    public SpawnExperience(@NotNull JsonObject serializedRecipe) {
         double[] vec3 = {0.0d, 0.0d, 0.0d};
         if (serializedRecipe.has("offset")) {
             JsonArray array = GsonHelper.getAsJsonArray(serializedRecipe, "offset");
@@ -50,17 +46,13 @@ public class SpawnItem implements RecipeOutcome {
         if (serializedRecipe.has("chance")) {
             this.chance = GsonHelper.getAsDouble(serializedRecipe, "chance");
         } else this.chance = 1.0;
-        this.result = IItemStackInjector.fromJson(GsonHelper.getAsJsonObject(serializedRecipe, "result"));
+        this.experience = GsonHelper.getAsInt(serializedRecipe, "experience");
     }
 
     @Override
     public boolean process(@NotNull AnvilCraftingContainer container) {
         Level level = container.getLevel();
-        RandomSource random = level.getRandom();
-        if (random.nextDouble() > this.chance) return true;
-        BlockPos pos = container.getPos();
-        Vec3 vec3 = pos.getCenter().add(this.offset);
-        ItemEntity entity = new ItemEntity(level, vec3.x, vec3.y, vec3.z, this.result.copy(), 0.0d, 0.0d, 0.0d);
+        ExperienceOrb entity = new ExperienceOrb(level,this.offset.x,this.offset.y,this.offset.z,this.experience);
         return level.addFreshEntity(entity);
     }
 
@@ -69,19 +61,19 @@ public class SpawnItem implements RecipeOutcome {
         buffer.writeUtf(this.getType());
         buffer.writeVector3f(this.offset.toVector3f());
         buffer.writeDouble(this.chance);
-        buffer.writeItem(this.result);
+        buffer.writeVarInt(this.experience);
     }
 
     @Override
     public JsonElement toJson() {
-        JsonObject object = new JsonObject();
         double[] vec3 = {this.offset.x(), this.offset.y(), this.offset.z()};
         JsonArray offset = new JsonArray();
         for (double v : vec3) offset.add(new JsonPrimitive(v));
+        JsonObject object = new JsonObject();
         object.addProperty("type", this.getType());
         object.add("offset", offset);
         object.addProperty("chance", this.chance);
-        object.add("result", this.result.toJson());
+        object.addProperty("experience", this.experience);
         return object;
     }
 }

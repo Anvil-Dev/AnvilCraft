@@ -102,11 +102,8 @@ public abstract class ItemStackInjector implements IItemStackInjector {
     public JsonElement toJson() {
         JsonObject object = new JsonObject();
         object.addProperty("item", BuiltInRegistries.ITEM.getKey(this.getItem()).toString());
-        object.addProperty("count", this.getCount());
-        CompoundTag tag = this.getTag();
-        if (tag != null) {
-            object.addProperty("data", tag.toString());
-        }
+        if (this.getCount() > 1) object.addProperty("count", this.getCount());
+        if (this.hasTag()) object.addProperty("data", this.getOrCreateTag().toString());
         return object;
     }
 }

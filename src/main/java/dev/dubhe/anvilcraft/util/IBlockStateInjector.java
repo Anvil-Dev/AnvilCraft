@@ -13,6 +13,7 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
@@ -31,15 +32,7 @@ public interface IBlockStateInjector {
         if (!blockElement.isJsonPrimitive()) throw new JsonSyntaxException("Expected item to be string");
         StringBuilder block = new StringBuilder(blockElement.getAsString());
         if (object.has("state")) {
-            block.append("[");
-            JsonElement stateElement = object.get("state");
-            if (!stateElement.isJsonObject()) throw new JsonSyntaxException("Expected item to be object");
-            JsonObject state = stateElement.getAsJsonObject();
-            for (Map.Entry<String, JsonElement> entry : state.entrySet()) {
-                block.append("%s=%s, ".formatted(entry.getKey(), entry.getValue().getAsString()));
-            }
-            if (block.charAt(block.length() - 2) == ',') block.delete(block.length() - 2, block.length() - 1);
-            block.append("]");
+            block.append(GsonHelper.getAsString(object,"state"));
         }
         HolderLookup<Block> blocks = new BlockHolderLookup();
         BlockStateParser.BlockResult blockResult;
