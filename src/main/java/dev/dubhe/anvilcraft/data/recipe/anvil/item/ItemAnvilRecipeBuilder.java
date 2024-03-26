@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 @SuppressWarnings("unused")
+@Deprecated
 public class ItemAnvilRecipeBuilder implements RecipeBuilder {
     @Getter
     private final RecipeCategory category;

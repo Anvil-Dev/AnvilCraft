@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 
 @Getter
 @SuppressWarnings("ClassCanBeRecord")
+@Deprecated
 public class BlockAnvilRecipe implements Recipe<AnvilCraftingContainer> {
     private final ResourceLocation id;
     private final NonNullList<Component> components;
@@ -42,7 +43,7 @@ public class BlockAnvilRecipe implements Recipe<AnvilCraftingContainer> {
 
     @Override
     public boolean matches(@NotNull AnvilCraftingContainer container, Level level) {
-        BlockPos pos = new BlockPos(container.pos());
+        BlockPos pos = new BlockPos(container.getPos());
         for (Component component : this.components) {
             pos = pos.below();
             BlockState state = level.getBlockState(pos);
@@ -54,7 +55,7 @@ public class BlockAnvilRecipe implements Recipe<AnvilCraftingContainer> {
     @SuppressWarnings({"BooleanMethodIsAlwaysInverted", "UnusedReturnValue"})
     public boolean craft(@NotNull AnvilCraftingContainer container, Level level) {
         if (!this.matches(container, level)) return false;
-        BlockPos pos = new BlockPos(container.pos());
+        BlockPos pos = new BlockPos(container.getPos());
         for (BlockState result : this.results) {
             pos = pos.below();
             level.setBlockAndUpdate(pos, result);

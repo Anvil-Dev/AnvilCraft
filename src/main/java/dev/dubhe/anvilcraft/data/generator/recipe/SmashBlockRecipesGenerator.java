@@ -2,20 +2,13 @@ package dev.dubhe.anvilcraft.data.generator.recipe;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.generator.MyRecipesGenerator;
-import dev.dubhe.anvilcraft.data.recipe.anvil.block.BlockAnvilRecipeBuilder;
-import dev.dubhe.anvilcraft.data.recipe.anvil.item.ItemAnvilRecipe;
-import dev.dubhe.anvilcraft.data.recipe.anvil.item.ItemAnvilRecipeBuilder;
-import dev.dubhe.anvilcraft.init.ModBlocks;
-import dev.dubhe.anvilcraft.init.ModItems;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeCategory;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.LayeredCauldronBlock;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
@@ -41,8 +34,9 @@ public abstract class SmashBlockRecipesGenerator {
     }
 
     public static void smash(Block block, @NotNull Block block1, Consumer<FinishedRecipe> exporter) {
-        BlockAnvilRecipeBuilder.block(RecipeCategory.MISC, block1.defaultBlockState())
-                .component(block)
+        AnvilRecipe.Builder.create(RecipeCategory.MISC)
+                .hasBlock(block)
+                .setBlock(block1)
                 .unlockedBy(MyRecipesGenerator.hasItem(block.asItem()), FabricRecipeProvider.has(block.asItem()))
                 .save(exporter, AnvilCraft.of("smash_block/" + BuiltInRegistries.BLOCK.getKey(block1).getPath()));
     }

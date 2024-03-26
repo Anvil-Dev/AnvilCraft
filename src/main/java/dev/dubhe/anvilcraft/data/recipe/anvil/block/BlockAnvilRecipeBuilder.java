@@ -31,6 +31,7 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 @SuppressWarnings("unused")
+@Deprecated
 public class BlockAnvilRecipeBuilder implements RecipeBuilder {
     @Getter
     private final RecipeCategory category;

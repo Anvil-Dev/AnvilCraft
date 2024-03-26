@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.event.SubscribeEvent;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilHurtEntityEvent;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.anvil.block.BlockAnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.anvil.item.ItemAnvilRecipe;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
@@ -34,6 +35,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Optional;
 
+@SuppressWarnings("deprecation")
 public class AnvilEventListener {
     @SubscribeEvent
     public void onLand(@NotNull AnvilFallOnLandEvent event) {
@@ -42,11 +44,14 @@ public class AnvilEventListener {
         AnvilCraftingContainer container = new AnvilCraftingContainer(level, pos, event.getEntity());
         MinecraftServer server = level.getServer();
         if (null == server) return;
-        Optional<ItemAnvilRecipe> optional = server.getRecipeManager().getRecipeFor(ModRecipeTypes.ANVIL_ITEM, container, level);
+        Optional<AnvilRecipe> optional = server.getRecipeManager().getRecipeFor(ModRecipeTypes.ANVIL_RECIPE, container, level);
         if (optional.isEmpty()) {
-            Optional<BlockAnvilRecipe> optional1 = server.getRecipeManager().getRecipeFor(ModRecipeTypes.ANVIL_BLOCK, container, level);
-            optional1.ifPresent(blockAnvilRecipe -> blockProcess(blockAnvilRecipe, container, level, event));
-        } else itemProcess(optional.get(), container, level, event);
+            Optional<ItemAnvilRecipe> optional1 = server.getRecipeManager().getRecipeFor(ModRecipeTypes.ANVIL_ITEM, container, level);
+            if (optional1.isEmpty()) {
+                Optional<BlockAnvilRecipe> optional2 = server.getRecipeManager().getRecipeFor(ModRecipeTypes.ANVIL_BLOCK, container, level);
+                optional2.ifPresent(blockAnvilRecipe -> blockProcess(blockAnvilRecipe, container, level, event));
+            } else itemProcess(optional1.get(), container, level, event);
+        } else anvilProcess(optional.get(), container, event);
         BlockPos belowPos = pos.below();
         BlockState state = level.getBlockState(belowPos);
         if (state.is(Blocks.REDSTONE_BLOCK)) redstoneEMP(level, belowPos);
@@ -55,13 +60,22 @@ public class AnvilEventListener {
         if (state.is(Blocks.STONECUTTER)) brokeBlock(level, belowPos.above(), event);
     }
 
+    private void anvilProcess(AnvilRecipe recipe, AnvilCraftingContainer container, AnvilFallOnLandEvent event) {
+        int counts = 0;
+        while (counts < AnvilCraft.config.anvilEfficiency) {
+            if (!recipe.craft(container)) break;
+            counts++;
+        }
+        if (container.isAnvilDamage()) event.setAnvilDamage(true);
+    }
+
     private void itemProcess(ItemAnvilRecipe recipe, AnvilCraftingContainer container, Level level, AnvilFallOnLandEvent event) {
         int counts = 0;
         while (counts < AnvilCraft.config.anvilEfficiency) {
             if (!recipe.craft(container, level)) break;
             counts++;
         }
-        BlockPos resultPos = new BlockPos(container.pos());
+        BlockPos resultPos = new BlockPos(container.getPos());
         if (recipe.getResultLocation() == ItemAnvilRecipe.Location.IN) resultPos = resultPos.below();
         if (recipe.getResultLocation() == ItemAnvilRecipe.Location.UNDER) resultPos = resultPos.below(2);
         for (ItemStack itemStack : recipe.getResults()) {
