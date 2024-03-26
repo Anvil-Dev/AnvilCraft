@@ -73,6 +73,7 @@ public class ServerEventListener {
     public static @Nullable Pair<ResourceLocation, Recipe<?>> processRecipes(ResourceLocation id, @NotNull Recipe<?> oldRecipe) {
         ItemStack result = oldRecipe.getResultItem(new RegistryAccess.ImmutableRegistryAccess(List.of()));
         if (result.is(Items.IRON_TRAPDOOR)) return null;
+        if (result.is(Items.PRISMARINE)) return null;
         ResourceLocation location = AnvilCraft.of("compress/" + id.getPath());
         if (oldRecipe instanceof ShapelessRecipe recipe) {
             if (recipe.getIngredients().size() == 1) {
@@ -115,7 +116,7 @@ public class ServerEventListener {
     public static boolean isIngredientsSame(@NotNull List<Ingredient> ingredients) {
         Ingredient ingredient = ingredients.get(0);
         for (Ingredient ingredient1 : ingredients) {
-            if (ingredient1.equals(ingredient)) continue;
+            if (ingredient1.toJson().equals(ingredient.toJson())) continue;
             return false;
         }
         return true;
