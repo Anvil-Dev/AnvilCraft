@@ -67,6 +67,13 @@ public class HasItemIngredient extends HasItem {
             ItemStack item = entity.getItem();
             if (this.matchItem.matches(item)) {
                 int count = this.matchItem.count.getMin() != null ? this.matchItem.count.getMin() : 1;
+                if (item.getItem().hasCraftingRemainingItem()) {
+                    assert item.getItem().getCraftingRemainingItem() != null;
+                    ItemStack stack = new ItemStack(item.getItem().getCraftingRemainingItem(), count);
+                    Vec3 vec3 = pos.getCenter().add(this.offset);
+                    ItemEntity itemEntity = new ItemEntity(level, vec3.x, vec3.y, vec3.z, stack, 0.0, 0.0, 0.0);
+                    level.addFreshEntity(itemEntity);
+                }
                 item.shrink(count);
                 entity.setItem(item.copy());
                 return true;

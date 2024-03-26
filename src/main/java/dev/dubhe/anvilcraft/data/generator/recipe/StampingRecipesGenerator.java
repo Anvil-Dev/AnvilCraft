@@ -37,7 +37,6 @@ public abstract class StampingRecipesGenerator {
                 .hasBlock(Blocks.PISTON.defaultBlockState().setValue(PistonBaseBlock.FACING, Direction.UP))
                 .hasItemIngredient(Items.MILK_BUCKET)
                 .spawnItem(ModItems.CREAM)
-                .spawnItem(Items.BUCKET)
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.MILK_BUCKET), FabricRecipeProvider.has(Items.MILK_BUCKET))
                 .save(exporter, AnvilCraft.of("stamping/cream"));
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
