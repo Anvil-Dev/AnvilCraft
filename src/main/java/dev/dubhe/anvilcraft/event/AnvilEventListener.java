@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.item.ItemAnvilRecipe;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
@@ -54,7 +55,7 @@ public class AnvilEventListener {
         } else anvilProcess(optional.get(), container, event);
         BlockPos belowPos = pos.below();
         BlockState state = level.getBlockState(belowPos);
-        if (state.is(Blocks.REDSTONE_BLOCK)) redstoneEMP(level, belowPos);
+        if (state.is(Blocks.REDSTONE_BLOCK)) redstoneEMP(level, belowPos, event.getFallDistance());
         belowPos = belowPos.below();
         state = level.getBlockState(belowPos);
         if (state.is(Blocks.STONECUTTER)) brokeBlock(level, belowPos.above(), event);
@@ -117,17 +118,45 @@ public class AnvilEventListener {
         level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
     }
 
-    private void redstoneEMP(Level level, BlockPos pos) {
-        for (int i = -7; i < 8; i++) {
-            for (int j = -7; j < 8; j++) {
-                if (Math.abs(i) + Math.abs(j) > 8) continue;
-                BlockPos pos1 = pos.offset(i, 0, j);
-                BlockState state = level.getBlockState(pos1);
-                if (!state.is(ModBlockTags.REDSTONE_TORCH)) continue;
-                state = state.setValue(RedstoneTorchBlock.LIT, false);
-                level.setBlock(pos1, state, 3);
+    private void redstoneEMP(@NotNull Level level, @NotNull BlockPos pos, float fallDistance) {
+        int radius = AnvilCraft.config.redstoneEmpRadius;
+        int maxRadius = AnvilCraft.config.redstoneEmpMaxRadius;
+        int distance = Math.min(((int) Math.ceil(fallDistance)) * radius, maxRadius);
+        if (!level.getBlockState(pos.relative(Direction.EAST)).is(Blocks.IRON_TRAPDOOR)) {
+            for (int x = 1; x < distance; x++) {
+                for (int z = -distance; z < distance; z++) {
+                    redstoneEMP(level, pos.offset(x, 0, z));
+                }
             }
         }
+        if (!level.getBlockState(pos.relative(Direction.WEST)).is(Blocks.IRON_TRAPDOOR)) {
+            for (int x = -1; x > -distance; x--) {
+                for (int z = -distance; z < distance; z++) {
+                    redstoneEMP(level, pos.offset(x, 0, z));
+                }
+            }
+        }
+        if (!level.getBlockState(pos.relative(Direction.SOUTH)).is(Blocks.IRON_TRAPDOOR)) {
+            for (int x = -distance; x < distance; x++) {
+                for (int z = 1; z < distance; z++) {
+                    redstoneEMP(level, pos.offset(x, 0, z));
+                }
+            }
+        }
+        if (!level.getBlockState(pos.relative(Direction.NORTH)).is(Blocks.IRON_TRAPDOOR)) {
+            for (int x = -distance; x < distance; x++) {
+                for (int z = -1; z > -distance; z--) {
+                    redstoneEMP(level, pos.offset(x, 0, z));
+                }
+            }
+        }
+    }
+
+    private void redstoneEMP(@NotNull Level level, BlockPos pos) {
+        BlockState state = level.getBlockState(pos);
+        if (!state.is(ModBlockTags.REDSTONE_TORCH)) return;
+        state = state.setValue(RedstoneTorchBlock.LIT, false);
+        level.setBlock(pos, state, 3);
     }
 
     @SubscribeEvent

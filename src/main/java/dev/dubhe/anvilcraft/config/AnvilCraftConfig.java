@@ -17,6 +17,14 @@ public class AnvilCraftConfig {
     public int magnetAttractsDistance = 4;
     @SerializedName("// 手持磁铁吸引的最大半径")
     public final String magnetItemAttractsRadiusNote = "";
-    @SerializedName("magnet_attracts_distance")
+    @SerializedName("magnet_item_attracts_radius")
     public double magnetItemAttractsRadius = 8;
+    @SerializedName("// 铁砧每掉落一格产生的红石EMP距离")
+    public final String redstoneEmpRadiusNote = "";
+    @SerializedName("redstone_emp_radius")
+    public int redstoneEmpRadius = 6;
+    @SerializedName("// 红石EMP的最大距离")
+    public final String redstoneEmpMaxRadiusNote = "";
+    @SerializedName("redstone_emp_max_radius")
+    public int redstoneEmpMaxRadius = 24;
 }
