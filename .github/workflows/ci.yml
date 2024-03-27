@@ -6,6 +6,8 @@ on:
       - gradle.properties
       - settings.gradle
   push:
+    branches:
+      - releases/**
     paths:
       - src/**
       - build.gradle
