@@ -260,4 +260,14 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
             contents.accountSimpleStack(itemStack);
         }
     }
+
+    public int getRedstoneSignal() {
+        int i = 0;
+        for (int j = 0; j < this.getContainerSize(); ++j) {
+            ItemStack itemStack = this.getItem(j);
+            if (itemStack.isEmpty() && !this.getDisabled().get(j)) continue;
+            ++i;
+        }
+        return i;
+    }
 }
