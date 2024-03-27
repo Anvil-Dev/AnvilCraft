@@ -7,7 +7,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.FallingBlockEntity;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -23,26 +25,37 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(FallingBlockEntity.class)
-public abstract class FallingBlockEntityMixin {
+public abstract class FallingBlockEntityMixin extends Entity {
     @Shadow
     private BlockState blockState;
     @Shadow
     private boolean cancelDrop;
     @Unique
-    private final FallingBlockEntity ths = (FallingBlockEntity) (Object) this;
+    private float anvilcraft$fallDistance;
+
+    public FallingBlockEntityMixin(EntityType<?> entityType, Level level) {
+        super(entityType, level);
+    }
+
+    @Inject(method = "tick", at = @At(value = "INVOKE", ordinal = 0, target = "Lnet/minecraft/world/entity/item/FallingBlockEntity;level()Lnet/minecraft/world/level/Level;"), locals = LocalCapture.CAPTURE_FAILHARD)
+    private void anvilPerFallOnGround(CallbackInfo ci, Block block) {
+        if (this.level().isClientSide()) return;
+        if (this.onGround()) return;
+        this.anvilcraft$fallDistance = this.fallDistance;
+    }
 
     @Inject(method = "tick", at = @At(value = "INVOKE", ordinal = 10, target = "Lnet/minecraft/world/entity/item/FallingBlockEntity;level()Lnet/minecraft/world/level/Level;"), locals = LocalCapture.CAPTURE_FAILHARD)
     private void anvilFallOnGround(CallbackInfo ci, Block block, BlockPos blockPos) {
-        if (ths.level().isClientSide()) return;
+        if (this.level().isClientSide()) return;
         if (!this.blockState.is(BlockTags.ANVIL)) return;
-        AnvilFallOnLandEvent event = new AnvilFallOnLandEvent(ths.level(), blockPos, ths);
+        AnvilFallOnLandEvent event = new AnvilFallOnLandEvent(this.level(), blockPos, (FallingBlockEntity) (Object) this, this.anvilcraft$fallDistance);
         AnvilCraft.EVENT_BUS.post(event);
         if (event.isAnvilDamage()) {
             BlockState state = AnvilBlock.damage(this.blockState);
-            if (state != null) ths.level().setBlock(blockPos, state, 3);
+            if (state != null) this.level().setBlock(blockPos, state, 3);
             else {
-                ths.level().setBlock(blockPos, Blocks.AIR.defaultBlockState(), 3);
-                if (!ths.isSilent()) ths.level().levelEvent(1029, ths.getOnPos(), 0);
+                this.level().setBlock(blockPos, Blocks.AIR.defaultBlockState(), 3);
+                if (!this.isSilent()) this.level().levelEvent(1029, this.getOnPos(), 0);
                 this.cancelDrop = true;
             }
         }
