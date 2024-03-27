@@ -156,12 +156,12 @@ public abstract class VanillaRecipesGenerator {
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.SHIELD), FabricRecipeProvider.has(Items.SHIELD))
                 .unlockedBy(MyRecipesGenerator.hasItem(ModItems.PROTOCOL_EMPTY), FabricRecipeProvider.has(ModItems.PROTOCOL_EMPTY))
                 .save(exporter);
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, ModItems.COCOA_BUTTER)
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, ModItems.COCOA_LIQUOR)
                 .requires(ModItems.COCOA_POWDER)
                 .requires(ModItems.COCOA_POWDER)
-                .requires(ModItems.COCOA_LIQUOR)
+                .requires(ModItems.COCOA_BUTTER)
                 .unlockedBy(MyRecipesGenerator.hasItem(ModItems.COCOA_POWDER), FabricRecipeProvider.has(ModItems.COCOA_POWDER))
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.COCOA_LIQUOR), FabricRecipeProvider.has(ModItems.COCOA_LIQUOR))
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.COCOA_BUTTER), FabricRecipeProvider.has(ModItems.COCOA_BUTTER))
                 .save(exporter);
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.CHOCOLATE)
                 .pattern("ABA")
