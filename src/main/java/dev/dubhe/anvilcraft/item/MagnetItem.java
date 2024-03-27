@@ -18,12 +18,11 @@ public class MagnetItem extends Item {
     }
 
     @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, Player player, InteractionHand usedHand) {
-        if (level.isClientSide()) return InteractionResultHolder.success(ItemStack.EMPTY);
+    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, InteractionHand usedHand) {
         ItemStack item = player.getItemInHand(usedHand);
         AABB aabb = new AABB(player.position().add(-2.5, -2.5, -2.5), player.position().add(2.5, 2.5, 2.5));
         level.getEntities(EntityTypeTest.forClass(ItemEntity.class), aabb, Entity::isAlive).forEach(e -> e.moveTo(player.position()));
-        item.setDamageValue(item.getDamageValue() + 1);
-        return InteractionResultHolder.success(item);
+        item.hurtAndBreak(1, player, p -> p.broadcastBreakEvent(usedHand));
+        return InteractionResultHolder.sidedSuccess(item, level.isClientSide());
     }
 }
