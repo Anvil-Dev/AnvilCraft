@@ -7,6 +7,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import org.jetbrains.annotations.NotNull;
 
+@SuppressWarnings("unused")
 public class ModItemTags {
     public static final TagKey<Item> FLOUR = bindC("flour");
     public static final TagKey<Item> WHEAT_FLOUR = bindC("flour/wheat");
@@ -18,8 +19,6 @@ public class ModItemTags {
     public static final TagKey<Item> SHOVELS = bindC("shovels");
     public static final TagKey<Item> SWORDS = bindC("swords");
     public static final TagKey<Item> FOODS = bindC("foods");
-    public static final TagKey<Item> PROTOCOL = bind("protocol");
-    public static final TagKey<Item> RAW_FOODS = bind("raw_foods");
 
     private static @NotNull TagKey<Item> bindC(String id) {
         return TagKey.create(Registries.ITEM, new ResourceLocation("c", id));

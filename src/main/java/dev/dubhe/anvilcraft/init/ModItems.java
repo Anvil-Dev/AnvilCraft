@@ -23,8 +23,6 @@ import java.util.function.Function;
 public class ModItems {
     private static final Map<String, Item> ITEM_MAP = new HashMap<>();
     public static final Item MAGNET = registerItem("magnet", MagnetItem::new, defaultProperties().durability(114));
-    public static final Item CHANGEABLE_PICKAXE_FORTUNE = registerItem("changeable_pickaxe_fortune", ChangeablePickaxeItem::new, defaultProperties());
-    public static final Item CHANGEABLE_PICKAXE_SILK_TOUCH = registerItem("changeable_pickaxe_silk_touch", ChangeablePickaxeItem::new, defaultProperties());
     public static final Item AMETHYST_PICKAXE = registerItem("amethyst_pickaxe", properties -> new PickaxeItem(ModTiers.AMETHYST, 1, -2.8f, properties) {
         @Override
         public @NotNull ItemStack getDefaultInstance() {
@@ -73,32 +71,16 @@ public class ModItems {
             return stack;
         }
     }, defaultProperties());
-    public static final Item PROTOCOL_EMPTY = registerItem("protocol_empty", Item::new, defaultProperties());
-    public static final Item PROTOCOL_PROTECT = registerItem("protocol_protect", Item::new, defaultProperties());
-    public static final Item PROTOCOL_REPAIR = registerItem("protocol_repair", Item::new, defaultProperties());
-    public static final Item PROTOCOL_RESTOCK = registerItem("protocol_restock", Item::new, defaultProperties());
-    public static final Item PROTOCOL_ABSORB = registerItem("protocol_absorb", Item::new, defaultProperties());
     public static final Item COCOA_LIQUOR = registerItem("cocoa_liquor", Item::new, defaultProperties());
     public static final Item COCOA_BUTTER = registerItem("cocoa_butter", Item::new, defaultProperties());
     public static final Item COCOA_POWDER = registerItem("cocoa_powder", Item::new, defaultProperties());
-    public static final Item GREASE = registerItem("grease", Item::new, defaultProperties());
     public static final Item CREAM = registerItem("cream", Item::new, defaultProperties());
     public static final Item FLOUR = registerItem("flour", Item::new, defaultProperties());
     public static final Item DOUGH = registerItem("dough", Item::new, defaultProperties());
-    public static final Item FLATDOUGH = registerItem("flatdough", Item::new, defaultProperties());
-    public static final Item MEAT_STUFFING = registerItem("meat_stuffing", Item::new, defaultProperties());
     public static final Item CHOCOLATE = registerItem("chocolate", Item::new, defaultProperties().food(ModFoods.CHOCOLATE));
     public static final Item CHOCOLATE_BLACK = registerItem("chocolate_black", Item::new, defaultProperties().food(ModFoods.CHOCOLATE_BLACK));
     public static final Item CHOCOLATE_WHITE = registerItem("chocolate_white", Item::new, defaultProperties().food(ModFoods.CHOCOLATE_WHITE));
     public static final Item CREAMY_BREAD_ROLL = registerItem("creamy_bread_roll", Item::new, defaultProperties().food(ModFoods.CREAMY_BREAD_ROLL));
-    public static final Item MEATBALLS_RAW = registerItem("meatballs_raw", Item::new, defaultProperties());
-    public static final Item MEATBALLS = registerItem("meatballs", Item::new, defaultProperties().food(ModFoods.MEATBALLS));
-    public static final Item DUMPLING_RAW = registerItem("dumpling_raw", Item::new, defaultProperties());
-    public static final Item DUMPLING = registerItem("dumpling", Item::new, defaultProperties().food(ModFoods.DUMPLING));
-    public static final Item SHENGJIAN_RAW = registerItem("shengjian_raw", Item::new, defaultProperties());
-    public static final Item SHENGJIAN = registerItem("shengjian", Item::new, defaultProperties().food(ModFoods.SHENGJIAN));
-    public static final Item SWEET_DUMPLING_RAW = registerItem("sweet_dumpling_raw", Item::new, defaultProperties());
-    public static final Item SWEET_DUMPLING = registerItem("sweet_dumpling", Item::new, defaultProperties().food(ModFoods.SWEET_DUMPLING));
     public static final Item BEEF_MUSHROOM_STEW_RAW = registerItem("beef_mushroom_stew_raw", Item::new, defaultProperties());
     public static final Item BEEF_MUSHROOM_STEW = registerItem("beef_mushroom_stew", Item::new, defaultProperties().food(ModFoods.BEEF_MUSHROOM_STEW));
     public static final Item UTUSAN_RAW = registerItem("utusan_raw", Item::new, defaultProperties());
@@ -124,7 +106,6 @@ public class ModItems {
     public static final Item MAGNET_BLOCK = registerBlock(ModBlocks.MAGNET_BLOCK, BlockItem::new, defaultProperties());
     public static final Item HOLLOW_MAGNET_BLOCK = registerBlock(ModBlocks.HOLLOW_MAGNET_BLOCK, BlockItem::new, defaultProperties());
     public static final Item FERRITE_CORE_MAGNET_BLOCK = registerBlock(ModBlocks.FERRITE_CORE_MAGNET_BLOCK, BlockItem::new, defaultProperties());
-    public static final Item INTERACT_MACHINE = registerBlock(ModBlocks.INTERACT_MACHINE, BlockItem::new, defaultProperties());
     public static final Item AUTO_CRAFTER = registerBlock(ModBlocks.AUTO_CRAFTER, BlockItem::new, defaultProperties());
     public static final Item ROYAL_STEEL_BLOCK = registerBlock(ModBlocks.ROYAL_STEEL_BLOCK, BlockItem::new, defaultProperties());
     public static final Item SMOOTH_ROYAL_STEEL_BLOCK = registerBlock(ModBlocks.SMOOTH_ROYAL_STEEL_BLOCK, BlockItem::new, defaultProperties());

@@ -17,7 +17,6 @@ public class MyBlockLootGenerator extends FabricBlockLootTableProvider {
         this.dropSelf(ModBlocks.MAGNET_BLOCK);
         this.dropSelf(ModBlocks.HOLLOW_MAGNET_BLOCK);
         this.dropSelf(ModBlocks.FERRITE_CORE_MAGNET_BLOCK);
-        this.dropSelf(ModBlocks.INTERACT_MACHINE);
         this.dropSelf(ModBlocks.AUTO_CRAFTER);
         this.dropSelf(ModBlocks.ROYAL_STEEL_BLOCK);
         this.dropSelf(ModBlocks.SMOOTH_ROYAL_STEEL_BLOCK);
