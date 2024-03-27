@@ -30,7 +30,7 @@ public abstract class SmashRecipesGenerator {
         smash(Items.SNOW_BLOCK, Items.SNOWBALL, 4, exporter);
         smash(Items.CLAY, Items.CLAY_BALL, 4, exporter);
         smash(Items.PRISMARINE, Items.PRISMARINE_SHARD, 4, exporter);
-        smash(Items.PRISMARINE_BRICKS, Items.PRISMARINE, 9, exporter);
+        smash(Items.PRISMARINE_BRICKS, Items.PRISMARINE_SHARD, 9, exporter);
         smash(Items.GLOWSTONE, Items.GLOWSTONE_DUST, 4, exporter);
         smash(Items.QUARTZ_BLOCK, Items.QUARTZ, 4, exporter);
         smash(Items.DRIPSTONE_BLOCK, Items.POINTED_DRIPSTONE, 4, exporter);
@@ -39,7 +39,7 @@ public abstract class SmashRecipesGenerator {
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .hasBlock(Blocks.IRON_TRAPDOOR)
                 .hasItemIngredient(Items.HONEY_BLOCK)
-                .hasItemIngredient(Items.GLASS_BOTTLE)
+                .hasItemIngredient(4, Items.GLASS_BOTTLE)
                 .spawnItem(new Vec3(0.0, -1.0, 0.0), Items.HONEY_BOTTLE, 4)
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.HONEY_BLOCK), FabricRecipeProvider.has(Items.HONEY_BLOCK))
                 .save(exporter, AnvilCraft.of("smash/" + BuiltInRegistries.ITEM.getKey(Items.HONEY_BLOCK).getPath() + "_2_" + BuiltInRegistries.ITEM.getKey(Items.HONEY_BOTTLE).getPath()));
