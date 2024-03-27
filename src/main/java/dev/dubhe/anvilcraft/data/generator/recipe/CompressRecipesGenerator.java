@@ -40,14 +40,6 @@ public abstract class CompressRecipesGenerator {
                 .save(exporter);
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .hasBlock(Blocks.CAULDRON)
-                .hasItemIngredient(Items.ANVIL)
-                .hasItemIngredient(8, Items.CRAFTING_TABLE)
-                .spawnItem(ModItems.AUTO_CRAFTER)
-                .unlockedBy(MyRecipesGenerator.hasItem(Items.ANVIL), FabricRecipeProvider.has(Items.ANVIL))
-                .unlockedBy(MyRecipesGenerator.hasItem(Items.DISPENSER), FabricRecipeProvider.has(Items.DISPENSER))
-                .save(exporter);
-        AnvilRecipe.Builder.create(RecipeCategory.MISC)
-                .hasBlock(Blocks.CAULDRON)
                 .hasItemIngredient(3,Items.BONE)
                 .spawnItem(Items.BONE_BLOCK)
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.BONE), FabricRecipeProvider.has(Items.BONE))

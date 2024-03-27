@@ -60,7 +60,7 @@ public abstract class VanillaRecipesGenerator {
                 .pattern(" B ")
                 .pattern(" B ")
                 .define('A', Items.AMETHYST_SHARD)
-          .define('B', Items.STICK)
+                .define('B', Items.STICK)
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.AMETHYST_SHARD), FabricRecipeProvider.has(Items.AMETHYST_SHARD))
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.BAMBOO), FabricRecipeProvider.has(Items.BAMBOO))
                 .save(exporter);
@@ -277,6 +277,43 @@ public abstract class VanillaRecipesGenerator {
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.POISONOUS_POTATO), FabricRecipeProvider.has(Items.POISONOUS_POTATO))
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.LILY_OF_THE_VALLEY), FabricRecipeProvider.has(Items.LILY_OF_THE_VALLEY))
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.WITHER_ROSE), FabricRecipeProvider.has(Items.WITHER_ROSE))
+                .save(exporter);
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, ModItems.MAGNET_INGOT, 9)
+                .requires(ModItems.MAGNET_BLOCK)
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.MAGNET_BLOCK), FabricRecipeProvider.has(ModItems.MAGNET_BLOCK))
+                .save(exporter,AnvilCraft.of("craft/magnet_ingot_9"));
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, ModItems.MAGNET_INGOT, 8)
+                .requires(ModItems.HOLLOW_MAGNET_BLOCK)
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.MAGNET_BLOCK), FabricRecipeProvider.has(ModItems.MAGNET_BLOCK))
+                .save(exporter,AnvilCraft.of("craft/magnet_ingot_8"));
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.CUT_ROYAL_STEEL_BLOCK, 4)
+                .pattern("AA")
+                .pattern("AA")
+                .define('A', ModItems.ROYAL_STEEL_BLOCK)
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.ROYAL_STEEL_BLOCK), FabricRecipeProvider.has(ModItems.ROYAL_STEEL_BLOCK))
+                .save(exporter,AnvilCraft.of("craft/cut_royal_steel_block"));
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.CUT_ROYAL_STEEL_STAIRS, 4)
+                .pattern("  A")
+                .pattern(" AA")
+                .pattern("AAA")
+                .define('A', ModItems.CUT_ROYAL_STEEL_BLOCK)
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.CUT_ROYAL_STEEL_BLOCK), FabricRecipeProvider.has(ModItems.CUT_ROYAL_STEEL_BLOCK))
+                .save(exporter,AnvilCraft.of("craft/cut_royal_steel_stairs"));
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.CUT_ROYAL_STEEL_SLAB, 6)
+                .pattern("AAA")
+                .define('A', ModItems.CUT_ROYAL_STEEL_BLOCK)
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.CUT_ROYAL_STEEL_BLOCK), FabricRecipeProvider.has(ModItems.CUT_ROYAL_STEEL_BLOCK))
+                .save(exporter,AnvilCraft.of("craft/cut_royal_steel_slab"));
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.AUTO_CRAFTER)
+                .pattern("AAA")
+                .pattern("ABA")
+                .pattern("ACA")
+                .define('A', Items.IRON_INGOT)
+                .define('B', Items.CRAFTING_TABLE)
+                .define('C', Items.DROPPER)
+                .unlockedBy(MyRecipesGenerator.hasItem(Items.IRON_INGOT), FabricRecipeProvider.has(Items.IRON_INGOT))
+                .unlockedBy(MyRecipesGenerator.hasItem(Items.CRAFTING_TABLE), FabricRecipeProvider.has(Items.CRAFTING_TABLE))
+                .unlockedBy(MyRecipesGenerator.hasItem(Items.DROPPER), FabricRecipeProvider.has(Items.DROPPER))
                 .save(exporter);
         // 烹饪配方
         SimpleCookingRecipeBuilder.campfireCooking(Ingredient.of(ModItemTags.DOUGH), RecipeCategory.FOOD, Items.BREAD, 0.35f, 600)
