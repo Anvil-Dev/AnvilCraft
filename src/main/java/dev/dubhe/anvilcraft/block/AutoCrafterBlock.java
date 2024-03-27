@@ -3,7 +3,8 @@ package dev.dubhe.anvilcraft.block;
 import dev.dubhe.anvilcraft.block.entity.AutoCrafterBlockEntity;
 import dev.dubhe.anvilcraft.network.MachineOutputDirectionPack;
 import dev.dubhe.anvilcraft.network.MachineRecordMaterialPack;
-import dev.dubhe.anvilcraft.network.SlotChangePack;
+import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
+import dev.dubhe.anvilcraft.network.SlotFilterChangePack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -50,7 +51,8 @@ public class AutoCrafterBlock extends BaseEntityBlock {
                 new MachineOutputDirectionPack(entity.getDirection()).send(serverPlayer);
                 new MachineRecordMaterialPack(entity.isRecord()).send(serverPlayer);
                 for (int i = 0; i < entity.getDisabled().size(); i++) {
-                    new SlotChangePack(i, entity.getDisabled().get(i)).send(serverPlayer);
+                    new SlotDisableChangePack(i, entity.getDisabled().get(i)).send(serverPlayer);
+                    new SlotFilterChangePack(i, entity.getFilter().get(i)).send(serverPlayer);
                 }
             }
         }

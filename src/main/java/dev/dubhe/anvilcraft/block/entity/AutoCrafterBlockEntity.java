@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.AutoCrafterMenu;
 import lombok.Getter;
-import lombok.Setter;
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
@@ -20,6 +19,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
+import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
@@ -41,11 +41,12 @@ import java.util.Optional;
 @SuppressWarnings("NullableProblems")
 public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements CraftingContainer {
     @Getter
-    @Setter
     private boolean record = false;
     private final AutoCrafterBlockEntity entity = this;
     @Getter
     private final NonNullList<Boolean> disabled = NonNullList.withSize(9, false);
+    @Getter
+    private final NonNullList<ItemStack> filter = NonNullList.withSize(9, ItemStack.EMPTY);
 
     public AutoCrafterBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.AUTO_CRAFTER, pos, blockState, 9);
@@ -57,16 +58,31 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
         return Component.translatable("block.anvilcraft.auto_crafter");
     }
 
+    public void setRecord(boolean record) {
+        this.record = record;
+        if (!this.isRecord()) {
+            this.getFilter().clear();
+        }
+    }
+
     public static void tick(Level level, BlockPos pos, BlockEntity e) {
         if (!(e instanceof AutoCrafterBlockEntity entity)) return;
         BlockState state = level.getBlockState(pos);
         if (state.getValue(AutoCrafterBlock.LIT)) AutoCrafterBlockEntity.craft(level, entity);
     }
 
+    private boolean canCraft() {
+        if (!this.record) return true;
+        for (int i = 0; i < this.items.size(); i++) {
+            if (this.getItem(i).isEmpty() && !this.getDisabled().get(i)) return false;
+        }
+        return true;
+    }
+
     private static void craft(@NotNull Level level, @NotNull AutoCrafterBlockEntity entity) {
         ItemStack itemStack;
-        if (entity.shouldRecord()) return;
         if (entity.isEmpty()) return;
+        if (!entity.canCraft()) return;
         Optional<CraftingRecipe> optional = level.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, entity, level);
         NonNullList<ItemStack> nonNullList = level.getRecipeManager().getRemainingItemsFor(RecipeType.CRAFTING, entity, level);
         if (optional.isEmpty()) return;
@@ -94,17 +110,6 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
         return new AutoCrafterMenu(containerId, inventory, this);
     }
 
-    public boolean shouldRecord() {
-        if (!this.isRecord()) return false;
-        for (int i = 0; i < this.getContainerSize(); i++) {
-            ItemStack stack = this.getItem(i);
-            if (stack.isEmpty()) continue;
-            if (stack.getCount() > 1) continue;
-            return true;
-        }
-        return false;
-    }
-
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
@@ -113,6 +118,8 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
         for (int i = 0; i < tags.size(); i++) {
             this.disabled.set(i, ((ByteTag) tags.get(i)).getAsByte() != 0);
         }
+        CompoundTag filter = tag.getCompound("filter");
+        ContainerHelper.loadAllItems(filter, this.filter);
     }
 
     @Override
@@ -124,26 +131,30 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
             tags.add(ByteTag.valueOf(b));
         }
         tag.put("disabled", tags);
+        CompoundTag filter = new CompoundTag();
+        ContainerHelper.saveAllItems(filter, this.filter);
+        tag.put("filter", filter);
     }
 
     @Override
     public boolean canPlaceItem(int index, ItemStack itemStack) {
         if (this.disabled.get(index)) return false;
-        ItemStack itemStack2 = this.items.get(index);
-        int j = itemStack2.getCount();
-        if (j >= itemStack2.getMaxStackSize()) {
+        ItemStack itemStack1 = this.items.get(index);
+        ItemStack itemStack2 = this.filter.get(index);
+        int j = itemStack1.getCount();
+        if (j >= itemStack1.getMaxStackSize()) {
             return false;
         }
-        if (itemStack2.isEmpty()) {
-            return true;
+        if (itemStack1.isEmpty()) {
+            return itemStack2.isEmpty() || ItemStack.isSameItemSameTags(itemStack, itemStack2);
         }
-        return !this.smallerStackExist(j, itemStack2, index);
+        return !this.smallerStackExist(j, itemStack1, index);
     }
 
     private boolean smallerStackExist(int i, ItemStack itemStack, int j) {
         for (int k = j + 1; k < 9; ++k) {
-            ItemStack itemStack2;
-            if (this.disabled.get(k) || !(itemStack2 = this.getItem(k)).isEmpty() && (itemStack2.getCount() >= i || !ItemStack.isSameItemSameTags(itemStack2, itemStack)))
+            ItemStack itemStack1;
+            if (this.disabled.get(k) || !(itemStack1 = this.getItem(k)).isEmpty() && (itemStack1.getCount() >= i || !ItemStack.isSameItemSameTags(itemStack1, itemStack)))
                 continue;
             return true;
         }
