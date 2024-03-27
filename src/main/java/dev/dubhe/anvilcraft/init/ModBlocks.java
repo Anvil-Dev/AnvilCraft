@@ -20,7 +20,6 @@ public class ModBlocks {
     public static final Block MAGNET_BLOCK = registerBlock("magnet_block", MagnetBlock::new, BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK));
     public static final Block HOLLOW_MAGNET_BLOCK = registerBlock("hollow_magnet_block", HollowMagnetBlock::new, BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK));
     public static final Block FERRITE_CORE_MAGNET_BLOCK = registerBlock("ferrite_core_magnet_block", FerriteCoreMagnetBlock::new, BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).randomTicks());
-    public static final Block INTERACT_MACHINE = registerBlock("interact_machine", InteractMachineBlock::new, BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK));
     public static final Block AUTO_CRAFTER = registerBlock("auto_crafter", AutoCrafterBlock::new, BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK));
     public static final Block ROYAL_STEEL_BLOCK = registerBlock("royal_steel_block", Block::new, BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK));
     public static final Block SMOOTH_ROYAL_STEEL_BLOCK = registerBlock("smooth_royal_steel_block", Block::new, BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK));

@@ -26,9 +26,7 @@ public class MyItemTagGenerator extends FabricTagProvider<Item> {
         this.getOrCreateTagBuilder(ModItemTags.WHEAT_DOUGH).setReplace(false)
                 .add(ModItems.DOUGH);
         this.getOrCreateTagBuilder(ModItemTags.PICKAXES).setReplace(false)
-                .add(ModItems.AMETHYST_PICKAXE)
-                .add(ModItems.CHANGEABLE_PICKAXE_SILK_TOUCH)
-                .add(ModItems.CHANGEABLE_PICKAXE_FORTUNE);
+                .add(ModItems.AMETHYST_PICKAXE);
         this.getOrCreateTagBuilder(ModItemTags.AXES).setReplace(false)
                 .add(ModItems.AMETHYST_AXE);
         this.getOrCreateTagBuilder(ModItemTags.HOES).setReplace(false)
@@ -42,21 +40,6 @@ public class MyItemTagGenerator extends FabricTagProvider<Item> {
                 .add(ModItems.CHOCOLATE_BLACK)
                 .add(ModItems.CHOCOLATE_WHITE)
                 .add(ModItems.CREAMY_BREAD_ROLL)
-                .add(ModItems.MEATBALLS)
-                .add(ModItems.DUMPLING)
-                .add(ModItems.SHENGJIAN)
-                .add(ModItems.SWEET_DUMPLING)
                 .add(ModItems.BEEF_MUSHROOM_STEW);
-        this.getOrCreateTagBuilder(ModItemTags.PROTOCOL).setReplace(false)
-                .add(ModItems.PROTOCOL_ABSORB)
-                .add(ModItems.PROTOCOL_PROTECT)
-                .add(ModItems.PROTOCOL_RESTOCK)
-                .add(ModItems.PROTOCOL_REPAIR);
-        this.getOrCreateTagBuilder(ModItemTags.RAW_FOODS).setReplace(false)
-                .add(ModItems.BEEF_MUSHROOM_STEW_RAW)
-                .add(ModItems.DUMPLING_RAW)
-                .add(ModItems.MEATBALLS_RAW)
-                .add(ModItems.SWEET_DUMPLING_RAW)
-                .add(ModItems.SHENGJIAN_RAW);
     }
 }

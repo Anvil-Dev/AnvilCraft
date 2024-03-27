@@ -25,7 +25,7 @@ public abstract class StampingRecipesGenerator {
         stamping(Items.GOLD_INGOT, Items.LIGHT_WEIGHTED_PRESSURE_PLATE, exporter);
         stamping(Items.SUGAR_CANE, Items.PAPER, exporter);
         stamping(Items.SNOWBALL, Items.SNOW, exporter);
-        stamping(ModItems.DOUGH, ModItems.FLATDOUGH, exporter);
+        stamping(ModItems.PULP, Items.PAPER, exporter);
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .hasBlock(Blocks.PISTON.defaultBlockState().setValue(PistonBaseBlock.FACING, Direction.UP))
                 .hasItemIngredient(Items.COCOA_BEANS)
@@ -39,24 +39,6 @@ public abstract class StampingRecipesGenerator {
                 .spawnItem(ModItems.CREAM)
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.MILK_BUCKET), FabricRecipeProvider.has(Items.MILK_BUCKET))
                 .save(exporter, AnvilCraft.of("stamping/cream"));
-        AnvilRecipe.Builder.create(RecipeCategory.MISC)
-                .hasBlock(Blocks.PISTON.defaultBlockState().setValue(PistonBaseBlock.FACING, Direction.UP))
-                .hasItemIngredient(Items.MELON_SEEDS)
-                .spawnItem(ModItems.GREASE)
-                .unlockedBy(MyRecipesGenerator.hasItem(Items.MELON_SEEDS), FabricRecipeProvider.has(Items.MELON_SEEDS))
-                .save(exporter, AnvilCraft.of("stamping/melon_seeds_2_grease"));
-        AnvilRecipe.Builder.create(RecipeCategory.MISC)
-                .hasBlock(Blocks.PISTON.defaultBlockState().setValue(PistonBaseBlock.FACING, Direction.UP))
-                .hasItemIngredient(Items.PUMPKIN_SEEDS)
-                .spawnItem(ModItems.GREASE)
-                .unlockedBy(MyRecipesGenerator.hasItem(Items.PUMPKIN_SEEDS), FabricRecipeProvider.has(Items.PUMPKIN_SEEDS))
-                .save(exporter, AnvilCraft.of("stamping/pumpkin_seeds_2_grease"));
-        AnvilRecipe.Builder.create(RecipeCategory.MISC)
-                .hasBlock(Blocks.PISTON.defaultBlockState().setValue(PistonBaseBlock.FACING, Direction.UP))
-                .hasItemIngredient(Items.COOKED_PORKCHOP)
-                .spawnItem(ModItems.GREASE, 8)
-                .unlockedBy(MyRecipesGenerator.hasItem(Items.COOKED_PORKCHOP), FabricRecipeProvider.has(Items.COOKED_PORKCHOP))
-                .save(exporter, AnvilCraft.of("stamping/cooked_porkchop_2_grease"));
     }
 
     public static void stamping(Item item, Item item1, Consumer<FinishedRecipe> exporter) {
@@ -65,6 +47,6 @@ public abstract class StampingRecipesGenerator {
                 .hasItemIngredient(item)
                 .spawnItem(item1)
                 .unlockedBy(MyRecipesGenerator.hasItem(item), FabricRecipeProvider.has(item))
-                .save(exporter, AnvilCraft.of("stamping/" + BuiltInRegistries.ITEM.getKey(item1).getPath()));
+                .save(exporter, AnvilCraft.of("stamping/"+ BuiltInRegistries.ITEM.getKey(item).getPath() + "_2_" + BuiltInRegistries.ITEM.getKey(item1).getPath()));
     }
 }

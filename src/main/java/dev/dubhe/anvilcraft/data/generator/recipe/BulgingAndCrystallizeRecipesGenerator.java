@@ -31,6 +31,7 @@ public abstract class BulgingAndCrystallizeRecipesGenerator {
         bulging(Items.HORN_CORAL, Items.HORN_CORAL_BLOCK, exporter);
         bulging(Items.TUBE_CORAL, Items.TUBE_CORAL_BLOCK, exporter);
         bulging(ModItems.FLOUR, ModItems.DOUGH, exporter);
+        bulging(ModItems.BARK, ModItems.PULP, exporter);
         bulging(ModItems.SEED_OF_THE_SEA, ModItems.FRUIT_OF_THE_SEA, exporter);
         crystallize(ModItems.SEED_OF_THE_SEA, ModItems.TEAR_OF_THE_SEA, exporter);
         bulging(ModItems.SPONGE_GEMMULE, Items.WET_SPONGE, exporter);
