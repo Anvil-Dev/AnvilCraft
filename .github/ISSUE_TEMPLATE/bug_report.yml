@@ -45,11 +45,21 @@ body:
       required: true
 
   - type: textarea
-    id: desc
+    id: exist
     attributes:
-      label: Describe the bug - 问题描述
+      label: Existing behavior - 现有行为
       description: |
         Please describe the problem you have encountered carefully.
+        请仔细描述你所遇到的问题。
+    validations:
+      required: true
+
+  - type: textarea
+    id: expect
+    attributes:
+      label: Expected behavior - 预期行为
+      description: |
+        Please describe in detail the results you wish to achieve.
         请仔细描述你所遇到的问题。
     validations:
       required: true
