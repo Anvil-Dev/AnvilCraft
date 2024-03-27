@@ -66,6 +66,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
     private static void craft(@NotNull Level level, @NotNull AutoCrafterBlockEntity entity) {
         ItemStack itemStack;
         if (entity.shouldRecord()) return;
+        if (entity.isEmpty()) return;
         Optional<CraftingRecipe> optional = level.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, entity, level);
         NonNullList<ItemStack> nonNullList = level.getRecipeManager().getRemainingItemsFor(RecipeType.CRAFTING, entity, level);
         if (optional.isEmpty()) return;
@@ -73,7 +74,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
         if (!itemStack.isItemEnabled(level.enabledFeatures())) return;
         Container result = new SimpleContainer(1);
         result.setItem(0, itemStack);
-        entity.insertOrDropItem(entity.direction, level, entity.getBlockPos(), result, 0);
+        if (!entity.insertOrDropItem(entity.direction, level, entity.getBlockPos(), result, 0, false)) return;
         for (int i = 0; i < 9; i++) {
             ItemStack stack = entity.getItem(i);
             stack.shrink(1);
@@ -84,7 +85,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
             container1.setItem(i, nonNullList.get(i));
         }
         for (int i = 0; i < nonNullList.size(); i++) {
-            entity.insertOrDropItem(entity.direction, level, entity.getBlockPos(), container1, i);
+            entity.insertOrDropItem(entity.direction, level, entity.getBlockPos(), container1, i, true);
         }
     }
 
@@ -160,46 +161,75 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
         level.setBlock(pos, state.setValue(AutoCrafterBlock.FACING, direction), 3);
     }
 
-    private void insertOrDropItem(Direction direction, Level level, @NotNull BlockPos pos, @NotNull Container container, int slot) {
+    @SuppressWarnings("UnstableApiUsage")
+    private boolean insertOrDropItem(Direction direction, Level level, @NotNull BlockPos pos, @NotNull Container container, int slot, boolean drop) {
         ItemStack item = container.getItem(slot);
-        int count = item.getCount();
-        count -= entity.insertItem(direction, level, pos, container, slot);
+        BlockPos curPos = pos.relative(direction);
+        boolean flag;
+        if (canPlaceItem(level, curPos, item, direction)) {
+            flag = entity.insertItem(direction, level, curPos, container, slot);
+            container.setItem(slot, item);
+            if (flag) return true;
+        }
+        if (!drop) {
+            if (HopperBlockEntity.getContainerAt(level, curPos) != null) return false;
+            if (ItemStorage.SIDED.find(level, curPos, direction.getOpposite()) != null) return false;
+        }
+        flag = entity.dropItem(direction, level, pos, container, slot);
         container.setItem(slot, item);
-        if (count <= 0) return;
-        count -= entity.dropItem(direction, level, pos, container, slot);
-        container.setItem(slot, item);
+        return flag;
     }
 
     @SuppressWarnings("UnstableApiUsage")
-    private int insertItem(Direction direction, Level level, @NotNull BlockPos pos, @NotNull Container container, int slot) {
+    private boolean insertItem(Direction direction, Level level, @NotNull BlockPos pos, @NotNull Container container, int slot) {
         ItemStack item = container.getItem(slot);
-        Container outContainer = HopperBlockEntity.getContainerAt(level, pos.relative(direction));
-        if (null == outContainer) {
-            Storage<ItemVariant> target = ItemStorage.SIDED.find(level, pos.relative(direction), direction.getOpposite());
-            if (target == null) {
-                return 0;
-            } else {
-                return (int) StorageUtil.move(
-                        InventoryStorage.of(container, null).getSlot(slot),
-                        target,
-                        iv -> true,
-                        item.getCount(),
-                        null
-                );
-            }
-        } else {
-            ItemStack itemStack2 = HopperBlockEntity.addItem(entity, outContainer, item, entity.direction.getOpposite());
-            return item.getCount() - itemStack2.getCount();
+        Container outContainer = HopperBlockEntity.getContainerAt(level, pos);
+        long count = item.getCount();
+        if (null != outContainer) {
+            ItemStack itemStack2 = HopperBlockEntity.addItem(container, outContainer, item, direction.getOpposite());
+            count = itemStack2.getCount();
+            return count == 0;
         }
+        Storage<ItemVariant> target = ItemStorage.SIDED.find(level, pos, direction.getOpposite());
+        if (target == null) return false;
+        return StorageUtil.move(
+                InventoryStorage.of(container, null).getSlot(slot),
+                target,
+                iv -> true,
+                item.getCount(),
+                null
+        ) == count;
     }
 
-    private int dropItem(Direction direction, Level level, @NotNull BlockPos pos, @NotNull Container container, int slot) {
+    @SuppressWarnings("UnstableApiUsage")
+    private boolean canPlaceItem(Level level, BlockPos pos, @NotNull ItemStack stack, Direction direction) {
+        Container outContainer = HopperBlockEntity.getContainerAt(level, pos);
+        int count = stack.getCount();
+        if (null != outContainer) {
+            for (int i = 0; i < outContainer.getContainerSize(); i++) {
+                if (!outContainer.canPlaceItem(i, stack)) continue;
+                ItemStack item = outContainer.getItem(i);
+                if (item.isEmpty()) return true;
+                if (!ItemStack.isSameItemSameTags(stack, item)) continue;
+                count -= item.getMaxStackSize() - item.getCount();
+                if (count <= 0) return true;
+            }
+            return count <= 0;
+        }
+        Storage<ItemVariant> target = ItemStorage.SIDED.find(level, pos, direction.getOpposite());
+        if (target == null) return false;
+        if (!target.supportsInsertion()) return false;
+        return StorageUtil.simulateInsert(target, ItemVariant.of(stack), count, null) == count;
+    }
+
+    private boolean dropItem(Direction direction, Level level, @NotNull BlockPos pos, @NotNull Container container, int slot) {
         ItemStack item = container.getItem(slot);
         BlockPos out = pos.relative(direction);
-        Vec3 vec3 = out.getCenter().relative(direction, -0.375);
+        Vec3 vec3 = out.getCenter().relative(direction, -0.25);
         Vec3 move = out.getCenter().subtract(vec3);
+        if (direction != Direction.UP && direction != Direction.DOWN) vec3 = vec3.subtract(0.0, 0.25, 0.0);
         ItemEntity entity = new ItemEntity(level, vec3.x, vec3.y, vec3.z, item, move.x, move.y, move.z);
-        return level.addFreshEntity(entity) ? item.getCount() : 0;
+        return level.addFreshEntity(entity);
     }
 
     @Override
