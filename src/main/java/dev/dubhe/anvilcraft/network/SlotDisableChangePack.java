@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.network;
 
 import dev.dubhe.anvilcraft.api.network.Packet;
-import dev.dubhe.anvilcraft.block.entity.AutoCrafterBlockEntity;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.AutoCrafterScreen;
 import dev.dubhe.anvilcraft.init.ModNetworks;
 import dev.dubhe.anvilcraft.inventory.AutoCrafterMenu;
@@ -19,25 +18,28 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
-public class MachineRecordMaterialPack implements Packet {
-    private final boolean recordMaterial;
+public class SlotDisableChangePack implements Packet {
+    private final int index;
+    private final boolean state;
 
-    public MachineRecordMaterialPack(boolean recordMaterial) {
-        this.recordMaterial = recordMaterial;
+    public SlotDisableChangePack(int index, boolean state) {
+        this.index = index;
+        this.state = state;
     }
 
-    public MachineRecordMaterialPack(@NotNull FriendlyByteBuf buf) {
-        this(buf.readBoolean());
+    public SlotDisableChangePack(@NotNull FriendlyByteBuf buf) {
+        this(buf.readInt(), buf.readBoolean());
     }
 
     @Override
     public void write(@NotNull FriendlyByteBuf buf) {
-        buf.writeBoolean(this.isRecordMaterial());
+        buf.writeInt(index);
+        buf.writeBoolean(this.isState());
     }
 
     @Override
     public PacketType<?> getType() {
-        return ModNetworks.MATERIAL_PACKET_TYPE;
+        return ModNetworks.SLOT_DISABLE_CHANGE_TYPE;
     }
 
     @Override
@@ -45,13 +47,7 @@ public class MachineRecordMaterialPack implements Packet {
         server.execute(() -> {
             if (!player.hasContainerOpen()) return;
             if (!(player.containerMenu instanceof AutoCrafterMenu menu)) return;
-            menu.setRecordMaterial(this.isRecordMaterial());
-            menu.updateResult();
-            if (!this.isRecordMaterial()) if (menu.getMachine() instanceof AutoCrafterBlockEntity entity) {
-                for (int i = 0; i < entity.getFilter().size(); i++) {
-                    new SlotFilterChangePack(i, entity.getFilter().get(i)).send(player);
-                }
-            }
+            menu.setSlotDisabled(this.index, this.state);
             this.send(player);
         });
     }
@@ -61,8 +57,7 @@ public class MachineRecordMaterialPack implements Packet {
     public void receive(@NotNull Minecraft client, ClientPacketListener handler, PacketSender responseSender) {
         client.execute(() -> {
             if (!(client.screen instanceof AutoCrafterScreen screen)) return;
-            if (screen.getRecordButton() == null) return;
-            screen.getRecordButton().setRecord(this.isRecordMaterial());
+            screen.changeSlotDisable(this.index, this.state);
         });
     }
 }

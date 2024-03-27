@@ -6,7 +6,8 @@ import dev.dubhe.anvilcraft.client.gui.component.RecordMaterialButton;
 import dev.dubhe.anvilcraft.inventory.AutoCrafterMenu;
 import dev.dubhe.anvilcraft.inventory.component.AutoCrafterSlot;
 import dev.dubhe.anvilcraft.network.MachineRecordMaterialPack;
-import dev.dubhe.anvilcraft.network.SlotChangePack;
+import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
+import dev.dubhe.anvilcraft.network.SlotFilterChangePack;
 import lombok.Getter;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.NonNullList;
@@ -22,7 +23,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Supplier;
 
 public class AutoCrafterScreen extends BaseMachineScreen<AutoCrafterMenu> {
-    private final NonNullList<Boolean> disabled = NonNullList.withSize(11, false);
+    private final NonNullList<Boolean> disabled = NonNullList.withSize(9, false);
+    private final NonNullList<ItemStack> filter = NonNullList.withSize(9, ItemStack.EMPTY);
     private static final ResourceLocation CONTAINER_LOCATION = AnvilCraft.of("textures/gui/container/auto_crafter.png");
     private static final ResourceLocation DISABLED_SLOT = AnvilCraft.of("textures/gui/container/disabled_slot.png");
     Supplier<RecordMaterialButton> materialButtonSupplier = () -> new RecordMaterialButton(this.leftPos + 116, this.topPos + 18, button -> {
@@ -50,13 +52,19 @@ public class AutoCrafterScreen extends BaseMachineScreen<AutoCrafterMenu> {
                         this.enableSlot(i);
                         break;
                     }
-                    if (!this.menu.getCarried().isEmpty()) break;
+                    if (!this.menu.getCarried().isEmpty() && this.recordButton != null && this.recordButton.isRecord()) {
+                        this.setFilter(i, this.menu.getCarried());
+                        break;
+                    }
                     this.disableSlot(i);
                     break;
                 }
                 case SWAP: {
                     ItemStack itemStack = this.player.getInventory().getItem(j);
                     if (!this.disabled.get(i) || itemStack.isEmpty()) break;
+                    if (!this.menu.getCarried().isEmpty() && this.recordButton != null && this.recordButton.isRecord()) {
+                        this.setFilter(i, this.menu.getCarried());
+                    }
                     this.enableSlot(i);
                 }
             }
@@ -65,32 +73,54 @@ public class AutoCrafterScreen extends BaseMachineScreen<AutoCrafterMenu> {
     }
 
     private void enableSlot(int i) {
-        new SlotChangePack(i, false).send();
+        new SlotDisableChangePack(i, false).send();
     }
 
     private void disableSlot(int i) {
-        new SlotChangePack(i, true).send();
+        new SlotDisableChangePack(i, true).send();
+        new SlotFilterChangePack(i, ItemStack.EMPTY).send();
     }
 
-    public void changeSlot(int index, boolean state) {
+    private void setFilter(int index, ItemStack filter) {
+        new SlotFilterChangePack(index, filter).send();
+    }
+
+    public void changeSlotDisable(int index, boolean state) {
         this.menu.setSlotDisabled(index, state);
         this.disabled.set(index, state);
     }
 
+    public void changeSlotFilter(int index, ItemStack filter) {
+        this.menu.setFilter(index, filter);
+        this.filter.set(index, filter);
+    }
+
     @Override
     public void renderSlot(GuiGraphics guiGraphics, Slot slot) {
-        if (slot instanceof AutoCrafterSlot crafterSlot) {
-            if (this.disabled.get(slot.index)) {
-                this.renderDisabledSlot(guiGraphics, crafterSlot);
-                return;
-            }
-        }
         super.renderSlot(guiGraphics, slot);
+        if (!(slot instanceof AutoCrafterSlot crafterSlot)) {
+            return;
+        }
+        if (this.disabled.get(slot.index)) {
+            this.renderDisabledSlot(guiGraphics, crafterSlot);
+            return;
+        }
+        ItemStack filter = this.filter.get(slot.index);
+        if (!slot.hasItem() && !filter.isEmpty()) {
+            this.renderFilterItem(guiGraphics, slot, filter);
+        }
     }
 
     private void renderDisabledSlot(@NotNull GuiGraphics guiGraphics, @NotNull AutoCrafterSlot crafterSlot) {
         RenderSystem.enableDepthTest();
         guiGraphics.blit(DISABLED_SLOT, crafterSlot.x, crafterSlot.y, 0, 0, 16, 16, 16, 16);
+    }
+
+    private void renderFilterItem(@NotNull GuiGraphics guiGraphics, @NotNull Slot slot, @NotNull ItemStack stack) {
+        int i = slot.x;
+        int j = slot.y;
+        guiGraphics.renderFakeItem(stack, i, j);
+        guiGraphics.fill(i, j, i + 16, j + 16, 0x80ffaaaa);
     }
 
     @Override
@@ -105,6 +135,19 @@ public class AutoCrafterScreen extends BaseMachineScreen<AutoCrafterMenu> {
         this.renderBackground(guiGraphics);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
+    }
+
+    @Override
+    protected void renderTooltip(GuiGraphics guiGraphics, int x, int y) {
+        logic:
+        if (this.menu.getCarried().isEmpty() && this.hoveredSlot != null && !this.hoveredSlot.hasItem()) {
+            int index = this.hoveredSlot.index;
+            if (index >= 9) break logic;
+            ItemStack itemStack = this.filter.get(index);
+            if (itemStack.isEmpty()) break logic;
+            guiGraphics.renderTooltip(this.font, this.getTooltipFromContainerItem(itemStack), itemStack.getTooltipImage(), x, y);
+        }
+        super.renderTooltip(guiGraphics, x, y);
     }
 
     @Override

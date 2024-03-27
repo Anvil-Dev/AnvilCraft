@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.gui.component;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -10,6 +11,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 @Setter
+@Getter
 public class RecordMaterialButton extends Button {
     private boolean record;
     private static final ResourceLocation YES = AnvilCraft.of("textures/gui/container/button_yes.png");

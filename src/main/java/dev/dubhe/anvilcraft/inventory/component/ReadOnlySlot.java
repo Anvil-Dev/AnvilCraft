@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.inventory;
+package dev.dubhe.anvilcraft.inventory.component;
 
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
