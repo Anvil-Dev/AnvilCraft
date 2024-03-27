@@ -103,6 +103,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
         for (int i = 0; i < nonNullList.size(); i++) {
             entity.insertOrDropItem(entity.direction, level, entity.getBlockPos(), container1, i, true);
         }
+        level.updateNeighborsAt(entity.getBlockPos(), ModBlocks.AUTO_CRAFTER);
     }
 
     @Override
@@ -259,5 +260,15 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
             ItemStack itemStack = this.getItem(i);
             contents.accountSimpleStack(itemStack);
         }
+    }
+
+    public int getRedstoneSignal() {
+        int i = 0;
+        for (int j = 0; j < this.getContainerSize(); ++j) {
+            ItemStack itemStack = this.getItem(j);
+            if (itemStack.isEmpty() && !this.getDisabled().get(j)) continue;
+            ++i;
+        }
+        return i;
     }
 }

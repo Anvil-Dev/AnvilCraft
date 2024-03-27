@@ -40,6 +40,22 @@ public class AutoCrafterBlock extends BaseEntityBlock {
 
     @Override
     @SuppressWarnings("deprecation")
+    public boolean hasAnalogOutputSignal(BlockState blockState) {
+        return true;
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public int getAnalogOutputSignal(BlockState blockState, @NotNull Level level, BlockPos blockPos) {
+        BlockEntity blockEntity = level.getBlockEntity(blockPos);
+        if (blockEntity instanceof AutoCrafterBlockEntity crafterBlockEntity) {
+            return crafterBlockEntity.getRedstoneSignal();
+        }
+        return 0;
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
     public @NotNull InteractionResult use(BlockState state, @NotNull Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
