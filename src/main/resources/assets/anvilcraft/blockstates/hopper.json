@@ -1,0 +1,22 @@
+{
+  "variants": {
+    "facing=down": {
+      "model": "anvilcraft:block/chute"
+    },
+    "facing=east": {
+      "model": "anvilcraft:block/chute_side",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "anvilcraft:block/chute_side"
+    },
+    "facing=south": {
+      "model": "anvilcraft:block/chute_side",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "anvilcraft:block/chute_side",
+      "y": 270
+    }
+  }
+}
