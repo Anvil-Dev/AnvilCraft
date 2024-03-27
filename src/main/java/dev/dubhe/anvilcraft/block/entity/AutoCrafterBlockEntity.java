@@ -103,6 +103,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
         for (int i = 0; i < nonNullList.size(); i++) {
             entity.insertOrDropItem(entity.direction, level, entity.getBlockPos(), container1, i, true);
         }
+        level.updateNeighborsAt(entity.getBlockPos(), ModBlocks.AUTO_CRAFTER);
     }
 
     @Override
