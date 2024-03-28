@@ -37,6 +37,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
+import java.util.Stack;
 
 @SuppressWarnings("NullableProblems")
 public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements CraftingContainer {
@@ -47,6 +48,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
     private final NonNullList<Boolean> disabled = NonNullList.withSize(9, false);
     @Getter
     private final NonNullList<ItemStack> filter = NonNullList.withSize(9, ItemStack.EMPTY);
+    private final Stack<CraftingRecipe> cache = new Stack<>();
 
     public AutoCrafterBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.AUTO_CRAFTER, pos, blockState, 9);
@@ -83,9 +85,19 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
         ItemStack itemStack;
         if (entity.isEmpty()) return;
         if (!entity.canCraft()) return;
-        Optional<CraftingRecipe> optional = level.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, entity, level);
-        NonNullList<ItemStack> nonNullList = level.getRecipeManager().getRemainingItemsFor(RecipeType.CRAFTING, entity, level);
+        Optional<CraftingRecipe> optional = entity.cache.stream().filter(recipe -> recipe.matches(entity, level)).findFirst();
+        if (optional.isEmpty()) {
+            optional = level.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, entity, level);
+            if (optional.isPresent()) {
+                CraftingRecipe recipe = optional.get();
+                entity.cache.push(recipe);
+                while (entity.cache.size() >= 10) {
+                    entity.cache.pop();
+                }
+            }
+        }
         if (optional.isEmpty()) return;
+        NonNullList<ItemStack> nonNullList = level.getRecipeManager().getRemainingItemsFor(RecipeType.CRAFTING, entity, level);
         itemStack = optional.get().assemble(entity, level.registryAccess());
         if (!itemStack.isItemEnabled(level.enabledFeatures())) return;
         Container result = new SimpleContainer(1);
