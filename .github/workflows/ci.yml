@@ -25,13 +25,16 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v3.1.0
+
       - name: validate gradle wrapper
         uses: gradle/wrapper-validation-action@v1
+
       - name: setup java ${{ matrix.java }}
         uses: actions/setup-java@v3.6.0
         with:
           distribution: 'zulu'
           java-version: ${{ matrix.java }}
+
       - name: Setup cache
         uses: actions/cache@v3.0.11
         with:
@@ -43,18 +46,29 @@ jobs:
       - name: make gradle wrapper executable
         if: ${{ runner.os != 'Windows' }}
         run: chmod +x ./gradlew
+
       - name: Set build number
         run: sed -i "s/undefined/$GITHUB_RUN_NUMBER/g" gradle.properties
+
       - name: build
         run: ./gradlew build
+
       - name: Find correct JAR
         id: find-jar
         run: |
           output="$(find build/libs/ ! -name "*-dev.jar" ! -name "*-sources.jar" -type f -printf "%f\n")"
           echo "jarname=$output" >> $GITHUB_OUTPUT
+
       - name: capture build artifacts
         if: ${{ runner.os == 'Linux' && matrix.java == '17' }}
         uses: actions/upload-artifact@v3.1.1
         with:
           name: ${{ steps.find-jar.outputs.jarname }}
           path: build/libs/${{ steps.find-jar.outputs.jarname }}
+
+      - name: Publish to maven
+        run: ./gradlew publish
+        env:
+          MAVEN_URL: ${{ secrets.MAVEN_URL }}
+          MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
