@@ -110,7 +110,7 @@ public abstract class VanillaRecipesGenerator {
                 .unlockedBy(MyRecipesGenerator.hasItem(ModItems.BLADE_OF_THE_SEA), FabricRecipeProvider.has(ModItems.BLADE_OF_THE_SEA))
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.PRISMARINE_SHARD), FabricRecipeProvider.has(Items.PRISMARINE_SHARD))
                 .save(exporter);
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, ModItems.COCOA_LIQUOR)
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, ModItems.COCOA_LIQUOR, 2)
                 .requires(ModItems.COCOA_POWDER)
                 .requires(ModItems.COCOA_POWDER)
                 .requires(ModItems.COCOA_BUTTER)
