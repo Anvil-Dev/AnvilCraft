@@ -50,6 +50,15 @@
   "block.anvilcraft.cut_royal_steel_stairs": "切制皇家钢楼梯",
   "command.anvilcraft.config.reload.success": "配置文件已重载!",
   "command.anvilcraft.config.check.success": "配置文件内容如下：",
-  "screen.anvilcraft.button.direction": "输出方向",
-  "screen.anvilcraft.button.record": "保留一份材料"
+  "screen.anvilcraft.button.direction": "输出方向：%s",
+  "screen.anvilcraft.button.direction.up": "上",
+  "screen.anvilcraft.button.direction.down": "下",
+  "screen.anvilcraft.button.direction.north": "北",
+  "screen.anvilcraft.button.direction.south": "南",
+  "screen.anvilcraft.button.direction.west": "西",
+  "screen.anvilcraft.button.direction.east": "东",
+  "screen.anvilcraft.button.record": "保留物品过滤：%s",
+  "screen.anvilcraft.button.record.tooltip": "开启后，合成器必须填满全部格子（包括盖上盖板）才能开始合成",
+  "screen.anvilcraft.button.off": "关",
+  "screen.anvilcraft.button.on": "开"
 }
