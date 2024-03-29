@@ -61,7 +61,7 @@ public class SetBlock implements RecipeOutcome {
         BlockPos pos = container.getPos();
         Vec3 vec3 = pos.getCenter().add(this.offset);
         BlockPos blockPos = BlockPos.containing(vec3.x, vec3.y, vec3.z);
-        return level.setBlock(blockPos, this.result, 3);
+        return level.setBlockAndUpdate(blockPos, this.result);
     }
 
     @Override
@@ -69,7 +69,7 @@ public class SetBlock implements RecipeOutcome {
         buffer.writeUtf(this.getType());
         buffer.writeVector3f(this.offset.toVector3f());
         buffer.writeDouble(this.chance);
-        buffer.writeUtf(this.result.toJson().toString());
+        buffer.writeUtf(this.result.anvilcraft$toJson().toString());
     }
 
     @Override
@@ -81,7 +81,7 @@ public class SetBlock implements RecipeOutcome {
         object.addProperty("type", this.getType());
         object.add("offset", offset);
         object.addProperty("chance", this.chance);
-        object.add("result", this.result.toJson());
+        object.add("result", this.result.anvilcraft$toJson());
         return object;
     }
 }

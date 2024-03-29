@@ -14,10 +14,12 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import org.jetbrains.annotations.NotNull;
 
 public interface IItemStackInjector {
+    @Deprecated
     default ItemStack dataCopy(ItemStack stack) {
         return ItemStack.EMPTY;
     }
 
+    @Deprecated
     default boolean removeEnchant(Enchantment enchantment) {
         return false;
     }
@@ -46,7 +48,12 @@ public interface IItemStackInjector {
         return stack;
     }
 
+    @Deprecated
     default JsonElement toJson() {
+        return this.anvilcraft$toJson();
+    }
+
+    default JsonElement anvilcraft$toJson() {
         return new JsonObject();
     }
 }

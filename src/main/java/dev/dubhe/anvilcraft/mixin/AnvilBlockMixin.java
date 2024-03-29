@@ -65,13 +65,12 @@ public abstract class AnvilBlockMixin extends FallingBlock {
             magnet = magnet.above();
             BlockState state1 = level.getBlockState(magnet);
             if (!(state1.getBlock() instanceof MagnetBlock) || state1.getValue(LIT)) {
-                if (state1.is(Blocks.AIR) || state1.is(Blocks.CAVE_AIR) || state1.is(Blocks.VOID_AIR)) continue;
+                if (level.isEmptyBlock(magnet)) continue;
                 else return;
             }
-            BlockState state2 = level.getBlockState(magnet.below());
-            if (!state2.is(Blocks.AIR) && !state2.is(Blocks.CAVE_AIR) && !state2.is(Blocks.VOID_AIR)) return;
-            level.setBlock(magnet.below(), state, 3);
-            level.setBlock(anvil, Blocks.AIR.defaultBlockState(), 3);
+            if (!level.isEmptyBlock(magnet.below())) return;
+            level.setBlockAndUpdate(magnet.below(), state);
+            level.setBlockAndUpdate(anvil, Blocks.AIR.defaultBlockState());
         }
     }
 

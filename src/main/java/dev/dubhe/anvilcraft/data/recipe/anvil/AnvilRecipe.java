@@ -541,8 +541,8 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
                 if (!this.group.isEmpty()) {
                     json.addProperty("group", this.group);
                 }
-                this.icon.toJson();
-                json.add("icon", this.icon.toJson());
+                this.icon.anvilcraft$toJson();
+                json.add("icon", this.icon.anvilcraft$toJson());
                 JsonArray predicates = new JsonArray();
                 for (RecipePredicate predicate : this.predicates) {
                     predicates.add(predicate.toJson());

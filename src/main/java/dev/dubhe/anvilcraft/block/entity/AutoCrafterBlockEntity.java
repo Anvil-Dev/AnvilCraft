@@ -182,7 +182,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
         if (null == level) return;
         BlockState state = level.getBlockState(pos);
         if (!state.is(ModBlocks.AUTO_CRAFTER)) return;
-        level.setBlock(pos, state.setValue(AutoCrafterBlock.FACING, direction), 3);
+        level.setBlockAndUpdate(pos, state.setValue(AutoCrafterBlock.FACING, direction));
     }
 
     @SuppressWarnings("UnstableApiUsage")

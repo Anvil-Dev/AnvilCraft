@@ -115,7 +115,7 @@ public class AnvilEventListener {
         LootParams.Builder builder = new LootParams.Builder(serverLevel).withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos)).withParameter(LootContextParams.TOOL, ItemStack.EMPTY).withOptionalParameter(LootContextParams.BLOCK_ENTITY, blockEntity);
         state.spawnAfterBreak(serverLevel, pos, ItemStack.EMPTY, false);
         dropItems(state.getDrops(builder), level, pos.getCenter());
-        level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
+        level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
     }
 
     private void redstoneEMP(@NotNull Level level, @NotNull BlockPos pos, float fallDistance) {
@@ -156,7 +156,7 @@ public class AnvilEventListener {
         BlockState state = level.getBlockState(pos);
         if (!state.is(ModBlockTags.REDSTONE_TORCH)) return;
         state = state.setValue(RedstoneTorchBlock.LIT, false);
-        level.setBlock(pos, state, 3);
+        level.setBlockAndUpdate(pos, state);
     }
 
     @SubscribeEvent

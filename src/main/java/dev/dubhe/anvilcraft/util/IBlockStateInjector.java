@@ -44,7 +44,12 @@ public interface IBlockStateInjector {
         return blockResult.blockState();
     }
 
+    @Deprecated
     default JsonElement toJson() {
+        return this.anvilcraft$toJson();
+    }
+
+    default JsonElement anvilcraft$toJson() {
         return new JsonObject();
     }
 

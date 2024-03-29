@@ -38,6 +38,7 @@ public class AnvilCraft implements ModInitializer {
         ModBlockEntities.register();
         ModMenuTypes.register();
         ModNetworks.register();
+        ModDispenserBehavior.register();
         Networking.SERVER.register();
     }
 

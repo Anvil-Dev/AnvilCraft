@@ -75,20 +75,20 @@ public class MagnetBlock extends Block {
             anvil = anvil.below();
             BlockState state1 = level.getBlockState(anvil);
             if (state1.is(BlockTags.ANVIL)) {
-                level.setBlock(magnet.below(), state1, 3);
-                level.setBlock(anvil, Blocks.AIR.defaultBlockState(), 3);
+                level.setBlockAndUpdate(magnet.below(), state1);
+                level.setBlockAndUpdate(anvil, Blocks.AIR.defaultBlockState());
                 break;
             }
             List<FallingBlockEntity> entities = level.getEntitiesOfClass(FallingBlockEntity.class, new AABB(anvil));
             for (FallingBlockEntity entity : entities) {
                 BlockState state2 = entity.getBlockState();
                 if (state2.is(BlockTags.ANVIL)) {
-                    level.setBlock(magnet.below(), state2, 3);
+                    level.setBlockAndUpdate(magnet.below(), state2);
                     entity.remove(Entity.RemovalReason.DISCARDED);
                     break checkAnvil;
                 }
             }
-            if (!state1.is(Blocks.AIR) && !state1.is(Blocks.CAVE_AIR) && !state1.is(Blocks.VOID_AIR)) return;
+            if (!level.isEmptyBlock(anvil)) return;
         }
     }
 
