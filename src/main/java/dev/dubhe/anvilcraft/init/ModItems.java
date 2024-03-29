@@ -102,6 +102,7 @@ public class ModItems {
     public static final Item PULP = registerItem("pulp", Item::new, defaultProperties());
     public static final Item SPONGE_GEMMULE = registerItem("sponge_gemmule", Item::new, defaultProperties());
 
+    public static final Item STAMPING_PLATFORM = registerBlock(ModBlocks.STAMPING_PLATFORM, BlockItem::new, defaultProperties());
     public static final Item ROYAL_ANVIL = registerBlock(ModBlocks.ROYAL_ANVIL, BlockItem::new, defaultProperties());
     public static final Item MAGNET_BLOCK = registerBlock(ModBlocks.MAGNET_BLOCK, BlockItem::new, defaultProperties());
     public static final Item HOLLOW_MAGNET_BLOCK = registerBlock(ModBlocks.HOLLOW_MAGNET_BLOCK, BlockItem::new, defaultProperties());

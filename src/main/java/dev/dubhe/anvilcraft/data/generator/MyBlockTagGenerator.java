@@ -33,6 +33,7 @@ public class MyBlockTagGenerator extends FabricTagProvider<Block> {
                 .add(Blocks.RED_MUSHROOM_BLOCK)
                 .add(Blocks.MUSHROOM_STEM);
         this.getOrCreateTagBuilder(BlockTags.MINEABLE_WITH_PICKAXE).setReplace(false)
+                .add(ModBlocks.STAMPING_PLATFORM)
                 .add(ModBlocks.ROYAL_ANVIL)
                 .add(ModBlocks.MAGNET_BLOCK)
                 .add(ModBlocks.HOLLOW_MAGNET_BLOCK)

@@ -23,6 +23,7 @@ public class MyBlockLootGenerator extends FabricBlockLootTableProvider {
         this.dropSelf(ModBlocks.CUT_ROYAL_STEEL_BLOCK);
         this.add(ModBlocks.CUT_ROYAL_STEEL_SLAB, this::createSlabItemTable);
         this.dropSelf(ModBlocks.CUT_ROYAL_STEEL_STAIRS);
+        this.dropSelf(ModBlocks.STAMPING_PLATFORM);
         this.dropOther(ModBlocks.LAVA_CAULDRON, Items.CAULDRON);
     }
 }
