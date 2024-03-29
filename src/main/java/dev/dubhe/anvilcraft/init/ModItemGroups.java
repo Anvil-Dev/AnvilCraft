@@ -46,6 +46,9 @@ public class ModItemGroups {
                 entries.accept(Items.ANVIL.getDefaultInstance());
                 entries.accept(Items.CHIPPED_ANVIL.getDefaultInstance());
                 entries.accept(Items.DAMAGED_ANVIL.getDefaultInstance());
+                entries.accept(Items.IRON_TRAPDOOR.getDefaultInstance());
+                entries.accept(Items.CAULDRON.getDefaultInstance());
+                entries.accept(Items.CAMPFIRE.getDefaultInstance());
                 entries.accept(ModItems.ROYAL_ANVIL.getDefaultInstance());
                 entries.accept(ModItems.MAGNET_BLOCK.getDefaultInstance());
                 entries.accept(ModItems.HOLLOW_MAGNET_BLOCK.getDefaultInstance());
