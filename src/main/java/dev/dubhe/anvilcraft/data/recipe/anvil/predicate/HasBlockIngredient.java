@@ -33,6 +33,6 @@ public class HasBlockIngredient extends HasBlock {
         BlockPos pos = container.getPos();
         Vec3 vec3 = pos.getCenter().add(this.offset);
         BlockPos blockPos = BlockPos.containing(vec3.x, vec3.y, vec3.z);
-        return level.setBlock(blockPos, Blocks.AIR.defaultBlockState(), 3);
+        return level.setBlockAndUpdate(blockPos, Blocks.AIR.defaultBlockState());
     }
 }

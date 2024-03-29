@@ -42,6 +42,9 @@
       ],
       "net/minecraft/class_2680": [
         "dev/dubhe/anvilcraft/util/IBlockStateInjector"
+      ],
+      "net/minecraft/class_2275": [
+        "dev/dubhe/anvilcraft/util/IBucketPickupInjector"
       ]
     }
   }

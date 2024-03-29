@@ -39,7 +39,7 @@ public class LavaCauldronBlock extends LayeredCauldronBlock {
             return;
         }
         if (state.getValue(LEVEL) == 3) {
-            level.setBlock(pos, Blocks.LAVA_CAULDRON.defaultBlockState(), 3);
+            level.setBlockAndUpdate(pos, Blocks.LAVA_CAULDRON.defaultBlockState());
         }
     }
 }

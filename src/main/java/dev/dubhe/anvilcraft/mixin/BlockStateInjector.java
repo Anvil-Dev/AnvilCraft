@@ -22,7 +22,7 @@ public abstract class BlockStateInjector extends BlockBehaviour.BlockStateBase i
     }
 
     @Override
-    public JsonElement toJson() {
+    public JsonElement anvilcraft$toJson() {
         JsonObject object = new JsonObject();
         object.addProperty("block", BuiltInRegistries.BLOCK.getKey(this.getBlock()).toString());
         if (!this.getValues().isEmpty()) {

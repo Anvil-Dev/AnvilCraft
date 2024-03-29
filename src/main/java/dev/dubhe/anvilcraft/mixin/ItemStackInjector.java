@@ -99,7 +99,7 @@ public abstract class ItemStackInjector implements IItemStackInjector {
     }
 
     @Override
-    public JsonElement toJson() {
+    public JsonElement anvilcraft$toJson() {
         JsonObject object = new JsonObject();
         object.addProperty("item", BuiltInRegistries.ITEM.getKey(this.getItem()).toString());
         if (this.getCount() > 1) object.addProperty("count", this.getCount());

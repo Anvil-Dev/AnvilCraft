@@ -52,9 +52,9 @@ public abstract class FallingBlockEntityMixin extends Entity {
         AnvilCraft.EVENT_BUS.post(event);
         if (event.isAnvilDamage()) {
             BlockState state = AnvilBlock.damage(this.blockState);
-            if (state != null) this.level().setBlock(blockPos, state, 3);
+            if (state != null) this.level().setBlockAndUpdate(blockPos, state);
             else {
-                this.level().setBlock(blockPos, Blocks.AIR.defaultBlockState(), 3);
+                this.level().setBlockAndUpdate(blockPos, Blocks.AIR.defaultBlockState());
                 if (!this.isSilent()) this.level().levelEvent(1029, this.getOnPos(), 0);
                 this.cancelDrop = true;
             }
