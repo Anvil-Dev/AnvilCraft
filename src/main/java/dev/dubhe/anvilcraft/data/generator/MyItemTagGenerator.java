@@ -6,7 +6,9 @@ import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -41,5 +43,13 @@ public class MyItemTagGenerator extends FabricTagProvider<Item> {
                 .add(ModItems.CHOCOLATE_WHITE)
                 .add(ModItems.CREAMY_BREAD_ROLL)
                 .add(ModItems.BEEF_MUSHROOM_STEW);
+        this.getOrCreateTagBuilder(ModItemTags.ROYAL_STEEL_PICKAXE_BASE).setReplace(false)
+                .add(ModItems.AMETHYST_PICKAXE)
+                .add(Items.GOLDEN_PICKAXE)
+                .add(Items.IRON_PICKAXE)
+                .add(Items.STONE_PICKAXE);
+
+        this.getOrCreateTagBuilder(ItemTags.BEACON_PAYMENT_ITEMS).setReplace(false)
+                .add(ModItems.ROYAL_STEEL_INGOT);
     }
 }
