@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
@@ -49,5 +50,13 @@ public class MyItemTagGenerator extends FabricTagProvider<Item> {
                 .add(Items.HEAVY_WEIGHTED_PRESSURE_PLATE);
         this.getOrCreateTagBuilder(ModItemTags.GOLD_PLATES).setReplace(false)
                 .add(Items.LIGHT_WEIGHTED_PRESSURE_PLATE);
+        this.getOrCreateTagBuilder(ModItemTags.ROYAL_STEEL_PICKAXE_BASE).setReplace(false)
+                .add(ModItems.AMETHYST_PICKAXE)
+                .add(Items.GOLDEN_PICKAXE)
+                .add(Items.IRON_PICKAXE)
+                .add(Items.STONE_PICKAXE);
+
+        this.getOrCreateTagBuilder(ItemTags.BEACON_PAYMENT_ITEMS).setReplace(false)
+                .add(ModItems.ROYAL_STEEL_INGOT);
     }
 }
