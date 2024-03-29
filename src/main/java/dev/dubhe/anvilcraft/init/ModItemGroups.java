@@ -43,12 +43,13 @@ public class ModItemGroups {
     public static final CreativeModeTab.Builder ANVILCRAFT_BLOCK = createItemGroup("block", FabricItemGroup::builder)
             .icon(() -> new ItemStack(ModItems.MAGNET_BLOCK))
             .displayItems((ctx, entries) -> {
-                entries.accept(Items.ANVIL.getDefaultInstance());
-                entries.accept(Items.CHIPPED_ANVIL.getDefaultInstance());
-                entries.accept(Items.DAMAGED_ANVIL.getDefaultInstance());
                 entries.accept(Items.IRON_TRAPDOOR.getDefaultInstance());
                 entries.accept(Items.CAULDRON.getDefaultInstance());
                 entries.accept(Items.CAMPFIRE.getDefaultInstance());
+                entries.accept(ModItems.STAMPING_PLATFORM.getDefaultInstance());
+                entries.accept(Items.ANVIL.getDefaultInstance());
+                entries.accept(Items.CHIPPED_ANVIL.getDefaultInstance());
+                entries.accept(Items.DAMAGED_ANVIL.getDefaultInstance());
                 entries.accept(ModItems.ROYAL_ANVIL.getDefaultInstance());
                 entries.accept(ModItems.MAGNET_BLOCK.getDefaultInstance());
                 entries.accept(ModItems.HOLLOW_MAGNET_BLOCK.getDefaultInstance());

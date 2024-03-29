@@ -257,6 +257,15 @@ public abstract class VanillaRecipesGenerator {
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.IRON_BLOCK), FabricRecipeProvider.has(Items.IRON_BLOCK))
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.IRON_INGOT), FabricRecipeProvider.has(Items.IRON_INGOT))
                 .save(exporter);
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.STAMPING_PLATFORM)
+                .pattern("BAB")
+                .pattern("B B")
+                .pattern("B B")
+                .define('A', ModItemTags.IRON_PLATES)
+                .define('B', Items.IRON_INGOT)
+                .unlockedBy("has_" + ModItemTags.IRON_PLATES.location().getPath(), FabricRecipeProvider.has(ModItemTags.IRON_PLATES))
+                .unlockedBy(MyRecipesGenerator.hasItem(Items.IRON_INGOT), FabricRecipeProvider.has(Items.IRON_INGOT))
+                .save(exporter);
         // 烹饪配方
         SimpleCookingRecipeBuilder.campfireCooking(Ingredient.of(ModItemTags.DOUGH), RecipeCategory.FOOD, Items.BREAD, 0.35f, 600)
                 .unlockedBy(MyRecipesGenerator.hasItem(ModItems.DOUGH), FabricRecipeProvider.has(ModItems.DOUGH))

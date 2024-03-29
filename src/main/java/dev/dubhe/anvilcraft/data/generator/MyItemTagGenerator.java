@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -41,5 +42,12 @@ public class MyItemTagGenerator extends FabricTagProvider<Item> {
                 .add(ModItems.CHOCOLATE_WHITE)
                 .add(ModItems.CREAMY_BREAD_ROLL)
                 .add(ModItems.BEEF_MUSHROOM_STEW);
+        this.getOrCreateTagBuilder(ModItemTags.PLATES).setReplace(false)
+                .add(Items.HEAVY_WEIGHTED_PRESSURE_PLATE)
+                .add(Items.LIGHT_WEIGHTED_PRESSURE_PLATE);
+        this.getOrCreateTagBuilder(ModItemTags.IRON_PLATES).setReplace(false)
+                .add(Items.HEAVY_WEIGHTED_PRESSURE_PLATE);
+        this.getOrCreateTagBuilder(ModItemTags.GOLD_PLATES).setReplace(false)
+                .add(Items.LIGHT_WEIGHTED_PRESSURE_PLATE);
     }
 }
