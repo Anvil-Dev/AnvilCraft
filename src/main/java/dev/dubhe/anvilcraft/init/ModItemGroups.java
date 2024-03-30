@@ -54,6 +54,8 @@ public class ModItemGroups {
                 entries.accept(Items.CHIPPED_ANVIL.getDefaultInstance());
                 entries.accept(Items.DAMAGED_ANVIL.getDefaultInstance());
                 entries.accept(ModItems.ROYAL_ANVIL.getDefaultInstance());
+                entries.accept(ModItems.ROYAL_GRINDSTONE.getDefaultInstance());
+                entries.accept(ModItems.ROYAL_SMITHING_TABLE.getDefaultInstance());
                 entries.accept(ModItems.MAGNET_BLOCK.getDefaultInstance());
                 entries.accept(ModItems.HOLLOW_MAGNET_BLOCK.getDefaultInstance());
                 entries.accept(ModItems.FERRITE_CORE_MAGNET_BLOCK.getDefaultInstance());

@@ -14,6 +14,8 @@ public class MyBlockLootGenerator extends FabricBlockLootTableProvider {
     @Override
     public void generate() {
         this.dropSelf(ModBlocks.ROYAL_ANVIL);
+        this.dropSelf(ModBlocks.ROYAL_GRINDSTONE);
+        this.dropSelf(ModBlocks.ROYAL_SMITHING_TABLE);
         this.dropSelf(ModBlocks.MAGNET_BLOCK);
         this.dropSelf(ModBlocks.HOLLOW_MAGNET_BLOCK);
         this.dropSelf(ModBlocks.FERRITE_CORE_MAGNET_BLOCK);
