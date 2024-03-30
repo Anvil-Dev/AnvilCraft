@@ -49,5 +49,7 @@ public class MyBlockTagGenerator extends FabricTagProvider<Block> {
         this.getOrCreateTagBuilder(BlockTags.MINEABLE_WITH_AXE).setReplace(false)
                 .add(ModBlocks.AUTO_CRAFTER)
                 .add(ModBlocks.CHUTE);
+        this.getOrCreateTagBuilder(BlockTags.BEACON_BASE_BLOCKS).setReplace(false)
+                .add(ModBlocks.ROYAL_STEEL_BLOCK);
     }
 }

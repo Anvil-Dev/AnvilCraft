@@ -22,6 +22,7 @@ public class ModItemGroups {
             .displayItems((ctx, entries) -> {
                 entries.accept(ModItems.MAGNET.getDefaultInstance());
                 entries.accept(ModItems.AMETHYST_PICKAXE.getDefaultInstance());
+                entries.accept(ModItems.ROYAL_STEEL_PICKAXE.getDefaultInstance());
                 entries.accept(ModItems.CREAM.getDefaultInstance());
                 entries.accept(ModItems.FLOUR.getDefaultInstance());
                 entries.accept(ModItems.DOUGH.getDefaultInstance());
@@ -35,6 +36,8 @@ public class ModItemGroups {
                 entries.accept(ModItems.UTUSAN.getDefaultInstance());
                 entries.accept(ModItems.MAGNET_INGOT.getDefaultInstance());
                 entries.accept(ModItems.ROYAL_STEEL_INGOT.getDefaultInstance());
+                entries.accept(ModItems.ROYAL_STEEL_NUGGET.getDefaultInstance());
+                entries.accept(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE.getDefaultInstance());
                 entries.accept(ModItems.SPONGE_GEMMULE.getDefaultInstance());
                 entries.accept(ModItems.COCOA_LIQUOR.getDefaultInstance());
                 entries.accept(ModItems.COCOA_BUTTER.getDefaultInstance());
