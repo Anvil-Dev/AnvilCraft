@@ -1,11 +1,12 @@
 package dev.dubhe.anvilcraft.inventory;
 
 import dev.dubhe.anvilcraft.init.ModBlocks;
+import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
@@ -13,28 +14,22 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
-
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class RoyalGrindstoneMenu extends AbstractContainerMenu {
-
-    public static final int MAX_NAME_LENGTH = 35;
-    public static final int INPUT_SLOT = 0;
-    public static final int ADDITIONAL_SLOT = 1;
-    public static final int RESULT_SLOT = 2;
-    private static final int INV_SLOT_START = 3;
-    private static final int INV_SLOT_END = 30;
-    private static final int USE_ROW_SLOT_START = 30;
-    private static final int USE_ROW_SLOT_END = 39;
-    private final Container resultSlots;
-    final Container repairSlots;
+    private final Container repairToolSlots;
+    private final Container resultToolSlots;
+    private final Container repairMaterialSlots;
+    private final Container resultMaterialSlots;
     private final ContainerLevelAccess access;
+
+    public Integer usedGold = 0;
+    public Integer removeRepairCostNumber = 0;
+    public Integer removeCurseNumber = 0;
 
     public RoyalGrindstoneMenu(int containerId, Inventory playerInventory) {
         this(containerId, playerInventory, ContainerLevelAccess.NULL);
@@ -42,69 +37,43 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
 
     public RoyalGrindstoneMenu(int containerId, Inventory playerInventory, ContainerLevelAccess access) {
         super(ModMenuTypes.ROYAL_GRINDSTONE, containerId);
-        this.resultSlots = new ResultContainer();
-        this.repairSlots = new SimpleContainer(2) {
+        this.repairToolSlots = new SimpleContainer(1) {
             public void setChanged() {
                 super.setChanged();
-                slotsChanged(this);
+                RoyalGrindstoneMenu.this.slotsChanged(this);
             }
         };
+        this.resultToolSlots = new ResultContainer();
+        this.repairMaterialSlots = new SimpleContainer(1) {
+            public void setChanged() {
+                super.setChanged();
+                RoyalGrindstoneMenu.this.slotsChanged(this);
+            }
+        };
+        this.resultMaterialSlots = new ResultContainer();
         this.access = access;
-        this.addSlot(new Slot(this.repairSlots, 0, 49, 19) {
+        this.addSlot(new Slot(this.repairToolSlots, 0, 25, 34) {
             public boolean mayPlace(ItemStack stack) {
                 return stack.isDamageableItem() || stack.is(Items.ENCHANTED_BOOK) || stack.isEnchanted();
             }
         });
-        this.addSlot(new Slot(this.repairSlots, 1, 49, 40) {
+        this.addSlot(new Slot(this.repairMaterialSlots, 0, 89, 22) {
             public boolean mayPlace(ItemStack stack) {
-                return stack.isDamageableItem() || stack.is(Items.ENCHANTED_BOOK) || stack.isEnchanted();
+                return stack.is(Items.GOLD_INGOT);
             }
         });
-        this.addSlot(new Slot(this.resultSlots, 2, 129, 34) {
-            public boolean mayPlace(ItemStack stack) {
-                return false;
-            }
-
+        this.addSlot(new Slot(this.resultToolSlots, 2, 145, 34) {
+            public boolean mayPlace(ItemStack stack) {return false;}
             public void onTake(Player player, ItemStack stack) {
-                access.execute((level, blockPos) -> {
-                    if (level instanceof ServerLevel) {
-                        ExperienceOrb.award((ServerLevel)level, Vec3.atCenterOf(blockPos), this.getExperienceAmount(level));
-                    }
-
-                    level.levelEvent(1042, blockPos, 0);
-                });
-                repairSlots.setItem(0, ItemStack.EMPTY);
-                repairSlots.setItem(1, ItemStack.EMPTY);
-            }
-
-            private int getExperienceAmount(Level level) {
-                int i = 0;
-                i += this.getExperienceFromItem(repairSlots.getItem(0));
-                i += this.getExperienceFromItem(repairSlots.getItem(1));
-                if (i > 0) {
-                    int j = (int)Math.ceil((double)i / 2.0);
-                    return j + level.random.nextInt(j);
-                } else {
-                    return 0;
-                }
-            }
-
-            private int getExperienceFromItem(ItemStack stack) {
-                int i = 0;
-                Map<Enchantment, Integer> map = EnchantmentHelper.getEnchantments(stack);
-
-                for (Map.Entry<Enchantment, Integer> enchantmentIntegerEntry : map.entrySet()) {
-                    Enchantment enchantment = (Enchantment) ((Map.Entry) enchantmentIntegerEntry).getKey();
-                    Integer integer = (Integer) ((Map.Entry) enchantmentIntegerEntry).getValue();
-                    if (!enchantment.isCurse()) {
-                        i += enchantment.getMinCost(integer);
-                    }
-                }
-
-                return i;
+                player.playSound(SoundEvents.GRINDSTONE_USE);
+                repairToolSlots.setItem(0, ItemStack.EMPTY);
+                repairMaterialSlots.setItem(0, new ItemStack(Items.GOLD_INGOT, repairMaterialSlots.getItem(0).getCount()-usedGold));
+                resultMaterialSlots.setItem(2, new ItemStack(ModItems.CURSED_GOLD_INGOT, usedGold + resultMaterialSlots.getItem(2).getCount()));
             }
         });
-
+        this.addSlot(new Slot(this.resultMaterialSlots, 2, 89, 48) {
+            public boolean mayPlace(ItemStack stack) {return false;}
+        });
         int i;
         for(i = 0; i < 3; ++i) {
             for(int j = 0; j < 9; ++j) {
@@ -115,58 +84,122 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
         for(i = 0; i < 9; ++i) {
             this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 142));
         }
-
     }
+
+    private ItemStack createResult() {
+        ItemStack repairTool = repairToolSlots.getItem(0);
+        ItemStack repairMaterial = repairMaterialSlots.getItem(0);
+        if (repairTool.isEmpty()||repairMaterial.isEmpty()) return ItemStack.EMPTY;
+        ItemStack result = repairTool.copy();
+        Map<Enchantment, Integer> curseMap = EnchantmentHelper.getEnchantments(result).entrySet().stream().filter((entry) -> entry.getKey().isCurse()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        int curseNumber = curseMap.size();
+        int repairCost = repairTool.getBaseRepairCost();
+        int goldNumber = repairMaterial.getCount();
+        int goldUsed = 0;
+        while ((goldNumber>0&&repairCost>0)) {
+            result.setRepairCost(repairCost - 1);
+            repairCost -= 1;
+            goldNumber -= 1;
+            goldUsed += 1;
+        }
+        int removeCurseNumber = 0;
+        Iterator<Enchantment> iterator = curseMap.keySet().iterator();
+        while ((goldNumber>=3 && curseNumber>0)){
+            Map<Enchantment, Integer> map = EnchantmentHelper.getEnchantments(result);
+            map.remove(iterator.next());
+            ItemStack itemStack = result.copy();
+            itemStack.removeTagKey("Enchantments");
+            itemStack.removeTagKey("StoredEnchantments");
+            EnchantmentHelper.setEnchantments(map, itemStack);
+            result = itemStack.copy();
+            curseNumber -= 1;
+            goldUsed += 3;
+            removeCurseNumber += 1;
+        }
+        if (result.is(Items.ENCHANTED_BOOK) && EnchantmentHelper.getEnchantments(result).isEmpty()) {
+            result = new ItemStack(Items.BOOK, result.getCount());
+        }
+        this.usedGold = goldUsed;
+        this.removeRepairCostNumber = repairTool.getBaseRepairCost() - repairCost;
+        this.removeCurseNumber = removeCurseNumber;
+        return result;
+    }
+
 
     @Override
     public @NotNull ItemStack quickMoveStack(Player player, int index) {
-        ItemStack itemStack = ItemStack.EMPTY;
-        Slot slot = (Slot)this.slots.get(index);
+        ItemStack itemStack;
+        Slot slot = this.slots.get(index);
         if (slot.hasItem()) {
-            ItemStack itemStack2 = slot.getItem();
-            itemStack = itemStack2.copy();
-            ItemStack itemStack3 = this.repairSlots.getItem(0);
-            ItemStack itemStack4 = this.repairSlots.getItem(1);
-            if (index == 2) {
-                if (!this.moveItemStackTo(itemStack2, 3, 39, true)) {
+            ItemStack clickedItem = slot.getItem();
+            itemStack = clickedItem.copy();
+            if (index >= 0 && index <= 3) {
+                if (!this.moveItemStackTo(itemStack, 4, 39, false)) {
                     return ItemStack.EMPTY;
                 }
-
-                slot.onQuickCraft(itemStack2, itemStack);
-            } else if (index != 0 && index != 1) {
-                if (!itemStack3.isEmpty() && !itemStack4.isEmpty()) {
-                    if (index >= 3 && index < 30) {
-                        if (!this.moveItemStackTo(itemStack2, 30, 39, false)) {
-                            return ItemStack.EMPTY;
-                        }
-                    } else if (index >= 30 && index < 39 && !this.moveItemStackTo(itemStack2, 3, 30, false)) {
+                else {
+                    if (index == 2) {
+                        slot.onTake(player, clickedItem);
+                    }
+                    this.getSlot(index).setByPlayer(ItemStack.EMPTY);
+                }
+            } else {
+                if (itemStack.isDamageableItem() || itemStack.is(Items.ENCHANTED_BOOK) || itemStack.isEnchanted()) {
+                    if (!this.getSlot(0).hasItem()) {
+                        this.getSlot(0).setByPlayer(itemStack);
+                        this.getSlot(index).setByPlayer(ItemStack.EMPTY);
+                    }
+                    else {
                         return ItemStack.EMPTY;
                     }
-                } else if (!this.moveItemStackTo(itemStack2, 0, 2, false)) {
-                    return ItemStack.EMPTY;
+                } else if (itemStack.is(Items.GOLD_INGOT)) {
+                    if (!this.getSlot(1).hasItem()) {
+                        this.getSlot(1).setByPlayer(itemStack);
+                        this.getSlot(index).setByPlayer(ItemStack.EMPTY);
+                    }
+                    else {
+                        return ItemStack.EMPTY;
+                    }
                 }
-            } else if (!this.moveItemStackTo(itemStack2, 3, 39, false)) {
-                return ItemStack.EMPTY;
             }
-
-            if (itemStack2.isEmpty()) {
-                slot.setByPlayer(ItemStack.EMPTY);
-            } else {
-                slot.setChanged();
-            }
-
-            if (itemStack2.getCount() == itemStack.getCount()) {
-                return ItemStack.EMPTY;
-            }
-
-            slot.onTake(player, itemStack2);
         }
-
-        return itemStack;
+        return ItemStack.EMPTY;
     }
+
 
     @Override
     public boolean stillValid(Player player) {
         return stillValid(this.access, player, ModBlocks.ROYAL_GRINDSTONE);
+    }
+
+    @Override
+    public void slotsChanged(Container container) {
+        super.slotsChanged(container);
+        resultToolSlots.setItem(2, createResult());
+    }
+    public void removed(Player player) {
+        super.removed(player);
+        this.access.execute((level, blockPos) -> {
+            this.clearContainer(player, this.repairToolSlots);
+            this.clearContainer(player, this.repairMaterialSlots);
+            this.clearContainer(player, this.resultMaterialSlots);
+        });
+    }
+    protected void clearContainer(Player player, Container container) {
+        int i;
+        if (!player.isAlive() || player instanceof ServerPlayer && ((ServerPlayer)player).hasDisconnected()) {
+            for(i = 0; i < container.getContainerSize(); ++i) {
+                player.drop(container.removeItemNoUpdate(i), false);
+            }
+
+        } else {
+            for(i = 0; i < container.getContainerSize(); ++i) {
+                Inventory inventory = player.getInventory();
+                if (inventory.player instanceof ServerPlayer) {
+                    inventory.placeItemBackInInventory(container.removeItemNoUpdate(i));
+                }
+            }
+
+        }
     }
 }
