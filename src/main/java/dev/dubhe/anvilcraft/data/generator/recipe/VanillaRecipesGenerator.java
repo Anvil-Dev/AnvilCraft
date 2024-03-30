@@ -163,15 +163,6 @@ public abstract class VanillaRecipesGenerator {
                 .requires(ModItems.ROYAL_STEEL_BLOCK)
                 .unlockedBy(MyRecipesGenerator.hasItem(ModItems.ROYAL_STEEL_BLOCK), FabricRecipeProvider.has(ModItems.ROYAL_STEEL_BLOCK))
                 .save(exporter, AnvilCraft.of("craft/cut_royal_steel_slab_1"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.ROYAL_ANVIL)
-                .pattern("AAA")
-                .pattern(" B ")
-                .pattern("BBB")
-                .define('A', ModItems.ROYAL_STEEL_BLOCK)
-                .define('B', ModItems.ROYAL_STEEL_INGOT)
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.ROYAL_STEEL_BLOCK), FabricRecipeProvider.has(ModItems.ROYAL_STEEL_BLOCK))
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.ROYAL_STEEL_INGOT), FabricRecipeProvider.has(ModItems.ROYAL_STEEL_INGOT))
-                .save(exporter);
         ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, ModItems.CREAMY_BREAD_ROLL)
                 .requires(Items.BREAD)
                 .requires(ModItems.CREAM)
@@ -239,6 +230,15 @@ public abstract class VanillaRecipesGenerator {
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.CRAFTING_TABLE), FabricRecipeProvider.has(Items.CRAFTING_TABLE))
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.DROPPER), FabricRecipeProvider.has(Items.DROPPER))
                 .save(exporter);
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.CHUTE)
+                .pattern("A A")
+                .pattern("ABA")
+                .pattern(" A ")
+                .define('A', Items.IRON_INGOT)
+                .define('B', Items.DROPPER)
+                .unlockedBy(MyRecipesGenerator.hasItem(Items.IRON_INGOT), FabricRecipeProvider.has(Items.IRON_INGOT))
+                .unlockedBy(MyRecipesGenerator.hasItem(Items.DROPPER), FabricRecipeProvider.has(Items.DROPPER))
+                .save(exporter);
         ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, Items.CHIPPED_ANVIL)
                 .pattern("AAB")
                 .pattern(" B ")
@@ -301,5 +301,8 @@ public abstract class VanillaRecipesGenerator {
         SmithingTransformRecipeBuilder.smithing(Ingredient.of(), Ingredient.of(Items.GRINDSTONE), Ingredient.of(ModItems.ROYAL_STEEL_BLOCK), RecipeCategory.TOOLS, ModItems.ROYAL_GRINDSTONE)
                 .unlocks("royal_steel_pickaxe", FabricRecipeProvider.has(ModItems.ROYAL_STEEL_BLOCK))
                 .save(exporter, AnvilCraft.of("smithing/royal_grindstone"));
+        SmithingTransformRecipeBuilder.smithing(Ingredient.of(), Ingredient.of(Items.ANVIL), Ingredient.of(ModItems.ROYAL_STEEL_BLOCK), RecipeCategory.TOOLS, ModItems.ROYAL_ANVIL)
+                .unlocks(MyRecipesGenerator.hasItem(Items.ANVIL), FabricRecipeProvider.has(Items.ANVIL))
+                .save(exporter, AnvilCraft.of("smithing/royal_anvil"));
     }
 }

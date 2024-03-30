@@ -17,10 +17,11 @@ public class ModBlocks {
     private static final Map<String, Block> BLOCK_MAP = new HashMap<>();
 
     public static final Block STAMPING_PLATFORM = registerBlock("stamping_platform", StampingPlatformBlock::new, BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK));
-    public static final Block ROYAL_ANVIL = registerBlock("royal_anvil", AnvilBlock::new, BlockBehaviour.Properties.copy(Blocks.ANVIL));
+    public static final Block ROYAL_ANVIL = registerBlock("royal_anvil", RoyalAnvilBlock::new, BlockBehaviour.Properties.copy(Blocks.ANVIL));
     public static final Block MAGNET_BLOCK = registerBlock("magnet_block", MagnetBlock::new, BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK));
     public static final Block HOLLOW_MAGNET_BLOCK = registerBlock("hollow_magnet_block", HollowMagnetBlock::new, BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK));
     public static final Block FERRITE_CORE_MAGNET_BLOCK = registerBlock("ferrite_core_magnet_block", FerriteCoreMagnetBlock::new, BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).randomTicks());
+    public static final Block CHUTE = registerBlock("chute", ChuteBlock::new, BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).noOcclusion());
     public static final Block AUTO_CRAFTER = registerBlock("auto_crafter", AutoCrafterBlock::new, BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK));
     public static final Block ROYAL_STEEL_BLOCK = registerBlock("royal_steel_block", Block::new, BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK));
     public static final Block ROYAL_GRINDSTONE = registerBlock("royal_grindstone", RoyalGrindstone::new, BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK));

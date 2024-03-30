@@ -2,10 +2,11 @@ package dev.dubhe.anvilcraft.client.gui.screen.inventory;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.gui.component.RecordMaterialButton;
-import dev.dubhe.anvilcraft.inventory.AutoCrafterMenu;
+import dev.dubhe.anvilcraft.inventory.ChuteMenu;
 import lombok.Getter;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -18,24 +19,25 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.function.BiFunction;
 
-public class AutoCrafterScreen extends BaseMachineScreen<AutoCrafterMenu> implements IFilterScreen {
-    private static final ResourceLocation CONTAINER_LOCATION = AnvilCraft.of("textures/gui/container/auto_crafter.png");
+public class ChuteScreen extends BaseMachineScreen<ChuteMenu> implements IFilterScreen {
+    private static final ResourceLocation CONTAINER_LOCATION = AnvilCraft.of("textures/gui/container/chute.png");
     @Getter
     private final NonNullList<Boolean> disabled = NonNullList.withSize(9, false);
     @Getter
     private final NonNullList<ItemStack> filter = NonNullList.withSize(9, ItemStack.EMPTY);
-    BiFunction<Integer, Integer, RecordMaterialButton> materialButtonSupplier = this.getMaterialButtonSupplier(116, 18);
+    BiFunction<Integer, Integer, RecordMaterialButton> materialButtonSupplier = this.getMaterialButtonSupplier(134, 18);
     @Getter
     private RecordMaterialButton recordButton = null;
 
-    public AutoCrafterScreen(AutoCrafterMenu menu, Inventory playerInventory, Component title) {
+    public ChuteScreen(ChuteMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
+        super.setDirectionButtonSupplier(BaseMachineScreen.getDirectionButtonSupplier(134, 36, Direction.UP));
     }
 
     @Override
     protected void init() {
         super.init();
-        this.recordButton = materialButtonSupplier.apply(this.leftPos, this.topPos).showTip();
+        this.recordButton = materialButtonSupplier.apply(this.leftPos, this.topPos);
         this.addRenderableWidget(recordButton);
     }
 
@@ -52,20 +54,23 @@ public class AutoCrafterScreen extends BaseMachineScreen<AutoCrafterMenu> implem
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(guiGraphics);
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-        this.renderTooltip(guiGraphics, mouseX, mouseY);
+    protected void renderBg(@NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+        int i = (this.width - this.imageWidth) / 2;
+        int j = (this.height - this.imageHeight) / 2;
+        guiGraphics.blit(CONTAINER_LOCATION, i, j, 0, 0, this.imageWidth, this.imageHeight);
     }
 
+    @Override
     public ItemStack getCarried() {
         return this.menu.getCarried();
     }
 
+    @Override
     public Slot getHoveredSlot() {
         return this.hoveredSlot;
     }
 
+    @Override
     public Font getFont() {
         return this.font;
     }
@@ -79,12 +84,5 @@ public class AutoCrafterScreen extends BaseMachineScreen<AutoCrafterMenu> implem
     @Override
     public @NotNull List<Component> getTooltipFromContainerItem(ItemStack stack) {
         return super.getTooltipFromContainerItem(stack);
-    }
-
-    @Override
-    protected void renderBg(@NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        int i = (this.width - this.imageWidth) / 2;
-        int j = (this.height - this.imageHeight) / 2;
-        guiGraphics.blit(CONTAINER_LOCATION, i, j, 0, 0, this.imageWidth, this.imageHeight);
     }
 }

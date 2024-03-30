@@ -1,8 +1,9 @@
 package dev.dubhe.anvilcraft.inventory;
 
 import dev.dubhe.anvilcraft.block.entity.AutoCrafterBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntity;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
-import dev.dubhe.anvilcraft.inventory.component.AutoCrafterSlot;
+import dev.dubhe.anvilcraft.inventory.component.FilterSlot;
 import dev.dubhe.anvilcraft.inventory.component.ReadOnlySlot;
 import lombok.Getter;
 import net.minecraft.core.NonNullList;
@@ -17,9 +18,10 @@ import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @Getter
-public class AutoCrafterMenu extends BaseMachineMenu {
+public class AutoCrafterMenu extends BaseMachineMenu implements IFilterMenu {
     private Inventory inventory;
     private final Slot resultSlot;
 
@@ -28,63 +30,36 @@ public class AutoCrafterMenu extends BaseMachineMenu {
         this.inventory = inventory;
     }
 
-    public AutoCrafterMenu(int containerId, @NotNull Inventory inventory, @NotNull CraftingContainer interactMachine) {
-        super(ModMenuTypes.AUTO_CRAFTER, containerId, interactMachine);
+    public AutoCrafterMenu(int containerId, @NotNull Inventory inventory, @NotNull CraftingContainer machine) {
+        super(ModMenuTypes.AUTO_CRAFTER, containerId, machine);
         this.inventory = inventory;
-        this.machine.startOpen(inventory.player);
+        this.machine.startOpen(this.inventory.player);
         int i, j;
         for (i = 0; i < 3; ++i) {
             for (j = 0; j < 3; ++j) {
-                this.addSlot(new AutoCrafterSlot(this.machine, j + i * 3, 26 + j * 18, 18 + i * 18, this));
+                this.addSlot(new FilterSlot(this.machine, j + i * 3, 26 + j * 18, 18 + i * 18, this));
             }
         }
         this.addSlot(resultSlot = new ReadOnlySlot(new SimpleContainer(1), 0, 8 + 7 * 18, 18 + 2 * 18));
         for (i = 0; i < 3; ++i) {
             for (j = 0; j < 9; ++j) {
-                this.addSlot(new Slot(inventory, j + i * 9 + 9, 8 + j * 18, 84 + i * 18));
+                this.addSlot(new Slot(this.inventory, j + i * 9 + 9, 8 + j * 18, 84 + i * 18));
             }
         }
         for (i = 0; i < 9; ++i) {
-            this.addSlot(new Slot(inventory, i, 8 + i * 18, 142));
+            this.addSlot(new Slot(this.inventory, i, 8 + i * 18, 142));
         }
         this.updateResult();
+    }
+
+    public @Nullable IFilterBlockEntity getEntity() {
+        return this.machine instanceof IFilterBlockEntity entity ? entity : null;
     }
 
     @Override
     public void removed(Player player) {
         super.removed(player);
         this.machine.stopOpen(player);
-    }
-
-    public void setRecordMaterial(boolean record) {
-        if (this.machine instanceof AutoCrafterBlockEntity entity) entity.setRecord(record);
-    }
-
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public boolean isSlotDisabled(int index) {
-        if (!(this.machine instanceof AutoCrafterBlockEntity entity)) return false;
-        return entity.getDisabled().get(index);
-    }
-
-    public boolean filter(int index, ItemStack stack) {
-        ItemStack filter = this.getFilter(index);
-        return filter.isEmpty() || ItemStack.isSameItemSameTags(filter, stack);
-    }
-
-    public void setFilter(int index, ItemStack stack) {
-        if (!(this.machine instanceof AutoCrafterBlockEntity entity)) return;
-        entity.getFilter().set(index, stack);
-        this.updateResult();
-    }
-
-    public ItemStack getFilter(int index) {
-        if (!(this.machine instanceof AutoCrafterBlockEntity entity)) return ItemStack.EMPTY;
-        return entity.getFilter().get(index);
-    }
-
-    public void setSlotDisabled(int index, boolean state) {
-        if (!(this.machine instanceof AutoCrafterBlockEntity entity)) return;
-        entity.getDisabled().set(index, state);
     }
 
     @Override

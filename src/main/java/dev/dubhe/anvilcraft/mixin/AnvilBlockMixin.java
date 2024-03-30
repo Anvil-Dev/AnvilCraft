@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.mixin;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
-import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -17,9 +16,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import static dev.dubhe.anvilcraft.block.MagnetBlock.LIT;
 
@@ -72,11 +68,5 @@ public abstract class AnvilBlockMixin extends FallingBlock {
             level.setBlockAndUpdate(magnet.below(), state);
             level.setBlockAndUpdate(anvil, Blocks.AIR.defaultBlockState());
         }
-    }
-
-    @Inject(method = "damage", at = @At("RETURN"), cancellable = true)
-    private static void damage(@NotNull BlockState state, @NotNull CallbackInfoReturnable<BlockState> cir) {
-        if (cir.getReturnValue() != null) return;
-        if (state.is(ModBlocks.ROYAL_ANVIL)) cir.setReturnValue(state);
     }
 }
