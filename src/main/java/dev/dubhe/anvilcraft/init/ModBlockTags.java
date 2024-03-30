@@ -10,7 +10,8 @@ import org.jetbrains.annotations.NotNull;
 public class ModBlockTags {
     public static final TagKey<Block> MAGNET = bind("magnet");
     public static final TagKey<Block> REDSTONE_TORCH = bind("redstone_torch");
-    public static final TagKey<Block> MUSHROOM_BLOCK  = bind("mushroom_block");
+    public static final TagKey<Block> MUSHROOM_BLOCK = bind("mushroom_block");
+    public static final TagKey<Block> CANT_BROKEN_ANVIL = bind("cant_broken_anvil");
 
     private static @NotNull TagKey<Block> bindC(String id) {
         return TagKey.create(Registries.BLOCK, new ResourceLocation("c", id));

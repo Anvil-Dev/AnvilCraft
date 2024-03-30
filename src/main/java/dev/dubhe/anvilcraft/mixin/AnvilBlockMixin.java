@@ -16,6 +16,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import static dev.dubhe.anvilcraft.block.MagnetBlock.LIT;
 
@@ -68,5 +71,10 @@ public abstract class AnvilBlockMixin extends FallingBlock {
             level.setBlockAndUpdate(magnet.below(), state);
             level.setBlockAndUpdate(anvil, Blocks.AIR.defaultBlockState());
         }
+    }
+
+    @Inject(method = "damage", at = @At("RETURN"), cancellable = true)
+    private static void damage(@NotNull BlockState state, CallbackInfoReturnable<BlockState> cir) {
+        if (state.is(ModBlockTags.CANT_BROKEN_ANVIL)) cir.setReturnValue(state);
     }
 }
