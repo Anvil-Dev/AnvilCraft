@@ -277,6 +277,31 @@ public abstract class VanillaRecipesGenerator {
                 .unlockedBy("has_" + ModItemTags.IRON_PLATES.location().getPath(), FabricRecipeProvider.has(ModItemTags.IRON_PLATES))
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.IRON_INGOT), FabricRecipeProvider.has(Items.IRON_INGOT))
                 .save(exporter);
+        //诅咒黄金系
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.CURSED_GOLD_BLOCK)
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItems.CURSED_GOLD_INGOT)
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.CURSED_GOLD_INGOT), FabricRecipeProvider.has(ModItems.CURSED_GOLD_INGOT))
+                .save(exporter);
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.CURSED_GOLD_INGOT, 9)
+                .requires(ModItems.CURSED_GOLD_BLOCK)
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.CURSED_GOLD_BLOCK), FabricRecipeProvider.has(ModItems.CURSED_GOLD_BLOCK))
+                .save(exporter, AnvilCraft.of("craft/cursed_gold_ingot_1"));
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.CURSED_GOLD_INGOT)
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItems.CURSED_GOLD_NUGGET)
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.CURSED_GOLD_NUGGET), FabricRecipeProvider.has(ModItems.CURSED_GOLD_NUGGET))
+                .save(exporter, AnvilCraft.of("craft/cursed_gold_ingot_2"));
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.CURSED_GOLD_NUGGET, 9)
+                .requires(ModItems.CURSED_GOLD_INGOT)
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.CURSED_GOLD_INGOT), FabricRecipeProvider.has(ModItems.CURSED_GOLD_INGOT))
+                .save(exporter);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, ModItems.CREAMY_BREAD_ROLL);
         // 烹饪配方
         SimpleCookingRecipeBuilder.campfireCooking(Ingredient.of(ModItemTags.DOUGH), RecipeCategory.FOOD, Items.BREAD, 0.35f, 600)
                 .unlockedBy(MyRecipesGenerator.hasItem(ModItems.DOUGH), FabricRecipeProvider.has(ModItems.DOUGH))

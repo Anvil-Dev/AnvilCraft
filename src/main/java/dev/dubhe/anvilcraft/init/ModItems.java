@@ -115,7 +115,10 @@ public class ModItems {
         }
     }, defaultProperties().durability(2559));
     public static final Item ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE = registerItem("royal_steel_upgrade_smithing_template", RoyalSteelUpgradeSmithingTemplateItem::new, defaultProperties());
-    public static final Item CURSED_GOLD_INGOT = registerItem("cursed_gold_ingot", Item::new, defaultProperties());
+
+    // 诅咒黄金系
+    public static final Item CURSED_GOLD_INGOT = registerItem("cursed_gold_ingot", CuredItem::new, defaultProperties());
+    public static final Item CURSED_GOLD_NUGGET = registerItem("cursed_gold_nugget", CuredItem::new, defaultProperties());
 
     public static final Item ROYAL_STEEL_BLOCK = registerBlock(ModBlocks.ROYAL_STEEL_BLOCK, BlockItem::new, defaultProperties());
     public static final Item ROYAL_ANVIL = registerBlock(ModBlocks.ROYAL_ANVIL, BlockItem::new, defaultProperties());
@@ -125,6 +128,7 @@ public class ModItems {
     public static final Item CUT_ROYAL_STEEL_BLOCK = registerBlock(ModBlocks.CUT_ROYAL_STEEL_BLOCK, BlockItem::new, defaultProperties());
     public static final Item CUT_ROYAL_STEEL_SLAB = registerBlock(ModBlocks.CUT_ROYAL_STEEL_SLAB, BlockItem::new, defaultProperties());
     public static final Item CUT_ROYAL_STEEL_STAIRS = registerBlock(ModBlocks.CUT_ROYAL_STEEL_STAIRS, BlockItem::new, defaultProperties());
+    public static final Item CURSED_GOLD_BLOCK = registerBlock(ModBlocks.CURSED_GOLD_BLOCK, CuredBlockItem::new, defaultProperties());
 
     private static Item registerItem(String id, @NotNull Function<Item.Properties, Item> itemCreator, Item.Properties properties) {
         Item item = itemCreator.apply(properties);

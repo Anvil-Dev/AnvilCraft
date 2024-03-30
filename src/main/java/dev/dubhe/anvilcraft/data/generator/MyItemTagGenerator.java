@@ -57,6 +57,7 @@ public class MyItemTagGenerator extends FabricTagProvider<Item> {
                 .add(Items.DIAMOND_PICKAXE);
 
         this.getOrCreateTagBuilder(ItemTags.BEACON_PAYMENT_ITEMS).setReplace(false)
-                .add(ModItems.ROYAL_STEEL_INGOT);
+                .add(ModItems.ROYAL_STEEL_INGOT)
+                .add(ModItems.CURSED_GOLD_INGOT);
     }
 }

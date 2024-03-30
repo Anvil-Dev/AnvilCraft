@@ -38,6 +38,8 @@ public class ModItemGroups {
                 entries.accept(ModItems.ROYAL_STEEL_INGOT.getDefaultInstance());
                 entries.accept(ModItems.ROYAL_STEEL_NUGGET.getDefaultInstance());
                 entries.accept(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE.getDefaultInstance());
+                entries.accept(ModItems.CURSED_GOLD_INGOT.getDefaultInstance());
+                entries.accept(ModItems.CURSED_GOLD_NUGGET.getDefaultInstance());
                 entries.accept(ModItems.SPONGE_GEMMULE.getDefaultInstance());
                 entries.accept(ModItems.COCOA_LIQUOR.getDefaultInstance());
                 entries.accept(ModItems.COCOA_BUTTER.getDefaultInstance());
@@ -66,6 +68,7 @@ public class ModItemGroups {
                 entries.accept(ModItems.CUT_ROYAL_STEEL_BLOCK.getDefaultInstance());
                 entries.accept(ModItems.CUT_ROYAL_STEEL_SLAB.getDefaultInstance());
                 entries.accept(ModItems.CUT_ROYAL_STEEL_STAIRS.getDefaultInstance());
+                entries.accept(ModItems.CURSED_GOLD_BLOCK.getDefaultInstance());
             });
 
     private static CreativeModeTab.@NotNull Builder createItemGroup(String id, @NotNull Supplier<CreativeModeTab.Builder> itemGroupBuilder) {
