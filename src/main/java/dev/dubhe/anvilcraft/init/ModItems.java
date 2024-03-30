@@ -116,6 +116,7 @@ public class ModItems {
     public static final Item ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE = registerItem("royal_steel_upgrade_smithing_template", RoyalSteelUpgradeSmithingTemplateItem::new, defaultProperties());
     public static final Item ROYAL_STEEL_BLOCK = registerBlock(ModBlocks.ROYAL_STEEL_BLOCK, BlockItem::new, defaultProperties());
     public static final Item ROYAL_ANVIL = registerBlock(ModBlocks.ROYAL_ANVIL, BlockItem::new, defaultProperties());
+    public static final Item ROYAL_GRINDSTONE = registerBlock(ModBlocks.ROYAL_GRINDSTONE, BlockItem::new, defaultProperties());
 
     public static final Item SMOOTH_ROYAL_STEEL_BLOCK = registerBlock(ModBlocks.SMOOTH_ROYAL_STEEL_BLOCK, BlockItem::new, defaultProperties());
     public static final Item CUT_ROYAL_STEEL_BLOCK = registerBlock(ModBlocks.CUT_ROYAL_STEEL_BLOCK, BlockItem::new, defaultProperties());
