@@ -97,20 +97,11 @@ public abstract class BaseMachineBlockEntity extends RandomizableContainerBlockE
         this.items = itemStacks;
     }
 
-    protected boolean insertOrDropItem(Direction direction, Level level, @NotNull BlockPos pos, @NotNull Container container, int slot) {
-        return this.insertOrDropItem(direction, level, pos, container, slot, false);
-    }
-
-    @SuppressWarnings("SameParameterValue")
-    protected boolean insertOrDropItem(Direction direction, Level level, @NotNull BlockPos pos, @NotNull Container container, int slot, boolean drop) {
-        return this.insertOrDropItem(direction, level, pos, container, slot, drop, false);
-    }
-
     @SuppressWarnings("UnstableApiUsage")
-    protected boolean insertOrDropItem(Direction direction, Level level, @NotNull BlockPos pos, @NotNull Container container, int slot, boolean drop, boolean momentum) {
+    protected boolean insertOrDropItem(Direction direction, Level level, @NotNull BlockPos pos, @NotNull Container container, int slot, boolean drop, boolean momentum, boolean needEmpty) {
         ItemStack item = container.getItem(slot);
         BlockPos curPos = pos.relative(direction);
-        boolean flag;
+        boolean flag = false;
         if (canPlaceItem(level, curPos, item, direction)) {
             flag = this.insertItem(direction, level, curPos, container, slot);
             if (flag) return true;
@@ -119,7 +110,9 @@ public abstract class BaseMachineBlockEntity extends RandomizableContainerBlockE
             if (HopperBlockEntity.getContainerAt(level, curPos) != null) return false;
             if (ItemStorage.SIDED.find(level, curPos, direction.getOpposite()) != null) return false;
         }
-        flag = this.dropItem(direction, level, pos, container, slot, momentum);
+        if (!needEmpty || level.isEmptyBlock(curPos)) {
+            flag = this.dropItem(direction, level, pos, container, slot, momentum);
+        }
         return flag;
     }
 
