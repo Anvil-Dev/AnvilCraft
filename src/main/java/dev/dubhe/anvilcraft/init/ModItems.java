@@ -19,8 +19,6 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import static net.minecraft.tags.BlockTags.BEACON_BASE_BLOCKS;
-
 @SuppressWarnings("unused")
 public class ModItems {
     private static final Map<String, Item> ITEM_MAP = new HashMap<>();

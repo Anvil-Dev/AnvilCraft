@@ -217,8 +217,8 @@ public abstract class VanillaRecipesGenerator {
                 .unlockedBy(MyRecipesGenerator.hasItem(ModItems.ROYAL_STEEL_BLOCK), FabricRecipeProvider.has(ModItems.ROYAL_STEEL_BLOCK))
                 .save(exporter, AnvilCraft.of("craft/cut_royal_steel_block"));
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.CUT_ROYAL_STEEL_STAIRS, 4)
-                .pattern("  A")
-                .pattern(" AA")
+                .pattern("A  ")
+                .pattern("AA")
                 .pattern("AAA")
                 .define('A', ModItems.CUT_ROYAL_STEEL_BLOCK)
                 .unlockedBy(MyRecipesGenerator.hasItem(ModItems.CUT_ROYAL_STEEL_BLOCK), FabricRecipeProvider.has(ModItems.CUT_ROYAL_STEEL_BLOCK))
