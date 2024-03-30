@@ -50,6 +50,7 @@ public class MyBlockTagGenerator extends FabricTagProvider<Block> {
                 .add(ModBlocks.AUTO_CRAFTER)
                 .add(ModBlocks.CHUTE);
         this.getOrCreateTagBuilder(BlockTags.BEACON_BASE_BLOCKS).setReplace(false)
-                .add(ModBlocks.ROYAL_STEEL_BLOCK);
+                .add(ModBlocks.ROYAL_STEEL_BLOCK)
+                .add(ModBlocks.CURSED_GOLD_BLOCK);
     }
 }
