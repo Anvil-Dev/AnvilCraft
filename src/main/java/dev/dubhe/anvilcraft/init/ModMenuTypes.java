@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.init;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.inventory.AutoCrafterMenu;
 import dev.dubhe.anvilcraft.inventory.ChuteMenu;
+import dev.dubhe.anvilcraft.inventory.RoyalAnvilMenu;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.flag.FeatureFlags;
@@ -13,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 public class ModMenuTypes {
     public static final MenuType<AutoCrafterMenu> AUTO_CRAFTER = ModMenuTypes.register("auto_crafter", AutoCrafterMenu::new);
     public static final MenuType<ChuteMenu> CHUTE = ModMenuTypes.register("chute", ChuteMenu::new);
+    public static final MenuType<RoyalAnvilMenu> ROYAL_ANVIL = ModMenuTypes.register("royal_anvil", RoyalAnvilMenu::new);
 
     public static void register() {
     }

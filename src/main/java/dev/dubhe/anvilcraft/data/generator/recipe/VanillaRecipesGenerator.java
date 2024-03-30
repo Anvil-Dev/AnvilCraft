@@ -163,15 +163,6 @@ public abstract class VanillaRecipesGenerator {
                 .requires(ModItems.ROYAL_STEEL_BLOCK)
                 .unlockedBy(MyRecipesGenerator.hasItem(ModItems.ROYAL_STEEL_BLOCK), FabricRecipeProvider.has(ModItems.ROYAL_STEEL_BLOCK))
                 .save(exporter, AnvilCraft.of("craft/cut_royal_steel_slab_1"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.ROYAL_ANVIL)
-                .pattern("AAA")
-                .pattern(" B ")
-                .pattern("BBB")
-                .define('A', ModItems.ROYAL_STEEL_BLOCK)
-                .define('B', ModItems.ROYAL_STEEL_INGOT)
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.ROYAL_STEEL_BLOCK), FabricRecipeProvider.has(ModItems.ROYAL_STEEL_BLOCK))
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.ROYAL_STEEL_INGOT), FabricRecipeProvider.has(ModItems.ROYAL_STEEL_INGOT))
-                .save(exporter);
         ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, ModItems.CREAMY_BREAD_ROLL)
                 .requires(Items.BREAD)
                 .requires(ModItems.CREAM)
@@ -307,5 +298,8 @@ public abstract class VanillaRecipesGenerator {
         SmithingTransformRecipeBuilder.smithing(Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE), Ingredient.of(ModItemTags.ROYAL_STEEL_PICKAXE_BASE), Ingredient.of(ModItems.ROYAL_STEEL_INGOT), RecipeCategory.TOOLS, ModItems.ROYAL_STEEL_PICKAXE)
                 .unlocks("royal_steel_pickaxe", FabricRecipeProvider.has(ModItems.AMETHYST_PICKAXE))
                 .save(exporter, AnvilCraft.of("smithing/royal_steel_pickaxe"));
+        SmithingTransformRecipeBuilder.smithing(Ingredient.of(), Ingredient.of(Items.ANVIL), Ingredient.of(ModItems.ROYAL_STEEL_BLOCK), RecipeCategory.TOOLS, ModItems.ROYAL_ANVIL)
+                .unlocks(MyRecipesGenerator.hasItem(Items.ANVIL), FabricRecipeProvider.has(Items.ANVIL))
+                .save(exporter, AnvilCraft.of("smithing/royal_anvil"));
     }
 }

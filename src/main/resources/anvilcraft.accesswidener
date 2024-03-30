@@ -17,3 +17,6 @@ accessible field net/minecraft/world/item/crafting/Ingredient$TagValue tag Lnet/
 accessible field net/minecraft/world/item/crafting/Ingredient$ItemValue item Lnet/minecraft/world/item/ItemStack;
 accessible field net/minecraft/advancements/critereon/ItemPredicate count Lnet/minecraft/advancements/critereon/MinMaxBounds$Ints;
 accessible field net/minecraft/world/level/block/state/StateHolder PROPERTY_ENTRY_TO_STRING_FUNCTION Ljava/util/function/Function;
+accessible field net/minecraft/world/inventory/AnvilMenu cost Lnet/minecraft/world/inventory/DataSlot;
+accessible field net/minecraft/world/inventory/AnvilMenu itemName Ljava/lang/String;
+accessible field net/minecraft/world/inventory/AnvilMenu repairItemCountCost I
