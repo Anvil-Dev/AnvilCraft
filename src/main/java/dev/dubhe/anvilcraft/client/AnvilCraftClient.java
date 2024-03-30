@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client;
 
 import dev.dubhe.anvilcraft.api.network.Networking;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.AutoCrafterScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.inventory.RoyalGrindstoneScreen;
 import dev.dubhe.anvilcraft.client.init.ModNetworks;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
@@ -15,6 +16,7 @@ public class AnvilCraftClient implements ClientModInitializer {
     public void onInitializeClient() {
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.HOLLOW_MAGNET_BLOCK, RenderType.cutout());
         MenuScreens.register(ModMenuTypes.AUTO_CRAFTER, AutoCrafterScreen::new);
+        MenuScreens.register(ModMenuTypes.ROYAL_GRINDSTONE, RoyalGrindstoneScreen::new);
         ModNetworks.register();
         Networking.CLIENT.register();
     }
