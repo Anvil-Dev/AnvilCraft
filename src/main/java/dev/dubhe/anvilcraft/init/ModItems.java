@@ -119,7 +119,6 @@ public class ModItems {
     // 诅咒黄金系
     public static final Item CURSED_GOLD_INGOT = registerItem("cursed_gold_ingot", CuredItem::new, defaultProperties());
     public static final Item CURSED_GOLD_NUGGET = registerItem("cursed_gold_nugget", CuredItem::new, defaultProperties());
-    public static final Item CURSED_GOLD_INGOT = registerItem("cursed_gold_ingot", Item::new, defaultProperties());
 
     public static final Item ROYAL_STEEL_BLOCK = registerBlock(ModBlocks.ROYAL_STEEL_BLOCK, BlockItem::new, defaultProperties());
     public static final Item ROYAL_ANVIL = registerBlock(ModBlocks.ROYAL_ANVIL, BlockItem::new, defaultProperties());
