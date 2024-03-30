@@ -58,6 +58,7 @@ public class ModItemGroups {
                 entries.accept(ModItems.HOLLOW_MAGNET_BLOCK.getDefaultInstance());
                 entries.accept(ModItems.FERRITE_CORE_MAGNET_BLOCK.getDefaultInstance());
                 entries.accept(ModItems.AUTO_CRAFTER.getDefaultInstance());
+                entries.accept(ModItems.CHUTE.getDefaultInstance());
                 entries.accept(ModItems.ROYAL_STEEL_BLOCK.getDefaultInstance());
                 entries.accept(ModItems.SMOOTH_ROYAL_STEEL_BLOCK.getDefaultInstance());
                 entries.accept(ModItems.CUT_ROYAL_STEEL_BLOCK.getDefaultInstance());

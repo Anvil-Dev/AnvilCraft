@@ -16,6 +16,7 @@ import java.util.Optional;
 
 public class OutputDirectionButton extends Button {
     private Direction direction;
+    private final List<Direction> skip = new ArrayList<>();
     private static final ResourceLocation UP = AnvilCraft.of("textures/gui/container/button_u.png");
     private static final ResourceLocation DOWN = AnvilCraft.of("textures/gui/container/button_d.png");
     private static final ResourceLocation EAST = AnvilCraft.of("textures/gui/container/button_e.png");
@@ -27,6 +28,11 @@ public class OutputDirectionButton extends Button {
     public OutputDirectionButton(int x, int y, OnPress onPress, Direction direction) {
         super(x, y, 16, 16, defaultMessage, onPress, (var) -> defaultMessage);
         this.direction = direction;
+    }
+
+    public OutputDirectionButton skip(Direction direction) {
+        this.skip.add(direction);
+        return this;
     }
 
     @Override
@@ -69,7 +75,11 @@ public class OutputDirectionButton extends Button {
     }
 
     public Direction next() {
-        return switch (direction) {
+        return this.next(this.direction);
+    }
+
+    public Direction next(Direction direction) {
+        Direction direction1 = switch (direction) {
             case UP -> Direction.DOWN;
             case EAST -> Direction.WEST;
             case WEST -> Direction.SOUTH;
@@ -77,5 +87,6 @@ public class OutputDirectionButton extends Button {
             case NORTH -> Direction.UP;
             default -> Direction.EAST;
         };
+        return this.skip.contains(direction1) ? next(direction1) : direction1;
     }
 }

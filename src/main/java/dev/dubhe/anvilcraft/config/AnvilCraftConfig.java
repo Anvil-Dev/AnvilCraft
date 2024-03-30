@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.config;
 
 import com.google.gson.annotations.SerializedName;
 
+@SuppressWarnings("unused")
 public class AnvilCraftConfig {
     @SerializedName("// 铁砧同时处理的最大物品数量")
     public final String anvilEfficiencyNote = "";
@@ -27,4 +28,8 @@ public class AnvilCraftConfig {
     public final String redstoneEmpMaxRadiusNote = "";
     @SerializedName("redstone_emp_max_radius")
     public int redstoneEmpMaxRadius = 24;
+    @SerializedName("// 溜槽的最大冷却时间（单位: tick）")
+    public final String chuteMaxCooldownNote = "";
+    @SerializedName("chute_max_cooldown")
+    public int chuteMaxCooldown = 4;
 }
