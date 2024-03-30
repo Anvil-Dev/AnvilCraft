@@ -1,10 +1,7 @@
 package dev.dubhe.anvilcraft.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.inventory.AutoCrafterMenu;
-import dev.dubhe.anvilcraft.inventory.RoyalGrindstoneMenu;
-import dev.dubhe.anvilcraft.inventory.ChuteMenu;
-import dev.dubhe.anvilcraft.inventory.RoyalAnvilMenu;
+import dev.dubhe.anvilcraft.inventory.*;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.flag.FeatureFlags;
@@ -17,6 +14,7 @@ public class ModMenuTypes {
     public static final MenuType<RoyalGrindstoneMenu> ROYAL_GRINDSTONE = register("royal_grindstone", RoyalGrindstoneMenu::new);
     public static final MenuType<ChuteMenu> CHUTE = ModMenuTypes.register("chute", ChuteMenu::new);
     public static final MenuType<RoyalAnvilMenu> ROYAL_ANVIL = ModMenuTypes.register("royal_anvil", RoyalAnvilMenu::new);
+    public static final MenuType<RoyalSmithingMenu> ROYAL_SMITHING = ModMenuTypes.register("royal_smithing_table", RoyalSmithingMenu::new);
 
     public static void register() {
     }
