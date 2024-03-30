@@ -43,6 +43,15 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
     }
 
     @Override
+    public boolean canPlaceItem(int index, ItemStack stack) {
+        if (this.getDisabled().get(index)) return false;
+        ItemStack itemStack1 = this.items.get(index);
+        ItemStack itemStack2 = this.getFilter().get(index);
+        if (itemStack2.isEmpty() || ItemStack.isSameItemSameTags(itemStack1, itemStack2)) return true;
+        return super.canPlaceItem(index, stack);
+    }
+
+    @Override
     protected @NotNull Component getDefaultName() {
         return Component.translatable("block.anvilcraft.chute");
     }
@@ -56,9 +65,10 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
         if (!(e instanceof ChuteBlockEntity entity)) return;
         entity.cooldown -= 1;
         if (entity.cooldown < 0) entity.refreshCooldown();
-        if (level.getBlockState(pos).getValue(ChuteBlock.ENABLED)) return;
+        BlockState state = level.getBlockState(pos);
+        if (!state.getValue(ChuteBlock.ENABLED)) return;
         if (!entity.isOnCooldown()) {
-            ChuteBlockEntity.tryMoveItems(level, pos, level.getBlockState(pos), entity, () -> ChuteBlockEntity.suckInItems(level, entity));
+            ChuteBlockEntity.tryMoveItems(level, pos, state, entity, () -> ChuteBlockEntity.suckInItems(level, entity));
             entity.dropOrInsert(level, pos);
         }
     }
@@ -67,7 +77,7 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
         for (int i = this.items.size() - 1; i >= 0; i--) {
             ItemStack stack = this.items.get(i);
             if (stack.isEmpty()) continue;
-            if (this.insertOrDropItem(this.direction, level, pos, this, i)) return;
+            if (this.insertOrDropItem(this.direction, level, pos, this, i, false, false, true)) return;
         }
     }
 

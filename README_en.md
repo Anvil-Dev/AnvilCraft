@@ -27,77 +27,28 @@
 
 ## List of contributors:
 
-<div style="text-align: center">
-  <table style="display: inline">
-    <tr>
-      <td style="min-width: 100px"><img  height="100" width="100" src="https://avatars.githubusercontent.com/u/34372427?s=60&v=4" alt="古镇天Gugle"/></td>
-    </tr>
-    <tr>
-      <td><a href="https://space.bilibili.com/19822751">古镇天Gugle</a></td>
-    </tr>
-    <tr>
-      <td>💻</td>
-    </tr>
-  </table>
-  <table style="display: inline">
-    <tr>
-      <td style="min-width: 100px"><img  height="100" width="100" src="https://avatars.githubusercontent.com/u/45423407?s=60&v=4" alt="XeKr"/></td>
-    </tr>
-    <tr>
-      <td><a href="https://space.bilibili.com/5930630">XeKr</a></td>
-    </tr>
-    <tr>
-      <td>💡🎨</td>
-    </tr>
-  </table>
-  <table style="display: inline">
-    <tr>
-      <td style="min-width: 100px"><img  height="100" width="100" src="https://avatars.githubusercontent.com/u/46415647?v=4" alt="Cjsah"/></td>
-    </tr>
-    <tr>
-      <td><a href="https://space.bilibili.com/19170004">Cjsah</a></td>
-    </tr>
-    <tr>
-      <td>💻</td>
-    </tr>
-  </table>
-  <table style="display: inline">
-    <tr>
-      <td style="min-width: 100px"><img  height="100" width="100" src="https://avatars.githubusercontent.com/u/50520903?s=60&v=4" alt="Ph-苯"/></td>
-    </tr>
-    <tr>
-      <td><a href="https://space.bilibili.com/43760886">Ph-苯</a></td>
-    </tr>
-    <tr>
-      <td>💻</td>
-    </tr>
-  </table>
-  <table style="display: inline">
-    <tr>
-      <td style="min-width: 100px"><img  height="100" width="100" src="https://avatars.githubusercontent.com/u/104829942?s=60&v=4" alt="BOTXue"/></td>
-    </tr>
-    <tr>
-      <td><a href="https://space.bilibili.com/17486924">BOTXue</a></td>
-    </tr>
-    <tr>
-      <td>🌏</td>
-    </tr>
-  </table>
-  <table style="display: inline">
-    <tr>
-      <td style="min-width: 100px"><img  height="100" width="100" src="https://avatars.githubusercontent.com/u/80801884?s=60&v=4" alt="YocyCraft"/></td>
-    </tr>
-    <tr>
-      <td><a href="https://github.com/YocyCraft">YocyCraft</a></td>
-    </tr>
-    <tr>
-      <td>💻</td>
-    </tr>
-  </table>
-</div>
+<!--suppress HtmlDeprecatedAttribute -->
+<table>
+  <tr>
+    <td align="center"><a href="https://github.com/XeKr"><img src="https://avatars.githubusercontent.com/u/45423407?v=4?v=100&s=100" width="100px;" height="100px" alt=""/><br /><sub><b>XeKr</b></sub></a><br /><a title="Design">🎨</a> <a title="Ideas, Planning, & Feedback">🤔</a></td>
+    <td align="center"><a href="https://github.com/Gu-ZT"><img src="https://avatars.githubusercontent.com/u/34372427?v=100&s=100" width="100px" height="100px" alt=""/><br /><sub><b>Gugle</b></sub></a><br /><a title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/Phoupraw"><img src="https://avatars.githubusercontent.com/u/50520903?v=100&s=100" width="100px" height="100px" alt=""/><br /><sub><b>Phoupraw</b></sub></a><br /><a title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/dmzz-yyhyy"><img src="https://avatars.githubusercontent.com/u/101402767?v=100&s=100" width="100px" height="100px" alt=""/><br /><sub><b>NightFish</b></sub></a><br /><a title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/BOTXue"><img src="https://avatars.githubusercontent.com/u/104829942?v=100&s=100" width="100px" height="100px" alt=""/><br /><sub><b>BOTXue</b></sub></a><br /><a title="Translate">🌏</a></td>
+    <td align="center"><a href="https://github.com/YocyCraft"><img src="https://avatars.githubusercontent.com/u/80801884?v=100&s=100" width="100px" height="100px" alt=""/><br /><sub><b>YocyCraft</b></sub></a><br /><a title="Code">💻</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/Cjsah"><img src="https://avatars.githubusercontent.com/u/46415647?v=4?s=100" width="100px" height="100px" alt=""/><br /><sub><b>꧁[C̲̅j̲̅s̲̅a̲̅h̲̅]꧂</b></sub></a><br /><a title="Code">💻</a></td>
+  </tr>
+</table>
 
 ## Special thanks to:
 
 * Supporter:
-    * [塔壳take](https://space.bilibili.com/13029727)
-    * [GeT_RiGhT_D](https://space.bilibili.com/17486924)
+  <table>
+  <tr>
+    <td align="center"><a href="https://space.bilibili.com/13029727"><img src="https://i1.hdslb.com/bfs/face/c18a515409c357bea5de096f5af5eef3ffdc6f75.jpg" width="100px" height="100px" alt=""/><br /><sub><b>塔壳take</b></sub></a><br /><a title="Money">💵</a></td>
+    <td align="center"><a href="https://space.bilibili.com/17486924"><img src="https://i2.hdslb.com/bfs/face/cab0b2fc2af9f2156af1783de27d6636049cc2b9.jpg" width="100px" height="100px" alt=""/><br /><sub><b>BOTXue</b></sub></a><br /><a title="Money">💵</a></td>
+    <td align="center"><a href="https://space.bilibili.com/509257288"><img src="https://i1.hdslb.com/bfs/face/2489833c76a9888fb896459a2cf550747abbf2df.jpg" width="100px" height="100px" alt=""/><br /><sub><b>弭忧萌虾</b></sub></a><br /><a title="Money">💵</a></td>
+  </tr>
+  </table>
