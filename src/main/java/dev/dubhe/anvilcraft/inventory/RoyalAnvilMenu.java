@@ -104,34 +104,16 @@ public class RoyalAnvilMenu extends AnvilMenu {
                         continue;
                     }
                     bl22 = true;
-                    if (r > enchantment.getMaxLevel()) {
-                        r = enchantment.getMaxLevel();
-                    }
+                    if (r > enchantment.getMaxLevel()) r = enchantment.getMaxLevel();
                     map.put(enchantment, r);
-                    int s = 0;
-                    switch (enchantment.getRarity()) {
-                        case COMMON: {
-                            s = 1;
-                            break;
-                        }
-                        case UNCOMMON: {
-                            s = 2;
-                            break;
-                        }
-                        case RARE: {
-                            s = 4;
-                            break;
-                        }
-                        case VERY_RARE: {
-                            s = 8;
-                        }
-                    }
-                    if (bl) {
-                        s = Math.max(1, s / 2);
-                    }
+                    int s = switch (enchantment.getRarity()) {
+                        case COMMON -> 1;
+                        case UNCOMMON -> 2;
+                        case RARE -> 4;
+                        case VERY_RARE -> 8;
+                    };
+                    if (bl) s = Math.max(1, s / 2);
                     i += s * r;
-                    if (itemStack.getCount() <= 1) continue;
-                    i = 40;
                 }
                 if (bl3 && !bl22) {
                     this.resultSlots.setItem(0, ItemStack.EMPTY);
@@ -151,13 +133,9 @@ public class RoyalAnvilMenu extends AnvilMenu {
             i += k;
             itemStack2.setHoverName(Component.literal(this.itemName));
         }
-        this.cost.set(j + i);
-        if (i <= 0) {
-            itemStack2 = ItemStack.EMPTY;
-        }
-        if (k == i && k > 0 && this.cost.get() >= 40) {
-            this.cost.set(39);
-        }
+        int count = itemStack.getCount();
+        this.cost.set(j + i * (int) Math.pow(count, 2));
+        if (i <= 0) itemStack2 = ItemStack.EMPTY;
         if (!itemStack2.isEmpty()) {
             int t = itemStack2.getBaseRepairCost();
             if (!itemStack3.isEmpty() && t < itemStack3.getBaseRepairCost()) {
