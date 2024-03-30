@@ -1,6 +1,6 @@
 {
 	"credit": "Made by XeKr with Blockbench",
-	"parent": "block/block",
+	"parent": "minecraft:block/block",
 	"textures": {
 		"pivot": "anvilcraft:block/royal_grindstone_pivot",
 		"round": "anvilcraft:block/royal_grindstone_round",

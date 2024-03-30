@@ -16,10 +16,7 @@
   "item.anvilcraft.royal_steel_ingot": "皇家钢锭",
   "item.anvilcraft.royal_steel_nugget": "皇家钢粒",
   "item.anvilcraft.royal_steel_pickaxe": "皇家钢镐",
-  "item.anvilcraft.royal_steel_upgrade_smithing_template": "锻造模板-皇家升级",
-  "item.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.applies_to": "紫水晶镐 金稿 铁镐 钻石镐",
-  "item.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.base_slot_description": "放入镐子",
-  "item.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.additions_slot_description": "放入皇家钢锭",
+  "item.anvilcraft.cursed_gold_ingot": "诅咒金锭",
   "item.anvilcraft.magnet": "手持磁铁",
   "item.anvilcraft.cream": "奶油",
   "item.anvilcraft.flour": "面粉",
@@ -46,6 +43,7 @@
   "item.anvilcraft.pulp": "纸浆",
   "block.anvilcraft.stamping_platform": "冲压平台",
   "block.anvilcraft.royal_anvil": "皇家铁砧",
+  "block.anvilcraft.royal_grindstone": "皇家砂轮",
   "block.anvilcraft.magnet_block": "磁铁块",
   "block.anvilcraft.hollow_magnet_block": "空心磁铁块",
   "block.anvilcraft.ferrite_core_magnet_block": "铁芯磁铁块",
@@ -68,5 +66,12 @@
   "screen.anvilcraft.button.record": "保留物品过滤：%s",
   "screen.anvilcraft.button.record.tooltip": "开启后，合成器必须填满全部格子（包括盖上盖板）才能开始合成",
   "screen.anvilcraft.button.off": "关",
-  "screen.anvilcraft.button.on": "开"
+  "screen.anvilcraft.button.on": "开",
+  "screen.anvilcraft.royal_steel_upgrade_smithing_template": "锻造模板-皇家升级",
+  "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.applies_to": "紫水晶镐 金稿 铁镐 钻石镐",
+  "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.base_slot_description": "放入镐子",
+  "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.additions_slot_description": "放入皇家钢锭",
+  "screen.anvilcraft.royal_grindstone.title": "祛除诅咒和附魔惩罚",
+  "screen.anvilcraft.royal_grindstone.remove_curse_number": "移除%i个诅咒",
+  "screen.anvilcraft.royal_grindstone.remove_repair_cost": "移除%i级惩罚"
 }
