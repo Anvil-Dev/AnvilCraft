@@ -1,9 +1,9 @@
 package dev.dubhe.anvilcraft.network;
 
 import dev.dubhe.anvilcraft.api.network.Packet;
-import dev.dubhe.anvilcraft.client.gui.screen.inventory.AutoCrafterScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.inventory.IFilterScreen;
 import dev.dubhe.anvilcraft.init.ModNetworks;
-import dev.dubhe.anvilcraft.inventory.AutoCrafterMenu;
+import dev.dubhe.anvilcraft.inventory.IFilterMenu;
 import lombok.Getter;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -46,7 +46,7 @@ public class SlotDisableChangePack implements Packet {
     public void receive(@NotNull MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, PacketSender sender) {
         server.execute(() -> {
             if (!player.hasContainerOpen()) return;
-            if (!(player.containerMenu instanceof AutoCrafterMenu menu)) return;
+            if (!(player.containerMenu instanceof IFilterMenu menu)) return;
             menu.setSlotDisabled(this.index, this.state);
             this.send(player);
         });
@@ -56,7 +56,7 @@ public class SlotDisableChangePack implements Packet {
     @Environment(EnvType.CLIENT)
     public void receive(@NotNull Minecraft client, ClientPacketListener handler, PacketSender responseSender) {
         client.execute(() -> {
-            if (!(client.screen instanceof AutoCrafterScreen screen)) return;
+            if (!(client.screen instanceof IFilterScreen screen)) return;
             screen.changeSlotDisable(this.index, this.state);
         });
     }

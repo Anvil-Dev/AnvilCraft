@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.client.gui.component;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -18,6 +19,7 @@ import java.util.Optional;
 @Getter
 public class RecordMaterialButton extends Button {
     private boolean record;
+    private boolean showTip = false;
     private static final ResourceLocation YES = AnvilCraft.of("textures/gui/container/button_yes.png");
     private static final ResourceLocation NO = AnvilCraft.of("textures/gui/container/button_no.png");
     private static final MutableComponent defaultMessage = Component.translatable("screen.anvilcraft.button.record", Component.translatable("screen.anvilcraft.button.off"));
@@ -27,13 +29,20 @@ public class RecordMaterialButton extends Button {
         this.record = record;
     }
 
+    public RecordMaterialButton showTip() {
+        this.showTip = true;
+        return this;
+    }
+
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         if (this.isHovered()) {
             List<Component> components = new ArrayList<>() {{
                 this.add(getMessage());
-                this.add(Component.translatable("screen.anvilcraft.button.record.tooltip").withStyle(ChatFormatting.GRAY));
+                if (showTip) {
+                    this.add(Component.translatable("screen.anvilcraft.button.record.tooltip").withStyle(ChatFormatting.GRAY));
+                }
             }};
             guiGraphics.renderTooltip(Minecraft.getInstance().font, components, Optional.empty(), mouseX, mouseY);
         }

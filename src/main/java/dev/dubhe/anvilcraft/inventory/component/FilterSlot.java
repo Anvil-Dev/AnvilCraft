@@ -1,14 +1,14 @@
 package dev.dubhe.anvilcraft.inventory.component;
 
-import dev.dubhe.anvilcraft.inventory.AutoCrafterMenu;
+import dev.dubhe.anvilcraft.inventory.IFilterMenu;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-public class AutoCrafterSlot extends Slot {
-    AutoCrafterMenu menu;
+public class FilterSlot extends Slot {
+    IFilterMenu menu;
 
-    public AutoCrafterSlot(Container container, int slot, int x, int y, AutoCrafterMenu menu) {
+    public FilterSlot(Container container, int slot, int x, int y, IFilterMenu menu) {
         super(container, slot, x, y);
         this.menu = menu;
     }

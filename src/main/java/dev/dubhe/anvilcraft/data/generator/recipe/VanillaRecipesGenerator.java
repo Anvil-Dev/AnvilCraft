@@ -239,6 +239,15 @@ public abstract class VanillaRecipesGenerator {
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.CRAFTING_TABLE), FabricRecipeProvider.has(Items.CRAFTING_TABLE))
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.DROPPER), FabricRecipeProvider.has(Items.DROPPER))
                 .save(exporter);
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.CHUTE)
+                .pattern("A A")
+                .pattern("ABA")
+                .pattern(" A ")
+                .define('A', Items.IRON_INGOT)
+                .define('B', Items.DROPPER)
+                .unlockedBy(MyRecipesGenerator.hasItem(Items.IRON_INGOT), FabricRecipeProvider.has(Items.IRON_INGOT))
+                .unlockedBy(MyRecipesGenerator.hasItem(Items.DROPPER), FabricRecipeProvider.has(Items.DROPPER))
+                .save(exporter);
         ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, Items.CHIPPED_ANVIL)
                 .pattern("AAB")
                 .pattern(" B ")

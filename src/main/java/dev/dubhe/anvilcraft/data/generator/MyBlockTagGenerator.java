@@ -39,6 +39,7 @@ public class MyBlockTagGenerator extends FabricTagProvider<Block> {
                 .add(ModBlocks.HOLLOW_MAGNET_BLOCK)
                 .add(ModBlocks.FERRITE_CORE_MAGNET_BLOCK)
                 .add(ModBlocks.AUTO_CRAFTER)
+                .add(ModBlocks.CHUTE)
                 .add(ModBlocks.ROYAL_STEEL_BLOCK)
                 .add(ModBlocks.SMOOTH_ROYAL_STEEL_BLOCK)
                 .add(ModBlocks.CUT_ROYAL_STEEL_BLOCK)
@@ -46,6 +47,7 @@ public class MyBlockTagGenerator extends FabricTagProvider<Block> {
                 .add(ModBlocks.CUT_ROYAL_STEEL_STAIRS)
                 .add(ModBlocks.LAVA_CAULDRON);
         this.getOrCreateTagBuilder(BlockTags.MINEABLE_WITH_AXE).setReplace(false)
-                .add(ModBlocks.AUTO_CRAFTER);
+                .add(ModBlocks.AUTO_CRAFTER)
+                .add(ModBlocks.CHUTE);
     }
 }

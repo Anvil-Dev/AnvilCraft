@@ -108,6 +108,7 @@ public class ModItems {
     public static final Item HOLLOW_MAGNET_BLOCK = registerBlock(ModBlocks.HOLLOW_MAGNET_BLOCK, BlockItem::new, defaultProperties());
     public static final Item FERRITE_CORE_MAGNET_BLOCK = registerBlock(ModBlocks.FERRITE_CORE_MAGNET_BLOCK, BlockItem::new, defaultProperties());
     public static final Item AUTO_CRAFTER = registerBlock(ModBlocks.AUTO_CRAFTER, BlockItem::new, defaultProperties());
+    public static final Item CHUTE = registerBlock(ModBlocks.CHUTE, BlockItem::new, defaultProperties());
     public static final Item ROYAL_STEEL_BLOCK = registerBlock(ModBlocks.ROYAL_STEEL_BLOCK, BlockItem::new, defaultProperties());
     public static final Item SMOOTH_ROYAL_STEEL_BLOCK = registerBlock(ModBlocks.SMOOTH_ROYAL_STEEL_BLOCK, BlockItem::new, defaultProperties());
     public static final Item CUT_ROYAL_STEEL_BLOCK = registerBlock(ModBlocks.CUT_ROYAL_STEEL_BLOCK, BlockItem::new, defaultProperties());
