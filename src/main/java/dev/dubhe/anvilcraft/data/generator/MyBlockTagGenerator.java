@@ -43,6 +43,8 @@ public class MyBlockTagGenerator extends FabricTagProvider<Block> {
                 .add(ModBlocks.AUTO_CRAFTER)
                 .add(ModBlocks.CHUTE)
                 .add(ModBlocks.ROYAL_STEEL_BLOCK)
+                .add(ModBlocks.ROYAL_GRINDSTONE)
+                .add(ModBlocks.ROYAL_SMITHING_TABLE)
                 .add(ModBlocks.SMOOTH_ROYAL_STEEL_BLOCK)
                 .add(ModBlocks.CUT_ROYAL_STEEL_BLOCK)
                 .add(ModBlocks.CUT_ROYAL_STEEL_SLAB)

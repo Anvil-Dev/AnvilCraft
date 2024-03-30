@@ -296,13 +296,19 @@ public abstract class VanillaRecipesGenerator {
         VanillaRecipeProvider.stonecutterResultFromBase(exporter, RecipeCategory.BUILDING_BLOCKS, ModBlocks.SMOOTH_ROYAL_STEEL_BLOCK, ModBlocks.ROYAL_STEEL_BLOCK, 4);
         // 锻造台配方
         SmithingTransformRecipeBuilder.smithing(Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE), Ingredient.of(ModItemTags.ROYAL_STEEL_PICKAXE_BASE), Ingredient.of(ModItems.ROYAL_STEEL_INGOT), RecipeCategory.TOOLS, ModItems.ROYAL_STEEL_PICKAXE)
-                .unlocks("royal_steel_pickaxe", FabricRecipeProvider.has(ModItems.AMETHYST_PICKAXE))
+                .unlocks(MyRecipesGenerator.hasItem(ModItems.AMETHYST_PICKAXE), FabricRecipeProvider.has(ModItems.AMETHYST_PICKAXE))
                 .save(exporter, AnvilCraft.of("smithing/royal_steel_pickaxe"));
         SmithingTransformRecipeBuilder.smithing(Ingredient.of(), Ingredient.of(Items.GRINDSTONE), Ingredient.of(ModItems.ROYAL_STEEL_BLOCK), RecipeCategory.TOOLS, ModItems.ROYAL_GRINDSTONE)
-                .unlocks("royal_steel_pickaxe", FabricRecipeProvider.has(ModItems.ROYAL_STEEL_BLOCK))
+                .unlocks(MyRecipesGenerator.hasItem(ModItems.ROYAL_STEEL_BLOCK), FabricRecipeProvider.has(ModItems.ROYAL_STEEL_BLOCK))
+                .unlocks(MyRecipesGenerator.hasItem(Items.GRINDSTONE), FabricRecipeProvider.has(Items.GRINDSTONE))
                 .save(exporter, AnvilCraft.of("smithing/royal_grindstone"));
         SmithingTransformRecipeBuilder.smithing(Ingredient.of(), Ingredient.of(Items.ANVIL), Ingredient.of(ModItems.ROYAL_STEEL_BLOCK), RecipeCategory.TOOLS, ModItems.ROYAL_ANVIL)
+                .unlocks(MyRecipesGenerator.hasItem(ModItems.ROYAL_STEEL_BLOCK), FabricRecipeProvider.has(ModItems.ROYAL_STEEL_BLOCK))
                 .unlocks(MyRecipesGenerator.hasItem(Items.ANVIL), FabricRecipeProvider.has(Items.ANVIL))
                 .save(exporter, AnvilCraft.of("smithing/royal_anvil"));
+        SmithingTransformRecipeBuilder.smithing(Ingredient.of(), Ingredient.of(Items.SMITHING_TABLE), Ingredient.of(ModItems.ROYAL_STEEL_BLOCK), RecipeCategory.TOOLS, ModItems.ROYAL_SMITHING_TABLE)
+                .unlocks(MyRecipesGenerator.hasItem(ModItems.ROYAL_STEEL_BLOCK), FabricRecipeProvider.has(ModItems.ROYAL_STEEL_BLOCK))
+                .unlocks(MyRecipesGenerator.hasItem(Items.SMITHING_TABLE), FabricRecipeProvider.has(Items.SMITHING_TABLE))
+                .save(exporter, AnvilCraft.of("smithing/royal_smithing_table"));
     }
 }
