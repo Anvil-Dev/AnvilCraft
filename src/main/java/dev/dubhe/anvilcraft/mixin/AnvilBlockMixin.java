@@ -23,7 +23,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import static dev.dubhe.anvilcraft.block.MagnetBlock.LIT;
 
 @Mixin(AnvilBlock.class)
-public abstract class AnvilBlockMixin extends FallingBlock {
+abstract class AnvilBlockMixin extends FallingBlock {
     public AnvilBlockMixin(Properties properties) {
         super(properties);
     }

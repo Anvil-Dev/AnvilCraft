@@ -24,12 +24,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.List;
 
 @Mixin(targets = "net/minecraft/core/dispenser/DispenseItemBehavior$17")
-public abstract class DispenseItemEmptyBucketBehaviorMixin extends DefaultDispenseItemBehavior {
+abstract class DispenseItemEmptyBucketBehaviorMixin extends DefaultDispenseItemBehavior {
     @Unique
     private final DefaultDispenseItemBehavior defaultDispenseItemBehavior = new DefaultDispenseItemBehavior();
 
     @Inject(method = "execute(Lnet/minecraft/core/BlockSource;Lnet/minecraft/world/item/ItemStack;)Lnet/minecraft/world/item/ItemStack;", at = @At(value = "INVOKE", target = "Lnet/minecraft/core/dispenser/DefaultDispenseItemBehavior;execute(Lnet/minecraft/core/BlockSource;Lnet/minecraft/world/item/ItemStack;)Lnet/minecraft/world/item/ItemStack;", ordinal = 1), cancellable = true)
-    public void takeLiquidFromCauldron(@NotNull BlockSource source, ItemStack stack, CallbackInfoReturnable<ItemStack> cir) {
+    public void takeMilkFromCow(@NotNull BlockSource source, ItemStack stack, CallbackInfoReturnable<ItemStack> cir) {
         BlockPos blockPos = source.getPos().relative(source.getBlockState().getValue(DispenserBlock.FACING));
         ServerLevel level = source.getLevel();
         ServerLevel levelAccessor = source.getLevel();

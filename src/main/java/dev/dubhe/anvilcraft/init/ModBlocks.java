@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.block.*;
 import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
+import dev.dubhe.anvilcraft.block.*;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.*;

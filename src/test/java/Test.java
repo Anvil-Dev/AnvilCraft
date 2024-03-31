@@ -1,4 +1,3 @@
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.util.HashMap;

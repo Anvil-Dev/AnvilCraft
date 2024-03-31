@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(AxeItem.class)
-public class AxeItemMixin {
+abstract class AxeItemMixin {
     @Inject(method = "useOn", at = @At(value = "INVOKE", ordinal = 0, target = "Lnet/minecraft/world/level/Level;playSound(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/core/BlockPos;Lnet/minecraft/sounds/SoundEvent;Lnet/minecraft/sounds/SoundSource;FF)V"))
     private void useOn(@NotNull UseOnContext context, CallbackInfoReturnable<InteractionResult> cir) {
         if (context.getPlayer() == null || context.getPlayer().isCreative()) return;

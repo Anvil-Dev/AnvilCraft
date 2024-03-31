@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(targets = "net/minecraft/core/dispenser/DispenseItemBehavior$24")
-public abstract class DispenseItemEmptyBottleBehaviorMixin extends OptionalDispenseItemBehavior {
+abstract class DispenseItemEmptyBottleBehaviorMixin extends OptionalDispenseItemBehavior {
     @Shadow
     protected abstract ItemStack takeLiquid(BlockSource source, ItemStack empty, ItemStack filled);
 
