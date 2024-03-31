@@ -18,6 +18,7 @@ import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.BiFunction;
@@ -32,8 +33,7 @@ public interface IFilterScreen {
     RecordMaterialButton getRecordButton();
 
     ItemStack getCarried();
-
-    Slot getHoveredSlot();
+    @Nullable Slot getHoveredSlot();
 
     Font getFont();
 

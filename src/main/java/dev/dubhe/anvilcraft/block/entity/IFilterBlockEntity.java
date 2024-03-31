@@ -9,6 +9,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
 public interface IFilterBlockEntity extends Container {
     boolean isRecord();
@@ -23,14 +24,12 @@ public interface IFilterBlockEntity extends Container {
     }
 
     NonNullList<Boolean> getDisabled();
-
-    NonNullList<ItemStack> getFilter();
+    NonNullList<@Unmodifiable ItemStack> getFilter();
 
     default NonNullList<Boolean> getNewDisabled() {
         return NonNullList.withSize(this.getContainerSize(), false);
     }
-
-    default NonNullList<ItemStack> getNewFilter() {
+    default NonNullList<@Unmodifiable ItemStack> getNewFilter() {
         return NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
     }
 

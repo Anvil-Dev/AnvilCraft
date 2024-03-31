@@ -24,9 +24,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Optional;
-import java.util.Stack;
 
 @SuppressWarnings("NullableProblems")
 public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements CraftingContainer, IFilterBlockEntity {
@@ -36,8 +38,8 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
     @Getter
     private final NonNullList<Boolean> disabled = this.getNewDisabled();
     @Getter
-    private final NonNullList<ItemStack> filter = this.getNewFilter();
-    private final Stack<CraftingRecipe> cache = new Stack<>();
+    private final NonNullList<@Unmodifiable ItemStack> filter = this.getNewFilter();
+    private final Deque<CraftingRecipe> cache = new ArrayDeque<>();
 
     public AutoCrafterBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.AUTO_CRAFTER, pos, blockState, 9);
@@ -104,7 +106,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
 
     @Override
     protected @NotNull AbstractContainerMenu createMenu(int containerId, Inventory inventory) {
-        return new AutoCrafterMenu(containerId, inventory, this);
+        return AutoCrafterMenu.serverOf(containerId, inventory, this);
     }
 
     @Override
@@ -120,24 +122,24 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
     }
 
     @Override
-    public boolean canPlaceItem(int index, ItemStack itemStack) {
+    public boolean canPlaceItem(int index, ItemStack insertingStack) {
         if (this.getDisabled().get(index)) return false;
-        ItemStack itemStack1 = this.items.get(index);
-        ItemStack itemStack2 = this.getFilter().get(index);
-        int j = itemStack1.getCount();
-        if (j >= itemStack1.getMaxStackSize()) {
+        ItemStack storedStack = this.items.get(index);
+        ItemStack filterStack = this.getFilter().get(index);
+        if (isRecord() && filterStack.isEmpty()) return insertingStack.isEmpty();
+        int count = storedStack.getCount();
+        if (count >= storedStack.getMaxStackSize()) {
             return false;
         }
-        if (itemStack1.isEmpty()) {
-            return itemStack2.isEmpty() || ItemStack.isSameItemSameTags(itemStack, itemStack2);
+        if (storedStack.isEmpty()) {
+            return filterStack.isEmpty() || ItemStack.isSameItemSameTags(insertingStack, filterStack);
         }
-        return !this.smallerStackExist(j, itemStack1, index);
+        return !this.smallerStackExist(count, storedStack, index);
     }
-
-    private boolean smallerStackExist(int i, ItemStack itemStack, int j) {
-        for (int k = j + 1; k < 9; ++k) {
+    private boolean smallerStackExist(int count, ItemStack itemStack, int index) {
+        for (int index2 = index + 1; index2 < 9; ++index2) {
             ItemStack itemStack1;
-            if (this.getDisabled().get(k) || !(itemStack1 = this.getItem(k)).isEmpty() && (itemStack1.getCount() >= i || !ItemStack.isSameItemSameTags(itemStack1, itemStack)))
+            if (this.getDisabled().get(index2) || isRecord() && getFilter().get(index2).isEmpty() || !(itemStack1 = this.getItem(index2)).isEmpty() && (itemStack1.getCount() >= count || !ItemStack.isSameItemSameTags(itemStack1, itemStack)))
                 continue;
             return true;
         }
