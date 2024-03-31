@@ -23,7 +23,7 @@ import static net.minecraft.world.item.ItemStack.TAG_ENCH;
 
 @Mixin(ItemStack.class)
 @SuppressWarnings("AddedMixinMembersNamePattern")
-public abstract class ItemStackInjector implements IItemStackInjector {
+abstract class ItemStackInjector implements IItemStackInjector {
     @Shadow
     public abstract int getDamageValue();
 

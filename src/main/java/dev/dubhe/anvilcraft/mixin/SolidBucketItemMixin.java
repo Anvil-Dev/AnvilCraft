@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(SolidBucketItem.class)
-public class SolidBucketItemMixin {
+abstract class SolidBucketItemMixin {
     @Shadow
     @Final
     private SoundEvent placeSound;

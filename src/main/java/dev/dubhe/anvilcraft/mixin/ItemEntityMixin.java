@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(ItemEntity.class)
-public abstract class ItemEntityMixin extends Entity {
+abstract class ItemEntityMixin extends Entity {
     public ItemEntityMixin(EntityType<?> entityType, Level level) {
         super(entityType, level);
     }

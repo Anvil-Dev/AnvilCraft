@@ -38,8 +38,8 @@ import java.util.stream.Stream;
 public class ChuteBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING = BlockStateProperties.FACING_HOPPER;
     public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
-    VoxelShape AABB = Shapes.join(Block.box(2, 0, 2, 14, 12, 14), Block.box(0, 12, 0, 16, 16, 16), BooleanOp.OR);
-    VoxelShape AABB_W = Stream.of(
+    public static final VoxelShape AABB = Shapes.join(Block.box(2, 0, 2, 14, 12, 14), Block.box(0, 12, 0, 16, 16, 16), BooleanOp.OR);
+    public static final VoxelShape AABB_W = Stream.of(
             Block.box(0, 12, 0, 16, 16, 16),
             Block.box(2, 8, 2, 14, 12, 14),
             Block.box(0, 2, 3, 9, 12, 13),
@@ -49,7 +49,7 @@ public class ChuteBlock extends BaseEntityBlock {
             Block.box(12, 6, 3, 13, 8, 13),
             Block.box(13, 7, 3, 14, 8, 13)
     ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
-    VoxelShape AABB_E = Stream.of(
+    public static final VoxelShape AABB_E = Stream.of(
             Block.box(0, 12, 0, 16, 16, 16),
             Block.box(2, 8, 2, 14, 12, 14),
             Block.box(7, 2, 3, 16, 12, 13),
@@ -59,7 +59,7 @@ public class ChuteBlock extends BaseEntityBlock {
             Block.box(3, 6, 3, 4, 8, 13),
             Block.box(2, 7, 3, 3, 8, 13)
     ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
-    VoxelShape AABB_S = Stream.of(
+    public static final VoxelShape AABB_S = Stream.of(
             Block.box(0, 12, 0, 16, 16, 16),
             Block.box(2, 8, 2, 14, 12, 14),
             Block.box(3, 2, 7, 13, 12, 16),
@@ -69,7 +69,7 @@ public class ChuteBlock extends BaseEntityBlock {
             Block.box(3, 6, 3, 13, 8, 4),
             Block.box(3, 7, 2, 13, 8, 3)
     ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
-    VoxelShape AABB_N = Stream.of(
+    public static final VoxelShape AABB_N = Stream.of(
             Block.box(0, 12, 0, 16, 16, 16),
             Block.box(2, 8, 2, 14, 12, 14),
             Block.box(3, 2, 0, 13, 12, 9),

@@ -17,8 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(targets = "net/minecraft/core/dispenser/DispenseItemBehavior$27")
-public abstract class DispenseItemWaterBottleBehaviorMixin extends DefaultDispenseItemBehavior {
-
+abstract class DispenseItemWaterBottleBehaviorMixin extends DefaultDispenseItemBehavior {
     @Inject(method = "execute(Lnet/minecraft/core/BlockSource;Lnet/minecraft/world/item/ItemStack;)Lnet/minecraft/world/item/ItemStack;", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;getBlockState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;"), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
     public void takeLiquidFromCauldron(BlockSource source, ItemStack stack, CallbackInfoReturnable<ItemStack> cir, @NotNull ServerLevel serverLevel, BlockPos blockPos, BlockPos blockPos2) {
         BlockState state = serverLevel.getBlockState(blockPos2);

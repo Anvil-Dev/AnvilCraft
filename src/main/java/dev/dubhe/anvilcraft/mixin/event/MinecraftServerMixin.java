@@ -34,7 +34,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.BooleanSupplier;
 
 @Mixin(value = MinecraftServer.class)
-public abstract class MinecraftServerMixin {
+abstract class MinecraftServerMixin {
     @Shadow
     private MinecraftServer.ReloadableResources resources;
 
