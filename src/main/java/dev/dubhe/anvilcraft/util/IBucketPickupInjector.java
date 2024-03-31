@@ -19,7 +19,6 @@ import java.util.Optional;
 public interface IBucketPickupInjector extends BucketPickup {
     @Override
     default @NotNull ItemStack pickupBlock(LevelAccessor level, BlockPos pos, @NotNull BlockState state) {
-        System.out.println(state);
         if (state.is(Blocks.LAVA_CAULDRON)) {
             level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
             return Items.LAVA_BUCKET.getDefaultInstance();
