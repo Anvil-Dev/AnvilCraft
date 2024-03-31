@@ -143,9 +143,15 @@ public abstract class AutoCrafterMenu extends BaseMachineMenu implements IFilter
             super.setRecord(record);
             if (record) {
                 for (int i = 0; i < getBlockEntity().getFilter().size(); i++) {
-                    if (getSlot(i).getItem().isEmpty()) {
+                    ItemStack slotStack = getSlot(i).getItem();
+                    if (slotStack.isEmpty()) {
                         getBlockEntity().getDisabled().set(i, true);
                         new SlotDisableChangePack(i, true).send(getPlayer());
+                        getBlockEntity().setChanged();
+                    } else {
+                        getBlockEntity().getFilter().set(i, slotStack.copy());
+                        new SlotFilterChangePack(i, slotStack).send(getPlayer());
+                        getBlockEntity().setChanged();
                     }
                 }
             }

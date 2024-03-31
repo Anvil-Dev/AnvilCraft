@@ -78,7 +78,7 @@ public interface IFilterScreen {
             if (index >= 9) break logic;
             ItemStack itemStack = this.getFilter().get(index);
             if (itemStack.isEmpty()) {
-                if (getDisabled().get(index)) {
+                if (isRecord() && getDisabled().get(index)) {
                     guiGraphics.renderTooltip(getFont(), List.of(Component.translatable("screen.anvilcraft.button.record.tooltip")), Optional.empty(), x, y);
                 }
             } else {
