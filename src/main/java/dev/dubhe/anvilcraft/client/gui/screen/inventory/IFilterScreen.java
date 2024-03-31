@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BiFunction;
 
 public interface IFilterScreen {
@@ -76,8 +77,13 @@ public interface IFilterScreen {
             int index = this.getHoveredSlot().index;
             if (index >= 9) break logic;
             ItemStack itemStack = this.getFilter().get(index);
-            if (itemStack.isEmpty()) break logic;
-            guiGraphics.renderTooltip(this.getFont(), this.getTooltipFromContainerItem(itemStack), itemStack.getTooltipImage(), x, y);
+            if (itemStack.isEmpty()) {
+                if (getDisabled().get(index)) {
+                    guiGraphics.renderTooltip(getFont(), List.of(Component.translatable("screen.anvilcraft.button.record.tooltip")), Optional.empty(), x, y);
+                }
+            } else {
+                guiGraphics.renderTooltip(this.getFont(), this.getTooltipFromContainerItem(itemStack), itemStack.getTooltipImage(), x, y);
+            }
         }
     }
 

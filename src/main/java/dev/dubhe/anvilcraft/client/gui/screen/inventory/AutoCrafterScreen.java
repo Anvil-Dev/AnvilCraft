@@ -36,7 +36,7 @@ public class AutoCrafterScreen extends BaseMachineScreen<AutoCrafterMenu> implem
     @Override
     protected void init() {
         super.init();
-        this.recordButton = materialButtonSupplier.apply(this.leftPos, this.topPos).showTip();
+        this.recordButton = materialButtonSupplier.apply(this.leftPos, this.topPos);
         this.addRenderableWidget(recordButton);
     }
 

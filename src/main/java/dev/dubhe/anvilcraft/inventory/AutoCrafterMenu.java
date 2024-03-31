@@ -113,12 +113,16 @@ public abstract class AutoCrafterMenu extends BaseMachineMenu implements IFilter
                     if (getBlockEntity().isRecord() && getCarried().isEmpty() && !filters.get(slotId).isEmpty() && slotStack.isEmpty()) {
                         filters.set(slotId, ItemStack.EMPTY);
                         new SlotFilterChangePack(slotId, ItemStack.EMPTY).send(player);
+                        getBlockEntity().getDisabled().set(slotId, true);
+                        new SlotDisableChangePack(slotId, true).send(player);
                         getBlockEntity().setChanged();
                     } else if (slotStack.isEmpty() && getCarried().isEmpty()) {
                         boolean newDisabled = !disableds.get(slotId);
-                        disableds.set(slotId, newDisabled);
-                        new SlotDisableChangePack(slotId, newDisabled).send(player);
-                        getBlockEntity().setChanged();
+                        if (newDisabled || !getBlockEntity().isRecord()) {
+                            disableds.set(slotId, newDisabled);
+                            new SlotDisableChangePack(slotId, newDisabled).send(player);
+                            getBlockEntity().setChanged();
+                        }
                     } else if (getBlockEntity().isRecord() && !getCarried().isEmpty()) {
                         disableds.set(slotId, false);
                         new SlotDisableChangePack(slotId, false).send(player);
@@ -133,6 +137,21 @@ public abstract class AutoCrafterMenu extends BaseMachineMenu implements IFilter
                 }
             }
             super.clicked(slotId, button, clickType, player);
+        }
+        @Override
+        public void setRecord(boolean record) {
+            super.setRecord(record);
+            if (record) {
+                for (int i = 0; i < getBlockEntity().getFilter().size(); i++) {
+                    if (getSlot(i).getItem().isEmpty()) {
+                        getBlockEntity().getDisabled().set(i, true);
+                        new SlotDisableChangePack(i, true).send(getPlayer());
+                    }
+                }
+            }
+        }
+        public ServerPlayer getPlayer() {
+            return (ServerPlayer) getInventory().player;
         }
     }
     
