@@ -15,7 +15,7 @@ public class AnvilCraftConfig {
     @SerializedName("// 磁铁吸引的最大距离")
     public final String magnetAttractsDistanceNote = "";
     @SerializedName("magnet_attracts_distance")
-    public int magnetAttractsDistance = 4;
+    public int magnetAttractsDistance = 5;
     @SerializedName("// 手持磁铁吸引的最大半径")
     public final String magnetItemAttractsRadiusNote = "";
     @SerializedName("magnet_item_attracts_radius")
