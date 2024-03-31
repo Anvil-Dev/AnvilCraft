@@ -14,6 +14,7 @@ import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.BiFunction;
@@ -35,13 +36,13 @@ public class AutoCrafterScreen extends BaseMachineScreen<AutoCrafterMenu> implem
     @Override
     protected void init() {
         super.init();
-        this.recordButton = materialButtonSupplier.apply(this.leftPos, this.topPos).showTip();
+        this.recordButton = materialButtonSupplier.apply(this.leftPos, this.topPos);
         this.addRenderableWidget(recordButton);
     }
 
     @Override
     public void slotClicked(Slot slot, int i, int j, ClickType clickType) {
-        IFilterScreen.super.slotClicked(slot, i, j, clickType);
+        //IFilterScreen.super.slotClicked(slot, i, j, clickType);
         super.slotClicked(slot, i, j, clickType);
     }
 
@@ -61,8 +62,7 @@ public class AutoCrafterScreen extends BaseMachineScreen<AutoCrafterMenu> implem
     public ItemStack getCarried() {
         return this.menu.getCarried();
     }
-
-    public Slot getHoveredSlot() {
+    public @Nullable Slot getHoveredSlot() {
         return this.hoveredSlot;
     }
 

@@ -67,7 +67,7 @@
   "screen.anvilcraft.button.direction.west": "西",
   "screen.anvilcraft.button.direction.east": "东",
   "screen.anvilcraft.button.record": "保留物品过滤：%s",
-  "screen.anvilcraft.button.record.tooltip": "开启后，合成器必须填满全部格子（包括盖上盖板）才能开始合成",
+  "screen.anvilcraft.button.record.tooltip": "持有物品点击锁定槽位以设置过滤物品",
   "screen.anvilcraft.button.off": "关",
   "screen.anvilcraft.button.on": "开",
   "screen.anvilcraft.royal_steel_upgrade_smithing_template": "锻造模板-皇家升级",

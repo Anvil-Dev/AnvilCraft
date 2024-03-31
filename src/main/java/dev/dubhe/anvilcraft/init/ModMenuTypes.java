@@ -10,7 +10,7 @@ import net.minecraft.world.inventory.MenuType;
 import org.jetbrains.annotations.NotNull;
 
 public class ModMenuTypes {
-    public static final MenuType<AutoCrafterMenu> AUTO_CRAFTER = register("auto_crafter", AutoCrafterMenu::new);
+    public static final MenuType<AutoCrafterMenu> AUTO_CRAFTER = register("auto_crafter", AutoCrafterMenu::clientOf);
     public static final MenuType<RoyalGrindstoneMenu> ROYAL_GRINDSTONE = register("royal_grindstone", RoyalGrindstoneMenu::new);
     public static final MenuType<ChuteMenu> CHUTE = ModMenuTypes.register("chute", ChuteMenu::new);
     public static final MenuType<RoyalAnvilMenu> ROYAL_ANVIL = ModMenuTypes.register("royal_anvil", RoyalAnvilMenu::new);

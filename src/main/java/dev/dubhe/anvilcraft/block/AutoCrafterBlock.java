@@ -72,7 +72,7 @@ public class AutoCrafterBlock extends BaseEntityBlock {
                 }
             }
         }
-        return InteractionResult.CONSUME;
+        return InteractionResult.SUCCESS;
     }
 
     @Override

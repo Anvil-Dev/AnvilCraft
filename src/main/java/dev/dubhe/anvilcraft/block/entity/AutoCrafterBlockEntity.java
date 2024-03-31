@@ -24,9 +24,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Optional;
-import java.util.Stack;
 
 @SuppressWarnings("NullableProblems")
 public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements CraftingContainer, IFilterBlockEntity {
@@ -36,33 +38,28 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
     @Getter
     private final NonNullList<Boolean> disabled = this.getNewDisabled();
     @Getter
-    private final NonNullList<ItemStack> filter = this.getNewFilter();
-    private final Stack<CraftingRecipe> cache = new Stack<>();
-
+    private final NonNullList<@Unmodifiable ItemStack> filter = this.getNewFilter();
+    private final Deque<CraftingRecipe> cache = new ArrayDeque<>();
     public AutoCrafterBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.AUTO_CRAFTER, pos, blockState, 9);
         this.direction = blockState.getValue(AutoCrafterBlock.FACING);
     }
-
     @Override
     protected @NotNull Component getDefaultName() {
         return Component.translatable("block.anvilcraft.auto_crafter");
     }
-
     public static void tick(Level level, BlockPos pos, BlockEntity e) {
         if (!(e instanceof AutoCrafterBlockEntity entity)) return;
         BlockState state = level.getBlockState(pos);
         if (state.getValue(AutoCrafterBlock.LIT)) AutoCrafterBlockEntity.craft(level, entity);
     }
-
     private boolean canCraft() {
         if (!this.isRecord()) return true;
         for (int i = 0; i < this.items.size(); i++) {
-            if (this.getItem(i).isEmpty() && !this.getDisabled().get(i)) return false;
+            if (this.getItem(i).isEmpty() && !(this.getDisabled().get(i) || isRecord() && getFilter().get(i).isEmpty())) return false;
         }
         return true;
     }
-
     private static void craft(@NotNull Level level, @NotNull AutoCrafterBlockEntity entity) {
         ItemStack itemStack;
         if (entity.isEmpty()) return;
@@ -101,49 +98,44 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
         }
         level.updateNeighborsAt(entity.getBlockPos(), ModBlocks.AUTO_CRAFTER);
     }
-
     @Override
     protected @NotNull AbstractContainerMenu createMenu(int containerId, Inventory inventory) {
-        return new AutoCrafterMenu(containerId, inventory, this);
+        return AutoCrafterMenu.serverOf(containerId, inventory, this);
     }
-
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
         this.loadTag(tag);
     }
-
     @Override
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         this.saveTag(tag);
     }
-
     @Override
-    public boolean canPlaceItem(int index, ItemStack itemStack) {
+    public boolean canPlaceItem(int index, ItemStack insertingStack) {
         if (this.getDisabled().get(index)) return false;
-        ItemStack itemStack1 = this.items.get(index);
-        ItemStack itemStack2 = this.getFilter().get(index);
-        int j = itemStack1.getCount();
-        if (j >= itemStack1.getMaxStackSize()) {
+        ItemStack storedStack = this.items.get(index);
+        ItemStack filterStack = this.getFilter().get(index);
+        if (isRecord() && filterStack.isEmpty()) return insertingStack.isEmpty();
+        int count = storedStack.getCount();
+        if (count >= storedStack.getMaxStackSize()) {
             return false;
         }
-        if (itemStack1.isEmpty()) {
-            return itemStack2.isEmpty() || ItemStack.isSameItemSameTags(itemStack, itemStack2);
+        if (storedStack.isEmpty()) {
+            return filterStack.isEmpty() || ItemStack.isSameItemSameTags(insertingStack, filterStack);
         }
-        return !this.smallerStackExist(j, itemStack1, index);
+        return !this.smallerStackExist(count, storedStack, index);
     }
-
-    private boolean smallerStackExist(int i, ItemStack itemStack, int j) {
-        for (int k = j + 1; k < 9; ++k) {
+    private boolean smallerStackExist(int count, ItemStack itemStack, int index) {
+        for (int index2 = index + 1; index2 < 9; ++index2) {
             ItemStack itemStack1;
-            if (this.getDisabled().get(k) || !(itemStack1 = this.getItem(k)).isEmpty() && (itemStack1.getCount() >= i || !ItemStack.isSameItemSameTags(itemStack1, itemStack)))
+            if (this.getDisabled().get(index2) || isRecord() && getFilter().get(index2).isEmpty() || !(itemStack1 = this.getItem(index2)).isEmpty() && (itemStack1.getCount() >= count || !ItemStack.isSameItemSameTags(itemStack1, itemStack)))
                 continue;
             return true;
         }
         return false;
     }
-
     @Override
     public void setDirection(Direction direction) {
         super.setDirection(direction);
@@ -154,17 +146,14 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
         if (!state.is(ModBlocks.AUTO_CRAFTER)) return;
         level.setBlockAndUpdate(pos, state.setValue(AutoCrafterBlock.FACING, direction));
     }
-
     @Override
     public int getWidth() {
         return 3;
     }
-
     @Override
     public int getHeight() {
         return 3;
     }
-
     @Override
     public void fillStackedContents(StackedContents contents) {
         for (int i = 0; i < this.getContainerSize(); i++) {
@@ -172,7 +161,6 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
             contents.accountSimpleStack(itemStack);
         }
     }
-
     public int getRedstoneSignal() {
         int i = 0;
         for (int j = 0; j < this.getContainerSize(); ++j) {
