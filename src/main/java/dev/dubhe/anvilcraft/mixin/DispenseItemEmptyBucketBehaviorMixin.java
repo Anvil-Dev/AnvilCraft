@@ -34,10 +34,7 @@ public abstract class DispenseItemEmptyBucketBehaviorMixin extends DefaultDispen
         ServerLevel level = source.getLevel();
         ServerLevel levelAccessor = source.getLevel();
         List<Cow> entities = level.getEntities(EntityTypeTest.forClass(Cow.class), new AABB(blockPos), Entity::isAlive).stream().toList();
-        if (entities.isEmpty()) {
-            cir.setReturnValue(super.dispense(source, stack));
-            return;
-        }
+        if (entities.isEmpty()) return;
         levelAccessor.gameEvent(null, GameEvent.FLUID_PICKUP, blockPos);
         Item item = Items.MILK_BUCKET;
         stack.shrink(1);
