@@ -317,6 +317,7 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
             for (Map.Entry<Property<?>, Comparable<?>> entry : states) {
                 properties.hasProperty(entry.getKey(), entry.getValue().toString());
             }
+            blockPredicate.setProperties(properties.build());
             return this.addPredicates(new HasBlock(offset, blockPredicate.build()));
         }
 
