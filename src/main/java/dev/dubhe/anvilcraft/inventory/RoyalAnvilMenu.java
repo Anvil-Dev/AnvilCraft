@@ -1,9 +1,13 @@
 package dev.dubhe.anvilcraft.inventory;
 
+import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AnvilMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.MenuType;
@@ -12,6 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -149,5 +154,17 @@ public class RoyalAnvilMenu extends AnvilMenu {
         }
         this.resultSlots.setItem(0, itemStack2);
         this.broadcastChanges();
+    }
+
+    @Override
+    protected void onTake(Player player, ItemStack stack) {
+        super.onTake(player, stack);
+        Level level = player.level();
+        if (level.isClientSide()) return;
+        int curedNumber = player.getInventory().countItem(ModItems.CURSED_GOLD_INGOT) + player.getInventory().countItem(ModItems.CURSED_GOLD_NUGGET) + player.getInventory().countItem(ModItems.CURSED_GOLD_BLOCK);
+        if (curedNumber <= 0) return;
+        LightningBolt bolt = new LightningBolt(EntityType.LIGHTNING_BOLT, level);
+        bolt.setPos(player.getX(), player.getY(), player.getZ());
+        level.addFreshEntity(bolt);
     }
 }
