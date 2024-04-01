@@ -1,141 +1,116 @@
+import net.fabricmc.loom.task.RemapJarTask
+
 plugins {
-    id 'fabric-loom' version '1.6-SNAPSHOT'
-    id 'maven-publish'
+    id "architectury-plugin" version "3.4-SNAPSHOT"
+    id "dev.architectury.loom" version "1.5-SNAPSHOT" apply false
 }
 
-mod_id = project.mod_id
-version = project.build_number == 'undefined' ? project.mod_version : "${project.mod_version}+build.${project.build_number}"
-group = project.maven_group
+def is_root_project = project == rootProject
 
-base {
-    archivesName = project.archives_base_name
+architectury {
+    minecraft = libs.versions.minecraft
 }
 
-repositories {
-    maven {
-        name 'ParchmentMC'
-        url 'https://maven.parchmentmc.org'
-    }
-    maven {
-        name 'REI'
-        url 'https://maven.shedaniel.me/'
-    }
-    maven {
-        name 'ModMenu'
-        url 'https://maven.terraformersmc.com/releases/'
-    }
-    maven {
-        name = "Modrinth"
-        url = "https://api.modrinth.com/maven"
-    }
-}
+subprojects {
+    apply plugin: "dev.architectury.loom"
 
-loom {
-    accessWidenerPath = file("src/main/resources/anvilcraft.accesswidener")
-    runs {
-        datagen {
-            inherit server
-            name "Data Generation"
-            vmArg "-Dfabric-api.datagen"
-            vmArg "-Dfabric-api.datagen.output-dir=${file("src/main/generated")}"
-            vmArg "-Dfabric-api.datagen.modid=${mod_id}"
-            runDir "build/datagen"
-        }
+    loom {
+        silentMojangMappingsLicense()
     }
-}
 
-dependencies {
-    // To change the versions see the gradle.properties file
-    minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings loom.layered {
-        officialMojangMappings()
-        parchment("org.parchmentmc.data:parchment-1.20.1:2023.09.03@zip")
-    }
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-
-    // Fabric API. This is technically optional, but you probably want it anyway.
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-    modApi "com.terraformersmc:modmenu:${project.modmenu_version}"
-    modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-fabric:${project.rei_version}"
-    modCompileOnly "me.shedaniel:RoughlyEnoughItems-api-fabric:${project.rei_version}"
-    modCompileOnly "me.shedaniel:RoughlyEnoughItems-default-plugin-fabric:${project.rei_version}"
-    modCompileOnly "me.shedaniel:RoughlyEnoughItems-default-plugin-fabric:${project.rei_version}"
-    compileOnly "org.projectlombok:lombok:${lombok_version}"
-    annotationProcessor "org.projectlombok:lombok:${lombok_version}"
-}
-
-processResources {
-    inputs.property "version", project.version
-    inputs.property "minecraft_version", project.minecraft_version
-    inputs.property "loader_version", project.loader_version
-    filteringCharset "UTF-8"
-
-    filesMatching("fabric.mod.json") {
-        expand "version": project.version,
-                "minecraft_version": project.minecraft_version,
-                "loader_version": project.loader_version
-    }
-}
-
-def targetJavaVersion = 17
-tasks.withType(JavaCompile).configureEach {
-    // ensure that the encoding is set to UTF-8, no matter what the system default is
-    // this fixes some edge cases with special characters not displaying correctly
-    // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
-    // If Javadoc is generated, this must be specified in that task too.
-    it.options.encoding = "UTF-8"
-    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
-        it.options.release.set(targetJavaVersion)
-    }
-}
-
-java {
-    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
-    if (JavaVersion.current() < javaVersion) {
-        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
-    }
-    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-    // if it is present.
-    // If you remove this line, sources will not be generated.
-    withSourcesJar()
-}
-
-jar.dependsOn(runDatagen)
-jar {
-    from("src/main/generated") {
-        duplicatesStrategy DuplicatesStrategy.INCLUDE
-    }
-    from("LICENSE") {
-        rename { "${it}_${project.archivesBaseName}" }
-    }
-}
-
-sourceSets {
-    main {
-        resources {
-            srcDirs += [
-                    'src/main/generated'
-            ]
-        }
-    }
-}
-
-// configure the maven publication
-publishing {
-    publications {
-        //noinspection GroovyAssignabilityCheck
-        mavenJava(MavenPublication) {
-            from components.java
-        }
-    }
-    def ENV = System.getenv()
-    if (ENV.MAVEN_URL) {
-        repositories.maven {
-            url ENV.MAVEN_URL
-            credentials {
-                username ENV.MAVEN_USERNAME
-                password ENV.MAVEN_PASSWORD
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { url = "https://api.modrinth.com/maven" } // LazyDFU, Jade
+        maven { url = "https://maven.terraformersmc.com/releases/" } // Mod Menu, EMI
+        maven { url = "https://maven.shedaniel.me/" } // Cloth Config, REI
+        maven {
+            url "https://cursemaven.com"
+            content {
+                includeGroup "curse.maven"
+            }
+        } // Curse Forge File
+        maven {
+            name = "Jared's maven"
+            url = "https://maven.blamejared.com/"
+        } // JEI
+        maven {
+            // location of a maven mirror for JEI files, as a fallback
+            name = "ModMaven"
+            url = "https://modmaven.dev"
+        } // JEI mirror, AE2
+        maven { url = "https://maven.parchmentmc.org" } // Parchment mappings
+        maven { url = "https://maven.quiltmc.org/repository/release" } // Quilt Mappings
+        maven { url = "https://maven.firstdarkdev.xyz/snapshots" } // LDLib
+        maven { // Flywheel
+            url = "https://maven.tterrag.com/"
+            content {
+                // need to be specific here due to version overlaps
+                includeGroup("com.jozufozu.flywheel")
+                includeGroup("com.tterrag.registrate")
+                includeGroup("com.simibubi.create")
             }
         }
+        maven { // TOP-Fabric
+            url "https://maven.wispforest.io"
+        }
+    }
+
+    dependencies {
+        minecraft "com.mojang:minecraft:${libs.versions.minecraft.get()}"
+        // The following line declares the mojmap mappings, you may use other mappings as well
+        if (is_root_project) {
+            // layered mappings - Mojmap names, parchment and QM docs and parameters
+            mappings loom.layered {
+                it.mappings("org.quiltmc:quilt-mappings:${libs.versions.minecraft.get()}+build.${libs.versions.quiltMappings.get()}:intermediary-v2")
+                it.parchment("org.parchmentmc.data:parchment-1.20.1:${libs.versions.parchment.get()}@zip")
+                it.officialMojangMappings { nameSyntheticMembers = false }
+            }
+        }
+
+        // lombok
+        compileOnly 'org.projectlombok:lombok:1.18.24'
+        annotationProcessor 'org.projectlombok:lombok:1.18.24'
+
+        implementation 'com.google.code.findbugs:jsr305:3.0.2'
+    }
+
+    tasks.register('remapSlimJar', RemapJarTask) {
+        dependsOn(jar)
+        inputFile.set(jar.archiveFile)
+        addNestedDependencies = false
+        archiveClassifier.set("slim")
+    }
+
+    tasks.remapJar.dependsOn('remapSlimJar')
+}
+
+allprojects {
+    apply plugin: "java"
+    apply plugin: "architectury-plugin"
+    apply plugin: "maven-publish"
+
+    archivesBaseName = "${project.name}-${libs.versions.minecraft.get()}"
+    group = rootProject.maven_group
+
+    // Formats the mod version to include the loader, Minecraft version, and build number (if present)
+    String buildNumber = System.getenv("GITHUB_ACTION_NUMBER")
+    version = "${mod_version}" + (buildNumber != null ? "+build.${System.getenv("GITHUB_RUN_NUMBER")}" : "")
+
+    repositories {
+        // Add repositories to retrieve artifacts from in here.
+        // You should only use this when depending on other mods because
+        // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
+        // See https://docs.gradle.org/current/userguide/declaring_repositories.html
+        // for more information about repositories.
+    }
+
+    tasks.withType(JavaCompile) {
+        options.encoding = "UTF-8"
+        options.release.set(17)
+    }
+
+    java {
+        withSourcesJar()
     }
 }

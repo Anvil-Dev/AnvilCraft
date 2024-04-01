@@ -1,0 +1,200 @@
+plugins {
+    alias(libs.plugins.shadow)
+}
+
+String getConfig(String key) {
+    return project.getParent().properties.get(key)
+}
+
+def mod_id = getConfig("mod_id")
+def common_project = project(":${mod_id}-common")
+def version = getConfig("version")
+def mod_license = getConfig("mod_license")
+def mod_name = getConfig("mod_name")
+def mod_description = getConfig("mod_description")
+def mod_url = getConfig("mod_url")
+
+architectury {
+    platformSetupLoomIde()
+    fabric()
+}
+
+loom {
+    accessWidenerPath = common_project.file("src/main/resources/${mod_id}.accesswidener")
+
+    runs {
+        create("dataCommon") {
+            inherit client
+            name("Minecraft Data")
+            property("fabric-api.datagen")
+            property("fabric-api.datagen.modid", "${mod_id}")
+            property("fabric-api.datagen.output-dir", project.file("src/generated/resources").absolutePath)
+            property("fabric-api.datagen.strict-validation")
+        }
+        client {
+            programArgs("--username", "Player")
+        }
+        create("gameTestServer") {
+            server()
+            name("Minecraft Game Test")
+            source("main")
+
+            property("fabric-api.gametest", "true")
+            property("fabric-api.gametest.command", "true")
+        }
+
+    }
+}
+
+sourceSets {
+    main {
+        resources {
+            srcDir("src/generated/resources")
+            exclude("**/.cache")
+        }
+    }
+}
+
+configurations {
+    common
+    shadowCommon // Don't use shadow from the shadow plugin since it *excludes* files.
+    compileClasspath.extendsFrom common
+    runtimeClasspath.extendsFrom common
+    developmentFabric.extendsFrom common
+
+    apiElements {
+        outgoing {
+            capability("net.fabricmc.fabric-api:fabric-api-${this.libs.versions.minecraft.get()}:${this.fabric.versions.fabricApi.get()}")
+            capability("com.tterrag.registrate_fabric:Registrate:${this.fabric.versions.registrate.get()}")
+            capability("io.github.llamalad7:mixinextras-fabric:${this.fabric.versions.mixinextras.get()}")
+        }
+    }
+}
+
+repositories {
+    // mavens for Fabric-exclusives
+    maven { url = "https://mvn.devos.one/snapshots/" }
+    // Create Fabric, Porting Lib, Forge Tags, Milk Lib, Registrate Fabric
+    //maven { url = "https://maven.cafeteria.dev/releases" } // Fake Player API
+    maven { url = "https://maven.jamieswhiteshirt.com/libs-release" } // Reach Entity Attributes
+    maven { url = "https://jitpack.io/" } // Mixin Extras, Fabric ASM
+    maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" }
+    maven { url = "https://maven.saps.dev/minecraft" } // saps.dev Maven (KubeJS and Rhino)
+}
+
+dependencies {
+    modImplementation fabric.fabricLoader
+    modImplementation fabric.fabricApi
+
+    common(project(path: ":${mod_id}-common", configuration: "namedElements")) { transitive false }
+    shadowCommon(project(path: ":${mod_id}-common", configuration: "transformProductionFabric")) { transitive false }
+
+    // Registrate
+    modImplementation(include("com.tterrag.registrate_fabric:Registrate:${fabric.versions.registrate.get()}"))
+
+    // Development QOL
+    modCompileOnly fabric.lazydfu
+    modCompileOnly fabric.modmenu
+
+    // JEI
+    modCompileOnlyApi(fabric.jei.common.api) { transitive = false }
+    modCompileOnlyApi(fabric.jei.fabric.api) { transitive = false }
+    modCompileOnly(fabric.jei.fabric.impl) { transitive = false }
+
+    // REI
+    modCompileOnly(fabric.rei.plugin) { transitive = false }
+    modCompileOnly(fabric.rei.api) { transitive = false }
+    modCompileOnly(fabric.rei.fabric) { transitive = false }
+
+    // EMI
+    modCompileOnly("dev.emi:emi-fabric:${fabric.versions.emi.get()}:api")
+    modImplementation fabric.emi
+
+    // Jade
+    modImplementation fabric.jade
+
+    // KJS
+    modImplementation fabric.kubejs
+
+    // Mixin Extras
+    include(implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:${fabric.versions.mixinextras.get()}")))
+
+    // Configuration
+    modImplementation(fabric.configuration)
+    include(fabric.configuration)
+}
+
+
+processResources {
+    // set up properties for filling into metadata
+    Map<String, String> properties = Map.of(
+            "version", version,
+            "mod_id", mod_id,
+            "fabric_loader_version", fabric.versions.fabricLoader.get(),
+            "fabric_api_version", fabric.versions.fabricApi.get(),
+            "minecraft_version", libs.versions.minecraft.get(),
+            "mod_license", mod_license,
+            "mod_name", mod_name,
+            "mod_description", mod_description,
+            "mod_url", mod_url
+    )
+    properties.forEach((k, v) -> inputs.property(k, v))
+
+    filesMatching("fabric.mod.json") {
+        expand properties
+    }
+}
+
+shadowJar {
+    exclude "architectury.common.json"
+
+    configurations = [project.configurations.shadowCommon]
+    archiveClassifier = "dev-shadow"
+}
+
+remapJar {
+    injectAccessWidener = true
+    inputFile.set(shadowJar.archiveFile)
+    dependsOn shadowJar
+    archiveClassifier = null
+}
+
+jar {
+    archiveClassifier.set("dev")
+}
+
+sourcesJar {
+    def commonSources = common_project.sourcesJar
+    dependsOn commonSources
+    from commonSources.archiveFile.map { zipTree(it) }
+}
+
+components.java {
+    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
+        skip()
+    }
+}
+
+publishing {
+    publications {
+        mavenFabric(MavenPublication) {
+            artifactId = archivesBaseName
+            from components.java
+        }
+    }
+
+    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+    repositories {
+        // Add repositories to publish to here.
+        def MAVEN_URL = System.getenv("MAVEN_URL")
+        if (MAVEN_URL != null) {
+            maven {
+                url MAVEN_URL
+                credentials {
+                    username System.getenv("MAVEN_USERNAME")
+                    password System.getenv("MAVEN_PASSWORD")
+                }
+            }
+        }
+    }
+}

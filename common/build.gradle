@@ -1,0 +1,82 @@
+architectury {
+    common(rootProject.enabled_platforms.split(","))
+}
+
+String getConfig(String key) {
+    return project.getParent().properties.get(key)
+}
+
+def mod_id = getConfig("mod_id")
+
+repositories {
+    maven { url = "https://mvn.devos.one/snapshots/" } // Create Fabric, Porting Lib, Forge Tags, Milk Lib, Registrate Fabric
+    //maven { url = "https://maven.cafeteria.dev/releases" } // Fake Player API
+    maven { url = "https://maven.jamieswhiteshirt.com/libs-release" } // Reach Entity Attributes
+    maven { url = "https://jitpack.io/" } // Mixin Extras, Fabric ASM
+    maven {
+        // saps.dev Maven (KubeJS and Rhino)
+        url = "https://maven.saps.dev/minecraft"
+        content {
+            includeGroup "dev.latvian.mods"
+        }
+    }
+    maven { // TOP
+        url "https://maven.k-4u.nl"
+    }
+}
+
+dependencies {
+    // We depend on fabric loader here to use the fabric @Environment annotations and get the mixin dependencies
+    // Do NOT use other classes from fabric loader
+    modImplementation fabric.fabricLoader
+    modCompileOnly fabric.fabricApi
+
+    modCompileOnly fabric.registrate
+
+    // JEI
+    modCompileOnly fabric.jei.common.api
+    modCompileOnly fabric.jei.fabric.api
+    modCompileOnly fabric.jei.fabric.impl
+
+    // REI
+    modCompileOnly fabric.rei.plugin
+    modCompileOnly fabric.rei.api
+    modCompileOnly fabric.rei.fabric
+
+    // EMI
+    modCompileOnly("dev.emi:emi-fabric:${fabric.versions.emi.get()}:api")
+    modCompileOnly fabric.emi
+
+    // Jade
+    modCompileOnly fabric.jade
+
+    // KJS
+    modCompileOnly fabric.kubejs
+
+    // Mixin Extras
+    implementation(annotationProcessor("io.github.llamalad7:mixinextras-common:${fabric.versions.mixinextras.get()}"))
+}
+
+publishing {
+    publications {
+        mavenCommon(MavenPublication) {
+            artifactId = archivesBaseName
+            from components.java
+        }
+    }
+
+    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+    repositories {
+        // Add repositories to publish to here.
+        def MAVEN_URL = System.getenv("MAVEN_URL")
+        if (MAVEN_URL != null) {
+            maven {
+                url MAVEN_URL
+                credentials {
+                    username System.getenv("MAVEN_USERNAME")
+                    password System.getenv("MAVEN_PASSWORD")
+                }
+            }
+        }
+    }
+}
