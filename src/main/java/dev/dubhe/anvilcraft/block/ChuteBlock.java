@@ -7,7 +7,9 @@ import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
 import dev.dubhe.anvilcraft.network.SlotFilterChangePack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
@@ -94,7 +96,9 @@ public class ChuteBlock extends BaseEntityBlock {
     @Override
     public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
         Direction direction = context.getClickedFace().getOpposite();
-        return this.defaultBlockState().setValue(FACING, (direction.getAxis() == Direction.Axis.Y ? Direction.DOWN : direction)).setValue(ENABLED, Boolean.TRUE);
+        return this.defaultBlockState()
+                .setValue(FACING, (direction.getAxis() == Direction.Axis.Y ? Direction.DOWN : direction))
+                .setValue(ENABLED, !context.getLevel().hasNeighborSignal(context.getClickedPos()));
     }
 
     @Override
@@ -112,6 +116,25 @@ public class ChuteBlock extends BaseEntityBlock {
     @Override
     protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING, ENABLED);
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public void neighborChanged(BlockState state, @NotNull Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
+        if (level.isClientSide) return;
+        boolean bl = state.getValue(ENABLED);
+        if (bl == level.hasNeighborSignal(pos)) {
+            if (!bl) level.scheduleTick(pos, this, 4);
+            else level.setBlock(pos, state.cycle(ENABLED), 2);
+        }
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public void tick(@NotNull BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        if (!state.getValue(ENABLED) && !level.hasNeighborSignal(pos)) {
+            level.setBlock(pos, state.cycle(ENABLED), 2);
+        }
     }
 
     @Override
