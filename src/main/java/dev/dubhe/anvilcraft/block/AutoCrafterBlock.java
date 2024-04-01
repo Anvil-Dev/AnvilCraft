@@ -106,7 +106,9 @@ public class AutoCrafterBlock extends BaseEntityBlock {
     @Override
     @Nullable
     public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
-        return this.defaultBlockState().setValue(FACING, context.getNearestLookingDirection().getOpposite()).setValue(LIT, context.getLevel().hasNeighborSignal(context.getClickedPos()));
+        return this.defaultBlockState().
+                setValue(FACING, context.getNearestLookingDirection().getOpposite())
+                .setValue(LIT, context.getLevel().hasNeighborSignal(context.getClickedPos()));
     }
 
     @Override
