@@ -8,6 +8,11 @@ import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.ChuteMenu;
 import lombok.Getter;
 import lombok.Setter;
+import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -116,6 +121,7 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
         return false;
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     public static boolean suckInItems(Level level, Hopper hopper) {
         Container container = HopperBlockEntity.getSourceContainer(level, hopper);
         if (container != null) {
@@ -124,6 +130,19 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
                 return false;
             }
             return HopperBlockEntity.getSlots(container, direction).anyMatch(i -> ChuteBlockEntity.tryTakeInItemFromSlot(hopper, container, i, direction));
+        } else {
+            BlockPos sourcePos = BlockPos.containing(hopper.getLevelX(), hopper.getLevelY() + 1.0D, hopper.getLevelZ());
+            Storage<ItemVariant> source = ItemStorage.SIDED.find(level, sourcePos, Direction.DOWN);
+            if (source != null) {
+                long moved = StorageUtil.move(
+                        source,
+                        InventoryStorage.of(hopper, Direction.UP),
+                        iv -> true,
+                        64,
+                        null
+                );
+                return moved >= 1;
+            }
         }
         for (ItemEntity itemEntity : HopperBlockEntity.getItemsAtAndAbove(level, hopper)) {
             if (!HopperBlockEntity.addItem(hopper, itemEntity)) continue;

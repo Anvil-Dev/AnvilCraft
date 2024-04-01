@@ -22,6 +22,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
@@ -112,10 +113,16 @@ public abstract class BaseMachineBlockEntity extends RandomizableContainerBlockE
             if (HopperBlockEntity.getContainerAt(level, curPos) != null) return false;
             if (ItemStorage.SIDED.find(level, curPos, direction.getOpposite()) != null) return false;
         }
-        if (!needEmpty || level.isEmptyBlock(curPos)) {
+        if (!needEmpty || this.canDropItem(level, curPos)) {
             flag = this.dropItem(direction, level, pos, container, slot, momentum);
         }
         return flag;
+    }
+
+    private boolean canDropItem(@NotNull Level level, @NotNull BlockPos pos) {
+        Vec3 vec3 = pos.getCenter();
+        ItemEntity entity = new ItemEntity(level, vec3.x, vec3.y, vec3.z, ItemStack.EMPTY);
+        return level.noCollision(entity);
     }
 
     @SuppressWarnings("UnstableApiUsage")
