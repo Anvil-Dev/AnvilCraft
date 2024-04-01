@@ -2,8 +2,16 @@ package dev.dubhe.anvilcraft.init;
 
 import com.tterrag.registrate.Registrate;
 import com.tterrag.registrate.builders.MenuBuilder;
-import dev.dubhe.anvilcraft.client.gui.screen.inventory.*;
-import dev.dubhe.anvilcraft.inventory.*;
+import dev.dubhe.anvilcraft.client.gui.screen.inventory.AutoCrafterScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.inventory.ChuteScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.inventory.RoyalAnvilScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.inventory.RoyalGrindstoneScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.inventory.RoyalSmithingScreen;
+import dev.dubhe.anvilcraft.inventory.AutoCrafterMenu;
+import dev.dubhe.anvilcraft.inventory.ChuteMenu;
+import dev.dubhe.anvilcraft.inventory.RoyalAnvilMenu;
+import dev.dubhe.anvilcraft.inventory.RoyalGrindstoneMenu;
+import dev.dubhe.anvilcraft.inventory.RoyalSmithingMenu;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 

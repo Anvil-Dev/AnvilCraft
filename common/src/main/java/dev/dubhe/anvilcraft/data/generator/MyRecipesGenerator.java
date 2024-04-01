@@ -1,7 +1,16 @@
 package dev.dubhe.anvilcraft.data.generator;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.data.generator.recipe.*;
+import dev.dubhe.anvilcraft.data.generator.recipe.BulgingAndCrystallizeRecipesGenerator;
+import dev.dubhe.anvilcraft.data.generator.recipe.CompactionRecipesGenerator;
+import dev.dubhe.anvilcraft.data.generator.recipe.CompressRecipesGenerator;
+import dev.dubhe.anvilcraft.data.generator.recipe.CookingRecipesGenerator;
+import dev.dubhe.anvilcraft.data.generator.recipe.ItemInjectRecipesGenerator;
+import dev.dubhe.anvilcraft.data.generator.recipe.SmashBlockRecipesGenerator;
+import dev.dubhe.anvilcraft.data.generator.recipe.SmashRecipesGenerator;
+import dev.dubhe.anvilcraft.data.generator.recipe.SqueezeRecipesGenerator;
+import dev.dubhe.anvilcraft.data.generator.recipe.StampingRecipesGenerator;
+import dev.dubhe.anvilcraft.data.generator.recipe.VanillaRecipesGenerator;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipePredicate;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItemIngredient;

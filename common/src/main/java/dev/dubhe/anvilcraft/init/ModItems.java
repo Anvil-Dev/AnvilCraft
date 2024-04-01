@@ -1,10 +1,23 @@
 package dev.dubhe.anvilcraft.init;
 
 import com.tterrag.registrate.util.entry.ItemEntry;
-import dev.dubhe.anvilcraft.item.*;
+import dev.dubhe.anvilcraft.item.CuredItem;
+import dev.dubhe.anvilcraft.item.MagnetItem;
+import dev.dubhe.anvilcraft.item.ModFoods;
+import dev.dubhe.anvilcraft.item.ModTiers;
+import dev.dubhe.anvilcraft.item.RoyalSteelUpgradeSmithingTemplateItem;
+import dev.dubhe.anvilcraft.item.UtusanItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.AxeItem;
+import net.minecraft.world.item.HoeItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.PickaxeItem;
+import net.minecraft.world.item.ShovelItem;
+import net.minecraft.world.item.SwordItem;
+import net.minecraft.world.item.Tiers;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
