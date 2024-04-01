@@ -310,6 +310,16 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
             return this.addPredicates(new HasBlock(offset, block.build()));
         }
 
+        @SafeVarargs
+        public final @NotNull Builder hasBlock(Block block, Vec3 offset, Map.Entry<Property<?>, Comparable<?>> @NotNull ... states) {
+            BlockPredicate.Builder blockPredicate = BlockPredicate.Builder.block().of(block);
+            StatePropertiesPredicate.Builder properties = StatePropertiesPredicate.Builder.properties();
+            for (Map.Entry<Property<?>, Comparable<?>> entry : states) {
+                properties.hasProperty(entry.getKey(), entry.getValue().toString());
+            }
+            return this.addPredicates(new HasBlock(offset, blockPredicate.build()));
+        }
+
         public @NotNull Builder hasBlock(Vec3 offset, TagKey<Block> blocks) {
             BlockPredicate.Builder block = BlockPredicate.Builder.block().of(blocks);
             return this.addPredicates(new HasBlock(offset, block.build()));
