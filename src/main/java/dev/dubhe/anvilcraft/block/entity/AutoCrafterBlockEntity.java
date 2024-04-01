@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
+import dev.dubhe.anvilcraft.block.ChuteBlock;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.AutoCrafterMenu;
@@ -44,7 +45,6 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
 
     public AutoCrafterBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.AUTO_CRAFTER, pos, blockState, 9);
-        this.direction = blockState.getValue(AutoCrafterBlock.FACING);
     }
 
     @Override
@@ -89,7 +89,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
         if (!itemStack.isItemEnabled(level.enabledFeatures())) return;
         Container result = new SimpleContainer(1);
         result.setItem(0, itemStack);
-        if (!entity.insertOrDropItem(entity.direction, level, entity.getBlockPos(), result, 0, false, true, false)) {
+        if (!entity.insertOrDropItem(entity.getDirection(), level, entity.getBlockPos(), result, 0, false, true, false)) {
             return;
         }
         for (int i = 0; i < 9; i++) {
@@ -102,7 +102,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
             container1.setItem(i, nonNullList.get(i));
         }
         for (int i = 0; i < nonNullList.size(); i++) {
-            entity.insertOrDropItem(entity.direction, level, entity.getBlockPos(), container1, i, true, true, false);
+            entity.insertOrDropItem(entity.getDirection(), level, entity.getBlockPos(), container1, i, true, true, false);
         }
         level.updateNeighborsAt(entity.getBlockPos(), ModBlocks.AUTO_CRAFTER);
     }
@@ -151,8 +151,15 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
     }
 
     @Override
+    public Direction getDirection() {
+        if (this.level == null) return Direction.UP;
+        BlockState state = this.level.getBlockState(this.getBlockPos());
+        if (state.is(ModBlocks.AUTO_CRAFTER)) return state.getValue(AutoCrafterBlock.FACING);
+        return Direction.UP;
+    }
+
+    @Override
     public void setDirection(Direction direction) {
-        super.setDirection(direction);
         BlockPos pos = this.getBlockPos();
         Level level = this.getLevel();
         if (null == level) return;
