@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
 import dev.dubhe.anvilcraft.block.ChuteBlock;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
@@ -39,7 +40,6 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
 
     public ChuteBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.CHUTE, pos, blockState, 9);
-        this.direction = blockState.getValue(ChuteBlock.FACING);
     }
 
     @Override
@@ -77,7 +77,7 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
         for (int i = this.items.size() - 1; i >= 0; i--) {
             ItemStack stack = this.items.get(i);
             if (stack.isEmpty()) continue;
-            if (this.insertOrDropItem(this.direction, level, pos, this, i, false, false, true)) return;
+            if (this.insertOrDropItem(this.getDirection(), level, pos, this, i, false, false, true)) return;
         }
     }
 
@@ -156,9 +156,16 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
     }
 
     @Override
+    public Direction getDirection() {
+        if (this.level == null) return Direction.UP;
+        BlockState state = this.level.getBlockState(this.getBlockPos());
+        if (state.is(ModBlocks.CHUTE)) return state.getValue(ChuteBlock.FACING);
+        return Direction.UP;
+    }
+
+    @Override
     public void setDirection(Direction direction) {
         if (direction == Direction.UP) return;
-        super.setDirection(direction);
         BlockPos pos = this.getBlockPos();
         Level level = this.getLevel();
         if (null == level) return;

@@ -1,7 +1,9 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
+import dev.dubhe.anvilcraft.block.ChuteBlock;
+import dev.dubhe.anvilcraft.init.ModBlocks;
 import lombok.Getter;
-import lombok.Setter;
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
@@ -11,7 +13,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.StringTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -27,27 +28,28 @@ import org.jetbrains.annotations.NotNull;
 @Getter
 public abstract class BaseMachineBlockEntity extends RandomizableContainerBlockEntity {
     protected NonNullList<ItemStack> items;
-    @Setter
-    protected Direction direction = Direction.DOWN;
 
     protected BaseMachineBlockEntity(BlockEntityType<? extends BaseMachineBlockEntity> type, BlockPos pos, BlockState blockState, int size) {
         super(type, pos, blockState);
         items = NonNullList.withSize(size, ItemStack.EMPTY);
     }
 
+    public abstract Direction getDirection();
+
+    public abstract void setDirection(Direction direction);
+
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
         this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
         ContainerHelper.loadAllItems(tag, this.items);
-        this.direction = Direction.valueOf(tag.getString("direction").toUpperCase());
     }
 
     @Override
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         ContainerHelper.saveAllItems(tag, this.items);
-        tag.put("direction", StringTag.valueOf(this.direction.getName().toLowerCase()));
+//        tag.put("direction", StringTag.valueOf(this.direction.getName().toLowerCase()));
     }
 
     @Override
