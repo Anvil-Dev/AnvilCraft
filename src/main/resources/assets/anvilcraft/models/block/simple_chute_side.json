@@ -1,0 +1,25 @@
+{
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/block",
+	"textures": {
+		"2": "anvilcraft:block/simple_chute_directional",
+		"particle": "anvilcraft:block/simple_chute",
+		"side": "anvilcraft:block/simple_chute",
+		"bottom": "anvilcraft:block/chute_bottom"
+	},
+	"elements": [
+		{
+			"from": [3.9, 3.9, -4.1],
+			"to": [12.1, 12.1, 11.9],
+			"rotation": {"angle": 0, "axis": "x", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [4, 4, 12, 12], "rotation": 180, "texture": "#bottom"},
+				"east": {"uv": [4, 0, 12, 16], "rotation": 270, "texture": "#2"},
+				"south": {"uv": [4, 16, 12, 8], "rotation": 180, "texture": "#side"},
+				"west": {"uv": [12, 0, 4, 16], "rotation": 90, "texture": "#2"},
+				"up": {"uv": [12, 0, 4, 16], "rotation": 180, "texture": "#2"},
+				"down": {"uv": [12, 0, 4, 16], "texture": "#2"}
+			}
+		}
+	]
+}

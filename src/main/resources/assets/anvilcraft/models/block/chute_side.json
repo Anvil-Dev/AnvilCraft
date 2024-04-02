@@ -5,7 +5,8 @@
 		"particle": "anvilcraft:block/chute",
 		"side": "anvilcraft:block/chute",
 		"bottom": "anvilcraft:block/chute_bottom",
-		"top": "anvilcraft:block/chute_top"
+		"top": "anvilcraft:block/chute_top",
+		"simple": "anvilcraft:block/simple_chute"
 	},
 	"elements": [
 		{
@@ -21,26 +22,16 @@
 			}
 		},
 		{
-			"from": [3, 0.75, 6],
-			"to": [13, 9.25, 11],
-			"rotation": {"angle": 45, "axis": "x", "origin": [8, 5, 11]},
-			"faces": {
-				"east": {"uv": [3, 8, 8, 16], "texture": "#side"},
-				"south": {"uv": [3, 8, 13, 16], "texture": "#side"},
-				"west": {"uv": [3, 8, 8, 16], "texture": "#side"}
-			}
-		},
-		{
-			"from": [2.9, 1.9, -2.1],
-			"to": [13.1, 12.1, 8],
+			"from": [3.9, 3.9, -4.1],
+			"to": [12.1, 12.1, 11.9],
 			"rotation": {"angle": 0, "axis": "x", "origin": [8, 8, 8]},
 			"faces": {
-				"north": {"uv": [3, 3, 13, 13], "rotation": 180, "texture": "#bottom"},
-				"east": {"uv": [3, 6, 13, 16], "rotation": 270, "texture": "#side"},
-				"south": {"uv": [3, 16, 13, 6], "rotation": 180, "texture": "#side"},
-				"west": {"uv": [13, 6, 3, 16], "rotation": 90, "texture": "#side"},
-				"up": {"uv": [13, 6, 3, 16], "rotation": 180, "texture": "#side"},
-				"down": {"uv": [13, 6, 3, 16], "texture": "#side"}
+				"north": {"uv": [4, 4, 12, 12], "rotation": 180, "texture": "#bottom"},
+				"east": {"uv": [4, 0, 12, 16], "rotation": 270, "texture": "#simple"},
+				"south": {"uv": [4, 16, 12, 8], "rotation": 180, "texture": "#side"},
+				"west": {"uv": [12, 0, 4, 16], "rotation": 90, "texture": "#simple"},
+				"up": {"uv": [12, 0, 4, 16], "rotation": 180, "texture": "#simple"},
+				"down": {"uv": [12, 0, 4, 16], "texture": "#simple"}
 			}
 		},
 		{
