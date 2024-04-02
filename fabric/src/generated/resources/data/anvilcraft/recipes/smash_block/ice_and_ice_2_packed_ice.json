@@ -1,0 +1,48 @@
+{
+  "type": "anvilcraft:anvil_processing",
+  "icon": {
+    "item": "minecraft:packed_ice"
+  },
+  "outcomes": [
+    {
+      "type": "set_block",
+      "chance": 1.0,
+      "offset": [
+        0.0,
+        -2.0,
+        0.0
+      ],
+      "result": {
+        "block": "minecraft:packed_ice"
+      }
+    }
+  ],
+  "predicates": [
+    {
+      "type": "has_block_ingredient",
+      "match_block": {
+        "blocks": [
+          "minecraft:ice"
+        ]
+      },
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ]
+    },
+    {
+      "type": "has_block",
+      "match_block": {
+        "blocks": [
+          "minecraft:ice"
+        ]
+      },
+      "offset": [
+        0.0,
+        -2.0,
+        0.0
+      ]
+    }
+  ]
+}

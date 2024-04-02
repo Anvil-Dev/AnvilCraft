@@ -76,5 +76,9 @@
   "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.additions_slot_description": "放入皇家钢锭",
   "screen.anvilcraft.royal_grindstone.title": "祛除诅咒和附魔惩罚",
   "screen.anvilcraft.royal_grindstone.remove_curse_number": "移除%i个诅咒",
-  "screen.anvilcraft.royal_grindstone.remove_repair_cost": "移除%i级惩罚"
+  "screen.anvilcraft.royal_grindstone.remove_repair_cost": "移除%i级惩罚",
+  "item.anvilcraft.test_item": "Test Item",
+  "block.anvilcraft.lava_cauldron": "Lava Cauldron",
+  "item.anvilcraft.amethyst_axe.tooltip": "Stone pickaxe quality, can mine iron ore, not diamonds!",
+  "item.minecraft.smithing_template": "Royal Steel Upgrade Smithing Template"
 }

@@ -44,7 +44,7 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
     }
 
     public RoyalGrindstoneMenu(int containerId, Inventory playerInventory, ContainerLevelAccess access) {
-        this(ModMenuTypes.ROYAL_GRINDSTONE.getEntry(), containerId, playerInventory, access);
+        this(ModMenuTypes.ROYAL_GRINDSTONE.get(), containerId, playerInventory, access);
     }
 
     public RoyalGrindstoneMenu(MenuType<RoyalGrindstoneMenu> type, int containerId, Inventory playerInventory, ContainerLevelAccess access) {

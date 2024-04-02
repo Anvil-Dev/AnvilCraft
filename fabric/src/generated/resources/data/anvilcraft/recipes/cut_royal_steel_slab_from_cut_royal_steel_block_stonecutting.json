@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "count": 2,
+  "ingredient": {
+    "item": "anvilcraft:cut_royal_steel_block"
+  },
+  "result": "anvilcraft:cut_royal_steel_slab"
+}

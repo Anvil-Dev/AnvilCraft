@@ -1,0 +1,47 @@
+{
+  "type": "anvilcraft:anvil_processing",
+  "icon": {
+    "item": "minecraft:podzol"
+  },
+  "outcomes": [
+    {
+      "type": "set_block",
+      "chance": 1.0,
+      "offset": [
+        0.0,
+        -2.0,
+        0.0
+      ],
+      "result": {
+        "block": "minecraft:podzol",
+        "state": "[snowy=false]"
+      }
+    }
+  ],
+  "predicates": [
+    {
+      "type": "has_block_ingredient",
+      "match_block": {
+        "tag": "minecraft:leaves"
+      },
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ]
+    },
+    {
+      "type": "has_block",
+      "match_block": {
+        "blocks": [
+          "minecraft:dirt"
+        ]
+      },
+      "offset": [
+        0.0,
+        -2.0,
+        0.0
+      ]
+    }
+  ]
+}

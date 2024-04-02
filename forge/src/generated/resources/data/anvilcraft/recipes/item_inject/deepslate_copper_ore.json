@@ -1,0 +1,51 @@
+{
+  "type": "anvilcraft:anvil_processing",
+  "icon": {
+    "item": "minecraft:deepslate_copper_ore"
+  },
+  "outcomes": [
+    {
+      "type": "set_block",
+      "chance": 1.0,
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "result": {
+        "block": "minecraft:deepslate_copper_ore"
+      }
+    }
+  ],
+  "predicates": [
+    {
+      "type": "has_block",
+      "match_block": {
+        "blocks": [
+          "minecraft:deepslate"
+        ]
+      },
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ]
+    },
+    {
+      "type": "has_item_ingredient",
+      "match_item": {
+        "count": {
+          "min": 3
+        },
+        "items": [
+          "minecraft:raw_copper_block"
+        ]
+      },
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ]
+}

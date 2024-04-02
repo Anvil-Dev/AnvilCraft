@@ -18,7 +18,7 @@ public class ChuteMenu extends BaseMachineMenu implements IFilterMenu {
     }
 
     public ChuteMenu(int containerId, @NotNull Inventory inventory, Container machine) {
-        this(ModMenuTypes.CHUTE.getEntry(), containerId, inventory, machine);
+        this(ModMenuTypes.CHUTE.get(), containerId, inventory, machine);
     }
 
     public ChuteMenu(MenuType<ChuteMenu> type, int containerId, @NotNull Inventory inventory, Container machine) {

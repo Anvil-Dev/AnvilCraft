@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.block.entity.AutoCrafterBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.network.MachineOutputDirectionPack;
 import dev.dubhe.anvilcraft.network.MachineRecordMaterialPack;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
@@ -33,6 +34,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -68,15 +70,13 @@ public class AutoCrafterBlock extends BaseEntityBlock {
             return InteractionResult.SUCCESS;
         }
         BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity instanceof AutoCrafterBlockEntity entity) {
-            player.openMenu(entity);
-            if (player instanceof ServerPlayer serverPlayer) {
-                new MachineOutputDirectionPack(entity.getDirection()).send(serverPlayer);
-                new MachineRecordMaterialPack(entity.isRecord()).send(serverPlayer);
-                for (int i = 0; i < entity.getDisabled().size(); i++) {
-                    new SlotDisableChangePack(i, entity.getDisabled().get(i)).send(serverPlayer);
-                    new SlotFilterChangePack(i, entity.getFilter().get(i)).send(serverPlayer);
-                }
+        if (blockEntity instanceof AutoCrafterBlockEntity entity && player instanceof ServerPlayer serverPlayer) {
+            ModMenuTypes.open((ServerPlayer) player, entity);
+            new MachineOutputDirectionPack(entity.getDirection()).send(serverPlayer);
+            new MachineRecordMaterialPack(entity.isRecord()).send(serverPlayer);
+            for (int i = 0; i < entity.getDisabled().size(); i++) {
+                new SlotDisableChangePack(i, entity.getDisabled().get(i)).send(serverPlayer);
+                new SlotFilterChangePack(i, entity.getFilter().get(i)).send(serverPlayer);
             }
         }
         return InteractionResult.SUCCESS;
@@ -96,7 +96,7 @@ public class AutoCrafterBlock extends BaseEntityBlock {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) {
-        return new AutoCrafterBlockEntity(ModBlockEntities.AUTO_CRAFTER.get(),pos, state);
+        return new AutoCrafterBlockEntity(ModBlockEntities.AUTO_CRAFTER.get(), pos, state);
     }
 
     @Nullable

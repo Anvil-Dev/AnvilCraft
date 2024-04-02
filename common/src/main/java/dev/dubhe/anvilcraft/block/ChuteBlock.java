@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
+import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.network.MachineOutputDirectionPack;
 import dev.dubhe.anvilcraft.network.MachineRecordMaterialPack;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
@@ -147,10 +148,8 @@ public class ChuteBlock extends BaseEntityBlock {
     public @Nonnull InteractionResult use(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult hit) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
         BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity instanceof ChuteBlockEntity entity) {
-            player.openMenu(entity);
-            if (!(player instanceof ServerPlayer serverPlayer))
-                return InteractionResult.CONSUME;
+        if (blockEntity instanceof ChuteBlockEntity entity && player instanceof ServerPlayer serverPlayer) {
+            ModMenuTypes.open(serverPlayer, entity);
             new MachineOutputDirectionPack(entity.getDirection()).send(serverPlayer);
             new MachineRecordMaterialPack(entity.isRecord()).send(serverPlayer);
             for (int i = 0; i < entity.getDisabled().size(); i++) {

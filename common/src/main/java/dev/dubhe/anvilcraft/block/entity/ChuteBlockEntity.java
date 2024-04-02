@@ -15,6 +15,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -24,6 +25,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.Hopper;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 import java.util.function.BooleanSupplier;
@@ -189,5 +191,11 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
     @Override
     public double getLevelZ() {
         return this.getBlockPos().getCenter().z;
+    }
+
+    @Nullable
+    @Override
+    public AbstractContainerMenu createMenu(int i,@Nonnull Inventory inventory, @Nonnull Player player) {
+        return new ChuteMenu(i, inventory, this);
     }
 }

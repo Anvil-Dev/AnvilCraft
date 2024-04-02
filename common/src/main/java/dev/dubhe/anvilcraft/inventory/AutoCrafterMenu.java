@@ -40,7 +40,7 @@ public abstract class AutoCrafterMenu extends BaseMachineMenu implements IFilter
     private final Slot resultSlot;
 
     public AutoCrafterMenu(int containerId, @NotNull Inventory inventory, @NotNull CraftingContainer machine) {
-        this(ModMenuTypes.AUTO_CRAFTER.getEntry(), containerId, inventory, machine);
+        this(ModMenuTypes.AUTO_CRAFTER.get(), containerId, inventory, machine);
     }
 
     public AutoCrafterMenu(MenuType<AutoCrafterMenu> type, int containerId, @NotNull Inventory inventory, @NotNull CraftingContainer machine) {

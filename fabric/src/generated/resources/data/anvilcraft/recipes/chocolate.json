@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "anvilcraft:cocoa_liquor"
+    },
+    "B": {
+      "item": "anvilcraft:cocoa_butter"
+    },
+    "C": {
+      "item": "anvilcraft:cream"
+    },
+    "D": {
+      "item": "minecraft:sugar"
+    }
+  },
+  "pattern": [
+    "ABA",
+    "CDC",
+    "ABA"
+  ],
+  "result": {
+    "item": "anvilcraft:chocolate"
+  },
+  "show_notification": true
+}

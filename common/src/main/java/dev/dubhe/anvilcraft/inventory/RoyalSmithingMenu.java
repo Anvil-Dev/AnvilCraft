@@ -36,7 +36,7 @@ public class RoyalSmithingMenu extends ItemCombinerMenu {
     }
 
     public RoyalSmithingMenu(int containerId, Inventory playerInventory, ContainerLevelAccess access) {
-        this(ModMenuTypes.ROYAL_SMITHING.getEntry(), containerId, playerInventory, access);
+        this(ModMenuTypes.ROYAL_SMITHING.get(), containerId, playerInventory, access);
     }
 
     public RoyalSmithingMenu(MenuType<RoyalSmithingMenu> type, int containerId, Inventory playerInventory, ContainerLevelAccess access) {

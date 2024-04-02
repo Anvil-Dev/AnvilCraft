@@ -26,7 +26,7 @@
       "dev.dubhe.anvilcraft.fabric.AnvilCraftFabric"
     ],
     "fabric-datagen": [
-      "dev.dubhe.anvilcraft.data.fabric.AnvilCraftDatagen"
+      "dev.dubhe.anvilcraft.data.generator.fabric.AnvilCraftDatagen"
     ]
   },
   "accessWidener" : "anvilcraft.accesswidener",

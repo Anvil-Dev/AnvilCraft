@@ -1,0 +1,51 @@
+{
+  "type": "anvilcraft:anvil_processing",
+  "icon": {
+    "item": "anvilcraft:debris_scrap"
+  },
+  "outcomes": [
+    {
+      "type": "spawn_item",
+      "chance": 1.0,
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "result": {
+        "item": "anvilcraft:debris_scrap"
+      }
+    }
+  ],
+  "predicates": [
+    {
+      "type": "has_block",
+      "match_block": {
+        "blocks": [
+          "minecraft:smithing_table"
+        ]
+      },
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ]
+    },
+    {
+      "type": "has_item",
+      "match_item": {
+        "count": {
+          "min": 1
+        },
+        "items": [
+          "minecraft:ancient_debris"
+        ]
+      },
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ]
+}

@@ -47,14 +47,13 @@ public class AutoCrafterScreen extends BaseMachineScreen<AutoCrafterMenu> implem
     }
 
     @Override
-    public void renderSlot(GuiGraphics guiGraphics, Slot slot) {
+    public void renderSlot(@NotNull GuiGraphics guiGraphics, @NotNull Slot slot) {
         super.renderSlot(guiGraphics, slot);
         IFilterScreen.super.renderSlot(guiGraphics, slot);
     }
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(guiGraphics);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
     }

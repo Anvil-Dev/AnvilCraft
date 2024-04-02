@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "anvilcraft:debris_scrap"
+    },
+    "B": {
+      "item": "anvilcraft:nether_star_shard"
+    }
+  },
+  "pattern": [
+    "AAA",
+    "ABA",
+    "AAA"
+  ],
+  "result": {
+    "item": "anvilcraft:netherite_core"
+  },
+  "show_notification": true
+}

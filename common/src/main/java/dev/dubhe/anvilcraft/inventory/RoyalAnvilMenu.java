@@ -28,7 +28,7 @@ public class RoyalAnvilMenu extends AnvilMenu {
 
     @Override
     public @NotNull MenuType<?> getType() {
-        return ModMenuTypes.ROYAL_ANVIL.getEntry();
+        return ModMenuTypes.ROYAL_ANVIL.get();
     }
 
     @Override
