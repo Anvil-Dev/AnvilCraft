@@ -8,6 +8,10 @@ String getConfig(String key) {
 
 def mod_id = getConfig("mod_id")
 
+loom {
+    accessWidenerPath = file("src/main/resources/${mod_id}.accesswidener")
+}
+
 repositories {
     maven { url = "https://mvn.devos.one/snapshots/" } // Create Fabric, Porting Lib, Forge Tags, Milk Lib, Registrate Fabric
     //maven { url = "https://maven.cafeteria.dev/releases" } // Fake Player API

@@ -63,7 +63,6 @@ public abstract class Network<T> {
     /**
      * 初始化
      */
-    @ExpectPlatform
     public void init(Class<T> type) {
         throw new AssertionError();
     }
@@ -74,7 +73,6 @@ public abstract class Network<T> {
      * @param player 要发向的玩家
      * @param data   数据
      */
-    @ExpectPlatform
     public void send(ServerPlayer player, T data) {
         throw new AssertionError();
     }
@@ -84,7 +82,6 @@ public abstract class Network<T> {
      *
      * @param data 数据
      */
-    @ExpectPlatform
     public void broadcastAll(T data) {
         throw new AssertionError();
     }
@@ -95,7 +92,6 @@ public abstract class Network<T> {
      * @param chunk 区块
      * @param data  数据
      */
-    @ExpectPlatform
     public void broadcastTrackingChunk(LevelChunk chunk, T data) {
         throw new AssertionError();
     }
@@ -106,38 +102,17 @@ public abstract class Network<T> {
      * @param data 数据
      */
     @Environment(EnvType.CLIENT)
-    @ExpectPlatform
     public void send(T data) {
         throw new AssertionError();
     }
 
+    @ExpectPlatform
+    public static <MSG extends Packet> @NotNull Network<MSG> create(ResourceLocation type, Class<MSG> clazz, Function<FriendlyByteBuf, MSG> decoder) {
+        throw new AssertionError();
+    }
+
     public static <MSG extends Packet> ResourceLocation register(ResourceLocation type, Class<MSG> clazz, Function<FriendlyByteBuf, MSG> decoder) {
-        Network<MSG> network = new Network<>() {
-            @Override
-            public ResourceLocation getType() {
-                return type;
-            }
-
-            @Override
-            public void encode(@NotNull MSG data, @NotNull FriendlyByteBuf buf) {
-                data.encode(buf);
-            }
-
-            @Override
-            public MSG decode(@NotNull FriendlyByteBuf buf) {
-                return decoder.apply(buf);
-            }
-
-            @Override
-            public void handler(@NotNull MSG data) {
-                data.handler();
-            }
-
-            @Override
-            public void handler(@NotNull MSG data, MinecraftServer server, ServerPlayer player) {
-                data.handler(server, player);
-            }
-        };
+        Network<MSG> network = Network.create(type, clazz, decoder);
         Network.NETWORK_MAP.put(type, network);
         network.init(clazz);
         return type;

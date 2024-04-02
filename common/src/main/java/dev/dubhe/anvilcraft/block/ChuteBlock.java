@@ -34,8 +34,9 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 
 import java.util.stream.Stream;
 
@@ -91,47 +92,47 @@ public class ChuteBlock extends BaseEntityBlock {
 
     @Nullable
     @Override
-    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+    public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) {
         return new ChuteBlockEntity(pos, state);
     }
 
     @Override
-    public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
+    public BlockState getStateForPlacement(@Nonnull BlockPlaceContext context) {
         Direction direction = context.getClickedFace().getOpposite();
         return this.defaultBlockState().setValue(FACING, (direction.getAxis() == Direction.Axis.Y ? Direction.DOWN : direction)).setValue(ENABLED, Boolean.TRUE);
     }
 
     @Override
     @SuppressWarnings("deprecation")
-    public @NotNull BlockState rotate(@NotNull BlockState state, @NotNull Rotation rotation) {
+    public @Nonnull BlockState rotate(@Nonnull BlockState state, @Nonnull Rotation rotation) {
         return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
 
     @Override
     @SuppressWarnings("deprecation")
-    public @NotNull BlockState mirror(@NotNull BlockState state, @NotNull Mirror mirror) {
+    public @Nonnull BlockState mirror(@Nonnull BlockState state, @Nonnull Mirror mirror) {
         return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }
 
     @Override
-    protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(@Nonnull StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING, ENABLED);
     }
 
     @Override
-    public @NotNull RenderShape getRenderShape(BlockState state) {
+    public @Nonnull RenderShape getRenderShape(@Nonnull BlockState state) {
         return RenderShape.MODEL;
     }
 
     @Nullable
     @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockEntityType<T> blockEntityType) {
         return (level1, pos, state1, e) -> ChuteBlockEntity.tick(level1, pos, e);
     }
 
     @Override
     @SuppressWarnings("deprecation")
-    public @NotNull VoxelShape getShape(@NotNull BlockState blockState, BlockGetter blockGetter, BlockPos blockPos, CollisionContext collisionContext) {
+    public @Nonnull VoxelShape getShape(@Nonnull BlockState blockState, @Nonnull BlockGetter blockGetter, @Nonnull BlockPos blockPos, @Nonnull CollisionContext collisionContext) {
         return switch (blockState.getValue(FACING)) {
             case NORTH -> AABB_N;
             case SOUTH -> AABB_S;
@@ -143,7 +144,7 @@ public class ChuteBlock extends BaseEntityBlock {
 
     @Override
     @SuppressWarnings("deprecation")
-    public @NotNull InteractionResult use(BlockState state, @NotNull Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    public @Nonnull InteractionResult use(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult hit) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof ChuteBlockEntity entity) {
@@ -162,7 +163,7 @@ public class ChuteBlock extends BaseEntityBlock {
 
     @Override
     @SuppressWarnings("deprecation")
-    public void onRemove(@NotNull BlockState state, Level level, BlockPos pos, @NotNull BlockState newState, boolean movedByPiston) {
+    public void onRemove(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState newState, boolean movedByPiston) {
         if (state.is(newState.getBlock())) return;
         if (level.getBlockEntity(pos) instanceof Container container) {
             Containers.dropContents(level, pos, container);

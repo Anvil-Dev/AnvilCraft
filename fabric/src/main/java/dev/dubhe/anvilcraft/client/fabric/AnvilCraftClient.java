@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.client;
+package dev.dubhe.anvilcraft.client.fabric;
 
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.fabricmc.api.ClientModInitializer;

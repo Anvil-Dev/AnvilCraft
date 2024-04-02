@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.data.generator.recipe;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.generator.MyRecipesGenerator;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
+import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -21,11 +22,11 @@ public abstract class SmashRecipesGenerator {
     }
 
     public static void buildRecipes(Consumer<FinishedRecipe> exporter) {
-        smash(Items.HEART_OF_THE_SEA, ModItems.SEED_OF_THE_SEA, 4, exporter);
-        smash(Items.WET_SPONGE, ModItems.SPONGE_GEMMULE, 2, exporter);
-        smash(Items.NETHER_STAR, ModItems.NETHER_STAR_SHARD, 4, exporter);
-        smash(ModItems.HOLLOW_MAGNET_BLOCK, ModItems.MAGNET_INGOT, 8, exporter);
-        smash(ModItems.MAGNET_BLOCK, ModItems.MAGNET_INGOT, 9, exporter);
+        smash(Items.HEART_OF_THE_SEA, ModItems.SEED_OF_THE_SEA.get(), 4, exporter);
+        smash(Items.WET_SPONGE, ModItems.SPONGE_GEMMULE.get(), 2, exporter);
+        smash(Items.NETHER_STAR, ModItems.NETHER_STAR_SHARD.get(), 4, exporter);
+        smash(ModBlocks.HOLLOW_MAGNET_BLOCK.asItem(), ModItems.MAGNET_INGOT.get(), 8, exporter);
+        smash(ModBlocks.MAGNET_BLOCK.asItem(), ModItems.MAGNET_INGOT.get(), 9, exporter);
         smash(Items.MELON, Items.MELON_SLICE, 9, exporter);
         smash(Items.SNOW_BLOCK, Items.SNOWBALL, 4, exporter);
         smash(Items.CLAY, Items.CLAY_BALL, 4, exporter);

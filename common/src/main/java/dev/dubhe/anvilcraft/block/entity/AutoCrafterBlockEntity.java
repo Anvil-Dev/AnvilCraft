@@ -40,7 +40,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
     @Getter
     private final NonNullList<@Unmodifiable ItemStack> filter = this.getNewFilter();
     private final Deque<CraftingRecipe> cache = new ArrayDeque<>();
-    public AutoCrafterBlockEntity(BlockEntityType<? extends BaseMachineBlockEntity> type, BlockPos pos, BlockState blockState) {
+    public AutoCrafterBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState, 9);
         this.direction = blockState.getValue(AutoCrafterBlock.FACING);
     }

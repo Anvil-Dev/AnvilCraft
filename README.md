@@ -45,9 +45,14 @@
 
 * 赞助名单：
   <table>
-  <tr>
-    <td align="center"><a href="https://space.bilibili.com/13029727"><img src="https://i1.hdslb.com/bfs/face/c18a515409c357bea5de096f5af5eef3ffdc6f75.jpg" width="100px" height="100px" alt=""/><br /><sub><b>塔壳take</b></sub></a><br /><a title="Money">💵</a></td>
-    <td align="center"><a href="https://space.bilibili.com/17486924"><img src="https://i2.hdslb.com/bfs/face/cab0b2fc2af9f2156af1783de27d6636049cc2b9.jpg" width="100px" height="100px" alt=""/><br /><sub><b>BOTXue</b></sub></a><br /><a title="Money">💵</a></td>
-    <td align="center"><a href="https://space.bilibili.com/509257288"><img src="https://i1.hdslb.com/bfs/face/2489833c76a9888fb896459a2cf550747abbf2df.jpg" width="100px" height="100px" alt=""/><br /><sub><b>弭忧萌虾</b></sub></a><br /><a title="Money">💵</a></td>
-  </tr>
+    <tr>
+      <td align="center"><a href="https://space.bilibili.com/13029727"><img src="https://i1.hdslb.com/bfs/face/c18a515409c357bea5de096f5af5eef3ffdc6f75.jpg" width="100px" height="100px" alt=""/><br /><sub><b>塔壳take</b></sub></a><br /><a title="Money">💵</a></td>
+      <td align="center"><a href="https://space.bilibili.com/17486924"><img src="https://i2.hdslb.com/bfs/face/cab0b2fc2af9f2156af1783de27d6636049cc2b9.jpg" width="100px" height="100px" alt=""/><br /><sub><b>BOTXue</b></sub></a><br /><a title="Money">💵</a></td>
+      <td align="center"><a href="https://space.bilibili.com/509257288"><img src="https://i1.hdslb.com/bfs/face/2489833c76a9888fb896459a2cf550747abbf2df.jpg" width="100px" height="100px" alt=""/><br /><sub><b>弭忧萌虾</b></sub></a><br /><a title="Money">💵</a></td>
+      <td align="center"><a href="https://space.bilibili.com/484142219"><img src="https://i2.hdslb.com/bfs/face/d198e6e711865ae8ba9234b1eafcb05bc1df332b.jpg" width="100px" height="100px" alt=""/><br /><sub><b>秋水AuU_</b></sub></a><br /><a title="Money">💵</a></td>
+      <td align="center"><a href="https://space.bilibili.com/454566094"><img src="https://i1.hdslb.com/bfs/face/feb236fef6471a90ce4ded663de089ffe72cb76a.jpg" width="100px" height="100px" alt=""/><br /><sub><b>HS_Frederick</b></sub></a><br /><a title="Money">💵</a></td>
+      <td align="center"><a href="https://space.bilibili.com/528521905"><img src="https://i1.hdslb.com/bfs/face/79ca0cb470cf3c15ab33c77a237558a5d3743adc.jpg" width="100px" height="100px" alt=""/><br /><sub><b>Bi2Nb9O3</b></sub></a><br /><a title="Money">💵</a></td>
+    </tr>
+    <tr>
+    </tr>
   </table>

@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.ChuteBlock;
+import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.ChuteMenu;
 import lombok.Getter;
@@ -23,8 +24,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.Hopper;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import java.util.function.BooleanSupplier;
 
 public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterBlockEntity, Hopper {
@@ -37,13 +38,17 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
     @Getter
     private final NonNullList<ItemStack> filter = this.getNewFilter();
 
-    public ChuteBlockEntity(BlockEntityType<? extends BaseMachineBlockEntity> type, BlockPos pos, BlockState blockState) {
+    public ChuteBlockEntity(BlockPos pos, BlockState blockState) {
+        this(ModBlockEntities.CHUTE.get(), pos, blockState);
+    }
+
+    public ChuteBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState, 9);
         this.direction = blockState.getValue(ChuteBlock.FACING);
     }
 
     @Override
-    public boolean canPlaceItem(int index, ItemStack stack) {
+    public boolean canPlaceItem(int index, @Nonnull ItemStack stack) {
         if (this.getDisabled().get(index)) return false;
         ItemStack itemStack1 = this.items.get(index);
         ItemStack itemStack2 = this.getFilter().get(index);
@@ -52,12 +57,12 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
     }
 
     @Override
-    protected @NotNull Component getDefaultName() {
+    protected @Nonnull Component getDefaultName() {
         return Component.translatable("block.anvilcraft.chute");
     }
 
     @Override
-    protected @NotNull AbstractContainerMenu createMenu(int containerId, Inventory inventory) {
+    protected @Nonnull AbstractContainerMenu createMenu(int containerId, @Nonnull Inventory inventory) {
         return new ChuteMenu(containerId, inventory, this);
     }
 
@@ -82,28 +87,28 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
     }
 
     @Override
-    public void load(@NotNull CompoundTag tag) {
+    public void load(@Nonnull CompoundTag tag) {
         super.load(tag);
         this.cooldown = tag.getInt("cooldown");
         this.loadTag(tag);
     }
 
     @Override
-    protected void saveAdditional(@NotNull CompoundTag tag) {
+    protected void saveAdditional(@Nonnull CompoundTag tag) {
         super.saveAdditional(tag);
         tag.putInt("cooldown", this.cooldown);
         this.saveTag(tag);
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    private static boolean tryMoveItems(@NotNull Level level, BlockPos pos, BlockState state, ChuteBlockEntity blockEntity, BooleanSupplier validator) {
+    private static boolean tryMoveItems(@Nonnull Level level, BlockPos pos, BlockState state, ChuteBlockEntity blockEntity, BooleanSupplier validator) {
         if (level.isClientSide) {
             return false;
         }
         if (!blockEntity.isOnCooldown() && state.getValue(HopperBlock.ENABLED)) {
             boolean bl = false;
             if (!blockEntity.isEmpty()) {
-                bl = HopperBlockEntity.ejectItems(level, pos, state, blockEntity);
+                // bl = HopperBlockEntity.ejectItems(level, pos, state, blockEntity);
             }
             if (!blockEntity.inventoryFull()) {
                 bl |= validator.getAsBoolean();
@@ -132,7 +137,7 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
         return false;
     }
 
-    private static boolean tryTakeInItemFromSlot(Hopper hopper, @NotNull Container container, int slot, Direction direction) {
+    private static boolean tryTakeInItemFromSlot(Hopper hopper, @Nonnull Container container, int slot, Direction direction) {
         ItemStack itemStack = container.getItem(slot);
         if (!itemStack.isEmpty() && HopperBlockEntity.canTakeItemFromContainer(hopper, container, itemStack, slot, direction)) {
             ItemStack itemStack3 = HopperBlockEntity.addItem(container, hopper, itemStack, null);
@@ -163,7 +168,7 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
         Level level = this.getLevel();
         if (null == level) return;
         BlockState state = level.getBlockState(pos);
-        if (!state.is(ModBlocks.CHUTE)) return;
+        if (!state.is(ModBlocks.CHUTE.get())) return;
         level.setBlockAndUpdate(pos, state.setValue(ChuteBlock.FACING, direction));
     }
 

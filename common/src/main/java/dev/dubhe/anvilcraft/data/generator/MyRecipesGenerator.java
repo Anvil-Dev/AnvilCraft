@@ -78,14 +78,14 @@ public class MyRecipesGenerator extends FabricRecipeProvider {
                 .hasItemIngredient(ModItems.KERNEL_OF_THE_SEA)
                 .spawnItem(Items.HEART_OF_THE_SEA)
                 .spawnItem(Items.PRISMARINE_SHARD)
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.KERNEL_OF_THE_SEA), FabricRecipeProvider.has(ModItems.KERNEL_OF_THE_SEA))
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.KERNEL_OF_THE_SEA.get()), FabricRecipeProvider.has(ModItems.KERNEL_OF_THE_SEA))
                 .save(exporter);
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .hasBlock(Blocks.SOUL_SOIL)
                 .hasItemIngredient(ModItems.NETHERITE_COIL)
                 .setBlock(Blocks.ANCIENT_DEBRIS)
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.SOUL_SOIL), FabricRecipeProvider.has(Items.SOUL_SOIL))
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.NETHERITE_COIL), FabricRecipeProvider.has(ModItems.NETHERITE_COIL))
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.NETHERITE_COIL.get()), FabricRecipeProvider.has(ModItems.NETHERITE_COIL))
                 .save(exporter);
         SmashRecipesGenerator.buildRecipes(exporter);
         CookingRecipesGenerator.buildRecipes(exporter);

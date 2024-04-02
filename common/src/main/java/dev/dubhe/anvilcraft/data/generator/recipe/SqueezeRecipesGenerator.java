@@ -24,7 +24,7 @@ public abstract class SqueezeRecipesGenerator {
     }
 
     public static void buildRecipes(Consumer<FinishedRecipe> exporter) {
-        squeeze(Blocks.MAGMA_BLOCK, Blocks.NETHERRACK, ModBlocks.LAVA_CAULDRON, exporter);
+        squeeze(Blocks.MAGMA_BLOCK, Blocks.NETHERRACK, ModBlocks.LAVA_CAULDRON.get(), exporter);
         squeeze(Blocks.WET_SPONGE, Blocks.SPONGE, Blocks.WATER_CAULDRON, exporter);
         squeeze(Blocks.MOSS_BLOCK, Blocks.MOSS_CARPET, Blocks.WATER_CAULDRON, exporter);
         squeeze(Blocks.SNOW_BLOCK, Blocks.ICE, Blocks.POWDER_SNOW_CAULDRON, exporter);

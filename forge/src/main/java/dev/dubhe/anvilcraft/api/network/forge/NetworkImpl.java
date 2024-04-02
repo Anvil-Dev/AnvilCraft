@@ -1,6 +1,10 @@
 package dev.dubhe.anvilcraft.api.network.forge;
 
 import dev.dubhe.anvilcraft.api.network.Network;
+import dev.dubhe.anvilcraft.api.network.Packet;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraftforge.api.distmarker.Dist;
@@ -8,6 +12,9 @@ import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.function.Function;
 
 public abstract class NetworkImpl<T> extends Network<T> {
     private static final String PROTOCOL_VERSION = "1";
@@ -53,5 +60,34 @@ public abstract class NetworkImpl<T> extends Network<T> {
     public void send(ServerPlayer player, T data) {
         if (this.instance == null) return;
         this.instance.send(PacketDistributor.PLAYER.with(() -> player), data);
+    }
+
+    public static <MSG extends Packet> @NotNull Network<MSG> create(ResourceLocation type, Class<MSG> clazz, Function<FriendlyByteBuf, MSG> decoder){
+        return new NetworkImpl<>() {
+            @Override
+            public ResourceLocation getType() {
+                return type;
+            }
+
+            @Override
+            public void encode(@NotNull MSG data, @NotNull FriendlyByteBuf buf) {
+                data.encode(buf);
+            }
+
+            @Override
+            public MSG decode(@NotNull FriendlyByteBuf buf) {
+                return decoder.apply(buf);
+            }
+
+            @Override
+            public void handler(@NotNull MSG data) {
+                data.handler();
+            }
+
+            @Override
+            public void handler(@NotNull MSG data, MinecraftServer server, ServerPlayer player) {
+                data.handler(server, player);
+            }
+        };
     }
 }

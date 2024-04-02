@@ -23,7 +23,7 @@ abstract class AxeItemMixin {
         BlockPos pos = context.getClickedPos().relative(direction);
         Vec3 vec3 = pos.getCenter().relative(direction, -0.25);
         Vec3 move = pos.getCenter().subtract(vec3);
-        ItemEntity entity = new ItemEntity(context.getLevel(), vec3.x, vec3.y, vec3.z, ModItems.BARK.getDefaultInstance(), move.x, move.y, move.z);
+        ItemEntity entity = new ItemEntity(context.getLevel(), vec3.x, vec3.y, vec3.z, ModItems.BARK.get().getDefaultInstance(), move.x, move.y, move.z);
         context.getLevel().addFreshEntity(entity);
     }
 }

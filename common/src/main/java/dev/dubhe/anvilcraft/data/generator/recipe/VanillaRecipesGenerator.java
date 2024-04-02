@@ -26,28 +26,28 @@ public abstract class VanillaRecipesGenerator {
 
     public static void buildRecipes(Consumer<FinishedRecipe> exporter) {
         // 工作台配方
-        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.FERRITE_CORE_MAGNET_BLOCK)
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModBlocks.FERRITE_CORE_MAGNET_BLOCK)
                 .pattern("AAA")
                 .pattern("ABA")
                 .pattern("AAA")
                 .define('A', ModItems.MAGNET_INGOT)
                 .define('B', Items.IRON_INGOT)
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.MAGNET_INGOT), FabricRecipeProvider.has(ModItems.MAGNET_INGOT))
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.MAGNET_INGOT.get()), FabricRecipeProvider.has(ModItems.MAGNET_INGOT))
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.IRON_INGOT), FabricRecipeProvider.has(Items.IRON_INGOT))
                 .save(exporter);
-        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.MAGNET_BLOCK)
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModBlocks.MAGNET_BLOCK)
                 .pattern("AAA")
                 .pattern("AAA")
                 .pattern("AAA")
                 .define('A', ModItems.MAGNET_INGOT)
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.MAGNET_INGOT), FabricRecipeProvider.has(ModItems.MAGNET_INGOT))
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.MAGNET_INGOT.get()), FabricRecipeProvider.has(ModItems.MAGNET_INGOT))
                 .save(exporter);
-        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.HOLLOW_MAGNET_BLOCK)
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModBlocks.HOLLOW_MAGNET_BLOCK)
                 .pattern("AAA")
                 .pattern("A A")
                 .pattern("AAA")
                 .define('A', ModItems.MAGNET_INGOT)
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.MAGNET_INGOT), FabricRecipeProvider.has(ModItems.MAGNET_INGOT))
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.MAGNET_INGOT.get()), FabricRecipeProvider.has(ModItems.MAGNET_INGOT))
                 .save(exporter);
         ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.MAGNET)
                 .pattern(" A ")
@@ -57,7 +57,7 @@ public abstract class VanillaRecipesGenerator {
                 .define('B', ModItems.MAGNET_INGOT)
                 .define('C', Items.ENDER_PEARL)
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.REDSTONE), FabricRecipeProvider.has(Items.REDSTONE))
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.MAGNET_INGOT), FabricRecipeProvider.has(ModItems.MAGNET_INGOT))
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.MAGNET_INGOT.get()), FabricRecipeProvider.has(ModItems.MAGNET_INGOT))
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.ENDER_PEARL), FabricRecipeProvider.has(Items.ENDER_PEARL))
                 .save(exporter);
         ShapedTagRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.AMETHYST_PICKAXE.asItem().getDefaultInstance())
@@ -75,8 +75,8 @@ public abstract class VanillaRecipesGenerator {
                 .pattern("AAA")
                 .define('A', ModItems.DEBRIS_SCRAP)
                 .define('B', ModItems.NETHER_STAR_SHARD)
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.DEBRIS_SCRAP), FabricRecipeProvider.has(ModItems.DEBRIS_SCRAP))
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.NETHER_STAR_SHARD), FabricRecipeProvider.has(ModItems.NETHER_STAR_SHARD))
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.DEBRIS_SCRAP.get()), FabricRecipeProvider.has(ModItems.DEBRIS_SCRAP))
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.NETHER_STAR_SHARD.get()), FabricRecipeProvider.has(ModItems.NETHER_STAR_SHARD))
                 .save(exporter);
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.NETHERITE_COIL)
                 .pattern("AAA")
@@ -85,14 +85,14 @@ public abstract class VanillaRecipesGenerator {
                 .define('A', Items.LIGHT_WEIGHTED_PRESSURE_PLATE)
                 .define('B', ModItems.NETHERITE_CORE)
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.LIGHT_WEIGHTED_PRESSURE_PLATE), FabricRecipeProvider.has(Items.LIGHT_WEIGHTED_PRESSURE_PLATE))
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.NETHERITE_CORE), FabricRecipeProvider.has(ModItems.NETHERITE_CORE))
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.NETHERITE_CORE.get()), FabricRecipeProvider.has(ModItems.NETHERITE_CORE))
                 .save(exporter);
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.ELYTRA_MEMBRANE)
                 .pattern("AB")
                 .pattern("BB")
                 .define('A', ModItems.ELYTRA_FRAME)
                 .define('B', Items.PHANTOM_MEMBRANE)
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.ELYTRA_FRAME), FabricRecipeProvider.has(ModItems.ELYTRA_FRAME))
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.ELYTRA_FRAME.get()), FabricRecipeProvider.has(ModItems.ELYTRA_FRAME))
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.PHANTOM_MEMBRANE), FabricRecipeProvider.has(Items.PHANTOM_MEMBRANE))
                 .save(exporter);
         ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, Items.ELYTRA)
@@ -102,7 +102,7 @@ public abstract class VanillaRecipesGenerator {
                 .define('A', ModItems.ELYTRA_MEMBRANE)
                 .define('B', Items.STRING)
                 .define('C', Items.FEATHER)
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.ELYTRA_MEMBRANE), FabricRecipeProvider.has(ModItems.ELYTRA_MEMBRANE))
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.ELYTRA_MEMBRANE.get()), FabricRecipeProvider.has(ModItems.ELYTRA_MEMBRANE))
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.STRING), FabricRecipeProvider.has(Items.STRING))
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.FEATHER), FabricRecipeProvider.has(Items.FEATHER))
                 .save(exporter);
@@ -112,15 +112,15 @@ public abstract class VanillaRecipesGenerator {
                 .pattern("B  ")
                 .define('A', ModItems.BLADE_OF_THE_SEA)
                 .define('B', Items.PRISMARINE_SHARD)
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.BLADE_OF_THE_SEA), FabricRecipeProvider.has(ModItems.BLADE_OF_THE_SEA))
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.BLADE_OF_THE_SEA.get()), FabricRecipeProvider.has(ModItems.BLADE_OF_THE_SEA))
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.PRISMARINE_SHARD), FabricRecipeProvider.has(Items.PRISMARINE_SHARD))
                 .save(exporter);
         ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, ModItems.COCOA_LIQUOR, 2)
                 .requires(ModItems.COCOA_POWDER)
                 .requires(ModItems.COCOA_POWDER)
                 .requires(ModItems.COCOA_BUTTER)
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.COCOA_POWDER), FabricRecipeProvider.has(ModItems.COCOA_POWDER))
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.COCOA_BUTTER), FabricRecipeProvider.has(ModItems.COCOA_BUTTER))
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.COCOA_POWDER.get()), FabricRecipeProvider.has(ModItems.COCOA_POWDER))
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.COCOA_BUTTER.get()), FabricRecipeProvider.has(ModItems.COCOA_BUTTER))
                 .save(exporter);
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.CHOCOLATE)
                 .pattern("ABA")
@@ -130,9 +130,9 @@ public abstract class VanillaRecipesGenerator {
                 .define('B', ModItems.COCOA_BUTTER)
                 .define('C', ModItems.CREAM)
                 .define('D', Items.SUGAR)
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.COCOA_LIQUOR), FabricRecipeProvider.has(ModItems.COCOA_LIQUOR))
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.COCOA_BUTTER), FabricRecipeProvider.has(ModItems.COCOA_BUTTER))
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.CREAM), FabricRecipeProvider.has(ModItems.CREAM))
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.COCOA_LIQUOR.get()), FabricRecipeProvider.has(ModItems.COCOA_LIQUOR))
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.COCOA_BUTTER.get()), FabricRecipeProvider.has(ModItems.COCOA_BUTTER))
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.CREAM.get()), FabricRecipeProvider.has(ModItems.CREAM))
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.SUGAR), FabricRecipeProvider.has(Items.SUGAR))
                 .save(exporter);
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.CHOCOLATE_WHITE)
@@ -142,8 +142,8 @@ public abstract class VanillaRecipesGenerator {
                 .define('A', ModItems.COCOA_BUTTER)
                 .define('B', ModItems.CREAM)
                 .define('C', Items.SUGAR)
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.COCOA_BUTTER), FabricRecipeProvider.has(ModItems.COCOA_BUTTER))
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.CREAM), FabricRecipeProvider.has(ModItems.CREAM))
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.COCOA_BUTTER.get()), FabricRecipeProvider.has(ModItems.COCOA_BUTTER))
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.CREAM.get()), FabricRecipeProvider.has(ModItems.CREAM))
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.SUGAR), FabricRecipeProvider.has(Items.SUGAR))
                 .save(exporter);
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.CHOCOLATE_BLACK)
@@ -153,27 +153,27 @@ public abstract class VanillaRecipesGenerator {
                 .define('A', ModItems.COCOA_LIQUOR)
                 .define('B', ModItems.COCOA_BUTTER)
                 .define('C', Items.SUGAR)
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.COCOA_LIQUOR), FabricRecipeProvider.has(ModItems.COCOA_LIQUOR))
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.COCOA_BUTTER), FabricRecipeProvider.has(ModItems.COCOA_BUTTER))
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.COCOA_LIQUOR.get()), FabricRecipeProvider.has(ModItems.COCOA_LIQUOR))
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.COCOA_BUTTER.get()), FabricRecipeProvider.has(ModItems.COCOA_BUTTER))
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.SUGAR), FabricRecipeProvider.has(Items.SUGAR))
                 .save(exporter);
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.ROYAL_STEEL_BLOCK)
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.ROYAL_STEEL_BLOCK)
                 .pattern("AAA")
                 .pattern("AAA")
                 .pattern("AAA")
                 .define('A', ModItems.ROYAL_STEEL_INGOT)
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.ROYAL_STEEL_INGOT), FabricRecipeProvider.has(ModItems.ROYAL_STEEL_INGOT))
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.ROYAL_STEEL_INGOT.get()), FabricRecipeProvider.has(ModItems.ROYAL_STEEL_INGOT))
                 .save(exporter);
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.ROYAL_STEEL_INGOT, 9)
-                .requires(ModItems.ROYAL_STEEL_BLOCK)
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.ROYAL_STEEL_BLOCK), FabricRecipeProvider.has(ModItems.ROYAL_STEEL_BLOCK))
+                .requires(ModBlocks.ROYAL_STEEL_BLOCK)
+                .unlockedBy(MyRecipesGenerator.hasItem(ModBlocks.ROYAL_STEEL_BLOCK.asItem()), FabricRecipeProvider.has(ModBlocks.ROYAL_STEEL_BLOCK))
                 .save(exporter, AnvilCraft.of("craft/cut_royal_steel_slab_1"));
         ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, ModItems.CREAMY_BREAD_ROLL)
                 .requires(Items.BREAD)
                 .requires(ModItems.CREAM)
                 .requires(Items.SUGAR)
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.BREAD), FabricRecipeProvider.has(Items.BREAD))
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.CREAM), FabricRecipeProvider.has(ModItems.CREAM))
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.CREAM.get()), FabricRecipeProvider.has(ModItems.CREAM))
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.SUGAR), FabricRecipeProvider.has(Items.SUGAR))
                 .save(exporter);
         ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, ModItems.BEEF_MUSHROOM_STEW_RAW)
@@ -199,32 +199,32 @@ public abstract class VanillaRecipesGenerator {
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.WITHER_ROSE), FabricRecipeProvider.has(Items.WITHER_ROSE))
                 .save(exporter);
         ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, ModItems.MAGNET_INGOT, 9)
-                .requires(ModItems.MAGNET_BLOCK)
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.MAGNET_BLOCK), FabricRecipeProvider.has(ModItems.MAGNET_BLOCK))
+                .requires(ModBlocks.MAGNET_BLOCK)
+                .unlockedBy(MyRecipesGenerator.hasItem(ModBlocks.MAGNET_BLOCK.asItem()), FabricRecipeProvider.has(ModBlocks.MAGNET_BLOCK))
                 .save(exporter, AnvilCraft.of("craft/magnet_ingot_9"));
         ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, ModItems.MAGNET_INGOT, 8)
-                .requires(ModItems.HOLLOW_MAGNET_BLOCK)
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.MAGNET_BLOCK), FabricRecipeProvider.has(ModItems.MAGNET_BLOCK))
+                .requires(ModBlocks.HOLLOW_MAGNET_BLOCK)
+                .unlockedBy(MyRecipesGenerator.hasItem(ModBlocks.MAGNET_BLOCK.asItem()), FabricRecipeProvider.has(ModBlocks.MAGNET_BLOCK))
                 .save(exporter, AnvilCraft.of("craft/magnet_ingot_8"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.CUT_ROYAL_STEEL_BLOCK, 4)
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.CUT_ROYAL_STEEL_BLOCK, 4)
                 .pattern("AA")
                 .pattern("AA")
-                .define('A', ModItems.ROYAL_STEEL_BLOCK)
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.ROYAL_STEEL_BLOCK), FabricRecipeProvider.has(ModItems.ROYAL_STEEL_BLOCK))
+                .define('A', ModBlocks.ROYAL_STEEL_BLOCK)
+                .unlockedBy(MyRecipesGenerator.hasItem(ModBlocks.ROYAL_STEEL_BLOCK.asItem()), FabricRecipeProvider.has(ModBlocks.ROYAL_STEEL_BLOCK))
                 .save(exporter, AnvilCraft.of("craft/cut_royal_steel_block"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.CUT_ROYAL_STEEL_STAIRS, 4)
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.CUT_ROYAL_STEEL_STAIRS, 4)
                 .pattern("A  ")
                 .pattern("AA ")
                 .pattern("AAA")
-                .define('A', ModItems.CUT_ROYAL_STEEL_BLOCK)
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.CUT_ROYAL_STEEL_BLOCK), FabricRecipeProvider.has(ModItems.CUT_ROYAL_STEEL_BLOCK))
+                .define('A', ModBlocks.CUT_ROYAL_STEEL_BLOCK)
+                .unlockedBy(MyRecipesGenerator.hasItem(ModBlocks.CUT_ROYAL_STEEL_BLOCK.asItem()), FabricRecipeProvider.has(ModBlocks.CUT_ROYAL_STEEL_BLOCK))
                 .save(exporter, AnvilCraft.of("craft/cut_royal_steel_stairs"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.CUT_ROYAL_STEEL_SLAB, 6)
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.CUT_ROYAL_STEEL_SLAB, 6)
                 .pattern("AAA")
-                .define('A', ModItems.CUT_ROYAL_STEEL_BLOCK)
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.CUT_ROYAL_STEEL_BLOCK), FabricRecipeProvider.has(ModItems.CUT_ROYAL_STEEL_BLOCK))
+                .define('A', ModBlocks.CUT_ROYAL_STEEL_BLOCK)
+                .unlockedBy(MyRecipesGenerator.hasItem(ModBlocks.CUT_ROYAL_STEEL_BLOCK.asItem()), FabricRecipeProvider.has(ModBlocks.CUT_ROYAL_STEEL_BLOCK))
                 .save(exporter, AnvilCraft.of("craft/cut_royal_steel_slab"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.AUTO_CRAFTER)
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModBlocks.AUTO_CRAFTER)
                 .pattern("AAA")
                 .pattern("ABA")
                 .pattern("ACA")
@@ -235,7 +235,7 @@ public abstract class VanillaRecipesGenerator {
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.CRAFTING_TABLE), FabricRecipeProvider.has(Items.CRAFTING_TABLE))
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.DROPPER), FabricRecipeProvider.has(Items.DROPPER))
                 .save(exporter);
-        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.CHUTE)
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModBlocks.CHUTE)
                 .pattern("A A")
                 .pattern("ABA")
                 .pattern(" A ")
@@ -264,16 +264,16 @@ public abstract class VanillaRecipesGenerator {
                 .save(exporter);
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.ROYAL_STEEL_NUGGET, 9)
                 .requires(ModItems.ROYAL_STEEL_INGOT)
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.ROYAL_STEEL_NUGGET), FabricRecipeProvider.has(ModItems.ROYAL_STEEL_NUGGET))
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.ROYAL_STEEL_NUGGET.get()), FabricRecipeProvider.has(ModItems.ROYAL_STEEL_NUGGET))
                 .save(exporter);
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.ROYAL_STEEL_INGOT)
                 .pattern("AAA")
                 .pattern("AAA")
                 .pattern("AAA")
                 .define('A', ModItems.ROYAL_STEEL_NUGGET)
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.ROYAL_STEEL_NUGGET), FabricRecipeProvider.has(ModItems.ROYAL_STEEL_NUGGET))
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.ROYAL_STEEL_NUGGET.get()), FabricRecipeProvider.has(ModItems.ROYAL_STEEL_NUGGET))
                 .save(exporter, AnvilCraft.of("craft/cut_royal_steel_slab_2"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.STAMPING_PLATFORM)
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModBlocks.STAMPING_PLATFORM)
                 .pattern("BAB")
                 .pattern("B B")
                 .pattern("B B")
@@ -283,39 +283,39 @@ public abstract class VanillaRecipesGenerator {
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.IRON_INGOT), FabricRecipeProvider.has(Items.IRON_INGOT))
                 .save(exporter);
         //诅咒黄金系
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.CURSED_GOLD_BLOCK)
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.CURSED_GOLD_BLOCK)
                 .pattern("AAA")
                 .pattern("AAA")
                 .pattern("AAA")
                 .define('A', ModItems.CURSED_GOLD_INGOT)
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.CURSED_GOLD_INGOT), FabricRecipeProvider.has(ModItems.CURSED_GOLD_INGOT))
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.CURSED_GOLD_INGOT.get()), FabricRecipeProvider.has(ModItems.CURSED_GOLD_INGOT))
                 .save(exporter);
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.CURSED_GOLD_INGOT, 9)
-                .requires(ModItems.CURSED_GOLD_BLOCK)
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.CURSED_GOLD_BLOCK), FabricRecipeProvider.has(ModItems.CURSED_GOLD_BLOCK))
+                .requires(ModBlocks.CURSED_GOLD_BLOCK)
+                .unlockedBy(MyRecipesGenerator.hasItem(ModBlocks.CURSED_GOLD_BLOCK.asItem()), FabricRecipeProvider.has(ModBlocks.CURSED_GOLD_BLOCK))
                 .save(exporter, AnvilCraft.of("craft/cursed_gold_ingot_1"));
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.CURSED_GOLD_INGOT)
                 .pattern("AAA")
                 .pattern("AAA")
                 .pattern("AAA")
                 .define('A', ModItems.CURSED_GOLD_NUGGET)
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.CURSED_GOLD_NUGGET), FabricRecipeProvider.has(ModItems.CURSED_GOLD_NUGGET))
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.CURSED_GOLD_NUGGET.get()), FabricRecipeProvider.has(ModItems.CURSED_GOLD_NUGGET))
                 .save(exporter, AnvilCraft.of("craft/cursed_gold_ingot_2"));
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.CURSED_GOLD_NUGGET, 9)
                 .requires(ModItems.CURSED_GOLD_INGOT)
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.CURSED_GOLD_INGOT), FabricRecipeProvider.has(ModItems.CURSED_GOLD_INGOT))
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.CURSED_GOLD_INGOT.get()), FabricRecipeProvider.has(ModItems.CURSED_GOLD_INGOT))
                 .save(exporter);
 
         ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, ModItems.CREAMY_BREAD_ROLL);
         // 烹饪配方
         SimpleCookingRecipeBuilder.campfireCooking(Ingredient.of(ModItemTags.DOUGH), RecipeCategory.FOOD, Items.BREAD, 0.35f, 600)
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.DOUGH), FabricRecipeProvider.has(ModItems.DOUGH))
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.DOUGH.get()), FabricRecipeProvider.has(ModItems.DOUGH))
                 .save(exporter, AnvilCraft.of("campfire_cooking_bread"));
         SimpleCookingRecipeBuilder.smoking(Ingredient.of(ModItemTags.DOUGH), RecipeCategory.FOOD, Items.BREAD, 0.35f, 100)
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.DOUGH), FabricRecipeProvider.has(ModItems.DOUGH))
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.DOUGH.get()), FabricRecipeProvider.has(ModItems.DOUGH))
                 .save(exporter, AnvilCraft.of("smoking_bread"));
         SimpleCookingRecipeBuilder.generic(Ingredient.of(ModItemTags.DOUGH), RecipeCategory.FOOD, Items.BREAD, 0.35f, 600, RecipeSerializer.SMOKING_RECIPE)
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.DOUGH), FabricRecipeProvider.has(ModItems.DOUGH))
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.DOUGH.get()), FabricRecipeProvider.has(ModItems.DOUGH))
                 .save(exporter, AnvilCraft.of("generic_cooking_bread"));
         // 切石机配方
         VanillaRecipeProvider.stonecutterResultFromBase(exporter, RecipeCategory.BUILDING_BLOCKS, ModBlocks.CUT_ROYAL_STEEL_STAIRS, ModBlocks.CUT_ROYAL_STEEL_BLOCK);
@@ -325,19 +325,19 @@ public abstract class VanillaRecipesGenerator {
         VanillaRecipeProvider.stonecutterResultFromBase(exporter, RecipeCategory.BUILDING_BLOCKS, ModBlocks.CUT_ROYAL_STEEL_SLAB, ModBlocks.ROYAL_STEEL_BLOCK, 8);
         VanillaRecipeProvider.stonecutterResultFromBase(exporter, RecipeCategory.BUILDING_BLOCKS, ModBlocks.SMOOTH_ROYAL_STEEL_BLOCK, ModBlocks.ROYAL_STEEL_BLOCK, 4);
         // 锻造台配方
-        SmithingTransformRecipeBuilder.smithing(Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE), Ingredient.of(ModItemTags.ROYAL_STEEL_PICKAXE_BASE), Ingredient.of(ModItems.ROYAL_STEEL_INGOT), RecipeCategory.TOOLS, ModItems.ROYAL_STEEL_PICKAXE)
+        SmithingTransformRecipeBuilder.smithing(Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE), Ingredient.of(ModItemTags.ROYAL_STEEL_PICKAXE_BASE), Ingredient.of(ModItems.ROYAL_STEEL_INGOT.get()), RecipeCategory.TOOLS, ModItems.ROYAL_STEEL_PICKAXE.get())
                 .unlocks(MyRecipesGenerator.hasItem(ModItems.AMETHYST_PICKAXE.asItem()), FabricRecipeProvider.has(ModItems.AMETHYST_PICKAXE))
                 .save(exporter, AnvilCraft.of("smithing/royal_steel_pickaxe"));
-        SmithingTransformRecipeBuilder.smithing(Ingredient.of(), Ingredient.of(Items.GRINDSTONE), Ingredient.of(ModItems.ROYAL_STEEL_BLOCK), RecipeCategory.TOOLS, ModItems.ROYAL_GRINDSTONE)
-                .unlocks(MyRecipesGenerator.hasItem(ModItems.ROYAL_STEEL_BLOCK), FabricRecipeProvider.has(ModItems.ROYAL_STEEL_BLOCK))
+        SmithingTransformRecipeBuilder.smithing(Ingredient.of(), Ingredient.of(Items.GRINDSTONE), Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK), RecipeCategory.TOOLS, ModBlocks.ROYAL_GRINDSTONE.asItem())
+                .unlocks(MyRecipesGenerator.hasItem(ModBlocks.ROYAL_STEEL_BLOCK.asItem()), FabricRecipeProvider.has(ModBlocks.ROYAL_STEEL_BLOCK))
                 .unlocks(MyRecipesGenerator.hasItem(Items.GRINDSTONE), FabricRecipeProvider.has(Items.GRINDSTONE))
                 .save(exporter, AnvilCraft.of("smithing/royal_grindstone"));
-        SmithingTransformRecipeBuilder.smithing(Ingredient.of(), Ingredient.of(Items.ANVIL), Ingredient.of(ModItems.ROYAL_STEEL_BLOCK), RecipeCategory.TOOLS, ModItems.ROYAL_ANVIL)
-                .unlocks(MyRecipesGenerator.hasItem(ModItems.ROYAL_STEEL_BLOCK), FabricRecipeProvider.has(ModItems.ROYAL_STEEL_BLOCK))
+        SmithingTransformRecipeBuilder.smithing(Ingredient.of(), Ingredient.of(Items.ANVIL), Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK), RecipeCategory.TOOLS, ModBlocks.ROYAL_ANVIL.asItem())
+                .unlocks(MyRecipesGenerator.hasItem(ModBlocks.ROYAL_STEEL_BLOCK.asItem()), FabricRecipeProvider.has(ModBlocks.ROYAL_STEEL_BLOCK))
                 .unlocks(MyRecipesGenerator.hasItem(Items.ANVIL), FabricRecipeProvider.has(Items.ANVIL))
                 .save(exporter, AnvilCraft.of("smithing/royal_anvil"));
-        SmithingTransformRecipeBuilder.smithing(Ingredient.of(), Ingredient.of(Items.SMITHING_TABLE), Ingredient.of(ModItems.ROYAL_STEEL_BLOCK), RecipeCategory.TOOLS, ModItems.ROYAL_SMITHING_TABLE)
-                .unlocks(MyRecipesGenerator.hasItem(ModItems.ROYAL_STEEL_BLOCK), FabricRecipeProvider.has(ModItems.ROYAL_STEEL_BLOCK))
+        SmithingTransformRecipeBuilder.smithing(Ingredient.of(), Ingredient.of(Items.SMITHING_TABLE), Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK), RecipeCategory.TOOLS, ModBlocks.ROYAL_SMITHING_TABLE.asItem())
+                .unlocks(MyRecipesGenerator.hasItem(ModBlocks.ROYAL_STEEL_BLOCK.asItem()), FabricRecipeProvider.has(ModBlocks.ROYAL_STEEL_BLOCK))
                 .unlocks(MyRecipesGenerator.hasItem(Items.SMITHING_TABLE), FabricRecipeProvider.has(Items.SMITHING_TABLE))
                 .save(exporter, AnvilCraft.of("smithing/royal_smithing_table"));
     }

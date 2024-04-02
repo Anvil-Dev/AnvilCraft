@@ -19,7 +19,7 @@ public class LightningEventListener {
         for (int i = 0; i < Depth; i++) {
             state = event.getLevel().getBlockState(pos);
             if (state.is(Blocks.IRON_BLOCK)) {
-                BlockState state1 = ModBlocks.HOLLOW_MAGNET_BLOCK.defaultBlockState();
+                BlockState state1 = ModBlocks.HOLLOW_MAGNET_BLOCK.get().defaultBlockState();
                 event.getLevel().setBlockAndUpdate(pos, state1);
             }
             pos = pos.below();

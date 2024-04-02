@@ -19,7 +19,7 @@ abstract class ItemEntityMixin extends Entity {
     @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/Vec3;add(DDD)Lnet/minecraft/world/phys/Vec3;"))
     private Vec3 slowDown(Vec3 instance, double dx, double dy, double dz) {
         ItemEntity ths = (ItemEntity) (Object) this;
-        if (ths.level().getBlockState(ths.blockPosition()).is(ModBlocks.HOLLOW_MAGNET_BLOCK))
+        if (ths.level().getBlockState(ths.blockPosition()).is(ModBlocks.HOLLOW_MAGNET_BLOCK.get()))
             dy *= 0.2;
         return instance.add(dx, dy, dz);
     }

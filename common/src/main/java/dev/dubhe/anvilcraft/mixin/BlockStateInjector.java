@@ -5,7 +5,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.util.IBlockStateInjector;
-import net.fabricmc.fabric.api.block.v1.FabricBlockState;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -16,7 +15,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import java.util.stream.Collectors;
 
 @Mixin(BlockState.class)
-abstract class BlockStateInjector extends BlockBehaviour.BlockStateBase implements IBlockStateInjector, FabricBlockState {
+abstract class BlockStateInjector extends BlockBehaviour.BlockStateBase implements IBlockStateInjector {
     protected BlockStateInjector(Block owner, ImmutableMap<Property<?>, Comparable<?>> values, MapCodec<BlockState> propertiesCodec) {
         super(owner, values, propertiesCodec);
     }

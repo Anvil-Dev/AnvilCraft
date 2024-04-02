@@ -26,7 +26,7 @@ abstract class AbstractCauldronBlockMixin implements IBucketPickupInjector {
             level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
             return Items.LAVA_BUCKET.getDefaultInstance();
         }
-        if (state.is(ModBlocks.LAVA_CAULDRON) && state.getValue(LayeredCauldronBlock.LEVEL) == 3) {
+        if (state.is(ModBlocks.LAVA_CAULDRON.get()) && state.getValue(LayeredCauldronBlock.LEVEL) == 3) {
             level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
             return Items.LAVA_BUCKET.getDefaultInstance();
         }

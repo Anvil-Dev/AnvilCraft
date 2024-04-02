@@ -4,6 +4,22 @@
   "package": "dev.dubhe.anvilcraft.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "AbstractCauldronBlockMixin",
+    "AnvilBlockMixin",
+    "AxeItemMixin",
+    "BlockStateInjector",
+    "BucketItemMixin",
+    "ClientboundUpdateRecipesPacketMixin",
+    "DispenseItemEmptyBottleBehaviorMixin",
+    "DispenseItemEmptyBucketBehaviorMixin",
+    "DispenseItemWaterBottleBehaviorMixin",
+    "ItemEntityMixin",
+    "ItemStackInjector",
+    "ShapedRecipeMixin",
+    "SolidBucketItemMixin",
+    "event.FallingBlockEntityMixin",
+    "event.LightningBoltMixin",
+    "event.MinecraftServerMixin"
   ],
   "client": [
   ],

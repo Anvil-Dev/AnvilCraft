@@ -73,7 +73,7 @@ public class SetBlock implements RecipeOutcome {
         buffer.writeUtf(this.getType());
         buffer.writeVector3f(this.offset.toVector3f());
         buffer.writeDouble(this.chance);
-        buffer.writeUtf(this.result.anvilcraft$toJson().toString());
+        buffer.writeUtf(((IBlockStateInjector) this.result).anvilcraft$toJson().toString());
     }
 
     @Override
@@ -85,7 +85,7 @@ public class SetBlock implements RecipeOutcome {
         object.addProperty("type", this.getType());
         object.add("offset", offset);
         object.addProperty("chance", this.chance);
-        object.add("result", this.result.anvilcraft$toJson());
+        object.add("result", ((IBlockStateInjector) this.result).anvilcraft$toJson());
         return object;
     }
 }

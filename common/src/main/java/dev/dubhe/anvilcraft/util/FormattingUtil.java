@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.utils;
+package dev.dubhe.anvilcraft.util;
 
 import com.google.common.base.CaseFormat;
 import org.apache.commons.lang3.StringUtils;

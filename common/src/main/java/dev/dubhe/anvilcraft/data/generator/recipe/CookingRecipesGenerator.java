@@ -25,8 +25,8 @@ public abstract class CookingRecipesGenerator {
                 .spawnItem(new Vec3(0.0, -1.0, 0.0), ModItems.FLOUR)
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.WHEAT), FabricRecipeProvider.has(Items.WHEAT))
                 .save(exporter);
-        cook(ModItems.BEEF_MUSHROOM_STEW_RAW, 1, ModItems.BEEF_MUSHROOM_STEW, 1, exporter);
-        cook(ModItems.UTUSAN_RAW, 1, ModItems.UTUSAN, 1, exporter);
+        cook(ModItems.BEEF_MUSHROOM_STEW_RAW.get(), 1, ModItems.BEEF_MUSHROOM_STEW.get(), 1, exporter);
+        cook(ModItems.UTUSAN_RAW.get(), 1, ModItems.UTUSAN.get(), 1, exporter);
     }
 
     public static void cook(Item item, int count, Item item1, int count1, Consumer<FinishedRecipe> exporter) {

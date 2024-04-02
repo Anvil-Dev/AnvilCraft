@@ -24,10 +24,10 @@ public abstract class StampingRecipesGenerator {
         stamping(Items.GOLD_INGOT, Items.LIGHT_WEIGHTED_PRESSURE_PLATE, exporter);
         stamping(Items.SUGAR_CANE, Items.PAPER, exporter);
         stamping(Items.SNOWBALL, Items.SNOW, exporter);
-        stamping(ModItems.PULP, Items.PAPER, exporter);
-        stamping(Items.MILK_BUCKET, ModItems.CREAM, exporter);
+        stamping(ModItems.PULP.get(), Items.PAPER, exporter);
+        stamping(Items.MILK_BUCKET, ModItems.CREAM.get(), exporter);
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
-                .hasBlock(ModBlocks.STAMPING_PLATFORM)
+                .hasBlock(ModBlocks.STAMPING_PLATFORM.get())
                 .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), Items.COCOA_BEANS)
                 .spawnItem(new Vec3(0.0, -0.75, 0.0), ModItems.COCOA_BUTTER)
                 .spawnItem(new Vec3(0.0, -0.75, 0.0), ModItems.COCOA_POWDER)
@@ -37,7 +37,7 @@ public abstract class StampingRecipesGenerator {
 
     public static void stamping(Item item, Item item1, Consumer<FinishedRecipe> exporter) {
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
-                .hasBlock(ModBlocks.STAMPING_PLATFORM)
+                .hasBlock(ModBlocks.STAMPING_PLATFORM.get())
                 .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), item)
                 .spawnItem(new Vec3(0.0, -0.75, 0.0), item1)
                 .unlockedBy(MyRecipesGenerator.hasItem(item), FabricRecipeProvider.has(item))

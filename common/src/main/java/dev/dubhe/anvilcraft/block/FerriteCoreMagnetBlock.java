@@ -16,7 +16,7 @@ public class FerriteCoreMagnetBlock extends MagnetBlock {
     @SuppressWarnings("deprecation")
     public void randomTick(BlockState blockState, ServerLevel serverLevel, BlockPos blockPos, @NotNull RandomSource randomSource) {
         if (randomSource.nextInt(7) == 0) {
-            serverLevel.setBlockAndUpdate(blockPos, ModBlocks.MAGNET_BLOCK.defaultBlockState());
+            serverLevel.setBlockAndUpdate(blockPos, ModBlocks.MAGNET_BLOCK.get().defaultBlockState());
         }
     }
 }

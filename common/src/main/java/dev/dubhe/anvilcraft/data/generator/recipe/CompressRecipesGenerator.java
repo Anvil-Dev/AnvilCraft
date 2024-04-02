@@ -18,7 +18,7 @@ public abstract class CompressRecipesGenerator {
     public static void buildRecipes(Consumer<FinishedRecipe> exporter) {
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .hasBlock(Blocks.CAULDRON)
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.FRUIT_OF_THE_SEA), FabricRecipeProvider.has(ModItems.FRUIT_OF_THE_SEA))
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.FRUIT_OF_THE_SEA.get()), FabricRecipeProvider.has(ModItems.FRUIT_OF_THE_SEA))
                 .hasItemIngredient(ModItems.FRUIT_OF_THE_SEA)
                 .spawnItem(ModItems.KERNEL_OF_THE_SEA)
                 .save(exporter);
@@ -28,7 +28,7 @@ public abstract class CompressRecipesGenerator {
                 .hasItemIngredient(ModItems.TEAR_OF_THE_SEA)
                 .spawnItem(ModItems.BLADE_OF_THE_SEA)
                 .unlockedBy(MyRecipesGenerator.hasItem(Items.PRISMARINE_SHARD), FabricRecipeProvider.has(Items.PRISMARINE_SHARD))
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.TEAR_OF_THE_SEA), FabricRecipeProvider.has(ModItems.TEAR_OF_THE_SEA))
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.TEAR_OF_THE_SEA.get()), FabricRecipeProvider.has(ModItems.TEAR_OF_THE_SEA))
                 .save(exporter);
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .hasBlock(Blocks.CAULDRON)
