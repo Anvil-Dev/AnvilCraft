@@ -56,6 +56,41 @@ public abstract class AutoCrafterMenu extends BaseMachineMenu implements IFilter
         }
         this.updateResult();
     }
+
+    @Override
+    public @NotNull ItemStack quickMoveStack(Player player, int index) {
+        ItemStack itemStack = ItemStack.EMPTY;
+        if (index >= this.slots.size()) return itemStack;
+        Slot slot = this.slots.get(index);
+        if (!slot.hasItem()) return itemStack;
+        ItemStack itemStack2 = slot.getItem();
+        itemStack = itemStack2.copy();
+
+        Boolean needMove;
+        if(index < this.machine.getContainerSize()){
+            needMove = !this.moveItemStackTo(itemStack2, this.machine.getContainerSize(), this.machine.getContainerSize() + 36, true);
+        }else{
+            needMove = false;
+            if (this.getMachine() instanceof AutoCrafterBlockEntity entity) {
+                for (int i = 0; i < this.machine.getContainerSize(); i++) {
+                    ItemStack filter = getFilter(i);
+                    NonNullList<Boolean> disableds = entity.getDisabled();
+                    if (filter.is(itemStack.getItem()) || !disableds.get(i)) {
+                        needMove = !this.moveItemStackTo(itemStack2, i, i + 1, false);
+                    }
+                }
+            }
+        }
+        if (needMove) {
+            return ItemStack.EMPTY;
+        }
+        if (itemStack2.isEmpty()) slot.setByPlayer(ItemStack.EMPTY);
+        else slot.setChanged();
+        if (itemStack2.getCount() == itemStack.getCount()) return ItemStack.EMPTY;
+        slot.onTake(player, itemStack2);
+        return itemStack;
+    }
+
     public @Nullable IFilterBlockEntity getEntity() {
         return this.machine instanceof IFilterBlockEntity entity ? entity : null;
     }
