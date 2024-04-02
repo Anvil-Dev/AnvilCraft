@@ -22,6 +22,7 @@ public class ModItemGroups {
             .displayItems((ctx, entries) -> {
                 entries.accept(ModItems.MAGNET.getDefaultInstance());
                 entries.accept(ModItems.AMETHYST_PICKAXE.getDefaultInstance());
+                entries.accept(ModItems.ROYAL_STEEL_PICKAXE.getDefaultInstance());
                 entries.accept(ModItems.CREAM.getDefaultInstance());
                 entries.accept(ModItems.FLOUR.getDefaultInstance());
                 entries.accept(ModItems.DOUGH.getDefaultInstance());
@@ -35,6 +36,10 @@ public class ModItemGroups {
                 entries.accept(ModItems.UTUSAN.getDefaultInstance());
                 entries.accept(ModItems.MAGNET_INGOT.getDefaultInstance());
                 entries.accept(ModItems.ROYAL_STEEL_INGOT.getDefaultInstance());
+                entries.accept(ModItems.ROYAL_STEEL_NUGGET.getDefaultInstance());
+                entries.accept(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE.getDefaultInstance());
+                entries.accept(ModItems.CURSED_GOLD_INGOT.getDefaultInstance());
+                entries.accept(ModItems.CURSED_GOLD_NUGGET.getDefaultInstance());
                 entries.accept(ModItems.SPONGE_GEMMULE.getDefaultInstance());
                 entries.accept(ModItems.COCOA_LIQUOR.getDefaultInstance());
                 entries.accept(ModItems.COCOA_BUTTER.getDefaultInstance());
@@ -43,19 +48,27 @@ public class ModItemGroups {
     public static final CreativeModeTab.Builder ANVILCRAFT_BLOCK = createItemGroup("block", FabricItemGroup::builder)
             .icon(() -> new ItemStack(ModItems.MAGNET_BLOCK))
             .displayItems((ctx, entries) -> {
+                entries.accept(Items.IRON_TRAPDOOR.getDefaultInstance());
+                entries.accept(Items.CAULDRON.getDefaultInstance());
+                entries.accept(Items.CAMPFIRE.getDefaultInstance());
+                entries.accept(ModItems.STAMPING_PLATFORM.getDefaultInstance());
                 entries.accept(Items.ANVIL.getDefaultInstance());
                 entries.accept(Items.CHIPPED_ANVIL.getDefaultInstance());
                 entries.accept(Items.DAMAGED_ANVIL.getDefaultInstance());
                 entries.accept(ModItems.ROYAL_ANVIL.getDefaultInstance());
+                entries.accept(ModItems.ROYAL_GRINDSTONE.getDefaultInstance());
+                entries.accept(ModItems.ROYAL_SMITHING_TABLE.getDefaultInstance());
                 entries.accept(ModItems.MAGNET_BLOCK.getDefaultInstance());
                 entries.accept(ModItems.HOLLOW_MAGNET_BLOCK.getDefaultInstance());
                 entries.accept(ModItems.FERRITE_CORE_MAGNET_BLOCK.getDefaultInstance());
                 entries.accept(ModItems.AUTO_CRAFTER.getDefaultInstance());
+                entries.accept(ModItems.CHUTE.getDefaultInstance());
                 entries.accept(ModItems.ROYAL_STEEL_BLOCK.getDefaultInstance());
                 entries.accept(ModItems.SMOOTH_ROYAL_STEEL_BLOCK.getDefaultInstance());
                 entries.accept(ModItems.CUT_ROYAL_STEEL_BLOCK.getDefaultInstance());
                 entries.accept(ModItems.CUT_ROYAL_STEEL_SLAB.getDefaultInstance());
                 entries.accept(ModItems.CUT_ROYAL_STEEL_STAIRS.getDefaultInstance());
+                entries.accept(ModItems.CURSED_GOLD_BLOCK.getDefaultInstance());
             });
 
     private static CreativeModeTab.@NotNull Builder createItemGroup(String id, @NotNull Supplier<CreativeModeTab.Builder> itemGroupBuilder) {

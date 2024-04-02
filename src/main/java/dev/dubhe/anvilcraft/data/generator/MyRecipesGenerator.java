@@ -87,6 +87,8 @@ public class MyRecipesGenerator extends FabricRecipeProvider {
         SqueezeRecipesGenerator.buildRecipes(exporter);
         SmashBlockRecipesGenerator.buildRecipes(exporter);
         CompactionRecipesGenerator.buildRecipes(exporter);
+        ItemInjectRecipesGenerator.buildRecipes(exporter);
+
     }
 
     public static @NotNull String hasItem(@NotNull Item item) {

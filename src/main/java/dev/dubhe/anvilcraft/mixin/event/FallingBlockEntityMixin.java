@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.mixin.event;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilHurtEntityEvent;
+import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.damagesource.DamageSource;
@@ -25,7 +26,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(FallingBlockEntity.class)
-public abstract class FallingBlockEntityMixin extends Entity {
+abstract class FallingBlockEntityMixin extends Entity {
     @Shadow
     private BlockState blockState;
     @Shadow
@@ -51,10 +52,10 @@ public abstract class FallingBlockEntityMixin extends Entity {
         AnvilFallOnLandEvent event = new AnvilFallOnLandEvent(this.level(), blockPos, (FallingBlockEntity) (Object) this, this.anvilcraft$fallDistance);
         AnvilCraft.EVENT_BUS.post(event);
         if (event.isAnvilDamage()) {
-            BlockState state = AnvilBlock.damage(this.blockState);
-            if (state != null) this.level().setBlock(blockPos, state, 3);
+            BlockState state = this.blockState.is(ModBlocks.ROYAL_ANVIL) ? this.blockState : AnvilBlock.damage(this.blockState);
+            if (state != null) this.level().setBlockAndUpdate(blockPos, state);
             else {
-                this.level().setBlock(blockPos, Blocks.AIR.defaultBlockState(), 3);
+                this.level().setBlockAndUpdate(blockPos, Blocks.AIR.defaultBlockState());
                 if (!this.isSilent()) this.level().levelEvent(1029, this.getOnPos(), 0);
                 this.cancelDrop = true;
             }

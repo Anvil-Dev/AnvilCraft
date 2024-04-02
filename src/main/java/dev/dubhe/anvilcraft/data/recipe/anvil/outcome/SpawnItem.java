@@ -81,7 +81,7 @@ public class SpawnItem implements RecipeOutcome {
         object.addProperty("type", this.getType());
         object.add("offset", offset);
         object.addProperty("chance", this.chance);
-        object.add("result", this.result.toJson());
+        object.add("result", this.result.anvilcraft$toJson());
         return object;
     }
 }

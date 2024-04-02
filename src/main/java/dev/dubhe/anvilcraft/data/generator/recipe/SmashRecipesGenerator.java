@@ -11,9 +11,11 @@ import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
 import java.util.function.Consumer;
 
 public abstract class SmashRecipesGenerator {
@@ -37,7 +39,7 @@ public abstract class SmashRecipesGenerator {
         smash(Items.AMETHYST_BLOCK, Items.AMETHYST_SHARD, 4, exporter);
         smash(Items.HONEYCOMB_BLOCK, Items.HONEYCOMB, 4, exporter);
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
-                .hasBlock(Blocks.IRON_TRAPDOOR)
+                .hasBlock(Blocks.IRON_TRAPDOOR, new Vec3(0.0, -1.0, 0.0), Map.entry(TrapDoorBlock.OPEN, false))
                 .hasItemIngredient(Items.HONEY_BLOCK)
                 .hasItemIngredient(4, Items.GLASS_BOTTLE)
                 .spawnItem(new Vec3(0.0, -1.0, 0.0), Items.HONEY_BOTTLE, 4)
@@ -47,7 +49,7 @@ public abstract class SmashRecipesGenerator {
 
     public static void smash(Item item, @NotNull Item item1, int count, Consumer<FinishedRecipe> exporter) {
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
-                .hasBlock(Blocks.IRON_TRAPDOOR)
+                .hasBlock(Blocks.IRON_TRAPDOOR, new Vec3(0.0, -1.0, 0.0), Map.entry(TrapDoorBlock.OPEN, false))
                 .hasItemIngredient(item)
                 .spawnItem(new Vec3(0.0, -1.0, 0.0), item1, count)
                 .unlockedBy(MyRecipesGenerator.hasItem(item), FabricRecipeProvider.has(item))

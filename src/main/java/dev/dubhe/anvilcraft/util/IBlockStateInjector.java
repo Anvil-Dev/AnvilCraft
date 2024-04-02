@@ -18,7 +18,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -44,7 +43,12 @@ public interface IBlockStateInjector {
         return blockResult.blockState();
     }
 
+    @Deprecated
     default JsonElement toJson() {
+        return this.anvilcraft$toJson();
+    }
+
+    default JsonElement anvilcraft$toJson() {
         return new JsonObject();
     }
 

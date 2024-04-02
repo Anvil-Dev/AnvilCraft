@@ -111,9 +111,9 @@ public class ItemAnvilRecipe implements Recipe<AnvilCraftingContainer> {
         BlockState state = level.getBlockState(pos);
         if (state.is(Blocks.WATER_CAULDRON)) {
             if (state.getValue(LayeredCauldronBlock.LEVEL) == 1) {
-                level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
+                level.setBlockAndUpdate(pos, Blocks.CAULDRON.defaultBlockState());
             } else {
-                level.setBlock(pos, state.setValue(LayeredCauldronBlock.LEVEL, state.getValue(LayeredCauldronBlock.LEVEL) - 1), 3);
+                level.setBlockAndUpdate(pos, state.setValue(LayeredCauldronBlock.LEVEL, state.getValue(LayeredCauldronBlock.LEVEL) - 1));
             }
         }
         return true;

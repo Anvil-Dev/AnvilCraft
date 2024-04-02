@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.data.recipe.anvil.predicate;
 
 import com.google.common.base.Predicates;
 import com.google.gson.JsonObject;
-import dev.dubhe.anvilcraft.data.recipe.TagIngredient;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
 import lombok.Getter;
 import net.minecraft.advancements.critereon.ItemPredicate;
@@ -18,7 +17,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

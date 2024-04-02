@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.Map;
 import java.util.function.Consumer;
 
 public abstract class BulgingAndCrystallizeRecipesGenerator {
@@ -40,54 +41,54 @@ public abstract class BulgingAndCrystallizeRecipesGenerator {
     public static void bulging(Item item, Item item1, Consumer<FinishedRecipe> exporter) {
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .icon(item1)
-                .hasBlock(Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3))
+                .hasBlock(Blocks.WATER_CAULDRON, new Vec3(0.0, -1.0, 0.0), Map.entry(LayeredCauldronBlock.LEVEL, 3))
                 .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), item)
                 .spawnItem(new Vec3(0.0, -1.0, 0.0), item1)
                 .setBlock(Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 2))
                 .unlockedBy(MyRecipesGenerator.hasItem(item), FabricRecipeProvider.has(item))
-                .save(exporter, AnvilCraft.of("bulging/" + BuiltInRegistries.ITEM.getKey(item1).getPath() + "_3"));
+                .save(exporter, AnvilCraft.of("bulging/"+ BuiltInRegistries.ITEM.getKey(item).getPath() + "_2_" + BuiltInRegistries.ITEM.getKey(item1).getPath() + "_3"));
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .icon(item1)
-                .hasBlock(Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 2))
+                .hasBlock(Blocks.WATER_CAULDRON, new Vec3(0.0, -1.0, 0.0), Map.entry(LayeredCauldronBlock.LEVEL, 2))
                 .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), item)
                 .spawnItem(new Vec3(0.0, -1.0, 0.0), item1)
                 .setBlock(Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 1))
                 .unlockedBy(MyRecipesGenerator.hasItem(item), FabricRecipeProvider.has(item))
-                .save(exporter, AnvilCraft.of("bulging/" + BuiltInRegistries.ITEM.getKey(item1).getPath() + "_2"));
+                .save(exporter, AnvilCraft.of("bulging/" + BuiltInRegistries.ITEM.getKey(item).getPath() + "_2_" + BuiltInRegistries.ITEM.getKey(item1).getPath() + "_2"));
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .icon(item1)
-                .hasBlock(Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 1))
+                .hasBlock(Blocks.WATER_CAULDRON, new Vec3(0.0, -1.0, 0.0), Map.entry(LayeredCauldronBlock.LEVEL, 1))
                 .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), item)
                 .spawnItem(new Vec3(0.0, -1.0, 0.0), item1)
                 .setBlock(Blocks.CAULDRON)
                 .unlockedBy(MyRecipesGenerator.hasItem(item), FabricRecipeProvider.has(item))
-                .save(exporter, AnvilCraft.of("bulging/" + BuiltInRegistries.ITEM.getKey(item1).getPath() + "_1"));
+                .save(exporter, AnvilCraft.of("bulging/" + BuiltInRegistries.ITEM.getKey(item).getPath() + "_2_" + BuiltInRegistries.ITEM.getKey(item1).getPath() + "_1"));
     }
 
     public static void crystallize(Item item, Item item1, Consumer<FinishedRecipe> exporter) {
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .icon(item1)
-                .hasBlock(Blocks.POWDER_SNOW_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3))
+                .hasBlock(Blocks.POWDER_SNOW_CAULDRON, new Vec3(0.0, -1.0, 0.0), Map.entry(LayeredCauldronBlock.LEVEL, 3))
                 .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), item)
                 .spawnItem(new Vec3(0.0, -1.0, 0.0), item1)
                 .setBlock(Blocks.POWDER_SNOW_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 2))
                 .unlockedBy(MyRecipesGenerator.hasItem(item), FabricRecipeProvider.has(item))
-                .save(exporter, AnvilCraft.of("crystallize/" + BuiltInRegistries.ITEM.getKey(item1).getPath() + "_3"));
+                .save(exporter, AnvilCraft.of("crystallize/" + BuiltInRegistries.ITEM.getKey(item).getPath() + "_2_" + BuiltInRegistries.ITEM.getKey(item1).getPath() + "_3"));
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .icon(item1)
-                .hasBlock(Blocks.POWDER_SNOW_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 2))
+                .hasBlock(Blocks.POWDER_SNOW_CAULDRON, new Vec3(0.0, -1.0, 0.0), Map.entry(LayeredCauldronBlock.LEVEL, 2))
                 .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), item)
                 .spawnItem(new Vec3(0.0, -1.0, 0.0), item1)
                 .setBlock(Blocks.POWDER_SNOW_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 1))
                 .unlockedBy(MyRecipesGenerator.hasItem(item), FabricRecipeProvider.has(item))
-                .save(exporter, AnvilCraft.of("crystallize/" + BuiltInRegistries.ITEM.getKey(item1).getPath() + "_2"));
+                .save(exporter, AnvilCraft.of("crystallize/" + BuiltInRegistries.ITEM.getKey(item).getPath() + "_2_" + BuiltInRegistries.ITEM.getKey(item1).getPath() + "_2"));
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .icon(item1)
-                .hasBlock(Blocks.POWDER_SNOW_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 1))
+                .hasBlock(Blocks.POWDER_SNOW_CAULDRON, new Vec3(0.0, -1.0, 0.0), Map.entry(LayeredCauldronBlock.LEVEL, 1))
                 .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), item)
                 .spawnItem(new Vec3(0.0, -1.0, 0.0), item1)
                 .setBlock(Blocks.CAULDRON)
                 .unlockedBy(MyRecipesGenerator.hasItem(item), FabricRecipeProvider.has(item))
-                .save(exporter, AnvilCraft.of("crystallize/" + BuiltInRegistries.ITEM.getKey(item1).getPath() + "_1"));
+                .save(exporter, AnvilCraft.of("crystallize/" + BuiltInRegistries.ITEM.getKey(item).getPath() + "_2_" + BuiltInRegistries.ITEM.getKey(item1).getPath() + "_1"));
     }
 }

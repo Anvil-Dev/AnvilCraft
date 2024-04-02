@@ -72,18 +72,15 @@ public class AutoCrafterBlock extends BaseEntityBlock {
                 }
             }
         }
-        return InteractionResult.CONSUME;
+        return InteractionResult.SUCCESS;
     }
 
     @Override
     @SuppressWarnings("deprecation")
     public void onRemove(@NotNull BlockState state, Level level, BlockPos pos, @NotNull BlockState newState, boolean movedByPiston) {
-        if (state.is(newState.getBlock())) {
-            return;
-        }
-        BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity instanceof Container) {
-            Containers.dropContents(level, pos, (Container) blockEntity);
+        if (state.is(newState.getBlock())) return;
+        if (level.getBlockEntity(pos) instanceof Container container) {
+            Containers.dropContents(level, pos, container);
             level.updateNeighbourForOutputSignal(pos, this);
         }
         super.onRemove(state, level, pos, newState, movedByPiston);
@@ -109,7 +106,9 @@ public class AutoCrafterBlock extends BaseEntityBlock {
     @Override
     @Nullable
     public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
-        return this.defaultBlockState().setValue(FACING, context.getNearestLookingDirection().getOpposite()).setValue(LIT, context.getLevel().hasNeighborSignal(context.getClickedPos()));
+        return this.defaultBlockState().
+                setValue(FACING, context.getNearestLookingDirection().getOpposite())
+                .setValue(LIT, context.getLevel().hasNeighborSignal(context.getClickedPos()));
     }
 
     @Override

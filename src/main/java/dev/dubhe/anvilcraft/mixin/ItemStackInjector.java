@@ -23,7 +23,7 @@ import static net.minecraft.world.item.ItemStack.TAG_ENCH;
 
 @Mixin(ItemStack.class)
 @SuppressWarnings("AddedMixinMembersNamePattern")
-public abstract class ItemStackInjector implements IItemStackInjector {
+abstract class ItemStackInjector implements IItemStackInjector {
     @Shadow
     public abstract int getDamageValue();
 
@@ -99,7 +99,7 @@ public abstract class ItemStackInjector implements IItemStackInjector {
     }
 
     @Override
-    public JsonElement toJson() {
+    public JsonElement anvilcraft$toJson() {
         JsonObject object = new JsonObject();
         object.addProperty("item", BuiltInRegistries.ITEM.getKey(this.getItem()).toString());
         if (this.getCount() > 1) object.addProperty("count", this.getCount());

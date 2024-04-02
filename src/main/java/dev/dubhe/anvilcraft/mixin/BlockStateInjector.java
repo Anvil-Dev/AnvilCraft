@@ -16,13 +16,13 @@ import org.spongepowered.asm.mixin.Mixin;
 import java.util.stream.Collectors;
 
 @Mixin(BlockState.class)
-public abstract class BlockStateInjector extends BlockBehaviour.BlockStateBase implements IBlockStateInjector, FabricBlockState {
+abstract class BlockStateInjector extends BlockBehaviour.BlockStateBase implements IBlockStateInjector, FabricBlockState {
     protected BlockStateInjector(Block owner, ImmutableMap<Property<?>, Comparable<?>> values, MapCodec<BlockState> propertiesCodec) {
         super(owner, values, propertiesCodec);
     }
 
     @Override
-    public JsonElement toJson() {
+    public JsonElement anvilcraft$toJson() {
         JsonObject object = new JsonObject();
         object.addProperty("block", BuiltInRegistries.BLOCK.getKey(this.getBlock()).toString());
         if (!this.getValues().isEmpty()) {

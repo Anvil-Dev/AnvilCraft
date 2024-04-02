@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.mixin;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
-import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -24,7 +23,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import static dev.dubhe.anvilcraft.block.MagnetBlock.LIT;
 
 @Mixin(AnvilBlock.class)
-public abstract class AnvilBlockMixin extends FallingBlock {
+abstract class AnvilBlockMixin extends FallingBlock {
     public AnvilBlockMixin(Properties properties) {
         super(properties);
     }
@@ -65,19 +64,17 @@ public abstract class AnvilBlockMixin extends FallingBlock {
             magnet = magnet.above();
             BlockState state1 = level.getBlockState(magnet);
             if (!(state1.getBlock() instanceof MagnetBlock) || state1.getValue(LIT)) {
-                if (state1.is(Blocks.AIR) || state1.is(Blocks.CAVE_AIR) || state1.is(Blocks.VOID_AIR)) continue;
+                if (level.isEmptyBlock(magnet)) continue;
                 else return;
             }
-            BlockState state2 = level.getBlockState(magnet.below());
-            if (!state2.is(Blocks.AIR) && !state2.is(Blocks.CAVE_AIR) && !state2.is(Blocks.VOID_AIR)) return;
-            level.setBlock(magnet.below(), state, 3);
-            level.setBlock(anvil, Blocks.AIR.defaultBlockState(), 3);
+            if (!level.isEmptyBlock(magnet.below())) return;
+            level.setBlockAndUpdate(magnet.below(), state);
+            level.setBlockAndUpdate(anvil, Blocks.AIR.defaultBlockState());
         }
     }
 
     @Inject(method = "damage", at = @At("RETURN"), cancellable = true)
-    private static void damage(@NotNull BlockState state, @NotNull CallbackInfoReturnable<BlockState> cir) {
-        if (cir.getReturnValue() != null) return;
-        if (state.is(ModBlocks.ROYAL_ANVIL)) cir.setReturnValue(state);
+    private static void damage(@NotNull BlockState state, CallbackInfoReturnable<BlockState> cir) {
+        if (state.is(ModBlockTags.CANT_BROKEN_ANVIL)) cir.setReturnValue(state);
     }
 }

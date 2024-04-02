@@ -85,9 +85,7 @@ public class ModItems {
     public static final Item BEEF_MUSHROOM_STEW = registerItem("beef_mushroom_stew", Item::new, defaultProperties().food(ModFoods.BEEF_MUSHROOM_STEW));
     public static final Item UTUSAN_RAW = registerItem("utusan_raw", Item::new, defaultProperties());
     public static final Item UTUSAN = registerItem("utusan", UtusanItem::new, defaultProperties());
-    public static final Item MAGNET_INGOT = registerItem("magnet_ingot", Item::new, defaultProperties());
-    public static final Item ROYAL_STEEL_INGOT = registerItem("royal_steel_ingot", Item::new, defaultProperties());
-    public static final Item DEBRIS_SCRAP = registerItem("debris_scrap", Item::new, defaultProperties());
+    public static final Item MAGNET_INGOT = registerItem("magnet_ingot", Item::new, defaultProperties());public static final Item DEBRIS_SCRAP = registerItem("debris_scrap", Item::new, defaultProperties());
     public static final Item NETHER_STAR_SHARD = registerItem("nether_star_shard", Item::new, defaultProperties());
     public static final Item NETHERITE_CORE = registerItem("netherite_core", Item::new, defaultProperties());
     public static final Item NETHERITE_COIL = registerItem("netherite_coil", Item::new, defaultProperties());
@@ -101,17 +99,36 @@ public class ModItems {
     public static final Item BARK = registerItem("bark", Item::new, defaultProperties());
     public static final Item PULP = registerItem("pulp", Item::new, defaultProperties());
     public static final Item SPONGE_GEMMULE = registerItem("sponge_gemmule", Item::new, defaultProperties());
-
-    public static final Item ROYAL_ANVIL = registerBlock(ModBlocks.ROYAL_ANVIL, BlockItem::new, defaultProperties());
+    public static final Item STAMPING_PLATFORM = registerBlock(ModBlocks.STAMPING_PLATFORM, BlockItem::new, defaultProperties());
     public static final Item MAGNET_BLOCK = registerBlock(ModBlocks.MAGNET_BLOCK, BlockItem::new, defaultProperties());
     public static final Item HOLLOW_MAGNET_BLOCK = registerBlock(ModBlocks.HOLLOW_MAGNET_BLOCK, BlockItem::new, defaultProperties());
     public static final Item FERRITE_CORE_MAGNET_BLOCK = registerBlock(ModBlocks.FERRITE_CORE_MAGNET_BLOCK, BlockItem::new, defaultProperties());
     public static final Item AUTO_CRAFTER = registerBlock(ModBlocks.AUTO_CRAFTER, BlockItem::new, defaultProperties());
+    public static final Item CHUTE = registerBlock(ModBlocks.CHUTE, BlockItem::new, defaultProperties());
+    // 皇家钢系
+    public static final Item ROYAL_STEEL_INGOT = registerItem("royal_steel_ingot", Item::new, defaultProperties());
+    public static final Item ROYAL_STEEL_NUGGET = registerItem("royal_steel_nugget", Item::new, defaultProperties());
+    public static final Item ROYAL_STEEL_PICKAXE = registerItem("royal_steel_pickaxe", properties -> new PickaxeItem(Tiers.DIAMOND, 1, -2.8f, properties) {
+        @Override
+        public @NotNull ItemStack getDefaultInstance() {
+            return super.getDefaultInstance();
+        }
+    }, defaultProperties().durability(2559));
+    public static final Item ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE = registerItem("royal_steel_upgrade_smithing_template", RoyalSteelUpgradeSmithingTemplateItem::new, defaultProperties());
+
+    // 诅咒黄金系
+    public static final Item CURSED_GOLD_INGOT = registerItem("cursed_gold_ingot", CuredItem::new, defaultProperties());
+    public static final Item CURSED_GOLD_NUGGET = registerItem("cursed_gold_nugget", CuredItem::new, defaultProperties());
+
     public static final Item ROYAL_STEEL_BLOCK = registerBlock(ModBlocks.ROYAL_STEEL_BLOCK, BlockItem::new, defaultProperties());
+    public static final Item ROYAL_ANVIL = registerBlock(ModBlocks.ROYAL_ANVIL, BlockItem::new, defaultProperties());
+    public static final Item ROYAL_GRINDSTONE = registerBlock(ModBlocks.ROYAL_GRINDSTONE, BlockItem::new, defaultProperties());
+    public static final Item ROYAL_SMITHING_TABLE = registerBlock(ModBlocks.ROYAL_SMITHING_TABLE, BlockItem::new, defaultProperties());
     public static final Item SMOOTH_ROYAL_STEEL_BLOCK = registerBlock(ModBlocks.SMOOTH_ROYAL_STEEL_BLOCK, BlockItem::new, defaultProperties());
     public static final Item CUT_ROYAL_STEEL_BLOCK = registerBlock(ModBlocks.CUT_ROYAL_STEEL_BLOCK, BlockItem::new, defaultProperties());
     public static final Item CUT_ROYAL_STEEL_SLAB = registerBlock(ModBlocks.CUT_ROYAL_STEEL_SLAB, BlockItem::new, defaultProperties());
     public static final Item CUT_ROYAL_STEEL_STAIRS = registerBlock(ModBlocks.CUT_ROYAL_STEEL_STAIRS, BlockItem::new, defaultProperties());
+    public static final Item CURSED_GOLD_BLOCK = registerBlock(ModBlocks.CURSED_GOLD_BLOCK, CuredBlockItem::new, defaultProperties());
 
     private static Item registerItem(String id, @NotNull Function<Item.Properties, Item> itemCreator, Item.Properties properties) {
         Item item = itemCreator.apply(properties);

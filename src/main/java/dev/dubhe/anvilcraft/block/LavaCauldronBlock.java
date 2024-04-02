@@ -2,8 +2,6 @@ package dev.dubhe.anvilcraft.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.cauldron.CauldronInteraction;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -39,7 +37,7 @@ public class LavaCauldronBlock extends LayeredCauldronBlock {
             return;
         }
         if (state.getValue(LEVEL) == 3) {
-            level.setBlock(pos, Blocks.LAVA_CAULDRON.defaultBlockState(), 3);
+            level.setBlockAndUpdate(pos, Blocks.LAVA_CAULDRON.defaultBlockState());
         }
     }
 }
