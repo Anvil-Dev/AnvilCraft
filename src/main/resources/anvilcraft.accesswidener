@@ -21,3 +21,5 @@ accessible field net/minecraft/world/level/block/state/StateHolder PROPERTY_ENTR
 accessible field net/minecraft/world/inventory/AnvilMenu cost Lnet/minecraft/world/inventory/DataSlot;
 accessible field net/minecraft/world/inventory/AnvilMenu itemName Ljava/lang/String;
 accessible field net/minecraft/world/inventory/AnvilMenu repairItemCountCost I
+accessible method net/minecraft/world/entity/monster/piglin/PiglinAi throwItems (Lnet/minecraft/world/entity/monster/piglin/Piglin;Ljava/util/List;)V
+accessible method net/minecraft/world/entity/monster/piglin/PiglinAi getBarterResponseItems (Lnet/minecraft/world/entity/monster/piglin/Piglin;)Ljava/util/List;

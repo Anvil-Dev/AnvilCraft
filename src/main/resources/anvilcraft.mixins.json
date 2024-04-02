@@ -16,6 +16,7 @@
     "DispenseItemWaterBottleBehaviorMixin",
     "ItemEntityMixin",
     "ItemStackInjector",
+    "PiglinAiMixin",
     "ShapedRecipeMixin",
     "SolidBucketItemMixin",
     "event.FallingBlockEntityMixin",
