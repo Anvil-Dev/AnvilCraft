@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.mixin;
+package dev.dubhe.anvilcraft.mixin.fabric;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;

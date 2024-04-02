@@ -16,7 +16,6 @@ import dev.dubhe.anvilcraft.init.ModItemGroups;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.ModNetworks;
-import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
@@ -42,7 +41,6 @@ public class AnvilCraft {
         ModBlocks.register();
         ModItems.register();
         ModItemGroups.register();
-        ModRecipeTypes.register();
         ModBlockEntities.register();
         ModMenuTypes.register();
         ModNetworks.register();

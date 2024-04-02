@@ -12,30 +12,30 @@ public class ModItemGroups {
             .defaultCreativeTab("item", builder -> builder
                     .icon(ModItems.MAGNET_INGOT::asStack)
                     .displayItems((ctx, entries) -> {
-                        entries.accept(ModItems.MAGNET.asStack());
-                        entries.accept(ModItems.AMETHYST_PICKAXE.asStack());
-                        entries.accept(ModItems.ROYAL_STEEL_PICKAXE.asStack());
-                        entries.accept(ModItems.CREAM.asStack());
-                        entries.accept(ModItems.FLOUR.asStack());
-                        entries.accept(ModItems.DOUGH.asStack());
-                        entries.accept(ModItems.CHOCOLATE.asStack());
-                        entries.accept(ModItems.CHOCOLATE_BLACK.asStack());
-                        entries.accept(ModItems.CHOCOLATE_WHITE.asStack());
-                        entries.accept(ModItems.CREAMY_BREAD_ROLL.asStack());
-                        entries.accept(ModItems.BEEF_MUSHROOM_STEW_RAW.asStack());
-                        entries.accept(ModItems.BEEF_MUSHROOM_STEW.asStack());
-                        entries.accept(ModItems.UTUSAN_RAW.asStack());
-                        entries.accept(ModItems.UTUSAN.asStack());
-                        entries.accept(ModItems.MAGNET_INGOT.asStack());
-                        entries.accept(ModItems.ROYAL_STEEL_INGOT.asStack());
-                        entries.accept(ModItems.ROYAL_STEEL_NUGGET.asStack());
-                        entries.accept(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE.asStack());
-                        entries.accept(ModItems.CURSED_GOLD_INGOT.asStack());
-                        entries.accept(ModItems.CURSED_GOLD_NUGGET.asStack());
-                        entries.accept(ModItems.SPONGE_GEMMULE.asStack());
-                        entries.accept(ModItems.COCOA_LIQUOR.asStack());
-                        entries.accept(ModItems.COCOA_BUTTER.asStack());
-                        entries.accept(ModItems.COCOA_POWDER.asStack());
+                        entries.accept(ModItems.MAGNET.get().getDefaultInstance());
+                        entries.accept(ModItems.AMETHYST_PICKAXE.get().getDefaultInstance());
+                        entries.accept(ModItems.ROYAL_STEEL_PICKAXE.get().getDefaultInstance());
+                        entries.accept(ModItems.CREAM.get().getDefaultInstance());
+                        entries.accept(ModItems.FLOUR.get().getDefaultInstance());
+                        entries.accept(ModItems.DOUGH.get().getDefaultInstance());
+                        entries.accept(ModItems.CHOCOLATE.get().getDefaultInstance());
+                        entries.accept(ModItems.CHOCOLATE_BLACK.get().getDefaultInstance());
+                        entries.accept(ModItems.CHOCOLATE_WHITE.get().getDefaultInstance());
+                        entries.accept(ModItems.CREAMY_BREAD_ROLL.get().getDefaultInstance());
+                        entries.accept(ModItems.BEEF_MUSHROOM_STEW_RAW.get().getDefaultInstance());
+                        entries.accept(ModItems.BEEF_MUSHROOM_STEW.get().getDefaultInstance());
+                        entries.accept(ModItems.UTUSAN_RAW.get().getDefaultInstance());
+                        entries.accept(ModItems.UTUSAN.get().getDefaultInstance());
+                        entries.accept(ModItems.MAGNET_INGOT.get().getDefaultInstance());
+                        entries.accept(ModItems.ROYAL_STEEL_INGOT.get().getDefaultInstance());
+                        entries.accept(ModItems.ROYAL_STEEL_NUGGET.get().getDefaultInstance());
+                        entries.accept(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE.get().getDefaultInstance());
+                        entries.accept(ModItems.CURSED_GOLD_INGOT.get().getDefaultInstance());
+                        entries.accept(ModItems.CURSED_GOLD_NUGGET.get().getDefaultInstance());
+                        entries.accept(ModItems.SPONGE_GEMMULE.get().getDefaultInstance());
+                        entries.accept(ModItems.COCOA_LIQUOR.get().getDefaultInstance());
+                        entries.accept(ModItems.COCOA_BUTTER.get().getDefaultInstance());
+                        entries.accept(ModItems.COCOA_POWDER.get().getDefaultInstance());
                     })
                     .build()
             )

@@ -15,7 +15,6 @@
     "DispenseItemWaterBottleBehaviorMixin",
     "ItemEntityMixin",
     "ItemStackInjector",
-    "ShapedRecipeMixin",
     "SolidBucketItemMixin",
     "event.FallingBlockEntityMixin",
     "event.LightningBoltMixin",
