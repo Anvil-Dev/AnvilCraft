@@ -1,9 +1,9 @@
 package dev.dubhe.anvilcraft.data.generator.recipe;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.generator.MyRecipesGenerator;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
-import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -34,7 +34,7 @@ public abstract class ItemInjectRecipesGenerator {
                 .hasBlock(new Vec3(0.0, -1.0, 0.0), block)
                 .hasItemIngredient(item)
                 .setBlock(new Vec3(0.0, -1.0, 0.0), resBlock)
-                .unlockedBy(MyRecipesGenerator.hasItem(block.asItem()), FabricRecipeProvider.has(block.asItem()))
+                .unlockedBy(MyRecipesGenerator.hasItem(block.asItem()), AnvilCraftDatagen.has(block.asItem()))
                 .save(exporter, AnvilCraft.of("item_inject/" + BuiltInRegistries.BLOCK.getKey(resBlock).getPath()));
     }
 
@@ -43,7 +43,7 @@ public abstract class ItemInjectRecipesGenerator {
                 .hasBlock(new Vec3(0.0, -1.0, 0.0), block)
                 .hasItemIngredient(count, item)
                 .setBlock(new Vec3(0.0, -1.0, 0.0), resBlock)
-                .unlockedBy(MyRecipesGenerator.hasItem(block.asItem()), FabricRecipeProvider.has(block.asItem()))
+                .unlockedBy(MyRecipesGenerator.hasItem(block.asItem()), AnvilCraftDatagen.has(block.asItem()))
                 .save(exporter, AnvilCraft.of("item_inject/" + BuiltInRegistries.BLOCK.getKey(resBlock).getPath()));
     }
 

@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.data.generator;
 
+import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.generator.recipe.BulgingAndCrystallizeRecipesGenerator;
 import dev.dubhe.anvilcraft.data.generator.recipe.CompactionRecipesGenerator;
@@ -15,12 +16,9 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipePredicate;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItemIngredient;
 import dev.dubhe.anvilcraft.init.ModItems;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.Item;
@@ -30,15 +28,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.function.Consumer;
-
-public class MyRecipesGenerator extends FabricRecipeProvider {
-    public MyRecipesGenerator(FabricDataOutput output) {
-        super(output);
-    }
-
-    @Override
-    public void buildRecipes(Consumer<FinishedRecipe> exporter) {
+public class MyRecipesGenerator {
+    public static void buildRecipes(RegistrateRecipeProvider exporter) {
         VanillaRecipesGenerator.buildRecipes(exporter);
         // 铁砧物品处理
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
@@ -49,16 +40,16 @@ public class MyRecipesGenerator extends FabricRecipeProvider {
                 .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), Items.DIAMOND)
                 .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), Items.AMETHYST_SHARD)
                 .spawnItem(new Vec3(0.0, -1.0, 0.0), ModItems.ROYAL_STEEL_INGOT)
-                .unlockedBy(MyRecipesGenerator.hasItem(Items.IRON_INGOT), FabricRecipeProvider.has(Items.IRON_INGOT))
-                .unlockedBy(MyRecipesGenerator.hasItem(Items.EMERALD), FabricRecipeProvider.has(Items.EMERALD))
-                .unlockedBy(MyRecipesGenerator.hasItem(Items.DIAMOND), FabricRecipeProvider.has(Items.DIAMOND))
-                .unlockedBy(MyRecipesGenerator.hasItem(Items.AMETHYST_SHARD), FabricRecipeProvider.has(Items.AMETHYST_SHARD))
+                .unlockedBy(MyRecipesGenerator.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
+                .unlockedBy(MyRecipesGenerator.hasItem(Items.EMERALD), AnvilCraftDatagen.has(Items.EMERALD))
+                .unlockedBy(MyRecipesGenerator.hasItem(Items.DIAMOND), AnvilCraftDatagen.has(Items.DIAMOND))
+                .unlockedBy(MyRecipesGenerator.hasItem(Items.AMETHYST_SHARD), AnvilCraftDatagen.has(Items.AMETHYST_SHARD))
                 .save(exporter, AnvilCraft.of("craft_a_royal_steel_ingot"));
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .hasBlock(Blocks.SMITHING_TABLE)
                 .hasItem(Items.ANCIENT_DEBRIS)
                 .spawnItem(ModItems.DEBRIS_SCRAP)
-                .unlockedBy(MyRecipesGenerator.hasItem(Items.ANCIENT_DEBRIS), FabricRecipeProvider.has(Items.ANCIENT_DEBRIS))
+                .unlockedBy(MyRecipesGenerator.hasItem(Items.ANCIENT_DEBRIS), AnvilCraftDatagen.has(Items.ANCIENT_DEBRIS))
                 .save(exporter);
         ItemPredicate.Builder predicate = ItemPredicate.Builder.item().of(Items.ELYTRA)
                 .hasDurability(MinMaxBounds.Ints.atLeast(Items.ELYTRA.getMaxDamage()));
@@ -71,21 +62,21 @@ public class MyRecipesGenerator extends FabricRecipeProvider {
                 .spawnItem(ModItems.ELYTRA_FRAME)
                 .spawnItem(Items.PHANTOM_MEMBRANE)
                 .spawnItem(result)
-                .unlockedBy(MyRecipesGenerator.hasItem(Items.ELYTRA), FabricRecipeProvider.has(Items.ELYTRA))
+                .unlockedBy(MyRecipesGenerator.hasItem(Items.ELYTRA), AnvilCraftDatagen.has(Items.ELYTRA))
                 .save(exporter);
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .hasBlock(Blocks.SMITHING_TABLE)
                 .hasItemIngredient(ModItems.KERNEL_OF_THE_SEA)
                 .spawnItem(Items.HEART_OF_THE_SEA)
                 .spawnItem(Items.PRISMARINE_SHARD)
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.KERNEL_OF_THE_SEA.get()), FabricRecipeProvider.has(ModItems.KERNEL_OF_THE_SEA))
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.KERNEL_OF_THE_SEA.get()), AnvilCraftDatagen.has(ModItems.KERNEL_OF_THE_SEA))
                 .save(exporter);
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .hasBlock(Blocks.SOUL_SOIL)
                 .hasItemIngredient(ModItems.NETHERITE_COIL)
                 .setBlock(Blocks.ANCIENT_DEBRIS)
-                .unlockedBy(MyRecipesGenerator.hasItem(Items.SOUL_SOIL), FabricRecipeProvider.has(Items.SOUL_SOIL))
-                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.NETHERITE_COIL.get()), FabricRecipeProvider.has(ModItems.NETHERITE_COIL))
+                .unlockedBy(MyRecipesGenerator.hasItem(Items.SOUL_SOIL), AnvilCraftDatagen.has(Items.SOUL_SOIL))
+                .unlockedBy(MyRecipesGenerator.hasItem(ModItems.NETHERITE_COIL.get()), AnvilCraftDatagen.has(ModItems.NETHERITE_COIL))
                 .save(exporter);
         SmashRecipesGenerator.buildRecipes(exporter);
         CookingRecipesGenerator.buildRecipes(exporter);

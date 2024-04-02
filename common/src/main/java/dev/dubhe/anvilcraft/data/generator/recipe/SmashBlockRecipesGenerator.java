@@ -1,9 +1,9 @@
 package dev.dubhe.anvilcraft.data.generator.recipe;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.generator.MyRecipesGenerator;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
-import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -37,7 +37,7 @@ public abstract class SmashBlockRecipesGenerator {
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .hasBlock(block)
                 .setBlock(block1)
-                .unlockedBy(MyRecipesGenerator.hasItem(block.asItem()), FabricRecipeProvider.has(block.asItem()))
+                .unlockedBy(MyRecipesGenerator.hasItem(block.asItem()), AnvilCraftDatagen.has(block.asItem()))
                 .save(exporter, AnvilCraft.of("smash_block/" + BuiltInRegistries.BLOCK.getKey(block1).getPath()));
     }
 }

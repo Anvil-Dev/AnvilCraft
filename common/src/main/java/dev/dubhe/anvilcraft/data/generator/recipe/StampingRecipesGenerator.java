@@ -1,11 +1,11 @@
 package dev.dubhe.anvilcraft.data.generator.recipe;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.generator.MyRecipesGenerator;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
-import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -31,7 +31,7 @@ public abstract class StampingRecipesGenerator {
                 .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), Items.COCOA_BEANS)
                 .spawnItem(new Vec3(0.0, -0.75, 0.0), ModItems.COCOA_BUTTER)
                 .spawnItem(new Vec3(0.0, -0.75, 0.0), ModItems.COCOA_POWDER)
-                .unlockedBy(MyRecipesGenerator.hasItem(Items.COCOA_BEANS), FabricRecipeProvider.has(Items.COCOA_BEANS))
+                .unlockedBy(MyRecipesGenerator.hasItem(Items.COCOA_BEANS), AnvilCraftDatagen.has(Items.COCOA_BEANS))
                 .save(exporter, AnvilCraft.of("stamping/cocoa"));
     }
 
@@ -40,7 +40,7 @@ public abstract class StampingRecipesGenerator {
                 .hasBlock(ModBlocks.STAMPING_PLATFORM.get())
                 .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), item)
                 .spawnItem(new Vec3(0.0, -0.75, 0.0), item1)
-                .unlockedBy(MyRecipesGenerator.hasItem(item), FabricRecipeProvider.has(item))
+                .unlockedBy(MyRecipesGenerator.hasItem(item), AnvilCraftDatagen.has(item))
                 .save(exporter, AnvilCraft.of("stamping/" + BuiltInRegistries.ITEM.getKey(item).getPath() + "_2_" + BuiltInRegistries.ITEM.getKey(item1).getPath()));
     }
 }

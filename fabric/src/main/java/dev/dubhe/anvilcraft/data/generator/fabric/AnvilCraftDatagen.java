@@ -1,8 +1,6 @@
 package dev.dubhe.anvilcraft.data.generator.fabric;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.data.generator.MyBlockTagGenerator;
-import dev.dubhe.anvilcraft.data.generator.MyRecipesGenerator;
 import io.github.fabricators_of_create.porting_lib.data.ExistingFileHelper;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
@@ -21,8 +19,6 @@ public class AnvilCraftDatagen implements DataGeneratorEntrypoint {
                 rootPath.resolve("fabric").resolve("src").resolve("main").resolve("resources")
         );
         FabricDataGenerator.Pack pack = fabricDataGenerator.createPack();
-        pack.addProvider(MyBlockTagGenerator::new);
-        pack.addProvider(MyRecipesGenerator::new);
         AnvilCraft.REGISTRATE.setupDatagen(pack, helper);
     }
 }

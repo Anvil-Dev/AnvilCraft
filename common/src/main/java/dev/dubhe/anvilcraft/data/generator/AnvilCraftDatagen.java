@@ -3,12 +3,21 @@ package dev.dubhe.anvilcraft.data.generator;
 import com.tterrag.registrate.providers.ProviderType;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModItems;
+import net.minecraft.advancements.critereon.InventoryChangeTrigger;
+import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.ItemLike;
+import org.jetbrains.annotations.NotNull;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 
 public class AnvilCraftDatagen {
     public static void init() {
+        REGISTRATE.addDataGenerator(ProviderType.RECIPE, MyRecipesGenerator::buildRecipes);
         REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, MyItemTagGenerator::addTags);
+        REGISTRATE.addDataGenerator(ProviderType.BLOCK_TAGS, MyBlockTagGenerator::addTags);
         REGISTRATE.addLang("item", ModItems.AMETHYST_PICKAXE.getId(), "tooltip", "Stone pickaxe quality, can mine iron ore, not diamonds!");
         REGISTRATE.addLang("command", AnvilCraft.of("config"), "reload.success", "Config reloaded!");
         REGISTRATE.addLang("command", AnvilCraft.of("config"), "check.success", "The config file reads as follows:");
@@ -30,5 +39,13 @@ public class AnvilCraftDatagen {
         REGISTRATE.addLang("screen", AnvilCraft.of("royal_grindstone"), "title", "Remove curse and repair cost");
         REGISTRATE.addLang("screen", AnvilCraft.of("royal_grindstone"), "remove_curse_number", "Remove %i curse number");
         REGISTRATE.addLang("screen", AnvilCraft.of("royal_grindstone"), "remove_repair_cost", "Remove %i repair cost");
+    }
+
+    public static @NotNull InventoryChangeTrigger.TriggerInstance has(ItemLike itemLike) {
+        return RecipeProvider.inventoryTrigger(ItemPredicate.Builder.item().of(itemLike).build());
+    }
+
+    public static @NotNull InventoryChangeTrigger.TriggerInstance has(TagKey<Item> tag) {
+        return RecipeProvider.inventoryTrigger(ItemPredicate.Builder.item().of(tag).build());
     }
 }

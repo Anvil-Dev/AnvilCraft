@@ -1,10 +1,10 @@
 package dev.dubhe.anvilcraft.data.generator.recipe;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.generator.MyRecipesGenerator;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.init.ModItems;
-import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -44,7 +44,7 @@ public abstract class BulgingAndCrystallizeRecipesGenerator {
                 .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), item)
                 .spawnItem(new Vec3(0.0, -1.0, 0.0), item1)
                 .setBlock(Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 2))
-                .unlockedBy(MyRecipesGenerator.hasItem(item), FabricRecipeProvider.has(item))
+                .unlockedBy(MyRecipesGenerator.hasItem(item), AnvilCraftDatagen.has(item))
                 .save(exporter, AnvilCraft.of("bulging/" + BuiltInRegistries.ITEM.getKey(item1).getPath() + "_3"));
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .icon(item1)
@@ -52,7 +52,7 @@ public abstract class BulgingAndCrystallizeRecipesGenerator {
                 .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), item)
                 .spawnItem(new Vec3(0.0, -1.0, 0.0), item1)
                 .setBlock(Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 1))
-                .unlockedBy(MyRecipesGenerator.hasItem(item), FabricRecipeProvider.has(item))
+                .unlockedBy(MyRecipesGenerator.hasItem(item), AnvilCraftDatagen.has(item))
                 .save(exporter, AnvilCraft.of("bulging/" + BuiltInRegistries.ITEM.getKey(item1).getPath() + "_2"));
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .icon(item1)
@@ -60,7 +60,7 @@ public abstract class BulgingAndCrystallizeRecipesGenerator {
                 .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), item)
                 .spawnItem(new Vec3(0.0, -1.0, 0.0), item1)
                 .setBlock(Blocks.CAULDRON)
-                .unlockedBy(MyRecipesGenerator.hasItem(item), FabricRecipeProvider.has(item))
+                .unlockedBy(MyRecipesGenerator.hasItem(item), AnvilCraftDatagen.has(item))
                 .save(exporter, AnvilCraft.of("bulging/" + BuiltInRegistries.ITEM.getKey(item1).getPath() + "_1"));
     }
 
@@ -71,7 +71,7 @@ public abstract class BulgingAndCrystallizeRecipesGenerator {
                 .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), item)
                 .spawnItem(new Vec3(0.0, -1.0, 0.0), item1)
                 .setBlock(Blocks.POWDER_SNOW_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 2))
-                .unlockedBy(MyRecipesGenerator.hasItem(item), FabricRecipeProvider.has(item))
+                .unlockedBy(MyRecipesGenerator.hasItem(item), AnvilCraftDatagen.has(item))
                 .save(exporter, AnvilCraft.of("crystallize/" + BuiltInRegistries.ITEM.getKey(item1).getPath() + "_3"));
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .icon(item1)
@@ -79,7 +79,7 @@ public abstract class BulgingAndCrystallizeRecipesGenerator {
                 .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), item)
                 .spawnItem(new Vec3(0.0, -1.0, 0.0), item1)
                 .setBlock(Blocks.POWDER_SNOW_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 1))
-                .unlockedBy(MyRecipesGenerator.hasItem(item), FabricRecipeProvider.has(item))
+                .unlockedBy(MyRecipesGenerator.hasItem(item), AnvilCraftDatagen.has(item))
                 .save(exporter, AnvilCraft.of("crystallize/" + BuiltInRegistries.ITEM.getKey(item1).getPath() + "_2"));
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .icon(item1)
@@ -87,7 +87,7 @@ public abstract class BulgingAndCrystallizeRecipesGenerator {
                 .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), item)
                 .spawnItem(new Vec3(0.0, -1.0, 0.0), item1)
                 .setBlock(Blocks.CAULDRON)
-                .unlockedBy(MyRecipesGenerator.hasItem(item), FabricRecipeProvider.has(item))
+                .unlockedBy(MyRecipesGenerator.hasItem(item), AnvilCraftDatagen.has(item))
                 .save(exporter, AnvilCraft.of("crystallize/" + BuiltInRegistries.ITEM.getKey(item1).getPath() + "_1"));
     }
 }

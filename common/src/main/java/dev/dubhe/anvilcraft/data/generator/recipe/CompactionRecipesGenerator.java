@@ -1,10 +1,10 @@
 package dev.dubhe.anvilcraft.data.generator.recipe;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.generator.MyRecipesGenerator;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
-import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -37,7 +37,7 @@ public abstract class CompactionRecipesGenerator {
                 .hasBlockIngredient(block)
                 .hasBlock(new Vec3(0.0, -2.0, 0.0), block1)
                 .setBlock(new Vec3(0.0, -2.0, 0.0), block2)
-                .unlockedBy(MyRecipesGenerator.hasItem(block.asItem()), FabricRecipeProvider.has(block.asItem()))
+                .unlockedBy(MyRecipesGenerator.hasItem(block.asItem()), AnvilCraftDatagen.has(block.asItem()))
                 .save(exporter, AnvilCraft.of("smash_block/" + BuiltInRegistries.BLOCK.getKey(block).getPath() + "_and_" + BuiltInRegistries.BLOCK.getKey(block1).getPath() + "_2_" + BuiltInRegistries.BLOCK.getKey(block2).getPath()));
     }
 
@@ -46,7 +46,7 @@ public abstract class CompactionRecipesGenerator {
                 .hasBlockIngredient(block)
                 .hasBlock(new Vec3(0.0, -2.0, 0.0), block1)
                 .setBlock(new Vec3(0.0, -2.0, 0.0), block2)
-                .unlockedBy(MyRecipesGenerator.hasItem(block1.asItem()), FabricRecipeProvider.has(block1.asItem()))
+                .unlockedBy(MyRecipesGenerator.hasItem(block1.asItem()), AnvilCraftDatagen.has(block1.asItem()))
                 .save(exporter, AnvilCraft.of("smash_block/" + block.location().getPath() + "_and_" + BuiltInRegistries.BLOCK.getKey(block1).getPath() + "_2_" + BuiltInRegistries.BLOCK.getKey(block2).getPath()));
     }
 }

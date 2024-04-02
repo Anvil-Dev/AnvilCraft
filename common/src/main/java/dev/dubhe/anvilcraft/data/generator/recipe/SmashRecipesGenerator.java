@@ -1,11 +1,11 @@
 package dev.dubhe.anvilcraft.data.generator.recipe;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.generator.MyRecipesGenerator;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
-import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -42,7 +42,7 @@ public abstract class SmashRecipesGenerator {
                 .hasItemIngredient(Items.HONEY_BLOCK)
                 .hasItemIngredient(4, Items.GLASS_BOTTLE)
                 .spawnItem(new Vec3(0.0, -1.0, 0.0), Items.HONEY_BOTTLE, 4)
-                .unlockedBy(MyRecipesGenerator.hasItem(Items.HONEY_BLOCK), FabricRecipeProvider.has(Items.HONEY_BLOCK))
+                .unlockedBy(MyRecipesGenerator.hasItem(Items.HONEY_BLOCK), AnvilCraftDatagen.has(Items.HONEY_BLOCK))
                 .save(exporter, AnvilCraft.of("smash/" + BuiltInRegistries.ITEM.getKey(Items.HONEY_BLOCK).getPath() + "_2_" + BuiltInRegistries.ITEM.getKey(Items.HONEY_BOTTLE).getPath()));
     }
 
@@ -51,7 +51,7 @@ public abstract class SmashRecipesGenerator {
                 .hasBlock(Blocks.IRON_TRAPDOOR)
                 .hasItemIngredient(item)
                 .spawnItem(new Vec3(0.0, -1.0, 0.0), item1, count)
-                .unlockedBy(MyRecipesGenerator.hasItem(item), FabricRecipeProvider.has(item))
+                .unlockedBy(MyRecipesGenerator.hasItem(item), AnvilCraftDatagen.has(item))
                 .save(exporter, AnvilCraft.of("smash/" + BuiltInRegistries.ITEM.getKey(item).getPath() + "_2_" + BuiltInRegistries.ITEM.getKey(item1).getPath()));
     }
 }

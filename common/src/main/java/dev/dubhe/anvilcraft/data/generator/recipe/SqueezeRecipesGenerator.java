@@ -1,10 +1,10 @@
 package dev.dubhe.anvilcraft.data.generator.recipe;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.generator.MyRecipesGenerator;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.init.ModBlocks;
-import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -33,13 +33,13 @@ public abstract class SqueezeRecipesGenerator {
                 .hasBlock(Blocks.MOSS_BLOCK)
                 .hasBlock(new Vec3(0.0, -2.0, 0.0), Blocks.COBBLESTONE)
                 .setBlock(new Vec3(0.0, -2.0, 0.0), Blocks.MOSSY_COBBLESTONE)
-                .unlockedBy(MyRecipesGenerator.hasItem(Blocks.MOSS_BLOCK.asItem()), FabricRecipeProvider.has(Blocks.MOSS_BLOCK.asItem()))
+                .unlockedBy(MyRecipesGenerator.hasItem(Blocks.MOSS_BLOCK.asItem()), AnvilCraftDatagen.has(Blocks.MOSS_BLOCK.asItem()))
                 .save(exporter, AnvilCraft.of("daub/" + BuiltInRegistries.BLOCK.getKey(Blocks.MOSSY_COBBLESTONE).getPath()));
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .hasBlock(Blocks.MOSS_BLOCK)
                 .hasBlock(new Vec3(0.0, -2.0, 0.0), Blocks.STONE_BRICKS)
                 .setBlock(new Vec3(0.0, -2.0, 0.0), Blocks.MOSSY_STONE_BRICKS)
-                .unlockedBy(MyRecipesGenerator.hasItem(Blocks.MOSS_BLOCK.asItem()), FabricRecipeProvider.has(Blocks.MOSS_BLOCK.asItem()))
+                .unlockedBy(MyRecipesGenerator.hasItem(Blocks.MOSS_BLOCK.asItem()), AnvilCraftDatagen.has(Blocks.MOSS_BLOCK.asItem()))
                 .save(exporter, AnvilCraft.of("daub/" + BuiltInRegistries.BLOCK.getKey(Blocks.MOSSY_STONE_BRICKS).getPath()));
 
         waxed(Blocks.COPPER_BLOCK, exporter);
@@ -68,7 +68,7 @@ public abstract class SqueezeRecipesGenerator {
                     .hasBlock(Blocks.HONEYCOMB_BLOCK)
                     .hasBlock(new Vec3(0.0, -2.0, 0.0), block)
                     .setBlock(new Vec3(0.0, -2.0, 0.0), state)
-                    .unlockedBy(MyRecipesGenerator.hasItem(Blocks.HONEYCOMB_BLOCK.asItem()), FabricRecipeProvider.has(Blocks.HONEYCOMB_BLOCK.asItem()))
+                    .unlockedBy(MyRecipesGenerator.hasItem(Blocks.HONEYCOMB_BLOCK.asItem()), AnvilCraftDatagen.has(Blocks.HONEYCOMB_BLOCK.asItem()))
                     .save(exporter, AnvilCraft.of("daub/" + BuiltInRegistries.BLOCK.getKey(state.getBlock()).getPath()));
         }
     }
@@ -79,21 +79,21 @@ public abstract class SqueezeRecipesGenerator {
                 .hasBlock(new Vec3(0.0, -2.0, 0.0), Blocks.CAULDRON)
                 .setBlock(block1)
                 .setBlock(new Vec3(0.0, -2.0, 0.0), block2.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 1))
-                .unlockedBy(MyRecipesGenerator.hasItem(block.asItem()), FabricRecipeProvider.has(block.asItem()))
+                .unlockedBy(MyRecipesGenerator.hasItem(block.asItem()), AnvilCraftDatagen.has(block.asItem()))
                 .save(exporter, AnvilCraft.of("squeeze/" + BuiltInRegistries.BLOCK.getKey(block).getPath() + "_" + BuiltInRegistries.BLOCK.getKey(block2).getPath() + "_1"));
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .hasBlock(block)
                 .hasBlock(new Vec3(0.0, -2.0, 0.0), block2.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 1))
                 .setBlock(block1)
                 .setBlock(new Vec3(0.0, -2.0, 0.0), block2.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 2))
-                .unlockedBy(MyRecipesGenerator.hasItem(block.asItem()), FabricRecipeProvider.has(block.asItem()))
+                .unlockedBy(MyRecipesGenerator.hasItem(block.asItem()), AnvilCraftDatagen.has(block.asItem()))
                 .save(exporter, AnvilCraft.of("squeeze/" + BuiltInRegistries.BLOCK.getKey(block).getPath() + "_" + BuiltInRegistries.BLOCK.getKey(block2).getPath() + "_2"));
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .hasBlock(block)
                 .hasBlock(new Vec3(0.0, -2.0, 0.0), block2.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 2))
                 .setBlock(block1)
                 .setBlock(new Vec3(0.0, -2.0, 0.0), block2.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3))
-                .unlockedBy(MyRecipesGenerator.hasItem(block.asItem()), FabricRecipeProvider.has(block.asItem()))
+                .unlockedBy(MyRecipesGenerator.hasItem(block.asItem()), AnvilCraftDatagen.has(block.asItem()))
                 .save(exporter, AnvilCraft.of("squeeze/" + BuiltInRegistries.BLOCK.getKey(block).getPath() + "_" + BuiltInRegistries.BLOCK.getKey(block2).getPath() + "_3"));
     }
 }
