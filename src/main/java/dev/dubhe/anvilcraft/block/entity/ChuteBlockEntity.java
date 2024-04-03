@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
 import dev.dubhe.anvilcraft.block.ChuteBlock;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
@@ -210,5 +209,16 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
     @Override
     public double getLevelZ() {
         return this.getBlockPos().getCenter().z;
+    }
+
+    public int getRedstoneSignal() {
+        int i = 0;
+        for (int j = 0; j < this.getContainerSize(); ++j) {
+            ItemStack itemStack = this.getItem(j);
+            if (!itemStack.isEmpty() && !this.getDisabled().get(j)) {
+                ++i;
+            }
+        }
+        return i;
     }
 }
