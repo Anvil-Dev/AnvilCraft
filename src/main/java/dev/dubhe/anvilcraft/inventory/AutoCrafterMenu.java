@@ -57,42 +57,6 @@ public abstract class AutoCrafterMenu extends BaseMachineMenu implements IFilter
         this.updateResult();
     }
 
-    @Override
-    public @NotNull ItemStack quickMoveStack(Player player, int index) {
-        ItemStack itemStack = ItemStack.EMPTY;
-        if (index >= this.slots.size()) return itemStack;
-        Slot slot = this.slots.get(index);
-        if (!slot.hasItem()) return itemStack;
-        ItemStack itemStack2 = slot.getItem();
-        itemStack = itemStack2.copy();
-        if (this.quickMoveFilter(index,itemStack2)) {
-            return ItemStack.EMPTY;
-        }
-        if (itemStack2.isEmpty()) slot.setByPlayer(ItemStack.EMPTY);
-        else slot.setChanged();
-        if (itemStack2.getCount() == itemStack.getCount()) return ItemStack.EMPTY;
-        slot.onTake(player, itemStack2);
-        return itemStack;
-    }
-
-    private boolean quickMoveFilter(int index,ItemStack itemStack){
-        if(index < this.machine.getContainerSize()){
-            return !this.moveItemStackTo(itemStack, this.machine.getContainerSize(), this.machine.getContainerSize() + 36, true);
-        }else{
-            boolean bl = false;
-            if (this.getMachine() instanceof IFilterBlockEntity entity) {
-                for (int i = 0; i < this.machine.getContainerSize(); i++) {
-                    ItemStack filter = getFilter(i);
-                    NonNullList<Boolean> disableds = entity.getDisabled();
-                    if (filter.is(itemStack.getItem()) || !disableds.get(i)) {
-                        bl = !this.moveItemStackTo(itemStack, i, i + 1, false);
-                    }
-                }
-            }
-            return bl;
-        }
-    }
-
     public @Nullable IFilterBlockEntity getEntity() {
         return this.machine instanceof IFilterBlockEntity entity ? entity : null;
     }

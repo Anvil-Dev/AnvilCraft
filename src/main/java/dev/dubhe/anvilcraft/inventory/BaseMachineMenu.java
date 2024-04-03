@@ -1,8 +1,10 @@
 package dev.dubhe.anvilcraft.inventory;
 
 import dev.dubhe.anvilcraft.block.entity.BaseMachineBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntity;
 import lombok.Getter;
 import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -29,11 +31,7 @@ public abstract class BaseMachineMenu extends AbstractContainerMenu {
         if (!slot.hasItem()) return itemStack;
         ItemStack itemStack2 = slot.getItem();
         itemStack = itemStack2.copy();
-        if (
-                index < this.machine.getContainerSize() ?
-                        !this.moveItemStackTo(itemStack2, this.machine.getContainerSize(), this.machine.getContainerSize() + 36, true) :
-                        !this.moveItemStackTo(itemStack2, 0, this.machine.getContainerSize(), false)
-        ) {
+        if (quickMoveFilter(index,itemStack2)) {
             return ItemStack.EMPTY;
         }
         if (itemStack2.isEmpty()) slot.setByPlayer(ItemStack.EMPTY);
@@ -41,6 +39,24 @@ public abstract class BaseMachineMenu extends AbstractContainerMenu {
         if (itemStack2.getCount() == itemStack.getCount()) return ItemStack.EMPTY;
         slot.onTake(player, itemStack2);
         return itemStack;
+    }
+
+    private boolean quickMoveFilter(int index,ItemStack itemStack){
+        if(index < this.machine.getContainerSize()){
+            return !this.moveItemStackTo(itemStack, this.machine.getContainerSize(), this.machine.getContainerSize() + 36, true);
+        }else{
+            boolean bl = false;
+            if (this.getMachine() instanceof IFilterBlockEntity entity) {
+                for (int i = 0; i < this.machine.getContainerSize(); i++) {
+                    ItemStack filter = entity.getFilter().get(i);
+                    NonNullList<Boolean> disableds = entity.getDisabled();
+                    if (filter.is(itemStack.getItem()) || !disableds.get(i)) {
+                        bl = !this.moveItemStackTo(itemStack, i, i + 1, false);
+                    }
+                }
+            }
+            return bl;
+        }
     }
 
     @Override
