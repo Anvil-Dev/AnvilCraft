@@ -1,14 +1,13 @@
-package dev.dubhe.anvilcraft.data.generator;
+package dev.dubhe.anvilcraft.data.generator.tags;
 
 import com.tterrag.registrate.providers.RegistrateTagsProvider;
 import dev.dubhe.anvilcraft.init.ModItemTags;
 import dev.dubhe.anvilcraft.init.ModItems;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import org.jetbrains.annotations.NotNull;
 
-public class MyItemTagGenerator {
-    protected static void addTags(@NotNull RegistrateTagsProvider<Item> provider) {
+public class ItemTagLoader {
+    public static void init(RegistrateTagsProvider<Item> provider) {
         provider.addTag(ModItemTags.PLATES).setReplace(false)
                 .add(Items.HEAVY_WEIGHTED_PRESSURE_PLATE)
                 .add(Items.LIGHT_WEIGHTED_PRESSURE_PLATE);

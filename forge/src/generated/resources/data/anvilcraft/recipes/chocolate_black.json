@@ -3,10 +3,10 @@
   "category": "misc",
   "key": {
     "A": {
-      "item": "anvilcraft:cocoa_liquor"
+      "item": "anvilcraft:cocoa_butter"
     },
     "B": {
-      "item": "anvilcraft:cocoa_butter"
+      "item": "anvilcraft:cream"
     },
     "C": {
       "item": "minecraft:sugar"

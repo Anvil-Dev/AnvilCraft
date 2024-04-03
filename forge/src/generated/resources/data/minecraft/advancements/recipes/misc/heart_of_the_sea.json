@@ -1,12 +1,12 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_royal_steel_nugget": {
+    "has_kernel_of_the_sea": {
       "conditions": {
         "items": [
           {
             "items": [
-              "anvilcraft:royal_steel_nugget"
+              "anvilcraft:kernel_of_the_sea"
             ]
           }
         ]
@@ -15,20 +15,20 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:craft/cut_royal_steel_slab_2"
+        "recipe": "minecraft:heart_of_the_sea"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_royal_steel_nugget",
+      "has_kernel_of_the_sea",
       "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:craft/cut_royal_steel_slab_2"
+      "minecraft:heart_of_the_sea"
     ]
   },
   "sends_telemetry_event": false

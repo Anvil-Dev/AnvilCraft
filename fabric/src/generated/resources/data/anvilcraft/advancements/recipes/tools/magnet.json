@@ -1,19 +1,13 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_ender_pearl": {
+    "has_the_recipe": {
       "conditions": {
-        "items": [
-          {
-            "items": [
-              "minecraft:ender_pearl"
-            ]
-          }
-        ]
+        "recipe": "anvilcraft:magnet"
       },
-      "trigger": "minecraft:inventory_changed"
+      "trigger": "minecraft:recipe_unlocked"
     },
-    "has_magnet_ingot": {
+    "hasitem": {
       "conditions": {
         "items": [
           {
@@ -24,31 +18,11 @@
         ]
       },
       "trigger": "minecraft:inventory_changed"
-    },
-    "has_redstone": {
-      "conditions": {
-        "items": [
-          {
-            "items": [
-              "minecraft:redstone"
-            ]
-          }
-        ]
-      },
-      "trigger": "minecraft:inventory_changed"
-    },
-    "has_the_recipe": {
-      "conditions": {
-        "recipe": "anvilcraft:magnet"
-      },
-      "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_redstone",
-      "has_magnet_ingot",
-      "has_ender_pearl",
+      "hasitem",
       "has_the_recipe"
     ]
   ],

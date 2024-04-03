@@ -15,7 +15,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:craft/cut_royal_steel_slab_1"
+        "recipe": "minecraft:cut_royal_steel_stairs_from_royal_steel_block_stonecutting"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -28,7 +28,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:craft/cut_royal_steel_slab_1"
+      "minecraft:cut_royal_steel_stairs_from_royal_steel_block_stonecutting"
     ]
   },
   "sends_telemetry_event": false

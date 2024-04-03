@@ -6,10 +6,10 @@
       "item": "minecraft:bread"
     },
     {
-      "item": "anvilcraft:cream"
+      "item": "minecraft:sugar"
     },
     {
-      "item": "minecraft:sugar"
+      "item": "anvilcraft:cream"
     }
   ],
   "result": {

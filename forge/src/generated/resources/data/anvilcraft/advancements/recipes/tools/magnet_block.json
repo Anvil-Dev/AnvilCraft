@@ -1,7 +1,13 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_magnet_ingot": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:magnet_block"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "hasitem": {
       "conditions": {
         "items": [
           {
@@ -12,17 +18,11 @@
         ]
       },
       "trigger": "minecraft:inventory_changed"
-    },
-    "has_the_recipe": {
-      "conditions": {
-        "recipe": "anvilcraft:magnet_block"
-      },
-      "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_magnet_ingot",
+      "hasitem",
       "has_the_recipe"
     ]
   ],

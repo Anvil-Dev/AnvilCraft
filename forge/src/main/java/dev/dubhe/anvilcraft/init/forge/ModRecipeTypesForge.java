@@ -15,8 +15,12 @@ public class ModRecipeTypesForge {
     @SubscribeEvent
     public void register(RegisterEvent event) {
         for (Map.Entry<String, Pair<RecipeSerializer<?>, RecipeType<?>>> entry : ModRecipeTypes.RECIPE_TYPES.entrySet()) {
-            event.register(ForgeRegistries.Keys.RECIPE_SERIALIZERS, (helper) -> helper.register(AnvilCraft.of(entry.getKey()), entry.getValue().getFirst()));
-            event.register(ForgeRegistries.Keys.RECIPE_TYPES, (helper) -> helper.register(AnvilCraft.of(entry.getKey()), entry.getValue().getSecond()));
+            if (entry.getValue().getFirst() != null) {
+                event.register(ForgeRegistries.Keys.RECIPE_SERIALIZERS, (helper) -> helper.register(AnvilCraft.of(entry.getKey()), entry.getValue().getFirst()));
+            }
+            if (entry.getValue().getSecond() != null) {
+                event.register(ForgeRegistries.Keys.RECIPE_TYPES, (helper) -> helper.register(AnvilCraft.of(entry.getKey()), entry.getValue().getSecond()));
+            }
         }
     }
 }

@@ -1,7 +1,13 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_beef": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:beef_mushroom_stew_raw"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "hasitem": {
       "conditions": {
         "items": [
           {
@@ -12,56 +18,11 @@
         ]
       },
       "trigger": "minecraft:inventory_changed"
-    },
-    "has_bowl": {
-      "conditions": {
-        "items": [
-          {
-            "items": [
-              "minecraft:bowl"
-            ]
-          }
-        ]
-      },
-      "trigger": "minecraft:inventory_changed"
-    },
-    "has_brown_mushroom": {
-      "conditions": {
-        "items": [
-          {
-            "items": [
-              "minecraft:brown_mushroom"
-            ]
-          }
-        ]
-      },
-      "trigger": "minecraft:inventory_changed"
-    },
-    "has_red_mushroom": {
-      "conditions": {
-        "items": [
-          {
-            "items": [
-              "minecraft:red_mushroom"
-            ]
-          }
-        ]
-      },
-      "trigger": "minecraft:inventory_changed"
-    },
-    "has_the_recipe": {
-      "conditions": {
-        "recipe": "anvilcraft:beef_mushroom_stew_raw"
-      },
-      "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_beef",
-      "has_brown_mushroom",
-      "has_red_mushroom",
-      "has_bowl",
+      "hasitem",
       "has_the_recipe"
     ]
   ],

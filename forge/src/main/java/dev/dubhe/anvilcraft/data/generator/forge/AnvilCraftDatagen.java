@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.data.forge;
+package dev.dubhe.anvilcraft.data.generator.forge;
 
 
 import net.minecraft.data.DataGenerator;

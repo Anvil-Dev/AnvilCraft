@@ -37,18 +37,6 @@
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_sugar": {
-      "conditions": {
-        "items": [
-          {
-            "items": [
-              "minecraft:sugar"
-            ]
-          }
-        ]
-      },
-      "trigger": "minecraft:inventory_changed"
-    },
     "has_the_recipe": {
       "conditions": {
         "recipe": "anvilcraft:chocolate"
@@ -61,7 +49,6 @@
       "has_cocoa_liquor",
       "has_cocoa_butter",
       "has_cream",
-      "has_sugar",
       "has_the_recipe"
     ]
   ],

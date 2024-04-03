@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.init;
 
+import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
@@ -12,6 +13,9 @@ import dev.dubhe.anvilcraft.block.RoyalAnvilBlock;
 import dev.dubhe.anvilcraft.block.RoyalGrindstone;
 import dev.dubhe.anvilcraft.block.RoyalSmithingTableBlock;
 import dev.dubhe.anvilcraft.block.StampingPlatformBlock;
+import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
+import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
@@ -32,6 +36,15 @@ public class ModBlocks {
             .simpleItem()
             .defaultLoot()
             .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
+                    .pattern("BAB")
+                    .pattern("B B")
+                    .pattern("B B")
+                    .define('A', ModItemTags.IRON_PLATES)
+                    .define('B', Items.IRON_INGOT)
+                    .unlockedBy("has_" + ModItemTags.IRON_PLATES.location().getPath(), AnvilCraftDatagen.has(ModItemTags.IRON_PLATES))
+                    .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
+                    .save(provider))
             .register();
 
     public static final BlockEntry<? extends Block> ROYAL_ANVIL = REGISTRATE
@@ -51,6 +64,14 @@ public class ModBlocks {
             .simpleItem()
             .defaultLoot()
             .tag(ModBlockTags.MAGNET, BlockTags.MINEABLE_WITH_PICKAXE)
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .define('A', ModItems.MAGNET_INGOT)
+                    .unlockedBy("hasitem", RegistrateRecipeProvider.has(ModItems.MAGNET_INGOT))
+                    .save(provider)
+            )
             .register();
     public static final BlockEntry<? extends Block> HOLLOW_MAGNET_BLOCK = REGISTRATE
             .block("hollow_magnet_block", HollowMagnetBlock::new)
@@ -60,6 +81,13 @@ public class ModBlocks {
             .simpleItem()
             .defaultLoot()
             .tag(ModBlockTags.MAGNET, BlockTags.MINEABLE_WITH_PICKAXE)
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
+                    .pattern("AAA")
+                    .pattern("A A")
+                    .pattern("AAA")
+                    .define('A', ModItems.MAGNET_INGOT)
+                    .unlockedBy("hasitem", RegistrateRecipeProvider.has(ModItems.MAGNET_INGOT))
+                    .save(provider))
             .register();
     public static final BlockEntry<? extends Block> FERRITE_CORE_MAGNET_BLOCK = REGISTRATE
             .block("ferrite_core_magnet_block", FerriteCoreMagnetBlock::new)
@@ -70,6 +98,16 @@ public class ModBlocks {
             .simpleItem()
             .defaultLoot()
             .tag(ModBlockTags.MAGNET, BlockTags.MINEABLE_WITH_PICKAXE)
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
+                    .pattern("AAA")
+                    .pattern("ABA")
+                    .pattern("AAA")
+                    .define('A', ModItems.MAGNET_INGOT)
+                    .define('B', Items.IRON_INGOT)
+                    .unlockedBy("has_magnet_ingot", RegistrateRecipeProvider.has(ModItems.MAGNET_INGOT))
+                    .unlockedBy("has_iron_ingot", RegistrateRecipeProvider.has(Items.IRON_INGOT))
+                    .save(provider)
+            )
             .register();
     public static final BlockEntry<? extends Block> CHUTE = REGISTRATE
             .block("chute", ChuteBlock::new)
@@ -80,6 +118,16 @@ public class ModBlocks {
             .simpleItem()
             .defaultLoot()
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.MINEABLE_WITH_AXE)
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModBlocks.CHUTE)
+                    .pattern("A A")
+                    .pattern("ABA")
+                    .pattern(" A ")
+                    .define('A', Items.IRON_INGOT)
+                    .define('B', Items.DROPPER)
+                    .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
+                    .unlockedBy(AnvilCraftDatagen.hasItem(Items.DROPPER), AnvilCraftDatagen.has(Items.DROPPER))
+                    .save(provider)
+            )
             .register();
     public static final BlockEntry<? extends Block> AUTO_CRAFTER = REGISTRATE
             .block("auto_crafter", AutoCrafterBlock::new)
@@ -89,6 +137,18 @@ public class ModBlocks {
             .simpleItem()
             .defaultLoot()
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.MINEABLE_WITH_AXE)
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
+                    .pattern("AAA")
+                    .pattern("ABA")
+                    .pattern("ACA")
+                    .define('A', Items.IRON_INGOT)
+                    .define('B', Items.CRAFTING_TABLE)
+                    .define('C', Items.DROPPER)
+                    .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
+                    .unlockedBy(AnvilCraftDatagen.hasItem(Items.CRAFTING_TABLE), AnvilCraftDatagen.has(Items.CRAFTING_TABLE))
+                    .unlockedBy(AnvilCraftDatagen.hasItem(Items.DROPPER), AnvilCraftDatagen.has(Items.DROPPER))
+                    .save(provider)
+            )
             .register();
     public static final BlockEntry<? extends Block> ROYAL_GRINDSTONE = REGISTRATE
             .block("royal_grindstone", RoyalGrindstone::new)
@@ -114,6 +174,14 @@ public class ModBlocks {
             .simpleItem()
             .defaultLoot()
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS)
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .define('A', ModItems.ROYAL_STEEL_INGOT)
+                    .unlockedBy("hasitem", RegistrateRecipeProvider.has(ModItems.ROYAL_STEEL_INGOT))
+                    .save(provider)
+            )
             .register();
     public static final BlockEntry<? extends Block> SMOOTH_ROYAL_STEEL_BLOCK = REGISTRATE
             .block("smooth_royal_steel_block", Block::new)
@@ -128,6 +196,13 @@ public class ModBlocks {
             .simpleItem()
             .defaultLoot()
             .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 4)
+                    .pattern("AA")
+                    .pattern("AA")
+                    .define('A', ModBlocks.ROYAL_STEEL_BLOCK)
+                    .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.ROYAL_STEEL_BLOCK.asItem()), AnvilCraftDatagen.has(ModBlocks.ROYAL_STEEL_BLOCK))
+                    .save(provider, AnvilCraft.of("craft/cut_royal_steel_block"))
+            )
             .register();
     public static final BlockEntry<? extends Block> CUT_ROYAL_STEEL_SLAB = REGISTRATE
             .block("cut_royal_steel_slab", SlabBlock::new)
@@ -136,6 +211,11 @@ public class ModBlocks {
             .simpleItem()
             .loot((tables, block) -> tables.add(block, tables::createSlabItemTable))
             .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 6)
+                    .pattern("AAA")
+                    .define('A', ModBlocks.CUT_ROYAL_STEEL_BLOCK)
+                    .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CUT_ROYAL_STEEL_BLOCK.asItem()), AnvilCraftDatagen.has(ModBlocks.CUT_ROYAL_STEEL_BLOCK))
+                    .save(provider, AnvilCraft.of("craft/cut_royal_steel_slab")))
             .register();
     public static final BlockEntry<? extends Block> CUT_ROYAL_STEEL_STAIRS = REGISTRATE
             .block("cut_royal_steel_stairs", (properties) -> new StairBlock(ModBlocks.CUT_ROYAL_STEEL_BLOCK.getDefaultState(), properties))
@@ -144,6 +224,13 @@ public class ModBlocks {
             .simpleItem()
             .defaultLoot()
             .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 4)
+                    .pattern("A  ")
+                    .pattern("AA ")
+                    .pattern("AAA")
+                    .define('A', ModBlocks.CUT_ROYAL_STEEL_BLOCK)
+                    .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CUT_ROYAL_STEEL_BLOCK.asItem()), AnvilCraftDatagen.has(ModBlocks.CUT_ROYAL_STEEL_BLOCK))
+                    .save(provider, AnvilCraft.of("craft/cut_royal_steel_stairs")))
             .register();
     public static final BlockEntry<? extends Block> LAVA_CAULDRON = REGISTRATE
             .block("lava_cauldron", LavaCauldronBlock::new)
@@ -160,6 +247,13 @@ public class ModBlocks {
             .simpleItem()
             .defaultLoot()
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS)
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .define('A', ModItems.CURSED_GOLD_INGOT)
+                    .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CURSED_GOLD_INGOT.get()), AnvilCraftDatagen.has(ModItems.CURSED_GOLD_INGOT))
+                    .save(provider))
             .register();
 
     public static void register() {

@@ -1,7 +1,13 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_debris_scrap": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:netherite_core"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "hasitem": {
       "conditions": {
         "items": [
           {
@@ -12,30 +18,11 @@
         ]
       },
       "trigger": "minecraft:inventory_changed"
-    },
-    "has_nether_star_shard": {
-      "conditions": {
-        "items": [
-          {
-            "items": [
-              "anvilcraft:nether_star_shard"
-            ]
-          }
-        ]
-      },
-      "trigger": "minecraft:inventory_changed"
-    },
-    "has_the_recipe": {
-      "conditions": {
-        "recipe": "anvilcraft:netherite_core"
-      },
-      "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_debris_scrap",
-      "has_nether_star_shard",
+      "hasitem",
       "has_the_recipe"
     ]
   ],
