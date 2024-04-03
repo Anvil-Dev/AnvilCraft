@@ -1,9 +1,0 @@
-{
-	"credit": "Made by XeKr with Blockbench",
-	"parent": "anvilcraft:block/charge_collector_0",
-	"textures": {
-		"particle": "anvilcraft:block/charge_collector_12",
-		"side": "anvilcraft:block/charge_collector_12",
-		"top": "anvilcraft:block/charge_collector_top"
-	}
-}
