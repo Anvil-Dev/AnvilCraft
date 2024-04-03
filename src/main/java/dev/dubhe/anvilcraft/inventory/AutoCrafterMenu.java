@@ -65,23 +65,7 @@ public abstract class AutoCrafterMenu extends BaseMachineMenu implements IFilter
         if (!slot.hasItem()) return itemStack;
         ItemStack itemStack2 = slot.getItem();
         itemStack = itemStack2.copy();
-
-        Boolean needMove;
-        if(index < this.machine.getContainerSize()){
-            needMove = !this.moveItemStackTo(itemStack2, this.machine.getContainerSize(), this.machine.getContainerSize() + 36, true);
-        }else{
-            needMove = false;
-            if (this.getMachine() instanceof AutoCrafterBlockEntity entity) {
-                for (int i = 0; i < this.machine.getContainerSize(); i++) {
-                    ItemStack filter = getFilter(i);
-                    NonNullList<Boolean> disableds = entity.getDisabled();
-                    if (filter.is(itemStack.getItem()) || !disableds.get(i)) {
-                        needMove = !this.moveItemStackTo(itemStack2, i, i + 1, false);
-                    }
-                }
-            }
-        }
-        if (needMove) {
+        if (this.quickMoveFilter(index,itemStack2)) {
             return ItemStack.EMPTY;
         }
         if (itemStack2.isEmpty()) slot.setByPlayer(ItemStack.EMPTY);
@@ -89,6 +73,24 @@ public abstract class AutoCrafterMenu extends BaseMachineMenu implements IFilter
         if (itemStack2.getCount() == itemStack.getCount()) return ItemStack.EMPTY;
         slot.onTake(player, itemStack2);
         return itemStack;
+    }
+
+    private boolean quickMoveFilter(int index,ItemStack itemStack){
+        if(index < this.machine.getContainerSize()){
+            return !this.moveItemStackTo(itemStack, this.machine.getContainerSize(), this.machine.getContainerSize() + 36, true);
+        }else{
+            boolean bl = false;
+            if (this.getMachine() instanceof IFilterBlockEntity entity) {
+                for (int i = 0; i < this.machine.getContainerSize(); i++) {
+                    ItemStack filter = getFilter(i);
+                    NonNullList<Boolean> disableds = entity.getDisabled();
+                    if (filter.is(itemStack.getItem()) || !disableds.get(i)) {
+                        bl = !this.moveItemStackTo(itemStack, i, i + 1, false);
+                    }
+                }
+            }
+            return bl;
+        }
     }
 
     public @Nullable IFilterBlockEntity getEntity() {
