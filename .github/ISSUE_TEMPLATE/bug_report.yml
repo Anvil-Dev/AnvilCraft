@@ -60,7 +60,7 @@ body:
       label: Expected behavior - 预期行为
       description: |
         Please describe in detail the results you wish to achieve.
-        请仔细描述你所遇到的问题。
+        请仔细描述你要得到的结果。
     validations:
       required: true
 
