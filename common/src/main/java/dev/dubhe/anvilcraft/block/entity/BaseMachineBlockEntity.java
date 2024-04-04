@@ -91,11 +91,25 @@ public abstract class BaseMachineBlockEntity extends RandomizableContainerBlockE
         this.items = itemStacks;
     }
 
-    protected boolean insertOrDropItem(Direction direction, Level level, @NotNull BlockPos pos, @NotNull Container container, int slot, boolean drop, boolean momentum, boolean needEmpty) {
+    /**
+     * 输出或丢出物品
+     *
+     * @param direction 输出目标方向
+     * @param level     维度
+     * @param pos       坐标
+     * @param container 输出物品的容器
+     * @param slot      从哪个槽位输出
+     * @param part      是否允许只插入一部分物品
+     * @param drop      是否强制丢出物品
+     * @param momentum  是否有动量
+     * @param needEmpty 丢出物品的位置是否需要为空
+     * @return 操作是否成功
+     */
+    protected final boolean insertOrDropItem(Direction direction, Level level, @NotNull BlockPos pos, @NotNull Container container, int slot, boolean part, boolean drop, boolean momentum, boolean needEmpty) {
         ItemStack item = container.getItem(slot);
         BlockPos curPos = pos.relative(direction);
         boolean flag = false;
-        if (canPlaceItem(level, curPos, item, direction)) {
+        if ((part && getCountCanPlace(level, curPos, item, direction) > 0) || canPlaceAllItem(level, curPos, item, direction)) {
             flag = this.insertItem(direction, level, curPos, container, slot);
             if (flag) return true;
         }
@@ -118,13 +132,20 @@ public abstract class BaseMachineBlockEntity extends RandomizableContainerBlockE
         ItemStack item = container.getItem(slot);
         ItemDepository itemDepository = ItemDepository.getItemDepository(level, pos, direction.getOpposite());
         if (itemDepository == null) return false;
-        long count = itemDepository.inject(item.copy(), item.getCount());
+        long count = itemDepository.inject(item.copy(), item.getCount(), false);
         item.setCount((int) count);
         container.setItem(slot, item);
         return true;
     }
 
-    private boolean canPlaceItem(Level level, BlockPos pos, @NotNull ItemStack stack, @NotNull Direction direction) {
+    public final long getCountCanPlace(Level level, BlockPos pos, @NotNull ItemStack stack, @NotNull Direction direction) {
+        ItemDepository itemDepository = ItemDepository.getItemDepository(level, pos, direction.getOpposite());
+        if (itemDepository == null) return 0;
+        int count = stack.getCount();
+        return count - itemDepository.inject(stack.copy(), count, true);
+    }
+
+    private boolean canPlaceAllItem(Level level, BlockPos pos, @NotNull ItemStack stack, @NotNull Direction direction) {
         ItemDepository itemDepository = ItemDepository.getItemDepository(level, pos, direction.getOpposite());
         if (itemDepository == null) return false;
         return itemDepository.canInject(stack.copy(), stack.getCount());
