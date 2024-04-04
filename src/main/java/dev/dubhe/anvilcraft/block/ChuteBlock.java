@@ -189,4 +189,21 @@ public class ChuteBlock extends BaseEntityBlock {
         }
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public boolean hasAnalogOutputSignal(BlockState blockState) {
+        return true;
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public int getAnalogOutputSignal(BlockState blockState, @NotNull Level level, BlockPos blockPos) {
+        BlockEntity blockEntity = level.getBlockEntity(blockPos);
+        if (blockEntity instanceof ChuteBlockEntity chuteBlockEntity) {
+            return chuteBlockEntity.getRedstoneSignal();
+        }
+        return 0;
+    }
+
 }
