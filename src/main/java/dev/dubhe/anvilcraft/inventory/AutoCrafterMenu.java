@@ -56,6 +56,7 @@ public abstract class AutoCrafterMenu extends BaseMachineMenu implements IFilter
         }
         this.updateResult();
     }
+
     public @Nullable IFilterBlockEntity getEntity() {
         return this.machine instanceof IFilterBlockEntity entity ? entity : null;
     }
