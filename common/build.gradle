@@ -12,9 +12,19 @@ loom {
     accessWidenerPath = file("src/main/resources/${mod_id}.accesswidener")
 }
 
+configurations {
+    apiElements {
+        outgoing {
+            capability("net.fabricmc.fabric-api:fabric-api-${this.libs.versions.minecraft.get()}:${this.fabric.versions.fabricApi.get()}")
+            capability("com.tterrag.registrate_fabric:Registrate:${this.fabric.versions.registrate.get()}")
+            capability("dev.toma.configuration:configuration-fabric-${this.libs.versions.minecraft.get()}:${this.fabric.versions.configuration.get()}")
+            capability("io.github.llamalad7:mixinextras-common:${this.fabric.versions.mixinextras.get()}")
+        }
+    }
+}
+
 repositories {
     maven { url = "https://mvn.devos.one/snapshots/" } // Create Fabric, Porting Lib, Forge Tags, Milk Lib, Registrate Fabric
-    //maven { url = "https://maven.cafeteria.dev/releases" } // Fake Player API
     maven { url = "https://maven.jamieswhiteshirt.com/libs-release" } // Reach Entity Attributes
     maven { url = "https://jitpack.io/" } // Mixin Extras, Fabric ASM
     maven {
@@ -59,6 +69,9 @@ dependencies {
 
     // Mixin Extras
     implementation(annotationProcessor("io.github.llamalad7:mixinextras-common:${fabric.versions.mixinextras.get()}"))
+
+    // Configuration
+    modCompileOnly fabric.configuration
 }
 
 publishing {

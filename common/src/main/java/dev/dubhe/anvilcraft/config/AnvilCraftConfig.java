@@ -1,35 +1,44 @@
 package dev.dubhe.anvilcraft.config;
 
-import com.google.gson.annotations.SerializedName;
+import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.toma.configuration.Configuration;
+import dev.toma.configuration.config.Config;
+import dev.toma.configuration.config.Configurable;
+import dev.toma.configuration.config.format.ConfigFormats;
 
-@SuppressWarnings("unused")
+@Config(id = AnvilCraft.MOD_ID)
 public class AnvilCraftConfig {
-    @SerializedName("// 铁砧同时处理的最大物品数量")
-    public final String anvilEfficiencyNote = "";
-    @SerializedName("anvil_efficiency")
+
+    public static AnvilCraftConfig INSTANCE;
+
+    public static void init() {
+        INSTANCE = Configuration.registerConfig(AnvilCraftConfig.class, ConfigFormats.yaml()).getConfigInstance();
+    }
+
+    @Configurable
+    @Configurable.Comment("Maximum number of items processed by the anvil at the same time")
     public int anvilEfficiency = 64;
-    @SerializedName("// 雷击能到达的最大深度")
-    public final String lightningStrikeDepthNote = "";
-    @SerializedName("lightning_strike_depth")
+
+    @Configurable
+    @Configurable.Comment("Maximum depth a lightning strike can reach")
     public int lightningStrikeDepth = 2;
-    @SerializedName("// 磁铁吸引的最大距离")
-    public final String magnetAttractsDistanceNote = "";
-    @SerializedName("magnet_attracts_distance")
+
+    @Configurable
+    @Configurable.Comment("Maximum distance a magnet attracts")
     public int magnetAttractsDistance = 5;
-    @SerializedName("// 手持磁铁吸引的最大半径")
-    public final String magnetItemAttractsRadiusNote = "";
-    @SerializedName("magnet_item_attracts_radius")
+    @Configurable
+    @Configurable.Comment("Maximum radius a handheld magnet attracts")
     public double magnetItemAttractsRadius = 8;
-    @SerializedName("// 铁砧每掉落一格产生的红石EMP距离")
-    public final String redstoneEmpRadiusNote = "";
-    @SerializedName("redstone_emp_radius")
+
+    @Configurable
+    @Configurable.Comment("Redstone EMP distance generated per block dropped by the anvil")
     public int redstoneEmpRadius = 6;
-    @SerializedName("// 红石EMP的最大距离")
-    public final String redstoneEmpMaxRadiusNote = "";
-    @SerializedName("redstone_emp_max_radius")
+
+    @Configurable
+    @Configurable.Comment("Maximum distance of redstone EMP")
     public int redstoneEmpMaxRadius = 24;
-    @SerializedName("// 溜槽的最大冷却时间（单位: tick）")
-    public final String chuteMaxCooldownNote = "";
-    @SerializedName("chute_max_cooldown")
+
+    @Configurable
+    @Configurable.Comment("Maximum cooldown time of chute (in ticks)")
     public int chuteMaxCooldown = 4;
 }
