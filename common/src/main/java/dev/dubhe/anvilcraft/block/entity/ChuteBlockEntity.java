@@ -73,10 +73,9 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
         if (entity.cooldown < 0) entity.refreshCooldown();
         BlockState state = level.getBlockState(pos);
         if (!state.getValue(ChuteBlock.ENABLED)) return;
-        if (!entity.isOnCooldown()) {
-            ChuteBlockEntity.tryMoveItems(level, pos, state, entity, () -> ChuteBlockEntity.suckInItems(level, entity));
-            entity.dropOrInsert(level, pos);
-        }
+        if (entity.isOnCooldown()) return;
+        ChuteBlockEntity.tryMoveItems(level, pos, state, entity, () -> ChuteBlockEntity.suckInItems(level, entity));
+        entity.dropOrInsert(level, pos);
     }
 
     public void dropOrInsert(Level level, BlockPos pos) {

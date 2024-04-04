@@ -119,6 +119,7 @@ public abstract class BaseMachineBlockEntity extends RandomizableContainerBlockE
         ItemDepository itemDepository = ItemDepository.getItemDepository(level, pos, direction.getOpposite());
         if (itemDepository == null) return false;
         long count = itemDepository.inject(item.copy(), item.getCount());
+
         item.setCount((int) count);
         container.setItem(slot, item);
         return true;
@@ -127,7 +128,7 @@ public abstract class BaseMachineBlockEntity extends RandomizableContainerBlockE
     private boolean canPlaceItem(Level level, BlockPos pos, @NotNull ItemStack stack, @NotNull Direction direction) {
         ItemDepository itemDepository = ItemDepository.getItemDepository(level, pos, direction.getOpposite());
         if (itemDepository == null) return false;
-        return itemDepository.canInject(stack.copy(), stack.getCount());
+        return true;
     }
 
     private boolean dropItem(Direction direction, Level level, @NotNull BlockPos pos, @NotNull Container container, int slot, boolean momentum) {

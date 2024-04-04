@@ -45,7 +45,8 @@ public class ItemDepository implements Depository<ItemStack> {
             if (!container.canPlaceItem(slot, thingType)) continue;
             ItemStack item = container.getItem(slot).copy();
             if (!item.isEmpty() && !ItemStack.isSameItemSameTags(thingType, item)) continue;
-            int injectCount = (int) Math.min(count, item.getMaxStackSize() - item.getCount());
+            int maxStackSize = Math.min(container.getMaxStackSize(), item.getMaxStackSize());
+            int injectCount = (int) Math.min(count, maxStackSize - item.getCount());
             count -= injectCount;
             ItemStack stack = thingType.copy();
             stack.setCount(injectCount + item.getCount());
