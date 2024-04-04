@@ -1,8 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.block.entity.AutoCrafterBlockEntity;
-import dev.dubhe.anvilcraft.init.ModBlockEntities;
-import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.network.MachineOutputDirectionPack;
 import dev.dubhe.anvilcraft.network.MachineRecordMaterialPack;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
@@ -34,9 +32,8 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class AutoCrafterBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING = DirectionalBlock.FACING;
@@ -49,13 +46,13 @@ public class AutoCrafterBlock extends BaseEntityBlock {
 
     @Override
     @SuppressWarnings("deprecation")
-    public boolean hasAnalogOutputSignal(@Nonnull BlockState blockState) {
+    public boolean hasAnalogOutputSignal(BlockState blockState) {
         return true;
     }
 
     @Override
     @SuppressWarnings("deprecation")
-    public int getAnalogOutputSignal(@Nonnull BlockState blockState, @Nonnull Level level, @Nonnull BlockPos blockPos) {
+    public int getAnalogOutputSignal(BlockState blockState, @NotNull Level level, BlockPos blockPos) {
         BlockEntity blockEntity = level.getBlockEntity(blockPos);
         if (blockEntity instanceof AutoCrafterBlockEntity crafterBlockEntity) {
             return crafterBlockEntity.getRedstoneSignal();
@@ -65,18 +62,20 @@ public class AutoCrafterBlock extends BaseEntityBlock {
 
     @Override
     @SuppressWarnings("deprecation")
-    public @Nonnull InteractionResult use(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult hit) {
+    public @NotNull InteractionResult use(BlockState state, @NotNull Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
         }
         BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity instanceof AutoCrafterBlockEntity entity && player instanceof ServerPlayer serverPlayer) {
-            ModMenuTypes.open((ServerPlayer) player, entity);
-            new MachineOutputDirectionPack(entity.getDirection()).send(serverPlayer);
-            new MachineRecordMaterialPack(entity.isRecord()).send(serverPlayer);
-            for (int i = 0; i < entity.getDisabled().size(); i++) {
-                new SlotDisableChangePack(i, entity.getDisabled().get(i)).send(serverPlayer);
-                new SlotFilterChangePack(i, entity.getFilter().get(i)).send(serverPlayer);
+        if (blockEntity instanceof AutoCrafterBlockEntity entity) {
+            player.openMenu(entity);
+            if (player instanceof ServerPlayer serverPlayer) {
+                new MachineOutputDirectionPack(entity.getDirection()).send(serverPlayer);
+                new MachineRecordMaterialPack(entity.isRecord()).send(serverPlayer);
+                for (int i = 0; i < entity.getDisabled().size(); i++) {
+                    new SlotDisableChangePack(i, entity.getDisabled().get(i)).send(serverPlayer);
+                    new SlotFilterChangePack(i, entity.getFilter().get(i)).send(serverPlayer);
+                }
             }
         }
         return InteractionResult.SUCCESS;
@@ -84,7 +83,7 @@ public class AutoCrafterBlock extends BaseEntityBlock {
 
     @Override
     @SuppressWarnings("deprecation")
-    public void onRemove(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState newState, boolean movedByPiston) {
+    public void onRemove(@NotNull BlockState state, Level level, BlockPos pos, @NotNull BlockState newState, boolean movedByPiston) {
         if (state.is(newState.getBlock())) return;
         if (level.getBlockEntity(pos) instanceof Container container) {
             Containers.dropContents(level, pos, container);
@@ -95,35 +94,37 @@ public class AutoCrafterBlock extends BaseEntityBlock {
 
     @Nullable
     @Override
-    public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) {
-        return new AutoCrafterBlockEntity(ModBlockEntities.AUTO_CRAFTER.get(), pos, state);
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return new AutoCrafterBlockEntity(pos, state);
     }
 
     @Nullable
     @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockEntityType<T> blockEntityType) {
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
         return (level1, pos, state1, e) -> AutoCrafterBlockEntity.tick(level1, pos, e);
     }
 
     @Override
-    public @Nonnull RenderShape getRenderShape(@Nonnull BlockState state) {
+    public @NotNull RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
     }
 
     @Override
     @Nullable
-    public BlockState getStateForPlacement(@Nonnull BlockPlaceContext context) {
-        return this.defaultBlockState().setValue(FACING, context.getNearestLookingDirection().getOpposite()).setValue(LIT, context.getLevel().hasNeighborSignal(context.getClickedPos()));
+    public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
+        return this.defaultBlockState().
+                setValue(FACING, context.getNearestLookingDirection().getOpposite())
+                .setValue(LIT, context.getLevel().hasNeighborSignal(context.getClickedPos()));
     }
 
     @Override
-    protected void createBlockStateDefinition(@Nonnull StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(LIT).add(FACING);
     }
 
     @Override
     @SuppressWarnings("deprecation")
-    public void neighborChanged(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull Block neighborBlock, @Nonnull BlockPos neighborPos, boolean movedByPiston) {
+    public void neighborChanged(BlockState state, @NotNull Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
         if (level.isClientSide) {
             return;
         }
@@ -139,7 +140,7 @@ public class AutoCrafterBlock extends BaseEntityBlock {
 
     @Override
     @SuppressWarnings("deprecation")
-    public void tick(@Nonnull BlockState state, @Nonnull ServerLevel level, @Nonnull BlockPos pos, @Nonnull RandomSource random) {
+    public void tick(@NotNull BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         if (state.getValue(LIT) && !level.hasNeighborSignal(pos)) {
             level.setBlock(pos, state.cycle(LIT), 2);
         }
@@ -147,13 +148,13 @@ public class AutoCrafterBlock extends BaseEntityBlock {
 
     @Override
     @SuppressWarnings("deprecation")
-    public @Nonnull BlockState rotate(@Nonnull BlockState state, @Nonnull Rotation rotation) {
+    public @NotNull BlockState rotate(@NotNull BlockState state, @NotNull Rotation rotation) {
         return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
 
     @Override
     @SuppressWarnings("deprecation")
-    public @Nonnull BlockState mirror(@Nonnull BlockState state, @Nonnull Mirror mirror) {
+    public @NotNull BlockState mirror(@NotNull BlockState state, @NotNull Mirror mirror) {
         return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }
 }

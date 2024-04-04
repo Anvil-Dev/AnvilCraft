@@ -13,6 +13,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.Map;
+
 public class BulgingAndCrystallizeRecipesLoader {
 
     public static void init(RegistrateRecipeProvider provider) {
@@ -35,7 +37,7 @@ public class BulgingAndCrystallizeRecipesLoader {
     private static void bulging(Item item, Item item1, RegistrateRecipeProvider provider) {
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .icon(item1)
-                .hasBlock(Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3))
+                .hasBlock(Blocks.WATER_CAULDRON, new Vec3(0.0, -1.0, 0.0), Map.entry(LayeredCauldronBlock.LEVEL, 3))
                 .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), item)
                 .spawnItem(new Vec3(0.0, -1.0, 0.0), item1)
                 .setBlock(Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 2))
@@ -43,7 +45,7 @@ public class BulgingAndCrystallizeRecipesLoader {
                 .save(provider, AnvilCraft.of("bulging/" + BuiltInRegistries.ITEM.getKey(item1).getPath() + "_3"));
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .icon(item1)
-                .hasBlock(Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 2))
+                .hasBlock(Blocks.WATER_CAULDRON, new Vec3(0.0, -1.0, 0.0), Map.entry(LayeredCauldronBlock.LEVEL, 2))
                 .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), item)
                 .spawnItem(new Vec3(0.0, -1.0, 0.0), item1)
                 .setBlock(Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 1))
@@ -51,7 +53,7 @@ public class BulgingAndCrystallizeRecipesLoader {
                 .save(provider, AnvilCraft.of("bulging/" + BuiltInRegistries.ITEM.getKey(item1).getPath() + "_2"));
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .icon(item1)
-                .hasBlock(Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 1))
+                .hasBlock(Blocks.WATER_CAULDRON, new Vec3(0.0, -1.0, 0.0), Map.entry(LayeredCauldronBlock.LEVEL, 1))
                 .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), item)
                 .spawnItem(new Vec3(0.0, -1.0, 0.0), item1)
                 .setBlock(Blocks.CAULDRON)
@@ -62,7 +64,7 @@ public class BulgingAndCrystallizeRecipesLoader {
     private static void crystallize(Item item, Item item1, RegistrateRecipeProvider provider) {
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .icon(item1)
-                .hasBlock(Blocks.POWDER_SNOW_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3))
+                .hasBlock(Blocks.POWDER_SNOW_CAULDRON, new Vec3(0.0, -1.0, 0.0), Map.entry(LayeredCauldronBlock.LEVEL, 3))
                 .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), item)
                 .spawnItem(new Vec3(0.0, -1.0, 0.0), item1)
                 .setBlock(Blocks.POWDER_SNOW_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 2))
@@ -70,7 +72,7 @@ public class BulgingAndCrystallizeRecipesLoader {
                 .save(provider, AnvilCraft.of("crystallize/" + BuiltInRegistries.ITEM.getKey(item1).getPath() + "_3"));
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .icon(item1)
-                .hasBlock(Blocks.POWDER_SNOW_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 2))
+                .hasBlock(Blocks.POWDER_SNOW_CAULDRON, new Vec3(0.0, -1.0, 0.0), Map.entry(LayeredCauldronBlock.LEVEL, 2))
                 .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), item)
                 .spawnItem(new Vec3(0.0, -1.0, 0.0), item1)
                 .setBlock(Blocks.POWDER_SNOW_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 1))
@@ -78,7 +80,7 @@ public class BulgingAndCrystallizeRecipesLoader {
                 .save(provider, AnvilCraft.of("crystallize/" + BuiltInRegistries.ITEM.getKey(item1).getPath() + "_2"));
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .icon(item1)
-                .hasBlock(Blocks.POWDER_SNOW_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 1))
+                .hasBlock(Blocks.POWDER_SNOW_CAULDRON, new Vec3(0.0, -1.0, 0.0), Map.entry(LayeredCauldronBlock.LEVEL, 1))
                 .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), item)
                 .spawnItem(new Vec3(0.0, -1.0, 0.0), item1)
                 .setBlock(Blocks.CAULDRON)

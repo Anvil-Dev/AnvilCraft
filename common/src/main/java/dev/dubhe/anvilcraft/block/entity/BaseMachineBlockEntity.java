@@ -2,48 +2,45 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.depository.ItemDepository;
 import lombok.Getter;
-import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.StringTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 @Getter
 public abstract class BaseMachineBlockEntity extends RandomizableContainerBlockEntity {
     protected NonNullList<ItemStack> items;
-    @Setter
-    protected Direction direction = Direction.DOWN;
 
-    protected BaseMachineBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState, int size) {
+    protected BaseMachineBlockEntity(BlockEntityType<? extends BaseMachineBlockEntity> type, BlockPos pos, BlockState blockState, int size) {
         super(type, pos, blockState);
         items = NonNullList.withSize(size, ItemStack.EMPTY);
     }
 
+    public abstract Direction getDirection();
+
+    public abstract void setDirection(Direction direction);
+
     @Override
-    public void load(@Nonnull CompoundTag tag) {
+    public void load(@NotNull CompoundTag tag) {
         super.load(tag);
         this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
         ContainerHelper.loadAllItems(tag, this.items);
-        this.direction = Direction.valueOf(tag.getString("direction").toUpperCase());
     }
 
     @Override
-    protected void saveAdditional(@Nonnull CompoundTag tag) {
+    protected void saveAdditional(@NotNull CompoundTag tag) {
         super.saveAdditional(tag);
         ContainerHelper.saveAllItems(tag, this.items);
-        tag.put("direction", StringTag.valueOf(this.direction.getName().toLowerCase()));
     }
 
     @Override
@@ -61,22 +58,22 @@ public abstract class BaseMachineBlockEntity extends RandomizableContainerBlockE
     }
 
     @Override
-    public @Nonnull ItemStack getItem(int slot) {
+    public @NotNull ItemStack getItem(int slot) {
         return this.items.get(slot);
     }
 
     @Override
-    public @Nonnull ItemStack removeItem(int slot, int amount) {
+    public @NotNull ItemStack removeItem(int slot, int amount) {
         return ContainerHelper.removeItem(this.items, slot, amount);
     }
 
     @Override
-    public @Nonnull ItemStack removeItemNoUpdate(int slot) {
+    public @NotNull ItemStack removeItemNoUpdate(int slot) {
         return ContainerHelper.takeItem(this.items, slot);
     }
 
     @Override
-    public void setItem(int slot, @Nonnull ItemStack stack) {
+    public void setItem(int slot, @NotNull ItemStack stack) {
         this.items.set(slot, stack);
         if (stack.getCount() > this.getMaxStackSize()) {
             stack.setCount(this.getMaxStackSize());
@@ -89,11 +86,11 @@ public abstract class BaseMachineBlockEntity extends RandomizableContainerBlockE
     }
 
     @Override
-    protected void setItems(@Nonnull NonNullList<ItemStack> itemStacks) {
+    protected void setItems(@NotNull NonNullList<ItemStack> itemStacks) {
         this.items = itemStacks;
     }
 
-    protected boolean insertOrDropItem(Direction direction, Level level, @Nonnull BlockPos pos, @Nonnull Container container, int slot, boolean drop, boolean momentum, boolean needEmpty) {
+    protected boolean insertOrDropItem(Direction direction, Level level, @NotNull BlockPos pos, @NotNull Container container, int slot, boolean drop, boolean momentum, boolean needEmpty) {
         ItemStack item = container.getItem(slot);
         BlockPos curPos = pos.relative(direction);
         boolean flag = false;
@@ -104,13 +101,19 @@ public abstract class BaseMachineBlockEntity extends RandomizableContainerBlockE
         if (!drop) {
             if (ItemDepository.getItemDepository(level, curPos, direction.getOpposite()) != null) return false;
         }
-        if (!needEmpty || level.isEmptyBlock(curPos)) {
+        if (!needEmpty || this.canDropItem(level, curPos)) {
             flag = this.dropItem(direction, level, pos, container, slot, momentum);
         }
         return flag;
     }
 
-    private boolean insertItem(@Nonnull Direction direction, Level level, @Nonnull BlockPos pos, @Nonnull Container container, int slot) {
+    private boolean canDropItem(@NotNull Level level, @NotNull BlockPos pos) {
+        Vec3 vec3 = pos.getCenter();
+        ItemEntity entity = new ItemEntity(level, vec3.x, vec3.y, vec3.z, ItemStack.EMPTY);
+        return level.noCollision(entity);
+    }
+
+    private boolean insertItem(@NotNull Direction direction, @NotNull Level level, @NotNull BlockPos pos, @NotNull Container container, int slot) {
         ItemStack item = container.getItem(slot);
         ItemDepository itemDepository = ItemDepository.getItemDepository(level, pos, direction.getOpposite());
         if (itemDepository == null) return false;
@@ -120,13 +123,13 @@ public abstract class BaseMachineBlockEntity extends RandomizableContainerBlockE
         return true;
     }
 
-    private boolean canPlaceItem(Level level, BlockPos pos, @Nonnull ItemStack stack, @Nonnull Direction direction) {
+    private boolean canPlaceItem(Level level, BlockPos pos, @NotNull ItemStack stack, @NotNull Direction direction) {
         ItemDepository itemDepository = ItemDepository.getItemDepository(level, pos, direction.getOpposite());
         if (itemDepository == null) return false;
         return itemDepository.canInject(stack.copy(), stack.getCount());
     }
 
-    private boolean dropItem(Direction direction, Level level, @Nonnull BlockPos pos, @Nonnull Container container, int slot, boolean momentum) {
+    private boolean dropItem(Direction direction, Level level, @NotNull BlockPos pos, @NotNull Container container, int slot, boolean momentum) {
         ItemStack item = container.getItem(slot);
         BlockPos out = pos.relative(direction);
         Vec3 vec3 = out.getCenter();

@@ -46,7 +46,6 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
 
     public ChuteBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState, 9);
-        this.direction = blockState.getValue(ChuteBlock.FACING);
     }
 
     @Override
@@ -84,7 +83,7 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
         for (int i = this.items.size() - 1; i >= 0; i--) {
             ItemStack stack = this.items.get(i);
             if (stack.isEmpty()) continue;
-            if (this.insertOrDropItem(this.direction, level, pos, this, i, false, false, true)) return;
+            if (this.insertOrDropItem(this.getDirection(), level, pos, this, i, false, false, true)) return;
         }
     }
 
@@ -110,6 +109,7 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
         if (!blockEntity.isOnCooldown() && state.getValue(HopperBlock.ENABLED)) {
             boolean bl = false;
             if (!blockEntity.isEmpty()) {
+                // TODO
                 // bl = HopperBlockEntity.ejectItems(level, pos, state, blockEntity);
             }
             if (!blockEntity.inventoryFull()) {
@@ -141,9 +141,14 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
 
     private static boolean tryTakeInItemFromSlot(Hopper hopper, @Nonnull Container container, int slot, Direction direction) {
         ItemStack itemStack = container.getItem(slot);
+        int amount = itemStack.getCount();
         if (!itemStack.isEmpty() && HopperBlockEntity.canTakeItemFromContainer(hopper, container, itemStack, slot, direction)) {
             ItemStack itemStack3 = HopperBlockEntity.addItem(container, hopper, itemStack, null);
-            container.setItem(slot, itemStack3);
+            if(itemStack3.isEmpty()){
+                container.removeItem(slot, amount);
+            }else{
+                container.setItem(slot, itemStack3);
+            }
             return true;
         }
         return false;
@@ -163,9 +168,16 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
     }
 
     @Override
+    public Direction getDirection() {
+        if (this.level == null) return Direction.UP;
+        BlockState state = this.level.getBlockState(this.getBlockPos());
+        if (state.is(ModBlocks.CHUTE.get())) return state.getValue(ChuteBlock.FACING);
+        return Direction.UP;
+    }
+
+    @Override
     public void setDirection(Direction direction) {
         if (direction == Direction.UP) return;
-        super.setDirection(direction);
         BlockPos pos = this.getBlockPos();
         Level level = this.getLevel();
         if (null == level) return;
@@ -191,6 +203,17 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
     @Override
     public double getLevelZ() {
         return this.getBlockPos().getCenter().z;
+    }
+
+    public int getRedstoneSignal() {
+        int i = 0;
+        for (int j = 0; j < this.getContainerSize(); ++j) {
+            ItemStack itemStack = this.getItem(j);
+            if (!itemStack.isEmpty() && !this.getDisabled().get(j)) {
+                ++i;
+            }
+        }
+        return i;
     }
 
     @Nullable

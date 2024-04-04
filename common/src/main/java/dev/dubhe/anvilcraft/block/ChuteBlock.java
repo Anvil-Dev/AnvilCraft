@@ -8,7 +8,9 @@ import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
 import dev.dubhe.anvilcraft.network.SlotFilterChangePack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
@@ -35,6 +37,7 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import javax.annotation.Nonnull;
@@ -100,7 +103,9 @@ public class ChuteBlock extends BaseEntityBlock {
     @Override
     public BlockState getStateForPlacement(@Nonnull BlockPlaceContext context) {
         Direction direction = context.getClickedFace().getOpposite();
-        return this.defaultBlockState().setValue(FACING, (direction.getAxis() == Direction.Axis.Y ? Direction.DOWN : direction)).setValue(ENABLED, Boolean.TRUE);
+        return this.defaultBlockState()
+                .setValue(FACING, (direction.getAxis() == Direction.Axis.Y ? Direction.DOWN : direction))
+                .setValue(ENABLED, !context.getLevel().hasNeighborSignal(context.getClickedPos()));
     }
 
     @Override
@@ -118,6 +123,25 @@ public class ChuteBlock extends BaseEntityBlock {
     @Override
     protected void createBlockStateDefinition(@Nonnull StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING, ENABLED);
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public void neighborChanged(@NotNull BlockState state, @Nonnull Level level, @NotNull BlockPos pos, @NotNull Block neighborBlock, @NotNull BlockPos neighborPos, boolean movedByPiston) {
+        if (level.isClientSide) return;
+        boolean bl = state.getValue(ENABLED);
+        if (bl == level.hasNeighborSignal(pos)) {
+            if (!bl) level.scheduleTick(pos, this, 4);
+            else level.setBlock(pos, state.cycle(ENABLED), 2);
+        }
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public void tick(@Nonnull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random) {
+        if (!state.getValue(ENABLED) && !level.hasNeighborSignal(pos)) {
+            level.setBlock(pos, state.cycle(ENABLED), 2);
+        }
     }
 
     @Override
@@ -169,5 +193,21 @@ public class ChuteBlock extends BaseEntityBlock {
             level.updateNeighbourForOutputSignal(pos, this);
         }
         super.onRemove(state, level, pos, newState, movedByPiston);
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public boolean hasAnalogOutputSignal(BlockState blockState) {
+        return true;
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public int getAnalogOutputSignal(BlockState blockState, @NotNull Level level, BlockPos blockPos) {
+        BlockEntity blockEntity = level.getBlockEntity(blockPos);
+        if (blockEntity instanceof ChuteBlockEntity chuteBlockEntity) {
+            return chuteBlockEntity.getRedstoneSignal();
+        }
+        return 0;
     }
 }

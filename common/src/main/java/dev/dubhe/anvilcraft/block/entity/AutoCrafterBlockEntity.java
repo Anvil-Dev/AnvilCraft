@@ -28,10 +28,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 @SuppressWarnings("NullableProblems")
 public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements CraftingContainer, IFilterBlockEntity {
@@ -42,11 +42,10 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
     private final NonNullList<Boolean> disabled = this.getNewDisabled();
     @Getter
     private final NonNullList<@Unmodifiable ItemStack> filter = this.getNewFilter();
-    private final Deque<CraftingRecipe> cache = new ArrayDeque<>();
+    private final Deque<AutoCrafterCache> cache = new ArrayDeque<>();
 
     public AutoCrafterBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState, 9);
-        this.direction = blockState.getValue(AutoCrafterBlock.FACING);
     }
 
     @Override
@@ -73,15 +72,16 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
         ItemStack itemStack;
         if (entity.isEmpty()) return;
         if (!entity.canCraft()) return;
-        Optional<CraftingRecipe> optional = entity.cache.stream().filter(recipe -> recipe.matches(entity, level)).findFirst();
-        if (optional.isEmpty()) {
+        Optional<AutoCrafterCache> cacheOptional = entity.cache.stream().filter(recipe -> recipe.test(entity)).findFirst();
+        Optional<CraftingRecipe> optional;
+        if (cacheOptional.isPresent()) {
+            optional = cacheOptional.get().getRecipe();
+        } else {
             optional = level.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, entity, level);
-            if (optional.isPresent()) {
-                CraftingRecipe recipe = optional.get();
-                entity.cache.push(recipe);
-                while (entity.cache.size() >= 10) {
-                    entity.cache.pop();
-                }
+            AutoCrafterCache cache = new AutoCrafterCache(entity, optional);
+            entity.cache.push(cache);
+            while (entity.cache.size() >= 10) {
+                entity.cache.pop();
             }
         }
         if (optional.isEmpty()) return;
@@ -90,7 +90,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
         if (!itemStack.isItemEnabled(level.enabledFeatures())) return;
         Container result = new SimpleContainer(1);
         result.setItem(0, itemStack);
-        if (!entity.insertOrDropItem(entity.direction, level, entity.getBlockPos(), result, 0, false, true, false)) {
+        if (!entity.insertOrDropItem(entity.getDirection(), level, entity.getBlockPos(), result, 0, false, true, false)) {
             return;
         }
         for (int i = 0; i < 9; i++) {
@@ -103,7 +103,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
             container1.setItem(i, nonNullList.get(i));
         }
         for (int i = 0; i < nonNullList.size(); i++) {
-            entity.insertOrDropItem(entity.direction, level, entity.getBlockPos(), container1, i, true, true, false);
+            entity.insertOrDropItem(entity.getDirection(), level, entity.getBlockPos(), container1, i, true, true, false);
         }
         level.updateNeighborsAt(entity.getBlockPos(), ModBlocks.AUTO_CRAFTER.get());
     }
@@ -152,6 +152,14 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
     }
 
     @Override
+    public Direction getDirection() {
+        if (this.level == null) return Direction.UP;
+        BlockState state = this.level.getBlockState(this.getBlockPos());
+        if (state.is(ModBlocks.AUTO_CRAFTER.get())) return state.getValue(AutoCrafterBlock.FACING);
+        return Direction.UP;
+    }
+
+    @Override
     public void setDirection(Direction direction) {
         super.setDirection(direction);
         BlockPos pos = this.getBlockPos();
@@ -192,7 +200,33 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
 
     @Nullable
     @Override
-    public AbstractContainerMenu createMenu(int i, @Nonnull Inventory inventory, @Nonnull Player player) {
+    public AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
         return AutoCrafterMenu.serverOf(i, inventory, this);
+    }
+
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    public static class AutoCrafterCache implements Predicate<Container> {
+        private final Container container;
+        @Getter
+        private final Optional<CraftingRecipe> recipe;
+
+        public AutoCrafterCache(@NotNull Container container, Optional<CraftingRecipe> recipe) {
+            this.container = new SimpleContainer(container.getContainerSize());
+            for (int i = 0; i < container.getContainerSize(); i++) {
+                ItemStack item = container.getItem(i).copy();
+                item.setCount(1);
+                this.container.setItem(i, item);
+            }
+            this.recipe = recipe;
+        }
+
+        @Override
+        public boolean test(@NotNull Container container) {
+            if (container.getContainerSize() != this.container.getContainerSize()) return false;
+            for (int i = 0; i < this.container.getContainerSize(); i++) {
+                if (!ItemStack.isSameItemSameTags(container.getItem(i), this.container.getItem(i))) return false;
+            }
+            return true;
+        }
     }
 }

@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
 import java.util.Optional;
 
 public class SqueezeRecipesLoader {
@@ -72,21 +73,21 @@ public class SqueezeRecipesLoader {
     public static void squeeze(@NotNull Block block, @NotNull Block block1, @NotNull Block block2, RegistrateRecipeProvider provider) {
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .hasBlock(block)
-                .hasBlock(new Vec3(0.0, -2.0, 0.0), Blocks.CAULDRON)
+                .hasBlock(Blocks.CAULDRON, new Vec3(0.0, -2.0, 0.0))
                 .setBlock(block1)
                 .setBlock(new Vec3(0.0, -2.0, 0.0), block2.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 1))
                 .unlockedBy(AnvilCraftDatagen.hasItem(block.asItem()), AnvilCraftDatagen.has(block.asItem()))
                 .save(provider, AnvilCraft.of("squeeze/" + BuiltInRegistries.BLOCK.getKey(block).getPath() + "_" + BuiltInRegistries.BLOCK.getKey(block2).getPath() + "_1"));
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .hasBlock(block)
-                .hasBlock(new Vec3(0.0, -2.0, 0.0), block2.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 1))
+                .hasBlock(block2, new Vec3(0.0, -2.0, 0.0), Map.entry(LayeredCauldronBlock.LEVEL, 1))
                 .setBlock(block1)
                 .setBlock(new Vec3(0.0, -2.0, 0.0), block2.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 2))
                 .unlockedBy(AnvilCraftDatagen.hasItem(block.asItem()), AnvilCraftDatagen.has(block.asItem()))
                 .save(provider, AnvilCraft.of("squeeze/" + BuiltInRegistries.BLOCK.getKey(block).getPath() + "_" + BuiltInRegistries.BLOCK.getKey(block2).getPath() + "_2"));
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .hasBlock(block)
-                .hasBlock(new Vec3(0.0, -2.0, 0.0), block2.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 2))
+                .hasBlock(block2, new Vec3(0.0, -2.0, 0.0), Map.entry(LayeredCauldronBlock.LEVEL, 2))
                 .setBlock(block1)
                 .setBlock(new Vec3(0.0, -2.0, 0.0), block2.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3))
                 .unlockedBy(AnvilCraftDatagen.hasItem(block.asItem()), AnvilCraftDatagen.has(block.asItem()))
