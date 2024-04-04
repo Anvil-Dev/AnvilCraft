@@ -151,10 +151,15 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
     }
 
     private static boolean tryTakeInItemFromSlot(Hopper hopper, @NotNull Container container, int slot, Direction direction) {
-        ItemStack itemStack = container.getItem(slot);
+        ItemStack itemStack = container.getItem(slot).copy();
+        int amount = itemStack.getCount();
         if (!itemStack.isEmpty() && HopperBlockEntity.canTakeItemFromContainer(hopper, container, itemStack, slot, direction)) {
             ItemStack itemStack3 = HopperBlockEntity.addItem(container, hopper, itemStack, null);
-            container.setItem(slot, itemStack3);
+            if(itemStack3 == null || itemStack3.isEmpty()){
+                container.removeItem(slot, amount);
+            }else{
+                container.setItem(slot, itemStack3);
+            }
             return true;
         }
         return false;
