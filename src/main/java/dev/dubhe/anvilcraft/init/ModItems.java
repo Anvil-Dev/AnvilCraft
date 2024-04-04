@@ -82,7 +82,7 @@ public class ModItems {
     public static final Item CHOCOLATE_WHITE = registerItem("chocolate_white", Item::new, defaultProperties().food(ModFoods.CHOCOLATE_WHITE));
     public static final Item CREAMY_BREAD_ROLL = registerItem("creamy_bread_roll", Item::new, defaultProperties().food(ModFoods.CREAMY_BREAD_ROLL));
     public static final Item BEEF_MUSHROOM_STEW_RAW = registerItem("beef_mushroom_stew_raw", Item::new, defaultProperties());
-    public static final Item BEEF_MUSHROOM_STEW = registerItem("beef_mushroom_stew", Item::new, defaultProperties().food(ModFoods.BEEF_MUSHROOM_STEW));
+    public static final Item BEEF_MUSHROOM_STEW = registerItem("beef_mushroom_stew", BowlFoodItem::new, defaultProperties().food(ModFoods.BEEF_MUSHROOM_STEW));
     public static final Item UTUSAN_RAW = registerItem("utusan_raw", Item::new, defaultProperties());
     public static final Item UTUSAN = registerItem("utusan", UtusanItem::new, defaultProperties());
     public static final Item MAGNET_INGOT = registerItem("magnet_ingot", Item::new, defaultProperties());public static final Item DEBRIS_SCRAP = registerItem("debris_scrap", Item::new, defaultProperties());
