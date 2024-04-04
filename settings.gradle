@@ -13,7 +13,7 @@ dependencyResolutionManagement {
     }
     versionCatalogs {
         // Minecraft Version
-        def minecraftVersion = "1.20.1"
+        def minecraftVersion = "${minecraft_version}"
 
         // Mod Dependencies Versions
         // Common
