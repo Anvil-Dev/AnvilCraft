@@ -1,0 +1,101 @@
+name: Upload Release Asset
+on:
+  release:
+    types: [ published ]
+
+jobs:
+  build:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3.1.0
+
+      - name: validate gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v3.6.0
+        with:
+          distribution: zulu
+          java-version: 17
+
+      - name: make gradle wrapper executable
+        if: ${{ runner.os != 'Windows' }}
+        run: chmod +x ./gradlew
+
+      - name: Build
+        uses: gradle/gradle-build-action@v2.4.2
+        with:
+          arguments: build
+
+      - name: Get Version
+        id: version
+        run: |
+          MESSAGE=$(ls forge/build/libs/* | grep sources.jar -v | grep shadow.jar -v | grep slim.jar -v | awk -F 'anvilcraft-forge-|.jar' '{print $2}')
+          echo "version=$MESSAGE" >> $GITHUB_OUTPUT
+
+      - name: capture build artifacts
+        uses: actions/upload-artifact@v3.1.1
+        with:
+          name: AnvilCraftMod ${{ steps.version.outputs.version }}
+          path: |
+            fabric/build/libs/anvilcraft-fabric-${{ steps.version.outputs.version }}.jar
+            forge/build/libs/anvilcraft-forge-${{ steps.version.outputs.version }}.jar
+
+      - name: Publish to maven
+        run: ./gradlew publish
+        env:
+          MAVEN_URL: ${{ secrets.MAVEN_URL }}
+          MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+
+      - name: Upload Release Jar
+        uses: softprops/action-gh-release@v0.1.15
+        with:
+          path: |
+            fabric/build/libs/anvilcraft-fabric-${{ steps.version.outputs.version }}.jar
+            forge/build/libs/anvilcraft-forge-${{ steps.version.outputs.version }}.jar
+
+      - name: publish fabric mc mod
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          name: AnvilCraftMod v${{ steps.version.outputs.version }}
+          version: ${{ steps.version.outputs.version }}
+          game-versions: 1.20.1
+          version-type: release
+          java: 17
+          loaders: fabric
+          dependencies: fabric@0.83.0+1.20.1(required){modrinth:P7dR8mSH}{curseforge:306612}
+          fail-mode: skip
+          changelog: ${{ github.event.release.body }}
+
+          modrinth-id: vuISAWPc
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          modrinth-featured: true
+
+          curseforge-id: 986251
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+
+          files-primary: fabric/build/libs/anvilcraft-fabric-${{ steps.version.outputs.version }}.jar
+
+      - name: publish forge mc mod
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          name: AnvilCraftMod v${{ steps.version.outputs.version }}
+          version: ${{ steps.version.outputs.version }}
+          game-versions: 1.20.1
+          version-type: release
+          java: 17
+          loaders: forge
+          fail-mode: skip
+          changelog: ${{ github.event.release.body }}
+
+          modrinth-id: vuISAWPc
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          modrinth-featured: true
+
+          curseforge-id: 986251
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+
+          files-primary: forge/build/libs/anvilcraft-forge-${{ steps.version.outputs.version }}.jar

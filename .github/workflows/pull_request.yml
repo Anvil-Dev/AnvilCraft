@@ -1,0 +1,51 @@
+name: Pull Request Check
+on:
+  pull_request:
+    paths:
+      - common/**
+      - fabric/**
+      - forge/**
+      - build.gradle
+      - gradle.properties
+      - settings.gradle
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3.1.0
+
+      - name: validate gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v3.6.0
+        with:
+          distribution: zulu
+          java-version: 17
+
+      - name: make gradle wrapper executable
+        if: ${{ runner.os != 'Windows' }}
+        run: chmod +x ./gradlew
+
+      - name: Build
+        uses: gradle/gradle-build-action@v2.4.2
+        env:
+          GITHUB_RUN_NUMBER: ${{ vars.GITHUB_RUN_NUMBER }}
+        with:
+          arguments: build
+
+      - name: Get Version
+        id: version
+        run: |
+          MESSAGE=$(ls forge/build/libs/* | grep sources.jar -v | grep shadow.jar -v | grep slim.jar -v | awk -F 'anvilcraft-forge-|.jar' '{print $2}')
+          echo "version=$MESSAGE" >> $GITHUB_OUTPUT
+
+      - name: capture build artifacts
+        uses: actions/upload-artifact@v3.1.1
+        with:
+          name: AnvilCraftMod ${{ steps.version.outputs.version }}
+          path: |
+            fabric/build/libs/anvilcraft-fabric-${{ steps.version.outputs.version }}.jar
+            forge/build/libs/anvilcraft-forge-${{ steps.version.outputs.version }}.jar

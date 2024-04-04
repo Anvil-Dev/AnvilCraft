@@ -1,0 +1,35 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_seed_of_the_sea": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "anvilcraft:seed_of_the_sea"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:bulging/fruit_of_the_sea_1"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_seed_of_the_sea",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:bulging/fruit_of_the_sea_1"
+    ]
+  },
+  "sends_telemetry_event": false
+}

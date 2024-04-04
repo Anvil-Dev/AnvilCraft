@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "A": {
+      "item": "anvilcraft:blade_of_the_sea"
+    },
+    "B": {
+      "item": "minecraft:prismarine_shard"
+    }
+  },
+  "pattern": [
+    " AA",
+    " BA",
+    "B  "
+  ],
+  "result": {
+    "item": "minecraft:trident"
+  },
+  "show_notification": true
+}

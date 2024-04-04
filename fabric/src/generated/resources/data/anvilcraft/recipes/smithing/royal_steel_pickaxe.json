@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": {
+    "item": "anvilcraft:royal_steel_ingot"
+  },
+  "base": {
+    "tag": "anvilcraft:royal_steel_pickaxe_base"
+  },
+  "result": {
+    "item": "anvilcraft:royal_steel_pickaxe"
+  },
+  "template": {
+    "item": "anvilcraft:royal_steel_upgrade_smithing_template"
+  }
+}
