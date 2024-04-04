@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "minecraft:light_weighted_pressure_plate"
+    },
+    "B": {
+      "item": "anvilcraft:netherite_core"
+    }
+  },
+  "pattern": [
+    "AAA",
+    "ABA",
+    "AAA"
+  ],
+  "result": {
+    "item": "anvilcraft:netherite_coil"
+  },
+  "show_notification": true
+}

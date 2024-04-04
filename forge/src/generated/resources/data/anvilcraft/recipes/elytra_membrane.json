@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "anvilcraft:elytra_frame"
+    },
+    "B": {
+      "item": "minecraft:phantom_membrane"
+    }
+  },
+  "pattern": [
+    "AB",
+    "BB"
+  ],
+  "result": {
+    "item": "anvilcraft:elytra_membrane"
+  },
+  "show_notification": true
+}

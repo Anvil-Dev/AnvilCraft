@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${version}",
+
+  "name": "${mod_name}",
+  "description": "${mod_description}",
+  "authors": [
+    "Gugle",
+    "XeKr"
+  ],
+  "contact": {
+    "website": "https://anc.dubhe.dev/",
+    "repo": "https://github.com/Gu-ZT/AnvilCraft"
+  },
+
+  "license": "${mod_license}",
+  "icon": "assets/anvilcraft/textures/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "dev.dubhe.anvilcraft.client.fabric.AnvilCraftClient"
+    ],
+    "main": [
+      "dev.dubhe.anvilcraft.fabric.AnvilCraftFabric"
+    ],
+    "fabric-datagen": [
+      "dev.dubhe.anvilcraft.data.generator.fabric.AnvilCraftDatagen"
+    ]
+  },
+  "mixins": [
+    "anvilcraft.mixins.json",
+    "anvilcraft-common.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.14.7",
+    "fabric": "*",
+    "minecraft": ">=${minecraft_version}"
+  },
+  "custom": {
+    "loom:injected_interfaces": {
+      "net/minecraft/class_1799": [
+        "dev/dubhe/anvilcraft/util/IItemStackInjector"
+      ],
+      "net/minecraft/class_2680": [
+        "dev/dubhe/anvilcraft/util/IBlockStateInjector"
+      ],
+      "net/minecraft/class_2275": [
+        "dev/dubhe/anvilcraft/util/IBucketPickupInjector"
+      ]
+    }
+  }
+}

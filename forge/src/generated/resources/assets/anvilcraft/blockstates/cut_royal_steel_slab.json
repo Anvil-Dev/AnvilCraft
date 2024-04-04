@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "anvilcraft:block/cut_royal_steel_slab"
+    },
+    "type=double": {
+      "model": "anvilcraft:block/cut_royal_steel_block"
+    },
+    "type=top": {
+      "model": "anvilcraft:block/cut_royal_steel_slab_top"
+    }
+  }
+}

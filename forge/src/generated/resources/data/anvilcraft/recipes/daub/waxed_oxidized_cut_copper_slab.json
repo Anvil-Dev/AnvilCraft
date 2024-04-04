@@ -1,0 +1,49 @@
+{
+  "type": "anvilcraft:anvil_processing",
+  "icon": {
+    "item": "minecraft:waxed_oxidized_cut_copper_slab"
+  },
+  "outcomes": [
+    {
+      "type": "set_block",
+      "chance": 1.0,
+      "offset": [
+        0.0,
+        -2.0,
+        0.0
+      ],
+      "result": {
+        "block": "minecraft:waxed_oxidized_cut_copper_slab",
+        "state": "[type=bottom,waterlogged=false]"
+      }
+    }
+  ],
+  "predicates": [
+    {
+      "type": "has_block",
+      "match_block": {
+        "blocks": [
+          "minecraft:honeycomb_block"
+        ]
+      },
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ]
+    },
+    {
+      "type": "has_block",
+      "match_block": {
+        "blocks": [
+          "minecraft:oxidized_cut_copper_slab"
+        ]
+      },
+      "offset": [
+        0.0,
+        -2.0,
+        0.0
+      ]
+    }
+  ]
+}

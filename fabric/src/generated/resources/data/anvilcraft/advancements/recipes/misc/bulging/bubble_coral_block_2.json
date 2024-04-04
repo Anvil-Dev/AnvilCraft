@@ -1,0 +1,35 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_bubble_coral": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "minecraft:bubble_coral"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:bulging/bubble_coral_block_2"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_bubble_coral",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:bulging/bubble_coral_block_2"
+    ]
+  },
+  "sends_telemetry_event": false
+}

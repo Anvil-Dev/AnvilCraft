@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.dubhe.anvilcraft.mixin.fabric",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "ShapedRecipeMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

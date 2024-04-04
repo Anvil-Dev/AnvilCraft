@@ -1,0 +1,29 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.dubhe.anvilcraft.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "AbstractCauldronBlockMixin",
+    "AnvilBlockMixin",
+    "AxeItemMixin",
+    "BeaconMenuMixin",
+    "BlockStateInjector",
+    "BucketItemMixin",
+    "ClientboundUpdateRecipesPacketMixin",
+    "DispenseItemEmptyBottleBehaviorMixin",
+    "DispenseItemEmptyBucketBehaviorMixin",
+    "DispenseItemWaterBottleBehaviorMixin",
+    "ItemEntityMixin",
+    "ItemStackInjector",
+    "SolidBucketItemMixin",
+    "event.FallingBlockEntityMixin",
+    "event.LightningBoltMixin",
+    "event.MinecraftServerMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

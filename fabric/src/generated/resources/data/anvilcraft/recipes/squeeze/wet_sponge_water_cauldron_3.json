@@ -1,0 +1,64 @@
+{
+  "type": "anvilcraft:anvil_processing",
+  "icon": {
+    "item": "minecraft:sponge"
+  },
+  "outcomes": [
+    {
+      "type": "set_block",
+      "chance": 1.0,
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "result": {
+        "block": "minecraft:sponge"
+      }
+    },
+    {
+      "type": "set_block",
+      "chance": 1.0,
+      "offset": [
+        0.0,
+        -2.0,
+        0.0
+      ],
+      "result": {
+        "block": "minecraft:water_cauldron",
+        "state": "[level=3]"
+      }
+    }
+  ],
+  "predicates": [
+    {
+      "type": "has_block",
+      "match_block": {
+        "blocks": [
+          "minecraft:wet_sponge"
+        ]
+      },
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ]
+    },
+    {
+      "type": "has_block",
+      "match_block": {
+        "blocks": [
+          "minecraft:water_cauldron"
+        ],
+        "state": {
+          "level": "2"
+        }
+      },
+      "offset": [
+        0.0,
+        -2.0,
+        0.0
+      ]
+    }
+  ]
+}

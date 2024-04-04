@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "anvilcraft:magnet_block",
+    "anvilcraft:hollow_magnet_block",
+    "anvilcraft:ferrite_core_magnet_block"
+  ]
+}
