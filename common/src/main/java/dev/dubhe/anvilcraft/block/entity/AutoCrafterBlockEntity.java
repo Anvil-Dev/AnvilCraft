@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
+import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.AutoCrafterMenu;
 import lombok.Getter;
@@ -43,6 +44,10 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
     @Getter
     private final NonNullList<@Unmodifiable ItemStack> filter = this.getNewFilter();
     private final Deque<AutoCrafterCache> cache = new ArrayDeque<>();
+
+    public AutoCrafterBlockEntity(BlockPos pos, BlockState blockState) {
+        this(ModBlockEntities.AUTO_CRAFTER.get(), pos, blockState);
+    }
 
     public AutoCrafterBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState, 9);
@@ -161,7 +166,6 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
 
     @Override
     public void setDirection(Direction direction) {
-        super.setDirection(direction);
         BlockPos pos = this.getBlockPos();
         Level level = this.getLevel();
         if (null == level) return;

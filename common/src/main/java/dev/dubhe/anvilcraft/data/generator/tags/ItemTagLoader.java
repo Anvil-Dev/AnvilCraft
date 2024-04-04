@@ -5,9 +5,10 @@ import dev.dubhe.anvilcraft.init.ModItemTags;
 import dev.dubhe.anvilcraft.init.ModItems;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import org.jetbrains.annotations.NotNull;
 
 public class ItemTagLoader {
-    public static void init(RegistrateTagsProvider<Item> provider) {
+    public static void init(@NotNull RegistrateTagsProvider<Item> provider) {
         provider.addTag(ModItemTags.PLATES).setReplace(false)
                 .add(Items.HEAVY_WEIGHTED_PRESSURE_PLATE)
                 .add(Items.LIGHT_WEIGHTED_PRESSURE_PLATE);

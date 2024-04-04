@@ -29,7 +29,6 @@
       "dev.dubhe.anvilcraft.data.generator.fabric.AnvilCraftDatagen"
     ]
   },
-  "accessWidener" : "anvilcraft.accesswidener",
   "mixins": [
     "anvilcraft.mixins.json",
     "anvilcraft-common.mixins.json"

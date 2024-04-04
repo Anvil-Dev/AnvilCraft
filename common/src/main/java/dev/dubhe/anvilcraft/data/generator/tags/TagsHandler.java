@@ -12,5 +12,4 @@ public class TagsHandler {
     public static void initBlock(RegistrateTagsProvider<Block> provider) {
         BlockTagLoader.init(provider);
     }
-
 }

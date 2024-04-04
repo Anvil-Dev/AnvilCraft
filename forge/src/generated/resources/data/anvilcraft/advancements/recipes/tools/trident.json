@@ -1,7 +1,13 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_blade_of_the_sea": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "minecraft:trident"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "hasitem": {
       "conditions": {
         "items": [
           {
@@ -12,30 +18,11 @@
         ]
       },
       "trigger": "minecraft:inventory_changed"
-    },
-    "has_prismarine_shard": {
-      "conditions": {
-        "items": [
-          {
-            "items": [
-              "minecraft:prismarine_shard"
-            ]
-          }
-        ]
-      },
-      "trigger": "minecraft:inventory_changed"
-    },
-    "has_the_recipe": {
-      "conditions": {
-        "recipe": "minecraft:trident"
-      },
-      "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_blade_of_the_sea",
-      "has_prismarine_shard",
+      "hasitem",
       "has_the_recipe"
     ]
   ],

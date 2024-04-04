@@ -31,7 +31,7 @@ public class BeaconMenuMixin {
     @Inject(method = "updateEffects", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/inventory/BeaconMenu$PaymentSlot;remove(I)Lnet/minecraft/world/item/ItemStack;"))
     private void updateEffects(Optional<MobEffect> primaryEffect, Optional<MobEffect> secondaryEffect, CallbackInfo ci) {
         ItemStack item = this.paymentSlot.getItem();
-        if (!item.is(ModItems.CURSED_GOLD_INGOT)) return;
+        if (!item.is(ModItems.CURSED_GOLD_INGOT.get())) return;
         this.access.execute((level, pos) -> {
             if (!(level instanceof ServerLevel serverLevel)) return;
             MinecraftServer server = serverLevel.getServer();

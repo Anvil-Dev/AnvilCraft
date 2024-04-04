@@ -8,6 +8,7 @@ String getConfig(String key) {
 
 def mod_id = getConfig("mod_id")
 def common_project = project(":${mod_id}-common")
+def forge_project = project(":${mod_id}-forge")
 def version = getConfig("version")
 def mod_license = getConfig("mod_license")
 def mod_name = getConfig("mod_name")
@@ -42,7 +43,6 @@ loom {
             property("fabric-api.gametest", "true")
             property("fabric-api.gametest.command", "true")
         }
-
     }
 }
 
@@ -163,6 +163,14 @@ remapJar {
 jar {
     archiveClassifier.set("dev")
 }
+
+tasks.register('dataCopy', Copy) {
+    group 'loom'
+    from project.file('src/generated')
+    into forge_project.file('src/generated')
+}
+
+dataCopy.dependsOn(runDataCommon)
 
 sourcesJar {
     def commonSources = common_project.sourcesJar

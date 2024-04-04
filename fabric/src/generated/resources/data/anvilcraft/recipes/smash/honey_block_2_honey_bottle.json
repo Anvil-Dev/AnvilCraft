@@ -25,7 +25,10 @@
       "match_block": {
         "blocks": [
           "minecraft:iron_trapdoor"
-        ]
+        ],
+        "state": {
+          "open": "false"
+        }
       },
       "offset": [
         0.0,

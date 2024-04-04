@@ -12,7 +12,7 @@ public class RecipesHandler {
         BulgingAndCrystallizeRecipesLoader.init(provider);
         CompactionRecipesLoader.init(provider);
         CompressRecipesLoader.init(provider);
-        CookingRecipesGenerator.init(provider);
+        CookingRecipesLoader.init(provider);
         ItemInjectRecipesLoader.init(provider);
         SmashBlockRecipesLoader.init(provider);
         SmashRecipesLoader.init(provider);

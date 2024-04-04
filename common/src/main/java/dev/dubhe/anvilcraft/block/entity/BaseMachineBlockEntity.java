@@ -11,6 +11,7 @@ import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -21,7 +22,7 @@ import org.jetbrains.annotations.NotNull;
 public abstract class BaseMachineBlockEntity extends RandomizableContainerBlockEntity {
     protected NonNullList<ItemStack> items;
 
-    protected BaseMachineBlockEntity(BlockEntityType<? extends BaseMachineBlockEntity> type, BlockPos pos, BlockState blockState, int size) {
+    protected BaseMachineBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState, int size) {
         super(type, pos, blockState);
         items = NonNullList.withSize(size, ItemStack.EMPTY);
     }

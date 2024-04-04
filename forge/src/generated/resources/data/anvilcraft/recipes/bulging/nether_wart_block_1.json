@@ -36,7 +36,9 @@
         "blocks": [
           "minecraft:water_cauldron"
         ],
-        "state": {}
+        "state": {
+          "level": "1"
+        }
       },
       "offset": [
         0.0,

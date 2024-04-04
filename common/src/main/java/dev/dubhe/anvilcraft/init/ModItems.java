@@ -18,6 +18,7 @@ import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.AxeItem;
+import net.minecraft.world.item.BowlFoodItem;
 import net.minecraft.world.item.HoeItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -219,8 +220,8 @@ public class ModItems {
                     .save(provider)
             )
             .register();
-    public static final ItemEntry<Item> BEEF_MUSHROOM_STEW = REGISTRATE
-            .item("beef_mushroom_stew", p -> new Item(p.food(ModFoods.BEEF_MUSHROOM_STEW)))
+    public static final ItemEntry<BowlFoodItem> BEEF_MUSHROOM_STEW = REGISTRATE
+            .item("beef_mushroom_stew", p -> new BowlFoodItem(p.food(ModFoods.BEEF_MUSHROOM_STEW)))
             .tag(ModItemTags.FOODS)
             .register();
     public static final ItemEntry<Item> UTUSAN_RAW = REGISTRATE

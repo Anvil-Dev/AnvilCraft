@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.inventory;
 
-import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
+import dev.dubhe.anvilcraft.item.Cured;
 import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EntityType;
@@ -22,7 +22,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 
 public class RoyalAnvilMenu extends AnvilMenu {
-    MenuType<RoyalAnvilMenu> type;
     public RoyalAnvilMenu(int containerId, Inventory playerInventory) {
         super(containerId, playerInventory);
     }
@@ -158,11 +157,11 @@ public class RoyalAnvilMenu extends AnvilMenu {
     }
 
     @Override
-    protected void onTake(Player player, ItemStack stack) {
+    protected void onTake(@NotNull Player player, @NotNull ItemStack stack) {
         super.onTake(player, stack);
         Level level = player.level();
         if (level.isClientSide()) return;
-        int curedNumber = player.getInventory().countItem(ModItems.CURSED_GOLD_INGOT) + player.getInventory().countItem(ModItems.CURSED_GOLD_NUGGET) + player.getInventory().countItem(ModItems.CURSED_GOLD_BLOCK);
+        int curedNumber = Cured.hasCuredNumber(player);
         if (curedNumber <= 0) return;
         LightningBolt bolt = new LightningBolt(EntityType.LIGHTNING_BOLT, level);
         bolt.setPos(player.getX(), player.getY(), player.getZ());

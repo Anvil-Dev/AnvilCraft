@@ -29,6 +29,7 @@ public class ModItemTags {
     private static @NotNull TagKey<Item> bindC(String id) {
         return TagKey.create(Registries.ITEM, new ResourceLocation("c", id));
     }
+    @SuppressWarnings("SameParameterValue")
     private static @NotNull TagKey<Item> bindMod(String id) {
         return TagKey.create(Registries.ITEM, new ResourceLocation("anvilcraft", id));
     }
