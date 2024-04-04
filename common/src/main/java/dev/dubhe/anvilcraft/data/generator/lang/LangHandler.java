@@ -8,8 +8,6 @@ public class LangHandler {
         ConfigurationLang.init(provider);
         ScreenLang.init(provider);
 
-        provider.add("command.anvilcraft.config.check.success", "The config file reads as follows:");
-        provider.add("command.anvilcraft.config.reload.success", "Config reloaded!");
         provider.add("item.anvilcraft.amethyst_pickaxe.tooltip", "Stone pickaxe quality, can mine iron ore, not diamonds!");
     }
 }

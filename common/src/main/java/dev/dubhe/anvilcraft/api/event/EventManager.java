@@ -41,7 +41,7 @@ public class EventManager {
                 try {
                     method.invoke(object, obj);
                 } catch (IllegalAccessException | InvocationTargetException e) {
-                    AnvilCraft.LOGGER.printStackTrace(e);
+                    AnvilCraft.LOGGER.error(e.getMessage(), e);
                 }
             };
             List<Consumer<?>> triggers = EVENT_LISTENER.getOrDefault(event, new Vector<>());

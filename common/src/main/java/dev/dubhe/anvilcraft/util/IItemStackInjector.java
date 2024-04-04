@@ -10,20 +10,9 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.ShapedRecipe;
-import net.minecraft.world.item.enchantment.Enchantment;
 import org.jetbrains.annotations.NotNull;
 
 public interface IItemStackInjector {
-    @Deprecated
-    default ItemStack dataCopy(ItemStack stack) {
-        return ItemStack.EMPTY;
-    }
-
-    @Deprecated
-    default boolean removeEnchant(Enchantment enchantment) {
-        return false;
-    }
-
     @SuppressWarnings("DuplicatedCode")
     static @NotNull ItemStack fromJson(@NotNull JsonElement element) {
         if (!element.isJsonObject()) throw new JsonSyntaxException("Expected item to be string");
@@ -46,11 +35,6 @@ public interface IItemStackInjector {
             stack.setTag(stack.getOrCreateTag().merge(tag));
         }
         return stack;
-    }
-
-    @Deprecated
-    default JsonElement toJson() {
-        return this.anvilcraft$toJson();
     }
 
     default JsonElement anvilcraft$toJson() {

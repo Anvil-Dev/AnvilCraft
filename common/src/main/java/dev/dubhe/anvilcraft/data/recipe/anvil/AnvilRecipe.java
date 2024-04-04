@@ -79,7 +79,7 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
     }
 
     @Override
-    public boolean matches(AnvilCraftingContainer container, Level level) {
+    public boolean matches(@NotNull AnvilCraftingContainer container, @NotNull Level level) {
         for (RecipePredicate predicate : this.predicates) {
             if (!predicate.matches(container)) return false;
         }
@@ -94,7 +94,7 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
     }
 
     @Override
-    public @NotNull ItemStack assemble(AnvilCraftingContainer container, RegistryAccess registryAccess) {
+    public @NotNull ItemStack assemble(@NotNull AnvilCraftingContainer container, @NotNull RegistryAccess registryAccess) {
         return ItemStack.EMPTY;
     }
 
@@ -104,7 +104,7 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
     }
 
     @Override
-    public @NotNull ItemStack getResultItem(RegistryAccess registryAccess) {
+    public @NotNull ItemStack getResultItem(@NotNull RegistryAccess registryAccess) {
         return this.icon;
     }
 
@@ -127,7 +127,7 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
         INSTANCE;
 
         @Override
-        public @NotNull AnvilRecipe fromJson(ResourceLocation recipeId, @NotNull JsonObject serializedRecipe) {
+        public @NotNull AnvilRecipe fromJson(@NotNull ResourceLocation recipeId, @NotNull JsonObject serializedRecipe) {
             ItemStack icon = ItemStack.EMPTY;
             if (serializedRecipe.has("icon")) {
                 icon = IItemStackInjector.fromJson(serializedRecipe.get("icon"));
@@ -151,7 +151,7 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
         }
 
         @Override
-        public @NotNull AnvilRecipe fromNetwork(ResourceLocation recipeId, @NotNull FriendlyByteBuf buffer) {
+        public @NotNull AnvilRecipe fromNetwork(@NotNull ResourceLocation recipeId, @NotNull FriendlyByteBuf buffer) {
             AnvilRecipe recipe = new AnvilRecipe(recipeId, buffer.readItem());
             int size;
             size = buffer.readVarInt();
@@ -500,7 +500,7 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
         }
 
         @Override
-        public @NotNull Builder unlockedBy(String criterionName, CriterionTriggerInstance criterionTrigger) {
+        public @NotNull Builder unlockedBy(@NotNull String criterionName, @NotNull CriterionTriggerInstance criterionTrigger) {
             this.advancement.addCriterion(criterionName, criterionTrigger);
             return this;
         }
@@ -517,7 +517,7 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
         }
 
         @Override
-        public void save(@NotNull Consumer<FinishedRecipe> finishedRecipeConsumer, ResourceLocation recipeId) {
+        public void save(@NotNull Consumer<FinishedRecipe> finishedRecipeConsumer, @NotNull ResourceLocation recipeId) {
             this.advancement.parent(ROOT_RECIPE_ADVANCEMENT).addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(recipeId)).rewards(AdvancementRewards.Builder.recipe(recipeId)).requirements(RequirementsStrategy.OR);
             finishedRecipeConsumer.accept(new Result(recipeId, this.icon, this.predicates, this.outcomes, null == this.group ? "" : this.group, this.advancement, recipeId.withPrefix("recipes/" + this.category.getFolderName() + "/")));
         }
@@ -545,7 +545,7 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
             }
 
             @Override
-            public void serializeRecipeData(JsonObject json) {
+            public void serializeRecipeData(@NotNull JsonObject json) {
                 if (!this.group.isEmpty()) {
                     json.addProperty("group", this.group);
                 }

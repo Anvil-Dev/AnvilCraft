@@ -17,6 +17,7 @@ import javax.annotation.Nullable;
 public class ItemDepositoryImpl extends ItemDepository {
     private Storage<ItemVariant> container = null;
 
+    // TODO
     @Override
     public boolean canInject(@NotNull ItemStack thing, long count) {
         return super.canInject(thing, count);
@@ -24,6 +25,7 @@ public class ItemDepositoryImpl extends ItemDepository {
 
     @Override
     public long inject(@NotNull ItemStack thing, long count) {
+        if (count <= 0) return 0;
         if (super.canInject(thing, count)) return super.inject(thing, count);
         if (null == container) return count;
         ItemStack thingType = thing.copy();
@@ -31,6 +33,7 @@ public class ItemDepositoryImpl extends ItemDepository {
         return count - StorageUtil.tryInsertStacking(null, ItemVariant.of(thingType), count, null);
     }
 
+    // TODO
     @Override
     public boolean canTake() {
         return super.canTake();

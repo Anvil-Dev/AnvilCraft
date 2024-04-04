@@ -2,9 +2,7 @@ package dev.dubhe.anvilcraft;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.mojang.logging.LogUtils;
 import dev.dubhe.anvilcraft.api.event.EventManager;
-import dev.dubhe.anvilcraft.api.log.Logger;
 import dev.dubhe.anvilcraft.api.registry.AnvilCraftRegistrate;
 import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
@@ -20,25 +18,21 @@ import dev.toma.configuration.Configuration;
 import dev.toma.configuration.config.format.ConfigFormats;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
-
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AnvilCraft {
     public static final String MOD_ID = "anvilcraft";
+    public static final String MOD_NAME = "AnvilCraft";
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    public static final Logger LOGGER = new Logger(LogUtils.getLogger());
+    public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
     public static final EventManager EVENT_BUS = new EventManager();
-    private static File commonConfigFile = null;
     public static AnvilCraftConfig config = Configuration.registerConfig(AnvilCraftConfig.class, ConfigFormats.yaml()).getConfigInstance();
 
     public static final AnvilCraftRegistrate REGISTRATE = AnvilCraftRegistrate.create(MOD_ID);
 
-    public static void init(InitSettings settings) {
-        AnvilCraft.commonConfigFile = settings.commonConfigFile();
-        AnvilCraft.loadOrCreateConfig();
+    public static void init() {
+        // common
         ModEvents.register();
         ModBlocks.register();
         ModItems.register();
@@ -47,44 +41,13 @@ public class AnvilCraft {
         ModMenuTypes.register();
         ModNetworks.register();
         ModDispenserBehavior.register();
+        // datagen
         AnvilCraftDatagen.init();
+        // fabric 独有，请在此之前插入注册
         REGISTRATE.registerRegistrate();
-    }
-
-    @SuppressWarnings("all")
-    public static void loadOrCreateConfig() {
-        try {
-            if (!AnvilCraft.commonConfigFile.isFile()) {
-                AnvilCraft.saveConfigFile();
-            } else {
-                try (FileReader reader = new FileReader(AnvilCraft.commonConfigFile)) {
-                    AnvilCraft.config = AnvilCraft.GSON.fromJson(reader, AnvilCraftConfig.class);
-                    AnvilCraft.saveConfigFile();
-                }
-            }
-        } catch (IOException e) {
-            AnvilCraft.LOGGER.printStackTrace(e);
-        }
-    }
-
-    @SuppressWarnings("all")
-    public static void saveConfigFile() {
-        try {
-            if (!AnvilCraft.commonConfigFile.isFile()) {
-                AnvilCraft.commonConfigFile.createNewFile();
-            }
-            try (FileWriter writer = new FileWriter(AnvilCraft.commonConfigFile)) {
-                AnvilCraft.GSON.toJson(AnvilCraft.config, writer);
-            }
-        } catch (IOException e) {
-            AnvilCraft.LOGGER.printStackTrace(e);
-        }
     }
 
     public static @NotNull ResourceLocation of(String id) {
         return new ResourceLocation(MOD_ID, id);
-    }
-
-    public record InitSettings(File commonConfigFile) {
     }
 }

@@ -6,16 +6,11 @@ import dev.dubhe.anvilcraft.init.fabric.ModRecipeTypesFabric;
 import dev.dubhe.anvilcraft.utils.fabric.ServerHooks;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.fabricmc.loader.api.FabricLoader;
-
-import java.io.File;
 
 public class AnvilCraftFabric implements ModInitializer {
-    private static final File COMMON_CONFIG_FILE = FabricLoader.getInstance().getConfigDir().resolve("anvilcraft-common.json").toFile();
-
     @Override
     public void onInitialize() {
-        AnvilCraft.init(new AnvilCraft.InitSettings(COMMON_CONFIG_FILE));
+        AnvilCraft.init();
         ServerHooks.init();
         ModRecipeTypesFabric.register();
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> ModCommands.register(dispatcher));

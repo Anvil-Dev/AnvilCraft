@@ -53,7 +53,7 @@ public class AnvilCraftingContainer
     }
 
     @Override
-    public void setItem(int slot, ItemStack stack) {
+    public void setItem(int slot, @NotNull ItemStack stack) {
     }
 
     @Override
@@ -61,7 +61,7 @@ public class AnvilCraftingContainer
     }
 
     @Override
-    public boolean stillValid(Player player) {
+    public boolean stillValid(@NotNull Player player) {
         return true;
     }
 
@@ -70,6 +70,6 @@ public class AnvilCraftingContainer
     }
 
     @Override
-    public void fillStackedContents(StackedContents contents) {
+    public void fillStackedContents(@NotNull StackedContents contents) {
     }
 }

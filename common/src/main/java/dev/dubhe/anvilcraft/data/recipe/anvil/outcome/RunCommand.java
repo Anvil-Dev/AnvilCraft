@@ -72,8 +72,8 @@ public class RunCommand implements RecipeOutcome {
         );
         try {
             serverLevel.getServer().getCommands().getDispatcher().execute(this.command, stack);
-        } catch (CommandSyntaxException exception) {
-            AnvilCraft.LOGGER.printStackTrace(exception);
+        } catch (CommandSyntaxException e) {
+            AnvilCraft.LOGGER.error(e.getMessage(), e);
         }
         return false;
     }

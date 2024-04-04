@@ -102,7 +102,7 @@ public abstract class BaseMachineBlockEntity extends RandomizableContainerBlockE
             if (flag) return true;
         }
         if (!drop) {
-            if (ItemDepository.getItemDepository(level, pos, direction.getOpposite()) != null) return false;
+            if (ItemDepository.getItemDepository(level, curPos, direction.getOpposite()) != null) return false;
         }
         if (!needEmpty || level.isEmptyBlock(curPos)) {
             flag = this.dropItem(direction, level, pos, container, slot, momentum);

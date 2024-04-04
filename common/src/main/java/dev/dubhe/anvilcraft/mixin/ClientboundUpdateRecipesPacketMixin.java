@@ -17,7 +17,7 @@ abstract class ClientboundUpdateRecipesPacketMixin {
         try {
             return instance.readList(elementReader);
         } catch (Exception e) {
-            AnvilCraft.LOGGER.printStackTrace(e);
+            AnvilCraft.LOGGER.error(e.getMessage(), e);
             throw e;
         }
     }

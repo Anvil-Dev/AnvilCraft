@@ -15,8 +15,6 @@
   "block.anvilcraft.royal_steel_block": "Royal Steel Block",
   "block.anvilcraft.smooth_royal_steel_block": "Smooth Royal Steel Block",
   "block.anvilcraft.stamping_platform": "Stamping Platform",
-  "command.anvilcraft.config.check.success": "The config file reads as follows:",
-  "command.anvilcraft.config.reload.success": "Config reloaded!",
   "config.anvilcraft.option.anvilEfficiency": "anvilEfficiency",
   "config.anvilcraft.option.chuteMaxCooldown": "chuteMaxCooldown",
   "config.anvilcraft.option.lightningStrikeDepth": "lightningStrikeDepth",

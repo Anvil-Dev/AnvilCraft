@@ -43,11 +43,6 @@ public interface IBlockStateInjector {
         return blockResult.blockState();
     }
 
-    @Deprecated
-    default JsonElement toJson() {
-        return this.anvilcraft$toJson();
-    }
-
     default JsonElement anvilcraft$toJson() {
         return new JsonObject();
     }
@@ -64,12 +59,12 @@ public interface IBlockStateInjector {
         }
 
         @Override
-        public @NotNull Optional<Holder.Reference<Block>> get(ResourceKey<Block> resourceKey) {
+        public @NotNull Optional<Holder.Reference<Block>> get(@NotNull ResourceKey<Block> resourceKey) {
             return Optional.of(BuiltInRegistries.BLOCK.getHolderOrThrow(resourceKey));
         }
 
         @Override
-        public @NotNull Optional<HolderSet.Named<Block>> get(TagKey<Block> tagKey) {
+        public @NotNull Optional<HolderSet.Named<Block>> get(@NotNull TagKey<Block> tagKey) {
             return BuiltInRegistries.BLOCK.getTag(tagKey);
         }
     }

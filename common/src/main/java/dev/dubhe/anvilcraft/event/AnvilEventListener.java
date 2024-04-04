@@ -6,8 +6,6 @@ import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilHurtEntityEvent;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
-import dev.dubhe.anvilcraft.data.recipe.anvil.block.BlockAnvilRecipe;
-import dev.dubhe.anvilcraft.data.recipe.anvil.item.ItemAnvilRecipe;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import net.minecraft.core.BlockPos;
@@ -16,7 +14,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -46,13 +43,7 @@ public class AnvilEventListener {
         MinecraftServer server = level.getServer();
         if (null == server) return;
         Optional<AnvilRecipe> optional = server.getRecipeManager().getRecipeFor(ModRecipeTypes.ANVIL_RECIPE, container, level);
-        if (optional.isEmpty()) {
-            Optional<ItemAnvilRecipe> optional1 = server.getRecipeManager().getRecipeFor(ModRecipeTypes.ANVIL_ITEM, container, level);
-            if (optional1.isEmpty()) {
-                Optional<BlockAnvilRecipe> optional2 = server.getRecipeManager().getRecipeFor(ModRecipeTypes.ANVIL_BLOCK, container, level);
-                optional2.ifPresent(blockAnvilRecipe -> blockProcess(blockAnvilRecipe, container, level, event));
-            } else itemProcess(optional1.get(), container, level, event);
-        } else anvilProcess(optional.get(), container, event);
+        optional.ifPresent(anvilRecipe -> anvilProcess(anvilRecipe, container, event));
         BlockPos belowPos = pos.below();
         BlockState state = level.getBlockState(belowPos);
         if (state.is(Blocks.REDSTONE_BLOCK)) redstoneEMP(level, belowPos, event.getFallDistance());
@@ -68,42 +59,6 @@ public class AnvilEventListener {
             counts++;
         }
         if (container.isAnvilDamage()) event.setAnvilDamage(true);
-    }
-
-    private void itemProcess(ItemAnvilRecipe recipe, AnvilCraftingContainer container, Level level, AnvilFallOnLandEvent event) {
-        int counts = 0;
-        while (counts < AnvilCraft.config.anvilEfficiency) {
-            if (!recipe.craft(container, level)) break;
-            counts++;
-        }
-        BlockPos resultPos = new BlockPos(container.getPos());
-        if (recipe.getResultLocation() == ItemAnvilRecipe.Location.IN) resultPos = resultPos.below();
-        if (recipe.getResultLocation() == ItemAnvilRecipe.Location.UNDER) resultPos = resultPos.below(2);
-        for (ItemStack itemStack : recipe.getResults()) {
-            int maxSize = itemStack.getItem().getMaxStackSize();
-            counts = counts * itemStack.getCount();
-            Vec3 vec3 = resultPos.getCenter();
-            for (int i = 0; i < counts / maxSize; i++) {
-                ItemStack stack = itemStack.copy();
-                stack.setCount(maxSize);
-                ItemEntity entity = new ItemEntity(EntityType.ITEM, level);
-                entity.setItem(stack);
-                entity.teleportRelative(vec3.x, vec3.y, vec3.z);
-                level.addFreshEntity(entity);
-            }
-            ItemStack stack = itemStack.copy();
-            stack.setCount(counts % maxSize);
-            ItemEntity entity = new ItemEntity(EntityType.ITEM, level);
-            entity.setItem(stack);
-            entity.teleportRelative(vec3.x, vec3.y, vec3.z);
-            level.addFreshEntity(entity);
-        }
-        if (recipe.isAnvilDamage()) event.setAnvilDamage(true);
-    }
-
-    private void blockProcess(@NotNull BlockAnvilRecipe recipe, AnvilCraftingContainer container, Level level, AnvilFallOnLandEvent event) {
-        recipe.craft(container, level);
-        if (recipe.isAnvilDamage()) event.setAnvilDamage(true);
     }
 
     private void brokeBlock(@NotNull Level level, BlockPos pos, AnvilFallOnLandEvent event) {

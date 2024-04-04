@@ -35,11 +35,15 @@ public class ItemDepositoryImpl extends ItemDepository {
     }
 
     public long inject(@NotNull ItemStack thing, long count, boolean simulate) {
+        if (count <= 0) return 0;
         if (null == container) return count;
         ItemStack thingType = thing.copy();
         thingType.setCount(1);
         for (int slot = 0; slot < container.getSlots(); slot++) {
-            if (count <= 0) break;
+            if (count <= 0) {
+                count = 0;
+                break;
+            }
             ItemStack stackInSlot = container.getStackInSlot(slot);
             if (!stackInSlot.isEmpty() && !ItemStack.isSameItemSameTags(thingType, stackInSlot)) continue;
             int maxCount = container.getSlotLimit(slot);
@@ -53,6 +57,7 @@ public class ItemDepositoryImpl extends ItemDepository {
         return count;
     }
 
+    // TODO
     @Override
     public boolean canTake() {
         return super.canTake();
