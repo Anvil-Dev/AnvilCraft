@@ -22,16 +22,8 @@ public class ItemDepositoryImpl extends ItemDepository {
 
     @Override
     public boolean canInject(@NotNull ItemStack thing, long count) {
-        if (super.canInject(thing, count)) return true;
         if (null == container) return false;
         return this.inject(thing, count, true) == 0;
-    }
-
-    @Override
-    public long inject(@NotNull ItemStack thing, long count) {
-        if (super.canInject(thing, count)) return super.inject(thing, count);
-        if (null == container) return count;
-        return this.inject(thing, count, false);
     }
 
     public long inject(@NotNull ItemStack thing, long count, boolean simulate) {
@@ -60,12 +52,11 @@ public class ItemDepositoryImpl extends ItemDepository {
     // TODO
     @Override
     public boolean canTake() {
-        return super.canTake();
+        return true;
     }
 
     @Override
     public @NotNull Thing<ItemStack> take(@NotNull ItemStack thing, long count) {
-        if (super.canTake()) return super.take(thing, count);
         ItemStack thingType = thing.copy();
         thingType.setCount(1);
         long takeCount = 0;
@@ -83,9 +74,7 @@ public class ItemDepositoryImpl extends ItemDepository {
         return new Thing<>(thingType.copy(), takeCount);
     }
 
-    public static @Nullable ItemDepository getItemDepository(Level level, BlockPos pos, Direction direction) {
-        ItemDepository depository = ItemDepository.getVanillaDepository(level, pos);
-        if (depository != null) return depository;
+    public static @Nullable ItemDepository getItemDepository(@NotNull Level level, BlockPos pos, Direction direction) {
         ItemDepositoryImpl depositoryImpl = new ItemDepositoryImpl();
         BlockEntity be = level.getBlockEntity(pos);
         if (be != null) {

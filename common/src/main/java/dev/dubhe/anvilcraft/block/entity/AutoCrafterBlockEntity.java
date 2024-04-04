@@ -95,7 +95,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
         if (!itemStack.isItemEnabled(level.enabledFeatures())) return;
         Container result = new SimpleContainer(1);
         result.setItem(0, itemStack);
-        if (!entity.insertOrDropItem(entity.getDirection(), level, entity.getBlockPos(), result, 0, false, true, false)) {
+        if (!entity.insertOrDropItem(entity.getDirection(), level, entity.getBlockPos(), result, 0, false, false, true, false)) {
             return;
         }
         for (int i = 0; i < 9; i++) {
@@ -108,7 +108,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
             container1.setItem(i, nonNullList.get(i));
         }
         for (int i = 0; i < nonNullList.size(); i++) {
-            entity.insertOrDropItem(entity.getDirection(), level, entity.getBlockPos(), container1, i, true, true, false);
+            entity.insertOrDropItem(entity.getDirection(), level, entity.getBlockPos(), container1, i, true, true, true, false);
         }
         level.updateNeighborsAt(entity.getBlockPos(), ModBlocks.AUTO_CRAFTER.get());
     }
