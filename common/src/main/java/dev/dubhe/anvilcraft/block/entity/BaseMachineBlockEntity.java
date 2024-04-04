@@ -108,27 +108,27 @@ public abstract class BaseMachineBlockEntity extends RandomizableContainerBlockE
         return flag;
     }
 
+
     private boolean canDropItem(@NotNull Level level, @NotNull BlockPos pos) {
         Vec3 vec3 = pos.getCenter();
         ItemEntity entity = new ItemEntity(level, vec3.x, vec3.y, vec3.z, ItemStack.EMPTY);
         return level.noCollision(entity);
     }
 
-    private boolean insertItem(@NotNull Direction direction, @NotNull Level level, @NotNull BlockPos pos, @NotNull Container container, int slot) {
+    protected boolean insertItem(@NotNull Direction direction, @NotNull Level level, @NotNull BlockPos pos, @NotNull Container container, int slot) {
         ItemStack item = container.getItem(slot);
         ItemDepository itemDepository = ItemDepository.getItemDepository(level, pos, direction.getOpposite());
         if (itemDepository == null) return false;
         long count = itemDepository.inject(item.copy(), item.getCount());
-
         item.setCount((int) count);
         container.setItem(slot, item);
         return true;
     }
 
-    private boolean canPlaceItem(Level level, BlockPos pos, @NotNull ItemStack stack, @NotNull Direction direction) {
+    protected boolean canPlaceItem(Level level, BlockPos pos, @NotNull ItemStack stack, @NotNull Direction direction) {
         ItemDepository itemDepository = ItemDepository.getItemDepository(level, pos, direction.getOpposite());
         if (itemDepository == null) return false;
-        return true;
+        return itemDepository.canInject(stack.copy(), stack.getCount());
     }
 
     private boolean dropItem(Direction direction, Level level, @NotNull BlockPos pos, @NotNull Container container, int slot, boolean momentum) {
