@@ -40,11 +40,24 @@ jobs:
         id: version
         run: |
           MESSAGE=$(ls forge/build/libs/* | grep sources.jar -v | grep shadow.jar -v | grep slim.jar -v | awk -F 'anvilcraft-forge-|.jar' '{print $2}')
+          echo "version=$MESSAGE" >> $GITHUB_OUTPUT
+
+      - name: Find fabric correct JAR
+        id: find-fabric-jar
+        run: |
+          output="$(find fabric/build/libs/ ! -name "*-dev.jar" ! -name "*-sources.jar" -type f -printf "%f\n")"
+          echo "jarname=$output" >> $GITHUB_OUTPUT
+
+      - name: Find forge correct JAR
+        id: find-forge-jar
+        run: |
+          output="$(find forge/build/libs/ ! -name "*-dev.jar" ! -name "*-sources.jar" -type f -printf "%f\n")"
+          echo "jarname=$output" >> $GITHUB_OUTPUT
 
       - name: capture build artifacts
         uses: actions/upload-artifact@v3.1.1
         with:
           name: AnvilCraftMod ${{ steps.version.outputs.version }}
           path: |
-            fabric/build/libs/!(*-@(dev|sources|javadoc|dev-shadow)).jar
-            forge/build/libs/!(*-@(dev|sources|javadoc|dev-shadow)).jar
+            fabric/build/libs/${{ steps.find-fabric-jar.outputs.jarname }}
+            forge/build/libs/${{ steps.find-forge-jar.outputs.jarname }}
