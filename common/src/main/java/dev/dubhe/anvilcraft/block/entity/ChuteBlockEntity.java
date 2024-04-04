@@ -83,7 +83,7 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
         for (int i = this.items.size() - 1; i >= 0; i--) {
             ItemStack stack = this.items.get(i);
             if (stack.isEmpty()) continue;
-            if (this.insertOrDropItem(this.getDirection(), level, pos, this, i, false, false, true)) return;
+            if (this.insertOrDropItem(this.getDirection(), level, pos, this, i, true, false, false, true)) return;
         }
     }
 
@@ -144,9 +144,9 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
         int amount = itemStack.getCount();
         if (!itemStack.isEmpty() && HopperBlockEntity.canTakeItemFromContainer(hopper, container, itemStack, slot, direction)) {
             ItemStack itemStack3 = HopperBlockEntity.addItem(container, hopper, itemStack, null);
-            if(itemStack3.isEmpty()){
+            if (itemStack3.isEmpty()) {
                 container.removeItem(slot, amount);
-            }else{
+            } else {
                 container.setItem(slot, itemStack3);
             }
             return true;
@@ -218,7 +218,7 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
 
     @Nullable
     @Override
-    public AbstractContainerMenu createMenu(int i,@Nonnull Inventory inventory, @Nonnull Player player) {
+    public AbstractContainerMenu createMenu(int i, @Nonnull Inventory inventory, @Nonnull Player player) {
         return new ChuteMenu(i, inventory, this);
     }
 }

@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
@@ -20,28 +21,35 @@ public class ItemDepositoryImpl extends ItemDepository {
     // TODO
     @Override
     public boolean canInject(@NotNull ItemStack thing, long count) {
-        return super.canInject(thing, count);
+        if (null == container) return false;
+        return this.inject(thing, count, true) == 0;
     }
 
     @Override
-    public long inject(@NotNull ItemStack thing, long count) {
+    public long inject(@NotNull ItemStack thing, long count, boolean simulate) {
         if (count <= 0) return 0;
-        if (super.canInject(thing, count)) return super.inject(thing, count);
         if (null == container) return count;
         ItemStack thingType = thing.copy();
         thingType.setCount(1);
-        return count - StorageUtil.tryInsertStacking(null, ItemVariant.of(thingType), count, null);
+        long insertCount;
+        if (simulate) insertCount = StorageUtil.simulateInsert(container, ItemVariant.of(thingType), count, null);
+        else {
+            try (Transaction transaction = Transaction.openNested(null)) {
+                insertCount = container.insert(ItemVariant.of(thingType), count, transaction);
+                transaction.commit();
+            }
+        }
+        return count - insertCount;
     }
 
     // TODO
     @Override
     public boolean canTake() {
-        return super.canTake();
+        return true;
     }
 
     @Override
     public @NotNull Thing<ItemStack> take(@NotNull ItemStack thing, long count) {
-        if (super.canTake()) return super.take(thing, count);
         ItemStack thingType = thing.copy();
         thingType.setCount(1);
         if (null == container) return new Thing<>(thingType, 0);
@@ -49,8 +57,6 @@ public class ItemDepositoryImpl extends ItemDepository {
     }
 
     public static @Nullable ItemDepository getItemDepository(Level level, BlockPos pos, Direction direction) {
-        ItemDepository depository = ItemDepository.getVanillaDepository(level, pos);
-        if (depository != null) return depository;
         Storage<ItemVariant> target = ItemStorage.SIDED.find(level, pos, direction);
         if (target == null) return null;
         ItemDepositoryImpl depositoryImpl = new ItemDepositoryImpl();
