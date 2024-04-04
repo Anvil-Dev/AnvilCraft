@@ -18,11 +18,12 @@ public interface Depository<T> {
     /**
      * 向存储中存入
      *
-     * @param thing 存入的事物
-     * @param count 存入的数量
+     * @param thing    存入的事物
+     * @param count    存入的数量
+     * @param simulate 是否模拟存入
      * @return 无法存入的数量
      */
-    long inject(@Nonnull T thing, long count);
+    long inject(@Nonnull T thing, long count, boolean simulate);
 
     /**
      * 该存储能否取出
