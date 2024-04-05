@@ -35,15 +35,17 @@ import java.util.Deque;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+@Getter
 @SuppressWarnings("NullableProblems")
 public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements CraftingContainer, IFilterBlockEntity {
-    @Getter
     @Setter
     private boolean record = false;
     @Getter
     private final NonNullList<Boolean> disabled = this.getNewDisabled();
     @Getter
     private final NonNullList<@Unmodifiable ItemStack> filter = this.getNewFilter();
+    private static int levelHash = 1;
+    private static NonNullList<ItemStack> remainingItemsCache;
     private final Deque<AutoCrafterCache> cache = new ArrayDeque<>();
 
     public AutoCrafterBlockEntity(BlockPos pos, BlockState blockState) {
@@ -91,7 +93,10 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
             }
         }
         if (optional.isEmpty()) return;
-        NonNullList<ItemStack> nonNullList = level.getRecipeManager().getRemainingItemsFor(RecipeType.CRAFTING, entity, level);
+        if (level.hashCode() != levelHash) {
+            levelHash = level.hashCode();
+            remainingItemsCache = level.getRecipeManager().getRemainingItemsFor(RecipeType.CRAFTING, entity, level);
+        }
         itemStack = optional.get().assemble(entity, level.registryAccess());
         if (!itemStack.isItemEnabled(level.enabledFeatures())) return;
         Container result = new SimpleContainer(1);
@@ -107,10 +112,12 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
             stack.shrink(1);
             entity.setItem(i, stack);
         }
-        Container container1 = new SimpleContainer(nonNullList.size());
-        for (int i = 0; i < nonNullList.size(); i++) container1.setItem(i, nonNullList.get(i));
-        for (int i = 0; i < nonNullList.size(); i++) {
-            entity.outputItem(itemDepository, direction, level, pos, container1, i, true, true, true, false);
+        Container container1 = new SimpleContainer(remainingItemsCache.size());
+        for (int i = 0; i < remainingItemsCache.size(); i++) {
+            container1.setItem(i, remainingItemsCache.get(i));
+        }
+        for (int i = 0; i < remainingItemsCache.size(); i++) {
+            entity.outputItem(itemDepository,entity.getDirection(), level, entity.getBlockPos(), container1, i, true, true, true, false);
         }
         level.updateNeighborsAt(pos, ModBlocks.AUTO_CRAFTER.get());
     }
