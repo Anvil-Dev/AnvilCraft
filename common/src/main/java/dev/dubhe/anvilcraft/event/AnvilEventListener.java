@@ -33,7 +33,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Optional;
 
-@SuppressWarnings("deprecation")
 public class AnvilEventListener {
     @SubscribeEvent
     public void onLand(@NotNull AnvilFallOnLandEvent event) {
@@ -43,13 +42,13 @@ public class AnvilEventListener {
         MinecraftServer server = level.getServer();
         if (null == server) return;
         Optional<AnvilRecipe> optional = server.getRecipeManager().getRecipeFor(ModRecipeTypes.ANVIL_RECIPE, container, level);
-        optional.ifPresent(anvilRecipe -> anvilProcess(anvilRecipe, container, event));
         BlockPos belowPos = pos.below();
         BlockState state = level.getBlockState(belowPos);
         if (state.is(Blocks.REDSTONE_BLOCK)) redstoneEMP(level, belowPos, event.getFallDistance());
         belowPos = belowPos.below();
         state = level.getBlockState(belowPos);
         if (state.is(Blocks.STONECUTTER)) brokeBlock(level, belowPos.above(), event);
+        optional.ifPresent(anvilRecipe -> anvilProcess(anvilRecipe, container, event));
     }
 
     private void anvilProcess(AnvilRecipe recipe, AnvilCraftingContainer container, AnvilFallOnLandEvent event) {
