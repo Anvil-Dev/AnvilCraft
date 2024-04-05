@@ -149,11 +149,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
     private boolean smallerStackExist(int count, ItemStack itemStack, int index) {
         for (int index2 = index + 1; index2 < 9; ++index2) {
             ItemStack itemStack1;
-            if (this.getDisabled().get(index2) ||
-                    (isRecord() && getFilter().get(index2).isEmpty()) ||
-                    (!(itemStack1 = this.getItem(index2)).isEmpty() && (itemStack1.getCount() >= count) ||
-                            !ItemStack.isSameItemSameTags(itemStack1, itemStack) ||
-                            (itemStack1).isEmpty()))
+            if (this.getDisabled().get(index2) || isRecord() && getFilter().get(index2).isEmpty() || !(itemStack1 = this.getItem(index2)).isEmpty() && (itemStack1.getCount() >= count || !ItemStack.isSameItemSameTags(itemStack1, itemStack)))
                 continue;
             return true;
         }
