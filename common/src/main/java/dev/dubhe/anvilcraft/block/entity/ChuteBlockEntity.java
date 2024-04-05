@@ -49,23 +49,8 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
     public ChuteBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState, 9);
     }
-    @Override
-    public boolean canPlaceItem(int index, @NotNull ItemStack insertingStack) {
-        if (this.getDisabled().get(index)) return false;
-        ItemStack storedStack = this.items.get(index);
-        ItemStack filterStack = this.getFilter().get(index);
-        if (isRecord() && filterStack.isEmpty()) return insertingStack.isEmpty();
-        int count = storedStack.getCount();
-        if (count >= storedStack.getMaxStackSize()) {
-            return false;
-        }
-        if (storedStack.isEmpty()) {
-            return filterStack.isEmpty() || ItemStack.isSameItemSameTags(insertingStack, filterStack);
-        }
-        return !this.smallerStackExist(count, storedStack, index);
-    }
 
-    private boolean smallerStackExist(int count, ItemStack itemStack, int index) {
+    public boolean smallerStackExist(int count, ItemStack itemStack, int index) {
         for (int index2 = index + 1; index2 < 9; ++index2) {
             ItemStack itemStack1;
             if (this.getDisabled().get(index2) ||
@@ -78,6 +63,7 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
         }
         return false;
     }
+
     @Override
     protected @Nonnull Component getDefaultName() {
         return Component.translatable("block.anvilcraft.chute");
@@ -133,8 +119,7 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
         if (!blockEntity.isOnCooldown() && state.getValue(HopperBlock.ENABLED)) {
             boolean bl = false;
             if (!blockEntity.isEmpty()) {
-                // TODO
-//                 bl = HopperBlockEntity.ejectItems(level, pos, state, blockEntity);
+                bl = ChuteBlockEntity.ejectItems(level, pos, state, blockEntity);
             }
             if (!blockEntity.inventoryFull()) {
                 bl |= validator.getAsBoolean();
@@ -143,6 +128,23 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
                 HopperBlockEntity.setChanged(level, pos, state);
                 return true;
             }
+        }
+        return false;
+    }
+
+    private static boolean ejectItems(Level level, BlockPos pos, @NotNull BlockState state, Container sourceContainer) {
+        if (!state.is(ModBlocks.CHUTE.get())) return false;
+        Direction direction = state.getValue(ChuteBlock.FACING);
+        ItemDepository depository = ItemDepository.getItemDepository(level, pos.relative(direction), direction.getOpposite());
+        if (depository == null) return false;
+        for (int i = 0; i < sourceContainer.getContainerSize(); ++i) {
+            if (sourceContainer.getItem(i).isEmpty()) continue;
+            ItemStack itemStack = sourceContainer.getItem(i).copy();
+            sourceContainer.removeItem(i, itemStack.getCount());
+            int count = (int) depository.inject(itemStack, itemStack.getCount(), false);
+            itemStack.setCount(count);
+            if (count == 0) return true;
+            sourceContainer.setItem(i, itemStack);
         }
         return false;
     }
