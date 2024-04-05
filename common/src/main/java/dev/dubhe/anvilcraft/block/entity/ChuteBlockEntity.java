@@ -25,6 +25,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.Hopper;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
@@ -47,16 +48,31 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
     public ChuteBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState, 9);
     }
-
     @Override
-    public boolean canPlaceItem(int index, @Nonnull ItemStack stack) {
+    public boolean canPlaceItem(int index, @NotNull ItemStack insertingStack) {
         if (this.getDisabled().get(index)) return false;
-        ItemStack itemStack1 = this.items.get(index);
-        ItemStack itemStack2 = this.getFilter().get(index);
-        if (itemStack2.isEmpty() || ItemStack.isSameItemSameTags(itemStack1, itemStack2)) return true;
-        return super.canPlaceItem(index, stack);
+        ItemStack storedStack = this.items.get(index);
+        ItemStack filterStack = this.getFilter().get(index);
+        if (isRecord() && filterStack.isEmpty()) return insertingStack.isEmpty();
+        int count = storedStack.getCount();
+        if (count >= storedStack.getMaxStackSize()) {
+            return false;
+        }
+        if (storedStack.isEmpty()) {
+            return filterStack.isEmpty() || ItemStack.isSameItemSameTags(insertingStack, filterStack);
+        }
+        return !this.smallerStackExist(count, storedStack, index);
     }
 
+    private boolean smallerStackExist(int count, ItemStack itemStack, int index) {
+        for (int index2 = index + 1; index2 < 9; ++index2) {
+            ItemStack itemStack1;
+            if (this.getDisabled().get(index2) || isRecord() && getFilter().get(index2).isEmpty() || !(itemStack1 = this.getItem(index2)).isEmpty() && (itemStack1.getCount() >= count || !ItemStack.isSameItemSameTags(itemStack1, itemStack)))
+                continue;
+            return true;
+        }
+        return false;
+    }
     @Override
     protected @Nonnull Component getDefaultName() {
         return Component.translatable("block.anvilcraft.chute");
@@ -219,6 +235,6 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int i, @Nonnull Inventory inventory, @Nonnull Player player) {
-        return new ChuteMenu(i, inventory, this);
+        return ChuteMenu.serverOf(i, inventory, this);
     }
 }
