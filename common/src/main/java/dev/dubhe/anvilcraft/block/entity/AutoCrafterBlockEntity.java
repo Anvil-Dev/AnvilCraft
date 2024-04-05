@@ -134,23 +134,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
         this.saveTag(tag);
     }
 
-    @Override
-    public boolean canPlaceItem(int index, ItemStack insertingStack) {
-        if (this.getDisabled().get(index)) return false;
-        ItemStack storedStack = this.items.get(index);
-        ItemStack filterStack = this.getFilter().get(index);
-        if (isRecord() && filterStack.isEmpty()) return insertingStack.isEmpty();
-        int count = storedStack.getCount();
-        if (count >= storedStack.getMaxStackSize()) {
-            return false;
-        }
-        if (storedStack.isEmpty()) {
-            return filterStack.isEmpty() || ItemStack.isSameItemSameTags(insertingStack, filterStack);
-        }
-        return !this.smallerStackExist(count, storedStack, index);
-    }
-
-    private boolean smallerStackExist(int count, ItemStack itemStack, int index) {
+    public boolean smallerStackExist(int count, ItemStack itemStack, int index) {
         for (int index2 = index + 1; index2 < 9; ++index2) {
             ItemStack itemStack1;
             if (this.getDisabled().get(index2) || isRecord() && getFilter().get(index2).isEmpty() || !(itemStack1 = this.getItem(index2)).isEmpty() && (itemStack1.getCount() >= count || !ItemStack.isSameItemSameTags(itemStack1, itemStack)))
