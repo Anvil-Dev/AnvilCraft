@@ -98,6 +98,7 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
             ChuteBlockEntity.tryMoveItems(level, pos, state, entity, () -> ChuteBlockEntity.suckInItems(level, entity));
             entity.dropOrInsert(level, pos);
         }
+        level.updateNeighborsAt(pos, ModBlocks.AUTO_CRAFTER.get());
     }
 
     public void dropOrInsert(Level level, @NotNull BlockPos pos) {
