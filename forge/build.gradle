@@ -90,7 +90,7 @@ configurations {
             capability("net.minecraftforge:forge:${this.forge.versions.minecratfForge.get()}")
             capability("com.tterrag.registrate:Registrate:${this.forge.versions.registrate.get()}")
             capability("io.github.llamalad7:mixinextras-forge:${this.forge.versions.mixinextras.get()}")
-            capability("dev.toma.configuration:configuration-forge-${this.libs.versions.minecraft.get()}:${this.forge.versions.configuration.get()}")
+            capability("dev.isxander.yacl:yet-another-config-lib-forge:${this.forge.versions.yetAnotherConfigLib.get()}")
         }
     }
 }
@@ -146,9 +146,9 @@ dependencies {
     implementation(annotationProcessor("io.github.llamalad7:mixinextras-common:${this.forge.versions.mixinextras.get()}"))
     implementation(include("io.github.llamalad7:mixinextras-forge:${this.forge.versions.mixinextras.get()}"))
 
-    // Configuration
-    modImplementation(forge.configuration)
-    include(forge.configuration)
+    // yetAnotherConfigLib
+    modImplementation(forge.yetAnotherConfigLib)
+    include(forge.yetAnotherConfigLib)
 }
 
 processResources {

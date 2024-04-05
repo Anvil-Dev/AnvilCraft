@@ -54,6 +54,22 @@ subprojects {
         maven { // TOP-Fabric
             url "https://maven.wispforest.io"
         }
+        maven { // YetAnotherConfigLib
+            name 'Xander Maven'
+            url 'https://maven.isxander.dev/releases'
+        }
+        maven {
+            url "https://maven.quiltmc.org/repository/release"
+            content {
+                includeGroup("org.quiltmc.parsers")
+            }
+        }
+        maven {
+            url "https://oss.sonatype.org/content/repositories/snapshots"
+            content {
+                includeGroupAndSubgroups("com.twelvemonkeys")
+            }
+        }
     }
 
     dependencies {

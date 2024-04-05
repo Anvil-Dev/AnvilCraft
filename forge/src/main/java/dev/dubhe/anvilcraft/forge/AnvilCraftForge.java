@@ -1,11 +1,14 @@
 package dev.dubhe.anvilcraft.forge;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
 import dev.dubhe.anvilcraft.init.ModCommands;
 import dev.dubhe.anvilcraft.init.forge.ModRecipeTypesForge;
+import net.minecraftforge.client.ConfigScreenHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.jetbrains.annotations.NotNull;
@@ -17,6 +20,11 @@ public class AnvilCraftForge {
         AnvilCraft.init();
         bus.register(new ModRecipeTypesForge());
         MinecraftForge.EVENT_BUS.addListener(AnvilCraftForge::registerCommand);
+
+        ModLoadingContext.get().registerExtensionPoint(
+                ConfigScreenHandler.ConfigScreenFactory.class,
+                () -> new ConfigScreenHandler.ConfigScreenFactory((mc, screen) -> AnvilCraftConfig.getConfigScreen(screen))
+        );
     }
 
     public static void registerCommand(@NotNull RegisterCommandsEvent event) {

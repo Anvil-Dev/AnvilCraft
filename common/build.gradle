@@ -17,8 +17,8 @@ configurations {
         outgoing {
             capability("net.fabricmc.fabric-api:fabric-api-${this.libs.versions.minecraft.get()}:${this.fabric.versions.fabricApi.get()}")
             capability("com.tterrag.registrate_fabric:Registrate:${this.fabric.versions.registrate.get()}")
-            capability("dev.toma.configuration:configuration-fabric-${this.libs.versions.minecraft.get()}:${this.fabric.versions.configuration.get()}")
             capability("io.github.llamalad7:mixinextras-common:${this.fabric.versions.mixinextras.get()}")
+            capability("dev.isxander.yacl:yet-another-config-lib-fabric:${this.fabric.versions.yetAnotherConfigLib.get()}")
         }
     }
 }
@@ -70,8 +70,8 @@ dependencies {
     // Mixin Extras
     implementation(annotationProcessor("io.github.llamalad7:mixinextras-common:${fabric.versions.mixinextras.get()}"))
 
-    // Configuration
-    modCompileOnly fabric.configuration
+    // yetAnotherConfigLib
+    modCompileOnly fabric.yetAnotherConfigLib
 }
 
 publishing {

@@ -14,8 +14,7 @@ import dev.dubhe.anvilcraft.init.ModItemGroups;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.ModNetworks;
-import dev.toma.configuration.Configuration;
-import dev.toma.configuration.config.format.ConfigFormats;
+
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -27,7 +26,7 @@ public class AnvilCraft {
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
     public static final EventManager EVENT_BUS = new EventManager();
-    public static AnvilCraftConfig config = Configuration.registerConfig(AnvilCraftConfig.class, ConfigFormats.yaml()).getConfigInstance();
+    public static AnvilCraftConfig config = AnvilCraftConfig.HANDLER.instance();
 
     public static final AnvilCraftRegistrate REGISTRATE = AnvilCraftRegistrate.create(MOD_ID);
 
@@ -41,6 +40,8 @@ public class AnvilCraft {
         ModMenuTypes.register();
         ModNetworks.register();
         ModDispenserBehavior.register();
+
+        AnvilCraftConfig.HANDLER.load();
         // datagen
         AnvilCraftDatagen.init();
         // fabric 独有，请在此之前插入注册
