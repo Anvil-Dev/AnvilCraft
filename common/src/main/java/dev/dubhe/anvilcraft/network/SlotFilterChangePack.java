@@ -1,9 +1,9 @@
 package dev.dubhe.anvilcraft.network;
 
 import dev.dubhe.anvilcraft.api.network.Packet;
-import dev.dubhe.anvilcraft.client.gui.screen.inventory.AutoCrafterScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.inventory.IFilterScreen;
 import dev.dubhe.anvilcraft.init.ModNetworks;
-import dev.dubhe.anvilcraft.inventory.AutoCrafterMenu;
+import dev.dubhe.anvilcraft.inventory.IFilterMenu;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
@@ -43,7 +43,7 @@ public class SlotFilterChangePack implements Packet {
     public void handler(@NotNull MinecraftServer server, ServerPlayer player) {
         server.execute(() -> {
             if (!player.hasContainerOpen()) return;
-            if (!(player.containerMenu instanceof AutoCrafterMenu menu)) return;
+            if (!(player.containerMenu instanceof IFilterMenu menu)) return;
             menu.setFilter(this.index, this.filter);
             this.send(player);
         });
@@ -54,7 +54,7 @@ public class SlotFilterChangePack implements Packet {
     public void handler() {
         Minecraft client = Minecraft.getInstance();
         client.execute(() -> {
-            if (!(client.screen instanceof AutoCrafterScreen screen)) return;
+            if (!(client.screen instanceof IFilterScreen screen)) return;
             screen.changeSlotFilter(this.index, this.filter);
         });
     }

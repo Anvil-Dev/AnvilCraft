@@ -22,7 +22,7 @@ public class ModMenuTypes {
             .menu("auto_crafter", AutoCrafterMenu::clientOf, () -> AutoCrafterScreen::new)
             .register();
     public static final MenuEntry<ChuteMenu> CHUTE = REGISTRATE
-            .menu("chute", (type, id, inventory) -> new ChuteMenu(type, id, inventory), () -> ChuteScreen::new)
+            .menu("chute", ChuteMenu::clientOf, () -> ChuteScreen::new)
             .register();
     public static final MenuEntry<RoyalGrindstoneMenu> ROYAL_GRINDSTONE = REGISTRATE
             .menu("royal_grindstone", (type, id, inventory) -> new RoyalGrindstoneMenu(type, id, inventory), () -> RoyalGrindstoneScreen::new)

@@ -19,9 +19,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.function.BiFunction;
 
+@Getter
 public class ChuteScreen extends BaseMachineScreen<ChuteMenu> implements IFilterScreen {
     private static final ResourceLocation CONTAINER_LOCATION = AnvilCraft.of("textures/gui/container/chute.png");
-    @Getter
     private final NonNullList<Boolean> disabled = NonNullList.withSize(9, false);
     @Getter
     private final NonNullList<ItemStack> filter = NonNullList.withSize(9, ItemStack.EMPTY);
@@ -42,13 +42,13 @@ public class ChuteScreen extends BaseMachineScreen<ChuteMenu> implements IFilter
     }
 
     @Override
-    public void slotClicked(Slot slot, int i, int j, ClickType clickType) {
-        IFilterScreen.super.slotClicked(slot, i, j, clickType);
+    public void slotClicked(@NotNull Slot slot, int i, int j, @NotNull ClickType clickType) {
+        //IFilterScreen.super.slotClicked(slot, i, j, clickType);
         super.slotClicked(slot, i, j, clickType);
     }
 
     @Override
-    public void renderSlot(GuiGraphics guiGraphics, Slot slot) {
+    public void renderSlot(@NotNull GuiGraphics guiGraphics, @NotNull Slot slot) {
         super.renderSlot(guiGraphics, slot);
         IFilterScreen.super.renderSlot(guiGraphics, slot);
     }
@@ -76,13 +76,13 @@ public class ChuteScreen extends BaseMachineScreen<ChuteMenu> implements IFilter
     }
 
     @Override
-    public void renderTooltip(GuiGraphics guiGraphics, int x, int y) {
+    public void renderTooltip(@NotNull GuiGraphics guiGraphics, int x, int y) {
         IFilterScreen.super.renderTooltip(guiGraphics, x, y);
         super.renderTooltip(guiGraphics, x, y);
     }
 
     @Override
-    public @NotNull List<Component> getTooltipFromContainerItem(ItemStack stack) {
+    public @NotNull List<Component> getTooltipFromContainerItem(@NotNull ItemStack stack) {
         return super.getTooltipFromContainerItem(stack);
     }
 }

@@ -5,8 +5,6 @@ import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntity;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.component.FilterSlot;
 import dev.dubhe.anvilcraft.inventory.component.ReadOnlySlot;
-import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
-import dev.dubhe.anvilcraft.network.SlotFilterChangePack;
 import lombok.Getter;
 import net.minecraft.core.NonNullList;
 import net.minecraft.server.level.ServerPlayer;
@@ -14,17 +12,13 @@ import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.ClickType;
-import net.minecraft.world.inventory.CraftingContainer;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Unmodifiable;
 
 @Getter
 public abstract class AutoCrafterMenu extends BaseMachineMenu implements IFilterMenu {
@@ -104,74 +98,31 @@ public abstract class AutoCrafterMenu extends BaseMachineMenu implements IFilter
         getResultSlot().set(recipe == null ? ItemStack.EMPTY : recipe.assemble(container, level.registryAccess()));
     }
 
-    private static class Server extends AutoCrafterMenu {
+    private static class Server extends AutoCrafterMenu implements IFilterMenuSever {
         public Server(int containerId, @NotNull Inventory inventory, AutoCrafterBlockEntity blockEntity) {
             super(containerId, inventory, blockEntity);
         }
-
+        @Override
         public AutoCrafterBlockEntity getBlockEntity() {
-            return (AutoCrafterBlockEntity) getMachine();
+            return super.getBlockEntity();
         }
-
         @Override
-        public void clicked(int slotId, int button, @NotNull ClickType clickType, @NotNull Player player0) {
-            ServerPlayer player = (ServerPlayer) player0;
-            if (slotId >= 0 && slotId < slots.size()) {
-                Slot slot = getSlot(slotId);
-                ItemStack slotStack = slot.getItem();
-                NonNullList<@Unmodifiable ItemStack> filters = getBlockEntity().getFilter();
-                if (slotId < filters.size()) {
-                    NonNullList<Boolean> disableds = getBlockEntity().getDisabled();
-                    if (getBlockEntity().isRecord() && getCarried().isEmpty() && !filters.get(slotId).isEmpty() && slotStack.isEmpty()) {
-                        filters.set(slotId, ItemStack.EMPTY);
-                        new SlotFilterChangePack(slotId, ItemStack.EMPTY).send(player);
-                        getBlockEntity().getDisabled().set(slotId, true);
-                        new SlotDisableChangePack(slotId, true).send(player);
-                        getBlockEntity().setChanged();
-                    } else if (slotStack.isEmpty() && getCarried().isEmpty()) {
-                        boolean newDisabled = !disableds.get(slotId);
-                        if (newDisabled || !getBlockEntity().isRecord()) {
-                            disableds.set(slotId, newDisabled);
-                            new SlotDisableChangePack(slotId, newDisabled).send(player);
-                            getBlockEntity().setChanged();
-                        }
-                    } else if (getBlockEntity().isRecord() && !getCarried().isEmpty()) {
-                        disableds.set(slotId, false);
-                        new SlotDisableChangePack(slotId, false).send(player);
-                        filters.set(slotId, getCarried().copy());
-                        new SlotFilterChangePack(slotId, getCarried()).send(player);
-                        getBlockEntity().setChanged();
-                    } else if (!getCarried().isEmpty() && disableds.get(slotId)) {
-                        disableds.set(slotId, false);
-                        new SlotDisableChangePack(slotId, false).send(player);
-                        getBlockEntity().setChanged();
-                    }
-                }
-            }
-            super.clicked(slotId, button, clickType, player);
+        public AbstractContainerMenu getMenu() {
+            return this;
         }
-
         @Override
-        public void setRecord(boolean record) {
-            super.setRecord(record);
-            if (record) {
-                for (int i = 0; i < getBlockEntity().getFilter().size(); i++) {
-                    ItemStack slotStack = getSlot(i).getItem();
-                    if (slotStack.isEmpty()) {
-                        getBlockEntity().getDisabled().set(i, true);
-                        new SlotDisableChangePack(i, true).send(getPlayer());
-                        getBlockEntity().setChanged();
-                    } else {
-                        getBlockEntity().getFilter().set(i, slotStack.copy());
-                        new SlotFilterChangePack(i, slotStack).send(getPlayer());
-                        getBlockEntity().setChanged();
-                    }
-                }
-            }
-        }
-
         public ServerPlayer getPlayer() {
             return (ServerPlayer) getInventory().player;
+        }
+        @Override
+        public void clicked(int slotId, int button, @NotNull ClickType clickType, @NotNull Player player){
+            IFilterMenuSever.super.clicked(slotId, button, clickType, player);
+            super.clicked(slotId, button, clickType, player);
+        }
+        @Override
+        public void setRecord(boolean record){
+            super.setRecord(record);
+            IFilterMenuSever.super.setRecord(record);
         }
     }
 
@@ -179,5 +130,9 @@ public abstract class AutoCrafterMenu extends BaseMachineMenu implements IFilter
         public Client(MenuType<AutoCrafterMenu> type, int containerId, Inventory inventory) {
             super(type, containerId, inventory, new AutoCrafterContainer(NonNullList.withSize(9, ItemStack.EMPTY)));
         }
+    }
+
+    public AutoCrafterBlockEntity getBlockEntity() {
+        return (AutoCrafterBlockEntity) getMachine();
     }
 }

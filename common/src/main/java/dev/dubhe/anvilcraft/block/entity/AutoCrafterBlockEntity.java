@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.api.depository.ItemDepository;
 import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
@@ -34,9 +35,9 @@ import java.util.Deque;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+@Getter
 @SuppressWarnings("NullableProblems")
 public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements CraftingContainer, IFilterBlockEntity {
-    @Getter
     @Setter
     private boolean record = false;
     @Getter
@@ -79,23 +80,27 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
         if (!entity.canCraft()) return;
         Optional<AutoCrafterCache> cacheOptional = entity.cache.stream().filter(recipe -> recipe.test(entity)).findFirst();
         Optional<CraftingRecipe> optional;
+        NonNullList<ItemStack> remaining;
         if (cacheOptional.isPresent()) {
-            optional = cacheOptional.get().getRecipe();
+            AutoCrafterCache crafterCache = cacheOptional.get();
+            optional = crafterCache.getRecipe();
+            remaining = crafterCache.getRemaining();
         } else {
             optional = level.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, entity, level);
-            AutoCrafterCache cache = new AutoCrafterCache(entity, optional);
+            remaining = level.getRecipeManager().getRemainingItemsFor(RecipeType.CRAFTING, entity, level);
+            AutoCrafterCache cache = new AutoCrafterCache(entity, optional, remaining);
             entity.cache.push(cache);
-            while (entity.cache.size() >= 10) {
-                entity.cache.pop();
-            }
+            while (entity.cache.size() >= 10) entity.cache.pop();
         }
         if (optional.isEmpty()) return;
-        NonNullList<ItemStack> nonNullList = level.getRecipeManager().getRemainingItemsFor(RecipeType.CRAFTING, entity, level);
         itemStack = optional.get().assemble(entity, level.registryAccess());
         if (!itemStack.isItemEnabled(level.enabledFeatures())) return;
         Container result = new SimpleContainer(1);
         result.setItem(0, itemStack);
-        if (!entity.insertOrDropItem(entity.getDirection(), level, entity.getBlockPos(), result, 0, false, false, true, false)) {
+        Direction direction = entity.getDirection();
+        BlockPos pos = entity.getBlockPos();
+        ItemDepository itemDepository = ItemDepository.getItemDepository(level, pos.relative(direction), direction.getOpposite());
+        if (!entity.outputItem(itemDepository, direction, level, pos, result, 0, false, false, true, false)) {
             return;
         }
         for (int i = 0; i < 9; i++) {
@@ -103,14 +108,13 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
             stack.shrink(1);
             entity.setItem(i, stack);
         }
-        Container container1 = new SimpleContainer(nonNullList.size());
-        for (int i = 0; i < nonNullList.size(); i++) {
-            container1.setItem(i, nonNullList.get(i));
+        Container container1 = new SimpleContainer(remaining.size());
+        for (int i = 0; i < remaining.size(); i++) container1.setItem(i, remaining.get(i));
+        for (int i = 0; i < remaining.size(); i++) {
+            if (container1.getItem(i).isEmpty()) continue;
+            entity.outputItem(itemDepository, entity.getDirection(), level, entity.getBlockPos(), container1, i, true, true, true, false);
         }
-        for (int i = 0; i < nonNullList.size(); i++) {
-            entity.insertOrDropItem(entity.getDirection(), level, entity.getBlockPos(), container1, i, true, true, true, false);
-        }
-        level.updateNeighborsAt(entity.getBlockPos(), ModBlocks.AUTO_CRAFTER.get());
+        level.updateNeighborsAt(pos, ModBlocks.AUTO_CRAFTER.get());
     }
 
     @Override
@@ -130,23 +134,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
         this.saveTag(tag);
     }
 
-    @Override
-    public boolean canPlaceItem(int index, ItemStack insertingStack) {
-        if (this.getDisabled().get(index)) return false;
-        ItemStack storedStack = this.items.get(index);
-        ItemStack filterStack = this.getFilter().get(index);
-        if (isRecord() && filterStack.isEmpty()) return insertingStack.isEmpty();
-        int count = storedStack.getCount();
-        if (count >= storedStack.getMaxStackSize()) {
-            return false;
-        }
-        if (storedStack.isEmpty()) {
-            return filterStack.isEmpty() || ItemStack.isSameItemSameTags(insertingStack, filterStack);
-        }
-        return !this.smallerStackExist(count, storedStack, index);
-    }
-
-    private boolean smallerStackExist(int count, ItemStack itemStack, int index) {
+    public boolean smallerStackExist(int count, ItemStack itemStack, int index) {
         for (int index2 = index + 1; index2 < 9; ++index2) {
             ItemStack itemStack1;
             if (this.getDisabled().get(index2) || isRecord() && getFilter().get(index2).isEmpty() || !(itemStack1 = this.getItem(index2)).isEmpty() && (itemStack1.getCount() >= count || !ItemStack.isSameItemSameTags(itemStack1, itemStack)))
@@ -213,8 +201,10 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
         private final Container container;
         @Getter
         private final Optional<CraftingRecipe> recipe;
+        @Getter
+        private final NonNullList<ItemStack> remaining;
 
-        public AutoCrafterCache(@NotNull Container container, Optional<CraftingRecipe> recipe) {
+        public AutoCrafterCache(@NotNull Container container, Optional<CraftingRecipe> recipe, NonNullList<ItemStack> remaining) {
             this.container = new SimpleContainer(container.getContainerSize());
             for (int i = 0; i < container.getContainerSize(); i++) {
                 ItemStack item = container.getItem(i).copy();
@@ -222,6 +212,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
                 this.container.setItem(i, item);
             }
             this.recipe = recipe;
+            this.remaining = remaining;
         }
 
         @Override
