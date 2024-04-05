@@ -15,8 +15,10 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @Getter
 public abstract class BaseMachineBlockEntity extends RandomizableContainerBlockEntity {
@@ -91,46 +93,39 @@ public abstract class BaseMachineBlockEntity extends RandomizableContainerBlockE
         this.items = itemStacks;
     }
 
+
     /**
-     * 输出或丢出物品
+     * 向容器输出或丢出物品
      *
-     * @param direction 输出目标方向
-     * @param level     维度
-     * @param pos       坐标
-     * @param container 输出物品的容器
-     * @param slot      从哪个槽位输出
-     * @param part      是否允许只插入一部分物品
-     * @param drop      是否强制丢出物品
-     * @param momentum  是否有动量
-     * @param needEmpty 丢出物品的位置是否需要为空
+     * @param itemDepository 输出目标
+     * @param direction      输出目标方向
+     * @param level          维度
+     * @param pos            坐标
+     * @param container      输出物品的容器
+     * @param slot           从哪个槽位输出
+     * @param part           是否允许只插入一部分物品
+     * @param drop           是否强制丢出物品
+     * @param momentum       是否有动量
+     * @param needEmpty      丢出物品的位置是否需要为空
      * @return 操作是否成功
      */
-    protected final boolean insertOrDropItem(Direction direction, Level level, @NotNull BlockPos pos, @NotNull Container container, int slot, boolean part, boolean drop, boolean momentum, boolean needEmpty) {
+    protected final boolean outputItem(@Nullable ItemDepository itemDepository, Direction direction, Level level, @NotNull BlockPos pos, @NotNull Container container, int slot, boolean part, boolean drop, boolean momentum, boolean needEmpty) {
         ItemStack item = container.getItem(slot);
         BlockPos curPos = pos.relative(direction);
         boolean flag = false;
-        if ((part && getCountCanPlace(level, curPos, item, direction) > 0) || canPlaceAllItem(level, curPos, item, direction)) {
-            flag = this.insertItem(direction, level, curPos, container, slot);
+        if ((part && getCountCanPlace(itemDepository, item) > 0) || canPlaceAllItem(itemDepository, item)) {
+            flag = this.insertItem(itemDepository, container, slot);
             if (flag) return true;
         }
-        if (!drop) {
-            if (ItemDepository.getItemDepository(level, curPos, direction.getOpposite()) != null) return false;
-        }
+        if (!drop && itemDepository != null) return false;
         if (!needEmpty || this.canDropItem(level, curPos)) {
             flag = this.dropItem(direction, level, pos, container, slot, momentum);
         }
         return flag;
     }
 
-    private boolean canDropItem(@NotNull Level level, @NotNull BlockPos pos) {
-        Vec3 vec3 = pos.getCenter();
-        ItemEntity entity = new ItemEntity(level, vec3.x, vec3.y, vec3.z, ItemStack.EMPTY);
-        return level.noCollision(entity);
-    }
-
-    private boolean insertItem(@NotNull Direction direction, @NotNull Level level, @NotNull BlockPos pos, @NotNull Container container, int slot) {
+    private boolean insertItem(ItemDepository itemDepository, @NotNull Container container, int slot) {
         ItemStack item = container.getItem(slot);
-        ItemDepository itemDepository = ItemDepository.getItemDepository(level, pos, direction.getOpposite());
         if (itemDepository == null) return false;
         long count = itemDepository.inject(item.copy(), item.getCount(), false);
         item.setCount((int) count);
@@ -138,17 +133,20 @@ public abstract class BaseMachineBlockEntity extends RandomizableContainerBlockE
         return true;
     }
 
-    public final long getCountCanPlace(Level level, BlockPos pos, @NotNull ItemStack stack, @NotNull Direction direction) {
-        ItemDepository itemDepository = ItemDepository.getItemDepository(level, pos, direction.getOpposite());
+    public final long getCountCanPlace(ItemDepository itemDepository, @NotNull ItemStack stack) {
         if (itemDepository == null) return 0;
         int count = stack.getCount();
         return count - itemDepository.inject(stack.copy(), count, true);
     }
 
-    private boolean canPlaceAllItem(Level level, BlockPos pos, @NotNull ItemStack stack, @NotNull Direction direction) {
-        ItemDepository itemDepository = ItemDepository.getItemDepository(level, pos, direction.getOpposite());
+    private boolean canPlaceAllItem(ItemDepository itemDepository, @NotNull ItemStack stack) {
         if (itemDepository == null) return false;
         return itemDepository.canInject(stack.copy(), stack.getCount());
+    }
+
+    private boolean canDropItem(@NotNull Level level, @NotNull BlockPos pos) {
+        Vec3 vec3 = pos.getCenter();
+        return level.noCollision(new AABB(vec3.subtract(0.125, 0.0, 0.125), vec3.add(0.125, 0.25, 0.125)));
     }
 
     private boolean dropItem(Direction direction, Level level, @NotNull BlockPos pos, @NotNull Container container, int slot, boolean momentum) {
