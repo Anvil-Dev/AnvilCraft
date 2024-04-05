@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.api.depository.ItemDepository;
 import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
@@ -95,7 +96,10 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
         if (!itemStack.isItemEnabled(level.enabledFeatures())) return;
         Container result = new SimpleContainer(1);
         result.setItem(0, itemStack);
-        if (!entity.insertOrDropItem(entity.getDirection(), level, entity.getBlockPos(), result, 0, false, false, true, false)) {
+        Direction direction = entity.getDirection();
+        BlockPos pos = entity.getBlockPos();
+        ItemDepository itemDepository = ItemDepository.getItemDepository(level, pos.relative(direction), direction.getOpposite());
+        if (!entity.outputItem(itemDepository, direction, level, pos, result, 0, false, false, true, false)) {
             return;
         }
         for (int i = 0; i < 9; i++) {
@@ -104,13 +108,11 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
             entity.setItem(i, stack);
         }
         Container container1 = new SimpleContainer(nonNullList.size());
+        for (int i = 0; i < nonNullList.size(); i++) container1.setItem(i, nonNullList.get(i));
         for (int i = 0; i < nonNullList.size(); i++) {
-            container1.setItem(i, nonNullList.get(i));
+            entity.outputItem(itemDepository, direction, level, pos, container1, i, true, true, true, false);
         }
-        for (int i = 0; i < nonNullList.size(); i++) {
-            entity.insertOrDropItem(entity.getDirection(), level, entity.getBlockPos(), container1, i, true, true, true, false);
-        }
-        level.updateNeighborsAt(entity.getBlockPos(), ModBlocks.AUTO_CRAFTER.get());
+        level.updateNeighborsAt(pos, ModBlocks.AUTO_CRAFTER.get());
     }
 
     @Override

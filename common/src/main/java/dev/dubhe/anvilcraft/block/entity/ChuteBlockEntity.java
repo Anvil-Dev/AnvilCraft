@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.depository.ItemDepository;
 import dev.dubhe.anvilcraft.block.ChuteBlock;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
@@ -25,6 +26,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.Hopper;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
@@ -79,11 +81,13 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
         }
     }
 
-    public void dropOrInsert(Level level, BlockPos pos) {
+    public void dropOrInsert(Level level, @NotNull BlockPos pos) {
+        Direction direction = this.getDirection();
+        ItemDepository itemDepository = ItemDepository.getItemDepository(level, pos.relative(direction), direction.getOpposite());
         for (int i = this.items.size() - 1; i >= 0; i--) {
             ItemStack stack = this.items.get(i);
             if (stack.isEmpty()) continue;
-            if (this.insertOrDropItem(this.getDirection(), level, pos, this, i, true, false, false, true)) return;
+            if (this.outputItem(itemDepository, direction, level, pos, this, i, true, false, false, true)) return;
         }
     }
 
@@ -110,7 +114,7 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
             boolean bl = false;
             if (!blockEntity.isEmpty()) {
                 // TODO
-                // bl = HopperBlockEntity.ejectItems(level, pos, state, blockEntity);
+//                 bl = HopperBlockEntity.ejectItems(level, pos, state, blockEntity);
             }
             if (!blockEntity.inventoryFull()) {
                 bl |= validator.getAsBoolean();
