@@ -95,7 +95,7 @@ dependencies {
 
     // Development QOL
     modCompileOnly fabric.lazydfu
-    modCompileOnly fabric.modmenu
+    modImplementation fabric.modmenu
 
     // JEI
     modCompileOnlyApi(fabric.jei.common.api) { transitive = false }
@@ -120,9 +120,9 @@ dependencies {
     // Mixin Extras
     include(implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:${fabric.versions.mixinextras.get()}")))
 
-    // Configuration
-    modImplementation(fabric.configuration)
-    include(fabric.configuration)
+    // cloth config api
+    modImplementation(fabric.clothConfig)
+    include(fabric.clothConfig)
 }
 
 

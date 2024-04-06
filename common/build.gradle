@@ -70,8 +70,8 @@ dependencies {
     // Mixin Extras
     implementation(annotationProcessor("io.github.llamalad7:mixinextras-common:${fabric.versions.mixinextras.get()}"))
 
-    // Configuration
-    modCompileOnly fabric.configuration
+    // cloth config api
+    modCompileOnly fabric.clothConfig
 }
 
 publishing {

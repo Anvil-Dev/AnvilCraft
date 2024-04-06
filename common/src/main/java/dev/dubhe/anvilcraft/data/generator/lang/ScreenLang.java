@@ -22,6 +22,5 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.additions_slot_description", "Put the Royal Steel Ingot");
         provider.add("screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.applies_to", "Amethyst Pickaxe Golden Pickaxe Iron Pickaxe Diamond Pickaxe");
         provider.add("screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.base_slot_description", "Put the pickaxe");
-        provider.add("config.screen.anvilcraft", "AnvilCraft Config");
     }
 }
