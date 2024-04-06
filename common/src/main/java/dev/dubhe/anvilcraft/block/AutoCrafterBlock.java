@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.block.entity.AutoCrafterBlockEntity;
+import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.network.MachineOutputDirectionPack;
 import dev.dubhe.anvilcraft.network.MachineRecordMaterialPack;
@@ -96,7 +97,7 @@ public class AutoCrafterBlock extends BaseEntityBlock {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
-        return new AutoCrafterBlockEntity(pos, state);
+        return AutoCrafterBlockEntity.createBlockEntity(ModBlockEntities.AUTO_CRAFTER.get(), pos, state);
     }
 
     @Nullable

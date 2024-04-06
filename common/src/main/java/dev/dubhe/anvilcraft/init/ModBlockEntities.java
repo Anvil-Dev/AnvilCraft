@@ -9,12 +9,14 @@ import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 
 public class ModBlockEntities {
     public static final BlockEntityEntry<? extends BlockEntity> AUTO_CRAFTER = REGISTRATE
-            .blockEntity("auto_crafter", AutoCrafterBlockEntity::new)
+            .blockEntity("auto_crafter", AutoCrafterBlockEntity::createBlockEntity)
+            .onRegister(AutoCrafterBlockEntity::onBlockEntityRegister)
             .validBlock(ModBlocks.AUTO_CRAFTER)
             .register();
 
     public static final BlockEntityEntry<? extends BlockEntity> CHUTE = REGISTRATE
-            .blockEntity("chute", ChuteBlockEntity::new)
+            .blockEntity("chute", ChuteBlockEntity::createBlockEntity)
+            .onRegister(ChuteBlockEntity::onBlockEntityRegister)
             .validBlock(ModBlocks.CHUTE)
             .register();
 

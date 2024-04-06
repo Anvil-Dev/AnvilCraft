@@ -48,4 +48,39 @@ public class ItemDepositoryHelper {
             }
         };
     }
+
+    public static IItemHandler toItemHandler(IItemDepository depository) {
+        return new IItemHandler() {
+
+            @Override
+            public int getSlots() {
+                return depository.getSlots();
+            }
+
+            @Override
+            public @NotNull ItemStack getStackInSlot(int i) {
+                return depository.getStack(i);
+            }
+
+            @Override
+            public @NotNull ItemStack insertItem(int i, @NotNull ItemStack arg, boolean bl) {
+                return depository.insert(i, arg, bl);
+            }
+
+            @Override
+            public @NotNull ItemStack extractItem(int i, int j, boolean bl) {
+                return depository.extract(i, j, bl);
+            }
+
+            @Override
+            public int getSlotLimit(int i) {
+                return depository.getSlotLimit(i);
+            }
+
+            @Override
+            public boolean isItemValid(int i, @NotNull ItemStack arg) {
+                return depository.isItemValid(i, arg);
+            }
+        };
+    }
 }

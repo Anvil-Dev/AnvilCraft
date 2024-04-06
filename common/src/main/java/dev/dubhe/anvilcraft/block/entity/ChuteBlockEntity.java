@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.architectury.injectables.annotations.ExpectPlatform;
 import dev.dubhe.anvilcraft.block.ChuteBlock;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
@@ -40,6 +41,16 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
 
     public ChuteBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState, 9);
+    }
+
+    @ExpectPlatform
+    public static ChuteBlockEntity createBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+        throw new AssertionError();
+    }
+
+    @ExpectPlatform
+    public static void onBlockEntityRegister(BlockEntityType<ChuteBlockEntity> type) {
+        throw new AssertionError();
     }
 
     @Override

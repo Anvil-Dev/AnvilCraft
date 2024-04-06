@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
+import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.network.MachineOutputDirectionPack;
 import dev.dubhe.anvilcraft.network.MachineRecordMaterialPack;
@@ -77,7 +78,7 @@ public class ChuteBlock extends BaseEntityBlock {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) {
-        return new ChuteBlockEntity(pos, state);
+        return ChuteBlockEntity.createBlockEntity(ModBlockEntities.CHUTE.get(), pos, state);
     }
 
     @Override

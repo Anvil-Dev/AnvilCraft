@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.architectury.injectables.annotations.ExpectPlatform;
 import dev.dubhe.anvilcraft.api.depository.IItemDepository;
 import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
-import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.AutoCrafterMenu;
 import lombok.Getter;
@@ -46,16 +46,24 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
     private final NonNullList<@Unmodifiable ItemStack> filter = this.getNewFilter();
     private final Deque<AutoCrafterCache> cache = new ArrayDeque<>();
 
-    public AutoCrafterBlockEntity(BlockPos pos, BlockState blockState) {
-        this(ModBlockEntities.AUTO_CRAFTER.get(), pos, blockState);
-    }
-
     public AutoCrafterBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState, 9);
     }
 
+    @ExpectPlatform
+    public static AutoCrafterBlockEntity createBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+        throw new AssertionError();
+    }
+
+    @ExpectPlatform
+    public static void onBlockEntityRegister(BlockEntityType<AutoCrafterBlockEntity> type) {
+        throw new AssertionError();
+    }
+
     public static void tick(Level level, BlockPos pos, BlockEntity e) {
+        System.out.println("1");
         if (!(e instanceof AutoCrafterBlockEntity entity)) return;
+        System.out.println("2");
         BlockState state = level.getBlockState(pos);
         if (state.getValue(AutoCrafterBlock.LIT)) AutoCrafterBlockEntity.craft(level, entity);
     }
