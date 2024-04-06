@@ -195,48 +195,6 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
     }
 
     @Override
-    public int getContainerSize() {
-        return this.getDepositorySize();
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return this.getDepository().isEmpty();
-    }
-
-    @Override
-    public ItemStack getItem(int slot) {
-        return this.getDepository().getStack(slot);
-    }
-
-    @Override
-    public ItemStack removeItem(int slot, int amount) {
-        return this.getDepository().extract(slot, amount, false, true);
-    }
-
-    @Override
-    public ItemStack removeItemNoUpdate(int slot) {
-        return this.getDepository().clearItem(slot);
-    }
-
-    @Override
-    public void setItem(int slot, ItemStack stack) {
-        this.getDepository().setItem(slot, stack);
-    }
-
-    @Override
-    public boolean stillValid(Player player) {
-        return true;
-    }
-
-    @Override
-    public void clearContent() {
-        for (int i = 0; i < this.getDepositorySize(); i++) {
-            this.getDepository().clearItem(i);
-        }
-    }
-
-    @Override
     public Component getDisplayName() {
         return Component.translatable("block.anvilcraft.auto_crafter");
     }

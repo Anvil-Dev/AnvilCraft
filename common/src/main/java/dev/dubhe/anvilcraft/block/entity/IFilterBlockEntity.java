@@ -59,4 +59,6 @@ public interface IFilterBlockEntity {
     }
 
     NonNullList<ItemStack> getItems();
+
+    void setChanged();
 }

@@ -17,10 +17,14 @@ import org.jetbrains.annotations.Unmodifiable;
 import java.util.Objects;
 
 public interface IFilterMenuSever extends IFilterMenu {
-    @Nullable IFilterBlockEntity getBlockEntity();
-    @Nullable AbstractContainerMenu getMenu();
+    @Nullable
+    IFilterBlockEntity getBlockEntity();
 
-    @Nullable ServerPlayer getPlayer();
+    @Nullable
+    AbstractContainerMenu getMenu();
+
+    @Nullable
+    ServerPlayer getPlayer();
 
     default void clicked(int slotId, int button, @NotNull ClickType clickType, @NotNull Player player0) {
         ServerPlayer player = (ServerPlayer) player0;
@@ -57,6 +61,7 @@ public interface IFilterMenuSever extends IFilterMenu {
             }
         }
     }
+
     default void setRecord(boolean record) {
         if (record) {
             for (int i = 0; i < Objects.requireNonNull(getBlockEntity()).getFilter().size(); i++) {
@@ -72,5 +77,5 @@ public interface IFilterMenuSever extends IFilterMenu {
                 }
             }
         }
-}
+    }
 }
