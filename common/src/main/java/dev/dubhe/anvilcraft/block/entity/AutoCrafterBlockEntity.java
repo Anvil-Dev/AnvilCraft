@@ -112,11 +112,6 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
         level.updateNeighborsAt(pos, ModBlocks.AUTO_CRAFTER.get());
     }
 
-//    @Override
-//    protected @NotNull AbstractContainerMenu createMenu(int containerId, Inventory inventory) {
-//        return AutoCrafterMenu.serverOf(containerId, inventory, this);
-//    }
-
     @Override
     public void load(@NotNull CompoundTag tag) {
         super.load(tag);
@@ -131,22 +126,12 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
 
     @Override
     public int getDepositorySize() {
-        return 0;
-    }
-
-    public boolean smallerStackExist(int count, ItemStack itemStack, int index) {
-        for (int index2 = index + 1; index2 < 9; ++index2) {
-            ItemStack itemStack1;
-            if (this.getDisabled().get(index2) || isRecord() && getFilter().get(index2).isEmpty() || !(itemStack1 = this.getItem(index2)).isEmpty() && (itemStack1.getCount() >= count || !ItemStack.isSameItemSameTags(itemStack1, itemStack)))
-                continue;
-            return true;
-        }
-        return false;
+        return this.getDepository().getSlots();
     }
 
     @Override
     public NonNullList<ItemStack> getItems() {
-        return null;
+        return this.getDepository().getStacks();
     }
 
     @Override
@@ -203,47 +188,49 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
 
     @Override
     public int getContainerSize() {
-        return 0;
+        return this.getDepositorySize();
     }
 
     @Override
     public boolean isEmpty() {
-        return false;
+        return this.getDepository().isEmpty();
     }
 
     @Override
     public ItemStack getItem(int slot) {
-        return null;
+        return this.getDepository().getStack(slot);
     }
 
     @Override
     public ItemStack removeItem(int slot, int amount) {
-        return null;
+        return this.getDepository().extract(slot, amount, false, true);
     }
 
     @Override
     public ItemStack removeItemNoUpdate(int slot) {
-        return null;
+        return this.getDepository().clearItem(slot);
     }
 
     @Override
     public void setItem(int slot, ItemStack stack) {
-
+        this.getDepository().setItem(slot, stack);
     }
 
     @Override
     public boolean stillValid(Player player) {
-        return false;
+        return true;
     }
 
     @Override
     public void clearContent() {
-
+        for (int i = 0; i < this.getDepositorySize(); i++) {
+            this.getDepository().clearItem(i);
+        }
     }
 
     @Override
     public Component getDisplayName() {
-        return null;
+        return Component.translatable("block.anvilcraft.auto_crafter");
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")

@@ -58,23 +58,5 @@ public interface IFilterBlockEntity {
         tag.put("filter", filter);
     }
 
-//    default boolean canPlaceItem(int index, @NotNull ItemStack insertingStack) {
-//        if (this.getDisabled().get(index)) return false;
-//        ItemStack storedStack = this.getItems().get(index);
-//        ItemStack filterStack = this.getFilter().get(index);
-//        if (isRecord() && filterStack.isEmpty()) return insertingStack.isEmpty();
-//        int count = storedStack.getCount();
-//        if (count >= storedStack.getMaxStackSize()) {
-//            return false;
-//        }
-//        if (storedStack.isEmpty()) {
-//            return filterStack.isEmpty() || ItemStack.isSameItemSameTags(insertingStack, filterStack);
-//        }
-//        return !this.smallerStackExist(count, storedStack, index);
-//    }
-
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    boolean smallerStackExist(int count, ItemStack itemStack, int index);
-
     NonNullList<ItemStack> getItems();
 }

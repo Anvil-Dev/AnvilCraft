@@ -47,46 +47,26 @@ import java.util.stream.Stream;
 public class ChuteBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING = BlockStateProperties.FACING_HOPPER;
     public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
-    public static final VoxelShape AABB = Shapes.join(Block.box(2, 0, 2, 14, 12, 14), Block.box(0, 12, 0, 16, 16, 16), BooleanOp.OR);
+    public static final VoxelShape AABB = Shapes.join(Block.box(0, 12, 0, 16, 16, 16), Block.box(2, 0, 2, 14, 12, 14), BooleanOp.OR);
     public static final VoxelShape AABB_W = Stream.of(
-            Block.box(0, 12, 0, 16, 16, 16),
             Block.box(2, 8, 2, 14, 12, 14),
-            Block.box(0, 2, 3, 9, 12, 13),
-            Block.box(9, 3, 3, 10, 8, 13),
-            Block.box(10, 4, 3, 11, 8, 13),
-            Block.box(11, 5, 3, 12, 8, 13),
-            Block.box(12, 6, 3, 13, 8, 13),
-            Block.box(13, 7, 3, 14, 8, 13)
+            Block.box(0, 4, 4, 12, 12, 12),
+            Block.box(0, 12, 0, 16, 16, 16)
     ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
     public static final VoxelShape AABB_E = Stream.of(
-            Block.box(0, 12, 0, 16, 16, 16),
             Block.box(2, 8, 2, 14, 12, 14),
-            Block.box(7, 2, 3, 16, 12, 13),
-            Block.box(6, 3, 3, 7, 8, 13),
-            Block.box(5, 4, 3, 6, 8, 13),
-            Block.box(4, 5, 3, 5, 8, 13),
-            Block.box(3, 6, 3, 4, 8, 13),
-            Block.box(2, 7, 3, 3, 8, 13)
+            Block.box(4, 4, 4, 16, 12, 12),
+            Block.box(0, 12, 0, 16, 16, 16)
     ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
     public static final VoxelShape AABB_S = Stream.of(
-            Block.box(0, 12, 0, 16, 16, 16),
             Block.box(2, 8, 2, 14, 12, 14),
-            Block.box(3, 2, 7, 13, 12, 16),
-            Block.box(3, 3, 6, 13, 8, 7),
-            Block.box(3, 4, 5, 13, 8, 6),
-            Block.box(3, 5, 4, 13, 8, 5),
-            Block.box(3, 6, 3, 13, 8, 4),
-            Block.box(3, 7, 2, 13, 8, 3)
+            Block.box(4, 4, 4, 12, 12, 16),
+            Block.box(0, 12, 0, 16, 16, 16)
     ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
     public static final VoxelShape AABB_N = Stream.of(
-            Block.box(0, 12, 0, 16, 16, 16),
             Block.box(2, 8, 2, 14, 12, 14),
-            Block.box(3, 2, 0, 13, 12, 9),
-            Block.box(3, 3, 9, 13, 8, 10),
-            Block.box(3, 4, 10, 13, 8, 11),
-            Block.box(3, 5, 11, 13, 8, 12),
-            Block.box(3, 6, 12, 13, 8, 13),
-            Block.box(3, 7, 13, 13, 8, 14)
+            Block.box(4, 4, 0, 12, 12, 12),
+            Block.box(0, 12, 0, 16, 16, 16)
     ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
 
     public ChuteBlock(Properties properties) {
@@ -152,7 +132,7 @@ public class ChuteBlock extends BaseEntityBlock {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockEntityType<T> blockEntityType) {
-        return (level1, pos, state1, e) -> ChuteBlockEntity.tick(level1, pos, e);
+        return (level1, pos, state1, entity) -> ChuteBlockEntity.tick(level1, pos, entity);
     }
 
     @Override
@@ -197,16 +177,16 @@ public class ChuteBlock extends BaseEntityBlock {
 
     @Override
     @SuppressWarnings("deprecation")
-    public boolean hasAnalogOutputSignal(BlockState blockState) {
+    public boolean hasAnalogOutputSignal(@NotNull BlockState blockState) {
         return true;
     }
 
     @Override
     @SuppressWarnings("deprecation")
-    public int getAnalogOutputSignal(BlockState blockState, @NotNull Level level, BlockPos blockPos) {
+    public int getAnalogOutputSignal(@NotNull BlockState blockState, @NotNull Level level, @NotNull BlockPos blockPos) {
         BlockEntity blockEntity = level.getBlockEntity(blockPos);
         if (blockEntity instanceof ChuteBlockEntity chuteBlockEntity) {
-            return chuteBlockEntity.getRedstoneSignal();
+            // return chuteBlockEntity.getRedstoneSignal();
         }
         return 0;
     }
