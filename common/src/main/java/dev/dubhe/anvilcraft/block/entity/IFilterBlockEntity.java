@@ -5,13 +5,12 @@ import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
-public interface IFilterBlockEntity extends Container {
+public interface IFilterBlockEntity {
     boolean isRecord();
 
     void setRecord(boolean record);
@@ -23,16 +22,18 @@ public interface IFilterBlockEntity extends Container {
         }
     }
 
+    int getDepositorySize();
+
     NonNullList<Boolean> getDisabled();
 
     NonNullList<@Unmodifiable ItemStack> getFilter();
 
     default NonNullList<Boolean> getNewDisabled() {
-        return NonNullList.withSize(this.getContainerSize(), false);
+        return NonNullList.withSize(this.getDepositorySize(), false);
     }
 
     default NonNullList<@Unmodifiable ItemStack> getNewFilter() {
-        return NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
+        return NonNullList.withSize(this.getDepositorySize(), ItemStack.EMPTY);
     }
 
     default void loadTag(@NotNull CompoundTag tag) {
@@ -57,20 +58,20 @@ public interface IFilterBlockEntity extends Container {
         tag.put("filter", filter);
     }
 
-    default boolean canPlaceItem(int index, @NotNull ItemStack insertingStack) {
-        if (this.getDisabled().get(index)) return false;
-        ItemStack storedStack = this.getItems().get(index);
-        ItemStack filterStack = this.getFilter().get(index);
-        if (isRecord() && filterStack.isEmpty()) return insertingStack.isEmpty();
-        int count = storedStack.getCount();
-        if (count >= storedStack.getMaxStackSize()) {
-            return false;
-        }
-        if (storedStack.isEmpty()) {
-            return filterStack.isEmpty() || ItemStack.isSameItemSameTags(insertingStack, filterStack);
-        }
-        return !this.smallerStackExist(count, storedStack, index);
-    }
+//    default boolean canPlaceItem(int index, @NotNull ItemStack insertingStack) {
+//        if (this.getDisabled().get(index)) return false;
+//        ItemStack storedStack = this.getItems().get(index);
+//        ItemStack filterStack = this.getFilter().get(index);
+//        if (isRecord() && filterStack.isEmpty()) return insertingStack.isEmpty();
+//        int count = storedStack.getCount();
+//        if (count >= storedStack.getMaxStackSize()) {
+//            return false;
+//        }
+//        if (storedStack.isEmpty()) {
+//            return filterStack.isEmpty() || ItemStack.isSameItemSameTags(insertingStack, filterStack);
+//        }
+//        return !this.smallerStackExist(count, storedStack, index);
+//    }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     boolean smallerStackExist(int count, ItemStack itemStack, int index);

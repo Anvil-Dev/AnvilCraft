@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import dev.dubhe.anvilcraft.api.depository.ItemDepository;
+import dev.dubhe.anvilcraft.api.depository.IItemDepository;
 import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
@@ -54,11 +54,6 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
         super(type, pos, blockState, 9);
     }
 
-    @Override
-    protected @NotNull Component getDefaultName() {
-        return Component.translatable("block.anvilcraft.auto_crafter");
-    }
-
     public static void tick(Level level, BlockPos pos, BlockEntity e) {
         if (!(e instanceof AutoCrafterBlockEntity entity)) return;
         BlockState state = level.getBlockState(pos);
@@ -67,7 +62,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
 
     private boolean canCraft() {
         if (!this.isRecord()) return true;
-        for (int i = 0; i < this.items.size(); i++) {
+        for (int i = 0; i < this.depository.getSlots(); i++) {
             if (this.getItem(i).isEmpty() && !(this.getDisabled().get(i) || isRecord() && getFilter().get(i).isEmpty()))
                 return false;
         }
@@ -99,7 +94,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
         result.setItem(0, itemStack);
         Direction direction = entity.getDirection();
         BlockPos pos = entity.getBlockPos();
-        ItemDepository itemDepository = ItemDepository.getItemDepository(level, pos.relative(direction), direction.getOpposite());
+        IItemDepository itemDepository = IItemDepository.getItemDepository(level, pos.relative(direction), direction.getOpposite());
         if (!entity.outputItem(itemDepository, direction, level, pos, result, 0, false, false, true, false)) {
             return;
         }
@@ -117,10 +112,10 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
         level.updateNeighborsAt(pos, ModBlocks.AUTO_CRAFTER.get());
     }
 
-    @Override
-    protected @NotNull AbstractContainerMenu createMenu(int containerId, Inventory inventory) {
-        return AutoCrafterMenu.serverOf(containerId, inventory, this);
-    }
+//    @Override
+//    protected @NotNull AbstractContainerMenu createMenu(int containerId, Inventory inventory) {
+//        return AutoCrafterMenu.serverOf(containerId, inventory, this);
+//    }
 
     @Override
     public void load(@NotNull CompoundTag tag) {
@@ -134,6 +129,11 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
         this.saveTag(tag);
     }
 
+    @Override
+    public int getDepositorySize() {
+        return 0;
+    }
+
     public boolean smallerStackExist(int count, ItemStack itemStack, int index) {
         for (int index2 = index + 1; index2 < 9; ++index2) {
             ItemStack itemStack1;
@@ -142,6 +142,11 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
             return true;
         }
         return false;
+    }
+
+    @Override
+    public NonNullList<ItemStack> getItems() {
+        return null;
     }
 
     @Override
@@ -194,6 +199,51 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
     @Override
     public AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
         return AutoCrafterMenu.serverOf(i, inventory, this);
+    }
+
+    @Override
+    public int getContainerSize() {
+        return 0;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return false;
+    }
+
+    @Override
+    public ItemStack getItem(int slot) {
+        return null;
+    }
+
+    @Override
+    public ItemStack removeItem(int slot, int amount) {
+        return null;
+    }
+
+    @Override
+    public ItemStack removeItemNoUpdate(int slot) {
+        return null;
+    }
+
+    @Override
+    public void setItem(int slot, ItemStack stack) {
+
+    }
+
+    @Override
+    public boolean stillValid(Player player) {
+        return false;
+    }
+
+    @Override
+    public void clearContent() {
+
+    }
+
+    @Override
+    public Component getDisplayName() {
+        return null;
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
