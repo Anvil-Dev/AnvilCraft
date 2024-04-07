@@ -1,12 +1,12 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.architectury.injectables.annotations.ExpectPlatform;
+import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.api.depository.IItemDepository;
 import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.AutoCrafterMenu;
 import lombok.Getter;
-import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -20,6 +20,7 @@ import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
@@ -28,26 +29,93 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
 @Getter
 @SuppressWarnings("NullableProblems")
-public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements CraftingContainer, IFilterBlockEntity {
-    @Setter
-    private boolean record = false;
-    @Getter
-    private final NonNullList<Boolean> disabled = this.getNewDisabled();
-    @Getter
-    private final NonNullList<@Unmodifiable ItemStack> filter = this.getNewFilter();
+public class AutoCrafterBlockEntity extends BaseMachineBlockEntity {
     private final Deque<AutoCrafterCache> cache = new ArrayDeque<>();
 
+    private final FilteredItemDepository depository = new FilteredItemDepository(9);
+    private final CraftingContainer craftingContainer = new CraftingContainer() {
+        @Override
+        public int getWidth() {
+            return 3;
+        }
+
+        @Override
+        public int getHeight() {
+            return 3;
+        }
+
+        @Override
+        public List<ItemStack> getItems() {
+            return depository.getStacks();
+        }
+
+        @Override
+        public int getContainerSize() {
+            return depository.getSlots();
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return depository.isEmpty();
+        }
+
+        @Override
+        public ItemStack getItem(int slot) {
+            return depository.getStack(slot);
+        }
+
+        @Override
+        public ItemStack removeItem(int slot, int amount) {
+            return depository.extract(slot, amount, false, true);
+        }
+
+        @Override
+        public ItemStack removeItemNoUpdate(int slot) {
+            return depository.clearItem(slot);
+        }
+
+        @Override
+        public void setItem(int slot, ItemStack stack) {
+            depository.setItem(slot, stack);
+        }
+
+        @Override
+        public void setChanged() {
+            AutoCrafterBlockEntity.this.setChanged();
+        }
+
+        @Override
+        public boolean stillValid(Player player) {
+            return true;
+        }
+
+        @Override
+        public void clearContent() {
+            for (int i = 0; i < this.getContainerSize(); i++) {
+                depository.clearItem(i);
+            }
+        }
+
+        @Override
+        public void fillStackedContents(StackedContents contents) {
+            for (int i = 0; i < this.getContainerSize(); i++) {
+                ItemStack itemStack = this.getItem(i);
+                contents.accountSimpleStack(itemStack);
+            }
+        }
+    };
+
     public AutoCrafterBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
-        super(type, pos, blockState, 9);
+        super(type, pos, blockState);
     }
 
     @ExpectPlatform
@@ -60,28 +128,25 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
         throw new AssertionError();
     }
 
-    public static void tick(Level level, BlockPos pos, BlockEntity e) {
-        System.out.println("1");
-        if (!(e instanceof AutoCrafterBlockEntity entity)) return;
-        System.out.println("2");
+    public void tick(Level level, BlockPos pos) {
         BlockState state = level.getBlockState(pos);
-        if (state.getValue(AutoCrafterBlock.LIT)) AutoCrafterBlockEntity.craft(level, entity);
+        if (state.getValue(AutoCrafterBlock.LIT)) craft(level);
     }
 
     private boolean canCraft() {
-        if (!this.isRecord()) return true;
+        if (!depository.isFilterEnabled()) return true;
         for (int i = 0; i < this.depository.getSlots(); i++) {
-            if (this.getItem(i).isEmpty() && !(this.getDisabled().get(i) || isRecord() && getFilter().get(i).isEmpty()))
+            if (craftingContainer.isEmpty() && !(depository.isDisabled(i) || depository.isFilterEnabled() && depository.getFilteredItems().get(i) == Items.AIR))
                 return false;
         }
         return true;
     }
 
-    private static void craft(@NotNull Level level, @NotNull AutoCrafterBlockEntity entity) {
+    private void craft(@NotNull Level level) {
         ItemStack itemStack;
-        if (entity.isEmpty()) return;
-        if (!entity.canCraft()) return;
-        Optional<AutoCrafterCache> cacheOptional = entity.cache.stream().filter(recipe -> recipe.test(entity)).findFirst();
+        if (craftingContainer.isEmpty()) return;
+        if (!canCraft()) return;
+        Optional<AutoCrafterCache> cacheOptional = cache.stream().filter(recipe -> recipe.test(craftingContainer)).findFirst();
         Optional<CraftingRecipe> optional;
         NonNullList<ItemStack> remaining;
         if (cacheOptional.isPresent()) {
@@ -89,33 +154,33 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
             optional = crafterCache.getRecipe();
             remaining = crafterCache.getRemaining();
         } else {
-            optional = level.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, entity, level);
-            remaining = level.getRecipeManager().getRemainingItemsFor(RecipeType.CRAFTING, entity, level);
-            AutoCrafterCache cache = new AutoCrafterCache(entity, optional, remaining);
-            entity.cache.push(cache);
-            while (entity.cache.size() >= 10) entity.cache.pop();
+            optional = level.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, craftingContainer, level);
+            remaining = level.getRecipeManager().getRemainingItemsFor(RecipeType.CRAFTING, craftingContainer, level);
+            AutoCrafterCache cache = new AutoCrafterCache(craftingContainer, optional, remaining);
+            this.cache.push(cache);
+            while (this.cache.size() >= 10) this.cache.pop();
         }
         if (optional.isEmpty()) return;
-        itemStack = optional.get().assemble(entity, level.registryAccess());
+        itemStack = optional.get().assemble(craftingContainer, level.registryAccess());
         if (!itemStack.isItemEnabled(level.enabledFeatures())) return;
         Container result = new SimpleContainer(1);
         result.setItem(0, itemStack);
-        Direction direction = entity.getDirection();
-        BlockPos pos = entity.getBlockPos();
+        Direction direction = getDirection();
+        BlockPos pos = getBlockPos();
         IItemDepository itemDepository = IItemDepository.getItemDepository(level, pos.relative(direction), direction.getOpposite());
-        if (!entity.outputItem(itemDepository, direction, level, pos, result, 0, false, false, true, false)) {
+        if (!outputItem(itemDepository, direction, level, pos, result, 0, false, false, true, false)) {
             return;
         }
         for (int i = 0; i < 9; i++) {
-            ItemStack stack = entity.getItem(i);
+            ItemStack stack = craftingContainer.getItem(i);
             stack.shrink(1);
-            entity.setItem(i, stack);
+            craftingContainer.setItem(i, stack);
         }
         Container container1 = new SimpleContainer(remaining.size());
         for (int i = 0; i < remaining.size(); i++) container1.setItem(i, remaining.get(i));
         for (int i = 0; i < remaining.size(); i++) {
             if (container1.getItem(i).isEmpty()) continue;
-            entity.outputItem(itemDepository, entity.getDirection(), level, entity.getBlockPos(), container1, i, true, true, true, false);
+            outputItem(itemDepository, getDirection(), level, getBlockPos(), container1, i, true, true, true, false);
         }
         level.updateNeighborsAt(pos, ModBlocks.AUTO_CRAFTER.get());
     }
@@ -123,23 +188,13 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
     @Override
     public void load(@NotNull CompoundTag tag) {
         super.load(tag);
-        this.loadTag(tag);
+        depository.deserializeNBT(tag.getCompound("Inventory"));
     }
 
     @Override
     protected void saveAdditional(@NotNull CompoundTag tag) {
         super.saveAdditional(tag);
-        this.saveTag(tag);
-    }
-
-    @Override
-    public int getDepositorySize() {
-        return this.getDepository().getSlots();
-    }
-
-    @Override
-    public NonNullList<ItemStack> getItems() {
-        return this.getDepository().getStacks();
+        tag.put("Inventory", this.depository.serializeNBT());
     }
 
     @Override
@@ -160,29 +215,11 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements Cr
         level.setBlockAndUpdate(pos, state.setValue(AutoCrafterBlock.FACING, direction));
     }
 
-    @Override
-    public int getWidth() {
-        return 3;
-    }
-
-    @Override
-    public int getHeight() {
-        return 3;
-    }
-
-    @Override
-    public void fillStackedContents(StackedContents contents) {
-        for (int i = 0; i < this.getContainerSize(); i++) {
-            ItemStack itemStack = this.getItem(i);
-            contents.accountSimpleStack(itemStack);
-        }
-    }
-
     public int getRedstoneSignal() {
         int i = 0;
-        for (int j = 0; j < this.getContainerSize(); ++j) {
-            ItemStack itemStack = this.getItem(j);
-            if (itemStack.isEmpty() && !this.getDisabled().get(j)) continue;
+        for (int j = 0; j < depository.getSlots(); ++j) {
+            ItemStack itemStack = depository.getStack(j);
+            if (itemStack.isEmpty() && !depository.isDisabled(j)) continue;
             ++i;
         }
         return i;

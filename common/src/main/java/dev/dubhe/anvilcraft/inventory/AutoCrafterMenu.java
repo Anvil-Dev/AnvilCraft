@@ -21,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Getter
-public abstract class AutoCrafterMenu extends BaseMachineMenu implements IFilterMenu {
+public abstract class AutoCrafterMenu extends BaseMachineMenu {
     public static AutoCrafterMenu clientOf(MenuType<AutoCrafterMenu> type, int containerId, Inventory inventory) {
         return new Client(type, containerId, inventory);
     }

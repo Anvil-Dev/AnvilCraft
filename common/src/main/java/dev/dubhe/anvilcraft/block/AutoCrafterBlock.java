@@ -102,8 +102,17 @@ public class AutoCrafterBlock extends BaseEntityBlock {
 
     @Nullable
     @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> blockEntityType) {
-        return (level1, pos, state1, e) -> AutoCrafterBlockEntity.tick(level1, pos, e);
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull Level pLevel, @NotNull BlockState pState, @NotNull BlockEntityType<T> pBlockEntityType) {
+        if (!pLevel.isClientSide) {
+            return null;
+        }
+        return createTickerHelper(
+                pBlockEntityType, ModBlockEntities.AUTO_CRAFTER.get(),
+                (level, blockPos, blockState, blockEntity) -> {
+                    if (blockEntity instanceof AutoCrafterBlockEntity crafterBlockEntity) {
+                        crafterBlockEntity.tick(level, blockPos);
+                    }
+                });
     }
 
     @Override

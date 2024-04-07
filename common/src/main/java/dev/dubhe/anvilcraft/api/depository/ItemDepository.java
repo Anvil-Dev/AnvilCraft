@@ -130,14 +130,8 @@ public class ItemDepository implements IItemDepository, INamedTagSerializable {
         }
 
         @Override
-        public ItemStack insert(int slot, @NotNull ItemStack stack, boolean simulate, boolean notifyChanges) {
-            stack = stack.copy();
-            for (int i = 0; i < stack.getCount(); i++) {
-                int insertSlot = this.getEmptyOrSmallerSlot(stack);
-                if (insertSlot < 0) break;
-                super.insert(insertSlot, stack.split(1), simulate, notifyChanges);
-            }
-            return stack;
+        public boolean isItemValid(int slot, ItemStack stack) {
+            return getEmptyOrSmallerSlot(stack) == slot;
         }
 
         private int getEmptyOrSmallerSlot(ItemStack stack) {
