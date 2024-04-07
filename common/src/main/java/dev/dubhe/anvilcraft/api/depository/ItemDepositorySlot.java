@@ -28,8 +28,23 @@ public class ItemDepositorySlot extends Slot {
     }
 
     @Override
+    public void set(ItemStack stack) {
+        depository.setStack(slot, stack);
+    }
+
+    @Override
+    public void setChanged() {
+        depository.onContentsChanged();
+    }
+
+    @Override
     public void onQuickCraft(ItemStack oldStack, ItemStack newStack) {
 
+    }
+
+    @Override
+    public int getMaxStackSize() {
+        return depository.getSlotLimit(slot);
     }
 
     @Override

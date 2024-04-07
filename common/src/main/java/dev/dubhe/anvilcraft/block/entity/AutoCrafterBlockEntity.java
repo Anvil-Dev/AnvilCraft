@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.api.depository.IItemDepository;
 import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
+import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.AutoCrafterMenu;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
@@ -228,7 +229,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity {
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
-        return AutoCrafterMenu.serverOf(i, inventory, this);
+        return new AutoCrafterMenu(ModMenuTypes.AUTO_CRAFTER.get(), i, inventory, this);
     }
 
     @Override

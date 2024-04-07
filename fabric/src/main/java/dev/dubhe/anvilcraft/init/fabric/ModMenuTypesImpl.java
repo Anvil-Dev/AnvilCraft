@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.init.fabric;
 
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,6 +17,7 @@ public class ModMenuTypesImpl {
         player.openMenu(new ExtendedScreenHandlerFactory() {
             @Override
             public void writeScreenOpeningData(ServerPlayer serverPlayer, FriendlyByteBuf friendlyByteBuf) {
+
             }
 
             @Override
@@ -27,6 +29,27 @@ public class ModMenuTypesImpl {
             @Override
             public AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
                 return provider.createMenu(i, inventory, player);
+            }
+        });
+    }
+
+    public static void open(@NotNull ServerPlayer player, MenuProvider provider, BlockPos pos) {
+        player.openMenu(new ExtendedScreenHandlerFactory() {
+
+            @Nullable
+            @Override
+            public AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
+                return provider.createMenu(i, inventory, player);
+            }
+
+            @Override
+            public Component getDisplayName() {
+                return provider.getDisplayName();
+            }
+
+            @Override
+            public void writeScreenOpeningData(ServerPlayer player, FriendlyByteBuf buf) {
+                buf.writeBlockPos(pos);
             }
         });
     }

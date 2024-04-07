@@ -25,6 +25,13 @@ public interface IItemDepository {
     ItemStack getStack(int slot);
 
     /**
+     * 向指定槽位放入物品堆栈
+     * @param slot 槽位
+     * @param stack 要放入的物品堆栈
+     */
+    void setStack(int slot, ItemStack stack);
+
+    /**
      * 向指定槽位中插入物品
      *
      * @param slot          槽位

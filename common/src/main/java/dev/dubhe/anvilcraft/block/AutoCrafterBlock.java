@@ -71,13 +71,13 @@ public class AutoCrafterBlock extends BaseEntityBlock {
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof AutoCrafterBlockEntity entity) {
             if (player instanceof ServerPlayer serverPlayer) {
-                ModMenuTypes.open(serverPlayer, entity);
-                new MachineOutputDirectionPack(entity.getDirection()).send(serverPlayer);
-                new MachineRecordMaterialPack(entity.isRecord()).send(serverPlayer);
-                for (int i = 0; i < entity.getDisabled().size(); i++) {
-                    new SlotDisableChangePack(i, entity.getDisabled().get(i)).send(serverPlayer);
-                    new SlotFilterChangePack(i, entity.getFilter().get(i)).send(serverPlayer);
-                }
+                ModMenuTypes.open(serverPlayer, entity, pos);
+//                new MachineOutputDirectionPack(entity.getDirection()).send(serverPlayer);
+//                new MachineRecordMaterialPack(entity.isRecord()).send(serverPlayer);
+//                for (int i = 0; i < entity.getDisabled().size(); i++) {
+//                    new SlotDisableChangePack(i, entity.getDisabled().get(i)).send(serverPlayer);
+//                    new SlotFilterChangePack(i, entity.getFilter().get(i)).send(serverPlayer);
+//                }
             }
         }
         return InteractionResult.SUCCESS;
@@ -108,11 +108,7 @@ public class AutoCrafterBlock extends BaseEntityBlock {
         }
         return createTickerHelper(
                 pBlockEntityType, ModBlockEntities.AUTO_CRAFTER.get(),
-                (level, blockPos, blockState, blockEntity) -> {
-                    if (blockEntity instanceof AutoCrafterBlockEntity crafterBlockEntity) {
-                        crafterBlockEntity.tick(level, blockPos);
-                    }
-                });
+                (level, blockPos, blockState, blockEntity) -> blockEntity.tick(level, blockPos));
     }
 
     @Override

@@ -28,6 +28,11 @@ public class ItemDepository implements IItemDepository, INamedTagSerializable {
     }
 
     @Override
+    public void setStack(int slot, ItemStack stack) {
+        this.stacks.set(slot, stack);
+    }
+
+    @Override
     public ItemStack insert(int slot, @NotNull ItemStack stack, boolean simulate, boolean notifyChanges) {
         this.validateSlotIndex(slot);
         if (stack.isEmpty()) return ItemStack.EMPTY;
@@ -53,7 +58,33 @@ public class ItemDepository implements IItemDepository, INamedTagSerializable {
 
     @Override
     public ItemStack extract(int slot, int amount, boolean simulate, boolean notifyChanges) {
-        return null;
+        if (amount == 0) return ItemStack.EMPTY;
+
+        validateSlotIndex(slot);
+
+        ItemStack existing = this.getStack(slot);
+        if (existing.isEmpty()) return ItemStack.EMPTY;
+
+        int toExtract = Math.min(amount, existing.getCount());
+
+        if (existing.getCount() <= toExtract) {
+            if (!simulate) {
+                this.stacks.set(slot, ItemStack.EMPTY);
+                if (notifyChanges) {
+                    onContentsChanged(slot);
+                }
+            } else {
+                return existing.copy();
+            }
+        } else {
+            if (!simulate) {
+                this.stacks.set(slot, ItemDepositoryHelper.copyStackWithSize(existing, existing.getCount() - toExtract));
+                if (notifyChanges) {
+                    onContentsChanged(slot);
+                }
+            }
+        }
+        return ItemDepositoryHelper.copyStackWithSize(existing, toExtract);
     }
 
     @Override

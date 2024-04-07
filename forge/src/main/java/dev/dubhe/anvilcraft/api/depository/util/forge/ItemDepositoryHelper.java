@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.api.depository.util.forge;
 import dev.dubhe.anvilcraft.api.depository.IItemDepository;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.IItemHandlerModifiable;
 import org.jetbrains.annotations.NotNull;
 
 public class ItemDepositoryHelper {
@@ -25,6 +26,11 @@ public class ItemDepositoryHelper {
             @Override
             public ItemStack getStack(int slot) {
                 return handler.getStackInSlot(slot);
+            }
+
+            @Override
+            public void setStack(int slot, ItemStack stack) {
+                ((IItemHandlerModifiable) handler).setStackInSlot(slot, stack);
             }
 
             @Override
