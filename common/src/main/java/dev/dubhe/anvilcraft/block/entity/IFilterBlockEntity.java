@@ -1,64 +1,79 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.ByteTag;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Unmodifiable;
 
 public interface IFilterBlockEntity {
-    boolean isRecord();
+    /**
+     * 获取有过滤的物品存储
+     *
+     * @return 有过滤的物品存储
+     */
+    FilteredItemDepository getFilteredItemDepository();
 
-    void setRecord(boolean record);
-
-    default void safeSetRecord(boolean record) {
-        this.setRecord(record);
-        if (!this.isRecord()) {
-            this.getFilter().clear();
-        }
+    /**
+     * 获取是否开启过滤
+     *
+     * @return 是否开启过滤
+     */
+    default boolean isFilterEnabled() {
+        return this.getFilteredItemDepository().isFilterEnabled();
     }
 
-    int getDepositorySize();
-
-    NonNullList<Boolean> getDisabled();
-
-    NonNullList<@Unmodifiable ItemStack> getFilter();
-
-    default NonNullList<Boolean> getNewDisabled() {
-        return NonNullList.withSize(this.getDepositorySize(), false);
+    /**
+     * 设置是否开启过滤
+     *
+     * @param enable 是否开启过滤
+     */
+    default void setFilterEnabled(boolean enable) {
+        this.getFilteredItemDepository().setFilterEnabled(enable);
     }
 
-    default NonNullList<@Unmodifiable ItemStack> getNewFilter() {
-        return NonNullList.withSize(this.getDepositorySize(), ItemStack.EMPTY);
+    /**
+     * 获取指定槽位是否禁用
+     *
+     * @param slot 槽位
+     */
+    default boolean isSlotDisabled(int slot) {
+        return this.getFilteredItemDepository().isSlotDisabled(slot);
     }
 
-    default void loadTag(@NotNull CompoundTag tag) {
-        this.setRecord(tag.getBoolean("record"));
-        ListTag tags = tag.getList("disabled", Tag.TAG_BYTE);
-        for (int i = 0; i < tags.size(); i++) {
-            this.getDisabled().set(i, ((ByteTag) tags.get(i)).getAsByte() != 0);
-        }
-        CompoundTag filter = tag.getCompound("filter");
-        ContainerHelper.loadAllItems(filter, this.getFilter());
+    /**
+     * 设置指定槽位是否禁用
+     *
+     * @param slot    槽位
+     * @param disable 是否禁用
+     */
+    default void setSlotDisabled(int slot, boolean disable) {
+        this.getFilteredItemDepository().setSlotDisabled(slot, disable);
     }
 
-    default void saveTag(@NotNull CompoundTag tag) {
-        tag.put("record", ByteTag.valueOf(this.isRecord()));
-        ListTag tags = new ListTag();
-        for (Boolean b : this.getDisabled()) {
-            tags.add(ByteTag.valueOf(b));
-        }
-        tag.put("disabled", tags);
-        CompoundTag filter = new CompoundTag();
-        ContainerHelper.saveAllItems(filter, this.getFilter());
-        tag.put("filter", filter);
+    /**
+     * 获取过滤物品
+     *
+     * @return 过滤物品
+     */
+    default NonNullList<ItemStack> getFilteredItems() {
+        return this.getFilteredItemDepository().getFilteredItems();
     }
 
-    NonNullList<ItemStack> getItems();
+    /**
+     * 获取指定槽位的过滤
+     *
+     * @param slot 槽位
+     */
+    default ItemStack getFilter(int slot) {
+        return this.getFilteredItemDepository().getFilter(slot);
+    }
 
-    void setChanged();
+    /**
+     * 设置指定槽位的过滤
+     *
+     * @param slot   槽位
+     * @param filter 过滤
+     */
+    default void setFilter(int slot, ItemStack filter) {
+        this.getFilteredItemDepository().setFilter(slot, filter);
+    }
 }

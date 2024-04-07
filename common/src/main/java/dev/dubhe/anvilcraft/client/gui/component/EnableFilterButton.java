@@ -13,18 +13,20 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 @Getter
-public class RecordMaterialButton extends Button {
-    private boolean record;
+public class EnableFilterButton extends Button {
+    private final Supplier<Boolean> filterEnabled;
     private static final ResourceLocation YES = AnvilCraft.of("textures/gui/container/button_yes.png");
     private static final ResourceLocation NO = AnvilCraft.of("textures/gui/container/button_no.png");
     private static final MutableComponent defaultMessage = Component.translatable("screen.anvilcraft.button.record", Component.translatable("screen.anvilcraft.button.off"));
 
-    public RecordMaterialButton(int x, int y, OnPress onPress, boolean record) {
+    public EnableFilterButton(int x, int y, OnPress onPress, Supplier<Boolean> filterEnabled) {
         super(x, y, 16, 16, defaultMessage, onPress, (var) -> defaultMessage);
-        this.record = record;
+        this.filterEnabled = filterEnabled;
     }
+
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
@@ -33,14 +35,13 @@ public class RecordMaterialButton extends Button {
         }
     }
 
-    public void setRecord(boolean record) {
-        this.record = record;
-        this.setMessage(Component.translatable("screen.anvilcraft.button.record", Component.translatable("screen.anvilcraft.button." + (this.isRecord() ? "on" : "off"))));
+    public void flush() {
+        this.setMessage(Component.translatable("screen.anvilcraft.button.record", Component.translatable("screen.anvilcraft.button." + (this.getFilterEnabled().get() ? "on" : "off"))));
     }
 
     @Override
     public void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        ResourceLocation location = this.record ? RecordMaterialButton.YES : RecordMaterialButton.NO;
+        ResourceLocation location = this.filterEnabled.get() ? EnableFilterButton.YES : EnableFilterButton.NO;
         this.renderTexture(guiGraphics, location, this.getX(), this.getY(), 0, 0, 16, this.width, this.height, 16, 32);
     }
 
@@ -55,6 +56,6 @@ public class RecordMaterialButton extends Button {
     }
 
     public boolean next() {
-        return !this.record;
+        return !this.filterEnabled.get();
     }
 }

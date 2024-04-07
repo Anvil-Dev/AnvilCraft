@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.inventory;
 
-import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntityOld;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
 import dev.dubhe.anvilcraft.network.SlotFilterChangePack;
 import net.minecraft.core.NonNullList;
@@ -16,9 +16,9 @@ import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.Objects;
 
-public interface IFilterMenuSever extends IFilterMenu {
+public interface IFilterMenuSever extends IFilterMenuOld {
     @Nullable
-    IFilterBlockEntity getBlockEntity();
+    IFilterBlockEntityOld getBlockEntity();
 
     @Nullable
     AbstractContainerMenu getMenu();
@@ -62,7 +62,7 @@ public interface IFilterMenuSever extends IFilterMenu {
         }
     }
 
-    default void setRecord(boolean record) {
+    default void setFilterEnabled(boolean record) {
         if (record) {
             for (int i = 0; i < Objects.requireNonNull(getBlockEntity()).getFilter().size(); i++) {
                 ItemStack slotStack = Objects.requireNonNull(getMenu()).getSlot(i).getItem();

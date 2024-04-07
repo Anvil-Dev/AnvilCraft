@@ -1,53 +1,118 @@
 package dev.dubhe.anvilcraft.api.depository;
 
 import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
 
 
 @Getter
 public class FilteredItemDepository extends ItemDepository {
-
+    @Setter
     private boolean filterEnabled = false;
-    private final NonNullList<Item> filteredItems;
+    private final NonNullList<ItemStack> filteredItems;
+    private final NonNullList<Boolean> disabled;
 
     public FilteredItemDepository(int size) {
         super(size);
-        filteredItems = NonNullList.withSize(size, Items.AIR);
+        this.filteredItems = NonNullList.withSize(size, ItemStack.EMPTY);
+        this.disabled = NonNullList.withSize(size, false);
     }
 
     @Override
     public boolean isItemValid(int slot, ItemStack stack) {
-        if (!filterEnabled) return true;
-        return filteredItems.get(slot) == stack.getItem();
+        if (!this.filterEnabled) return !this.isSlotDisabled(slot);
+        return !this.isSlotDisabled(slot) && this.isEnable(slot, stack);
     }
 
-    public boolean isDisabled(int slot) {
-        return filteredItems.get(slot) == Items.AIR;
+    /**
+     * 判断指定槽位是否被禁用
+     *
+     * @param slot 槽位
+     * @return 指定槽位是否被禁用
+     */
+    public boolean isSlotDisabled(int slot) {
+        if (!this.filterEnabled) return this.disabled.get(slot);
+        else return this.disabled.get(slot) || (getStack(slot).isEmpty() && this.filteredItems.get(slot).isEmpty());
+    }
+
+    /**
+     * 为指定槽位设定禁用情况
+     *
+     * @param slot    槽位
+     * @param disable 禁用情况
+     */
+    public void setSlotDisabled(int slot, boolean disable) {
+        this.disabled.set(slot, disable);
+    }
+
+    /**
+     * 使指定槽位禁用情况翻转
+     *
+     * @param slot 槽位
+     * @return 指定槽位的禁用情况
+     */
+    public boolean cycleDisabled(int slot) {
+        boolean disable = !this.disabled.get(slot);
+        this.setSlotDisabled(slot, disable);
+        return disable;
+    }
+
+    /**
+     * 判断指定槽位是否允许放入指定物品堆栈
+     *
+     * @param slot  槽位
+     * @param stack 物品堆栈
+     * @return 指定槽位是否允许放入指定物品堆栈
+     */
+    public boolean isEnable(int slot, ItemStack stack) {
+        return ItemStack.isSameItem(this.filteredItems.get(slot), stack);
+    }
+
+    /**
+     * 设置指定槽位的过滤
+     *
+     * @param slot  槽位
+     * @param stack 过滤物品堆栈（不检查NBT）
+     */
+    public void setFilter(int slot, @NotNull ItemStack stack) {
+        this.setSlotDisabled(slot, false);
+        this.filteredItems.set(slot, new ItemStack(stack.getItem(), 1));
+    }
+
+    /**
+     * 获取指定槽位上的过滤
+     *
+     * @param slot 槽位
+     * @return 指定槽位上的过滤
+     */
+    public ItemStack getFilter(int slot) {
+        return this.filteredItems.get(slot);
     }
 
     @Override
     public @NotNull CompoundTag serializeNBT() {
         CompoundTag compoundTag = new CompoundTag();
-        compoundTag.putBoolean("filterEnabled", filterEnabled);
+        compoundTag.putBoolean("filterEnabled", this.filterEnabled);
         ListTag listTag = new ListTag();
         int slots = this.getSlots();
         compoundTag.putInt("Size", slots);
-        for (int i = 0; i < slots; i++) {
-            ItemStack stack = this.getStack(i);
-            ResourceLocation filterItemId = BuiltInRegistries.ITEM.getKey(filteredItems.get(i));
+        for (int slot = 0; slot < slots; slot++) {
+            ItemStack stack = this.getStack(slot);
             CompoundTag itemTag = new CompoundTag();
-            itemTag.putInt("Slot", i);
+            itemTag.putInt("Slot", slot);
             stack.save(itemTag);
-            itemTag.putString("filtered", filterItemId.toString());
+            ItemStack filter = this.filteredItems.get(slot);
+            if (!filter.isEmpty()) {
+                CompoundTag filtered = new CompoundTag();
+                filter.save(filtered);
+                itemTag.put("filtered", filtered);
+            }
+            itemTag.putBoolean("disabled", this.disabled.get(slot));
             listTag.add(itemTag);
         }
         if (!listTag.isEmpty()) compoundTag.put("Items", listTag);
@@ -57,7 +122,7 @@ public class FilteredItemDepository extends ItemDepository {
     @Override
     public void deserializeNBT(@NotNull CompoundTag tag) {
         if (!tag.contains("Items")) return;
-        filterEnabled = tag.getBoolean("filterEnabled");
+        this.filterEnabled = tag.getBoolean("filterEnabled");
         ListTag listTag = tag.getList("Items", Tag.TAG_COMPOUND);
         int slots = this.getSlots();
         for (int i = 0; i < listTag.size(); i++) {
@@ -65,8 +130,8 @@ public class FilteredItemDepository extends ItemDepository {
             int slot = itemTag.getInt("Slot");
             if (slot < 0 || slot >= slots) continue;
             this.getStacks().set(slot, ItemStack.of(itemTag));
-            ResourceLocation filterItemId = new ResourceLocation(itemTag.getString("filtered"));
-            this.filteredItems.set(i, BuiltInRegistries.ITEM.get(filterItemId));
+            if (tag.contains("filtered")) this.filteredItems.set(i, ItemStack.of(itemTag.getCompound("filtered")));
+            this.disabled.set(i, itemTag.getBoolean("disabled"));
         }
     }
 
@@ -91,6 +156,7 @@ public class FilteredItemDepository extends ItemDepository {
             int slot = -1;
             int countInSlot = Integer.MAX_VALUE;
             for (int i = slotCount - 1; i >= 0; i--) {
+                if (this.isSlotDisabled(i)) continue;
                 ItemStack stackInSlot = this.getStack(i);
                 if (!stackInSlot.isEmpty() && !ItemStack.isSameItemSameTags(stackInSlot, stack)) continue;
                 int stackInSlotCount = stackInSlot.getCount();

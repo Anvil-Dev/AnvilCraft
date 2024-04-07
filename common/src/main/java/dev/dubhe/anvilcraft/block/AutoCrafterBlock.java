@@ -3,8 +3,8 @@ package dev.dubhe.anvilcraft.block;
 import dev.dubhe.anvilcraft.block.entity.AutoCrafterBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
+import dev.dubhe.anvilcraft.network.MachineEnableFilterPack;
 import dev.dubhe.anvilcraft.network.MachineOutputDirectionPack;
-import dev.dubhe.anvilcraft.network.MachineRecordMaterialPack;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
 import dev.dubhe.anvilcraft.network.SlotFilterChangePack;
 import net.minecraft.core.BlockPos;
@@ -72,12 +72,12 @@ public class AutoCrafterBlock extends BaseEntityBlock {
         if (blockEntity instanceof AutoCrafterBlockEntity entity) {
             if (player instanceof ServerPlayer serverPlayer) {
                 ModMenuTypes.open(serverPlayer, entity, pos);
-//                new MachineOutputDirectionPack(entity.getDirection()).send(serverPlayer);
-//                new MachineRecordMaterialPack(entity.isRecord()).send(serverPlayer);
-//                for (int i = 0; i < entity.getDisabled().size(); i++) {
-//                    new SlotDisableChangePack(i, entity.getDisabled().get(i)).send(serverPlayer);
-//                    new SlotFilterChangePack(i, entity.getFilter().get(i)).send(serverPlayer);
-//                }
+                new MachineOutputDirectionPack(entity.getDirection()).send(serverPlayer);
+                new MachineEnableFilterPack(entity.isFilterEnabled()).send(serverPlayer);
+                for (int i = 0; i < entity.getFilteredItems().size(); i++) {
+                    new SlotDisableChangePack(i, entity.isSlotDisabled(i)).send(serverPlayer);
+                    new SlotFilterChangePack(i, entity.getFilter(i)).send(serverPlayer);
+                }
             }
         }
         return InteractionResult.SUCCESS;

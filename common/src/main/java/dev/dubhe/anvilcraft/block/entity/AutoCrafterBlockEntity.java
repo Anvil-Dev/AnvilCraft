@@ -21,7 +21,6 @@ import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
@@ -39,9 +38,8 @@ import java.util.function.Predicate;
 
 @Getter
 @SuppressWarnings("NullableProblems")
-public class AutoCrafterBlockEntity extends BaseMachineBlockEntity {
+public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IFilterBlockEntity {
     private final Deque<AutoCrafterCache> cache = new ArrayDeque<>();
-
     private final FilteredItemDepository depository = new FilteredItemDepository.Pollable(9);
     private final CraftingContainer craftingContainer = new CraftingContainer() {
         @Override
@@ -129,24 +127,14 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity {
         throw new AssertionError();
     }
 
-    public void tick(Level level, BlockPos pos) {
+    public void tick(@NotNull Level level, BlockPos pos) {
         BlockState state = level.getBlockState(pos);
         if (state.getValue(AutoCrafterBlock.LIT)) craft(level);
-    }
-
-    private boolean canCraft() {
-        if (!depository.isFilterEnabled()) return true;
-        for (int i = 0; i < this.depository.getSlots(); i++) {
-            if (craftingContainer.isEmpty() && !(depository.isDisabled(i) || depository.isFilterEnabled() && depository.getFilteredItems().get(i) == Items.AIR))
-                return false;
-        }
-        return true;
     }
 
     private void craft(@NotNull Level level) {
         ItemStack itemStack;
         if (craftingContainer.isEmpty()) return;
-        if (!canCraft()) return;
         Optional<AutoCrafterCache> cacheOptional = cache.stream().filter(recipe -> recipe.test(craftingContainer)).findFirst();
         Optional<CraftingRecipe> optional;
         NonNullList<ItemStack> remaining;
@@ -220,7 +208,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity {
         int i = 0;
         for (int j = 0; j < depository.getSlots(); ++j) {
             ItemStack itemStack = depository.getStack(j);
-            if (itemStack.isEmpty() && !depository.isDisabled(j)) continue;
+            if (itemStack.isEmpty() && !depository.isSlotDisabled(j)) continue;
             ++i;
         }
         return i;
@@ -235,6 +223,11 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity {
     @Override
     public Component getDisplayName() {
         return Component.translatable("block.anvilcraft.auto_crafter");
+    }
+
+    @Override
+    public FilteredItemDepository getFilteredItemDepository() {
+        return this.depository;
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
