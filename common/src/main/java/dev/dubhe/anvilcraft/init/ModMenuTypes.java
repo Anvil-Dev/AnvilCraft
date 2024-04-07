@@ -17,6 +17,7 @@ import net.minecraft.world.MenuProvider;
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 
 public class ModMenuTypes {
+    @SuppressWarnings("DataFlowIssue")
     public static final MenuEntry<AutoCrafterMenu> AUTO_CRAFTER = REGISTRATE
             .menu("auto_crafter", AutoCrafterMenu::new, () -> AutoCrafterScreen::new)
             .register();
