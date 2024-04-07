@@ -33,10 +33,11 @@ public class ItemDepository implements IItemDepository, INamedTagSerializable {
     }
 
     @Override
-    public ItemStack insert(int slot, @NotNull ItemStack stack, boolean simulate, boolean notifyChanges) {
+    public ItemStack insert(int slot, @NotNull ItemStack stack, boolean simulate, boolean notifyChanges, boolean isServer) {
         this.validateSlotIndex(slot);
         if (stack.isEmpty()) return ItemStack.EMPTY;
-        if (!this.isItemValid(slot, stack)) return stack;
+        if (isServer && !this.isItemValid(slot, stack)) return stack;
+        if (!this.canPlaceItem(slot, stack)) return stack;
         ItemStack stackInSlot = this.getStack(slot);
         int limit = this.getSlotLimit(slot);
         if (!stackInSlot.isEmpty() && !ItemStack.isSameItemSameTags(stackInSlot, stack)) return stack;
@@ -165,16 +166,20 @@ public class ItemDepository implements IItemDepository, INamedTagSerializable {
             return getEmptyOrSmallerSlot(stack) == slot;
         }
 
-        private int getEmptyOrSmallerSlot(ItemStack stack) {
+        @Override
+        public boolean canPlaceItem(int slot, ItemStack stack) {
+            return super.isItemValid(slot, stack);
+        }
+
+        protected int getEmptyOrSmallerSlot(ItemStack stack) {
             int slotCount = this.getSlots();
             int slot = -1;
             int countInSlot = Integer.MAX_VALUE;
-            for (int i = 0; i < slotCount; i++) {
+            for (int i = slotCount - 1; i >= 0; i--) {
                 ItemStack stackInSlot = this.getStack(i);
-                if (stackInSlot.isEmpty()) return i;
-                if (!ItemStack.isSameItemSameTags(stackInSlot, stack)) continue;
+                if (!stackInSlot.isEmpty() && !ItemStack.isSameItemSameTags(stackInSlot, stack)) continue;
                 int stackInSlotCount = stackInSlot.getCount();
-                if (stackInSlotCount < countInSlot && stackInSlotCount < this.getSlotLimit(i)) {
+                if (stackInSlotCount <= countInSlot && stackInSlotCount < this.getSlotLimit(i)) {
                     slot = i;
                     countInSlot = stackInSlotCount;
                 }

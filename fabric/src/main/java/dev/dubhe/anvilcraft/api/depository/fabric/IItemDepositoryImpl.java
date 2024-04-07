@@ -47,7 +47,7 @@ public class IItemDepositoryImpl implements IItemDepository {
     }
 
     @Override
-    public ItemStack insert(int slot, @NotNull ItemStack stack, boolean simulate, boolean notifyChanges) {
+    public ItemStack insert(int slot, @NotNull ItemStack stack, boolean simulate, boolean notifyChanges, boolean isServer) {
         if (stack.isEmpty()) return ItemStack.EMPTY;
         ItemStack copied = stack.copy();
         Storage<ItemVariant> handler = this.storage;

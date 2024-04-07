@@ -26,7 +26,8 @@ public interface IItemDepository {
 
     /**
      * 向指定槽位放入物品堆栈
-     * @param slot 槽位
+     *
+     * @param slot  槽位
      * @param stack 要放入的物品堆栈
      */
     void setStack(int slot, ItemStack stack);
@@ -38,9 +39,23 @@ public interface IItemDepository {
      * @param stack         物品堆栈
      * @param simulate      是否模拟插入
      * @param notifyChanges 是否通知更新
+     * @param isServer      是否在服务端调用
      * @return 剩余的物品堆栈
      */
-    ItemStack insert(int slot, ItemStack stack, boolean simulate, boolean notifyChanges);
+    ItemStack insert(int slot, ItemStack stack, boolean simulate, boolean notifyChanges, boolean isServer);
+
+    /**
+     * 向指定槽位中插入物品
+     *
+     * @param slot          槽位
+     * @param stack         物品堆栈
+     * @param simulate      是否模拟插入
+     * @param notifyChanges 是否通知更新
+     * @return 剩余的物品堆栈
+     */
+    default ItemStack insert(int slot, ItemStack stack, boolean simulate, boolean notifyChanges) {
+        return this.insert(slot, stack, simulate, !simulate, true);
+    }
 
 
     /**
@@ -95,6 +110,18 @@ public interface IItemDepository {
      * @return 物品是否可以存放至指定槽位
      */
     boolean isItemValid(int slot, ItemStack stack);
+
+    /**
+     * 判断物品是否可以进入指定槽位
+     * 注：该方法不建议用于客户端侧判定
+     *
+     * @param slot  槽位
+     * @param stack 物品堆栈
+     * @return 物品是否可以进入指定槽位
+     */
+    default boolean canPlaceItem(int slot, ItemStack stack) {
+        return this.isItemValid(slot, stack);
+    }
 
     /**
      * 在物品存储更新后触发

@@ -42,7 +42,7 @@ import java.util.function.Predicate;
 public class AutoCrafterBlockEntity extends BaseMachineBlockEntity {
     private final Deque<AutoCrafterCache> cache = new ArrayDeque<>();
 
-    private final FilteredItemDepository depository = new FilteredItemDepository(9);
+    private final FilteredItemDepository depository = new FilteredItemDepository.Pollable(9);
     private final CraftingContainer craftingContainer = new CraftingContainer() {
         @Override
         public int getWidth() {

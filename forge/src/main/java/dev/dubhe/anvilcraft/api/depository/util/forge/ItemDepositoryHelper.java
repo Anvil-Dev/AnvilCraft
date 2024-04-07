@@ -34,7 +34,7 @@ public class ItemDepositoryHelper {
             }
 
             @Override
-            public ItemStack insert(int slot, ItemStack stack, boolean simulate, boolean notifyChanges) {
+            public ItemStack insert(int slot, ItemStack stack, boolean simulate, boolean notifyChanges, boolean isServer) {
                 return handler.insertItem(slot, stack, simulate);
             }
 

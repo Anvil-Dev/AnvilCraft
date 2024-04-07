@@ -76,21 +76,28 @@ public class FilteredItemDepository extends ItemDepository {
             super(size);
         }
 
+        @Override
+        public boolean isItemValid(int slot, ItemStack stack) {
+            return getEmptyOrSmallerSlot(stack) == slot;
+        }
+
+        @Override
+        public boolean canPlaceItem(int slot, ItemStack stack) {
+            return super.isItemValid(slot, stack);
+        }
+
         private int getEmptyOrSmallerSlot(ItemStack stack) {
             int slotCount = this.getSlots();
             int slot = -1;
             int countInSlot = Integer.MAX_VALUE;
-            for (int i = 0; i < slotCount; i++) {
-                Item filterItem = this.getFilteredItems().get(i);
+            for (int i = slotCount - 1; i >= 0; i--) {
                 ItemStack stackInSlot = this.getStack(i);
-                if (stackInSlot.isEmpty() && (!isFilterEnabled() || filterItem == stack.getItem())) return i;
-                if (!ItemStack.isSameItemSameTags(stackInSlot, stack)) continue;
+                if (!stackInSlot.isEmpty() && !ItemStack.isSameItemSameTags(stackInSlot, stack)) continue;
                 int stackInSlotCount = stackInSlot.getCount();
-                if (stackInSlotCount < countInSlot && stackInSlotCount < this.getSlotLimit(i)) {
+                if (stackInSlotCount <= countInSlot && stackInSlotCount < this.getSlotLimit(i)) {
                     slot = i;
                     countInSlot = stackInSlotCount;
                 }
-
             }
             return slot;
         }

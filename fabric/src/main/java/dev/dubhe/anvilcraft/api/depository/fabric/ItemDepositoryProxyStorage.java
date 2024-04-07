@@ -56,7 +56,7 @@ public class ItemDepositoryProxyStorage implements Storage<ItemVariant> {
     public long simulateInsert(ItemVariant resource, long maxAmount, @Nullable TransactionContext transaction) {
         long left = maxAmount;
         for (int i = 0; i < depository.getSlots(); i++) {
-            left  = depository.extract(i, (int) left, true, false).getCount();
+            left = depository.insert(i, resource.toStack((int) left), true, false).getCount();
             if (left == 0) break;
         }
         return maxAmount - left;
@@ -86,9 +86,11 @@ public class ItemDepositoryProxyStorage implements Storage<ItemVariant> {
 
     private class ItemStorageView implements StorageView<ItemVariant> {
         private final int index;
+
         public ItemStorageView(int index) {
             this.index = index;
         }
+
         @Override
         public long extract(ItemVariant resource, long maxAmount, TransactionContext transaction) {
             StoragePreconditions.notBlankNotNegative(resource, maxAmount);
