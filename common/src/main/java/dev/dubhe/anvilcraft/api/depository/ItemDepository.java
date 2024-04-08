@@ -152,10 +152,6 @@ public class ItemDepository implements IItemDepository, INamedTagSerializable {
         return stack;
     }
 
-    public void setItem(int slot, ItemStack stack) {
-        this.stacks.set(slot, stack);
-    }
-
     public static class Pollable extends ItemDepository {
         public Pollable(int size) {
             super(size);

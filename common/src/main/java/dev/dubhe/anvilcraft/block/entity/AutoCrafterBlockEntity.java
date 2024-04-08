@@ -74,7 +74,9 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
 
         @Override
         public ItemStack removeItem(int slot, int amount) {
-            return depository.extract(slot, amount, false, true);
+            ItemStack stack = depository.extract(slot, amount, false, true);
+            AutoCrafterBlockEntity.this.setChanged();
+            return stack;
         }
 
         @Override
@@ -84,7 +86,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
 
         @Override
         public void setItem(int slot, ItemStack stack) {
-            depository.setItem(slot, stack);
+            depository.setStack(slot, stack);
         }
 
         @Override
@@ -161,9 +163,9 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
             return;
         }
         for (int i = 0; i < 9; i++) {
-            ItemStack stack = craftingContainer.getItem(i);
+            ItemStack stack = this.getDepository().getStack(i);
             stack.shrink(1);
-            craftingContainer.setItem(i, stack);
+            this.getDepository().setStack(i, stack);
         }
         Container container1 = new SimpleContainer(remaining.size());
         for (int i = 0; i < remaining.size(); i++) container1.setItem(i, remaining.get(i));

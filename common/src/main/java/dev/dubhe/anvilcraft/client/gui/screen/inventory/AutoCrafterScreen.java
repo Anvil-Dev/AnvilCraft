@@ -1,14 +1,17 @@
 package dev.dubhe.anvilcraft.client.gui.screen.inventory;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.depository.ItemDepositorySlot;
 import dev.dubhe.anvilcraft.client.gui.component.EnableFilterButton;
 import dev.dubhe.anvilcraft.inventory.AutoCrafterMenu;
 import dev.dubhe.anvilcraft.inventory.IFilterMenu;
+import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
 import lombok.Getter;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import org.jetbrains.annotations.NotNull;
 
@@ -54,5 +57,22 @@ public class AutoCrafterScreen extends BaseMachineScreen<AutoCrafterMenu> implem
     @Override
     public void flush() {
         this.enableFilterButton.flush();
+    }
+
+    @Override
+    protected void slotClicked(@NotNull Slot slot, int slotId, int mouseButton, @NotNull ClickType type) {
+        start:
+        if (type == ClickType.PICKUP) {
+            if (!this.menu.getCarried().isEmpty()) break start;
+            if (!(slot instanceof ItemDepositorySlot)) break start;
+            if (!slot.getItem().isEmpty()) break start;
+            int slot1 = slot.getContainerSlot();
+            if (this.menu.isFilterEnabled()) {
+                if (!this.menu.isSlotDisabled(slot1)) new SlotDisableChangePack(slot1, false).send();
+                break start;
+            }
+            new SlotDisableChangePack(slot1, !this.menu.isSlotDisabled(slot1)).send();
+        }
+        super.slotClicked(slot, slotId, mouseButton, type);
     }
 }

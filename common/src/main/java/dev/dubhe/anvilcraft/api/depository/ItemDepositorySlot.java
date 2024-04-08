@@ -72,4 +72,13 @@ public class ItemDepositorySlot extends Slot {
     public @NotNull ItemStack remove(int amount) {
         return depository.extract(slot, amount, false);
     }
+
+    /**
+     * 判断槽位是否支持过滤
+     *
+     * @return 是否支持过滤
+     */
+    public boolean isFilter() {
+        return this.depository instanceof FilteredItemDepository;
+    }
 }

@@ -15,10 +15,15 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 @SuppressWarnings("resource")
 @Getter
@@ -33,22 +38,22 @@ public class AutoCrafterMenu extends AbstractContainerMenu implements IFilterMen
 
     public AutoCrafterMenu(MenuType<?> menuType, int containerId, Inventory inventory, BlockEntity blockEntity) {
         super(menuType, containerId);
-        checkContainerSize(inventory, 9);
+        AutoCrafterMenu.checkContainerSize(inventory, 9);
 
         this.blockEntity = (AutoCrafterBlockEntity) blockEntity;
         this.level = inventory.player.level();
 
-        addPlayerInventory(inventory);
-        addPlayerHotbar(inventory);
+        this.addPlayerInventory(inventory);
+        this.addPlayerHotbar(inventory);
 
         for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < 3; ++j) {
-                addSlot(new ItemDepositorySlot(this.blockEntity.getDepository(), i * 3 + j, 26 + j * 18, 18 + i * 18));
+                this.addSlot(new ItemDepositorySlot(this.blockEntity.getDepository(), i * 3 + j, 26 + j * 18, 18 + i * 18));
             }
         }
 
-        addSlot(resultSlot = new ReadOnlySlot(new SimpleContainer(1), 0, 8 + 7 * 18, 18 + 2 * 18));
-
+        this.addSlot(resultSlot = new ReadOnlySlot(new SimpleContainer(1), 0, 8 + 7 * 18, 18 + 2 * 18));
+        this.onChanged();
     }
 
     private void addPlayerInventory(Inventory playerInventory) {
@@ -125,5 +130,20 @@ public class AutoCrafterMenu extends AbstractContainerMenu implements IFilterMen
     @Override
     public IFilterBlockEntity getFilterBlockEntity() {
         return this.blockEntity;
+    }
+
+    @Override
+    public void setItem(int slotId, int stateId, @NotNull ItemStack stack) {
+        super.setItem(slotId, stateId, stack);
+        this.onChanged();
+    }
+
+    private void onChanged() {
+        if (!level.isClientSide) return;
+        RecipeManager recipeManager = level.getRecipeManager();
+        Optional<CraftingRecipe> recipe = recipeManager.getRecipeFor(RecipeType.CRAFTING, blockEntity.getCraftingContainer(), level);
+        if (recipe.isEmpty()) return;
+        ItemStack resultItem = recipe.get().getResultItem(level.registryAccess());
+        this.resultSlot.set(resultItem);
     }
 }

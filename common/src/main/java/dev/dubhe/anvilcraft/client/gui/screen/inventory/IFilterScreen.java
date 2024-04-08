@@ -2,9 +2,9 @@ package dev.dubhe.anvilcraft.client.gui.screen.inventory;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.depository.ItemDepositorySlot;
 import dev.dubhe.anvilcraft.client.gui.component.EnableFilterButton;
 import dev.dubhe.anvilcraft.inventory.IFilterMenu;
-import dev.dubhe.anvilcraft.inventory.component.FilterSlot;
 import dev.dubhe.anvilcraft.network.MachineEnableFilterPack;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
@@ -104,14 +104,13 @@ public interface IFilterScreen {
      * @param slot        槽位
      */
     default void renderSlot(GuiGraphics guiGraphics, Slot slot) {
-        if (!(slot instanceof FilterSlot crafterSlot)) {
-            return;
-        }
-        if (this.isSlotDisabled(slot.index)) {
+        if (!(slot instanceof ItemDepositorySlot crafterSlot)) return;
+        if (!crafterSlot.isFilter()) return;
+        if (this.isSlotDisabled(slot.getContainerSlot())) {
             this.renderDisabledSlot(guiGraphics, crafterSlot);
             return;
         }
-        ItemStack filter = this.getFilter(slot.index);
+        ItemStack filter = this.getFilter(slot.getContainerSlot());
         if (!slot.hasItem() && !filter.isEmpty()) {
             this.renderFilterItem(guiGraphics, slot, filter);
         }
@@ -123,7 +122,7 @@ public interface IFilterScreen {
      * @param guiGraphics 画布
      * @param crafterSlot 槽位
      */
-    default void renderDisabledSlot(@NotNull GuiGraphics guiGraphics, @NotNull FilterSlot crafterSlot) {
+    default void renderDisabledSlot(@NotNull GuiGraphics guiGraphics, @NotNull Slot crafterSlot) {
         RenderSystem.enableDepthTest();
         guiGraphics.blit(DISABLED_SLOT, crafterSlot.x, crafterSlot.y, 0, 0, 16, 16, 16, 16);
     }

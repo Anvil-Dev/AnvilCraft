@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.block.entity.AutoCrafterBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
@@ -12,7 +13,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.Container;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -34,6 +34,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -75,7 +76,7 @@ public class AutoCrafterBlock extends BaseEntityBlock {
                 new MachineOutputDirectionPack(entity.getDirection()).send(serverPlayer);
                 new MachineEnableFilterPack(entity.isFilterEnabled()).send(serverPlayer);
                 for (int i = 0; i < entity.getFilteredItems().size(); i++) {
-                    new SlotDisableChangePack(i, entity.isSlotDisabled(i)).send(serverPlayer);
+                    new SlotDisableChangePack(i, entity.getDepository().getDisabled().get(i)).send(serverPlayer);
                     new SlotFilterChangePack(i, entity.getFilter(i)).send(serverPlayer);
                 }
             }
@@ -87,8 +88,12 @@ public class AutoCrafterBlock extends BaseEntityBlock {
     @SuppressWarnings("deprecation")
     public void onRemove(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean movedByPiston) {
         if (state.is(newState.getBlock())) return;
-        if (level.getBlockEntity(pos) instanceof Container container) {
-            Containers.dropContents(level, pos, container);
+        if (level.getBlockEntity(pos) instanceof AutoCrafterBlockEntity entity) {
+            Vec3 vec3 = entity.getBlockPos().getCenter();
+            FilteredItemDepository depository = entity.getDepository();
+            for (int slot = 0; slot < depository.getSlots(); slot++) {
+                Containers.dropItemStack(level, vec3.x, vec3.y, vec3.z, depository.getStack(slot));
+            }
             level.updateNeighbourForOutputSignal(pos, this);
         }
         super.onRemove(state, level, pos, newState, movedByPiston);

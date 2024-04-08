@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.api.depository;
 
 import lombok.Getter;
-import lombok.Setter;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -12,7 +11,6 @@ import org.jetbrains.annotations.NotNull;
 
 @Getter
 public class FilteredItemDepository extends ItemDepository {
-    @Setter
     private boolean filterEnabled = false;
     private final NonNullList<ItemStack> filteredItems;
     private final NonNullList<Boolean> disabled;
@@ -23,10 +21,38 @@ public class FilteredItemDepository extends ItemDepository {
         this.disabled = NonNullList.withSize(size, false);
     }
 
+    /**
+     * 设置是否启用过滤
+     *
+     * @param filterEnabled 是否启用过滤
+     */
+    public void setFilterEnabled(boolean filterEnabled) {
+        this.filteredItems.clear();
+        this.filterEnabled = filterEnabled;
+        if (this.filterEnabled) {
+            for (int i = 0; i < this.getSlots(); i++) {
+                ItemStack stack = this.getStack(i);
+                if (stack.isEmpty()) continue;
+                this.setFilter(i, stack);
+            }
+        }
+    }
+
     @Override
     public boolean isItemValid(int slot, ItemStack stack) {
         if (!this.filterEnabled) return !this.isSlotDisabled(slot);
-        return !this.isSlotDisabled(slot) && this.isEnable(slot, stack);
+        return !this.isSlotDisabled(slot) && this.isFiltered(slot, stack);
+    }
+
+    @Override
+    public boolean canPlaceItem(int slot, ItemStack stack) {
+        return super.isItemValid(slot, stack);
+    }
+
+    @Override
+    public void setStack(int slot, ItemStack stack) {
+        if (filterEnabled) this.setFilter(slot, stack);
+        super.setStack(slot, stack);
     }
 
     /**
@@ -47,6 +73,7 @@ public class FilteredItemDepository extends ItemDepository {
      * @param disable 禁用情况
      */
     public void setSlotDisabled(int slot, boolean disable) {
+        this.filteredItems.set(slot, ItemStack.EMPTY);
         this.disabled.set(slot, disable);
     }
 
@@ -69,8 +96,9 @@ public class FilteredItemDepository extends ItemDepository {
      * @param stack 物品堆栈
      * @return 指定槽位是否允许放入指定物品堆栈
      */
-    public boolean isEnable(int slot, ItemStack stack) {
-        return ItemStack.isSameItem(this.filteredItems.get(slot), stack);
+    public boolean isFiltered(int slot, ItemStack stack) {
+        ItemStack filter = this.filteredItems.get(slot);
+        return filter.isEmpty() || ItemStack.isSameItem(filter, stack);
     }
 
     /**
@@ -80,6 +108,7 @@ public class FilteredItemDepository extends ItemDepository {
      * @param stack 过滤物品堆栈（不检查NBT）
      */
     public void setFilter(int slot, @NotNull ItemStack stack) {
+        if (stack.isEmpty()) return;
         this.setSlotDisabled(slot, false);
         this.filteredItems.set(slot, new ItemStack(stack.getItem(), 1));
     }
@@ -143,12 +172,12 @@ public class FilteredItemDepository extends ItemDepository {
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            return getEmptyOrSmallerSlot(stack) == slot;
+            return getEmptyOrSmallerSlot(stack) == slot && super.isItemValid(slot, stack);
         }
 
         @Override
         public boolean canPlaceItem(int slot, ItemStack stack) {
-            return super.isItemValid(slot, stack);
+            return super.canPlaceItem(slot, stack);
         }
 
         private int getEmptyOrSmallerSlot(ItemStack stack) {

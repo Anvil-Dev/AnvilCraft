@@ -36,7 +36,6 @@ public abstract class BaseMachineBlockEntity extends BlockEntity implements Menu
     }
 
     protected boolean outputItem(@Nullable IItemDepository itemDepository, Direction direction, Level level, @NotNull BlockPos pos, @NotNull Container container, int slot, boolean part, boolean drop, boolean momentum, boolean needEmpty) {
-        return false;
+        return true;
     }
-
 }
