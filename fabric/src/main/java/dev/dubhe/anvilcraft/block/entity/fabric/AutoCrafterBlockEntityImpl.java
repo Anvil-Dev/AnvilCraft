@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity.fabric;
 
-import dev.dubhe.anvilcraft.api.depository.util.fabric.ItemDepositoryHelper;
+import dev.dubhe.anvilcraft.api.depository.fabric.ItemDepositoryHelperImpl;
 import dev.dubhe.anvilcraft.block.entity.AutoCrafterBlockEntity;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.minecraft.core.BlockPos;
@@ -19,6 +19,6 @@ public class AutoCrafterBlockEntityImpl extends AutoCrafterBlockEntity {
     }
 
     public static void onBlockEntityRegister(BlockEntityType<AutoCrafterBlockEntity> type) {
-        ItemStorage.SIDED.registerForBlockEntity((blockEntity, direction) -> ItemDepositoryHelper.toStorage(blockEntity.getDepository()), type);
+        ItemStorage.SIDED.registerForBlockEntity((blockEntity, direction) -> ItemDepositoryHelperImpl.toStorage(blockEntity.getDepository()), type);
     }
 }

@@ -1,19 +1,13 @@
 package dev.dubhe.anvilcraft.api.depository.fabric;
 
 import dev.dubhe.anvilcraft.api.depository.IItemDepository;
-import dev.dubhe.anvilcraft.api.depository.util.fabric.ItemDepositoryHelper;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.base.SingleItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,10 +79,4 @@ public class IItemDepositoryImpl implements IItemDepository {
         return slot < views.size();
     }
 
-    @Nullable
-    public static IItemDepository getItemDepository(@NotNull Level level, BlockPos pos, Direction direction) {
-        Storage<ItemVariant> target = ItemStorage.SIDED.find(level, pos, direction);
-        if (target == null) return null;
-        return ItemDepositoryHelper.toItemDepository(target);
-    }
 }

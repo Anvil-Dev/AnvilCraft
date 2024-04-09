@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.entity;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.api.depository.IItemDepository;
+import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
 import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
@@ -158,7 +159,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
         result.setItem(0, itemStack);
         Direction direction = getDirection();
         BlockPos pos = getBlockPos();
-        IItemDepository itemDepository = IItemDepository.getItemDepository(level, pos.relative(direction), direction.getOpposite());
+        IItemDepository itemDepository = ItemDepositoryHelper.getItemDepository(level, pos.relative(direction), direction.getOpposite());
         if (!outputItem(itemDepository, direction, level, pos, result, 0, false, false, true, false)) {
             return;
         }

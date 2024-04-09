@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity.forge;
 
-import dev.dubhe.anvilcraft.api.depository.util.forge.ItemDepositoryHelper;
+import dev.dubhe.anvilcraft.api.depository.forge.ItemDepositoryHelperImpl;
 import dev.dubhe.anvilcraft.block.entity.AutoCrafterBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -29,7 +29,7 @@ public class AutoCrafterBlockEntityImpl extends AutoCrafterBlockEntity {
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
         if (cap == ForgeCapabilities.ITEM_HANDLER) {
             return ForgeCapabilities.ITEM_HANDLER.orEmpty(cap, LazyOptional.of(() ->
-                    ItemDepositoryHelper.toItemHandler(getDepository())
+                    ItemDepositoryHelperImpl.toItemHandler(getDepository())
             ));
         }
         return super.getCapability(cap, side);

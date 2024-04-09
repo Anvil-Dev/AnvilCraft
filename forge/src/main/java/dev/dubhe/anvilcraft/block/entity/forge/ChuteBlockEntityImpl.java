@@ -1,6 +1,6 @@
 //package dev.dubhe.anvilcraft.block.entity.forge;
 //
-//import dev.dubhe.anvilcraft.api.depository.util.forge.ItemDepositoryHelper;
+//import dev.dubhe.anvilcraft.api.depository.forge.ItemDepositoryHelper;
 //import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
 //import net.minecraft.core.BlockPos;
 //import net.minecraft.core.Direction;

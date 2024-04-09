@@ -1,11 +1,6 @@
 package dev.dubhe.anvilcraft.api.depository;
 
-import dev.architectury.injectables.annotations.ExpectPlatform;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("unused")
 public interface IItemDepository {
@@ -129,17 +124,4 @@ public interface IItemDepository {
     default void onContentsChanged() {
     }
 
-    /**
-     * 从指定位置获取物品存储
-     *
-     * @param level     维度
-     * @param pos       坐标
-     * @param direction 输入方向
-     * @return 物品存储
-     */
-    @ExpectPlatform
-    static @Nullable IItemDepository getItemDepository(Level level, BlockPos pos, Direction direction) {
-        return null;
-        // throw new AssertionError();
-    }
 }
