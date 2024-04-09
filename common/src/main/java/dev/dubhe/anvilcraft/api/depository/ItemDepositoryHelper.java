@@ -28,6 +28,15 @@ public class ItemDepositoryHelper {
         throw new AssertionError();
     }
 
+    /**
+     * 向指定位置导出物品
+     * @param source 物品源
+     * @param maxAmount 导出的最大数量
+     * @param predicate 能够导出的物品
+     * @param level 当前 Level
+     * @param pos 导出目标的位置
+     * @param direction 导出目标的方向
+     */
     public static void exportToTarget(IItemDepository source, int maxAmount, Predicate<ItemStack> predicate, Level level, BlockPos pos, Direction direction) {
         if (level.getBlockState(pos).hasBlockEntity()) {
             IItemDepository target = getItemDepository(level, pos, direction);
@@ -114,6 +123,15 @@ public class ItemDepositoryHelper {
         return stack;
     }
 
+    /**
+     * 从指定位置导入物品
+     * @param target 物品目标
+     * @param maxAmount 导入的最大数量
+     * @param predicate 能够导入的物品
+     * @param level 当前 Level
+     * @param pos 导入物品源的位置
+     * @param direction 导入物品源的方向
+     */
     public static void importToTarget(IItemDepository target, int maxAmount, Predicate<ItemStack> predicate, Level level, BlockPos pos, Direction direction) {
         if (level.getBlockState(pos).hasBlockEntity()) {
             IItemDepository source = getItemDepository(level, pos, direction);
