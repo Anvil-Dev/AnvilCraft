@@ -4,6 +4,7 @@ import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
+import dev.dubhe.anvilcraft.block.ChuteBlock;
 import dev.dubhe.anvilcraft.block.FerriteCoreMagnetBlock;
 import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
 import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
@@ -108,26 +109,26 @@ public class ModBlocks {
                     .save(provider)
             )
             .register();
-//    public static final BlockEntry<? extends Block> CHUTE = REGISTRATE
-//            .block("chute", ChuteBlock::new)
-//            .initialProperties(() -> Blocks.IRON_BLOCK)
-//            .properties(BlockBehaviour.Properties::noOcclusion)
-//            .blockstate((ctx, provider) -> {
-//            })
-//            .simpleItem()
-//            .defaultLoot()
-//            .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.MINEABLE_WITH_AXE)
-//            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModBlocks.CHUTE)
-//                    .pattern("A A")
-//                    .pattern("ABA")
-//                    .pattern(" A ")
-//                    .define('A', Items.IRON_INGOT)
-//                    .define('B', Items.DROPPER)
-//                    .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
-//                    .unlockedBy(AnvilCraftDatagen.hasItem(Items.DROPPER), AnvilCraftDatagen.has(Items.DROPPER))
-//                    .save(provider)
-//            )
-//            .register();
+    public static final BlockEntry<? extends Block> CHUTE = REGISTRATE
+            .block("chute", ChuteBlock::new)
+            .initialProperties(() -> Blocks.IRON_BLOCK)
+            .properties(BlockBehaviour.Properties::noOcclusion)
+            .blockstate((ctx, provider) -> {
+            })
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.MINEABLE_WITH_AXE)
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModBlocks.CHUTE)
+                    .pattern("A A")
+                    .pattern("ABA")
+                    .pattern(" A ")
+                    .define('A', Items.IRON_INGOT)
+                    .define('B', Items.DROPPER)
+                    .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
+                    .unlockedBy(AnvilCraftDatagen.hasItem(Items.DROPPER), AnvilCraftDatagen.has(Items.DROPPER))
+                    .save(provider)
+            )
+            .register();
     public static final BlockEntry<? extends Block> AUTO_CRAFTER = REGISTRATE
             .block("auto_crafter", AutoCrafterBlock::new)
             .initialProperties(() -> Blocks.IRON_BLOCK)

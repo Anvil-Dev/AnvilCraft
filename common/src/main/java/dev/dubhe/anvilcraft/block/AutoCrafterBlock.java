@@ -108,7 +108,7 @@ public class AutoCrafterBlock extends BaseEntityBlock {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull Level pLevel, @NotNull BlockState pState, @NotNull BlockEntityType<T> pBlockEntityType) {
-        if (!pLevel.isClientSide) {
+        if (pLevel.isClientSide) {
             return null;
         }
         return createTickerHelper(
