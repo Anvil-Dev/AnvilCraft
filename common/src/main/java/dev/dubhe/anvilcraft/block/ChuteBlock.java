@@ -132,9 +132,12 @@ public class ChuteBlock extends BaseEntityBlock {
         };
     }
 
+    @SuppressWarnings("DuplicatedCode")
     @Override
     public @Nonnull InteractionResult use(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult hit) {
-        if (level.isClientSide) return InteractionResult.SUCCESS;
+        if (level.isClientSide) {
+            return InteractionResult.SUCCESS;
+        }
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof ChuteBlockEntity entity) {
             if (player instanceof ServerPlayer serverPlayer) {
@@ -147,7 +150,7 @@ public class ChuteBlock extends BaseEntityBlock {
                 }
             }
         }
-        return InteractionResult.CONSUME;
+        return InteractionResult.SUCCESS;
     }
 
     @Override

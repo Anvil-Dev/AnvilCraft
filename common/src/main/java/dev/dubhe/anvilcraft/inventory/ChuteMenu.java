@@ -39,7 +39,7 @@ public class ChuteMenu extends AbstractContainerMenu implements IFilterMenu {
 
         for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < 3; ++j) {
-                this.addSlot(new ItemDepositorySlot(this.blockEntity.getDepository(), i * 3 + j, 26 + j * 18, 18 + i * 18));
+                this.addSlot(new ItemDepositorySlot(this.blockEntity.getDepository(), i * 3 + j, 62 + j * 18, 18 + i * 18));
             }
         }
     }
@@ -115,7 +115,7 @@ public class ChuteMenu extends AbstractContainerMenu implements IFilterMenu {
 
     @Override
     public boolean stillValid(@NotNull Player player) {
-        return stillValid(ContainerLevelAccess.create(level, blockEntity.getBlockPos()), player, ModBlocks.AUTO_CRAFTER.get());
+        return stillValid(ContainerLevelAccess.create(level, blockEntity.getBlockPos()), player, ModBlocks.CHUTE.get());
     }
 
     @Override

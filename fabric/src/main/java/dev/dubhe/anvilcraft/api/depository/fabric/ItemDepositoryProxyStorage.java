@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StoragePreconditions;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
+import net.fabricmc.fabric.api.transfer.v1.transaction.base.SnapshotParticipant;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,7 +29,7 @@ public class ItemDepositoryProxyStorage implements Storage<ItemVariant> {
         if (simulateInsert(resource, maxAmount, transaction) > 0) {
             long left = maxAmount;
             for (int i = 0; i < depository.getSlots(); i++) {
-                left = depository.insert(i, (resource.toStack((int) left)), false, false).getCount();
+                left = depository.insert(i, (resource.toStack((int) left)), false).getCount();
                 if (left == 0) break;
             }
             return maxAmount - left;
@@ -41,7 +42,7 @@ public class ItemDepositoryProxyStorage implements Storage<ItemVariant> {
         if (simulateExtract(resource, maxAmount, transaction) > 0) {
             long left = maxAmount;
             for (int i = 0; i < depository.getSlots(); i++) {
-                ItemStack extracted = depository.extract(i, (int) left, false, false);
+                ItemStack extracted = depository.extract(i, (int) left, false);
                 if (resource.matches(extracted)) {
                     left -= extracted.getCount();
                     if (left == 0) break;
@@ -84,7 +85,7 @@ public class ItemDepositoryProxyStorage implements Storage<ItemVariant> {
         return views.iterator();
     }
 
-    private class ItemStorageView implements StorageView<ItemVariant> {
+    private class ItemStorageView extends SnapshotParticipant<ItemStack> implements StorageView<ItemVariant> {
         private final int index;
 
         public ItemStorageView(int index) {
@@ -121,6 +122,21 @@ public class ItemDepositoryProxyStorage implements Storage<ItemVariant> {
         @Override
         public long getCapacity() {
             return depository.getSlotLimit(index);
+        }
+
+        @Override
+        protected void onFinalCommit() {
+            depository.onContentsChanged();
+        }
+
+        @Override
+        protected ItemStack createSnapshot() {
+            return depository.getStack(index).copy();
+        }
+
+        @Override
+        protected void readSnapshot(ItemStack snapshot) {
+            depository.setStack(index, snapshot);
         }
     }
 

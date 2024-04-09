@@ -1,7 +1,9 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.architectury.injectables.annotations.ExpectPlatform;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
+import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
 import dev.dubhe.anvilcraft.block.ChuteBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
@@ -91,7 +93,16 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
     }
 
     public void tick() {
+        if (cooldown == 0) {
+            // 尝试从上方容器输入
+            ItemDepositoryHelper.importToTarget(depository, 64, stack -> true, getLevel(), getBlockPos().relative(Direction.UP), Direction.UP.getOpposite());
 
+            // 尝试向朝向容器输出
+            ItemDepositoryHelper.exportToTarget(depository, 64, stack -> true, getLevel(), getBlockPos().relative(getDirection()), getDirection().getOpposite());
+            cooldown = AnvilCraft.config.chuteMaxCooldown;
+        } else {
+            cooldown--;
+        }
     }
 
     public int getRedstoneSignal() {

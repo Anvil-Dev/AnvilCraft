@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
@@ -46,14 +47,20 @@ public class ItemDepositoryHelperImpl {
     public static void exportToTarget(IItemDepository source, int maxAmount, Predicate<ItemStack> predicate, Level level, BlockPos pos, Direction direction) {
         Storage<ItemVariant> target = ItemStorage.SIDED.find(level, pos, direction);
         if (target != null) {
-            StorageUtil.move(toStorage(source), target, itemVariant -> predicate.test(itemVariant.toStack()), maxAmount, null);
+            try (Transaction transaction = Transaction.openOuter()) {
+                StorageUtil.move(toStorage(source), target, itemVariant -> predicate.test(itemVariant.toStack()), maxAmount, transaction);
+                transaction.commit();
+            }
         }
     }
 
     public static void importToTarget(IItemDepository target, int maxAmount, Predicate<ItemStack> predicate, Level level, BlockPos pos, Direction direction) {
         Storage<ItemVariant> source = ItemStorage.SIDED.find(level, pos, direction);
         if (source != null) {
-            StorageUtil.move(source, toStorage(target), itemVariant -> predicate.test(itemVariant.toStack()), maxAmount, null);
+            try (Transaction transaction = Transaction.openOuter()) {
+                StorageUtil.move(source, toStorage(target), itemVariant -> predicate.test(itemVariant.toStack()), maxAmount, transaction);
+                transaction.commit();
+            }
         }
     }
 }

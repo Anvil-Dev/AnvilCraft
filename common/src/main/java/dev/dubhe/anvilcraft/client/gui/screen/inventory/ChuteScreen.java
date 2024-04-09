@@ -20,7 +20,7 @@ public class ChuteScreen extends BaseMachineScreen<ChuteMenu> implements IFilter
     private static final ResourceLocation CONTAINER_LOCATION = AnvilCraft.of("textures/gui/container/chute.png");
 
 
-    BiFunction<Integer, Integer, EnableFilterButton> enableFilterButtonSupplier = this.getEnableFilterButtonSupplier(116, 18);
+    BiFunction<Integer, Integer, EnableFilterButton> enableFilterButtonSupplier = this.getEnableFilterButtonSupplier(134, 36);
     @Getter
     private EnableFilterButton enableFilterButton = null;
     private final ChuteMenu menu;
