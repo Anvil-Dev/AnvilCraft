@@ -13,11 +13,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings("UnstableApiUsage")
-public class IItemDepositoryImpl implements IItemDepository {
+public class ItemStorageProxyItemDepository implements IItemDepository {
     private final Storage<ItemVariant> storage;
     private final List<StorageView<ItemVariant>> views;
 
-    public IItemDepositoryImpl(Storage<ItemVariant> storage) {
+    public ItemStorageProxyItemDepository(Storage<ItemVariant> storage) {
         this.storage = storage;
         this.views = new ArrayList<>();
         for (StorageView<ItemVariant> view : this.storage) {

@@ -94,11 +94,18 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
 
     public void tick() {
         if (cooldown == 0) {
-            // 尝试从上方容器输入
-            ItemDepositoryHelper.importToTarget(depository, 64, stack -> true, getLevel(), getBlockPos().relative(Direction.UP), Direction.UP.getOpposite());
+            if (getBlockState().getValue(ChuteBlock.ENABLED)) {
+                if (ItemDepositoryHelper.getItemDepository(getLevel(), getBlockPos().relative(Direction.UP), Direction.UP.getOpposite()) != null) {
+                    // 尝试从上方容器输入
+                    ItemDepositoryHelper.importToTarget(depository, 64, stack -> true, getLevel(), getBlockPos().relative(Direction.UP), Direction.UP.getOpposite());
+                } else {
+                    // TODO: 尝试吸取上方 ItemEntity
 
-            // 尝试向朝向容器输出
-            ItemDepositoryHelper.exportToTarget(depository, 64, stack -> true, getLevel(), getBlockPos().relative(getDirection()), getDirection().getOpposite());
+                }
+
+                // 尝试向朝向容器输出
+                ItemDepositoryHelper.exportToTarget(depository, 64, stack -> true, getLevel(), getBlockPos().relative(getDirection()), getDirection().getOpposite());
+            }
             cooldown = AnvilCraft.config.chuteMaxCooldown;
         } else {
             cooldown--;

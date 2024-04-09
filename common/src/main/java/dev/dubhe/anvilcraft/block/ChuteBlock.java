@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
-import dev.dubhe.anvilcraft.block.entity.AutoCrafterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
@@ -72,12 +71,13 @@ public class ChuteBlock extends BaseEntityBlock {
         return this.defaultBlockState().setValue(FACING, (direction.getAxis() == Direction.Axis.Y ? Direction.DOWN : direction)).setValue(ENABLED, !context.getLevel().hasNeighborSignal(context.getClickedPos()));
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public @Nonnull BlockState rotate(@Nonnull BlockState state, @Nonnull Rotation rotation) {
         return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
 
-
+    @SuppressWarnings("deprecation")
     @Override
     public @Nonnull BlockState mirror(@Nonnull BlockState state, @Nonnull Mirror mirror) {
         return state.rotate(mirror.getRotation(state.getValue(FACING)));
@@ -88,6 +88,7 @@ public class ChuteBlock extends BaseEntityBlock {
         builder.add(FACING, ENABLED);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void neighborChanged(@NotNull BlockState state, @Nonnull Level level, @NotNull BlockPos pos, @NotNull Block neighborBlock, @NotNull BlockPos neighborPos, boolean movedByPiston) {
         if (level.isClientSide) return;
@@ -98,8 +99,9 @@ public class ChuteBlock extends BaseEntityBlock {
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
-    public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+    public void tick(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random) {
         if (!state.getValue(ENABLED) && !level.hasNeighborSignal(pos)) {
             level.setBlock(pos, state.cycle(ENABLED), 2);
         }
@@ -121,6 +123,7 @@ public class ChuteBlock extends BaseEntityBlock {
                 ((level, blockPos, blockState, blockEntity) -> blockEntity.tick()));
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public @Nonnull VoxelShape getShape(@Nonnull BlockState blockState, @Nonnull BlockGetter blockGetter, @Nonnull BlockPos blockPos, @Nonnull CollisionContext collisionContext) {
         return switch (blockState.getValue(FACING)) {
@@ -132,7 +135,7 @@ public class ChuteBlock extends BaseEntityBlock {
         };
     }
 
-    @SuppressWarnings("DuplicatedCode")
+    @SuppressWarnings({"deprecation", "DuplicatedCode"})
     @Override
     public @Nonnull InteractionResult use(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult hit) {
         if (level.isClientSide) {
@@ -153,10 +156,11 @@ public class ChuteBlock extends BaseEntityBlock {
         return InteractionResult.SUCCESS;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onRemove(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean movedByPiston) {
         if (state.is(newState.getBlock())) return;
-        if (level.getBlockEntity(pos) instanceof AutoCrafterBlockEntity entity) {
+        if (level.getBlockEntity(pos) instanceof ChuteBlockEntity entity) {
             Vec3 vec3 = entity.getBlockPos().getCenter();
             FilteredItemDepository depository = entity.getDepository();
             for (int slot = 0; slot < depository.getSlots(); slot++) {
