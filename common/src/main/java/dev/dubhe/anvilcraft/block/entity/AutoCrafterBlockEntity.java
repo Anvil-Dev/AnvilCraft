@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.architectury.injectables.annotations.ExpectPlatform;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.api.depository.IItemDepository;
 import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
@@ -51,6 +52,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
             setChanged();
         }
     };
+    private int cooldown = AnvilCraft.config.autoCrafterCooldown;
     private final CraftingContainer craftingContainer = new CraftingContainer() {
         @Override
         public int getWidth() {
@@ -125,6 +127,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
         }
     };
 
+
     public AutoCrafterBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
@@ -144,10 +147,25 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
         if (state.getValue(AutoCrafterBlock.LIT)) craft(level);
     }
 
+    private boolean canCraft() {
+        if (cooldown > 0) return false;
+        if (!depository.isFilterEnabled()) return true;
+        for (int i = 0; i < depository.getSlots(); i++) {
+            if (depository.getStack(i).isEmpty()) return false;
+            if (!depository.isSlotDisabled(i) && depository.getStack(i).isEmpty()) return false;
+        }
+        return true;
+    }
+
     @SuppressWarnings("UnreachableCode")
     private void craft(@NotNull Level level) {
-        ItemStack result;
         if (craftingContainer.isEmpty()) return;
+        if (cooldown <= 0) {
+            cooldown = AnvilCraft.config.autoCrafterCooldown;
+        }
+        cooldown--;
+        if (!canCraft()) return;
+        ItemStack result;
         Optional<AutoCrafterCache> cacheOptional = cache.stream().filter(recipe -> recipe.test(craftingContainer)).findFirst();
         Optional<CraftingRecipe> optional;
         NonNullList<ItemStack> remaining;
@@ -211,12 +229,14 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
     public void load(@NotNull CompoundTag tag) {
         super.load(tag);
         depository.deserializeNBT(tag.getCompound("Inventory"));
+        cooldown = tag.getInt("Cooldown");
     }
 
     @Override
     protected void saveAdditional(@NotNull CompoundTag tag) {
         super.saveAdditional(tag);
         tag.put("Inventory", this.depository.serializeNBT());
+        tag.putInt("Cooldown", cooldown);
     }
 
     @Override
@@ -296,7 +316,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
         Vec3 center = getBlockPos().relative(getDirection()).getCenter();
         Vector3f step = getDirection().step();
         ItemEntity itemEntity = new ItemEntity(
-                getLevel(), center.x - step.x / 2, center.y - step.y / 2, center.z - step.z / 2,
+                getLevel(), center.x, center.y, center.z,
                 stack,
                 0.25 * step.x, 0.25 * step.y, 0.25 * step.z
         );

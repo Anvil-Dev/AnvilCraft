@@ -31,5 +31,8 @@ public class ConfigScreenLang {
 
         provider.add(OPTION_STRING.formatted(AnvilCraft.MOD_ID, "chuteMaxCooldown"), "Chute Max Cooldown");
         provider.add(OPTION_TOOLTIP_STRING.formatted(AnvilCraft.MOD_ID, "chuteMaxCooldown"), "Maximum distance of chute");
+
+        provider.add(OPTION_STRING.formatted(AnvilCraft.MOD_ID, "autoCrafterCooldown"), "Auto Crafter Cooldown");
+        provider.add(OPTION_TOOLTIP_STRING.formatted(AnvilCraft.MOD_ID, "autoCrafterCooldown"), "Maximum cooldown time of auto crafter (in ticks)");
     }
 }
