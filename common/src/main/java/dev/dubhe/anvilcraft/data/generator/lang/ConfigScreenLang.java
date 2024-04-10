@@ -34,5 +34,11 @@ public class ConfigScreenLang {
 
         provider.add(OPTION_STRING.formatted(AnvilCraft.MOD_ID, "autoCrafterCooldown"), "Auto Crafter Cooldown");
         provider.add(OPTION_TOOLTIP_STRING.formatted(AnvilCraft.MOD_ID, "autoCrafterCooldown"), "Maximum cooldown time of auto crafter (in ticks)");
+
+        provider.add(OPTION_STRING.formatted(AnvilCraft.MOD_ID, "geodeRadius"), "Geode Maximum Search Radius");
+        provider.add(OPTION_TOOLTIP_STRING.formatted(AnvilCraft.MOD_ID, "geodeRadius"), "The maximum search radius of the geode");
+
+        provider.add(OPTION_STRING.formatted(AnvilCraft.MOD_ID, "geodeInterval"), "Geode Search Interval");
+        provider.add(OPTION_TOOLTIP_STRING.formatted(AnvilCraft.MOD_ID, "geodeInterval"), "The search interval of the geode");
     }
 }

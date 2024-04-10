@@ -164,13 +164,19 @@ jar {
     archiveClassifier.set("dev")
 }
 
+tasks.register('dataDelete', Delete){
+    group 'loom'
+    delete forge_project.files('src/generated')
+}
+
 tasks.register('dataCopy', Copy) {
     group 'loom'
     from project.file('src/generated')
     into forge_project.file('src/generated')
 }
 
-dataCopy.dependsOn(runDataCommon)
+dataCopy.dependsOn(dataDelete)
+dataDelete.dependsOn(runDataCommon)
 
 sourcesJar {
     def commonSources = common_project.sourcesJar

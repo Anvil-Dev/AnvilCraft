@@ -29,8 +29,6 @@ public class BulgingAndCrystallizeRecipesLoader {
         bulging(Items.TUBE_CORAL, Items.TUBE_CORAL_BLOCK, provider);
         bulging(ModItems.FLOUR.get(), ModItems.DOUGH.get(), provider);
         bulging(ModItems.BARK.get(), ModItems.PULP.get(), provider);
-        bulging(ModItems.SEED_OF_THE_SEA.get(), ModItems.FRUIT_OF_THE_SEA.get(), provider);
-        crystallize(ModItems.SEED_OF_THE_SEA.get(), ModItems.TEAR_OF_THE_SEA.get(), provider);
         bulging(ModItems.SPONGE_GEMMULE.get(), Items.WET_SPONGE, provider);
     }
 

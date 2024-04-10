@@ -51,13 +51,6 @@ public class AnvilItemRecipesLoader {
                 .unlockedBy(AnvilCraftDatagen.hasItem(Items.ELYTRA), AnvilCraftDatagen.has(Items.ELYTRA))
                 .save(provider);
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
-                .hasBlock(Blocks.SMITHING_TABLE)
-                .hasItemIngredient(ModItems.KERNEL_OF_THE_SEA)
-                .spawnItem(Items.HEART_OF_THE_SEA)
-                .spawnItem(Items.PRISMARINE_SHARD)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.KERNEL_OF_THE_SEA.get()), AnvilCraftDatagen.has(ModItems.KERNEL_OF_THE_SEA))
-                .save(provider);
-        AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .hasBlock(Blocks.SOUL_SOIL)
                 .hasItemIngredient(ModItems.NETHERITE_COIL)
                 .setBlock(Blocks.ANCIENT_DEBRIS)

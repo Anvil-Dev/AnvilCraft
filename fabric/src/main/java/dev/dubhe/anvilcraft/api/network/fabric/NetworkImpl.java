@@ -3,9 +3,11 @@ package dev.dubhe.anvilcraft.api.network.fabric;
 import dev.dubhe.anvilcraft.api.network.Network;
 import dev.dubhe.anvilcraft.api.network.Packet;
 import dev.dubhe.anvilcraft.utils.fabric.ServerHooks;
+import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -19,7 +21,10 @@ import java.util.function.Function;
 public abstract class NetworkImpl<T> extends Network<T> {
     @Override
     public void init(Class<T> type) {
-        ClientPlayNetworking.registerGlobalReceiver(this.getType(), (client, handler, buf, sender) -> this.handler(this.decode(buf)));
+        EnvType envType = FabricLoader.getInstance().getEnvironmentType();
+        if (envType == EnvType.CLIENT) {
+            ClientPlayNetworking.registerGlobalReceiver(this.getType(), (client, handler, buf, sender) -> this.handler(this.decode(buf)));
+        }
         ServerPlayNetworking.registerGlobalReceiver(this.getType(), (server, player, handler, buf, sender) -> this.handler(this.decode(buf), server, player));
     }
 
