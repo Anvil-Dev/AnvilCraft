@@ -16,6 +16,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.StackedContents;
@@ -28,8 +29,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -140,8 +144,9 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
         if (state.getValue(AutoCrafterBlock.LIT)) craft(level);
     }
 
+    @SuppressWarnings("UnreachableCode")
     private void craft(@NotNull Level level) {
-        ItemStack itemStack;
+        ItemStack result;
         if (craftingContainer.isEmpty()) return;
         Optional<AutoCrafterCache> cacheOptional = cache.stream().filter(recipe -> recipe.test(craftingContainer)).findFirst();
         Optional<CraftingRecipe> optional;
@@ -158,28 +163,48 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
             while (this.cache.size() >= 10) this.cache.pop();
         }
         if (optional.isEmpty()) return;
-        itemStack = optional.get().assemble(craftingContainer, level.registryAccess());
-        if (!itemStack.isItemEnabled(level.enabledFeatures())) return;
-        Container result = new SimpleContainer(1);
-        result.setItem(0, itemStack);
-        Direction direction = getDirection();
-        BlockPos pos = getBlockPos();
-        IItemDepository itemDepository = ItemDepositoryHelper.getItemDepository(level, pos.relative(direction), direction.getOpposite());
-        if (!outputItem(itemDepository, direction, level, pos, result, 0, false, false, true, false)) {
+        result = optional.get().assemble(craftingContainer, level.registryAccess());
+        if (!result.isItemEnabled(level.enabledFeatures())) return;
+
+        int times;
+        Optional<ItemStack> minStack = depository.getStacks().stream().filter((s -> !s.isEmpty())).min((s1, s2) -> {
+            int a = s1.getCount();
+            int b = s2.getCount();
+            return Integer.compare(a, b);
+        });
+        if (minStack.isPresent()) {
+            times = minStack.get().getCount();
+        } else {
             return;
         }
-        for (int i = 0; i < 9; i++) {
-            ItemStack stack = this.getDepository().getStack(i);
-            stack.shrink(1);
-            this.getDepository().setStack(i, stack);
+        result.setCount(result.getCount() * times);
+        remaining.forEach(stack -> stack.setCount(stack.getCount() * times));
+        IItemDepository itemDepository = ItemDepositoryHelper.getItemDepository(level, getBlockPos().relative(getDirection()), getDirection().getOpposite());
+        if (itemDepository != null) {
+            // 尝试向容器插入物品
+            ItemStack remained = ItemDepositoryHelper.insertItem(itemDepository, result, true);
+            if (!remained.isEmpty()) return;
+            remained = ItemDepositoryHelper.insertItem(itemDepository, result, false);
+            spawnItemEntity(remained);
+            for (ItemStack stack : remaining) {
+                remained = ItemDepositoryHelper.insertItem(itemDepository, stack, false);
+                spawnItemEntity(remained);
+            }
+        } else {
+            // 尝试向世界喷出物品
+            Vec3 center = getBlockPos().relative(getDirection()).getCenter();
+            AABB aabb = new AABB(center.add(-0.125, -0.125, -0.125), center.add(0.125, 0.125, 0.125));
+            if (!getLevel().noCollision(aabb)) return;
+
+            spawnItemEntity(result);
+            for (ItemStack stack : remaining) {
+                spawnItemEntity(stack);
+            }
         }
-        Container container1 = new SimpleContainer(remaining.size());
-        for (int i = 0; i < remaining.size(); i++) container1.setItem(i, remaining.get(i));
-        for (int i = 0; i < remaining.size(); i++) {
-            if (container1.getItem(i).isEmpty()) continue;
-            outputItem(itemDepository, getDirection(), level, getBlockPos(), container1, i, true, true, true, false);
+        for (int i = 0; i < depository.getSlots(); i++) {
+            depository.extract(i, times, false);
         }
-        level.updateNeighborsAt(pos, ModBlocks.AUTO_CRAFTER.get());
+        level.updateNeighborsAt(getBlockPos(), ModBlocks.AUTO_CRAFTER.get());
     }
 
     @Override
@@ -265,5 +290,16 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
             }
             return true;
         }
+    }
+
+    private void spawnItemEntity(ItemStack stack) {
+        Vec3 center = getBlockPos().relative(getDirection()).getCenter();
+        Vector3f step = getDirection().step();
+        ItemEntity itemEntity = new ItemEntity(
+                getLevel(), center.x - step.x / 2, center.y - step.y / 2, center.z - step.z / 2,
+                stack,
+                0.25 * step.x, 0.25 * step.y, 0.25 * step.z
+        );
+        getLevel().addFreshEntity(itemEntity);
     }
 }

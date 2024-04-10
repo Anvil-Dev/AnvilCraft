@@ -120,7 +120,9 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
                 }
                 if (ItemDepositoryHelper.getItemDepository(getLevel(), getBlockPos().relative(getDirection()), getDirection().getOpposite()) != null) {
                     // 尝试向朝向容器输出
-                    ItemDepositoryHelper.exportToTarget(depository, 64, stack -> true, getLevel(), getBlockPos().relative(getDirection()), getDirection().getOpposite());
+                    if (!depository.isEmpty()) {
+                        ItemDepositoryHelper.exportToTarget(depository, 64, stack -> true, getLevel(), getBlockPos().relative(getDirection()), getDirection().getOpposite());
+                    }
                 } else {
                     Vec3 center = getBlockPos().relative(getDirection()).getCenter();
                     AABB aabb = new AABB(center.add(-0.125, -0.125, -0.125), center.add(0.125, 0.125, 0.125));
@@ -134,7 +136,6 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
                                 break;
                             }
                         }
-
                     }
                 }
             }
