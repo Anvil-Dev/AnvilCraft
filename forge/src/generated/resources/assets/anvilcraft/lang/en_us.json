@@ -89,7 +89,7 @@
   "text.autoconfig.anvilcraft.option.lightningStrikeDepth": "Lightning Strike Depth",
   "text.autoconfig.anvilcraft.option.lightningStrikeDepth.@Tooltip": "Maximum depth a lightning strike can reach",
   "text.autoconfig.anvilcraft.option.magnetAttractsDistance": "Magnet Attracts Distance",
-  "text.autoconfig.anvilcraft.option.magnetAttractsDistance.@Tooltip": "Maximum radius a handheld magnet attracts",
+  "text.autoconfig.anvilcraft.option.magnetAttractsDistance.@Tooltip": "Maximum distance a magnet attracts the anvil",
   "text.autoconfig.anvilcraft.option.magnetItemAttractsRadius": "Magnet Item Attracts Radius",
   "text.autoconfig.anvilcraft.option.magnetItemAttractsRadius.@Tooltip": "Maximum radius a handheld magnet attracts",
   "text.autoconfig.anvilcraft.option.redstoneEmpMaxRadius": "Redstone EMP Max Radius",
