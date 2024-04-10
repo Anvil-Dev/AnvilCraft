@@ -1,47 +1,85 @@
 package dev.dubhe.anvilcraft.inventory;
 
 import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntity;
-import net.minecraft.world.Container;
+import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.Nullable;
 
 public interface IFilterMenu {
-    default boolean filter(int index, ItemStack stack) {
-        ItemStack filter = this.getFilter(index);
-        return filter.isEmpty() || ItemStack.isSameItemSameTags(filter, stack);
+    /**
+     * 获取有过滤的方块实体
+     *
+     * @return 有过滤的方块实体
+     */
+    IFilterBlockEntity getFilterBlockEntity();
+
+    /**
+     * 获取是否开启过滤
+     *
+     * @return 是否开启过滤
+     */
+    default boolean isFilterEnabled() {
+        return this.getFilterBlockEntity().isFilterEnabled();
     }
 
-    @Nullable IFilterBlockEntity getEntity();
-
-    default boolean isRecord() {
-        if (this.getEntity() == null) return false;
-        return this.getEntity().isRecord();
+    /**
+     * 设置是否开启过滤
+     *
+     * @param enable 是否开启过滤
+     */
+    default void setFilterEnabled(boolean enable) {
+        this.getFilterBlockEntity().setFilterEnabled(enable);
     }
 
-    default void setRecord(boolean record) {
-        if (this.getEntity() != null) this.getEntity().safeSetRecord(record);
+    /**
+     * 获取指定槽位是否禁用
+     *
+     * @param slot 槽位
+     */
+    default boolean isSlotDisabled(int slot) {
+        return this.getFilterBlockEntity().isSlotDisabled(slot);
     }
 
-    default ItemStack getFilter(int index) {
-        if (this.getEntity() == null) return ItemStack.EMPTY;
-        return this.getEntity().getFilter().get(index);
+    /**
+     * 获取指定槽位的过滤
+     *
+     * @param slot 槽位
+     */
+    default ItemStack getFilter(int slot) {
+        return this.getFilterBlockEntity().getFilter(slot);
     }
 
-    default void setFilter(int index, ItemStack stack) {
-        if (this.getEntity() != null) this.getEntity().getFilter().set(index, stack);
+    /**
+     * 设置指定槽位是否禁用
+     *
+     * @param slot    槽位
+     * @param disable 是否禁用
+     */
+    default void setSlotDisabled(int slot, boolean disable) {
+        this.getFilterBlockEntity().setSlotDisabled(slot, disable);
     }
 
-    default boolean isSlotDisabled(int index) {
-        if (this.getEntity() == null) return false;
-        return this.getEntity().getDisabled().get(index);
+    /**
+     * 获取过滤物品
+     *
+     * @return 过滤物品
+     */
+    default NonNullList<ItemStack> getFilteredItems() {
+        return this.getFilterBlockEntity().getFilteredItems();
     }
 
-    default void setSlotDisabled(int index, boolean state) {
-        if (this.getEntity() != null) this.getEntity().getDisabled().set(index, state);
+    /**
+     * 设置指定槽位的过滤
+     *
+     * @param slot   槽位
+     * @param filter 过滤
+     */
+    default void setFilter(int slot, ItemStack filter) {
+        this.getFilterBlockEntity().setFilter(slot, filter);
     }
 
-    void slotsChanged(Container container);
-
-    default void update(){}
+    /**
+     * 刷新
+     */
+    default void flush() {
+    }
 }
-

@@ -55,7 +55,7 @@ public class SlotDisableChangePack implements Packet {
         Minecraft client = Minecraft.getInstance();
         client.execute(() -> {
             if (!(client.screen instanceof IFilterScreen screen)) return;
-            screen.changeSlotDisable(this.index, this.state);
+            screen.setSlotDisabled(this.index, this.state);
         });
     }
 }

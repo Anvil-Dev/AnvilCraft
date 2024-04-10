@@ -12,17 +12,18 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
-public class MachineRecordMaterialPack implements Packet {
-    private final boolean recordMaterial;
+public class MachineEnableFilterPack implements Packet {
+    private final boolean filterEnabled;
 
-    public MachineRecordMaterialPack(boolean recordMaterial) {
-        this.recordMaterial = recordMaterial;
+    public MachineEnableFilterPack(boolean filterEnabled) {
+        this.filterEnabled = filterEnabled;
     }
 
-    public MachineRecordMaterialPack(@NotNull FriendlyByteBuf buf) {
+    public MachineEnableFilterPack(@NotNull FriendlyByteBuf buf) {
         this(buf.readBoolean());
     }
 
@@ -33,7 +34,7 @@ public class MachineRecordMaterialPack implements Packet {
 
     @Override
     public void encode(@NotNull FriendlyByteBuf buf) {
-        buf.writeBoolean(this.isRecordMaterial());
+        buf.writeBoolean(this.isFilterEnabled());
     }
 
     @Override
@@ -41,11 +42,13 @@ public class MachineRecordMaterialPack implements Packet {
         server.execute(() -> {
             if (!player.hasContainerOpen()) return;
             if (!(player.containerMenu instanceof IFilterMenu menu)) return;
-            menu.setRecord(this.isRecordMaterial());
-            menu.update();
-            if (!this.isRecordMaterial()) if (menu.getEntity() != null) {
-                for (int i = 0; i < menu.getEntity().getFilter().size(); i++) {
-                    new SlotFilterChangePack(i, menu.getEntity().getFilter().get(i)).send(player);
+            menu.setFilterEnabled(this.isFilterEnabled());
+            menu.flush();
+            if (!this.isFilterEnabled() && menu.getFilterBlockEntity() != null) {
+                for (int i = 0; i < menu.getFilteredItems().size(); i++) {
+                    ItemStack stack = menu.getFilteredItems().get(i);
+                    if (stack.isEmpty()) continue;
+                    new SlotFilterChangePack(i, stack).send(player);
                 }
             }
             this.send(player);
@@ -58,8 +61,8 @@ public class MachineRecordMaterialPack implements Packet {
         Minecraft client = Minecraft.getInstance();
         client.execute(() -> {
             if (!(client.screen instanceof IFilterScreen screen)) return;
-            if (screen.getRecordButton() == null) return;
-            screen.getRecordButton().setRecord(this.isRecordMaterial());
+            screen.flush();
+            screen.setFilterEnabled(this.isFilterEnabled());
         });
     }
 }

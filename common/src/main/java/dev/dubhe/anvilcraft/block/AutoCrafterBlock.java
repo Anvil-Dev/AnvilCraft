@@ -1,9 +1,11 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.block.entity.AutoCrafterBlockEntity;
+import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
+import dev.dubhe.anvilcraft.network.MachineEnableFilterPack;
 import dev.dubhe.anvilcraft.network.MachineOutputDirectionPack;
-import dev.dubhe.anvilcraft.network.MachineRecordMaterialPack;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
 import dev.dubhe.anvilcraft.network.SlotFilterChangePack;
 import net.minecraft.core.BlockPos;
@@ -11,7 +13,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.Container;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -33,6 +34,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -70,12 +72,12 @@ public class AutoCrafterBlock extends BaseEntityBlock {
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof AutoCrafterBlockEntity entity) {
             if (player instanceof ServerPlayer serverPlayer) {
-                ModMenuTypes.open(serverPlayer, entity);
+                ModMenuTypes.open(serverPlayer, entity, pos);
                 new MachineOutputDirectionPack(entity.getDirection()).send(serverPlayer);
-                new MachineRecordMaterialPack(entity.isRecord()).send(serverPlayer);
-                for (int i = 0; i < entity.getDisabled().size(); i++) {
-                    new SlotDisableChangePack(i, entity.getDisabled().get(i)).send(serverPlayer);
-                    new SlotFilterChangePack(i, entity.getFilter().get(i)).send(serverPlayer);
+                new MachineEnableFilterPack(entity.isFilterEnabled()).send(serverPlayer);
+                for (int i = 0; i < entity.getFilteredItems().size(); i++) {
+                    new SlotDisableChangePack(i, entity.getDepository().getDisabled().get(i)).send(serverPlayer);
+                    new SlotFilterChangePack(i, entity.getFilter(i)).send(serverPlayer);
                 }
             }
         }
@@ -86,8 +88,12 @@ public class AutoCrafterBlock extends BaseEntityBlock {
     @SuppressWarnings("deprecation")
     public void onRemove(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean movedByPiston) {
         if (state.is(newState.getBlock())) return;
-        if (level.getBlockEntity(pos) instanceof Container container) {
-            Containers.dropContents(level, pos, container);
+        if (level.getBlockEntity(pos) instanceof AutoCrafterBlockEntity entity) {
+            Vec3 vec3 = entity.getBlockPos().getCenter();
+            FilteredItemDepository depository = entity.getDepository();
+            for (int slot = 0; slot < depository.getSlots(); slot++) {
+                Containers.dropItemStack(level, vec3.x, vec3.y, vec3.z, depository.getStack(slot));
+            }
             level.updateNeighbourForOutputSignal(pos, this);
         }
         super.onRemove(state, level, pos, newState, movedByPiston);
@@ -96,13 +102,18 @@ public class AutoCrafterBlock extends BaseEntityBlock {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
-        return new AutoCrafterBlockEntity(pos, state);
+        return AutoCrafterBlockEntity.createBlockEntity(ModBlockEntities.AUTO_CRAFTER.get(), pos, state);
     }
 
     @Nullable
     @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> blockEntityType) {
-        return (level1, pos, state1, e) -> AutoCrafterBlockEntity.tick(level1, pos, e);
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull Level pLevel, @NotNull BlockState pState, @NotNull BlockEntityType<T> pBlockEntityType) {
+        if (pLevel.isClientSide) {
+            return null;
+        }
+        return createTickerHelper(
+                pBlockEntityType, ModBlockEntities.AUTO_CRAFTER.get(),
+                (level, blockPos, blockState, blockEntity) -> blockEntity.tick(level, blockPos));
     }
 
     @Override

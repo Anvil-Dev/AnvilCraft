@@ -55,7 +55,7 @@ public class SlotFilterChangePack implements Packet {
         Minecraft client = Minecraft.getInstance();
         client.execute(() -> {
             if (!(client.screen instanceof IFilterScreen screen)) return;
-            screen.changeSlotFilter(this.index, this.filter);
+            screen.setFilter(this.index, this.filter);
         });
     }
 }

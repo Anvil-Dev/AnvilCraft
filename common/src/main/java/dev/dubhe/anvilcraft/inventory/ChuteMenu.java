@@ -1,94 +1,125 @@
 package dev.dubhe.anvilcraft.inventory;
 
+
+import dev.dubhe.anvilcraft.api.depository.ItemDepositorySlot;
 import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntity;
-import dev.dubhe.anvilcraft.init.ModMenuTypes;
-import dev.dubhe.anvilcraft.inventory.component.FilterSlot;
+import dev.dubhe.anvilcraft.init.ModBlocks;
 import lombok.Getter;
-import net.minecraft.core.NonNullList;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.Container;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
 @Getter
-public class ChuteMenu extends BaseMachineMenu implements IFilterMenu {
-    public static ChuteMenu clientOf(MenuType<ChuteMenu> type, int containerId, Inventory inventory) {
-        return new Client(type, containerId, inventory);
+public class ChuteMenu extends AbstractContainerMenu implements IFilterMenu {
+
+    public final ChuteBlockEntity blockEntity;
+    private final Level level;
+
+    public ChuteMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, @NotNull FriendlyByteBuf extraData) {
+        this(menuType, containerId, inventory, inventory.player.level().getBlockEntity(extraData.readBlockPos()));
     }
 
-    public static ChuteMenu serverOf(int containerId, @NotNull Inventory inventory, ChuteBlockEntity blockEntity) {
-        return new Server(containerId, inventory, blockEntity);
-    }
+    public ChuteMenu(MenuType<?> menuType, int containerId, Inventory inventory, BlockEntity blockEntity) {
+        super(menuType, containerId);
+        this.blockEntity = (ChuteBlockEntity) blockEntity;
+        this.level = inventory.player.level();
 
-    private final Inventory inventory;
-    public ChuteMenu(int containerId, @NotNull Inventory inventory, Container machine) {
-        this(ModMenuTypes.CHUTE.get(), containerId, inventory, machine);
-    }
-    public ChuteBlockEntity getBlockEntity() {
-        return (ChuteBlockEntity) getMachine();
-    }
+        addPlayerInventory(inventory);
+        addPlayerHotbar(inventory);
 
-    public ChuteMenu(MenuType<ChuteMenu> type, int containerId, @NotNull Inventory inventory, Container machine) {
-        super(type, containerId, machine);
-        this.inventory = inventory;
-        this.machine.startOpen(inventory.player);
-        int i, j;
-        for (i = 0; i < 3; ++i) {
-            for (j = 0; j < 3; ++j) {
-                this.addSlot(new FilterSlot(this.machine, j + i * 3, 62 + j * 18, 18 + i * 18, this));
+        for (int i = 0; i < 3; ++i) {
+            for (int j = 0; j < 3; ++j) {
+                this.addSlot(new ItemDepositorySlot(this.blockEntity.getDepository(), i * 3 + j, 62 + j * 18, 18 + i * 18));
             }
         }
-        for (i = 0; i < 3; ++i) {
-            for (j = 0; j < 9; ++j) {
-                this.addSlot(new Slot(inventory, j + i * 9 + 9, 8 + j * 18, 84 + i * 18));
+    }
+
+    @SuppressWarnings("DuplicatedCode")
+    private void addPlayerInventory(Inventory playerInventory) {
+        for (int i = 0; i < 3; ++i) {
+            for (int l = 0; l < 9; ++l) {
+                this.addSlot(new Slot(playerInventory, l + i * 9 + 9, 8 + l * 18, 84 + i * 18));
             }
         }
-        for (i = 0; i < 9; ++i) {
-            this.addSlot(new Slot(inventory, i, 8 + i * 18, 142));
+    }
+
+    @SuppressWarnings("DuplicatedCode")
+    private void addPlayerHotbar(Inventory playerInventory) {
+        for (int i = 0; i < 9; ++i) {
+            this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 142));
         }
     }
 
-    private static class Server extends ChuteMenu implements IFilterMenuSever {
-        public Server(int containerId, @NotNull Inventory inventory, ChuteBlockEntity blockEntity) {
-            super(containerId, inventory, blockEntity);
+    // CREDIT GOES TO: diesieben07 | https://github.com/diesieben07/SevenCommons
+    // must assign a slot number to each of the slots used by the GUI.
+    // For this container, we can see both the tile inventory's slots as well as the player inventory slots and the hotbar.
+    // Each time we add a Slot to the container, it automatically increases the slotIndex, which means
+    //  0 - 8 = hotbar slots (which will map to the InventoryPlayer slot numbers 0 - 8)
+    //  9 - 35 = player inventory slots (which map to the InventoryPlayer slot numbers 9 - 35)
+    //  36 - 44 = TileInventory slots, which map to our TileEntity slot numbers 0 - 8)
+    private static final int HOTBAR_SLOT_COUNT = 9;
+    private static final int PLAYER_INVENTORY_ROW_COUNT = 3;
+    private static final int PLAYER_INVENTORY_COLUMN_COUNT = 9;
+    private static final int PLAYER_INVENTORY_SLOT_COUNT = PLAYER_INVENTORY_COLUMN_COUNT * PLAYER_INVENTORY_ROW_COUNT;
+    private static final int VANILLA_SLOT_COUNT = HOTBAR_SLOT_COUNT + PLAYER_INVENTORY_SLOT_COUNT;
+    private static final int VANILLA_FIRST_SLOT_INDEX = 0;
+    private static final int TE_INVENTORY_FIRST_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
+
+    // THIS YOU HAVE TO DEFINE!
+    private static final int TE_INVENTORY_SLOT_COUNT = 9;  // must be the number of slots you have!
+
+    @SuppressWarnings("DuplicatedCode")
+    @Override
+    public @NotNull ItemStack quickMoveStack(@NotNull Player playerIn, int pIndex) {
+        Slot sourceSlot = slots.get(pIndex);
+        //noinspection ConstantValue
+        if (sourceSlot == null || !sourceSlot.hasItem()) return ItemStack.EMPTY;  //EMPTY_ITEM
+        ItemStack sourceStack = sourceSlot.getItem();
+        ItemStack copyOfSourceStack = sourceStack.copy();
+
+        // Check if the slot clicked is one of the vanilla container slots
+        if (pIndex < VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT) {
+            // This is a vanilla container slot so merge the stack into the tile inventory
+            if (!moveItemStackTo(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX, TE_INVENTORY_FIRST_SLOT_INDEX
+                    + TE_INVENTORY_SLOT_COUNT, false)) {
+                return ItemStack.EMPTY;  // EMPTY_ITEM
+            }
+        } else if (pIndex < TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT) {
+            // This is a TE slot so merge the stack into the players inventory
+            if (!moveItemStackTo(sourceStack, VANILLA_FIRST_SLOT_INDEX, VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT, false)) {
+                return ItemStack.EMPTY;
+            }
+        } else {
+            System.out.println("Invalid slotIndex:" + pIndex);
+            return ItemStack.EMPTY;
         }
-        @Override
-        public ChuteBlockEntity getBlockEntity() {
-            return super.getBlockEntity();
+        // If stack size == 0 (the entire stack was moved) set slot contents to null
+        if (sourceStack.getCount() == 0) {
+            sourceSlot.set(ItemStack.EMPTY);
+        } else {
+            sourceSlot.setChanged();
         }
-        @Override
-        public AbstractContainerMenu getMenu() {
-            return this;
-        }
-        @Override
-        public ServerPlayer getPlayer() {
-            return (ServerPlayer) getInventory().player;
-        }
-        @Override
-        public void clicked(int slotId, int button, @NotNull ClickType clickType, @NotNull Player player){
-            IFilterMenuSever.super.clicked(slotId, button, clickType, player);
-            super.clicked(slotId, button, clickType, player);
-        }
-        @Override
-        public void setRecord(boolean record){
-            super.setRecord(record);
-            IFilterMenuSever.super.setRecord(record);
-        }
+        sourceSlot.onTake(playerIn, sourceStack);
+        return copyOfSourceStack;
     }
 
-    private static class Client extends ChuteMenu {
-        public Client(MenuType<ChuteMenu> type, int containerId, Inventory inventory) {
-            super(type, containerId, inventory, new AutoCrafterContainer(NonNullList.withSize(9, ItemStack.EMPTY)));
-        }
+    @Override
+    public boolean stillValid(@NotNull Player player) {
+        return stillValid(ContainerLevelAccess.create(level, blockEntity.getBlockPos()), player, ModBlocks.CHUTE.get());
     }
-    public @Nullable IFilterBlockEntity getEntity() {
-        return this.machine instanceof IFilterBlockEntity entity ? entity : null;
+
+    @Override
+    public IFilterBlockEntity getFilterBlockEntity() {
+        return blockEntity;
     }
 }

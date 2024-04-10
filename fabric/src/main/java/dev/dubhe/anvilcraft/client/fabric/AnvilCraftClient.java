@@ -9,6 +9,6 @@ public class AnvilCraftClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.HOLLOW_MAGNET_BLOCK.get(), RenderType.cutout());
-        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.CHUTE.get(), RenderType.cutout());
+//        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.CHUTE.get(), RenderType.cutout());
     }
 }
