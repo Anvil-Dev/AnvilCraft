@@ -20,7 +20,6 @@ import java.util.Map;
 public class SmashRecipesLoader {
 
     public static void init(RegistrateRecipeProvider provider)  {
-        smash(Items.HEART_OF_THE_SEA, ModItems.SEED_OF_THE_SEA.get(), 4, provider);
         smash(Items.WET_SPONGE, ModItems.SPONGE_GEMMULE.get(), 2, provider);
         smash(Items.NETHER_STAR, ModItems.NETHER_STAR_SHARD.get(), 4, provider);
         smash(ModBlocks.HOLLOW_MAGNET_BLOCK.asItem(), ModItems.MAGNET_INGOT.get(), 8, provider);

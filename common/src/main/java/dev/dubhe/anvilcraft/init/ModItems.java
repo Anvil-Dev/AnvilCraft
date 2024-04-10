@@ -296,20 +296,66 @@ public class ModItems {
                     .save(provider)
             )
             .register();
-    public static final ItemEntry<Item> SEED_OF_THE_SEA = REGISTRATE
-            .item("seed_of_the_sea", Item::new)
+    public static final ItemEntry<Item> PRISMARINE_BLADE = REGISTRATE
+            .item("prismarine_blade", Item::new)
             .register();
-    public static final ItemEntry<Item> FRUIT_OF_THE_SEA = REGISTRATE
-            .item("fruit_of_the_sea", Item::new)
+    public static final ItemEntry<Item> PRISMARINE_CLUSTER= REGISTRATE
+            .item("prismarine_cluster", Item::new)
             .register();
-    public static final ItemEntry<Item> KERNEL_OF_THE_SEA = REGISTRATE
-            .item("kernel_of_the_sea", Item::new)
+    public static final ItemEntry<Item> SEA_HEART_SHELL = REGISTRATE
+            .item("sea_heart_shell", Item::new)
             .register();
-    public static final ItemEntry<Item> TEAR_OF_THE_SEA = REGISTRATE
-            .item("tear_of_the_sea", Item::new)
+    public static final ItemEntry<Item> SEA_HEART_SHELL_SHARD = REGISTRATE
+            .item("sea_heart_shell_shard", Item::new)
             .register();
-    public static final ItemEntry<Item> BLADE_OF_THE_SEA = REGISTRATE
-            .item("blade_of_the_sea", Item::new)
+    public static final ItemEntry<Item> RUBY = REGISTRATE
+            .item("ruby", Item::new)
+            .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+                    .requires(ModBlocks.RUBY_BLOCK)
+                    .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.RUBY_BLOCK.asItem()), AnvilCraftDatagen.has(ModBlocks.RUBY_BLOCK.asItem()))
+                    .save(provider)
+            )
+            .register();
+    public static final ItemEntry<Item> SAPPHIRE = REGISTRATE
+            .item("sapphire", Item::new)
+            .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+                    .requires(ModBlocks.SAPPHIRE_BLOCK)
+                    .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.SAPPHIRE_BLOCK.asItem()), AnvilCraftDatagen.has(ModBlocks.SAPPHIRE_BLOCK.asItem()))
+                    .save(provider)
+            )
+            .register();
+    public static final ItemEntry<Item> TOPAZ = REGISTRATE
+            .item("topaz", Item::new)
+            .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+                    .requires(ModBlocks.TOPAZ_BLOCK)
+                    .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.TOPAZ_BLOCK.asItem()), AnvilCraftDatagen.has(ModBlocks.TOPAZ_BLOCK.asItem()))
+                    .save(provider)
+            )
+            .register();
+    public static final ItemEntry<Item> GEODE = REGISTRATE
+            .item("geode", Item::new)
+            .register();
+    public static final ItemEntry<Item> RESIN = REGISTRATE
+            .item("resin", Item::new)
+            .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+                    .requires(ModBlocks.RESIN_BLOCK)
+                    .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.RESIN_BLOCK.asItem()), AnvilCraftDatagen.has(ModBlocks.RESIN_BLOCK.asItem()))
+                    .save(provider)
+            )
+            .register();
+    public static final ItemEntry<Item> HARDEND_RESIN = REGISTRATE
+            .item("hardend_resin", Item::new)
+            .register();
+    public static final ItemEntry<Item> AMBER = REGISTRATE
+            .item("amber", Item::new)
+            .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+                    .requires(ModBlocks.AMBER_BLOCK)
+                    .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.AMBER_BLOCK.asItem()), AnvilCraftDatagen.has(ModBlocks.AMBER_BLOCK.asItem()))
+                    .save(provider)
+            )
+            .register();
+    public static final ItemEntry<Item> CIRCUIT_BOARD = REGISTRATE
+            .item("circuit_board", Item::new)
             .register();
     public static final ItemEntry<Item> BARK = REGISTRATE
             .item("bark", Item::new)

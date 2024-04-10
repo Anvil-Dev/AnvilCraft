@@ -255,7 +255,76 @@ public class ModBlocks {
                     .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CURSED_GOLD_INGOT.get()), AnvilCraftDatagen.has(ModItems.CURSED_GOLD_INGOT))
                     .save(provider))
             .register();
-
+    public static final BlockEntry<? extends Block> RUBY_BLOCK = REGISTRATE
+            .block("ruby_block", Block::new)
+            .initialProperties(() -> Blocks.EMERALD_BLOCK)
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .define('A', ModItems.RUBY)
+                    .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RUBY.get()), AnvilCraftDatagen.has(ModItems.RUBY))
+                    .save(provider))
+            .register();
+    public static final BlockEntry<? extends Block> SAPPHIRE_BLOCK = REGISTRATE
+            .block("sapphire_block", Block::new)
+            .initialProperties(() -> Blocks.EMERALD_BLOCK)
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .define('A', ModItems.SAPPHIRE)
+                    .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.SAPPHIRE.get()), AnvilCraftDatagen.has(ModItems.SAPPHIRE))
+                    .save(provider))
+            .register();
+    public static final BlockEntry<? extends Block> TOPAZ_BLOCK = REGISTRATE
+            .block("topaz_block", Block::new)
+            .initialProperties(() -> Blocks.EMERALD_BLOCK)
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .define('A', ModItems.TOPAZ)
+                    .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.TOPAZ.get()), AnvilCraftDatagen.has(ModItems.TOPAZ))
+                    .save(provider))
+            .register();
+    public static final BlockEntry<? extends Block> RESIN_BLOCK = REGISTRATE
+            .block("resin_block", Block::new)
+            .initialProperties(() -> Blocks.HONEY_BLOCK)
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .define('A', ModItems.RESIN)
+                    .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RESIN.get()), AnvilCraftDatagen.has(ModItems.RESIN))
+                    .save(provider))
+            .register();
+    public static final BlockEntry<? extends Block> AMBER_BLOCK = REGISTRATE
+            .block("amber_block", Block::new)
+            .initialProperties(() -> Blocks.EMERALD_BLOCK)
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .define('A', ModItems.AMBER)
+                    .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.AMBER.get()), AnvilCraftDatagen.has(ModItems.AMBER))
+                    .save(provider))
+            .register();
     public static void register() {
     }
 }
