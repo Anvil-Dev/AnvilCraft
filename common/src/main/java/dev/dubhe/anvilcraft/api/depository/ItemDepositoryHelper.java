@@ -9,6 +9,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nonnull;
 import java.util.function.Predicate;
 
 public class ItemDepositoryHelper {
@@ -37,9 +38,40 @@ public class ItemDepositoryHelper {
      * @param pos 导出目标的位置
      * @param direction 导出目标的方向
      */
+    @SuppressWarnings({"DuplicatedCode", "UnreachableCode"})
     public static void exportToTarget(IItemDepository source, int maxAmount, Predicate<ItemStack> predicate, Level level, BlockPos pos, Direction direction) {
         if (level.getBlockState(pos).hasBlockEntity()) {
             IItemDepository target = getItemDepository(level, pos, direction);
+            for (int srcIndex = 0; srcIndex < source.getSlots(); srcIndex++) {
+                ItemStack sourceStack = source.extract(srcIndex, Integer.MAX_VALUE, true);
+                if (sourceStack.isEmpty() || !predicate.test(sourceStack)) {
+                    continue;
+                }
+                ItemStack remainder = insertItem(target, sourceStack, true);
+                int amountToInsert = sourceStack.getCount() - remainder.getCount();
+                if (amountToInsert > 0) {
+                    sourceStack = source.extract(srcIndex, Math.min(maxAmount, amountToInsert), false);
+                    insertItem(target, sourceStack, false);
+                    maxAmount -= Math.min(maxAmount, amountToInsert);
+                }
+                if (maxAmount <= 0) return;
+            }
+        }
+    }
+
+    /**
+     * 从指定位置导入物品
+     * @param target 物品目标
+     * @param maxAmount 导入的最大数量
+     * @param predicate 能够导入的物品
+     * @param level 当前 Level
+     * @param pos 导入物品源的位置
+     * @param direction 导入物品源的方向
+     */
+    @SuppressWarnings({"DuplicatedCode", "UnreachableCode"})
+    public static void importToTarget(IItemDepository target, int maxAmount, Predicate<ItemStack> predicate, Level level, BlockPos pos, Direction direction) {
+        if (level.getBlockState(pos).hasBlockEntity()) {
+            IItemDepository source = getItemDepository(level, pos, direction);
             for (int srcIndex = 0; srcIndex < source.getSlots(); srcIndex++) {
                 ItemStack sourceStack = source.extract(srcIndex, Integer.MAX_VALUE, true);
                 if (sourceStack.isEmpty() || !predicate.test(sourceStack)) {
@@ -81,7 +113,7 @@ public class ItemDepositoryHelper {
             if (slotStack.isEmpty()) {
                 emptySlots.add(i);
             }
-            if (ItemStack.isSameItem(stack, slotStack)) {
+            if (canItemStacksStackRelaxed(stack, slotStack)) {
                 stack = depository.insert(i, stack, simulate);
                 if (stack.isEmpty()) {
                     return ItemStack.EMPTY;
@@ -123,33 +155,17 @@ public class ItemDepositoryHelper {
         return stack;
     }
 
-    /**
-     * 从指定位置导入物品
-     * @param target 物品目标
-     * @param maxAmount 导入的最大数量
-     * @param predicate 能够导入的物品
-     * @param level 当前 Level
-     * @param pos 导入物品源的位置
-     * @param direction 导入物品源的方向
-     */
-    public static void importToTarget(IItemDepository target, int maxAmount, Predicate<ItemStack> predicate, Level level, BlockPos pos, Direction direction) {
-        if (level.getBlockState(pos).hasBlockEntity()) {
-            IItemDepository source = getItemDepository(level, pos, direction);
-            for (int srcIndex = 0; srcIndex < source.getSlots(); srcIndex++) {
-                ItemStack sourceStack = source.extract(srcIndex, Integer.MAX_VALUE, true);
-                if (sourceStack.isEmpty() || !predicate.test(sourceStack)) {
-                    continue;
-                }
-                ItemStack remainder = insertItem(target, sourceStack, true);
-                int amountToInsert = sourceStack.getCount() - remainder.getCount();
-                if (amountToInsert > 0) {
-                    sourceStack = source.extract(srcIndex, Math.min(maxAmount, amountToInsert), false);
-                    insertItem(target, sourceStack, false);
-                    maxAmount -= Math.min(maxAmount, amountToInsert);
-                }
-                if (maxAmount <= 0) return;
-            }
-        }
+    public static boolean canItemStacksStackRelaxed(@Nonnull ItemStack a, @Nonnull ItemStack b) {
+        if (a.isEmpty() || b.isEmpty() || a.getItem() != b.getItem())
+            return false;
+
+        if (!a.isStackable())
+            return false;
+
+        if (a.hasTag() != b.hasTag())
+            return false;
+
+        return (!a.hasTag() || a.getTag().equals(b.getTag()));
     }
 
     public static ItemStack copyStackWithSize(ItemStack stack, int size) {

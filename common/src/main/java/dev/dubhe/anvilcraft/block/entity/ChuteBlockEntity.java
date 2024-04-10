@@ -13,6 +13,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -21,13 +22,22 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 @Getter
 public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterBlockEntity {
     private int cooldown = 0;
-    private final FilteredItemDepository depository = new FilteredItemDepository(9);
+    private final FilteredItemDepository depository = new FilteredItemDepository(9) {
+        @Override
+        public void onContentsChanged(int slot) {
+            setChanged();
+        }
+    };
 
     public ChuteBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -92,6 +102,7 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
         depository.deserializeNBT(tag.getCompound("Inventory"));
     }
 
+    @SuppressWarnings("UnreachableCode")
     public void tick() {
         if (cooldown == 0) {
             if (getBlockState().getValue(ChuteBlock.ENABLED)) {
@@ -100,11 +111,32 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
                     ItemDepositoryHelper.importToTarget(depository, 64, stack -> true, getLevel(), getBlockPos().relative(Direction.UP), Direction.UP.getOpposite());
                 } else {
                     // TODO: 尝试吸取上方 ItemEntity
-
+                    List<ItemEntity> itemEntities = getLevel().getEntitiesOfClass(ItemEntity.class, new AABB(getBlockPos().relative(Direction.UP)), itemEntity -> !itemEntity.getItem().isEmpty());
+                    for (ItemEntity itemEntity : itemEntities) {
+                        ItemDepositoryHelper.insertItem(depository, itemEntity.getItem(), false);
+                        itemEntity.kill();
+                        break;
+                    }
                 }
+                if (ItemDepositoryHelper.getItemDepository(getLevel(), getBlockPos().relative(getDirection()), getDirection().getOpposite()) != null) {
+                    // 尝试向朝向容器输出
+                    ItemDepositoryHelper.exportToTarget(depository, 64, stack -> true, getLevel(), getBlockPos().relative(getDirection()), getDirection().getOpposite());
+                } else {
+                    Vec3 center = getBlockPos().relative(getDirection()).getCenter();
+                    AABB aabb = new AABB(center.add(-0.125, -0.125, -0.125), center.add(0.125, 0.125, 0.125));
+                    if (getLevel().noCollision(aabb)) {
+                        for (int i = 0; i < depository.getSlots(); i++) {
+                            ItemStack stack = depository.getStack(i);
+                            if (!stack.isEmpty()) {
+                                ItemEntity itemEntity = new ItemEntity(getLevel(), center.x, center.y, center.z, stack, 0, 0, 0);
+                                getLevel().addFreshEntity(itemEntity);
+                                depository.setStack(i, ItemStack.EMPTY);
+                                break;
+                            }
+                        }
 
-                // 尝试向朝向容器输出
-                ItemDepositoryHelper.exportToTarget(depository, 64, stack -> true, getLevel(), getBlockPos().relative(getDirection()), getDirection().getOpposite());
+                    }
+                }
             }
             cooldown = AnvilCraft.config.chuteMaxCooldown;
         } else {

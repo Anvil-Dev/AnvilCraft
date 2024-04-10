@@ -41,7 +41,12 @@ import java.util.function.Predicate;
 @SuppressWarnings("NullableProblems")
 public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IFilterBlockEntity {
     private final Deque<AutoCrafterCache> cache = new ArrayDeque<>();
-    private final FilteredItemDepository depository = new FilteredItemDepository.Pollable(9);
+    private final FilteredItemDepository depository = new FilteredItemDepository.Pollable(9) {
+        @Override
+        public void onContentsChanged(int slot) {
+            setChanged();
+        }
+    };
     private final CraftingContainer craftingContainer = new CraftingContainer() {
         @Override
         public int getWidth() {
