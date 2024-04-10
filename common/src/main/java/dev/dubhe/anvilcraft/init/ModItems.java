@@ -6,10 +6,12 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.recipe.crafting_table.ShapedTagRecipeBuilder;
 import dev.dubhe.anvilcraft.item.CuredItem;
+import dev.dubhe.anvilcraft.item.GeodeItem;
 import dev.dubhe.anvilcraft.item.MagnetItem;
 import dev.dubhe.anvilcraft.item.ModFoods;
 import dev.dubhe.anvilcraft.item.ModTiers;
 import dev.dubhe.anvilcraft.item.RoyalSteelUpgradeSmithingTemplateItem;
+import dev.dubhe.anvilcraft.item.TopazItem;
 import dev.dubhe.anvilcraft.item.UtusanItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -52,6 +54,9 @@ public class ModItems {
                     .save(provider)
             )
             .register();
+    public static final ItemEntry<GeodeItem> GEODE = REGISTRATE
+            .item("geode", GeodeItem::new)
+            .register();
     public static final ItemEntry<? extends PickaxeItem> AMETHYST_PICKAXE = REGISTRATE
             .item("amethyst_pickaxe", properties -> new PickaxeItem(ModTiers.AMETHYST, 1, -2.8f, properties) {
                 @Override
@@ -76,6 +81,7 @@ public class ModItems {
                     .unlockedBy("hasitem", RegistrateRecipeProvider.has(Items.AMETHYST_SHARD))
                     .save(provider)
             )
+            .model((ctx, provider) -> provider.handheld(ctx))
             .tag(ModItemTags.PICKAXES)
             .register();
     public static final ItemEntry<? extends AxeItem> AMETHYST_AXE = REGISTRATE
@@ -88,6 +94,7 @@ public class ModItems {
                     return stack;
                 }
             })
+            .model((ctx, provider) -> provider.handheld(ctx))
             .tag(ModItemTags.AXES)
             .register();
     public static final ItemEntry<? extends HoeItem> AMETHYST_HOE = REGISTRATE
@@ -99,6 +106,7 @@ public class ModItems {
                     return stack;
                 }
             })
+            .model((ctx, provider) -> provider.handheld(ctx))
             .tag(ModItemTags.HOES)
             .register();
     public static final ItemEntry<? extends SwordItem> AMETHYST_SWORD = REGISTRATE
@@ -110,6 +118,7 @@ public class ModItems {
                     return stack;
                 }
             })
+            .model((ctx, provider) -> provider.handheld(ctx))
             .tag(ModItemTags.SWORDS)
             .register();
     public static final ItemEntry<? extends ShovelItem> AMETHYST_SHOVEL = REGISTRATE
@@ -121,6 +130,7 @@ public class ModItems {
                     return stack;
                 }
             })
+            .model((ctx, provider) -> provider.handheld(ctx))
             .tag(ModItemTags.SHOVELS)
             .register();
     public static final ItemEntry<Item> COCOA_LIQUOR = REGISTRATE
@@ -296,21 +306,6 @@ public class ModItems {
                     .save(provider)
             )
             .register();
-    public static final ItemEntry<Item> SEED_OF_THE_SEA = REGISTRATE
-            .item("seed_of_the_sea", Item::new)
-            .register();
-    public static final ItemEntry<Item> FRUIT_OF_THE_SEA = REGISTRATE
-            .item("fruit_of_the_sea", Item::new)
-            .register();
-    public static final ItemEntry<Item> KERNEL_OF_THE_SEA = REGISTRATE
-            .item("kernel_of_the_sea", Item::new)
-            .register();
-    public static final ItemEntry<Item> TEAR_OF_THE_SEA = REGISTRATE
-            .item("tear_of_the_sea", Item::new)
-            .register();
-    public static final ItemEntry<Item> BLADE_OF_THE_SEA = REGISTRATE
-            .item("blade_of_the_sea", Item::new)
-            .register();
     public static final ItemEntry<Item> BARK = REGISTRATE
             .item("bark", Item::new)
             .register();
@@ -353,6 +348,7 @@ public class ModItems {
                     return super.getDefaultInstance();
                 }
             })
+            .model((ctx, provider) -> provider.handheld(ctx))
             .register();
     public static final ItemEntry<RoyalSteelUpgradeSmithingTemplateItem> ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE = REGISTRATE
             .item("royal_steel_upgrade_smithing_template", RoyalSteelUpgradeSmithingTemplateItem::new)
@@ -382,6 +378,15 @@ public class ModItems {
                     .requires(ModItems.CURSED_GOLD_INGOT)
                     .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CURSED_GOLD_INGOT.get()), AnvilCraftDatagen.has(ModItems.CURSED_GOLD_INGOT))
                     .save(provider))
+            .register();
+    public static final ItemEntry<TopazItem> TOPAZ = REGISTRATE
+            .item("topaz", TopazItem::new)
+            .register();
+    public static final ItemEntry<Item> RUBY = REGISTRATE
+            .item("ruby", Item::new)
+            .register();
+    public static final ItemEntry<Item> SAPPHIRE = REGISTRATE
+            .item("sapphire", Item::new)
             .register();
 
     public static void register() {

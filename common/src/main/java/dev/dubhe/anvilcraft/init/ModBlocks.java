@@ -14,6 +14,7 @@ import dev.dubhe.anvilcraft.block.RoyalGrindstone;
 import dev.dubhe.anvilcraft.block.RoyalSmithingTableBlock;
 import dev.dubhe.anvilcraft.block.StampingPlatformBlock;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
+import dev.dubhe.anvilcraft.item.CuredBlockItem;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.tags.BlockTags;
@@ -244,7 +245,8 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> CURSED_GOLD_BLOCK = REGISTRATE
             .block("cursed_gold_block", Block::new)
             .initialProperties(() -> Blocks.GOLD_BLOCK)
-            .simpleItem()
+            .item(CuredBlockItem::new)
+            .build()
             .defaultLoot()
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS)
             .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())

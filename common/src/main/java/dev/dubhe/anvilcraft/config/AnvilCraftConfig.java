@@ -43,4 +43,14 @@ public class AnvilCraftConfig implements ConfigData {
     @ConfigEntry.Gui.Tooltip
     @ConfigEntry.BoundedDiscrete(max = 64, min = 1)
     public int chuteMaxCooldown = 4;
+
+    @Comment("The maximum search radius of the geode")
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(max = 512, min = 64)
+    public int geodeRadius = 64;
+
+    @Comment("The search interval of the geode")
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(max = 8, min = 1)
+    public int geodeInterval = 4;
 }

@@ -26,14 +26,6 @@ public class VanillaRecipesLoader {
                 .define('C', Items.FEATHER)
                 .unlockedBy("hasitem", RegistrateRecipeProvider.has(ModItems.ELYTRA_MEMBRANE))
                 .save(provider);
-        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, Items.TRIDENT)
-                .pattern(" AA")
-                .pattern(" BA")
-                .pattern("B  ")
-                .define('A', ModItems.BLADE_OF_THE_SEA)
-                .define('B', Items.PRISMARINE_SHARD)
-                .unlockedBy("hasitem", RegistrateRecipeProvider.has(ModItems.BLADE_OF_THE_SEA))
-                .save(provider);
         ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, Items.CHIPPED_ANVIL)
                 .pattern("AAB")
                 .pattern(" B ")
