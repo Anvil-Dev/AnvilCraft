@@ -70,9 +70,14 @@ public class ItemStorageProxyItemDepository implements IItemDepository {
         if (stack.isEmpty()) return ItemStack.EMPTY;
         ItemStack copied = stack.copy();
         try (Transaction transaction = Transaction.openOuter()) {
-            int extracted = (int) this.views.get(slot).extract(ItemVariant.of(stack), amount, transaction);
+            int extracted;
+            if (simulate) {
+                extracted = (int) StorageUtil.simulateExtract(this.views.get(slot), ItemVariant.of(stack), amount, transaction);
+            } else {
+                extracted = (int) this.views.get(slot).extract(ItemVariant.of(stack), amount, transaction);
+            }
             copied.setCount(extracted);
-            if (!simulate && extracted > 0) transaction.commit();
+            if (extracted > 0) transaction.commit();
         }
         return copied;
     }

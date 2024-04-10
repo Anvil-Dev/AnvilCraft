@@ -82,12 +82,12 @@ public class ItemDepositoryProxyStorage implements Storage<ItemVariant> {
         public long extract(ItemVariant resource, long maxAmount, TransactionContext transaction) {
             StoragePreconditions.notBlankNotNegative(resource, maxAmount);
             var extracted = depository.extract(index, (int) maxAmount, true, false);
-
-            if (resource.matches(extracted) && extracted.getCount() > 0) {
-                return depository.extract(index, extracted.getCount(), false, false).getCount();
-            }
-
-            return 0;
+            if (!resource.matches(extracted) || extracted.getCount() <= 0) return 0;
+            transaction.addCloseCallback((tx, result) -> {
+                if (result.wasAborted()) return;
+                depository.extract(index, extracted.getCount(), false, false);
+            });
+            return extracted.getCount();
         }
 
         @Override
