@@ -1,56 +1,42 @@
 package dev.dubhe.anvilcraft.client.gui.screen.inventory;
 
+
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.client.gui.component.RecordMaterialButton;
+import dev.dubhe.anvilcraft.api.depository.ItemDepositorySlot;
+import dev.dubhe.anvilcraft.client.gui.component.EnableFilterButton;
 import dev.dubhe.anvilcraft.inventory.ChuteMenu;
+import dev.dubhe.anvilcraft.inventory.IFilterMenu;
+import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
 import lombok.Getter;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.core.Direction;
-import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
 import java.util.function.BiFunction;
 
-@Getter
 public class ChuteScreen extends BaseMachineScreen<ChuteMenu> implements IFilterScreen {
     private static final ResourceLocation CONTAINER_LOCATION = AnvilCraft.of("textures/gui/container/chute.png");
-    private final NonNullList<Boolean> disabled = NonNullList.withSize(9, false);
+
+
+    BiFunction<Integer, Integer, EnableFilterButton> enableFilterButtonSupplier = this.getEnableFilterButtonSupplier(134, 36);
     @Getter
-    private final NonNullList<ItemStack> filter = NonNullList.withSize(9, ItemStack.EMPTY);
-    BiFunction<Integer, Integer, RecordMaterialButton> materialButtonSupplier = this.getMaterialButtonSupplier(134, 18);
-    @Getter
-    private RecordMaterialButton recordButton = null;
+    private EnableFilterButton enableFilterButton = null;
+    private final ChuteMenu menu;
 
     public ChuteScreen(ChuteMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
-        super.setDirectionButtonSupplier(BaseMachineScreen.getDirectionButtonSupplier(134, 36, Direction.UP));
+        this.menu = menu;
     }
 
     @Override
     protected void init() {
         super.init();
-        this.recordButton = materialButtonSupplier.apply(this.leftPos, this.topPos);
-        this.addRenderableWidget(recordButton);
-    }
-
-    @Override
-    public void slotClicked(@NotNull Slot slot, int i, int j, @NotNull ClickType clickType) {
-        //IFilterScreen.super.slotClicked(slot, i, j, clickType);
-        super.slotClicked(slot, i, j, clickType);
-    }
-
-    @Override
-    public void renderSlot(@NotNull GuiGraphics guiGraphics, @NotNull Slot slot) {
-        super.renderSlot(guiGraphics, slot);
-        IFilterScreen.super.renderSlot(guiGraphics, slot);
+        this.enableFilterButton = enableFilterButtonSupplier.apply(this.leftPos, this.topPos);
+        this.addRenderableWidget(this.enableFilterButton);
     }
 
     @Override
@@ -61,28 +47,36 @@ public class ChuteScreen extends BaseMachineScreen<ChuteMenu> implements IFilter
     }
 
     @Override
-    public ItemStack getCarried() {
-        return this.menu.getCarried();
+    public void renderSlot(@NotNull GuiGraphics guiGraphics, @NotNull Slot slot) {
+        super.renderSlot(guiGraphics, slot);
+        IFilterScreen.super.renderSlot(guiGraphics, slot);
     }
 
     @Override
-    public Slot getHoveredSlot() {
-        return this.hoveredSlot;
+    public IFilterMenu getFilterMenu() {
+        return menu;
     }
 
     @Override
-    public Font getFont() {
-        return this.font;
+    public void flush() {
+        this.enableFilterButton.flush();
     }
 
-    @Override
-    public void renderTooltip(@NotNull GuiGraphics guiGraphics, int x, int y) {
-        IFilterScreen.super.renderTooltip(guiGraphics, x, y);
-        super.renderTooltip(guiGraphics, x, y);
-    }
 
     @Override
-    public @NotNull List<Component> getTooltipFromContainerItem(@NotNull ItemStack stack) {
-        return super.getTooltipFromContainerItem(stack);
+    protected void slotClicked(@NotNull Slot slot, int slotId, int mouseButton, @NotNull ClickType type) {
+        start:
+        if (type == ClickType.PICKUP) {
+            if (!this.menu.getCarried().isEmpty()) break start;
+            if (!(slot instanceof ItemDepositorySlot)) break start;
+            if (!slot.getItem().isEmpty()) break start;
+            int slot1 = slot.getContainerSlot();
+            if (this.menu.isFilterEnabled()) {
+                if (!this.menu.isSlotDisabled(slot1)) new SlotDisableChangePack(slot1, false).send();
+                break start;
+            }
+            new SlotDisableChangePack(slot1, !this.menu.isSlotDisabled(slot1)).send();
+        }
+        super.slotClicked(slot, slotId, mouseButton, type);
     }
 }

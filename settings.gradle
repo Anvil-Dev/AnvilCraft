@@ -46,6 +46,7 @@ dependencyResolutionManagement {
         def architecturyLoomVersion = "1.5-SNAPSHOT"
         def mixinextrasVersion = "0.2.0"
         def configurationVersion = "2.2.0"
+        def clothConfigVersion = "11.1.118"
 
         fabric {
             def fabricLoader = version("fabricLoader", fabricLoaderVersion)
@@ -92,6 +93,9 @@ dependencyResolutionManagement {
 
             def configuration = version("configuration", configurationVersion)
             library("configuration", "dev.toma.configuration", "configuration-fabric-1.20.1").versionRef(configuration)
+
+            def clothConfig = version("clothConfig", clothConfigVersion)
+            library("clothConfig", "me.shedaniel.cloth", "cloth-config-fabric").versionRef(clothConfig)
         }
 
         forge {
@@ -132,6 +136,9 @@ dependencyResolutionManagement {
 
             def configuration = version("configuration", configurationVersion)
             library("configuration", "dev.toma.configuration", "configuration-forge-1.20.1").versionRef(configuration)
+
+            def clothConfig = version("clothConfig", clothConfigVersion)
+            library("clothConfig", "me.shedaniel.cloth", "cloth-config-forge").versionRef(clothConfig)
         }
 
         libs {

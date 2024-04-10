@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.inventory;
 
 import dev.dubhe.anvilcraft.block.entity.BaseMachineBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntityOld;
 import lombok.Getter;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -46,7 +46,7 @@ public abstract class BaseMachineMenu extends AbstractContainerMenu {
             return !this.moveItemStackTo(itemStack, this.machine.getContainerSize(), this.machine.getContainerSize() + 36, true);
         }else{
             boolean bl = false;
-            if (this.getMachine() instanceof IFilterBlockEntity entity) {
+            if (this.getMachine() instanceof IFilterBlockEntityOld entity) {
                 for (int i = 0; i < this.machine.getContainerSize(); i++) {
                     ItemStack filter = entity.getFilter().get(i);
                     NonNullList<Boolean> disableds = entity.getDisabled();

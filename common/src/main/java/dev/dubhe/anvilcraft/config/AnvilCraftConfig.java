@@ -1,44 +1,61 @@
 package dev.dubhe.anvilcraft.config;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.toma.configuration.Configuration;
-import dev.toma.configuration.config.Config;
-import dev.toma.configuration.config.Configurable;
-import dev.toma.configuration.config.format.ConfigFormats;
+import me.shedaniel.autoconfig.ConfigData;
+import me.shedaniel.autoconfig.annotation.Config;
+import me.shedaniel.autoconfig.annotation.ConfigEntry;
+import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.Comment;
 
-@Config(id = AnvilCraft.MOD_ID)
-public class AnvilCraftConfig {
 
-    public static AnvilCraftConfig INSTANCE;
+@Config(name = AnvilCraft.MOD_ID)
+public class AnvilCraftConfig implements ConfigData {
 
-    public static void init() {
-        INSTANCE = Configuration.registerConfig(AnvilCraftConfig.class, ConfigFormats.yaml()).getConfigInstance();
-    }
-
-    @Configurable
-    @Configurable.Comment("Maximum number of items processed by the anvil at the same time")
+    @Comment("Maximum number of items processed by the anvil at the same time")
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(max = 64, min = 1)
     public int anvilEfficiency = 64;
 
-    @Configurable
-    @Configurable.Comment("Maximum depth a lightning strike can reach")
+    @Comment("Maximum depth a lightning strike can reach")
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(max = 16, min = 1)
     public int lightningStrikeDepth = 2;
 
-    @Configurable
-    @Configurable.Comment("Maximum distance a magnet attracts")
+    @Comment("Maximum distance a magnet attracts")
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(max = 16, min = 1)
     public int magnetAttractsDistance = 5;
-    @Configurable
-    @Configurable.Comment("Maximum radius a handheld magnet attracts")
+
+    @Comment("Maximum radius a handheld magnet attracts")
+    @ConfigEntry.Gui.Tooltip
     public double magnetItemAttractsRadius = 8;
 
-    @Configurable
-    @Configurable.Comment("Redstone EMP distance generated per block dropped by the anvil")
+    @Comment("Redstone EMP distance generated per block dropped by the anvil")
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(max = 64, min = 1)
     public int redstoneEmpRadius = 6;
 
-    @Configurable
-    @Configurable.Comment("Maximum distance of redstone EMP")
+    @Comment("Maximum distance of redstone EMP")
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(max = 64, min = 1)
     public int redstoneEmpMaxRadius = 24;
 
-    @Configurable
-    @Configurable.Comment("Maximum cooldown time of chute (in ticks)")
+    @Comment("Maximum cooldown time of chute (in ticks)")
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(max = 64, min = 1)
     public int chuteMaxCooldown = 4;
+
+    @Comment("Maximum cooldown time of auto crafter (in ticks)")
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(max = 64, min = 1)
+    public int autoCrafterCooldown = 20;
+
+    @Comment("The maximum search radius of the geode")
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(max = 512, min = 64)
+    public int geodeRadius = 64;
+
+    @Comment("The search interval of the geode")
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(max = 8, min = 1)
+    public int geodeInterval = 4;
 }

@@ -21,13 +21,14 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("resource")
 public class UtusanItem extends Item {
     public UtusanItem(Properties properties) {
         super(properties);
     }
 
     @Override
-    public @NotNull ItemStack finishUsingItem(ItemStack itemStack, Level level, LivingEntity livingEntity) {
+    public @NotNull ItemStack finishUsingItem(@NotNull ItemStack itemStack, @NotNull Level level, @NotNull LivingEntity livingEntity) {
         if (livingEntity instanceof ServerPlayer serverPlayer) {
             CriteriaTriggers.CONSUME_ITEM.trigger(serverPlayer, itemStack);
             serverPlayer.awardStat(Stats.ITEM_USED.get(this));
@@ -51,24 +52,24 @@ public class UtusanItem extends Item {
             bl = true;
         }
         if (!bl) {
-            livingEntity.addEffect(new MobEffectInstance(MobEffects.POISON, 200));
+            livingEntity.addEffect(new MobEffectInstance(MobEffects.POISON, 200, 2));
             return;
         }
         for (MobEffect effect : effects) livingEntity.removeEffect(effect);
     }
 
     @Override
-    public int getUseDuration(ItemStack itemStack) {
-        return 1;
+    public int getUseDuration(@NotNull ItemStack itemStack) {
+        return 10;
     }
 
     @Override
-    public @NotNull UseAnim getUseAnimation(ItemStack itemStack) {
+    public @NotNull UseAnim getUseAnimation(@NotNull ItemStack itemStack) {
         return UseAnim.EAT;
     }
 
     @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand interactionHand) {
+    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand interactionHand) {
         return ItemUtils.startUsingInstantly(level, player, interactionHand);
     }
 }

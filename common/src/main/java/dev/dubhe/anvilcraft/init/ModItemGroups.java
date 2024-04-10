@@ -13,6 +13,7 @@ public class ModItemGroups {
                     .icon(ModItems.MAGNET_INGOT::asStack)
                     .displayItems((ctx, entries) -> {
                         entries.accept(ModItems.MAGNET.get().getDefaultInstance());
+                        entries.accept(ModItems.GEODE.get().getDefaultInstance());
                         entries.accept(ModItems.AMETHYST_PICKAXE.get().getDefaultInstance());
                         entries.accept(ModItems.ROYAL_STEEL_PICKAXE.get().getDefaultInstance());
                         entries.accept(ModItems.CREAM.get().getDefaultInstance());
@@ -32,6 +33,9 @@ public class ModItemGroups {
                         entries.accept(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE.get().getDefaultInstance());
                         entries.accept(ModItems.CURSED_GOLD_INGOT.get().getDefaultInstance());
                         entries.accept(ModItems.CURSED_GOLD_NUGGET.get().getDefaultInstance());
+                        entries.accept(ModItems.TOPAZ.get().getDefaultInstance());
+                        entries.accept(ModItems.RUBY.get().getDefaultInstance());
+                        entries.accept(ModItems.SAPPHIRE.get().getDefaultInstance());
                         entries.accept(ModItems.SPONGE_GEMMULE.get().getDefaultInstance());
                         entries.accept(ModItems.COCOA_LIQUOR.get().getDefaultInstance());
                         entries.accept(ModItems.COCOA_BUTTER.get().getDefaultInstance());

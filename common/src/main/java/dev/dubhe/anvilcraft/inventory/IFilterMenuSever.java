@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.inventory;
 
-import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntityOld;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
 import dev.dubhe.anvilcraft.network.SlotFilterChangePack;
 import net.minecraft.core.NonNullList;
@@ -16,11 +16,15 @@ import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.Objects;
 
-public interface IFilterMenuSever extends IFilterMenu {
-    @Nullable IFilterBlockEntity getBlockEntity();
-    @Nullable AbstractContainerMenu getMenu();
+public interface IFilterMenuSever extends IFilterMenuOld {
+    @Nullable
+    IFilterBlockEntityOld getBlockEntity();
 
-    @Nullable ServerPlayer getPlayer();
+    @Nullable
+    AbstractContainerMenu getMenu();
+
+    @Nullable
+    ServerPlayer getPlayer();
 
     default void clicked(int slotId, int button, @NotNull ClickType clickType, @NotNull Player player0) {
         ServerPlayer player = (ServerPlayer) player0;
@@ -57,7 +61,8 @@ public interface IFilterMenuSever extends IFilterMenu {
             }
         }
     }
-    default void setRecord(boolean record) {
+
+    default void setFilterEnabled(boolean record) {
         if (record) {
             for (int i = 0; i < Objects.requireNonNull(getBlockEntity()).getFilter().size(); i++) {
                 ItemStack slotStack = Objects.requireNonNull(getMenu()).getSlot(i).getItem();
@@ -72,5 +77,5 @@ public interface IFilterMenuSever extends IFilterMenu {
                 }
             }
         }
-}
+    }
 }

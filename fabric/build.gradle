@@ -95,7 +95,7 @@ dependencies {
 
     // Development QOL
     modCompileOnly fabric.lazydfu
-    modCompileOnly fabric.modmenu
+    modImplementation fabric.modmenu
 
     // JEI
     modCompileOnlyApi(fabric.jei.common.api) { transitive = false }
@@ -120,9 +120,9 @@ dependencies {
     // Mixin Extras
     include(implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:${fabric.versions.mixinextras.get()}")))
 
-    // Configuration
-    modImplementation(fabric.configuration)
-    include(fabric.configuration)
+    // cloth config api
+    modImplementation(fabric.clothConfig)
+    include(fabric.clothConfig)
 }
 
 
@@ -164,13 +164,19 @@ jar {
     archiveClassifier.set("dev")
 }
 
+tasks.register('dataDelete', Delete){
+    group 'loom'
+    delete forge_project.files('src/generated')
+}
+
 tasks.register('dataCopy', Copy) {
     group 'loom'
     from project.file('src/generated')
     into forge_project.file('src/generated')
 }
 
-dataCopy.dependsOn(runDataCommon)
+dataCopy.dependsOn(dataDelete)
+dataDelete.dependsOn(runDataCommon)
 
 sourcesJar {
     def commonSources = common_project.sourcesJar
