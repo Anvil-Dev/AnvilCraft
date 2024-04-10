@@ -9,13 +9,12 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.fabricmc.fabric.api.transfer.v1.transaction.base.SnapshotParticipant;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-@SuppressWarnings({"UnstableApiUsage", "removal"})
+@SuppressWarnings({"UnstableApiUsage", "removal", "ClassCanBeRecord"})
 public class ItemDepositoryProxyStorage implements Storage<ItemVariant> {
     public final IItemDepository depository;
 
@@ -23,26 +22,36 @@ public class ItemDepositoryProxyStorage implements Storage<ItemVariant> {
         this.depository = depository;
     }
 
-
     @Override
     public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
-        if (simulateInsert(resource, maxAmount, transaction) > 0) {
-            long left = maxAmount;
-            for (int i = 0; i < depository.getSlots(); i++) {
-                left = depository.insert(i, (resource.toStack((int) left)), false).getCount();
-                if (left == 0) break;
+        long left = maxAmount;
+        for (int i = 0; i < depository.getSlots(); i++) {
+            final long left2 = left;
+            final int j = i;
+            left = depository.insert(i, (resource.toStack((int) left)), true).getCount();
+            if (left != left2) {
+                transaction.addCloseCallback((tx, result) -> {
+                    if (result.wasAborted()) return;
+                    depository.insert(j, (resource.toStack((int) left2)), false).getCount();
+                });
             }
-            return maxAmount - left;
+            if (left == 0) break;
         }
-        return 0;
+        return maxAmount - left;
     }
 
     @Override
     public long extract(ItemVariant resource, long maxAmount, TransactionContext transaction) {
         if (simulateExtract(resource, maxAmount, transaction) > 0) {
             long left = maxAmount;
+            final long left2 = maxAmount;
             for (int i = 0; i < depository.getSlots(); i++) {
-                ItemStack extracted = depository.extract(i, (int) left, false);
+                final int j = i;
+                ItemStack extracted = depository.extract(i, (int) left, true);
+                if (extracted.getCount() != maxAmount) transaction.addCloseCallback((tx, result) -> {
+                    if (result.wasAborted()) return;
+                    depository.extract(j, (int) left2, false);
+                });
                 if (resource.matches(extracted)) {
                     left -= extracted.getCount();
                     if (left == 0) break;
@@ -51,29 +60,6 @@ public class ItemDepositoryProxyStorage implements Storage<ItemVariant> {
             return maxAmount - left;
         }
         return 0;
-    }
-
-    @Override
-    public long simulateInsert(ItemVariant resource, long maxAmount, @Nullable TransactionContext transaction) {
-        long left = maxAmount;
-        for (int i = 0; i < depository.getSlots(); i++) {
-            left = depository.insert(i, resource.toStack((int) left), true, false).getCount();
-            if (left == 0) break;
-        }
-        return maxAmount - left;
-    }
-
-    @Override
-    public long simulateExtract(ItemVariant resource, long maxAmount, @Nullable TransactionContext transaction) {
-        long left = maxAmount;
-        for (int i = 0; i < depository.getSlots(); i++) {
-            ItemStack extracted = depository.extract(i, (int) left, true, false);
-            if (resource.matches(extracted)) {
-                left -= extracted.getCount();
-                if (left == 0) break;
-            }
-        }
-        return maxAmount - left;
     }
 
     @Override
@@ -139,5 +125,4 @@ public class ItemDepositoryProxyStorage implements Storage<ItemVariant> {
             depository.setStack(index, snapshot);
         }
     }
-
 }

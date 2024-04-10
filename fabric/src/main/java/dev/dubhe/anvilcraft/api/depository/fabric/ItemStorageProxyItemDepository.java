@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.api.depository.IItemDepository;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.base.SingleItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.world.item.ItemStack;
@@ -45,12 +46,19 @@ public class ItemStorageProxyItemDepository implements IItemDepository {
         if (stack.isEmpty()) return ItemStack.EMPTY;
         ItemStack copied = stack.copy();
         Storage<ItemVariant> handler = this.storage;
-        if (views.get(slot) instanceof SingleItemStorage itemStorage) handler = itemStorage;
-        else if (slot != 0) return stack;
+        if (views.get(slot) instanceof SingleItemStorage itemStorage) {
+            if (slot != 0) return stack;
+            handler = itemStorage;
+        }
         try (Transaction transaction = Transaction.openOuter()) {
-            int filled = (int) handler.insert(ItemVariant.of(stack), stack.getCount(), transaction);
+            int filled;
+            if (simulate) {
+                filled = (int) StorageUtil.simulateInsert(handler, ItemVariant.of(stack), stack.getCount(), transaction);
+            } else {
+                filled = (int) handler.insert(ItemVariant.of(stack), stack.getCount(), transaction);
+            }
             copied.shrink(filled);
-            if (!simulate && filled > 0) transaction.commit();
+            if (filled > 0) transaction.commit();
         }
         return copied;
     }
