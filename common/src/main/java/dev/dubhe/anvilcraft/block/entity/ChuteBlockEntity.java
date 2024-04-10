@@ -113,6 +113,8 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
                     // TODO: 尝试吸取上方 ItemEntity
                     List<ItemEntity> itemEntities = getLevel().getEntitiesOfClass(ItemEntity.class, new AABB(getBlockPos().relative(Direction.UP)), itemEntity -> !itemEntity.getItem().isEmpty());
                     for (ItemEntity itemEntity : itemEntities) {
+                        ItemStack remaining = ItemDepositoryHelper.insertItem(depository, itemEntity.getItem(), true);
+                        if (!remaining.isEmpty()) continue;
                         ItemDepositoryHelper.insertItem(depository, itemEntity.getItem(), false);
                         itemEntity.kill();
                         break;
