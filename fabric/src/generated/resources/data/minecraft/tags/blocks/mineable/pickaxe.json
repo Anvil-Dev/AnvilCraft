@@ -16,6 +16,11 @@
     "anvilcraft:cut_royal_steel_slab",
     "anvilcraft:cut_royal_steel_stairs",
     "anvilcraft:lava_cauldron",
-    "anvilcraft:cursed_gold_block"
+    "anvilcraft:cursed_gold_block",
+    "anvilcraft:topaz_block",
+    "anvilcraft:ruby_block",
+    "anvilcraft:sapphire_block",
+    "anvilcraft:resin_block",
+    "anvilcraft:amber_block"
   ]
 }
