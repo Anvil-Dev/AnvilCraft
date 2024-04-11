@@ -24,6 +24,7 @@ import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
@@ -312,7 +313,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
         }
     }
 
-    private void spawnItemEntity(ItemStack stack) {
+    private void spawnItemEntity0(ItemStack stack){
         Vec3 center = getBlockPos().relative(getDirection()).getCenter();
         Vector3f step = getDirection().step();
         ItemEntity itemEntity = new ItemEntity(
@@ -321,5 +322,16 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
                 0.25 * step.x, 0.25 * step.y, 0.25 * step.z
         );
         getLevel().addFreshEntity(itemEntity);
+    }
+
+    private void spawnItemEntity(ItemStack stack) {
+        int maxStackSize = stack.getMaxStackSize();
+        int stackSize = stack.getCount();
+        for (;stackSize > maxStackSize; stackSize -= maxStackSize){
+            spawnItemEntity0(stack.copyWithCount(maxStackSize));
+        }
+        if (stackSize != 0){
+            spawnItemEntity0(stack.copyWithCount(stackSize));
+        }
     }
 }
