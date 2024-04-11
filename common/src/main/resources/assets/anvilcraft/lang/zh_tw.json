@@ -96,5 +96,12 @@
     "text.autoconfig.anvilcraft.option.redstoneEmpMaxRadius.@Tooltip": "紅石EMP的最大影響距離",
     "text.autoconfig.anvilcraft.option.redstoneEmpRadius": "紅石 EMP 半徑增量",
     "text.autoconfig.anvilcraft.option.redstoneEmpRadius.@Tooltip": "鐵砧每下落的一個方塊產生的紅石 EMP 影響距離增量",
-    "text.autoconfig.anvilcraft.title": "鐵砧工藝 - 配置"
+    "text.autoconfig.anvilcraft.title": "鐵砧工藝 - 配置",
+    "block.anvilcraft.amber_block": "琥珀方塊",
+    "block.anvilcraft.resin_block": "樹脂方塊",
+    "block.anvilcraft.ruby_block": "紅寶石方塊",
+    "block.anvilcraft.sapphire_block": "藍寶石方塊",
+    "block.anvilcraft.topaz_block": "黃玉方塊",
+    "item.anvilcraft.amber": "琥珀",
+    "item.anvilcraft.resin": "樹脂"
 }
