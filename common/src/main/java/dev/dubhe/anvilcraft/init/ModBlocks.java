@@ -23,6 +23,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.SlimeBlock;
 import net.minecraft.world.level.block.HalfTransparentBlock;
@@ -304,7 +305,11 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> RESIN_BLOCK = REGISTRATE
             .block("resin_block", SlimeBlock::new)
             .initialProperties(() -> Blocks.SLIME_BLOCK)
-            .properties(properties->properties)
+            .blockstate((ctx, provider) -> {
+                provider.simpleBlock(ctx.get());
+                provider.models().cubeAll(ctx.getName(), provider.modLoc( "block/" + ctx.getName())).renderType("translucent");
+            })
+            .properties(properties->properties.sound(SoundType.HONEY_BLOCK))
             .simpleItem()
             .defaultLoot()
             .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -319,6 +324,10 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> AMBER_BLOCK = REGISTRATE
             .block("amber_block", HalfTransparentBlock::new)
             .initialProperties(() -> Blocks.EMERALD_BLOCK)
+            .blockstate((ctx, provider) -> {
+                provider.simpleBlock(ctx.get());
+                provider.models().cubeAll(ctx.getName(), provider.modLoc( "block/" + ctx.getName())).renderType("translucent");
+            })
             .properties(BlockBehaviour.Properties::noOcclusion)
             .simpleItem()
             .defaultLoot()
