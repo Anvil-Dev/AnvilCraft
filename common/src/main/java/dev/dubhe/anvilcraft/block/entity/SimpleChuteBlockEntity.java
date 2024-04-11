@@ -59,22 +59,24 @@ public class SimpleChuteBlockEntity extends BlockEntity {
     @SuppressWarnings({"UnreachableCode", "DuplicatedCode"})
     public void tick() {
         if (cooldown <= 0) {
-            if (ItemDepositoryHelper.getItemDepository(getLevel(), getBlockPos().relative(getDirection()), getDirection().getOpposite()) != null) {
-                // 尝试向朝向容器输出
-                if (!depository.isEmpty()) {
-                    ItemDepositoryHelper.exportToTarget(depository, 64, stack -> true, getLevel(), getBlockPos().relative(getDirection()), getDirection().getOpposite());
-                }
-            } else {
-                Vec3 center = getBlockPos().relative(getDirection()).getCenter();
-                AABB aabb = new AABB(center.add(-0.125, -0.125, -0.125), center.add(0.125, 0.125, 0.125));
-                if (getLevel().noCollision(aabb)) {
-                    for (int i = 0; i < depository.getSlots(); i++) {
-                        ItemStack stack = depository.getStack(i);
-                        if (!stack.isEmpty()) {
-                            ItemEntity itemEntity = new ItemEntity(getLevel(), center.x, center.y, center.z, stack, 0, 0, 0);
-                            getLevel().addFreshEntity(itemEntity);
-                            depository.setStack(i, ItemStack.EMPTY);
-                            break;
+            if (getBlockState().getValue(SimpleChuteBlock.ENABLED)) {
+                if (ItemDepositoryHelper.getItemDepository(getLevel(), getBlockPos().relative(getDirection()), getDirection().getOpposite()) != null) {
+                    // 尝试向朝向容器输出
+                    if (!depository.isEmpty()) {
+                        ItemDepositoryHelper.exportToTarget(depository, 64, stack -> true, getLevel(), getBlockPos().relative(getDirection()), getDirection().getOpposite());
+                    }
+                } else {
+                    Vec3 center = getBlockPos().relative(getDirection()).getCenter();
+                    AABB aabb = new AABB(center.add(-0.125, -0.125, -0.125), center.add(0.125, 0.125, 0.125));
+                    if (getLevel().noCollision(aabb)) {
+                        for (int i = 0; i < depository.getSlots(); i++) {
+                            ItemStack stack = depository.getStack(i);
+                            if (!stack.isEmpty()) {
+                                ItemEntity itemEntity = new ItemEntity(getLevel(), center.x, center.y, center.z, stack, 0, 0, 0);
+                                getLevel().addFreshEntity(itemEntity);
+                                depository.setStack(i, ItemStack.EMPTY);
+                                break;
+                            }
                         }
                     }
                 }

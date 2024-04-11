@@ -19,6 +19,8 @@ import dev.dubhe.anvilcraft.item.CuredBlockItem;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -120,7 +122,9 @@ public class ModBlocks {
             .properties(BlockBehaviour.Properties::noOcclusion)
             .blockstate((ctx, provider) -> {
             })
-            .simpleItem()
+            .item(BlockItem::new)
+            .onRegister(blockItem -> Item.BY_BLOCK.put(ModBlocks.SIMPLE_CHUTE.get(), blockItem))
+            .build()
             .defaultLoot()
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.MINEABLE_WITH_AXE)
             .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModBlocks.CHUTE)
@@ -138,7 +142,8 @@ public class ModBlocks {
             .block("simple_chute", SimpleChuteBlock::new)
             .initialProperties(() -> Blocks.IRON_BLOCK)
             .properties(BlockBehaviour.Properties::noOcclusion)
-            .blockstate((ctx, provider) -> {})
+            .blockstate((ctx, provider) -> {
+            })
             .loot((tables, block) -> tables.dropOther(block, ModBlocks.CHUTE))
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.MINEABLE_WITH_AXE)
             .register();
@@ -316,9 +321,9 @@ public class ModBlocks {
             .initialProperties(() -> Blocks.SLIME_BLOCK)
             .blockstate((ctx, provider) -> {
                 provider.simpleBlock(ctx.get());
-                provider.models().cubeAll(ctx.getName(), provider.modLoc( "block/" + ctx.getName())).renderType("translucent");
+                provider.models().cubeAll(ctx.getName(), provider.modLoc("block/" + ctx.getName())).renderType("translucent");
             })
-            .properties(properties->properties.sound(SoundType.HONEY_BLOCK))
+            .properties(properties -> properties.sound(SoundType.HONEY_BLOCK))
             .simpleItem()
             .defaultLoot()
             .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -335,7 +340,7 @@ public class ModBlocks {
             .initialProperties(() -> Blocks.EMERALD_BLOCK)
             .blockstate((ctx, provider) -> {
                 provider.simpleBlock(ctx.get());
-                provider.models().cubeAll(ctx.getName(), provider.modLoc( "block/" + ctx.getName())).renderType("translucent");
+                provider.models().cubeAll(ctx.getName(), provider.modLoc("block/" + ctx.getName())).renderType("translucent");
             })
             .properties(BlockBehaviour.Properties::noOcclusion)
             .simpleItem()
