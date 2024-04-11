@@ -14,6 +14,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.inventory.ContainerListener;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeManager;
@@ -27,7 +28,7 @@ import java.util.Optional;
 
 @SuppressWarnings("resource")
 @Getter
-public class AutoCrafterMenu extends AbstractContainerMenu implements IFilterMenu {
+public class AutoCrafterMenu extends AbstractContainerMenu implements IFilterMenu, ContainerListener {
     public final AutoCrafterBlockEntity blockEntity;
     private final Slot resultSlot;
     private final Level level;
@@ -54,6 +55,7 @@ public class AutoCrafterMenu extends AbstractContainerMenu implements IFilterMen
 
         this.addSlot(resultSlot = new ReadOnlySlot(new SimpleContainer(1), 0, 8 + 7 * 18, 18 + 2 * 18));
         this.onChanged();
+        this.addSlotListener(this);
     }
 
     private void addPlayerInventory(Inventory playerInventory) {
@@ -139,11 +141,24 @@ public class AutoCrafterMenu extends AbstractContainerMenu implements IFilterMen
     }
 
     private void onChanged() {
-        if (!level.isClientSide) return;
+        //if (!level.isClientSide) return;
         RecipeManager recipeManager = level.getRecipeManager();
         Optional<CraftingRecipe> recipe = recipeManager.getRecipeFor(RecipeType.CRAFTING, blockEntity.getCraftingContainer(), level);
-        if (recipe.isEmpty()) return;
-        ItemStack resultItem = recipe.get().getResultItem(level.registryAccess());
-        this.resultSlot.set(resultItem);
+        if (recipe.isPresent()){
+            ItemStack resultItem = recipe.get().getResultItem(level.registryAccess());
+            this.resultSlot.set(resultItem);
+        }else {
+            this.resultSlot.set(ItemStack.EMPTY);
+        }
+    }
+
+    @Override
+    public void slotChanged(@NotNull AbstractContainerMenu containerToSend, int dataSlotIndex, @NotNull ItemStack stack) {
+        onChanged();
+    }
+
+    @Override
+    public void dataChanged(@NotNull AbstractContainerMenu containerMenu, int dataSlotIndex, int value) {
+
     }
 }
