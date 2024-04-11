@@ -1,0 +1,35 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:topaz_block"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "has_topaz": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "anvilcraft:topaz"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_topaz",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:topaz_block"
+    ]
+  },
+  "sends_telemetry_event": false
+}
