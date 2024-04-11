@@ -23,7 +23,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.block.SlimeBlock;
+import net.minecraft.world.level.block.HalfTransparentBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
@@ -255,6 +258,86 @@ public class ModBlocks {
                     .pattern("AAA")
                     .define('A', ModItems.CURSED_GOLD_INGOT)
                     .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CURSED_GOLD_INGOT.get()), AnvilCraftDatagen.has(ModItems.CURSED_GOLD_INGOT))
+                    .save(provider))
+            .register();
+    public static final BlockEntry<? extends Block> TOPAZ_BLOCK = REGISTRATE
+            .block("topaz_block", Block::new)
+            .initialProperties(() -> Blocks.EMERALD_BLOCK)
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .define('A', ModItems.TOPAZ)
+                    .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.TOPAZ.get()), AnvilCraftDatagen.has(ModItems.TOPAZ))
+                    .save(provider))
+            .register();
+    public static final BlockEntry<? extends Block> RUBY_BLOCK = REGISTRATE
+            .block("ruby_block", Block::new)
+            .initialProperties(() -> Blocks.EMERALD_BLOCK)
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .define('A', ModItems.RUBY)
+                    .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RUBY.get()), AnvilCraftDatagen.has(ModItems.RUBY))
+                    .save(provider))
+            .register();
+    public static final BlockEntry<? extends Block> SAPPHIRE_BLOCK = REGISTRATE
+            .block("sapphire_block", Block::new)
+            .initialProperties(() -> Blocks.EMERALD_BLOCK)
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .define('A', ModItems.SAPPHIRE)
+                    .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.SAPPHIRE.get()), AnvilCraftDatagen.has(ModItems.SAPPHIRE))
+                    .save(provider))
+            .register();
+    public static final BlockEntry<? extends Block> RESIN_BLOCK = REGISTRATE
+            .block("resin_block", SlimeBlock::new)
+            .initialProperties(() -> Blocks.SLIME_BLOCK)
+            .blockstate((ctx, provider) -> {
+                provider.simpleBlock(ctx.get());
+                provider.models().cubeAll(ctx.getName(), provider.modLoc( "block/" + ctx.getName())).renderType("translucent");
+            })
+            .properties(properties->properties.sound(SoundType.HONEY_BLOCK))
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .define('A', ModItems.RESIN)
+                    .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RESIN.get()), AnvilCraftDatagen.has(ModItems.RESIN))
+                    .save(provider))
+            .register();
+    public static final BlockEntry<? extends Block> AMBER_BLOCK = REGISTRATE
+            .block("amber_block", HalfTransparentBlock::new)
+            .initialProperties(() -> Blocks.EMERALD_BLOCK)
+            .blockstate((ctx, provider) -> {
+                provider.simpleBlock(ctx.get());
+                provider.models().cubeAll(ctx.getName(), provider.modLoc( "block/" + ctx.getName())).renderType("translucent");
+            })
+            .properties(BlockBehaviour.Properties::noOcclusion)
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .define('A', ModItems.AMBER)
+                    .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.AMBER.get()), AnvilCraftDatagen.has(ModItems.AMBER))
                     .save(provider))
             .register();
 
