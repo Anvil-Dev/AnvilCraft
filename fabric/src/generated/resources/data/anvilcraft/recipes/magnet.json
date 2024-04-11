@@ -6,10 +6,10 @@
       "item": "minecraft:redstone"
     },
     "B": {
-      "item": "anvilcraft:magnet_ingot"
+      "item": "minecraft:ender_pearl"
     },
     "C": {
-      "item": "minecraft:ender_pearl"
+      "item": "anvilcraft:magnet_ingot"
     }
   },
   "pattern": [
