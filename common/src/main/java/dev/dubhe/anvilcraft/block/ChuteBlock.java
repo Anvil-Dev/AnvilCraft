@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block;
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.network.MachineEnableFilterPack;
 import dev.dubhe.anvilcraft.network.MachineOutputDirectionPack;
@@ -159,16 +160,68 @@ public class ChuteBlock extends BaseEntityBlock {
     @SuppressWarnings("deprecation")
     @Override
     public void onRemove(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean movedByPiston) {
-        if (state.is(newState.getBlock())) return;
-        if (level.getBlockEntity(pos) instanceof ChuteBlockEntity entity) {
-            Vec3 vec3 = entity.getBlockPos().getCenter();
-            FilteredItemDepository depository = entity.getDepository();
-            for (int slot = 0; slot < depository.getSlots(); slot++) {
-                Containers.dropItemStack(level, vec3.x, vec3.y, vec3.z, depository.getStack(slot));
+        if (!state.is(newState.getBlock())) {
+            if (level.getBlockEntity(pos) instanceof ChuteBlockEntity entity) {
+                Vec3 vec3 = entity.getBlockPos().getCenter();
+                FilteredItemDepository depository = entity.getDepository();
+                for (int slot = 0; slot < depository.getSlots(); slot++) {
+                    Containers.dropItemStack(level, vec3.x, vec3.y, vec3.z, depository.getStack(slot));
+                }
+                level.updateNeighbourForOutputSignal(pos, this);
             }
-            level.updateNeighbourForOutputSignal(pos, this);
+        }
+        BlockState facingState = level.getBlockState(pos.relative(state.getValue(FACING)));
+        if (facingState.is(ModBlocks.SIMPLE_CHUTE.get())
+                && !newState.is(ModBlocks.SIMPLE_CHUTE.get())
+                && !hasChuteFacing(level, pos.relative(state.getValue(FACING)))) {
+            BlockState newBlockState = ModBlocks.CHUTE.getDefaultState();
+            newBlockState = newBlockState
+                    .setValue(FACING, state.getValue(SimpleChuteBlock.FACING))
+                    .setValue(ENABLED, state.getValue(SimpleChuteBlock.ENABLED));
+            level.setBlockAndUpdate(pos.relative(state.getValue(FACING)), newBlockState);
+        }
+        BlockState downState = level.getBlockState(pos.relative(Direction.DOWN));
+        if (state.getValue(FACING) == Direction.DOWN
+                && downState.is(ModBlocks.SIMPLE_CHUTE.get())
+                && !newState.is(ModBlocks.SIMPLE_CHUTE.get())) {
+            BlockState newBlockState = ModBlocks.SIMPLE_CHUTE.getDefaultState();
+            newBlockState = newBlockState
+                    .setValue(FACING, downState.getValue(FACING))
+                    .setValue(ENABLED, downState.getValue(ENABLED))
+                    .setValue(SimpleChuteBlock.TALL, false);
+            level.setBlockAndUpdate(pos.relative(Direction.DOWN), newBlockState);
         }
         super.onRemove(state, level, pos, newState, movedByPiston);
+    }
+
+    @Override
+    public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        BlockState facingState = level.getBlockState(pos.relative(state.getValue(FACING)));
+        if (facingState.is(ModBlocks.CHUTE.get()) || facingState.is(ModBlocks.SIMPLE_CHUTE.get())) {
+            BlockState newState = ModBlocks.SIMPLE_CHUTE.getDefaultState();
+            newState = newState
+                    .setValue(SimpleChuteBlock.FACING, facingState.getValue(FACING))
+                    .setValue(SimpleChuteBlock.ENABLED, facingState.getValue(ENABLED));
+            if (state.getValue(FACING) == Direction.DOWN) {
+                newState = newState.setValue(SimpleChuteBlock.TALL, true);
+            } else {
+                newState = newState.setValue(SimpleChuteBlock.TALL, false);
+            }
+            level.setBlockAndUpdate(pos.relative(state.getValue(FACING)), newState);
+        }
+        if (hasChuteFacing(level, pos)) {
+            BlockState newState = ModBlocks.SIMPLE_CHUTE.getDefaultState();
+            newState = newState.setValue(SimpleChuteBlock.FACING, state.getValue(FACING))
+                    .setValue(SimpleChuteBlock.ENABLED, state.getValue(ENABLED));
+            BlockState upState = level.getBlockState(pos.relative(Direction.UP));
+            if (upState.is(ModBlocks.SIMPLE_CHUTE.get()) || upState.is(ModBlocks.CHUTE.get())) {
+                if (upState.getValue(FACING) == Direction.DOWN) {
+                    newState = newState.setValue(SimpleChuteBlock.TALL, true);
+                }
+            }
+            level.setBlockAndUpdate(pos, newState);
+        }
+        super.onPlace(state, level, pos, oldState, movedByPiston);
     }
 
     @Override
@@ -185,5 +238,18 @@ public class ChuteBlock extends BaseEntityBlock {
             return chuteBlockEntity.getRedstoneSignal();
         }
         return 0;
+    }
+
+    public static boolean hasChuteFacing(Level level, BlockPos pos) {
+        for (Direction face : Direction.values()) {
+            if (face == Direction.DOWN) continue;
+            BlockState facingState = level.getBlockState(pos.relative(face));
+            if (facingState.is(ModBlocks.SIMPLE_CHUTE.get()) || facingState.is(ModBlocks.CHUTE.get())) {
+                if (facingState.getValue(FACING) == face.getOpposite()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
