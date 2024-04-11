@@ -112,7 +112,10 @@ public class SimpleChuteBlock extends BaseEntityBlock {
             level.setBlockAndUpdate(pos.relative(state.getValue(FACING)), newBlockState);
         }
         BlockState downState = level.getBlockState(pos.relative(Direction.DOWN));
-        if (state.getValue(FACING) == Direction.DOWN && downState.is(ModBlocks.SIMPLE_CHUTE.get())) {
+        if (state.getValue(FACING) == Direction.DOWN
+                && downState.is(ModBlocks.SIMPLE_CHUTE.get())
+                && !newState.is(ModBlocks.SIMPLE_CHUTE.get())
+                && !newState.is(ModBlocks.CHUTE.get())) {
             BlockState newBlockState = ModBlocks.SIMPLE_CHUTE.getDefaultState();
             newBlockState = newBlockState
                     .setValue(FACING, downState.getValue(FACING))

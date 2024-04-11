@@ -176,8 +176,8 @@ public class ChuteBlock extends BaseEntityBlock {
                 && !hasChuteFacing(level, pos.relative(state.getValue(FACING)))) {
             BlockState newBlockState = ModBlocks.CHUTE.getDefaultState();
             newBlockState = newBlockState
-                    .setValue(FACING, state.getValue(SimpleChuteBlock.FACING))
-                    .setValue(ENABLED, state.getValue(SimpleChuteBlock.ENABLED));
+                    .setValue(FACING, facingState.getValue(SimpleChuteBlock.FACING))
+                    .setValue(ENABLED, facingState.getValue(SimpleChuteBlock.ENABLED));
             level.setBlockAndUpdate(pos.relative(state.getValue(FACING)), newBlockState);
         }
         BlockState downState = level.getBlockState(pos.relative(Direction.DOWN));
@@ -202,7 +202,9 @@ public class ChuteBlock extends BaseEntityBlock {
             newState = newState
                     .setValue(SimpleChuteBlock.FACING, facingState.getValue(FACING))
                     .setValue(SimpleChuteBlock.ENABLED, facingState.getValue(ENABLED));
-            if (state.getValue(FACING) == Direction.DOWN) {
+            BlockState facingUpState = level.getBlockState(pos.relative(state.getValue(FACING)).relative(Direction.UP));
+            if (state.getValue(FACING) == Direction.DOWN
+                    || ((facingUpState.is(ModBlocks.SIMPLE_CHUTE.get()) || facingUpState.is(ModBlocks.CHUTE.get())) && facingUpState.getValue(FACING) == Direction.DOWN)) {
                 newState = newState.setValue(SimpleChuteBlock.TALL, true);
             } else {
                 newState = newState.setValue(SimpleChuteBlock.TALL, false);
