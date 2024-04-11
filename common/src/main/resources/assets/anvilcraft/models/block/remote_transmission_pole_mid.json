@@ -1,0 +1,56 @@
+{
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/block",
+	"textures": {
+		"particle": "anvilcraft:block/remote_transmission_pole_head",
+		"head": "anvilcraft:block/remote_transmission_pole_head"
+	},
+	"elements": [
+		{
+			"from": [6, 0, 6],
+			"to": [10, 16, 10],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [12, 0, 16, 16], "texture": "#head"},
+				"east": {"uv": [12, 0, 16, 16], "texture": "#head"},
+				"south": {"uv": [12, 0, 16, 16], "texture": "#head"},
+				"west": {"uv": [12, 0, 16, 16], "texture": "#head"}
+			}
+		}
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"scale": [0.25, 0.25, 0.25]
+		},
+		"thirdperson_lefthand": {
+			"scale": [0.25, 0.25, 0.25]
+		},
+		"firstperson_righthand": {
+			"scale": [0.25, 0.25, 0.25]
+		},
+		"firstperson_lefthand": {
+			"scale": [0.25, 0.25, 0.25]
+		},
+		"ground": {
+			"rotation": [-90, 0, 0],
+			"scale": [0.25, 0.25, 0.25]
+		},
+		"gui": {
+			"rotation": [30, 45, 0],
+			"translation": [0, 0.25, 0],
+			"scale": [0.3, 0.3, 0.3]
+		},
+		"fixed": {
+			"scale": [0.25, 0.25, 0.25]
+		}
+	},
+	"groups": [
+		0,
+		{
+			"name": "group",
+			"origin": [8, 0, 8],
+			"color": 0,
+			"children": []
+		}
+	]
+}
