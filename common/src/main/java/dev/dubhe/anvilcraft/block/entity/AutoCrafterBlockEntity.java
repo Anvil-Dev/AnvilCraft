@@ -151,8 +151,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
         if (cooldown > 0) return false;
         if (!depository.isFilterEnabled()) return true;
         for (int i = 0; i < depository.getSlots(); i++) {
-            if (depository.getStack(i).isEmpty()) return false;
-            if (!depository.isSlotDisabled(i) && depository.getStack(i).isEmpty()) return false;
+            if (depository.getStack(i).isEmpty() && !depository.getFilter(i).isEmpty()) return false;
         }
         return true;
     }
