@@ -18,7 +18,7 @@ public class ConfigScreenLang {
         provider.add(OPTION_TOOLTIP_STRING.formatted(AnvilCraft.MOD_ID, "lightningStrikeDepth"), "Maximum depth a lightning strike can reach");
 
         provider.add(OPTION_STRING.formatted(AnvilCraft.MOD_ID, "magnetAttractsDistance"), "Magnet Attracts Distance");
-        provider.add(OPTION_TOOLTIP_STRING.formatted(AnvilCraft.MOD_ID, "magnetAttractsDistance"), "Maximum radius a handheld magnet attracts");
+        provider.add(OPTION_TOOLTIP_STRING.formatted(AnvilCraft.MOD_ID, "magnetAttractsDistance"), "Maximum distance a magnet attracts");
 
         provider.add(OPTION_STRING.formatted(AnvilCraft.MOD_ID, "magnetItemAttractsRadius"), "Magnet Item Attracts Radius");
         provider.add(OPTION_TOOLTIP_STRING.formatted(AnvilCraft.MOD_ID, "magnetItemAttractsRadius"), "Maximum radius a handheld magnet attracts");
