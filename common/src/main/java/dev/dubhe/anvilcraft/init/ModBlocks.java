@@ -19,7 +19,13 @@ import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LayeredCauldronBlock;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.block.SlimeBlock;
+import net.minecraft.world.level.block.HalfTransparentBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
