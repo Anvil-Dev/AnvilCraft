@@ -105,7 +105,7 @@
   "text.autoconfig.anvilcraft.option.lightningStrikeDepth": "落雷の深さ",
   "text.autoconfig.anvilcraft.option.lightningStrikeDepth.@Tooltip": "落雷が到達できる最大深度",
   "text.autoconfig.anvilcraft.option.magnetAttractsDistance": "磁石は距離を引き付けます",
-  "text.autoconfig.anvilcraft.option.magnetAttractsDistance.@Tooltip": "磁石がアンビルを引き付ける最大半径",
+  "text.autoconfig.anvilcraft.option.magnetAttractsDistance.@Tooltip": "磁石がアンビルを引き付ける最も遠い距離",
   "text.autoconfig.anvilcraft.option.magnetItemAttractsRadius": "ハンドヘルド磁石吸引半径",
   "text.autoconfig.anvilcraft.option.magnetItemAttractsRadius.@Tooltip": "ドロップを引き付けるためのハンドヘルド磁石の最大直径",
   "text.autoconfig.anvilcraft.option.redstoneEmpMaxRadius": "レッドストーンEMP最大半径",
