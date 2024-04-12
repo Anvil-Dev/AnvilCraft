@@ -40,13 +40,13 @@ public class BeaconMenuMixin {
         if (!item.is(ModItems.CURSED_GOLD_INGOT.get())) return;
         this.access.execute((level, pos) -> {
             if (!(level instanceof ServerLevel serverLevel)) return;
+            if (this.anvilcraft$toCorrupted(level, pos)) {
+                serverLevel.setBlockAndUpdate(pos, ModBlocks.CORRUPTED_BEACON.getDefaultState());
+            }
             MinecraftServer server = serverLevel.getServer();
             GameRules.BooleanValue rule = server.getGameRules().getRule(GameRules.RULE_WEATHER_CYCLE);
             if (!rule.get()) return;
             serverLevel.setWeatherParameters(0, ServerLevel.THUNDER_DURATION.sample(serverLevel.getRandom()), true, true);
-            if (this.anvilcraft$toCorrupted(level, pos)) {
-                level.setBlockAndUpdate(pos, ModBlocks.CORRUPTED_BEACON.getDefaultState());
-            }
         });
     }
 
