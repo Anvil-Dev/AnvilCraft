@@ -40,9 +40,9 @@ public class ModItems {
                     .pattern(" A ")
                     .pattern("BCB")
                     .pattern(" A ")
-                    .define('A', Items.REDSTONE)
+                    .define('A', Items.ENDER_PEARL)
                     .define('B', ModItems.MAGNET_INGOT)
-                    .define('C', Items.ENDER_PEARL)
+                    .define('C', Items.REDSTONE)
                     .unlockedBy("hasitem", RegistrateRecipeProvider.has(ModItems.MAGNET_INGOT))
                     .save(provider)
             )
@@ -214,6 +214,7 @@ public class ModItems {
             .register();
     public static final ItemEntry<Item> BEEF_MUSHROOM_STEW_RAW = REGISTRATE
             .item("beef_mushroom_stew_raw", Item::new)
+            .properties(properties->properties.stacksTo(1))
             .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, ctx.get())
                     .requires(Items.BEEF)
                     .requires(Items.BROWN_MUSHROOM)
@@ -225,6 +226,7 @@ public class ModItems {
             .register();
     public static final ItemEntry<BowlFoodItem> BEEF_MUSHROOM_STEW = REGISTRATE
             .item("beef_mushroom_stew", p -> new BowlFoodItem(p.food(ModFoods.BEEF_MUSHROOM_STEW)))
+            .properties(properties->properties.stacksTo(1))
             .tag(ModItemTags.FOODS)
             .register();
     public static final ItemEntry<Item> UTUSAN_RAW = REGISTRATE
@@ -374,12 +376,43 @@ public class ModItems {
             .register();
     public static final ItemEntry<TopazItem> TOPAZ = REGISTRATE
             .item("topaz", TopazItem::new)
+            .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+                    .requires(ModBlocks.TOPAZ_BLOCK)
+                    .unlockedBy("hasitem", RegistrateRecipeProvider.has(ModBlocks.TOPAZ_BLOCK))
+                    .save(provider)
+            )
             .register();
     public static final ItemEntry<Item> RUBY = REGISTRATE
             .item("ruby", Item::new)
+            .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+                    .requires(ModBlocks.RUBY_BLOCK)
+                    .unlockedBy("hasitem", RegistrateRecipeProvider.has(ModBlocks.RUBY_BLOCK))
+                    .save(provider)
+            )
             .register();
     public static final ItemEntry<Item> SAPPHIRE = REGISTRATE
             .item("sapphire", Item::new)
+            .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+                    .requires(ModBlocks.SAPPHIRE_BLOCK)
+                    .unlockedBy("hasitem", RegistrateRecipeProvider.has(ModBlocks.SAPPHIRE_BLOCK))
+                    .save(provider)
+            )
+            .register();
+    public static final ItemEntry<Item> RESIN = REGISTRATE
+            .item("resin", Item::new)
+            .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+                    .requires(ModBlocks.RESIN_BLOCK)
+                    .unlockedBy("hasitem", RegistrateRecipeProvider.has(ModBlocks.RESIN_BLOCK))
+                    .save(provider)
+            )
+            .register();
+    public static final ItemEntry<Item> AMBER = REGISTRATE
+            .item("amber", Item::new)
+            .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+                    .requires(ModBlocks.AMBER_BLOCK)
+                    .unlockedBy("hasitem", RegistrateRecipeProvider.has(ModBlocks.AMBER_BLOCK))
+                    .save(provider)
+            )
             .register();
     public static final ItemEntry<AnvilHammer> ANVIL_HAMMER = REGISTRATE
             .item("anvil_hammer", properties -> new AnvilHammer(properties.durability(35)))

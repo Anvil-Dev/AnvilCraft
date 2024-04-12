@@ -80,7 +80,7 @@ public class ServerEventListener {
         if (result.is(Items.PRISMARINE)) return null;
         ResourceLocation location = AnvilCraft.of("compress/" + id.getPath());
         if (oldRecipe instanceof ShapelessRecipe recipe) {
-            if (recipe.getIngredients().size() == 1) {
+            if (recipe.getIngredients().size() == 1 && result.getCount() != 1) {
                 location = AnvilCraft.of("smash/" + id.getPath());
                 AnvilRecipe recipe1 = new AnvilRecipe(location, result);
                 Ingredient ingredient = recipe.getIngredients().get(0);

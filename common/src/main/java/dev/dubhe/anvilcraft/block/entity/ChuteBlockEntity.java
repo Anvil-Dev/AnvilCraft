@@ -104,7 +104,7 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
 
     @SuppressWarnings("UnreachableCode")
     public void tick() {
-        if (cooldown == 0) {
+        if (cooldown <= 0) {
             if (getBlockState().getValue(ChuteBlock.ENABLED)) {
                 if (ItemDepositoryHelper.getItemDepository(getLevel(), getBlockPos().relative(Direction.UP), Direction.UP.getOpposite()) != null) {
                     // 尝试从上方容器输入
