@@ -3,19 +3,19 @@
   "category": "equipment",
   "key": {
     "A": {
-      "item": "minecraft:iron_block"
+      "item": "minecraft:anvil"
     },
     "B": {
-      "item": "minecraft:iron_ingot"
+      "item": "minecraft:lightning_rod"
     }
   },
   "pattern": [
-    "BAB",
-    " B ",
-    "BBB"
+    " A",
+    " B",
+    " B"
   ],
   "result": {
-    "item": "minecraft:damaged_anvil"
+    "item": "anvilcraft:anvil_hammer"
   },
   "show_notification": true
 }
