@@ -28,7 +28,8 @@ public class AnvilCraftForge {
             if (BlockHighlightUtil.SUBCHUNKS.isEmpty()) return;
             ClientLevel level = Minecraft.getInstance().level;
             if (level == null) return;
-            BlockHighlightUtil.render(level, Minecraft.getInstance().renderBuffers().bufferSource(), event.getPoseStack(), event.getCamera());
+            BlockHighlightUtil.render(level, Minecraft.getInstance().renderBuffers().bufferSource(),
+                event.getPoseStack(), event.getCamera());
         });
         
         ModLoadingContext.get().registerExtensionPoint(
