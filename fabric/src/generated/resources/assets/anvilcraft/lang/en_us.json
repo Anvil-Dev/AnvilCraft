@@ -2,6 +2,7 @@
   "block.anvilcraft.amber_block": "Amber Block",
   "block.anvilcraft.auto_crafter": "Auto Crafter",
   "block.anvilcraft.chute": "Chute",
+  "block.anvilcraft.corrupted_beacon": "Corrupted Beacon",
   "block.anvilcraft.cursed_gold_block": "Cursed Gold Block",
   "block.anvilcraft.cut_royal_steel_block": "Cut Royal Steel Block",
   "block.anvilcraft.cut_royal_steel_slab": "Cut Royal Steel Slab",
@@ -93,7 +94,7 @@
   "text.autoconfig.anvilcraft.option.autoCrafterCooldown": "Auto Crafter Cooldown",
   "text.autoconfig.anvilcraft.option.autoCrafterCooldown.@Tooltip": "Maximum cooldown time of auto crafter (in ticks)",
   "text.autoconfig.anvilcraft.option.chuteMaxCooldown": "Chute Max Cooldown",
-  "text.autoconfig.anvilcraft.option.chuteMaxCooldown.@Tooltip": "Maximum distance of chute",
+  "text.autoconfig.anvilcraft.option.chuteMaxCooldown.@Tooltip": "Maximum cooldown time of chute (in ticks)",
   "text.autoconfig.anvilcraft.option.geodeInterval": "Geode Search Interval",
   "text.autoconfig.anvilcraft.option.geodeInterval.@Tooltip": "The search interval of the geode",
   "text.autoconfig.anvilcraft.option.geodeRadius": "Geode Maximum Search Radius",
@@ -104,9 +105,9 @@
   "text.autoconfig.anvilcraft.option.magnetAttractsDistance.@Tooltip": "Maximum distance a magnet attracts",
   "text.autoconfig.anvilcraft.option.magnetItemAttractsRadius": "Magnet Item Attracts Radius",
   "text.autoconfig.anvilcraft.option.magnetItemAttractsRadius.@Tooltip": "Maximum radius a handheld magnet attracts",
-  "text.autoconfig.anvilcraft.option.redstoneEmpMaxRadius": "Redstone EMP Max Radius",
+  "text.autoconfig.anvilcraft.option.redstoneEmpMaxRadius": "Redstone Emp Max Radius",
   "text.autoconfig.anvilcraft.option.redstoneEmpMaxRadius.@Tooltip": "Maximum distance of redstone EMP",
-  "text.autoconfig.anvilcraft.option.redstoneEmpRadius": "Redstone EMP Radius",
+  "text.autoconfig.anvilcraft.option.redstoneEmpRadius": "Redstone EMP Radius Per Block",
   "text.autoconfig.anvilcraft.option.redstoneEmpRadius.@Tooltip": "Redstone EMP distance generated per block dropped by the anvil",
   "text.autoconfig.anvilcraft.title": "AnvilCraft Config"
 }

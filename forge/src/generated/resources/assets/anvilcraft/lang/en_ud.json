@@ -2,6 +2,7 @@
   "block.anvilcraft.amber_block": "ʞɔoןᗺ ɹǝqɯⱯ",
   "block.anvilcraft.auto_crafter": "ɹǝʇɟɐɹƆ oʇnⱯ",
   "block.anvilcraft.chute": "ǝʇnɥƆ",
+  "block.anvilcraft.corrupted_beacon": "uoɔɐǝᗺ pǝʇdnɹɹoƆ",
   "block.anvilcraft.cursed_gold_block": "ʞɔoןᗺ pןo⅁ pǝsɹnƆ",
   "block.anvilcraft.cut_royal_steel_block": "ʞɔoןᗺ ןǝǝʇS ןɐʎoᴚ ʇnƆ",
   "block.anvilcraft.cut_royal_steel_slab": "qɐןS ןǝǝʇS ןɐʎoᴚ ʇnƆ",
@@ -93,7 +94,7 @@
   "text.autoconfig.anvilcraft.option.autoCrafterCooldown": "uʍopןooƆ ɹǝʇɟɐɹƆ oʇnⱯ",
   "text.autoconfig.anvilcraft.option.autoCrafterCooldown.@Tooltip": ")sʞɔıʇ uı( ɹǝʇɟɐɹɔ oʇnɐ ɟo ǝɯıʇ uʍopןooɔ ɯnɯıxɐW",
   "text.autoconfig.anvilcraft.option.chuteMaxCooldown": "uʍopןooƆ xɐW ǝʇnɥƆ",
-  "text.autoconfig.anvilcraft.option.chuteMaxCooldown.@Tooltip": "ǝʇnɥɔ ɟo ǝɔuɐʇsıp ɯnɯıxɐW",
+  "text.autoconfig.anvilcraft.option.chuteMaxCooldown.@Tooltip": ")sʞɔıʇ uı( ǝʇnɥɔ ɟo ǝɯıʇ uʍopןooɔ ɯnɯıxɐW",
   "text.autoconfig.anvilcraft.option.geodeInterval": "ןɐʌɹǝʇuI ɥɔɹɐǝS ǝpoǝ⅁",
   "text.autoconfig.anvilcraft.option.geodeInterval.@Tooltip": "ǝpoǝb ǝɥʇ ɟo ןɐʌɹǝʇuı ɥɔɹɐǝs ǝɥ⟘",
   "text.autoconfig.anvilcraft.option.geodeRadius": "snıpɐᴚ ɥɔɹɐǝS ɯnɯıxɐW ǝpoǝ⅁",
@@ -104,9 +105,9 @@
   "text.autoconfig.anvilcraft.option.magnetAttractsDistance.@Tooltip": "sʇɔɐɹʇʇɐ ʇǝubɐɯ ɐ ǝɔuɐʇsıp ɯnɯıxɐW",
   "text.autoconfig.anvilcraft.option.magnetItemAttractsRadius": "snıpɐᴚ sʇɔɐɹʇʇⱯ ɯǝʇI ʇǝubɐW",
   "text.autoconfig.anvilcraft.option.magnetItemAttractsRadius.@Tooltip": "sʇɔɐɹʇʇɐ ʇǝubɐɯ pןǝɥpuɐɥ ɐ snıpɐɹ ɯnɯıxɐW",
-  "text.autoconfig.anvilcraft.option.redstoneEmpMaxRadius": "snıpɐᴚ xɐW ԀWƎ ǝuoʇspǝᴚ",
+  "text.autoconfig.anvilcraft.option.redstoneEmpMaxRadius": "snıpɐᴚ xɐW dɯƎ ǝuoʇspǝᴚ",
   "text.autoconfig.anvilcraft.option.redstoneEmpMaxRadius.@Tooltip": "ԀWƎ ǝuoʇspǝɹ ɟo ǝɔuɐʇsıp ɯnɯıxɐW",
-  "text.autoconfig.anvilcraft.option.redstoneEmpRadius": "snıpɐᴚ ԀWƎ ǝuoʇspǝᴚ",
+  "text.autoconfig.anvilcraft.option.redstoneEmpRadius": "ʞɔoןᗺ ɹǝԀ snıpɐᴚ ԀWƎ ǝuoʇspǝᴚ",
   "text.autoconfig.anvilcraft.option.redstoneEmpRadius.@Tooltip": "ןıʌuɐ ǝɥʇ ʎq pǝddoɹp ʞɔoןq ɹǝd pǝʇɐɹǝuǝb ǝɔuɐʇsıp ԀWƎ ǝuoʇspǝᴚ",
   "text.autoconfig.anvilcraft.title": "bıɟuoƆ ʇɟɐɹƆןıʌuⱯ"
 }

@@ -195,9 +195,14 @@ public class ChuteBlock extends BaseEntityBlock {
     }
 
     @Override
-    public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+    @SuppressWarnings("deprecation")
+    public void onPlace(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState oldState, boolean movedByPiston) {
         BlockState facingState = level.getBlockState(pos.relative(state.getValue(FACING)));
         if (facingState.is(ModBlocks.CHUTE.get()) || facingState.is(ModBlocks.SIMPLE_CHUTE.get())) {
+            if (facingState.getValue(FACING).getOpposite() == state.getValue(FACING)) {
+                level.destroyBlock(pos, true);
+                return;
+            }
             BlockState newState = ModBlocks.SIMPLE_CHUTE.getDefaultState();
             newState = newState
                     .setValue(SimpleChuteBlock.FACING, facingState.getValue(FACING))
