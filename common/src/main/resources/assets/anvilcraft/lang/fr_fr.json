@@ -90,8 +90,8 @@
   "text.autoconfig.anvilcraft.option.autoCrafterCooldown.@Tooltip": "Temps de recharge maximum de l'artisan automatique (en ticks)",
   "text.autoconfig.anvilcraft.option.chuteMaxCooldown": "Temps de recharge maximum de la chute",
   "text.autoconfig.anvilcraft.option.chuteMaxCooldown.@Tooltip": "Distance maximale de la goulotte",
-  "text.autoconfig.anvilcraft.option.geodeInterval": "Intervalle de recherche de géode",
-  "text.autoconfig.anvilcraft.option.geodeInterval.@Tooltip": "L'intervalle de recherche de la géode",
+  "text.autoconfig.anvilcraft.option.geodeCooldown": "Refroidissement de la recherche de géodes",
+  "text.autoconfig.anvilcraft.option.geodeCooldown.@Tooltip": "Intervalle de temps minimal (en secondes) pour chaque recherche de géode d’améthyste à l’aide d’une géode",
   "text.autoconfig.anvilcraft.option.geodeRadius": "Rayon de recherche maximal de la géode",
   "text.autoconfig.anvilcraft.option.geodeRadius.@Tooltip": "Rayon de recherche maximal de la géode",
   "text.autoconfig.anvilcraft.option.lightningStrikeDepth": "Profondeur de frappe de foudre",
@@ -104,5 +104,13 @@
   "text.autoconfig.anvilcraft.option.redstoneEmpMaxRadius.@Tooltip": "Distance maximale de l'EMP de redstone",
   "text.autoconfig.anvilcraft.option.redstoneEmpRadius": "Rayon EMP de Redstone",
   "text.autoconfig.anvilcraft.option.redstoneEmpRadius.@Tooltip": "Distance EMP de redstone générée par bloc lâché par l'enclume",
-  "text.autoconfig.anvilcraft.title": "Configuration d'AnvilCraft"
+  "text.autoconfig.anvilcraft.title": "Configuration d'AnvilCraft",
+  "block.anvilcraft.corrupted_beacon": "Balise corrompue",
+  "item.anvilcraft.anvil_hammer": "Marteau d’enclume",
+  "item.anvilcraft.prismarine_blade": "Lame de prismarine",
+  "item.anvilcraft.prismarine_cluster": "Amas de Prismarine",
+  "item.anvilcraft.sea_heart_shell": "Coquille de coeur de mer",
+  "item.anvilcraft.sea_heart_shell_shard": "Éclat de coquillage de coquille de mer",
+  "text.autoconfig.anvilcraft.option.geodeInterval": "Intervalle de recherche de géode",
+  "text.autoconfig.anvilcraft.option.geodeInterval.@Tooltip": "L’intervalle de recherche de la géode"
 }
