@@ -4,11 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.util.BlockHighlightUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.ClickEvent;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentUtils;
-import net.minecraft.network.chat.HoverEvent;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.*;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -42,7 +38,7 @@ public class GeodeItem extends Item {
             for (int z = -radius; z <= radius; z += interval) {
                 int height = level.getHeight(Heightmap.Types.WORLD_SURFACE, x, z);
                 for (int y = level.getMinBuildHeight(); y <= height; y += interval) {
-                    BlockPos offsetPos = pos.offset(x, y, z);
+                    BlockPos offsetPos = new BlockPos(pos.getX() + x, y, pos.getZ() + z);
                     BlockState state = level.getBlockState(offsetPos);
                     if (!state.is(BlockTags.CRYSTAL_SOUND_BLOCKS)) continue;
                     MutableComponent component = ComponentUtils.wrapInSquareBrackets(Component.translatable(
