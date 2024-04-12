@@ -6,17 +6,22 @@ import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 
 public class SimpleChuteBlockEntityImpl extends SimpleChuteBlockEntity {
     public SimpleChuteBlockEntityImpl(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
 
-    public static SimpleChuteBlockEntity createBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+    public static @NotNull SimpleChuteBlockEntity createBlockEntity(
+        BlockEntityType<?> type, BlockPos pos, BlockState blockState
+    ) {
         return new SimpleChuteBlockEntityImpl(type, pos, blockState);
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     public static void onBlockEntityRegister(BlockEntityType<SimpleChuteBlockEntity> type) {
-        ItemStorage.SIDED.registerForBlockEntity((blockEntity, direction) -> ItemDepositoryHelperImpl.toStorage(blockEntity.getDepository()), type);
+        ItemStorage.SIDED.registerForBlockEntity((blockEntity, direction) ->
+            ItemDepositoryHelperImpl.toStorage(blockEntity.getDepository()), type);
     }
 }

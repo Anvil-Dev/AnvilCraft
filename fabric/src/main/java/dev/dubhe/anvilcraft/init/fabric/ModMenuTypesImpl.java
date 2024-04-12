@@ -13,6 +13,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ModMenuTypesImpl {
+    /**
+     * 打开容器 GUI
+     *
+     * @param player   玩家
+     * @param provider 提供器
+     */
     public static void open(@NotNull ServerPlayer player, MenuProvider provider) {
         player.openMenu(new ExtendedScreenHandlerFactory() {
             @Override
@@ -33,17 +39,24 @@ public class ModMenuTypesImpl {
         });
     }
 
+    /**
+     * 打开容器 GUI
+     *
+     * @param player   玩家
+     * @param provider 提供器
+     * @param pos      位置
+     */
     public static void open(@NotNull ServerPlayer player, MenuProvider provider, BlockPos pos) {
         player.openMenu(new ExtendedScreenHandlerFactory() {
 
             @Nullable
             @Override
-            public AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
+            public AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
                 return provider.createMenu(i, inventory, player);
             }
 
             @Override
-            public Component getDisplayName() {
+            public @NotNull Component getDisplayName() {
                 return provider.getDisplayName();
             }
 

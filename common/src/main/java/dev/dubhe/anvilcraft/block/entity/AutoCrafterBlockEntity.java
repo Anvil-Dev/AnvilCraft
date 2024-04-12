@@ -133,7 +133,9 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
     }
 
     @ExpectPlatform
-    public static AutoCrafterBlockEntity createBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+    public static AutoCrafterBlockEntity createBlockEntity(
+        BlockEntityType<?> type, BlockPos pos, BlockState blockState
+    ) {
         throw new AssertionError();
     }
 
@@ -165,7 +167,10 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
         cooldown--;
         if (!canCraft()) return;
         ItemStack result;
-        Optional<AutoCrafterCache> cacheOptional = cache.stream().filter(recipe -> recipe.test(craftingContainer)).findFirst();
+        Optional<AutoCrafterCache> cacheOptional = cache
+            .stream()
+            .filter(recipe -> recipe.test(craftingContainer))
+            .findFirst();
         Optional<CraftingRecipe> optional;
         NonNullList<ItemStack> remaining;
         if (cacheOptional.isPresent()) {
@@ -177,7 +182,9 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
             remaining = level.getRecipeManager().getRemainingItemsFor(RecipeType.CRAFTING, craftingContainer, level);
             AutoCrafterCache cache = new AutoCrafterCache(craftingContainer, optional, remaining);
             this.cache.push(cache);
-            while (this.cache.size() >= 10) this.cache.pop();
+            while (this.cache.size() >= 10) {
+                this.cache.pop();
+            }
         }
         if (optional.isEmpty()) return;
         result = optional.get().assemble(craftingContainer, level.registryAccess());
@@ -196,7 +203,9 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
         }
         result.setCount(result.getCount() * times);
         remaining.forEach(stack -> stack.setCount(stack.getCount() * times));
-        IItemDepository itemDepository = ItemDepositoryHelper.getItemDepository(level, getBlockPos().relative(getDirection()), getDirection().getOpposite());
+        IItemDepository itemDepository = ItemDepositoryHelper.getItemDepository(
+            level, getBlockPos().relative(getDirection()), getDirection().getOpposite()
+        );
         if (itemDepository != null) {
             // 尝试向容器插入物品
             ItemStack remained = ItemDepositoryHelper.insertItem(itemDepository, result, true);
@@ -227,14 +236,14 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
     @Override
     public void load(@NotNull CompoundTag tag) {
         super.load(tag);
-        depository.deserializeNBT(tag.getCompound("Inventory"));
+        depository.deserializeNbt(tag.getCompound("Inventory"));
         cooldown = tag.getInt("Cooldown");
     }
 
     @Override
     protected void saveAdditional(@NotNull CompoundTag tag) {
         super.saveAdditional(tag);
-        tag.put("Inventory", this.depository.serializeNBT());
+        tag.put("Inventory", this.depository.serializeNbt());
         tag.putInt("Cooldown", cooldown);
     }
 
@@ -256,6 +265,11 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
         level.setBlockAndUpdate(pos, state.setValue(AutoCrafterBlock.FACING, direction));
     }
 
+    /**
+     * 获取红石信号强度
+     *
+     * @return 红石信号强度
+     */
     public int getRedstoneSignal() {
         int i = 0;
         for (int j = 0; j < depository.getSlots(); ++j) {
@@ -290,7 +304,16 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
         @Getter
         private final NonNullList<ItemStack> remaining;
 
-        public AutoCrafterCache(@NotNull Container container, Optional<CraftingRecipe> recipe, NonNullList<ItemStack> remaining) {
+        /**
+         * 合成器缓存
+         *
+         * @param container 容器
+         * @param recipe    配方
+         * @param remaining 返还物品
+         */
+        public AutoCrafterCache(
+            @NotNull Container container, Optional<CraftingRecipe> recipe, NonNullList<ItemStack> remaining
+        ) {
             this.container = new SimpleContainer(container.getContainerSize());
             for (int i = 0; i < container.getContainerSize(); i++) {
                 ItemStack item = container.getItem(i).copy();
@@ -311,24 +334,26 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
         }
     }
 
-    private void spawnItemEntity0(ItemStack stack){
+    private void spawnItemEntity0(ItemStack stack) {
         Vec3 center = getBlockPos().relative(getDirection()).getCenter();
         Vector3f step = getDirection().step();
+        Level level = this.getLevel();
+        if (level == null) return;
         ItemEntity itemEntity = new ItemEntity(
-                getLevel(), center.x, center.y, center.z,
-                stack,
-                0.25 * step.x, 0.25 * step.y, 0.25 * step.z
+            level, center.x, center.y, center.z,
+            stack,
+            0.25 * step.x, 0.25 * step.y, 0.25 * step.z
         );
-        getLevel().addFreshEntity(itemEntity);
+        level.addFreshEntity(itemEntity);
     }
 
-    private void spawnItemEntity(ItemStack stack) {
+    private void spawnItemEntity(@NotNull ItemStack stack) {
         int maxStackSize = stack.getMaxStackSize();
         int stackSize = stack.getCount();
-        for (;stackSize > maxStackSize; stackSize -= maxStackSize){
+        for (; stackSize > maxStackSize; stackSize -= maxStackSize) {
             spawnItemEntity0(stack.copyWithCount(maxStackSize));
         }
-        if (stackSize != 0){
+        if (stackSize != 0) {
             spawnItemEntity0(stack.copyWithCount(stackSize));
         }
     }

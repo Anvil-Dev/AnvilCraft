@@ -17,7 +17,10 @@ public enum ModTiers implements Tier {
     private final float damage;
     private final int enchantmentValue;
     private final Supplier<Ingredient> repairIngredient;
-    ModTiers(int level, int uses, float speed, float damage, int enchantmentValue, Supplier<Ingredient> supplier) {
+
+    ModTiers(
+        int level, int uses, float speed, float damage, int enchantmentValue, @NotNull Supplier<Ingredient> supplier
+    ) {
         this.level = level;
         this.uses = uses;
         this.speed = speed;

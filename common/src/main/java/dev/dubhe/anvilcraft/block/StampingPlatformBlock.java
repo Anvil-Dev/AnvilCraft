@@ -43,7 +43,10 @@ public class StampingPlatformBlock extends Block implements SimpleWaterloggedBlo
 
     @Override
     @SuppressWarnings("deprecation")
-    public @NotNull VoxelShape getShape(@NotNull BlockState blockState, @NotNull BlockGetter blockGetter, @NotNull BlockPos blockPos, @NotNull CollisionContext collisionContext) {
+    public @NotNull VoxelShape getShape(
+        @NotNull BlockState blockState, @NotNull BlockGetter blockGetter,
+        @NotNull BlockPos blockPos, @NotNull CollisionContext collisionContext
+    ) {
         return AABB;
     }
 
@@ -70,7 +73,10 @@ public class StampingPlatformBlock extends Block implements SimpleWaterloggedBlo
 
     @Override
     @SuppressWarnings("deprecation")
-    public @NotNull BlockState updateShape(@NotNull BlockState blockState, @NotNull Direction direction, @NotNull BlockState blockState2, @NotNull LevelAccessor levelAccessor, @NotNull BlockPos blockPos, @NotNull BlockPos blockPos2) {
+    public @NotNull BlockState updateShape(
+        @NotNull BlockState blockState, @NotNull Direction direction, @NotNull BlockState blockState2,
+        @NotNull LevelAccessor levelAccessor, @NotNull BlockPos blockPos, @NotNull BlockPos blockPos2
+    ) {
         if (blockState.getValue(WATERLOGGED)) {
             levelAccessor.scheduleTick(blockPos, Fluids.WATER, Fluids.WATER.getTickDelay(levelAccessor));
         }

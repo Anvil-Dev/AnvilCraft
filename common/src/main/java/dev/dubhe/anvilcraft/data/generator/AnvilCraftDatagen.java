@@ -15,6 +15,9 @@ import org.jetbrains.annotations.NotNull;
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 
 public class AnvilCraftDatagen {
+    /**
+     * 初始化生成器
+     */
     public static void init() {
         REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, TagsHandler::initItem);
         REGISTRATE.addDataGenerator(ProviderType.BLOCK_TAGS, TagsHandler::initBlock);

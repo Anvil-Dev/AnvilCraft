@@ -23,10 +23,11 @@ public class ModDispenserBehavior {
         DispenserBlock.registerBehavior(Items.IRON_INGOT, ModDispenserBehavior::ironIngot);
     }
 
-    public static @NotNull ItemStack ironIngot(@NotNull BlockSource source, @NotNull ItemStack stack) {
+    private static @NotNull ItemStack ironIngot(@NotNull BlockSource source, @NotNull ItemStack stack) {
         BlockPos blockPos = source.getPos().relative(source.getBlockState().getValue(DispenserBlock.FACING));
         ServerLevel level = source.getLevel();
-        List<IronGolem> entities = level.getEntities(EntityTypeTest.forClass(IronGolem.class), new AABB(blockPos), Entity::isAlive).stream().filter(e -> e.getHealth() < e.getMaxHealth()).toList();
+        List<IronGolem> entities = level.getEntities(EntityTypeTest.forClass(IronGolem.class),
+            new AABB(blockPos), Entity::isAlive).stream().filter(e -> e.getHealth() < e.getMaxHealth()).toList();
         if (entities.isEmpty()) return ModDispenserBehavior.defaultDispenseItemBehavior.dispense(source, stack);
         IronGolem ironGolem = entities.get(level.random.nextInt(0, entities.size()));
         ironGolem.heal(25.0f);

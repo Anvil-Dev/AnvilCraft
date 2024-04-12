@@ -21,7 +21,9 @@ import java.util.Optional;
 @Mixin(AbstractCauldronBlock.class)
 abstract class AbstractCauldronBlockMixin implements IBucketPickupInjector {
     @Override
-    public @NotNull ItemStack pickupBlock(LevelAccessor level, BlockPos pos, @NotNull BlockState state) {
+    public @NotNull ItemStack pickupBlock(
+        @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockState state
+    ) {
         if (state.is(Blocks.LAVA_CAULDRON)) {
             level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
             return Items.LAVA_BUCKET.getDefaultInstance();

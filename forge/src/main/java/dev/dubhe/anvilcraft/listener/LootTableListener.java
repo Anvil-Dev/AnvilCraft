@@ -18,22 +18,27 @@ import org.jetbrains.annotations.NotNull;
 
 @Mod.EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class LootTableListener {
+    /**
+     * 战利品表加载事件侦听器
+     *
+     * @param event 战利品表加载事件
+     */
     @SubscribeEvent
     public static void lootTable(@NotNull LootTableLoadEvent event) {
         ResourceLocation id = event.getName();
         LootTable table = event.getTable();
         if (Blocks.BUDDING_AMETHYST.getLootTable().equals(id)) {
             table.addPool(new LootPool.Builder()
-                    .add(LootItem.lootTableItem(ModItems.GEODE))
-                    .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1)))
-                    .build()
+                .add(LootItem.lootTableItem(ModItems.GEODE))
+                .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1)))
+                .build()
             );
         }
         if (BuiltInLootTables.SPAWN_BONUS_CHEST.equals(id)) {
             table.addPool(new LootPool.Builder()
-                    .add(LootItem.lootTableItem(ModItems.GEODE))
-                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 6)))
-                    .build()
+                .add(LootItem.lootTableItem(ModItems.GEODE))
+                .apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 6)))
+                .build()
             );
         }
         event.setTable(table);

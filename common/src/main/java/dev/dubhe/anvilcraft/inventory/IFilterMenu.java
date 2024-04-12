@@ -4,6 +4,9 @@ import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntity;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
 
+/**
+ * 有过滤的菜单
+ */
 public interface IFilterMenu {
     /**
      * 获取有过滤的方块实体

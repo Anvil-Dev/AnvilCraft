@@ -29,18 +29,31 @@ public class RunCommand implements RecipeOutcome {
     private final double chance;
     private final String command;
 
+    /**
+     * 运行命令
+     *
+     * @param offset  偏移
+     * @param chance  几率
+     * @param command 命令
+     */
     public RunCommand(Vec3 offset, double chance, String command) {
         this.offset = offset;
         this.chance = chance;
         this.command = command;
     }
 
+    /**
+     * @param buffer 缓冲
+     */
     public RunCommand(@NotNull FriendlyByteBuf buffer) {
         this.offset = new Vec3(buffer.readVector3f());
         this.chance = buffer.readDouble();
         this.command = buffer.readUtf();
     }
 
+    /**
+     * @param serializedRecipe json
+     */
     public RunCommand(@NotNull JsonObject serializedRecipe) {
         double[] vec3 = {0.0d, 0.0d, 0.0d};
         if (serializedRecipe.has("offset")) {
@@ -65,10 +78,11 @@ public class RunCommand implements RecipeOutcome {
         Level level = container.getLevel();
         if (!(level instanceof ServerLevel serverLevel)) return true;
         FallingBlockEntity entity = container.getEntity();
-        CommandSourceStack stack = new CommandSourceStack(entity, this.offset, new Vec2(entity.getXRot(), entity.getYRot()),
-                serverLevel,
-                (level.getServer() instanceof DedicatedServer server) ? server.getProperties().functionPermissionLevel : 2,
-                "Anvil", Component.literal("Anvil"), serverLevel.getServer(), entity
+        CommandSourceStack stack = new CommandSourceStack(entity, this.offset,
+            new Vec2(entity.getXRot(), entity.getYRot()),
+            serverLevel,
+            (level.getServer() instanceof DedicatedServer server) ? server.getProperties().functionPermissionLevel : 2,
+            "Anvil", Component.literal("Anvil"), serverLevel.getServer(), entity
         );
         try {
             serverLevel.getServer().getCommands().getDispatcher().execute(this.command, stack);

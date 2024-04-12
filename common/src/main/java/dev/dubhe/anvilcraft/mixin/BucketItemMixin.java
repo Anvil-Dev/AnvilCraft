@@ -26,17 +26,20 @@ abstract class BucketItemMixin {
     @Final
     private Fluid content;
     @Unique
-    private final BucketItem ths = (BucketItem) (Object) this;
+    private final BucketItem anvilCraft$ths = (BucketItem) (Object) this;
 
     @Inject(method = "emptyContents", at = @At("HEAD"), cancellable = true)
-    private void putLiquidToCauldron(Player player, @NotNull Level level, BlockPos pos, BlockHitResult result, CallbackInfoReturnable<Boolean> cir) {
+    private void putLiquidToCauldron(
+        Player player, @NotNull Level level, BlockPos pos, BlockHitResult result, CallbackInfoReturnable<Boolean> cir) {
         if (level.isInWorldBounds(pos)) {
             if (level.getBlockState(pos).is(Blocks.CAULDRON)) {
-                if (ths.equals(Items.WATER_BUCKET)) {
+                if (anvilCraft$ths.equals(Items.WATER_BUCKET)) {
                     if (!level.isClientSide) {
-                        level.setBlockAndUpdate(pos, Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3));
+                        level.setBlockAndUpdate(
+                            pos, Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3)
+                        );
                     }
-                } else if (ths.equals(Items.LAVA_BUCKET)) {
+                } else if (anvilCraft$ths.equals(Items.LAVA_BUCKET)) {
                     if (!level.isClientSide) {
                         level.setBlockAndUpdate(pos, Blocks.LAVA_CAULDRON.defaultBlockState());
                     }

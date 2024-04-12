@@ -50,7 +50,8 @@ public class ModBlocks {
                     .pattern("B B")
                     .define('A', ModItemTags.IRON_PLATES)
                     .define('B', Items.IRON_INGOT)
-                    .unlockedBy("has_" + ModItemTags.IRON_PLATES.location().getPath(), AnvilCraftDatagen.has(ModItemTags.IRON_PLATES))
+                    .unlockedBy("has_" + ModItemTags.IRON_PLATES.location().getPath(),
+                        AnvilCraftDatagen.has(ModItemTags.IRON_PLATES))
                     .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
                     .save(provider))
             .register();
@@ -172,7 +173,8 @@ public class ModBlocks {
                     .define('B', Items.CRAFTING_TABLE)
                     .define('C', Items.DROPPER)
                     .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
-                    .unlockedBy(AnvilCraftDatagen.hasItem(Items.CRAFTING_TABLE), AnvilCraftDatagen.has(Items.CRAFTING_TABLE))
+                    .unlockedBy(AnvilCraftDatagen.hasItem(Items.CRAFTING_TABLE),
+                        AnvilCraftDatagen.has(Items.CRAFTING_TABLE))
                     .unlockedBy(AnvilCraftDatagen.hasItem(Items.DROPPER), AnvilCraftDatagen.has(Items.DROPPER))
                     .save(provider)
             )
@@ -227,27 +229,33 @@ public class ModBlocks {
                     .pattern("AA")
                     .pattern("AA")
                     .define('A', ModBlocks.ROYAL_STEEL_BLOCK)
-                    .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.ROYAL_STEEL_BLOCK.asItem()), AnvilCraftDatagen.has(ModBlocks.ROYAL_STEEL_BLOCK))
+                    .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.ROYAL_STEEL_BLOCK.asItem()),
+                        AnvilCraftDatagen.has(ModBlocks.ROYAL_STEEL_BLOCK))
                     .save(provider, AnvilCraft.of("craft/cut_royal_steel_block"))
             )
             .register();
     public static final BlockEntry<? extends Block> CUT_ROYAL_STEEL_SLAB = REGISTRATE
             .block("cut_royal_steel_slab", SlabBlock::new)
             .initialProperties(() -> Blocks.IRON_BLOCK)
-            .blockstate((ctx, provider) -> provider.slabBlock(ctx.get(), AnvilCraft.of("block/cut_royal_steel_block"), AnvilCraft.of("block/cut_royal_steel_block")))
+            .blockstate((ctx, provider) -> provider.slabBlock(ctx.get(),
+                AnvilCraft.of("block/cut_royal_steel_block"),
+                AnvilCraft.of("block/cut_royal_steel_block")))
             .simpleItem()
             .loot((tables, block) -> tables.add(block, tables::createSlabItemTable))
             .tag(BlockTags.MINEABLE_WITH_PICKAXE)
             .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 6)
                     .pattern("AAA")
                     .define('A', ModBlocks.CUT_ROYAL_STEEL_BLOCK)
-                    .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CUT_ROYAL_STEEL_BLOCK.asItem()), AnvilCraftDatagen.has(ModBlocks.CUT_ROYAL_STEEL_BLOCK))
+                    .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CUT_ROYAL_STEEL_BLOCK.asItem()),
+                        AnvilCraftDatagen.has(ModBlocks.CUT_ROYAL_STEEL_BLOCK))
                     .save(provider, AnvilCraft.of("craft/cut_royal_steel_slab")))
             .register();
     public static final BlockEntry<? extends Block> CUT_ROYAL_STEEL_STAIRS = REGISTRATE
-            .block("cut_royal_steel_stairs", (properties) -> new StairBlock(ModBlocks.CUT_ROYAL_STEEL_BLOCK.getDefaultState(), properties))
+            .block("cut_royal_steel_stairs", (properties) ->
+                new StairBlock(ModBlocks.CUT_ROYAL_STEEL_BLOCK.getDefaultState(), properties))
             .initialProperties(() -> Blocks.IRON_BLOCK)
-            .blockstate((ctx, provider) -> provider.stairsBlock(ctx.get(), AnvilCraft.of("block/cut_royal_steel_block")))
+            .blockstate((ctx, provider) -> provider.stairsBlock(ctx.get(),
+                AnvilCraft.of("block/cut_royal_steel_block")))
             .simpleItem()
             .defaultLoot()
             .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -256,13 +264,15 @@ public class ModBlocks {
                     .pattern("AA ")
                     .pattern("AAA")
                     .define('A', ModBlocks.CUT_ROYAL_STEEL_BLOCK)
-                    .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CUT_ROYAL_STEEL_BLOCK.asItem()), AnvilCraftDatagen.has(ModBlocks.CUT_ROYAL_STEEL_BLOCK))
+                    .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CUT_ROYAL_STEEL_BLOCK.asItem()),
+                        AnvilCraftDatagen.has(ModBlocks.CUT_ROYAL_STEEL_BLOCK))
                     .save(provider, AnvilCraft.of("craft/cut_royal_steel_stairs")))
             .register();
     public static final BlockEntry<? extends Block> LAVA_CAULDRON = REGISTRATE
             .block("lava_cauldron", LavaCauldronBlock::new)
             .initialProperties(() -> Blocks.LAVA_CAULDRON)
-            .properties(properties -> properties.lightLevel(blockState -> blockState.getValue(LayeredCauldronBlock.LEVEL) * 5))
+            .properties(properties -> properties.lightLevel(blockState ->
+                blockState.getValue(LayeredCauldronBlock.LEVEL) * 5))
             .blockstate((ctx, provider) -> {
             })
             .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
@@ -280,7 +290,8 @@ public class ModBlocks {
                     .pattern("AAA")
                     .pattern("AAA")
                     .define('A', ModItems.CURSED_GOLD_INGOT)
-                    .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CURSED_GOLD_INGOT.get()), AnvilCraftDatagen.has(ModItems.CURSED_GOLD_INGOT))
+                    .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CURSED_GOLD_INGOT.get()),
+                        AnvilCraftDatagen.has(ModItems.CURSED_GOLD_INGOT))
                     .save(provider))
             .register();
     public static final BlockEntry<? extends Block> TOPAZ_BLOCK = REGISTRATE
@@ -322,7 +333,8 @@ public class ModBlocks {
                     .pattern("AAA")
                     .pattern("AAA")
                     .define('A', ModItems.SAPPHIRE)
-                    .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.SAPPHIRE.get()), AnvilCraftDatagen.has(ModItems.SAPPHIRE))
+                    .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.SAPPHIRE.get()),
+                        AnvilCraftDatagen.has(ModItems.SAPPHIRE))
                     .save(provider))
             .register();
     public static final BlockEntry<? extends Block> RESIN_BLOCK = REGISTRATE
@@ -339,7 +351,8 @@ public class ModBlocks {
                     .pattern("AAA")
                     .pattern("AAA")
                     .define('A', ModItems.RESIN)
-                    .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RESIN.get()), AnvilCraftDatagen.has(ModItems.RESIN))
+                    .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RESIN.get()),
+                        AnvilCraftDatagen.has(ModItems.RESIN))
                     .save(provider))
             .register();
     public static final BlockEntry<? extends Block> AMBER_BLOCK = REGISTRATE
@@ -347,7 +360,8 @@ public class ModBlocks {
             .initialProperties(() -> Blocks.EMERALD_BLOCK)
             .blockstate((ctx, provider) -> {
                 provider.simpleBlock(ctx.get());
-                provider.models().cubeAll(ctx.getName(), provider.modLoc("block/" + ctx.getName())).renderType("translucent");
+                provider.models().cubeAll(ctx.getName(), provider.modLoc("block/" + ctx.getName()))
+                    .renderType("translucent");
             })
             .properties(BlockBehaviour.Properties::noOcclusion)
             .simpleItem()

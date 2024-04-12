@@ -10,11 +10,17 @@ import org.jetbrains.annotations.NotNull;
 
 
 @Getter
+@SuppressWarnings("unused")
 public class FilteredItemDepository extends ItemDepository {
     private boolean filterEnabled = false;
     private final NonNullList<ItemStack> filteredItems;
     private final NonNullList<Boolean> disabled;
 
+    /**
+     * 有过滤的容器
+     *
+     * @param size 大小
+     */
     public FilteredItemDepository(int size) {
         super(size);
         this.filteredItems = NonNullList.withSize(size, ItemStack.EMPTY);
@@ -124,7 +130,7 @@ public class FilteredItemDepository extends ItemDepository {
     }
 
     @Override
-    public @NotNull CompoundTag serializeNBT() {
+    public @NotNull CompoundTag serializeNbt() {
         CompoundTag compoundTag = new CompoundTag();
         compoundTag.putBoolean("filterEnabled", this.filterEnabled);
         ListTag listTag = new ListTag();
@@ -149,7 +155,7 @@ public class FilteredItemDepository extends ItemDepository {
     }
 
     @Override
-    public void deserializeNBT(@NotNull CompoundTag tag) {
+    public void deserializeNbt(@NotNull CompoundTag tag) {
         if (!tag.contains("Items")) return;
         this.filterEnabled = tag.getBoolean("filterEnabled");
         ListTag listTag = tag.getList("Items", Tag.TAG_COMPOUND);
@@ -159,7 +165,8 @@ public class FilteredItemDepository extends ItemDepository {
             int slot = itemTag.getInt("Slot");
             if (slot < 0 || slot >= slots) continue;
             this.getStacks().set(slot, ItemStack.of(itemTag));
-            if (itemTag.contains("filtered")) this.filteredItems.set(slot, ItemStack.of(itemTag.getCompound("filtered")));
+            if (itemTag.contains("filtered"))
+                this.filteredItems.set(slot, ItemStack.of(itemTag.getCompound("filtered")));
             this.disabled.set(slot, itemTag.getBoolean("disabled"));
         }
     }

@@ -44,7 +44,9 @@ public class RoyalAnvilBlock extends AnvilBlock implements IHammerRemovable {
     }
 
     @Override
-    public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
+    public @NotNull VoxelShape getShape(
+        @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context
+    ) {
         Direction direction = state.getValue(FACING);
         if (direction.getAxis() == Direction.Axis.X) {
             return X_AXIS_AABB;
@@ -52,8 +54,13 @@ public class RoyalAnvilBlock extends AnvilBlock implements IHammerRemovable {
         return Z_AXIS_AABB;
     }
 
+    @SuppressWarnings("UnreachableCode")
     @Override
-    public @NotNull InteractionResult use(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult hit) {
+    public @NotNull InteractionResult use(
+        @NotNull BlockState state, @NotNull Level level,
+        @NotNull BlockPos pos, @NotNull Player player,
+        @NotNull InteractionHand hand, @NotNull BlockHitResult hit
+    ) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
         ModMenuTypes.open((ServerPlayer) player, state.getMenuProvider(level, pos));
         player.awardStat(Stats.INTERACT_WITH_ANVIL);
@@ -63,7 +70,8 @@ public class RoyalAnvilBlock extends AnvilBlock implements IHammerRemovable {
     @Override
     @Nullable
     public MenuProvider getMenuProvider(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos) {
-        return new SimpleMenuProvider((i, inventory, player) -> new RoyalAnvilMenu(i, inventory, ContainerLevelAccess.create(level, pos)), CONTAINER_TITLE);
+        return new SimpleMenuProvider((i, inventory, player) ->
+            new RoyalAnvilMenu(i, inventory, ContainerLevelAccess.create(level, pos)), CONTAINER_TITLE);
     }
 
     @Override

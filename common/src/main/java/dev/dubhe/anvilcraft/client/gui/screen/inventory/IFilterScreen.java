@@ -14,6 +14,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiFunction;
 
+/**
+ * 有过滤的 GUI
+ */
 public interface IFilterScreen {
     ResourceLocation DISABLED_SLOT = AnvilCraft.of("textures/gui/container/disabled_slot.png");
 

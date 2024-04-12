@@ -25,10 +25,10 @@ public class ModItemTags {
     public static final TagKey<Item> ROYAL_STEEL_PICKAXE_BASE = bindMod("royal_steel_pickaxe_base");
 
 
-
     private static @NotNull TagKey<Item> bindC(String id) {
         return TagKey.create(Registries.ITEM, new ResourceLocation("c", id));
     }
+
     @SuppressWarnings("SameParameterValue")
     private static @NotNull TagKey<Item> bindMod(String id) {
         return TagKey.create(Registries.ITEM, new ResourceLocation("anvilcraft", id));

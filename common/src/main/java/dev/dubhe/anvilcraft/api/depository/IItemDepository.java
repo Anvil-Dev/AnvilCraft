@@ -2,6 +2,9 @@ package dev.dubhe.anvilcraft.api.depository;
 
 import net.minecraft.world.item.ItemStack;
 
+/**
+ * 物品容器
+ */
 @SuppressWarnings("unused")
 public interface IItemDepository {
     /**

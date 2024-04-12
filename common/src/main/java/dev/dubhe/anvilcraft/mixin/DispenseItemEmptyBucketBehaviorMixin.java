@@ -29,13 +29,26 @@ abstract class DispenseItemEmptyBucketBehaviorMixin extends DefaultDispenseItemB
     @Unique
     private final DefaultDispenseItemBehavior defaultDispenseItemBehavior = new DefaultDispenseItemBehavior();
 
-    @Inject(method = "execute(Lnet/minecraft/core/BlockSource;Lnet/minecraft/world/item/ItemStack;)Lnet/minecraft/world/item/ItemStack;", at = @At(value = "INVOKE", target = "Lnet/minecraft/core/dispenser/DefaultDispenseItemBehavior;execute(Lnet/minecraft/core/BlockSource;Lnet/minecraft/world/item/ItemStack;)Lnet/minecraft/world/item/ItemStack;", ordinal = 1), cancellable = true)
+    @Inject(
+        method = "execute(Lnet/minecraft/core/BlockSource;Lnet/minecraft/world/item/ItemStack;)"
+            + "Lnet/minecraft/world/item/ItemStack;",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/core/dispenser/DefaultDispenseItemBehavior;"
+                + "execute(Lnet/minecraft/core/BlockSource;Lnet/minecraft/world/item/ItemStack;)"
+                + "Lnet/minecraft/world/item/ItemStack;",
+            ordinal = 1
+        ),
+        cancellable = true
+    )
     public void takeMilkFromCow(@NotNull BlockSource source, ItemStack stack, CallbackInfoReturnable<ItemStack> cir) {
         BlockPos blockPos = source.getPos().relative(source.getBlockState().getValue(DispenserBlock.FACING));
         ServerLevel level = source.getLevel();
         ServerLevel levelAccessor = source.getLevel();
-        List<Cow> cows = level.getEntities(EntityTypeTest.forClass(Cow.class), new AABB(blockPos), Entity::isAlive).stream().toList();
-        List<Goat> goats = level.getEntities(EntityTypeTest.forClass(Goat.class), new AABB(blockPos), Entity::isAlive).stream().toList();
+        List<Cow> cows = level.getEntities(EntityTypeTest.forClass(Cow.class), new AABB(blockPos), Entity::isAlive)
+            .stream().toList();
+        List<Goat> goats = level.getEntities(EntityTypeTest.forClass(Goat.class), new AABB(blockPos), Entity::isAlive)
+            .stream().toList();
         if (cows.isEmpty() && goats.isEmpty()) return;
         levelAccessor.gameEvent(null, GameEvent.FLUID_PICKUP, blockPos);
         Item item = Items.MILK_BUCKET;

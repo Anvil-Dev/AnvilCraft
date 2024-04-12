@@ -19,20 +19,31 @@ public class LavaCauldronBlock extends LayeredCauldronBlock {
     }
 
     @Override
-    public void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
+    public void entityInside(
+        @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Entity entity
+    ) {
         if (this.isEntityInsideContent(state, pos, entity)) {
             entity.lavaHurt();
         }
     }
 
     @Override
-    public @NotNull ItemStack getCloneItemStack(BlockGetter level, BlockPos pos, BlockState state) {
+    public @NotNull ItemStack getCloneItemStack(
+        @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull BlockState state
+    ) {
         return new ItemStack(Items.CAULDRON);
     }
 
     @Override
     @SuppressWarnings("deprecation")
-    public void neighborChanged(BlockState state, @NotNull Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
+    public void neighborChanged(
+        @NotNull BlockState state,
+        @NotNull Level level,
+        @NotNull BlockPos pos,
+        @NotNull Block neighborBlock,
+        @NotNull BlockPos neighborPos,
+        boolean movedByPiston
+    ) {
         if (level.isClientSide) {
             return;
         }

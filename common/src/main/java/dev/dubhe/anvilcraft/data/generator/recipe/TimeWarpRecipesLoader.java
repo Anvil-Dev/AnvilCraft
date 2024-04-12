@@ -6,13 +6,19 @@ import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
-import java.util.Map;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.Map;
+
 public class TimeWarpRecipesLoader {
+    /**
+     * 时移配方
+     *
+     * @param provider 提供器
+     */
     public static void init(RegistrateRecipeProvider provider) {
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
             .icon(ModItems.SEA_HEART_SHELL)
@@ -21,7 +27,8 @@ public class TimeWarpRecipesLoader {
             .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), ModItems.SEA_HEART_SHELL_SHARD)
             .spawnItem(new Vec3(0.0, -1.0, 0.0), ModItems.SEA_HEART_SHELL)
             .setBlock(Blocks.CAULDRON.defaultBlockState())
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.SEA_HEART_SHELL_SHARD.get()), AnvilCraftDatagen.has(ModItems.SEA_HEART_SHELL_SHARD))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.SEA_HEART_SHELL_SHARD.get()),
+                AnvilCraftDatagen.has(ModItems.SEA_HEART_SHELL_SHARD))
             .save(provider, AnvilCraft.of("timewarp/sea_heart_shell"));
     }
 }

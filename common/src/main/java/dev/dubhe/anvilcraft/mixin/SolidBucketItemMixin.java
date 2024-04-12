@@ -29,11 +29,14 @@ abstract class SolidBucketItemMixin {
     private final SolidBucketItem ths = (SolidBucketItem) (Object) this;
 
     @Inject(method = "emptyContents", at = @At("HEAD"), cancellable = true)
-    private void emptyContents(Player player, @NotNull Level level, BlockPos pos, BlockHitResult result, CallbackInfoReturnable<Boolean> cir) {
+    private void emptyContents(
+        Player player, @NotNull Level level, BlockPos pos, BlockHitResult result, CallbackInfoReturnable<Boolean> cir
+    ) {
         if (!ths.equals(Items.POWDER_SNOW_BUCKET)) return;
         if (level.isInWorldBounds(pos) && level.getBlockState(pos).is(Blocks.CAULDRON)) {
             if (!level.isClientSide) {
-                level.setBlockAndUpdate(pos, Blocks.POWDER_SNOW_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3));
+                level.setBlockAndUpdate(pos, Blocks.POWDER_SNOW_CAULDRON.defaultBlockState()
+                    .setValue(LayeredCauldronBlock.LEVEL, 3));
             }
             level.gameEvent(player, GameEvent.FLUID_PLACE, pos);
             level.playSound(player, pos, this.placeSound, SoundSource.BLOCKS, 1.0f, 1.0f);

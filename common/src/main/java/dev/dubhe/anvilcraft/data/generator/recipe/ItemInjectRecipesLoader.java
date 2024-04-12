@@ -14,7 +14,12 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 public class ItemInjectRecipesLoader {
-    public static void init(RegistrateRecipeProvider provider)  {
+    /**
+     * 初始化物品注入配方
+     *
+     * @param provider 提供器
+     */
+    public static void init(RegistrateRecipeProvider provider) {
         itemInject(Items.RAW_GOLD_BLOCK, Blocks.DEEPSLATE, Blocks.DEEPSLATE_GOLD_ORE, provider);
         itemInject(Items.RAW_IRON_BLOCK, Blocks.DEEPSLATE, Blocks.DEEPSLATE_IRON_ORE, provider);
         itemInject(Items.RAW_COPPER_BLOCK, 3, Blocks.DEEPSLATE, Blocks.DEEPSLATE_COPPER_ORE, provider);
@@ -22,22 +27,48 @@ public class ItemInjectRecipesLoader {
         itemInject(Items.GOLD_INGOT, Blocks.BLACKSTONE, Blocks.GILDED_BLACKSTONE, provider);
     }
 
-    public static void itemInject(@NotNull Item item, @NotNull Block block, @NotNull Block resBlock, @NotNull RegistrateRecipeProvider provider) {
+    /**
+     * 简单物品注入
+     *
+     * @param item     物品
+     * @param block    方块
+     * @param resBlock 产物
+     * @param provider 提供器
+     */
+    public static void itemInject(
+        @NotNull Item item, @NotNull Block block, @NotNull Block resBlock, @NotNull RegistrateRecipeProvider provider
+    ) {
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
-                .hasBlock(new Vec3(0.0, -1.0, 0.0), block)
-                .hasItemIngredient(item)
-                .setBlock(new Vec3(0.0, -1.0, 0.0), resBlock)
-                .unlockedBy(AnvilCraftDatagen.hasItem(block.asItem()), AnvilCraftDatagen.has(block.asItem()))
-                .save(provider, AnvilCraft.of("item_inject/" + BuiltInRegistries.BLOCK.getKey(resBlock).getPath()));
+            .hasBlock(new Vec3(0.0, -1.0, 0.0), block)
+            .hasItemIngredient(item)
+            .setBlock(new Vec3(0.0, -1.0, 0.0), resBlock)
+            .unlockedBy(AnvilCraftDatagen.hasItem(block.asItem()), AnvilCraftDatagen.has(block.asItem()))
+            .save(provider, AnvilCraft.of("item_inject/" + BuiltInRegistries.BLOCK.getKey(resBlock).getPath()));
     }
 
-    public static void itemInject(@NotNull Item item, int count, @NotNull Block block, @NotNull Block resBlock, @NotNull RegistrateRecipeProvider provider) {
+    /**
+     * /**
+     * 简单物品注入
+     *
+     * @param item     物品
+     * @param count    数量
+     * @param block    方块
+     * @param resBlock 产物
+     * @param provider 提供器
+     */
+    public static void itemInject(
+        @NotNull Item item,
+        int count,
+        @NotNull Block block,
+        @NotNull Block resBlock,
+        @NotNull RegistrateRecipeProvider provider
+    ) {
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
-                .hasBlock(new Vec3(0.0, -1.0, 0.0), block)
-                .hasItemIngredient(count, item)
-                .setBlock(new Vec3(0.0, -1.0, 0.0), resBlock)
-                .unlockedBy(AnvilCraftDatagen.hasItem(block.asItem()), AnvilCraftDatagen.has(block.asItem()))
-                .save(provider, AnvilCraft.of("item_inject/" + BuiltInRegistries.BLOCK.getKey(resBlock).getPath()));
+            .hasBlock(new Vec3(0.0, -1.0, 0.0), block)
+            .hasItemIngredient(count, item)
+            .setBlock(new Vec3(0.0, -1.0, 0.0), resBlock)
+            .unlockedBy(AnvilCraftDatagen.hasItem(block.asItem()), AnvilCraftDatagen.has(block.asItem()))
+            .save(provider, AnvilCraft.of("item_inject/" + BuiltInRegistries.BLOCK.getKey(resBlock).getPath()));
     }
 
 }

@@ -21,9 +21,17 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+/**
+ * 方块状态注入
+ */
 public interface IBlockStateInjector {
-    @SuppressWarnings("DuplicatedCode")
-    static @NotNull BlockState fromJson(JsonElement stateJson) {
+    /**
+     * 从 Json 读取
+     *
+     * @param stateJson json
+     * @return 方块状态
+     */
+    static @NotNull BlockState fromJson(@NotNull JsonElement stateJson) {
         if (!stateJson.isJsonObject()) throw new JsonSyntaxException("Expected item to be object");
         JsonObject object = stateJson.getAsJsonObject();
         if (!object.has("block")) throw new JsonSyntaxException("The field block is missing");
@@ -31,7 +39,7 @@ public interface IBlockStateInjector {
         if (!blockElement.isJsonPrimitive()) throw new JsonSyntaxException("Expected item to be string");
         StringBuilder block = new StringBuilder(blockElement.getAsString());
         if (object.has("state")) {
-            block.append(GsonHelper.getAsString(object,"state"));
+            block.append(GsonHelper.getAsString(object, "state"));
         }
         HolderLookup<Block> blocks = new BlockHolderLookup();
         BlockStateParser.BlockResult blockResult;
@@ -50,7 +58,9 @@ public interface IBlockStateInjector {
     class BlockHolderLookup implements HolderLookup<Block>, HolderOwner<Block> {
         @Override
         public @NotNull Stream<Holder.Reference<Block>> listElements() {
-            return BuiltInRegistries.BLOCK.stream().map(BuiltInRegistries.BLOCK::getResourceKey).filter(Optional::isPresent).map(key -> BuiltInRegistries.BLOCK.getHolderOrThrow(key.get()));
+            return BuiltInRegistries.BLOCK.stream()
+                .map(BuiltInRegistries.BLOCK::getResourceKey)
+                .filter(Optional::isPresent).map(key -> BuiltInRegistries.BLOCK.getHolderOrThrow(key.get()));
         }
 
         @Override
