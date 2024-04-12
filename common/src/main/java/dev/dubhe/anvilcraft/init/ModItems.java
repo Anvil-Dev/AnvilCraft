@@ -6,7 +6,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.recipe.crafting_table.ShapedTagRecipeBuilder;
 import dev.dubhe.anvilcraft.item.AnvilHammer;
-import dev.dubhe.anvilcraft.item.CuredItem;
+import dev.dubhe.anvilcraft.item.CursedItem;
 import dev.dubhe.anvilcraft.item.GeodeItem;
 import dev.dubhe.anvilcraft.item.MagnetItem;
 import dev.dubhe.anvilcraft.item.ModFoods;
