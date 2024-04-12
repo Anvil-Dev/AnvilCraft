@@ -21,13 +21,21 @@ public class LightningEventListener {
         BlockState state = event.getLevel().getBlockState(pos);
         if (state.is(Blocks.LIGHTNING_ROD)) pos = pos.below();
         int depth = AnvilCraft.config.lightningStrikeDepth;
-        for (int i = 0; i < depth; i++) {
-            state = event.getLevel().getBlockState(pos);
-            if (state.is(Blocks.IRON_BLOCK)) {
-                BlockState state1 = ModBlocks.HOLLOW_MAGNET_BLOCK.get().defaultBlockState();
-                event.getLevel().setBlockAndUpdate(pos, state1);
+        int radius = AnvilCraft.config.lightningStrikeRadius;
+        for (int x = -radius; x <= radius; x++) {
+            for (int z = -radius; z <= radius; z++) {
+                for (int y = 0; y < depth; y++) {
+                    BlockPos offset = pos.offset(x, -y, z);
+                    state = event.getLevel().getBlockState(offset);
+                    if (
+                        !state.is(Blocks.IRON_BLOCK)
+                            && !state.is(ModBlocks.FERRITE_CORE_MAGNET_BLOCK.get())
+                            && !state.is(ModBlocks.MAGNET_BLOCK.get())
+                    ) continue;
+                    BlockState state1 = ModBlocks.HOLLOW_MAGNET_BLOCK.get().defaultBlockState();
+                    event.getLevel().setBlockAndUpdate(offset, state1);
+                }
             }
-            pos = pos.below();
         }
     }
 }

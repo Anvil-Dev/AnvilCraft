@@ -21,6 +21,11 @@ public class AnvilCraftConfig implements ConfigData {
     @ConfigEntry.BoundedDiscrete(max = 16, min = 1)
     public int lightningStrikeDepth = 2;
 
+    @Comment("Maximum radius a lightning strike can reach")
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(max = 8, min = 0)
+    public int lightningStrikeRadius = 1;
+
     @Comment("Maximum distance a magnet attracts")
     @ConfigEntry.Gui.Tooltip
     @ConfigEntry.BoundedDiscrete(max = 16, min = 1)
