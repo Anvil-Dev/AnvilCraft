@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.config;
 
+import com.google.gson.annotations.SerializedName;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
@@ -32,11 +33,13 @@ public class AnvilCraftConfig implements ConfigData {
     @Comment("Redstone EMP distance generated per block dropped by the anvil")
     @ConfigEntry.Gui.Tooltip
     @ConfigEntry.BoundedDiscrete(max = 64, min = 1)
+    @SerializedName("Redstone EMP Radius Per Block")
     public int redstoneEmpRadius = 6;
 
     @Comment("Maximum distance of redstone EMP")
     @ConfigEntry.Gui.Tooltip
     @ConfigEntry.BoundedDiscrete(max = 64, min = 1)
+    @SerializedName("Redstone Emp Max Radius")
     public int redstoneEmpMaxRadius = 24;
 
     @Comment("Maximum cooldown time of chute (in ticks)")
@@ -52,10 +55,12 @@ public class AnvilCraftConfig implements ConfigData {
     @Comment("The maximum search radius of the geode")
     @ConfigEntry.Gui.Tooltip
     @ConfigEntry.BoundedDiscrete(max = 512, min = 64)
+    @SerializedName("Geode Maximum Search Radius")
     public int geodeRadius = 64;
 
     @Comment("The search interval of the geode")
     @ConfigEntry.Gui.Tooltip
     @ConfigEntry.BoundedDiscrete(max = 8, min = 1)
+    @SerializedName("Geode Search Interval")
     public int geodeInterval = 4;
 }

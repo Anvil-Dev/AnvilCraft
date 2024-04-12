@@ -1,11 +1,13 @@
 package dev.dubhe.anvilcraft.data.generator.lang;
 
+import com.google.gson.annotations.SerializedName;
 import com.tterrag.registrate.providers.RegistrateLangProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
 import dev.dubhe.anvilcraft.util.FormattingUtil;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.Comment;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
 
@@ -20,13 +22,20 @@ public class ConfigScreenLang {
         readConfigClass(AnvilCraftConfig.class, provider);
     }
 
-    private static void readConfigClass(Class<? extends ConfigData> configClass, RegistrateLangProvider provider) {
+    @SuppressWarnings("SameParameterValue")
+    private static void readConfigClass(@NotNull Class<? extends ConfigData> configClass, RegistrateLangProvider provider) {
         for (Field field : configClass.getDeclaredFields()) {
-            String name = field.getName();
-            provider.add(OPTION_STRING.formatted(AnvilCraft.MOD_ID, name), FormattingUtil.toEnglishName(FormattingUtil.toLowerCaseUnder(name)));
+            String fieldName = field.getName();
+            String name;
+            if (field.isAnnotationPresent(SerializedName.class)) {
+                name = field.getAnnotation(SerializedName.class).value();
+            } else {
+                name = FormattingUtil.toEnglishName(FormattingUtil.toLowerCaseUnder(fieldName));
+            }
+            provider.add(OPTION_STRING.formatted(AnvilCraft.MOD_ID, fieldName), name);
             if (field.isAnnotationPresent(Comment.class)) {
                 Comment comment = field.getAnnotation(Comment.class);
-                provider.add(OPTION_TOOLTIP_STRING.formatted(AnvilCraft.MOD_ID, name), comment.value());
+                provider.add(OPTION_TOOLTIP_STRING.formatted(AnvilCraft.MOD_ID, fieldName), comment.value());
             }
         }
     }
