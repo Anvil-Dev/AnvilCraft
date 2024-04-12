@@ -27,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 @Getter
-public class AutoCrafterMenu extends AbstractContainerMenu implements IFilterMenu, ContainerListener {
+public class AutoCrafterMenu extends BaseMachineMenu implements IFilterMenu, ContainerListener {
     public final AutoCrafterBlockEntity blockEntity;
     private final Slot resultSlot;
     private final Level level;
@@ -47,7 +47,7 @@ public class AutoCrafterMenu extends AbstractContainerMenu implements IFilterMen
      * @param blockEntity 方块实体
      */
     public AutoCrafterMenu(MenuType<?> menuType, int containerId, Inventory inventory, BlockEntity blockEntity) {
-        super(menuType, containerId);
+        super(menuType, containerId, blockEntity);
         AutoCrafterMenu.checkContainerSize(inventory, 9);
 
         this.blockEntity = (AutoCrafterBlockEntity) blockEntity;

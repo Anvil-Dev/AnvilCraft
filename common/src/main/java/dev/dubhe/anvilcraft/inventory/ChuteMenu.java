@@ -9,7 +9,6 @@ import lombok.Getter;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
@@ -20,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Getter
-public class ChuteMenu extends AbstractContainerMenu implements IFilterMenu {
+public class ChuteMenu extends BaseMachineMenu implements IFilterMenu {
 
     public final ChuteBlockEntity blockEntity;
     private final Level level;
@@ -40,7 +39,7 @@ public class ChuteMenu extends AbstractContainerMenu implements IFilterMenu {
      * @param blockEntity 方块实体
      */
     public ChuteMenu(MenuType<?> menuType, int containerId, Inventory inventory, BlockEntity blockEntity) {
-        super(menuType, containerId);
+        super(menuType, containerId, blockEntity);
         this.blockEntity = (ChuteBlockEntity) blockEntity;
         this.level = inventory.player.level();
 
