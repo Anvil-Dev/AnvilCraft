@@ -332,7 +332,8 @@ public class ModItems {
                         .pattern("AAA")
                         .pattern("AAA")
                         .define('A', ModItems.ROYAL_STEEL_NUGGET)
-                        .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_NUGGET.get()), AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_NUGGET))
+                        .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_NUGGET.get()),
+                                AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_NUGGET))
                         .save(provider, AnvilCraft.of("royal_steel_ingot_from_royal_steel_nugget"));
             })
             .register();
@@ -340,12 +341,14 @@ public class ModItems {
             .item("royal_steel_nugget", Item::new)
             .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
                     .requires(ModItems.ROYAL_STEEL_INGOT)
-                    .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_NUGGET.get()), AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_NUGGET))
+                    .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_NUGGET.get()),
+                            AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_NUGGET))
                     .save(provider)
             )
             .register();
     public static final ItemEntry<? extends Item> ROYAL_STEEL_PICKAXE = REGISTRATE
-            .item("royal_steel_pickaxe", properties -> new PickaxeItem(Tiers.DIAMOND, 1, -2.8f, properties.durability(2559)) {
+            .item("royal_steel_pickaxe", properties -> new PickaxeItem(Tiers.DIAMOND, 1, -2.8f,
+                    properties.durability(2559)) {
                 @Override
                 public @NotNull ItemStack getDefaultInstance() {
                     return super.getDefaultInstance();
@@ -364,14 +367,16 @@ public class ModItems {
             .recipe((ctx, provider) -> {
                 ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
                         .requires(ModBlocks.CURSED_GOLD_BLOCK)
-                        .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CURSED_GOLD_BLOCK.asItem()), AnvilCraftDatagen.has(ModBlocks.CURSED_GOLD_BLOCK))
+                        .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CURSED_GOLD_BLOCK.asItem()),
+                                AnvilCraftDatagen.has(ModBlocks.CURSED_GOLD_BLOCK))
                         .save(provider, AnvilCraft.of("craft/cursed_gold_ingot_1"));
                 ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                         .pattern("AAA")
                         .pattern("AAA")
                         .pattern("AAA")
                         .define('A', ModItems.CURSED_GOLD_NUGGET)
-                        .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CURSED_GOLD_NUGGET.get()), AnvilCraftDatagen.has(ModItems.CURSED_GOLD_NUGGET))
+                        .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CURSED_GOLD_NUGGET.get()),
+                                AnvilCraftDatagen.has(ModItems.CURSED_GOLD_NUGGET))
                         .save(provider, AnvilCraft.of("craft/cursed_gold_ingot_2"));
             })
             .register();
@@ -379,7 +384,8 @@ public class ModItems {
             .item("cursed_gold_nugget", CursedItem::new)
             .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
                     .requires(ModItems.CURSED_GOLD_INGOT)
-                    .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CURSED_GOLD_INGOT.get()), AnvilCraftDatagen.has(ModItems.CURSED_GOLD_INGOT))
+                    .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CURSED_GOLD_INGOT.get()),
+                            AnvilCraftDatagen.has(ModItems.CURSED_GOLD_INGOT))
                     .save(provider))
             .register();
     public static final ItemEntry<TopazItem> TOPAZ = REGISTRATE
@@ -442,9 +448,8 @@ public class ModItems {
             .model((ctx, provider) -> {
             })
             .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
-                    .pattern(" A")
-                    .pattern(" B")
-                    .pattern(" B")
+                    .pattern("A")
+                    .pattern("B")
                     .define('A', Items.ANVIL)
                     .define('B', Items.LIGHTNING_ROD)
                     .unlockedBy("hasitem", RegistrateRecipeProvider.has(Items.LIGHTNING_ROD))

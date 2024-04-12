@@ -10,9 +10,8 @@
     }
   },
   "pattern": [
-    " A",
-    " B",
-    " B"
+    "A",
+    "B"
   ],
   "result": {
     "item": "anvilcraft:anvil_hammer"
