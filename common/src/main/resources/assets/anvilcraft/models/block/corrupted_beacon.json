@@ -3,9 +3,9 @@
 	"parent": "minecraft:block/block",
 	"render_type": "minecraft:translucent",
 	"textures": {
-		"particle": "anvilcraft:block/corrupted_beacon_base",
 		"base": "anvilcraft:block/corrupted_beacon_base",
 		"core": "anvilcraft:block/corrupted_beacon_core",
+		"particle": "anvilcraft:block/corrupted_beacon_glass",
 		"glass": "anvilcraft:block/corrupted_beacon_glass",
 		"inner": "anvilcraft:block/corrupted_beacon_inner"
 	},
@@ -37,20 +37,20 @@
 			}
 		},
 		{
-			"from": [1, 0, 1],
-			"to": [15, 2, 15],
+			"from": [2, 0, 2],
+			"to": [14, 2.9, 14],
 			"faces": {
-				"north": {"uv": [1, 14, 15, 16], "texture": "#base"},
-				"east": {"uv": [1, 14, 15, 16], "texture": "#base"},
-				"south": {"uv": [1, 14, 15, 16], "texture": "#base"},
-				"west": {"uv": [1, 14, 15, 16], "texture": "#base"},
-				"up": {"uv": [1, 1, 15, 15], "texture": "#base"},
-				"down": {"uv": [1, 1, 15, 2], "texture": "#base"}
+				"north": {"uv": [2, 13, 14, 16], "texture": "#base"},
+				"east": {"uv": [2, 13, 14, 16], "texture": "#base"},
+				"south": {"uv": [2, 13, 14, 16], "texture": "#base"},
+				"west": {"uv": [2, 13, 14, 16], "texture": "#base"},
+				"up": {"uv": [2, 2, 14, 14], "texture": "#base"},
+				"down": {"uv": [2, 2, 14, 14], "texture": "#base"}
 			}
 		},
 		{
-			"from": [4, 4, 4],
-			"to": [12, 12, 12],
+			"from": [4.5, 4.5, 4.5],
+			"to": [11.5, 11.5, 11.5],
 			"shade": false,
 			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
 			"faces": {
@@ -63,8 +63,22 @@
 			}
 		},
 		{
-			"from": [12.25, 12.25, 12.25],
-			"to": [3.75, 3.75, 3.75],
+			"from": [13, 13, 13],
+			"to": [3, 3, 3],
+			"shade": false,
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [1, 5, 3, 7], "texture": "#core"},
+				"east": {"uv": [1, 5, 3, 7], "texture": "#core"},
+				"south": {"uv": [1, 5, 3, 7], "texture": "#core"},
+				"west": {"uv": [1, 5, 3, 7], "texture": "#core"},
+				"up": {"uv": [1, 5, 3, 7], "texture": "#core"},
+				"down": {"uv": [1, 5, 3, 7], "texture": "#core"}
+			}
+		},
+		{
+			"from": [11.75, 11.75, 11.75],
+			"to": [4.25, 4.25, 4.25],
 			"shade": false,
 			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
 			"faces": {
@@ -77,8 +91,8 @@
 			}
 		},
 		{
-			"from": [12.5, 12.5, 12.5],
-			"to": [3.5, 3.5, 3.5],
+			"from": [12, 12, 12],
+			"to": [4, 4, 4],
 			"shade": false,
 			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
 			"faces": {
@@ -91,8 +105,8 @@
 			}
 		},
 		{
-			"from": [12.75, 12.75, 12.75],
-			"to": [3.25, 3.25, 3.25],
+			"from": [12.25, 12.25, 12.25],
+			"to": [3.75, 3.75, 3.75],
 			"shade": false,
 			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
 			"faces": {
@@ -105,8 +119,8 @@
 			}
 		},
 		{
-			"from": [13, 13, 13],
-			"to": [3, 3, 3],
+			"from": [12.5, 12.5, 12.5],
+			"to": [3.5, 3.5, 3.5],
 			"shade": false,
 			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
 			"faces": {
@@ -119,8 +133,8 @@
 			}
 		},
 		{
-			"from": [13.25, 13.25, 13.25],
-			"to": [2.75, 2.75, 2.75],
+			"from": [12.75, 12.75, 12.75],
+			"to": [3.25, 3.25, 3.25],
 			"shade": false,
 			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
 			"faces": {
@@ -131,20 +145,17 @@
 				"up": {"uv": [1, 9, 3, 11], "texture": "#core"},
 				"down": {"uv": [1, 9, 3, 11], "texture": "#core"}
 			}
-		},
+		}
+	],
+	"groups": [
+		0,
+		1,
+		2,
 		{
-			"from": [13.5, 13.5, 13.5],
-			"to": [2.5, 2.5, 2.5],
-			"shade": false,
-			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
-			"faces": {
-				"north": {"uv": [1, 5, 3, 7], "texture": "#core"},
-				"east": {"uv": [1, 5, 3, 7], "texture": "#core"},
-				"south": {"uv": [1, 5, 3, 7], "texture": "#core"},
-				"west": {"uv": [1, 5, 3, 7], "texture": "#core"},
-				"up": {"uv": [1, 5, 3, 7], "texture": "#core"},
-				"down": {"uv": [1, 5, 3, 7], "texture": "#core"}
-			}
+			"name": "group",
+			"origin": [8, 8, 8],
+			"color": 0,
+			"children": [3, 4, 5, 6, 7, 8, 9]
 		}
 	]
 }
