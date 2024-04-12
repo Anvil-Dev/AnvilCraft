@@ -29,18 +29,19 @@
 <!--suppress ALL -->
 <table>
   <tr>
-    <td align="center"><a href="https://github.com/XeKr"><img src="https://avatars.githubusercontent.com/u/45423407?v=100&s=100" width="100px;" height="100px" alt=""/><br /><sub><b>XeKr</b></sub></a><br /><a title="Design">🎨</a> <a title="Ideas, Planning, & Feedback">🤔</a></td>
-    <td align="center"><a href="https://github.com/Gu-ZT"><img src="https://avatars.githubusercontent.com/u/34372427?v=100&s=100" width="100px" height="100px" alt=""/><br /><sub><b>Gugle</b></sub></a><br /><a title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/Phoupraw"><img src="https://avatars.githubusercontent.com/u/50520903?v=100&s=100" width="100px" height="100px" alt=""/><br /><sub><b>Phoupraw</b></sub></a><br /><a title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/DancingSnow0517"><img src="https://avatars.githubusercontent.com/u/60736156?v=100&s=100" width="100px" height="100px" alt=""/><br /><sub><b>雪舞</b></sub></a><br /><a title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/dmzz-yyhyy"><img src="https://avatars.githubusercontent.com/u/101402767?v=100&s=100" width="100px" height="100px" alt=""/><br /><sub><b>NightFish</b></sub></a><br /><a title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/BOTXue"><img src="https://avatars.githubusercontent.com/u/104829942?v=100&s=100" width="100px" height="100px" alt=""/><br /><sub><b>BOTXue</b></sub></a><br /><a title="Translate">🌏</a></td>
+    <td align="center"><a href="https://github.com/XeKr"><img src="https://avatars.githubusercontent.com/u/45423407?v=100&s=100" width="100px;" height="100px" alt=""/><br /><sub><b>XeKr</b></sub></a><br /><a title="Design">🎨</a> <a title="Ideas, Planning, & Feedback">🤔</a><br />5930630</td>
+    <td align="center"><a href="https://github.com/Gu-ZT"><img src="https://avatars.githubusercontent.com/u/34372427?v=100&s=100" width="100px" height="100px" alt=""/><br /><sub><b>Gugle</b></sub></a><br /><a title="Code">💻</a><br />19822751</td>
+    <td align="center"><a href="https://github.com/Phoupraw"><img src="https://avatars.githubusercontent.com/u/50520903?v=100&s=100" width="100px" height="100px" alt=""/><br /><sub><b>Phoupraw</b></sub></a><br /><a title="Code">💻</a><br />43760886</td>
+    <td align="center"><a href="https://github.com/DancingSnow0517"><img src="https://avatars.githubusercontent.com/u/60736156?v=100&s=100" width="100px" height="100px" alt=""/><br /><sub><b>雪舞</b></sub></a><br /><a title="Code">💻</a><br />302121711</td>
+    <td align="center"><a href="https://github.com/dmzz-yyhyy"><img src="https://avatars.githubusercontent.com/u/101402767?v=100&s=100" width="100px" height="100px" alt=""/><br /><sub><b>NightFish</b></sub></a><br /><a title="Code">💻</a><br />574322131</td>
+    <td align="center"><a href="https://github.com/BOTXue"><img src="https://avatars.githubusercontent.com/u/104829942?v=100&s=100" width="100px" height="100px" alt=""/><br /><sub><b>BOTXue</b></sub></a><br /><a title="Translate">🌏</a><br />17486924</td>
   </tr>
   <tr>
-    <td align="center"><a href="https://github.com/wdfaESfaef"><img src="https://avatars.githubusercontent.com/u/63187438?v=100&s=100" width="100px" height="100px" alt=""/><br /><sub><b>wdfaESfaef</b></sub></a><br /><a title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/YocyCraft"><img src="https://avatars.githubusercontent.com/u/80801884?v=100&s=100" width="100px" height="100px" alt=""/><br /><sub><b>YocyCraft</b></sub></a><br /><a title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/Bi2Nb9O3-Studio"><img src="https://avatars.githubusercontent.com/u/92721357?v=100&s=100" width="100px" height="100px" alt=""/><br /><sub><b>Bi2Nb9O3</b></sub></a><br /><a title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/Cjsah"><img src="https://avatars.githubusercontent.com/u/46415647?v=100&s=100" width="100px" height="100px" alt=""/><br /><sub><b>꧁[C̲̅j̲̅s̲̅a̲̅h̲̅]꧂</b></sub></a><br /><a title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/wdfaESfaef"><img src="https://avatars.githubusercontent.com/u/63187438?v=100&s=100" width="100px" height="100px" alt=""/><br /><sub><b>wdfaESfaef</b></sub></a><br /><a title="Code">💻</a><br />40378957</td>
+    <td align="center"><a href="https://github.com/ZhuRuoLing"><img src="https://avatars.githubusercontent.com/u/98583550?v=100&s=100" width="100px" height="100px" alt=""/><br /><sub><b>ZhuRuoLing</b></sub></a><br /><a title="Code">💻</a><br />408091828</td>
+    <td align="center"><a href="https://github.com/YocyCraft"><img src="https://avatars.githubusercontent.com/u/80801884?v=100&s=100" width="100px" height="100px" alt=""/><br /><sub><b>YocyCraft</b></sub></a><br /><a title="Code">💻</a><br />null</td>
+    <td align="center"><a href="https://github.com/Bi2Nb9O3-Studio"><img src="https://avatars.githubusercontent.com/u/92721357?v=100&s=100" width="100px" height="100px" alt=""/><br /><sub><b>Bi2Nb9O3</b></sub></a><br /><a title="Code">💻</a><br />528521905</td>
+    <td align="center"><a href="https://github.com/Cjsah"><img src="https://avatars.githubusercontent.com/u/46415647?v=100&s=100" width="100px" height="100px" alt=""/><br /><sub><b>꧁[C̲̅j̲̅s̲̅a̲̅h̲̅]꧂</b></sub></a><br /><a title="Code">💻</a><br />19170004</td>
   </tr>
 </table>
 
