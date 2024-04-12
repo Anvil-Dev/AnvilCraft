@@ -441,6 +441,14 @@ public class ModItems {
             .item("anvil_hammer", properties -> new AnvilHammerItem(properties.durability(35)))
             .model((ctx, provider) -> {
             })
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
+                    .pattern(" A")
+                    .pattern(" B")
+                    .pattern(" B")
+                    .define('A', Items.ANVIL)
+                    .define('B', Items.LIGHTNING_ROD)
+                    .unlockedBy("hasitem", RegistrateRecipeProvider.has(Items.LIGHTNING_ROD))
+                    .save(provider))
             .register();
 
     public static void register() {

@@ -329,8 +329,6 @@ public class ModBlocks {
             .block("resin_block", SlimeBlock::new)
             .initialProperties(() -> Blocks.SLIME_BLOCK)
             .blockstate((ctx, provider) -> {
-                provider.simpleBlock(ctx.get());
-                provider.models().cubeAll(ctx.getName(), provider.modLoc("block/" + ctx.getName())).renderType("translucent");
             })
             .properties(properties -> properties.sound(SoundType.HONEY_BLOCK))
             .simpleItem()
