@@ -5,6 +5,7 @@ import com.tterrag.registrate.util.entry.BlockEntry;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
 import dev.dubhe.anvilcraft.block.ChuteBlock;
+import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.block.FerriteCoreMagnetBlock;
 import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
 import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
@@ -15,7 +16,7 @@ import dev.dubhe.anvilcraft.block.RoyalSmithingTableBlock;
 import dev.dubhe.anvilcraft.block.SimpleChuteBlock;
 import dev.dubhe.anvilcraft.block.StampingPlatformBlock;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
-import dev.dubhe.anvilcraft.item.CuredBlockItem;
+import dev.dubhe.anvilcraft.item.CursedBlockItem;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.tags.BlockTags;
@@ -53,7 +54,15 @@ public class ModBlocks {
                     .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
                     .save(provider))
             .register();
-
+    public static final BlockEntry<? extends Block> CORRUPTED_BEACON = REGISTRATE
+            .block("corrupted_beacon", CorruptedBeaconBlock::new)
+            .initialProperties(() -> Blocks.BEACON)
+            .blockstate((ctx, provider) -> {
+            })
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .register();
     public static final BlockEntry<? extends Block> ROYAL_ANVIL = REGISTRATE
             .block("royal_anvil", RoyalAnvilBlock::new)
             .initialProperties(() -> Blocks.ANVIL)
@@ -262,7 +271,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> CURSED_GOLD_BLOCK = REGISTRATE
             .block("cursed_gold_block", Block::new)
             .initialProperties(() -> Blocks.GOLD_BLOCK)
-            .item(CuredBlockItem::new)
+            .item(CursedBlockItem::new)
             .build()
             .defaultLoot()
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS)
