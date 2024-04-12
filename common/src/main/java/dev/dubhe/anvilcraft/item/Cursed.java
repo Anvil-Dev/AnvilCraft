@@ -11,7 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
-public interface Cured {
+public interface Cursed {
     default void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         if (!(entity instanceof Player player)) return;
         if (player.getAbilities().instabuild) return;
@@ -19,7 +19,7 @@ public interface Cured {
         MobEffectInstance slowness = new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 200, 1, false, true);
         MobEffectInstance hungry = new MobEffectInstance(MobEffects.HUNGER, 200, 1, false, true);
         player.addEffect((weakness));
-        int curedNumber = Cured.hasCuredNumber(player);
+        int curedNumber = Cursed.hasCuredNumber(player);
         if (curedNumber > 8) {
             player.addEffect((slowness));
         }
