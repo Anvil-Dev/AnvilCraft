@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "anvilcraft:item/sea_heart_shell"
+  }
+}
