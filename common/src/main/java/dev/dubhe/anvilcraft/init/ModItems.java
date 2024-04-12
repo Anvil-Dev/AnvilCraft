@@ -421,6 +421,18 @@ public class ModItems {
                     .save(provider)
             )
             .register();
+    public static final ItemEntry<Item> PRISMARINE_BLADE = REGISTRATE
+            .item("prismarine_blade", Item::new)
+            .register();
+    public static final ItemEntry<Item> PRISMARINE_CLUSTER = REGISTRATE
+            .item("prismarine_cluster", Item::new)
+            .register();
+    public static final ItemEntry<Item> SEA_HEART_SHELL = REGISTRATE
+            .item("sea_heart_shell", Item::new)
+            .register();
+    public static final ItemEntry<Item> SEA_HEART_SHELL_SHARD = REGISTRATE
+            .item("sea_heart_shell_shard", Item::new)
+            .register();
 
     public static void register() {
     }
