@@ -14,6 +14,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      CI_BUILD: true
     steps:
       - name: checkout
         uses: actions/checkout@v3.1.0
@@ -33,8 +35,6 @@ jobs:
 
       - name: Build
         uses: gradle/gradle-build-action@v2.4.2
-        env:
-          RUN_NUMBER: ${{ vars.GITHUB_RUN_NUMBER }}
         with:
           arguments: build
 
