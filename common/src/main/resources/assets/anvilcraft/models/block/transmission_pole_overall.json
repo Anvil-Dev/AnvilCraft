@@ -183,15 +183,21 @@
 	],
 	"display": {
 		"thirdperson_righthand": {
-			"scale": [0.25, 0.25, 0.25]
+			"translation": [0, 0, 1.25],
+			"scale": [0.3, 0.3, 0.3]
 		},
 		"thirdperson_lefthand": {
-			"scale": [0.25, 0.25, 0.25]
+			"translation": [0, 0, 1.25],
+			"scale": [0.3, 0.3, 0.3]
 		},
 		"firstperson_righthand": {
+			"rotation": [-30, 0, 0],
+			"translation": [2.5, 0, 0],
 			"scale": [0.25, 0.25, 0.25]
 		},
 		"firstperson_lefthand": {
+			"rotation": [-30, 0, 0],
+			"translation": [2.5, 0, 0],
 			"scale": [0.25, 0.25, 0.25]
 		},
 		"ground": {
