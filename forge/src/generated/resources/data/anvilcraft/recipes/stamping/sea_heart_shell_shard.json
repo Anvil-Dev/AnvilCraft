@@ -20,6 +20,30 @@
     },
     {
       "type": "spawn_item",
+      "chance": 0.5,
+      "offset": [
+        0.0,
+        -0.75,
+        0.0
+      ],
+      "result": {
+        "item": "anvilcraft:sea_heart_shell_shard"
+      }
+    },
+    {
+      "type": "spawn_item",
+      "chance": 0.5,
+      "offset": [
+        0.0,
+        -0.75,
+        0.0
+      ],
+      "result": {
+        "item": "anvilcraft:sea_heart_shell_shard"
+      }
+    },
+    {
+      "type": "spawn_item",
       "chance": 1.0,
       "offset": [
         0.0,
