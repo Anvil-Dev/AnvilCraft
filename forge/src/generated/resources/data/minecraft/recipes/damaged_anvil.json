@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "A": {
+      "item": "minecraft:iron_block"
+    },
+    "B": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "pattern": [
+    "BAB",
+    " B ",
+    "BBB"
+  ],
+  "result": {
+    "item": "minecraft:damaged_anvil"
+  },
+  "show_notification": true
+}
