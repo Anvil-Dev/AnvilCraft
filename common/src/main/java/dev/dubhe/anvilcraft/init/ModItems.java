@@ -5,6 +5,7 @@ import com.tterrag.registrate.util.entry.ItemEntry;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.recipe.crafting_table.ShapedTagRecipeBuilder;
+import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import dev.dubhe.anvilcraft.item.CursedItem;
 import dev.dubhe.anvilcraft.item.GeodeItem;
 import dev.dubhe.anvilcraft.item.MagnetItem;
@@ -221,7 +222,7 @@ public class ModItems {
             .register();
     public static final ItemEntry<Item> BEEF_MUSHROOM_STEW_RAW = REGISTRATE
             .item("beef_mushroom_stew_raw", Item::new)
-            .properties(properties->properties.stacksTo(1))
+            .properties(properties -> properties.stacksTo(1))
             .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, ctx.get())
                     .requires(Items.BEEF)
                     .requires(Items.BROWN_MUSHROOM)
@@ -233,7 +234,7 @@ public class ModItems {
             .register();
     public static final ItemEntry<BowlFoodItem> BEEF_MUSHROOM_STEW = REGISTRATE
             .item("beef_mushroom_stew", p -> new BowlFoodItem(p.food(ModFoods.BEEF_MUSHROOM_STEW)))
-            .properties(properties->properties.stacksTo(1))
+            .properties(properties -> properties.stacksTo(1))
             .tag(ModItemTags.FOODS)
             .register();
     public static final ItemEntry<Item> UTUSAN_RAW = REGISTRATE
@@ -420,6 +421,11 @@ public class ModItems {
                     .unlockedBy("hasitem", RegistrateRecipeProvider.has(ModBlocks.AMBER_BLOCK))
                     .save(provider)
             )
+            .register();
+    public static final ItemEntry<AnvilHammerItem> ANVIL_HAMMER = REGISTRATE
+            .item("anvil_hammer", properties -> new AnvilHammerItem(properties.durability(35)))
+            .model((ctx, provider) -> {
+            })
             .register();
 
     public static void register() {

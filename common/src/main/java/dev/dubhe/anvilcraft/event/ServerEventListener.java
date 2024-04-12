@@ -6,10 +6,12 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.SubscribeEvent;
 import dev.dubhe.anvilcraft.api.event.server.ServerEndDataPackReloadEvent;
 import dev.dubhe.anvilcraft.api.event.server.ServerStartedEvent;
+import dev.dubhe.anvilcraft.api.hammer.HammerManager;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SpawnItem;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasBlock;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItemIngredient;
+import dev.dubhe.anvilcraft.init.ModHammerInits;
 import net.minecraft.advancements.critereon.BlockPredicate;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
@@ -36,6 +38,8 @@ public class ServerEventListener {
     public void onServerStarted(@NotNull ServerStartedEvent event) {
         MinecraftServer server = event.getServer();
         ServerEventListener.processRecipes(server);
+        ModHammerInits.init();
+        HammerManager.register();
     }
 
     @SubscribeEvent

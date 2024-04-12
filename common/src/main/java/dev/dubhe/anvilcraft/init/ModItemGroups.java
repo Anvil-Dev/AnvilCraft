@@ -16,6 +16,7 @@ public class ModItemGroups {
                         entries.accept(ModItems.GEODE.get().getDefaultInstance());
                         entries.accept(ModItems.AMETHYST_PICKAXE.get().getDefaultInstance());
                         entries.accept(ModItems.ROYAL_STEEL_PICKAXE.get().getDefaultInstance());
+                        entries.accept(ModItems.ANVIL_HAMMER.get().getDefaultInstance());
                         entries.accept(ModItems.CREAM.get().getDefaultInstance());
                         entries.accept(ModItems.FLOUR.get().getDefaultInstance());
                         entries.accept(ModItems.DOUGH.get().getDefaultInstance());
