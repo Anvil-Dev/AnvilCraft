@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
+import dev.dubhe.anvilcraft.api.hammer.IHammerChangeableBlock;
+import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
@@ -46,7 +48,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.annotation.Nonnull;
 import java.util.stream.Stream;
 
-public class ChuteBlock extends BaseEntityBlock {
+public class ChuteBlock extends BaseEntityBlock implements IHammerChangeableBlock, IHammerRemovable {
     public static final DirectionProperty FACING = BlockStateProperties.FACING_HOPPER;
     public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
 
@@ -259,4 +261,18 @@ public class ChuteBlock extends BaseEntityBlock {
         }
         return false;
     }
+
+//    @Override
+//    public boolean change(Player player, BlockPos pos, @NotNull Level level, ItemStack anvilHammer) {
+//        BlockState state = level.getBlockState(pos);
+//        BlockState facingState = level.getBlockState(pos.relative(state.getValue(FACING)));
+//        if (facingState.is(ModBlocks.CHUTE.get()) || facingState.is(ModBlocks.SIMPLE_CHUTE.get())) {
+//            if (facingState.getValue(FACING).getOpposite() == state.getValue(FACING)) {
+//                level.destroyBlock(pos, true);
+//                return true;
+//            }
+//        }
+//        IHammerChangeableBlock.DEFAULT.change(player, pos, level, anvilHammer);
+//        return true;
+//    }
 }

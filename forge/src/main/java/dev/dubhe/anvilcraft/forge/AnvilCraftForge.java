@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
 import dev.dubhe.anvilcraft.init.ModCommands;
 import dev.dubhe.anvilcraft.init.forge.ModRecipeTypesForge;
+import dev.dubhe.anvilcraft.listener.AnvilHammerListener;
 import me.shedaniel.autoconfig.AutoConfig;
 import net.minecraftforge.client.ConfigScreenHandler;
 import net.minecraftforge.common.MinecraftForge;
@@ -12,7 +13,6 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.items.SlotItemHandler;
 import org.jetbrains.annotations.NotNull;
 
 @Mod(AnvilCraft.MOD_ID)
@@ -22,6 +22,7 @@ public class AnvilCraftForge {
         AnvilCraft.init();
         bus.register(new ModRecipeTypesForge());
         MinecraftForge.EVENT_BUS.addListener(AnvilCraftForge::registerCommand);
+        MinecraftForge.EVENT_BUS.register(new AnvilHammerListener());
 
         ModLoadingContext.get().registerExtensionPoint(
                 ConfigScreenHandler.ConfigScreenFactory.class,

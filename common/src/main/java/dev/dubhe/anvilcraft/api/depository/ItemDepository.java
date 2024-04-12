@@ -41,6 +41,7 @@ public class ItemDepository implements IItemDepository, INamedTagSerializable {
         ItemStack stackInSlot = this.getStack(slot);
         int limit = this.getSlotLimit(slot);
         if (!stackInSlot.isEmpty() && !ItemStack.isSameItemSameTags(stackInSlot, stack)) return stack;
+        limit = Math.min(limit, stackInSlot.getItem().getMaxStackSize());
         limit -= stackInSlot.getCount();
         if (limit <= 0) return stack;
         boolean reachedLimit = stack.getCount() > limit;

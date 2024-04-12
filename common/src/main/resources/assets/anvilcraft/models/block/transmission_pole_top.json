@@ -2,8 +2,8 @@
 	"credit": "Made by XeKr with Blockbench",
 	"parent": "minecraft:block/block",
 	"textures": {
-		"head": "anvilcraft:block/transmission_pole_head",
-		"particle": "anvilcraft:block/transmission_pole_base"
+		"particle": "anvilcraft:block/transmission_pole_head",
+		"head": "anvilcraft:block/transmission_pole_head"
 	},
 	"elements": [
 		{

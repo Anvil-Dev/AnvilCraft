@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
+import dev.dubhe.anvilcraft.api.hammer.IHammerChangeableBlock;
+import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.AutoCrafterBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
@@ -38,7 +40,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class AutoCrafterBlock extends BaseEntityBlock {
+public class AutoCrafterBlock extends BaseEntityBlock implements IHammerChangeableBlock, IHammerRemovable {
     public static final DirectionProperty FACING = DirectionalBlock.FACING;
     public static final BooleanProperty LIT = RedstoneTorchBlock.LIT;
 
