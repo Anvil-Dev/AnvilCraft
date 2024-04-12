@@ -81,8 +81,7 @@ jobs:
           curseforge-id: 986251
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
 
-          files-primary: fabric/build/libs/anvilcraft-fabric-${{ steps.version.outputs.version }}.jar
-          files: none
+          files: fabric/build/libs/anvilcraft-fabric-${{ steps.version.outputs.version }}.jar
 
       - name: publish forge mc mod
         uses: Kir-Antipov/mc-publish@v3.3
@@ -103,5 +102,4 @@ jobs:
           curseforge-id: 986251
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
 
-          files-primary: forge/build/libs/anvilcraft-forge-${{ steps.version.outputs.version }}.jar
-          files: none
+          files: forge/build/libs/anvilcraft-forge-${{ steps.version.outputs.version }}.jar
