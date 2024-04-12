@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.data.generator.tags;
 
 import com.tterrag.registrate.providers.RegistrateTagsProvider;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
-import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.NotNull;
@@ -16,7 +15,13 @@ public class BlockTagLoader {
                 .add(Blocks.BROWN_MUSHROOM_BLOCK)
                 .add(Blocks.RED_MUSHROOM_BLOCK)
                 .add(Blocks.MUSHROOM_STEM);
-        provider.addTag(ModBlockTags.REMOVABLE).setReplace(false)
+        provider.addTag(ModBlockTags.HAMMER_CHANGEABLE).setReplace(false)
+                .add(Blocks.OBSERVER)
+                .add(Blocks.HOPPER)
+                .add(Blocks.DROPPER)
+                .add(Blocks.DISPENSER)
+                .add(Blocks.LIGHTNING_ROD);
+        provider.addTag(ModBlockTags.HAMMER_REMOVABLE).setReplace(false)
                 .add(Blocks.BELL)
                 .add(Blocks.REDSTONE_LAMP)
                 .add(Blocks.IRON_DOOR)
@@ -61,12 +66,6 @@ public class BlockTagLoader {
                 .add(Blocks.CAMPFIRE)
                 .add(Blocks.ANVIL)
                 .add(Blocks.CHIPPED_ANVIL)
-                .add(Blocks.DAMAGED_ANVIL)
-                .add(ModBlocks.ROYAL_SMITHING_TABLE.getId())
-                .add(ModBlocks.AUTO_CRAFTER.getId())
-                .add(ModBlocks.CHUTE.getId())
-                .add(ModBlocks.STAMPING_PLATFORM.getId())
-                .add(ModBlocks.ROYAL_ANVIL.getId())
-                .add(ModBlocks.ROYAL_GRINDSTONE.getId());
+                .add(Blocks.DAMAGED_ANVIL);
     }
 }
