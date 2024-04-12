@@ -22,7 +22,6 @@ public class AnvilCraftForge {
         AnvilCraft.init();
         bus.register(new ModRecipeTypesForge());
         MinecraftForge.EVENT_BUS.addListener(AnvilCraftForge::registerCommand);
-        MinecraftForge.EVENT_BUS.register(new AnvilHammerListener());
 
         ModLoadingContext.get().registerExtensionPoint(
                 ConfigScreenHandler.ConfigScreenFactory.class,
