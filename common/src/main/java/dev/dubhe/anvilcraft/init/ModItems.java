@@ -5,14 +5,7 @@ import com.tterrag.registrate.util.entry.ItemEntry;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.recipe.crafting_table.ShapedTagRecipeBuilder;
-import dev.dubhe.anvilcraft.item.CuredItem;
-import dev.dubhe.anvilcraft.item.GeodeItem;
-import dev.dubhe.anvilcraft.item.MagnetItem;
-import dev.dubhe.anvilcraft.item.ModFoods;
-import dev.dubhe.anvilcraft.item.ModTiers;
-import dev.dubhe.anvilcraft.item.RoyalSteelUpgradeSmithingTemplateItem;
-import dev.dubhe.anvilcraft.item.TopazItem;
-import dev.dubhe.anvilcraft.item.UtusanItem;
+import dev.dubhe.anvilcraft.item.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
@@ -388,7 +381,9 @@ public class ModItems {
     public static final ItemEntry<Item> SAPPHIRE = REGISTRATE
             .item("sapphire", Item::new)
             .register();
-
+    public static final ItemEntry<AnvilHammer> ANVIL_HAMMER = REGISTRATE
+            .item("anvil_hammer", properties -> new AnvilHammer(properties.durability(35)))
+            .register();
     public static void register() {
     }
 }

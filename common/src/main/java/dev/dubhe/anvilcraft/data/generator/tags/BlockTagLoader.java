@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.data.generator.tags;
 
 import com.tterrag.registrate.providers.RegistrateTagsProvider;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
+import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.NotNull;
@@ -15,5 +16,57 @@ public class BlockTagLoader {
                 .add(Blocks.BROWN_MUSHROOM_BLOCK)
                 .add(Blocks.RED_MUSHROOM_BLOCK)
                 .add(Blocks.MUSHROOM_STEM);
+        provider.addTag(ModBlockTags.REMOVABLE).setReplace(false)
+                .add(Blocks.BELL)
+                .add(Blocks.REDSTONE_LAMP)
+                .add(Blocks.IRON_DOOR)
+                .add(Blocks.RAIL)
+                .add(Blocks.ACTIVATOR_RAIL)
+                .add(Blocks.DETECTOR_RAIL)
+                .add(Blocks.POWERED_RAIL)
+                .add(Blocks.NOTE_BLOCK)
+                .add(Blocks.OBSERVER)
+                .add(Blocks.HOPPER)
+                .add(Blocks.DROPPER)
+                .add(Blocks.DISPENSER)
+                .add(Blocks.HONEY_BLOCK)
+                .add(Blocks.SLIME_BLOCK)
+                .add(Blocks.PISTON)
+                .add(Blocks.STICKY_PISTON)
+                .add(Blocks.LIGHTNING_ROD)
+                .add(Blocks.DAYLIGHT_DETECTOR)
+                .add(Blocks.LECTERN)
+                .add(Blocks.TRIPWIRE_HOOK)
+                .add(Blocks.SCULK_SHRIEKER)
+                .add(Blocks.LEVER)
+                .add(Blocks.STONE_BUTTON)
+                .add(Blocks.OAK_PRESSURE_PLATE)
+                .add(Blocks.STONE_PRESSURE_PLATE)
+                .add(Blocks.LIGHT_WEIGHTED_PRESSURE_PLATE)
+                .add(Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE)
+                .add(Blocks.SCULK_SENSOR)
+                .add(Blocks.CALIBRATED_SCULK_SENSOR)
+                .add(Blocks.REDSTONE_WIRE)
+                .add(Blocks.REDSTONE_TORCH)
+                .add(Blocks.REDSTONE_WALL_TORCH)
+                .add(Blocks.REDSTONE_BLOCK)
+                .add(Blocks.REPEATER)
+                .add(Blocks.COMPARATOR)
+                .add(Blocks.TARGET)
+                .add(Blocks.IRON_TRAPDOOR)
+                .add(Blocks.CAULDRON)
+                .add(Blocks.LAVA_CAULDRON)
+                .add(Blocks.WATER_CAULDRON)
+                .add(Blocks.POWDER_SNOW_CAULDRON)
+                .add(Blocks.CAMPFIRE)
+                .add(Blocks.ANVIL)
+                .add(Blocks.CHIPPED_ANVIL)
+                .add(Blocks.DAMAGED_ANVIL)
+                .add(ModBlocks.ROYAL_SMITHING_TABLE.getId())
+                .add(ModBlocks.AUTO_CRAFTER.getId())
+                .add(ModBlocks.CHUTE.getId())
+                .add(ModBlocks.STAMPING_PLATFORM.getId())
+                .add(ModBlocks.ROYAL_ANVIL.getId())
+                .add(ModBlocks.ROYAL_GRINDSTONE.getId());
     }
 }
