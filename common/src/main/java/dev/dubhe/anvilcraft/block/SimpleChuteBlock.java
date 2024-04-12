@@ -14,6 +14,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -22,6 +23,8 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -32,9 +35,10 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
-public class SimpleChuteBlock extends BaseEntityBlock {
+public class SimpleChuteBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
     public static final DirectionProperty FACING = BlockStateProperties.FACING_HOPPER;
     public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     public static final BooleanProperty TALL = BooleanProperty.create("tall");
 
     public static final VoxelShape AABB = Block.box(2, 0, 2, 14, 12, 14);
@@ -50,7 +54,11 @@ public class SimpleChuteBlock extends BaseEntityBlock {
 
     public SimpleChuteBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.DOWN).setValue(ENABLED, true).setValue(TALL, false));
+        this.registerDefaultState(this.stateDefinition.any()
+                .setValue(FACING, Direction.DOWN)
+                .setValue(WATERLOGGED, false)
+                .setValue(ENABLED, true)
+                .setValue(TALL, false));
     }
 
     @Nullable
@@ -61,7 +69,7 @@ public class SimpleChuteBlock extends BaseEntityBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, ENABLED, TALL);
+        builder.add(FACING, WATERLOGGED, ENABLED, TALL);
     }
 
     @SuppressWarnings("deprecation")
@@ -170,5 +178,10 @@ public class SimpleChuteBlock extends BaseEntityBlock {
             return chuteBlockEntity.getRedstoneSignal();
         }
         return 0;
+    }
+
+    @Override
+    public FluidState getFluidState(BlockState state) {
+        return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 }
