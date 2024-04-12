@@ -70,7 +70,7 @@
         <module name="EmptyBlock">
             <property name="option" value="TEXT"/>
             <property name="tokens"
-                      value="LITERAL_TRY, LITERAL_FINALLY, LITERAL_SWITCH"/>
+                      value="LITERAL_TRY, LITERAL_FINALLY, LITERAL_IF, LITERAL_ELSE, LITERAL_SWITCH"/>
         </module>
         <module name="NeedBraces">
             <property name="tokens"
@@ -337,14 +337,8 @@
         <module name="MissingJavadocType">
             <property name="scope" value="protected"/>
             <property name="tokens"
-                      value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF,
-                      RECORD_DEF, ANNOTATION_DEF"/>
+                      value="INTERFACE_DEF"/>
             <property name="excludeScope" value="nothing"/>
-        </module>
-        <module name="MethodName">
-            <property name="format" value="^[a-z][a-z0-9]\w*$"/>
-            <message key="name.invalidPattern"
-                     value="Method name ''{0}'' must match pattern ''{1}''."/>
         </module>
         <module name="SingleLineJavadoc"/>
         <module name="EmptyCatchBlock">
