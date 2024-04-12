@@ -105,7 +105,7 @@
   "text.autoconfig.anvilcraft.option.lightningStrikeDepth": "雷击深度",
   "text.autoconfig.anvilcraft.option.lightningStrikeDepth.@Tooltip": "雷击可以达到的最大深度",
   "text.autoconfig.anvilcraft.option.magnetAttractsDistance": "磁铁吸引距离",
-  "text.autoconfig.anvilcraft.option.magnetAttractsDistance.@Tooltip": "磁铁吸引铁砧的最大半径",
+  "text.autoconfig.anvilcraft.option.magnetAttractsDistance.@Tooltip": "磁铁吸引铁砧的最远距离",
   "text.autoconfig.anvilcraft.option.magnetItemAttractsRadius": "手持磁铁吸引半径",
   "text.autoconfig.anvilcraft.option.magnetItemAttractsRadius.@Tooltip": "手持磁铁吸引掉落物的最大半径",
   "text.autoconfig.anvilcraft.option.redstoneEmpMaxRadius": "红石 EMP 最大半径",
