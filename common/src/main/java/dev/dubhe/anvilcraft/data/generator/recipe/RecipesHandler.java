@@ -18,6 +18,6 @@ public class RecipesHandler {
         SmashRecipesLoader.init(provider);
         SqueezeRecipesLoader.init(provider);
         StampingRecipesLoader.init(provider);
-
+        TimeWarpRecipesLoader.init(provider);
     }
 }
