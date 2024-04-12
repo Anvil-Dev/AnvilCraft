@@ -12,7 +12,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BeaconBeamBlock;
 import net.minecraft.world.level.block.Block;
@@ -151,9 +151,9 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
     private static void applyEffects(@NotNull Level level, BlockPos pos) {
         if (level.isClientSide) return;
         AABB aABB = new AABB(pos).expandTowards(0.0, level.getHeight(), 0.0);
-        List<Player> list = level.getEntitiesOfClass(Player.class, aABB);
-        for (Player player : list) {
-            player.addEffect(new MobEffectInstance(MobEffects.WITHER, 120, 0, true, true));
+        List<LivingEntity> list = level.getEntitiesOfClass(LivingEntity.class, aABB);
+        for (LivingEntity livingEntity : list) {
+            livingEntity.addEffect(new MobEffectInstance(MobEffects.WITHER, 120, 0, true, true));
         }
     }
 

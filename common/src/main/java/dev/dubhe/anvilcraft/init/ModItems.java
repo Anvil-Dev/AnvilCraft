@@ -384,6 +384,7 @@ public class ModItems {
             .register();
     public static final ItemEntry<TopazItem> TOPAZ = REGISTRATE
             .item("topaz", TopazItem::new)
+            .tag(ItemTags.BEACON_PAYMENT_ITEMS)
             .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
                     .requires(ModBlocks.TOPAZ_BLOCK)
                     .unlockedBy("hasitem", RegistrateRecipeProvider.has(ModBlocks.TOPAZ_BLOCK))
@@ -392,6 +393,7 @@ public class ModItems {
             .register();
     public static final ItemEntry<Item> RUBY = REGISTRATE
             .item("ruby", Item::new)
+            .tag(ItemTags.BEACON_PAYMENT_ITEMS)
             .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
                     .requires(ModBlocks.RUBY_BLOCK)
                     .unlockedBy("hasitem", RegistrateRecipeProvider.has(ModBlocks.RUBY_BLOCK))
@@ -400,6 +402,7 @@ public class ModItems {
             .register();
     public static final ItemEntry<Item> SAPPHIRE = REGISTRATE
             .item("sapphire", Item::new)
+            .tag(ItemTags.BEACON_PAYMENT_ITEMS)
             .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
                     .requires(ModBlocks.SAPPHIRE_BLOCK)
                     .unlockedBy("hasitem", RegistrateRecipeProvider.has(ModBlocks.SAPPHIRE_BLOCK))
