@@ -40,9 +40,9 @@ public class GeodeItem extends Item {
         block:
         for (int x = -radius; x <= radius; x += interval) {
             for (int z = -radius; z <= radius; z += interval) {
-                int height = level.getHeight(Heightmap.Types.WORLD_SURFACE, x, z);
+                int height = level.getHeight(Heightmap.Types.WORLD_SURFACE, pos.getX() + x, pos.getZ() + z);
                 for (int y = level.getMinBuildHeight(); y <= height; y += interval) {
-                    BlockPos offsetPos = new BlockPos(pos.getX() + x, y, pos.getZ() + z);
+                    BlockPos offsetPos = new BlockPos(pos.getX(), 0, pos.getZ()).offset(x, y, z);
                     BlockState state = level.getBlockState(offsetPos);
                     if (!state.is(BlockTags.CRYSTAL_SOUND_BLOCKS)) continue;
                     MutableComponent component = ComponentUtils.wrapInSquareBrackets(Component.translatable(
