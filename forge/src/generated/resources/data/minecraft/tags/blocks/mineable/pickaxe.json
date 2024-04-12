@@ -2,11 +2,13 @@
   "replace": false,
   "values": [
     "anvilcraft:stamping_platform",
+    "anvilcraft:corrupted_beacon",
     "anvilcraft:royal_anvil",
     "anvilcraft:magnet_block",
     "anvilcraft:hollow_magnet_block",
     "anvilcraft:ferrite_core_magnet_block",
     "anvilcraft:chute",
+    "anvilcraft:simple_chute",
     "anvilcraft:auto_crafter",
     "anvilcraft:royal_grindstone",
     "anvilcraft:royal_smithing_table",
@@ -16,6 +18,11 @@
     "anvilcraft:cut_royal_steel_slab",
     "anvilcraft:cut_royal_steel_stairs",
     "anvilcraft:lava_cauldron",
-    "anvilcraft:cursed_gold_block"
+    "anvilcraft:cursed_gold_block",
+    "anvilcraft:topaz_block",
+    "anvilcraft:ruby_block",
+    "anvilcraft:sapphire_block",
+    "anvilcraft:resin_block",
+    "anvilcraft:amber_block"
   ]
 }

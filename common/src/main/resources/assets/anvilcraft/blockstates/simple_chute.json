@@ -1,0 +1,40 @@
+{
+    "variants": {
+        "facing=down,tall=false": {
+            "model": "anvilcraft:block/simple_chute"
+        },
+        "facing=east,tall=false": {
+            "model": "anvilcraft:block/simple_chute_side",
+            "y": 90
+        },
+        "facing=north,tall=false": {
+            "model": "anvilcraft:block/simple_chute_side"
+        },
+        "facing=south,tall=false": {
+            "model": "anvilcraft:block/simple_chute_side",
+            "y": 180
+        },
+        "facing=west,tall=false": {
+            "model": "anvilcraft:block/simple_chute_side",
+            "y": 270
+        },
+        "facing=down,tall=true": {
+            "model": "anvilcraft:block/simple_chute_tall"
+        },
+        "facing=east,tall=true": {
+            "model": "anvilcraft:block/simple_chute_side_tall",
+            "y": 90
+        },
+        "facing=north,tall=true": {
+            "model": "anvilcraft:block/simple_chute_side_tall"
+        },
+        "facing=south,tall=true": {
+            "model": "anvilcraft:block/simple_chute_side_tall",
+            "y": 180
+        },
+        "facing=west,tall=true": {
+            "model": "anvilcraft:block/simple_chute_side_tall",
+            "y": 270
+        }
+    }
+}

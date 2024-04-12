@@ -36,6 +36,8 @@ public class ModItemGroups {
                         entries.accept(ModItems.TOPAZ.get().getDefaultInstance());
                         entries.accept(ModItems.RUBY.get().getDefaultInstance());
                         entries.accept(ModItems.SAPPHIRE.get().getDefaultInstance());
+                        entries.accept(ModItems.RESIN.get().getDefaultInstance());
+                        entries.accept(ModItems.AMBER.get().getDefaultInstance());
                         entries.accept(ModItems.SPONGE_GEMMULE.get().getDefaultInstance());
                         entries.accept(ModItems.COCOA_LIQUOR.get().getDefaultInstance());
                         entries.accept(ModItems.COCOA_BUTTER.get().getDefaultInstance());
@@ -53,6 +55,7 @@ public class ModItemGroups {
                         entries.accept(Items.CAULDRON.getDefaultInstance());
                         entries.accept(Items.CAMPFIRE.getDefaultInstance());
                         entries.accept(ModBlocks.STAMPING_PLATFORM.asStack());
+                        entries.accept(ModBlocks.CORRUPTED_BEACON.asStack());
                         entries.accept(Items.ANVIL.getDefaultInstance());
                         entries.accept(Items.CHIPPED_ANVIL.getDefaultInstance());
                         entries.accept(Items.DAMAGED_ANVIL.getDefaultInstance());
@@ -70,6 +73,11 @@ public class ModItemGroups {
                         entries.accept(ModBlocks.CUT_ROYAL_STEEL_SLAB.asStack());
                         entries.accept(ModBlocks.CUT_ROYAL_STEEL_STAIRS.asStack());
                         entries.accept(ModBlocks.CURSED_GOLD_BLOCK.asStack());
+                        entries.accept(ModBlocks.TOPAZ_BLOCK.asStack());
+                        entries.accept(ModBlocks.RUBY_BLOCK.asStack());
+                        entries.accept(ModBlocks.SAPPHIRE_BLOCK.asStack());
+                        entries.accept(ModBlocks.RESIN_BLOCK.asStack());
+                        entries.accept(ModBlocks.AMBER_BLOCK.asStack());
                     })
                     .build()
             )
