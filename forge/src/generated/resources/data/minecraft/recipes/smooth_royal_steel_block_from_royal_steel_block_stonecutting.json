@@ -1,8 +1,0 @@
-{
-  "type": "minecraft:stonecutting",
-  "count": 4,
-  "ingredient": {
-    "item": "anvilcraft:royal_steel_block"
-  },
-  "result": "anvilcraft:smooth_royal_steel_block"
-}
