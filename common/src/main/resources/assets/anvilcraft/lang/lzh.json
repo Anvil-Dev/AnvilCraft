@@ -105,6 +105,8 @@
   "text.autoconfig.anvilcraft.option.geodeRadius.@Tooltip": "晶穴索之極距",
   "text.autoconfig.anvilcraft.option.lightningStrikeDepth": "雷擊之深",
   "text.autoconfig.anvilcraft.option.lightningStrikeDepth.@Tooltip": "雷擊所至之極深",
+  "text.autoconfig.anvilcraft.option.lightningStrikeRadius": "雷擊之域",
+  "text.autoconfig.anvilcraft.option.lightningStrikeRadius.@Tooltip": "雷擊所至之極徑",
   "text.autoconfig.anvilcraft.option.magnetAttractsDistance": "礠石塊之限",
   "text.autoconfig.anvilcraft.option.magnetAttractsDistance.@Tooltip": "礠石塊引砧之極距",
   "text.autoconfig.anvilcraft.option.magnetItemAttractsRadius": "收執礠石之域",

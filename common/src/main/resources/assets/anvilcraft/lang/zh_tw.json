@@ -105,6 +105,8 @@
   "text.autoconfig.anvilcraft.option.geodeRadius.@Tooltip": "使用晶洞搜索紫晶洞的最大半徑",
   "text.autoconfig.anvilcraft.option.lightningStrikeDepth": "雷擊深度",
   "text.autoconfig.anvilcraft.option.lightningStrikeDepth.@Tooltip": "雷擊可以達到的最大深度",
+  "text.autoconfig.anvilcraft.option.lightningStrikeRadius": "雷擊半徑",
+  "text.autoconfig.anvilcraft.option.lightningStrikeRadius.@Tooltip": "雷擊可以達到的最大半徑",
   "text.autoconfig.anvilcraft.option.magnetAttractsDistance": "磁鐵吸引距離",
   "text.autoconfig.anvilcraft.option.magnetAttractsDistance.@Tooltip": "磁鐵吸引鐵砧的最遠距離",
   "text.autoconfig.anvilcraft.option.magnetItemAttractsRadius": "手持磁鐵吸引半徑",

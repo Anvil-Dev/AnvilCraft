@@ -105,6 +105,8 @@
   "text.autoconfig.anvilcraft.option.geodeRadius.@Tooltip": "The maximum search radius of the geode",
   "text.autoconfig.anvilcraft.option.lightningStrikeDepth": "Lightning Strike Depth",
   "text.autoconfig.anvilcraft.option.lightningStrikeDepth.@Tooltip": "Maximum depth a lightning strike can reach",
+  "text.autoconfig.anvilcraft.option.lightningStrikeRadius": "Lightning Strike Radius",
+  "text.autoconfig.anvilcraft.option.lightningStrikeRadius.@Tooltip": "Maximum radius a lightning strike can reach",
   "text.autoconfig.anvilcraft.option.magnetAttractsDistance": "Magnet Attracts Distance",
   "text.autoconfig.anvilcraft.option.magnetAttractsDistance.@Tooltip": "Maximum distance a magnet attracts",
   "text.autoconfig.anvilcraft.option.magnetItemAttractsRadius": "Magnet Item Attracts Radius",
