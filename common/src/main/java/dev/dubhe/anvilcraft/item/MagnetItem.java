@@ -19,11 +19,17 @@ public class MagnetItem extends Item {
     }
 
     @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, InteractionHand usedHand) {
+    public @NotNull InteractionResultHolder<ItemStack> use(
+            @NotNull Level level,
+            @NotNull Player player,
+            @NotNull InteractionHand usedHand
+    ) {
         ItemStack item = player.getItemInHand(usedHand);
         double radius = AnvilCraft.config.magnetItemAttractsRadius;
-        AABB aabb = new AABB(player.position().add(-radius, -radius, -radius), player.position().add(radius, radius, radius));
-        level.getEntities(EntityTypeTest.forClass(ItemEntity.class), aabb, Entity::isAlive).forEach(e -> e.moveTo(player.position()));
+        AABB aabb = new AABB(player.position().add(-radius, -radius, -radius), player.position()
+                .add(radius, radius, radius));
+        level.getEntities(EntityTypeTest.forClass(ItemEntity.class), aabb, Entity::isAlive)
+                .forEach(e -> e.moveTo(player.position()));
         item.hurtAndBreak(1, player, p -> p.broadcastBreakEvent(usedHand));
         return InteractionResultHolder.sidedSuccess(item, level.isClientSide());
     }

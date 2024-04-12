@@ -40,6 +40,10 @@ public class ModItemGroups {
                         entries.accept(ModItems.RESIN.get().getDefaultInstance());
                         entries.accept(ModItems.AMBER.get().getDefaultInstance());
                         entries.accept(ModItems.SPONGE_GEMMULE.get().getDefaultInstance());
+                        entries.accept(ModItems.SEA_HEART_SHELL_SHARD.get().getDefaultInstance());
+                        entries.accept(ModItems.SEA_HEART_SHELL.get().getDefaultInstance());
+                        entries.accept(ModItems.PRISMARINE_CLUSTER.get().getDefaultInstance());
+                        entries.accept(ModItems.PRISMARINE_BLADE.get().getDefaultInstance());
                         entries.accept(ModItems.COCOA_LIQUOR.get().getDefaultInstance());
                         entries.accept(ModItems.COCOA_BUTTER.get().getDefaultInstance());
                         entries.accept(ModItems.COCOA_POWDER.get().getDefaultInstance());

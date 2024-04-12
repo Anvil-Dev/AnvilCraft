@@ -63,4 +63,10 @@ public class AnvilCraftConfig implements ConfigData {
     @ConfigEntry.BoundedDiscrete(max = 8, min = 1)
     @SerializedName("Geode Search Interval")
     public int geodeInterval = 4;
+
+    @Comment("The search cooldown of the geode (in seconds)")
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(max = 30, min = 5)
+    @SerializedName("Geode Search Cooldown")
+    public int geodeCooldown = 5;
 }

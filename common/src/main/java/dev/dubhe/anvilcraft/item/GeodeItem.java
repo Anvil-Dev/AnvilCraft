@@ -20,9 +20,14 @@ public class GeodeItem extends Item {
     }
 
     @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(Level level, Player player, @NotNull InteractionHand usedHand) {
+    public @NotNull InteractionResultHolder<ItemStack> use(
+            @NotNull Level level,
+            @NotNull Player player,
+            @NotNull InteractionHand usedHand
+    ) {
         ItemStack itemStack = player.getItemInHand(usedHand);
         BlockPos pos = player.getOnPos().below();
+        player.getCooldowns().addCooldown(itemStack.getItem(), AnvilCraft.config.geodeCooldown * 20);
         if (!level.isClientSide) return InteractionResultHolder.success(itemStack);
         int interval = AnvilCraft.config.geodeInterval;
         int radius = AnvilCraft.config.geodeRadius;
@@ -32,7 +37,7 @@ public class GeodeItem extends Item {
                 for (int y = level.getMinBuildHeight(); y <= height; y += interval) {
                     BlockPos offsetPos = pos.offset(x, y, z);
                     BlockState state = level.getBlockState(offsetPos);
-                    if(!state.is(BlockTags.CRYSTAL_SOUND_BLOCKS)) continue;
+                    if (!state.is(BlockTags.CRYSTAL_SOUND_BLOCKS)) continue;
                     BlockHighlightUtil.highlightBlock(level, offsetPos);
                     break;
                 }

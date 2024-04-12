@@ -45,12 +45,6 @@
     "minecraft:campfire",
     "minecraft:anvil",
     "minecraft:chipped_anvil",
-    "minecraft:damaged_anvil",
-    "anvilcraft:royal_smithing_table",
-    "anvilcraft:auto_crafter",
-    "anvilcraft:chute",
-    "anvilcraft:stamping_platform",
-    "anvilcraft:royal_anvil",
-    "anvilcraft:royal_grindstone"
+    "minecraft:damaged_anvil"
   ]
 }

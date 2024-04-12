@@ -30,6 +30,7 @@ public class BulgingAndCrystallizeRecipesLoader {
         bulging(ModItems.FLOUR.get(), ModItems.DOUGH.get(), provider);
         bulging(ModItems.BARK.get(), ModItems.PULP.get(), provider);
         bulging(ModItems.SPONGE_GEMMULE.get(), Items.WET_SPONGE, provider);
+        crystallize(ModItems.SEA_HEART_SHELL_SHARD.get(), ModItems.PRISMARINE_CLUSTER.get(),provider);
     }
 
     private static void bulging(Item item, Item item1, RegistrateRecipeProvider provider) {
