@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "A": {
+      "item": "minecraft:anvil"
+    },
+    "B": {
+      "item": "minecraft:lightning_rod"
+    }
+  },
+  "pattern": [
+    " A",
+    " B",
+    " B"
+  ],
+  "result": {
+    "item": "anvilcraft:anvil_hammer"
+  },
+  "show_notification": true
+}

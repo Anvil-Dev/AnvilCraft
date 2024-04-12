@@ -44,6 +44,22 @@ public class VanillaRecipesLoader {
                 .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_BLOCK), AnvilCraftDatagen.has(Items.IRON_BLOCK))
                 .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
                 .save(provider);
+        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, Items.TRIDENT)
+                .pattern(" AA")
+                .pattern(" BA")
+                .pattern("B  ")
+                .define('A', ModItems.PRISMARINE_BLADE)
+                .define('B', Items.PRISMARINE_BRICKS)
+                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModItems.PRISMARINE_BLADE))
+                .save(provider);
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Items.HEART_OF_THE_SEA)
+                .pattern("A")
+                .pattern("B")
+                .pattern("A")
+                .define('A', ModItems.SEA_HEART_SHELL)
+                .define('B', ModItems.SAPPHIRE)
+                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModItems.SEA_HEART_SHELL))
+                .save(provider);
 
         SimpleCookingRecipeBuilder.campfireCooking(Ingredient.of(ModItemTags.DOUGH), RecipeCategory.FOOD, Items.BREAD, 0.35f, 600)
                 .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.DOUGH.get()), AnvilCraftDatagen.has(ModItems.DOUGH))

@@ -425,10 +425,30 @@ public class ModItems {
                     .save(provider)
             )
             .register();
+    public static final ItemEntry<Item> PRISMARINE_BLADE = REGISTRATE
+            .item("prismarine_blade", Item::new)
+            .register();
+    public static final ItemEntry<Item> PRISMARINE_CLUSTER = REGISTRATE
+            .item("prismarine_cluster", Item::new)
+            .register();
+    public static final ItemEntry<Item> SEA_HEART_SHELL = REGISTRATE
+            .item("sea_heart_shell", Item::new)
+            .register();
+    public static final ItemEntry<Item> SEA_HEART_SHELL_SHARD = REGISTRATE
+            .item("sea_heart_shell_shard", Item::new)
+            .register();
     public static final ItemEntry<AnvilHammerItem> ANVIL_HAMMER = REGISTRATE
             .item("anvil_hammer", properties -> new AnvilHammerItem(properties.durability(35)))
             .model((ctx, provider) -> {
             })
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
+                    .pattern(" A")
+                    .pattern(" B")
+                    .pattern(" B")
+                    .define('A', Items.ANVIL)
+                    .define('B', Items.LIGHTNING_ROD)
+                    .unlockedBy("hasitem", RegistrateRecipeProvider.has(Items.LIGHTNING_ROD))
+                    .save(provider))
             .register();
 
     public static void register() {
