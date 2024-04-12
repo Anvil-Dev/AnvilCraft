@@ -17,5 +17,10 @@ public class LangHandler {
             "item.anvilcraft.amethyst_pickaxe.tooltip",
             "Stone pickaxe quality, can mine iron ore, not diamonds!"
         );
+
+        provider.add(
+            "item.anvilcraft.geode.find",
+            "Suspected amethyst geode, located %s"
+        );
     }
 }
