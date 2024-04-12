@@ -159,8 +159,8 @@ public class FilteredItemDepository extends ItemDepository {
             int slot = itemTag.getInt("Slot");
             if (slot < 0 || slot >= slots) continue;
             this.getStacks().set(slot, ItemStack.of(itemTag));
-            if (tag.contains("filtered")) this.filteredItems.set(i, ItemStack.of(itemTag.getCompound("filtered")));
-            this.disabled.set(i, itemTag.getBoolean("disabled"));
+            if (itemTag.contains("filtered")) this.filteredItems.set(slot, ItemStack.of(itemTag.getCompound("filtered")));
+            this.disabled.set(slot, itemTag.getBoolean("disabled"));
         }
     }
 
