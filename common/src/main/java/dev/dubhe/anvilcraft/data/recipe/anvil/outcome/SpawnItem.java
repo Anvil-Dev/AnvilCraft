@@ -26,18 +26,31 @@ public class SpawnItem implements RecipeOutcome {
     private final double chance;
     private final ItemStack result;
 
+    /**
+     * 产生物品
+     *
+     * @param offset 偏移
+     * @param chance 几率
+     * @param result 产物
+     */
     public SpawnItem(Vec3 offset, double chance, ItemStack result) {
         this.offset = offset;
         this.chance = chance;
         this.result = result;
     }
 
+    /**
+     * @param buffer 缓冲区
+     */
     public SpawnItem(@NotNull FriendlyByteBuf buffer) {
         this.offset = new Vec3(buffer.readVector3f());
         this.chance = buffer.readDouble();
         this.result = buffer.readItem();
     }
 
+    /**
+     * @param serializedRecipe json
+     */
     public SpawnItem(@NotNull JsonObject serializedRecipe) {
         double[] vec3 = {0.0d, 0.0d, 0.0d};
         if (serializedRecipe.has("offset")) {

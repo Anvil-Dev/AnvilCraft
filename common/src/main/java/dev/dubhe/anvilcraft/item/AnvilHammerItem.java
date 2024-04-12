@@ -33,11 +33,22 @@ public class AnvilHammerItem extends Item implements Vanishable {
     private long lastDropAnvilTime = 0;
     private final Multimap<Attribute, AttributeModifier> defaultModifiers;
 
+    /**
+     * 初始化铁砧锤
+     *
+     * @param properties 物品属性
+     */
     public AnvilHammerItem(Item.Properties properties) {
         super(properties);
         ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
-        builder.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(BASE_ATTACK_DAMAGE_UUID, "Weapon modifier", 5, AttributeModifier.Operation.ADDITION));
-        builder.put(Attributes.ATTACK_SPEED, new AttributeModifier(BASE_ATTACK_SPEED_UUID, "Weapon modifier", -3F, AttributeModifier.Operation.ADDITION));
+        builder.put(
+            Attributes.ATTACK_DAMAGE,
+            new AttributeModifier(BASE_ATTACK_DAMAGE_UUID, "Weapon modifier", 5, AttributeModifier.Operation.ADDITION)
+        );
+        builder.put(
+            Attributes.ATTACK_SPEED,
+            new AttributeModifier(BASE_ATTACK_SPEED_UUID, "Weapon modifier", -3F, AttributeModifier.Operation.ADDITION)
+        );
         this.defaultModifiers = builder.build();
     }
 
@@ -65,7 +76,9 @@ public class AnvilHammerItem extends Item implements Vanishable {
         if (player == null || level.isClientSide) return;
         if (System.currentTimeMillis() - lastDropAnvilTime <= 150) return;
         lastDropAnvilTime = System.currentTimeMillis();
-        AnvilFallOnLandEvent event = new AnvilFallOnLandEvent(level, blockPos.above(), new FallingBlockEntity(EntityType.FALLING_BLOCK, level), player.fallDistance);
+        AnvilFallOnLandEvent event = new AnvilFallOnLandEvent(
+            level, blockPos.above(), new FallingBlockEntity(EntityType.FALLING_BLOCK, level), player.fallDistance
+        );
         AnvilCraft.EVENT_BUS.post(event);
         level.playSound(null, blockPos, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 1f, 1f);
         ItemStack itemStack = player.getItemInHand(player.getUsedItemHand());
@@ -85,6 +98,13 @@ public class AnvilHammerItem extends Item implements Vanishable {
         return InteractionResult.sidedSuccess(changeBlockState(player, blockPos, level, context.getItemInHand()));
     }
 
+    /**
+     * 左键方块
+     *
+     * @param player   玩家
+     * @param blockPos 位置
+     * @param level    世界
+     */
     public void useAttackBlock(Player player, BlockPos blockPos, Level level) {
         if (player == null || level.isClientSide) return;
         if (player.isShiftKeyDown()) {
@@ -95,7 +115,9 @@ public class AnvilHammerItem extends Item implements Vanishable {
     }
 
     @Override
-    public boolean canAttackBlock(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player) {
+    public boolean canAttackBlock(
+        @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player
+    ) {
         return !player.isCreative();
     }
 
@@ -105,7 +127,13 @@ public class AnvilHammerItem extends Item implements Vanishable {
     }
 
     @Override
-    public boolean mineBlock(@NotNull ItemStack stack, @NotNull Level level, @NotNull BlockState state, @NotNull BlockPos pos, @NotNull LivingEntity miningEntity) {
+    public boolean mineBlock(
+        @NotNull ItemStack stack,
+        @NotNull Level level,
+        @NotNull BlockState state,
+        @NotNull BlockPos pos,
+        @NotNull LivingEntity miningEntity
+    ) {
         if (state.getDestroySpeed(level, pos) != 0.0f) {
             stack.hurtAndBreak(2, miningEntity, e -> e.broadcastBreakEvent(EquipmentSlot.MAINHAND));
         }

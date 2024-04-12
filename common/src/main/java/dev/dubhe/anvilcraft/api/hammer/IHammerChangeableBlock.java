@@ -10,6 +10,9 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * 可被锤子改变的方块
+ */
 @SuppressWarnings("unused")
 public interface IHammerChangeableBlock extends IHammerChangeable {
     DirectionProperty FACING_HOPPER = BlockStateProperties.FACING_HOPPER;

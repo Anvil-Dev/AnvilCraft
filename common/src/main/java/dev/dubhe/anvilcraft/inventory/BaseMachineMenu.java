@@ -1,10 +1,9 @@
 package dev.dubhe.anvilcraft.inventory;
 
 import dev.dubhe.anvilcraft.block.entity.BaseMachineBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntityOld;
+import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntity;
 import lombok.Getter;
 import net.minecraft.core.Direction;
-import net.minecraft.core.NonNullList;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -24,14 +23,14 @@ public abstract class BaseMachineMenu extends AbstractContainerMenu {
     }
 
     @Override
-    public @NotNull ItemStack quickMoveStack(Player player, int index) {
+    public @NotNull ItemStack quickMoveStack(@NotNull Player player, int index) {
         ItemStack itemStack = ItemStack.EMPTY;
         if (index >= this.slots.size()) return itemStack;
         Slot slot = this.slots.get(index);
         if (!slot.hasItem()) return itemStack;
         ItemStack itemStack2 = slot.getItem();
         itemStack = itemStack2.copy();
-        if (quickMoveFilter(index,itemStack2)) {
+        if (quickMoveFilter(index, itemStack2)) {
             return ItemStack.EMPTY;
         }
         if (itemStack2.isEmpty()) slot.setByPlayer(ItemStack.EMPTY);
@@ -41,16 +40,17 @@ public abstract class BaseMachineMenu extends AbstractContainerMenu {
         return itemStack;
     }
 
-    private boolean quickMoveFilter(int index,ItemStack itemStack){
-        if(index < this.machine.getContainerSize()){
-            return !this.moveItemStackTo(itemStack, this.machine.getContainerSize(), this.machine.getContainerSize() + 36, true);
-        }else{
+    private boolean quickMoveFilter(int index, ItemStack itemStack) {
+        if (index < this.machine.getContainerSize()) {
+            return !this.moveItemStackTo(
+                itemStack, this.machine.getContainerSize(), this.machine.getContainerSize() + 36, true
+            );
+        } else {
             boolean bl = false;
-            if (this.getMachine() instanceof IFilterBlockEntityOld entity) {
+            if (this.getMachine() instanceof IFilterBlockEntity entity) {
                 for (int i = 0; i < this.machine.getContainerSize(); i++) {
-                    ItemStack filter = entity.getFilter().get(i);
-                    NonNullList<Boolean> disableds = entity.getDisabled();
-                    if (filter.is(itemStack.getItem()) || !disableds.get(i)) {
+                    ItemStack filter = entity.getFilter(i);
+                    if (filter.is(itemStack.getItem()) || !entity.isSlotDisabled(i)) {
                         bl = !this.moveItemStackTo(itemStack, i, i + 1, false);
                     }
                 }
@@ -60,7 +60,7 @@ public abstract class BaseMachineMenu extends AbstractContainerMenu {
     }
 
     @Override
-    public boolean stillValid(Player player) {
+    public boolean stillValid(@NotNull Player player) {
         return this.machine.stillValid(player);
     }
 

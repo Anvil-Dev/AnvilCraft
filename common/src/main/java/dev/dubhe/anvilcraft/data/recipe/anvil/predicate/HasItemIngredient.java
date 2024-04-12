@@ -42,6 +42,14 @@ public class HasItemIngredient extends HasItem {
         return HasItemIngredient.of(offset, ingredient, 1);
     }
 
+    /**
+     * 拥有物品原料
+     *
+     * @param offset     偏移
+     * @param ingredient 原料
+     * @param count      数量
+     * @return 拥有物品原料
+     */
     public static @NotNull HasItemIngredient of(Vec3 offset, @NotNull Ingredient ingredient, int count) {
         ItemPredicate.Builder item = ItemPredicate.Builder.item().withCount(MinMaxBounds.Ints.atLeast(count));
         List<Item> items = new ArrayList<>();
@@ -60,7 +68,8 @@ public class HasItemIngredient extends HasItem {
         Level level = container.getLevel();
         BlockPos pos = container.getPos();
         AABB aabb = new AABB(pos).move(this.offset);
-        List<ItemEntity> entities = level.getEntities(EntityTypeTest.forClass(ItemEntity.class), aabb, Predicates.alwaysTrue());
+        List<ItemEntity> entities =
+            level.getEntities(EntityTypeTest.forClass(ItemEntity.class), aabb, Predicates.alwaysTrue());
         for (ItemEntity entity : entities) {
             ItemStack item = entity.getItem();
             if (this.matchItem.matches(item)) {

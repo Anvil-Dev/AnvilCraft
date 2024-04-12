@@ -4,6 +4,11 @@ import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 
 public class RecipesHandler {
 
+    /**
+     * 初始化配方生成器
+     *
+     * @param provider 提供器
+     */
     public static void init(RegistrateRecipeProvider provider) {
 
         VanillaRecipesLoader.init(provider);

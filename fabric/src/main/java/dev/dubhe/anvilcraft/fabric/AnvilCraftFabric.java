@@ -17,6 +17,8 @@ public class AnvilCraftFabric implements ModInitializer {
         ModRecipeTypesFabric.register();
         AnvilHammerListener.register();
         LootTableListener.register();
-        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> ModCommands.register(dispatcher));
+        CommandRegistrationCallback.EVENT.register(
+            (dispatcher, registryAccess, environment) -> ModCommands.register(dispatcher)
+        );
     }
 }

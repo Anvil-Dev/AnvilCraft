@@ -35,6 +35,11 @@ public class HasItem implements RecipePredicate {
         this.matchItem = matchItem;
     }
 
+    /**
+     * 拥有物品
+     *
+     * @param serializedRecipe 序列化配方
+     */
     public HasItem(JsonObject serializedRecipe) {
         JsonArray array = GsonHelper.getAsJsonArray(serializedRecipe, "offset");
         double[] vec3 = {0.0d, 0.0d, 0.0d};
@@ -59,7 +64,8 @@ public class HasItem implements RecipePredicate {
         Level level = container.getLevel();
         BlockPos pos = container.getPos();
         AABB aabb = new AABB(pos).move(this.offset);
-        List<ItemEntity> entities = level.getEntities(EntityTypeTest.forClass(ItemEntity.class), aabb, Predicates.alwaysTrue());
+        List<ItemEntity> entities =
+            level.getEntities(EntityTypeTest.forClass(ItemEntity.class), aabb, Predicates.alwaysTrue());
         for (ItemEntity entity : entities) {
             ItemStack item = entity.getItem();
             if (this.matchItem.matches(item)) return true;

@@ -16,7 +16,10 @@ public class SimpleChuteBlockEntityImpl extends SimpleChuteBlockEntity {
     public SimpleChuteBlockEntityImpl(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
-    public static SimpleChuteBlockEntity createBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+
+    public static @NotNull SimpleChuteBlockEntity createBlockEntity(
+        BlockEntityType<?> type, BlockPos pos, BlockState blockState
+    ) {
         return new SimpleChuteBlockEntityImpl(type, pos, blockState);
     }
 
@@ -26,7 +29,8 @@ public class SimpleChuteBlockEntityImpl extends SimpleChuteBlockEntity {
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
         if (cap == ForgeCapabilities.ITEM_HANDLER) {
-            return ForgeCapabilities.ITEM_HANDLER.orEmpty(cap, LazyOptional.of(() -> ItemDepositoryHelperImpl.toItemHandler(getDepository())));
+            return ForgeCapabilities.ITEM_HANDLER.orEmpty(cap,
+                LazyOptional.of(() -> ItemDepositoryHelperImpl.toItemHandler(getDepository())));
         }
         return super.getCapability(cap, side);
     }

@@ -15,7 +15,12 @@ public class FerriteCoreMagnetBlock extends MagnetBlock {
 
     @Override
     @SuppressWarnings("deprecation")
-    public void randomTick(BlockState blockState, ServerLevel serverLevel, BlockPos blockPos, @NotNull RandomSource randomSource) {
+    public void randomTick(
+        @NotNull BlockState blockState,
+        @NotNull ServerLevel serverLevel,
+        @NotNull BlockPos blockPos,
+        @NotNull RandomSource randomSource
+    ) {
         int times = 0;
         for (Direction face : Direction.values()) {
             if (serverLevel.getBlockState(blockPos.relative(face)).is(ModBlocks.MAGNET_BLOCK.get())) times++;

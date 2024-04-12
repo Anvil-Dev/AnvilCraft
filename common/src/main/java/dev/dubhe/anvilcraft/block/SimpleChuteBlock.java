@@ -40,7 +40,8 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
-public class SimpleChuteBlock extends BaseEntityBlock implements SimpleWaterloggedBlock, IHammerChangeable, IHammerRemovable {
+public class SimpleChuteBlock extends BaseEntityBlock implements
+    SimpleWaterloggedBlock, IHammerChangeable, IHammerRemovable {
     public static final DirectionProperty FACING = BlockStateProperties.FACING_HOPPER;
     public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
@@ -49,14 +50,21 @@ public class SimpleChuteBlock extends BaseEntityBlock implements SimpleWaterlogg
     public static final VoxelShape AABB = Block.box(2, 0, 2, 14, 12, 14);
     public static final VoxelShape AABB_TALL = Block.box(2, 0, 2, 14, 16, 14);
     public static final VoxelShape AABB_N = Block.box(4, 4, 0, 12, 12, 12);
-    public static final VoxelShape AABB_TALL_N = Shapes.join(Block.box(4, 4, 0, 12, 12, 12), Block.box(2, 8, 2, 14, 16, 14), BooleanOp.OR);
+    public static final VoxelShape AABB_TALL_N = Shapes.join(Block.box(4, 4, 0, 12, 12, 12),
+        Block.box(2, 8, 2, 14, 16, 14), BooleanOp.OR);
     public static final VoxelShape AABB_E = Block.box(4, 4, 4, 16, 12, 12);
-    public static final VoxelShape AABB_TALL_E = Shapes.join(Block.box(4, 4, 4, 16, 12, 12), Block.box(2, 8, 2, 14, 16, 14), BooleanOp.OR);
+    public static final VoxelShape AABB_TALL_E = Shapes.join(Block.box(4, 4, 4, 16, 12, 12),
+        Block.box(2, 8, 2, 14, 16, 14), BooleanOp.OR);
     public static final VoxelShape AABB_S = Block.box(4, 4, 4, 12, 12, 16);
-    public static final VoxelShape AABB_TALL_S = Shapes.join(Block.box(4, 4, 4, 12, 12, 16), Block.box(2, 8, 2, 14, 16, 14), BooleanOp.OR);
+    public static final VoxelShape AABB_TALL_S = Shapes.join(Block.box(4, 4, 4, 12, 12, 16),
+        Block.box(2, 8, 2, 14, 16, 14), BooleanOp.OR);
     public static final VoxelShape AABB_W = Block.box(0, 4, 4, 12, 12, 12);
-    public static final VoxelShape AABB_TALL_W = Shapes.join(Block.box(0, 4, 4, 12, 12, 12), Block.box(2, 8, 2, 14, 16, 14), BooleanOp.OR);
+    public static final VoxelShape AABB_TALL_W = Shapes.join(Block.box(0, 4, 4, 12, 12, 12),
+        Block.box(2, 8, 2, 14, 16, 14), BooleanOp.OR);
 
+    /**
+     * @param properties 方块属性
+     */
     public SimpleChuteBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any()
@@ -68,7 +76,7 @@ public class SimpleChuteBlock extends BaseEntityBlock implements SimpleWaterlogg
 
     @Nullable
     @Override
-    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+    public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
         return SimpleChuteBlockEntity.createBlockEntity(ModBlockEntities.SIMPLE_CHUTE.get(), pos, state);
     }
 
@@ -79,7 +87,11 @@ public class SimpleChuteBlock extends BaseEntityBlock implements SimpleWaterlogg
 
     @SuppressWarnings("deprecation")
     @Override
-    public void neighborChanged(@NotNull BlockState state, @Nonnull Level level, @NotNull BlockPos pos, @NotNull Block neighborBlock, @NotNull BlockPos neighborPos, boolean movedByPiston) {
+    public void neighborChanged(
+        @NotNull BlockState state, @Nonnull Level level,
+        @NotNull BlockPos pos, @NotNull Block neighborBlock,
+        @NotNull BlockPos neighborPos, boolean movedByPiston
+    ) {
         if (level.isClientSide) return;
         boolean bl = state.getValue(ENABLED);
         if (bl == level.hasNeighborSignal(pos)) {
@@ -90,7 +102,9 @@ public class SimpleChuteBlock extends BaseEntityBlock implements SimpleWaterlogg
 
     @SuppressWarnings("deprecation")
     @Override
-    public void tick(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random) {
+    public void tick(
+        @NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random
+    ) {
         if (!state.getValue(ENABLED) && !level.hasNeighborSignal(pos)) {
             level.setBlock(pos, state.cycle(ENABLED), 2);
         }
@@ -103,7 +117,10 @@ public class SimpleChuteBlock extends BaseEntityBlock implements SimpleWaterlogg
 
     @SuppressWarnings("deprecation")
     @Override
-    public void onRemove(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean movedByPiston) {
+    public void onRemove(
+        @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos,
+        @NotNull BlockState newState, boolean movedByPiston
+    ) {
         if (!state.is(newState.getBlock())) {
             if (level.getBlockEntity(pos) instanceof SimpleChuteBlockEntity entity) {
                 Vec3 vec3 = entity.getBlockPos().getCenter();
@@ -141,7 +158,9 @@ public class SimpleChuteBlock extends BaseEntityBlock implements SimpleWaterlogg
 
     @Nullable
     @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
+        Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> blockEntityType
+    ) {
         if (level.isClientSide) return null;
         return createTickerHelper(blockEntityType, ModBlockEntities.SIMPLE_CHUTE.get(),
                 ((level1, blockPos, blockState, blockEntity) -> blockEntity.tick()));
@@ -149,7 +168,10 @@ public class SimpleChuteBlock extends BaseEntityBlock implements SimpleWaterlogg
 
     @SuppressWarnings("deprecation")
     @Override
-    public @Nonnull VoxelShape getShape(@Nonnull BlockState blockState, @Nonnull BlockGetter blockGetter, @Nonnull BlockPos blockPos, @Nonnull CollisionContext collisionContext) {
+    public @Nonnull VoxelShape getShape(
+        @Nonnull BlockState blockState, @Nonnull BlockGetter blockGetter,
+        @Nonnull BlockPos blockPos, @Nonnull CollisionContext collisionContext
+    ) {
         if (!blockState.getValue(TALL)) {
             return switch (blockState.getValue(FACING)) {
                 case NORTH -> AABB_N;
@@ -185,8 +207,9 @@ public class SimpleChuteBlock extends BaseEntityBlock implements SimpleWaterlogg
         return 0;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
-    public FluidState getFluidState(BlockState state) {
+    public @NotNull FluidState getFluidState(@NotNull BlockState state) {
         return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 

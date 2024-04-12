@@ -4,6 +4,9 @@ import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
 
+/**
+ * 有过滤的方块实体
+ */
 public interface IFilterBlockEntity {
     /**
      * 获取有过滤的物品存储

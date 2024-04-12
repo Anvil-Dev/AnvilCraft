@@ -21,14 +21,15 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings("resource")
 public class UtusanItem extends Item {
     public UtusanItem(Properties properties) {
         super(properties);
     }
 
     @Override
-    public @NotNull ItemStack finishUsingItem(@NotNull ItemStack itemStack, @NotNull Level level, @NotNull LivingEntity livingEntity) {
+    public @NotNull ItemStack finishUsingItem(
+        @NotNull ItemStack itemStack, @NotNull Level level, @NotNull LivingEntity livingEntity
+    ) {
         if (livingEntity instanceof ServerPlayer serverPlayer) {
             CriteriaTriggers.CONSUME_ITEM.trigger(serverPlayer, itemStack);
             serverPlayer.awardStat(Stats.ITEM_USED.get(this));
@@ -42,6 +43,11 @@ public class UtusanItem extends Item {
         return itemStack;
     }
 
+    /**
+     * 移除负面效果
+     *
+     * @param livingEntity 生物
+     */
     public static void removeHarmfulEffects(@NotNull LivingEntity livingEntity) {
         if (livingEntity.level().isClientSide) return;
         boolean bl = false;
@@ -69,7 +75,9 @@ public class UtusanItem extends Item {
     }
 
     @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand interactionHand) {
+    public @NotNull InteractionResultHolder<ItemStack> use(
+        @NotNull Level level, @NotNull Player player, @NotNull InteractionHand interactionHand
+    ) {
         return ItemUtils.startUsingInstantly(level, player, interactionHand);
     }
 }

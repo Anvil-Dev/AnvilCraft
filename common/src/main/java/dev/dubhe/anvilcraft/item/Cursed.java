@@ -1,7 +1,5 @@
 package dev.dubhe.anvilcraft.item;
 
-import dev.dubhe.anvilcraft.init.ModBlocks;
-import dev.dubhe.anvilcraft.init.ModItems;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -11,7 +9,19 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * 诅咒物品
+ */
 public interface Cursed {
+    /**
+     * 执行效果
+     *
+     * @param stack      物品
+     * @param level      世界
+     * @param entity     实体
+     * @param slotId     槽位id
+     * @param isSelected 是否选中
+     */
     default void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         if (!(entity instanceof Player player)) return;
         if (player.getAbilities().instabuild) return;
@@ -28,10 +38,20 @@ public interface Cursed {
         }
     }
 
+    /**
+     * 统计诅咒物品数量
+     *
+     * @param player 玩家
+     * @return 诅咒物品数量
+     */
     static int hasCuredNumber(@NotNull Player player) {
         Inventory inventory = player.getInventory();
-        return inventory.countItem(ModItems.CURSED_GOLD_INGOT.get())
-                + inventory.countItem(ModItems.CURSED_GOLD_NUGGET.get())
-                + inventory.countItem(ModBlocks.CURSED_GOLD_BLOCK.asItem());
+        int i = 0;
+        for (int j = 0; j < inventory.getContainerSize(); ++j) {
+            ItemStack itemStack = inventory.getItem(j);
+            if (!(itemStack.getItem() instanceof Cursed)) continue;
+            i += itemStack.getCount();
+        }
+        return i;
     }
 }

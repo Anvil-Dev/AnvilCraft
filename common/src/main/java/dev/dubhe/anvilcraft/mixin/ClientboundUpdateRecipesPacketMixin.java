@@ -12,7 +12,14 @@ import java.util.List;
 
 @Mixin(ClientboundUpdateRecipesPacket.class)
 abstract class ClientboundUpdateRecipesPacketMixin {
-    @Redirect(method = "<init>(Lnet/minecraft/network/FriendlyByteBuf;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/FriendlyByteBuf;readList(Lnet/minecraft/network/FriendlyByteBuf$Reader;)Ljava/util/List;"))
+    @Redirect(
+        method = "<init>(Lnet/minecraft/network/FriendlyByteBuf;)V",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/network/FriendlyByteBuf;"
+                + "readList(Lnet/minecraft/network/FriendlyByteBuf$Reader;)Ljava/util/List;"
+        )
+    )
     private <T> @NotNull List<T> init(@NotNull FriendlyByteBuf instance, FriendlyByteBuf.Reader<T> elementReader) {
         try {
             return instance.readList(elementReader);

@@ -23,9 +23,11 @@ public abstract class NetworkImpl<T> extends Network<T> {
     public void init(Class<T> type) {
         EnvType envType = FabricLoader.getInstance().getEnvironmentType();
         if (envType == EnvType.CLIENT) {
-            ClientPlayNetworking.registerGlobalReceiver(this.getType(), (client, handler, buf, sender) -> this.handler(this.decode(buf)));
+            ClientPlayNetworking.registerGlobalReceiver(this.getType(), (client, handler, buf, sender) ->
+                this.handler(this.decode(buf)));
         }
-        ServerPlayNetworking.registerGlobalReceiver(this.getType(), (server, player, handler, buf, sender) -> this.handler(this.decode(buf), server, player));
+        ServerPlayNetworking.registerGlobalReceiver(this.getType(), (server, player, handler, buf, sender) ->
+            this.handler(this.decode(buf), server, player));
     }
 
     @Override
@@ -36,10 +38,18 @@ public abstract class NetworkImpl<T> extends Network<T> {
     }
 
     @Override
+    public void send(ServerPlayer player, T data) {
+        FriendlyByteBuf friendlyByteBuf = PacketByteBufs.create();
+        this.encode(data, friendlyByteBuf);
+        ServerPlayNetworking.getSender(player).sendPacket(this.getType(), friendlyByteBuf);
+    }
+
+    @Override
     public void broadcastTrackingChunk(@NotNull LevelChunk chunk, T data) {
         FriendlyByteBuf friendlyByteBuf = PacketByteBufs.create();
         this.encode(data, friendlyByteBuf);
-        for (ServerPlayer player : ((ServerChunkCache) chunk.getLevel().getChunkSource()).chunkMap.getPlayers(chunk.getPos(), false)) {
+        for (ServerPlayer player : ((ServerChunkCache) chunk.getLevel().getChunkSource())
+            .chunkMap.getPlayers(chunk.getPos(), false)) {
             ServerPlayNetworking.getSender(player).sendPacket(this.getType(), friendlyByteBuf);
         }
     }
@@ -55,14 +65,18 @@ public abstract class NetworkImpl<T> extends Network<T> {
         }
     }
 
-    @Override
-    public void send(ServerPlayer player, T data) {
-        FriendlyByteBuf friendlyByteBuf = PacketByteBufs.create();
-        this.encode(data, friendlyByteBuf);
-        ServerPlayNetworking.getSender(player).sendPacket(this.getType(), friendlyByteBuf);
-    }
-
-    public static <MSG extends Packet> @NotNull Network<MSG> create(ResourceLocation type, Class<MSG> clazz, Function<FriendlyByteBuf, MSG> decoder) {
+    /**
+     * 创建网络包类型
+     *
+     * @param type    类型
+     * @param clazz   类
+     * @param decoder 解码器
+     * @param <M>     数据包
+     * @return 网络包类型
+     */
+    public static <M extends Packet> @NotNull Network<M> create(
+        ResourceLocation type, Class<M> clazz, Function<FriendlyByteBuf, M> decoder
+    ) {
         return new NetworkImpl<>() {
             @Override
             public ResourceLocation getType() {
@@ -70,22 +84,22 @@ public abstract class NetworkImpl<T> extends Network<T> {
             }
 
             @Override
-            public void encode(@NotNull MSG data, @NotNull FriendlyByteBuf buf) {
+            public void encode(@NotNull M data, @NotNull FriendlyByteBuf buf) {
                 data.encode(buf);
             }
 
             @Override
-            public MSG decode(@NotNull FriendlyByteBuf buf) {
+            public M decode(@NotNull FriendlyByteBuf buf) {
                 return decoder.apply(buf);
             }
 
             @Override
-            public void handler(@NotNull MSG data) {
+            public void handler(@NotNull M data) {
                 data.handler();
             }
 
             @Override
-            public void handler(@NotNull MSG data, MinecraftServer server, ServerPlayer player) {
+            public void handler(@NotNull M data, MinecraftServer server, ServerPlayer player) {
                 data.handler(server, player);
             }
         };

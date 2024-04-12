@@ -78,6 +78,16 @@ public abstract class Network<T> {
     }
 
     /**
+     * 从客户端往服务端发送网络包
+     *
+     * @param data 数据
+     */
+    @Environment(EnvType.CLIENT)
+    public void send(T data) {
+        throw new AssertionError();
+    }
+
+    /**
      * 向所有玩家广播网络包
      *
      * @param data 数据
@@ -96,57 +106,61 @@ public abstract class Network<T> {
         throw new AssertionError();
     }
 
-    /**
-     * 从客户端往服务端发送网络包
-     *
-     * @param data 数据
-     */
-    @Environment(EnvType.CLIENT)
-    public void send(T data) {
-        throw new AssertionError();
-    }
-
     @ExpectPlatform
-    public static <MSG extends Packet> @NotNull Network<MSG> create(ResourceLocation type, Class<MSG> clazz, Function<FriendlyByteBuf, MSG> decoder) {
+    public static <T extends Packet> @NotNull Network<T> create(
+        ResourceLocation type, Class<T> clazz, Function<FriendlyByteBuf, T> decoder
+    ) {
         throw new AssertionError();
     }
 
-    public static <MSG extends Packet> ResourceLocation register(ResourceLocation type, Class<MSG> clazz, Function<FriendlyByteBuf, MSG> decoder) {
-        Network<MSG> network = Network.create(type, clazz, decoder);
+    /**
+     * 注册
+     *
+     * @param type    类型
+     * @param clazz   类
+     * @param decoder 解码器
+     * @param <T>     包
+     * @return 网络类型
+     */
+    @SuppressWarnings("UnreachableCode")
+    public static <T extends Packet> ResourceLocation register(
+        ResourceLocation type, Class<T> clazz, Function<FriendlyByteBuf, T> decoder
+    ) {
+        Network<T> network = Network.create(type, clazz, decoder);
         Network.NETWORK_MAP.put(type, network);
         network.init(clazz);
         return type;
     }
 
     @SuppressWarnings("unchecked")
-    protected static <MSG extends Packet> void sendPacket(ServerPlayer player, @NotNull MSG data) {
+    protected static <T extends Packet> void sendPacket(ServerPlayer player, @NotNull T data) {
         Network<?> network = Network.NETWORK_MAP.get(data.getType());
         if (network != null) {
-            ((Network<MSG>) network).send(player, data);
+            ((Network<T>) network).send(player, data);
         }
     }
 
     @SuppressWarnings("unchecked")
-    protected static <MSG extends Packet> void sendPacket(@NotNull MSG data) {
+    protected static <T extends Packet> void sendPacket(@NotNull T data) {
         Network<?> network = Network.NETWORK_MAP.get(data.getType());
         if (network != null) {
-            ((Network<MSG>) network).send(data);
+            ((Network<T>) network).send(data);
         }
     }
 
     @SuppressWarnings("unchecked")
-    protected static <MSG extends Packet> void broadcastPacketAll(@NotNull MSG data) {
+    protected static <T extends Packet> void broadcastPacketAll(@NotNull T data) {
         Network<?> network = Network.NETWORK_MAP.get(data.getType());
         if (network != null) {
-            ((Network<MSG>) network).broadcastAll(data);
+            ((Network<T>) network).broadcastAll(data);
         }
     }
 
     @SuppressWarnings("unchecked")
-    protected static <MSG extends Packet> void broadcastPacketTrackingChunk(LevelChunk chunk, @NotNull MSG data) {
+    protected static <T extends Packet> void broadcastPacketTrackingChunk(LevelChunk chunk, @NotNull T data) {
         Network<?> network = Network.NETWORK_MAP.get(data.getType());
         if (network != null) {
-            ((Network<MSG>) network).broadcastTrackingChunk(chunk, data);
+            ((Network<T>) network).broadcastTrackingChunk(chunk, data);
         }
     }
 }

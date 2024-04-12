@@ -21,6 +21,7 @@ import org.jetbrains.annotations.Unmodifiable;
 import java.util.List;
 import java.util.Optional;
 
+@SuppressWarnings("unused")
 public class RoyalSmithingMenu extends ItemCombinerMenu {
     private final Level level;
     @Nullable
@@ -39,7 +40,17 @@ public class RoyalSmithingMenu extends ItemCombinerMenu {
         this(ModMenuTypes.ROYAL_SMITHING.get(), containerId, playerInventory, access);
     }
 
-    public RoyalSmithingMenu(MenuType<RoyalSmithingMenu> type, int containerId, Inventory playerInventory, ContainerLevelAccess access) {
+    /**
+     * 皇家锻造台菜单
+     *
+     * @param type            类型
+     * @param containerId     容器id
+     * @param playerInventory 背包
+     * @param access          检查
+     */
+    public RoyalSmithingMenu(
+        MenuType<RoyalSmithingMenu> type, int containerId, Inventory playerInventory, ContainerLevelAccess access
+    ) {
         super(type, containerId, playerInventory, access);
         this.level = playerInventory.player.level();
         this.recipes = this.level.getRecipeManager().getAllRecipesFor(RecipeType.SMITHING);
@@ -47,21 +58,24 @@ public class RoyalSmithingMenu extends ItemCombinerMenu {
 
     protected @NotNull ItemCombinerMenuSlotDefinition createInputSlotDefinitions() {
         return ItemCombinerMenuSlotDefinition.create()
-                .withSlot(0, 8, 48, itemStack -> this.recipes.stream().anyMatch(smithingRecipe -> smithingRecipe.isTemplateIngredient(itemStack)))
-                .withSlot(1, 44, 48, itemStack -> this.recipes.stream().anyMatch(smithingRecipe -> smithingRecipe.isBaseIngredient(itemStack)))
-                .withSlot(2, 62, 48, itemStack -> this.recipes.stream().anyMatch(smithingRecipe -> smithingRecipe.isAdditionIngredient(itemStack)))
-                .withResultSlot(3, 106, 48).build();
+            .withSlot(0, 8, 48, itemStack -> this.recipes.stream()
+                .anyMatch(smithingRecipe -> smithingRecipe.isTemplateIngredient(itemStack)))
+            .withSlot(1, 44, 48, itemStack -> this.recipes.stream()
+                .anyMatch(smithingRecipe -> smithingRecipe.isBaseIngredient(itemStack)))
+            .withSlot(2, 62, 48, itemStack -> this.recipes.stream()
+                .anyMatch(smithingRecipe -> smithingRecipe.isAdditionIngredient(itemStack)))
+            .withResultSlot(3, 106, 48).build();
     }
 
     protected boolean isValidBlock(@NotNull BlockState state) {
         return state.is(ModBlocks.ROYAL_SMITHING_TABLE.get());
     }
 
-    protected boolean mayPickup(Player player, boolean hasStack) {
+    protected boolean mayPickup(@NotNull Player player, boolean hasStack) {
         return this.selectedRecipe != null && this.selectedRecipe.matches(this.inputSlots, this.level);
     }
 
-    protected void onTake(Player player, @NotNull ItemStack stack) {
+    protected void onTake(@NotNull Player player, @NotNull ItemStack stack) {
         stack.onCraftedBy(player.level(), player, stack.getCount());
         this.resultSlots.awardUsedRecipes(player, this.getRelevantItems());
         this.shrinkStackInSlot(1);
@@ -81,8 +95,10 @@ public class RoyalSmithingMenu extends ItemCombinerMenu {
         }
     }
 
+    @Override
     public void createResult() {
-        List<SmithingRecipe> list = this.level.getRecipeManager().getRecipesFor(RecipeType.SMITHING, this.inputSlots, this.level);
+        List<SmithingRecipe> list = this.level.getRecipeManager()
+            .getRecipesFor(RecipeType.SMITHING, this.inputSlots, this.level);
         if (list.isEmpty()) {
             this.resultSlots.setItem(0, ItemStack.EMPTY);
         } else {
@@ -97,8 +113,11 @@ public class RoyalSmithingMenu extends ItemCombinerMenu {
     }
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    public int getSlotToQuickMoveTo(ItemStack stack) {
-        return this.recipes.stream().map(smithingRecipe -> RoyalSmithingMenu.findSlotMatchingIngredient(smithingRecipe, stack)).filter(Optional::isPresent).findFirst().orElse(Optional.of(0)).get();
+    @Override
+    public int getSlotToQuickMoveTo(@NotNull ItemStack stack) {
+        return this.recipes.stream().map(smithingRecipe ->
+            RoyalSmithingMenu.findSlotMatchingIngredient(smithingRecipe, stack))
+            .filter(Optional::isPresent).findFirst().orElse(Optional.of(0)).get();
     }
 
     private static Optional<Integer> findSlotMatchingIngredient(@NotNull SmithingRecipe recipe, ItemStack stack) {
@@ -108,11 +127,14 @@ public class RoyalSmithingMenu extends ItemCombinerMenu {
         return Optional.empty();
     }
 
-    public boolean canTakeItemForPickAll(ItemStack stack, @NotNull Slot slot) {
+    @Override
+    public boolean canTakeItemForPickAll(@NotNull ItemStack stack, @NotNull Slot slot) {
         return slot.container != this.resultSlots && super.canTakeItemForPickAll(stack, slot);
     }
 
-    public boolean canMoveIntoInputSlots(ItemStack stack) {
-        return this.recipes.stream().map(smithingRecipe -> RoyalSmithingMenu.findSlotMatchingIngredient(smithingRecipe, stack)).anyMatch(Optional::isPresent);
+    @Override
+    public boolean canMoveIntoInputSlots(@NotNull ItemStack stack) {
+        return this.recipes.stream().map(smithingRecipe ->
+            RoyalSmithingMenu.findSlotMatchingIngredient(smithingRecipe, stack)).anyMatch(Optional::isPresent);
     }
 }

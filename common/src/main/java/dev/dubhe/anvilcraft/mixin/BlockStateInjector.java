@@ -16,7 +16,9 @@ import java.util.stream.Collectors;
 
 @Mixin(BlockState.class)
 abstract class BlockStateInjector extends BlockBehaviour.BlockStateBase implements IBlockStateInjector {
-    protected BlockStateInjector(Block owner, ImmutableMap<Property<?>, Comparable<?>> values, MapCodec<BlockState> propertiesCodec) {
+    protected BlockStateInjector(
+        Block owner, ImmutableMap<Property<?>, Comparable<?>> values, MapCodec<BlockState> propertiesCodec
+    ) {
         super(owner, values, propertiesCodec);
     }
 
@@ -25,9 +27,12 @@ abstract class BlockStateInjector extends BlockBehaviour.BlockStateBase implemen
         JsonObject object = new JsonObject();
         object.addProperty("block", BuiltInRegistries.BLOCK.getKey(this.getBlock()).toString());
         if (!this.getValues().isEmpty()) {
-            String stringBuilder = '[' +
-                    this.getValues().entrySet().stream().map(PROPERTY_ENTRY_TO_STRING_FUNCTION).collect(Collectors.joining(",")) +
-                    ']';
+            String stringBuilder = '['
+                + this.getValues()
+                .entrySet()
+                .stream()
+                .map(PROPERTY_ENTRY_TO_STRING_FUNCTION).collect(Collectors.joining(","))
+                + ']';
             object.addProperty("state", stringBuilder);
         }
         return object;

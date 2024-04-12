@@ -16,14 +16,20 @@ public class ConfigScreenLang {
     private static final String OPTION_STRING = "text.autoconfig.%s.option.%s";
     private static final String OPTION_TOOLTIP_STRING = "text.autoconfig.%s.option.%s.@Tooltip";
 
-    public static void init(RegistrateLangProvider provider) {
+    /**
+     * 初始化配置语言
+     *
+     * @param provider 提供器
+     */
+    public static void init(@NotNull RegistrateLangProvider provider) {
         provider.add("text.autoconfig.anvilcraft.title", "AnvilCraft Config");
-
         readConfigClass(AnvilCraftConfig.class, provider);
     }
 
     @SuppressWarnings("SameParameterValue")
-    private static void readConfigClass(@NotNull Class<? extends ConfigData> configClass, RegistrateLangProvider provider) {
+    private static void readConfigClass(
+        @NotNull Class<? extends ConfigData> configClass, RegistrateLangProvider provider
+    ) {
         for (Field field : configClass.getDeclaredFields()) {
             String fieldName = field.getName();
             String name;

@@ -21,18 +21,28 @@ public class ItemDepositoryHelperImpl {
     private ItemDepositoryHelperImpl() {
     }
 
+    /**
+     * 获取物品容器
+     *
+     * @param level     世界
+     * @param pos       位置
+     * @param direction 方向
+     * @return 物品容器
+     */
     @Nullable
     public static IItemDepository getItemDepository(@NotNull Level level, BlockPos pos, Direction direction) {
         BlockEntity be = level.getBlockEntity(pos);
         if (be != null) {
-            LazyOptional<IItemHandler> capability = be.getCapability(ForgeCapabilities.ITEM_HANDLER, direction.getOpposite());
+            LazyOptional<IItemHandler> capability =
+                be.getCapability(ForgeCapabilities.ITEM_HANDLER, direction.getOpposite());
             if (capability.isPresent() && capability.resolve().isPresent()) {
                 return toItemDepository(capability.resolve().get());
             }
         }
         List<Entity> entities = level.getEntitiesOfClass(Entity.class, new AABB(pos));
         for (Entity entity : entities) {
-            LazyOptional<IItemHandler> capability = entity.getCapability(ForgeCapabilities.ITEM_HANDLER, direction.getOpposite());
+            LazyOptional<IItemHandler> capability =
+                entity.getCapability(ForgeCapabilities.ITEM_HANDLER, direction.getOpposite());
             if (capability.isPresent() && capability.resolve().isPresent()) {
                 return toItemDepository(capability.resolve().get());
             }
@@ -64,7 +74,9 @@ public class ItemDepositoryHelperImpl {
             }
 
             @Override
-            public ItemStack insert(int slot, ItemStack stack, boolean simulate, boolean notifyChanges, boolean isServer) {
+            public ItemStack insert(
+                int slot, ItemStack stack, boolean simulate, boolean notifyChanges, boolean isServer
+            ) {
                 return handler.insertItem(slot, stack, simulate);
             }
 
@@ -85,6 +97,10 @@ public class ItemDepositoryHelperImpl {
         };
     }
 
+    /**
+     * @param depository 物品容器
+     * @return 物品容器
+     */
     public static IItemHandler toItemHandler(IItemDepository depository) {
         return new IItemHandler() {
 

@@ -23,10 +23,10 @@ public abstract class NetworkImpl<T> extends Network<T> {
     @Override
     public void init(Class<T> type) {
         this.instance = NetworkRegistry.newSimpleChannel(
-                this.getType(),
-                () -> PROTOCOL_VERSION,
-                PROTOCOL_VERSION::equals,
-                PROTOCOL_VERSION::equals
+            this.getType(),
+            () -> PROTOCOL_VERSION,
+            PROTOCOL_VERSION::equals,
+            PROTOCOL_VERSION::equals
         );
         this.instance.registerMessage(0, type, this::encode, this::decode, (data, ctx) -> {
             ctx.get().enqueueWork(() -> {
@@ -45,6 +45,12 @@ public abstract class NetworkImpl<T> extends Network<T> {
     }
 
     @Override
+    public void send(ServerPlayer player, T data) {
+        if (this.instance == null) return;
+        this.instance.send(PacketDistributor.PLAYER.with(() -> player), data);
+    }
+
+    @Override
     public void broadcastAll(T data) {
         if (this.instance == null) return;
         this.instance.send(PacketDistributor.ALL.noArg(), data);
@@ -56,13 +62,18 @@ public abstract class NetworkImpl<T> extends Network<T> {
         this.instance.send(PacketDistributor.TRACKING_CHUNK.with(() -> chunk), data);
     }
 
-    @Override
-    public void send(ServerPlayer player, T data) {
-        if (this.instance == null) return;
-        this.instance.send(PacketDistributor.PLAYER.with(() -> player), data);
-    }
-
-    public static <MSG extends Packet> @NotNull Network<MSG> create(ResourceLocation type, Class<MSG> clazz, Function<FriendlyByteBuf, MSG> decoder){
+    /**
+     * 创建网络包类型
+     *
+     * @param type    类型
+     * @param clazz   类
+     * @param decoder 解码器
+     * @param <M>     数据包
+     * @return 网络包类型
+     */
+    public static <M extends Packet> @NotNull Network<M> create(
+        ResourceLocation type, Class<M> clazz, Function<FriendlyByteBuf, M> decoder
+    ) {
         return new NetworkImpl<>() {
             @Override
             public ResourceLocation getType() {
@@ -70,22 +81,22 @@ public abstract class NetworkImpl<T> extends Network<T> {
             }
 
             @Override
-            public void encode(@NotNull MSG data, @NotNull FriendlyByteBuf buf) {
+            public void encode(@NotNull M data, @NotNull FriendlyByteBuf buf) {
                 data.encode(buf);
             }
 
             @Override
-            public MSG decode(@NotNull FriendlyByteBuf buf) {
+            public M decode(@NotNull FriendlyByteBuf buf) {
                 return decoder.apply(buf);
             }
 
             @Override
-            public void handler(@NotNull MSG data) {
+            public void handler(@NotNull M data) {
                 data.handler();
             }
 
             @Override
-            public void handler(@NotNull MSG data, MinecraftServer server, ServerPlayer player) {
+            public void handler(@NotNull M data, MinecraftServer server, ServerPlayer player) {
                 data.handler(server, player);
             }
         };

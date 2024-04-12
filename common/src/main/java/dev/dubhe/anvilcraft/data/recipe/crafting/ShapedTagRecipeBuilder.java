@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.data.recipe.crafting_table;
+package dev.dubhe.anvilcraft.data.recipe.crafting;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -44,6 +44,12 @@ public class ShapedTagRecipeBuilder extends ShapedRecipeBuilder {
     private @Nullable String group;
     private boolean showNotification = true;
 
+    /**
+     * 有 NBT 的有序合成配方
+     *
+     * @param category 分组
+     * @param stack    产物
+     */
     public ShapedTagRecipeBuilder(RecipeCategory category, @NotNull ItemStack stack) {
         super(category, stack.getItem(), stack.getCount());
         this.category = category;
@@ -60,7 +66,9 @@ public class ShapedTagRecipeBuilder extends ShapedRecipeBuilder {
     /**
      * 创建新的有序配方生成器。
      */
-    public static @NotNull ShapedTagRecipeBuilder shaped(@NotNull RecipeCategory category, @NotNull ItemLike result, int count) {
+    public static @NotNull ShapedTagRecipeBuilder shaped(
+        @NotNull RecipeCategory category, @NotNull ItemLike result, int count
+    ) {
         ItemStack stack = result.asItem().getDefaultInstance();
         stack.setCount(count);
         return ShapedTagRecipeBuilder.shaped(category, stack);
@@ -110,12 +118,18 @@ public class ShapedTagRecipeBuilder extends ShapedRecipeBuilder {
     }
 
     @Override
-    public @NotNull ShapedTagRecipeBuilder unlockedBy(@NotNull String criterionName, @NotNull CriterionTriggerInstance criterionTrigger) {
+    public @NotNull ShapedTagRecipeBuilder unlockedBy(
+        @NotNull String criterionName, @NotNull CriterionTriggerInstance criterionTrigger
+    ) {
         super.unlockedBy(criterionName, criterionTrigger);
         this.advancement.addCriterion(criterionName, criterionTrigger);
         return this;
     }
 
+    /**
+     * @param showNotification 显示提示
+     * @return 构造器
+     */
     public @NotNull ShapedTagRecipeBuilder showNotification(boolean showNotification) {
         super.showNotification(showNotification);
         this.showNotification = showNotification;
@@ -132,8 +146,18 @@ public class ShapedTagRecipeBuilder extends ShapedRecipeBuilder {
     @Override
     public void save(Consumer<FinishedRecipe> finishedRecipeConsumer, @NotNull ResourceLocation recipeId) {
         this.ensureValid(recipeId);
-        this.advancement.parent(ROOT_RECIPE_ADVANCEMENT).addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(recipeId)).rewards(AdvancementRewards.Builder.recipe(recipeId)).requirements(RequirementsStrategy.OR);
-        finishedRecipeConsumer.accept(new Result(recipeId, this.stackResult, this.stackResult.getCount(), null == this.group ? "" : this.group, ShapedTagRecipeBuilder.determineBookCategory(this.category), this.rows, this.key, this.advancement, recipeId.withPrefix("recipes/" + this.category.getFolderName() + "/"), this.showNotification));
+        this.advancement
+            .parent(ROOT_RECIPE_ADVANCEMENT)
+            .addCriterion("has_the_recipe",
+                RecipeUnlockedTrigger.unlocked(recipeId))
+            .rewards(AdvancementRewards.Builder.recipe(recipeId))
+            .requirements(RequirementsStrategy.OR);
+        finishedRecipeConsumer.accept(new Result(recipeId,
+            this.stackResult, this.stackResult.getCount(),
+            null == this.group ? "" : this.group, ShapedTagRecipeBuilder
+            .determineBookCategory(this.category), this.rows, this.key,
+            this.advancement, recipeId.withPrefix("recipes/" + this.category.getFolderName() + "/"),
+            this.showNotification));
     }
 
     /**
@@ -158,7 +182,8 @@ public class ShapedTagRecipeBuilder extends ShapedRecipeBuilder {
             throw new IllegalStateException("Ingredients are defined but not used in pattern for recipe " + id);
         }
         if (this.rows.size() == 1 && this.rows.get(0).length() == 1) {
-            throw new IllegalStateException("Shaped recipe " + id + " only takes in a single item - should it be a shapeless recipe instead?");
+            throw new IllegalStateException("Shaped recipe " + id
+                + " only takes in a single item - should it be a shapeless recipe instead?");
         }
         if (this.advancement.getCriteria().isEmpty()) {
             throw new IllegalStateException("No way of obtaining recipe " + id);
@@ -177,7 +202,10 @@ public class ShapedTagRecipeBuilder extends ShapedRecipeBuilder {
         private final ResourceLocation advancementId;
         private final boolean showNotification;
 
-        public Result(ResourceLocation id, ItemStack result, int count, String group, CraftingBookCategory category, List<String> pattern, Map<Character, Ingredient> key, Advancement.Builder advancement, ResourceLocation advancementId, boolean showNotification) {
+        public Result(ResourceLocation id, ItemStack result, int count,
+                      String group, CraftingBookCategory category, List<String> pattern,
+                      Map<Character, Ingredient> key, Advancement.Builder advancement,
+                      ResourceLocation advancementId, boolean showNotification) {
             super(category);
             this.id = id;
             this.result = result;

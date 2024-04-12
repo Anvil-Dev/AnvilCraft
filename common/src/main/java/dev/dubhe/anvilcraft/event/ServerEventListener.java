@@ -34,6 +34,11 @@ import java.util.List;
 import java.util.Map;
 
 public class ServerEventListener {
+    /**
+     * 服务器开启事件
+     *
+     * @param event 事件
+     */
     @SubscribeEvent
     public void onServerStarted(@NotNull ServerStartedEvent event) {
         MinecraftServer server = event.getServer();
@@ -48,10 +53,16 @@ public class ServerEventListener {
         ServerEventListener.processRecipes(server);
     }
 
+    /**
+     * 处理配方
+     *
+     * @param server 服务器
+     */
     public static void processRecipes(@NotNull MinecraftServer server) {
         Map<ResourceLocation, Recipe<?>> newRecipes = new HashMap<>();
         Map<RecipeType<?>, Map<ResourceLocation, Recipe<?>>> newRecipeMap = new HashMap<>();
-        for (Map.Entry<RecipeType<?>, Map<ResourceLocation, Recipe<?>>> entry : server.getRecipeManager().recipes.entrySet()) {
+        for (Map.Entry<RecipeType<?>, Map<ResourceLocation, Recipe<?>>> entry
+            : server.getRecipeManager().recipes.entrySet()) {
             RecipeType<?> type = entry.getKey();
             Map<ResourceLocation, Recipe<?>> recipeMap = new HashMap<>();
             for (Map.Entry<ResourceLocation, Recipe<?>> recipeEntry : entry.getValue().entrySet()) {
@@ -78,7 +89,16 @@ public class ServerEventListener {
         server.getRecipeManager().recipes = newRecipeMap;
     }
 
-    public static @Nullable Pair<ResourceLocation, Recipe<?>> processRecipes(ResourceLocation id, @NotNull Recipe<?> oldRecipe) {
+    /**
+     * 处理配方
+     *
+     * @param id        id
+     * @param oldRecipe 原配方
+     * @return 生成的配方
+     */
+    public static @Nullable Pair<ResourceLocation, Recipe<?>> processRecipes(
+        ResourceLocation id, @NotNull Recipe<?> oldRecipe
+    ) {
         ItemStack result = oldRecipe.getResultItem(new RegistryAccess.ImmutableRegistryAccess(List.of()));
         if (result.is(Items.IRON_TRAPDOOR)) return null;
         if (result.is(Items.PRISMARINE)) return null;
@@ -89,8 +109,9 @@ public class ServerEventListener {
                 AnvilRecipe recipe1 = new AnvilRecipe(location, result);
                 Ingredient ingredient = recipe.getIngredients().get(0);
                 recipe1.addPredicates(
-                        HasItemIngredient.of(Vec3.ZERO, ingredient),
-                        new HasBlock(new Vec3(0.0, -1.0, 0.0), BlockPredicate.Builder.block().of(Blocks.IRON_TRAPDOOR).build())
+                    HasItemIngredient.of(Vec3.ZERO, ingredient),
+                    new HasBlock(new Vec3(0.0, -1.0, 0.0), BlockPredicate.Builder.block()
+                        .of(Blocks.IRON_TRAPDOOR).build())
                 );
                 recipe1.addOutcomes(new SpawnItem(new Vec3(0.0, -1.0, 0.0), 1.0, result.copy()));
                 return new Pair<>(location, recipe1);
@@ -109,18 +130,26 @@ public class ServerEventListener {
     }
 
     @NotNull
-    private static Pair<ResourceLocation, Recipe<?>> getResourceLocationRecipePair(ItemStack result, ResourceLocation location, @NotNull NonNullList<Ingredient> ingredients) {
+    private static Pair<ResourceLocation, Recipe<?>> getResourceLocationRecipePair(
+        ItemStack result, ResourceLocation location, @NotNull NonNullList<Ingredient> ingredients
+    ) {
         Ingredient ingredient = ingredients.get(0);
         int ingredientCount = ingredients.size();
         AnvilRecipe recipe = new AnvilRecipe(location, result);
         recipe.addPredicates(
-                HasItemIngredient.of(new Vec3(0.0, -1.0, 0.0), ingredient, ingredientCount),
-                new HasBlock(new Vec3(0.0, -1.0, 0.0), BlockPredicate.Builder.block().of(Blocks.CAULDRON).build())
+            HasItemIngredient.of(new Vec3(0.0, -1.0, 0.0), ingredient, ingredientCount),
+            new HasBlock(new Vec3(0.0, -1.0, 0.0), BlockPredicate.Builder.block().of(Blocks.CAULDRON).build())
         );
         recipe.addOutcomes(new SpawnItem(new Vec3(0.0, -1.0, 0.0), 1.0, result.copy()));
         return new Pair<>(location, recipe);
     }
 
+    /**
+     * 原料相同
+     *
+     * @param ingredients 原料
+     * @return 是否相同
+     */
     public static boolean isIngredientsSame(@NotNull List<Ingredient> ingredients) {
         Ingredient ingredient = ingredients.get(0);
         for (Ingredient ingredient1 : ingredients) {

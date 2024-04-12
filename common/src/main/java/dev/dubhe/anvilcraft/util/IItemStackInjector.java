@@ -12,8 +12,16 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * 物品堆栈注入器
+ */
 public interface IItemStackInjector {
-    @SuppressWarnings("DuplicatedCode")
+    /**
+     * 从 json 读取
+     *
+     * @param element json
+     * @return 物品堆栈
+     */
     static @NotNull ItemStack fromJson(@NotNull JsonElement element) {
         if (!element.isJsonObject()) throw new JsonSyntaxException("Expected item to be string");
         JsonObject object = element.getAsJsonObject();

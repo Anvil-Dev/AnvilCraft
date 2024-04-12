@@ -12,6 +12,15 @@ public class ItemDepositorySlot extends Slot {
     private final IItemDepository depository;
     private final int slot;
 
+
+    /**
+     * 物品容器槽位
+     *
+     * @param depository 物品容器
+     * @param slot       槽位
+     * @param x          坐标 x
+     * @param y          坐标 y
+     */
     public ItemDepositorySlot(IItemDepository depository, int slot, int x, int y) {
         super(emptyContainer, slot, x, y);
         this.depository = depository;

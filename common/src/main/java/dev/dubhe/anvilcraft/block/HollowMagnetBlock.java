@@ -37,13 +37,18 @@ public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedB
 
     @Override
     @SuppressWarnings("deprecation")
-    public @NotNull VoxelShape getShape(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos, CollisionContext collisionContext) {
+    public @NotNull VoxelShape getShape(
+        @NotNull BlockState blockState,
+        @NotNull BlockGetter blockGetter,
+        @NotNull BlockPos blockPos,
+        @NotNull CollisionContext collisionContext
+    ) {
         return AABB;
     }
 
     @Override
     @SuppressWarnings("deprecation")
-    public boolean useShapeForLightOcclusion(BlockState blockState) {
+    public boolean useShapeForLightOcclusion(@NotNull BlockState blockState) {
         return true;
     }
 
@@ -64,7 +69,14 @@ public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedB
 
     @Override
     @SuppressWarnings("deprecation")
-    public @NotNull BlockState updateShape(@NotNull BlockState blockState, Direction direction, BlockState blockState2, LevelAccessor levelAccessor, BlockPos blockPos, BlockPos blockPos2) {
+    public @NotNull BlockState updateShape(
+        @NotNull BlockState blockState,
+        @NotNull Direction direction,
+        @NotNull BlockState blockState2,
+        @NotNull LevelAccessor levelAccessor,
+        @NotNull BlockPos blockPos,
+        @NotNull BlockPos blockPos2
+    ) {
         if (blockState.getValue(WATERLOGGED)) {
             levelAccessor.scheduleTick(blockPos, Fluids.WATER, Fluids.WATER.getTickDelay(levelAccessor));
         }

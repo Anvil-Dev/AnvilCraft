@@ -27,8 +27,13 @@ public class RoyalGrindstone extends GrindstoneBlock implements IHammerRemovable
         super(properties);
     }
 
+    @SuppressWarnings("UnreachableCode")
     @Override
-    public @NotNull InteractionResult use(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult hit) {
+    public @NotNull InteractionResult use(
+        @NotNull BlockState state, @NotNull Level level,
+        @NotNull BlockPos pos, @NotNull Player player,
+        @NotNull InteractionHand hand, @NotNull BlockHitResult hit
+    ) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
         ModMenuTypes.open((ServerPlayer) player, state.getMenuProvider(level, pos));
         player.awardStat(Stats.INTERACT_WITH_GRINDSTONE);
@@ -37,7 +42,8 @@ public class RoyalGrindstone extends GrindstoneBlock implements IHammerRemovable
 
     @Override
     public MenuProvider getMenuProvider(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos) {
-        return new SimpleMenuProvider((i, inventory, player) -> new RoyalGrindstoneMenu(i, inventory, ContainerLevelAccess.create(level, pos)), CONTAINER_TITLE);
+        return new SimpleMenuProvider((i, inventory, player) ->
+            new RoyalGrindstoneMenu(i, inventory, ContainerLevelAccess.create(level, pos)), CONTAINER_TITLE);
     }
 }
 

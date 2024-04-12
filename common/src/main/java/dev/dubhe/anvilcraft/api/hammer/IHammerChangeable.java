@@ -6,6 +6,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * 可被锤子改变的
+ */
 @FunctionalInterface
 public interface IHammerChangeable {
     /**

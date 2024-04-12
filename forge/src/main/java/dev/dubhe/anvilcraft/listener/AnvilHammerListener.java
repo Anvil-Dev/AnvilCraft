@@ -9,10 +9,15 @@ import org.jetbrains.annotations.NotNull;
 
 @Mod.EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class AnvilHammerListener {
+    /**
+     * 侦听左键方块事件
+     *
+     * @param leftClickBlock 左键方块事件
+     */
     @SubscribeEvent
     public static void anvilHammer(@NotNull PlayerInteractEvent.LeftClickBlock leftClickBlock) {
         if (leftClickBlock.getEntity().getItemInHand(leftClickBlock.getEntity().getUsedItemHand()).getItem()
-                instanceof AnvilHammerItem anvilHammer) {
+            instanceof AnvilHammerItem anvilHammer) {
             anvilHammer.useAttackBlock(leftClickBlock.getEntity(), leftClickBlock.getPos(), leftClickBlock.getLevel());
         }
     }

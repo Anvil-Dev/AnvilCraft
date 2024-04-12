@@ -29,6 +29,11 @@ public class HasBlock implements RecipePredicate {
         this.matchBlock = matchBlock;
     }
 
+    /**
+     * 拥有方块
+     *
+     * @param serializedRecipe 序列化配方
+     */
     public HasBlock(JsonObject serializedRecipe) {
         JsonArray array = GsonHelper.getAsJsonArray(serializedRecipe, "offset");
         double[] vec3 = {0.0d, 0.0d, 0.0d};

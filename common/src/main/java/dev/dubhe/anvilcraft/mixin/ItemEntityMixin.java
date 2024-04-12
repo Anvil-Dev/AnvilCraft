@@ -12,6 +12,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -23,18 +24,28 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemEntity.class)
 abstract class ItemEntityMixin extends Entity {
-    @Shadow public abstract ItemStack getItem();
+    @Shadow
+    public abstract ItemStack getItem();
 
-    @Shadow @Nullable public abstract Entity getOwner();
+    @Shadow
+    @Nullable
+    public abstract Entity getOwner();
 
-    @Shadow public abstract void setItem(ItemStack stack);
+    @Shadow
+    public abstract void setItem(ItemStack stack);
 
     public ItemEntityMixin(EntityType<?> entityType, Level level) {
         super(entityType, level);
     }
 
-    @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/Vec3;add(DDD)Lnet/minecraft/world/phys/Vec3;"))
-    private Vec3 slowDown(Vec3 instance, double dx, double dy, double dz) {
+    @Redirect(
+        method = "tick",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/phys/Vec3;add(DDD)Lnet/minecraft/world/phys/Vec3;"
+        )
+    )
+    private @NotNull Vec3 slowDown(Vec3 instance, double dx, double dy, double dz) {
         if (this.level().getBlockState(this.blockPosition()).is(ModBlocks.HOLLOW_MAGNET_BLOCK.get()))
             dy *= 0.2;
         return instance.add(dx, dy, dz);

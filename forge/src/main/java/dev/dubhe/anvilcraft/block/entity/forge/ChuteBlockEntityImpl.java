@@ -28,7 +28,8 @@ public class ChuteBlockEntityImpl extends ChuteBlockEntity {
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
         if (cap == ForgeCapabilities.ITEM_HANDLER) {
-            return ForgeCapabilities.ITEM_HANDLER.orEmpty(cap, LazyOptional.of(() -> ItemDepositoryHelperImpl.toItemHandler(getDepository())));
+            return ForgeCapabilities.ITEM_HANDLER
+                .orEmpty(cap, LazyOptional.of(() -> ItemDepositoryHelperImpl.toItemHandler(getDepository())));
         }
         return super.getCapability(cap, side);
     }

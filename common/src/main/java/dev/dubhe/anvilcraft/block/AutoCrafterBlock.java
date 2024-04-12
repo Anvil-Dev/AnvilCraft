@@ -66,8 +66,15 @@ public class AutoCrafterBlock extends BaseEntityBlock implements IHammerChangeab
     }
 
     @Override
-    @SuppressWarnings("deprecation")
-    public @NotNull InteractionResult use(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult hit) {
+    @SuppressWarnings({"deprecation", "UnreachableCode"})
+    public @NotNull InteractionResult use(
+        @NotNull BlockState state,
+        @NotNull Level level,
+        @NotNull BlockPos pos,
+        @NotNull Player player,
+        @NotNull InteractionHand hand,
+        @NotNull BlockHitResult hit
+    ) {
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
         }
@@ -88,7 +95,13 @@ public class AutoCrafterBlock extends BaseEntityBlock implements IHammerChangeab
 
     @Override
     @SuppressWarnings("deprecation")
-    public void onRemove(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean movedByPiston) {
+    public void onRemove(
+        @NotNull BlockState state,
+        @NotNull Level level,
+        @NotNull BlockPos pos,
+        @NotNull BlockState newState,
+        boolean movedByPiston
+    ) {
         if (state.is(newState.getBlock())) return;
         if (level.getBlockEntity(pos) instanceof AutoCrafterBlockEntity entity) {
             Vec3 vec3 = entity.getBlockPos().getCenter();
@@ -109,13 +122,17 @@ public class AutoCrafterBlock extends BaseEntityBlock implements IHammerChangeab
 
     @Nullable
     @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull Level pLevel, @NotNull BlockState pState, @NotNull BlockEntityType<T> pBlockEntityType) {
-        if (pLevel.isClientSide) {
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
+        @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type
+    ) {
+        if (level.isClientSide) {
             return null;
         }
         return createTickerHelper(
-                pBlockEntityType, ModBlockEntities.AUTO_CRAFTER.get(),
-                (level, blockPos, blockState, blockEntity) -> blockEntity.tick(level, blockPos));
+            type,
+            ModBlockEntities.AUTO_CRAFTER.get(),
+            (level1, blockPos, blockState, blockEntity) -> blockEntity.tick(level1, blockPos)
+        );
     }
 
     @Override
@@ -126,9 +143,9 @@ public class AutoCrafterBlock extends BaseEntityBlock implements IHammerChangeab
     @Override
     @Nullable
     public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
-        return this.defaultBlockState().
-                setValue(FACING, context.getNearestLookingDirection().getOpposite())
-                .setValue(LIT, context.getLevel().hasNeighborSignal(context.getClickedPos()));
+        return this.defaultBlockState()
+            .setValue(FACING, context.getNearestLookingDirection().getOpposite())
+            .setValue(LIT, context.getLevel().hasNeighborSignal(context.getClickedPos()));
     }
 
     @Override
@@ -138,7 +155,14 @@ public class AutoCrafterBlock extends BaseEntityBlock implements IHammerChangeab
 
     @Override
     @SuppressWarnings("deprecation")
-    public void neighborChanged(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Block neighborBlock, @NotNull BlockPos neighborPos, boolean movedByPiston) {
+    public void neighborChanged(
+        @NotNull BlockState state,
+        @NotNull Level level,
+        @NotNull BlockPos pos,
+        @NotNull Block neighborBlock,
+        @NotNull BlockPos neighborPos,
+        boolean movedByPiston
+    ) {
         if (level.isClientSide) {
             return;
         }
@@ -154,7 +178,9 @@ public class AutoCrafterBlock extends BaseEntityBlock implements IHammerChangeab
 
     @Override
     @SuppressWarnings("deprecation")
-    public void tick(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random) {
+    public void tick(
+        @NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random
+    ) {
         if (state.getValue(LIT) && !level.hasNeighborSignal(pos)) {
             level.setBlock(pos, state.cycle(LIT), 2);
         }

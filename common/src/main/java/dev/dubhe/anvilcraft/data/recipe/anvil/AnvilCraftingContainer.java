@@ -14,13 +14,20 @@ import org.jetbrains.annotations.NotNull;
 
 @Getter
 public class AnvilCraftingContainer
-        implements Container, StackedContentsCompatible {
+    implements Container, StackedContentsCompatible {
     private final Level level;
     private final BlockPos pos;
     private final FallingBlockEntity entity;
     @Setter
     private boolean isAnvilDamage = false;
 
+    /**
+     * 初始化 AnvilCraftingContainer
+     *
+     * @param level  世界
+     * @param pos    位置
+     * @param entity 铁砧实体
+     */
     public AnvilCraftingContainer(Level level, BlockPos pos, FallingBlockEntity entity) {
         this.level = level;
         this.pos = pos;

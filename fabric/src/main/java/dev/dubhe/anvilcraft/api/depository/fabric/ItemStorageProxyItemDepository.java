@@ -18,6 +18,11 @@ public class ItemStorageProxyItemDepository implements IItemDepository {
     private final Storage<ItemVariant> storage;
     private final List<StorageView<ItemVariant>> views;
 
+    /**
+     * 物品存储代理
+     *
+     * @param storage 物品存储
+     */
     public ItemStorageProxyItemDepository(Storage<ItemVariant> storage) {
         this.storage = storage;
         this.views = new ArrayList<>();
@@ -42,7 +47,9 @@ public class ItemStorageProxyItemDepository implements IItemDepository {
     }
 
     @Override
-    public ItemStack insert(int slot, @NotNull ItemStack stack, boolean simulate, boolean notifyChanges, boolean isServer) {
+    public ItemStack insert(
+        int slot, @NotNull ItemStack stack, boolean simulate, boolean notifyChanges, boolean isServer
+    ) {
         if (stack.isEmpty()) return ItemStack.EMPTY;
         ItemStack copied = stack.copy();
         Storage<ItemVariant> handler = this.storage;
@@ -53,7 +60,8 @@ public class ItemStorageProxyItemDepository implements IItemDepository {
         try (Transaction transaction = Transaction.openOuter()) {
             int filled;
             if (simulate) {
-                filled = (int) StorageUtil.simulateInsert(handler, ItemVariant.of(stack), stack.getCount(), transaction);
+                filled =
+                    (int) StorageUtil.simulateInsert(handler, ItemVariant.of(stack), stack.getCount(), transaction);
             } else {
                 filled = (int) handler.insert(ItemVariant.of(stack), stack.getCount(), transaction);
             }
@@ -72,7 +80,8 @@ public class ItemStorageProxyItemDepository implements IItemDepository {
         try (Transaction transaction = Transaction.openOuter()) {
             int extracted;
             if (simulate) {
-                extracted = (int) StorageUtil.simulateExtract(this.views.get(slot), ItemVariant.of(stack), amount, transaction);
+                extracted =
+                    (int) StorageUtil.simulateExtract(this.views.get(slot), ItemVariant.of(stack), amount, transaction);
             } else {
                 extracted = (int) this.views.get(slot).extract(ItemVariant.of(stack), amount, transaction);
             }

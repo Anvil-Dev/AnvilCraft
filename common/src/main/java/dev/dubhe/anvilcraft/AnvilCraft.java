@@ -27,10 +27,15 @@ public class AnvilCraft {
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
     public static final EventManager EVENT_BUS = new EventManager();
-    public static AnvilCraftConfig config = AutoConfig.register(AnvilCraftConfig.class, JanksonConfigSerializer::new).getConfig();
+    public static AnvilCraftConfig config = AutoConfig
+        .register(AnvilCraftConfig.class, JanksonConfigSerializer::new)
+        .getConfig();
 
     public static final AnvilCraftRegistrate REGISTRATE = AnvilCraftRegistrate.create(MOD_ID);
 
+    /**
+     * 初始化函数
+     */
     public static void init() {
         // common
         ModEvents.register();

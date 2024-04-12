@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
@@ -31,15 +32,23 @@ public class ItemDepositoryHelper {
 
     /**
      * 向指定位置导出物品
-     * @param source 物品源
+     *
+     * @param source    物品源
      * @param maxAmount 导出的最大数量
      * @param predicate 能够导出的物品
-     * @param level 当前 Level
-     * @param pos 导出目标的位置
+     * @param level     当前 Level
+     * @param pos       导出目标的位置
      * @param direction 导出目标的方向
      */
     @SuppressWarnings({"DuplicatedCode", "UnreachableCode"})
-    public static void exportToTarget(IItemDepository source, int maxAmount, Predicate<ItemStack> predicate, Level level, BlockPos pos, Direction direction) {
+    public static void exportToTarget(
+        IItemDepository source,
+        int maxAmount,
+        Predicate<ItemStack> predicate,
+        @NotNull Level level,
+        BlockPos pos,
+        Direction direction
+    ) {
         if (level.getBlockState(pos).hasBlockEntity()) {
             IItemDepository target = getItemDepository(level, pos, direction);
             for (int srcIndex = 0; srcIndex < source.getSlots(); srcIndex++) {
@@ -61,15 +70,23 @@ public class ItemDepositoryHelper {
 
     /**
      * 从指定位置导入物品
-     * @param target 物品目标
+     *
+     * @param target    物品目标
      * @param maxAmount 导入的最大数量
      * @param predicate 能够导入的物品
-     * @param level 当前 Level
-     * @param pos 导入物品源的位置
+     * @param level     当前 Level
+     * @param pos       导入物品源的位置
      * @param direction 导入物品源的方向
      */
     @SuppressWarnings({"DuplicatedCode", "UnreachableCode"})
-    public static void importToTarget(IItemDepository target, int maxAmount, Predicate<ItemStack> predicate, Level level, BlockPos pos, Direction direction) {
+    public static void importToTarget(
+        IItemDepository target,
+        int maxAmount,
+        Predicate<ItemStack> predicate,
+        @NotNull Level level,
+        BlockPos pos,
+        Direction direction
+    ) {
         if (level.getBlockState(pos).hasBlockEntity()) {
             IItemDepository source = getItemDepository(level, pos, direction);
             for (int srcIndex = 0; srcIndex < source.getSlots(); srcIndex++) {
@@ -155,6 +172,11 @@ public class ItemDepositoryHelper {
         return stack;
     }
 
+    /**
+     * @param a 物品堆栈 A
+     * @param b 物品堆栈 B
+     * @return AB能否合并
+     */
     public static boolean canItemStacksStackRelaxed(@Nonnull ItemStack a, @Nonnull ItemStack b) {
         if (a.isEmpty() || b.isEmpty() || a.getItem() != b.getItem())
             return false;
@@ -165,9 +187,16 @@ public class ItemDepositoryHelper {
         if (a.hasTag() != b.hasTag())
             return false;
 
-        return (!a.hasTag() || a.getTag().equals(b.getTag()));
+        return (!a.hasTag() || a.getOrCreateTag().equals(b.getTag()));
     }
 
+    /**
+     * 复制物品堆栈
+     *
+     * @param stack 物品堆栈
+     * @param size  数量
+     * @return 物品堆栈
+     */
     public static ItemStack copyStackWithSize(ItemStack stack, int size) {
         if (size == 0) {
             return ItemStack.EMPTY;

@@ -6,6 +6,9 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
 
 public class ModHammerInits {
+    /**
+     * 初始化铁砧锤处理器
+     */
     @SuppressWarnings("deprecation")
     public static void init() {
         for (Block block : BuiltInRegistries.BLOCK) {

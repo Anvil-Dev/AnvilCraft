@@ -11,6 +11,7 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
@@ -19,7 +20,7 @@ public class AnvilCraftRegistrateImpl extends AnvilCraftRegistrate {
         super(modId);
     }
 
-    public static AnvilCraftRegistrate create(String modId) {
+    public static @NotNull AnvilCraftRegistrate create(String modId) {
         return new AnvilCraftRegistrateImpl(modId);
     }
 
@@ -29,12 +30,21 @@ public class AnvilCraftRegistrateImpl extends AnvilCraftRegistrate {
     }
 
     @Override
-    protected <P> NoConfigBuilder<CreativeModeTab, CreativeModeTab, P> createCreativeModeTab(P parent, String name, Consumer<CreativeModeTab.Builder> config) {
+    protected <P> NoConfigBuilder<CreativeModeTab, CreativeModeTab, P> createCreativeModeTab(
+        P parent, String name, Consumer<CreativeModeTab.Builder> config
+    ) {
         var tab = ResourceKey.create(Registries.CREATIVE_MODE_TAB, new ResourceLocation(getModid(), name));
         return this.generic(parent, name, Registries.CREATIVE_MODE_TAB, () -> {
             var builder = CreativeModeTab.builder()
-                    .icon(() -> getAll(Registries.ITEM).stream().findFirst().map(ItemEntry::cast).map(ItemEntry::asStack).orElse(new ItemStack(Items.AIR)))
-                    .title(this.addLang("itemGroup", tab.location(), RegistrateLangProvider.toEnglishName(name)));
+                .icon(
+                    () -> getAll(Registries.ITEM)
+                        .stream()
+                        .findFirst()
+                        .map(ItemEntry::cast)
+                        .map(ItemEntry::asStack)
+                        .orElse(new ItemStack(Items.AIR))
+                )
+                .title(this.addLang("itemGroup", tab.location(), RegistrateLangProvider.toEnglishName(name)));
             config.accept(builder);
             return builder.build();
         });

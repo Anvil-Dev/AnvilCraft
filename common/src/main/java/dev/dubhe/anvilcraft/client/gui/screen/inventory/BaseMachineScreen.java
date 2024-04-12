@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.client.gui.screen.inventory;
 
 import dev.dubhe.anvilcraft.client.gui.component.OutputDirectionButton;
-import dev.dubhe.anvilcraft.inventory.BaseMachineMenu;
 import dev.dubhe.anvilcraft.network.MachineOutputDirectionPack;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,10 +25,17 @@ public abstract class BaseMachineScreen<T extends AbstractContainerMenu> extends
     @Getter
     private final Player player;
 
-    public BaseMachineScreen(T menu, Inventory playerInventory, Component title) {
-        super(menu, playerInventory, title);
+    /**
+     * 基本机器 GUI
+     *
+     * @param menu      菜单
+     * @param inventory 玩家背包
+     * @param title     标题
+     */
+    public BaseMachineScreen(T menu, Inventory inventory, Component title) {
+        super(menu, inventory, title);
         this.directionButtonSupplier = BaseMachineScreen.getDirectionButtonSupplier(134, 18);
-        this.player = playerInventory.player;
+        this.player = inventory.player;
     }
 
     @Override
@@ -41,7 +47,9 @@ public abstract class BaseMachineScreen<T extends AbstractContainerMenu> extends
     }
 
     @Contract(pure = true)
-    protected static @NotNull BiFunction<Integer, Integer, OutputDirectionButton> getDirectionButtonSupplier(int x, int y, Direction... skip) {
+    protected static @NotNull BiFunction<Integer, Integer, OutputDirectionButton> getDirectionButtonSupplier(
+        int x, int y, Direction... skip
+    ) {
         return (i, j) -> new OutputDirectionButton(i + x, j + y, button -> {
             if (button instanceof OutputDirectionButton button1) {
                 Arrays.stream(skip).forEach(button1::skip);
@@ -52,7 +60,7 @@ public abstract class BaseMachineScreen<T extends AbstractContainerMenu> extends
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(guiGraphics);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderTooltip(guiGraphics, mouseX, mouseY);

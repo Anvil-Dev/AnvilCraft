@@ -26,39 +26,42 @@ public class StampingRecipesLoader {
         stamping(ModItems.PULP.get(), Items.PAPER, provider);
         stamping(Items.MILK_BUCKET, ModItems.CREAM.get(), provider);
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
-                .hasBlock(ModBlocks.STAMPING_PLATFORM.get())
-                .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), Items.COCOA_BEANS)
-                .spawnItem(new Vec3(0.0, -0.75, 0.0), ModItems.COCOA_BUTTER)
-                .spawnItem(new Vec3(0.0, -0.75, 0.0), ModItems.COCOA_POWDER)
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.COCOA_BEANS), AnvilCraftDatagen.has(Items.COCOA_BEANS))
-                .save(provider, AnvilCraft.of("stamping/cocoa"));
+            .hasBlock(ModBlocks.STAMPING_PLATFORM.get())
+            .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), Items.COCOA_BEANS)
+            .spawnItem(new Vec3(0.0, -0.75, 0.0), ModItems.COCOA_BUTTER)
+            .spawnItem(new Vec3(0.0, -0.75, 0.0), ModItems.COCOA_POWDER)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.COCOA_BEANS), AnvilCraftDatagen.has(Items.COCOA_BEANS))
+            .save(provider, AnvilCraft.of("stamping/cocoa"));
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
-                .hasBlock(ModBlocks.STAMPING_PLATFORM.get())
-                .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), Items.HEART_OF_THE_SEA)
-                .spawnItem(new Vec3(0.0, -0.75, 0.0), ModItems.SEA_HEART_SHELL_SHARD, 3)
-                .spawnItem(new Vec3(0.0, -0.75, 0.0), 0.5, ModItems.SEA_HEART_SHELL_SHARD)
-                .spawnItem(new Vec3(0.0, -0.75, 0.0), 0.5, ModItems.SEA_HEART_SHELL_SHARD)
-                .spawnItem(new Vec3(0.0, -0.75, 0.0), ModItems.SAPPHIRE)
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.HEART_OF_THE_SEA), AnvilCraftDatagen.has(Items.HEART_OF_THE_SEA))
-                .save(provider, AnvilCraft.of("stamping/sea_heart_shell_shard"));
+            .hasBlock(ModBlocks.STAMPING_PLATFORM.get())
+            .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), Items.HEART_OF_THE_SEA)
+            .spawnItem(new Vec3(0.0, -0.75, 0.0), ModItems.SEA_HEART_SHELL_SHARD, 3)
+            .spawnItem(new Vec3(0.0, -0.75, 0.0), 0.5, ModItems.SEA_HEART_SHELL_SHARD)
+            .spawnItem(new Vec3(0.0, -0.75, 0.0), 0.5, ModItems.SEA_HEART_SHELL_SHARD)
+            .spawnItem(new Vec3(0.0, -0.75, 0.0), ModItems.SAPPHIRE)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.HEART_OF_THE_SEA),
+                AnvilCraftDatagen.has(Items.HEART_OF_THE_SEA))
+            .save(provider, AnvilCraft.of("stamping/sea_heart_shell_shard"));
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
-                .hasBlock(ModBlocks.STAMPING_PLATFORM.get())
-                .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), ModItems.PRISMARINE_CLUSTER)
-                .spawnItem(new Vec3(0.0, -0.75, 0.0), 0.15, ModItems.PRISMARINE_BLADE)
-                .spawnItem(new Vec3(0.0, -0.75, 0.0), Items.PRISMARINE_CRYSTALS, 2)
-                .spawnItem(new Vec3(0.0, -0.75, 0.0), 0.5, Items.PRISMARINE_CRYSTALS)
-                .spawnItem(new Vec3(0.0, -0.75, 0.0), Items.PRISMARINE_SHARD)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.PRISMARINE_CLUSTER.get()), AnvilCraftDatagen.has(ModItems.PRISMARINE_CLUSTER))
-                .save(provider, AnvilCraft.of("stamping/prismarine_blade"));
+            .hasBlock(ModBlocks.STAMPING_PLATFORM.get())
+            .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), ModItems.PRISMARINE_CLUSTER)
+            .spawnItem(new Vec3(0.0, -0.75, 0.0), 0.15, ModItems.PRISMARINE_BLADE)
+            .spawnItem(new Vec3(0.0, -0.75, 0.0), Items.PRISMARINE_CRYSTALS, 2)
+            .spawnItem(new Vec3(0.0, -0.75, 0.0), 0.5, Items.PRISMARINE_CRYSTALS)
+            .spawnItem(new Vec3(0.0, -0.75, 0.0), Items.PRISMARINE_SHARD)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.PRISMARINE_CLUSTER.get()),
+                AnvilCraftDatagen.has(ModItems.PRISMARINE_CLUSTER))
+            .save(provider, AnvilCraft.of("stamping/prismarine_blade"));
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
-                .hasBlock(ModBlocks.STAMPING_PLATFORM.get())
-                .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), ModItems.GEODE)
-                .spawnItem(new Vec3(0.0, -0.75, 0.0), Items.AMETHYST_SHARD, 2)
-                .spawnItem(new Vec3(0.0, -0.75, 0.0), 0.25, ModItems.TOPAZ)
-                .spawnItem(new Vec3(0.0, -0.75, 0.0), 0.25, ModItems.SAPPHIRE)
-                .spawnItem(new Vec3(0.0, -0.75, 0.0), 0.25, ModItems.RUBY)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.PRISMARINE_CLUSTER.get()), AnvilCraftDatagen.has(ModItems.PRISMARINE_CLUSTER))
-                .save(provider, AnvilCraft.of("stamping/geode_2_jewel"));
+            .hasBlock(ModBlocks.STAMPING_PLATFORM.get())
+            .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), ModItems.GEODE)
+            .spawnItem(new Vec3(0.0, -0.75, 0.0), Items.AMETHYST_SHARD, 2)
+            .spawnItem(new Vec3(0.0, -0.75, 0.0), 0.25, ModItems.TOPAZ)
+            .spawnItem(new Vec3(0.0, -0.75, 0.0), 0.25, ModItems.SAPPHIRE)
+            .spawnItem(new Vec3(0.0, -0.75, 0.0), 0.25, ModItems.RUBY)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.PRISMARINE_CLUSTER.get()),
+                AnvilCraftDatagen.has(ModItems.PRISMARINE_CLUSTER))
+            .save(provider, AnvilCraft.of("stamping/geode_2_jewel"));
     }
 
     /**
@@ -70,10 +73,11 @@ public class StampingRecipesLoader {
      */
     public static void stamping(Item item, Item item1, RegistrateRecipeProvider provider) {
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
-                .hasBlock(ModBlocks.STAMPING_PLATFORM.get())
-                .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), item)
-                .spawnItem(new Vec3(0.0, -0.75, 0.0), item1)
-                .unlockedBy(AnvilCraftDatagen.hasItem(item), AnvilCraftDatagen.has(item))
-                .save(provider, AnvilCraft.of("stamping/" + BuiltInRegistries.ITEM.getKey(item).getPath() + "_2_" + BuiltInRegistries.ITEM.getKey(item1).getPath()));
+            .hasBlock(ModBlocks.STAMPING_PLATFORM.get())
+            .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), item)
+            .spawnItem(new Vec3(0.0, -0.75, 0.0), item1)
+            .unlockedBy(AnvilCraftDatagen.hasItem(item), AnvilCraftDatagen.has(item))
+            .save(provider, AnvilCraft.of("stamping/" + BuiltInRegistries.ITEM.getKey(item).getPath()
+                + "_2_" + BuiltInRegistries.ITEM.getKey(item1).getPath()));
     }
 }
