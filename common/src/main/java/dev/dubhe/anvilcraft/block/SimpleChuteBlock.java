@@ -1,6 +1,9 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.api.depository.ItemDepository;
+import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
+import dev.dubhe.anvilcraft.api.hammer.IHammerChangeableBlock;
+import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
@@ -9,6 +12,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Containers;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -35,7 +40,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
-public class SimpleChuteBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
+public class SimpleChuteBlock extends BaseEntityBlock implements SimpleWaterloggedBlock, IHammerChangeable, IHammerRemovable {
     public static final DirectionProperty FACING = BlockStateProperties.FACING_HOPPER;
     public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
@@ -183,5 +188,19 @@ public class SimpleChuteBlock extends BaseEntityBlock implements SimpleWaterlogg
     @Override
     public FluidState getFluidState(BlockState state) {
         return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
+    }
+
+    @Override
+    public boolean change(Player player, BlockPos pos, @NotNull Level level, ItemStack anvilHammer) {
+        IHammerChangeableBlock.DEFAULT.change(player, pos, level, anvilHammer);
+        BlockState state = level.getBlockState(pos);
+        BlockState facingState = level.getBlockState(pos.relative(state.getValue(FACING)));
+        if (facingState.is(ModBlocks.CHUTE.get()) || facingState.is(ModBlocks.SIMPLE_CHUTE.get())) {
+            if (facingState.getValue(FACING).getOpposite() == state.getValue(FACING)) {
+                level.destroyBlock(pos, true);
+                return true;
+            }
+        }
+        return true;
     }
 }

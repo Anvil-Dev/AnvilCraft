@@ -16,6 +16,7 @@ public class ModItemGroups {
                         entries.accept(ModItems.GEODE.get().getDefaultInstance());
                         entries.accept(ModItems.AMETHYST_PICKAXE.get().getDefaultInstance());
                         entries.accept(ModItems.ROYAL_STEEL_PICKAXE.get().getDefaultInstance());
+                        entries.accept(ModItems.ANVIL_HAMMER.get().getDefaultInstance());
                         entries.accept(ModItems.CREAM.get().getDefaultInstance());
                         entries.accept(ModItems.FLOUR.get().getDefaultInstance());
                         entries.accept(ModItems.DOUGH.get().getDefaultInstance());
@@ -55,6 +56,7 @@ public class ModItemGroups {
                         entries.accept(Items.CAULDRON.getDefaultInstance());
                         entries.accept(Items.CAMPFIRE.getDefaultInstance());
                         entries.accept(ModBlocks.STAMPING_PLATFORM.asStack());
+                        entries.accept(ModBlocks.CORRUPTED_BEACON.asStack());
                         entries.accept(Items.ANVIL.getDefaultInstance());
                         entries.accept(Items.CHIPPED_ANVIL.getDefaultInstance());
                         entries.accept(Items.DAMAGED_ANVIL.getDefaultInstance());

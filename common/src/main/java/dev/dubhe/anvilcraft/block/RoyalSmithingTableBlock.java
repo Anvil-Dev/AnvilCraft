@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.RoyalSmithingMenu;
 import net.minecraft.core.BlockPos;
@@ -18,7 +19,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
 
-public class RoyalSmithingTableBlock extends SmithingTableBlock {
+public class RoyalSmithingTableBlock extends SmithingTableBlock implements IHammerRemovable {
     private static final Component CONTAINER_TITLE = Component.translatable("container.upgrade");
 
     public RoyalSmithingTableBlock(Properties properties) {
