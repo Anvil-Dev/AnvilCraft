@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.api.depository;
+package dev.dubhe.anvilcraft.api.depository.item;
 
 import lombok.Getter;
 import net.minecraft.core.NonNullList;

@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.api.depository;
+package dev.dubhe.anvilcraft.api.depository.item;
 
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;

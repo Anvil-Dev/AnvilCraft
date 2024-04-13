@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.api.depository;
+package dev.dubhe.anvilcraft.api.depository.item;
 
 import dev.dubhe.anvilcraft.api.INamedTagSerializable;
 import lombok.Getter;

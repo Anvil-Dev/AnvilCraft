@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
+import dev.dubhe.anvilcraft.api.depository.item.FilteredItemDepository;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
 

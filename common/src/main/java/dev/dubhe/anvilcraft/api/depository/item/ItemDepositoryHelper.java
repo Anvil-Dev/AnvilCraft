@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.api.depository;
+package dev.dubhe.anvilcraft.api.depository.item;
 
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import it.unimi.dsi.fastutil.ints.IntArrayList;

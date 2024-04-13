@@ -1,6 +1,6 @@
-package dev.dubhe.anvilcraft.api.depository.fabric;
+package dev.dubhe.anvilcraft.api.depository.item.fabric;
 
-import dev.dubhe.anvilcraft.api.depository.IItemDepository;
+import dev.dubhe.anvilcraft.api.depository.item.IItemDepository;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;

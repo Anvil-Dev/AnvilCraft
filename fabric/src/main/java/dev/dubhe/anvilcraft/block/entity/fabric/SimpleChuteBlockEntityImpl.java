@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity.fabric;
 
-import dev.dubhe.anvilcraft.api.depository.fabric.ItemDepositoryHelperImpl;
+import dev.dubhe.anvilcraft.api.depository.item.fabric.ItemDepositoryHelperImpl;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.minecraft.core.BlockPos;

@@ -1,6 +1,6 @@
-package dev.dubhe.anvilcraft.api.depository.forge;
+package dev.dubhe.anvilcraft.api.depository.item.forge;
 
-import dev.dubhe.anvilcraft.api.depository.IItemDepository;
+import dev.dubhe.anvilcraft.api.depository.item.IItemDepository;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
