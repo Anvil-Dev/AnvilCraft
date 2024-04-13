@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.mixin.forge;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilHurtEntityEvent;
 import dev.dubhe.anvilcraft.api.event.forge.AnvilEvent;
 import dev.dubhe.anvilcraft.init.ModBlocks;
@@ -17,15 +16,17 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.MinecraftForge;
-import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+
+import java.util.List;
+import java.util.function.Predicate;
 
 @Mixin(FallingBlockEntity.class)
 abstract class FallingBlockEntityMixin extends Entity {
@@ -84,19 +85,25 @@ abstract class FallingBlockEntityMixin extends Entity {
         });
     }
 
-    @Redirect(
-        method = "method_32879",
+    @SuppressWarnings("UnreachableCode")
+    @Inject(
+        method = "causeFallDamage",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/Entity;hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z"
-        )
+            target = "Lnet/minecraft/world/level/Level;getEntities(Lnet/minecraft/world/entity/Entity;"
+                + "Lnet/minecraft/world/phys/AABB;Ljava/util/function/Predicate;)Ljava/util/List;"
+        ),
+        locals = LocalCapture.CAPTURE_FAILHARD
     )
-    private static boolean anvilHurtEntity(@NotNull Entity instance, DamageSource source, float amount) {
-        boolean bl = instance.hurt(source, amount);
-        Entity directEntity = source.getDirectEntity();
-        if (!bl || !(directEntity instanceof FallingBlockEntity entity)) return bl;
-        AnvilEvent event = new AnvilEvent.HurtEntity(entity, entity.getOnPos(), entity.level(), instance, amount);
-        MinecraftForge.EVENT_BUS.post(event);
-        return true;
+    private void anvilHurtEntity(
+        float fallDistance, float multiplier, DamageSource source, CallbackInfoReturnable<Boolean> cir,
+        int i, Predicate<Entity> predicate, Block block, DamageSource damageSource, DamageSource damageSource2, float f
+    ) {
+        FallingBlockEntity anvil = (FallingBlockEntity) (Object) this;
+        Level level = this.level();
+        List<Entity> entities = level.getEntities(this, this.getBoundingBox(), predicate);
+        for (Entity entity : entities) {
+            MinecraftForge.EVENT_BUS.post(new AnvilEvent.HurtEntity(anvil, this.getOnPos(), level, entity, f));
+        }
     }
 }
