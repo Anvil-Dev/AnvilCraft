@@ -10,6 +10,7 @@ import net.minecraft.util.GsonHelper;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
+@SuppressWarnings("unused")
 public class DamageAnvil implements RecipeOutcome {
     private final String type = "damage_anvil";
     private final double chance;
@@ -26,6 +27,11 @@ public class DamageAnvil implements RecipeOutcome {
         this(buffer.readDouble());
     }
 
+    /**
+     * 破坏铁砧
+     *
+     * @param serializedRecipe 序列化配方
+     */
     public DamageAnvil(@NotNull JsonObject serializedRecipe) {
         if (serializedRecipe.has("chance")) {
             this.chance = GsonHelper.getAsDouble(serializedRecipe, "chance");

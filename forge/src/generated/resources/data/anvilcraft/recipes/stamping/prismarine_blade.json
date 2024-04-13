@@ -1,0 +1,88 @@
+{
+  "type": "anvilcraft:anvil_processing",
+  "icon": {
+    "item": "anvilcraft:prismarine_blade"
+  },
+  "outcomes": [
+    {
+      "type": "spawn_item",
+      "chance": 0.15,
+      "offset": [
+        0.0,
+        -0.75,
+        0.0
+      ],
+      "result": {
+        "item": "anvilcraft:prismarine_blade"
+      }
+    },
+    {
+      "type": "spawn_item",
+      "chance": 1.0,
+      "offset": [
+        0.0,
+        -0.75,
+        0.0
+      ],
+      "result": {
+        "count": 2,
+        "item": "minecraft:prismarine_crystals"
+      }
+    },
+    {
+      "type": "spawn_item",
+      "chance": 0.5,
+      "offset": [
+        0.0,
+        -0.75,
+        0.0
+      ],
+      "result": {
+        "item": "minecraft:prismarine_crystals"
+      }
+    },
+    {
+      "type": "spawn_item",
+      "chance": 1.0,
+      "offset": [
+        0.0,
+        -0.75,
+        0.0
+      ],
+      "result": {
+        "item": "minecraft:prismarine_shard"
+      }
+    }
+  ],
+  "predicates": [
+    {
+      "type": "has_block",
+      "match_block": {
+        "blocks": [
+          "anvilcraft:stamping_platform"
+        ]
+      },
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ]
+    },
+    {
+      "type": "has_item_ingredient",
+      "match_item": {
+        "count": {
+          "min": 1
+        },
+        "items": [
+          "anvilcraft:prismarine_cluster"
+        ]
+      },
+      "offset": [
+        0.0,
+        -0.75,
+        0.0
+      ]
+    }
+  ]
+}

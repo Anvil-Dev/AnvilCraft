@@ -11,12 +11,18 @@ import net.minecraft.world.item.crafting.RecipeType;
 import java.util.Map;
 
 public class ModRecipeTypesFabric {
+    /**
+     * 注册配方类型
+     */
     public static void register() {
-        for (Map.Entry<String, Pair<RecipeSerializer<?>, RecipeType<?>>> entry : ModRecipeTypes.RECIPE_TYPES.entrySet()) {
+        for (Map.Entry<String, Pair<RecipeSerializer<?>, RecipeType<?>>> entry
+            : ModRecipeTypes.RECIPE_TYPES.entrySet()) {
             if (null != entry.getValue().getFirst())
-                Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, AnvilCraft.of(entry.getKey()), entry.getValue().getFirst());
+                Registry.register(BuiltInRegistries.RECIPE_SERIALIZER,
+                    AnvilCraft.of(entry.getKey()), entry.getValue().getFirst());
             if (null != entry.getValue().getSecond())
-                Registry.register(BuiltInRegistries.RECIPE_TYPE, AnvilCraft.of(entry.getKey()), entry.getValue().getSecond());
+                Registry.register(BuiltInRegistries.RECIPE_TYPE,
+                    AnvilCraft.of(entry.getKey()), entry.getValue().getSecond());
         }
     }
 }

@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.inventory.IFilterMenu;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
 import lombok.Getter;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -22,7 +23,8 @@ public class ChuteScreen extends BaseMachineScreen<ChuteMenu> implements IFilter
     private static final ResourceLocation CONTAINER_LOCATION = AnvilCraft.of("textures/gui/container/chute.png");
 
 
-    BiFunction<Integer, Integer, EnableFilterButton> enableFilterButtonSupplier = this.getEnableFilterButtonSupplier(134, 36);
+    BiFunction<Integer, Integer, EnableFilterButton> enableFilterButtonSupplier = this
+        .getEnableFilterButtonSupplier(134, 36);
     @Getter
     private EnableFilterButton enableFilterButton = null;
     private final ChuteMenu menu;
@@ -36,6 +38,7 @@ public class ChuteScreen extends BaseMachineScreen<ChuteMenu> implements IFilter
     protected void init() {
         super.init();
         this.enableFilterButton = enableFilterButtonSupplier.apply(this.leftPos, this.topPos);
+        this.getDirectionButton().skip(Direction.UP);
         this.addRenderableWidget(this.enableFilterButton);
     }
 

@@ -15,7 +15,11 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 public class CompactionRecipesLoader {
-
+    /**
+     * 初始化压合配方
+     *
+     * @param provider 提供器
+     */
     public static void init(RegistrateRecipeProvider provider) {
         compaction(Blocks.STONE, Blocks.STONE, Blocks.DEEPSLATE, provider);
         compaction(Blocks.ICE, Blocks.ICE, Blocks.PACKED_ICE, provider);
@@ -27,21 +31,61 @@ public class CompactionRecipesLoader {
         compaction(Blocks.WARPED_WART_BLOCK, Blocks.NETHERRACK, Blocks.WARPED_NYLIUM, provider);
     }
 
-    public static void compaction(Block block, @NotNull Block block1, @NotNull Block block2, RegistrateRecipeProvider provider) {
+    /**
+     * 简单压合配方
+     *
+     * @param block    方块1
+     * @param block1   方块2
+     * @param block2   产物
+     * @param provider 提供器
+     */
+    public static void compaction(
+        Block block, @NotNull Block block1, @NotNull Block block2, RegistrateRecipeProvider provider
+    ) {
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
-                .hasBlockIngredient(block)
-                .hasBlock(new Vec3(0.0, -2.0, 0.0), block1)
-                .setBlock(new Vec3(0.0, -2.0, 0.0), block2)
-                .unlockedBy(AnvilCraftDatagen.hasItem(block.asItem()), AnvilCraftDatagen.has(block.asItem()))
-                .save(provider, AnvilCraft.of("smash_block/" + BuiltInRegistries.BLOCK.getKey(block).getPath() + "_and_" + BuiltInRegistries.BLOCK.getKey(block1).getPath() + "_2_" + BuiltInRegistries.BLOCK.getKey(block2).getPath()));
+            .hasBlockIngredient(block)
+            .hasBlock(new Vec3(0.0, -2.0, 0.0), block1)
+            .setBlock(new Vec3(0.0, -2.0, 0.0), block2)
+            .unlockedBy(AnvilCraftDatagen.hasItem(block.asItem()), AnvilCraftDatagen.has(block.asItem()))
+            .save(
+                provider,
+                AnvilCraft.of(
+                    "smash_block/"
+                        + BuiltInRegistries.BLOCK.getKey(block).getPath()
+                        + "_and_"
+                        + BuiltInRegistries.BLOCK.getKey(block1).getPath()
+                        + "_2_"
+                        + BuiltInRegistries.BLOCK.getKey(block2).getPath()
+                )
+            );
     }
 
-    public static void compaction(TagKey<Block> block, @NotNull Block block1, @NotNull Block block2, RegistrateRecipeProvider provider) {
+    /**
+     * 简单压合配方
+     *
+     * @param block    方块1
+     * @param block1   方块2
+     * @param block2   产物
+     * @param provider 提供器
+     */
+    public static void compaction(
+        TagKey<Block> block, @NotNull Block block1, @NotNull Block block2, RegistrateRecipeProvider provider
+    ) {
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
-                .hasBlockIngredient(block)
-                .hasBlock(new Vec3(0.0, -2.0, 0.0), block1)
-                .setBlock(new Vec3(0.0, -2.0, 0.0), block2)
-                .unlockedBy(AnvilCraftDatagen.hasItem(block1.asItem()), AnvilCraftDatagen.has(block1.asItem()))
-                .save(provider, AnvilCraft.of("smash_block/" + block.location().getPath() + "_and_" + BuiltInRegistries.BLOCK.getKey(block1).getPath() + "_2_" + BuiltInRegistries.BLOCK.getKey(block2).getPath()));
+            .hasBlockIngredient(block)
+            .hasBlock(new Vec3(0.0, -2.0, 0.0), block1)
+            .setBlock(new Vec3(0.0, -2.0, 0.0), block2)
+            .unlockedBy(AnvilCraftDatagen.hasItem(block1.asItem()), AnvilCraftDatagen.has(block1.asItem()))
+            .save(
+                provider,
+                AnvilCraft.of(
+                    "smash_block/"
+                        + block.location().getPath()
+                        + "_and_"
+                        + BuiltInRegistries.BLOCK.getKey(block1).getPath()
+                        + "_2_"
+                        + BuiltInRegistries.BLOCK.getKey(block2).getPath()
+                )
+            );
     }
 }

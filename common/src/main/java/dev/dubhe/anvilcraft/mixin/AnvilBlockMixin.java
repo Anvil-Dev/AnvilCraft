@@ -29,8 +29,17 @@ abstract class AnvilBlockMixin extends FallingBlock {
     }
 
     @Override
-    public void tick(BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, RandomSource random) {
-        if (isAttracts(level.getBlockState(pos.above())) || !FallingBlock.isFree(level.getBlockState(pos.below())) || pos.getY() < level.getMinBuildHeight()) {
+    public void tick(
+        @NotNull BlockState state,
+        @NotNull ServerLevel level,
+        @NotNull BlockPos pos,
+        @NotNull RandomSource random
+    ) {
+        if (
+            anvilCraft$isAttracts(level.getBlockState(pos.above()))
+                || !FallingBlock.isFree(level.getBlockState(pos.below()))
+                || pos.getY() < level.getMinBuildHeight()
+        ) {
             return;
         }
         FallingBlockEntity fallingBlockEntity = FallingBlockEntity.fall(level, pos, state);
@@ -39,24 +48,37 @@ abstract class AnvilBlockMixin extends FallingBlock {
 
     @Override
     @SuppressWarnings("deprecation")
-    public void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
+    public void neighborChanged(
+        @NotNull BlockState state,
+        @NotNull Level level,
+        @NotNull BlockPos pos,
+        @NotNull Block neighborBlock,
+        @NotNull BlockPos neighborPos,
+        boolean movedByPiston
+    ) {
         super.neighborChanged(state, level, pos, neighborBlock, neighborPos, movedByPiston);
-        this.wasAttracted(state, level, pos);
+        this.anvilCraft$wasAttracted(state, level, pos);
     }
 
     @Unique
-    private boolean isAttracts(@NotNull BlockState state) {
+    private boolean anvilCraft$isAttracts(@NotNull BlockState state) {
         return state.is(ModBlockTags.MAGNET) && !state.getValue(LIT);
     }
 
     @Override
-    public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+    public void onPlace(
+        @NotNull BlockState state,
+        @NotNull Level level,
+        @NotNull BlockPos pos,
+        @NotNull BlockState oldState,
+        boolean movedByPiston
+    ) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
-        this.wasAttracted(state, level, pos);
+        this.anvilCraft$wasAttracted(state, level, pos);
     }
 
     @Unique
-    private void wasAttracted(BlockState state, @NotNull Level level, @NotNull BlockPos anvil) {
+    private void anvilCraft$wasAttracted(BlockState state, @NotNull Level level, @NotNull BlockPos anvil) {
         BlockPos magnet = anvil;
         if (level.getBlockState(anvil.above()).is(ModBlockTags.MAGNET)) return;
         int distance = AnvilCraft.config.magnetAttractsDistance;

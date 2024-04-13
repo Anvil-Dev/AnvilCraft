@@ -18,6 +18,12 @@ public class SlotFilterChangePack implements Packet {
     private final int index;
     private final ItemStack filter;
 
+    /**
+     * 更改过滤
+     *
+     * @param index  槽位
+     * @param filter 过滤
+     */
     public SlotFilterChangePack(int index, @NotNull ItemStack filter) {
         this.index = index;
         this.filter = filter.copy();

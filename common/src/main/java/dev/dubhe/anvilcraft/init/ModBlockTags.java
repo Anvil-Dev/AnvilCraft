@@ -12,6 +12,8 @@ public class ModBlockTags {
     public static final TagKey<Block> REDSTONE_TORCH = bind("redstone_torch");
     public static final TagKey<Block> MUSHROOM_BLOCK = bind("mushroom_block");
     public static final TagKey<Block> CANT_BROKEN_ANVIL = bind("cant_broken_anvil");
+    public static final TagKey<Block> HAMMER_REMOVABLE = bind("hammer_removable");
+    public static final TagKey<Block> HAMMER_CHANGEABLE = bind("hammer_changeable");
 
     private static @NotNull TagKey<Block> bindC(String id) {
         return TagKey.create(Registries.BLOCK, new ResourceLocation("c", id));

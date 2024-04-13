@@ -12,10 +12,16 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
-@SuppressWarnings("unused")
+/**
+ * 桶拾取注入
+ */
 public interface IBucketPickupInjector extends BucketPickup {
     @Override
-    default @NotNull ItemStack pickupBlock(LevelAccessor level, BlockPos pos, @NotNull BlockState state) {
+    default @NotNull ItemStack pickupBlock(
+        @NotNull LevelAccessor level,
+        @NotNull BlockPos pos,
+        @NotNull BlockState state
+    ) {
         return Items.BUCKET.getDefaultInstance();
     }
 

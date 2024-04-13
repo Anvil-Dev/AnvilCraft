@@ -6,7 +6,10 @@ import dev.dubhe.anvilcraft.event.LightningEventListener;
 import dev.dubhe.anvilcraft.event.ServerEventListener;
 
 public class ModEvents {
-    public static void register(){
+    /**
+     * 注册模组事件
+     */
+    public static void register() {
         AnvilCraft.EVENT_BUS.register(new AnvilEventListener());
         AnvilCraft.EVENT_BUS.register(new LightningEventListener());
         AnvilCraft.EVENT_BUS.register(new ServerEventListener());

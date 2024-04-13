@@ -13,24 +13,36 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 public class EventManager {
-    public final Map<Class<?>, List<Consumer<?>>> EVENT_LISTENER = new ConcurrentHashMap<>();
+    public final Map<Class<?>, List<Consumer<?>>> eventListener = new ConcurrentHashMap<>();
 
+    /**
+     * 侦听事件
+     *
+     * @param event   事件
+     * @param trigger 处理器
+     * @param <E>     事件
+     */
     @SuppressWarnings("unused")
     public <E> void listen(Class<E> event, Consumer<E> trigger) {
-        List<Consumer<?>> triggers = EVENT_LISTENER.getOrDefault(event, new Vector<>());
+        List<Consumer<?>> triggers = eventListener.getOrDefault(event, new Vector<>());
         triggers.add(trigger);
-        EVENT_LISTENER.putIfAbsent(event, triggers);
+        eventListener.putIfAbsent(event, triggers);
     }
 
     @SuppressWarnings("all")
     public <E> void post(@NotNull E event) {
         List<Consumer<?>> triggers = new ArrayList<>();
-        EVENT_LISTENER.entrySet().stream().filter((k) -> event.getClass().isAssignableFrom(k.getKey())).map(Map.Entry::getValue).forEach(triggers::addAll);
+        eventListener.entrySet().stream().filter((k) -> event.getClass().isAssignableFrom(k.getKey())).map(Map.Entry::getValue).forEach(triggers::addAll);
         for (Consumer<?> trigger : triggers) {
             ((Consumer<E>) trigger).accept(event);
         }
     }
 
+    /**
+     * 注册侦听器
+     *
+     * @param object 侦听器类
+     */
     public void register(@NotNull Object object) {
         for (Method method : object.getClass().getMethods()) {
             if (method.getParameterCount() != 1) continue;
@@ -44,9 +56,9 @@ public class EventManager {
                     AnvilCraft.LOGGER.error(e.getMessage(), e);
                 }
             };
-            List<Consumer<?>> triggers = EVENT_LISTENER.getOrDefault(event, new Vector<>());
+            List<Consumer<?>> triggers = eventListener.getOrDefault(event, new Vector<>());
             triggers.add(trigger);
-            EVENT_LISTENER.putIfAbsent(event, triggers);
+            eventListener.putIfAbsent(event, triggers);
         }
     }
 }

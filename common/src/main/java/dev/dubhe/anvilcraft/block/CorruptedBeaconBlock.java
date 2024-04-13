@@ -22,7 +22,14 @@ public class CorruptedBeaconBlock extends BeaconBlock {
     }
 
     @Override
-    public @NotNull InteractionResult use(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult hit) {
+    public @NotNull InteractionResult use(
+        @NotNull BlockState state,
+        @NotNull Level level,
+        @NotNull BlockPos pos,
+        @NotNull Player player,
+        @NotNull InteractionHand hand,
+        @NotNull BlockHitResult hit
+    ) {
         return InteractionResult.PASS;
     }
 
@@ -33,7 +40,11 @@ public class CorruptedBeaconBlock extends BeaconBlock {
 
     @Override
     @Nullable
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> blockEntityType) {
-        return CorruptedBeaconBlock.createTickerHelper(blockEntityType, ModBlockEntities.CORRUPTED_BEACON.get(), CorruptedBeaconBlockEntity::tick);
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
+        @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> blockEntityType
+    ) {
+        return CorruptedBeaconBlock.createTickerHelper(
+            blockEntityType, ModBlockEntities.CORRUPTED_BEACON.get(), CorruptedBeaconBlockEntity::tick
+        );
     }
 }

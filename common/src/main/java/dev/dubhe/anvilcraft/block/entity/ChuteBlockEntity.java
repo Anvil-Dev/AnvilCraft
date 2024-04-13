@@ -92,26 +92,33 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
     protected void saveAdditional(@NotNull CompoundTag tag) {
         super.saveAdditional(tag);
         tag.putInt("Cooldown", cooldown);
-        tag.put("Inventory", depository.serializeNBT());
+        tag.put("Inventory", depository.serializeNbt());
     }
 
     @Override
     public void load(@NotNull CompoundTag tag) {
         super.load(tag);
         cooldown = tag.getInt("Cooldown");
-        depository.deserializeNBT(tag.getCompound("Inventory"));
+        depository.deserializeNbt(tag.getCompound("Inventory"));
     }
 
+    /**
+     * 溜槽 tick
+     */
     @SuppressWarnings("UnreachableCode")
     public void tick() {
         if (cooldown <= 0) {
             if (getBlockState().getValue(ChuteBlock.ENABLED)) {
-                if (ItemDepositoryHelper.getItemDepository(getLevel(), getBlockPos().relative(Direction.UP), Direction.UP.getOpposite()) != null) {
+                if (ItemDepositoryHelper.getItemDepository(getLevel(),
+                    getBlockPos().relative(Direction.UP), Direction.UP.getOpposite()) != null) {
                     // 尝试从上方容器输入
-                    ItemDepositoryHelper.importToTarget(depository, 64, stack -> true, getLevel(), getBlockPos().relative(Direction.UP), Direction.UP.getOpposite());
+                    ItemDepositoryHelper.importToTarget(depository,
+                        64, stack -> true, getLevel(),
+                        getBlockPos().relative(Direction.UP), Direction.UP.getOpposite());
                 } else {
-                    // TODO: 尝试吸取上方 ItemEntity
-                    List<ItemEntity> itemEntities = getLevel().getEntitiesOfClass(ItemEntity.class, new AABB(getBlockPos().relative(Direction.UP)), itemEntity -> !itemEntity.getItem().isEmpty());
+                    List<ItemEntity> itemEntities = getLevel().getEntitiesOfClass(
+                        ItemEntity.class, new AABB(getBlockPos().relative(Direction.UP)),
+                        itemEntity -> !itemEntity.getItem().isEmpty());
                     for (ItemEntity itemEntity : itemEntities) {
                         ItemStack remaining = ItemDepositoryHelper.insertItem(depository, itemEntity.getItem(), true);
                         if (!remaining.isEmpty()) continue;
@@ -120,10 +127,13 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
                         break;
                     }
                 }
-                if (ItemDepositoryHelper.getItemDepository(getLevel(), getBlockPos().relative(getDirection()), getDirection().getOpposite()) != null) {
+                if (ItemDepositoryHelper.getItemDepository(getLevel(),
+                    getBlockPos().relative(getDirection()), getDirection().getOpposite()) != null) {
                     // 尝试向朝向容器输出
                     if (!depository.isEmpty()) {
-                        ItemDepositoryHelper.exportToTarget(depository, 64, stack -> true, getLevel(), getBlockPos().relative(getDirection()), getDirection().getOpposite());
+                        ItemDepositoryHelper.exportToTarget(depository,
+                            64, stack -> true, getLevel(),
+                            getBlockPos().relative(getDirection()), getDirection().getOpposite());
                     }
                 } else {
                     Vec3 center = getBlockPos().relative(getDirection()).getCenter();
@@ -132,7 +142,8 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
                         for (int i = 0; i < depository.getSlots(); i++) {
                             ItemStack stack = depository.getStack(i);
                             if (!stack.isEmpty()) {
-                                ItemEntity itemEntity = new ItemEntity(getLevel(), center.x, center.y, center.z, stack, 0, 0, 0);
+                                ItemEntity itemEntity = new ItemEntity(
+                                    getLevel(), center.x, center.y, center.z, stack, 0, 0, 0);
                                 getLevel().addFreshEntity(itemEntity);
                                 depository.setStack(i, ItemStack.EMPTY);
                                 break;
@@ -147,6 +158,11 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
         }
     }
 
+    /**
+     * 获取红石信号强度
+     *
+     * @return 红石信号强度
+     */
     public int getRedstoneSignal() {
         int i = 0;
         for (int j = 0; j < depository.getSlots(); ++j) {

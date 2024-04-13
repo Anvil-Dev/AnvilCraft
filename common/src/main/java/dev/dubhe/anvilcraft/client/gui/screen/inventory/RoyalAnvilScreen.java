@@ -19,10 +19,18 @@ import org.jetbrains.annotations.NotNull;
 public class RoyalAnvilScreen extends ItemCombinerScreen<RoyalAnvilMenu> {
     private static final ResourceLocation ANVIL_LOCATION = AnvilCraft.of("textures/gui/container/royal_anvil.png");
     private static final ResourceLocation TEXT_LOCATION = AnvilCraft.of("textures/gui/container/text_field.png");
-    private static final ResourceLocation TEXT_DISABLE_LOCATION = AnvilCraft.of("textures/gui/container/text_field_disabled.png");
+    private static final ResourceLocation TEXT_DISABLE_LOCATION = AnvilCraft
+        .of("textures/gui/container/text_field_disabled.png");
     private EditBox name;
     private final Player player;
 
+    /**
+     * 皇家铁砧 GUI
+     *
+     * @param menu            菜单
+     * @param playerInventory 背包
+     * @param title           标题
+     */
     public RoyalAnvilScreen(RoyalAnvilMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title, ANVIL_LOCATION);
         this.player = playerInventory.player;
@@ -53,7 +61,7 @@ public class RoyalAnvilScreen extends ItemCombinerScreen<RoyalAnvilMenu> {
     }
 
     @Override
-    public void resize(Minecraft minecraft, int width, int height) {
+    public void resize(@NotNull Minecraft minecraft, int width, int height) {
         String string = this.name.getValue();
         this.init(minecraft, width, height);
         this.name.setValue(string);
@@ -85,7 +93,7 @@ public class RoyalAnvilScreen extends ItemCombinerScreen<RoyalAnvilMenu> {
     }
 
     @Override
-    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+    protected void renderLabels(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY) {
         super.renderLabels(guiGraphics, mouseX, mouseY);
         int i = this.menu.getCost();
         if (i > 0) {
@@ -108,7 +116,7 @@ public class RoyalAnvilScreen extends ItemCombinerScreen<RoyalAnvilMenu> {
     }
 
     @Override
-    protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(@NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         super.renderBg(guiGraphics, partialTick, mouseX, mouseY);
         ResourceLocation location = this.menu.getSlot(0).getItem().isEmpty() ? TEXT_DISABLE_LOCATION : TEXT_LOCATION;
         guiGraphics.blit(location, this.leftPos + 59, this.topPos + 20, 0, 0, 110, 16, 110, 16);
@@ -120,11 +128,13 @@ public class RoyalAnvilScreen extends ItemCombinerScreen<RoyalAnvilMenu> {
     }
 
     @Override
-    protected void renderErrorIcon(GuiGraphics guiGraphics, int x, int y) {
+    protected void renderErrorIcon(@NotNull GuiGraphics guiGraphics, int x, int y) {
     }
 
     @Override
-    public void slotChanged(AbstractContainerMenu containerToSend, int dataSlotIndex, ItemStack stack) {
+    public void slotChanged(
+        @NotNull AbstractContainerMenu containerToSend, int dataSlotIndex, @NotNull ItemStack stack
+    ) {
         if (dataSlotIndex == 0) {
             this.name.setValue(stack.isEmpty() ? "" : stack.getHoverName().getString());
             this.name.setEditable(!stack.isEmpty());

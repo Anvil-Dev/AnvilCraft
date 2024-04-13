@@ -33,7 +33,9 @@ public class ItemDepository implements IItemDepository, INamedTagSerializable {
     }
 
     @Override
-    public ItemStack insert(int slot, @NotNull ItemStack stack, boolean simulate, boolean notifyChanges, boolean isServer) {
+    public ItemStack insert(
+        int slot, @NotNull ItemStack stack, boolean simulate, boolean notifyChanges, boolean isServer
+    ) {
         this.validateSlotIndex(slot);
         if (stack.isEmpty()) return ItemStack.EMPTY;
         if (isServer && !this.isItemValid(slot, stack)) return stack;
@@ -41,6 +43,7 @@ public class ItemDepository implements IItemDepository, INamedTagSerializable {
         ItemStack stackInSlot = this.getStack(slot);
         int limit = this.getSlotLimit(slot);
         if (!stackInSlot.isEmpty() && !ItemStack.isSameItemSameTags(stackInSlot, stack)) return stack;
+        limit = Math.min(limit, stackInSlot.getItem().getMaxStackSize());
         limit -= stackInSlot.getCount();
         if (limit <= 0) return stack;
         boolean reachedLimit = stack.getCount() > limit;
@@ -79,7 +82,8 @@ public class ItemDepository implements IItemDepository, INamedTagSerializable {
             }
         } else {
             if (!simulate) {
-                this.stacks.set(slot, ItemDepositoryHelper.copyStackWithSize(existing, existing.getCount() - toExtract));
+                this.stacks.set(slot,
+                    ItemDepositoryHelper.copyStackWithSize(existing, existing.getCount() - toExtract));
                 if (notifyChanges) {
                     onContentsChanged(slot);
                 }
@@ -104,7 +108,7 @@ public class ItemDepository implements IItemDepository, INamedTagSerializable {
     }
 
     @Override
-    public @NotNull CompoundTag serializeNBT() {
+    public @NotNull CompoundTag serializeNbt() {
         CompoundTag compoundTag = new CompoundTag();
         ListTag listTag = new ListTag();
         int slots = this.getSlots();
@@ -122,7 +126,7 @@ public class ItemDepository implements IItemDepository, INamedTagSerializable {
     }
 
     @Override
-    public void deserializeNBT(@NotNull CompoundTag tag) {
+    public void deserializeNbt(@NotNull CompoundTag tag) {
         if (!tag.contains("Items")) return;
         ListTag listTag = tag.getList("Items", Tag.TAG_COMPOUND);
         int slots = this.getSlots();
@@ -139,6 +143,9 @@ public class ItemDepository implements IItemDepository, INamedTagSerializable {
             throw new RuntimeException("Slot " + slot + " not in valid range - [0," + stacks.size() + ")");
     }
 
+    /**
+     * @return 是否为空
+     */
     public boolean isEmpty() {
         for (ItemStack stack : this.stacks) {
             if (!stack.isEmpty()) return false;
@@ -146,12 +153,19 @@ public class ItemDepository implements IItemDepository, INamedTagSerializable {
         return true;
     }
 
+    /**
+     * 清除物品
+     *
+     * @param slot 槽位
+     * @return 被清除的物品
+     */
     public ItemStack clearItem(int slot) {
         ItemStack stack = this.getStack(slot);
         this.stacks.set(slot, ItemStack.EMPTY);
         return stack;
     }
 
+    @SuppressWarnings("unused")
     public static class Pollable extends ItemDepository {
         public Pollable(int size) {
             super(size);

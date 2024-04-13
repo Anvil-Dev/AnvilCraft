@@ -18,8 +18,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 
 public class SmashRecipesLoader {
-
-    public static void init(RegistrateRecipeProvider provider)  {
+    /**
+     * 初始化粉碎配方
+     *
+     * @param provider 提供器
+     */
+    public static void init(RegistrateRecipeProvider provider) {
         smash(Items.WET_SPONGE, ModItems.SPONGE_GEMMULE.get(), 2, provider);
         smash(Items.NETHER_STAR, ModItems.NETHER_STAR_SHARD.get(), 4, provider);
         smash(ModBlocks.HOLLOW_MAGNET_BLOCK.asItem(), ModItems.MAGNET_INGOT.get(), 8, provider);
@@ -35,20 +39,30 @@ public class SmashRecipesLoader {
         smash(Items.AMETHYST_BLOCK, Items.AMETHYST_SHARD, 4, provider);
         smash(Items.HONEYCOMB_BLOCK, Items.HONEYCOMB, 4, provider);
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
-                .hasBlock(Blocks.IRON_TRAPDOOR, new Vec3(0.0, -1.0, 0.0), Map.entry(TrapDoorBlock.OPEN, false))
-                .hasItemIngredient(Items.HONEY_BLOCK)
-                .hasItemIngredient(4, Items.GLASS_BOTTLE)
-                .spawnItem(new Vec3(0.0, -1.0, 0.0), Items.HONEY_BOTTLE, 4)
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.HONEY_BLOCK), AnvilCraftDatagen.has(Items.HONEY_BLOCK))
-                .save(provider, AnvilCraft.of("smash/" + BuiltInRegistries.ITEM.getKey(Items.HONEY_BLOCK).getPath() + "_2_" + BuiltInRegistries.ITEM.getKey(Items.HONEY_BOTTLE).getPath()));
+            .hasBlock(Blocks.IRON_TRAPDOOR, new Vec3(0.0, -1.0, 0.0), Map.entry(TrapDoorBlock.OPEN, false))
+            .hasItemIngredient(Items.HONEY_BLOCK)
+            .hasItemIngredient(4, Items.GLASS_BOTTLE)
+            .spawnItem(new Vec3(0.0, -1.0, 0.0), Items.HONEY_BOTTLE, 4)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.HONEY_BLOCK), AnvilCraftDatagen.has(Items.HONEY_BLOCK))
+            .save(provider, AnvilCraft.of("smash/" + BuiltInRegistries.ITEM.getKey(Items.HONEY_BLOCK).getPath()
+                + "_2_" + BuiltInRegistries.ITEM.getKey(Items.HONEY_BOTTLE).getPath()));
     }
 
+    /**
+     * 粉碎配方
+     *
+     * @param item     物品
+     * @param item1    产物
+     * @param count    数量
+     * @param provider 提供器
+     */
     public static void smash(Item item, @NotNull Item item1, int count, RegistrateRecipeProvider provider) {
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
-                .hasBlock(Blocks.IRON_TRAPDOOR, new Vec3(0.0, -1.0, 0.0), Map.entry(TrapDoorBlock.OPEN, false))
-                .hasItemIngredient(item)
-                .spawnItem(new Vec3(0.0, -1.0, 0.0), item1, count)
-                .unlockedBy(AnvilCraftDatagen.hasItem(item), AnvilCraftDatagen.has(item))
-                .save(provider, AnvilCraft.of("smash/" + BuiltInRegistries.ITEM.getKey(item).getPath() + "_2_" + BuiltInRegistries.ITEM.getKey(item1).getPath()));
+            .hasBlock(Blocks.IRON_TRAPDOOR, new Vec3(0.0, -1.0, 0.0), Map.entry(TrapDoorBlock.OPEN, false))
+            .hasItemIngredient(item)
+            .spawnItem(new Vec3(0.0, -1.0, 0.0), item1, count)
+            .unlockedBy(AnvilCraftDatagen.hasItem(item), AnvilCraftDatagen.has(item))
+            .save(provider, AnvilCraft.of("smash/" + BuiltInRegistries.ITEM.getKey(item).getPath() + "_2_"
+                + BuiltInRegistries.ITEM.getKey(item1).getPath()));
     }
 }

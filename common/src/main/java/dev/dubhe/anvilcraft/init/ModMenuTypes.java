@@ -28,13 +28,16 @@ public class ModMenuTypes {
             .menu("chute", ChuteMenu::new, () -> ChuteScreen::new)
             .register();
     public static final MenuEntry<RoyalGrindstoneMenu> ROYAL_GRINDSTONE = REGISTRATE
-            .menu("royal_grindstone", (type, id, inventory) -> new RoyalGrindstoneMenu(type, id, inventory), () -> RoyalGrindstoneScreen::new)
+            .menu("royal_grindstone", (type, id, inventory) ->
+                new RoyalGrindstoneMenu(type, id, inventory), () -> RoyalGrindstoneScreen::new)
             .register();
     public static final MenuEntry<RoyalAnvilMenu> ROYAL_ANVIL = REGISTRATE
-            .menu("royal_anvil", (type, id, inventory) -> new RoyalAnvilMenu(id, inventory), () -> RoyalAnvilScreen::new)
+            .menu("royal_anvil", (type, id, inventory) ->
+                new RoyalAnvilMenu(id, inventory), () -> RoyalAnvilScreen::new)
             .register();
     public static final MenuEntry<RoyalSmithingMenu> ROYAL_SMITHING = REGISTRATE
-            .menu("royal_smithing_table", (type, id, inventory) -> new RoyalSmithingMenu(type, id, inventory), () -> RoyalSmithingScreen::new)
+            .menu("royal_smithing_table", (type, id, inventory) ->
+                new RoyalSmithingMenu(type, id, inventory), () -> RoyalSmithingScreen::new)
             .register();
 
     public static void register() {

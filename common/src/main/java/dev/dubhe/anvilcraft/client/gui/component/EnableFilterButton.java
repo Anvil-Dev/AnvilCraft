@@ -20,7 +20,8 @@ public class EnableFilterButton extends Button {
     private final Supplier<Boolean> filterEnabled;
     private static final ResourceLocation YES = AnvilCraft.of("textures/gui/container/button_yes.png");
     private static final ResourceLocation NO = AnvilCraft.of("textures/gui/container/button_no.png");
-    private static final MutableComponent defaultMessage = Component.translatable("screen.anvilcraft.button.record", Component.translatable("screen.anvilcraft.button.off"));
+    private static final MutableComponent defaultMessage = Component
+        .translatable("screen.anvilcraft.button.record", Component.translatable("screen.anvilcraft.button.off"));
 
     public EnableFilterButton(int x, int y, OnPress onPress, Supplier<Boolean> filterEnabled) {
         super(x, y, 16, 16, defaultMessage, onPress, (var) -> defaultMessage);
@@ -31,12 +32,18 @@ public class EnableFilterButton extends Button {
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         if (this.isHovered()) {
-            guiGraphics.renderTooltip(Minecraft.getInstance().font, List.of(getMessage()), Optional.empty(), mouseX, mouseY);
+            guiGraphics.renderTooltip(Minecraft.getInstance().font,
+                List.of(getMessage()), Optional.empty(), mouseX, mouseY);
         }
     }
 
+    /**
+     * 刷新
+     */
     public void flush() {
-        this.setMessage(Component.translatable("screen.anvilcraft.button.record", Component.translatable("screen.anvilcraft.button." + (this.getFilterEnabled().get() ? "on" : "off"))));
+        this.setMessage(
+            Component.translatable("screen.anvilcraft.button.record",
+                Component.translatable("screen.anvilcraft.button." + (this.getFilterEnabled().get() ? "on" : "off"))));
     }
 
     @Override
@@ -46,13 +53,15 @@ public class EnableFilterButton extends Button {
     }
 
     @Override
-    public void renderTexture(@NotNull GuiGraphics guiGraphics, @NotNull ResourceLocation texture, int x, int y, int uOffset, int vOffset, int textureDifference, int width, int height, int textureWidth, int textureHeight) {
-        int i = vOffset;
+    public void renderTexture(@NotNull GuiGraphics guiGraphics, @NotNull ResourceLocation texture,
+                              int x, int y, int puOffset, int pvOffset, int textureDifference,
+                              int width, int height, int textureWidth, int textureHeight) {
+        int i = pvOffset;
         if (this.isHovered()) {
             i += textureDifference;
         }
         RenderSystem.enableDepthTest();
-        guiGraphics.blit(texture, x, y, uOffset, i, width, height, textureWidth, textureHeight);
+        guiGraphics.blit(texture, x, y, puOffset, i, width, height, textureWidth, textureHeight);
     }
 
     public boolean next() {

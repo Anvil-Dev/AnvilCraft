@@ -94,8 +94,10 @@ allprojects {
     group = rootProject.maven_group
 
     // Formats the mod version to include the loader, Minecraft version, and build number (if present)
-    String buildNumber = System.getenv("GITHUB_RUN_NUMBER")
-    version = "${mod_version}" + (buildNumber != null ? "-build.${System.getenv("GITHUB_RUN_NUMBER")}" : "")
+    String buildNumber
+    if (System.getenv("CI_BUILD") == 'false') buildNumber = null
+    else buildNumber = System.getenv("GITHUB_RUN_NUMBER")
+    version = "${mod_version}" + (buildNumber != null ? "-build.${buildNumber}" : "")
 
     repositories {
         // Add repositories to retrieve artifacts from in here.

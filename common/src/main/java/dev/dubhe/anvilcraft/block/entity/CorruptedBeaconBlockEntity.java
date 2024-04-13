@@ -12,7 +12,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BeaconBeamBlock;
 import net.minecraft.world.level.block.Block;
@@ -37,12 +37,24 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
         super(type, pos, blockState);
     }
 
-    public static @NotNull CorruptedBeaconBlockEntity createBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+    public static @NotNull CorruptedBeaconBlockEntity createBlockEntity(
+        BlockEntityType<?> type, BlockPos pos, BlockState blockState
+    ) {
         return new CorruptedBeaconBlockEntity(type, pos, blockState);
     }
 
+    /**
+     * tick 逻辑
+     *
+     * @param level       世界
+     * @param pos         坐标
+     * @param state       方块状态
+     * @param blockEntity 方块实体
+     */
     @SuppressWarnings("unused")
-    public static void tick(Level level, @NotNull BlockPos pos, BlockState state, @NotNull CorruptedBeaconBlockEntity blockEntity) {
+    public static void tick(
+        Level level, @NotNull BlockPos pos, BlockState state, @NotNull CorruptedBeaconBlockEntity blockEntity
+    ) {
         int m;
         BlockPos blockPos;
         int i = pos.getX();
@@ -55,7 +67,9 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
         } else {
             blockPos = new BlockPos(i, blockEntity.lastCheckY + 1, k);
         }
-        BeaconBeamSection beaconBeamSection = blockEntity.checkingBeamSections.isEmpty() ? null : blockEntity.checkingBeamSections.get(blockEntity.checkingBeamSections.size() - 1);
+        BeaconBeamSection beaconBeamSection = blockEntity.checkingBeamSections.isEmpty()
+            ? null
+            : blockEntity.checkingBeamSections.get(blockEntity.checkingBeamSections.size() - 1);
         int l = level.getHeight(Heightmap.Types.WORLD_SURFACE, i, k);
         for (m = 0; m < 10 && blockPos.getY() <= l; ++m) {
             block18:
@@ -79,12 +93,17 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
                     if (Arrays.equals(fs, beaconBeamSection.color)) {
                         beaconBeamSection.increaseHeight();
                     } else {
-                        beaconBeamSection = new BeaconBeamSection(new float[]{(beaconBeamSection.color[0] + fs[0]) / 2.0f, (beaconBeamSection.color[1] + fs[1]) / 2.0f, (beaconBeamSection.color[2] + fs[2]) / 2.0f});
+                        beaconBeamSection = new BeaconBeamSection(new float[]{
+                            (beaconBeamSection.color[0] + fs[0]) / 2.0f,
+                            (beaconBeamSection.color[1] + fs[1]) / 2.0f,
+                            (beaconBeamSection.color[2] + fs[2]) / 2.0f
+                        });
                         blockEntity.checkingBeamSections.add(beaconBeamSection);
                     }
                     break block18;
                 }
-                if (beaconBeamSection != null && (blockState.getLightBlock(level, blockPos) < 15 || blockState.is(Blocks.BEDROCK))) {
+                if (beaconBeamSection != null
+                    && (blockState.getLightBlock(level, blockPos) < 15 || blockState.is(Blocks.BEDROCK))) {
                     beaconBeamSection.increaseHeight();
                 } else {
                     blockEntity.checkingBeamSections.clear();
@@ -150,10 +169,10 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
 
     private static void applyEffects(@NotNull Level level, BlockPos pos) {
         if (level.isClientSide) return;
-        AABB aABB = new AABB(pos).expandTowards(0.0, level.getHeight(), 0.0);
-        List<Player> list = level.getEntitiesOfClass(Player.class, aABB);
-        for (Player player : list) {
-            player.addEffect(new MobEffectInstance(MobEffects.WITHER, 120, 0, true, true));
+        AABB aabb = new AABB(pos).expandTowards(0.0, level.getHeight(), 0.0);
+        List<LivingEntity> list = level.getEntitiesOfClass(LivingEntity.class, aabb);
+        for (LivingEntity livingEntity : list) {
+            livingEntity.addEffect(new MobEffectInstance(MobEffects.WITHER, 120, 0, true, true));
         }
     }
 
@@ -194,11 +213,16 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
             ++this.height;
         }
 
+        /**
+         * 获取颜色
+         *
+         * @return 颜色
+         */
         public float[] getColor() {
             return new float[]{
-                    Math.max(0.0f, 1 - color[0] - 0.3f),
-                    Math.max(0.0f, 1 - color[1] - 0.3f),
-                    Math.max(0.0f, 1 - color[2] - 0.3f)
+                Math.max(0.0f, 1 - color[0] - 0.3f),
+                Math.max(0.0f, 1 - color[1] - 0.3f),
+                Math.max(0.0f, 1 - color[2] - 0.3f)
             };
         }
     }

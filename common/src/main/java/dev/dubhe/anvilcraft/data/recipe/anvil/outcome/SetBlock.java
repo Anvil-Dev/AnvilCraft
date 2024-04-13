@@ -26,18 +26,31 @@ public class SetBlock implements RecipeOutcome {
     private final double chance;
     private final BlockState result;
 
+    /**
+     * 放置方块
+     *
+     * @param offset 偏移
+     * @param chance 几率
+     * @param result 方块
+     */
     public SetBlock(Vec3 offset, double chance, BlockState result) {
         this.offset = offset;
         this.chance = chance;
         this.result = result;
     }
 
+    /**
+     * @param buffer 缓冲区
+     */
     public SetBlock(@NotNull FriendlyByteBuf buffer) {
         this.offset = new Vec3(buffer.readVector3f());
         this.chance = buffer.readDouble();
         this.result = IBlockStateInjector.fromJson(AnvilCraft.GSON.fromJson(buffer.readUtf(), JsonElement.class));
     }
 
+    /**
+     * @param serializedRecipe json
+     */
     public SetBlock(@NotNull JsonObject serializedRecipe) {
         double[] vec3 = {0.0d, 0.0d, 0.0d};
         if (serializedRecipe.has("offset")) {

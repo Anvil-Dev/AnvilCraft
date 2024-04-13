@@ -34,20 +34,27 @@ import java.util.List;
 import java.util.Optional;
 
 public class AnvilEventListener {
+    /**
+     * 侦听铁砧落地事件
+     *
+     * @param event 铁砧落地事件
+     */
     @SubscribeEvent
     public void onLand(@NotNull AnvilFallOnLandEvent event) {
         Level level = event.getLevel();
         BlockPos pos = event.getPos();
-        AnvilCraftingContainer container = new AnvilCraftingContainer(level, pos, event.getEntity());
         MinecraftServer server = level.getServer();
         if (null == server) return;
-        Optional<AnvilRecipe> optional = server.getRecipeManager().getRecipeFor(ModRecipeTypes.ANVIL_RECIPE, container, level);
         BlockPos belowPos = pos.below();
         BlockState state = level.getBlockState(belowPos);
-        if (state.is(Blocks.REDSTONE_BLOCK)) redstoneEMP(level, belowPos, event.getFallDistance());
+        if (state.is(Blocks.REDSTONE_BLOCK)) redstoneEmp(level, belowPos, event.getFallDistance());
         belowPos = belowPos.below();
         state = level.getBlockState(belowPos);
         if (state.is(Blocks.STONECUTTER)) brokeBlock(level, belowPos.above(), event);
+        AnvilCraftingContainer container = new AnvilCraftingContainer(level, pos, event.getEntity());
+        Optional<AnvilRecipe> optional = server
+            .getRecipeManager()
+            .getRecipeFor(ModRecipeTypes.ANVIL_RECIPE, container, level);
         optional.ifPresent(anvilRecipe -> anvilProcess(anvilRecipe, container, event));
     }
 
@@ -66,53 +73,62 @@ public class AnvilEventListener {
         if (state.getBlock().getExplosionResistance() >= 1200.0) event.setAnvilDamage(true);
         if (state.getDestroySpeed(level, pos) < 0) return;
         BlockEntity blockEntity = state.hasBlockEntity() ? level.getBlockEntity(pos) : null;
-        LootParams.Builder builder = new LootParams.Builder(serverLevel).withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos)).withParameter(LootContextParams.TOOL, ItemStack.EMPTY).withOptionalParameter(LootContextParams.BLOCK_ENTITY, blockEntity);
+        LootParams.Builder builder = new LootParams
+            .Builder(serverLevel)
+            .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos))
+            .withParameter(LootContextParams.TOOL, ItemStack.EMPTY)
+            .withOptionalParameter(LootContextParams.BLOCK_ENTITY, blockEntity);
         state.spawnAfterBreak(serverLevel, pos, ItemStack.EMPTY, false);
         dropItems(state.getDrops(builder), level, pos.getCenter());
         level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
     }
 
-    private void redstoneEMP(@NotNull Level level, @NotNull BlockPos pos, float fallDistance) {
+    private void redstoneEmp(@NotNull Level level, @NotNull BlockPos pos, float fallDistance) {
         int radius = AnvilCraft.config.redstoneEmpRadius;
         int maxRadius = AnvilCraft.config.redstoneEmpMaxRadius;
         int distance = Math.min(((int) Math.ceil(fallDistance)) * radius, maxRadius);
         if (!level.getBlockState(pos.relative(Direction.EAST)).is(Blocks.IRON_TRAPDOOR)) {
             for (int x = 1; x < distance; x++) {
                 for (int z = -distance; z < distance; z++) {
-                    redstoneEMP(level, pos.offset(x, 0, z));
+                    redstoneEmp(level, pos.offset(x, 0, z));
                 }
             }
         }
         if (!level.getBlockState(pos.relative(Direction.WEST)).is(Blocks.IRON_TRAPDOOR)) {
             for (int x = -1; x > -distance; x--) {
                 for (int z = -distance; z < distance; z++) {
-                    redstoneEMP(level, pos.offset(x, 0, z));
+                    redstoneEmp(level, pos.offset(x, 0, z));
                 }
             }
         }
         if (!level.getBlockState(pos.relative(Direction.SOUTH)).is(Blocks.IRON_TRAPDOOR)) {
             for (int x = -distance; x < distance; x++) {
                 for (int z = 1; z < distance; z++) {
-                    redstoneEMP(level, pos.offset(x, 0, z));
+                    redstoneEmp(level, pos.offset(x, 0, z));
                 }
             }
         }
         if (!level.getBlockState(pos.relative(Direction.NORTH)).is(Blocks.IRON_TRAPDOOR)) {
             for (int x = -distance; x < distance; x++) {
                 for (int z = -1; z > -distance; z--) {
-                    redstoneEMP(level, pos.offset(x, 0, z));
+                    redstoneEmp(level, pos.offset(x, 0, z));
                 }
             }
         }
     }
 
-    private void redstoneEMP(@NotNull Level level, BlockPos pos) {
+    private void redstoneEmp(@NotNull Level level, BlockPos pos) {
         BlockState state = level.getBlockState(pos);
         if (!state.is(ModBlockTags.REDSTONE_TORCH)) return;
         state = state.setValue(RedstoneTorchBlock.LIT, false);
         level.setBlockAndUpdate(pos, state);
     }
 
+    /**
+     * 侦听铁砧伤害实体事件
+     *
+     * @param event 铁砧伤害实体事件
+     */
     @SubscribeEvent
     public void onAnvilHurtEntity(@NotNull AnvilHurtEntityEvent event) {
         Entity hurtedEntity = event.getHurtedEntity();

@@ -12,6 +12,14 @@ import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("UnstableApiUsage")
 public class ItemDepositoryHelperImpl {
+    /**
+     * 获取物品容器
+     *
+     * @param level     世界
+     * @param pos       位置
+     * @param direction 方向
+     * @return 物品容器
+     */
     @Nullable
     public static IItemDepository getItemDepository(@NotNull Level level, BlockPos pos, Direction direction) {
         Storage<ItemVariant> target = ItemStorage.SIDED.find(level, pos, direction);

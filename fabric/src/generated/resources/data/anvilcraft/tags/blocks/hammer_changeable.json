@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:observer",
+    "minecraft:hopper",
+    "minecraft:dropper",
+    "minecraft:dispenser",
+    "minecraft:lightning_rod"
+  ]
+}

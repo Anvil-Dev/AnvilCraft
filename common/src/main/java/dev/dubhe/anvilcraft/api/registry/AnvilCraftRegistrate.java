@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+@SuppressWarnings("unused")
 public abstract class AnvilCraftRegistrate extends Registrate {
 
     protected AnvilCraftRegistrate(String modId) {
@@ -37,14 +38,17 @@ public abstract class AnvilCraftRegistrate extends Registrate {
     public abstract void registerRegistrate();
 
     @Override
-    public <T extends Item> @NotNull ItemBuilder<T, Registrate> item(String name, NonNullFunction<Item.Properties, T> factory) {
+    public <T extends Item> @NotNull ItemBuilder<T, Registrate> item(
+        String name,
+        NonNullFunction<Item.Properties, T> factory
+    ) {
         return super.item(name, factory).lang(FormattingUtil.toEnglishName(name.replaceAll("/.", "_")));
     }
 
     private RegistryEntry<CreativeModeTab> currentTab;
     private static final Map<RegistryEntry<?>, RegistryEntry<CreativeModeTab>> TAB_LOOKUP = new IdentityHashMap<>();
 
-    public void creativeModeTab(Supplier<RegistryEntry<CreativeModeTab>> currentTab) {
+    public void creativeModeTab(@NotNull Supplier<RegistryEntry<CreativeModeTab>> currentTab) {
         this.currentTab = currentTab.get();
     }
 
@@ -61,7 +65,13 @@ public abstract class AnvilCraftRegistrate extends Registrate {
     }
 
     @Override
-    protected <R, T extends R> @NotNull RegistryEntry<T> accept(String name, ResourceKey<? extends Registry<R>> type, Builder<R, T, ?, ?> builder, NonNullSupplier<? extends T> creator, NonNullFunction<RegistryObject<T>, ? extends RegistryEntry<T>> entryFactory) {
+    protected <R, T extends R> @NotNull RegistryEntry<T> accept(
+        String name,
+        ResourceKey<? extends Registry<R>> type,
+        Builder<R, T, ?, ?> builder,
+        NonNullSupplier<? extends T> creator,
+        NonNullFunction<RegistryObject<T>, ? extends RegistryEntry<T>> entryFactory
+    ) {
         RegistryEntry<T> entry = super.accept(name, type, builder, creator, entryFactory);
 
         if (this.currentTab != null) {
@@ -72,11 +82,15 @@ public abstract class AnvilCraftRegistrate extends Registrate {
     }
 
     @Override
-    public <P> @NotNull NoConfigBuilder<CreativeModeTab, CreativeModeTab, P> defaultCreativeTab(P parent, String name, Consumer<CreativeModeTab.Builder> config) {
+    public <P> @NotNull NoConfigBuilder<CreativeModeTab, CreativeModeTab, P> defaultCreativeTab(
+        P parent, String name, Consumer<CreativeModeTab.Builder> config
+    ) {
         return createCreativeModeTab(parent, name, config);
     }
 
-    protected <P> NoConfigBuilder<CreativeModeTab, CreativeModeTab,P> createCreativeModeTab(P parent, String name, Consumer<CreativeModeTab.Builder> config) {
+    protected <P> NoConfigBuilder<CreativeModeTab, CreativeModeTab, P> createCreativeModeTab(
+        P parent, String name, Consumer<CreativeModeTab.Builder> config
+    ) {
         return super.defaultCreativeTab(parent, name, config);
     }
 }

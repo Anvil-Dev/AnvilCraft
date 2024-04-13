@@ -11,11 +11,18 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
 
+/**
+ * 配方判据
+ */
 public interface RecipePredicate {
     Map<String, Function<JsonObject, RecipePredicate>> JSON_DECODER = new HashMap<>();
     Map<String, Function<FriendlyByteBuf, RecipePredicate>> NETWORK_DECODER = new HashMap<>();
 
-    static void register(String id, Function<JsonObject, RecipePredicate> jsonDecoder, Function<FriendlyByteBuf, RecipePredicate> networkDecoder) {
+    static void register(
+        String id, Function<JsonObject,
+        RecipePredicate> jsonDecoder,
+        Function<FriendlyByteBuf, RecipePredicate> networkDecoder
+    ) {
         RecipePredicate.JSON_DECODER.put(id, jsonDecoder);
         RecipePredicate.NETWORK_DECODER.put(id, networkDecoder);
     }
@@ -26,6 +33,12 @@ public interface RecipePredicate {
 
     boolean process(AnvilCraftingContainer container);
 
+    /**
+     * 从 json 中读取
+     *
+     * @param serializedRecipe json
+     * @return 配方判据
+     */
     static @NotNull RecipePredicate fromJson(JsonObject serializedRecipe) {
         String id = GsonHelper.getAsString(serializedRecipe, "type");
         if (!RecipePredicate.JSON_DECODER.containsKey(id)) {
@@ -34,6 +47,12 @@ public interface RecipePredicate {
         return RecipePredicate.JSON_DECODER.get(id).apply(serializedRecipe);
     }
 
+    /**
+     * 从网络中读取
+     *
+     * @param buffer buffer
+     * @return 配方判据
+     */
     static @NotNull RecipePredicate fromNetwork(@NotNull FriendlyByteBuf buffer) {
         String id = buffer.readUtf();
         if (!RecipePredicate.NETWORK_DECODER.containsKey(id)) {
@@ -44,5 +63,6 @@ public interface RecipePredicate {
 
     void toNetwork(FriendlyByteBuf buffer);
 
-    @NotNull JsonElement toJson();
+    @NotNull
+    JsonElement toJson();
 }

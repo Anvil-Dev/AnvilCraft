@@ -6,6 +6,8 @@ on:
 jobs:
   build:
     permissions: write-all
+    env:
+      CI_BUILD: false
     runs-on: ubuntu-latest
     steps:
       - name: checkout
@@ -53,7 +55,7 @@ jobs:
       - name: Upload Release Jar
         uses: softprops/action-gh-release@v0.1.15
         with:
-          path: |
+          files: |
             fabric/build/libs/anvilcraft-fabric-${{ steps.version.outputs.version }}.jar
             forge/build/libs/anvilcraft-forge-${{ steps.version.outputs.version }}.jar
 
@@ -65,7 +67,9 @@ jobs:
           game-versions: 1.20.1
           version-type: release
           java: 17
-          loaders: fabric
+          loaders: |
+            fabric
+            quilt
           dependencies: fabric@0.83.0+1.20.1(required){modrinth:P7dR8mSH}{curseforge:306612}
           fail-mode: skip
           changelog: ${{ github.event.release.body }}
@@ -77,7 +81,7 @@ jobs:
           curseforge-id: 986251
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
 
-          files-primary: fabric/build/libs/anvilcraft-fabric-${{ steps.version.outputs.version }}.jar
+          files: fabric/build/libs/anvilcraft-fabric-${{ steps.version.outputs.version }}.jar
 
       - name: publish forge mc mod
         uses: Kir-Antipov/mc-publish@v3.3
@@ -98,4 +102,4 @@ jobs:
           curseforge-id: 986251
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
 
-          files-primary: forge/build/libs/anvilcraft-forge-${{ steps.version.outputs.version }}.jar
+          files: forge/build/libs/anvilcraft-forge-${{ steps.version.outputs.version }}.jar

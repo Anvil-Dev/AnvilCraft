@@ -22,18 +22,31 @@ public class SpawnExperience implements RecipeOutcome {
     private final double chance;
     private final int experience;
 
+    /**
+     * 产生经验
+     *
+     * @param offset     偏移
+     * @param chance     概率
+     * @param experience 经验
+     */
     public SpawnExperience(Vec3 offset, double chance, int experience) {
         this.offset = offset;
         this.chance = chance;
         this.experience = experience;
     }
 
+    /**
+     * @param buffer 缓冲区
+     */
     public SpawnExperience(@NotNull FriendlyByteBuf buffer) {
         this.offset = new Vec3(buffer.readVector3f());
         this.chance = buffer.readDouble();
         this.experience = buffer.readVarInt();
     }
 
+    /**
+     * @param serializedRecipe json
+     */
     public SpawnExperience(@NotNull JsonObject serializedRecipe) {
         double[] vec3 = {0.0d, 0.0d, 0.0d};
         if (serializedRecipe.has("offset")) {
@@ -56,7 +69,7 @@ public class SpawnExperience implements RecipeOutcome {
     @Override
     public boolean process(@NotNull AnvilCraftingContainer container) {
         Level level = container.getLevel();
-        ExperienceOrb entity = new ExperienceOrb(level,this.offset.x,this.offset.y,this.offset.z,this.experience);
+        ExperienceOrb entity = new ExperienceOrb(level, this.offset.x, this.offset.y, this.offset.z, this.experience);
         return level.addFreshEntity(entity);
     }
 

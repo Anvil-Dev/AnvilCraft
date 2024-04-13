@@ -21,6 +21,11 @@ public class AnvilCraftConfig implements ConfigData {
     @ConfigEntry.BoundedDiscrete(max = 16, min = 1)
     public int lightningStrikeDepth = 2;
 
+    @Comment("Maximum radius a lightning strike can reach")
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(max = 8, min = 0)
+    public int lightningStrikeRadius = 1;
+
     @Comment("Maximum distance a magnet attracts")
     @ConfigEntry.Gui.Tooltip
     @ConfigEntry.BoundedDiscrete(max = 16, min = 1)
@@ -63,4 +68,10 @@ public class AnvilCraftConfig implements ConfigData {
     @ConfigEntry.BoundedDiscrete(max = 8, min = 1)
     @SerializedName("Geode Search Interval")
     public int geodeInterval = 4;
+
+    @Comment("The search cooldown of the geode (in seconds)")
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(max = 30, min = 5)
+    @SerializedName("Geode Search Cooldown")
+    public int geodeCooldown = 5;
 }

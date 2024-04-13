@@ -39,9 +39,6 @@ public class RoyalAnvilMenu extends AnvilMenu {
     public void createResult() {
         ItemStack itemStack = this.inputSlots.getItem(0);
         this.cost.set(1);
-        int i = 0;
-        int j = 0;
-        int k = 0;
         if (itemStack.isEmpty()) {
             this.resultSlots.setItem(0, ItemStack.EMPTY);
             this.cost.set(0);
@@ -50,6 +47,8 @@ public class RoyalAnvilMenu extends AnvilMenu {
         ItemStack itemStack2 = itemStack.copy();
         ItemStack itemStack3 = this.inputSlots.getItem(1);
         Map<Enchantment, Integer> map = EnchantmentHelper.getEnchantments(itemStack2);
+        int i = 0;
+        int j = 0;
         j += itemStack.getBaseRepairCost() + (itemStack3.isEmpty() ? 0 : itemStack3.getBaseRepairCost());
         this.repairItemCountCost = 0;
         if (!itemStack3.isEmpty()) {
@@ -127,6 +126,7 @@ public class RoyalAnvilMenu extends AnvilMenu {
                 }
             }
         }
+        int k = 0;
         if (this.itemName == null || Util.isBlank(this.itemName)) {
             if (itemStack.hasCustomHoverName()) {
                 k = 1;
