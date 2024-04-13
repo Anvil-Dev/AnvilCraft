@@ -20,6 +20,12 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
     }
 
     @Override
+    protected void init() {
+        super.init();
+        this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+    }
+
+    @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(guiGraphics);
         this.renderBg(guiGraphics, partialTick, mouseX, mouseY);
@@ -36,18 +42,18 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
 
     protected void renderLabels(GuiGraphics guiGraphics) {
         if (this.menu.getSlot(2).hasItem()) {
-            drawLabel((int) (92 + 4.5 - (this.font.width(Component.literal(this.menu.usedGold.toString())) / 2)), 37,
-                Component.literal(this.menu.usedGold.toString()), guiGraphics);
+            drawLabel((int) (92 + 4.5 - (this.font.width(Component.literal("" + this.menu.usedGold)) / 2)), 38,
+                Component.literal("" + this.menu.usedGold), guiGraphics);
             drawLabel(112, 19, Component.literal(
                 Component.translatable("screen.anvilcraft.royal_grindstone.remove_curse_number")
-                    .getString().replace("%i", this.menu.removeCurseNumber.toString())), guiGraphics);
+                    .getString().replace("%i", "" + this.menu.removeCurseNumber)), guiGraphics);
             drawLabel(112, 58, Component.literal(
                 Component.translatable("screen.anvilcraft.royal_grindstone.remove_repair_cost")
-                    .getString().replace("%i", this.menu.removeRepairCostNumber.toString())), guiGraphics);
+                    .getString().replace("%i", "" + this.menu.removeRepairCostNumber)), guiGraphics);
         }
     }
 
-    private void drawLabel(int x, int y, Component component, GuiGraphics guiGraphics) {
+    private void drawLabel(int x, int y, Component component, @NotNull GuiGraphics guiGraphics) {
         int i = (this.width - this.imageWidth - 2) / 2;
         int j = (this.height - this.imageHeight + 23) / 2;
         x = x + i;
