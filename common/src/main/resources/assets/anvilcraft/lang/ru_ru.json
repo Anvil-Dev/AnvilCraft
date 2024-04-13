@@ -105,6 +105,8 @@
   "text.autoconfig.anvilcraft.option.geodeRadius.@Tooltip": "Максимальный радиус поиска жеоды",
   "text.autoconfig.anvilcraft.option.lightningStrikeDepth": "Глубина удара молнии",
   "text.autoconfig.anvilcraft.option.lightningStrikeDepth.@Tooltip": "Максимальная глубина, на которую может проникнуть удар молнии",
+  "text.autoconfig.anvilcraft.option.lightningStrikeRadius": "Радиус удара молнии",
+  "text.autoconfig.anvilcraft.option.lightningStrikeRadius.@Tooltip": "Максимальный радиус удара молнии",
   "text.autoconfig.anvilcraft.option.magnetAttractsDistance": "Магнит притягивает расстояние",
   "text.autoconfig.anvilcraft.option.magnetAttractsDistance.@Tooltip": "Наибольшее расстояние, на котором магнит притягивает наковальню",
   "text.autoconfig.anvilcraft.option.magnetItemAttractsRadius": "Магнитный предмет притягивает радиус",

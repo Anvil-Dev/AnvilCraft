@@ -105,6 +105,8 @@
   "text.autoconfig.anvilcraft.option.geodeRadius.@Tooltip": "El radio de búsqueda máximo de la geoda",
   "text.autoconfig.anvilcraft.option.lightningStrikeDepth": "Profundidad del rayo",
   "text.autoconfig.anvilcraft.option.lightningStrikeDepth.@Tooltip": "Profundidad máxima que puede alcanzar un rayo",
+  "text.autoconfig.anvilcraft.option.lightningStrikeRadius": "Radio de impacto de rayo",
+  "text.autoconfig.anvilcraft.option.lightningStrikeRadius.@Tooltip": "Radio máximo que puede alcanzar un rayo",
   "text.autoconfig.anvilcraft.option.magnetAttractsDistance": "El imán atrae la distancia",
   "text.autoconfig.anvilcraft.option.magnetAttractsDistance.@Tooltip": "La distancia más lejana a la que el imán atrae el yunque",
   "text.autoconfig.anvilcraft.option.magnetItemAttractsRadius": "El elemento magnético atrae el radio",

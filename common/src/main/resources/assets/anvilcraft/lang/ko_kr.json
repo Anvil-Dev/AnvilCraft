@@ -105,6 +105,8 @@
   "text.autoconfig.anvilcraft.option.geodeRadius.@Tooltip": "정동석 최대 검색 반경",
   "text.autoconfig.anvilcraft.option.lightningStrikeDepth": "라이트닝 스트라이크 깊이",
   "text.autoconfig.anvilcraft.option.lightningStrikeDepth.@Tooltip": "낙뢰가 도달할 수 있는 최대 깊이",
+  "text.autoconfig.anvilcraft.option.lightningStrikeRadius": "라이트닝 스트라이크 반경",
+  "text.autoconfig.anvilcraft.option.lightningStrikeRadius.@Tooltip": "낙뢰가 도달할 수 있는 최대 반경",
   "text.autoconfig.anvilcraft.option.magnetAttractsDistance": "자석이 거리를 끌어당깁니다.",
   "text.autoconfig.anvilcraft.option.magnetAttractsDistance.@Tooltip": "자석이 모루를 끌어당기는 가장 먼 거리",
   "text.autoconfig.anvilcraft.option.magnetItemAttractsRadius": "자석 아이템이 반경을 끌어당깁니다.",
