@@ -8,6 +8,7 @@ import net.minecraft.nbt.TagParser;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.ShapedRecipe;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -21,7 +22,7 @@ abstract class ShapedRecipeMixin {
 
     @ModifyExpressionValue(method = "itemStackFromJson",
         at = @At(value = "NEW", target = "(Lnet/minecraft/world/level/ItemLike;I)Lnet/minecraft/world/item/ItemStack;"))
-    private static ItemStack readNbt(ItemStack original, JsonObject stackObject) {
+    private static ItemStack readNbt(ItemStack original, @NotNull JsonObject stackObject) {
         if (stackObject.has("data")) {
             String data = GsonHelper.getAsString(stackObject, "data");
             try {
