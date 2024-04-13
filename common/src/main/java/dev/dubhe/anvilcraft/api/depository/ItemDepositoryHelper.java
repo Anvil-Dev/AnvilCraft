@@ -60,8 +60,9 @@ public class ItemDepositoryHelper {
                 int amountToInsert = sourceStack.getCount() - remainder.getCount();
                 if (amountToInsert > 0) {
                     sourceStack = source.extract(srcIndex, Math.min(maxAmount, amountToInsert), false);
-                    insertItem(target, sourceStack, false);
+                    remainder = insertItem(target, sourceStack, false);
                     maxAmount -= Math.min(maxAmount, amountToInsert);
+                    source.insert(srcIndex, remainder, false);
                 }
                 if (maxAmount <= 0) return;
             }
