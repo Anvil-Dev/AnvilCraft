@@ -13,7 +13,7 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasBlock;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasBlockIngredient;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItem;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItemIngredient;
-import dev.dubhe.anvilcraft.util.IItemStackInjector;
+import dev.dubhe.anvilcraft.util.IItemStackUtil;
 import lombok.Getter;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
@@ -138,7 +138,7 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
         public @NotNull AnvilRecipe fromJson(@NotNull ResourceLocation recipeId, @NotNull JsonObject serializedRecipe) {
             ItemStack icon = ItemStack.EMPTY;
             if (serializedRecipe.has("icon")) {
-                icon = IItemStackInjector.fromJson(serializedRecipe.get("icon"));
+                icon = IItemStackUtil.fromJson(serializedRecipe.get("icon"));
             }
             AnvilRecipe recipe = new AnvilRecipe(recipeId, icon);
             JsonArray predicates = GsonHelper.getAsJsonArray(serializedRecipe, "predicates");
@@ -677,12 +677,11 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
             }
 
             @Override
-            @SuppressWarnings("UnreachableCode")
             public void serializeRecipeData(@NotNull JsonObject json) {
                 if (!this.group.isEmpty()) {
                     json.addProperty("group", this.group);
                 }
-                json.add("icon", ((IItemStackInjector) (Object) this.icon).anvilcraft$toJson());
+                json.add("icon", IItemStackUtil.toJson(this.icon));
                 JsonArray predicates = new JsonArray();
                 for (RecipePredicate predicate : this.predicates) {
                     predicates.add(predicate.toJson());

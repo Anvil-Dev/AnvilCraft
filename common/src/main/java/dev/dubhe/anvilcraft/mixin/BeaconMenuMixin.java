@@ -24,7 +24,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.Optional;
 
 @Mixin(BeaconMenu.class)
-public class BeaconMenuMixin {
+public abstract class BeaconMenuMixin {
     @Shadow
     @Final
     private BeaconMenu.PaymentSlot paymentSlot;

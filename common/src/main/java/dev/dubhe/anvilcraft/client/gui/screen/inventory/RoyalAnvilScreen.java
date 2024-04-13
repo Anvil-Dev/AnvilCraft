@@ -34,7 +34,12 @@ public class RoyalAnvilScreen extends ItemCombinerScreen<RoyalAnvilMenu> {
     public RoyalAnvilScreen(RoyalAnvilMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title, ANVIL_LOCATION);
         this.player = playerInventory.player;
-        this.titleLabelX = 60;
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
     }
 
     @Override

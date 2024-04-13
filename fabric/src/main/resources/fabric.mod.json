@@ -40,18 +40,5 @@
     "fabricloader": ">=0.14.7",
     "fabric": "*",
     "minecraft": ">=${minecraft_version}"
-  },
-  "custom": {
-    "loom:injected_interfaces": {
-      "net/minecraft/class_1799": [
-        "dev/dubhe/anvilcraft/util/IItemStackInjector"
-      ],
-      "net/minecraft/class_2680": [
-        "dev/dubhe/anvilcraft/util/IBlockStateInjector"
-      ],
-      "net/minecraft/class_2275": [
-        "dev/dubhe/anvilcraft/util/IBucketPickupInjector"
-      ]
-    }
   }
 }

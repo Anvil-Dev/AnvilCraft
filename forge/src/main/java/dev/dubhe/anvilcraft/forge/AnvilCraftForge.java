@@ -4,7 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
 import dev.dubhe.anvilcraft.init.ModCommands;
 import dev.dubhe.anvilcraft.init.forge.ModRecipeTypesForge;
-import dev.dubhe.anvilcraft.util.BlockHighlightUtil;
+import dev.dubhe.anvilcraft.util.IBlockHighlightUtil;
 import me.shedaniel.autoconfig.AutoConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -31,10 +31,10 @@ public class AnvilCraftForge {
         MinecraftForge.EVENT_BUS.addListener(AnvilCraftForge::registerCommand);
         MinecraftForge.EVENT_BUS.addListener((RenderLevelStageEvent event) -> {
             if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_ENTITIES) return;
-            if (BlockHighlightUtil.SUBCHUNKS.isEmpty()) return;
+            if (IBlockHighlightUtil.SUBCHUNKS.isEmpty()) return;
             ClientLevel level = Minecraft.getInstance().level;
             if (level == null) return;
-            BlockHighlightUtil.render(level, Minecraft.getInstance().renderBuffers().bufferSource(),
+            IBlockHighlightUtil.render(level, Minecraft.getInstance().renderBuffers().bufferSource(),
                     event.getPoseStack(), event.getCamera());
         });
 

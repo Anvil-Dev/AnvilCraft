@@ -9,7 +9,7 @@ import com.tterrag.registrate.util.entry.RegistryEntry;
 import com.tterrag.registrate.util.nullness.NonNullFunction;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
 import dev.architectury.injectables.annotations.ExpectPlatform;
-import dev.dubhe.anvilcraft.util.FormattingUtil;
+import dev.dubhe.anvilcraft.util.IFormattingUtil;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.CreativeModeTab;
@@ -42,7 +42,7 @@ public abstract class AnvilCraftRegistrate extends Registrate {
         String name,
         NonNullFunction<Item.Properties, T> factory
     ) {
-        return super.item(name, factory).lang(FormattingUtil.toEnglishName(name.replaceAll("/.", "_")));
+        return super.item(name, factory).lang(IFormattingUtil.toEnglishName(name.replaceAll("/.", "_")));
     }
 
     private RegistryEntry<CreativeModeTab> currentTab;
