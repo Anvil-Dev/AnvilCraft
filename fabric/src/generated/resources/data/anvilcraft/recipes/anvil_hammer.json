@@ -7,11 +7,15 @@
     },
     "B": {
       "item": "minecraft:lightning_rod"
+    },
+    "C": {
+      "item": "minecraft:iron_ingot"
     }
   },
   "pattern": [
     "A",
-    "B"
+    "B",
+    "C"
   ],
   "result": {
     "item": "anvilcraft:anvil_hammer"
