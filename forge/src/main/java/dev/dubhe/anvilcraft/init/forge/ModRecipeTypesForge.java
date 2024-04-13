@@ -17,7 +17,6 @@ public class ModRecipeTypesForge {
      * @param event 事件
      */
     public static void register(RegisterEvent event) {
-        System.out.println("Registering AnvilCraft recipes");
         for (Map.Entry<String, Pair<RecipeSerializer<?>, RecipeType<?>>> entry
                 : ModRecipeTypes.RECIPE_TYPES.entrySet()) {
             if (entry.getValue().getFirst() != null) {
