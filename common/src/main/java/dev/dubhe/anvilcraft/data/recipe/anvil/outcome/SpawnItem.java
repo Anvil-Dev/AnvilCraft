@@ -7,7 +7,7 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipeOutcome;
-import dev.dubhe.anvilcraft.util.IItemStackInjector;
+import dev.dubhe.anvilcraft.util.IItemStackUtil;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
@@ -67,7 +67,7 @@ public class SpawnItem implements RecipeOutcome {
         if (serializedRecipe.has("chance")) {
             this.chance = GsonHelper.getAsDouble(serializedRecipe, "chance");
         } else this.chance = 1.0;
-        this.result = IItemStackInjector.fromJson(GsonHelper.getAsJsonObject(serializedRecipe, "result"));
+        this.result = IItemStackUtil.fromJson(GsonHelper.getAsJsonObject(serializedRecipe, "result"));
     }
 
     @Override
@@ -98,7 +98,7 @@ public class SpawnItem implements RecipeOutcome {
         object.addProperty("type", this.getType());
         object.add("offset", offset);
         object.addProperty("chance", this.chance);
-        object.add("result", ((IItemStackInjector) (Object) this.result).anvilcraft$toJson());
+        object.add("result", IItemStackUtil.toJson(this.result));
         return object;
     }
 }

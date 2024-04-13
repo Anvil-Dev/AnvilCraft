@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.listener;
+package dev.dubhe.anvilcraft.event.forge;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
@@ -8,7 +8,7 @@ import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
 
 @Mod.EventBusSubscriber(modid = AnvilCraft.MOD_ID)
-public class AnvilHammerListener {
+public class BlockEvent {
     /**
      * 侦听左键方块事件
      *

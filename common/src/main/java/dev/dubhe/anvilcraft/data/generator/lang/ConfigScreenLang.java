@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName;
 import com.tterrag.registrate.providers.RegistrateLangProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
-import dev.dubhe.anvilcraft.util.FormattingUtil;
+import dev.dubhe.anvilcraft.util.IFormattingUtil;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.Comment;
 import org.jetbrains.annotations.NotNull;
@@ -36,7 +36,7 @@ public class ConfigScreenLang {
             if (field.isAnnotationPresent(SerializedName.class)) {
                 name = field.getAnnotation(SerializedName.class).value();
             } else {
-                name = FormattingUtil.toEnglishName(FormattingUtil.toLowerCaseUnder(fieldName));
+                name = IFormattingUtil.toEnglishName(IFormattingUtil.toLowerCaseUnder(fieldName));
             }
             provider.add(OPTION_STRING.formatted(AnvilCraft.MOD_ID, fieldName), name);
             if (field.isAnnotationPresent(Comment.class)) {

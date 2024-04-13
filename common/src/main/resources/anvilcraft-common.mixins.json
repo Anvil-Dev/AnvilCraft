@@ -8,18 +8,13 @@
     "AnvilBlockMixin",
     "AxeItemMixin",
     "BeaconMenuMixin",
-    "BlockStateInjector",
     "BucketItemMixin",
     "ClientboundUpdateRecipesPacketMixin",
     "DispenseItemEmptyBottleBehaviorMixin",
     "DispenseItemEmptyBucketBehaviorMixin",
     "DispenseItemWaterBottleBehaviorMixin",
     "ItemEntityMixin",
-    "ItemStackInjector",
-    "SolidBucketItemMixin",
-    "event.FallingBlockEntityMixin",
-    "event.LightningBoltMixin",
-    "event.MinecraftServerMixin"
+    "SolidBucketItemMixin"
   ],
   "client": [
   ],

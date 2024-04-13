@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.util.GsonHelper;
@@ -15,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * 物品堆栈注入器
  */
-public interface IItemStackInjector {
+public interface IItemStackUtil {
     /**
      * 从 json 读取
      *
@@ -43,6 +44,20 @@ public interface IItemStackInjector {
             stack.setTag(stack.getOrCreateTag().merge(tag));
         }
         return stack;
+    }
+
+    /**
+     * 序列化 {@link ItemStack}
+     *
+     * @param stack 物品
+     * @return 序列化Json
+     */
+    static @NotNull JsonElement toJson(@NotNull ItemStack stack) {
+        JsonObject object = new JsonObject();
+        object.addProperty("item", BuiltInRegistries.ITEM.getKey(stack.getItem()).toString());
+        if (stack.getCount() > 1) object.addProperty("count", stack.getCount());
+        if (stack.hasTag()) object.addProperty("data", stack.getOrCreateTag().toString());
+        return object;
     }
 
     default JsonElement anvilcraft$toJson() {

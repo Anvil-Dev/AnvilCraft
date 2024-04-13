@@ -8,7 +8,7 @@ import com.google.gson.JsonSyntaxException;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipeOutcome;
-import dev.dubhe.anvilcraft.util.IBlockStateInjector;
+import dev.dubhe.anvilcraft.util.IBlockStateUtil;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
@@ -45,7 +45,7 @@ public class SetBlock implements RecipeOutcome {
     public SetBlock(@NotNull FriendlyByteBuf buffer) {
         this.offset = new Vec3(buffer.readVector3f());
         this.chance = buffer.readDouble();
-        this.result = IBlockStateInjector.fromJson(AnvilCraft.GSON.fromJson(buffer.readUtf(), JsonElement.class));
+        this.result = IBlockStateUtil.fromJson(AnvilCraft.GSON.fromJson(buffer.readUtf(), JsonElement.class));
     }
 
     /**
@@ -67,7 +67,7 @@ public class SetBlock implements RecipeOutcome {
         if (serializedRecipe.has("chance")) {
             this.chance = GsonHelper.getAsDouble(serializedRecipe, "chance");
         } else this.chance = 1.0;
-        this.result = IBlockStateInjector.fromJson(GsonHelper.getAsJsonObject(serializedRecipe, "result"));
+        this.result = IBlockStateUtil.fromJson(GsonHelper.getAsJsonObject(serializedRecipe, "result"));
     }
 
     @Override
@@ -86,7 +86,7 @@ public class SetBlock implements RecipeOutcome {
         buffer.writeUtf(this.getType());
         buffer.writeVector3f(this.offset.toVector3f());
         buffer.writeDouble(this.chance);
-        buffer.writeUtf(((IBlockStateInjector) this.result).anvilcraft$toJson().toString());
+        buffer.writeUtf(IBlockStateUtil.toJson(this.result).toString());
     }
 
     @Override
@@ -98,7 +98,7 @@ public class SetBlock implements RecipeOutcome {
         object.addProperty("type", this.getType());
         object.add("offset", offset);
         object.addProperty("chance", this.chance);
-        object.add("result", ((IBlockStateInjector) this.result).anvilcraft$toJson());
+        object.add("result", IBlockStateUtil.toJson(this.result));
         return object;
     }
 }

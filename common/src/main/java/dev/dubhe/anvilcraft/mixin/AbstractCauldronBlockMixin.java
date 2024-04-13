@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.mixin;
 
 
 import dev.dubhe.anvilcraft.init.ModBlocks;
-import dev.dubhe.anvilcraft.util.IBucketPickupInjector;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -11,6 +10,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.AbstractCauldronBlock;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import java.util.Optional;
 
 @Mixin(AbstractCauldronBlock.class)
-abstract class AbstractCauldronBlockMixin implements IBucketPickupInjector {
+public abstract class AbstractCauldronBlockMixin implements BucketPickup {
     @Override
     public @NotNull ItemStack pickupBlock(
         @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockState state
