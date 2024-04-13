@@ -5,7 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import lombok.Getter;
+import lombok.Data;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Camera;
@@ -24,9 +24,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.OptionalDouble;
 
-public class BlockHighlightUtil {
+/**
+ * 方块高亮
+ */
+public interface IBlockHighlightUtil {
     @Environment(EnvType.CLIENT)
-    public static final RenderType NO_DEPTH =
+    RenderType NO_DEPTH =
         RenderType.create(AnvilCraft.MOD_ID + "_no_depth", DefaultVertexFormat.POSITION_COLOR_NORMAL,
             VertexFormat.Mode.LINES, 256, true, true, RenderType.CompositeState.builder()
                 .setShaderState(RenderStateShard.RENDERTYPE_LINES_SHADER)
@@ -36,10 +39,9 @@ public class BlockHighlightUtil {
                 .setLayeringState(RenderStateShard.VIEW_OFFSET_Z_LAYERING)
                 .setLineState(new RenderStateShard.LineStateShard(OptionalDouble.of(2)))
                 .createCompositeState(true));
-    public static final Map<Vector3ic, Long> SUBCHUNKS = new HashMap<>();
+    Map<Vector3ic, Long> SUBCHUNKS = new HashMap<>();
 
-    @Getter
-    private static Level level = null;
+    LevelData level = new LevelData();
 
     /**
      * 高亮方块
@@ -47,11 +49,12 @@ public class BlockHighlightUtil {
      * @param level 维度
      * @param pos   位置
      */
-    public static void highlightBlock(Level level, BlockPos pos) {
-        if (BlockHighlightUtil.getLevel() != level) {
-            BlockHighlightUtil.setLevel(level);
+    static void highlightBlock(Level level, BlockPos pos) {
+        if (IBlockHighlightUtil.getLevel() != level) {
+            IBlockHighlightUtil.setLevel(level);
             SUBCHUNKS.clear();
         }
+        if (level == null) return;
         SUBCHUNKS.put(new Vector3i(Math.floorDiv(pos.getX(), 16), Math.floorDiv(pos.getY(), 16),
             Math.floorDiv(pos.getZ(), 16)), level.getGameTime());
     }
@@ -65,15 +68,15 @@ public class BlockHighlightUtil {
      * @param camera    相机
      */
     @Environment(EnvType.CLIENT)
-    public static void render(
+    static void render(
         Level level, @NotNull MultiBufferSource consumers, @NotNull PoseStack poseStack, @NotNull Camera camera
     ) {
-        VertexConsumer consumer = consumers.getBuffer(BlockHighlightUtil.NO_DEPTH);
+        VertexConsumer consumer = consumers.getBuffer(IBlockHighlightUtil.NO_DEPTH);
         Vec3 cameraPos = camera.getPosition();
         int color = 0xFF8932B8;
         poseStack.pushPose();
         poseStack.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
-        for (var iterator = BlockHighlightUtil.SUBCHUNKS.entrySet().iterator(); iterator.hasNext(); ) {
+        for (var iterator = IBlockHighlightUtil.SUBCHUNKS.entrySet().iterator(); iterator.hasNext(); ) {
             var entry = iterator.next();
             Vector3ic subchunk = entry.getKey();
             Long moment = entry.getValue();
@@ -101,7 +104,16 @@ public class BlockHighlightUtil {
         poseStack.popPose();
     }
 
-    public static void setLevel(Level level) {
-        BlockHighlightUtil.level = level;
+    static void setLevel(Level level) {
+        IBlockHighlightUtil.level.setLevel(level);
+    }
+
+    static Level getLevel() {
+        return IBlockHighlightUtil.level.getLevel();
+    }
+
+    @Data
+    class LevelData {
+        Level level;
     }
 }

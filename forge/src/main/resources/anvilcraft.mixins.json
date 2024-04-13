@@ -1,9 +1,12 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "dev.dubhe.anvilcraft.forge.mixin",
+  "package": "dev.dubhe.anvilcraft.mixin.forge",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "FallingBlockEntityMixin",
+    "LightningBoltMixin",
+    "MinecraftServerMixin"
   ],
   "client": [
   ],

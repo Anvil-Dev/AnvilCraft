@@ -19,12 +19,15 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static net.minecraft.world.level.block.state.StateHolder.PROPERTY_ENTRY_TO_STRING_FUNCTION;
 
 /**
  * 方块状态注入
  */
-public interface IBlockStateInjector {
+public interface IBlockStateUtil {
     /**
      * 从 Json 读取
      *
@@ -51,8 +54,25 @@ public interface IBlockStateInjector {
         return blockResult.blockState();
     }
 
-    default JsonElement anvilcraft$toJson() {
-        return new JsonObject();
+    /**
+     * 序列化方块状态
+     *
+     * @param state 方块状态
+     * @return 序列化JSON
+     */
+    static @NotNull JsonElement toJson(@NotNull BlockState state) {
+        JsonObject object = new JsonObject();
+        object.addProperty("block", BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString());
+        if (!state.getValues().isEmpty()) {
+            String stringBuilder = '['
+                + state.getValues()
+                .entrySet()
+                .stream()
+                .map(PROPERTY_ENTRY_TO_STRING_FUNCTION).collect(Collectors.joining(","))
+                + ']';
+            object.addProperty("state", stringBuilder);
+        }
+        return object;
     }
 
     class BlockHolderLookup implements HolderLookup<Block>, HolderOwner<Block> {

@@ -1,8 +1,9 @@
-package dev.dubhe.anvilcraft.mixin.event;
+package dev.dubhe.anvilcraft.mixin.forge;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilHurtEntityEvent;
+import dev.dubhe.anvilcraft.api.event.forge.AnvilEvent;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
@@ -15,6 +16,7 @@ import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.common.MinecraftForge;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -65,20 +67,21 @@ abstract class FallingBlockEntityMixin extends Entity {
     private void anvilFallOnGround(CallbackInfo ci, Block block, BlockPos blockPos) {
         if (this.level().isClientSide()) return;
         if (!this.blockState.is(BlockTags.ANVIL)) return;
-        AnvilFallOnLandEvent event = new AnvilFallOnLandEvent(this.level(),
-            blockPos, (FallingBlockEntity) (Object) this, this.anvilcraft$fallDistance);
-        AnvilCraft.EVENT_BUS.post(event);
-        if (event.isAnvilDamage()) {
-            BlockState state = this.blockState.is(ModBlocks.ROYAL_ANVIL.get())
-                ? this.blockState
-                : AnvilBlock.damage(this.blockState);
-            if (state != null) this.level().setBlockAndUpdate(blockPos, state);
-            else {
-                this.level().setBlockAndUpdate(blockPos, Blocks.AIR.defaultBlockState());
-                if (!this.isSilent()) this.level().levelEvent(1029, this.getOnPos(), 0);
-                this.cancelDrop = true;
+        FallingBlockEntity entity = (FallingBlockEntity) (Object) this;
+        AnvilEvent.OnLand event = new AnvilEvent.OnLand(this.level(), blockPos, entity, this.anvilcraft$fallDistance);
+        MinecraftForge.EVENT_BUS.post(event, (listener, event1) -> {
+            if (event1 instanceof AnvilEvent.OnLand onLand && onLand.isAnvilDamage()) {
+                BlockState state = this.blockState.is(ModBlocks.ROYAL_ANVIL.get())
+                    ? this.blockState
+                    : AnvilBlock.damage(this.blockState);
+                if (state != null) this.level().setBlockAndUpdate(blockPos, state);
+                else {
+                    this.level().setBlockAndUpdate(blockPos, Blocks.AIR.defaultBlockState());
+                    if (!this.isSilent()) this.level().levelEvent(1029, this.getOnPos(), 0);
+                    this.cancelDrop = true;
+                }
             }
-        }
+        });
     }
 
     @Redirect(
@@ -92,8 +95,8 @@ abstract class FallingBlockEntityMixin extends Entity {
         boolean bl = instance.hurt(source, amount);
         Entity directEntity = source.getDirectEntity();
         if (!bl || !(directEntity instanceof FallingBlockEntity entity)) return bl;
-        AnvilCraft.EVENT_BUS.post(new AnvilHurtEntityEvent(entity, entity.getOnPos(),
-            entity.level(), instance, amount));
+        AnvilEvent event = new AnvilEvent.HurtEntity(entity, entity.getOnPos(), entity.level(), instance, amount);
+        MinecraftForge.EVENT_BUS.post(event);
         return true;
     }
 }
