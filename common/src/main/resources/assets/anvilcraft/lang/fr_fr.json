@@ -105,6 +105,8 @@
   "text.autoconfig.anvilcraft.option.geodeRadius.@Tooltip": "Rayon de recherche maximal de la géode",
   "text.autoconfig.anvilcraft.option.lightningStrikeDepth": "Profondeur de frappe de foudre",
   "text.autoconfig.anvilcraft.option.lightningStrikeDepth.@Tooltip": "Profondeur maximale qu'un coup de foudre peut atteindre",
+  "text.autoconfig.anvilcraft.option.lightningStrikeRadius": "Rayon de frappe de foudre",
+  "text.autoconfig.anvilcraft.option.lightningStrikeRadius.@Tooltip": "Rayon maximal qu’un coup de foudre peut atteindre",
   "text.autoconfig.anvilcraft.option.magnetAttractsDistance": "L'aimant attire la distance",
   "text.autoconfig.anvilcraft.option.magnetAttractsDistance.@Tooltip": "La distance la plus éloignée à laquelle l’aimant attire l’enclume",
   "text.autoconfig.anvilcraft.option.magnetItemAttractsRadius": "L'élément magnétique attire le rayon",

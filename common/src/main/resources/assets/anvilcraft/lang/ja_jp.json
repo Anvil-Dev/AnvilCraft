@@ -105,6 +105,8 @@
   "text.autoconfig.anvilcraft.option.geodeRadius.@Tooltip": "ジオードを使用して、アメジストジオードの最大半値直径を検索します",
   "text.autoconfig.anvilcraft.option.lightningStrikeDepth": "落雷の深さ",
   "text.autoconfig.anvilcraft.option.lightningStrikeDepth.@Tooltip": "落雷が到達できる最大深度",
+  "text.autoconfig.anvilcraft.option.lightningStrikeRadius": "落雷半径",
+  "text.autoconfig.anvilcraft.option.lightningStrikeRadius.@Tooltip": "落雷が到達できる最大半径",
   "text.autoconfig.anvilcraft.option.magnetAttractsDistance": "磁石は距離を引き付けます",
   "text.autoconfig.anvilcraft.option.magnetAttractsDistance.@Tooltip": "磁石がアンビルを引き付ける最も遠い距離",
   "text.autoconfig.anvilcraft.option.magnetItemAttractsRadius": "ハンドヘルド磁石吸引半径",
