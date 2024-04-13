@@ -54,8 +54,12 @@ public class RoyalSmithingScreen extends ItemCombinerScreen<RoyalSmithingMenu> {
      */
     public RoyalSmithingScreen(RoyalSmithingMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title, SMITHING_LOCATION);
-        this.titleLabelX = 44;
-        this.titleLabelY = 15;
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
     }
 
     @Override

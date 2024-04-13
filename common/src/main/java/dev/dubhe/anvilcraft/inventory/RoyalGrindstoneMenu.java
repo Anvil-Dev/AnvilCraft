@@ -31,9 +31,9 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
     private final Container resultMaterialSlots;
     private final ContainerLevelAccess access;
 
-    public Integer usedGold = 0;
-    public Integer removeRepairCostNumber = 0;
-    public Integer removeCurseNumber = 0;
+    public int usedGold = 0;
+    public int removeRepairCostNumber = 0;
+    public int removeCurseNumber = 0;
 
     public RoyalGrindstoneMenu(MenuType<RoyalGrindstoneMenu> type, int containerId, Inventory playerInventory) {
         this(type, containerId, playerInventory, ContainerLevelAccess.NULL);
@@ -94,7 +94,7 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
                     usedGold + resultMaterialSlots.getItem(2).getCount()));
             }
         });
-        this.addSlot(new Slot(this.resultMaterialSlots, 2, 89, 48) {
+        this.addSlot(new Slot(this.resultMaterialSlots, 2, 89, 47) {
             public boolean mayPlace(@NotNull ItemStack stack) {
                 return false;
             }
