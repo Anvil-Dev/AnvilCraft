@@ -1,0 +1,7 @@
+{
+	"parent": "anvilcraft:item/anvil_hammer",
+	"textures": {
+		"0": "anvilcraft:item/royal_anvil_hammer",
+		"particle": "anvilcraft:item/royal_anvil_hammer"
+	}
+}
