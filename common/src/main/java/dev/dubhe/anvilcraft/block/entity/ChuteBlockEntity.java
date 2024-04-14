@@ -2,8 +2,8 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.depository.item.FilteredItemDepository;
-import dev.dubhe.anvilcraft.api.depository.item.ItemDepositoryHelper;
+import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
+import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
 import dev.dubhe.anvilcraft.block.ChuteBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;

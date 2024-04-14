@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
-import dev.dubhe.anvilcraft.api.depository.item.ItemDepository;
+import dev.dubhe.anvilcraft.api.depository.ItemDepository;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeableBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;

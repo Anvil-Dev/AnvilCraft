@@ -2,8 +2,8 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.depository.item.ItemDepository;
-import dev.dubhe.anvilcraft.api.depository.item.ItemDepositoryHelper;
+import dev.dubhe.anvilcraft.api.depository.ItemDepository;
+import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
 import dev.dubhe.anvilcraft.block.SimpleChuteBlock;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;

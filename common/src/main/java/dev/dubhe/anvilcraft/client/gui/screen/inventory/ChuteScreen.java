@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.client.gui.screen.inventory;
 
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.depository.item.ItemDepositorySlot;
+import dev.dubhe.anvilcraft.api.depository.ItemDepositorySlot;
 import dev.dubhe.anvilcraft.client.gui.component.EnableFilterButton;
 import dev.dubhe.anvilcraft.inventory.ChuteMenu;
 import dev.dubhe.anvilcraft.inventory.IFilterMenu;
