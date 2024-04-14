@@ -145,8 +145,13 @@ public class AnvilHammerItem extends Item implements Vanishable {
         stack.hurtAndBreak(1, attacker, e -> e.broadcastBreakEvent(EquipmentSlot.MAINHAND));
         float damageBonus = attacker.fallDistance > 17 ? 34 : attacker.fallDistance * 2;
         target.hurt(target.level().damageSources().anvil(attacker), damageBonus);
-        if(attacker.fallDistance >= 3){
-            attacker.level().playSound(null, BlockPos.containing(attacker.position()), SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 1f, attacker.fallDistance > 17 ? (float) 0.5 : 1 - attacker.fallDistance / 35);
+        if (attacker.fallDistance >= 3) {
+            attacker.level().playSound(null,
+                BlockPos.containing(attacker.position()),
+                SoundEvents.ANVIL_LAND, SoundSource.BLOCKS,
+                1f,
+                attacker.fallDistance > 17 ? (float) 0.5 : 1 - attacker.fallDistance / 35
+            );
         }
         return true;
     }
