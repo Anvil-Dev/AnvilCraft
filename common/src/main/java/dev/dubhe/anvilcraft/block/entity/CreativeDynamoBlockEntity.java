@@ -31,20 +31,6 @@ public class CreativeDynamoBlockEntity extends BlockEntity implements IPowerProd
     }
 
     @Override
-    public void setRemoved() {
-        super.setRemoved();
-        if (this.grid != null) {
-            this.grid.remove(this);
-            this.grid = null;
-        }
-    }
-
-    @Override
-    public void clearRemoved() {
-        super.clearRemoved();
-    }
-
-    @Override
     protected void saveAdditional(@NotNull CompoundTag tag) {
         super.saveAdditional(tag);
         tag.putInt("power", power);

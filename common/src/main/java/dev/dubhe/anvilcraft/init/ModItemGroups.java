@@ -47,6 +47,8 @@ public class ModItemGroups {
                 entries.accept(ModItems.COCOA_LIQUOR.get().getDefaultInstance());
                 entries.accept(ModItems.COCOA_BUTTER.get().getDefaultInstance());
                 entries.accept(ModItems.COCOA_POWDER.get().getDefaultInstance());
+                entries.accept(ModItems.CAPACITOR.get().getDefaultInstance());
+                entries.accept(ModItems.CAPACITOR.get());
             })
             .build()
         )
@@ -61,13 +63,14 @@ public class ModItemGroups {
                 entries.accept(Items.CAMPFIRE.getDefaultInstance());
                 entries.accept(ModBlocks.STAMPING_PLATFORM.asStack());
                 entries.accept(ModBlocks.CORRUPTED_BEACON.asStack());
-                entries.accept(ModBlocks.CREATIVE_DYNAMO.asStack());
                 entries.accept(Items.ANVIL.getDefaultInstance());
                 entries.accept(Items.CHIPPED_ANVIL.getDefaultInstance());
                 entries.accept(Items.DAMAGED_ANVIL.getDefaultInstance());
                 entries.accept(ModBlocks.ROYAL_ANVIL.asStack());
                 entries.accept(ModBlocks.ROYAL_GRINDSTONE.asStack());
                 entries.accept(ModBlocks.ROYAL_SMITHING_TABLE.asStack());
+                entries.accept(ModBlocks.CREATIVE_DYNAMO.asStack());
+                entries.accept(ModBlocks.HEATER.asStack());
                 entries.accept(ModBlocks.MAGNET_BLOCK.asStack());
                 entries.accept(ModBlocks.HOLLOW_MAGNET_BLOCK.asStack());
                 entries.accept(ModBlocks.FERRITE_CORE_MAGNET_BLOCK.asStack());

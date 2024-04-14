@@ -1,0 +1,14 @@
+{
+    "parent": "item/generated",
+    "textures": {
+        "layer0": "anvilcraft:item/capacitor"
+    },
+    "overrides": [
+        {
+            "predicate": {
+                "damaged": 1
+            },
+            "model": "anvilcraft:item/capacitor_empty"
+        }
+    ]
+}

@@ -20,7 +20,7 @@
   "environment": "*",
   "entrypoints": {
     "client": [
-      "dev.dubhe.anvilcraft.client.fabric.AnvilCraftClient"
+      "dev.dubhe.anvilcraft.client.fabric.AnvilCraftFabricClient"
     ],
     "main": [
       "dev.dubhe.anvilcraft.fabric.AnvilCraftFabric"

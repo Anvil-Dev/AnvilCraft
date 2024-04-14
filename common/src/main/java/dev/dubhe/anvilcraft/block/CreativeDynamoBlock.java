@@ -2,16 +2,22 @@ package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.block.entity.CreativeDynamoBlockEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
 public class CreativeDynamoBlock extends BaseEntityBlock {
+    public static final VoxelShape AABB = Block.box(0, 0, 0, 16, 4, 16);
+
     public CreativeDynamoBlock(Properties properties) {
         super(properties);
     }
@@ -25,5 +31,13 @@ public class CreativeDynamoBlock extends BaseEntityBlock {
     @Override
     public @Nonnull RenderShape getRenderShape(@Nonnull BlockState state) {
         return RenderShape.MODEL;
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public @NotNull VoxelShape getShape(
+        @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context
+    ) {
+        return CreativeDynamoBlock.AABB;
     }
 }

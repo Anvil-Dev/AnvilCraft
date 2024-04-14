@@ -6,7 +6,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 
-public class CursedBlockItem extends BlockItem implements Cursed {
+public class CursedBlockItem extends BlockItem implements ICursed {
 
     public CursedBlockItem(Block block, Properties properties) {
         super(block, properties);
@@ -15,6 +15,6 @@ public class CursedBlockItem extends BlockItem implements Cursed {
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         super.inventoryTick(stack, level, entity, slotId, isSelected);
-        Cursed.super.inventoryTick(stack, level, entity, slotId, isSelected);
+        ICursed.super.inventoryTick(stack, level, entity, slotId, isSelected);
     }
 }

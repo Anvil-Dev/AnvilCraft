@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.recipe.crafting.ShapedTagRecipeBuilder;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
+import dev.dubhe.anvilcraft.item.CapacitorItem;
 import dev.dubhe.anvilcraft.item.CursedItem;
 import dev.dubhe.anvilcraft.item.GeodeItem;
 import dev.dubhe.anvilcraft.item.MagnetItem;
@@ -452,8 +453,26 @@ public class ModItems {
     public static final ItemEntry<Item> SEA_HEART_SHELL_SHARD = REGISTRATE
         .item("sea_heart_shell_shard", Item::new)
         .register();
+    public static final ItemEntry<CapacitorItem> CAPACITOR = REGISTRATE
+        .item("capacitor", CapacitorItem::new)
+        .properties(properties -> properties.durability(1))
+        .model((ctx, provider) -> {
+        })
+        .recipe((ctx, provider) -> ShapedTagRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get().getDefaultInstance())
+            .pattern("ABA")
+            .pattern("ACA")
+            .pattern("ABA")
+            .define('A', Items.IRON_INGOT)
+            .define('B', Items.COPPER_INGOT)
+            .define('C', Items.TERRACOTTA)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), RegistrateRecipeProvider.has(Items.IRON_INGOT))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.COPPER_INGOT), RegistrateRecipeProvider.has(Items.COPPER_INGOT))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.TERRACOTTA), RegistrateRecipeProvider.has(Items.TERRACOTTA))
+            .save(provider))
+        .register();
     public static final ItemEntry<AnvilHammerItem> ANVIL_HAMMER = REGISTRATE
-        .item("anvil_hammer", properties -> new AnvilHammerItem(properties.durability(35)))
+        .item("anvil_hammer", AnvilHammerItem::new)
+        .properties(properties -> properties.durability(35))
         .model((ctx, provider) -> {
         })
         .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
@@ -464,7 +483,7 @@ public class ModItems {
             .define('B', Items.LIGHTNING_ROD)
             .define('C', Items.IRON_INGOT)
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.ANVIL), RegistrateRecipeProvider.has(Items.ANVIL))
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.LIGHTNING_ROD), 
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.LIGHTNING_ROD),
                 RegistrateRecipeProvider.has(Items.LIGHTNING_ROD))
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), RegistrateRecipeProvider.has(Items.IRON_INGOT))
             .save(provider))

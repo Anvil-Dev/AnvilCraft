@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "minecraft:terracotta"
+    },
+    "B": {
+      "item": "minecraft:iron_ingot"
+    },
+    "C": {
+      "item": "anvilcraft:capacitor"
+    }
+  },
+  "pattern": [
+    "ABA",
+    "BCB",
+    "BBB"
+  ],
+  "result": {
+    "item": "anvilcraft:heater"
+  },
+  "show_notification": true
+}

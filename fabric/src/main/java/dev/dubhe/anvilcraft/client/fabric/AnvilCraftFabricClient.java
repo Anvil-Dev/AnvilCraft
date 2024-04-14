@@ -8,12 +8,13 @@ import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 
-public class AnvilCraftClient implements ClientModInitializer {
+public class AnvilCraftFabricClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.CORRUPTED_BEACON.get(), RenderType.translucent());
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.RESIN_BLOCK.get(), RenderType.translucent());
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.AMBER_BLOCK.get(), RenderType.translucent());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.HEATER.get(), RenderType.translucent());
         WorldRenderEvents.AFTER_ENTITIES.register(context -> {
             if (IBlockHighlightUtil.SUBCHUNKS.isEmpty()) return;
             MultiBufferSource consumers = context.consumers();

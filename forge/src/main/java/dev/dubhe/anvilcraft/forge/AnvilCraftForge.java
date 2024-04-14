@@ -37,7 +37,6 @@ public class AnvilCraftForge {
             IBlockHighlightUtil.render(level, Minecraft.getInstance().renderBuffers().bufferSource(),
                     event.getPoseStack(), event.getCamera());
         });
-
         ModLoadingContext.get().registerExtensionPoint(
                 ConfigScreenHandler.ConfigScreenFactory.class,
                 () -> new ConfigScreenHandler.ConfigScreenFactory(

@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.block.ChuteBlock;
 import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.block.CreativeDynamoBlock;
 import dev.dubhe.anvilcraft.block.FerriteCoreMagnetBlock;
+import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
 import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
@@ -291,7 +292,7 @@ public class ModBlocks {
             .pattern("AAA")
             .pattern("AAA")
             .define('A', ModItems.CURSED_GOLD_INGOT)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CURSED_GOLD_INGOT.get()),
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CURSED_GOLD_INGOT),
                 AnvilCraftDatagen.has(ModItems.CURSED_GOLD_INGOT))
             .save(provider))
         .register();
@@ -306,7 +307,7 @@ public class ModBlocks {
             .pattern("AAA")
             .pattern("AAA")
             .define('A', ModItems.TOPAZ)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.TOPAZ.get()), AnvilCraftDatagen.has(ModItems.TOPAZ))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.TOPAZ), AnvilCraftDatagen.has(ModItems.TOPAZ))
             .save(provider))
         .register();
     public static final BlockEntry<? extends Block> RUBY_BLOCK = REGISTRATE
@@ -320,7 +321,7 @@ public class ModBlocks {
             .pattern("AAA")
             .pattern("AAA")
             .define('A', ModItems.RUBY)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RUBY.get()), AnvilCraftDatagen.has(ModItems.RUBY))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RUBY), AnvilCraftDatagen.has(ModItems.RUBY))
             .save(provider))
         .register();
     public static final BlockEntry<? extends Block> SAPPHIRE_BLOCK = REGISTRATE
@@ -334,7 +335,7 @@ public class ModBlocks {
             .pattern("AAA")
             .pattern("AAA")
             .define('A', ModItems.SAPPHIRE)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.SAPPHIRE.get()),
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.SAPPHIRE),
                 AnvilCraftDatagen.has(ModItems.SAPPHIRE))
             .save(provider))
         .register();
@@ -352,7 +353,7 @@ public class ModBlocks {
             .pattern("AAA")
             .pattern("AAA")
             .define('A', ModItems.RESIN)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RESIN.get()),
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RESIN),
                 AnvilCraftDatagen.has(ModItems.RESIN))
             .save(provider))
         .register();
@@ -373,7 +374,7 @@ public class ModBlocks {
             .pattern("AAA")
             .pattern("AAA")
             .define('A', ModItems.AMBER)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.AMBER.get()), AnvilCraftDatagen.has(ModItems.AMBER))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.AMBER), AnvilCraftDatagen.has(ModItems.AMBER))
             .save(provider))
         .register();
     public static final BlockEntry<? extends Block> CREATIVE_DYNAMO = REGISTRATE
@@ -383,6 +384,25 @@ public class ModBlocks {
         .blockstate((ctx, provider) -> {
         })
         .simpleItem()
+        .register();
+    public static final BlockEntry<? extends Block> HEATER = REGISTRATE
+        .block("heater", HeaterBlock::new)
+        .initialProperties(ModBlocks.MAGNET_BLOCK)
+        .properties(BlockBehaviour.Properties::noOcclusion)
+        .blockstate((ctx, provider) -> {
+        })
+        .simpleItem()
+        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern("ABA")
+            .pattern("BCB")
+            .pattern("BBB")
+            .define('A', Items.TERRACOTTA)
+            .define('B', Items.IRON_INGOT)
+            .define('C', ModItems.CAPACITOR)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.TERRACOTTA), AnvilCraftDatagen.has(Items.TERRACOTTA))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CAPACITOR), AnvilCraftDatagen.has(ModItems.CAPACITOR))
+            .save(provider))
         .register();
 
     public static void register() {

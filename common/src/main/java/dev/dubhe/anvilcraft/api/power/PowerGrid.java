@@ -43,14 +43,7 @@ public class PowerGrid {
      * 电力刻
      */
     protected void tick() {
-        this.generate = 0;
-        this.consume = 0;
-        for (IPowerProducer producer : this.producers) {
-            this.generate += producer.getOutputPower();
-        }
-        for (IPowerConsumer consumer : this.consumers) {
-            this.consume += consumer.getInputPower();
-        }
+        this.flush();
         if (this.isWork()) {
             int remainder = this.generate - this.consume;
             for (IPowerStorage storage : storages) {
@@ -69,6 +62,17 @@ public class PowerGrid {
             for (IPowerStorage storage : storages) {
                 this.generate += storage.extract(this.consume - this.generate);
             }
+        }
+    }
+
+    private void flush() {
+        this.generate = 0;
+        this.consume = 0;
+        for (IPowerProducer producer : this.producers) {
+            this.generate += producer.getOutputPower();
+        }
+        for (IPowerConsumer consumer : this.consumers) {
+            this.consume += consumer.getInputPower();
         }
     }
 
@@ -94,6 +98,7 @@ public class PowerGrid {
             }
             component.setGrid(this);
         }
+        this.flush();
     }
 
     /**
