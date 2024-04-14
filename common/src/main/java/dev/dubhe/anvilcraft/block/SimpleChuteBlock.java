@@ -40,6 +40,8 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
+import static dev.dubhe.anvilcraft.block.ChuteBlock.hasChuteFacing;
+
 public class SimpleChuteBlock extends BaseEntityBlock implements
     SimpleWaterloggedBlock, IHammerChangeable, IHammerRemovable {
     public static final DirectionProperty FACING = BlockStateProperties.FACING_HOPPER;
@@ -68,10 +70,10 @@ public class SimpleChuteBlock extends BaseEntityBlock implements
     public SimpleChuteBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any()
-                .setValue(FACING, Direction.DOWN)
-                .setValue(WATERLOGGED, false)
-                .setValue(ENABLED, true)
-                .setValue(TALL, false));
+            .setValue(FACING, Direction.DOWN)
+            .setValue(WATERLOGGED, false)
+            .setValue(ENABLED, true)
+            .setValue(TALL, false));
     }
 
     @Nullable
@@ -81,7 +83,7 @@ public class SimpleChuteBlock extends BaseEntityBlock implements
     }
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING, WATERLOGGED, ENABLED, TALL);
     }
 
@@ -97,6 +99,21 @@ public class SimpleChuteBlock extends BaseEntityBlock implements
         if (bl == level.hasNeighborSignal(pos)) {
             if (!bl) level.scheduleTick(pos, this, 4);
             else level.setBlock(pos, state.cycle(ENABLED), 2);
+        }
+        if (!neighborPos.equals(pos.relative(state.getValue(FACING)))) return;
+        BlockState blockState = level.getBlockState(neighborPos);
+        if (blockState.is(ModBlocks.CHUTE.get())) return;
+        if (ChuteBlock.hasChuteFacing(level, neighborPos)) {
+            BlockState newState = ModBlocks.SIMPLE_CHUTE.getDefaultState();
+            newState = newState.setValue(SimpleChuteBlock.FACING, blockState.getValue(FACING))
+                .setValue(SimpleChuteBlock.ENABLED, blockState.getValue(ENABLED));
+            BlockState upState = level.getBlockState(neighborPos.relative(Direction.UP));
+            if (upState.is(ModBlocks.SIMPLE_CHUTE.get()) || upState.is(ModBlocks.CHUTE.get())) {
+                if (upState.getValue(FACING) == Direction.DOWN) {
+                    newState = newState.setValue(SimpleChuteBlock.TALL, true);
+                }
+            }
+            level.setBlockAndUpdate(neighborPos, newState);
         }
     }
 
@@ -133,24 +150,24 @@ public class SimpleChuteBlock extends BaseEntityBlock implements
         }
         BlockState facingState = level.getBlockState(pos.relative(state.getValue(FACING)));
         if (facingState.is(ModBlocks.SIMPLE_CHUTE.get())
-                && !newState.is(ModBlocks.CHUTE.get())
-                && !ChuteBlock.hasChuteFacing(level, pos.relative(state.getValue(FACING)))) {
+            && !newState.is(ModBlocks.CHUTE.get())
+            && !hasChuteFacing(level, pos.relative(state.getValue(FACING)))) {
             BlockState newBlockState = ModBlocks.CHUTE.getDefaultState();
             newBlockState = newBlockState
-                    .setValue(FACING, facingState.getValue(SimpleChuteBlock.FACING))
-                    .setValue(ENABLED, facingState.getValue(SimpleChuteBlock.ENABLED));
+                .setValue(FACING, facingState.getValue(SimpleChuteBlock.FACING))
+                .setValue(ENABLED, facingState.getValue(SimpleChuteBlock.ENABLED));
             level.setBlockAndUpdate(pos.relative(state.getValue(FACING)), newBlockState);
         }
         BlockState downState = level.getBlockState(pos.relative(Direction.DOWN));
         if (state.getValue(FACING) == Direction.DOWN
-                && downState.is(ModBlocks.SIMPLE_CHUTE.get())
-                && !newState.is(ModBlocks.SIMPLE_CHUTE.get())
-                && !newState.is(ModBlocks.CHUTE.get())) {
+            && downState.is(ModBlocks.SIMPLE_CHUTE.get())
+            && !newState.is(ModBlocks.SIMPLE_CHUTE.get())
+            && !newState.is(ModBlocks.CHUTE.get())) {
             BlockState newBlockState = ModBlocks.SIMPLE_CHUTE.getDefaultState();
             newBlockState = newBlockState
-                    .setValue(FACING, downState.getValue(FACING))
-                    .setValue(ENABLED, downState.getValue(ENABLED))
-                    .setValue(TALL, false);
+                .setValue(FACING, downState.getValue(FACING))
+                .setValue(ENABLED, downState.getValue(ENABLED))
+                .setValue(TALL, false);
             level.setBlockAndUpdate(pos.relative(Direction.DOWN), newBlockState);
         }
         super.onRemove(state, level, pos, newState, movedByPiston);
@@ -159,11 +176,11 @@ public class SimpleChuteBlock extends BaseEntityBlock implements
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-        Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> blockEntityType
+        @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> blockEntityType
     ) {
         if (level.isClientSide) return null;
         return createTickerHelper(blockEntityType, ModBlockEntities.SIMPLE_CHUTE.get(),
-                ((level1, blockPos, blockState, blockEntity) -> blockEntity.tick()));
+            ((level1, blockPos, blockState, blockEntity) -> blockEntity.tick()));
     }
 
     @SuppressWarnings("deprecation")
