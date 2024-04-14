@@ -131,6 +131,21 @@ public class ChuteBlock extends BaseEntityBlock implements IHammerChangeableBloc
             if (!bl) level.scheduleTick(pos, this, 4);
             else level.setBlock(pos, state.cycle(ENABLED), 2);
         }
+        if (!neighborPos.equals(pos.relative(state.getValue(FACING)))) return;
+        BlockState blockState = level.getBlockState(neighborPos);
+        if (blockState.is(ModBlocks.CHUTE.get())) return;
+        if (hasChuteFacing(level, neighborPos)) {
+            BlockState newState = ModBlocks.SIMPLE_CHUTE.getDefaultState();
+            newState = newState.setValue(SimpleChuteBlock.FACING, blockState.getValue(FACING))
+                .setValue(SimpleChuteBlock.ENABLED, blockState.getValue(ENABLED));
+            BlockState upState = level.getBlockState(neighborPos.relative(Direction.UP));
+            if (upState.is(ModBlocks.SIMPLE_CHUTE.get()) || upState.is(ModBlocks.CHUTE.get())) {
+                if (upState.getValue(FACING) == Direction.DOWN) {
+                    newState = newState.setValue(SimpleChuteBlock.TALL, true);
+                }
+            }
+            level.setBlockAndUpdate(neighborPos, newState);
+        }
     }
 
     @SuppressWarnings("deprecation")
@@ -277,18 +292,6 @@ public class ChuteBlock extends BaseEntityBlock implements IHammerChangeableBloc
                 newState = newState.setValue(SimpleChuteBlock.TALL, false);
             }
             level.setBlockAndUpdate(pos.relative(state.getValue(FACING)), newState);
-        }
-        if (hasChuteFacing(level, pos)) {
-            BlockState newState = ModBlocks.SIMPLE_CHUTE.getDefaultState();
-            newState = newState.setValue(SimpleChuteBlock.FACING, state.getValue(FACING))
-                .setValue(SimpleChuteBlock.ENABLED, state.getValue(ENABLED));
-            BlockState upState = level.getBlockState(pos.relative(Direction.UP));
-            if (upState.is(ModBlocks.SIMPLE_CHUTE.get()) || upState.is(ModBlocks.CHUTE.get())) {
-                if (upState.getValue(FACING) == Direction.DOWN) {
-                    newState = newState.setValue(SimpleChuteBlock.TALL, true);
-                }
-            }
-            level.setBlockAndUpdate(pos, newState);
         }
         super.onPlace(state, level, pos, oldState, movedByPiston);
     }

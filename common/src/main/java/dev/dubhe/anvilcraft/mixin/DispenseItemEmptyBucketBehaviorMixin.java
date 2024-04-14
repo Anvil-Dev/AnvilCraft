@@ -27,7 +27,8 @@ import java.util.List;
 @Mixin(targets = "net/minecraft/core/dispenser/DispenseItemBehavior$17")
 abstract class DispenseItemEmptyBucketBehaviorMixin extends DefaultDispenseItemBehavior {
     @Unique
-    private final DefaultDispenseItemBehavior defaultDispenseItemBehavior = new DefaultDispenseItemBehavior();
+    private final DefaultDispenseItemBehavior anvilCraft$defaultDispenseItemBehavior =
+        new DefaultDispenseItemBehavior();
 
     @Inject(
         method = "execute(Lnet/minecraft/core/BlockSource;Lnet/minecraft/world/item/ItemStack;)"
@@ -58,7 +59,7 @@ abstract class DispenseItemEmptyBucketBehaviorMixin extends DefaultDispenseItemB
             return;
         }
         if (((DispenserBlockEntity) source.getEntity()).addItem(new ItemStack(item)) < 0) {
-            this.defaultDispenseItemBehavior.dispense(source, new ItemStack(item));
+            this.anvilCraft$defaultDispenseItemBehavior.dispense(source, new ItemStack(item));
         }
         cir.setReturnValue(stack);
     }

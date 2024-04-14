@@ -26,13 +26,13 @@ abstract class SolidBucketItemMixin {
     @Final
     private SoundEvent placeSound;
     @Unique
-    private final SolidBucketItem ths = (SolidBucketItem) (Object) this;
+    private final SolidBucketItem anvilCraft$ths = (SolidBucketItem) (Object) this;
 
     @Inject(method = "emptyContents", at = @At("HEAD"), cancellable = true)
     private void emptyContents(
         Player player, @NotNull Level level, BlockPos pos, BlockHitResult result, CallbackInfoReturnable<Boolean> cir
     ) {
-        if (!ths.equals(Items.POWDER_SNOW_BUCKET)) return;
+        if (!anvilCraft$ths.equals(Items.POWDER_SNOW_BUCKET)) return;
         if (level.isInWorldBounds(pos) && level.getBlockState(pos).is(Blocks.CAULDRON)) {
             if (!level.isClientSide) {
                 level.setBlockAndUpdate(pos, Blocks.POWDER_SNOW_CAULDRON.defaultBlockState()

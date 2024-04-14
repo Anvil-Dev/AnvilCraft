@@ -43,7 +43,7 @@ dependencyResolutionManagement {
         def parchmentVersion = "2023.09.03" // https://parchmentmc.org/docs/getting-started
         def shadowVersion = "7.1.2"
         def architecturyPluginVersion = "3.4-SNAPSHOT"
-        def architecturyLoomVersion = "1.5-SNAPSHOT"
+        def architecturyLoomVersion = "1.6-SNAPSHOT"
         def mixinextrasVersion = "0.2.0"
         def configurationVersion = "2.2.0"
         def clothConfigVersion = "11.1.118"
