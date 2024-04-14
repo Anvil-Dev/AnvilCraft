@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.api.depository.item.forge;
+package dev.dubhe.anvilcraft.api.depository.forge;
 
 import dev.dubhe.anvilcraft.api.depository.IItemDepository;
 import net.minecraft.core.BlockPos;

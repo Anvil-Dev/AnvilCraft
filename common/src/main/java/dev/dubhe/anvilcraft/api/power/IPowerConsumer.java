@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.api.power;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * 用电
  */
@@ -12,7 +14,7 @@ public interface IPowerConsumer extends IPowerComponent {
     }
 
     @Override
-    default PowerComponentType getType() {
+    default @NotNull PowerComponentType getComponentType() {
         return PowerComponentType.CONSUMER;
     }
 }

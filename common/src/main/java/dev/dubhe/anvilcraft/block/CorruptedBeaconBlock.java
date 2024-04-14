@@ -35,7 +35,7 @@ public class CorruptedBeaconBlock extends BeaconBlock {
 
     @Override
     public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
-        return CorruptedBeaconBlockEntity.createBlockEntity(ModBlockEntities.CORRUPTED_BEACON.get(), pos, state);
+        return new CorruptedBeaconBlockEntity(pos, state);
     }
 
     @Override

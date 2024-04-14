@@ -4,6 +4,7 @@ import com.tterrag.registrate.util.entry.BlockEntityEntry;
 import dev.dubhe.anvilcraft.block.entity.AutoCrafterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CorruptedBeaconBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CreativeDynamoBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CorruptedBeaconRenderer;
 
@@ -33,6 +34,11 @@ public class ModBlockEntities {
             .validBlock(ModBlocks.CORRUPTED_BEACON)
             .renderer(() -> CorruptedBeaconRenderer::new)
             .register();
+
+    public static final BlockEntityEntry<CreativeDynamoBlockEntity> CREATIVE_DYNAMO = REGISTRATE
+        .blockEntity("creative_dynamo", CreativeDynamoBlockEntity::createBlockEntity)
+        .validBlock(ModBlocks.CREATIVE_DYNAMO)
+        .register();
 
     public static void register() {
     }

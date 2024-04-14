@@ -92,6 +92,7 @@ public class PowerGrid {
             } else if (component instanceof IPowerTransmitter transmitter) {
                 this.transmitters.add(transmitter);
             }
+            component.setGrid(this);
         }
     }
 

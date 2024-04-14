@@ -61,6 +61,7 @@ public class ModItemGroups {
                 entries.accept(Items.CAMPFIRE.getDefaultInstance());
                 entries.accept(ModBlocks.STAMPING_PLATFORM.asStack());
                 entries.accept(ModBlocks.CORRUPTED_BEACON.asStack());
+                entries.accept(ModBlocks.CREATIVE_DYNAMO.asStack());
                 entries.accept(Items.ANVIL.getDefaultInstance());
                 entries.accept(Items.CHIPPED_ANVIL.getDefaultInstance());
                 entries.accept(Items.DAMAGED_ANVIL.getDefaultInstance());

@@ -3,8 +3,10 @@ package dev.dubhe.anvilcraft.event.forge;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.forge.DataPackReloadedEvent;
 import dev.dubhe.anvilcraft.api.event.server.ServerEndDataPackReloadEvent;
+import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.resources.CloseableResourceManager;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -24,9 +26,19 @@ public class ServerLifecycleEvent {
      * @param event 数据包重载事件
      */
     @SubscribeEvent
-    public void onDataPackReloaded(@NotNull DataPackReloadedEvent event) {
+    public static void onDataPackReloaded(@NotNull DataPackReloadedEvent event) {
         MinecraftServer server = event.getServer();
         CloseableResourceManager resourceManager = event.getResourceManager();
         AnvilCraft.EVENT_BUS.post(new ServerEndDataPackReloadEvent(server, resourceManager));
+    }
+
+    /**
+     * @param event 世界刻事件
+     */
+    @SubscribeEvent
+    public static void onWordTick(@NotNull TickEvent.LevelTickEvent event) {
+        if (event.level.isClientSide) return;
+        if (event.phase != TickEvent.Phase.START) return;
+        PowerGrid.tickGrid();
     }
 }
