@@ -84,17 +84,21 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
 
     private void onValueInput(@NotNull String value) {
         String regex = "^[+-]?[0-9]+$";
+        int v;
         if (value.matches(regex)) {
-            int v = Integer.parseInt(value);
-            this.slider.setValueWithUpdate(v);
+            v = Integer.parseInt(value);
         } else if (value.isEmpty()) {
-            this.slider.setValueWithUpdate(0);
-        } else if (value.equals("-") || value.equals("0-")) {
-            this.slider.setValueWithUpdate(0);
+            v = 0;
+        } else if (value.equals("-")) {
+            return;
+        } else if (value.equals("0-")) {
             this.value.setValue("-");
+            return;
         } else {
             this.value.setValue("" + this.slider.getValue());
+            return;
         }
+        this.slider.setValueWithUpdate(v);
     }
 
     public void setMin(int min) {
