@@ -87,6 +87,6 @@ public class CreativeDynamoBlockEntity extends BlockEntity implements IPowerProd
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
-        return new SliderMenu(i, -1024, 1024, this::setPower);
+        return new SliderMenu(i, -8192, 8192, this::setPower);
     }
 }

@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * 储电
  */
-public interface IPowerStorage extends IPowerProducer {
+public interface IPowerStorage extends IPowerProducer, IPowerConsumer {
     /**
      * 输入电量
      *

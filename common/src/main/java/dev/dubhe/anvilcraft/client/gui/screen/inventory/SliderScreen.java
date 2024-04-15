@@ -89,6 +89,9 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
             this.slider.setValueWithUpdate(v);
         } else if (value.isEmpty()) {
             this.slider.setValueWithUpdate(0);
+        } else if (value.equals("-") || value.equals("0-")) {
+            this.slider.setValueWithUpdate(0);
+            this.value.setValue("-");
         } else {
             this.value.setValue("" + this.slider.getValue());
         }

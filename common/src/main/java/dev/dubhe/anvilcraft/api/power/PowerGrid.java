@@ -97,11 +97,15 @@ public class PowerGrid {
             if (component.getComponentType() == PowerComponentType.INVALID) continue;
             if (component instanceof IPowerStorage storage) {
                 this.storages.add(storage);
-            } else if (component instanceof IPowerProducer producer) {
+                continue;
+            }
+            if (component instanceof IPowerProducer producer) {
                 this.producers.add(producer);
-            } else if (component instanceof IPowerConsumer consumer) {
+            }
+            if (component instanceof IPowerConsumer consumer) {
                 this.consumers.add(consumer);
-            } else if (component instanceof IPowerTransmitter transmitter) {
+            }
+            if (component instanceof IPowerTransmitter transmitter) {
                 this.transmitters.add(transmitter);
             }
             component.setGrid(this);

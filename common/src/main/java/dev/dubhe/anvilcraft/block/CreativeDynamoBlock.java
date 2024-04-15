@@ -45,7 +45,7 @@ public class CreativeDynamoBlock extends BaseEntityBlock {
                 && player instanceof ServerPlayer serverPlayer
         ) {
             ModMenuTypes.open(serverPlayer, entity, pos);
-            new SliderInitPack(entity.getPower(), -1024, 1024).send(serverPlayer);
+            new SliderInitPack(entity.getPower(), -8192, 8192).send(serverPlayer);
         }
         return InteractionResult.SUCCESS;
     }
