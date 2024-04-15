@@ -30,6 +30,7 @@ public class CookingRecipesLoader {
             .save(provider);
         boil(ModItems.BEEF_MUSHROOM_STEW_RAW.get(), 1, ModItems.BEEF_MUSHROOM_STEW.get(), 1, provider);
         cook(ModItems.UTUSAN_RAW.get(), 1, ModItems.UTUSAN.get(), 1, provider);
+        cook(ModItems.RESIN.get(), 1, ModItems.HARDEND_RESIN.get(), 1, provider);
     }
 
     /**
