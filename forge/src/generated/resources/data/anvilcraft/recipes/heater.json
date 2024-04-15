@@ -9,7 +9,7 @@
       "item": "minecraft:iron_ingot"
     },
     "C": {
-      "item": "anvilcraft:capacitor"
+      "tag": "anvilcraft:capacitor"
     }
   },
   "pattern": [

@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.api.power;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,6 +16,11 @@ public interface IPowerComponent {
      */
     @NotNull
     BlockPos getPos();
+
+    default VoxelShape getRange() {
+        return Shapes.box(-0.2, -0.2, -0.2, 1.2, 1.2, 1.2);
+        // return Shapes.block();
+    }
 
     /**
      * 设置电网

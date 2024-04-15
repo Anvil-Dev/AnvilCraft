@@ -1,29 +1,36 @@
 package dev.dubhe.anvilcraft.api.power;
 
-import dev.dubhe.anvilcraft.AnvilCraft;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 /**
  * 电网
  */
 @SuppressWarnings("unused")
 public class PowerGrid {
-    public static final List<PowerGrid> GRID_LIST = new ArrayList<>();
+    public static final Set<PowerGrid> GRID_SET = new HashSet<>();
     public static final int GRID_TICK = 40;
     public static int cooldown = 0;
     @Getter
     private int generate = 0; // 发电功率
     @Getter
     private int consume = 0;  // 耗电功率
-    private final List<IPowerProducer> producers = new ArrayList<>(); // 发电机
-    private final List<IPowerConsumer> consumers = new ArrayList<>(); // 用电器
-    private final List<IPowerStorage> storages = new ArrayList<>();   // 储电
-    private final List<IPowerTransmitter> transmitters = new ArrayList<>();    // 中继
+    private final Set<IPowerProducer> producers = new HashSet<>(); // 发电机
+    private final Set<IPowerConsumer> consumers = new HashSet<>(); // 用电器
+    private final Set<IPowerStorage> storages = new HashSet<>();   // 储电
+    private final Set<IPowerTransmitter> transmitters = new HashSet<>();    // 中继
+    @Getter
+    private VoxelShape range = null;
+    @Getter
+    private BlockPos pos = null;
 
     /**
      * 总电力刻
@@ -33,7 +40,7 @@ public class PowerGrid {
             cooldown--;
             return;
         }
-        for (PowerGrid grid : PowerGrid.GRID_LIST) {
+        for (PowerGrid grid : PowerGrid.GRID_SET) {
             grid.tick();
         }
         cooldown = GRID_TICK;
@@ -52,7 +59,7 @@ public class PowerGrid {
             }
         } else {
             int need = this.consume - this.generate;
-            List<IPowerStorage> storages = new ArrayList<>();
+            Set<IPowerStorage> storages = new HashSet<>();
             for (IPowerStorage storage : this.storages) {
                 need -= storage.getOutputPower();
                 storages.add(storage);
@@ -87,6 +94,7 @@ public class PowerGrid {
      */
     public void add(IPowerComponent @NotNull ... components) {
         for (IPowerComponent component : components) {
+            if (component.getComponentType() == PowerComponentType.INVALID) continue;
             if (component instanceof IPowerStorage storage) {
                 this.storages.add(storage);
             } else if (component instanceof IPowerProducer producer) {
@@ -97,8 +105,25 @@ public class PowerGrid {
                 this.transmitters.add(transmitter);
             }
             component.setGrid(this);
+            this.addRange(component);
         }
         this.flush();
+    }
+
+    private void addRange(IPowerComponent component) {
+        if (this.range == null) {
+            this.range = component.getRange();
+            this.pos = component.getPos();
+            return;
+        }
+        BlockPos center = this.pos;
+        BlockPos vec3 = component.getPos();
+        VoxelShape range = component.getRange().move(
+            vec3.getX() - center.getX(),
+            vec3.getY() - center.getY(),
+            vec3.getZ() - center.getZ()
+        );
+        this.range = Shapes.join(this.range, range, BooleanOp.OR);
     }
 
     /**
@@ -107,16 +132,25 @@ public class PowerGrid {
      * @param components 电力元件
      */
     public void remove(IPowerComponent @NotNull ... components) {
-        List<IPowerComponent> list = new ArrayList<>();
-        list.addAll(this.storages);
-        list.addAll(this.producers);
-        list.addAll(this.consumers);
-        list.addAll(this.transmitters);
+        Set<IPowerComponent> set = new HashSet<>();
+        this.storages.stream().filter(this::clearGrid).forEach(set::add);
+        this.storages.clear();
+        this.producers.stream().filter(this::clearGrid).forEach(set::add);
+        this.producers.clear();
+        this.consumers.stream().filter(this::clearGrid).forEach(set::add);
+        this.consumers.clear();
+        this.transmitters.stream().filter(this::clearGrid).forEach(set::add);
+        this.transmitters.clear();
         for (IPowerComponent component : components) {
-            list.remove(component);
+            set.remove(component);
         }
-        PowerGrid.GRID_LIST.remove(this);
-        PowerGrid.addComponent(list.toArray(IPowerComponent[]::new));
+        PowerGrid.GRID_SET.remove(this);
+        PowerGrid.addComponent(set.toArray(IPowerComponent[]::new));
+    }
+
+    private boolean clearGrid(@NotNull IPowerComponent component) {
+        component.setGrid(null);
+        return true;
     }
 
     /**
@@ -129,7 +163,6 @@ public class PowerGrid {
         this.consumers.addAll(grid.consumers);
         this.storages.addAll(grid.storages);
         this.transmitters.addAll(grid.transmitters);
-        PowerGrid.GRID_LIST.remove(grid);
     }
 
     /**
@@ -137,17 +170,14 @@ public class PowerGrid {
      * @return 元件是否在电网范围内
      */
     public boolean isInRange(@NotNull IPowerComponent component) {
-        int range;
-        BlockPos pos = component.getPos();
-        if (component instanceof IPowerTransmitter) {
-            range = AnvilCraft.config.powerTransmitterRange;
-        } else range = AnvilCraft.config.powerComponentRange;
-        for (IPowerTransmitter transmitter : this.transmitters) {
-            pos = pos.subtract(transmitter.getPos());
-            if (pos.getX() > range || pos.getY() > range || pos.getZ() > range) continue;
-            return true;
-        }
-        return false;
+        BlockPos vec3 = component.getPos();
+        BlockPos center = this.getPos();
+        VoxelShape range = Shapes.join(
+            this.range.move(center.getX(), center.getY(), center.getZ()),
+            component.getRange().move(vec3.getX(), vec3.getY(), vec3.getZ()),
+            BooleanOp.AND
+        );
+        return !range.isEmpty();
     }
 
     /**
@@ -158,14 +188,26 @@ public class PowerGrid {
     public static void addComponent(IPowerComponent @NotNull ... components) {
         for (IPowerComponent component : components) {
             PowerGrid grid = null;
-            for (PowerGrid grid1 : PowerGrid.GRID_LIST) {
+            Iterator<PowerGrid> iterator = PowerGrid.GRID_SET.iterator();
+            while (iterator.hasNext()) {
+                PowerGrid grid1 = iterator.next();
                 if (!grid1.isInRange(component)) continue;
                 if (grid == null) grid = grid1;
-                else grid.merge(grid1);
+                else {
+                    grid.merge(grid1);
+                    iterator.remove();
+                }
             }
             if (grid == null) grid = new PowerGrid();
             grid.add(component);
-            PowerGrid.GRID_LIST.add(grid);
+            PowerGrid.GRID_SET.add(grid);
         }
+    }
+
+    /**
+     * 清空电网
+     */
+    public static void clear() {
+        PowerGrid.GRID_SET.clear();
     }
 }

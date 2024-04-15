@@ -39,7 +39,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:capacitor"
+        "recipe": "anvilcraft:capacitor_empty"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -54,7 +54,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:capacitor"
+      "anvilcraft:capacitor_empty"
     ]
   },
   "sends_telemetry_event": false

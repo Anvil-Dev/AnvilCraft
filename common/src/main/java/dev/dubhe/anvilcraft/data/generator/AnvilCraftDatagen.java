@@ -33,6 +33,10 @@ public class AnvilCraftDatagen {
         return RegistrateRecipeProvider.has(tag);
     }
 
+    public static @NotNull String hasItem(@NotNull TagKey<Item> item) {
+        return "has_" + item.location().getPath();
+    }
+
     public static @NotNull String hasItem(@NotNull ItemLike item) {
         return "has_" + BuiltInRegistries.ITEM.getKey(item.asItem()).getPath();
     }

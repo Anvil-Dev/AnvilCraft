@@ -8,6 +8,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.resources.CloseableResourceManager;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
+import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
@@ -33,12 +34,19 @@ public class ServerLifecycleEvent {
     }
 
     /**
-     * @param event 世界刻事件
+     * @param event 服务器刻事件
      */
     @SubscribeEvent
-    public static void onWordTick(@NotNull TickEvent.LevelTickEvent event) {
-        if (event.level.isClientSide) return;
+    public static void onTick(@NotNull TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.START) return;
         PowerGrid.tickGrid();
+    }
+
+    /**
+     * @param event 服务器关闭事件
+     */
+    @SubscribeEvent
+    public static void onServerStopped(@NotNull ServerStoppedEvent event) {
+        PowerGrid.clear();
     }
 }

@@ -48,7 +48,7 @@ public class ModItemGroups {
                 entries.accept(ModItems.COCOA_BUTTER.get().getDefaultInstance());
                 entries.accept(ModItems.COCOA_POWDER.get().getDefaultInstance());
                 entries.accept(ModItems.CAPACITOR.get().getDefaultInstance());
-                entries.accept(ModItems.CAPACITOR.get());
+                entries.accept(ModItems.CAPACITOR_EMPTY.get().getDefaultInstance());
             })
             .build()
         )

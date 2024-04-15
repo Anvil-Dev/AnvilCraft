@@ -18,8 +18,7 @@
     "ABA"
   ],
   "result": {
-    "data": "{Damage:1}",
-    "item": "anvilcraft:capacitor"
+    "item": "anvilcraft:capacitor_empty"
   },
   "show_notification": true
 }

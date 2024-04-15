@@ -455,9 +455,11 @@ public class ModItems {
         .register();
     public static final ItemEntry<CapacitorItem> CAPACITOR = REGISTRATE
         .item("capacitor", CapacitorItem::new)
-        .properties(properties -> properties.durability(1))
-        .model((ctx, provider) -> {
-        })
+        .tag(ModItemTags.CAPACITOR)
+        .register();
+    public static final ItemEntry<CapacitorItem> CAPACITOR_EMPTY = REGISTRATE
+        .item("capacitor_empty", CapacitorItem::new)
+        .tag(ModItemTags.CAPACITOR)
         .recipe((ctx, provider) -> ShapedTagRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get().getDefaultInstance())
             .pattern("ABA")
             .pattern("ACA")

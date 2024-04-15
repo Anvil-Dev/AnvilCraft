@@ -8,7 +8,6 @@ import dev.dubhe.anvilcraft.utils.fabric.ServerHooks;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.packs.resources.CloseableResourceManager;
 
 public class ServerLifecycleEvent {
@@ -18,21 +17,26 @@ public class ServerLifecycleEvent {
     public static void init() {
         ServerLifecycleEvents.SERVER_STARTED.register(ServerLifecycleEvent::serverStarted);
         ServerLifecycleEvents.END_DATA_PACK_RELOAD.register(ServerLifecycleEvent::endDataPackReload);
-        ServerTickEvents.START_WORLD_TICK.register(ServerLifecycleEvent::startWorldTick);
+        ServerLifecycleEvents.SERVER_STOPPED.register(ServerLifecycleEvent::onServerStopped);
+        ServerTickEvents.START_SERVER_TICK.register(ServerLifecycleEvent::startTick);
     }
 
-    public static void serverStarted(MinecraftServer server) {
+    private static void serverStarted(MinecraftServer server) {
         ServerHooks.setServer(server);
         AnvilCraft.EVENT_BUS.post(new ServerStartedEvent(server));
     }
 
-    public static void endDataPackReload(
+    private static void endDataPackReload(
         MinecraftServer server, CloseableResourceManager resourceManager, boolean success
     ) {
         AnvilCraft.EVENT_BUS.post(new ServerEndDataPackReloadEvent(server, resourceManager));
     }
 
-    public static void startWorldTick(ServerLevel world) {
+    private static void startTick(MinecraftServer server) {
         PowerGrid.tickGrid();
+    }
+
+    private static void onServerStopped(MinecraftServer server) {
+        PowerGrid.clear();
     }
 }

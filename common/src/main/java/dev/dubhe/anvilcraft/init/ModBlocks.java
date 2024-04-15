@@ -398,10 +398,10 @@ public class ModBlocks {
             .pattern("BBB")
             .define('A', Items.TERRACOTTA)
             .define('B', Items.IRON_INGOT)
-            .define('C', ModItems.CAPACITOR)
+            .define('C', ModItemTags.CAPACITOR)
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.TERRACOTTA), AnvilCraftDatagen.has(Items.TERRACOTTA))
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CAPACITOR), AnvilCraftDatagen.has(ModItems.CAPACITOR))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.CAPACITOR), AnvilCraftDatagen.has(ModItemTags.CAPACITOR))
             .save(provider))
         .register();
 

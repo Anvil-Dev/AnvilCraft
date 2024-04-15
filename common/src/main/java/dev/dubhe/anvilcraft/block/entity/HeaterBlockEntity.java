@@ -52,13 +52,18 @@ public class HeaterBlockEntity extends BlockEntity implements IPowerConsumer {
      * @param level 世界
      * @param pos   位置
      */
-    public void tick(Level level, BlockPos pos) {
-        if (this.grid == null) return;
+    public void tick(@NotNull Level level, @NotNull BlockPos pos) {
         BlockState state = level.getBlockState(pos);
         if (!state.is(ModBlocks.HEATER.get())) return;
+        if (this.grid == null) {
+            if (state.getValue(HeaterBlock.LIT)) {
+                level.setBlockAndUpdate(pos, state.setValue(HeaterBlock.LIT, false));
+            }
+            return;
+        }
         if (this.grid.isWork() && !state.getValue(HeaterBlock.LIT)) {
             level.setBlockAndUpdate(pos, state.setValue(HeaterBlock.LIT, true));
-        } else if (state.getValue(HeaterBlock.LIT)) {
+        } else if (!this.grid.isWork() && state.getValue(HeaterBlock.LIT)) {
             level.setBlockAndUpdate(pos, state.setValue(HeaterBlock.LIT, false));
         }
     }
