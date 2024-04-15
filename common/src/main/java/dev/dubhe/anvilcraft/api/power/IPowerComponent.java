@@ -18,8 +18,7 @@ public interface IPowerComponent {
     BlockPos getPos();
 
     default VoxelShape getRange() {
-        return Shapes.box(-0.2, -0.2, -0.2, 1.2, 1.2, 1.2);
-        // return Shapes.block();
+        return Shapes.block();
     }
 
     /**

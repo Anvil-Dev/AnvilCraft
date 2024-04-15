@@ -191,6 +191,7 @@ public class PowerGrid {
      */
     public static void addComponent(IPowerComponent @NotNull ... components) {
         for (IPowerComponent component : components) {
+            if (component.getComponentType() == PowerComponentType.INVALID) continue;
             PowerGrid grid = null;
             Iterator<PowerGrid> iterator = PowerGrid.GRID_SET.iterator();
             while (iterator.hasNext()) {

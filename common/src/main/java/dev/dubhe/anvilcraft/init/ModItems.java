@@ -457,6 +457,9 @@ public class ModItems {
         .item("capacitor", CapacitorItem::new)
         .tag(ModItemTags.CAPACITOR)
         .register();
+    public static final ItemEntry<Item> MAGNETOELECTRIC_CORE = REGISTRATE
+        .item("magnetoelectric_core", Item::new)
+        .register();
     public static final ItemEntry<CapacitorItem> CAPACITOR_EMPTY = REGISTRATE
         .item("capacitor_empty", CapacitorItem::new)
         .tag(ModItemTags.CAPACITOR)

@@ -75,15 +75,9 @@ public class AnvilCraftConfig implements ConfigData {
     @SerializedName("Geode Search Cooldown")
     public int geodeCooldown = 5;
 
-    @Comment("The power transmitter can identify the range of power components")
-    @ConfigEntry.Gui.Tooltip
-    @ConfigEntry.BoundedDiscrete(max = 64, min = 1)
-    @SerializedName("Range of Power Components")
-    public int powerComponentRange = 8;
-
     @Comment("The power transmitter can identify the range of the power transmitter")
     @ConfigEntry.Gui.Tooltip
-    @ConfigEntry.BoundedDiscrete(max = 64, min = 4)
+    @ConfigEntry.BoundedDiscrete(max = 64, min = 1)
     @SerializedName("Range of Power Transmitter")
-    public int powerTransmitterRange = 16;
+    public int powerTransmitterRange = 8;
 }
