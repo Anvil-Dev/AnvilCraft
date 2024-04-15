@@ -1,13 +1,21 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.block.entity.CreativeDynamoBlockEntity;
+import dev.dubhe.anvilcraft.init.ModMenuTypes;
+import dev.dubhe.anvilcraft.network.SliderInitPack;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
@@ -20,6 +28,26 @@ public class CreativeDynamoBlock extends BaseEntityBlock {
 
     public CreativeDynamoBlock(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    @SuppressWarnings({"deprecation", "UnreachableCode"})
+    public @NotNull InteractionResult use(
+        @NotNull BlockState state, @NotNull Level level,
+        @NotNull BlockPos pos, @NotNull Player player,
+        @NotNull InteractionHand hand, @NotNull BlockHitResult hit
+    ) {
+        if (level.isClientSide) {
+            return InteractionResult.SUCCESS;
+        }
+        if (
+            level.getBlockEntity(pos) instanceof CreativeDynamoBlockEntity entity
+                && player instanceof ServerPlayer serverPlayer
+        ) {
+            ModMenuTypes.open(serverPlayer, entity, pos);
+            new SliderInitPack(entity.getPower(), -1024, 1024).send(serverPlayer);
+        }
+        return InteractionResult.SUCCESS;
     }
 
     @Nullable

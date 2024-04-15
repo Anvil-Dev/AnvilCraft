@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindstoneMenu> {
     private static final ResourceLocation GRINDSTONE_LOCATION =
-        AnvilCraft.of("textures/gui/container/royal_grindstone.png");
+        AnvilCraft.of("textures/gui/container/smithing/background/royal_grindstone.png");
 
     public RoyalGrindstoneScreen(
         RoyalGrindstoneMenu menu, Inventory playerInventory, @SuppressWarnings("unused") Component title

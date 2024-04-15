@@ -52,7 +52,7 @@ public class AnvilCraft {
         REGISTRATE.registerRegistrate();
     }
 
-    public static @NotNull ResourceLocation of(String id) {
-        return new ResourceLocation(MOD_ID, id);
+    public static @NotNull ResourceLocation of(String path) {
+        return new ResourceLocation(MOD_ID, path);
     }
 }

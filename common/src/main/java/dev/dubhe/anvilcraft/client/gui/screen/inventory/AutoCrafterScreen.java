@@ -18,7 +18,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.BiFunction;
 
 public class AutoCrafterScreen extends BaseMachineScreen<AutoCrafterMenu> implements IFilterScreen {
-    private static final ResourceLocation CONTAINER_LOCATION = AnvilCraft.of("textures/gui/container/auto_crafter.png");
+    private static final ResourceLocation CONTAINER_LOCATION =
+        AnvilCraft.of("textures/gui/container/machine/background/auto_crafter.png");
     BiFunction<Integer, Integer, EnableFilterButton> enableFilterButtonSupplier = this
         .getEnableFilterButtonSupplier(116, 18);
     @Getter

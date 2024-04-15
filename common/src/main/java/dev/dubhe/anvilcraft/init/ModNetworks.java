@@ -2,8 +2,10 @@ package dev.dubhe.anvilcraft.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.network.Network;
-import dev.dubhe.anvilcraft.network.MachineOutputDirectionPack;
 import dev.dubhe.anvilcraft.network.MachineEnableFilterPack;
+import dev.dubhe.anvilcraft.network.MachineOutputDirectionPack;
+import dev.dubhe.anvilcraft.network.SliderInitPack;
+import dev.dubhe.anvilcraft.network.SliderUpdatePack;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
 import dev.dubhe.anvilcraft.network.SlotFilterChangePack;
 import net.minecraft.resources.ResourceLocation;
@@ -21,6 +23,12 @@ public class ModNetworks {
     public static final ResourceLocation SLOT_FILTER_CHANGE_PACKET = Network
         .register(AnvilCraft.of("slot_filter_change"),
             SlotFilterChangePack.class, SlotFilterChangePack::new);
+    public static final ResourceLocation SLIDER_UPDATE = Network
+        .register(AnvilCraft.of("slider_update"),
+            SliderUpdatePack.class, SliderUpdatePack::new);
+    public static final ResourceLocation SLIDER_INIT = Network
+        .register(AnvilCraft.of("slider_init"),
+            SliderInitPack.class, SliderInitPack::new);
 
     public static void register() {
     }
