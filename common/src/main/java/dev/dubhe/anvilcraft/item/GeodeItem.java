@@ -9,6 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -74,6 +75,7 @@ public class GeodeItem extends Item {
                 }
             }
         }
+        player.playSound(SoundEvents.AMETHYST_BLOCK_RESONATE);
         return InteractionResultHolder.success(itemStack);
     }
 }
