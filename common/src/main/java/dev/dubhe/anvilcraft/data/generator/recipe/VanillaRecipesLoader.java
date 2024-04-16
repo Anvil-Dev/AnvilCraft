@@ -65,6 +65,14 @@ public class VanillaRecipesLoader {
             .define('B', ModItems.SAPPHIRE)
             .unlockedBy("hasitem", AnvilCraftDatagen.has(ModItems.SEA_HEART_SHELL))
             .save(provider);
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.CIRCUIT_BOARD)
+                .pattern("BCB")
+                .pattern("AAA")
+                .define('A', ModItems.HARDEND_RESIN)
+                .define('B', Items.COPPER_INGOT)
+                .define('C', Items.QUARTZ)
+                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModItems.HARDEND_RESIN))
+                .save(provider);
 
         SimpleCookingRecipeBuilder.campfireCooking(Ingredient.of(ModItemTags.DOUGH), RecipeCategory.FOOD,
                 Items.BREAD, 0.35f, 600)

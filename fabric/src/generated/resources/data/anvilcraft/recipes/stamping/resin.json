@@ -1,0 +1,63 @@
+{
+  "type": "anvilcraft:anvil_processing",
+  "icon": {
+    "count": 2,
+    "item": "anvilcraft:wood_fiber"
+  },
+  "outcomes": [
+    {
+      "type": "spawn_item",
+      "chance": 1.0,
+      "offset": [
+        0.0,
+        -0.75,
+        0.0
+      ],
+      "result": {
+        "count": 2,
+        "item": "anvilcraft:wood_fiber"
+      }
+    },
+    {
+      "type": "spawn_item",
+      "chance": 0.25,
+      "offset": [
+        0.0,
+        -0.75,
+        0.0
+      ],
+      "result": {
+        "item": "anvilcraft:resin"
+      }
+    }
+  ],
+  "predicates": [
+    {
+      "type": "has_block",
+      "match_block": {
+        "blocks": [
+          "anvilcraft:stamping_platform"
+        ]
+      },
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ]
+    },
+    {
+      "type": "has_item_ingredient",
+      "match_item": {
+        "count": {
+          "min": 1
+        },
+        "tag": "minecraft:logs"
+      },
+      "offset": [
+        0.0,
+        -0.75,
+        0.0
+      ]
+    }
+  ]
+}

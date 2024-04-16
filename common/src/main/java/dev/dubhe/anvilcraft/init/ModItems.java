@@ -440,6 +440,15 @@ public class ModItems {
             .save(provider)
         )
         .register();
+    public static final ItemEntry<Item> HARDEND_RESIN = REGISTRATE
+            .item("hardend_resin", Item::new)
+            .register();
+    public static final ItemEntry<Item> WOOD_FIBER = REGISTRATE
+            .item("wood_fiber", Item::new)
+            .register();
+    public static final ItemEntry<Item> CIRCUIT_BOARD = REGISTRATE
+            .item("circuit_board", Item::new)
+            .register();
     public static final ItemEntry<Item> PRISMARINE_BLADE = REGISTRATE
         .item("prismarine_blade", Item::new)
         .register();
