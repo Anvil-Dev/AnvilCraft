@@ -15,7 +15,7 @@
   },
 
   "license": "${mod_license}",
-  "icon": "assets/anvilcraft/textures/icon.png",
+  "icon": "pack.png",
 
   "environment": "*",
   "entrypoints": {
