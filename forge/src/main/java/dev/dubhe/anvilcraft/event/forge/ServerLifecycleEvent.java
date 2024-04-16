@@ -9,6 +9,7 @@ import net.minecraft.server.packs.resources.CloseableResourceManager;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
+import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
@@ -47,6 +48,15 @@ public class ServerLifecycleEvent {
      */
     @SubscribeEvent
     public static void onServerStopped(@NotNull ServerStoppedEvent event) {
+        PowerGrid.isServerClosing = false;
         PowerGrid.clear();
+    }
+
+    /**
+     * @param event 服务器关闭事件
+     */
+    @SubscribeEvent
+    public static void onServerStopping(ServerStoppingEvent event) {
+        PowerGrid.isServerClosing = true;
     }
 }

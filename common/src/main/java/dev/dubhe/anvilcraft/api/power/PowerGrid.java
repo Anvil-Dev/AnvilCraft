@@ -2,11 +2,13 @@ package dev.dubhe.anvilcraft.api.power;
 
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -16,7 +18,8 @@ import java.util.Set;
  */
 @SuppressWarnings("unused")
 public class PowerGrid {
-    public static final Set<PowerGrid> GRID_SET = new HashSet<>();
+    public static boolean isServerClosing = false;
+    public static final Set<PowerGrid> GRID_SET = Collections.synchronizedSet(new HashSet<>());
     public static final int GRID_TICK = 40;
     public static int cooldown = 0;
     @Getter
@@ -50,10 +53,11 @@ public class PowerGrid {
      * 电力刻
      */
     protected void tick() {
-        this.flush();
+        if (this.flush()) return;
         if (this.isWork()) {
             int remainder = this.generate - this.consume;
             for (IPowerStorage storage : storages) {
+                if (checkRemove(storage)) return;
                 remainder = storage.insert(remainder);
                 if (remainder <= 0) break;
             }
@@ -72,15 +76,29 @@ public class PowerGrid {
         }
     }
 
-    private void flush() {
+    private boolean checkRemove(IPowerComponent component) {
+        if (component instanceof BlockEntity entity && entity.isRemoved()) {
+            PowerGrid.removeComponent(component);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean flush() {
         this.generate = 0;
         this.consume = 0;
+        for (IPowerTransmitter transmitter : transmitters) {
+            if (checkRemove(transmitter)) return true;
+        }
         for (IPowerProducer producer : this.producers) {
+            if (checkRemove(producer)) return true;
             this.generate += producer.getOutputPower();
         }
         for (IPowerConsumer consumer : this.consumers) {
+            if (checkRemove(consumer)) return true;
             this.consume += consumer.getInputPower();
         }
+        return false;
     }
 
     public boolean isWork() {
@@ -136,6 +154,7 @@ public class PowerGrid {
      * @param components 元件
      */
     public static void removeComponent(IPowerComponent @NotNull ... components) {
+        if (PowerGrid.isServerClosing) return;
         for (IPowerComponent component : components) {
             PowerGrid grid = component.getGrid();
             if (grid == null) return;

@@ -12,7 +12,7 @@ public interface IPowerTransmitter extends IPowerComponent {
     @Override
     default VoxelShape getRange() {
         int range = AnvilCraft.config.powerTransmitterRange;
-        return Shapes.box(-range,  -range,  -range, range, range, range);
+        return Shapes.box(-range, -range, -range, range + 1, range + 1, range + 1);
     }
 
     @Override
