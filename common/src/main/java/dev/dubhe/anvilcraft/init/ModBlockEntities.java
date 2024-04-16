@@ -6,7 +6,7 @@ import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CorruptedBeaconBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeDynamoBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeaterBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.RemoteTransmissionPoleBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CorruptedBeaconRenderer;
 
@@ -47,9 +47,9 @@ public class ModBlockEntities {
         .validBlock(ModBlocks.HEATER)
         .register();
 
-    public static final BlockEntityEntry<RemoteTransmissionPoleBlockEntity> REMOTE_TRANSMISSION_POLE = REGISTRATE
-        .blockEntity("remote_transmission_pole", RemoteTransmissionPoleBlockEntity::createBlockEntity)
-        .validBlock(ModBlocks.REMOTE_TRANSMISSION_POLE)
+    public static final BlockEntityEntry<TransmissionPoleBlockEntity> REMOTE_TRANSMISSION_POLE = REGISTRATE
+        .blockEntity("transmission_pole", TransmissionPoleBlockEntity::createBlockEntity)
+        .validBlock(ModBlocks.TRANSMISSION_POLE)
         .register();
 
     public static void register() {

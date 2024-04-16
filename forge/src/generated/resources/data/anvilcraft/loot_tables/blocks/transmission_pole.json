@@ -11,11 +11,11 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "anvilcraft:remote_transmission_pole"
+          "name": "anvilcraft:transmission_pole"
         }
       ],
       "rolls": 1.0
     }
   ],
-  "random_sequence": "anvilcraft:blocks/remote_transmission_pole"
+  "random_sequence": "anvilcraft:blocks/transmission_pole"
 }

@@ -12,7 +12,7 @@ import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
 import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
-import dev.dubhe.anvilcraft.block.RemoteTransmissionPoleBlock;
+import dev.dubhe.anvilcraft.block.TransmissionPoleBlock;
 import dev.dubhe.anvilcraft.block.RoyalAnvilBlock;
 import dev.dubhe.anvilcraft.block.RoyalGrindstone;
 import dev.dubhe.anvilcraft.block.RoyalSmithingTableBlock;
@@ -385,6 +385,8 @@ public class ModBlocks {
         .blockstate((ctx, provider) -> {
         })
         .simpleItem()
+        .defaultLoot()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
     public static final BlockEntry<? extends Block> HEATER = REGISTRATE
         .block("heater", HeaterBlock::new)
@@ -393,6 +395,8 @@ public class ModBlocks {
         .blockstate((ctx, provider) -> {
         })
         .simpleItem()
+        .defaultLoot()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
             .pattern("ABA")
             .pattern("BCB")
@@ -405,8 +409,8 @@ public class ModBlocks {
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.CAPACITOR), AnvilCraftDatagen.has(ModItemTags.CAPACITOR))
             .save(provider))
         .register();
-    public static final BlockEntry<? extends Block> REMOTE_TRANSMISSION_POLE = REGISTRATE
-        .block("remote_transmission_pole", RemoteTransmissionPoleBlock::new)
+    public static final BlockEntry<? extends Block> TRANSMISSION_POLE = REGISTRATE
+        .block("transmission_pole", TransmissionPoleBlock::new)
         .initialProperties(ModBlocks.MAGNET_BLOCK)
         .properties(BlockBehaviour.Properties::noOcclusion)
         .blockstate((ctx, provider) -> {
@@ -415,6 +419,8 @@ public class ModBlocks {
         .model((ctx, provider) -> {
         })
         .build()
+        .defaultLoot()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
             .pattern("A")
             .pattern("B")

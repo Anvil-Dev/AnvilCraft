@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.block.entity;
 import dev.dubhe.anvilcraft.api.power.IPowerTransmitter;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
-import dev.dubhe.anvilcraft.block.RemoteTransmissionPoleBlock;
+import dev.dubhe.anvilcraft.block.TransmissionPoleBlock;
 import dev.dubhe.anvilcraft.block.state.Half;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
@@ -17,20 +17,20 @@ import org.jetbrains.annotations.NotNull;
 
 @Getter
 @Setter
-public class RemoteTransmissionPoleBlockEntity extends BlockEntity implements IPowerTransmitter {
+public class TransmissionPoleBlockEntity extends BlockEntity implements IPowerTransmitter {
     private PowerGrid grid;
 
-    public RemoteTransmissionPoleBlockEntity(BlockPos pos, BlockState blockState) {
+    public TransmissionPoleBlockEntity(BlockPos pos, BlockState blockState) {
         this(ModBlockEntities.REMOTE_TRANSMISSION_POLE.get(), pos, blockState);
     }
 
-    public static @NotNull RemoteTransmissionPoleBlockEntity createBlockEntity(
+    public static @NotNull TransmissionPoleBlockEntity createBlockEntity(
         BlockEntityType<?> type, BlockPos pos, BlockState blockState
     ) {
-        return new RemoteTransmissionPoleBlockEntity(type, pos, blockState);
+        return new TransmissionPoleBlockEntity(type, pos, blockState);
     }
 
-    private RemoteTransmissionPoleBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+    private TransmissionPoleBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
 
@@ -43,8 +43,8 @@ public class RemoteTransmissionPoleBlockEntity extends BlockEntity implements IP
     public @NotNull PowerComponentType getComponentType() {
         if (this.getLevel() == null) return PowerComponentType.INVALID;
         BlockState state = this.getLevel().getBlockState(this.getPos());
-        if (!state.is(ModBlocks.REMOTE_TRANSMISSION_POLE.get())) return PowerComponentType.INVALID;
-        if (state.getValue(RemoteTransmissionPoleBlock.HALF) != Half.TOP) return PowerComponentType.INVALID;
+        if (!state.is(ModBlocks.TRANSMISSION_POLE.get())) return PowerComponentType.INVALID;
+        if (state.getValue(TransmissionPoleBlock.HALF) != Half.TOP) return PowerComponentType.INVALID;
         return PowerComponentType.TRANSMITTER;
     }
 }

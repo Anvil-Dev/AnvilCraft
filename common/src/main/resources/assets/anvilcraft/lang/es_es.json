@@ -70,7 +70,7 @@
   "item.anvilcraft.topaz": "Topacio",
   "item.anvilcraft.utusan": "Polvo Wudu",
   "item.anvilcraft.utusan_raw": "Polvo Wudu crudo",
-  "item.minecraft.smithing_template": "Plantilla de mejora de acero real",
+  "item.anvilcraft.royal_steel_upgrade_smithing_template": "Plantilla de mejora de acero real",
   "itemGroup.anvilcraft.block": "Artesanía de yunque - Bloque",
   "itemGroup.anvilcraft.item": "Artesanía de yunque - Ítem",
   "screen.anvilcraft.button.direction": "Dirección de salida: %s",

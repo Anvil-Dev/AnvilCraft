@@ -70,7 +70,7 @@
   "item.anvilcraft.topaz": "黃玉",
   "item.anvilcraft.utusan": "五毒散",
   "item.anvilcraft.utusan_raw": "五毒散（生）",
-  "item.minecraft.smithing_template": "皇家鍛造模板",
+  "item.anvilcraft.royal_steel_upgrade_smithing_template": "皇家鍛造模板",
   "itemGroup.anvilcraft.block": "鐵砧工藝 - 方塊",
   "itemGroup.anvilcraft.item": "鐵砧工藝 - 物品",
   "screen.anvilcraft.button.direction": "輸出方向：%s",

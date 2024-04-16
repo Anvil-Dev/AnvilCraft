@@ -70,7 +70,7 @@
   "item.anvilcraft.topaz": "Topaze",
   "item.anvilcraft.utusan": "Poudre wudu",
   "item.anvilcraft.utusan_raw": "Poudre wudu (cru)",
-  "item.minecraft.smithing_template": "Modèle de forge d'acier royal",
+  "item.anvilcraft.royal_steel_upgrade_smithing_template": "Modèle de forge d'acier royal",
   "itemGroup.anvilcraft.block": "Artisanat d'enclume - Blocs",
   "itemGroup.anvilcraft.item": "Artisanat d'enclume - Objet",
   "screen.anvilcraft.button.direction": "Output Direction: %s",

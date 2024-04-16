@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
-import dev.dubhe.anvilcraft.block.entity.RemoteTransmissionPoleBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.state.Half;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -23,10 +23,10 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
-public class RemoteTransmissionPoleBlock extends BaseEntityBlock {
+public class TransmissionPoleBlock extends BaseEntityBlock {
     public static final EnumProperty<Half> HALF = EnumProperty.create("half", Half.class);
 
-    public RemoteTransmissionPoleBlock(Properties properties) {
+    public TransmissionPoleBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any().setValue(HALF, Half.BOTTOM));
     }
@@ -62,13 +62,13 @@ public class RemoteTransmissionPoleBlock extends BaseEntityBlock {
     public void playerWillDestroy(
         @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player
     ) {
-        if (!level.isClientSide && player.isCreative()) {
-            RemoteTransmissionPoleBlock.preventCreativeDropFromOtherPart(level, pos, state, player);
+        if (!level.isClientSide) {
+            TransmissionPoleBlock.preventDropFromOtherPart(level, pos, state, player);
         }
         super.playerWillDestroy(level, pos, state, player);
     }
 
-    private static void preventCreativeDropFromOtherPart(
+    private static void preventDropFromOtherPart(
         Level level, BlockPos pos, @NotNull BlockState state, Player player
     ) {
         BlockPos blockPos;
@@ -118,7 +118,7 @@ public class RemoteTransmissionPoleBlock extends BaseEntityBlock {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
-        return new RemoteTransmissionPoleBlockEntity(pos, state);
+        return new TransmissionPoleBlockEntity(pos, state);
     }
 
     @Override

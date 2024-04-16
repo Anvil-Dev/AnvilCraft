@@ -4,6 +4,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.SmithingTemplateItem;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -30,5 +31,10 @@ public class RoyalUpgradeTemplateItem extends SmithingTemplateItem {
     public RoyalUpgradeTemplateItem(@SuppressWarnings("unused") Properties properties) {
         super(APPLIES_TO, UPGRADE_INGREDIENTS, UPGRADE, UPGRADE_BASE_SLOT_DESCRIPTION,
             UPGRADE_ADDITIONS_SLOT_DESCRIPTION, List.of(EMPTY_SLOT_PICKAXE), List.of(EMPTY_SLOT_INGOT));
+    }
+
+    @Override
+    public @NotNull String getDescriptionId() {
+        return this.getOrCreateDescriptionId();
     }
 }

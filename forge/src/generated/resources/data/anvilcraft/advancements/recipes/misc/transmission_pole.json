@@ -39,7 +39,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:remote_transmission_pole"
+        "recipe": "anvilcraft:transmission_pole"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -54,7 +54,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:remote_transmission_pole"
+      "anvilcraft:transmission_pole"
     ]
   },
   "sends_telemetry_event": false
