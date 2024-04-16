@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
@@ -62,6 +63,13 @@ public class StampingRecipesLoader {
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.PRISMARINE_CLUSTER.get()),
                 AnvilCraftDatagen.has(ModItems.PRISMARINE_CLUSTER))
             .save(provider, AnvilCraft.of("stamping/geode_2_jewel"));
+        AnvilRecipe.Builder.create(RecipeCategory.MISC)
+                .hasBlock(ModBlocks.STAMPING_PLATFORM.get())
+                .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), ItemTags.LOGS)
+                .spawnItem(new Vec3(0.0, -0.75, 0.0), ModItems.WOOD_FIBER, 2)
+                .spawnItem(new Vec3(0.0, -0.75, 0.0), 0.25, ModItems.RESIN)
+                .unlockedBy("hasitem", AnvilCraftDatagen.has(ItemTags.LOGS))
+                .save(provider, AnvilCraft.of("stamping/resin"));
     }
 
     /**
