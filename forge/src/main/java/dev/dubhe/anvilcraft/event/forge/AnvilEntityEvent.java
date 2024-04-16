@@ -26,7 +26,7 @@ public class AnvilEntityEvent {
      * @param e 铁砧伤害实体事件
      */
     @SubscribeEvent
-    public static void hurt(AnvilEvent.@NotNull HurtEntity e) {
+    public static void hurt(@NotNull AnvilEvent.HurtEntity e) {
         AnvilCraft.EVENT_BUS.post(
             new AnvilHurtEntityEvent(e.getEntity(), e.getPos(), e.getLevel(), e.getHurtedEntity(), e.getDamage())
         );
