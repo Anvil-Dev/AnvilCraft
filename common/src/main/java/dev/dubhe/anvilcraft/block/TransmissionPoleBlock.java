@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.state.Half;
 import net.minecraft.core.BlockPos;
@@ -23,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
-public class TransmissionPoleBlock extends BaseEntityBlock {
+public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRemovable {
     public static final EnumProperty<Half> HALF = EnumProperty.create("half", Half.class);
 
     public TransmissionPoleBlock(Properties properties) {

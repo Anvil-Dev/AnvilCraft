@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.CreativeDynamoBlockEntity;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.network.SliderInitPack;
@@ -23,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
-public class CreativeDynamoBlock extends BaseEntityBlock {
+public class CreativeDynamoBlock extends BaseEntityBlock implements IHammerRemovable {
     public static final VoxelShape AABB = Block.box(0, 0, 0, 16, 4, 16);
 
     public CreativeDynamoBlock(Properties properties) {

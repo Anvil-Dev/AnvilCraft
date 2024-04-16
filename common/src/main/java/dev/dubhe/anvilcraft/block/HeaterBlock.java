@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.HeaterBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import net.minecraft.core.BlockPos;
@@ -20,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
-public class HeaterBlock extends BaseEntityBlock {
+public class HeaterBlock extends BaseEntityBlock implements IHammerRemovable {
     public static final BooleanProperty LIT = RedstoneTorchBlock.LIT;
 
     public HeaterBlock(Properties properties) {

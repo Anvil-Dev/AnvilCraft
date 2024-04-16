@@ -20,6 +20,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Equipable;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Vanishable;
@@ -29,7 +30,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
-public class AnvilHammerItem extends Item implements Vanishable {
+public class AnvilHammerItem extends Item implements Vanishable, Equipable {
     private long lastDropAnvilTime = 0;
     private final Multimap<Attribute, AttributeModifier> defaultModifiers;
 
@@ -167,5 +168,10 @@ public class AnvilHammerItem extends Item implements Vanishable {
             return this.defaultModifiers;
         }
         return super.getDefaultAttributeModifiers(slot);
+    }
+
+    @Override
+    public @NotNull EquipmentSlot getEquipmentSlot() {
+        return EquipmentSlot.HEAD;
     }
 }
