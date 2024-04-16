@@ -131,6 +131,19 @@ public class PowerGrid {
     }
 
     /**
+     * 移除除电网元件
+     *
+     * @param components 元件
+     */
+    public static void removeComponent(IPowerComponent @NotNull ... components) {
+        for (IPowerComponent component : components) {
+            PowerGrid grid = component.getGrid();
+            if (grid == null) return;
+            grid.remove(component);
+        }
+    }
+
+    /**
      * 移除电力元件
      *
      * @param components 电力元件

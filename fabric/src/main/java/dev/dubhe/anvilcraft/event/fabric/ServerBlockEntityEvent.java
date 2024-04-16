@@ -20,10 +20,7 @@ public class ServerBlockEntityEvent {
 
     private static void onUnload(BlockEntity entity, ServerLevel level) {
         if (entity instanceof IPowerComponent component) {
-            PowerGrid grid = component.getGrid();
-            if (grid == null) return;
-            grid.remove(component);
-            component.setGrid(grid);
+            PowerGrid.removeComponent(component);
         }
     }
 }
