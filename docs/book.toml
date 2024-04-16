@@ -1,0 +1,6 @@
+[book]
+authors = ["Gugle"]
+language = "zh"
+multilingual = false
+src = "src"
+title = "铁砧工艺：原版科技"
