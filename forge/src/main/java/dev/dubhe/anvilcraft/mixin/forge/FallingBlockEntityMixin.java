@@ -1,7 +1,5 @@
 package dev.dubhe.anvilcraft.mixin.forge;
 
-import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.event.entity.AnvilHurtEntityEvent;
 import dev.dubhe.anvilcraft.api.event.forge.AnvilEvent;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.core.BlockPos;
@@ -60,7 +58,7 @@ abstract class FallingBlockEntityMixin extends Entity {
         method = "tick",
         at = @At(
             value = "INVOKE",
-            ordinal = 10,
+            ordinal = 16,
             target = "Lnet/minecraft/world/entity/item/FallingBlockEntity;level()Lnet/minecraft/world/level/Level;"
         ),
         locals = LocalCapture.CAPTURE_FAILHARD
@@ -70,19 +68,18 @@ abstract class FallingBlockEntityMixin extends Entity {
         if (!this.blockState.is(BlockTags.ANVIL)) return;
         FallingBlockEntity entity = (FallingBlockEntity) (Object) this;
         AnvilEvent.OnLand event = new AnvilEvent.OnLand(this.level(), blockPos, entity, this.anvilcraft$fallDistance);
-        MinecraftForge.EVENT_BUS.post(event, (listener, event1) -> {
-            if (event1 instanceof AnvilEvent.OnLand onLand && onLand.isAnvilDamage()) {
-                BlockState state = this.blockState.is(ModBlocks.ROYAL_ANVIL.get())
-                    ? this.blockState
-                    : AnvilBlock.damage(this.blockState);
-                if (state != null) this.level().setBlockAndUpdate(blockPos, state);
-                else {
-                    this.level().setBlockAndUpdate(blockPos, Blocks.AIR.defaultBlockState());
-                    if (!this.isSilent()) this.level().levelEvent(1029, this.getOnPos(), 0);
-                    this.cancelDrop = true;
-                }
+        MinecraftForge.EVENT_BUS.post(event);
+        if (event.isAnvilDamage()) {
+            BlockState state = this.blockState.is(ModBlocks.ROYAL_ANVIL.get())
+                ? this.blockState
+                : AnvilBlock.damage(this.blockState);
+            if (state != null) this.level().setBlockAndUpdate(blockPos, state);
+            else {
+                this.level().setBlockAndUpdate(blockPos, Blocks.AIR.defaultBlockState());
+                if (!this.isSilent()) this.level().levelEvent(1029, this.getOnPos(), 0);
+                this.cancelDrop = true;
             }
-        });
+        }
     }
 
     @SuppressWarnings("UnreachableCode")
