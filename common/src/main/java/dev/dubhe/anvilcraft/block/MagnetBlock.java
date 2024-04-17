@@ -1,6 +1,9 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.entity.AscendingBlockEntity;
+import dev.dubhe.anvilcraft.init.ModBlocks;
+import dev.dubhe.anvilcraft.init.ModEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
@@ -77,31 +80,42 @@ public class MagnetBlock extends Block {
         }
     }
 
-    private void attract(BlockState state, @NotNull Level level, @NotNull BlockPos magnet) {
+    private void attract(BlockState state, @NotNull Level level, @NotNull BlockPos magnetPos) {
         if (level.isClientSide()) return;
         if (!(state.getBlock() instanceof MagnetBlock) || state.getValue(LIT)) return;
-        if (level.getBlockState(magnet.below()).is(BlockTags.ANVIL)) return;
+        if (level.getBlockState(magnetPos.below()).is(BlockTags.ANVIL)) return;
         int distance = AnvilCraft.config.magnetAttractsDistance;
-        BlockPos anvil = magnet;
+        BlockPos currentPos = magnetPos;
         checkAnvil:
         for (int i = 0; i < distance; i++) {
-            anvil = anvil.below();
-            BlockState state1 = level.getBlockState(anvil);
+            currentPos = currentPos.below();
+            BlockState state1 = level.getBlockState(currentPos);
             if (state1.is(BlockTags.ANVIL)) {
-                level.setBlockAndUpdate(magnet.below(), state1);
-                level.setBlockAndUpdate(anvil, Blocks.AIR.defaultBlockState());
+                //level.setBlock(currentPos, state1.getFluidState().createLegacyBlock(), 3);
+                AscendingBlockEntity.ascend(level, currentPos, state1);
                 break;
             }
-            List<FallingBlockEntity> entities = level.getEntitiesOfClass(FallingBlockEntity.class, new AABB(anvil));
+
+            List<AscendingBlockEntity> ascendingBlockEntities = level.getEntitiesOfClass(
+                    AscendingBlockEntity.class,
+                    new AABB(currentPos)
+            );
+            if (!ascendingBlockEntities.isEmpty()) return;
+
+            List<FallingBlockEntity> entities = level.getEntitiesOfClass(
+                    FallingBlockEntity.class,
+                    new AABB(currentPos)
+            );
             for (FallingBlockEntity entity : entities) {
+                if (entity instanceof AscendingBlockEntity) continue;
                 BlockState state2 = entity.getBlockState();
                 if (state2.is(BlockTags.ANVIL)) {
-                    level.setBlockAndUpdate(magnet.below(), state2);
                     entity.remove(Entity.RemovalReason.DISCARDED);
+                    AscendingBlockEntity.ascend(level, currentPos, state2);
                     break checkAnvil;
                 }
             }
-            if (!level.isEmptyBlock(anvil)) return;
+            if (!level.isEmptyBlock(currentPos)) return;
         }
     }
 

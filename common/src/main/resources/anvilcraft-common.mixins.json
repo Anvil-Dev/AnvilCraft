@@ -15,7 +15,8 @@
     "DispenseItemWaterBottleBehaviorMixin",
     "ItemEntityMixin",
     "SolidBucketItemMixin",
-    "accessor.BaseSpawnerAccessor"
+    "accessor.BaseSpawnerAccessor",
+    "accessor.FallingBlockEntityAccessor"
   ],
   "client": [
     "LevelRendererMixin"
