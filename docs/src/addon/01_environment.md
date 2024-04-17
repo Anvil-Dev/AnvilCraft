@@ -8,7 +8,7 @@
 
 ## 二、从附属模板创建仓库
 
-1. 打开 [附属模板仓库](https://github.com/Gu-ZT/AnvilCraftMod-Addon-Example) ，单击左上角的 `Use this template`
+1. 打开 [附属模板仓库](https://github.com/Gu-ZT/AnvilCraftMod-Addon-Example) ，单击右上角的 `Use this template`
    ，选择 `Create a new repository` ;
 2. 在新打开的页面输入附属模组的相关信息，例如名称和简介，我们推荐按照 `AnvilCraft-${附属模组名称}`
    的格式命名，例如 `AnvilCraft-Demo` ；
@@ -51,18 +51,18 @@
     * `forge/src/main/java`
     * `fabric/src/main/java`
     * 例如：`dev.anvilcraft.demo`
-4. 修改 `ExampleMod.class` 内的 `MOD_ID` 为你自己的 mod id
+4. 修改 `ExampleMod.java` 内的 `MOD_ID` 为你自己的 mod id
     * 例如：`anvilcraft_demo`
-5. 修改 `ExampleMod.class` 为你自己的 MOD 类名
-    * 例如：`AnvilCraftDemo.class`
-6. 修改 `ExampleModFabric.class` 为你自己的 MOD 类名
-    * 例如：`AnvilCraftDemoFabric.class`
-7. 修改 `ExampleModForge.class` 为你自己的 MOD 类名
-    * 例如：`AnvilCraftDemoForge.class`
-8. 修改 `ExampleModForge.class` 为你自己的 MOD 类名
-    * 例如：`AnvilCraftDemoForge.class`
-9. 修改 `ExampleModDatagen.class` 为你自己的 MOD 类名
-    * 例如：`AnvilCraftDemoDatagen.class`
+5. 修改 `ExampleMod.java` 为你自己的 MOD 类名
+    * 例如：`AnvilCraftDemo.java`
+6. 修改 `ExampleModFabric.java` 为你自己的 MOD 类名
+    * 例如：`AnvilCraftDemoFabric.java`
+7. 修改 `ExampleModForge.java` 为你自己的 MOD 类名
+    * 例如：`AnvilCraftDemoForge.java`
+8. 修改 `ExampleModForge.java` 为你自己的 MOD 类名
+    * 例如：`AnvilCraftDemoForge.java`
+9. 修改 `ExampleModDatagen.java` 为你自己的 MOD 类名
+    * 例如：`AnvilCraftDemoDatagen.java`
 10. 修改 `common/src/main/resources/anvilcraft_addon_example.accesswidener` 为你自己的 MOD accesswidener 名称
     * 例如：`fabric/src/main/resources/anvilcraft_demo.accesswidener`
 11. 修改 `common/src/main/resources/anvilcraft_addon_example-common.mixins.json` 为你自己的 MOD mixins.json 名称
@@ -70,12 +70,12 @@
 12. 修改 `fabric/src/main/resources/anvilcraft_addon_example.mixins.json` 为你自己的 MOD mixins.json 名称
     * 例如：`fabric/src/main/resources/anvilcraft_demo.mixins.json`
 13. 修改 `forge/src/main/resources/anvilcraft_addon_example.mixins.json` 为你自己的 MOD mixins.json 名称
-   * 例如：`forge/src/main/resources/anvilcraft_demo.mixins.json`
-15. 修改 `fabric/src/main/resources/fabric.mod.json`
-16. 修改 `common/src/main/resources/assets/anvilcraft_addon_example` 路径名为你自己的 assets 命名空间
+    * 例如：`forge/src/main/resources/anvilcraft_demo.mixins.json`
+14. 修改 `fabric/src/main/resources/fabric.mod.json`
+15. 修改 `common/src/main/resources/assets/anvilcraft_addon_example` 路径名为你自己的 assets 命名空间
     * 例如：`common/src/main/resources/assets/anvilcraft_demo`
-17. 重载 Gradle 脚本
-18. 运行 `Tasks -> loom -> dataCopy` 任务
-19. 运行 `Tasks -> loom -> genSources` 任务
-20. 重载 Gradle 脚本
-21. 至此开发环境的准备工作已全部就绪
+16. 重载 Gradle 脚本
+17. 运行 `Tasks -> loom -> dataCopy` 任务
+18. 运行 `Tasks -> loom -> genSources` 任务
+19. 重载 Gradle 脚本
+20. 至此开发环境的准备工作已全部就绪
