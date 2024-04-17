@@ -20,7 +20,7 @@ public class PowerGridRenderer {
     public static void render(PoseStack poseStack, VertexConsumer consumer, double camX, double camY, double camZ) {
         if (Minecraft.getInstance().level == null) return;
         RandomSource random = Minecraft.getInstance().level.random;
-        for (PowerGrid grid : PowerGrid.GRID_SET) {
+        for (PowerGrid grid : PowerGrid.getGridSetClient()) {
             random.setSeed(grid.hashCode());
             PowerGridRenderer.renderOutline(
                 poseStack, consumer, camX, camY, camZ,

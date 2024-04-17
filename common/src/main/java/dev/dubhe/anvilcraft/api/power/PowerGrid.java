@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.api.power;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -11,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -19,7 +21,9 @@ import java.util.Set;
 @SuppressWarnings("unused")
 public class PowerGrid {
     public static boolean isServerClosing = false;
-    public static final Set<PowerGrid> GRID_SET = Collections.synchronizedSet(new HashSet<>());
+    @Getter
+    private static Set<PowerGrid> gridSetClient = Collections.synchronizedSet(new HashSet<>());
+    public static final Set<PowerGrid> GRID_SET = new HashSet<>();
     public static final int GRID_TICK = 40;
     public static int cooldown = 0;
     @Getter
@@ -36,6 +40,20 @@ public class PowerGrid {
     private BlockPos pos = null;
 
     /**
+     * @return 获取电网中的元件数量
+     */
+    public int getComponentCount() {
+        return this.transmitters.size() + this.producers.size() + this.consumers.size() + this.storages.size();
+    }
+
+    /**
+     * @return 该电网是否为空电网
+     */
+    public boolean isEmpty() {
+        return this.getComponentCount() <= 0;
+    }
+
+    /**
      * 总电力刻
      */
     public static void tickGrid() {
@@ -43,10 +61,14 @@ public class PowerGrid {
             cooldown--;
             return;
         }
-        for (PowerGrid grid : PowerGrid.GRID_SET) {
+        Iterator<PowerGrid> iterator = PowerGrid.GRID_SET.iterator();
+        while (iterator.hasNext()) {
+            PowerGrid grid = iterator.next();
+            if (grid.isEmpty()) iterator.remove();
             grid.tick();
         }
         cooldown = GRID_TICK;
+        gridSetClient = Set.copyOf(GRID_SET);
     }
 
     /**
@@ -154,11 +176,15 @@ public class PowerGrid {
      * @param components 元件
      */
     public static void removeComponent(IPowerComponent @NotNull ... components) {
-        if (PowerGrid.isServerClosing) return;
-        for (IPowerComponent component : components) {
-            PowerGrid grid = component.getGrid();
-            if (grid == null) return;
-            grid.remove(component);
+        try {
+            if (PowerGrid.isServerClosing) return;
+            for (IPowerComponent component : components) {
+                PowerGrid grid = component.getGrid();
+                if (grid == null) return;
+                grid.remove(component);
+            }
+        } catch (Exception e) {
+            AnvilCraft.LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -168,15 +194,15 @@ public class PowerGrid {
      * @param components 电力元件
      */
     public void remove(IPowerComponent @NotNull ... components) {
-        Set<IPowerComponent> set = new HashSet<>();
+        Set<IPowerComponent> set = new LinkedHashSet<>();
+        this.transmitters.stream().filter(this::clearGrid).forEach(set::add);
+        this.transmitters.clear();
         this.storages.stream().filter(this::clearGrid).forEach(set::add);
         this.storages.clear();
         this.producers.stream().filter(this::clearGrid).forEach(set::add);
         this.producers.clear();
         this.consumers.stream().filter(this::clearGrid).forEach(set::add);
         this.consumers.clear();
-        this.transmitters.stream().filter(this::clearGrid).forEach(set::add);
-        this.transmitters.clear();
         for (IPowerComponent component : components) {
             set.remove(component);
         }
@@ -195,9 +221,13 @@ public class PowerGrid {
      * @param grid 电网
      */
     public void merge(@NotNull PowerGrid grid) {
+        grid.producers.forEach(producer -> producer.setGrid(this));
         this.producers.addAll(grid.producers);
+        grid.consumers.forEach(producer -> producer.setGrid(this));
         this.consumers.addAll(grid.consumers);
+        grid.storages.forEach(producer -> producer.setGrid(this));
         this.storages.addAll(grid.storages);
+        grid.transmitters.forEach(producer -> producer.setGrid(this));
         this.transmitters.addAll(grid.transmitters);
     }
 
@@ -206,10 +236,9 @@ public class PowerGrid {
      * @return 元件是否在电网范围内
      */
     public boolean isInRange(@NotNull IPowerComponent component) {
-        BlockPos vec3 = component.getPos();
-        BlockPos center = this.getPos();
+        BlockPos vec3 = component.getPos().subtract(this.getPos());
         VoxelShape range = Shapes.join(
-            this.range.move(center.getX(), center.getY(), center.getZ()),
+            this.range,
             component.getRange().move(vec3.getX(), vec3.getY(), vec3.getZ()),
             BooleanOp.AND
         );

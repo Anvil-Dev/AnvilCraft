@@ -42,9 +42,8 @@ public class TransmissionPoleBlockEntity extends BlockEntity implements IPowerTr
     @Override
     public @NotNull PowerComponentType getComponentType() {
         if (this.getLevel() == null) return PowerComponentType.INVALID;
-        BlockState state = this.getLevel().getBlockState(this.getPos());
-        if (!state.is(ModBlocks.TRANSMISSION_POLE.get())) return PowerComponentType.INVALID;
-        if (state.getValue(TransmissionPoleBlock.HALF) != Half.TOP) return PowerComponentType.INVALID;
+        if (!this.getBlockState().is(ModBlocks.TRANSMISSION_POLE.get())) return PowerComponentType.INVALID;
+        if (this.getBlockState().getValue(TransmissionPoleBlock.HALF) != Half.TOP) return PowerComponentType.INVALID;
         return PowerComponentType.TRANSMITTER;
     }
 }
