@@ -17,10 +17,12 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 public class RoyalAnvilScreen extends ItemCombinerScreen<RoyalAnvilMenu> {
-    private static final ResourceLocation ANVIL_LOCATION = AnvilCraft.of("textures/gui/container/royal_anvil.png");
-    private static final ResourceLocation TEXT_LOCATION = AnvilCraft.of("textures/gui/container/text_field.png");
-    private static final ResourceLocation TEXT_DISABLE_LOCATION = AnvilCraft
-        .of("textures/gui/container/text_field_disabled.png");
+    private static final ResourceLocation ANVIL_LOCATION =
+        AnvilCraft.of("textures/gui/container/smithing/background/royal_anvil.png");
+    private static final ResourceLocation TEXT_LOCATION =
+        AnvilCraft.of("textures/gui/container/smithing/text_field.png");
+    private static final ResourceLocation TEXT_DISABLE_LOCATION =
+        AnvilCraft.of("textures/gui/container/smithing/text_field_disabled.png");
     private EditBox name;
     private final Player player;
 

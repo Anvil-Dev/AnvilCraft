@@ -18,8 +18,8 @@ import java.util.function.Supplier;
 @Getter
 public class EnableFilterButton extends Button {
     private final Supplier<Boolean> filterEnabled;
-    private static final ResourceLocation YES = AnvilCraft.of("textures/gui/container/button_yes.png");
-    private static final ResourceLocation NO = AnvilCraft.of("textures/gui/container/button_no.png");
+    private static final ResourceLocation YES = AnvilCraft.of("textures/gui/container/machine/button_yes.png");
+    private static final ResourceLocation NO = AnvilCraft.of("textures/gui/container/machine/button_no.png");
     private static final MutableComponent defaultMessage = Component
         .translatable("screen.anvilcraft.button.record", Component.translatable("screen.anvilcraft.button.off"));
 

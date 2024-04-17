@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * 诅咒物品
  */
-public interface Cursed {
+public interface ICursed {
     /**
      * 执行效果
      *
@@ -29,7 +29,7 @@ public interface Cursed {
         MobEffectInstance slowness = new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 200, 1, false, true);
         MobEffectInstance hungry = new MobEffectInstance(MobEffects.HUNGER, 200, 1, false, true);
         player.addEffect((weakness));
-        int curedNumber = Cursed.hasCuredNumber(player);
+        int curedNumber = ICursed.hasCuredNumber(player);
         if (curedNumber > 8) {
             player.addEffect((slowness));
         }
@@ -49,7 +49,7 @@ public interface Cursed {
         int i = 0;
         for (int j = 0; j < inventory.getContainerSize(); ++j) {
             ItemStack itemStack = inventory.getItem(j);
-            if (!(itemStack.getItem() instanceof Cursed)) continue;
+            if (!(itemStack.getItem() instanceof ICursed)) continue;
             i += itemStack.getCount();
         }
         return i;

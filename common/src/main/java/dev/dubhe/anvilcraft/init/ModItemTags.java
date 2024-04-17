@@ -22,16 +22,12 @@ public class ModItemTags {
     public static final TagKey<Item> PLATES = bindC("plates");
     public static final TagKey<Item> GOLD_PLATES = bindC("gold_plates");
     public static final TagKey<Item> IRON_PLATES = bindC("iron_plates");
-    public static final TagKey<Item> ROYAL_STEEL_PICKAXE_BASE = bindMod("royal_steel_pickaxe_base");
+    public static final TagKey<Item> ROYAL_STEEL_PICKAXE_BASE = bind("royal_steel_pickaxe_base");
+    public static final TagKey<Item> CAPACITOR = bind("capacitor");
 
 
     private static @NotNull TagKey<Item> bindC(String id) {
         return TagKey.create(Registries.ITEM, new ResourceLocation("c", id));
-    }
-
-    @SuppressWarnings("SameParameterValue")
-    private static @NotNull TagKey<Item> bindMod(String id) {
-        return TagKey.create(Registries.ITEM, new ResourceLocation("anvilcraft", id));
     }
 
     private static @NotNull TagKey<Item> bind(String id) {

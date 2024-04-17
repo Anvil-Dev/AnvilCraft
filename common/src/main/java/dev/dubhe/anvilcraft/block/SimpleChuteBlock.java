@@ -102,7 +102,7 @@ public class SimpleChuteBlock extends BaseEntityBlock implements
         }
         if (!neighborPos.equals(pos.relative(state.getValue(FACING)))) return;
         BlockState blockState = level.getBlockState(neighborPos);
-        if (blockState.is(ModBlocks.CHUTE.get())) return;
+        if (!blockState.is(ModBlocks.CHUTE.get())) return;
         if (ChuteBlock.hasChuteFacing(level, neighborPos)) {
             BlockState newState = ModBlocks.SIMPLE_CHUTE.getDefaultState();
             newState = newState.setValue(SimpleChuteBlock.FACING, blockState.getValue(FACING))

@@ -39,7 +39,7 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
         }
     };
 
-    public ChuteBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
+    protected ChuteBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
 

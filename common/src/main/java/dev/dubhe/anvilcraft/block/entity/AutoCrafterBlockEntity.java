@@ -128,7 +128,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
     };
 
 
-    public AutoCrafterBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
+    protected AutoCrafterBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
 

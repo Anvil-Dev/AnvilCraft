@@ -10,6 +10,7 @@ public class ModFabricEvents {
         LootTableEvent.init();
         LightningEvent.init();
         AnvilEntityEvent.init();
+        ServerBlockEntityEvent.init();
         CommandEvent.init();
     }
 }

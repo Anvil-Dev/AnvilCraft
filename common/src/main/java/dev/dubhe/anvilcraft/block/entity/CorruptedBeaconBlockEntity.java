@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -33,14 +34,18 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
     int levels;
     private int lastCheckY;
 
-    public CorruptedBeaconBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
-        super(type, pos, blockState);
-    }
-
     public static @NotNull CorruptedBeaconBlockEntity createBlockEntity(
         BlockEntityType<?> type, BlockPos pos, BlockState blockState
     ) {
         return new CorruptedBeaconBlockEntity(type, pos, blockState);
+    }
+
+    public CorruptedBeaconBlockEntity(BlockPos pos, BlockState blockState) {
+        this(ModBlockEntities.CORRUPTED_BEACON.get(), pos, blockState);
+    }
+
+    private CorruptedBeaconBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+        super(type, pos, blockState);
     }
 
     /**

@@ -23,6 +23,9 @@
     "anvilcraft:ruby_block",
     "anvilcraft:sapphire_block",
     "anvilcraft:resin_block",
-    "anvilcraft:amber_block"
+    "anvilcraft:amber_block",
+    "anvilcraft:creative_dynamo",
+    "anvilcraft:heater",
+    "anvilcraft:transmission_pole"
   ]
 }

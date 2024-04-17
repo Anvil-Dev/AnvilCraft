@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "half=bottom": {
+      "model": "anvilcraft:block/transmission_pole_base"
+    },
+    "half=mid": {
+      "model": "anvilcraft:block/transmission_pole_mid"
+    },
+    "half=top": {
+      "model": "anvilcraft:block/transmission_pole_top"
+    }
+  }
+}

@@ -18,12 +18,12 @@ import java.util.Optional;
 public class OutputDirectionButton extends Button {
     private Direction direction;
     private final List<Direction> skip = new ArrayList<>();
-    private static final ResourceLocation UP = AnvilCraft.of("textures/gui/container/button_u.png");
-    private static final ResourceLocation DOWN = AnvilCraft.of("textures/gui/container/button_d.png");
-    private static final ResourceLocation EAST = AnvilCraft.of("textures/gui/container/button_e.png");
-    private static final ResourceLocation WEST = AnvilCraft.of("textures/gui/container/button_w.png");
-    private static final ResourceLocation SOUTH = AnvilCraft.of("textures/gui/container/button_s.png");
-    private static final ResourceLocation NORTH = AnvilCraft.of("textures/gui/container/button_n.png");
+    private static final ResourceLocation UP = AnvilCraft.of("textures/gui/container/machine/button_u.png");
+    private static final ResourceLocation DOWN = AnvilCraft.of("textures/gui/container/machine/button_d.png");
+    private static final ResourceLocation EAST = AnvilCraft.of("textures/gui/container/machine/button_e.png");
+    private static final ResourceLocation WEST = AnvilCraft.of("textures/gui/container/machine/button_w.png");
+    private static final ResourceLocation SOUTH = AnvilCraft.of("textures/gui/container/machine/button_s.png");
+    private static final ResourceLocation NORTH = AnvilCraft.of("textures/gui/container/machine/button_n.png");
     private static final MutableComponent defaultMessage =
         Component.translatable("screen.anvilcraft.button.direction",
             Component.translatable("screen.anvilcraft.button.direction.up"));

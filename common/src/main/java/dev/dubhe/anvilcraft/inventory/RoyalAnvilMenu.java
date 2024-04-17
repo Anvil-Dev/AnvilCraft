@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.inventory;
 
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
-import dev.dubhe.anvilcraft.item.Cursed;
+import dev.dubhe.anvilcraft.item.ICursed;
 import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EntityType;
@@ -161,7 +161,7 @@ public class RoyalAnvilMenu extends AnvilMenu {
         super.onTake(player, stack);
         Level level = player.level();
         if (level.isClientSide()) return;
-        int curedNumber = Cursed.hasCuredNumber(player);
+        int curedNumber = ICursed.hasCuredNumber(player);
         if (curedNumber <= 0) return;
         LightningBolt bolt = new LightningBolt(EntityType.LIGHTNING_BOLT, level);
         bolt.setPos(player.getX(), player.getY(), player.getZ());

@@ -8,6 +8,7 @@
     "FallingBlockEntityMixin",
     "LightningBoltMixin",
     "MinecraftServerMixin",
+    "LevelChunkMixin",
     "PistonMovingBlockEntityMixin"
   ],
   "client": [

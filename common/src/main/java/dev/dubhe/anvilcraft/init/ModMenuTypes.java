@@ -7,11 +7,13 @@ import dev.dubhe.anvilcraft.client.gui.screen.inventory.ChuteScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.RoyalAnvilScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.RoyalGrindstoneScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.RoyalSmithingScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.inventory.SliderScreen;
 import dev.dubhe.anvilcraft.inventory.AutoCrafterMenu;
 import dev.dubhe.anvilcraft.inventory.ChuteMenu;
 import dev.dubhe.anvilcraft.inventory.RoyalAnvilMenu;
 import dev.dubhe.anvilcraft.inventory.RoyalGrindstoneMenu;
 import dev.dubhe.anvilcraft.inventory.RoyalSmithingMenu;
+import dev.dubhe.anvilcraft.inventory.SliderMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
@@ -28,17 +30,33 @@ public class ModMenuTypes {
             .menu("chute", ChuteMenu::new, () -> ChuteScreen::new)
             .register();
     public static final MenuEntry<RoyalGrindstoneMenu> ROYAL_GRINDSTONE = REGISTRATE
-            .menu("royal_grindstone", (type, id, inventory) ->
-                new RoyalGrindstoneMenu(type, id, inventory), () -> RoyalGrindstoneScreen::new)
+            .menu(
+                "royal_grindstone",
+                (type, id, inv) -> new RoyalGrindstoneMenu(type, id, inv),
+                () -> RoyalGrindstoneScreen::new
+            )
             .register();
     public static final MenuEntry<RoyalAnvilMenu> ROYAL_ANVIL = REGISTRATE
-            .menu("royal_anvil", (type, id, inventory) ->
-                new RoyalAnvilMenu(id, inventory), () -> RoyalAnvilScreen::new)
+            .menu(
+                "royal_anvil",
+                (type, id, inv) -> new RoyalAnvilMenu(id, inv),
+                () -> RoyalAnvilScreen::new
+            )
             .register();
     public static final MenuEntry<RoyalSmithingMenu> ROYAL_SMITHING = REGISTRATE
-            .menu("royal_smithing_table", (type, id, inventory) ->
-                new RoyalSmithingMenu(type, id, inventory), () -> RoyalSmithingScreen::new)
+            .menu(
+                "royal_smithing_table",
+                (type, id, inv) -> new RoyalSmithingMenu(type, id, inv),
+                () -> RoyalSmithingScreen::new
+            )
             .register();
+    public static final MenuEntry<SliderMenu> SLIDER = REGISTRATE
+        .menu(
+            "slider",
+            (menuType, containerId, inventory) -> new SliderMenu(menuType, containerId),
+            () -> SliderScreen::new
+        )
+        .register();
 
     public static void register() {
     }

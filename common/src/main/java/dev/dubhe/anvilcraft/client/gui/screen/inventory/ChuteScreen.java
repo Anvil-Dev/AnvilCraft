@@ -20,7 +20,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.BiFunction;
 
 public class ChuteScreen extends BaseMachineScreen<ChuteMenu> implements IFilterScreen {
-    private static final ResourceLocation CONTAINER_LOCATION = AnvilCraft.of("textures/gui/container/chute.png");
+    private static final ResourceLocation CONTAINER_LOCATION =
+        AnvilCraft.of("textures/gui/container/machine/background/chute.png");
 
 
     BiFunction<Integer, Integer, EnableFilterButton> enableFilterButtonSupplier = this

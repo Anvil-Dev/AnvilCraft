@@ -9,7 +9,7 @@ displayName="${mod_name}"
 displayURL="${mod_url}"
 authors=""
 description="${mod_description}"
-logoFile="icon.png" #optional
+logoFile="pack.png" #optional
 #credits="Thanks for this example mod goes to Java"
 
 [[dependencies.${mod_id}]]

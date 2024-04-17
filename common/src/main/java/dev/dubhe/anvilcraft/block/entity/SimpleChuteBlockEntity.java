@@ -28,7 +28,7 @@ public class SimpleChuteBlockEntity extends BlockEntity {
         }
     };
 
-    public SimpleChuteBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+    protected SimpleChuteBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
 

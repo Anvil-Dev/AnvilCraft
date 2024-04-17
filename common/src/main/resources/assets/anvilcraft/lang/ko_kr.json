@@ -70,7 +70,7 @@
   "item.anvilcraft.topaz": "황옥",
   "item.anvilcraft.utusan": "오독가루",
   "item.anvilcraft.utusan_raw": "오독가루 (생)",
-  "item.minecraft.smithing_template": "로얄 스틸 단조 거푸집 공사",
+  "item.anvilcraft.royal_steel_upgrade_smithing_template": "로얄 스틸 단조 거푸집 공사",
   "itemGroup.anvilcraft.block": "모루 공예 - 블록",
   "itemGroup.anvilcraft.item": "모루 공예 - 물건",
   "screen.anvilcraft.button.direction": "출력 방향: %s",

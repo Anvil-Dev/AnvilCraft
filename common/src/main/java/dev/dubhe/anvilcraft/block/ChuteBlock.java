@@ -133,7 +133,7 @@ public class ChuteBlock extends BaseEntityBlock implements IHammerChangeableBloc
         }
         if (!neighborPos.equals(pos.relative(state.getValue(FACING)))) return;
         BlockState blockState = level.getBlockState(neighborPos);
-        if (blockState.is(ModBlocks.CHUTE.get())) return;
+        if (!blockState.is(ModBlocks.CHUTE.get())) return;
         if (hasChuteFacing(level, neighborPos)) {
             BlockState newState = ModBlocks.SIMPLE_CHUTE.getDefaultState();
             newState = newState.setValue(SimpleChuteBlock.FACING, blockState.getValue(FACING))
