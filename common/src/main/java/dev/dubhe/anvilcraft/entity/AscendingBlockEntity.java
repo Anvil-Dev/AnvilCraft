@@ -49,7 +49,14 @@ public class AscendingBlockEntity extends FallingBlockEntity {
         this.setDeltaMovement(this.getDeltaMovement().scale(0.98));
     }
 
-
+    /**
+     * 生成新的上升的方块
+     *
+     * @param level      世界
+     * @param pos        起点坐标
+     * @param blockState 起点方块
+     * @return 上升的方块
+     */
     public static AscendingBlockEntity ascend(Level level, BlockPos pos, BlockState blockState) {
         AscendingBlockEntity ascendingBlockEntity = new AscendingBlockEntity(
                 level,
