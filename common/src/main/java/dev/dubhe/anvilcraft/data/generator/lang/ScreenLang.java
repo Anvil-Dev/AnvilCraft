@@ -19,8 +19,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.button.off", "off");
         provider.add("screen.anvilcraft.button.on", "on");
         provider.add("screen.anvilcraft.button.record", "Retention item filtering: %s");
-        provider.add("screen.anvilcraft.button.record.tooltip",
-            "When activated, the synthesizer must fill all slots (including the cover) in order to start crafting");
+        provider.add("screen.anvilcraft.slot.disable.tooltip", "Use item clicks to set filter");
         provider.add("screen.anvilcraft.royal_grindstone.remove_curse_number", "Remove %i curse number");
         provider.add("screen.anvilcraft.royal_grindstone.remove_repair_cost", "Remove %i repair cost");
         provider.add("screen.anvilcraft.royal_grindstone.title", "Remove curse and repair cost");
