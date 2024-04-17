@@ -57,6 +57,19 @@ public class ChuteScreen extends BaseMachineScreen<ChuteMenu> implements IFilter
     }
 
     @Override
+    protected void renderTooltip(@NotNull GuiGraphics guiGraphics, int x, int y) {
+        super.renderTooltip(guiGraphics, x, y);
+        this.renderSlotTooltip(guiGraphics, x, y);
+    }
+
+    protected void renderSlotTooltip(@NotNull GuiGraphics guiGraphics, int x, int y) {
+        if (this.hoveredSlot == null) return;
+        if (!this.isFilterEnabled()) return;
+        if (!this.isSlotDisabled(this.hoveredSlot.getContainerSlot())) return;
+        guiGraphics.renderTooltip(this.font, Component.literal("screen.anvilcraft.slot.disable.tooltip"), x, y);
+    }
+
+    @Override
     public IFilterMenu getFilterMenu() {
         return menu;
     }
