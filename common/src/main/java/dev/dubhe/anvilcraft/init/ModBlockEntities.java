@@ -4,6 +4,7 @@ import com.tterrag.registrate.util.entry.BlockEntityEntry;
 import dev.dubhe.anvilcraft.block.entity.AutoCrafterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CorruptedBeaconBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeDynamoBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeaterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
@@ -50,6 +51,11 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<TransmissionPoleBlockEntity> REMOTE_TRANSMISSION_POLE = REGISTRATE
         .blockEntity("transmission_pole", TransmissionPoleBlockEntity::createBlockEntity)
         .validBlock(ModBlocks.TRANSMISSION_POLE)
+        .register();
+    public static final BlockEntityEntry<CrabTrapBlockEntity> CRAB_TRAP = REGISTRATE
+        .blockEntity("crab_trap", CrabTrapBlockEntity::createBlockEntity)
+        .onRegister(CrabTrapBlockEntity::onBlockEntityRegister)
+        .validBlock(ModBlocks.CRAB_TRAP)
         .register();
 
     public static void register() {

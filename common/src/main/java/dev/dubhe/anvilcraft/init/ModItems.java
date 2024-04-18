@@ -442,14 +442,14 @@ public class ModItems {
         )
         .register();
     public static final ItemEntry<Item> HARDEND_RESIN = REGISTRATE
-            .item("hardend_resin", Item::new)
-            .register();
+        .item("hardend_resin", Item::new)
+        .register();
     public static final ItemEntry<Item> WOOD_FIBER = REGISTRATE
-            .item("wood_fiber", Item::new)
-            .register();
+        .item("wood_fiber", Item::new)
+        .register();
     public static final ItemEntry<Item> CIRCUIT_BOARD = REGISTRATE
-            .item("circuit_board", Item::new)
-            .register();
+        .item("circuit_board", Item::new)
+        .register();
     public static final ItemEntry<Item> PRISMARINE_BLADE = REGISTRATE
         .item("prismarine_blade", Item::new)
         .register();
@@ -501,6 +501,11 @@ public class ModItems {
                 RegistrateRecipeProvider.has(Items.LIGHTNING_ROD))
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), RegistrateRecipeProvider.has(Items.IRON_INGOT))
             .save(provider))
+        .register();
+    public static final ItemEntry<Item> CRAB_CLAW = REGISTRATE
+        .item("crab_claw", Item::new)
+        .model((ctx, provider) -> {
+        })
         .register();
 
     public static void register() {

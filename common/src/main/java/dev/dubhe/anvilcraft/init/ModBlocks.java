@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
 import dev.dubhe.anvilcraft.block.ChuteBlock;
 import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
+import dev.dubhe.anvilcraft.block.CrabTrapBlock;
 import dev.dubhe.anvilcraft.block.CreativeDynamoBlock;
 import dev.dubhe.anvilcraft.block.FerriteCoreMagnetBlock;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
@@ -434,6 +435,24 @@ public class ModBlocks {
             )
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.LIGHTNING_ROD), AnvilCraftDatagen.has(Items.LIGHTNING_ROD))
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_BLOCK), AnvilCraftDatagen.has(Items.IRON_BLOCK))
+            .save(provider))
+        .register();
+    public static final BlockEntry<CrabTrapBlock> CRAB_TRAP = REGISTRATE
+        .block("crab_trap", CrabTrapBlock::new)
+        .properties(p -> p.sound(SoundType.SCAFFOLDING).strength(2))
+        .blockstate((ctx, provider) -> {
+        })
+        .properties(BlockBehaviour.Properties::noOcclusion)
+        .simpleItem()
+        .defaultLoot()
+        .tag(BlockTags.MINEABLE_WITH_AXE)
+        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern("ABA")
+            .pattern("B B")
+            .pattern("ABA")
+            .define('A', Items.STRING)
+            .define('B', Items.STICK)
+            .unlockedBy("hasitem", RegistrateRecipeProvider.has(Items.STRING))
             .save(provider))
         .register();
 

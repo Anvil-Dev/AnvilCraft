@@ -1,12 +1,16 @@
 package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.depository.ItemDepository;
 import dev.dubhe.anvilcraft.api.event.SubscribeEvent;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilHurtEntityEvent;
+import dev.dubhe.anvilcraft.block.CrabTrapBlock;
+import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
+import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -43,6 +47,7 @@ public class AnvilEventListener {
     public void onLand(@NotNull AnvilFallOnLandEvent event) {
         Level level = event.getLevel();
         BlockPos pos = event.getPos();
+        dropCrabItems(level, pos);
         MinecraftServer server = level.getServer();
         if (null == server) return;
         BlockPos belowPos = pos.below();
@@ -122,6 +127,23 @@ public class AnvilEventListener {
         if (!state.is(ModBlockTags.REDSTONE_TORCH)) return;
         state = state.setValue(RedstoneTorchBlock.LIT, false);
         level.setBlockAndUpdate(pos, state);
+    }
+
+    private void dropCrabItems(Level level, BlockPos pos) {
+        BlockState state = level.getBlockState(pos.relative(Direction.DOWN));
+        if (state.is(ModBlocks.CRAB_TRAP.get())) {
+            if (!state.hasBlockEntity()) return;
+            CrabTrapBlockEntity blockEntity = (CrabTrapBlockEntity) level.getBlockEntity(pos.relative(Direction.DOWN));
+            Direction face = state.getValue(CrabTrapBlock.FACING);
+            Vec3 dropPos = pos.relative(face).getCenter().relative(face.getOpposite(), 0.5);
+            ItemDepository depository = blockEntity.getDepository();
+            for (int i = 0; i < depository.getSlots(); i++) {
+                ItemStack stack = depository.getStack(i);
+                ItemEntity itemEntity = new ItemEntity(level, dropPos.x, dropPos.y - 0.4, dropPos.z, stack, 0, 0, 0);
+                level.addFreshEntity(itemEntity);
+                depository.extract(i, stack.getCount(), false);
+            }
+        }
     }
 
     /**
