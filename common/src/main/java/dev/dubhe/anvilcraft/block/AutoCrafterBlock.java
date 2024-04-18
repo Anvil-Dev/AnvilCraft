@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block;
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeableBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.entity.AutoCrafterBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
@@ -25,7 +26,6 @@ import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.RedstoneTorchBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -33,6 +33,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
@@ -42,11 +43,20 @@ import org.jetbrains.annotations.Nullable;
 
 public class AutoCrafterBlock extends BaseEntityBlock implements IHammerChangeableBlock, IHammerRemovable {
     public static final DirectionProperty FACING = DirectionalBlock.FACING;
-    public static final BooleanProperty LIT = RedstoneTorchBlock.LIT;
+    public static final BooleanProperty LIT = BlockStateProperties.LIT;
+    public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
 
+    /**
+     * @param properties 方块属性
+     */
     public AutoCrafterBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(LIT, false).setValue(FACING, Direction.NORTH));
+        this.registerDefaultState(
+            this.stateDefinition.any()
+                .setValue(LIT, false)
+                .setValue(OVERLOAD, true)
+                .setValue(FACING, Direction.NORTH)
+        );
     }
 
     @Override
@@ -145,12 +155,13 @@ public class AutoCrafterBlock extends BaseEntityBlock implements IHammerChangeab
     public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
         return this.defaultBlockState()
             .setValue(FACING, context.getNearestLookingDirection().getOpposite())
-            .setValue(LIT, context.getLevel().hasNeighborSignal(context.getClickedPos()));
+            .setValue(LIT, context.getLevel().hasNeighborSignal(context.getClickedPos()))
+            .setValue(OVERLOAD, true);
     }
 
     @Override
     protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(LIT).add(FACING);
+        builder.add(LIT).add(OVERLOAD).add(FACING);
     }
 
     @Override
