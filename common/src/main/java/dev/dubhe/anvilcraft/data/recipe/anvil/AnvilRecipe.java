@@ -57,7 +57,9 @@ import java.util.function.Consumer;
 @SuppressWarnings("unused")
 public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
     private final ResourceLocation id;
+    @Getter
     private final List<RecipePredicate> predicates = new ArrayList<>();
+    @Getter
     private final List<RecipeOutcome> outcomes = new ArrayList<>();
     private final ItemStack icon;
 
