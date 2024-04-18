@@ -24,5 +24,6 @@ public class RecipesHandler {
         SqueezeRecipesLoader.init(provider);
         StampingRecipesLoader.init(provider);
         TimeWarpRecipesLoader.init(provider);
+        SuperHeatingRecipesLoader.init(provider);
     }
 }
