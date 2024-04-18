@@ -89,8 +89,6 @@ public class AnimateAscendingBlockEntity extends Entity {
         if (this.level().isClientSide) return;
         BlockPos current = this.blockPosition();
         BlockPos up = current.above();
-        System.out.println("current = " + current);
-        System.out.println("getEndPos() = " + getEndPos());
         if (!this.level().getBlockState(up).isAir()
                 || current.getY() >= getEndPos().getY()
         ) {
