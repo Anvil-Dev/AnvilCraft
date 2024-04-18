@@ -221,14 +221,10 @@ public class PowerGrid {
      * @param grid 电网
      */
     public void merge(@NotNull PowerGrid grid) {
-        grid.producers.forEach(producer -> producer.setGrid(this));
-        this.producers.addAll(grid.producers);
-        grid.consumers.forEach(producer -> producer.setGrid(this));
-        this.consumers.addAll(grid.consumers);
-        grid.storages.forEach(producer -> producer.setGrid(this));
-        this.storages.addAll(grid.storages);
-        grid.transmitters.forEach(producer -> producer.setGrid(this));
-        this.transmitters.addAll(grid.transmitters);
+        grid.producers.forEach(this::add);
+        grid.consumers.forEach(this::add);
+        grid.storages.forEach(this::add);
+        grid.transmitters.forEach(this::add);
     }
 
     /**

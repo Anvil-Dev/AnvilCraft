@@ -24,19 +24,6 @@ public class AnvilItemRecipesLoader {
      */
     public static void init(RegistrateRecipeProvider provider) {
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
-            .hasBlock(Blocks.CAULDRON)
-            .hasBlock(new Vec3(0.0, -2.0, 0.0), BlockTags.CAMPFIRES)
-            .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), Items.IRON_INGOT)
-            .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), Items.EMERALD)
-            .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), Items.DIAMOND)
-            .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), Items.AMETHYST_SHARD)
-            .spawnItem(new Vec3(0.0, -1.0, 0.0), ModItems.ROYAL_STEEL_INGOT)
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.EMERALD), AnvilCraftDatagen.has(Items.EMERALD))
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.DIAMOND), AnvilCraftDatagen.has(Items.DIAMOND))
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.AMETHYST_SHARD), AnvilCraftDatagen.has(Items.AMETHYST_SHARD))
-            .save(provider, AnvilCraft.of("craft_a_royal_steel_ingot"));
-        AnvilRecipe.Builder.create(RecipeCategory.MISC)
             .hasBlock(Blocks.SMITHING_TABLE)
             .hasItem(Items.ANCIENT_DEBRIS)
             .spawnItem(ModItems.DEBRIS_SCRAP)

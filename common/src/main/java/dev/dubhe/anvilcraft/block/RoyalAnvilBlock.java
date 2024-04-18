@@ -76,6 +76,6 @@ public class RoyalAnvilBlock extends AnvilBlock implements IHammerRemovable {
 
     @Override
     protected void falling(@NotNull FallingBlockEntity entity) {
-        entity.setHurtsEntities(2.0f, Integer.MAX_VALUE);
+        entity.setHurtsEntities(2.0f, 80);
     }
 }
