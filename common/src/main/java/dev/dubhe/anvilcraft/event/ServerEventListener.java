@@ -6,7 +6,7 @@ import dev.dubhe.anvilcraft.api.event.SubscribeEvent;
 import dev.dubhe.anvilcraft.api.event.server.ServerEndDataPackReloadEvent;
 import dev.dubhe.anvilcraft.api.event.server.ServerStartedEvent;
 import dev.dubhe.anvilcraft.api.hammer.HammerManager;
-import dev.dubhe.anvilcraft.block.HeaterBlock;
+import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SpawnItem;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasBlock;
@@ -152,7 +152,7 @@ public class ServerEventListener {
                     .of(ModBlocks.HEATER.get())
                     .setProperties(
                         StatePropertiesPredicate.Builder.properties()
-                            .hasProperty(HeaterBlock.LIT, true)
+                            .hasProperty(IPowerComponent.OVERLOAD, false)
                             .build()
                     )
                     .build()
