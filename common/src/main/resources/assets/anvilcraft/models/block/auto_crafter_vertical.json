@@ -3,7 +3,7 @@
 	"parent": "minecraft:block/cube",
 	"textures": {
 		"0": "anvilcraft:block/auto_crafter_top_vertical",
-		"1": "anvilcraft:block/auto_crafter_side",
+		"1": "anvilcraft:block/auto_crafter_bottom",
 		"2": "anvilcraft:block/auto_crafter_bottom_vertical",
 		"particle": "anvilcraft:block/auto_crafter_top_vertical"
 	},
