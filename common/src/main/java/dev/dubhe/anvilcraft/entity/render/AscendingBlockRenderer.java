@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.entity.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.dubhe.anvilcraft.entity.AscendingBlockEntity;
+import dev.dubhe.anvilcraft.entity.AnimateAscendingBlockEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
@@ -20,7 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
 @Environment(EnvType.CLIENT)
-public class AscendingBlockRenderer extends EntityRenderer<AscendingBlockEntity> {
+public class AscendingBlockRenderer extends EntityRenderer<AnimateAscendingBlockEntity> {
     private final BlockRenderDispatcher dispatcher;
 
     public AscendingBlockRenderer(EntityRendererProvider.Context context) {
@@ -31,11 +31,11 @@ public class AscendingBlockRenderer extends EntityRenderer<AscendingBlockEntity>
 
     @Override
     public void render(
-            AscendingBlockEntity entity,
+            AnimateAscendingBlockEntity entity,
             float entityYaw,
             float partialTicks,
-            PoseStack poseStack,
-            MultiBufferSource buffer,
+            @NotNull PoseStack poseStack,
+            @NotNull MultiBufferSource buffer,
             int packedLight
     ) {
         BlockState blockState = entity.getBlockState();
@@ -67,7 +67,7 @@ public class AscendingBlockRenderer extends EntityRenderer<AscendingBlockEntity>
     }
 
     @Override
-    public @NotNull ResourceLocation getTextureLocation(@NotNull AscendingBlockEntity entity) {
+    public @NotNull ResourceLocation getTextureLocation(@NotNull AnimateAscendingBlockEntity entity) {
         return TextureAtlas.LOCATION_BLOCKS;
     }
 }

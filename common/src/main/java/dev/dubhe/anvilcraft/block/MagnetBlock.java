@@ -1,9 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.entity.AscendingBlockEntity;
-import dev.dubhe.anvilcraft.init.ModBlocks;
-import dev.dubhe.anvilcraft.init.ModEntities;
+import dev.dubhe.anvilcraft.entity.AnimateAscendingBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
@@ -13,7 +11,6 @@ import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RedstoneTorchBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -90,30 +87,51 @@ public class MagnetBlock extends Block {
         for (int i = 0; i < distance; i++) {
             currentPos = currentPos.below();
             BlockState state1 = level.getBlockState(currentPos);
+
             if (state1.is(BlockTags.ANVIL)) {
-                //level.setBlock(currentPos, state1.getFluidState().createLegacyBlock(), 3);
-                AscendingBlockEntity.ascend(level, currentPos, state1);
+                level.setBlock(currentPos, state1.getFluidState().createLegacyBlock(), 3);
+                level.setBlockAndUpdate(magnetPos.below(), state1);
+                AnimateAscendingBlockEntity.animate(level, currentPos, state1, magnetPos.below());
                 break;
             }
-
-            List<AscendingBlockEntity> ascendingBlockEntities = level.getEntitiesOfClass(
-                    AscendingBlockEntity.class,
-                    new AABB(currentPos)
-            );
-            if (!ascendingBlockEntities.isEmpty()) return;
-
             List<FallingBlockEntity> entities = level.getEntitiesOfClass(
                     FallingBlockEntity.class,
                     new AABB(currentPos)
             );
             for (FallingBlockEntity entity : entities) {
-                if (entity instanceof AscendingBlockEntity) continue;
                 BlockState state2 = entity.getBlockState();
                 if (state2.is(BlockTags.ANVIL)) {
+                    level.setBlockAndUpdate(magnetPos.below(), state2);
                     entity.remove(Entity.RemovalReason.DISCARDED);
-                    AscendingBlockEntity.ascend(level, currentPos, state2);
+                    AnimateAscendingBlockEntity.animate(level, currentPos, state2, magnetPos.below());
                     break checkAnvil;
                 }
+            }
+            if (!level.isEmptyBlock(currentPos)) return;
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public void onRemove(
+            @NotNull BlockState state,
+            @NotNull Level level,
+            @NotNull BlockPos magnetPos,
+            @NotNull BlockState newState,
+            boolean movedByPiston
+    ) {
+        super.onRemove(state, level, magnetPos, newState, movedByPiston);
+        if (level.isClientSide()) return;
+        int distance = AnvilCraft.config.magnetAttractsDistance;
+        BlockPos currentPos = magnetPos;
+        for (int i = 0; i < distance; i++) {
+            currentPos = currentPos.below();
+            List<AnimateAscendingBlockEntity> entities = level.getEntitiesOfClass(
+                    AnimateAscendingBlockEntity.class,
+                    new AABB(currentPos)
+            );
+            for (AnimateAscendingBlockEntity entity : entities) {
+                entity.discard();
             }
             if (!level.isEmptyBlock(currentPos)) return;
         }
