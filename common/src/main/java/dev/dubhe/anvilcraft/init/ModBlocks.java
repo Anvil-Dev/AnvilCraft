@@ -450,8 +450,8 @@ public class ModBlocks {
             .pattern("ABA")
             .pattern("B B")
             .pattern("ABA")
-            .define('A', Items.STRING)
-            .define('B', Items.STICK)
+            .define('A', Items.STICK)
+            .define('B', Items.STRING)
             .unlockedBy("hasitem", RegistrateRecipeProvider.has(Items.STRING))
             .save(provider))
         .register();

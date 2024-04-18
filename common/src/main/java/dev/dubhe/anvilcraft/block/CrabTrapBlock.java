@@ -165,6 +165,7 @@ public class CrabTrapBlock extends BaseEntityBlock implements SimpleWaterloggedB
             if (items.isEmpty()) return;
             CrabTrapBlockEntity blockEntity = (CrabTrapBlockEntity) level.getBlockEntity(pos);
             for (ItemStack item : items) {
+                System.out.println(item);
                 ItemDepositoryHelper.insertItem(blockEntity.getDepository(), item, false);
             }
         }

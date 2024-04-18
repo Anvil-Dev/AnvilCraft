@@ -5,10 +5,27 @@
       "bonus_rolls": 0.0,
       "conditions": [
         {
-          "condition": "minecraft:location_check",
-          "predicate": {
-            "biome": "minecraft:deep_lukewarm_ocean"
-          }
+          "condition": "minecraft:any_of",
+          "terms": [
+            {
+              "condition": "minecraft:location_check",
+              "predicate": {
+                "biome": "minecraft:warm_ocean"
+              }
+            },
+            {
+              "condition": "minecraft:location_check",
+              "predicate": {
+                "biome": "minecraft:lukewarm_ocean"
+              }
+            },
+            {
+              "condition": "minecraft:location_check",
+              "predicate": {
+                "biome": "minecraft:deep_lukewarm_ocean"
+              }
+            }
+          ]
         },
         {
           "chance": 0.05,

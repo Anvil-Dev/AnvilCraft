@@ -3,10 +3,10 @@
   "category": "misc",
   "key": {
     "A": {
-      "item": "minecraft:string"
+      "item": "minecraft:stick"
     },
     "B": {
-      "item": "minecraft:stick"
+      "item": "minecraft:string"
     }
   },
   "pattern": [
