@@ -24,6 +24,7 @@ public class ModItemTags {
     public static final TagKey<Item> IRON_PLATES = bindC("iron_plates");
     public static final TagKey<Item> ROYAL_STEEL_PICKAXE_BASE = bind("royal_steel_pickaxe_base");
     public static final TagKey<Item> CAPACITOR = bind("capacitor");
+    public static final TagKey<Item> STONE = bindC("stone");
 
 
     private static @NotNull TagKey<Item> bindC(String id) {
