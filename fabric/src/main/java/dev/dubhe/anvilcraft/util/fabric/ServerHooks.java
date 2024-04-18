@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.utils.fabric;
+package dev.dubhe.anvilcraft.util.fabric;
 
 import lombok.Getter;
 import lombok.Setter;
