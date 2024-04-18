@@ -2,10 +2,10 @@
 	"credit": "Made by XeKr with Blockbench",
 	"parent": "minecraft:block/cube",
 	"textures": {
-		"0": "anvilcraft:block/auto_crafter_top_vertical",
-		"1": "anvilcraft:block/auto_crafter_bottom",
-		"2": "anvilcraft:block/auto_crafter_bottom_vertical",
-		"particle": "anvilcraft:block/auto_crafter_top_vertical"
+		"0": "anvilcraft:block/auto_crafter_top_vertical_off",
+		"1": "anvilcraft:block/auto_crafter_bottom_off",
+		"2": "anvilcraft:block/auto_crafter_bottom_vertical_off",
+		"particle": "anvilcraft:block/auto_crafter_top_vertical_off"
 	},
 	"elements": [
 		{
