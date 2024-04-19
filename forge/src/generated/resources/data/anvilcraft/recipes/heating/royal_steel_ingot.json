@@ -22,6 +22,22 @@
       "type": "has_block",
       "match_block": {
         "blocks": [
+          "anvilcraft:heater"
+        ],
+        "state": {
+          "overload": "false"
+        }
+      },
+      "offset": [
+        0.0,
+        -2.0,
+        0.0
+      ]
+    },
+    {
+      "type": "has_block",
+      "match_block": {
+        "blocks": [
           "minecraft:cauldron"
         ]
       },
@@ -32,40 +48,13 @@
       ]
     },
     {
-      "type": "has_block",
-      "match_block": {
-        "tag": "minecraft:campfires"
-      },
-      "offset": [
-        0.0,
-        -2.0,
-        0.0
-      ]
-    },
-    {
       "type": "has_item_ingredient",
       "match_item": {
         "count": {
-          "min": 1
+          "min": 3
         },
         "items": [
           "minecraft:iron_ingot"
-        ]
-      },
-      "offset": [
-        0.0,
-        -1.0,
-        0.0
-      ]
-    },
-    {
-      "type": "has_item_ingredient",
-      "match_item": {
-        "count": {
-          "min": 1
-        },
-        "items": [
-          "minecraft:emerald"
         ]
       },
       "offset": [
@@ -98,6 +87,22 @@
         },
         "items": [
           "minecraft:amethyst_shard"
+        ]
+      },
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ]
+    },
+    {
+      "type": "has_item_ingredient",
+      "match_item": {
+        "count": {
+          "min": 1
+        },
+        "items": [
+          "minecraft:emerald"
         ]
       },
       "offset": [

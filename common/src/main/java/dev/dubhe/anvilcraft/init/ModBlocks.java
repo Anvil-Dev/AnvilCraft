@@ -21,7 +21,7 @@ import dev.dubhe.anvilcraft.block.SimpleChuteBlock;
 import dev.dubhe.anvilcraft.block.StampingPlatformBlock;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.item.CursedBlockItem;
-import dev.dubhe.anvilcraft.item.PlaceInWaterBlockItem;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.tags.BlockTags;
@@ -49,16 +49,28 @@ public class ModBlocks {
         .simpleItem()
         .defaultLoot()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
-            .pattern("BAB")
-            .pattern("B B")
-            .pattern("B B")
-            .define('A', ModItemTags.IRON_PLATES)
-            .define('B', Items.IRON_INGOT)
-            .unlockedBy("has_" + ModItemTags.IRON_PLATES.location().getPath(),
-                AnvilCraftDatagen.has(ModItemTags.IRON_PLATES))
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
-            .save(provider))
+        .recipe((ctx, provider) -> {
+            ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
+                .pattern("BAB")
+                .pattern("B B")
+                .pattern("B B")
+                .define('A', ModItemTags.IRON_PLATES)
+                .define('B', Items.IRON_INGOT)
+                .unlockedBy("has_" + ModItemTags.IRON_PLATES.location().getPath(),
+                    AnvilCraftDatagen.has(ModItemTags.IRON_PLATES))
+                .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
+                .save(provider);
+            ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
+                .pattern("BAB")
+                .pattern("B B")
+                .pattern("B B")
+                .define('A', ModItemTags.IRON_PLATES_FORGE)
+                .define('B', Items.IRON_INGOT)
+                .unlockedBy("has_" + ModItemTags.IRON_PLATES_FORGE.location().getPath(),
+                    AnvilCraftDatagen.has(ModItemTags.IRON_PLATES_FORGE))
+                .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
+                .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get().asItem()) + "_forge");
+        })
         .register();
     public static final BlockEntry<? extends Block> CORRUPTED_BEACON = REGISTRATE
         .block("corrupted_beacon", CorruptedBeaconBlock::new)

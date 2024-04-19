@@ -5,11 +5,14 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.api.depository.IItemDepository;
 import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
+import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
+import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.AutoCrafterMenu;
 import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -44,7 +47,12 @@ import java.util.function.Predicate;
 
 @Getter
 @SuppressWarnings("NullableProblems")
-public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IFilterBlockEntity {
+public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IFilterBlockEntity, IPowerConsumer {
+    @Getter
+    @Setter
+    private PowerGrid grid;
+    @Getter
+    private final int inputPower = 1;
     private final Deque<AutoCrafterCache> cache = new ArrayDeque<>();
     private final FilteredItemDepository depository = new FilteredItemDepository.Pollable(9) {
         @Override
@@ -144,12 +152,18 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
         throw new AssertionError();
     }
 
+    /**
+     * @param level 世界
+     * @param pos   位置
+     */
     public void tick(@NotNull Level level, BlockPos pos) {
+        this.flushState(level, pos);
         BlockState state = level.getBlockState(pos);
         if (state.getValue(AutoCrafterBlock.LIT)) craft(level);
     }
 
     private boolean canCraft() {
+        if (grid == null || !grid.isWork()) return false;
         if (cooldown > 0) return false;
         if (!depository.isFilterEnabled()) return true;
         for (int i = 0; i < depository.getSlots(); i++) {
@@ -294,6 +308,11 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
     @Override
     public FilteredItemDepository getFilteredItemDepository() {
         return this.depository;
+    }
+
+    @Override
+    public @NotNull BlockPos getPos() {
+        return this.getBlockPos();
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")

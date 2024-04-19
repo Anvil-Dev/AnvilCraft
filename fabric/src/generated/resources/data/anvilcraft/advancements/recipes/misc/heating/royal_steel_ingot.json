@@ -51,7 +51,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:craft_a_royal_steel_ingot"
+        "recipe": "anvilcraft:heating/royal_steel_ingot"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -59,15 +59,15 @@
   "requirements": [
     [
       "has_iron_ingot",
-      "has_emerald",
       "has_diamond",
       "has_amethyst_shard",
+      "has_emerald",
       "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:craft_a_royal_steel_ingot"
+      "anvilcraft:heating/royal_steel_ingot"
     ]
   },
   "sends_telemetry_event": false

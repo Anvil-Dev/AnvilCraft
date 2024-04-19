@@ -6,7 +6,8 @@
 		"side": "anvilcraft:block/chute",
 		"bottom": "anvilcraft:block/chute_bottom",
 		"top": "anvilcraft:block/chute_top",
-		"simple": "anvilcraft:block/simple_chute"
+		"simple": "anvilcraft:block/simple_chute",
+		"direction": "anvilcraft:block/simple_chute_directional"
 	},
 	"elements": [
 		{
@@ -31,7 +32,7 @@
 				"south": {"uv": [4, 16, 12, 8], "rotation": 180, "texture": "#side"},
 				"west": {"uv": [12, 0, 4, 16], "rotation": 90, "texture": "#simple"},
 				"up": {"uv": [12, 0, 4, 16], "rotation": 180, "texture": "#simple"},
-				"down": {"uv": [12, 0, 4, 16], "texture": "#simple"}
+				"down": {"uv": [12, 0, 4, 16], "texture": "#direction"}
 			}
 		},
 		{
