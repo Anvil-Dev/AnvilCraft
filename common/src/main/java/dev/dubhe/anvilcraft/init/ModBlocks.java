@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
 import dev.dubhe.anvilcraft.block.ChuteBlock;
 import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
+import dev.dubhe.anvilcraft.block.CrabTrapBlock;
 import dev.dubhe.anvilcraft.block.CreativeDynamoBlock;
 import dev.dubhe.anvilcraft.block.FerriteCoreMagnetBlock;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
@@ -20,6 +21,7 @@ import dev.dubhe.anvilcraft.block.SimpleChuteBlock;
 import dev.dubhe.anvilcraft.block.StampingPlatformBlock;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.item.CursedBlockItem;
+import dev.dubhe.anvilcraft.item.PlaceInWaterBlockItem;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
@@ -182,16 +184,23 @@ public class ModBlocks {
         .defaultLoot()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.MINEABLE_WITH_AXE)
         .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
-            .pattern("AAA")
             .pattern("ABA")
-            .pattern("ACA")
+            .pattern("CDA")
+            .pattern("AAA")
             .define('A', Items.IRON_INGOT)
             .define('B', Items.CRAFTING_TABLE)
             .define('C', Items.DROPPER)
+            .define('D', ModItems.MAGNETOELECTRIC_CORE)
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.CRAFTING_TABLE),
-                AnvilCraftDatagen.has(Items.CRAFTING_TABLE))
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.CRAFTING_TABLE),
+                AnvilCraftDatagen.has(Items.CRAFTING_TABLE)
+            )
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.DROPPER), AnvilCraftDatagen.has(Items.DROPPER))
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
+                AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
+            )
             .save(provider)
         )
         .register();
@@ -416,10 +425,13 @@ public class ModBlocks {
             .pattern("BBB")
             .define('A', Items.TERRACOTTA)
             .define('B', Items.IRON_INGOT)
-            .define('C', ModItemTags.CAPACITOR)
+            .define('C', ModItems.MAGNETOELECTRIC_CORE)
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.TERRACOTTA), AnvilCraftDatagen.has(Items.TERRACOTTA))
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.CAPACITOR), AnvilCraftDatagen.has(ModItemTags.CAPACITOR))
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
+                AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
+            )
             .save(provider))
         .register();
     public static final BlockEntry<? extends Block> TRANSMISSION_POLE = REGISTRATE
@@ -447,6 +459,25 @@ public class ModBlocks {
             )
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.LIGHTNING_ROD), AnvilCraftDatagen.has(Items.LIGHTNING_ROD))
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_BLOCK), AnvilCraftDatagen.has(Items.IRON_BLOCK))
+            .save(provider))
+        .register();
+    public static final BlockEntry<CrabTrapBlock> CRAB_TRAP = REGISTRATE
+        .block("crab_trap", CrabTrapBlock::new)
+        .properties(p -> p.sound(SoundType.SCAFFOLDING).strength(2))
+        .blockstate((ctx, provider) -> {
+        })
+        .properties(BlockBehaviour.Properties::noOcclusion)
+        .item(PlaceInWaterBlockItem::new)
+        .build()
+        .defaultLoot()
+        .tag(BlockTags.MINEABLE_WITH_AXE)
+        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern("ABA")
+            .pattern("B B")
+            .pattern("ABA")
+            .define('A', Items.STICK)
+            .define('B', Items.STRING)
+            .unlockedBy("hasitem", RegistrateRecipeProvider.has(Items.STRING))
             .save(provider))
         .register();
 
