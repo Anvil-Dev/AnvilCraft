@@ -13,12 +13,15 @@
     },
     "D": {
       "item": "anvilcraft:magnetoelectric_core"
+    },
+    "E": {
+      "item": "anvilcraft:circuit_board"
     }
   },
   "pattern": [
     "ABA",
     "CDA",
-    "AAA"
+    "AEA"
   ],
   "result": {
     "item": "anvilcraft:auto_crafter"

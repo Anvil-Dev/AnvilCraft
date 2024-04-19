@@ -191,11 +191,12 @@ public class ModBlocks {
         .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
             .pattern("ABA")
             .pattern("CDA")
-            .pattern("AAA")
+            .pattern("AEA")
             .define('A', Items.IRON_INGOT)
             .define('B', Items.CRAFTING_TABLE)
             .define('C', Items.DROPPER)
             .define('D', ModItems.MAGNETOELECTRIC_CORE)
+            .define('E', ModItems.CIRCUIT_BOARD)
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(Items.CRAFTING_TABLE),
@@ -205,6 +206,10 @@ public class ModBlocks {
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
                 AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.CIRCUIT_BOARD),
+                AnvilCraftDatagen.has(ModItems.CIRCUIT_BOARD)
             )
             .save(provider)
         )
