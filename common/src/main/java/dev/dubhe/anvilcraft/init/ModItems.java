@@ -16,6 +16,7 @@ import dev.dubhe.anvilcraft.item.RoyalUpgradeTemplateItem;
 import dev.dubhe.anvilcraft.item.TopazItem;
 import dev.dubhe.anvilcraft.item.UtusanItem;
 import net.minecraft.ChatFormatting;
+import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
@@ -442,14 +443,14 @@ public class ModItems {
         )
         .register();
     public static final ItemEntry<Item> HARDEND_RESIN = REGISTRATE
-            .item("hardend_resin", Item::new)
-            .register();
+        .item("hardend_resin", Item::new)
+        .register();
     public static final ItemEntry<Item> WOOD_FIBER = REGISTRATE
-            .item("wood_fiber", Item::new)
-            .register();
+        .item("wood_fiber", Item::new)
+        .register();
     public static final ItemEntry<Item> CIRCUIT_BOARD = REGISTRATE
-            .item("circuit_board", Item::new)
-            .register();
+        .item("circuit_board", Item::new)
+        .register();
     public static final ItemEntry<Item> PRISMARINE_BLADE = REGISTRATE
         .item("prismarine_blade", Item::new)
         .register();
@@ -468,6 +469,48 @@ public class ModItems {
         .register();
     public static final ItemEntry<Item> MAGNETOELECTRIC_CORE = REGISTRATE
         .item("magnetoelectric_core", Item::new)
+        .recipe((ctx, provider) -> {
+            ShapedTagRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get().getDefaultInstance())
+                .pattern("ABA")
+                .pattern("BCB")
+                .pattern("ABA")
+                .define('A', Items.COPPER_INGOT)
+                .define('B', ModItemTags.GLASS)
+                .define('C', ModBlocks.HOLLOW_MAGNET_BLOCK)
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItemTags.GLASS),
+                    RegistrateRecipeProvider.has(ModItemTags.GLASS)
+                )
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(Items.COPPER_INGOT),
+                    RegistrateRecipeProvider.has(Items.COPPER_INGOT)
+                )
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModBlocks.HOLLOW_MAGNET_BLOCK),
+                    RegistrateRecipeProvider.has(ModBlocks.HOLLOW_MAGNET_BLOCK)
+                )
+                .save(provider);
+            ShapedTagRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get().getDefaultInstance())
+                .pattern("ABA")
+                .pattern("BCB")
+                .pattern("ABA")
+                .define('A', Items.COPPER_INGOT)
+                .define('B', ModItemTags.GLASS_FORGE)
+                .define('C', ModBlocks.HOLLOW_MAGNET_BLOCK)
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItemTags.GLASS_FORGE),
+                    RegistrateRecipeProvider.has(ModItemTags.GLASS_FORGE)
+                )
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(Items.COPPER_INGOT),
+                    RegistrateRecipeProvider.has(Items.COPPER_INGOT)
+                )
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModBlocks.HOLLOW_MAGNET_BLOCK),
+                    RegistrateRecipeProvider.has(ModBlocks.HOLLOW_MAGNET_BLOCK)
+                )
+                .save(provider, RecipeBuilder.getDefaultRecipeId(ctx.get()).getPath() + "_forge");
+        })
         .register();
     public static final ItemEntry<CapacitorItem> CAPACITOR_EMPTY = REGISTRATE
         .item("capacitor_empty", CapacitorItem::new)
