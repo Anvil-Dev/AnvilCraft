@@ -4,12 +4,15 @@ import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.init.ModItems;
+import net.minecraft.advancements.critereon.BlockPredicate;
+import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.phys.Vec3;
 
@@ -45,7 +48,14 @@ public class CookingRecipesLoader {
     public static void cook(Item item, int count, Item item1, int count1, RegistrateRecipeProvider provider) {
         AnvilRecipe.Builder.create(RecipeCategory.FOOD)
             .hasBlock(Blocks.CAULDRON)
-            .hasBlock(new Vec3(0.0, -2.0, 0.0), BlockTags.CAMPFIRES)
+            .hasBlock(new Vec3(0.0, -2.0, 0.0), BlockPredicate.Builder.block()
+                .of(BlockTags.CAMPFIRES)
+                .setProperties(
+                        StatePropertiesPredicate.Builder.properties()
+                                .hasProperty(CampfireBlock.LIT, true)
+                                .build()
+                )
+                .build())
             .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), count, item)
             .spawnItem(item1, count1)
             .unlockedBy(AnvilCraftDatagen.hasItem(item), AnvilCraftDatagen.has(item))
@@ -64,7 +74,14 @@ public class CookingRecipesLoader {
     public static void boil(Item item, int count, Item item1, int count1, RegistrateRecipeProvider provider) {
         AnvilRecipe.Builder.create(RecipeCategory.FOOD)
             .hasBlock(Blocks.WATER_CAULDRON, new Vec3(0.0, -1.0, 0.0), Map.entry(LayeredCauldronBlock.LEVEL, 1))
-            .hasBlock(new Vec3(0.0, -2.0, 0.0), BlockTags.CAMPFIRES)
+            .hasBlock(new Vec3(0.0, -2.0, 0.0), BlockPredicate.Builder.block()
+                .of(BlockTags.CAMPFIRES)
+                .setProperties(
+                        StatePropertiesPredicate.Builder.properties()
+                                .hasProperty(CampfireBlock.LIT, true)
+                                .build()
+                )
+                .build())
             .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), count, item)
             .setBlock(Blocks.CAULDRON)
             .spawnItem(item1, count1)
@@ -72,7 +89,14 @@ public class CookingRecipesLoader {
             .save(provider, "boil/" + BuiltInRegistries.ITEM.getKey(item1).getPath() + "_1");
         AnvilRecipe.Builder.create(RecipeCategory.FOOD)
             .hasBlock(Blocks.WATER_CAULDRON, new Vec3(0.0, -1.0, 0.0), Map.entry(LayeredCauldronBlock.LEVEL, 2))
-            .hasBlock(new Vec3(0.0, -2.0, 0.0), BlockTags.CAMPFIRES)
+            .hasBlock(new Vec3(0.0, -2.0, 0.0), BlockPredicate.Builder.block()
+                .of(BlockTags.CAMPFIRES)
+                .setProperties(
+                        StatePropertiesPredicate.Builder.properties()
+                                .hasProperty(CampfireBlock.LIT, true)
+                                .build()
+                )
+                .build())
             .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), count, item)
             .setBlock(Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 1))
             .spawnItem(item1, count1)
@@ -80,7 +104,14 @@ public class CookingRecipesLoader {
             .save(provider, "boil/" + BuiltInRegistries.ITEM.getKey(item1).getPath() + "_2");
         AnvilRecipe.Builder.create(RecipeCategory.FOOD)
             .hasBlock(Blocks.WATER_CAULDRON, new Vec3(0.0, -1.0, 0.0), Map.entry(LayeredCauldronBlock.LEVEL, 3))
-            .hasBlock(new Vec3(0.0, -2.0, 0.0), BlockTags.CAMPFIRES)
+            .hasBlock(new Vec3(0.0, -2.0, 0.0), BlockPredicate.Builder.block()
+                .of(BlockTags.CAMPFIRES)
+                .setProperties(
+                        StatePropertiesPredicate.Builder.properties()
+                                .hasProperty(CampfireBlock.LIT, true)
+                                .build()
+                )
+                .build())
             .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), count, item)
             .setBlock(Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 2))
             .spawnItem(item1, count1)
