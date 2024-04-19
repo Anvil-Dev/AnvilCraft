@@ -34,6 +34,9 @@
     {
       "type": "has_block",
       "match_block": {
+        "state": {
+          "lit": "true"
+        },
         "tag": "minecraft:campfires"
       },
       "offset": [

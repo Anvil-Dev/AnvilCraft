@@ -9,7 +9,7 @@
       "item": "minecraft:iron_ingot"
     },
     "C": {
-      "tag": "anvilcraft:capacitor"
+      "item": "anvilcraft:magnetoelectric_core"
     }
   },
   "pattern": [

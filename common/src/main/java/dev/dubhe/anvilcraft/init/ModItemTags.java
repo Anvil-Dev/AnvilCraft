@@ -23,6 +23,7 @@ public class ModItemTags {
     public static final TagKey<Item> GOLD_PLATES = bindC("gold_plates");
     public static final TagKey<Item> IRON_PLATES = bindC("iron_plates");
     public static final TagKey<Item> STONE = bindC("stone");
+    public static final TagKey<Item> GLASS = bindC("silica_glass");
 
     public static final TagKey<Item> FLOUR_FORGE = bindForge("flour");
     public static final TagKey<Item> WHEAT_FLOUR_FORGE = bindForge("flour/wheat");
@@ -38,6 +39,7 @@ public class ModItemTags {
     public static final TagKey<Item> GOLD_PLATES_FORGE = bindForge("gold_plates");
     public static final TagKey<Item> IRON_PLATES_FORGE = bindForge("iron_plates");
     public static final TagKey<Item> STONE_FORGE = bindForge("stone");
+    public static final TagKey<Item> GLASS_FORGE = bindForge("silica_glass");
 
     public static final TagKey<Item> ROYAL_STEEL_PICKAXE_BASE = bind("royal_steel_pickaxe_base");
     public static final TagKey<Item> CAPACITOR = bind("capacitor");

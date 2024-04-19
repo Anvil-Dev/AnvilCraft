@@ -19,14 +19,26 @@ public interface IPowerComponent {
     BooleanProperty OVERLOAD = BooleanProperty.create("overload");
     EnumProperty<Switch> SWITCH = EnumProperty.create("switch", Switch.class);
 
+    Level getLevel();
+
     /**
      * @return 元件位置
      */
     @NotNull
     BlockPos getPos();
 
-    default VoxelShape getRange() {
-        return Shapes.block();
+    /**
+     * @return 覆盖范围
+     */
+    default VoxelShape getShape() {
+        return Shapes.box(
+            -this.getRange(), -this.getRange(), -this.getRange(),
+            this.getRange() + 1, this.getRange() + 1, this.getRange() + 1
+        );
+    }
+
+    default int getRange() {
+        return 0;
     }
 
     /**

@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.client.renderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
+import lombok.Getter;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
@@ -12,19 +13,28 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 @Environment(EnvType.CLIENT)
 public class PowerGridRenderer {
+    @Getter
+    private static Map<Integer, PowerGrid.SimplePowerGrid> grids = Collections.synchronizedMap(new HashMap<>());
+
     /**
      * 渲染
      */
     public static void render(PoseStack poseStack, VertexConsumer consumer, double camX, double camY, double camZ) {
         if (Minecraft.getInstance().level == null) return;
         RandomSource random = Minecraft.getInstance().level.random;
-        for (PowerGrid grid : PowerGrid.getGridSetClient()) {
-            random.setSeed(grid.hashCode());
+        String level = Minecraft.getInstance().level.dimension().location().toString();
+        for (PowerGrid.SimplePowerGrid grid : PowerGridRenderer.grids.values()) {
+            if (!grid.getLevel().equals(level)) continue;
+            random.setSeed(grid.getHash());
             PowerGridRenderer.renderOutline(
                 poseStack, consumer, camX, camY, camZ,
-                grid.getPos(), grid.getRange(),
+                grid.getPos(), grid.getShape(),
                 random.nextFloat(), random.nextFloat(), random.nextFloat(), 0.4f
             );
         }

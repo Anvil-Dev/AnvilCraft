@@ -184,16 +184,23 @@ public class ModBlocks {
         .defaultLoot()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.MINEABLE_WITH_AXE)
         .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
-            .pattern("AAA")
             .pattern("ABA")
-            .pattern("ACA")
+            .pattern("CDA")
+            .pattern("AAA")
             .define('A', Items.IRON_INGOT)
             .define('B', Items.CRAFTING_TABLE)
             .define('C', Items.DROPPER)
+            .define('D', ModItems.MAGNETOELECTRIC_CORE)
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.CRAFTING_TABLE),
-                AnvilCraftDatagen.has(Items.CRAFTING_TABLE))
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.CRAFTING_TABLE),
+                AnvilCraftDatagen.has(Items.CRAFTING_TABLE)
+            )
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.DROPPER), AnvilCraftDatagen.has(Items.DROPPER))
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
+                AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
+            )
             .save(provider)
         )
         .register();
@@ -418,10 +425,13 @@ public class ModBlocks {
             .pattern("BBB")
             .define('A', Items.TERRACOTTA)
             .define('B', Items.IRON_INGOT)
-            .define('C', ModItemTags.CAPACITOR)
+            .define('C', ModItems.MAGNETOELECTRIC_CORE)
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.TERRACOTTA), AnvilCraftDatagen.has(Items.TERRACOTTA))
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.CAPACITOR), AnvilCraftDatagen.has(ModItemTags.CAPACITOR))
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
+                AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
+            )
             .save(provider))
         .register();
     public static final BlockEntry<? extends Block> TRANSMISSION_POLE = REGISTRATE
