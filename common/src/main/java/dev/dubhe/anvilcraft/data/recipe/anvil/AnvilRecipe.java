@@ -415,6 +415,17 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
         /**
          * 拥有方块
          *
+         * @param offset 偏移
+         * @param blockPredicate 方块谓词
+         * @return 构造器
+         */
+        public @NotNull Builder hasBlock(Vec3 offset, BlockPredicate blockPredicate) {
+            return this.addPredicates(new HasBlock(offset, blockPredicate));
+        }
+
+        /**
+         * 拥有方块
+         *
          * @param offset     偏移
          * @param blockState 方块状态
          * @param <T>        可比较的
