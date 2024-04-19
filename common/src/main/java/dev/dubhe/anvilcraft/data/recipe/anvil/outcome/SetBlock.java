@@ -19,8 +19,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
+@Getter
 public class SetBlock implements RecipeOutcome {
-    @Getter
     private final String type = "set_block";
     private final Vec3 offset;
     private final double chance;

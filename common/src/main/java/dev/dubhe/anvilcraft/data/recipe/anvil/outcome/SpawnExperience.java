@@ -15,8 +15,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
+@Getter
 public class SpawnExperience implements RecipeOutcome {
-    @Getter
     private final String type = "spawn_experience";
     private final Vec3 offset;
     private final double chance;
