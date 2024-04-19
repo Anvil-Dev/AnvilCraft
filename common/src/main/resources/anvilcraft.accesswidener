@@ -15,7 +15,6 @@ accessible field net/minecraft/world/level/block/state/StateHolder PROPERTY_ENTR
 accessible field net/minecraft/world/inventory/AnvilMenu cost Lnet/minecraft/world/inventory/DataSlot;
 accessible field net/minecraft/world/inventory/AnvilMenu itemName Ljava/lang/String;
 accessible field net/minecraft/world/inventory/AnvilMenu repairItemCountCost I
-# dev.dubhe.anvilcraft.util.IBlockHighlightUtil
 accessible field net/minecraft/client/renderer/RenderStateShard RENDERTYPE_LINES_SHADER Lnet/minecraft/client/renderer/RenderStateShard$ShaderStateShard;
 accessible field net/minecraft/client/renderer/RenderStateShard COLOR_WRITE Lnet/minecraft/client/renderer/RenderStateShard$WriteMaskStateShard;
 accessible field net/minecraft/client/renderer/RenderStateShard NO_CULL Lnet/minecraft/client/renderer/RenderStateShard$CullStateShard;

@@ -94,10 +94,8 @@ public class CrabTrapBlock extends BaseEntityBlock implements SimpleWaterloggedB
             if (level.getFluidState(pos.relative(face)).is(Fluids.WATER)) times++;
         }
 
-        System.out.println(times);
-
         if (times >= 3) {
-            // TODO: 获取战利品并放入 block entity
+            // 获取战利品并放入 block entity
             tryInsertLoot(state, level, pos, ModLootTables.CRAB_TRAP_COMMON);
             tryInsertLoot(state, level, pos, ModLootTables.CRAB_TRAP_RIVER);
             tryInsertLoot(state, level, pos, ModLootTables.CRAB_TRAP_OCEAN);
@@ -154,7 +152,6 @@ public class CrabTrapBlock extends BaseEntityBlock implements SimpleWaterloggedB
     }
 
     private void tryInsertLoot(BlockState state, ServerLevel level, BlockPos pos, ResourceLocation loot) {
-        System.out.println("tryInsertLoot " + loot);
         if (state.hasBlockEntity()) {
             LootParams lootParams = new LootParams.Builder(level)
                 .withParameter(LootContextParams.ORIGIN, pos.getCenter())
@@ -165,7 +162,6 @@ public class CrabTrapBlock extends BaseEntityBlock implements SimpleWaterloggedB
             if (items.isEmpty()) return;
             CrabTrapBlockEntity blockEntity = (CrabTrapBlockEntity) level.getBlockEntity(pos);
             for (ItemStack item : items) {
-                System.out.println(item);
                 ItemDepositoryHelper.insertItem(blockEntity.getDepository(), item, false);
             }
         }

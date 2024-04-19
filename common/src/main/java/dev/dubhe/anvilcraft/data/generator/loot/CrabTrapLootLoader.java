@@ -46,14 +46,14 @@ public class CrabTrapLootLoader {
         LootPool.lootPool().setRolls(ConstantValue.exactly(1.0f))
             .add(LootItem.lootTableItem(ModItems.CRAB_CLAW).setWeight(1))
             .add(LootItem.lootTableItem(Items.SEAGRASS).setWeight(1))
-            .when(LootItemRandomChanceCondition.randomChance(0.05f))
+            .when(LootItemRandomChanceCondition.randomChance(0.1f))
     );
 
     private static final LootTable.Builder RIVER = LootTable.lootTable().withPool(
         LootPool.lootPool().setRolls(ConstantValue.exactly(1.0f))
             .add(LootItem.lootTableItem(Items.SALMON))
             .when(IN_RIVER)
-            .when(LootItemRandomChanceCondition.randomChance(0.05f))
+            .when(LootItemRandomChanceCondition.randomChance(0.1f))
     );
 
     private static final LootTable.Builder OCEAN = LootTable.lootTable().withPool(
@@ -63,7 +63,7 @@ public class CrabTrapLootLoader {
             .add(LootItem.lootTableItem(Items.NAUTILUS_SHELL))
             .add(LootItem.lootTableItem(Items.INK_SAC))
             .when(IN_OCEAN)
-            .when(LootItemRandomChanceCondition.randomChance(0.05f))
+            .when(LootItemRandomChanceCondition.randomChance(0.1f))
     );
 
     private static final LootTable.Builder WARM_OCEAN = LootTable.lootTable().withPool(
@@ -72,14 +72,14 @@ public class CrabTrapLootLoader {
             .add(LootItem.lootTableItem(Items.PUFFERFISH))
             .add(LootItem.lootTableItem(Items.INK_SAC))
             .when(IN_WARM_OCEAN)
-            .when(LootItemRandomChanceCondition.randomChance(0.05f))
+            .when(LootItemRandomChanceCondition.randomChance(0.1f))
     );
 
     private static final LootTable.Builder SWAMP = LootTable.lootTable().withPool(
         LootPool.lootPool().setRolls(ConstantValue.exactly(1.0f))
             .add(LootItem.lootTableItem(Items.LILY_PAD))
             .when(IN_SWAMP)
-            .when(LootItemRandomChanceCondition.randomChance(0.05f))
+            .when(LootItemRandomChanceCondition.randomChance(0.1f))
     );
 
     private static final LootTable.Builder JUNGLE = LootTable.lootTable().withPool(
@@ -87,7 +87,7 @@ public class CrabTrapLootLoader {
             .add(LootItem.lootTableItem(Items.BAMBOO))
             .add(LootItem.lootTableItem(Items.COCOA_BEANS))
             .when(IN_JUNGLE)
-            .when(LootItemRandomChanceCondition.randomChance(0.05f))
+            .when(LootItemRandomChanceCondition.randomChance(0.1f))
     );
 
     public static void init(RegistrateLootTableProvider provider) {

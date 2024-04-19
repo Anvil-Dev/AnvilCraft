@@ -21,6 +21,7 @@ import dev.dubhe.anvilcraft.block.SimpleChuteBlock;
 import dev.dubhe.anvilcraft.block.StampingPlatformBlock;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.item.CursedBlockItem;
+import dev.dubhe.anvilcraft.item.PlaceInWaterBlockItem;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.tags.BlockTags;
@@ -443,7 +444,8 @@ public class ModBlocks {
         .blockstate((ctx, provider) -> {
         })
         .properties(BlockBehaviour.Properties::noOcclusion)
-        .simpleItem()
+        .item(PlaceInWaterBlockItem::new)
+        .build()
         .defaultLoot()
         .tag(BlockTags.MINEABLE_WITH_AXE)
         .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
