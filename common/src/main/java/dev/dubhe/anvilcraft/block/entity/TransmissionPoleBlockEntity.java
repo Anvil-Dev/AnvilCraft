@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.init.ModBlocks;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -45,5 +46,10 @@ public class TransmissionPoleBlockEntity extends BlockEntity implements IPowerTr
         if (!this.getBlockState().is(ModBlocks.TRANSMISSION_POLE.get())) return PowerComponentType.INVALID;
         if (this.getBlockState().getValue(TransmissionPoleBlock.HALF) != Half.TOP) return PowerComponentType.INVALID;
         return PowerComponentType.TRANSMITTER;
+    }
+
+    @Override
+    public Level getCurrentLevel() {
+        return this.getLevel();
     }
 }
