@@ -469,6 +469,8 @@ public class ModItems {
         .register();
     public static final ItemEntry<Item> MAGNETOELECTRIC_CORE = REGISTRATE
         .item("magnetoelectric_core", Item::new)
+        .model((ctx, provider) -> {
+        })
         .recipe((ctx, provider) -> {
             ShapedTagRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get().getDefaultInstance())
                 .pattern("ABA")
