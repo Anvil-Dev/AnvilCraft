@@ -19,7 +19,7 @@ public interface IPowerComponent {
     BooleanProperty OVERLOAD = BooleanProperty.create("overload");
     EnumProperty<Switch> SWITCH = EnumProperty.create("switch", Switch.class);
 
-    Level getLevel();
+    Level getCurrentLevel();
 
     /**
      * @return 元件位置

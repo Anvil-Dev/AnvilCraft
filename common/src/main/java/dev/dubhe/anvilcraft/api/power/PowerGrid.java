@@ -267,7 +267,7 @@ public class PowerGrid {
         for (IPowerComponent component : components) {
             if (component.getComponentType() == PowerComponentType.INVALID) continue;
             PowerGrid grid = null;
-            Set<PowerGrid> grids = PowerGrid.getGridSet(component.getLevel());
+            Set<PowerGrid> grids = PowerGrid.getGridSet(component.getCurrentLevel());
             Iterator<PowerGrid> iterator = grids.iterator();
             while (iterator.hasNext()) {
                 PowerGrid grid1 = iterator.next();
@@ -279,7 +279,7 @@ public class PowerGrid {
                     new PowerGridRemovePack(grid1).broadcast();
                 }
             }
-            if (grid == null) grid = new PowerGrid(component.getLevel());
+            if (grid == null) grid = new PowerGrid(component.getCurrentLevel());
             grid.add(component);
             grids.add(grid);
         }
