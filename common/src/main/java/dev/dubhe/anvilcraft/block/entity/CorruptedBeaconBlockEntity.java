@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
@@ -123,6 +124,11 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
         if (level.getGameTime() % 80L == 0L) {
             if (!blockEntity.beamSections.isEmpty()) {
                 blockEntity.levels = updateBase(level, i, j, k);
+                if (blockEntity.levels > 0 && !state.getValue(CorruptedBeaconBlock.LIT)) {
+                    level.setBlockAndUpdate(pos, state.setValue(CorruptedBeaconBlock.LIT, true));
+                } else if (blockEntity.levels <= 0 && state.getValue(CorruptedBeaconBlock.LIT)) {
+                    level.setBlockAndUpdate(pos, state.setValue(CorruptedBeaconBlock.LIT, false));
+                }
             }
             if (blockEntity.levels > 0 && !blockEntity.beamSections.isEmpty()) {
                 CorruptedBeaconBlockEntity.applyEffects(level, pos);

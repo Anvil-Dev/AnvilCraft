@@ -21,6 +21,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.BlastingRecipe;
@@ -29,7 +30,9 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
+import net.minecraft.world.item.crafting.SmokingRecipe;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -75,7 +78,7 @@ public class ServerEventListener {
                 ResourceLocation id = recipeEntry.getKey();
                 Recipe<?> recipe = recipeEntry.getValue();
                 recipeMap.put(id, recipe);
-                if (type != RecipeType.CRAFTING && type != RecipeType.BLASTING) continue;
+                if (type != RecipeType.CRAFTING && type != RecipeType.BLASTING && type != RecipeType.SMOKING) continue;
                 Pair<ResourceLocation, Recipe<?>> newRecipe = ServerEventListener.processRecipes(id, recipe);
                 if (newRecipe == null) continue;
                 ResourceLocation location = newRecipe.getFirst();
@@ -128,6 +131,10 @@ public class ServerEventListener {
             NonNullList<Ingredient> ingredients = recipe.getIngredients();
             if (ingredients.size() != 1) return null;
             return heating(result, ingredients.get(0), id);
+        } else if (oldRecipe instanceof SmokingRecipe recipe) {
+            NonNullList<Ingredient> ingredients = recipe.getIngredients();
+            if (ingredients.size() != 1) return null;
+            return smoking(result, ingredients.get(0), id);
         }
         return null;
     }
@@ -155,6 +162,33 @@ public class ServerEventListener {
                     )
                     .build()
             )
+        );
+        recipe1.addOutcomes(new SpawnItem(new Vec3(0.0, -1.0, 0.0), 1.0, result.copy()));
+        return new Pair<>(location, recipe1);
+    }
+
+    private static @NotNull Pair<ResourceLocation, Recipe<?>> smoking(
+            @NotNull ItemStack result, Ingredient ingredient, @NotNull ResourceLocation id
+    ) {
+        ResourceLocation location = AnvilCraft.of("cook/" + id.getPath());
+        AnvilRecipe recipe1 = new AnvilRecipe(location, result);
+        recipe1.addPredicates(
+                HasItemIngredient.of(new Vec3(0.0, -1.0, 0.0), ingredient),
+                new HasBlock(
+                        new Vec3(0.0, -1.0, 0.0),
+                        BlockPredicate.Builder.block().of(Blocks.CAULDRON).build()
+                ),
+                new HasBlock(
+                        new Vec3(0.0, -2.0, 0.0),
+                        BlockPredicate.Builder.block()
+                                .of(BlockTags.CAMPFIRES)
+                                .setProperties(
+                                        StatePropertiesPredicate.Builder.properties()
+                                                .hasProperty(CampfireBlock.LIT, true)
+                                                .build()
+                                )
+                                .build()
+                )
         );
         recipe1.addOutcomes(new SpawnItem(new Vec3(0.0, -1.0, 0.0), 1.0, result.copy()));
         return new Pair<>(location, recipe1);

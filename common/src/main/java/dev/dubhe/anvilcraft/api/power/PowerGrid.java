@@ -1,18 +1,24 @@
 package dev.dubhe.anvilcraft.api.power;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.network.PowerGridRemovePack;
+import dev.dubhe.anvilcraft.network.PowerGridSyncPack;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -21,10 +27,8 @@ import java.util.Set;
 @SuppressWarnings("unused")
 public class PowerGrid {
     public static boolean isServerClosing = false;
-    @Getter
-    private static Set<PowerGrid> gridSetClient = Collections.synchronizedSet(new HashSet<>());
-    public static final Set<PowerGrid> GRID_SET = new HashSet<>();
-    public static final int GRID_TICK = 40;
+    public static final Map<Level, Set<PowerGrid>> GRID_MAP = new HashMap<>();
+    public static final int GRID_TICK = 20;
     public static int cooldown = 0;
     @Getter
     private int generate = 0; // 发电功率
@@ -35,9 +39,19 @@ public class PowerGrid {
     private final Set<IPowerStorage> storages = new HashSet<>();   // 储电
     private final Set<IPowerTransmitter> transmitters = new HashSet<>();    // 中继
     @Getter
-    private VoxelShape range = null;
+    private VoxelShape shape = null;
     @Getter
     private BlockPos pos = null;
+    @Getter
+    private final Level level;
+
+    public PowerGrid(Level level) {
+        this.level = level;
+    }
+
+    public void update() {
+        new PowerGridSyncPack(this).broadcast(this.level.getChunkAt(this.getPos()));
+    }
 
     /**
      * @return 获取电网中的元件数量
@@ -61,14 +75,15 @@ public class PowerGrid {
             cooldown--;
             return;
         }
-        Iterator<PowerGrid> iterator = PowerGrid.GRID_SET.iterator();
-        while (iterator.hasNext()) {
-            PowerGrid grid = iterator.next();
-            if (grid.isEmpty()) iterator.remove();
-            grid.tick();
+        for (Set<PowerGrid> grids : PowerGrid.GRID_MAP.values()) {
+            Iterator<PowerGrid> iterator = grids.iterator();
+            while (iterator.hasNext()) {
+                PowerGrid grid = iterator.next();
+                if (grid.isEmpty()) iterator.remove();
+                grid.tick();
+            }
         }
         cooldown = GRID_TICK;
-        gridSetClient = Set.copyOf(GRID_SET);
     }
 
     /**
@@ -96,6 +111,7 @@ public class PowerGrid {
                 this.generate += storage.extract(this.consume - this.generate);
             }
         }
+        this.update();
     }
 
     private boolean checkRemove(IPowerComponent component) {
@@ -155,19 +171,19 @@ public class PowerGrid {
     }
 
     private void addRange(IPowerComponent component) {
-        if (this.range == null) {
-            this.range = component.getRange();
+        if (this.shape == null) {
+            this.shape = component.getShape();
             this.pos = component.getPos();
             return;
         }
         BlockPos center = this.pos;
         BlockPos vec3 = component.getPos();
-        VoxelShape range = component.getRange().move(
+        VoxelShape range = component.getShape().move(
             vec3.getX() - center.getX(),
             vec3.getY() - center.getY(),
             vec3.getZ() - center.getZ()
         );
-        this.range = Shapes.join(this.range, range, BooleanOp.OR);
+        this.shape = Shapes.join(this.shape, range, BooleanOp.OR);
     }
 
     /**
@@ -206,7 +222,8 @@ public class PowerGrid {
         for (IPowerComponent component : components) {
             set.remove(component);
         }
-        PowerGrid.GRID_SET.remove(this);
+        PowerGrid.getGridSet(this.level).remove(this);
+        new PowerGridRemovePack(this).broadcast();
         PowerGrid.addComponent(set.toArray(IPowerComponent[]::new));
     }
 
@@ -234,8 +251,8 @@ public class PowerGrid {
     public boolean isInRange(@NotNull IPowerComponent component) {
         BlockPos vec3 = component.getPos().subtract(this.getPos());
         VoxelShape range = Shapes.join(
-            this.range,
-            component.getRange().move(vec3.getX(), vec3.getY(), vec3.getZ()),
+            this.shape,
+            component.getShape().move(vec3.getX(), vec3.getY(), vec3.getZ()),
             BooleanOp.AND
         );
         return !range.isEmpty();
@@ -250,7 +267,8 @@ public class PowerGrid {
         for (IPowerComponent component : components) {
             if (component.getComponentType() == PowerComponentType.INVALID) continue;
             PowerGrid grid = null;
-            Iterator<PowerGrid> iterator = PowerGrid.GRID_SET.iterator();
+            Set<PowerGrid> grids = PowerGrid.getGridSet(component.getLevel());
+            Iterator<PowerGrid> iterator = grids.iterator();
             while (iterator.hasNext()) {
                 PowerGrid grid1 = iterator.next();
                 if (!grid1.isInRange(component)) continue;
@@ -258,11 +276,28 @@ public class PowerGrid {
                 else {
                     grid.merge(grid1);
                     iterator.remove();
+                    new PowerGridRemovePack(grid1).broadcast();
                 }
             }
-            if (grid == null) grid = new PowerGrid();
+            if (grid == null) grid = new PowerGrid(component.getLevel());
             grid.add(component);
-            PowerGrid.GRID_SET.add(grid);
+            grids.add(grid);
+        }
+    }
+
+    /**
+     * 获取指定世界的电网集合
+     *
+     * @param level 世界
+     * @return 电网集合
+     */
+    public static Set<PowerGrid> getGridSet(Level level) {
+        if (PowerGrid.GRID_MAP.containsKey(level)) {
+            return PowerGrid.GRID_MAP.get(level);
+        } else {
+            Set<PowerGrid> grids = new HashSet<>();
+            PowerGrid.GRID_MAP.put(level, grids);
+            return grids;
         }
     }
 
@@ -270,6 +305,80 @@ public class PowerGrid {
      * 清空电网
      */
     public static void clear() {
-        PowerGrid.GRID_SET.clear();
+        PowerGrid.GRID_MAP.values().forEach(Collection::clear);
+    }
+
+    @Getter
+    public static class SimplePowerGrid {
+        private final int hash;
+        private final String level;
+        private final BlockPos pos;
+        private final Map<BlockPos, Integer> ranges = new HashMap<>();
+
+        /**
+         * @param buf 缓冲区
+         */
+        public void encode(@NotNull FriendlyByteBuf buf) {
+            buf.writeInt(this.hash);
+            buf.writeUtf(this.level);
+            buf.writeBlockPos(this.pos);
+            Set<Map.Entry<BlockPos, Integer>> set = this.ranges.entrySet();
+            buf.writeVarInt(set.size());
+            for (Map.Entry<BlockPos, Integer> entry : set) {
+                buf.writeBlockPos(entry.getKey());
+                buf.writeInt(entry.getValue());
+            }
+        }
+
+        /**
+         * @param buf 缓冲区
+         */
+        public SimplePowerGrid(@NotNull FriendlyByteBuf buf) {
+            this.hash = buf.readInt();
+            this.level = buf.readUtf();
+            this.pos = buf.readBlockPos();
+            int size = buf.readVarInt();
+            for (int i = 0; i < size; i++) {
+                this.ranges.put(buf.readBlockPos(), buf.readInt());
+            }
+        }
+
+        /**
+         * @param grid 电网
+         */
+        public SimplePowerGrid(@NotNull PowerGrid grid) {
+            this.hash = grid.hashCode();
+            this.level = grid.getLevel().dimension().location().toString();
+            this.pos = grid.getPos();
+            grid.storages.forEach(this::addRange);
+            grid.producers.forEach(this::addRange);
+            grid.consumers.forEach(this::addRange);
+            grid.transmitters.forEach(this::addRange);
+        }
+
+        public void addRange(@NotNull IPowerComponent component) {
+            this.ranges.put(component.getPos(), component.getRange());
+        }
+
+        /**
+         * @return 获取范围
+         */
+        public VoxelShape getShape() {
+            return this.ranges.entrySet().stream().map(entry -> Shapes
+                .box(
+                    -entry.getValue(), -entry.getValue(), -entry.getValue(),
+                    entry.getValue() + 1, entry.getValue() + 1, entry.getValue() + 1
+                )
+                .move(
+                    this.offset(entry.getKey()).getX(),
+                    this.offset(entry.getKey()).getY(),
+                    this.offset(entry.getKey()).getZ()
+                )
+            ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).orElse(Shapes.block());
+        }
+
+        private @NotNull BlockPos offset(@NotNull BlockPos pos) {
+            return pos.subtract(this.pos);
+        }
     }
 }
