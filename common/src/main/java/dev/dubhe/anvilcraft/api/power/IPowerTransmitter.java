@@ -1,8 +1,6 @@
 package dev.dubhe.anvilcraft.api.power;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -10,9 +8,8 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface IPowerTransmitter extends IPowerComponent {
     @Override
-    default VoxelShape getRange() {
-        int range = AnvilCraft.config.powerTransmitterRange;
-        return Shapes.box(-range, -range, -range, range + 1, range + 1, range + 1);
+    default int getRange() {
+        return AnvilCraft.config.powerTransmitterRange;
     }
 
     @Override

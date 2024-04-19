@@ -10,12 +10,15 @@
     },
     "C": {
       "item": "minecraft:dropper"
+    },
+    "D": {
+      "item": "anvilcraft:magnetoelectric_core"
     }
   },
   "pattern": [
-    "AAA",
     "ABA",
-    "ACA"
+    "CDA",
+    "AAA"
   ],
   "result": {
     "item": "anvilcraft:auto_crafter"

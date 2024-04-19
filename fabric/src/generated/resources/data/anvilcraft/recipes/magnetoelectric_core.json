@@ -1,24 +1,24 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
+  "category": "equipment",
   "key": {
     "A": {
-      "item": "minecraft:terracotta"
+      "item": "minecraft:copper_ingot"
     },
     "B": {
-      "item": "minecraft:iron_ingot"
+      "tag": "c:silica_glass"
     },
     "C": {
-      "item": "anvilcraft:magnetoelectric_core"
+      "item": "anvilcraft:hollow_magnet_block"
     }
   },
   "pattern": [
     "ABA",
     "BCB",
-    "BBB"
+    "ABA"
   ],
   "result": {
-    "item": "anvilcraft:heater"
+    "item": "anvilcraft:magnetoelectric_core"
   },
   "show_notification": true
 }
