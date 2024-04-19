@@ -152,7 +152,12 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
         throw new AssertionError();
     }
 
+    /**
+     * @param level 世界
+     * @param pos   位置
+     */
     public void tick(@NotNull Level level, BlockPos pos) {
+        this.flushState(level, pos);
         BlockState state = level.getBlockState(pos);
         if (state.getValue(AutoCrafterBlock.LIT)) craft(level);
     }
