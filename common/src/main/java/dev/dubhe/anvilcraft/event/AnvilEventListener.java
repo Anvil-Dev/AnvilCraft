@@ -8,25 +8,40 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
+import dev.dubhe.anvilcraft.mixin.accessor.BaseSpawnerAccessor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BaseSpawner;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.SpawnData;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RedstoneTorchBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
@@ -48,14 +63,159 @@ public class AnvilEventListener {
         BlockPos belowPos = pos.below();
         BlockState state = level.getBlockState(belowPos);
         if (state.is(Blocks.REDSTONE_BLOCK)) redstoneEmp(level, belowPos, event.getFallDistance());
+        if (state.is(Blocks.SPAWNER)) hitSpawner(level, belowPos, event.getFallDistance());
         belowPos = belowPos.below();
         state = level.getBlockState(belowPos);
         if (state.is(Blocks.STONECUTTER)) brokeBlock(level, belowPos.above(), event);
         AnvilCraftingContainer container = new AnvilCraftingContainer(level, pos, event.getEntity());
         Optional<AnvilRecipe> optional = server
-            .getRecipeManager()
-            .getRecipeFor(ModRecipeTypes.ANVIL_RECIPE, container, level);
+                .getRecipeManager()
+                .getRecipeFor(ModRecipeTypes.ANVIL_RECIPE, container, level);
         optional.ifPresent(anvilRecipe -> anvilProcess(anvilRecipe, container, event));
+    }
+
+    private void hitSpawner(Level level, BlockPos pos, float fallDistance) {
+        if (level instanceof ServerLevel serverLevel) {
+            RandomSource randomSource = serverLevel.getRandom();
+            float f = randomSource.nextFloat();
+            System.out.println("f = " + f);
+            System.out.println("(1 / fallDistance) = " + (1 / fallDistance));
+            if (fallDistance < 1) {
+                fallDistance = 1.1f;
+            }
+            if (f <= (1 / fallDistance)) {
+                return;
+            }
+            if (level.getBlockEntity(pos) instanceof SpawnerBlockEntity blockEntity) {
+
+                BaseSpawner spawner = blockEntity.getSpawner();
+                BaseSpawnerAccessor accessor = (BaseSpawnerAccessor) spawner;
+                SpawnData spawnData = accessor.invoker$getOrCreateNextSpawnData(level, randomSource, pos);
+                spawnEntities(spawnData, serverLevel, pos, randomSource, accessor);
+            }
+        }
+    }
+
+    private void spawnEntities(
+            SpawnData spawnData,
+            ServerLevel serverLevel,
+            BlockPos pos,
+            RandomSource randomSource,
+            BaseSpawnerAccessor accessor
+    ) {
+        for (int i = 0; i < accessor.getSpawnCount(); ++i) {
+            CompoundTag compoundTag = spawnData.getEntityToSpawn();
+            Optional<EntityType<?>> optional = EntityType.by(compoundTag);
+            if (optional.isEmpty()) {
+                return;
+            }
+
+            ListTag listTag = compoundTag.getList("Pos", 6);
+            int size = listTag.size();
+            double x = 0;
+            double y = 0;
+            double z = 0;
+            if (size >= 1) {
+                x = listTag.getDouble(0);
+            } else {
+                x = (double) pos.getX()
+                        + (randomSource.nextDouble() - randomSource.nextDouble())
+                        * accessor.getSpawnRange() + 0.5;
+            }
+            if (size >= 2) {
+                y = listTag.getDouble(1);
+            } else {
+                y = pos.getY() + randomSource.nextInt(3) - 1;
+            }
+            if (size >= 3) {
+                z = listTag.getDouble(2);
+            } else {
+                z = (double) pos.getZ()
+                        + (randomSource.nextDouble() - randomSource.nextDouble())
+                        * accessor.getSpawnRange() + 0.5;
+            }
+            if (serverLevel.noCollision(optional.get().getAABB(x, y, z))) {
+                BlockPos blockPos = BlockPos.containing(x, y, z);
+                if (spawnData.getCustomSpawnRules().isPresent()) {
+                    if (!optional.get().getCategory().isFriendly()
+                            && serverLevel.getDifficulty() == Difficulty.PEACEFUL
+                    ) {
+                        continue;
+                    }
+
+                    SpawnData.CustomSpawnRules customSpawnRules = spawnData.getCustomSpawnRules().get();
+                    if (!customSpawnRules.blockLightLimit()
+                            .isValueInRange(serverLevel.getBrightness(LightLayer.BLOCK, blockPos))
+                            || !customSpawnRules.skyLightLimit()
+                            .isValueInRange(serverLevel.getBrightness(LightLayer.SKY, blockPos))) {
+                        continue;
+                    }
+                } else if (!SpawnPlacements.checkSpawnRules(
+                        optional.get(),
+                        serverLevel,
+                        MobSpawnType.SPAWNER,
+                        blockPos,
+                        serverLevel.getRandom()
+                )) {
+                    continue;
+                }
+
+                double finalX = x;
+                double finalY = y;
+                double finalZ = z;
+                Entity entity = EntityType.loadEntityRecursive(compoundTag, serverLevel, it -> {
+                    it.moveTo(finalX, finalY, finalZ, it.getYRot(), it.getXRot());
+                    return it;
+                });
+                if (entity == null) {
+                    return;
+                }
+                AABB boundingBox = new AABB(
+                        pos.getX(),
+                        pos.getY(),
+                        pos.getZ(),
+                        pos.getX() + 1,
+                        pos.getY() + 1,
+                        pos.getZ() + 1
+                );
+                int k = serverLevel.getEntitiesOfClass(
+                        entity.getClass(),
+                        boundingBox.inflate(accessor.getSpawnRange())
+                ).size();
+                if (k >= accessor.getMaxNearbyEntities()) {
+                    return;
+                }
+
+                entity.moveTo(entity.getX(), entity.getY(), entity.getZ(), randomSource.nextFloat() * 360.0F, 0.0F);
+                if (entity instanceof Mob mob) {
+                    if (spawnData.getCustomSpawnRules().isEmpty()
+                            && !mob.checkSpawnRules(serverLevel, MobSpawnType.SPAWNER)
+                            || !mob.checkSpawnObstruction(serverLevel)) {
+                        continue;
+                    }
+
+                    if (spawnData.getEntityToSpawn().size() == 1 && spawnData.getEntityToSpawn().contains("id", 8)) {
+                        ((Mob) entity).finalizeSpawn(
+                                serverLevel,
+                                serverLevel.getCurrentDifficultyAt(entity.blockPosition()),
+                                MobSpawnType.SPAWNER,
+                                null,
+                                null
+                        );
+                    }
+                }
+
+                if (!serverLevel.tryAddFreshEntityWithPassengers(entity)) {
+                    return;
+                }
+
+                serverLevel.levelEvent(2004, pos, 0);
+                serverLevel.gameEvent(entity, GameEvent.ENTITY_PLACE, blockPos);
+                if (entity instanceof Mob) {
+                    ((Mob) entity).spawnAnim();
+                }
+            }
+        }
     }
 
     private void anvilProcess(AnvilRecipe recipe, AnvilCraftingContainer container, AnvilFallOnLandEvent event) {
@@ -74,10 +234,10 @@ public class AnvilEventListener {
         if (state.getDestroySpeed(level, pos) < 0) return;
         BlockEntity blockEntity = state.hasBlockEntity() ? level.getBlockEntity(pos) : null;
         LootParams.Builder builder = new LootParams
-            .Builder(serverLevel)
-            .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos))
-            .withParameter(LootContextParams.TOOL, ItemStack.EMPTY)
-            .withOptionalParameter(LootContextParams.BLOCK_ENTITY, blockEntity);
+                .Builder(serverLevel)
+                .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos))
+                .withParameter(LootContextParams.TOOL, ItemStack.EMPTY)
+                .withOptionalParameter(LootContextParams.BLOCK_ENTITY, blockEntity);
         state.spawnAfterBreak(serverLevel, pos, ItemStack.EMPTY, false);
         dropItems(state.getDrops(builder), level, pos.getCenter());
         level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
