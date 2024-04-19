@@ -90,6 +90,11 @@ public class CrabTrapLootLoader {
             .when(LootItemRandomChanceCondition.randomChance(0.1f))
     );
 
+    /**
+     * 初始化蟹笼相关的战利品表
+     *
+     * @param provider 提供器
+     */
     public static void init(RegistrateLootTableProvider provider) {
         provider.addLootAction(ModLootContextParamSet.CRAB_TRAP, (bi) -> {
             bi.accept(ModLootTables.CRAB_TRAP_COMMON, COMMON);
