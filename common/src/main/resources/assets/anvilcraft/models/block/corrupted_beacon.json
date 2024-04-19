@@ -1,7 +1,7 @@
 {
 	"credit": "Made by XeKr with Blockbench",
 	"parent": "minecraft:block/block",
-	"render_type": "minecraft:translucent",
+	"render_type": "minecraft:cutout",
 	"textures": {
 		"base": "anvilcraft:block/corrupted_beacon_base",
 		"core": "anvilcraft:block/corrupted_beacon_core",
