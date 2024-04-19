@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.init.ModEntities;
 import dev.dubhe.anvilcraft.init.ModEvents;
 import dev.dubhe.anvilcraft.init.ModItemGroups;
 import dev.dubhe.anvilcraft.init.ModItems;
+import dev.dubhe.anvilcraft.init.ModLootContextParamSet;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.ModNetworks;
 import me.shedaniel.autoconfig.AutoConfig;
@@ -48,6 +49,7 @@ public class AnvilCraft {
         ModMenuTypes.register();
         ModNetworks.register();
         ModDispenserBehavior.register();
+        ModLootContextParamSet.register();
         // datagen
         AnvilCraftDatagen.init();
         // fabric 独有，请在此之前插入注册

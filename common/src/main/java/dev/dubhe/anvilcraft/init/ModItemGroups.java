@@ -53,6 +53,7 @@ public class ModItemGroups {
                 entries.accept(ModItems.CAPACITOR.get().getDefaultInstance());
                 entries.accept(ModItems.CAPACITOR_EMPTY.get().getDefaultInstance());
                 entries.accept(ModItems.MAGNETOELECTRIC_CORE.get().getDefaultInstance());
+                entries.accept(ModItems.CRAB_CLAW.asStack());
             })
             .build()
         )
@@ -92,6 +93,7 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.SAPPHIRE_BLOCK.asStack());
                 entries.accept(ModBlocks.RESIN_BLOCK.asStack());
                 entries.accept(ModBlocks.AMBER_BLOCK.asStack());
+                entries.accept(ModBlocks.CRAB_TRAP.asStack());
             })
             .build()
         )

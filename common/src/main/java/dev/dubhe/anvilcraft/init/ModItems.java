@@ -547,6 +547,11 @@ public class ModItems {
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), RegistrateRecipeProvider.has(Items.IRON_INGOT))
             .save(provider))
         .register();
+    public static final ItemEntry<Item> CRAB_CLAW = REGISTRATE
+        .item("crab_claw", Item::new)
+        .model((ctx, provider) -> {
+        })
+        .register();
 
     public static void register() {
     }
