@@ -6,8 +6,9 @@ import dev.dubhe.anvilcraft.api.event.SubscribeEvent;
 import dev.dubhe.anvilcraft.api.event.server.ServerEndDataPackReloadEvent;
 import dev.dubhe.anvilcraft.api.event.server.ServerStartedEvent;
 import dev.dubhe.anvilcraft.api.hammer.HammerManager;
-import dev.dubhe.anvilcraft.block.HeaterBlock;
+import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeMap;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SpawnItem;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasBlock;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItemIngredient;
@@ -37,7 +38,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 public class ServerEventListener {
     /**
@@ -59,24 +59,14 @@ public class ServerEventListener {
         ServerEventListener.processRecipes(server);
     }
 
-    private static int compare(@NotNull ResourceLocation l1, ResourceLocation l2) {
-        if (l1.getPath().startsWith("heating/")) return -1;
-        return 1;
-    }
-
-    private static int getPriority(@NotNull ResourceLocation location) {
-        if (location.getPath().startsWith("heating/")) return 999;
-        return 1000;
-    }
-
     /**
      * 处理配方
      *
      * @param server 服务器
      */
     public static void processRecipes(@NotNull MinecraftServer server) {
-        Map<ResourceLocation, Recipe<?>> newRecipes = new TreeMap<>(ServerEventListener::compare);
         Map<RecipeType<?>, Map<ResourceLocation, Recipe<?>>> newRecipeMap = new HashMap<>();
+        AnvilRecipeMap anvilRecipes = new AnvilRecipeMap();
         for (Map.Entry<RecipeType<?>, Map<ResourceLocation, Recipe<?>>> entry
             : server.getRecipeManager().recipes.entrySet()) {
             RecipeType<?> type = entry.getKey();
@@ -87,13 +77,21 @@ public class ServerEventListener {
                 recipeMap.put(id, recipe);
                 if (type != RecipeType.CRAFTING && type != RecipeType.BLASTING) continue;
                 Pair<ResourceLocation, Recipe<?>> newRecipe = ServerEventListener.processRecipes(id, recipe);
-                if (newRecipe != null) newRecipes.put(newRecipe.getFirst(), newRecipe.getSecond());
+                if (newRecipe == null) continue;
+                ResourceLocation location = newRecipe.getFirst();
+                Recipe<?> recipe1 = newRecipe.getSecond();
+                anvilRecipes.put(location, recipe1);
             }
             if (type == ModRecipeTypes.ANVIL_RECIPE) {
-                newRecipes.putAll(recipeMap);
+                for (Map.Entry<ResourceLocation, Recipe<?>> recipeEntry : recipeMap.entrySet()) {
+                    ResourceLocation location = recipeEntry.getKey();
+                    Recipe<?> recipe = recipeEntry.getValue();
+                    anvilRecipes.put(location, recipe);
+                }
             } else newRecipeMap.put(type, recipeMap);
         }
-        newRecipeMap.put(ModRecipeTypes.ANVIL_RECIPE, newRecipes);
+        anvilRecipes.sort();
+        newRecipeMap.put(ModRecipeTypes.ANVIL_RECIPE, anvilRecipes.unmodifiable());
         newRecipeMap.replaceAll(
             (type, resourceLocationRecipeMap) -> Collections.unmodifiableMap(resourceLocationRecipeMap)
         );
@@ -152,7 +150,7 @@ public class ServerEventListener {
                     .of(ModBlocks.HEATER.get())
                     .setProperties(
                         StatePropertiesPredicate.Builder.properties()
-                            .hasProperty(HeaterBlock.LIT, true)
+                            .hasProperty(IPowerComponent.OVERLOAD, false)
                             .build()
                     )
                     .build()

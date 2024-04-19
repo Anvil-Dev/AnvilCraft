@@ -62,4 +62,8 @@ public interface RecipeOutcome {
     void toNetwork(FriendlyByteBuf buffer);
 
     JsonElement toJson();
+
+    default double getChance() {
+        return 1.0;
+    }
 }

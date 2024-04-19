@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.DamageAnvil;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.RunCommand;
+import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SelectOne;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SetBlock;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SpawnExperience;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SpawnItem;
@@ -57,7 +58,9 @@ import java.util.function.Consumer;
 @SuppressWarnings("unused")
 public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
     private final ResourceLocation id;
+    @Getter
     private final List<RecipePredicate> predicates = new ArrayList<>();
+    @Getter
     private final List<RecipeOutcome> outcomes = new ArrayList<>();
     private final ItemStack icon;
 
@@ -216,7 +219,7 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
             return this;
         }
 
-        public @NotNull Builder icon(ItemLike icon) {
+        public @NotNull Builder icon(@NotNull ItemLike icon) {
             this.icon = icon.asItem().getDefaultInstance();
             return this;
         }
@@ -721,5 +724,6 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
         RecipeOutcome.register("spawn_item", SpawnItem::new, SpawnItem::new);
         RecipeOutcome.register("spawn_experience", SpawnExperience::new, SpawnExperience::new);
         RecipeOutcome.register("run_command", RunCommand::new, RunCommand::new);
+        RecipeOutcome.register("select_one", SelectOne::new, SelectOne::new);
     }
 }
