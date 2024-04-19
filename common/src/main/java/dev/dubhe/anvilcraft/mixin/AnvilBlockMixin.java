@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.mixin;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
+import dev.dubhe.anvilcraft.entity.AnimateAscendingBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -91,7 +92,8 @@ abstract class AnvilBlockMixin extends FallingBlock {
             }
             if (!level.isEmptyBlock(magnet.below())) return;
             level.setBlockAndUpdate(magnet.below(), state);
-            level.setBlockAndUpdate(anvil, Blocks.AIR.defaultBlockState());
+            level.setBlockAndUpdate(anvil, state.getFluidState().createLegacyBlock());
+            AnimateAscendingBlockEntity.animate(level, anvil, state, magnet.below());
         }
     }
 
