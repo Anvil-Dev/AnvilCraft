@@ -60,6 +60,7 @@ public class SelectOne implements RecipeOutcome {
     @Override
     public boolean process(@NotNull AnvilCraftingContainer container) {
         RandomSource random = container.getLevel().random;
+        if (random.nextDouble() > this.chance) return true;
         List<Double> weights = this.outcomes.stream().map(RecipeOutcome::getChance).toList();
         RecipeOutcome outcome = SelectOne.weightedRandomSelect(this.outcomes, weights, random);
         if (outcome != null) outcome.process(container);

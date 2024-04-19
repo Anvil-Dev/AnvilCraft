@@ -20,6 +20,7 @@ import dev.dubhe.anvilcraft.block.RoyalSmithingTableBlock;
 import dev.dubhe.anvilcraft.block.SimpleChuteBlock;
 import dev.dubhe.anvilcraft.block.StampingPlatformBlock;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.item.CursedBlockItem;
 import dev.dubhe.anvilcraft.item.PlaceInWaterBlockItem;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -38,8 +39,12 @@ import net.minecraft.world.level.block.SlimeBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.phys.Vec3;
+
+import java.util.Map;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
+import static dev.dubhe.anvilcraft.api.power.IPowerComponent.OVERLOAD;
 
 public class ModBlocks {
     public static final BlockEntry<? extends Block> STAMPING_PLATFORM = REGISTRATE
@@ -186,11 +191,12 @@ public class ModBlocks {
         .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
             .pattern("ABA")
             .pattern("CDA")
-            .pattern("AAA")
+            .pattern("AEA")
             .define('A', Items.IRON_INGOT)
             .define('B', Items.CRAFTING_TABLE)
             .define('C', Items.DROPPER)
             .define('D', ModItems.MAGNETOELECTRIC_CORE)
+            .define('E', ModItems.CIRCUIT_BOARD)
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(Items.CRAFTING_TABLE),
@@ -200,6 +206,10 @@ public class ModBlocks {
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
                 AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.CIRCUIT_BOARD),
+                AnvilCraftDatagen.has(ModItems.CIRCUIT_BOARD)
             )
             .save(provider)
         )
@@ -228,14 +238,32 @@ public class ModBlocks {
         .simpleItem()
         .defaultLoot()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS)
-        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-            .pattern("AAA")
-            .pattern("AAA")
-            .pattern("AAA")
-            .define('A', ModItems.ROYAL_STEEL_INGOT)
-            .unlockedBy("hasitem", RegistrateRecipeProvider.has(ModItems.ROYAL_STEEL_INGOT))
-            .save(provider)
-        )
+        .recipe((ctx, provider) -> {
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItems.ROYAL_STEEL_INGOT)
+                .unlockedBy("hasitem", RegistrateRecipeProvider.has(ModItems.ROYAL_STEEL_INGOT))
+                .save(provider);
+            AnvilRecipe.Builder.create(RecipeCategory.MISC)
+                .icon(ModItems.ROYAL_STEEL_INGOT)
+                .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(OVERLOAD, false))
+                .hasBlock(Blocks.CAULDRON)
+                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 3, Items.IRON_BLOCK)
+                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 1, Items.DIAMOND_BLOCK)
+                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 3, Items.AMETHYST_BLOCK)
+                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 1, Items.EMERALD_BLOCK)
+                .spawnItem(new Vec3(0.0, -1.0, 0.0), ctx.get().asItem(), 1)
+                .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_BLOCK), AnvilCraftDatagen.has(Items.IRON_BLOCK))
+                .unlockedBy(AnvilCraftDatagen.hasItem(Items.DIAMOND_BLOCK), AnvilCraftDatagen.has(Items.DIAMOND_BLOCK))
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(Items.AMETHYST_BLOCK), AnvilCraftDatagen.has(Items.AMETHYST_BLOCK)
+                )
+                .unlockedBy(AnvilCraftDatagen.hasItem(Items.EMERALD_BLOCK), AnvilCraftDatagen.has(Items.EMERALD_BLOCK))
+                .save(provider, AnvilCraft.of("heating/"
+                    + BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath()));
+        })
         .register();
     public static final BlockEntry<? extends Block> SMOOTH_ROYAL_STEEL_BLOCK = REGISTRATE
         .block("smooth_royal_steel_block", Block::new)

@@ -1,6 +1,18 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
+    "has_circuit_board": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "anvilcraft:circuit_board"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
     "has_crafting_table": {
       "conditions": {
         "items": [
@@ -62,6 +74,7 @@
       "has_crafting_table",
       "has_dropper",
       "has_magnetoelectric_core",
+      "has_circuit_board",
       "has_the_recipe"
     ]
   ],
