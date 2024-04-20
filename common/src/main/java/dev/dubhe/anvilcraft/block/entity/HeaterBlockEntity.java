@@ -53,4 +53,9 @@ public class HeaterBlockEntity extends BlockEntity implements IPowerConsumer {
     public void tick(@NotNull Level level, @NotNull BlockPos pos) {
         this.flushState(level, pos);
     }
+
+    @Override
+    public Level getCurrentLevel() {
+        return this.getLevel();
+    }
 }

@@ -16,6 +16,7 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -88,5 +89,10 @@ public class CreativeDynamoBlockEntity extends BlockEntity implements IPowerProd
     @Override
     public AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
         return new SliderMenu(i, -8192, 8192, this::setPower);
+    }
+
+    @Override
+    public Level getCurrentLevel() {
+        return super.getLevel();
     }
 }

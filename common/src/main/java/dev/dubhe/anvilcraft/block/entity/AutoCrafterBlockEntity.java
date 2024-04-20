@@ -376,4 +376,9 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
             spawnItemEntity0(stack.copyWithCount(stackSize));
         }
     }
+
+    @Override
+    public Level getCurrentLevel() {
+        return this.getLevel();
+    }
 }
