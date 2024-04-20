@@ -36,11 +36,11 @@ public class AnvilRecipeMap extends LinkedHashMap<ResourceLocation, Recipe<?>> {
         if (!(entry1.getValue() instanceof AnvilRecipe value1 && entry2.getValue() instanceof AnvilRecipe value2)) {
             return 0;
         }
-        int size1 = value1.getOutcomes().size();
-        int size2 = value2.getOutcomes().size();
+        int size1 = value1.getPredicates().size();
+        int size2 = value2.getPredicates().size();
         if (size1 != size2) return size1 - size2;
-        size1 = value1.getPredicates().size();
-        size2 = value2.getPredicates().size();
+        size1 = value1.getOutcomes().size();
+        size2 = value2.getOutcomes().size();
         return size1 - size2;
     }
 }

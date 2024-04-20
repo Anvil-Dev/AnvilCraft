@@ -7,8 +7,8 @@ modId="${mod_id}"
 version="${version}"
 displayName="${mod_name}"
 displayURL="${mod_url}"
-authors=""
-description="${mod_description}"
+authors="Gugle,XeKr"
+description="""${mod_description}\n\nContributors:\n${contributors}\n\nSupporters:\n${supporters}\n- and more...\n"""
 logoFile="pack.png" #optional
 #credits="Thanks for this example mod goes to Java"
 

@@ -94,7 +94,7 @@ public class ModItems {
                 .save(provider)
         )
         .model((ctx, provider) -> provider.handheld(ctx))
-        .tag(ModItemTags.PICKAXES)
+        .tag(ModItemTags.PICKAXES, ItemTags.CLUSTER_MAX_HARVESTABLES)
         .register();
     public static final ItemEntry<? extends AxeItem> AMETHYST_AXE = REGISTRATE
         .item("amethyst_axe", properties -> new AxeItem(ModTiers.AMETHYST, 7, -3.2f, properties) {

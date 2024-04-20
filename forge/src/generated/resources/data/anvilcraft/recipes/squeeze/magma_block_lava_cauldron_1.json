@@ -26,7 +26,9 @@
       ],
       "result": {
         "block": "anvilcraft:lava_cauldron",
-        "state": "[level=1]"
+        "state": {
+          "level": "1"
+        }
       }
     }
   ],
@@ -49,8 +51,7 @@
       "match_block": {
         "blocks": [
           "minecraft:cauldron"
-        ],
-        "state": {}
+        ]
       },
       "offset": [
         0.0,

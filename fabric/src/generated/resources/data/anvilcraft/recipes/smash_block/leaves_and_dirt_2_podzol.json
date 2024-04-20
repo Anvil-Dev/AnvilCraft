@@ -14,7 +14,9 @@
       ],
       "result": {
         "block": "minecraft:podzol",
-        "state": "[snowy=false]"
+        "state": {
+          "snowy": "false"
+        }
       }
     }
   ],

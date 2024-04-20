@@ -4,7 +4,7 @@
   "version": "${version}",
 
   "name": "${mod_name}",
-  "description": "${mod_description}",
+  "description": "${mod_description}\n\nContributors:\n${contributors}\n\nSupporter:\n${supporters}\n- and more...",
   "authors": [
     "Gugle",
     "XeKr"
@@ -30,6 +30,9 @@
     ],
     "modmenu": [
       "dev.dubhe.anvilcraft.integration.AnvilCraftModMenuApiImpl"
+    ],
+    "emi": [
+      "dev.dubhe.anvilcraft.integration.emi.AnvilCraftEmiPlugin"
     ]
   },
   "mixins": [

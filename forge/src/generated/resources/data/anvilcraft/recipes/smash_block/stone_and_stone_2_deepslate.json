@@ -14,7 +14,9 @@
       ],
       "result": {
         "block": "minecraft:deepslate",
-        "state": "[axis=y]"
+        "state": {
+          "axis": "y"
+        }
       }
     }
   ],
