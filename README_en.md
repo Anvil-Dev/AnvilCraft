@@ -1,6 +1,6 @@
 # [铁砧工艺](./README.md) | AnvilCraft
 
-[![Development Builds](https://github.com/Gu-ZT/AnvilCraftMod/actions/workflows/ci.yml/badge.svg)](https://github.com/Gu-ZT/AnvilCraftMod/actions/workflows/ci.yml)
+[![Development Builds](https://github.com/Anvil-Dev/AnvilCraft/actions/workflows/ci.yml/badge.svg)](https://github.com/Anvil-Dev/AnvilCraft/actions/workflows/ci.yml)
 [![CurseForge downloads](http://cf.way2muchnoise.eu/full_986251_downloads.svg)](https://www.curseforge.com/minecraft/mc-mods/anvilcraft)
 [![Modrinth downloads](https://img.shields.io/modrinth/dt/anvilcraft?color=00AF5C&label=Modrinth%20downloads&logo=modrinth)](https://modrinth.com/mod/anvilcraft)
 [![GitHub downloads](https://img.shields.io/github/downloads/Gu-ZT/AnvilCraftMod/total?label=Github%20downloads&logo=github)](https://github.com/Gu-ZT/AnvilCraftMod/releases)

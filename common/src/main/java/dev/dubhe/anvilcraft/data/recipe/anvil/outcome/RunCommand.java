@@ -22,8 +22,8 @@ import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
+@Getter
 public class RunCommand implements RecipeOutcome {
-    @Getter
     private final String type = "run_command";
     private final Vec3 offset;
     private final double chance;

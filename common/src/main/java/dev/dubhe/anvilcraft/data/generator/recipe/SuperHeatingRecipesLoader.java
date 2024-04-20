@@ -46,8 +46,10 @@ public class SuperHeatingRecipesLoader {
             .hasBlock(Blocks.CAULDRON)
             .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 1, ModItemTags.STONE_FORGE)
             .setBlock(Blocks.LAVA_CAULDRON)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.STONE_FORGE), AnvilCraftDatagen.has(ModItemTags.STONE_FORGE))
-            .save(provider, AnvilCraft.of("heating/" + BuiltInRegistries.BLOCK.getKey(Blocks.LAVA).getPath()));
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.STONE_FORGE),
+                AnvilCraftDatagen.has(ModItemTags.STONE_FORGE))
+            .save(provider, AnvilCraft.of("heating/"
+                + BuiltInRegistries.BLOCK.getKey(Blocks.LAVA).getPath() + "_forge"));
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
             .icon(ModItems.ROYAL_STEEL_INGOT)
             .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(OVERLOAD, false))
