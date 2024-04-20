@@ -10,8 +10,9 @@
     "XeKr"
   ],
   "contact": {
-    "website": "https://anc.dubhe.dev/",
-    "repo": "https://github.com/Gu-ZT/AnvilCraft"
+    "homepage": "https://anc.dubhe.dev/",
+    "sources": "https://github.com/Anvil-Dev/AnvilCraft",
+    "issues": "https://github.com/Anvil-Dev/AnvilCraft/issues"
   },
 
   "license": "${mod_license}",
