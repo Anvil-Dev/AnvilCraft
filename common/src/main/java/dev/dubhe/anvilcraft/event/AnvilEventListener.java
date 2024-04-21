@@ -83,8 +83,6 @@ public class AnvilEventListener {
         if (level instanceof ServerLevel serverLevel) {
             RandomSource randomSource = serverLevel.getRandom();
             float f = randomSource.nextFloat();
-            System.out.println("f = " + f);
-            System.out.println("(1 / fallDistance) = " + (1 / fallDistance));
             if (fallDistance < 1) {
                 fallDistance = 1.1f;
             }
