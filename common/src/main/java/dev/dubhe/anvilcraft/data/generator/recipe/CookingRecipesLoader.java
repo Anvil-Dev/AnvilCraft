@@ -9,7 +9,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
@@ -24,12 +23,6 @@ public class CookingRecipesLoader {
      * @param provider 提供器
      */
     public static void init(RegistrateRecipeProvider provider) {
-        AnvilRecipe.Builder.create(RecipeCategory.FOOD)
-            .hasBlock(Blocks.IRON_TRAPDOOR)
-            .hasItemIngredient(Items.WHEAT)
-            .spawnItem(new Vec3(0.0, -1.0, 0.0), ModItems.FLOUR)
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.WHEAT), AnvilCraftDatagen.has(Items.WHEAT))
-            .save(provider);
         boil(ModItems.BEEF_MUSHROOM_STEW_RAW.get(), 1, ModItems.BEEF_MUSHROOM_STEW.get(), 1, provider);
         cook(ModItems.UTUSAN_RAW.get(), 1, ModItems.UTUSAN.get(), 1, provider);
         cook(ModItems.RESIN.get(), 1, ModItems.HARDEND_RESIN.get(), 1, provider);

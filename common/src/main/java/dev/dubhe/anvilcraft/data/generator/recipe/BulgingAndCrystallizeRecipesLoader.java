@@ -31,13 +31,19 @@ public class BulgingAndCrystallizeRecipesLoader {
         bulging(Items.FIRE_CORAL, Items.FIRE_CORAL_BLOCK, provider);
         bulging(Items.HORN_CORAL, Items.HORN_CORAL_BLOCK, provider);
         bulging(Items.TUBE_CORAL, Items.TUBE_CORAL_BLOCK, provider);
-        bulging(ModItems.FLOUR.get(), ModItems.DOUGH.get(), provider);
         bulging(ModItems.BARK.get(), ModItems.PULP.get(), provider);
         bulging(ModItems.SPONGE_GEMMULE.get(), Items.WET_SPONGE, provider);
         crystallize(ModItems.SEA_HEART_SHELL_SHARD.get(), ModItems.PRISMARINE_CLUSTER.get(), provider);
     }
 
-    private static void bulging(Item item, Item item1, RegistrateRecipeProvider provider) {
+    /**
+     * 膨发配方
+     *
+     * @param item     原料
+     * @param item1    产物
+     * @param provider 提供器
+     */
+    public static void bulging(Item item, Item item1, RegistrateRecipeProvider provider) {
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
             .icon(item1)
             .hasBlock(Blocks.WATER_CAULDRON, new Vec3(0.0, -1.0, 0.0), Map.entry(LayeredCauldronBlock.LEVEL, 3))

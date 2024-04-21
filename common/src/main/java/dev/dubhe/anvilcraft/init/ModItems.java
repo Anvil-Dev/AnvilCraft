@@ -4,6 +4,8 @@ import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.entry.ItemEntry;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
+import dev.dubhe.anvilcraft.data.generator.recipe.BulgingAndCrystallizeRecipesLoader;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.crafting.ShapedTagRecipeBuilder;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import dev.dubhe.anvilcraft.item.CapacitorItem;
@@ -35,6 +37,7 @@ import net.minecraft.world.item.Tiers;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -168,10 +171,18 @@ public class ModItems {
     public static final ItemEntry<Item> FLOUR = REGISTRATE
         .item("flour", Item::new)
         .tag(ModItemTags.FLOUR, ModItemTags.WHEAT_FLOUR)
+        .recipe((ctx, provider) -> AnvilRecipe.Builder.create(RecipeCategory.MISC, ctx.get().getDefaultInstance())
+            .hasBlock(ModBlocks.STAMPING_PLATFORM.get())
+            .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), Items.WHEAT)
+            .spawnItem(new Vec3(0.0, -0.75, 0.0), ctx.get())
+            .spawnItem(new Vec3(0.0, -0.75, 0.0), 0.25, Items.WHEAT_SEEDS)
+            .save(provider))
         .register();
     public static final ItemEntry<Item> DOUGH = REGISTRATE
         .item("dough", Item::new)
         .tag(ModItemTags.DOUGH, ModItemTags.WHEAT_DOUGH)
+        .recipe((ctx, provider) ->
+            BulgingAndCrystallizeRecipesLoader.bulging(ModItems.FLOUR.get(), ModItems.DOUGH.get(), provider))
         .register();
     public static final ItemEntry<Item> CHOCOLATE = REGISTRATE
         .item("chocolate", properties -> new Item(properties.food(ModFoods.CHOCOLATE)))
