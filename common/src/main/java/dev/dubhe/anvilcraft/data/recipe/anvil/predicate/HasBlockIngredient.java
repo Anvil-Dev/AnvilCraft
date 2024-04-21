@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 public class HasBlockIngredient extends HasBlock {
     private final String type = "has_block_ingredient";
 
-    public HasBlockIngredient(Vec3 offset, BlockPredicate matchBlock) {
+    public HasBlockIngredient(Vec3 offset, HasBlock.ModBlockPredicate matchBlock) {
         super(offset, matchBlock);
     }
 

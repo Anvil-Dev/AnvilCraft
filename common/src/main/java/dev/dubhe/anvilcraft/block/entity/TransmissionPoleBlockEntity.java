@@ -52,4 +52,20 @@ public class TransmissionPoleBlockEntity extends BlockEntity implements IPowerTr
     public Level getCurrentLevel() {
         return this.getLevel();
     }
+
+    /**
+     * @param level 世界
+     * @param pos   位置
+     */
+    public void tick(@NotNull Level level, @NotNull BlockPos pos) {
+        BlockState state = level.getBlockState(pos);
+        if (!state.is(ModBlocks.TRANSMISSION_POLE.get())) return;
+        if (state.getValue(TransmissionPoleBlock.HALF) != Half.TOP) return;
+        if (state.getValue(TransmissionPoleBlock.SWITCH) == Switch.OFF && this.getGrid() != null) {
+            this.getGrid().remove(this);
+        } else if (state.getValue(TransmissionPoleBlock.SWITCH) == Switch.ON && this.getGrid() == null) {
+            PowerGrid.addComponent(this);
+        }
+        this.flushState(level, pos);
+    }
 }

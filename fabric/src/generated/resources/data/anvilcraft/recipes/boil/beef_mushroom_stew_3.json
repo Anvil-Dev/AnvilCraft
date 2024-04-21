@@ -14,7 +14,9 @@
       ],
       "result": {
         "block": "minecraft:water_cauldron",
-        "state": "[level=2]"
+        "state": {
+          "level": "2"
+        }
       }
     },
     {

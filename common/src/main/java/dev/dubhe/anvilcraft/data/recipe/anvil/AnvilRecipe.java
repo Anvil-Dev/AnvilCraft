@@ -20,11 +20,9 @@ import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.CriterionTriggerInstance;
 import net.minecraft.advancements.RequirementsStrategy;
-import net.minecraft.advancements.critereon.BlockPredicate;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
-import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.data.recipes.FinishedRecipe;
@@ -375,8 +373,7 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
         }
 
         public @NotNull Builder hasBlock(Vec3 offset, Block... blocks) {
-            BlockPredicate.Builder block = BlockPredicate.Builder.block().of(blocks);
-            return this.addPredicates(new HasBlock(offset, block.build()));
+            return this.addPredicates(new HasBlock(offset, new HasBlock.ModBlockPredicate().block(blocks)));
         }
 
         /**
@@ -391,13 +388,9 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
         public final @NotNull Builder hasBlock(
             Block block, Vec3 offset, Map.Entry<Property<?>, Comparable<?>> @NotNull ... states
         ) {
-            BlockPredicate.Builder blockPredicate = BlockPredicate.Builder.block().of(block);
-            StatePropertiesPredicate.Builder properties = StatePropertiesPredicate.Builder.properties();
-            for (Map.Entry<Property<?>, Comparable<?>> entry : states) {
-                properties.hasProperty(entry.getKey(), entry.getValue().toString());
-            }
-            blockPredicate.setProperties(properties.build());
-            return this.addPredicates(new HasBlock(offset, blockPredicate.build()));
+            return this.addPredicates(new HasBlock(
+                offset, new HasBlock.ModBlockPredicate().block(block).property(states)
+            ));
         }
 
         /**
@@ -408,18 +401,17 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
          * @return 构造器
          */
         public @NotNull Builder hasBlock(Vec3 offset, TagKey<Block> blocks) {
-            BlockPredicate.Builder block = BlockPredicate.Builder.block().of(blocks);
-            return this.addPredicates(new HasBlock(offset, block.build()));
+            return this.addPredicates(new HasBlock(offset, new HasBlock.ModBlockPredicate().block(blocks)));
         }
 
         /**
          * 拥有方块
          *
-         * @param offset 偏移
+         * @param offset         偏移
          * @param blockPredicate 方块谓词
          * @return 构造器
          */
-        public @NotNull Builder hasBlock(Vec3 offset, BlockPredicate blockPredicate) {
+        public @NotNull Builder hasBlock(Vec3 offset, HasBlock.ModBlockPredicate blockPredicate) {
             return this.addPredicates(new HasBlock(offset, blockPredicate));
         }
 
@@ -434,14 +426,12 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
         @SuppressWarnings("unchecked")
         public <T extends Comparable<T>> @NotNull Builder hasBlock(Vec3 offset, @NotNull BlockState blockState) {
             BlockState defaultBlockState = blockState.getBlock().defaultBlockState();
-            StatePropertiesPredicate.Builder properties = StatePropertiesPredicate.Builder.properties();
+            HasBlock.ModBlockPredicate predicate = new HasBlock.ModBlockPredicate().block(blockState.getBlock());
             for (Map.Entry<Property<?>, Comparable<?>> entry : blockState.getValues().entrySet()) {
                 if (((T) defaultBlockState.getValue(entry.getKey())).compareTo((T) entry.getValue()) == 0) continue;
-                properties.hasProperty(entry.getKey(), entry.getValue().toString());
+                predicate.property(entry.getKey().getName(), entry.getValue().toString());
             }
-            BlockPredicate.Builder block = BlockPredicate.Builder.block()
-                .of(blockState.getBlock()).setProperties(properties.build());
-            return this.addPredicates(new HasBlock(offset, block.build()));
+            return this.addPredicates(new HasBlock(offset, predicate));
         }
 
         /**
@@ -463,18 +453,27 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
         }
 
         public @NotNull Builder hasBlockIngredient(Vec3 offset, Block... blocks) {
-            BlockPredicate.Builder block = BlockPredicate.Builder.block().of(blocks);
-            return this.addPredicates(new HasBlockIngredient(offset, block.build()));
+            return this.addPredicates(new HasBlockIngredient(offset, new HasBlock.ModBlockPredicate().block(blocks)));
         }
 
         public @NotNull Builder hasBlockIngredient(Vec3 offset, TagKey<Block> blocks) {
-            BlockPredicate.Builder block = BlockPredicate.Builder.block().of(blocks);
-            return this.addPredicates(new HasBlockIngredient(offset, block.build()));
+            return this.addPredicates(new HasBlockIngredient(offset, new HasBlock.ModBlockPredicate().block(blocks)));
         }
 
-        public @NotNull Builder hasBlockIngredient(Vec3 offset, @NotNull BlockState blockState) {
-            BlockPredicate.Builder block = BlockPredicate.Builder.block().of(blockState.getBlock());
-            return this.addPredicates(new HasBlockIngredient(offset, block.build()));
+        /**
+         * 物品原料
+         */
+        @SuppressWarnings("unchecked")
+        public @NotNull <T extends Comparable<T>> Builder hasBlockIngredient(
+            Vec3 offset, @NotNull BlockState blockState
+        ) {
+            BlockState defaultBlockState = blockState.getBlock().defaultBlockState();
+            HasBlock.ModBlockPredicate predicate = new HasBlock.ModBlockPredicate().block(blockState.getBlock());
+            for (Map.Entry<Property<?>, Comparable<?>> entry : blockState.getValues().entrySet()) {
+                if (((T) defaultBlockState.getValue(entry.getKey())).compareTo((T) entry.getValue()) == 0) continue;
+                predicate.property(entry.getKey().getName(), entry.getValue().toString());
+            }
+            return this.addPredicates(new HasBlockIngredient(offset, predicate));
         }
 
         public @NotNull Builder hasBlockIngredient(Block... blocks) {

@@ -14,6 +14,7 @@
     "DispenseItemEmptyBucketBehaviorMixin",
     "DispenseItemWaterBottleBehaviorMixin",
     "ItemEntityMixin",
+    "LootContextParamSetsAccessor",
     "SolidBucketItemMixin",
     "accessor.BaseSpawnerAccessor",
     "accessor.FallingBlockEntityAccessor"

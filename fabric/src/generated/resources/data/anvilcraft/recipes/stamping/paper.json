@@ -15,6 +15,18 @@
       "result": {
         "item": "minecraft:paper"
       }
+    },
+    {
+      "type": "spawn_item",
+      "chance": 0.25,
+      "offset": [
+        0.0,
+        -0.75,
+        0.0
+      ],
+      "result": {
+        "item": "minecraft:sugar"
+      }
     }
   ],
   "predicates": [
