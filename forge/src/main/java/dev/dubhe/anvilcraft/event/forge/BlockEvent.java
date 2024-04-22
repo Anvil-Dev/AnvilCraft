@@ -33,12 +33,12 @@ public class BlockEvent {
     @SubscribeEvent
     public static void anvilHammerUse(@NotNull PlayerInteractEvent.RightClickBlock event) {
         InteractionHand hand = event.getHand();
-        if (event.getLevel().isClientSide()) {
-            if (event.getEntity().getItemInHand(hand).getItem() instanceof AnvilHammerItem) {
+        if (event.getEntity().getItemInHand(hand).getItem() instanceof AnvilHammerItem) {
+            if (event.getLevel().isClientSide()) {
                 new HammerUsePack(event.getPos(), hand).send();
             }
+            event.setCancellationResult(InteractionResult.SUCCESS);
+            event.setCanceled(true);
         }
-        event.setCancellationResult(InteractionResult.SUCCESS);
-        event.setCanceled(true);
     }
 }
