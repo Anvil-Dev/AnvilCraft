@@ -18,6 +18,11 @@ import java.util.List;
 
 @Mod.EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class VillagerEvent {
+    /**
+     * 添加自定义交易时间
+     *
+     * @param event 事件
+     */
     @SubscribeEvent
     public static void addCustomTrades(VillagerTradesEvent event) {
         if (event.getType() == ModVillagers.JEWELER.get()) {

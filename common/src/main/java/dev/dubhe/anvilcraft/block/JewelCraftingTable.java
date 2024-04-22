@@ -50,7 +50,9 @@ public class JewelCraftingTable extends Block {
     }
 
     @Override
-    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    public InteractionResult use(
+        BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit
+    ) {
         return super.use(state, level, pos, player, hand, hit);
         // TODO: GUI
     }

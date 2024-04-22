@@ -10,6 +10,9 @@ import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.level.block.Blocks;
 
 public class ModCustomTrades {
+    /**
+     * 注册自定义交易
+     */
     public static void registerCustomTrades() {
         TradeOfferHelper.registerVillagerOffers(ModVillagers.JEWELER, 1, factories -> {
             factories.add((entity, random) -> new MerchantOffer(
