@@ -256,14 +256,17 @@ public class ModBlocks {
                 .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 3, Items.IRON_BLOCK)
                 .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 1, Items.DIAMOND_BLOCK)
                 .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 3, Items.AMETHYST_BLOCK)
-                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 1, Items.EMERALD_BLOCK)
+                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 1, ModItemTags.GEM_BLOCKS)
                 .spawnItem(new Vec3(0.0, -1.0, 0.0), ctx.get().asItem(), 1)
                 .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_BLOCK), AnvilCraftDatagen.has(Items.IRON_BLOCK))
                 .unlockedBy(AnvilCraftDatagen.hasItem(Items.DIAMOND_BLOCK), AnvilCraftDatagen.has(Items.DIAMOND_BLOCK))
                 .unlockedBy(
                     AnvilCraftDatagen.hasItem(Items.AMETHYST_BLOCK), AnvilCraftDatagen.has(Items.AMETHYST_BLOCK)
                 )
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.EMERALD_BLOCK), AnvilCraftDatagen.has(Items.EMERALD_BLOCK))
+                .unlockedBy(
+                        AnvilCraftDatagen.hasItem(ModItemTags.GEM_BLOCKS),
+                        AnvilCraftDatagen.has(ModItemTags.GEM_BLOCKS)
+                )
                 .save(provider, AnvilCraft.of("heating/"
                     + BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath()));
         })

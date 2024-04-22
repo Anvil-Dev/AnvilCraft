@@ -73,6 +73,12 @@ public class VanillaRecipesLoader {
                 .define('C', Items.QUARTZ)
                 .unlockedBy("hasitem", AnvilCraftDatagen.has(ModItems.HARDEND_RESIN))
                 .save(provider);
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Items.WET_SPONGE)
+                .pattern("AA")
+                .pattern("AA")
+                .define('A', ModItems.SPONGE_GEMMULE)
+                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModItems.SPONGE_GEMMULE))
+                .save(provider);
 
         SimpleCookingRecipeBuilder.campfireCooking(Ingredient.of(ModItemTags.DOUGH), RecipeCategory.FOOD,
                 Items.BREAD, 0.35f, 600)
