@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.api.hammer.HammerManager;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -27,8 +28,11 @@ import net.minecraft.world.item.Vanishable;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 public class AnvilHammerItem extends Item implements Vanishable, Equipable {
     private long lastDropAnvilTime = 0;
@@ -53,18 +57,24 @@ public class AnvilHammerItem extends Item implements Vanishable, Equipable {
         this.defaultModifiers = builder.build();
     }
 
-    private void breakBlock(Player player, BlockPos blockPos, @NotNull Level level) {
-        if (!(player instanceof ServerPlayer serverPlayer)) return;
-        BlockState blockState = level.getBlockState(blockPos);
-        Block block = blockState.getBlock();
-        if (!blockState.is(ModBlockTags.HAMMER_REMOVABLE) && !(block instanceof IHammerRemovable)) return;
-        level.destroyBlock(blockPos, false);
-        if (!serverPlayer.isAlive() && serverPlayer.hasDisconnected()) {
-            serverPlayer.drop(new ItemStack(block.asItem()), false);
+    private void breakBlock(Player commonPlayer, BlockPos pos, @NotNull Level commonLevel, ItemStack tool) {
+        if (!(commonPlayer instanceof ServerPlayer player)) return;
+        if (!(commonLevel instanceof ServerLevel level)) return;
+        BlockState state = level.getBlockState(pos);
+        Block block = state.getBlock();
+        if (!state.is(ModBlockTags.HAMMER_REMOVABLE) && !(block instanceof IHammerRemovable)) return;
+        block.playerWillDestroy(level, pos, state, player);
+        level.destroyBlock(pos, false);
+        if (player.isCreative()) return;
+        BlockEntity entity = state.hasBlockEntity() ? level.getBlockEntity(pos) : null;
+        List<ItemStack> drops = Block.getDrops(state, level, pos, entity, player, tool);
+        if (!player.isAlive() && player.hasDisconnected()) {
+            drops.forEach(drop -> Block.popResource(level, pos, drop));
+            state.spawnAfterBreak(level, pos, tool, true);
             return;
         }
-        if (serverPlayer.isCreative()) return;
-        serverPlayer.getInventory().placeItemBackInInventory(new ItemStack(block.asItem()));
+        drops.forEach(drop -> player.getInventory().placeItemBackInInventory(drop));
+        state.spawnAfterBreak(level, pos, tool, true);
     }
 
     private boolean changeBlockState(Player player, BlockPos blockPos, @NotNull Level level, ItemStack anvilHammer) {
@@ -109,7 +119,7 @@ public class AnvilHammerItem extends Item implements Vanishable, Equipable {
     public void useAttackBlock(Player player, BlockPos blockPos, Level level) {
         if (player == null || level.isClientSide) return;
         if (player.isShiftKeyDown()) {
-            breakBlock(player, blockPos, level);
+            breakBlock(player, blockPos, level, player.getMainHandItem());
         } else {
             dropAnvil(player, level, blockPos);
         }
