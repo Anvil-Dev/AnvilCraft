@@ -1,0 +1,48 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_grindstone": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "minecraft:grindstone"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_stonecutter": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "minecraft:stonecutter"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:jewelcrafting_table"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_grindstone",
+      "has_stonecutter",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:jewelcrafting_table"
+    ]
+  },
+  "sends_telemetry_event": false
+}
