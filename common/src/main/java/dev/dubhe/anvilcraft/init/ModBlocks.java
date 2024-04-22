@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.block.CreativeDynamoBlock;
 import dev.dubhe.anvilcraft.block.FerriteCoreMagnetBlock;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
+import dev.dubhe.anvilcraft.block.JewelCraftingTable;
 import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
 import dev.dubhe.anvilcraft.block.RoyalAnvilBlock;
@@ -29,6 +30,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -415,9 +417,6 @@ public class ModBlocks {
         .block("amber_block", HalfTransparentBlock::new)
         .initialProperties(() -> Blocks.EMERALD_BLOCK)
         .blockstate((ctx, provider) -> {
-            provider.simpleBlock(ctx.get());
-            provider.models().cubeAll(ctx.getName(), provider.modLoc("block/" + ctx.getName()))
-                .renderType("translucent");
         })
         .properties(BlockBehaviour.Properties::noOcclusion)
         .simpleItem()
@@ -518,6 +517,31 @@ public class ModBlocks {
             .define('A', Items.STICK)
             .define('B', Items.STRING)
             .unlockedBy("hasitem", RegistrateRecipeProvider.has(Items.STRING))
+            .save(provider))
+        .register();
+
+    public static final BlockEntry<JewelCraftingTable> JEWEL_CRAFTING_TABLE = REGISTRATE
+        .block("jewelcrafting_table", JewelCraftingTable::new)
+        .initialProperties(() -> Blocks.STONE)
+        .properties(BlockBehaviour.Properties::noOcclusion)
+        .blockstate((ctx, provider) -> {
+        })
+        .simpleItem()
+        .defaultLoot()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .lang("Jewel Crafting Table")
+        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern("ABC")
+            .pattern("DED")
+            .pattern("F F")
+            .define('A', Items.DIAMOND)
+            .define('B', Blocks.GLASS)
+            .define('C', Blocks.GRINDSTONE)
+            .define('D', Blocks.SMOOTH_STONE)
+            .define('E', Blocks.STONECUTTER)
+            .define('F', ItemTags.PLANKS)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.GRINDSTONE), AnvilCraftDatagen.has(Blocks.GRINDSTONE))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.STONECUTTER), AnvilCraftDatagen.has(Blocks.STONECUTTER))
             .save(provider))
         .register();
 

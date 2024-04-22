@@ -1,0 +1,19 @@
+{
+    "variants": {
+        "facing=east": {
+            "model": "anvilcraft:block/jewelcrafting_table",
+            "y": 90
+        },
+        "facing=north": {
+            "model": "anvilcraft:block/jewelcrafting_table"
+        },
+        "facing=south": {
+            "model": "anvilcraft:block/jewelcrafting_table",
+            "y": 180
+        },
+        "facing=west": {
+            "model": "anvilcraft:block/jewelcrafting_table",
+            "y": 270
+        }
+    }
+}
