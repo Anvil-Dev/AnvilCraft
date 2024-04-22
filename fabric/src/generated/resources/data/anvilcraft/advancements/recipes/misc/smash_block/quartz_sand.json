@@ -15,7 +15,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:smash_block/calcite"
+        "recipe": "anvilcraft:smash_block/quartz_sand"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -28,7 +28,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:smash_block/calcite"
+      "anvilcraft:smash_block/quartz_sand"
     ]
   },
   "sends_telemetry_event": false

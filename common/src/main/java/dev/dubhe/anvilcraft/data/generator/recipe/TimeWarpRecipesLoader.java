@@ -33,6 +33,7 @@ public class TimeWarpRecipesLoader {
         timeWarp(Items.GOLD_BLOCK, Items.RAW_GOLD, 3, provider);
         timeWarp(Items.COPPER_BLOCK, Items.RAW_COPPER, 3, provider);
         timeWarp(ModItems.GEODE.get(), Items.BUDDING_AMETHYST, 1, provider);
+        timeWarp(ModBlocks.CINERITE.asItem(), Items.TUFF, 1, provider);
     }
 
     private static void timeWarp(Item item, Item item1, int count, RegistrateRecipeProvider provider) {

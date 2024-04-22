@@ -1,7 +1,7 @@
 {
   "type": "anvilcraft:anvil_processing",
   "icon": {
-    "item": "minecraft:tuff"
+    "item": "anvilcraft:cinerite"
   },
   "outcomes": [
     {
@@ -13,7 +13,7 @@
         0.0
       ],
       "result": {
-        "block": "minecraft:tuff"
+        "block": "anvilcraft:cinerite"
       }
     }
   ],

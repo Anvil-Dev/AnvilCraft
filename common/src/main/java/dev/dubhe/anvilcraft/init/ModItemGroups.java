@@ -95,6 +95,9 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.RESIN_BLOCK.asStack());
                 entries.accept(ModBlocks.AMBER_BLOCK.asStack());
                 entries.accept(ModBlocks.CRAB_TRAP.asStack());
+                entries.accept(ModBlocks.CINERITE.asStack());
+                entries.accept(ModBlocks.QUARTZ_SAND.asStack());
+                entries.accept(ModBlocks.TEMPERING_GLASS.asStack());
             })
             .build()
         )

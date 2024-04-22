@@ -119,5 +119,19 @@ public class SuperHeatingRecipesLoader {
                     provider,
                     AnvilCraft.of("heating/" + BuiltInRegistries.ITEM.getKey(Items.RAW_COPPER_BLOCK).getPath())
             );
+        AnvilRecipe.Builder.create(RecipeCategory.MISC)
+                .icon(ModBlocks.TEMPERING_GLASS.asItem())
+                .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(OVERLOAD, false))
+                .hasBlock(Blocks.CAULDRON)
+                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 8, ModBlocks.QUARTZ_SAND)
+                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), ModItems.ROYAL_STEEL_INGOT)
+                .spawnItem(new Vec3(0.0, -1.0, 0.0), ModBlocks.TEMPERING_GLASS.asItem(), 8)
+                .unlockedBy(
+                        AnvilCraftDatagen.hasItem(ModBlocks.QUARTZ_SAND),
+                        AnvilCraftDatagen.has(ModBlocks.QUARTZ_SAND)
+                )
+                .save(provider, AnvilCraft.of("heating/" + BuiltInRegistries.ITEM
+                    .getKey(ModBlocks.TEMPERING_GLASS.asItem())
+                    .getPath()));
     }
 }

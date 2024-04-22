@@ -1,12 +1,12 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_andesite": {
+    "has_cinerite": {
       "conditions": {
         "items": [
           {
             "items": [
-              "minecraft:andesite"
+              "anvilcraft:cinerite"
             ]
           }
         ]
@@ -15,20 +15,20 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:smash_block/tuff"
+        "recipe": "anvilcraft:timewarp/tuff"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_andesite",
+      "has_cinerite",
       "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:smash_block/tuff"
+      "anvilcraft:timewarp/tuff"
     ]
   },
   "sends_telemetry_event": false
