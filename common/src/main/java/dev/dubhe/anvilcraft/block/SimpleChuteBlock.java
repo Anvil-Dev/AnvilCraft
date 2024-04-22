@@ -237,8 +237,7 @@ public class SimpleChuteBlock extends BaseEntityBlock implements
         BlockState facingState = level.getBlockState(pos.relative(state.getValue(FACING)));
         if (facingState.is(ModBlocks.CHUTE.get()) || facingState.is(ModBlocks.SIMPLE_CHUTE.get())) {
             if (facingState.getValue(FACING).getOpposite() == state.getValue(FACING)) {
-                level.destroyBlock(pos, true);
-                return true;
+                return this.change(player, pos, level, anvilHammer);
             }
         }
         return true;

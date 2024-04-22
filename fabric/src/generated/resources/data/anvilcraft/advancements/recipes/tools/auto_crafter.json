@@ -1,6 +1,18 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
+    "has_circuit_board": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "anvilcraft:circuit_board"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
     "has_crafting_table": {
       "conditions": {
         "items": [
@@ -37,6 +49,18 @@
       },
       "trigger": "minecraft:inventory_changed"
     },
+    "has_magnetoelectric_core": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "anvilcraft:magnetoelectric_core"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
     "has_the_recipe": {
       "conditions": {
         "recipe": "anvilcraft:auto_crafter"
@@ -49,6 +73,8 @@
       "has_iron_ingot",
       "has_crafting_table",
       "has_dropper",
+      "has_magnetoelectric_core",
+      "has_circuit_board",
       "has_the_recipe"
     ]
   ],

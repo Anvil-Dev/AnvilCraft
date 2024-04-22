@@ -87,6 +87,19 @@ public class VanillaRecipesLoader {
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.DOUGH.get()), AnvilCraftDatagen.has(ModItems.DOUGH))
             .save(provider, AnvilCraft.of("generic_cooking_bread"));
 
+        SimpleCookingRecipeBuilder.campfireCooking(Ingredient.of(ModItemTags.DOUGH_FORGE), RecipeCategory.FOOD,
+                Items.BREAD, 0.35f, 600)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.DOUGH.get()), AnvilCraftDatagen.has(ModItems.DOUGH))
+            .save(provider, AnvilCraft.of("campfire_cooking_bread_forge"));
+        SimpleCookingRecipeBuilder.smoking(Ingredient.of(ModItemTags.DOUGH_FORGE), RecipeCategory.FOOD,
+                Items.BREAD, 0.35f, 100)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.DOUGH.get()), AnvilCraftDatagen.has(ModItems.DOUGH))
+            .save(provider, AnvilCraft.of("smoking_bread_forge"));
+        SimpleCookingRecipeBuilder.generic(Ingredient.of(ModItemTags.DOUGH_FORGE), RecipeCategory.FOOD,
+                Items.BREAD, 0.35f, 600, RecipeSerializer.SMOKING_RECIPE)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.DOUGH.get()), AnvilCraftDatagen.has(ModItems.DOUGH))
+            .save(provider, AnvilCraft.of("generic_cooking_bread_forge"));
+
         VanillaRecipeProvider.stonecutterResultFromBase(provider, RecipeCategory.BUILDING_BLOCKS,
             ModBlocks.CUT_ROYAL_STEEL_STAIRS, ModBlocks.CUT_ROYAL_STEEL_BLOCK);
         VanillaRecipeProvider.stonecutterResultFromBase(provider, RecipeCategory.BUILDING_BLOCKS,

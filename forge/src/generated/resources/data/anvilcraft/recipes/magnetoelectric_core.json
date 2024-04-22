@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "A": {
+      "item": "minecraft:copper_ingot"
+    },
+    "B": {
+      "tag": "c:silica_glass"
+    },
+    "C": {
+      "item": "anvilcraft:hollow_magnet_block"
+    }
+  },
+  "pattern": [
+    "ABA",
+    "BCB",
+    "ABA"
+  ],
+  "result": {
+    "item": "anvilcraft:magnetoelectric_core"
+  },
+  "show_notification": true
+}

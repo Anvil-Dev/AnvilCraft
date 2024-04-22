@@ -19,40 +19,46 @@
       }
     },
     {
-      "type": "spawn_item",
-      "chance": 0.25,
-      "offset": [
-        0.0,
-        -0.75,
-        0.0
-      ],
-      "result": {
-        "item": "anvilcraft:topaz"
-      }
-    },
-    {
-      "type": "spawn_item",
-      "chance": 0.25,
-      "offset": [
-        0.0,
-        -0.75,
-        0.0
-      ],
-      "result": {
-        "item": "anvilcraft:sapphire"
-      }
-    },
-    {
-      "type": "spawn_item",
-      "chance": 0.25,
-      "offset": [
-        0.0,
-        -0.75,
-        0.0
-      ],
-      "result": {
-        "item": "anvilcraft:ruby"
-      }
+      "type": "select_one",
+      "chance": 1.0,
+      "outcomes": [
+        {
+          "type": "spawn_item",
+          "chance": 1.0,
+          "offset": [
+            0.0,
+            -0.75,
+            0.0
+          ],
+          "result": {
+            "item": "anvilcraft:topaz"
+          }
+        },
+        {
+          "type": "spawn_item",
+          "chance": 1.0,
+          "offset": [
+            0.0,
+            -0.75,
+            0.0
+          ],
+          "result": {
+            "item": "anvilcraft:sapphire"
+          }
+        },
+        {
+          "type": "spawn_item",
+          "chance": 1.0,
+          "offset": [
+            0.0,
+            -0.75,
+            0.0
+          ],
+          "result": {
+            "item": "anvilcraft:ruby"
+          }
+        }
+      ]
     }
   ],
   "predicates": [

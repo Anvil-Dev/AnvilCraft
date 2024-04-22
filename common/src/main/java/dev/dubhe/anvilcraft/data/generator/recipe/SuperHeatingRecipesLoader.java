@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.data.generator.recipe;
 
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.init.ModBlocks;
@@ -16,6 +15,8 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.Map;
 
+import static dev.dubhe.anvilcraft.api.power.IPowerComponent.OVERLOAD;
+
 public class SuperHeatingRecipesLoader {
     /**
      * 初始化配方
@@ -25,7 +26,7 @@ public class SuperHeatingRecipesLoader {
     public static void init(RegistrateRecipeProvider provider) {
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
             .icon(Items.DIAMOND)
-            .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(HeaterBlock.LIT, true))
+            .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(OVERLOAD, false))
             .hasBlock(Blocks.CAULDRON)
             .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 16, Items.COAL_BLOCK)
             .spawnItem(new Vec3(0.0, -1.0, 0.0), Items.DIAMOND, 1)
@@ -33,15 +34,36 @@ public class SuperHeatingRecipesLoader {
             .save(provider, AnvilCraft.of("heating/" + BuiltInRegistries.ITEM.getKey(Items.DIAMOND).getPath()));
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
             .icon(Items.LAVA_BUCKET)
-            .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(HeaterBlock.LIT, true))
+            .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(OVERLOAD, false))
             .hasBlock(Blocks.CAULDRON)
-            .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 1, ModItemTags.STONE)
+            .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 4, Items.COBBLESTONE)
+            .setBlock(Blocks.LAVA_CAULDRON)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.COBBLESTONE), AnvilCraftDatagen.has(Items.COBBLESTONE))
+            .save(
+                provider,
+                AnvilCraft.of("heating/" + BuiltInRegistries.BLOCK.getKey(Blocks.LAVA).getPath()) + "_2"
+            );
+        AnvilRecipe.Builder.create(RecipeCategory.MISC)
+            .icon(Items.LAVA_BUCKET)
+            .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(OVERLOAD, false))
+            .hasBlock(Blocks.CAULDRON)
+            .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 4, ModItemTags.STONE)
             .setBlock(Blocks.LAVA_CAULDRON)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.STONE), AnvilCraftDatagen.has(ModItemTags.STONE))
             .save(provider, AnvilCraft.of("heating/" + BuiltInRegistries.BLOCK.getKey(Blocks.LAVA).getPath()));
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
+            .icon(Items.LAVA_BUCKET)
+            .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(OVERLOAD, false))
+            .hasBlock(Blocks.CAULDRON)
+            .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 4, ModItemTags.STONE_FORGE)
+            .setBlock(Blocks.LAVA_CAULDRON)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.STONE_FORGE),
+                AnvilCraftDatagen.has(ModItemTags.STONE_FORGE))
+            .save(provider, AnvilCraft.of("heating/"
+                + BuiltInRegistries.BLOCK.getKey(Blocks.LAVA).getPath() + "_forge"));
+        AnvilRecipe.Builder.create(RecipeCategory.MISC)
             .icon(ModItems.ROYAL_STEEL_INGOT)
-            .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(HeaterBlock.LIT, true))
+            .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(OVERLOAD, false))
             .hasBlock(Blocks.CAULDRON)
             .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 3, Items.IRON_INGOT)
             .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 1, Items.DIAMOND)

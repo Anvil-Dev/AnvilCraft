@@ -4,12 +4,15 @@ import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
+import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SelectOne;
+import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SpawnItem;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 
@@ -22,10 +25,16 @@ public class StampingRecipesLoader {
     public static void init(RegistrateRecipeProvider provider) {
         stamping(Items.IRON_INGOT, Items.HEAVY_WEIGHTED_PRESSURE_PLATE, provider);
         stamping(Items.GOLD_INGOT, Items.LIGHT_WEIGHTED_PRESSURE_PLATE, provider);
-        stamping(Items.SUGAR_CANE, Items.PAPER, provider);
         stamping(Items.SNOWBALL, Items.SNOW, provider);
         stamping(ModItems.PULP.get(), Items.PAPER, provider);
         stamping(Items.MILK_BUCKET, ModItems.CREAM.get(), provider);
+        AnvilRecipe.Builder.create(RecipeCategory.MISC)
+            .hasBlock(ModBlocks.STAMPING_PLATFORM.get())
+            .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), Items.SUGAR_CANE)
+            .spawnItem(new Vec3(0.0, -0.75, 0.0), Items.PAPER)
+            .spawnItem(new Vec3(0.0, -0.75, 0.0), 0.25, Items.SUGAR)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.SUGAR_CANE), AnvilCraftDatagen.has(Items.SUGAR_CANE))
+            .save(provider, AnvilCraft.of("stamping/paper"));
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
             .hasBlock(ModBlocks.STAMPING_PLATFORM.get())
             .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), Items.COCOA_BEANS)
@@ -57,19 +66,22 @@ public class StampingRecipesLoader {
             .hasBlock(ModBlocks.STAMPING_PLATFORM.get())
             .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), ModItems.GEODE)
             .spawnItem(new Vec3(0.0, -0.75, 0.0), Items.AMETHYST_SHARD, 2)
-            .spawnItem(new Vec3(0.0, -0.75, 0.0), 0.25, ModItems.TOPAZ)
-            .spawnItem(new Vec3(0.0, -0.75, 0.0), 0.25, ModItems.SAPPHIRE)
-            .spawnItem(new Vec3(0.0, -0.75, 0.0), 0.25, ModItems.RUBY)
+            .addOutcomes(
+                new SelectOne()
+                    .add(new SpawnItem(new Vec3(0.0, -0.75, 0.0), 1.0, new ItemStack(ModItems.TOPAZ)))
+                    .add(new SpawnItem(new Vec3(0.0, -0.75, 0.0), 1.0, new ItemStack(ModItems.SAPPHIRE)))
+                    .add(new SpawnItem(new Vec3(0.0, -0.75, 0.0), 1.0, new ItemStack(ModItems.RUBY)))
+            )
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.PRISMARINE_CLUSTER.get()),
                 AnvilCraftDatagen.has(ModItems.PRISMARINE_CLUSTER))
             .save(provider, AnvilCraft.of("stamping/geode_2_jewel"));
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
-                .hasBlock(ModBlocks.STAMPING_PLATFORM.get())
-                .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), ItemTags.LOGS)
-                .spawnItem(new Vec3(0.0, -0.75, 0.0), ModItems.WOOD_FIBER, 2)
-                .spawnItem(new Vec3(0.0, -0.75, 0.0), 0.25, ModItems.RESIN)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ItemTags.LOGS))
-                .save(provider, AnvilCraft.of("stamping/resin"));
+            .hasBlock(ModBlocks.STAMPING_PLATFORM.get())
+            .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), ItemTags.LOGS)
+            .spawnItem(new Vec3(0.0, -0.75, 0.0), ModItems.WOOD_FIBER, 2)
+            .spawnItem(new Vec3(0.0, -0.75, 0.0), 0.25, ModItems.RESIN)
+            .unlockedBy("hasitem", AnvilCraftDatagen.has(ItemTags.LOGS))
+            .save(provider, AnvilCraft.of("stamping/resin"));
     }
 
     /**

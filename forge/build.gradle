@@ -13,6 +13,8 @@ def mod_license = getConfig("mod_license")
 def mod_name = getConfig("mod_name")
 def mod_description = getConfig("mod_description")
 def mod_url = getConfig("mod_url")
+def contributors = getConfig("contributors")
+def supporters = getConfig("supporters")
 
 architectury {
     platformSetupLoomIde()
@@ -160,7 +162,9 @@ processResources {
             "mod_license", mod_license,
             "mod_name", mod_name,
             "mod_description", mod_description,
-            "mod_url", mod_url
+            "mod_url", mod_url,
+            "contributors", contributors,
+            "supporters", supporters
     )
     properties.forEach((k, v) -> inputs.property(k, v))
 

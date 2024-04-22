@@ -3,23 +3,29 @@ package dev.dubhe.anvilcraft.init;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
 import dev.dubhe.anvilcraft.block.ChuteBlock;
 import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
+import dev.dubhe.anvilcraft.block.CrabTrapBlock;
 import dev.dubhe.anvilcraft.block.CreativeDynamoBlock;
 import dev.dubhe.anvilcraft.block.FerriteCoreMagnetBlock;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
 import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
-import dev.dubhe.anvilcraft.block.TransmissionPoleBlock;
 import dev.dubhe.anvilcraft.block.RoyalAnvilBlock;
 import dev.dubhe.anvilcraft.block.RoyalGrindstone;
 import dev.dubhe.anvilcraft.block.RoyalSmithingTableBlock;
 import dev.dubhe.anvilcraft.block.SimpleChuteBlock;
 import dev.dubhe.anvilcraft.block.StampingPlatformBlock;
+import dev.dubhe.anvilcraft.block.TransmissionPoleBlock;
+import dev.dubhe.anvilcraft.block.state.Half;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.item.CursedBlockItem;
+import dev.dubhe.anvilcraft.item.PlaceInWaterBlockItem;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.tags.BlockTags;
@@ -35,8 +41,13 @@ import net.minecraft.world.level.block.SlimeBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.phys.Vec3;
+
+import java.util.Map;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
+import static dev.dubhe.anvilcraft.api.power.IPowerComponent.OVERLOAD;
+import static dev.dubhe.anvilcraft.api.power.IPowerComponent.SWITCH;
 
 public class ModBlocks {
     public static final BlockEntry<? extends Block> STAMPING_PLATFORM = REGISTRATE
@@ -47,16 +58,28 @@ public class ModBlocks {
         .simpleItem()
         .defaultLoot()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
-            .pattern("BAB")
-            .pattern("B B")
-            .pattern("B B")
-            .define('A', ModItemTags.IRON_PLATES)
-            .define('B', Items.IRON_INGOT)
-            .unlockedBy("has_" + ModItemTags.IRON_PLATES.location().getPath(),
-                AnvilCraftDatagen.has(ModItemTags.IRON_PLATES))
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
-            .save(provider))
+        .recipe((ctx, provider) -> {
+            ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
+                .pattern("BAB")
+                .pattern("B B")
+                .pattern("B B")
+                .define('A', ModItemTags.IRON_PLATES)
+                .define('B', Items.IRON_INGOT)
+                .unlockedBy("has_" + ModItemTags.IRON_PLATES.location().getPath(),
+                    AnvilCraftDatagen.has(ModItemTags.IRON_PLATES))
+                .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
+                .save(provider);
+            ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
+                .pattern("BAB")
+                .pattern("B B")
+                .pattern("B B")
+                .define('A', ModItemTags.IRON_PLATES_FORGE)
+                .define('B', Items.IRON_INGOT)
+                .unlockedBy("has_" + ModItemTags.IRON_PLATES_FORGE.location().getPath(),
+                    AnvilCraftDatagen.has(ModItemTags.IRON_PLATES_FORGE))
+                .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
+                .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get().asItem()) + "_forge");
+        })
         .register();
     public static final BlockEntry<? extends Block> CORRUPTED_BEACON = REGISTRATE
         .block("corrupted_beacon", CorruptedBeaconBlock::new)
@@ -169,16 +192,28 @@ public class ModBlocks {
         .defaultLoot()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.MINEABLE_WITH_AXE)
         .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
-            .pattern("AAA")
             .pattern("ABA")
-            .pattern("ACA")
+            .pattern("CDA")
+            .pattern("AEA")
             .define('A', Items.IRON_INGOT)
             .define('B', Items.CRAFTING_TABLE)
             .define('C', Items.DROPPER)
+            .define('D', ModItems.MAGNETOELECTRIC_CORE)
+            .define('E', ModItems.CIRCUIT_BOARD)
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.CRAFTING_TABLE),
-                AnvilCraftDatagen.has(Items.CRAFTING_TABLE))
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.CRAFTING_TABLE),
+                AnvilCraftDatagen.has(Items.CRAFTING_TABLE)
+            )
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.DROPPER), AnvilCraftDatagen.has(Items.DROPPER))
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
+                AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.CIRCUIT_BOARD),
+                AnvilCraftDatagen.has(ModItems.CIRCUIT_BOARD)
+            )
             .save(provider)
         )
         .register();
@@ -206,14 +241,32 @@ public class ModBlocks {
         .simpleItem()
         .defaultLoot()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS)
-        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-            .pattern("AAA")
-            .pattern("AAA")
-            .pattern("AAA")
-            .define('A', ModItems.ROYAL_STEEL_INGOT)
-            .unlockedBy("hasitem", RegistrateRecipeProvider.has(ModItems.ROYAL_STEEL_INGOT))
-            .save(provider)
-        )
+        .recipe((ctx, provider) -> {
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItems.ROYAL_STEEL_INGOT)
+                .unlockedBy("hasitem", RegistrateRecipeProvider.has(ModItems.ROYAL_STEEL_INGOT))
+                .save(provider);
+            AnvilRecipe.Builder.create(RecipeCategory.MISC)
+                .icon(ModItems.ROYAL_STEEL_INGOT)
+                .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(OVERLOAD, false))
+                .hasBlock(Blocks.CAULDRON)
+                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 3, Items.IRON_BLOCK)
+                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 1, Items.DIAMOND_BLOCK)
+                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 3, Items.AMETHYST_BLOCK)
+                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 1, Items.EMERALD_BLOCK)
+                .spawnItem(new Vec3(0.0, -1.0, 0.0), ctx.get().asItem(), 1)
+                .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_BLOCK), AnvilCraftDatagen.has(Items.IRON_BLOCK))
+                .unlockedBy(AnvilCraftDatagen.hasItem(Items.DIAMOND_BLOCK), AnvilCraftDatagen.has(Items.DIAMOND_BLOCK))
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(Items.AMETHYST_BLOCK), AnvilCraftDatagen.has(Items.AMETHYST_BLOCK)
+                )
+                .unlockedBy(AnvilCraftDatagen.hasItem(Items.EMERALD_BLOCK), AnvilCraftDatagen.has(Items.EMERALD_BLOCK))
+                .save(provider, AnvilCraft.of("heating/"
+                    + BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath()));
+        })
         .register();
     public static final BlockEntry<? extends Block> SMOOTH_ROYAL_STEEL_BLOCK = REGISTRATE
         .block("smooth_royal_steel_block", Block::new)
@@ -391,7 +444,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> HEATER = REGISTRATE
         .block("heater", HeaterBlock::new)
         .initialProperties(ModBlocks.MAGNET_BLOCK)
-        .properties(BlockBehaviour.Properties::noOcclusion)
+        .properties(properties -> properties.noOcclusion().lightLevel(state -> state.getValue(OVERLOAD) ? 0 : 15))
         .blockstate((ctx, provider) -> {
         })
         .simpleItem()
@@ -403,16 +456,28 @@ public class ModBlocks {
             .pattern("BBB")
             .define('A', Items.TERRACOTTA)
             .define('B', Items.IRON_INGOT)
-            .define('C', ModItemTags.CAPACITOR)
+            .define('C', ModItems.MAGNETOELECTRIC_CORE)
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.TERRACOTTA), AnvilCraftDatagen.has(Items.TERRACOTTA))
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.CAPACITOR), AnvilCraftDatagen.has(ModItemTags.CAPACITOR))
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
+                AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
+            )
             .save(provider))
         .register();
     public static final BlockEntry<? extends Block> TRANSMISSION_POLE = REGISTRATE
         .block("transmission_pole", TransmissionPoleBlock::new)
         .initialProperties(ModBlocks.MAGNET_BLOCK)
-        .properties(BlockBehaviour.Properties::noOcclusion)
+        .properties(properties -> properties.noOcclusion()
+            .lightLevel(
+                state -> {
+                    if (state.getValue(TransmissionPoleBlock.HALF) != Half.TOP) return 0;
+                    if (state.getValue(SWITCH) == IPowerComponent.Switch.OFF) return 0;
+                    if (state.getValue(OVERLOAD)) return 6;
+                    return 15;
+                }
+            )
+        )
         .blockstate((ctx, provider) -> {
         })
         .item()
@@ -434,6 +499,25 @@ public class ModBlocks {
             )
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.LIGHTNING_ROD), AnvilCraftDatagen.has(Items.LIGHTNING_ROD))
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_BLOCK), AnvilCraftDatagen.has(Items.IRON_BLOCK))
+            .save(provider))
+        .register();
+    public static final BlockEntry<CrabTrapBlock> CRAB_TRAP = REGISTRATE
+        .block("crab_trap", CrabTrapBlock::new)
+        .properties(p -> p.sound(SoundType.SCAFFOLDING).strength(2))
+        .blockstate((ctx, provider) -> {
+        })
+        .properties(BlockBehaviour.Properties::noOcclusion)
+        .item(PlaceInWaterBlockItem::new)
+        .build()
+        .defaultLoot()
+        .tag(BlockTags.MINEABLE_WITH_AXE)
+        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern("ABA")
+            .pattern("B B")
+            .pattern("ABA")
+            .define('A', Items.STICK)
+            .define('B', Items.STRING)
+            .unlockedBy("hasitem", RegistrateRecipeProvider.has(Items.STRING))
             .save(provider))
         .register();
 

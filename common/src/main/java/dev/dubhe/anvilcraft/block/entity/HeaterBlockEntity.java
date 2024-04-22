@@ -2,9 +2,7 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
-import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
-import dev.dubhe.anvilcraft.init.ModBlocks;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -53,18 +51,11 @@ public class HeaterBlockEntity extends BlockEntity implements IPowerConsumer {
      * @param pos   位置
      */
     public void tick(@NotNull Level level, @NotNull BlockPos pos) {
-        BlockState state = level.getBlockState(pos);
-        if (!state.is(ModBlocks.HEATER.get())) return;
-        if (this.grid == null) {
-            if (state.getValue(HeaterBlock.LIT)) {
-                level.setBlockAndUpdate(pos, state.setValue(HeaterBlock.LIT, false));
-            }
-            return;
-        }
-        if (this.grid.isWork() && !state.getValue(HeaterBlock.LIT)) {
-            level.setBlockAndUpdate(pos, state.setValue(HeaterBlock.LIT, true));
-        } else if (!this.grid.isWork() && state.getValue(HeaterBlock.LIT)) {
-            level.setBlockAndUpdate(pos, state.setValue(HeaterBlock.LIT, false));
-        }
+        this.flushState(level, pos);
+    }
+
+    @Override
+    public Level getCurrentLevel() {
+        return this.getLevel();
     }
 }

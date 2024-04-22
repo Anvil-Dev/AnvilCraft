@@ -34,11 +34,11 @@ public interface Packet {
         Network.sendPacket(this);
     }
 
-    default void broadcastPacketAll() {
+    default void broadcast() {
         Network.broadcastPacketAll(this);
     }
 
-    default void broadcastTrackingChunk(LevelChunk chunk) {
+    default void broadcast(LevelChunk chunk) {
         Network.broadcastPacketTrackingChunk(chunk, this);
     }
 }

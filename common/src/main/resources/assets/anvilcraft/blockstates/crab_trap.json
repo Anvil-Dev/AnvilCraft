@@ -1,0 +1,19 @@
+{
+    "variants": {
+        "facing=east": {
+            "model": "anvilcraft:block/crab_trap",
+            "y": 90
+        },
+        "facing=north": {
+            "model": "anvilcraft:block/crab_trap"
+        },
+        "facing=south": {
+            "model": "anvilcraft:block/crab_trap",
+            "y": 180
+        },
+        "facing=west": {
+            "model": "anvilcraft:block/crab_trap",
+            "y": 270
+        }
+    }
+}

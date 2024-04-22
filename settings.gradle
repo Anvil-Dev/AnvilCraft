@@ -29,7 +29,7 @@ dependencyResolutionManagement {
         def lazyDfuVersion = "0.1.3"
         def modMenuVersion = "7.1.0"
         def jadeFabricVersion = "11.8.0"
-        def registrateFabricVersion = "1.3.62-MC1.20.1"
+        def registrateFabricVersion = "1.4.5-MC1.20.1"
 
         // Forge
         def forgeVersion = "47.2.0"

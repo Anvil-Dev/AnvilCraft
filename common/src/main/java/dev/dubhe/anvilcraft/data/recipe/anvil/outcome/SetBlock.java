@@ -5,22 +5,30 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipeOutcome;
 import dev.dubhe.anvilcraft.util.IBlockStateUtil;
 import lombok.Getter;
+import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
+
+@Getter
 public class SetBlock implements RecipeOutcome {
-    @Getter
     private final String type = "set_block";
     private final Vec3 offset;
     private final double chance;
@@ -59,15 +67,44 @@ public class SetBlock implements RecipeOutcome {
                 JsonElement element = array.get(i);
                 if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isNumber()) {
                     vec3[i] = element.getAsDouble();
-                } else
+                } else {
                     throw new JsonSyntaxException("Expected offset to be a Double, was " + GsonHelper.getType(element));
+                }
             }
         }
         this.offset = new Vec3(vec3[0], vec3[1], vec3[2]);
         if (serializedRecipe.has("chance")) {
             this.chance = GsonHelper.getAsDouble(serializedRecipe, "chance");
         } else this.chance = 1.0;
-        this.result = IBlockStateUtil.fromJson(GsonHelper.getAsJsonObject(serializedRecipe, "result"));
+
+        JsonObject stateJson = GsonHelper.getAsJsonObject(serializedRecipe, "result");
+
+        if (!stateJson.isJsonObject()) throw new JsonSyntaxException("Expected item to be object");
+        JsonObject object = stateJson.getAsJsonObject();
+        if (!object.has("block")) throw new JsonSyntaxException("The field block is missing");
+        JsonElement blockElement = object.get("block");
+        if (!blockElement.isJsonPrimitive()) throw new JsonSyntaxException("Expected item to be string");
+        StringBuilder block = new StringBuilder(blockElement.getAsString());
+        if (object.has("state")) {
+            JsonObject state = GsonHelper.getAsJsonObject(object, "state");
+            if (!state.asMap().isEmpty()) {
+                block.append('[');
+                for (Map.Entry<String, JsonElement> entry : state.entrySet()) {
+                    block.append("%s=%s,".formatted(entry.getKey(), entry.getValue().getAsString()));
+                }
+                block.deleteCharAt(block.length() - 1);
+                block.append(']');
+            }
+        }
+        HolderLookup<Block> blocks = new IBlockStateUtil.BlockHolderLookup();
+        BlockStateParser.BlockResult blockResult;
+        try {
+            blockResult = BlockStateParser.parseForBlock(blocks, block.toString(), true);
+        } catch (CommandSyntaxException e) {
+            throw new RuntimeException(e);
+        }
+
+        this.result = blockResult.blockState();
     }
 
     @Override
@@ -98,7 +135,14 @@ public class SetBlock implements RecipeOutcome {
         object.addProperty("type", this.getType());
         object.add("offset", offset);
         object.addProperty("chance", this.chance);
-        object.add("result", IBlockStateUtil.toJson(this.result));
+        JsonObject block = new JsonObject();
+        block.addProperty("block", BuiltInRegistries.BLOCK.getKey(this.result.getBlock()).toString());
+        JsonObject state = new JsonObject();
+        for (Map.Entry<Property<?>, Comparable<?>> entry : this.result.getValues().entrySet()) {
+            state.addProperty(entry.getKey().getName(), entry.getValue().toString());
+        }
+        if (!this.result.getValues().isEmpty()) block.add("state", state);
+        object.add("result", block);
         return object;
     }
 }
