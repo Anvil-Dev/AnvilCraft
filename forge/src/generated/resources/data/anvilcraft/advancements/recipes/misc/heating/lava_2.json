@@ -1,12 +1,12 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_sugar_cane": {
+    "has_cobblestone": {
       "conditions": {
         "items": [
           {
             "items": [
-              "minecraft:sugar_cane"
+              "minecraft:cobblestone"
             ]
           }
         ]
@@ -15,20 +15,20 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:stamping/sugar_cane_2_paper"
+        "recipe": "anvilcraft:heating/lava_2"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_sugar_cane",
+      "has_cobblestone",
       "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:stamping/sugar_cane_2_paper"
+      "anvilcraft:heating/lava_2"
     ]
   },
   "sends_telemetry_event": false

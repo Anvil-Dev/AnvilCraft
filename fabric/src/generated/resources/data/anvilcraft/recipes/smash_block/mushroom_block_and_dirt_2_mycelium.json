@@ -14,7 +14,9 @@
       ],
       "result": {
         "block": "minecraft:mycelium",
-        "state": "[snowy=false]"
+        "state": {
+          "snowy": "false"
+        }
       }
     }
   ],

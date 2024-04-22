@@ -14,7 +14,10 @@
       ],
       "result": {
         "block": "minecraft:waxed_oxidized_cut_copper_slab",
-        "state": "[type=bottom,waterlogged=false]"
+        "state": {
+          "type": "bottom",
+          "waterlogged": "false"
+        }
       }
     }
   ],

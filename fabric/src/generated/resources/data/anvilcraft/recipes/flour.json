@@ -9,11 +9,23 @@
       "chance": 1.0,
       "offset": [
         0.0,
-        -1.0,
+        -0.75,
         0.0
       ],
       "result": {
         "item": "anvilcraft:flour"
+      }
+    },
+    {
+      "type": "spawn_item",
+      "chance": 0.25,
+      "offset": [
+        0.0,
+        -0.75,
+        0.0
+      ],
+      "result": {
+        "item": "minecraft:wheat_seeds"
       }
     }
   ],
@@ -22,7 +34,7 @@
       "type": "has_block",
       "match_block": {
         "blocks": [
-          "minecraft:iron_trapdoor"
+          "anvilcraft:stamping_platform"
         ]
       },
       "offset": [
@@ -43,7 +55,7 @@
       },
       "offset": [
         0.0,
-        0.0,
+        -0.75,
         0.0
       ]
     }

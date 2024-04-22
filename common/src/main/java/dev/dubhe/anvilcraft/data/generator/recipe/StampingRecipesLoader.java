@@ -25,10 +25,16 @@ public class StampingRecipesLoader {
     public static void init(RegistrateRecipeProvider provider) {
         stamping(Items.IRON_INGOT, Items.HEAVY_WEIGHTED_PRESSURE_PLATE, provider);
         stamping(Items.GOLD_INGOT, Items.LIGHT_WEIGHTED_PRESSURE_PLATE, provider);
-        stamping(Items.SUGAR_CANE, Items.PAPER, provider);
         stamping(Items.SNOWBALL, Items.SNOW, provider);
         stamping(ModItems.PULP.get(), Items.PAPER, provider);
         stamping(Items.MILK_BUCKET, ModItems.CREAM.get(), provider);
+        AnvilRecipe.Builder.create(RecipeCategory.MISC)
+            .hasBlock(ModBlocks.STAMPING_PLATFORM.get())
+            .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), Items.SUGAR_CANE)
+            .spawnItem(new Vec3(0.0, -0.75, 0.0), Items.PAPER)
+            .spawnItem(new Vec3(0.0, -0.75, 0.0), 0.25, Items.SUGAR)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.SUGAR_CANE), AnvilCraftDatagen.has(Items.SUGAR_CANE))
+            .save(provider, AnvilCraft.of("stamping/paper"));
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
             .hasBlock(ModBlocks.STAMPING_PLATFORM.get())
             .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), Items.COCOA_BEANS)

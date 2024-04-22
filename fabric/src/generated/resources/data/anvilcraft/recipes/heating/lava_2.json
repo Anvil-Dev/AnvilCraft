@@ -1,0 +1,67 @@
+{
+  "type": "anvilcraft:anvil_processing",
+  "icon": {
+    "item": "minecraft:lava_bucket"
+  },
+  "outcomes": [
+    {
+      "type": "set_block",
+      "chance": 1.0,
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "result": {
+        "block": "minecraft:lava_cauldron"
+      }
+    }
+  ],
+  "predicates": [
+    {
+      "type": "has_block",
+      "match_block": {
+        "blocks": [
+          "anvilcraft:heater"
+        ],
+        "state": {
+          "overload": "false"
+        }
+      },
+      "offset": [
+        0.0,
+        -2.0,
+        0.0
+      ]
+    },
+    {
+      "type": "has_block",
+      "match_block": {
+        "blocks": [
+          "minecraft:cauldron"
+        ]
+      },
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ]
+    },
+    {
+      "type": "has_item_ingredient",
+      "match_item": {
+        "count": {
+          "min": 4
+        },
+        "items": [
+          "minecraft:cobblestone"
+        ]
+      },
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ]
+    }
+  ]
+}

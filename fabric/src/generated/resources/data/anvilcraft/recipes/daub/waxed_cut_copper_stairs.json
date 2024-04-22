@@ -14,7 +14,12 @@
       ],
       "result": {
         "block": "minecraft:waxed_cut_copper_stairs",
-        "state": "[facing=north,half=bottom,shape=straight,waterlogged=false]"
+        "state": {
+          "facing": "north",
+          "half": "bottom",
+          "shape": "straight",
+          "waterlogged": "false"
+        }
       }
     }
   ],

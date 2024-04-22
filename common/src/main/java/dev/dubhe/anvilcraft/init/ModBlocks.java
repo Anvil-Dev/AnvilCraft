@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.init;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
 import dev.dubhe.anvilcraft.block.ChuteBlock;
 import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
@@ -13,12 +14,13 @@ import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
 import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
-import dev.dubhe.anvilcraft.block.TransmissionPoleBlock;
 import dev.dubhe.anvilcraft.block.RoyalAnvilBlock;
 import dev.dubhe.anvilcraft.block.RoyalGrindstone;
 import dev.dubhe.anvilcraft.block.RoyalSmithingTableBlock;
 import dev.dubhe.anvilcraft.block.SimpleChuteBlock;
 import dev.dubhe.anvilcraft.block.StampingPlatformBlock;
+import dev.dubhe.anvilcraft.block.TransmissionPoleBlock;
+import dev.dubhe.anvilcraft.block.state.Half;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.item.CursedBlockItem;
@@ -45,6 +47,7 @@ import java.util.Map;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 import static dev.dubhe.anvilcraft.api.power.IPowerComponent.OVERLOAD;
+import static dev.dubhe.anvilcraft.api.power.IPowerComponent.SWITCH;
 
 public class ModBlocks {
     public static final BlockEntry<? extends Block> STAMPING_PLATFORM = REGISTRATE
@@ -441,7 +444,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> HEATER = REGISTRATE
         .block("heater", HeaterBlock::new)
         .initialProperties(ModBlocks.MAGNET_BLOCK)
-        .properties(BlockBehaviour.Properties::noOcclusion)
+        .properties(properties -> properties.noOcclusion().lightLevel(state -> state.getValue(OVERLOAD) ? 0 : 15))
         .blockstate((ctx, provider) -> {
         })
         .simpleItem()
@@ -465,7 +468,16 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> TRANSMISSION_POLE = REGISTRATE
         .block("transmission_pole", TransmissionPoleBlock::new)
         .initialProperties(ModBlocks.MAGNET_BLOCK)
-        .properties(BlockBehaviour.Properties::noOcclusion)
+        .properties(properties -> properties.noOcclusion()
+            .lightLevel(
+                state -> {
+                    if (state.getValue(TransmissionPoleBlock.HALF) != Half.TOP) return 0;
+                    if (state.getValue(SWITCH) == IPowerComponent.Switch.OFF) return 0;
+                    if (state.getValue(OVERLOAD)) return 6;
+                    return 15;
+                }
+            )
+        )
         .blockstate((ctx, provider) -> {
         })
         .item()

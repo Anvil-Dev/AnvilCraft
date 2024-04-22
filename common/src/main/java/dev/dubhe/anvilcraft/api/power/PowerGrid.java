@@ -29,7 +29,9 @@ public class PowerGrid {
     public static boolean isServerClosing = false;
     public static final Map<Level, Set<PowerGrid>> GRID_MAP = new HashMap<>();
     public static final int GRID_TICK = 20;
-    public static int cooldown = 0;
+    public static int cooldown = 0; // 电网刷新冷却
+    @Getter
+    public boolean remove = false;
     @Getter
     private int generate = 0; // 发电功率
     @Getter
@@ -90,6 +92,7 @@ public class PowerGrid {
      * 电力刻
      */
     protected void tick() {
+        if (this.isRemove()) return;
         if (this.flush()) return;
         if (this.isWork()) {
             int remainder = this.generate - this.consume;
@@ -210,6 +213,7 @@ public class PowerGrid {
      * @param components 电力元件
      */
     public void remove(IPowerComponent @NotNull ... components) {
+        this.remove = true;
         Set<IPowerComponent> set = new LinkedHashSet<>();
         this.transmitters.stream().filter(this::clearGrid).forEach(set::add);
         this.transmitters.clear();
