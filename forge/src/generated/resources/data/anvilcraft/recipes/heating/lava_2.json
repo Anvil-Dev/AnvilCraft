@@ -53,7 +53,9 @@
         "count": {
           "min": 4
         },
-        "tag": "c:stone"
+        "items": [
+          "minecraft:cobblestone"
+        ]
       },
       "offset": [
         0.0,

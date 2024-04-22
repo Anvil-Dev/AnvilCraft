@@ -51,7 +51,7 @@
       "type": "has_item_ingredient",
       "match_item": {
         "count": {
-          "min": 1
+          "min": 4
         },
         "tag": "c:stone"
       },
