@@ -12,7 +12,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -25,7 +24,6 @@ import net.minecraft.world.item.Equipable;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Vanishable;
-import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -35,7 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public class AnvilHammerItem extends Item implements Vanishable, Equipable {
-    private long lastDropAnvilTime = 0;
+    private static long lastDropAnvilTime = 0;
     private final Multimap<Attribute, AttributeModifier> defaultModifiers;
 
     /**
@@ -57,9 +55,7 @@ public class AnvilHammerItem extends Item implements Vanishable, Equipable {
         this.defaultModifiers = builder.build();
     }
 
-    private void breakBlock(Player commonPlayer, BlockPos pos, @NotNull Level commonLevel, ItemStack tool) {
-        if (!(commonPlayer instanceof ServerPlayer player)) return;
-        if (!(commonLevel instanceof ServerLevel level)) return;
+    private static void breakBlock(ServerPlayer player, BlockPos pos, @NotNull ServerLevel level, ItemStack tool) {
         BlockState state = level.getBlockState(pos);
         Block block = state.getBlock();
         if (!state.is(ModBlockTags.HAMMER_REMOVABLE) && !(block instanceof IHammerRemovable)) return;
@@ -77,13 +73,7 @@ public class AnvilHammerItem extends Item implements Vanishable, Equipable {
         state.spawnAfterBreak(level, pos, tool, true);
     }
 
-    private boolean changeBlockState(Player player, BlockPos blockPos, @NotNull Level level, ItemStack anvilHammer) {
-        if (level.isClientSide) return false;
-        Block block = level.getBlockState(blockPos).getBlock();
-        return HammerManager.getChange(block).change(player, blockPos, level, anvilHammer);
-    }
-
-    private void dropAnvil(Player player, Level level, BlockPos blockPos) {
+    private static void dropAnvil(Player player, Level level, BlockPos blockPos) {
         if (player == null || level.isClientSide) return;
         if (System.currentTimeMillis() - lastDropAnvilTime <= 150) return;
         lastDropAnvilTime = System.currentTimeMillis();
@@ -98,15 +88,18 @@ public class AnvilHammerItem extends Item implements Vanishable, Equipable {
         }
     }
 
-    @Override
-    public @NotNull InteractionResult useOn(@NotNull UseOnContext context) {
-        BlockPos blockPos = context.getClickedPos();
-        Player player = context.getPlayer();
-        Level level = context.getLevel();
-        if (player == null) {
-            return InteractionResult.FAIL;
+    /**
+     * 右键方块
+     */
+    public static void useBlock(
+        @NotNull ServerPlayer player, BlockPos blockPos, @NotNull ServerLevel level, ItemStack anvilHammer
+    ) {
+        if (player.isShiftKeyDown()) {
+            breakBlock(player, blockPos, level, anvilHammer);
+            return;
         }
-        return InteractionResult.sidedSuccess(changeBlockState(player, blockPos, level, context.getItemInHand()));
+        Block block = level.getBlockState(blockPos).getBlock();
+        HammerManager.getChange(block).change(player, blockPos, level, anvilHammer);
     }
 
     /**
@@ -116,13 +109,9 @@ public class AnvilHammerItem extends Item implements Vanishable, Equipable {
      * @param blockPos 位置
      * @param level    世界
      */
-    public void useAttackBlock(Player player, BlockPos blockPos, Level level) {
+    public static void attackBlock(Player player, BlockPos blockPos, Level level) {
         if (player == null || level.isClientSide) return;
-        if (player.isShiftKeyDown()) {
-            breakBlock(player, blockPos, level, player.getMainHandItem());
-        } else {
-            dropAnvil(player, level, blockPos);
-        }
+        dropAnvil(player, level, blockPos);
     }
 
     @Override

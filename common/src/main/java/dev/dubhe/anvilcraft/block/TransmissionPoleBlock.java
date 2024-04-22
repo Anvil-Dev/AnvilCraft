@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.state.Half;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
@@ -167,6 +168,7 @@ public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRem
         boolean bl = sw != IPowerComponent.Switch.ON;
         BlockPos topPos = pos.above(2);
         BlockState topState = level.getBlockState(topPos);
+        if (!topState.is(ModBlocks.TRANSMISSION_POLE.get())) return;
         if (topState.getValue(HALF) != Half.TOP) return;
         if (bl != level.hasNeighborSignal(pos)) {
             if (bl) {
