@@ -529,6 +529,7 @@ public class ModBlocks {
         .simpleItem()
         .defaultLoot()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .lang("Jewel Crafting Table")
         .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
             .pattern("ABC")
             .pattern("DED")
