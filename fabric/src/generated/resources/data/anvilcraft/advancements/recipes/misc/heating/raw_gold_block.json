@@ -1,12 +1,12 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_andesite": {
+    "has_raw_gold_block": {
       "conditions": {
         "items": [
           {
             "items": [
-              "minecraft:andesite"
+              "minecraft:raw_gold_block"
             ]
           }
         ]
@@ -15,20 +15,20 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:smash_block/tuff"
+        "recipe": "anvilcraft:heating/raw_gold_block"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_andesite",
+      "has_raw_gold_block",
       "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:smash_block/tuff"
+      "anvilcraft:heating/raw_gold_block"
     ]
   },
   "sends_telemetry_event": false

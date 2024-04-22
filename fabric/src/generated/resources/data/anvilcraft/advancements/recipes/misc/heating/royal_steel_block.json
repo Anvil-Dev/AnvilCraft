@@ -25,13 +25,11 @@
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_emerald_block": {
+    "has_gem_blocks": {
       "conditions": {
         "items": [
           {
-            "items": [
-              "minecraft:emerald_block"
-            ]
+            "tag": "anvilcraft:gem_blocks"
           }
         ]
       },
@@ -61,7 +59,7 @@
       "has_iron_block",
       "has_diamond_block",
       "has_amethyst_block",
-      "has_emerald_block",
+      "has_gem_blocks",
       "has_the_recipe"
     ]
   ],

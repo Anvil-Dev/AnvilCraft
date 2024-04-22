@@ -36,6 +36,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.GlassBlock;
+import net.minecraft.world.level.block.GravelBlock;
 import net.minecraft.world.level.block.HalfTransparentBlock;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.SlabBlock;
@@ -240,6 +242,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> ROYAL_STEEL_BLOCK = REGISTRATE
         .block("royal_steel_block", Block::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(properties -> properties.explosionResistance(15.0F))
         .simpleItem()
         .defaultLoot()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS)
@@ -258,14 +261,17 @@ public class ModBlocks {
                 .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 3, Items.IRON_BLOCK)
                 .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 1, Items.DIAMOND_BLOCK)
                 .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 3, Items.AMETHYST_BLOCK)
-                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 1, Items.EMERALD_BLOCK)
+                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 1, ModItemTags.GEM_BLOCKS)
                 .spawnItem(new Vec3(0.0, -1.0, 0.0), ctx.get().asItem(), 1)
                 .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_BLOCK), AnvilCraftDatagen.has(Items.IRON_BLOCK))
                 .unlockedBy(AnvilCraftDatagen.hasItem(Items.DIAMOND_BLOCK), AnvilCraftDatagen.has(Items.DIAMOND_BLOCK))
                 .unlockedBy(
                     AnvilCraftDatagen.hasItem(Items.AMETHYST_BLOCK), AnvilCraftDatagen.has(Items.AMETHYST_BLOCK)
                 )
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.EMERALD_BLOCK), AnvilCraftDatagen.has(Items.EMERALD_BLOCK))
+                .unlockedBy(
+                        AnvilCraftDatagen.hasItem(ModItemTags.GEM_BLOCKS),
+                        AnvilCraftDatagen.has(ModItemTags.GEM_BLOCKS)
+                )
                 .save(provider, AnvilCraft.of("heating/"
                     + BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath()));
         })
@@ -273,6 +279,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> SMOOTH_ROYAL_STEEL_BLOCK = REGISTRATE
         .block("smooth_royal_steel_block", Block::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(properties -> properties.explosionResistance(15.0F))
         .simpleItem()
         .defaultLoot()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -280,6 +287,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> CUT_ROYAL_STEEL_BLOCK = REGISTRATE
         .block("cut_royal_steel_block", Block::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(properties -> properties.explosionResistance(15.0F))
         .simpleItem()
         .defaultLoot()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -295,6 +303,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> CUT_ROYAL_STEEL_SLAB = REGISTRATE
         .block("cut_royal_steel_slab", SlabBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(properties -> properties.explosionResistance(15.0F))
         .blockstate((ctx, provider) -> provider.slabBlock(ctx.get(),
             AnvilCraft.of("block/cut_royal_steel_block"),
             AnvilCraft.of("block/cut_royal_steel_block")))
@@ -312,6 +321,7 @@ public class ModBlocks {
         .block("cut_royal_steel_stairs", (properties) ->
             new StairBlock(ModBlocks.CUT_ROYAL_STEEL_BLOCK.getDefaultState(), properties))
         .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(properties -> properties.explosionResistance(15.0F))
         .blockstate((ctx, provider) -> provider.stairsBlock(ctx.get(),
             AnvilCraft.of("block/cut_royal_steel_block")))
         .simpleItem()
@@ -519,6 +529,32 @@ public class ModBlocks {
             .unlockedBy("hasitem", RegistrateRecipeProvider.has(Items.STRING))
             .save(provider))
         .register();
+    public static final BlockEntry<? extends Block> CINERITE = REGISTRATE
+            .block("cinerite", GravelBlock::new)
+            .initialProperties(() -> Blocks.SAND)
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_SHOVEL)
+            .register();
+    public static final BlockEntry<? extends Block> QUARTZ_SAND = REGISTRATE
+            .block("quartz_sand", GravelBlock::new)
+            .initialProperties(() -> Blocks.SAND)
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_SHOVEL)
+            .register();
+    public static final BlockEntry<? extends Block> TEMPERING_GLASS = REGISTRATE
+            .block("tempering_glass", GlassBlock::new)
+            .initialProperties(() -> Blocks.GLASS)
+            .properties(properties -> properties.explosionResistance(15.0F))
+            .blockstate((ctx, provider) -> {
+                provider.simpleBlock(ctx.get());
+                provider.models().cubeAll(ctx.getName(), provider.modLoc("block/" + ctx.getName()))
+                        .renderType("translucent");
+            })
+            .simpleItem()
+            .defaultLoot()
+            .register();
 
     public static final BlockEntry<JewelCraftingTable> JEWEL_CRAFTING_TABLE = REGISTRATE
         .block("jewelcrafting_table", JewelCraftingTable::new)

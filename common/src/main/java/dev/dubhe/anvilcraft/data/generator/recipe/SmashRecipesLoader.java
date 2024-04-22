@@ -24,7 +24,7 @@ public class SmashRecipesLoader {
      * @param provider 提供器
      */
     public static void init(RegistrateRecipeProvider provider) {
-        smash(Items.WET_SPONGE, ModItems.SPONGE_GEMMULE.get(), 2, provider);
+        smash(Items.WET_SPONGE, ModItems.SPONGE_GEMMULE.get(), 4, provider);
         smash(Items.NETHER_STAR, ModItems.NETHER_STAR_SHARD.get(), 4, provider);
         smash(ModBlocks.HOLLOW_MAGNET_BLOCK.asItem(), ModItems.MAGNET_INGOT.get(), 8, provider);
         smash(ModBlocks.MAGNET_BLOCK.asItem(), ModItems.MAGNET_INGOT.get(), 9, provider);

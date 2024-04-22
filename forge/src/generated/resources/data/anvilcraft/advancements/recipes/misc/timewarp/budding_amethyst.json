@@ -1,12 +1,12 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_diorite": {
+    "has_geode": {
       "conditions": {
         "items": [
           {
             "items": [
-              "minecraft:diorite"
+              "anvilcraft:geode"
             ]
           }
         ]
@@ -15,20 +15,20 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:smash_block/calcite"
+        "recipe": "anvilcraft:timewarp/budding_amethyst"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_diorite",
+      "has_geode",
       "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:smash_block/calcite"
+      "anvilcraft:timewarp/budding_amethyst"
     ]
   },
   "sends_telemetry_event": false

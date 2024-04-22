@@ -101,9 +101,7 @@
         "count": {
           "min": 1
         },
-        "items": [
-          "minecraft:emerald"
-        ]
+        "tag": "anvilcraft:gems"
       },
       "offset": [
         0.0,
