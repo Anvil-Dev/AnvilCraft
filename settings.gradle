@@ -30,6 +30,8 @@ dependencyResolutionManagement {
         def modMenuVersion = "7.1.0"
         def jadeFabricVersion = "11.8.0"
         def registrateFabricVersion = "1.4.5-MC1.20.1"
+        def reachEntityAttributesVersion = "2.4.0"
+
 
         // Forge
         def forgeVersion = "47.2.0"
@@ -96,6 +98,9 @@ dependencyResolutionManagement {
 
             def clothConfig = version("clothConfig", clothConfigVersion)
             library("clothConfig", "me.shedaniel.cloth", "cloth-config-fabric").versionRef(clothConfig)
+
+            def reachEntityAttributes = version("reach-entity-attributes", reachEntityAttributesVersion)
+            library("reachEntityAttributes", "com.jamieswhiteshirt", "reach-entity-attributes").versionRef(reachEntityAttributes)
         }
 
         forge {
