@@ -35,11 +35,12 @@ public class BlockEvent {
     private static InteractionResult anvilHammerUse(
         @NotNull Player player, @NotNull Level level, InteractionHand hand, BlockHitResult hitResult
     ) {
-        if (level.isClientSide()) {
-            if (player.getItemInHand(hand).getItem() instanceof AnvilHammerItem) {
+        if (player.getItemInHand(hand).getItem() instanceof AnvilHammerItem) {
+            if (level.isClientSide()) {
                 new HammerUsePack(hitResult.getBlockPos(), hand).send();
             }
+            return InteractionResult.SUCCESS;
         }
-        return InteractionResult.SUCCESS;
+        return InteractionResult.PASS;
     }
 }
