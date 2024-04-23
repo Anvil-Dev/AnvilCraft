@@ -10,6 +10,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
+/**
+ * {@link BaseSpawner}访问器
+ */
 @Mixin(BaseSpawner.class)
 public interface BaseSpawnerAccessor {
     @Invoker("getOrCreateNextSpawnData")

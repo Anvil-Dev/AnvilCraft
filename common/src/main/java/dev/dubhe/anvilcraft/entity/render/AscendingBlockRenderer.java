@@ -23,6 +23,9 @@ import org.jetbrains.annotations.NotNull;
 public class AscendingBlockRenderer extends EntityRenderer<AnimateAscendingBlockEntity> {
     private final BlockRenderDispatcher dispatcher;
 
+    /**
+     * 上升方块渲染器
+     */
     public AscendingBlockRenderer(EntityRendererProvider.Context context) {
         super(context);
         this.shadowRadius = 0.5F;
