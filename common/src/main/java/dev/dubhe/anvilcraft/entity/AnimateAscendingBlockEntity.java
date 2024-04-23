@@ -105,7 +105,12 @@ public class AnimateAscendingBlockEntity extends Entity {
     protected void addAdditionalSaveData(@NotNull CompoundTag compound) {
     }
 
-    public static void animate(Level level, BlockPos startPos, BlockState blockState, BlockPos endPos) {
+    /**
+     * 动画
+     */
+    public static void animate(
+        Level level, @NotNull BlockPos startPos, @NotNull BlockState blockState, BlockPos endPos
+    ) {
         AnimateAscendingBlockEntity entity = new AnimateAscendingBlockEntity(
                 level,
                 startPos.getX() + 0.5,

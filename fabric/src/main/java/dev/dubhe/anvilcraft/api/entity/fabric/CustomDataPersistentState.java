@@ -5,6 +5,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.UUID;
@@ -22,7 +23,10 @@ public class CustomDataPersistentState extends SavedData {
         );
     }
 
-    public static CustomDataPersistentState getServerState(MinecraftServer server) {
+    /**
+     * 获取服务器状态
+     */
+    public static @NotNull CustomDataPersistentState getServerState(@NotNull MinecraftServer server) {
         var dataStorage = server.getLevel(Level.OVERWORLD).getDataStorage();
         var state = dataStorage.computeIfAbsent(
                 CustomDataPersistentState::createFromCompoundTag,
@@ -33,7 +37,10 @@ public class CustomDataPersistentState extends SavedData {
         return state;
     }
 
-    public static CustomDataPersistentState createFromCompoundTag(CompoundTag tag) {
+    /**
+     * 从 NBT 创建
+     */
+    public static @NotNull CustomDataPersistentState createFromCompoundTag(@NotNull CompoundTag tag) {
         CustomDataPersistentState state = new CustomDataPersistentState();
         CompoundTag playersTag = tag.getCompound(PLAYER_DATA_TAG);
         playersTag.getAllKeys().forEach(it -> {

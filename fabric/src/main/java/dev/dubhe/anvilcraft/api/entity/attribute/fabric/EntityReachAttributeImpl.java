@@ -6,11 +6,17 @@ import com.google.common.collect.Multimap;
 import com.jamieswhiteshirt.reachentityattributes.ReachEntityAttributes;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 
 public class EntityReachAttributeImpl {
-    public static Supplier<Multimap<Attribute, AttributeModifier>> getRangeModifierSupplier(
+    /**
+     * 获取 Range Modifier Supplier
+     */
+    @Contract(pure = true)
+    public static @NotNull Supplier<Multimap<Attribute, AttributeModifier>> getRangeModifierSupplier(
             AttributeModifier modifier
     ) {
         return Suppliers.memoize(() ->

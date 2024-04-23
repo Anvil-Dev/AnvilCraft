@@ -17,23 +17,26 @@ import java.util.function.Supplier;
 public class CrabClawItem extends Item {
 
     public static final AttributeModifier rangeAttributeModifier =
-            new AttributeModifier(
-                    UUID.fromString("ea7bed72-603d-4990-87b6-24abe91ea523"),
-                    "RangeModifier",
-                    3,
-                    AttributeModifier.Operation.ADDITION
-            );
+        new AttributeModifier(
+            UUID.fromString("ea7bed72-603d-4990-87b6-24abe91ea523"),
+            "RangeModifier",
+            3,
+            AttributeModifier.Operation.ADDITION
+        );
 
     public static final String CRAB_CLAW_MARKER = "crabClaw";
     public static final String DUAL_CRAB_CLAW_MARKER = "dualCrabClaw";
 
     private static final Supplier<Multimap<Attribute, AttributeModifier>> rangeModifier
-            = EntityReachAttribute.getRangeModifierSupplier(rangeAttributeModifier);
+        = EntityReachAttribute.getRangeModifierSupplier(rangeAttributeModifier);
 
     public CrabClawItem(Properties properties) {
         super(properties);
     }
 
+    /**
+     * 蟹钳增加交换距离
+     */
     public static void holdingCrabClawIncreasesRange(LivingEntity entity) {
         if (!(entity instanceof Player player)) return;
         if (entity.level().isClientSide) return;
@@ -46,13 +49,13 @@ public class CrabClawItem extends Item {
         boolean wasHoldingDualCrabClaw = customData.contains(DUAL_CRAB_CLAW_MARKER);
         if (!holdingCrabClaw) {
             player.getAttributes()
-                    .removeAttributeModifiers(rangeModifier.get());
+                .removeAttributeModifiers(rangeModifier.get());
             if (wasHoldingCrabClaw) {
                 customData.remove(CRAB_CLAW_MARKER);
             }
         } else {
             player.getAttributes()
-                    .addTransientAttributeModifiers(rangeModifier.get());
+                .addTransientAttributeModifiers(rangeModifier.get());
             if (!wasHoldingDualCrabClaw) {
                 customData.putBoolean(CRAB_CLAW_MARKER, true);
             }
