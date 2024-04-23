@@ -1,0 +1,35 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:bulging/pulp"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "has_wood_fiber": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "anvilcraft:wood_fiber"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_wood_fiber",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:bulging/pulp"
+    ]
+  },
+  "sends_telemetry_event": false
+}

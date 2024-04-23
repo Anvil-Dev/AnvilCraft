@@ -1,7 +1,7 @@
 {
   "type": "anvilcraft:anvil_processing",
   "icon": {
-    "item": "anvilcraft:sea_heart_shell"
+    "item": "anvilcraft:beef_mushroom_stew"
   },
   "outcomes": [
     {
@@ -9,35 +9,36 @@
       "chance": 1.0,
       "offset": [
         0.0,
-        -1.0,
+        0.0,
         0.0
       ],
       "result": {
-        "item": "anvilcraft:sea_heart_shell"
+        "item": "anvilcraft:beef_mushroom_stew"
       }
     }
   ],
   "predicates": [
     {
-      "type": "has_block",
-      "match_block": {
-        "blocks": [
-          "anvilcraft:corrupted_beacon"
-        ]
-      },
-      "offset": [
-        0.0,
-        -2.0,
-        0.0
-      ]
-    },
-    {
       "type": "has_fluid_cauldron",
-      "deplete": 3,
+      "deplete": 1,
       "match_block": "minecraft:water_cauldron",
       "offset": [
         0.0,
         -1.0,
+        0.0
+      ]
+    },
+    {
+      "type": "has_block",
+      "match_block": {
+        "state": {
+          "lit": "true"
+        },
+        "tag": "minecraft:campfires"
+      },
+      "offset": [
+        0.0,
+        -2.0,
         0.0
       ]
     },
@@ -48,7 +49,7 @@
           "min": 1
         },
         "items": [
-          "anvilcraft:sea_heart_shell_shard"
+          "anvilcraft:beef_mushroom_stew_raw"
         ]
       },
       "offset": [
