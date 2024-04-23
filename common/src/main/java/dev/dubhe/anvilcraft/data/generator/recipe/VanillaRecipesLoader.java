@@ -125,6 +125,12 @@ public class VanillaRecipesLoader {
             .unlocks(AnvilCraftDatagen.hasItem(ModItems.AMETHYST_PICKAXE.asItem()),
                 AnvilCraftDatagen.has(ModItems.AMETHYST_PICKAXE))
             .save(provider, AnvilCraft.of("smithing/royal_steel_pickaxe"));
+        SmithingTransformRecipeBuilder.smithing(Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
+                        Ingredient.of(ModItemTags.ROYAL_STEEL_AXE_BASE), Ingredient.of(ModItems.ROYAL_STEEL_INGOT.get()),
+                        RecipeCategory.TOOLS, ModItems.ROYAL_STEEL_AXE.get())
+                .unlocks(AnvilCraftDatagen.hasItem(ModItems.AMETHYST_AXE.asItem()),
+                        AnvilCraftDatagen.has(ModItems.AMETHYST_AXE))
+                .save(provider, AnvilCraft.of("smithing/royal_steel_axe"));
         SmithingTransformRecipeBuilder.smithing(Ingredient.of(), Ingredient.of(Items.GRINDSTONE),
                 Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK), RecipeCategory.TOOLS, ModBlocks.ROYAL_GRINDSTONE.asItem())
             .unlocks(AnvilCraftDatagen.hasItem(ModBlocks.ROYAL_STEEL_BLOCK.asItem()),

@@ -27,6 +27,11 @@ public class ItemTagLoader {
             .add(Items.GOLDEN_PICKAXE)
             .add(Items.IRON_PICKAXE)
             .add(Items.DIAMOND_PICKAXE);
+        provider.addTag(ModItemTags.ROYAL_STEEL_AXE_BASE).setReplace(false)
+                .add(ModItems.AMETHYST_AXE.get())
+                .add(Items.GOLDEN_AXE)
+                .add(Items.IRON_AXE)
+                .add(Items.DIAMOND_AXE);
         provider.addTag(ModItemTags.GEMS).setReplace(false)
             .add(Items.EMERALD)
             .add(ModItems.RUBY.get())
