@@ -143,13 +143,13 @@ public class RoyalSmithingScreen extends ItemCombinerScreen<RoyalSmithingMenu> {
     @Override
     protected void renderErrorIcon(@NotNull GuiGraphics guiGraphics, int x, int y) {
         if (this.hasRecipeError()) {
-            guiGraphics.blit(ERROR, x + 65, y + 46, 0, 0, 16, 16, 16, 16);
+            guiGraphics.blit(ERROR, x + 83, y + 48, 0, 0, 16, 16, 16, 16);
         }
     }
 
     private void renderOnboardingTooltips(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         Optional<Component> optional = Optional.empty();
-        if (this.hasRecipeError() && this.isHovering(65, 46, 28, 21, mouseX, mouseY)) {
+        if (this.hasRecipeError() && this.isHovering(83, 48, 16, 16, mouseX, mouseY)) {
             optional = Optional.of(ERROR_TOOLTIP);
         }
         if (this.hoveredSlot != null) {
