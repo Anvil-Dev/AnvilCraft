@@ -83,6 +83,10 @@ repositories {
     maven { url = "https://jitpack.io/" } // Mixin Extras, Fabric ASM
     maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" }
     maven { url = "https://maven.saps.dev/minecraft" } // saps.dev Maven (KubeJS and Rhino)
+    maven { // Reach Entity Attributes
+        url = "https://maven.jamieswhiteshirt.com/libs-release"
+        content { includeGroup("com.jamieswhiteshirt") }
+    }
 }
 
 dependencies {
@@ -125,6 +129,10 @@ dependencies {
     // cloth config api
     modImplementation(fabric.clothConfig)
     include(fabric.clothConfig)
+
+    //reach-entity-attributes
+    modImplementation(fabric.reachEntityAttributes)
+    include(fabric.reachEntityAttributes)
 }
 
 
