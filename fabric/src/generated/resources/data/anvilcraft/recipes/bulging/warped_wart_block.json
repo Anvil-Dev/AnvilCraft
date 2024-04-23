@@ -1,7 +1,7 @@
 {
   "type": "anvilcraft:anvil_processing",
   "icon": {
-    "item": "anvilcraft:sea_heart_shell"
+    "item": "minecraft:warped_wart_block"
   },
   "outcomes": [
     {
@@ -13,27 +13,14 @@
         0.0
       ],
       "result": {
-        "item": "anvilcraft:sea_heart_shell"
+        "item": "minecraft:warped_wart_block"
       }
     }
   ],
   "predicates": [
     {
-      "type": "has_block",
-      "match_block": {
-        "blocks": [
-          "anvilcraft:corrupted_beacon"
-        ]
-      },
-      "offset": [
-        0.0,
-        -2.0,
-        0.0
-      ]
-    },
-    {
       "type": "has_fluid_cauldron",
-      "deplete": 3,
+      "deplete": 1,
       "match_block": "minecraft:water_cauldron",
       "offset": [
         0.0,
@@ -48,7 +35,7 @@
           "min": 1
         },
         "items": [
-          "anvilcraft:sea_heart_shell_shard"
+          "minecraft:warped_fungus"
         ]
       },
       "offset": [
