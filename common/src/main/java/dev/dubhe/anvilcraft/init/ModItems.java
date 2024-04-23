@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.crafting.ShapedTagRecipeBuilder;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import dev.dubhe.anvilcraft.item.CapacitorItem;
+import dev.dubhe.anvilcraft.item.CrabClawItem;
 import dev.dubhe.anvilcraft.item.CursedItem;
 import dev.dubhe.anvilcraft.item.GeodeItem;
 import dev.dubhe.anvilcraft.item.MagnetItem;
@@ -558,8 +559,8 @@ public class ModItems {
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), RegistrateRecipeProvider.has(Items.IRON_INGOT))
             .save(provider))
         .register();
-    public static final ItemEntry<Item> CRAB_CLAW = REGISTRATE
-        .item("crab_claw", Item::new)
+    public static final ItemEntry<CrabClawItem> CRAB_CLAW = REGISTRATE
+        .item("crab_claw", CrabClawItem::new)
         .model((ctx, provider) -> {
         })
         .register();
