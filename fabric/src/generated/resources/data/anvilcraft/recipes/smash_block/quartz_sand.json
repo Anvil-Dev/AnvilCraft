@@ -1,7 +1,7 @@
 {
   "type": "anvilcraft:anvil_processing",
   "icon": {
-    "item": "minecraft:calcite"
+    "item": "anvilcraft:quartz_sand"
   },
   "outcomes": [
     {
@@ -13,7 +13,7 @@
         0.0
       ],
       "result": {
-        "block": "minecraft:calcite"
+        "block": "anvilcraft:quartz_sand"
       }
     }
   ],

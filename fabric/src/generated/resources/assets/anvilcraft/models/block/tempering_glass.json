@@ -2,6 +2,6 @@
   "parent": "minecraft:block/cube_all",
   "render_type": "minecraft:translucent",
   "textures": {
-    "all": "anvilcraft:block/amber_block"
+    "all": "anvilcraft:block/tempering_glass"
   }
 }
