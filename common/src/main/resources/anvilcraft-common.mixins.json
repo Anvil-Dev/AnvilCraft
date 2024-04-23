@@ -14,13 +14,16 @@
     "DispenseItemEmptyBucketBehaviorMixin",
     "DispenseItemWaterBottleBehaviorMixin",
     "ItemEntityMixin",
+    "LivingEntityMixin",
     "LootContextParamSetsAccessor",
     "SolidBucketItemMixin",
     "accessor.BaseSpawnerAccessor",
     "accessor.FallingBlockEntityAccessor"
   ],
   "client": [
-    "LevelRendererMixin"
+    "LevelRendererMixin",
+    "accessor.ItemInHandRendererAccessor",
+    "accessor.MinecraftAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

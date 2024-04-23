@@ -43,6 +43,8 @@ public class ModItemTags {
 
     public static final TagKey<Item> ROYAL_STEEL_PICKAXE_BASE = bind("royal_steel_pickaxe_base");
     public static final TagKey<Item> CAPACITOR = bind("capacitor");
+    public static final TagKey<Item> GEMS = bind("gems");
+    public static final TagKey<Item> GEM_BLOCKS = bind("gem_blocks");
 
 
     private static @NotNull TagKey<Item> bindC(String id) {

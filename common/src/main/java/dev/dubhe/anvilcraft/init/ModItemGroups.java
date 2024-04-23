@@ -41,6 +41,7 @@ public class ModItemGroups {
                 entries.accept(ModItems.AMBER.get().getDefaultInstance());
                 entries.accept(ModItems.HARDEND_RESIN.get().getDefaultInstance());
                 entries.accept(ModItems.WOOD_FIBER.get().getDefaultInstance());
+                entries.accept(ModItems.PULP.get().getDefaultInstance());
                 entries.accept(ModItems.CIRCUIT_BOARD.get().getDefaultInstance());
                 entries.accept(ModItems.SPONGE_GEMMULE.get().getDefaultInstance());
                 entries.accept(ModItems.SEA_HEART_SHELL_SHARD.get().getDefaultInstance());
@@ -94,6 +95,9 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.RESIN_BLOCK.asStack());
                 entries.accept(ModBlocks.AMBER_BLOCK.asStack());
                 entries.accept(ModBlocks.CRAB_TRAP.asStack());
+                entries.accept(ModBlocks.CINERITE.asStack());
+                entries.accept(ModBlocks.QUARTZ_SAND.asStack());
+                entries.accept(ModBlocks.TEMPERING_GLASS.asStack());
             })
             .build()
         )

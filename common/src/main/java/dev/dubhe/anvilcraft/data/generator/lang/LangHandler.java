@@ -22,5 +22,15 @@ public class LangHandler {
             "item.anvilcraft.geode.find",
             "Suspected amethyst geode, located %s"
         );
+
+        provider.add(
+            "entity.minecraft.villager.anvilcraft.jeweler",
+            "Jeweler"
+        );
+
+        provider.add(
+            "entity.minecraft.villager.jeweler",
+            "Jeweler"
+        );
     }
 }

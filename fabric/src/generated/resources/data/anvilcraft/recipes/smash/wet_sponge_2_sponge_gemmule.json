@@ -1,7 +1,7 @@
 {
   "type": "anvilcraft:anvil_processing",
   "icon": {
-    "count": 2,
+    "count": 4,
     "item": "anvilcraft:sponge_gemmule"
   },
   "outcomes": [
@@ -14,7 +14,7 @@
         0.0
       ],
       "result": {
-        "count": 2,
+        "count": 4,
         "item": "anvilcraft:sponge_gemmule"
       }
     }

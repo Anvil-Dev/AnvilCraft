@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:emerald_block",
+    "anvilcraft:ruby_block",
+    "anvilcraft:sapphire_block",
+    "anvilcraft:topaz_block"
+  ]
+}

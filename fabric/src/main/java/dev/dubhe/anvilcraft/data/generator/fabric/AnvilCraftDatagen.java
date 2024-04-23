@@ -19,6 +19,7 @@ public class AnvilCraftDatagen implements DataGeneratorEntrypoint {
                 rootPath.resolve("fabric").resolve("src").resolve("main").resolve("resources")
         );
         FabricDataGenerator.Pack pack = fabricDataGenerator.createPack();
+        pack.addProvider(ModPoiTagProvider::new);
         AnvilCraft.REGISTRATE.setupDatagen(pack, helper);
     }
 }

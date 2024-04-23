@@ -9,6 +9,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
@@ -24,6 +25,7 @@ public class CookingRecipesLoader {
      */
     public static void init(RegistrateRecipeProvider provider) {
         boil(ModItems.BEEF_MUSHROOM_STEW_RAW.get(), 1, ModItems.BEEF_MUSHROOM_STEW.get(), 1, provider);
+        boil(ModItems.RESIN.get(), 1, Items.SLIME_BALL, 1, provider);
         cook(ModItems.UTUSAN_RAW.get(), 1, ModItems.UTUSAN.get(), 1, provider);
         cook(ModItems.RESIN.get(), 1, ModItems.HARDEND_RESIN.get(), 1, provider);
     }

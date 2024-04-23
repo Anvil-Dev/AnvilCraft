@@ -68,14 +68,70 @@ public class SuperHeatingRecipesLoader {
             .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 3, Items.IRON_INGOT)
             .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 1, Items.DIAMOND)
             .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 1, Items.AMETHYST_SHARD)
-            .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 1, Items.EMERALD)
+            .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 1, ModItemTags.GEMS)
             .spawnItem(new Vec3(0.0, -1.0, 0.0), ModItems.ROYAL_STEEL_INGOT.get(), 1)
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.DIAMOND), AnvilCraftDatagen.has(Items.DIAMOND))
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.AMETHYST_SHARD), AnvilCraftDatagen.has(Items.AMETHYST_SHARD))
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.EMERALD), AnvilCraftDatagen.has(Items.EMERALD))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.GEMS), AnvilCraftDatagen.has(ModItemTags.GEMS))
             .save(provider, AnvilCraft.of("heating/"
                 + BuiltInRegistries.ITEM.getKey(ModItems.ROYAL_STEEL_INGOT.get()).getPath())
             );
+        AnvilRecipe.Builder.create(RecipeCategory.MISC)
+            .icon(Items.IRON_BLOCK)
+            .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(OVERLOAD, false))
+            .hasBlock(Blocks.CAULDRON)
+            .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), Items.RAW_IRON_BLOCK)
+            .spawnItem(new Vec3(0.0, -1.0, 0.0), Items.IRON_BLOCK, 2)
+            .unlockedBy(
+                    AnvilCraftDatagen.hasItem(Items.RAW_IRON_BLOCK),
+                    AnvilCraftDatagen.has(Items.RAW_IRON_BLOCK)
+            )
+            .save(
+                    provider,
+                    AnvilCraft.of("heating/" + BuiltInRegistries.ITEM.getKey(Items.RAW_IRON_BLOCK).getPath())
+            );
+        AnvilRecipe.Builder.create(RecipeCategory.MISC)
+            .icon(Items.GOLD_BLOCK)
+            .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(OVERLOAD, false))
+            .hasBlock(Blocks.CAULDRON)
+            .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), Items.RAW_GOLD_BLOCK)
+            .spawnItem(new Vec3(0.0, -1.0, 0.0), Items.GOLD_BLOCK, 2)
+            .unlockedBy(
+                    AnvilCraftDatagen.hasItem(Items.RAW_GOLD_BLOCK),
+                    AnvilCraftDatagen.has(Items.RAW_GOLD_BLOCK)
+            )
+            .save(
+                    provider,
+                    AnvilCraft.of("heating/" + BuiltInRegistries.ITEM.getKey(Items.RAW_GOLD_BLOCK).getPath())
+            );
+        AnvilRecipe.Builder.create(RecipeCategory.MISC)
+            .icon(Items.COPPER_BLOCK)
+            .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(OVERLOAD, false))
+            .hasBlock(Blocks.CAULDRON)
+            .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), Items.RAW_COPPER_BLOCK)
+            .spawnItem(new Vec3(0.0, -1.0, 0.0), Items.COPPER_BLOCK, 2)
+            .unlockedBy(
+                    AnvilCraftDatagen.hasItem(Items.RAW_COPPER_BLOCK),
+                    AnvilCraftDatagen.has(Items.RAW_COPPER_BLOCK)
+            )
+            .save(
+                    provider,
+                    AnvilCraft.of("heating/" + BuiltInRegistries.ITEM.getKey(Items.RAW_COPPER_BLOCK).getPath())
+            );
+        AnvilRecipe.Builder.create(RecipeCategory.MISC)
+                .icon(ModBlocks.TEMPERING_GLASS.asItem())
+                .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(OVERLOAD, false))
+                .hasBlock(Blocks.CAULDRON)
+                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 8, ModBlocks.QUARTZ_SAND)
+                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), ModItems.ROYAL_STEEL_INGOT)
+                .spawnItem(new Vec3(0.0, -1.0, 0.0), ModBlocks.TEMPERING_GLASS.asItem(), 8)
+                .unlockedBy(
+                        AnvilCraftDatagen.hasItem(ModBlocks.QUARTZ_SAND),
+                        AnvilCraftDatagen.has(ModBlocks.QUARTZ_SAND)
+                )
+                .save(provider, AnvilCraft.of("heating/" + BuiltInRegistries.ITEM
+                    .getKey(ModBlocks.TEMPERING_GLASS.asItem())
+                    .getPath()));
     }
 }

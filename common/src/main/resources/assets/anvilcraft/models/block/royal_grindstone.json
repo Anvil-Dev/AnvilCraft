@@ -82,10 +82,9 @@
 			"faces": {
 				"north": {"uv": [5, 0.5, 3, 11.5], "texture": "#round"},
 				"south": {"uv": [3, 0.5, 5, 11.5], "texture": "#round"},
-				"up": {"uv": [3, 0.5, 5, 11.5], "texture": "#round", "cullface": "up"},
+				"up": {"uv": [3, 0.5, 5, 11.5], "texture": "#round"},
 				"down": {"uv": [3, 0.5, 5, 11.5], "texture": "#round"}
 			}
 		}
-	],
-	"display": {}
+	]
 }
