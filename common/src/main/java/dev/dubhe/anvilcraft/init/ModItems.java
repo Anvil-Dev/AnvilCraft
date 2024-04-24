@@ -19,6 +19,7 @@ import dev.dubhe.anvilcraft.item.RoyalUpgradeTemplateItem;
 import dev.dubhe.anvilcraft.item.TopazItem;
 import dev.dubhe.anvilcraft.item.UtusanItem;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
@@ -36,6 +37,7 @@ import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.Tiers;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -378,45 +380,45 @@ public class ModItems {
         .model((ctx, provider) -> provider.handheld(ctx))
         .register();
     public static final ItemEntry<? extends Item> ROYAL_STEEL_AXE = REGISTRATE
-            .item("royal_steel_axe", properties -> new AxeItem(Tiers.DIAMOND, 5, -3.0f,
-                    properties.durability(1561)) {
-                @Override
-                public @NotNull ItemStack getDefaultInstance() {
-                    return super.getDefaultInstance();
-                }
-            })
-            .model((ctx, provider) -> provider.handheld(ctx))
-            .register();
+        .item("royal_steel_axe", properties -> new AxeItem(Tiers.DIAMOND, 5, -3.0f,
+            properties.durability(1561)) {
+            @Override
+            public @NotNull ItemStack getDefaultInstance() {
+                return super.getDefaultInstance();
+            }
+        })
+        .model((ctx, provider) -> provider.handheld(ctx))
+        .register();
     public static final ItemEntry<? extends Item> ROYAL_STEEL_SHOVEL = REGISTRATE
-            .item("royal_steel_shovel", properties -> new ShovelItem(Tiers.DIAMOND, 1.5f, -3.0f,
-                    properties.durability(1561)) {
-                @Override
-                public @NotNull ItemStack getDefaultInstance() {
-                    return super.getDefaultInstance();
-                }
-            })
-            .model((ctx, provider) -> provider.handheld(ctx))
-            .register();
+        .item("royal_steel_shovel", properties -> new ShovelItem(Tiers.DIAMOND, 1.5f, -3.0f,
+            properties.durability(1561)) {
+            @Override
+            public @NotNull ItemStack getDefaultInstance() {
+                return super.getDefaultInstance();
+            }
+        })
+        .model((ctx, provider) -> provider.handheld(ctx))
+        .register();
     public static final ItemEntry<? extends Item> ROYAL_STEEL_HOE = REGISTRATE
-            .item("royal_steel_hoe", properties -> new HoeItem(Tiers.DIAMOND, -3, 0,
-                    properties.durability(1561)) {
-                @Override
-                public @NotNull ItemStack getDefaultInstance() {
-                    return super.getDefaultInstance();
-                }
-            })
-            .model((ctx, provider) -> provider.handheld(ctx))
-            .register();
+        .item("royal_steel_hoe", properties -> new HoeItem(Tiers.DIAMOND, -3, 0,
+            properties.durability(1561)) {
+            @Override
+            public @NotNull ItemStack getDefaultInstance() {
+                return super.getDefaultInstance();
+            }
+        })
+        .model((ctx, provider) -> provider.handheld(ctx))
+        .register();
     public static final ItemEntry<? extends Item> ROYAL_STEEL_SWORD = REGISTRATE
-            .item("royal_steel_sword", properties -> new SwordItem(Tiers.DIAMOND, 3, -2.4f,
-                    properties.durability(1561)) {
-                @Override
-                public @NotNull ItemStack getDefaultInstance() {
-                    return super.getDefaultInstance();
-                }
-            })
-            .model((ctx, provider) -> provider.handheld(ctx))
-            .register();
+        .item("royal_steel_sword", properties -> new SwordItem(Tiers.DIAMOND, 3, -2.4f,
+            properties.durability(1561)) {
+            @Override
+            public @NotNull ItemStack getDefaultInstance() {
+                return super.getDefaultInstance();
+            }
+        })
+        .model((ctx, provider) -> provider.handheld(ctx))
+        .register();
     // 升级模板
     public static final ItemEntry<RoyalUpgradeTemplateItem> ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE = REGISTRATE
         .item("royal_steel_upgrade_smithing_template", RoyalUpgradeTemplateItem::new)
@@ -602,6 +604,177 @@ public class ModItems {
         .item("crab_claw", CrabClawItem::new)
         .model((ctx, provider) -> {
         })
+        .register();
+    public static final ItemEntry<Item> TUNGSTEN_NUGGET = REGISTRATE
+        .item("tungsten_nugget", Item::new)
+        .tag(ModItemTags.TUNGSTEN_NUGGET, ModItemTags.TUNGSTEN_NUGGET_FORGE)
+        .recipe((ctx, provider) -> {
+            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+                .requires(ModItemTags.TUNGSTEN_INGOT)
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItemTags.TUNGSTEN_INGOT),
+                    RegistrateRecipeProvider.has(ModItemTags.TUNGSTEN_INGOT)
+                )
+                .save(provider);
+            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+                .requires(ModItemTags.TUNGSTEN_INGOT_FORGE)
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItemTags.TUNGSTEN_INGOT_FORGE),
+                    RegistrateRecipeProvider.has(ModItemTags.TUNGSTEN_INGOT_FORGE)
+                )
+                .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_forge");
+        })
+        .register();
+    public static final ItemEntry<Item> TUNGSTEN_INGOT = REGISTRATE
+        .item("tungsten_ingot", Item::new)
+        .tag(ModItemTags.TUNGSTEN_INGOT, ModItemTags.TUNGSTEN_INGOT_FORGE)
+        .recipe((ctx, provider) -> {
+            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
+                .requires(Ingredient.of(ModItemTags.TUNGSTEN_NUGGET), 9)
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItemTags.TUNGSTEN_NUGGET),
+                    RegistrateRecipeProvider.has(ModItemTags.TUNGSTEN_NUGGET)
+                )
+                .save(provider);
+            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
+                .requires(Ingredient.of(ModItemTags.TUNGSTEN_NUGGET_FORGE), 9)
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItemTags.TUNGSTEN_NUGGET_FORGE),
+                    RegistrateRecipeProvider.has(ModItemTags.TUNGSTEN_NUGGET_FORGE)
+                )
+                .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_forge");
+        })
+        .register();
+    public static final ItemEntry<Item> TITANIUM_NUGGET = REGISTRATE
+        .item("titanium_nugget", Item::new)
+        .tag(ModItemTags.TITANIUM_NUGGET, ModItemTags.TITANIUM_NUGGET_FORGE)
+        .recipe((ctx, provider) -> {
+            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+                .requires(ModItemTags.TITANIUM_INGOT)
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItemTags.TITANIUM_INGOT),
+                    RegistrateRecipeProvider.has(ModItemTags.TITANIUM_INGOT)
+                )
+                .save(provider);
+            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+                .requires(ModItemTags.TITANIUM_INGOT_FORGE)
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItemTags.TITANIUM_INGOT_FORGE),
+                    RegistrateRecipeProvider.has(ModItemTags.TITANIUM_INGOT_FORGE)
+                )
+                .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_forge");
+        })
+        .register();
+    public static final ItemEntry<Item> TITANIUM_INGOT = REGISTRATE
+        .item("titanium_ingot", Item::new)
+        .tag(ModItemTags.TITANIUM_INGOT, ModItemTags.TITANIUM_INGOT_FORGE)
+        .recipe((ctx, provider) -> {
+            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
+                .requires(Ingredient.of(ModItemTags.TITANIUM_NUGGET), 9)
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItemTags.TITANIUM_NUGGET),
+                    RegistrateRecipeProvider.has(ModItemTags.TITANIUM_NUGGET)
+                )
+                .save(provider);
+            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
+                .requires(Ingredient.of(ModItemTags.TITANIUM_NUGGET_FORGE), 9)
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItemTags.TITANIUM_NUGGET_FORGE),
+                    RegistrateRecipeProvider.has(ModItemTags.TITANIUM_NUGGET_FORGE)
+                )
+                .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_forge");
+        })
+        .register();
+    public static final ItemEntry<Item> ZINC_NUGGET = REGISTRATE
+        .item("zinc_nugget", Item::new)
+        .tag(ModItemTags.ZINC_NUGGET, ModItemTags.ZINC_NUGGET_FORGE)
+        .recipe((ctx, provider) -> {
+            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+                .requires(ModItemTags.ZINC_INGOT)
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItemTags.ZINC_INGOT),
+                    RegistrateRecipeProvider.has(ModItemTags.ZINC_INGOT)
+                )
+                .save(provider);
+            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+                .requires(ModItemTags.ZINC_INGOT_FORGE)
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItemTags.ZINC_INGOT_FORGE),
+                    RegistrateRecipeProvider.has(ModItemTags.ZINC_INGOT_FORGE)
+                )
+                .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_forge");
+        })
+        .register();
+    public static final ItemEntry<Item> ZINC_INGOT = REGISTRATE
+        .item("zinc_ingot", Item::new)
+        .tag(ModItemTags.ZINC_INGOT, ModItemTags.ZINC_INGOT_FORGE)
+        .recipe((ctx, provider) -> {
+            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
+                .requires(Ingredient.of(ModItemTags.ZINC_NUGGET), 9)
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItemTags.ZINC_NUGGET),
+                    RegistrateRecipeProvider.has(ModItemTags.ZINC_NUGGET)
+                )
+                .save(provider);
+            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
+                .requires(Ingredient.of(ModItemTags.ZINC_NUGGET_FORGE), 9)
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItemTags.ZINC_NUGGET_FORGE),
+                    RegistrateRecipeProvider.has(ModItemTags.ZINC_NUGGET_FORGE)
+                )
+                .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_forge");
+        })
+        .register();
+    public static final ItemEntry<Item> TIN_NUGGET = REGISTRATE
+        .item("tin_nugget", Item::new)
+        .tag(ModItemTags.TIN_NUGGET, ModItemTags.TIN_NUGGET_FORGE)
+        .recipe((ctx, provider) -> {
+            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+                .requires(ModItemTags.TIN_INGOT)
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItemTags.TIN_INGOT),
+                    RegistrateRecipeProvider.has(ModItemTags.TIN_INGOT)
+                )
+                .save(provider);
+            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+                .requires(ModItemTags.TIN_INGOT_FORGE)
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItemTags.TIN_INGOT_FORGE),
+                    RegistrateRecipeProvider.has(ModItemTags.TIN_INGOT_FORGE)
+                )
+                .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_forge");
+        })
+        .register();
+    public static final ItemEntry<Item> TIN_INGOT = REGISTRATE
+        .item("tin_ingot", Item::new)
+        .tag(ModItemTags.TIN_INGOT, ModItemTags.TIN_INGOT_FORGE)
+        .recipe((ctx, provider) -> {
+            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
+                .requires(Ingredient.of(ModItemTags.TIN_NUGGET), 9)
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItemTags.TIN_NUGGET),
+                    RegistrateRecipeProvider.has(ModItemTags.TIN_NUGGET)
+                )
+                .save(provider);
+            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
+                .requires(Ingredient.of(ModItemTags.TIN_NUGGET_FORGE), 9)
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItemTags.TIN_NUGGET_FORGE),
+                    RegistrateRecipeProvider.has(ModItemTags.TIN_NUGGET_FORGE)
+                )
+                .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_forge");
+        })
+        .register();
+    public static final ItemEntry<Item> COPPER_NUGGET = REGISTRATE
+        .item("copper_nugget", Item::new)
+        .tag(ModItemTags.COPPER_NUGGET, ModItemTags.COPPER_NUGGET_FORGE)
+        .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+            .requires(Ingredient.of(Items.COPPER_INGOT))
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.COPPER_INGOT),
+                RegistrateRecipeProvider.has(Items.COPPER_INGOT)
+            )
+            .save(provider))
         .register();
 
     public static void register() {

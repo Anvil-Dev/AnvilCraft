@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "tag": "forge:zinc_ingot"
+    }
+  ],
+  "result": {
+    "count": 9,
+    "item": "anvilcraft:zinc_nugget"
+  }
+}

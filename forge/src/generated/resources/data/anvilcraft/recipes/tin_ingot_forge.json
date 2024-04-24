@@ -1,0 +1,36 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "tag": "forge:tin_nugget"
+    },
+    {
+      "tag": "forge:tin_nugget"
+    },
+    {
+      "tag": "forge:tin_nugget"
+    },
+    {
+      "tag": "forge:tin_nugget"
+    },
+    {
+      "tag": "forge:tin_nugget"
+    },
+    {
+      "tag": "forge:tin_nugget"
+    },
+    {
+      "tag": "forge:tin_nugget"
+    },
+    {
+      "tag": "forge:tin_nugget"
+    },
+    {
+      "tag": "forge:tin_nugget"
+    }
+  ],
+  "result": {
+    "item": "anvilcraft:tin_ingot"
+  }
+}

@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "anvilcraft:item/bark"
+    "layer0": "anvilcraft:item/zinc_nugget"
   }
 }

@@ -31,6 +31,7 @@ public class SmashBlockRecipesLoader {
         smash(Blocks.NETHER_BRICKS, Blocks.CRACKED_NETHER_BRICKS, provider);
         smash(Blocks.DEEPSLATE_TILES, Blocks.CRACKED_DEEPSLATE_TILES, provider);
         smash(Blocks.POLISHED_BLACKSTONE_BRICKS, Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS, provider);
+        smash(Blocks.SOUL_SOIL, Blocks.SOUL_SAND, provider);
     }
 
     /**
