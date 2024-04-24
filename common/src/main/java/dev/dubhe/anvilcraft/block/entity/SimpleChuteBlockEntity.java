@@ -82,6 +82,7 @@ public class SimpleChuteBlockEntity extends BlockEntity {
                             if (!stack.isEmpty()) {
                                 ItemEntity itemEntity = new ItemEntity(getLevel(),
                                     center.x, center.y, center.z, stack, 0, 0, 0);
+                                itemEntity.setDefaultPickUpDelay();
                                 getLevel().addFreshEntity(itemEntity);
                                 depository.setStack(i, ItemStack.EMPTY);
                                 break;

@@ -332,9 +332,6 @@ public class ModItems {
             .save(provider)
         )
         .register();
-    public static final ItemEntry<Item> BARK = REGISTRATE
-        .item("bark", Item::new)
-        .register();
     public static final ItemEntry<Item> PULP = REGISTRATE
         .item("pulp", Item::new)
         .register();
