@@ -24,6 +24,15 @@ public class ModItemTags {
     public static final TagKey<Item> IRON_PLATES = bindC("iron_plates");
     public static final TagKey<Item> STONE = bindC("stone");
     public static final TagKey<Item> GLASS = bindC("silica_glass");
+    public static final TagKey<Item> TUNGSTEN_NUGGET = bindC("tungsten_nugget");
+    public static final TagKey<Item> TUNGSTEN_INGOT = bindC("tungsten_ingot");
+    public static final TagKey<Item> TITANIUM_NUGGET = bindC("titanium_nugget");
+    public static final TagKey<Item> TITANIUM_INGOT = bindC("titanium_ingot");
+    public static final TagKey<Item> ZINC_NUGGET = bindC("zinc_nugget");
+    public static final TagKey<Item> ZINC_INGOT = bindC("zinc_ingot");
+    public static final TagKey<Item> TIN_NUGGET = bindC("tin_nugget");
+    public static final TagKey<Item> TIN_INGOT = bindC("tin_ingot");
+    public static final TagKey<Item> COPPER_NUGGET = bindC("copper_nugget");
 
     public static final TagKey<Item> FLOUR_FORGE = bindForge("flour");
     public static final TagKey<Item> WHEAT_FLOUR_FORGE = bindForge("flour/wheat");
@@ -40,6 +49,15 @@ public class ModItemTags {
     public static final TagKey<Item> IRON_PLATES_FORGE = bindForge("iron_plates");
     public static final TagKey<Item> STONE_FORGE = bindForge("stone");
     public static final TagKey<Item> GLASS_FORGE = bindForge("silica_glass");
+    public static final TagKey<Item> TUNGSTEN_NUGGET_FORGE = bindForge("tungsten_nugget");
+    public static final TagKey<Item> TUNGSTEN_INGOT_FORGE = bindForge("tungsten_ingot");
+    public static final TagKey<Item> TITANIUM_NUGGET_FORGE = bindForge("titanium_nugget");
+    public static final TagKey<Item> TITANIUM_INGOT_FORGE = bindForge("titanium_ingot");
+    public static final TagKey<Item> ZINC_NUGGET_FORGE = bindForge("zinc_nugget");
+    public static final TagKey<Item> ZINC_INGOT_FORGE = bindForge("zinc_ingot");
+    public static final TagKey<Item> TIN_NUGGET_FORGE = bindForge("tin_nugget");
+    public static final TagKey<Item> TIN_INGOT_FORGE = bindForge("tin_ingot");
+    public static final TagKey<Item> COPPER_NUGGET_FORGE = bindForge("copper_nugget");
 
     public static final TagKey<Item> ROYAL_STEEL_PICKAXE_BASE = bind("royal_steel_pickaxe_base");
     public static final TagKey<Item> ROYAL_STEEL_AXE_BASE = bind("royal_steel_axe_base");
