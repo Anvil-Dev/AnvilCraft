@@ -131,7 +131,8 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
         }
         int removeCurseNumber = 0;
         Iterator<Enchantment> iterator = curseMap.keySet().iterator();
-        while ((goldNumber >= 3 && curseNumber > 0)) {
+        final int needGold = 16;
+        while (goldNumber >= needGold && curseNumber > 0 && goldUsed + needGold < 64) {
             Map<Enchantment, Integer> map = EnchantmentHelper.getEnchantments(result);
             map.remove(iterator.next());
             ItemStack itemStack = result.copy();
@@ -140,7 +141,7 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
             EnchantmentHelper.setEnchantments(map, itemStack);
             result = itemStack.copy();
             curseNumber -= 1;
-            goldUsed += 3;
+            goldUsed += needGold;
             removeCurseNumber += 1;
         }
         if (result.is(Items.ENCHANTED_BOOK) && EnchantmentHelper.getEnchantments(result).isEmpty()) {
@@ -170,6 +171,7 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
                     this.getSlot(index).setByPlayer(ItemStack.EMPTY);
                 }
             } else {
+                ItemStack gold;
                 if (itemStack.isDamageableItem() || itemStack.is(Items.ENCHANTED_BOOK) || itemStack.isEnchanted()) {
                     if (!this.getSlot(0).hasItem()) {
                         this.getSlot(0).setByPlayer(itemStack);
@@ -181,6 +183,16 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
                     if (!this.getSlot(1).hasItem()) {
                         this.getSlot(1).setByPlayer(itemStack);
                         this.getSlot(index).setByPlayer(ItemStack.EMPTY);
+                    } else if (
+                        (gold = this.getSlot(1).getItem()).is(Items.GOLD_INGOT)
+                            && gold.getCount() < gold.getMaxStackSize()
+                    ) {
+                        int canSet = gold.getMaxStackSize() - gold.getCount();
+                        canSet = Math.min(itemStack.getCount(), canSet);
+                        gold.grow(canSet);
+                        itemStack.shrink(canSet);
+                        this.getSlot(1).setByPlayer(gold);
+                        this.getSlot(index).setByPlayer(itemStack);
                     } else {
                         return ItemStack.EMPTY;
                     }
