@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
-import dev.dubhe.anvilcraft.block.entity.CreativeDynamoBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CreativeGeneratorBlockEntity;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.network.SliderInitPack;
 import net.minecraft.core.BlockPos;
@@ -24,10 +24,10 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
-public class CreativeDynamoBlock extends BaseEntityBlock implements IHammerRemovable {
+public class CreativeGeneratorBlock extends BaseEntityBlock implements IHammerRemovable {
     public static final VoxelShape AABB = Block.box(0, 0, 0, 16, 4, 16);
 
-    public CreativeDynamoBlock(Properties properties) {
+    public CreativeGeneratorBlock(Properties properties) {
         super(properties);
     }
 
@@ -42,7 +42,7 @@ public class CreativeDynamoBlock extends BaseEntityBlock implements IHammerRemov
             return InteractionResult.SUCCESS;
         }
         if (
-            level.getBlockEntity(pos) instanceof CreativeDynamoBlockEntity entity
+            level.getBlockEntity(pos) instanceof CreativeGeneratorBlockEntity entity
                 && player instanceof ServerPlayer serverPlayer
         ) {
             ModMenuTypes.open(serverPlayer, entity, pos);
@@ -54,7 +54,7 @@ public class CreativeDynamoBlock extends BaseEntityBlock implements IHammerRemov
     @Nullable
     @Override
     public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
-        return new CreativeDynamoBlockEntity(pos, state);
+        return new CreativeGeneratorBlockEntity(pos, state);
     }
 
     @Override
@@ -67,6 +67,6 @@ public class CreativeDynamoBlock extends BaseEntityBlock implements IHammerRemov
     public @NotNull VoxelShape getShape(
         @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context
     ) {
-        return CreativeDynamoBlock.AABB;
+        return CreativeGeneratorBlock.AABB;
     }
 }

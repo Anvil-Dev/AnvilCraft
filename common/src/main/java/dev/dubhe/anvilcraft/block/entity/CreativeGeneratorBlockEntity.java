@@ -24,22 +24,22 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Getter
-public class CreativeDynamoBlockEntity extends BlockEntity implements IPowerProducer, IPowerConsumer, MenuProvider {
+public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerProducer, IPowerConsumer, MenuProvider {
     private PowerGrid grid = null;
     @Setter
     private int power = 16;
 
-    public static @NotNull CreativeDynamoBlockEntity createBlockEntity(
+    public static @NotNull CreativeGeneratorBlockEntity createBlockEntity(
         BlockEntityType<?> type, BlockPos pos, BlockState blockState
     ) {
-        return new CreativeDynamoBlockEntity(type, pos, blockState);
+        return new CreativeGeneratorBlockEntity(type, pos, blockState);
     }
 
-    public CreativeDynamoBlockEntity(BlockPos pos, BlockState blockState) {
-        this(ModBlockEntities.CREATIVE_DYNAMO.get(), pos, blockState);
+    public CreativeGeneratorBlockEntity(BlockPos pos, BlockState blockState) {
+        this(ModBlockEntities.CREATIVE_GENERATOR.get(), pos, blockState);
     }
 
-    private CreativeDynamoBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+    private CreativeGeneratorBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
 
@@ -82,7 +82,7 @@ public class CreativeDynamoBlockEntity extends BlockEntity implements IPowerProd
 
     @Override
     public @NotNull Component getDisplayName() {
-        return ModBlocks.CREATIVE_DYNAMO.get().getName();
+        return ModBlocks.CREATIVE_GENERATOR.get().getName();
     }
 
     @Nullable

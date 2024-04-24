@@ -11,11 +11,11 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "anvilcraft:creative_dynamo"
+          "name": "anvilcraft:creative_generator"
         }
       ],
       "rolls": 1.0
     }
   ],
-  "random_sequence": "anvilcraft:blocks/creative_dynamo"
+  "random_sequence": "anvilcraft:blocks/creative_generator"
 }

@@ -2,11 +2,11 @@
 	"credit": "Made by XeKr with Blockbench",
 	"parent": "minecraft:block/block",
 	"textures": {
-		"particle": "anvilcraft:block/creative_dynamo_side",
-		"base": "anvilcraft:block/creative_dynamo_side",
-		"top": "anvilcraft:block/creative_dynamo_top",
-		"bottom": "anvilcraft:block/creative_dynamo_bottom",
-		"head": "anvilcraft:block/creative_dynamo_head"
+		"particle": "anvilcraft:block/creative_generator_side",
+		"base": "anvilcraft:block/creative_generator_side",
+		"top": "anvilcraft:block/creative_generator_top",
+		"bottom": "anvilcraft:block/creative_generator_bottom",
+		"head": "anvilcraft:block/creative_generator_head"
 	},
 	"elements": [
 		{

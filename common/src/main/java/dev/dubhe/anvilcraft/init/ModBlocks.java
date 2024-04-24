@@ -8,7 +8,7 @@ import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
 import dev.dubhe.anvilcraft.block.ChuteBlock;
 import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.block.CrabTrapBlock;
-import dev.dubhe.anvilcraft.block.CreativeDynamoBlock;
+import dev.dubhe.anvilcraft.block.CreativeGeneratorBlock;
 import dev.dubhe.anvilcraft.block.FerriteCoreMagnetBlock;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
@@ -440,8 +440,8 @@ public class ModBlocks {
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.AMBER), AnvilCraftDatagen.has(ModItems.AMBER))
             .save(provider))
         .register();
-    public static final BlockEntry<? extends Block> CREATIVE_DYNAMO = REGISTRATE
-        .block("creative_dynamo", CreativeDynamoBlock::new)
+    public static final BlockEntry<? extends Block> CREATIVE_GENERATOR = REGISTRATE
+        .block("creative_generator", CreativeGeneratorBlock::new)
         .initialProperties(ModBlocks.MAGNET_BLOCK)
         .properties(BlockBehaviour.Properties::noOcclusion)
         .blockstate((ctx, provider) -> {
