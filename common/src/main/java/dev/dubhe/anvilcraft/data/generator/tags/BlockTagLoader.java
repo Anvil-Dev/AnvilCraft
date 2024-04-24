@@ -2,6 +2,8 @@ package dev.dubhe.anvilcraft.data.generator.tags;
 
 import com.tterrag.registrate.providers.RegistrateTagsProvider;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
+import dev.dubhe.anvilcraft.init.ModBlocks;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.NotNull;
@@ -72,5 +74,10 @@ public class BlockTagLoader {
             .add(Blocks.ANVIL)
             .add(Blocks.CHIPPED_ANVIL)
             .add(Blocks.DAMAGED_ANVIL);
+        provider.addTag(ModBlockTags.UNDER_CAULDRON)
+            .forceAddTag(BlockTags.CAMPFIRES)
+            .add(Blocks.MAGMA_BLOCK)
+            .add(ModBlocks.HEATER.get())
+            .add(ModBlocks.CORRUPTED_BEACON.get());
     }
 }

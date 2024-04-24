@@ -32,6 +32,17 @@
       ]
     },
     {
+      "type": "not_has_block",
+      "match_block": {
+        "tag": "anvilcraft:under_cauldron"
+      },
+      "offset": [
+        0.0,
+        -2.0,
+        0.0
+      ]
+    },
+    {
       "type": "has_item_ingredient",
       "match_item": {
         "count": {
@@ -43,7 +54,7 @@
       },
       "offset": [
         0.0,
-        0.0,
+        -1.0,
         0.0
       ]
     }
