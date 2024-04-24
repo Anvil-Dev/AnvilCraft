@@ -65,7 +65,7 @@ abstract class ItemEntityMixin extends Entity {
         if (itemStack.getCount() != 1) return;
         if (!this.anvilcraft$needMagnetization) return;
         this.anvilcraft$needMagnetization = false;
-        if (this.level().random.nextInt(100) <= 5) {
+        if (this.level().random.nextInt(100) <= 10) {
             this.setItem(new ItemStack(ModItems.MAGNET_INGOT));
         }
     }

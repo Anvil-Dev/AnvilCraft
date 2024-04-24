@@ -60,7 +60,7 @@ public class UtusanItem extends Item {
             bl = true;
         }
         if (!bl) {
-            livingEntity.addEffect(new MobEffectInstance(MobEffects.POISON, 200, 2));
+            livingEntity.addEffect(new MobEffectInstance(MobEffects.POISON, 600, 4));
             return;
         }
         for (MobEffect effect : effects) livingEntity.removeEffect(effect);
