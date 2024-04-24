@@ -224,10 +224,14 @@ public class AnvilEventListener {
             int canCraft = stack.getCount() / deplete;
             int size = Math.min(count, canCraft);
             count -= size;
+            int resultCount = result.getCount();
+            if (resultCount != 1) {
+                remainders.add(stack);
+                continue;
+            }
             int remainder = stack.getCount() - size * deplete;
             stack.setCount(remainder);
             if (remainder != 0) remainders.add(stack);
-            int resultCount = result.getCount();
             resultCount *= size;
             result.setCount(resultCount);
             results.add(result);

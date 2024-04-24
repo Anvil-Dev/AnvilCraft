@@ -79,7 +79,7 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.ROYAL_ANVIL.asStack());
                 entries.accept(ModBlocks.ROYAL_GRINDSTONE.asStack());
                 entries.accept(ModBlocks.ROYAL_SMITHING_TABLE.asStack());
-                entries.accept(ModBlocks.CREATIVE_DYNAMO.asStack());
+                entries.accept(ModBlocks.CREATIVE_GENERATOR.asStack());
                 entries.accept(ModBlocks.HEATER.asStack());
                 entries.accept(ModBlocks.TRANSMISSION_POLE.asStack());
                 entries.accept(ModBlocks.MAGNET_BLOCK.asStack());
