@@ -23,25 +23,25 @@
       "y": 270
     },
     "facing=down,overload=true": {
-      "model": "anvilcraft:block/auto_crafter_vertical_off",
+      "model": "anvilcraft:block/auto_crafter_vertical_overload",
       "x": 180
     },
     "facing=east,overload=true": {
-      "model": "anvilcraft:block/auto_crafter_off",
+      "model": "anvilcraft:block/auto_crafter_overload",
       "y": 90
     },
     "facing=north,overload=true": {
-      "model": "anvilcraft:block/auto_crafter_off"
+      "model": "anvilcraft:block/auto_crafter_overload"
     },
     "facing=south,overload=true": {
-      "model": "anvilcraft:block/auto_crafter_off",
+      "model": "anvilcraft:block/auto_crafter_overload",
       "y": 180
     },
     "facing=up,overload=true": {
-      "model": "anvilcraft:block/auto_crafter_vertical_off"
+      "model": "anvilcraft:block/auto_crafter_vertical_overload"
     },
     "facing=west,overload=true": {
-      "model": "anvilcraft:block/auto_crafter_off",
+      "model": "anvilcraft:block/auto_crafter_overload",
       "y": 270
     }
   }

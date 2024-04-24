@@ -1,0 +1,120 @@
+{
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/cube",
+	"textures": {
+		"particle": "anvilcraft:block/block_placer_back_on",
+		"back": "anvilcraft:block/block_placer_back_on",
+		"bottom": "anvilcraft:block/block_placer_bottom",
+		"claw": "anvilcraft:block/block_placer_claw",
+		"face": "anvilcraft:block/block_placer_face",
+		"side": "anvilcraft:block/block_placer_side_on",
+		"top": "anvilcraft:block/block_placer_top_on"
+	},
+	"elements": [
+		{
+			"from": [2, 3, 8],
+			"to": [14, 13, 16],
+			"faces": {
+				"north": {"uv": [2, 3, 14, 13], "texture": "#face", "cullface": "north"},
+				"south": {"uv": [2, 3, 14, 13], "texture": "#back", "cullface": "south"}
+			}
+		},
+		{
+			"from": [14, 3, 6],
+			"to": [16, 13, 16],
+			"faces": {
+				"north": {"uv": [0, 3, 2, 13], "texture": "#face", "cullface": "north"},
+				"east": {"uv": [16, 3, 6, 13], "texture": "#side", "cullface": "east"},
+				"south": {"uv": [14, 3, 16, 13], "texture": "#back", "cullface": "south"},
+				"west": {"uv": [6, 3, 16, 13], "texture": "#side", "cullface": "west"}
+			}
+		},
+		{
+			"from": [0, 3, 6],
+			"to": [2, 13, 16],
+			"faces": {
+				"north": {"uv": [14, 3, 16, 13], "texture": "#face", "cullface": "north"},
+				"east": {"uv": [16, 3, 6, 13], "texture": "#side", "cullface": "east"},
+				"south": {"uv": [0, 3, 2, 13], "texture": "#back", "cullface": "south"},
+				"west": {"uv": [6, 3, 16, 13], "texture": "#side", "cullface": "west"}
+			}
+		},
+		{
+			"from": [0, 0, 4],
+			"to": [16, 3, 16],
+			"faces": {
+				"north": {"uv": [0, 13, 16, 16], "texture": "#face", "cullface": "north"},
+				"east": {"uv": [16, 13, 4, 16], "texture": "#side", "cullface": "east"},
+				"south": {"uv": [0, 13, 16, 16], "texture": "#back", "cullface": "south"},
+				"west": {"uv": [4, 13, 16, 16], "texture": "#side", "cullface": "west"},
+				"up": {"uv": [0, 0, 16, 12], "rotation": 180, "texture": "#bottom", "cullface": "up"},
+				"down": {"uv": [0, 12, 16, 0], "rotation": 180, "texture": "#bottom", "cullface": "down"}
+			}
+		},
+		{
+			"from": [0, 13, 4],
+			"to": [16, 16, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 3], "texture": "#face", "cullface": "north"},
+				"east": {"uv": [16, 0, 4, 3], "texture": "#side", "cullface": "east"},
+				"south": {"uv": [0, 0, 16, 3], "texture": "#back", "cullface": "south"},
+				"west": {"uv": [4, 0, 16, 3], "texture": "#side", "cullface": "west"},
+				"up": {"uv": [0, 0, 16, 12], "rotation": 180, "texture": "#top", "cullface": "up"},
+				"down": {"uv": [0, 12, 16, 0], "rotation": 180, "texture": "#bottom", "cullface": "down"}
+			}
+		},
+		{
+			"from": [6.1, 5.1, -2.9],
+			"to": [9.9, 7, 8],
+			"rotation": {"angle": -22.5, "axis": "x", "origin": [8, 7, 7]},
+			"faces": {
+				"north": {"uv": [12, 6, 16, 8], "texture": "#claw"},
+				"east": {"uv": [11, 10, 0, 12], "texture": "#claw"},
+				"south": {"uv": [12, 14, 16, 16], "texture": "#claw"},
+				"west": {"uv": [0, 10, 11, 12], "texture": "#claw"},
+				"up": {"uv": [12, 7, 1, 11], "rotation": 270, "texture": "#claw"},
+				"down": {"uv": [11, 12, 0, 16], "rotation": 90, "texture": "#claw"}
+			}
+		},
+		{
+			"from": [6, 7, -1],
+			"to": [10, 11, 8],
+			"rotation": {"angle": 22.5, "axis": "x", "origin": [8, 7, 7]},
+			"faces": {
+				"north": {"uv": [12, 0, 16, 4], "texture": "#claw"},
+				"east": {"uv": [11, 4, 2, 8], "texture": "#claw"},
+				"south": {"uv": [12, 8, 16, 12], "texture": "#claw"},
+				"west": {"uv": [2, 4, 11, 8], "texture": "#claw"},
+				"up": {"uv": [11, 0, 2, 4], "rotation": 270, "texture": "#claw"},
+				"down": {"uv": [11, 7, 2, 11], "rotation": 90, "texture": "#claw"}
+			}
+		},
+		{
+			"from": [6, 5, -3],
+			"to": [10, 11, -1],
+			"rotation": {"angle": 22.5, "axis": "x", "origin": [8, 7, 7]},
+			"faces": {
+				"north": {"uv": [12, 0, 16, 6], "texture": "#claw"},
+				"east": {"uv": [2, 4, 0, 10], "texture": "#claw"},
+				"south": {"uv": [1, 7, 7, 11], "rotation": 270, "texture": "#claw"},
+				"west": {"uv": [0, 4, 2, 10], "texture": "#claw"},
+				"up": {"uv": [2, 0, 0, 4], "rotation": 270, "texture": "#claw"},
+				"down": {"uv": [2, 12, 0, 16], "rotation": 90, "texture": "#claw"}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "group",
+			"origin": [0, 0, 0],
+			"color": 0,
+			"children": [0, 1, 2, 3, 4]
+		},
+		{
+			"name": "group",
+			"origin": [5, 4, 8],
+			"color": 0,
+			"children": [5, 6, 7]
+		}
+	]
+}
