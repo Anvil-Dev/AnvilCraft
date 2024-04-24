@@ -125,6 +125,30 @@ public class VanillaRecipesLoader {
             .unlocks(AnvilCraftDatagen.hasItem(ModItems.AMETHYST_PICKAXE.asItem()),
                 AnvilCraftDatagen.has(ModItems.AMETHYST_PICKAXE))
             .save(provider, AnvilCraft.of("smithing/royal_steel_pickaxe"));
+        SmithingTransformRecipeBuilder.smithing(Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
+                Ingredient.of(ModItemTags.ROYAL_STEEL_AXE_BASE), Ingredient.of(ModItems.ROYAL_STEEL_INGOT.get()),
+                RecipeCategory.TOOLS, ModItems.ROYAL_STEEL_AXE.get())
+            .unlocks(AnvilCraftDatagen.hasItem(ModItems.AMETHYST_AXE.asItem()),
+                AnvilCraftDatagen.has(ModItems.AMETHYST_AXE))
+            .save(provider, AnvilCraft.of("smithing/royal_steel_axe"));
+        SmithingTransformRecipeBuilder.smithing(Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
+                Ingredient.of(ModItemTags.ROYAL_STEEL_HOE_BASE), Ingredient.of(ModItems.ROYAL_STEEL_INGOT.get()),
+                RecipeCategory.TOOLS, ModItems.ROYAL_STEEL_HOE.get())
+            .unlocks(AnvilCraftDatagen.hasItem(ModItems.AMETHYST_HOE.asItem()),
+                AnvilCraftDatagen.has(ModItems.AMETHYST_HOE))
+            .save(provider, AnvilCraft.of("smithing/royal_steel_hoe"));
+        SmithingTransformRecipeBuilder.smithing(Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
+                Ingredient.of(ModItemTags.ROYAL_STEEL_SHOVEL_BASE), Ingredient.of(ModItems.ROYAL_STEEL_INGOT.get()),
+                RecipeCategory.TOOLS, ModItems.ROYAL_STEEL_SHOVEL.get())
+            .unlocks(AnvilCraftDatagen.hasItem(ModItems.AMETHYST_SHOVEL.asItem()),
+                AnvilCraftDatagen.has(ModItems.AMETHYST_SHOVEL))
+            .save(provider, AnvilCraft.of("smithing/royal_steel_shovel"));
+        SmithingTransformRecipeBuilder.smithing(Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
+                Ingredient.of(ModItemTags.ROYAL_STEEL_SWORD_BASE), Ingredient.of(ModItems.ROYAL_STEEL_INGOT.get()),
+                RecipeCategory.TOOLS, ModItems.ROYAL_STEEL_SWORD.get())
+            .unlocks(AnvilCraftDatagen.hasItem(ModItems.AMETHYST_SWORD.asItem()),
+                AnvilCraftDatagen.has(ModItems.AMETHYST_SWORD))
+            .save(provider, AnvilCraft.of("smithing/royal_steel_sword"));
         SmithingTransformRecipeBuilder.smithing(Ingredient.of(), Ingredient.of(Items.GRINDSTONE),
                 Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK), RecipeCategory.TOOLS, ModBlocks.ROYAL_GRINDSTONE.asItem())
             .unlocks(AnvilCraftDatagen.hasItem(ModBlocks.ROYAL_STEEL_BLOCK.asItem()),

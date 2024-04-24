@@ -369,9 +369,10 @@ public class ModItems {
             .save(provider)
         )
         .register();
+    // 工具
     public static final ItemEntry<? extends Item> ROYAL_STEEL_PICKAXE = REGISTRATE
         .item("royal_steel_pickaxe", properties -> new PickaxeItem(Tiers.DIAMOND, 1, -2.8f,
-            properties.durability(2559)) {
+            properties.durability(1561)) {
             @Override
             public @NotNull ItemStack getDefaultInstance() {
                 return super.getDefaultInstance();
@@ -379,6 +380,47 @@ public class ModItems {
         })
         .model((ctx, provider) -> provider.handheld(ctx))
         .register();
+    public static final ItemEntry<? extends Item> ROYAL_STEEL_AXE = REGISTRATE
+            .item("royal_steel_axe", properties -> new AxeItem(Tiers.DIAMOND, 5, -3.0f,
+                    properties.durability(1561)) {
+                @Override
+                public @NotNull ItemStack getDefaultInstance() {
+                    return super.getDefaultInstance();
+                }
+            })
+            .model((ctx, provider) -> provider.handheld(ctx))
+            .register();
+    public static final ItemEntry<? extends Item> ROYAL_STEEL_SHOVEL = REGISTRATE
+            .item("royal_steel_shovel", properties -> new ShovelItem(Tiers.DIAMOND, 1.5f, -3.0f,
+                    properties.durability(1561)) {
+                @Override
+                public @NotNull ItemStack getDefaultInstance() {
+                    return super.getDefaultInstance();
+                }
+            })
+            .model((ctx, provider) -> provider.handheld(ctx))
+            .register();
+    public static final ItemEntry<? extends Item> ROYAL_STEEL_HOE = REGISTRATE
+            .item("royal_steel_hoe", properties -> new HoeItem(Tiers.DIAMOND, -3, 0,
+                    properties.durability(1561)) {
+                @Override
+                public @NotNull ItemStack getDefaultInstance() {
+                    return super.getDefaultInstance();
+                }
+            })
+            .model((ctx, provider) -> provider.handheld(ctx))
+            .register();
+    public static final ItemEntry<? extends Item> ROYAL_STEEL_SWORD = REGISTRATE
+            .item("royal_steel_sword", properties -> new SwordItem(Tiers.DIAMOND, 3, -2.4f,
+                    properties.durability(1561)) {
+                @Override
+                public @NotNull ItemStack getDefaultInstance() {
+                    return super.getDefaultInstance();
+                }
+            })
+            .model((ctx, provider) -> provider.handheld(ctx))
+            .register();
+    // 升级模板
     public static final ItemEntry<RoyalUpgradeTemplateItem> ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE = REGISTRATE
         .item("royal_steel_upgrade_smithing_template", RoyalUpgradeTemplateItem::new)
         .register();
