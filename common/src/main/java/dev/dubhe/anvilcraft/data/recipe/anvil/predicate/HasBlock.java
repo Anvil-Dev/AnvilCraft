@@ -82,7 +82,7 @@ public class HasBlock implements RecipePredicate {
     }
 
     @Override
-    public void toNetwork(FriendlyByteBuf buffer) {
+    public void toNetwork(@NotNull FriendlyByteBuf buffer) {
         buffer.writeUtf(this.getType());
         buffer.writeVector3f(this.offset.toVector3f());
         buffer.writeUtf(this.matchBlock.serializeToJson().toString());

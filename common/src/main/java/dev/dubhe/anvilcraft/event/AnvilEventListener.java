@@ -179,7 +179,8 @@ public class AnvilEventListener {
 
     private boolean isCompress(@NotNull Level level, @NotNull BlockPos pos) {
         BlockState state = level.getBlockState(pos.below());
-        return state.is(Blocks.CAULDRON);
+        BlockState below = level.getBlockState(pos.below(2));
+        return state.is(Blocks.CAULDRON) && !below.is(ModBlockTags.UNDER_CAULDRON);
     }
 
     private boolean isSmash(@NotNull Level level, @NotNull BlockPos pos) {
