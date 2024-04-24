@@ -41,6 +41,20 @@ public class LootTableEvent {
                 .build()
             );
         }
+        if (BuiltInLootTables.VILLAGE_WEAPONSMITH.equals(id)) {
+            table.addPool(LootPool.lootPool()
+                .setRolls(ConstantValue.exactly(1))
+                .add(LootItem.lootTableItem(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE)
+                    .setWeight(2)
+                    .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1))))
+                .add(LootItem.lootTableItem(ModItems.ROYAL_STEEL_INGOT)
+                    .setWeight(3)
+                    .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1))))
+                .add(LootItem.lootTableItem(ModItems.ROYAL_STEEL_NUGGET)
+                    .setWeight(10)
+                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 5))))
+                .build());
+        }
         event.setTable(table);
     }
 }
