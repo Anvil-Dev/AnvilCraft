@@ -6,7 +6,6 @@
   "mixins": [
     "AbstractCauldronBlockMixin",
     "AnvilBlockMixin",
-    "AxeItemMixin",
     "BeaconMenuMixin",
     "BucketItemMixin",
     "ClientboundUpdateRecipesPacketMixin",

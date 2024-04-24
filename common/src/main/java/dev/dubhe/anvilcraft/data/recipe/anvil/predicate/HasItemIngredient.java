@@ -79,6 +79,7 @@ public class HasItemIngredient extends HasItem {
                     ItemStack stack = new ItemStack(item.getItem().getCraftingRemainingItem(), count);
                     Vec3 vec3 = pos.getCenter().add(this.offset);
                     ItemEntity itemEntity = new ItemEntity(level, vec3.x, vec3.y, vec3.z, stack, 0.0, 0.0, 0.0);
+                    itemEntity.setDefaultPickUpDelay();
                     level.addFreshEntity(itemEntity);
                 }
                 item.shrink(count);
