@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "anvilcraft:amethyst_hoe",
+    "minecraft:golden_hoe",
+    "minecraft:iron_hoe",
+    "minecraft:diamond_hoe"
+  ]
+}
