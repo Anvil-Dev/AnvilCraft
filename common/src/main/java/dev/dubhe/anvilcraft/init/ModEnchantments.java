@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.init;
 
 import com.tterrag.registrate.util.entry.RegistryEntry;
 import dev.dubhe.anvilcraft.item.enchantment.FellingEnchantment;
+import dev.dubhe.anvilcraft.item.enchantment.HarvestEnchantment;
 import net.minecraft.world.item.enchantment.EnchantmentCategory;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
@@ -9,6 +10,9 @@ import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 public class ModEnchantments {
     public static final RegistryEntry<FellingEnchantment> FELLING = REGISTRATE
         .enchantment("felling", EnchantmentCategory.DIGGER, FellingEnchantment::new)
+        .register();
+    public static final RegistryEntry<HarvestEnchantment> HARVEST = REGISTRATE
+        .enchantment("harvest", EnchantmentCategory.DIGGER, HarvestEnchantment::new)
         .register();
 
     /**

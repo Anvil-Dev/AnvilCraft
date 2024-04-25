@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "A": {
+      "item": "minecraft:amethyst_shard"
+    },
+    "B": {
+      "item": "minecraft:stick"
+    }
+  },
+  "pattern": [
+    "AA",
+    " B",
+    " B"
+  ],
+  "result": {
+    "data": "{Damage:0,Enchantments:[{id:\"anvilcraft:harvest\",lvl:3s}]}",
+    "item": "anvilcraft:amethyst_hoe"
+  },
+  "show_notification": true
+}

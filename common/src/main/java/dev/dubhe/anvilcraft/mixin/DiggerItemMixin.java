@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.mixin;
 
 import dev.dubhe.anvilcraft.item.enchantment.FellingEnchantment;
 import net.minecraft.core.BlockPos;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DiggerItem;
@@ -21,7 +22,7 @@ abstract class DiggerItemMixin {
         BlockState state, BlockPos pos,
         LivingEntity miningEntity, CallbackInfoReturnable<Boolean> cir
     ) {
-        if (!(miningEntity instanceof Player player)) return;
+        if (!(miningEntity instanceof Player player) || !state.is(BlockTags.LOGS)) return;
         FellingEnchantment.felling(player, level, pos, stack);
     }
 }

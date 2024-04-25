@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "A": {
+      "item": "minecraft:amethyst_shard"
+    },
+    "B": {
+      "item": "minecraft:stick"
+    }
+  },
+  "pattern": [
+    "A",
+    "A",
+    "B"
+  ],
+  "result": {
+    "data": "{Damage:0,Enchantments:[{id:\"minecraft:looting\",lvl:3s}]}",
+    "item": "anvilcraft:amethyst_sword"
+  },
+  "show_notification": true
+}
