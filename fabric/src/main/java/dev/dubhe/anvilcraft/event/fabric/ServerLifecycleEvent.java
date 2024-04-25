@@ -4,7 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.server.ServerEndDataPackReloadEvent;
 import dev.dubhe.anvilcraft.api.event.server.ServerStartedEvent;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
-import dev.dubhe.anvilcraft.utils.fabric.ServerHooks;
+import dev.dubhe.anvilcraft.util.fabric.ServerHooks;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.MinecraftServer;

@@ -1,0 +1,64 @@
+{
+  "type": "anvilcraft:anvil_processing",
+  "icon": {
+    "item": "minecraft:tuff"
+  },
+  "outcomes": [
+    {
+      "type": "spawn_item",
+      "chance": 1.0,
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "result": {
+        "item": "minecraft:tuff"
+      }
+    }
+  ],
+  "predicates": [
+    {
+      "type": "has_block",
+      "match_block": {
+        "blocks": [
+          "anvilcraft:corrupted_beacon"
+        ]
+      },
+      "offset": [
+        0.0,
+        -2.0,
+        0.0
+      ]
+    },
+    {
+      "type": "has_block",
+      "match_block": {
+        "blocks": [
+          "minecraft:cauldron"
+        ]
+      },
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ]
+    },
+    {
+      "type": "has_item_ingredient",
+      "match_item": {
+        "count": {
+          "min": 1
+        },
+        "items": [
+          "anvilcraft:cinerite"
+        ]
+      },
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ]
+    }
+  ]
+}

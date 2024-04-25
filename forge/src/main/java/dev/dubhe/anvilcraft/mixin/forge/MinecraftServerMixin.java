@@ -15,7 +15,7 @@ import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 
 @Mixin(value = MinecraftServer.class)
-public abstract class MinecraftServerMixin {
+abstract class MinecraftServerMixin {
     @Shadow
     private MinecraftServer.ReloadableResources resources;
 

@@ -1,0 +1,33 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "minecraft:zinc_nugget_forge"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "has_zinc_ingots": {
+      "conditions": {
+        "items": [
+          {
+            "tag": "forge:zinc_ingots"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_zinc_ingots",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "minecraft:zinc_nugget_forge"
+    ]
+  },
+  "sends_telemetry_event": false
+}

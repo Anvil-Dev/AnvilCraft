@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:emerald",
+    "anvilcraft:ruby",
+    "anvilcraft:sapphire",
+    "anvilcraft:topaz",
+    "minecraft:emerald",
+    "anvilcraft:ruby",
+    "anvilcraft:sapphire",
+    "anvilcraft:topaz"
+  ]
+}

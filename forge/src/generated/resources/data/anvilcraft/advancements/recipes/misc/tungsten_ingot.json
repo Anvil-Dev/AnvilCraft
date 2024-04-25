@@ -1,0 +1,33 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:tungsten_ingot"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "has_tungsten_nuggets": {
+      "conditions": {
+        "items": [
+          {
+            "tag": "c:tungsten_nuggets"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_tungsten_nuggets",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:tungsten_ingot"
+    ]
+  },
+  "sends_telemetry_event": false
+}

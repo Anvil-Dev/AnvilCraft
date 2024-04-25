@@ -8,6 +8,7 @@ import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.NotNull;
 
 public class ModBlockTags {
+    public static final TagKey<Block> UNDER_CAULDRON = bind("under_cauldron");
     public static final TagKey<Block> MAGNET = bind("magnet");
     public static final TagKey<Block> REDSTONE_TORCH = bind("redstone_torch");
     public static final TagKey<Block> MUSHROOM_BLOCK = bind("mushroom_block");

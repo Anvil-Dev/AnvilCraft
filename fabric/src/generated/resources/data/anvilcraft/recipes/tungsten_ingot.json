@@ -1,0 +1,36 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "tag": "c:tungsten_nuggets"
+    },
+    {
+      "tag": "c:tungsten_nuggets"
+    },
+    {
+      "tag": "c:tungsten_nuggets"
+    },
+    {
+      "tag": "c:tungsten_nuggets"
+    },
+    {
+      "tag": "c:tungsten_nuggets"
+    },
+    {
+      "tag": "c:tungsten_nuggets"
+    },
+    {
+      "tag": "c:tungsten_nuggets"
+    },
+    {
+      "tag": "c:tungsten_nuggets"
+    },
+    {
+      "tag": "c:tungsten_nuggets"
+    }
+  ],
+  "result": {
+    "item": "anvilcraft:tungsten_ingot"
+  }
+}

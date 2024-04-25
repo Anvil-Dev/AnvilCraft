@@ -1,0 +1,35 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_golden_boots": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "minecraft:golden_boots"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:reclaim/golden_boots_2_gold_ingot"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_golden_boots",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:reclaim/golden_boots_2_gold_ingot"
+    ]
+  },
+  "sends_telemetry_event": false
+}

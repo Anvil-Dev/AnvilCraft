@@ -113,7 +113,7 @@ public class AnvilEventListener {
             ItemStack item = entity.getItem();
             Optional<ItemStack> optional = items.keySet()
                 .stream()
-                .filter(i -> ItemStack.isSameItem(i, item))
+                .filter(i -> ItemStack.isSameItemSameTags(i, item))
                 .findFirst();
             ItemStack type;
             type = optional.orElseGet(item::copy);
@@ -133,11 +133,10 @@ public class AnvilEventListener {
             ItemStack type = item.copy();
             type.setCount(1);
             int maxSize = item.getMaxStackSize();
-            for (
-                int count = item.getCount(), size = Math.min(maxSize, count);
-                count > 0;
-                count -= size
-            ) {
+            int count = item.getCount();
+            while (count > 0) {
+                int size = Math.min(maxSize, count);
+                count -= size;
                 ItemStack stack = type.copy();
                 stack.setCount(size);
                 Vec3 vec3 = pos.getCenter();
@@ -179,7 +178,8 @@ public class AnvilEventListener {
 
     private boolean isCompress(@NotNull Level level, @NotNull BlockPos pos) {
         BlockState state = level.getBlockState(pos.below());
-        return state.is(Blocks.CAULDRON);
+        BlockState below = level.getBlockState(pos.below(2));
+        return state.is(Blocks.CAULDRON) && !below.is(ModBlockTags.UNDER_CAULDRON);
     }
 
     private boolean isSmash(@NotNull Level level, @NotNull BlockPos pos) {
@@ -224,10 +224,14 @@ public class AnvilEventListener {
             int canCraft = stack.getCount() / deplete;
             int size = Math.min(count, canCraft);
             count -= size;
+            int resultCount = result.getCount();
+            if (resultCount != 1) {
+                remainders.add(stack);
+                continue;
+            }
             int remainder = stack.getCount() - size * deplete;
             stack.setCount(remainder);
             if (remainder != 0) remainders.add(stack);
-            int resultCount = result.getCount();
             resultCount *= size;
             result.setCount(resultCount);
             results.add(result);
@@ -556,6 +560,7 @@ public class AnvilEventListener {
             for (int i = 0; i < depository.getSlots(); i++) {
                 ItemStack stack = depository.getStack(i);
                 ItemEntity itemEntity = new ItemEntity(level, dropPos.x, dropPos.y - 0.4, dropPos.z, stack, 0, 0, 0);
+                itemEntity.setDefaultPickUpDelay();
                 level.addFreshEntity(itemEntity);
                 depository.extract(i, stack.getCount(), false);
             }

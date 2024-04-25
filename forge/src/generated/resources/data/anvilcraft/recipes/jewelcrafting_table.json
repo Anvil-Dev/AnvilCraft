@@ -1,0 +1,33 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "minecraft:diamond"
+    },
+    "B": {
+      "item": "minecraft:glass"
+    },
+    "C": {
+      "item": "minecraft:grindstone"
+    },
+    "D": {
+      "item": "minecraft:smooth_stone"
+    },
+    "E": {
+      "item": "minecraft:stonecutter"
+    },
+    "F": {
+      "tag": "minecraft:planks"
+    }
+  },
+  "pattern": [
+    "ABC",
+    "DED",
+    "F F"
+  ],
+  "result": {
+    "item": "anvilcraft:jewelcrafting_table"
+  },
+  "show_notification": true
+}

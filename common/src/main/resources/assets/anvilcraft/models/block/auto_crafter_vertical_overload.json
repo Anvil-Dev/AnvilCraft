@@ -1,0 +1,24 @@
+{
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/cube",
+	"textures": {
+		"0": "anvilcraft:block/auto_crafter_top_vertical_overload",
+		"1": "anvilcraft:block/auto_crafter_bottom_overload",
+		"2": "anvilcraft:block/auto_crafter_bottom_vertical_overload",
+		"particle": "anvilcraft:block/auto_crafter_top_vertical_overload"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 0],
+			"to": [16, 16, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#1", "cullface": "north"},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#1", "cullface": "east"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#1", "cullface": "south"},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#1", "cullface": "west"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#0", "cullface": "up"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#2", "cullface": "down"}
+			}
+		}
+	]
+}

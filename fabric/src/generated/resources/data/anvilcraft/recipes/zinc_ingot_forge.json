@@ -1,0 +1,36 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "tag": "forge:zinc_nuggets"
+    },
+    {
+      "tag": "forge:zinc_nuggets"
+    },
+    {
+      "tag": "forge:zinc_nuggets"
+    },
+    {
+      "tag": "forge:zinc_nuggets"
+    },
+    {
+      "tag": "forge:zinc_nuggets"
+    },
+    {
+      "tag": "forge:zinc_nuggets"
+    },
+    {
+      "tag": "forge:zinc_nuggets"
+    },
+    {
+      "tag": "forge:zinc_nuggets"
+    },
+    {
+      "tag": "forge:zinc_nuggets"
+    }
+  ],
+  "result": {
+    "item": "anvilcraft:zinc_ingot"
+  }
+}

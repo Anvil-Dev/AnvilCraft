@@ -11,10 +11,7 @@ import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.phys.Vec3;
-
-import java.util.Map;
 
 public class TimeWarpRecipesLoader {
     /**
@@ -29,31 +26,34 @@ public class TimeWarpRecipesLoader {
         timeWarp(Items.OBSIDIAN, Items.CRYING_OBSIDIAN, 1, provider);
         timeWarp(Items.CHARCOAL, Items.COAL, 1, provider);
         timeWarp(Items.SAND, Items.DIRT, 1, provider);
-        timeWarp(Items.IRON_BLOCK, Items.RAW_IRON, 1, provider);
-        timeWarp(Items.GOLD_BLOCK, Items.RAW_GOLD, 1, provider);
+        timeWarp(Items.IRON_BLOCK, Items.RAW_IRON, 3, provider);
+        timeWarp(Items.GOLD_BLOCK, Items.RAW_GOLD, 3, provider);
         timeWarp(Items.COPPER_BLOCK, Items.RAW_COPPER, 3, provider);
+        timeWarp(ModItems.GEODE.get(), Items.BUDDING_AMETHYST, 1, provider);
+        timeWarp(ModBlocks.CINERITE.asItem(), Items.TUFF, 1, provider);
+        timeWarp(ModBlocks.NETHER_DUST.asItem(), Items.SOUL_SOIL, 1, provider);
+        timeWarp(ModBlocks.END_DUST.asItem(), Items.END_STONE, 1, provider);
     }
 
     private static void timeWarp(Item item, Item item1, int count, RegistrateRecipeProvider provider) {
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
-                .icon(item1)
-                .hasBlock(ModBlocks.CORRUPTED_BEACON.get(), new Vec3(0.0, -2.0, 0.0))
-                .hasBlock(Blocks.CAULDRON)
-                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), item)
-                .spawnItem(new Vec3(0.0, -1.0, 0.0), item1, count)
-                .unlockedBy(AnvilCraftDatagen.hasItem(item), AnvilCraftDatagen.has(item))
-                .save(provider, AnvilCraft.of("timewarp/" + BuiltInRegistries.ITEM.getKey(item1).getPath()));
+            .icon(item1)
+            .hasBlock(ModBlocks.CORRUPTED_BEACON.get(), new Vec3(0.0, -2.0, 0.0))
+            .hasBlock(Blocks.CAULDRON)
+            .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), item)
+            .spawnItem(new Vec3(0.0, -1.0, 0.0), item1, count)
+            .unlockedBy(AnvilCraftDatagen.hasItem(item), AnvilCraftDatagen.has(item))
+            .save(provider, AnvilCraft.of("timewarp/" + BuiltInRegistries.ITEM.getKey(item1).getPath()));
     }
 
     private static void timeWarpWithWater(Item item, Item item1, RegistrateRecipeProvider provider) {
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
-                .icon(item1)
-                .hasBlock(ModBlocks.CORRUPTED_BEACON.get(), new Vec3(0.0, -2.0, 0.0))
-                .hasBlock(Blocks.WATER_CAULDRON, new Vec3(0.0, -1.0, 0.0), Map.entry(LayeredCauldronBlock.LEVEL, 3))
-                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), item)
-                .spawnItem(new Vec3(0.0, -1.0, 0.0), item1)
-                .setBlock(Blocks.CAULDRON.defaultBlockState())
-                .unlockedBy(AnvilCraftDatagen.hasItem(item), AnvilCraftDatagen.has(item))
-                .save(provider, AnvilCraft.of("timewarp/" + BuiltInRegistries.ITEM.getKey(item1).getPath()));
+            .icon(item1)
+            .hasBlock(ModBlocks.CORRUPTED_BEACON.get(), new Vec3(0.0, -2.0, 0.0))
+            .hasFluidCauldron(new Vec3(0.0, -1.0, 0.0), Blocks.WATER_CAULDRON, 3)
+            .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), item)
+            .spawnItem(new Vec3(0.0, -1.0, 0.0), item1)
+            .unlockedBy(AnvilCraftDatagen.hasItem(item), AnvilCraftDatagen.has(item))
+            .save(provider, AnvilCraft.of("timewarp/" + BuiltInRegistries.ITEM.getKey(item1).getPath()));
     }
 }

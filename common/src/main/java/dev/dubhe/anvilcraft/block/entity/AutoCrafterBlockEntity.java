@@ -363,6 +363,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
             stack,
             0.25 * step.x, 0.25 * step.y, 0.25 * step.z
         );
+        itemEntity.setDefaultPickUpDelay();
         level.addFreshEntity(itemEntity);
     }
 

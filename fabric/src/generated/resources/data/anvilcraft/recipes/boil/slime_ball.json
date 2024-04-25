@@ -1,0 +1,62 @@
+{
+  "type": "anvilcraft:anvil_processing",
+  "icon": {
+    "item": "minecraft:slime_ball"
+  },
+  "outcomes": [
+    {
+      "type": "spawn_item",
+      "chance": 1.0,
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "result": {
+        "item": "minecraft:slime_ball"
+      }
+    }
+  ],
+  "predicates": [
+    {
+      "type": "has_fluid_cauldron",
+      "deplete": 1,
+      "match_block": "minecraft:water_cauldron",
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ]
+    },
+    {
+      "type": "has_block",
+      "match_block": {
+        "state": {
+          "lit": "true"
+        },
+        "tag": "minecraft:campfires"
+      },
+      "offset": [
+        0.0,
+        -2.0,
+        0.0
+      ]
+    },
+    {
+      "type": "has_item_ingredient",
+      "match_item": {
+        "count": {
+          "min": 1
+        },
+        "items": [
+          "anvilcraft:resin"
+        ]
+      },
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ]
+    }
+  ]
+}

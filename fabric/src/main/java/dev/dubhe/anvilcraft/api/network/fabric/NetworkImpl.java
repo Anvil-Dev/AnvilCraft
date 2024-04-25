@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.api.network.fabric;
 
 import dev.dubhe.anvilcraft.api.network.Network;
 import dev.dubhe.anvilcraft.api.network.Packet;
-import dev.dubhe.anvilcraft.utils.fabric.ServerHooks;
+import dev.dubhe.anvilcraft.util.fabric.ServerHooks;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;

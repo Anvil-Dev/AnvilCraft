@@ -25,13 +25,11 @@
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_emerald": {
+    "has_gems": {
       "conditions": {
         "items": [
           {
-            "items": [
-              "minecraft:emerald"
-            ]
+            "tag": "anvilcraft:gems"
           }
         ]
       },
@@ -61,7 +59,7 @@
       "has_iron_ingot",
       "has_diamond",
       "has_amethyst_shard",
-      "has_emerald",
+      "has_gems",
       "has_the_recipe"
     ]
   ],

@@ -6,21 +6,25 @@
   "mixins": [
     "AbstractCauldronBlockMixin",
     "AnvilBlockMixin",
-    "AxeItemMixin",
     "BeaconMenuMixin",
     "BucketItemMixin",
     "ClientboundUpdateRecipesPacketMixin",
+    "DiggerItemMixin",
     "DispenseItemEmptyBottleBehaviorMixin",
     "DispenseItemEmptyBucketBehaviorMixin",
     "DispenseItemWaterBottleBehaviorMixin",
+    "HoeItemMixin",
     "ItemEntityMixin",
-    "LootContextParamSetsAccessor",
+    "LivingEntityMixin",
     "SolidBucketItemMixin",
     "accessor.BaseSpawnerAccessor",
-    "accessor.FallingBlockEntityAccessor"
+    "accessor.FallingBlockEntityAccessor",
+    "accessor.LootContextParamSetsAccessor"
   ],
   "client": [
-    "LevelRendererMixin"
+    "LevelRendererMixin",
+    "accessor.ItemInHandRendererAccessor",
+    "accessor.MinecraftAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

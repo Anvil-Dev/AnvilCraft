@@ -20,6 +20,7 @@ public class RecipesHandler {
         CookingRecipesLoader.init(provider);
         ItemInjectRecipesLoader.init(provider);
         SmashBlockRecipesLoader.init(provider);
+        SievingRecipesLoader.init(provider);
         SmashRecipesLoader.init(provider);
         SqueezeRecipesLoader.init(provider);
         StampingRecipesLoader.init(provider);

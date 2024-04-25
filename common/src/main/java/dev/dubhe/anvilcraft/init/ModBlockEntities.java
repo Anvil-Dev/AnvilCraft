@@ -5,7 +5,7 @@ import dev.dubhe.anvilcraft.block.entity.AutoCrafterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CorruptedBeaconBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.CreativeDynamoBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CreativeGeneratorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeaterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
@@ -38,9 +38,9 @@ public class ModBlockEntities {
         .renderer(() -> CorruptedBeaconRenderer::new)
         .register();
 
-    public static final BlockEntityEntry<CreativeDynamoBlockEntity> CREATIVE_DYNAMO = REGISTRATE
-        .blockEntity("creative_dynamo", CreativeDynamoBlockEntity::createBlockEntity)
-        .validBlock(ModBlocks.CREATIVE_DYNAMO)
+    public static final BlockEntityEntry<CreativeGeneratorBlockEntity> CREATIVE_GENERATOR = REGISTRATE
+        .blockEntity("creative_generator", CreativeGeneratorBlockEntity::createBlockEntity)
+        .validBlock(ModBlocks.CREATIVE_GENERATOR)
         .register();
 
     public static final BlockEntityEntry<HeaterBlockEntity> HEATER = REGISTRATE

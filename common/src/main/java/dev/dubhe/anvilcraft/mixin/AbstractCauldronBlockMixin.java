@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import java.util.Optional;
 
 @Mixin(AbstractCauldronBlock.class)
-public abstract class AbstractCauldronBlockMixin implements BucketPickup {
+abstract class AbstractCauldronBlockMixin implements BucketPickup {
     @Override
     public @NotNull ItemStack pickupBlock(
         @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockState state

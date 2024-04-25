@@ -80,4 +80,9 @@ public class AnvilCraftConfig implements ConfigData {
     @ConfigEntry.BoundedDiscrete(max = 64, min = 1)
     @SerializedName("Range of Power Transmitter")
     public int powerTransmitterRange = 8;
+
+    @Comment("The maximum number of logs that can be cut per level of Felling enchantment")
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(max = 24, min = 2)
+    public int fellingBlockPerLevel = 2;
 }

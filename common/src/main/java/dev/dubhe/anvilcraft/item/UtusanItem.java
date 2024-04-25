@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.item;
 
+import dev.dubhe.anvilcraft.util.PlayerUtil;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
@@ -27,17 +28,18 @@ public class UtusanItem extends Item {
     }
 
     @Override
+    @SuppressWarnings("UnreachableCode")
     public @NotNull ItemStack finishUsingItem(
         @NotNull ItemStack itemStack, @NotNull Level level, @NotNull LivingEntity livingEntity
     ) {
-        if (livingEntity instanceof ServerPlayer serverPlayer) {
-            CriteriaTriggers.CONSUME_ITEM.trigger(serverPlayer, itemStack);
-            serverPlayer.awardStat(Stats.ITEM_USED.get(this));
-        }
-        if (livingEntity instanceof Player && !((Player) livingEntity).getAbilities().instabuild) {
+        if (!(livingEntity instanceof Player player)) return itemStack;
+        if (PlayerUtil.isFakePlayer(player)) return itemStack;
+        if (!player.getAbilities().instabuild) {
             itemStack.shrink(1);
         }
-        if (!level.isClientSide) {
+        if (player instanceof ServerPlayer serverPlayer) {
+            CriteriaTriggers.CONSUME_ITEM.trigger(serverPlayer, itemStack);
+            serverPlayer.awardStat(Stats.ITEM_USED.get(this));
             UtusanItem.removeHarmfulEffects(livingEntity);
         }
         return itemStack;
@@ -58,7 +60,7 @@ public class UtusanItem extends Item {
             bl = true;
         }
         if (!bl) {
-            livingEntity.addEffect(new MobEffectInstance(MobEffects.POISON, 200, 2));
+            livingEntity.addEffect(new MobEffectInstance(MobEffects.POISON, 600, 4));
             return;
         }
         for (MobEffect effect : effects) livingEntity.removeEffect(effect);

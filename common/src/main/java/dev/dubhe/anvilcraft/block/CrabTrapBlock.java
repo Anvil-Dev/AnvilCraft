@@ -119,6 +119,7 @@ public class CrabTrapBlock extends BaseEntityBlock implements SimpleWaterloggedB
                     if (stack.isEmpty()) continue;
                     Vec3 center = pos.relative(Direction.UP).getCenter();
                     ItemEntity itemEntity = new ItemEntity(level, center.x(), center.y(), center.z(), stack, 0, 0.2, 0);
+                    itemEntity.setDefaultPickUpDelay();
                     level.addFreshEntity(itemEntity);
                     depository.extract(i, stack.getCount(), false);
                 }

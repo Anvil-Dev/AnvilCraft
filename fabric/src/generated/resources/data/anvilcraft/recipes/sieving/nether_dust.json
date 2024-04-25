@@ -1,0 +1,75 @@
+{
+  "type": "anvilcraft:anvil_processing",
+  "icon": {
+    "item": "anvilcraft:nether_dust"
+  },
+  "outcomes": [
+    {
+      "type": "spawn_item",
+      "chance": 0.5,
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "result": {
+        "item": "anvilcraft:nether_dust"
+      }
+    },
+    {
+      "type": "spawn_item",
+      "chance": 0.1,
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "result": {
+        "item": "minecraft:redstone"
+      }
+    },
+    {
+      "type": "spawn_item",
+      "chance": 0.1,
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "result": {
+        "item": "anvilcraft:tungsten_nugget"
+      }
+    }
+  ],
+  "predicates": [
+    {
+      "type": "has_block",
+      "match_block": {
+        "blocks": [
+          "minecraft:scaffolding"
+        ]
+      },
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ]
+    },
+    {
+      "type": "has_item_ingredient",
+      "match_item": {
+        "count": {
+          "min": 1
+        },
+        "items": [
+          "anvilcraft:nether_dust"
+        ]
+      },
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ]
+}
