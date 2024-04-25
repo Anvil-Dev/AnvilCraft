@@ -1,0 +1,111 @@
+{
+  "type": "minecraft:entity",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:entity_properties",
+          "entity": "killer",
+          "predicate": {
+            "equipment": {
+              "mainhand": {
+                "enchantments": [
+                  {
+                    "enchantment": "anvilcraft:beheading",
+                    "levels": 1
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "chance": 0.01,
+          "condition": "minecraft:random_chance"
+        },
+        {
+          "condition": "minecraft:killed_by_player"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:piglin_head"
+        }
+      ],
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:entity_properties",
+          "entity": "killer",
+          "predicate": {
+            "equipment": {
+              "mainhand": {
+                "enchantments": [
+                  {
+                    "enchantment": "anvilcraft:beheading",
+                    "levels": 2
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "chance": 0.02,
+          "condition": "minecraft:random_chance"
+        },
+        {
+          "condition": "minecraft:killed_by_player"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:piglin_head"
+        }
+      ],
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:entity_properties",
+          "entity": "killer",
+          "predicate": {
+            "equipment": {
+              "mainhand": {
+                "enchantments": [
+                  {
+                    "enchantment": "anvilcraft:beheading",
+                    "levels": 3
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "chance": 0.03,
+          "condition": "minecraft:random_chance"
+        },
+        {
+          "condition": "minecraft:killed_by_player"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:piglin_head"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "anvilcraft:entities/beheading/piglin"
+}

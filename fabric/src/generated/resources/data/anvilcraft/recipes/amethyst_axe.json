@@ -15,7 +15,7 @@
     " B"
   ],
   "result": {
-    "data": "{Damage:0,Enchantments:[{id:\"anvilcraft:felling\",lvl:3s}]}",
+    "data": "{Damage:0,Enchantments:[{id:\"anvilcraft:felling\",lvl:1s}]}",
     "item": "anvilcraft:amethyst_axe"
   },
   "show_notification": true

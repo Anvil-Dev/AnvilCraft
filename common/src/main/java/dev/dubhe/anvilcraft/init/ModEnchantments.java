@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.init;
 
 import com.tterrag.registrate.util.entry.RegistryEntry;
+import dev.dubhe.anvilcraft.item.enchantment.BeheadingEnchantment;
 import dev.dubhe.anvilcraft.item.enchantment.FellingEnchantment;
 import dev.dubhe.anvilcraft.item.enchantment.HarvestEnchantment;
 import net.minecraft.world.item.enchantment.EnchantmentCategory;
@@ -13,6 +14,9 @@ public class ModEnchantments {
         .register();
     public static final RegistryEntry<HarvestEnchantment> HARVEST = REGISTRATE
         .enchantment("harvest", EnchantmentCategory.DIGGER, HarvestEnchantment::new)
+        .register();
+    public static final RegistryEntry<BeheadingEnchantment> BEHEADING = REGISTRATE
+        .enchantment("beheading", EnchantmentCategory.DIGGER, BeheadingEnchantment::new)
         .register();
 
     /**

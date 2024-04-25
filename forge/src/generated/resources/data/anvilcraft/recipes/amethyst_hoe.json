@@ -15,7 +15,7 @@
     " B"
   ],
   "result": {
-    "data": "{Damage:0,Enchantments:[{id:\"anvilcraft:harvest\",lvl:3s}]}",
+    "data": "{Damage:0,Enchantments:[{id:\"anvilcraft:harvest\",lvl:1s}]}",
     "item": "anvilcraft:amethyst_hoe"
   },
   "show_notification": true
