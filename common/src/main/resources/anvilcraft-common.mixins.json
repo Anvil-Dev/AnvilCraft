@@ -13,6 +13,7 @@
     "DispenseItemEmptyBottleBehaviorMixin",
     "DispenseItemEmptyBucketBehaviorMixin",
     "DispenseItemWaterBottleBehaviorMixin",
+    "HoeItemMixin",
     "ItemEntityMixin",
     "LivingEntityMixin",
     "SolidBucketItemMixin",

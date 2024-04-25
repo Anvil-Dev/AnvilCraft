@@ -79,6 +79,7 @@ public class ModItemGroups {
                 entries.accept(ModItems.MAGNETOELECTRIC_CORE.get().getDefaultInstance());
                 entries.accept(ModItems.CRAB_CLAW.asStack());
                 entries.accept(ModItemGroups.createMaxLevelBook(ModEnchantments.FELLING));
+                entries.accept(ModItemGroups.createMaxLevelBook(ModEnchantments.HARVEST));
             })
             .build()
         )

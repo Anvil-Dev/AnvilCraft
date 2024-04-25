@@ -111,6 +111,16 @@ public class ModItems {
                 return stack;
             }
         })
+        .recipe((ctx, provider) ->
+            ShapedTagRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get().asItem().getDefaultInstance())
+                .pattern("AA")
+                .pattern("AB")
+                .pattern(" B")
+                .define('A', Items.AMETHYST_SHARD)
+                .define('B', Items.STICK)
+                .unlockedBy("hasitem", RegistrateRecipeProvider.has(Items.AMETHYST_SHARD))
+                .save(provider)
+        )
         .model((ctx, provider) -> provider.handheld(ctx))
         .tag(ModItemTags.AXES)
         .register();
@@ -119,10 +129,20 @@ public class ModItems {
             @Override
             public @NotNull ItemStack getDefaultInstance() {
                 ItemStack stack = super.getDefaultInstance();
-                stack.enchant(Enchantments.BLOCK_FORTUNE, 3);
+                stack.enchant(ModEnchantments.HARVEST.get(), 3);
                 return stack;
             }
         })
+        .recipe((ctx, provider) ->
+            ShapedTagRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get().asItem().getDefaultInstance())
+                .pattern("AA")
+                .pattern(" B")
+                .pattern(" B")
+                .define('A', Items.AMETHYST_SHARD)
+                .define('B', Items.STICK)
+                .unlockedBy("hasitem", RegistrateRecipeProvider.has(Items.AMETHYST_SHARD))
+                .save(provider)
+        )
         .model((ctx, provider) -> provider.handheld(ctx))
         .tag(ModItemTags.HOES)
         .register();
@@ -135,6 +155,16 @@ public class ModItems {
                 return stack;
             }
         })
+        .recipe((ctx, provider) ->
+            ShapedTagRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get().asItem().getDefaultInstance())
+                .pattern("A")
+                .pattern("A")
+                .pattern("B")
+                .define('A', Items.AMETHYST_SHARD)
+                .define('B', Items.STICK)
+                .unlockedBy("hasitem", RegistrateRecipeProvider.has(Items.AMETHYST_SHARD))
+                .save(provider)
+        )
         .model((ctx, provider) -> provider.handheld(ctx))
         .tag(ModItemTags.SWORDS)
         .register();
@@ -147,6 +177,16 @@ public class ModItems {
                 return stack;
             }
         })
+        .recipe((ctx, provider) ->
+            ShapedTagRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get().asItem().getDefaultInstance())
+                .pattern("A")
+                .pattern("B")
+                .pattern("B")
+                .define('A', Items.AMETHYST_SHARD)
+                .define('B', Items.STICK)
+                .unlockedBy("hasitem", RegistrateRecipeProvider.has(Items.AMETHYST_SHARD))
+                .save(provider)
+        )
         .model((ctx, provider) -> provider.handheld(ctx))
         .tag(ModItemTags.SHOVELS)
         .register();
