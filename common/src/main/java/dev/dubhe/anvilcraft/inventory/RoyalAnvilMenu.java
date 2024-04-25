@@ -2,8 +2,10 @@ package dev.dubhe.anvilcraft.inventory;
 
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.item.ICursed;
+import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.player.Inventory;
@@ -22,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 
 public class RoyalAnvilMenu extends AnvilMenu {
+
     public RoyalAnvilMenu(int containerId, Inventory playerInventory) {
         super(containerId, playerInventory);
     }
@@ -37,89 +40,117 @@ public class RoyalAnvilMenu extends AnvilMenu {
 
     @Override
     public void createResult() {
-        ItemStack itemStack = this.inputSlots.getItem(0);
+        ItemStack inputItem1 = this.inputSlots.getItem(0);
         this.cost.set(1);
-        if (itemStack.isEmpty()) {
+        if (inputItem1.isEmpty()) {
             this.resultSlots.setItem(0, ItemStack.EMPTY);
             this.cost.set(0);
             return;
         }
-        ItemStack itemStack2 = itemStack.copy();
-        ItemStack itemStack3 = this.inputSlots.getItem(1);
-        Map<Enchantment, Integer> map = EnchantmentHelper.getEnchantments(itemStack2);
-        int i = 0;
+        ItemStack outputItem = inputItem1.copy();
+        ItemStack inputItem2 = this.inputSlots.getItem(1);
+        Map<Enchantment, Integer> applicableEnchantments = EnchantmentHelper.getEnchantments(outputItem);
+        boolean textChanged = false;
+        int totalCost = 0;
         int j = 0;
-        j += itemStack.getBaseRepairCost() + (itemStack3.isEmpty() ? 0 : itemStack3.getBaseRepairCost());
+        j += inputItem1.getBaseRepairCost() + (inputItem2.isEmpty() ? 0 : inputItem2.getBaseRepairCost());
         this.repairItemCountCost = 0;
-        if (!itemStack3.isEmpty()) {
-            boolean bl;
-            bl = itemStack3.is(Items.ENCHANTED_BOOK) && !EnchantedBookItem.getEnchantments(itemStack3).isEmpty();
-            if (itemStack2.isDamageableItem() && itemStack2.getItem().isValidRepairItem(itemStack, itemStack3)) {
-                int m;
-                int l = Math.min(itemStack2.getDamageValue(), itemStack2.getMaxDamage() / 4);
+        if (!inputItem2.isEmpty()) {
+            boolean hasEnchantedBook = inputItem2.is(Items.ENCHANTED_BOOK)
+                    && !EnchantedBookItem.getEnchantments(inputItem2).isEmpty();
+            // 修理物品
+            if (outputItem.isDamageableItem() && outputItem.getItem().isValidRepairItem(inputItem1, inputItem2)) {
+                int cost;
+                int l = Math.min(outputItem.getDamageValue(), outputItem.getMaxDamage() / 4);
                 if (l <= 0) {
                     this.resultSlots.setItem(0, ItemStack.EMPTY);
                     this.cost.set(0);
                     return;
                 }
-                for (m = 0; l > 0 && m < itemStack3.getCount(); ++m) {
-                    int n = itemStack2.getDamageValue() - l;
-                    itemStack2.setDamageValue(n);
-                    ++i;
-                    l = Math.min(itemStack2.getDamageValue(), itemStack2.getMaxDamage() / 4);
+                for (cost = 0; l > 0 && cost < inputItem2.getCount(); ++cost) {
+                    int n = outputItem.getDamageValue() - l;
+                    outputItem.setDamageValue(n);
+                    ++totalCost;
+                    l = Math.min(outputItem.getDamageValue(), outputItem.getMaxDamage() / 4);
                 }
-                this.repairItemCountCost = m;
+                this.repairItemCountCost = cost;
             } else {
-                if (!(bl || itemStack2.is(itemStack3.getItem()) && itemStack2.isDamageableItem())) {
-                    this.resultSlots.setItem(0, ItemStack.EMPTY);
-                    this.cost.set(0);
-                    return;
+                if (inputItem2.is(Items.NAME_TAG)) {
+                    Component name = inputItem2.getHoverName();
+                    String fmt = name.getString();
+                    if (fmt.startsWith("&") && fmt.length() >= 2) {
+
+                        char styleCh = fmt.charAt(1);
+                        ChatFormatting formatting = ChatFormatting.getByCode(styleCh);
+                        if (formatting == null) return;
+                        if (outputItem != null && !outputItem.is(Items.AIR)) {
+                            MutableComponent originalText = outputItem.getHoverName().copy();
+                            outputItem.setHoverName(
+                                    originalText.setStyle(
+                                            originalText.getStyle().applyFormat(formatting)
+                                    )
+                            );
+                            textChanged = true;
+                        }
+                    }
+                } else {
+                    // 附魔物品
+                    if (!(hasEnchantedBook || outputItem.is(inputItem2.getItem())
+                            && outputItem.isDamageableItem())
+                    ) {
+                        this.resultSlots.setItem(0, ItemStack.EMPTY);
+                        this.cost.set(0);
+                        return;
+                    }
                 }
-                if (itemStack2.isDamageableItem() && !bl) {
-                    int l = itemStack.getMaxDamage() - itemStack.getDamageValue();
-                    int m = itemStack3.getMaxDamage() - itemStack3.getDamageValue();
-                    int n = m + itemStack2.getMaxDamage() * 12 / 100;
+                if (outputItem.isDamageableItem() && !hasEnchantedBook) {
+                    int l = inputItem1.getMaxDamage() - inputItem1.getDamageValue();
+                    int m = inputItem2.getMaxDamage() - inputItem2.getDamageValue();
+                    int n = m + outputItem.getMaxDamage() * 12 / 100;
                     int o = l + n;
-                    int p = itemStack2.getMaxDamage() - o;
+                    int p = outputItem.getMaxDamage() - o;
                     if (p < 0) {
                         p = 0;
                     }
-                    if (p < itemStack2.getDamageValue()) {
-                        itemStack2.setDamageValue(p);
-                        i += 2;
+                    if (p < outputItem.getDamageValue()) {
+                        outputItem.setDamageValue(p);
+                        totalCost += 2;
                     }
                 }
-                Map<Enchantment, Integer> map2 = EnchantmentHelper.getEnchantments(itemStack3);
-                boolean bl22 = false;
+                Map<Enchantment, Integer> enchantmentsInInput2 = EnchantmentHelper.getEnchantments(inputItem2);
+                boolean canApplyEnchantment = false;
                 boolean bl3 = false;
-                for (Enchantment enchantment : map2.keySet()) {
-                    int r;
+                for (Enchantment enchantment : enchantmentsInInput2.keySet()) {
+                    int level;
                     if (enchantment == null) continue;
-                    int q = map.getOrDefault(enchantment, 0);
-                    r = q == (r = map2.get(enchantment)) ? r + 1 : Math.max(r, q);
-                    boolean bl4 = true;
-                    for (Enchantment enchantment2 : map.keySet()) {
+                    int originalLevel = applicableEnchantments.getOrDefault(enchantment, 0);
+                    level = enchantmentsInInput2.get(enchantment);
+                    level = originalLevel == level
+                            ? level + 1
+                            : Math.max(level, originalLevel);
+                    boolean hasNoIncompatibleEnchantment = true;
+                    for (Enchantment enchantment2 : applicableEnchantments.keySet()) {
                         if (enchantment2 == enchantment || enchantment.isCompatibleWith(enchantment2)) continue;
-                        bl4 = false;
-                        ++i;
+                        hasNoIncompatibleEnchantment = false;
+                        ++totalCost;
                     }
-                    if (!bl4) {
+                    if (!hasNoIncompatibleEnchantment) {
                         bl3 = true;
                         continue;
                     }
-                    bl22 = true;
-                    if (r > enchantment.getMaxLevel()) r = enchantment.getMaxLevel();
-                    map.put(enchantment, r);
-                    int s = switch (enchantment.getRarity()) {
+                    canApplyEnchantment = true;
+                    if (level > enchantment.getMaxLevel()) level = enchantment.getMaxLevel();
+                    applicableEnchantments.put(enchantment, level);
+                    int rarityCostFactor = switch (enchantment.getRarity()) {
                         case COMMON -> 1;
                         case UNCOMMON -> 2;
                         case RARE -> 4;
                         case VERY_RARE -> 8;
                     };
-                    if (bl) s = Math.max(1, s / 2);
-                    i += s * r;
+                    if (hasEnchantedBook) rarityCostFactor = Math.max(1, rarityCostFactor / 2);
+                    totalCost += rarityCostFactor * level;
                 }
-                if (bl3 && !bl22) {
+                if (bl3 && !canApplyEnchantment) {
                     this.resultSlots.setItem(0, ItemStack.EMPTY);
                     this.cost.set(0);
                     return;
@@ -127,32 +158,56 @@ public class RoyalAnvilMenu extends AnvilMenu {
             }
         }
         int k = 0;
-        if (this.itemName == null || Util.isBlank(this.itemName)) {
-            if (itemStack.hasCustomHoverName()) {
-                k = 1;
-                i += k;
-                itemStack2.resetHoverName();
-            }
-        } else if (!this.itemName.equals(itemStack.getHoverName().getString())) {
+        // 重命名物品
+        if (textChanged) {
             k = 1;
-            i += k;
-            itemStack2.setHoverName(Component.literal(this.itemName));
-        }
-        int count = itemStack.getCount();
-        this.cost.set(j + i * (int) Math.pow(count, 2));
-        if (i <= 0) itemStack2 = ItemStack.EMPTY;
-        if (!itemStack2.isEmpty()) {
-            int t = itemStack2.getBaseRepairCost();
-            if (!itemStack3.isEmpty() && t < itemStack3.getBaseRepairCost()) {
-                t = itemStack3.getBaseRepairCost();
+            totalCost += k;
+            if (this.itemName == null || Util.isBlank(this.itemName)) {
+                outputItem.setHoverName(
+                        outputItem.getHoverName()
+                                .copy()
+                                .setStyle(outputItem.getHoverName().getStyle())
+                );
+            } else {
+                outputItem.setHoverName(
+                        Component.literal(this.itemName)
+                                .setStyle(outputItem.getHoverName().getStyle())
+                );
             }
-            if (k != i || k == 0) {
+
+        } else {
+            if (this.itemName == null || Util.isBlank(this.itemName)) {
+                if (inputItem1.hasCustomHoverName()) {
+                    k = 1;
+                    totalCost += k;
+                    outputItem.resetHoverName();
+                }
+            } else if (!this.itemName.equals(inputItem1.getHoverName().getString())) {
+                k = 1;
+                totalCost += k;
+                outputItem.setHoverName(
+                        Component.literal(this.itemName)
+                                .setStyle(outputItem.getHoverName().getStyle())
+                );
+            }
+        }
+
+
+        int count = inputItem1.getCount();
+        this.cost.set(j + totalCost * (int) Math.pow(count, 2));
+        if (totalCost <= 0) outputItem = ItemStack.EMPTY;
+        if (!outputItem.isEmpty()) {
+            int t = outputItem.getBaseRepairCost();
+            if (!inputItem2.isEmpty() && t < inputItem2.getBaseRepairCost()) {
+                t = inputItem2.getBaseRepairCost();
+            }
+            if (k != totalCost || k == 0) {
                 t = AnvilMenu.calculateIncreasedRepairCost(t);
             }
-            itemStack2.setRepairCost(t);
-            EnchantmentHelper.setEnchantments(map, itemStack2);
+            outputItem.setRepairCost(t);
+            EnchantmentHelper.setEnchantments(applicableEnchantments, outputItem);
         }
-        this.resultSlots.setItem(0, itemStack2);
+        this.resultSlots.setItem(0, outputItem);
         this.broadcastChanges();
     }
 

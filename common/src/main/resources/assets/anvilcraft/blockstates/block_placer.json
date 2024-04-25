@@ -1,0 +1,110 @@
+{
+  "variants": {
+    "orientation=down_east,triggered=false": {
+      "model": "anvilcraft:block/block_placer",
+      "x": 90,
+      "y": 90
+    },
+    "orientation=down_east,triggered=true": {
+      "model": "anvilcraft:block/block_placer_on",
+      "x": 90,
+      "y": 90
+    },
+    "orientation=down_north,triggered=false": {
+      "model": "anvilcraft:block/block_placer",
+      "x": 90
+    },
+    "orientation=down_north,triggered=true": {
+      "model": "anvilcraft:block/block_placer_on",
+      "x": 90
+    },
+    "orientation=down_south,triggered=false": {
+      "model": "anvilcraft:block/block_placer",
+      "x": 90,
+      "y": 180
+    },
+    "orientation=down_south,triggered=true": {
+      "model": "anvilcraft:block/block_placer_on",
+      "x": 90,
+      "y": 180
+    },
+    "orientation=down_west,triggered=false": {
+      "model": "anvilcraft:block/block_placer",
+      "x": 90,
+      "y": 270
+    },
+    "orientation=down_west,triggered=true": {
+      "model": "anvilcraft:block/block_placer_on",
+      "x": 90,
+      "y": 270
+    },
+    "orientation=east_up,triggered=false": {
+      "model": "anvilcraft:block/block_placer",
+      "y": 90
+    },
+    "orientation=east_up,triggered=true": {
+      "model": "anvilcraft:block/block_placer_on",
+      "y": 90
+    },
+    "orientation=north_up,triggered=false": {
+      "model": "anvilcraft:block/block_placer"
+    },
+    "orientation=north_up,triggered=true": {
+      "model": "anvilcraft:block/block_placer_on"
+    },
+    "orientation=south_up,triggered=false": {
+      "model": "anvilcraft:block/block_placer",
+      "y": 180
+    },
+    "orientation=south_up,triggered=true": {
+      "model": "anvilcraft:block/block_placer_on",
+      "y": 180
+    },
+    "orientation=up_east,triggered=false": {
+      "model": "anvilcraft:block/block_placer",
+      "x": 270,
+      "y": 270
+    },
+    "orientation=up_east,triggered=true": {
+      "model": "anvilcraft:block/block_placer_on",
+      "x": 270,
+      "y": 270
+    },
+    "orientation=up_north,triggered=false": {
+      "model": "anvilcraft:block/block_placer",
+      "x": 270,
+      "y": 180
+    },
+    "orientation=up_north,triggered=true": {
+      "model": "anvilcraft:block/block_placer_on",
+      "x": 270,
+      "y": 180
+    },
+    "orientation=up_south,triggered=false": {
+      "model": "anvilcraft:block/block_placer",
+      "x": 270
+    },
+    "orientation=up_south,triggered=true": {
+      "model": "anvilcraft:block/block_placer_on",
+      "x": 270
+    },
+    "orientation=up_west,triggered=false": {
+      "model": "anvilcraft:block/block_placer",
+      "x": 270,
+      "y": 90
+    },
+    "orientation=up_west,triggered=true": {
+      "model": "anvilcraft:block/block_placer_on",
+      "x": 270,
+      "y": 90
+    },
+    "orientation=west_up,triggered=false": {
+      "model": "anvilcraft:block/block_placer",
+      "y": 270
+    },
+    "orientation=west_up,triggered=true": {
+      "model": "anvilcraft:block/block_placer_on",
+      "y": 270
+    }
+  }
+}
