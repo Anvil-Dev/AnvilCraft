@@ -113,7 +113,7 @@ public class AnvilEventListener {
             ItemStack item = entity.getItem();
             Optional<ItemStack> optional = items.keySet()
                 .stream()
-                .filter(i -> ItemStack.isSameItem(i, item))
+                .filter(i -> ItemStack.isSameItemSameTags(i, item))
                 .findFirst();
             ItemStack type;
             type = optional.orElseGet(item::copy);
@@ -133,11 +133,10 @@ public class AnvilEventListener {
             ItemStack type = item.copy();
             type.setCount(1);
             int maxSize = item.getMaxStackSize();
-            for (
-                int count = item.getCount(), size = Math.min(maxSize, count);
-                count > 0;
-                count -= size
-            ) {
+            int count = item.getCount();
+            while (count > 0) {
+                int size = Math.min(maxSize, count);
+                count -= size;
                 ItemStack stack = type.copy();
                 stack.setCount(size);
                 Vec3 vec3 = pos.getCenter();

@@ -107,7 +107,7 @@ public class ModItems {
             @Override
             public @NotNull ItemStack getDefaultInstance() {
                 ItemStack stack = super.getDefaultInstance();
-                stack.enchant(ModEnchantments.FELLING.get(), 3);
+                stack.enchant(ModEnchantments.FELLING.get(), 1);
                 return stack;
             }
         })
@@ -129,7 +129,7 @@ public class ModItems {
             @Override
             public @NotNull ItemStack getDefaultInstance() {
                 ItemStack stack = super.getDefaultInstance();
-                stack.enchant(ModEnchantments.HARVEST.get(), 3);
+                stack.enchant(ModEnchantments.HARVEST.get(), 1);
                 return stack;
             }
         })
@@ -151,7 +151,7 @@ public class ModItems {
             @Override
             public @NotNull ItemStack getDefaultInstance() {
                 ItemStack stack = super.getDefaultInstance();
-                stack.enchant(Enchantments.MOB_LOOTING, 3);
+                stack.enchant(ModEnchantments.BEHEADING.get(), 1);
                 return stack;
             }
         })
