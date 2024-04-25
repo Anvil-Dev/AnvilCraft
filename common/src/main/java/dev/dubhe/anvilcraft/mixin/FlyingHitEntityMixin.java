@@ -61,16 +61,20 @@ public abstract class FlyingHitEntityMixin extends Entity {
         float amount = (float) (movement.length() * DAMAGE_FACTOR);
         for (LivingEntity entity : entities) {
             entity.hurt(damageSources().playerAttack((ServerPlayer) (Object) this), amount);
-            damageItem((Player) (Object) this, this.getItemBySlot(EquipmentSlot.HEAD));
+            anvilCraft$damageItem((Player) (Object) this, this.getItemBySlot(EquipmentSlot.HEAD));
         }
     }
 
     @Unique
-    private static void damageItem(Player player, ItemStack itemStack) {
+    private static void anvilCraft$damageItem(Player player, ItemStack itemStack) {
         if (player.isCreative()) return;
 
         if (itemStack.isDamageableItem()) {
-            itemStack.hurtAndBreak(1, player, e -> e.broadcastBreakEvent(EquipmentSlot.MAINHAND));
+            itemStack.hurtAndBreak(
+                    1,
+                    player,
+                    e -> e.broadcastBreakEvent(EquipmentSlot.MAINHAND)
+            );
         }
     }
 

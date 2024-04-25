@@ -52,7 +52,7 @@ public abstract class PlayerHitEntityMixin extends LivingEntity {
         if (source.type().equals(level().damageSources().flyIntoWall().type())) {
             for (LivingEntity entity : entities) {
                 entity.hurt(damageSources().playerAttack((ServerPlayer) (Object) this), hurtAmount);
-                damageItem((Player) (Object) this, this.getItemBySlot(EquipmentSlot.HEAD));
+                anvilCraft$damageItem((Player) (Object) this, this.getItemBySlot(EquipmentSlot.HEAD));
             }
             cir.setReturnValue(false);
             cir.cancel();
@@ -60,7 +60,7 @@ public abstract class PlayerHitEntityMixin extends LivingEntity {
             if (source.type().equals(level().damageSources().fall().type())) {
                 for (LivingEntity entity : entities) {
                     entity.hurt(damageSources().playerAttack((ServerPlayer) (Object) this), hurtAmount);
-                    damageItem((Player) (Object) this, this.getItemBySlot(EquipmentSlot.HEAD));
+                    anvilCraft$damageItem((Player) (Object) this, this.getItemBySlot(EquipmentSlot.HEAD));
                 }
                 cir.setReturnValue(false);
                 cir.cancel();
@@ -69,11 +69,15 @@ public abstract class PlayerHitEntityMixin extends LivingEntity {
     }
 
     @Unique
-    private static void damageItem(Player player, ItemStack itemStack) {
+    private static void anvilCraft$damageItem(Player player, ItemStack itemStack) {
         if (player.isCreative()) return;
 
         if (itemStack.isDamageableItem()) {
-            itemStack.hurtAndBreak(1, player, e -> e.broadcastBreakEvent(EquipmentSlot.MAINHAND));
+            itemStack.hurtAndBreak(
+                    1,
+                    player,
+                    e -> e.broadcastBreakEvent(EquipmentSlot.MAINHAND)
+            );
         }
     }
 }
