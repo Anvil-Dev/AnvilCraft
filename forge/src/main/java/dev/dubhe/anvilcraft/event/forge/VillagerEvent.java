@@ -77,13 +77,13 @@ public class VillagerEvent {
 
             // level 5
             trades.get(5).add((entity, random) -> new MerchantOffer(
-                new ItemStack(Items.EMERALD, 64), new ItemStack(Blocks.SMOOTH_BASALT, 4),
+                new ItemStack(Items.EMERALD, 64), new ItemStack(Blocks.SMOOTH_BASALT, 32),
                 new ItemStack(ModItems.GEODE),
                 1, 30, 0.05f
             ));
             trades.get(5).add((entity, random) -> new MerchantOffer(
                 new ItemStack(Items.EMERALD, 64), new ItemStack(Items.TOTEM_OF_UNDYING),
-                new ItemStack(Items.TOTEM_OF_UNDYING),
+                new ItemStack(ModItems.AMULET_BOX),
                 1, 30, 0.05f
             ));
         }
