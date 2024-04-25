@@ -2,7 +2,12 @@ package dev.dubhe.anvilcraft.init;
 
 import com.tterrag.registrate.util.entry.RegistryEntry;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.EnchantedBookItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentInstance;
+import org.jetbrains.annotations.NotNull;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 
@@ -73,6 +78,7 @@ public class ModItemGroups {
                 entries.accept(ModItems.CAPACITOR_EMPTY.get().getDefaultInstance());
                 entries.accept(ModItems.MAGNETOELECTRIC_CORE.get().getDefaultInstance());
                 entries.accept(ModItems.CRAB_CLAW.asStack());
+                entries.accept(ModItemGroups.createMaxLevelBook(ModEnchantments.FELLING));
             })
             .build()
         )
@@ -125,5 +131,12 @@ public class ModItemGroups {
         .register();
 
     public static void register() {
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    private static @NotNull ItemStack createMaxLevelBook(@NotNull RegistryEntry<? extends Enchantment> enchantment) {
+        return EnchantedBookItem.createForEnchantment(
+            new EnchantmentInstance(enchantment.get(), enchantment.get().getMaxLevel())
+        );
     }
 }

@@ -3,11 +3,10 @@
   "category": "misc",
   "ingredients": [
     {
-      "tag": "c:titanium_ingots"
+      "item": "anvilcraft:copper_nugget"
     }
   ],
   "result": {
-    "count": 9,
-    "item": "anvilcraft:titanium_nugget"
+    "item": "minecraft:copper_ingot"
   }
 }

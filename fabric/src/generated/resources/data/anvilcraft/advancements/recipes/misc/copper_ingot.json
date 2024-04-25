@@ -1,32 +1,34 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_the_recipe": {
-      "conditions": {
-        "recipe": "anvilcraft:titanium_ingot"
-      },
-      "trigger": "minecraft:recipe_unlocked"
-    },
-    "has_titanium_nuggets": {
+    "has_copper_nugget": {
       "conditions": {
         "items": [
           {
-            "tag": "c:titanium_nuggets"
+            "items": [
+              "anvilcraft:copper_nugget"
+            ]
           }
         ]
       },
       "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "minecraft:copper_ingot"
+      },
+      "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_titanium_nuggets",
+      "has_copper_nugget",
       "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:titanium_ingot"
+      "minecraft:copper_ingot"
     ]
   },
   "sends_telemetry_event": false

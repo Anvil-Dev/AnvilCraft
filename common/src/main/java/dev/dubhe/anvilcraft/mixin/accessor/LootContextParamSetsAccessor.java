@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.mixin;
+package dev.dubhe.anvilcraft.mixin.accessor;
 
 import com.google.common.collect.BiMap;
 import net.minecraft.resources.ResourceLocation;

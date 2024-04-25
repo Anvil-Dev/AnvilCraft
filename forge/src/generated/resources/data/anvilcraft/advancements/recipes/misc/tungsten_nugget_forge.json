@@ -7,11 +7,11 @@
       },
       "trigger": "minecraft:recipe_unlocked"
     },
-    "has_tungsten_ingot": {
+    "has_tungsten_ingots": {
       "conditions": {
         "items": [
           {
-            "tag": "forge:tungsten_ingot"
+            "tag": "forge:tungsten_ingots"
           }
         ]
       },
@@ -20,7 +20,7 @@
   },
   "requirements": [
     [
-      "has_tungsten_ingot",
+      "has_tungsten_ingots",
       "has_the_recipe"
     ]
   ],

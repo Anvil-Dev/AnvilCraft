@@ -29,7 +29,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(LevelRenderer.class)
 @Environment(EnvType.CLIENT)
-public abstract class LevelRendererMixin {
+abstract class LevelRendererMixin {
     @Shadow
     @Final
     private RenderBuffers renderBuffers;
