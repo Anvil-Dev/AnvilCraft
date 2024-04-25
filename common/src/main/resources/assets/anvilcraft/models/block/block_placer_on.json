@@ -66,38 +66,38 @@
 		{
 			"from": [6.1, 5.1, -2.9],
 			"to": [9.9, 7, 8],
-			"rotation": {"angle": -22.5, "axis": "x", "origin": [8, 7, 7]},
+			"rotation": {"angle": -22.5, "axis": "x", "origin": [8, 8, 6]},
 			"faces": {
 				"north": {"uv": [12, 6, 16, 8], "texture": "#claw"},
-				"east": {"uv": [11, 10, 0, 12], "texture": "#claw"},
+				"east": {"uv": [11, 11, 0, 13], "texture": "#claw"},
 				"south": {"uv": [12, 14, 16, 16], "texture": "#claw"},
-				"west": {"uv": [0, 10, 11, 12], "texture": "#claw"},
-				"up": {"uv": [12, 7, 1, 11], "rotation": 270, "texture": "#claw"},
+				"west": {"uv": [0, 11, 11, 13], "texture": "#claw"},
+				"up": {"uv": [13, 7, 2, 11], "rotation": 270, "texture": "#claw"},
 				"down": {"uv": [11, 12, 0, 16], "rotation": 90, "texture": "#claw"}
 			}
 		},
 		{
 			"from": [6, 7, -1],
 			"to": [10, 11, 8],
-			"rotation": {"angle": 22.5, "axis": "x", "origin": [8, 7, 7]},
+			"rotation": {"angle": 22.5, "axis": "x", "origin": [8, 8, 6]},
 			"faces": {
 				"north": {"uv": [12, 0, 16, 4], "texture": "#claw"},
-				"east": {"uv": [11, 4, 2, 8], "texture": "#claw"},
+				"east": {"uv": [11, 3, 2, 7], "texture": "#claw"},
 				"south": {"uv": [12, 8, 16, 12], "texture": "#claw"},
-				"west": {"uv": [2, 4, 11, 8], "texture": "#claw"},
+				"west": {"uv": [2, 3, 11, 7], "texture": "#claw"},
 				"up": {"uv": [11, 0, 2, 4], "rotation": 270, "texture": "#claw"},
-				"down": {"uv": [11, 7, 2, 11], "rotation": 90, "texture": "#claw"}
+				"down": {"uv": [12, 7, 3, 11], "rotation": 90, "texture": "#claw"}
 			}
 		},
 		{
 			"from": [6, 5, -3],
 			"to": [10, 11, -1],
-			"rotation": {"angle": 22.5, "axis": "x", "origin": [8, 7, 7]},
+			"rotation": {"angle": 22.5, "axis": "x", "origin": [8, 8, 6]},
 			"faces": {
 				"north": {"uv": [12, 0, 16, 6], "texture": "#claw"},
-				"east": {"uv": [2, 4, 0, 10], "texture": "#claw"},
-				"south": {"uv": [1, 7, 7, 11], "rotation": 270, "texture": "#claw"},
-				"west": {"uv": [0, 4, 2, 10], "texture": "#claw"},
+				"east": {"uv": [2, 3, 0, 9], "texture": "#claw"},
+				"south": {"uv": [2, 7, 8, 11], "rotation": 270, "texture": "#claw"},
+				"west": {"uv": [0, 3, 2, 9], "texture": "#claw"},
 				"up": {"uv": [2, 0, 0, 4], "rotation": 270, "texture": "#claw"},
 				"down": {"uv": [2, 12, 0, 16], "rotation": 90, "texture": "#claw"}
 			}
