@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModDispenserBehavior;
+import dev.dubhe.anvilcraft.init.ModEnchantments;
 import dev.dubhe.anvilcraft.init.ModEntities;
 import dev.dubhe.anvilcraft.init.ModEvents;
 import dev.dubhe.anvilcraft.init.ModItemGroups;
@@ -50,6 +51,7 @@ public class AnvilCraft {
         ModNetworks.register();
         ModDispenserBehavior.register();
         ModLootContextParamSet.register();
+        ModEnchantments.register();
         // datagen
         AnvilCraftDatagen.init();
         // fabric 独有，请在此之前插入注册

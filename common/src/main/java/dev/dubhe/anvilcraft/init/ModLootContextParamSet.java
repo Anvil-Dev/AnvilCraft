@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.mixin.LootContextParamSetsAccessor;
+import dev.dubhe.anvilcraft.mixin.accessor.LootContextParamSetsAccessor;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 

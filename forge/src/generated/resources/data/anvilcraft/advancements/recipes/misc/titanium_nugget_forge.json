@@ -7,11 +7,11 @@
       },
       "trigger": "minecraft:recipe_unlocked"
     },
-    "has_titanium_ingot": {
+    "has_titanium_ingots": {
       "conditions": {
         "items": [
           {
-            "tag": "forge:titanium_ingot"
+            "tag": "forge:titanium_ingots"
           }
         ]
       },
@@ -20,7 +20,7 @@
   },
   "requirements": [
     [
-      "has_titanium_ingot",
+      "has_titanium_ingots",
       "has_the_recipe"
     ]
   ],

@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import java.util.Map;
 
 @Mixin(LevelChunk.class)
-public abstract class LevelChunkMixin {
+abstract class LevelChunkMixin {
     @Shadow
     public abstract Level getLevel();
 

@@ -7,11 +7,11 @@
       },
       "trigger": "minecraft:recipe_unlocked"
     },
-    "has_titanium_nugget": {
+    "has_titanium_nuggets": {
       "conditions": {
         "items": [
           {
-            "tag": "c:titanium_nugget"
+            "tag": "c:titanium_nuggets"
           }
         ]
       },
@@ -20,7 +20,7 @@
   },
   "requirements": [
     [
-      "has_titanium_nugget",
+      "has_titanium_nuggets",
       "has_the_recipe"
     ]
   ],

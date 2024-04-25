@@ -7,11 +7,11 @@
       },
       "trigger": "minecraft:recipe_unlocked"
     },
-    "has_zinc_nugget": {
+    "has_zinc_nuggets": {
       "conditions": {
         "items": [
           {
-            "tag": "c:zinc_nugget"
+            "tag": "c:zinc_nuggets"
           }
         ]
       },
@@ -20,7 +20,7 @@
   },
   "requirements": [
     [
-      "has_zinc_nugget",
+      "has_zinc_nuggets",
       "has_the_recipe"
     ]
   ],

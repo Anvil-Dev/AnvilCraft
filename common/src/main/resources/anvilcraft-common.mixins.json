@@ -9,15 +9,16 @@
     "BeaconMenuMixin",
     "BucketItemMixin",
     "ClientboundUpdateRecipesPacketMixin",
+    "DiggerItemMixin",
     "DispenseItemEmptyBottleBehaviorMixin",
     "DispenseItemEmptyBucketBehaviorMixin",
     "DispenseItemWaterBottleBehaviorMixin",
     "ItemEntityMixin",
     "LivingEntityMixin",
-    "LootContextParamSetsAccessor",
     "SolidBucketItemMixin",
     "accessor.BaseSpawnerAccessor",
-    "accessor.FallingBlockEntityAccessor"
+    "accessor.FallingBlockEntityAccessor",
+    "accessor.LootContextParamSetsAccessor"
   ],
   "client": [
     "LevelRendererMixin",

@@ -7,11 +7,11 @@
       },
       "trigger": "minecraft:recipe_unlocked"
     },
-    "has_tin_nugget": {
+    "has_tin_nuggets": {
       "conditions": {
         "items": [
           {
-            "tag": "c:tin_nugget"
+            "tag": "c:tin_nuggets"
           }
         ]
       },
@@ -20,7 +20,7 @@
   },
   "requirements": [
     [
-      "has_tin_nugget",
+      "has_tin_nuggets",
       "has_the_recipe"
     ]
   ],

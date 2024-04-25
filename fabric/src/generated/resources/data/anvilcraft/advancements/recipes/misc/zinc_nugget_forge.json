@@ -7,11 +7,11 @@
       },
       "trigger": "minecraft:recipe_unlocked"
     },
-    "has_zinc_ingot": {
+    "has_zinc_ingots": {
       "conditions": {
         "items": [
           {
-            "tag": "forge:zinc_ingot"
+            "tag": "forge:zinc_ingots"
           }
         ]
       },
@@ -20,7 +20,7 @@
   },
   "requirements": [
     [
-      "has_zinc_ingot",
+      "has_zinc_ingots",
       "has_the_recipe"
     ]
   ],

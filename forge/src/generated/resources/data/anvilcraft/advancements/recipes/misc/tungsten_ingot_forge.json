@@ -7,11 +7,11 @@
       },
       "trigger": "minecraft:recipe_unlocked"
     },
-    "has_tungsten_nugget": {
+    "has_tungsten_nuggets": {
       "conditions": {
         "items": [
           {
-            "tag": "forge:tungsten_nugget"
+            "tag": "forge:tungsten_nuggets"
           }
         ]
       },
@@ -20,7 +20,7 @@
   },
   "requirements": [
     [
-      "has_tungsten_nugget",
+      "has_tungsten_nuggets",
       "has_the_recipe"
     ]
   ],
