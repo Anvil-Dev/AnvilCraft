@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.utils.fabric;
+package dev.dubhe.anvilcraft.util.fabric;
 
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
@@ -64,13 +64,13 @@ public class ModCustomTrades {
         });
         TradeOfferHelper.registerVillagerOffers(ModVillagers.JEWELER, 5, factories -> {
             factories.add((entity, random) -> new MerchantOffer(
-                new ItemStack(Items.EMERALD, 64), new ItemStack(Blocks.SMOOTH_BASALT, 4),
+                new ItemStack(Items.EMERALD, 64), new ItemStack(Blocks.SMOOTH_BASALT, 32),
                 new ItemStack(ModItems.GEODE),
                 1, 30, 0.05f
             ));
             factories.add((entity, random) -> new MerchantOffer(
                 new ItemStack(Items.EMERALD, 64), new ItemStack(Items.TOTEM_OF_UNDYING),
-                new ItemStack(Items.TOTEM_OF_UNDYING),
+                new ItemStack(ModItems.AMULET_BOX),
                 1, 30, 0.05f
             ));
         });

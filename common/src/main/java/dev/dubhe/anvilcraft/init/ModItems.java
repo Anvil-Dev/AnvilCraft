@@ -777,6 +777,10 @@ public class ModItems {
             .save(provider))
         .register();
 
+    public static final ItemEntry<Item> AMULET_BOX = REGISTRATE
+        .item("amulet_box", Item::new)
+        .register();
+
     public static void register() {
     }
 }
