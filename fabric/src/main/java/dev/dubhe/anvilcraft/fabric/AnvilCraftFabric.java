@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.fabric;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.event.fabric.ModFabricEvents;
+import dev.dubhe.anvilcraft.event.fabric.ModFabricEventsListener;
 import dev.dubhe.anvilcraft.init.fabric.ModRecipeTypesFabric;
 import dev.dubhe.anvilcraft.init.fabric.ModVillagers;
 import dev.dubhe.anvilcraft.util.fabric.ModCustomTrades;
@@ -14,6 +14,6 @@ public class AnvilCraftFabric implements ModInitializer {
         ModVillagers.register();
         ModCustomTrades.registerCustomTrades();
         ModRecipeTypesFabric.register();
-        ModFabricEvents.init();
+        ModFabricEventsListener.init();
     }
 }

@@ -13,18 +13,19 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.event.village.VillagerTradesEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 @Mod.EventBusSubscriber(modid = AnvilCraft.MOD_ID)
-public class VillagerEvent {
+public class VillagerEventListener {
     /**
      * 添加自定义交易时间
      *
      * @param event 事件
      */
     @SubscribeEvent
-    public static void addCustomTrades(VillagerTradesEvent event) {
+    public static void addCustomTrades(@NotNull VillagerTradesEvent event) {
         if (event.getType() == ModVillagers.JEWELER.get()) {
             Int2ObjectMap<List<VillagerTrades.ItemListing>> trades = event.getTrades();
             // level 1

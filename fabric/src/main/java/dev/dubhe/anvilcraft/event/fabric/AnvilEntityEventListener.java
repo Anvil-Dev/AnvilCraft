@@ -9,13 +9,13 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.Level;
 
-public class AnvilEntityEvent {
+public class AnvilEntityEventListener {
     /**
      * 初始化
      */
     public static void init() {
-        AnvilEvent.ON_LAND.register(AnvilEntityEvent::onLand);
-        AnvilEvent.HURT_ENTITY.register(AnvilEntityEvent::hurt);
+        AnvilEvent.ON_LAND.register(AnvilEntityEventListener::onLand);
+        AnvilEvent.HURT_ENTITY.register(AnvilEntityEventListener::hurt);
     }
 
     private static boolean onLand(Level level, BlockPos pos, FallingBlockEntity entity, float fallDistance) {

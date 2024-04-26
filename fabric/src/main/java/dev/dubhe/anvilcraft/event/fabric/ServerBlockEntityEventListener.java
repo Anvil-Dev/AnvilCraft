@@ -6,10 +6,10 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerBlockEntityEvents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-public class ServerBlockEntityEvent {
+public class ServerBlockEntityEventListener {
     public static void init() {
-        ServerBlockEntityEvents.BLOCK_ENTITY_LOAD.register(ServerBlockEntityEvent::onLoad);
-        ServerBlockEntityEvents.BLOCK_ENTITY_UNLOAD.register(ServerBlockEntityEvent::onUnload);
+        ServerBlockEntityEvents.BLOCK_ENTITY_LOAD.register(ServerBlockEntityEventListener::onLoad);
+        ServerBlockEntityEvents.BLOCK_ENTITY_UNLOAD.register(ServerBlockEntityEventListener::onUnload);
     }
 
     private static void onLoad(BlockEntity entity, ServerLevel level) {

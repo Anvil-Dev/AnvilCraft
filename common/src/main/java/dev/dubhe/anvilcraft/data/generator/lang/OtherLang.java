@@ -1,0 +1,35 @@
+package dev.dubhe.anvilcraft.data.generator.lang;
+
+import com.tterrag.registrate.providers.RegistrateLangProvider;
+
+public class OtherLang {
+    /**
+     * @param provider 提供器
+     */
+    public static void init(RegistrateLangProvider provider) {
+        provider.add(
+            "item.anvilcraft.amethyst_pickaxe.tooltip",
+            "Stone pickaxe quality, can mine iron ore, not diamonds!"
+        );
+
+        provider.add(
+            "item.anvilcraft.geode.find",
+            "Suspected amethyst geode, located %s"
+        );
+
+        provider.add(
+            "entity.minecraft.villager.anvilcraft.jeweler",
+            "Jeweler"
+        );
+
+        provider.add(
+            "entity.minecraft.villager.jeweler",
+            "Jeweler"
+        );
+
+        provider.add(
+            "block.anvilcraft.resin_block.has_mob",
+            "Contains %s Resin Block"
+        );
+    }
+}

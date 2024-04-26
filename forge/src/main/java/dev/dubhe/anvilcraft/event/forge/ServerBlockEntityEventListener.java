@@ -9,7 +9,7 @@ import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
 
 @Mod.EventBusSubscriber(modid = AnvilCraft.MOD_ID)
-public class ServerBlockEntityEvent {
+public class ServerBlockEntityEventListener {
     /**
      * @param event 服务端方块实体加载事件
      */

@@ -9,7 +9,7 @@ import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
 
 @Mod.EventBusSubscriber(modid = AnvilCraft.MOD_ID)
-public class AnvilEntityEvent {
+public class AnvilEntityEventListener {
     /**
      * @param e 铁砧落地事件
      */

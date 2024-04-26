@@ -15,7 +15,7 @@ import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
 
 @Mod.EventBusSubscriber(modid = AnvilCraft.MOD_ID)
-public class ServerLifecycleEvent {
+public class ServerLifecycleEventListener {
     /**
      * @param event 服务器启动事件
      */

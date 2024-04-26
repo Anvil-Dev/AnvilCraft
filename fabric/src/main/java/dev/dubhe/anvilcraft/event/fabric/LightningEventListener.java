@@ -7,12 +7,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.level.Level;
 
-public class LightningEvent {
+public class LightningEventListener {
     /**
      * 初始化
      */
     public static void init() {
-        LightningBoltEvent.LIGHTNING_STRIKE.register(LightningEvent::onLightningStrike);
+        LightningBoltEvent.LIGHTNING_STRIKE.register(LightningEventListener::onLightningStrike);
     }
 
     public static void onLightningStrike(Level level, BlockPos pos, LightningBolt entity) {

@@ -17,7 +17,7 @@ import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
 
 @Mod.EventBusSubscriber(modid = AnvilCraft.MOD_ID)
-public class LootTableEvent {
+public class LootTableEventListener {
     /**
      * 战利品表加载事件侦听器
      *
