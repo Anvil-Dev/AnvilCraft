@@ -54,7 +54,8 @@ public class FellingEnchantment extends ModEnchantment {
      * @param level 世界
      * @param pos   位置
      */
-    public static void felling(Player player, Level level, BlockPos pos, ItemStack tool) {
+    public static void felling(@NotNull Player player, Level level, BlockPos pos, ItemStack tool) {
+        if (player.isShiftKeyDown()) return;
         Map<Enchantment, Integer> enchantments = EnchantmentHelper.getEnchantments(tool);
         if (!enchantments.containsKey(ModEnchantments.FELLING.get())) return;
         int max = enchantments.get(ModEnchantments.FELLING.get()) * AnvilCraft.config.fellingBlockPerLevel;
