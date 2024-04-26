@@ -816,7 +816,7 @@ public class ModItems {
                 )
                 .save(provider);
             ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, Items.COPPER_INGOT)
-                .requires(ctx.get())
+                .requires(ctx.get(), 9)
                 .unlockedBy(
                     AnvilCraftDatagen.hasItem(ctx.get()),
                     RegistrateRecipeProvider.has(ctx.get())
