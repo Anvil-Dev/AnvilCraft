@@ -1,0 +1,17 @@
+{
+  "type": "anvilcraft:mob_transform",
+  "recipe": {
+    "iconSrc": {
+      "Count": 0,
+      "id": "minecraft:air"
+    },
+    "id": "anvilcraft:pig",
+    "inputEntityType": "minecraft:pig",
+    "results": [
+      {
+        "probability": 1.0,
+        "resultEntityType": "minecraft:hoglin"
+      }
+    ]
+  }
+}

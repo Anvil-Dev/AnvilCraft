@@ -1,0 +1,21 @@
+{
+  "type": "anvilcraft:mob_transform",
+  "recipe": {
+    "iconSrc": {
+      "Count": 0,
+      "id": "minecraft:air"
+    },
+    "id": "anvilcraft:horse",
+    "inputEntityType": "minecraft:horse",
+    "results": [
+      {
+        "probability": 0.9,
+        "resultEntityType": "minecraft:skeleton_horse"
+      },
+      {
+        "probability": 0.1,
+        "resultEntityType": "minecraft:zombie_horse"
+      }
+    ]
+  }
+}
