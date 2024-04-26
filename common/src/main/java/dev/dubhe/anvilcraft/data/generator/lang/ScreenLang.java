@@ -24,12 +24,21 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.royal_grindstone.remove_repair_cost", "Remove %i repair cost");
         provider.add("screen.anvilcraft.royal_grindstone.title", "Remove curse and repair cost");
         provider.add("screen.anvilcraft.royal_steel_upgrade_smithing_template",
-            "Royal Steel Upgrade Smithing Template");
-        provider.add("screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template"
-            + ".additions_slot_description", "Put the Royal Steel Ingot");
-        provider.add("screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template"
-            + ".applies_to", "Amethyst Pickaxe Golden Pickaxe Iron Pickaxe Diamond Pickaxe");
-        provider.add("screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template"
-            + ".base_slot_description", "Put the pickaxe");
+                "Royal Steel Upgrade Smithing Template");
+        provider.add(
+                "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template"
+                        + ".additions_slot_description",
+                "Put the Royal Steel Ingot or Royal Steel Block"
+        );
+        provider.add(
+                "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template"
+                        + ".applies_to",
+                "Anvil Hammer, Amethyst Pickaxe, Golden Pickaxe, Iron Pickaxe, Diamond Pickaxe"
+        );
+        provider.add(
+                "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template"
+                        + ".base_slot_description",
+                "Put "
+        );
     }
 }
