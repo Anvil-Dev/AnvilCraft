@@ -106,9 +106,9 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
                         beaconBeamSection.increaseHeight();
                     } else {
                         beaconBeamSection = new BeaconBeamSection(new float[]{
-                                (beaconBeamSection.color[0] + fs[0]) / 2.0f,
-                                (beaconBeamSection.color[1] + fs[1]) / 2.0f,
-                                (beaconBeamSection.color[2] + fs[2]) / 2.0f
+                            (beaconBeamSection.color[0] + fs[0]) / 2.0f,
+                            (beaconBeamSection.color[1] + fs[1]) / 2.0f,
+                            (beaconBeamSection.color[2] + fs[2]) / 2.0f
                         });
                         blockEntity.checkingBeamSections.add(beaconBeamSection);
                     }

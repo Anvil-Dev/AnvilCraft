@@ -4,7 +4,6 @@ import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import lombok.Getter;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
@@ -85,14 +84,14 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
         List<TransformResult> sorted = new ArrayList<>(results.stream()
                 .sorted(Comparator.comparingDouble(TransformResult::probability))
                 .toList());
-        List<Double> pList = new ArrayList<>(List.of(0d));
+        List<Double> probList = new ArrayList<>(List.of(0d));
         for (TransformResult transformResult : sorted) {
-            pList.add(pList.get(pList.size() - 1) + transformResult.probability());
+            probList.add(probList.get(probList.size() - 1) + transformResult.probability());
         }
         double p = randomSource.nextDouble();
-        for (int i = 1; i < pList.size(); i++) {
-            double end = pList.get(i);
-            double start = pList.get(i - 1);
+        for (int i = 1; i < probList.size(); i++) {
+            double end = probList.get(i);
+            double start = probList.get(i - 1);
             if (p >= start && p < end) {
                 return sorted.get(i - 1).resultEntityType();
             }
@@ -137,7 +136,10 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
         INSTANCE;
 
         @Override
-        public @NotNull MobTransformRecipe fromJson(@NotNull ResourceLocation recipeId, @NotNull JsonObject serializedRecipe) {
+        public @NotNull MobTransformRecipe fromJson(
+                @NotNull ResourceLocation recipeId,
+                @NotNull JsonObject serializedRecipe
+        ) {
             return MobTransformRecipe.CODEC
                     .parse(JsonOps.INSTANCE, serializedRecipe.getAsJsonObject("recipe"))
                     .getOrThrow(false, ignored -> {

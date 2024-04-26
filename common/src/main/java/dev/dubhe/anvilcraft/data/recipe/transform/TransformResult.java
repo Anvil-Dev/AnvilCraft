@@ -21,6 +21,12 @@ public record TransformResult(EntityType<?> resultEntityType, double probability
                             .forGetter(o -> o.probability)
             ).apply(ins, TransformResult::new));
 
+    /**
+     * 使用实体id初始化
+     *
+     * @param l 实体id
+     * @param p 转化概率
+     */
     public TransformResult(ResourceLocation l, double p) {
         this(
                 BuiltInRegistries.ENTITY_TYPE.get(l),
@@ -28,12 +34,24 @@ public record TransformResult(EntityType<?> resultEntityType, double probability
         );
     }
 
-    public static TransformResult fromJson(JsonObject jObject) {
-        return CODEC.parse(JsonOps.INSTANCE, jObject)
+    /**
+     * 从json反序列化
+     *
+     * @param jsonObject 输入json
+     * @return 序列化结果
+     */
+    public static TransformResult fromJson(JsonObject jsonObject) {
+        return CODEC.parse(JsonOps.INSTANCE, jsonObject)
                 .getOrThrow(false, ignored -> {
                 });
     }
 
+    /**
+     * 从 FriendlyByteBuf 反序列化
+     *
+     * @param buf 输入
+     * @return 序列化结果
+     */
     public static TransformResult fromByteBuf(FriendlyByteBuf buf) {
         ResourceLocation l = buf.readResourceLocation();
         double p = buf.readDouble();
