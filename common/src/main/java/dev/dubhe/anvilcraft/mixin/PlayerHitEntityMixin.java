@@ -34,7 +34,9 @@ public abstract class PlayerHitEntityMixin extends LivingEntity {
     private void onFlyingHitBlock(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         if (!((Object) this instanceof ServerPlayer)) return;
         if (!this.isFallFlying()) return;
-        if (!this.getItemBySlot(EquipmentSlot.HEAD).is(ModItems.ANVIL_HAMMER.get())) return;
+        if (!this.getItemBySlot(EquipmentSlot.HEAD).is(ModItems.ANVIL_HAMMER.get())
+                && !this.getItemBySlot(EquipmentSlot.HEAD).is(ModItems.ROYAL_ANVIL_HAMMER.get())
+        ) return;
         AABB headBlockBoundBox = AABB.ofSize(
                 this.getEyePosition(),
                 1,
