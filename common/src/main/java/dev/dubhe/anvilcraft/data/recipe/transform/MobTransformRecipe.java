@@ -7,8 +7,12 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import lombok.Getter;
 import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementRewards;
+import net.minecraft.advancements.RequirementsStrategy;
+import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -24,6 +28,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Consumer;
+
+import static net.minecraft.data.recipes.RecipeBuilder.ROOT_RECIPE_ADVANCEMENT;
 
 public class MobTransformRecipe implements Recipe<MobTransformContainer> {
 
@@ -206,6 +213,11 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
         }
 
         public FinishedMobTransformRecipe finish() {
+            this.advancement
+                    .parent(ROOT_RECIPE_ADVANCEMENT)
+                    .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id))
+                    .rewards(AdvancementRewards.Builder.recipe(id))
+                    .requirements(RequirementsStrategy.OR);
             return new FinishedMobTransformRecipe(
                     build(),
                     advancement,
@@ -213,7 +225,7 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
             );
         }
 
-        public void accept(RegistrateRecipeProvider provider) {
+        public void accept(Consumer<FinishedRecipe> provider) {
             provider.accept(finish());
         }
     }
