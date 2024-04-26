@@ -10,16 +10,16 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.resources.CloseableResourceManager;
 
-public class ServerLifecycleEvent {
+public class ServerLifecycleEventListener {
     /**
      * 初始化
      */
     public static void init() {
-        ServerLifecycleEvents.SERVER_STARTED.register(ServerLifecycleEvent::serverStarted);
-        ServerLifecycleEvents.END_DATA_PACK_RELOAD.register(ServerLifecycleEvent::endDataPackReload);
-        ServerLifecycleEvents.SERVER_STOPPING.register(ServerLifecycleEvent::onServerStopping);
-        ServerLifecycleEvents.SERVER_STOPPED.register(ServerLifecycleEvent::onServerStopped);
-        ServerTickEvents.START_SERVER_TICK.register(ServerLifecycleEvent::startTick);
+        ServerLifecycleEvents.SERVER_STARTED.register(ServerLifecycleEventListener::serverStarted);
+        ServerLifecycleEvents.END_DATA_PACK_RELOAD.register(ServerLifecycleEventListener::endDataPackReload);
+        ServerLifecycleEvents.SERVER_STOPPING.register(ServerLifecycleEventListener::onServerStopping);
+        ServerLifecycleEvents.SERVER_STOPPED.register(ServerLifecycleEventListener::onServerStopped);
+        ServerTickEvents.START_SERVER_TICK.register(ServerLifecycleEventListener::startTick);
     }
 
     private static void serverStarted(MinecraftServer server) {

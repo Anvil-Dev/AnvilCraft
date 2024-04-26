@@ -20,6 +20,7 @@
   "block.anvilcraft.nether_dust": "Nether Dust",
   "block.anvilcraft.quartz_sand": "Quartz Sand",
   "block.anvilcraft.resin_block": "Resin Block",
+  "block.anvilcraft.resin_block.has_mob": "Contains %s Resin Block",
   "block.anvilcraft.royal_anvil": "Royal Anvil",
   "block.anvilcraft.royal_grindstone": "Royal Grindstone",
   "block.anvilcraft.royal_smithing_table": "Royal Smithing Table",

@@ -13,13 +13,13 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
 
-public class BlockEvent {
+public class BlockEventListener {
     /**
      * 初始化
      */
     public static void init() {
-        AttackBlockCallback.EVENT.register(BlockEvent::anvilHammerAttack);
-        UseBlockCallback.EVENT.register(BlockEvent::anvilHammerUse);
+        AttackBlockCallback.EVENT.register(BlockEventListener::anvilHammerAttack);
+        UseBlockCallback.EVENT.register(BlockEventListener::anvilHammerUse);
     }
 
     private static InteractionResult anvilHammerAttack(

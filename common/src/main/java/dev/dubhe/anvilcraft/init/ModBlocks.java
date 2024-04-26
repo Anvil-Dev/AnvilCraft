@@ -27,6 +27,7 @@ import dev.dubhe.anvilcraft.data.generator.recipe.SmashBlockRecipesLoader;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.item.CursedBlockItem;
 import dev.dubhe.anvilcraft.item.PlaceInWaterBlockItem;
+import dev.dubhe.anvilcraft.item.ResinBlockItem;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
@@ -413,7 +414,8 @@ public class ModBlocks {
         .blockstate((ctx, provider) -> {
         })
         .properties(properties -> properties.sound(SoundType.HONEY_BLOCK))
-        .simpleItem()
+        .item(ResinBlockItem::new)
+        .build()
         .defaultLoot()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())

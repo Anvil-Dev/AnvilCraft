@@ -11,7 +11,7 @@ import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
 
 @Mod.EventBusSubscriber(modid = AnvilCraft.MOD_ID)
-public class BlockEvent {
+public class BlockEventListener {
     /**
      * 侦听左键方块事件
      *

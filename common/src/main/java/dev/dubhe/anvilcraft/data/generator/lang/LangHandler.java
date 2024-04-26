@@ -12,25 +12,6 @@ public class LangHandler {
         AdvancementLang.init(provider);
         ConfigScreenLang.init(provider);
         ScreenLang.init(provider);
-
-        provider.add(
-            "item.anvilcraft.amethyst_pickaxe.tooltip",
-            "Stone pickaxe quality, can mine iron ore, not diamonds!"
-        );
-
-        provider.add(
-            "item.anvilcraft.geode.find",
-            "Suspected amethyst geode, located %s"
-        );
-
-        provider.add(
-            "entity.minecraft.villager.anvilcraft.jeweler",
-            "Jeweler"
-        );
-
-        provider.add(
-            "entity.minecraft.villager.jeweler",
-            "Jeweler"
-        );
+        OtherLang.init(provider);
     }
 }

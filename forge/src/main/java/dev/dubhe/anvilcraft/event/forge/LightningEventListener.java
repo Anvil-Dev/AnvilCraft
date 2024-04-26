@@ -8,7 +8,7 @@ import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
 
 @Mod.EventBusSubscriber(modid = AnvilCraft.MOD_ID)
-public class LightningEvent {
+public class LightningEventListener {
     /**
      * @param event 雷击事件
      */
