@@ -51,10 +51,16 @@ public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRem
     @Override
     @Nullable
     public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
+        Level level = context.getLevel();
+        BlockPos pos = context.getClickedPos();
+        IPowerComponent.Switch sw =
+            level.hasNeighborSignal(pos)
+                ? IPowerComponent.Switch.OFF
+                : IPowerComponent.Switch.ON;
         return this.defaultBlockState()
             .setValue(HALF, Half.BOTTOM)
             .setValue(OVERLOAD, true)
-            .setValue(SWITCH, IPowerComponent.Switch.ON);
+            .setValue(SWITCH, sw);
     }
 
     @Override
@@ -73,7 +79,7 @@ public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRem
         LivingEntity placer, @NotNull ItemStack stack
     ) {
         BlockPos above = pos.above();
-        level.setBlockAndUpdate(above, state.setValue(HALF, Half.MID));
+        level.setBlockAndUpdate(above, state.setValue(HALF, Half.MID).setValue(SWITCH, IPowerComponent.Switch.ON));
         above = above.above();
         level.setBlockAndUpdate(above, state.setValue(HALF, Half.TOP));
     }
@@ -164,19 +170,19 @@ public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRem
             return;
         }
         if (state.getValue(HALF) != Half.BOTTOM) return;
-        IPowerComponent.Switch sw = state.getValue(SWITCH);
-        boolean bl = sw != IPowerComponent.Switch.ON;
         BlockPos topPos = pos.above(2);
         BlockState topState = level.getBlockState(topPos);
         if (!topState.is(ModBlocks.TRANSMISSION_POLE.get())) return;
         if (topState.getValue(HALF) != Half.TOP) return;
-        if (bl != level.hasNeighborSignal(pos)) {
+        IPowerComponent.Switch sw = state.getValue(SWITCH);
+        boolean bl = sw == IPowerComponent.Switch.ON;
+        if (bl == level.hasNeighborSignal(pos)) {
             if (bl) {
-                state.setValue(SWITCH, IPowerComponent.Switch.OFF);
-                topState.setValue(SWITCH, IPowerComponent.Switch.OFF);
+                state = state.setValue(SWITCH, IPowerComponent.Switch.OFF);
+                topState = topState.setValue(SWITCH, IPowerComponent.Switch.OFF);
             } else {
-                state.setValue(SWITCH, IPowerComponent.Switch.ON);
-                topState.setValue(SWITCH, IPowerComponent.Switch.ON);
+                state = state.setValue(SWITCH, IPowerComponent.Switch.ON);
+                topState = topState.setValue(SWITCH, IPowerComponent.Switch.ON);
             }
             level.setBlockAndUpdate(pos, state);
             level.setBlockAndUpdate(topPos, topState);
