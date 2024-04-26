@@ -26,7 +26,7 @@ public class RecipesHandler {
         StampingRecipesLoader.init(provider);
         TimeWarpRecipesLoader.init(provider);
         SuperHeatingRecipesLoader.init(provider);
-
+        SmithingRecipesLoader.init(provider);
         MobTransformRecipesLoader.init(provider);
     }
 }

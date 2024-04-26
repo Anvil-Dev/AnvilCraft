@@ -45,14 +45,28 @@ public class AnvilHammerItem extends Item implements Vanishable, Equipable {
         super(properties);
         ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
         builder.put(
-            Attributes.ATTACK_DAMAGE,
-            new AttributeModifier(BASE_ATTACK_DAMAGE_UUID, "Weapon modifier", 5, AttributeModifier.Operation.ADDITION)
+                Attributes.ATTACK_DAMAGE,
+                new AttributeModifier(
+                        BASE_ATTACK_DAMAGE_UUID,
+                        "Weapon modifier",
+                        getAttackDamageModifierAmount(),
+                        AttributeModifier.Operation.ADDITION
+                )
         );
         builder.put(
-            Attributes.ATTACK_SPEED,
-            new AttributeModifier(BASE_ATTACK_SPEED_UUID, "Weapon modifier", -3F, AttributeModifier.Operation.ADDITION)
+                Attributes.ATTACK_SPEED,
+                new AttributeModifier(
+                        BASE_ATTACK_SPEED_UUID,
+                        "Weapon modifier",
+                        -3F,
+                        AttributeModifier.Operation.ADDITION
+                )
         );
         this.defaultModifiers = builder.build();
+    }
+
+    protected float getAttackDamageModifierAmount() {
+        return 5;
     }
 
     private static void breakBlock(ServerPlayer player, BlockPos pos, @NotNull ServerLevel level, ItemStack tool) {
@@ -78,7 +92,7 @@ public class AnvilHammerItem extends Item implements Vanishable, Equipable {
         if (System.currentTimeMillis() - lastDropAnvilTime <= 150) return;
         lastDropAnvilTime = System.currentTimeMillis();
         AnvilFallOnLandEvent event = new AnvilFallOnLandEvent(
-            level, blockPos.above(), new FallingBlockEntity(EntityType.FALLING_BLOCK, level), player.fallDistance
+                level, blockPos.above(), new FallingBlockEntity(EntityType.FALLING_BLOCK, level), player.fallDistance
         );
         AnvilCraft.EVENT_BUS.post(event);
         level.playSound(null, blockPos, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 1f, 1f);
@@ -92,7 +106,7 @@ public class AnvilHammerItem extends Item implements Vanishable, Equipable {
      * 右键方块
      */
     public static void useBlock(
-        @NotNull ServerPlayer player, BlockPos blockPos, @NotNull ServerLevel level, ItemStack anvilHammer
+            @NotNull ServerPlayer player, BlockPos blockPos, @NotNull ServerLevel level, ItemStack anvilHammer
     ) {
         if (player.isShiftKeyDown()) {
             breakBlock(player, blockPos, level, anvilHammer);
@@ -116,7 +130,7 @@ public class AnvilHammerItem extends Item implements Vanishable, Equipable {
 
     @Override
     public boolean canAttackBlock(
-        @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player
+            @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player
     ) {
         return !player.isCreative();
     }
@@ -128,11 +142,11 @@ public class AnvilHammerItem extends Item implements Vanishable, Equipable {
 
     @Override
     public boolean mineBlock(
-        @NotNull ItemStack stack,
-        @NotNull Level level,
-        @NotNull BlockState state,
-        @NotNull BlockPos pos,
-        @NotNull LivingEntity miningEntity
+            @NotNull ItemStack stack,
+            @NotNull Level level,
+            @NotNull BlockState state,
+            @NotNull BlockPos pos,
+            @NotNull LivingEntity miningEntity
     ) {
         if (state.getDestroySpeed(level, pos) != 0.0f) {
             stack.hurtAndBreak(2, miningEntity, e -> e.broadcastBreakEvent(EquipmentSlot.MAINHAND));
@@ -140,17 +154,21 @@ public class AnvilHammerItem extends Item implements Vanishable, Equipable {
         return true;
     }
 
+    protected float calculateFallDamageBonus(float fallDistance) {
+        return Math.min(fallDistance * 2, 40);
+    }
+
     @Override
     public boolean hurtEnemy(@NotNull ItemStack stack, @NotNull LivingEntity target, @NotNull LivingEntity attacker) {
         stack.hurtAndBreak(1, attacker, e -> e.broadcastBreakEvent(EquipmentSlot.MAINHAND));
-        float damageBonus = attacker.fallDistance > 17 ? 34 : attacker.fallDistance * 2;
+        float damageBonus = calculateFallDamageBonus(attacker.fallDistance);
         target.hurt(target.level().damageSources().anvil(attacker), damageBonus);
         if (attacker.fallDistance >= 3) {
             attacker.level().playSound(null,
-                BlockPos.containing(attacker.position()),
-                SoundEvents.ANVIL_LAND, SoundSource.BLOCKS,
-                1f,
-                attacker.fallDistance > 17 ? (float) 0.5 : 1 - attacker.fallDistance / 35
+                    BlockPos.containing(attacker.position()),
+                    SoundEvents.ANVIL_LAND, SoundSource.BLOCKS,
+                    1f,
+                    attacker.fallDistance > 17 ? (float) 0.5 : 1 - attacker.fallDistance / 35
             );
         }
         return true;
