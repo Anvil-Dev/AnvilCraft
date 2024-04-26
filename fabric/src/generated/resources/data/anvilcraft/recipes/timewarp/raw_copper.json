@@ -24,7 +24,10 @@
       "match_block": {
         "blocks": [
           "anvilcraft:corrupted_beacon"
-        ]
+        ],
+        "state": {
+          "lit": "true"
+        }
       },
       "offset": [
         0.0,
