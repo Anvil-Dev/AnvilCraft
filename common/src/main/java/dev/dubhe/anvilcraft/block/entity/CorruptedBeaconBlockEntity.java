@@ -3,7 +3,10 @@ package dev.dubhe.anvilcraft.block.entity;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
+import dev.dubhe.anvilcraft.data.recipe.transform.MobTransformContainer;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -14,7 +17,9 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BeaconBeamBlock;
 import net.minecraft.world.level.block.Block;
@@ -28,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public class CorruptedBeaconBlockEntity extends BlockEntity {
     List<BeaconBeamSection> beamSections = Lists.newArrayList();
@@ -36,7 +42,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
     private int lastCheckY;
 
     public static @NotNull CorruptedBeaconBlockEntity createBlockEntity(
-        BlockEntityType<?> type, BlockPos pos, BlockState blockState
+            BlockEntityType<?> type, BlockPos pos, BlockState blockState
     ) {
         return new CorruptedBeaconBlockEntity(type, pos, blockState);
     }
@@ -59,7 +65,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
      */
     @SuppressWarnings("unused")
     public static void tick(
-        Level level, @NotNull BlockPos pos, BlockState state, @NotNull CorruptedBeaconBlockEntity blockEntity
+            Level level, @NotNull BlockPos pos, BlockState state, @NotNull CorruptedBeaconBlockEntity blockEntity
     ) {
         int m;
         BlockPos blockPos;
@@ -74,8 +80,8 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
             blockPos = new BlockPos(i, blockEntity.lastCheckY + 1, k);
         }
         BeaconBeamSection beaconBeamSection = blockEntity.checkingBeamSections.isEmpty()
-            ? null
-            : blockEntity.checkingBeamSections.get(blockEntity.checkingBeamSections.size() - 1);
+                ? null
+                : blockEntity.checkingBeamSections.get(blockEntity.checkingBeamSections.size() - 1);
         int l = level.getHeight(Heightmap.Types.WORLD_SURFACE, i, k);
         for (m = 0; m < 10 && blockPos.getY() <= l; ++m) {
             block18:
@@ -109,7 +115,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
                     break block18;
                 }
                 if (beaconBeamSection != null
-                    && (blockState.getLightBlock(level, blockPos) < 15 || blockState.is(Blocks.BEDROCK))) {
+                        && (blockState.getLightBlock(level, blockPos) < 15 || blockState.is(Blocks.BEDROCK))) {
                     beaconBeamSection.increaseHeight();
                 } else {
                     blockEntity.checkingBeamSections.clear();
@@ -131,7 +137,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
                 }
             }
             if (blockEntity.levels > 0 && !blockEntity.beamSections.isEmpty()) {
-                CorruptedBeaconBlockEntity.applyEffects(level, pos);
+                CorruptedBeaconBlockEntity.affectEntities(level, pos);
                 CorruptedBeaconBlockEntity.playSound(level, pos, SoundEvents.BEACON_AMBIENT);
             }
         }
@@ -178,12 +184,23 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
         super.setRemoved();
     }
 
-    private static void applyEffects(@NotNull Level level, BlockPos pos) {
+    private static void affectEntities(@NotNull Level level, BlockPos pos) {
         if (level.isClientSide) return;
         AABB aabb = new AABB(pos).expandTowards(0.0, level.getHeight(), 0.0);
         List<LivingEntity> list = level.getEntitiesOfClass(LivingEntity.class, aabb);
+        if (list.isEmpty()) return;
+        RecipeManager manager = level.getServer().getRecipeManager();
         for (LivingEntity livingEntity : list) {
+            MobTransformContainer container = new MobTransformContainer(level, pos, livingEntity);
             livingEntity.addEffect(new MobEffectInstance(MobEffects.WITHER, 120, 0, true, true));
+            var recipe = manager.getRecipeFor(ModRecipeTypes.MOB_TRANSFORM_RECIPE, container, level);
+            if (recipe.isEmpty()) continue;
+            var entityType = recipe.get().result(level.random);
+            Entity entity = entityType.create(level);
+            if (entity == null) continue;
+            entity.moveTo(livingEntity.position());
+            livingEntity.remove(Entity.RemovalReason.DISCARDED);
+            level.addFreshEntity(entity);
         }
     }
 
@@ -231,9 +248,9 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
          */
         public float[] getColor() {
             return new float[]{
-                Math.max(0.0f, 1 - color[0] - 0.3f),
-                Math.max(0.0f, 1 - color[1] - 0.3f),
-                Math.max(0.0f, 1 - color[2] - 0.3f)
+                    Math.max(0.0f, 1 - color[0] - 0.3f),
+                    Math.max(0.0f, 1 - color[1] - 0.3f),
+                    Math.max(0.0f, 1 - color[2] - 0.3f)
             };
         }
     }
