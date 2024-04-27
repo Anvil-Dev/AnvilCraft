@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.mixin.forge;
 
+import dev.dubhe.anvilcraft.block.ResinBlock;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SlimeBlock;
 import net.minecraft.world.level.block.piston.PistonMovingBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -19,6 +21,7 @@ abstract class PistonMovingBlockEntityMixin {
             )
     )
     private static boolean isElastic(@NotNull BlockState instance) {
-        return instance.getBlock() instanceof SlimeBlock;
+        Block block = instance.getBlock();
+        return block instanceof SlimeBlock || block instanceof ResinBlock;
     }
 }
