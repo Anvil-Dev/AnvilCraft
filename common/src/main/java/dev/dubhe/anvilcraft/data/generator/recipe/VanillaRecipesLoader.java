@@ -149,21 +149,27 @@ public class VanillaRecipesLoader {
             .unlocks(AnvilCraftDatagen.hasItem(ModItems.AMETHYST_SWORD.asItem()),
                 AnvilCraftDatagen.has(ModItems.AMETHYST_SWORD))
             .save(provider, AnvilCraft.of("smithing/royal_steel_sword"));
-        SmithingTransformRecipeBuilder.smithing(Ingredient.of(), Ingredient.of(Items.GRINDSTONE),
-                Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK), RecipeCategory.TOOLS, ModBlocks.ROYAL_GRINDSTONE.asItem())
+        SmithingTransformRecipeBuilder.smithing(
+                Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE), Ingredient.of(Items.GRINDSTONE),
+                Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK), RecipeCategory.TOOLS, ModBlocks.ROYAL_GRINDSTONE.asItem()
+                )
             .unlocks(AnvilCraftDatagen.hasItem(ModBlocks.ROYAL_STEEL_BLOCK.asItem()),
                 AnvilCraftDatagen.has(ModBlocks.ROYAL_STEEL_BLOCK))
             .unlocks(AnvilCraftDatagen.hasItem(Items.GRINDSTONE), AnvilCraftDatagen.has(Items.GRINDSTONE))
             .save(provider, AnvilCraft.of("smithing/royal_grindstone"));
-        SmithingTransformRecipeBuilder.smithing(Ingredient.of(), Ingredient.of(Items.ANVIL),
-                Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK), RecipeCategory.TOOLS, ModBlocks.ROYAL_ANVIL.asItem())
+        SmithingTransformRecipeBuilder.smithing(
+                Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE), Ingredient.of(Items.ANVIL),
+                Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK), RecipeCategory.TOOLS, ModBlocks.ROYAL_ANVIL.asItem()
+                )
             .unlocks(AnvilCraftDatagen.hasItem(ModBlocks.ROYAL_STEEL_BLOCK.asItem()),
                 AnvilCraftDatagen.has(ModBlocks.ROYAL_STEEL_BLOCK))
             .unlocks(AnvilCraftDatagen.hasItem(Items.ANVIL), AnvilCraftDatagen.has(Items.ANVIL))
             .save(provider, AnvilCraft.of("smithing/royal_anvil"));
-        SmithingTransformRecipeBuilder.smithing(Ingredient.of(), Ingredient.of(Items.SMITHING_TABLE),
+        SmithingTransformRecipeBuilder.smithing(
+                Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE), Ingredient.of(Items.SMITHING_TABLE),
                 Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK), RecipeCategory.TOOLS,
-                ModBlocks.ROYAL_SMITHING_TABLE.asItem())
+                ModBlocks.ROYAL_SMITHING_TABLE.asItem()
+                )
             .unlocks(AnvilCraftDatagen.hasItem(ModBlocks.ROYAL_STEEL_BLOCK.asItem()),
                 AnvilCraftDatagen.has(ModBlocks.ROYAL_STEEL_BLOCK))
             .unlocks(AnvilCraftDatagen.hasItem(Items.SMITHING_TABLE), AnvilCraftDatagen.has(Items.SMITHING_TABLE))
