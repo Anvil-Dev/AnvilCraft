@@ -1,6 +1,7 @@
 {
   "block.anvilcraft.amber_block": "Amber Block",
   "block.anvilcraft.auto_crafter": "Auto Crafter",
+  "block.anvilcraft.charge_collector": "Charge Collector",
   "block.anvilcraft.chute": "Chute",
   "block.anvilcraft.cinerite": "Cinerite",
   "block.anvilcraft.corrupted_beacon": "Corrupted Beacon",
@@ -18,6 +19,7 @@
   "block.anvilcraft.lava_cauldron": "Lava Cauldron",
   "block.anvilcraft.magnet_block": "Magnet Block",
   "block.anvilcraft.nether_dust": "Nether Dust",
+  "block.anvilcraft.piezoelectric_crystal": "Piezoelectric Crystal",
   "block.anvilcraft.quartz_sand": "Quartz Sand",
   "block.anvilcraft.resin_block": "Resin Block",
   "block.anvilcraft.resin_block.has_mob": "Contains %s Resin Block",

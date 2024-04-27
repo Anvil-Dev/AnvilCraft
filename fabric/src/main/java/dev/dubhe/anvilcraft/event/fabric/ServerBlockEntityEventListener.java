@@ -1,7 +1,9 @@
 package dev.dubhe.anvilcraft.event.fabric;
 
+import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
+import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerBlockEntityEvents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -16,11 +18,17 @@ public class ServerBlockEntityEventListener {
         if (entity instanceof IPowerComponent component) {
             PowerGrid.addComponent(component);
         }
+        if (entity instanceof ChargeCollectorBlockEntity chargeCollector) {
+            ChargeCollectorManager.addChargeCollector(chargeCollector);
+        }
     }
 
     private static void onUnload(BlockEntity entity, ServerLevel level) {
         if (entity instanceof IPowerComponent component) {
             PowerGrid.removeComponent(component);
+        }
+        if (entity instanceof ChargeCollectorBlockEntity chargeCollector) {
+            ChargeCollectorManager.removeChargeCollector(chargeCollector);
         }
     }
 }
