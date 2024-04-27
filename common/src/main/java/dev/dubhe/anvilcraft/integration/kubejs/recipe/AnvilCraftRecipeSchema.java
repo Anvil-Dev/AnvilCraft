@@ -41,8 +41,7 @@ import org.apache.commons.lang3.ArrayUtils;
  */
 public interface AnvilCraftRecipeSchema {
 
-    // CHECKSTYLE:OFF
-    @SuppressWarnings({"UnusedReturnValue", "unused"})
+    @SuppressWarnings({"UnusedReturnValue", "unused", "stylecheck:off"})
     class AnvilCraftRecipeJs extends RecipeJS {
         @HideFromJS
         @Override
@@ -392,7 +391,6 @@ public interface AnvilCraftRecipeSchema {
             return this;
         }
     }
-    // CHECKSTYLE:ON
 
     RecipeKey<ResourceLocation> ID =
         AnvilCraftRecipeComponents.RESOURCE_LOCATION.key("id");
