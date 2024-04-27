@@ -72,7 +72,7 @@ public class ResinBlockItem extends HasMobBlockItem {
             }
             return InteractionResult.SUCCESS;
         }
-        ResinBlockItem.saveMobInItem(mob, stack);
+        ResinBlockItem.saveMobInItem(mob, player, stack);
         return InteractionResult.SUCCESS;
     }
 
@@ -87,7 +87,8 @@ public class ResinBlockItem extends HasMobBlockItem {
         level.addFreshEntity(entity);
     }
 
-    private static void saveMobInItem(@NotNull Mob entity, @NotNull ItemStack stack) {
+    private static void saveMobInItem(@NotNull Mob entity, Player player, @NotNull ItemStack stack) {
+        stack = stack.split(1);
         CompoundTag entityTag = new CompoundTag();
         entity.save(entityTag);
         entityTag.remove(Entity.UUID_TAG);
@@ -99,6 +100,7 @@ public class ResinBlockItem extends HasMobBlockItem {
         CompoundTag tag = stack.getOrCreateTag();
         tag.put("entity", entityTag);
         stack.setTag(tag);
+        player.getInventory().placeItemBackInInventory(stack);
         entity.remove(Entity.RemovalReason.DISCARDED);
     }
 }
