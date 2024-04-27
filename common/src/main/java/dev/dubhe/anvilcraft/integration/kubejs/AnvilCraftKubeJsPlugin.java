@@ -2,7 +2,18 @@ package dev.dubhe.anvilcraft.integration.kubejs;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
+import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.DamageAnvil;
+import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.RunCommand;
+import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SelectOne;
+import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SetBlock;
+import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SpawnExperience;
+import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SpawnItem;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasBlock;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasBlockIngredient;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasFluidCauldron;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItem;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItemIngredient;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.NotHasBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.AnvilCraftRecipeSchema;
@@ -38,5 +49,21 @@ public class AnvilCraftKubeJsPlugin extends KubeJSPlugin {
         event.add("AnvilCraftItems", ModItems.class);
         event.add("AnvilCraftBlocks", ModBlocks.class);
         event.add("AnvilCraftBlockPredicate", HasBlock.ModBlockPredicate.class);
+
+        // outcomes
+        event.add("DamageAnvil", DamageAnvil.class);
+        event.add("RunCommand", RunCommand.class);
+        event.add("SelectOne", SelectOne.class);
+        event.add("SetBlock", SetBlock.class);
+        event.add("SpawnExperience", SpawnExperience.class);
+        event.add("SpawnItem", SpawnItem.class);
+
+        //predicates
+        event.add("HasBlock", HasBlock.class);
+        event.add("HasBlockIngredient", HasBlockIngredient.class);
+        event.add("HasFluidCauldron", HasFluidCauldron.class);
+        event.add("HasItem", HasItem.class);
+        event.add("HasItemIngredient", HasItemIngredient.class);
+        event.add("NotHasBlock", NotHasBlock.class);
     }
 }
