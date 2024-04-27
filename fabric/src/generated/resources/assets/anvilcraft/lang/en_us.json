@@ -33,6 +33,7 @@
   "block.anvilcraft.tempering_glass": "Tempering Glass",
   "block.anvilcraft.topaz_block": "Topaz Block",
   "block.anvilcraft.transmission_pole": "Transmission Pole",
+  "config.jade.plugin_anvilcraft.power_provider": "Anvil Craft Power",
   "enchantment.anvilcraft.beheading": "Beheading",
   "enchantment.anvilcraft.felling": "Felling",
   "enchantment.anvilcraft.harvest": "Harvest",
@@ -157,5 +158,6 @@
   "text.autoconfig.anvilcraft.option.redstoneEmpMaxRadius.@Tooltip": "Maximum distance of redstone EMP",
   "text.autoconfig.anvilcraft.option.redstoneEmpRadius": "Redstone EMP Radius Per Block",
   "text.autoconfig.anvilcraft.option.redstoneEmpRadius.@Tooltip": "Redstone EMP distance generated per block dropped by the anvil",
-  "text.autoconfig.anvilcraft.title": "AnvilCraft Config"
+  "text.autoconfig.anvilcraft.title": "AnvilCraft Config",
+  "tooltip.anvilcraft.jade.power_information": "Power Grid: %d/%d MW"
 }

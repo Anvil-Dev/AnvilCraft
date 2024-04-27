@@ -33,6 +33,7 @@
   "block.anvilcraft.tempering_glass": "Tempering Glass",
   "block.anvilcraft.topaz_block": "Topaz Block",
   "block.anvilcraft.transmission_pole": "Transmission Pole",
+  "config.jade.plugin_anvilcraft.power_provider": "Anvil Craft Power",
   "enchantment.anvilcraft.beheading": "Beheading",
   "enchantment.anvilcraft.felling": "Felling",
   "enchantment.anvilcraft.harvest": "Harvest",
@@ -83,6 +84,7 @@
   "item.anvilcraft.prismarine_cluster": "Prismarine Cluster",
   "item.anvilcraft.pulp": "Pulp",
   "item.anvilcraft.resin": "Resin",
+  "item.anvilcraft.royal_anvil_hammer": "Royal Anvil Hammer",
   "item.anvilcraft.royal_steel_axe": "Royal Steel Axe",
   "item.anvilcraft.royal_steel_hoe": "Royal Steel Hoe",
   "item.anvilcraft.royal_steel_ingot": "Royal Steel Ingot",
@@ -125,9 +127,9 @@
   "screen.anvilcraft.royal_grindstone.title": "Remove curse and repair cost",
   "screen.anvilcraft.royal_steel_upgrade_smithing_template": "Royal Steel Upgrade Smithing Template",
   "screen.anvilcraft.slot.disable.tooltip": "Use item clicks to set filter",
-  "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.additions_slot_description": "Put the Royal Steel Ingot",
-  "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.applies_to": "Amethyst Pickaxe Golden Pickaxe Iron Pickaxe Diamond Pickaxe",
-  "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.base_slot_description": "Put the pickaxe",
+  "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.additions_slot_description": "Put the Royal Steel Ingot or Royal Steel Block",
+  "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.applies_to": "Anvil Hammer, Amethyst Pickaxe, Golden Pickaxe, Iron Pickaxe, Diamond Pickaxe",
+  "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.base_slot_description": "Put ",
   "text.autoconfig.anvilcraft.option.anvilEfficiency": "Anvil Efficiency",
   "text.autoconfig.anvilcraft.option.anvilEfficiency.@Tooltip": "Maximum number of items processed by the anvil at the same time",
   "text.autoconfig.anvilcraft.option.autoCrafterCooldown": "Auto Crafter Cooldown",
@@ -156,5 +158,6 @@
   "text.autoconfig.anvilcraft.option.redstoneEmpMaxRadius.@Tooltip": "Maximum distance of redstone EMP",
   "text.autoconfig.anvilcraft.option.redstoneEmpRadius": "Redstone EMP Radius Per Block",
   "text.autoconfig.anvilcraft.option.redstoneEmpRadius.@Tooltip": "Redstone EMP distance generated per block dropped by the anvil",
-  "text.autoconfig.anvilcraft.title": "AnvilCraft Config"
+  "text.autoconfig.anvilcraft.title": "AnvilCraft Config",
+  "tooltip.anvilcraft.jade.power_information": "Power Grid: %d/%d MW"
 }
