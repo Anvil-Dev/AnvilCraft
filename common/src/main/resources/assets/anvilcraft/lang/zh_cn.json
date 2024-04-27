@@ -1,6 +1,7 @@
 {
   "block.anvilcraft.amber_block": "琥珀块",
   "block.anvilcraft.auto_crafter": "自动合成器",
+  "block.anvilcraft.charge_collector": "集电器",
   "block.anvilcraft.chute": "溜槽",
   "block.anvilcraft.cinerite": "火山灰",
   "block.anvilcraft.corrupted_beacon": "腐化信标",
@@ -18,8 +19,10 @@
   "block.anvilcraft.lava_cauldron": "装有熔岩的炼药锅",
   "block.anvilcraft.magnet_block": "磁铁块",
   "block.anvilcraft.nether_dust": "下界尘",
+  "block.anvilcraft.piezoelectric_crystal": "压电晶体",
   "block.anvilcraft.quartz_sand": "石英砂",
   "block.anvilcraft.resin_block": "树脂块",
+  "block.anvilcraft.resin_block.has_mob": "包含 %s 的树脂块",
   "block.anvilcraft.royal_anvil": "皇家铁砧",
   "block.anvilcraft.royal_grindstone": "皇家砂轮",
   "block.anvilcraft.royal_smithing_table": "皇家锻造台",
@@ -32,6 +35,7 @@
   "block.anvilcraft.tempering_glass": "钢化玻璃",
   "block.anvilcraft.topaz_block": "黄玉块",
   "block.anvilcraft.transmission_pole": "输电杆",
+  "config.jade.plugin_anvilcraft.power_provider": "铁砧工艺电网信息",
   "enchantment.anvilcraft.beheading": "斩首",
   "enchantment.anvilcraft.felling": "伐木",
   "enchantment.anvilcraft.harvest": "收割",
@@ -64,7 +68,6 @@
   "item.anvilcraft.creamy_bread_roll": "奶油面包卷",
   "item.anvilcraft.cursed_gold_ingot": "诅咒金锭",
   "item.anvilcraft.cursed_gold_nugget": "诅咒金粒",
-  "item.anvilcraft.debris_scrap": "远古残骸碎片",
   "item.anvilcraft.dough": "面团",
   "item.anvilcraft.elytra_frame": "翅骨",
   "item.anvilcraft.elytra_membrane": "翅膜",
@@ -75,9 +78,7 @@
   "item.anvilcraft.magnet": "手持磁铁",
   "item.anvilcraft.magnet_ingot": "磁铁锭",
   "item.anvilcraft.magnetoelectric_core": "磁电核心",
-  "item.anvilcraft.nether_star_shard": "下界之星碎片",
-  "item.anvilcraft.netherite_coil": "下界合金卷材",
-  "item.anvilcraft.netherite_core": "下界核心",
+  "item.anvilcraft.netherite_crystal_nucleus": "下界合金晶核",
   "item.anvilcraft.prismarine_blade": "海晶刃",
   "item.anvilcraft.prismarine_cluster": "海晶簇",
   "item.anvilcraft.pulp": "纸浆",
@@ -156,5 +157,6 @@
   "text.autoconfig.anvilcraft.option.redstoneEmpMaxRadius.@Tooltip": "红石EMP的最大影响距离",
   "text.autoconfig.anvilcraft.option.redstoneEmpRadius": "红石 EMP 半径增量",
   "text.autoconfig.anvilcraft.option.redstoneEmpRadius.@Tooltip": "铁砧每下落的一个方块产生的红石 EMP 影响距离增量",
-  "text.autoconfig.anvilcraft.title": "铁砧工艺 - 配置"
+  "text.autoconfig.anvilcraft.title": "铁砧工艺 - 配置",
+  "tooltip.anvilcraft.jade.power_information": "电网：%d/%d MW"
 }
