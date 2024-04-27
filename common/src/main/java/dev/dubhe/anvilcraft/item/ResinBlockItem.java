@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.item;
 
+import dev.dubhe.anvilcraft.init.ModItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -7,9 +8,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -31,19 +36,8 @@ public class ResinBlockItem extends HasMobBlockItem {
         if (!ResinBlockItem.hasMob(stack)) return super.useOn(context);
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos().relative(context.getClickedFace());
-        if (level.isClientSide()) {
-            Item item = stack.getItem();
-            if (item instanceof ResinBlockItem item1) {
-                BlockState blockState = item1.getBlock().defaultBlockState();
-                SoundType soundType = blockState.getSoundType();
-                level.playSound(
-                    context.getPlayer(), pos, item1.getPlaceSound(blockState), SoundSource.BLOCKS,
-                    (soundType.getVolume() + 1.0f) / 2.0f, soundType.getPitch() * 0.8f
-                );
-            }
-            return InteractionResult.SUCCESS;
-        }
-        ResinBlockItem.spawnMobFromItem(level, pos, stack);
+        Player player = context.getPlayer();
+        ResinBlockItem.spawnMobFromItem(level, player, pos, stack);
         return InteractionResult.SUCCESS;
     }
 
@@ -58,11 +52,43 @@ public class ResinBlockItem extends HasMobBlockItem {
         ) {
             return InteractionResult.PASS;
         }
-        Level level = player.level();
+        ResinBlockItem.saveMobInItem(player.level(), mob, player, stack);
+        return InteractionResult.SUCCESS;
+    }
+
+    private static void spawnMobFromItem(@NotNull Level level, Player player, BlockPos pos, @NotNull ItemStack stack) {
+        stack.shrink(1);
         if (level.isClientSide()) {
             Item item = stack.getItem();
             if (item instanceof ResinBlockItem item1) {
-                BlockPos blockPos = target.getOnPos();
+                BlockState blockState = item1.getBlock().defaultBlockState();
+                SoundType soundType = blockState.getSoundType();
+                level.playSound(
+                    player, pos, item1.getPlaceSound(blockState), SoundSource.BLOCKS,
+                    (soundType.getVolume() + 1.0f) / 2.0f, soundType.getPitch() * 0.8f
+                );
+            }
+            return;
+        }
+        Entity entity = HasMobBlockItem.getMobFromItem(level, stack);
+        if (entity == null) return;
+        CompoundTag tag = stack.getOrCreateTag();
+        tag.remove("entity");
+        entity.moveTo(pos.getCenter());
+        level.addFreshEntity(entity);
+        RandomSource random = level.getRandom();
+        ItemStack back = new ItemStack(ModItems.RESIN, random.nextInt(1, 4));
+        player.getInventory().placeItemBackInInventory(back);
+    }
+
+    private static void saveMobInItem(
+        @NotNull Level level, @NotNull Mob entity, @NotNull Player player, @NotNull ItemStack stack
+    ) {
+        stack = stack.split(1);
+        if (level.isClientSide()) {
+            Item item = stack.getItem();
+            if (item instanceof ResinBlockItem item1) {
+                BlockPos blockPos = entity.getOnPos();
                 BlockState blockState = item1.getBlock().defaultBlockState();
                 SoundType soundType = blockState.getSoundType();
                 level.playSound(
@@ -70,25 +96,12 @@ public class ResinBlockItem extends HasMobBlockItem {
                     (soundType.getVolume() + 1.0f) / 2.0f, soundType.getPitch() * 0.8f
                 );
             }
-            return InteractionResult.SUCCESS;
+            return;
         }
-        ResinBlockItem.saveMobInItem(mob, player, stack);
-        return InteractionResult.SUCCESS;
-    }
-
-    private static void spawnMobFromItem(Level level, BlockPos blockPos, @NotNull ItemStack stack) {
-        Entity entity = HasMobBlockItem.getMobFromItem(level, stack);
-        if (entity == null) return;
-        stack.resetHoverName();
-        CompoundTag tag = stack.getOrCreateTag();
-        tag.remove("entity");
-        stack.setTag(tag);
-        entity.moveTo(blockPos.getCenter());
-        level.addFreshEntity(entity);
-    }
-
-    private static void saveMobInItem(@NotNull Mob entity, Player player, @NotNull ItemStack stack) {
-        stack = stack.split(1);
+        if (entity instanceof Monster monster) {
+            MobEffectInstance instance = monster.getEffect(MobEffects.WEAKNESS);
+            if (instance == null) return;
+        }
         CompoundTag entityTag = new CompoundTag();
         entity.save(entityTag);
         entityTag.remove(Entity.UUID_TAG);
