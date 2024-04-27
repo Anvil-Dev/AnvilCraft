@@ -27,6 +27,8 @@
     "anvilcraft:creative_generator",
     "anvilcraft:heater",
     "anvilcraft:transmission_pole",
-    "anvilcraft:jewelcrafting_table"
+    "anvilcraft:jewelcrafting_table",
+    "anvilcraft:piezoelectric_crystal",
+    "anvilcraft:charge_collector"
   ]
 }

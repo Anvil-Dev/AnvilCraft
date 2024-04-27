@@ -5,6 +5,7 @@ import com.tterrag.registrate.util.entry.BlockEntry;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
+import dev.dubhe.anvilcraft.block.ChargeCollectorBlock;
 import dev.dubhe.anvilcraft.block.ChuteBlock;
 import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.block.CrabTrapBlock;
@@ -15,6 +16,7 @@ import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
 import dev.dubhe.anvilcraft.block.JewelCraftingTable;
 import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
+import dev.dubhe.anvilcraft.block.PiezoelectricCrystalBlock;
 import dev.dubhe.anvilcraft.block.RoyalAnvilBlock;
 import dev.dubhe.anvilcraft.block.RoyalGrindstone;
 import dev.dubhe.anvilcraft.block.RoyalSmithingTableBlock;
@@ -595,6 +597,51 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.BLACK_CONCRETE_POWDER)
         .recipe((ctx, provider) -> SmashBlockRecipesLoader.smash(Blocks.END_STONE, ctx.get(), provider))
         .register();
+    public static final BlockEntry<PiezoelectricCrystalBlock> PIEZOELECTRIC_CRYSTAL =
+        REGISTRATE
+            .block("piezoelectric_crystal", PiezoelectricCrystalBlock::new)
+            .simpleItem()
+            .properties(BlockBehaviour.Properties::noOcclusion)
+            .blockstate((ctx, provider) -> {
+            })
+            .initialProperties(() -> Blocks.IRON_BLOCK)
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("ABA")
+                .pattern(" B ")
+                .pattern("ABA")
+                .define('A', Blocks.QUARTZ_BLOCK)
+                .define('B', Items.COPPER_INGOT)
+                .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.QUARTZ_BLOCK),
+                    AnvilCraftDatagen.has(Blocks.CRAFTING_TABLE))
+                .unlockedBy(AnvilCraftDatagen.hasItem(Items.COPPER_INGOT),
+                    AnvilCraftDatagen.has(Blocks.CRAFTING_TABLE))
+                .save(provider))
+            .register();
+    public static final BlockEntry<ChargeCollectorBlock> CHARGE_COLLECTOR =
+        REGISTRATE
+            .block("charge_collector", ChargeCollectorBlock::new)
+            .simpleItem()
+            .properties(BlockBehaviour.Properties::noOcclusion)
+            .blockstate((ctx, provider) -> {
+            })
+            .initialProperties(() -> Blocks.IRON_BLOCK)
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern(" A ")
+                .pattern("B B")
+                .pattern("CCC")
+                .define('A', ModBlocks.FERRITE_CORE_MAGNET_BLOCK)
+                .define('B', Items.COPPER_INGOT)
+                .define('C', Items.IRON_INGOT)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FERRITE_CORE_MAGNET_BLOCK),
+                    AnvilCraftDatagen.has(Blocks.CRAFTING_TABLE))
+                .unlockedBy(AnvilCraftDatagen.hasItem(Items.COPPER_INGOT),
+                    AnvilCraftDatagen.has(Blocks.CRAFTING_TABLE))
+                .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT),
+                    AnvilCraftDatagen.has(Blocks.CRAFTING_TABLE))
+                .save(provider))
+            .register();
 
     public static void register() {
     }
