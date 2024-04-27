@@ -9,5 +9,7 @@
   "result": {
     "item": "anvilcraft:royal_grindstone"
   },
-  "template": []
+  "template": {
+    "item": "anvilcraft:royal_steel_upgrade_smithing_template"
+  }
 }
