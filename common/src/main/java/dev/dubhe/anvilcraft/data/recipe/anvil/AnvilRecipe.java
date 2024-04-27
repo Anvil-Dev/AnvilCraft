@@ -746,7 +746,7 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
         INSTANCE
     }
 
-    static {
+    public static void init() {
         RecipePredicate.register("has_item", HasItem::new, HasItem::new);
         RecipePredicate.register("has_item_ingredient", HasItemIngredient::new, HasItemIngredient::new);
         RecipePredicate.register("has_block", HasBlock::new, HasBlock::new);
