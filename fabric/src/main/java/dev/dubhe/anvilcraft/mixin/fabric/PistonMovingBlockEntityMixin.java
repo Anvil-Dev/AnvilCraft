@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.mixin.fabric;
 
+import dev.dubhe.anvilcraft.block.ResinBlock;
 import net.minecraft.world.level.block.Block;
 
 import net.minecraft.world.level.block.SlimeBlock;
@@ -18,7 +19,8 @@ abstract class PistonMovingBlockEntityMixin {
             target = "Lnet/minecraft/world/level/block/state/BlockState;is(Lnet/minecraft/world/level/block/Block;)Z"
         )
     )
-    private static boolean isElastic(BlockState instance, Block block) {
-        return instance.getBlock() instanceof SlimeBlock;
+    private static boolean isElastic(BlockState instance, Block b) {
+        Block block = instance.getBlock();
+        return block instanceof SlimeBlock || block instanceof ResinBlock;
     }
 }

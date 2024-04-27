@@ -17,6 +17,7 @@ import dev.dubhe.anvilcraft.block.JewelCraftingTable;
 import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
 import dev.dubhe.anvilcraft.block.PiezoelectricCrystalBlock;
+import dev.dubhe.anvilcraft.block.ResinBlock;
 import dev.dubhe.anvilcraft.block.RoyalAnvilBlock;
 import dev.dubhe.anvilcraft.block.RoyalGrindstone;
 import dev.dubhe.anvilcraft.block.RoyalSmithingTableBlock;
@@ -46,7 +47,6 @@ import net.minecraft.world.level.block.GravelBlock;
 import net.minecraft.world.level.block.HalfTransparentBlock;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.SlabBlock;
-import net.minecraft.world.level.block.SlimeBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -411,7 +411,7 @@ public class ModBlocks {
             .save(provider))
         .register();
     public static final BlockEntry<? extends Block> RESIN_BLOCK = REGISTRATE
-        .block("resin_block", SlimeBlock::new)
+        .block("resin_block", ResinBlock::new)
         .initialProperties(() -> Blocks.SLIME_BLOCK)
         .blockstate((ctx, provider) -> {
         })
