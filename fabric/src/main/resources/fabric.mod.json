@@ -34,6 +34,9 @@
     ],
     "emi": [
       "dev.dubhe.anvilcraft.integration.emi.AnvilCraftEmiPlugin"
+    ],
+    "jade": [
+      "dev.dubhe.anvilcraft.integration.jade.AnvilCraftJadePlugin"
     ]
   },
   "mixins": [
