@@ -35,7 +35,6 @@ public class PiezoelectricCrystalBlock extends Block implements IHammerRemovable
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public @NotNull VoxelShape getShape(
         @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context
     ) {
@@ -46,7 +45,7 @@ public class PiezoelectricCrystalBlock extends Block implements IHammerRemovable
      * 被铁砧砸事件
      */
     public void onHitByAnvil(float fallDistance, BlockPos blockPos) {
-        int chargeNum = (int) fallDistance;
+        int chargeNum = (int) fallDistance + 1;
         if (chargeNum > 4) {
             chargeNum = 4;
         }
@@ -55,7 +54,16 @@ public class PiezoelectricCrystalBlock extends Block implements IHammerRemovable
         Iterator<Entry<Float, ChargeCollectorBlockEntity>> iterator = chargeCollectorCollection.iterator();
         int surplus = chargeNum;
         for (int i = 0; i < chargeCollectorCollection.size(); i++) {
-            surplus = iterator.next().getValue().incomingCharge(surplus);
+            ChargeCollectorBlockEntity chargeCollectorBlockEntity = iterator.next().getValue();
+            int x = chargeCollectorBlockEntity.getPos().getX();
+            int y = chargeCollectorBlockEntity.getPos().getY();
+            int z = chargeCollectorBlockEntity.getPos().getZ();
+            if (((x - 2) > blockPos.getX() || (x + 2) < blockPos.getX())
+                || ((y - 2) > blockPos.getY() || (y + 2) < blockPos.getY())
+                || ((z - 2) > blockPos.getZ() || (z + 2) < blockPos.getZ())) {
+                return;
+            }
+            surplus = chargeCollectorBlockEntity.incomingCharge(surplus);
             if (surplus == 0) return;
         }
     }

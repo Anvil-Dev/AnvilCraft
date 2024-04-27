@@ -18,6 +18,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,7 +26,10 @@ import org.jetbrains.annotations.Nullable;
 import javax.annotation.Nonnull;
 
 public class CreativeGeneratorBlock extends BaseEntityBlock implements IHammerRemovable {
-    public static final VoxelShape AABB = Block.box(0, 0, 0, 16, 4, 16);
+    public static final VoxelShape SHAPE =
+        Shapes.or(
+            Block.box(3, 4, 3, 13, 16, 13),
+            Block.box(0, 0, 0, 16, 4, 16));
 
     public CreativeGeneratorBlock(Properties properties) {
         super(properties);
@@ -67,6 +71,6 @@ public class CreativeGeneratorBlock extends BaseEntityBlock implements IHammerRe
     public @NotNull VoxelShape getShape(
         @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context
     ) {
-        return CreativeGeneratorBlock.AABB;
+        return CreativeGeneratorBlock.SHAPE;
     }
 }
