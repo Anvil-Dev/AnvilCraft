@@ -12,7 +12,7 @@ import dev.latvian.mods.kubejs.script.BindingsEvent;
 import dev.latvian.mods.kubejs.script.ScriptType;
 import dev.latvian.mods.kubejs.util.ClassFilter;
 
-public class AnvilCraftKubeJSPlugin extends KubeJSPlugin {
+public class AnvilCraftKubeJsPlugin extends KubeJSPlugin {
 
     @Override
     public void init() {

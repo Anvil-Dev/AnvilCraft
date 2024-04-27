@@ -1,1 +1,1 @@
-dev.dubhe.anvilcraft.integration.kubejs.AnvilCraftKubeJSPlugin
+dev.dubhe.anvilcraft.integration.kubejs.AnvilCraftKubeJsPlugin
