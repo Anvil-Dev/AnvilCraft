@@ -155,5 +155,6 @@
   "text.autoconfig.anvilcraft.option.redstoneEmpMaxRadius.@Tooltip": "紅石EMP的最大影響距離",
   "text.autoconfig.anvilcraft.option.redstoneEmpRadius": "紅石 EMP 半徑增量",
   "text.autoconfig.anvilcraft.option.redstoneEmpRadius.@Tooltip": "鐵砧每下落的一個方塊產生的紅石 EMP 影響距離增量",
-  "text.autoconfig.anvilcraft.title": "鐵砧工藝 - 配置"
+  "text.autoconfig.anvilcraft.title": "鐵砧工藝 - 配置",
+  "item.anvilcraft.royal_anvil_hammer": "Royal Anvil Hammer"
 }

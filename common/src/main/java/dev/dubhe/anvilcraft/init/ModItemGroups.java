@@ -30,6 +30,7 @@ public class ModItemGroups {
                 entries.accept(ModItems.ROYAL_STEEL_HOE.get().getDefaultInstance());
                 entries.accept(ModItems.ROYAL_STEEL_SWORD.get().getDefaultInstance());
                 entries.accept(ModItems.ANVIL_HAMMER.get().getDefaultInstance());
+                entries.accept(ModItems.ROYAL_ANVIL_HAMMER.get().getDefaultInstance());
                 entries.accept(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE.get().getDefaultInstance());
                 entries.accept(ModItems.CREAM.get().getDefaultInstance());
                 entries.accept(ModItems.FLOUR.get().getDefaultInstance());

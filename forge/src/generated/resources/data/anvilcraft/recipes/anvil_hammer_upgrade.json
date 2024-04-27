@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": {
+    "item": "anvilcraft:royal_steel_block"
+  },
+  "base": {
+    "item": "anvilcraft:anvil_hammer"
+  },
+  "result": {
+    "item": "anvilcraft:royal_anvil_hammer"
+  },
+  "template": {
+    "item": "anvilcraft:royal_steel_upgrade_smithing_template"
+  }
+}
