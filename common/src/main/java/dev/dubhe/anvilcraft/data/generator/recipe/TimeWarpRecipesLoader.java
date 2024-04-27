@@ -9,8 +9,8 @@ import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 
@@ -23,22 +23,25 @@ public class TimeWarpRecipesLoader {
      * @param provider 提供器
      */
     public static void init(RegistrateRecipeProvider provider) {
-        timeWarpWithWater(ModItems.SEA_HEART_SHELL_SHARD.get(), ModItems.SEA_HEART_SHELL.get(), provider);
-        timeWarp(ModItems.RESIN.get(), ModItems.AMBER.get(), 1, provider);
-        timeWarp(ModBlocks.RESIN_BLOCK.asItem(), ModBlocks.AMBER_BLOCK.asItem(), 1, provider);
+        timeWarpWithWater(ModItems.SEA_HEART_SHELL_SHARD, ModItems.SEA_HEART_SHELL, provider);
+        timeWarp(ModItems.RESIN, ModItems.AMBER, 1, provider);
+        timeWarp(ModBlocks.RESIN_BLOCK, ModBlocks.AMBER_BLOCK.asItem(), 1, provider);
         timeWarp(Items.OBSIDIAN, Items.CRYING_OBSIDIAN, 1, provider);
         timeWarp(Items.CHARCOAL, Items.COAL, 1, provider);
         timeWarp(Items.SAND, Items.DIRT, 1, provider);
         timeWarp(Items.IRON_BLOCK, Items.RAW_IRON, 3, provider);
         timeWarp(Items.GOLD_BLOCK, Items.RAW_GOLD, 3, provider);
         timeWarp(Items.COPPER_BLOCK, Items.RAW_COPPER, 3, provider);
-        timeWarp(ModItems.GEODE.get(), Items.BUDDING_AMETHYST, 1, provider);
-        timeWarp(ModBlocks.CINERITE.asItem(), Items.TUFF, 1, provider);
-        timeWarp(ModBlocks.NETHER_DUST.asItem(), Items.SOUL_SOIL, 1, provider);
-        timeWarp(ModBlocks.END_DUST.asItem(), Items.END_STONE, 1, provider);
+        timeWarp(ModItems.GEODE, Items.BUDDING_AMETHYST, 1, provider);
+        timeWarp(ModBlocks.CINERITE, Items.TUFF, 1, provider);
+        timeWarp(ModBlocks.NETHER_DUST, Items.SOUL_SOIL, 1, provider);
+        timeWarp(ModBlocks.END_DUST, Items.END_STONE, 1, provider);
     }
 
-    private static void timeWarp(Item item, Item item1, int count, RegistrateRecipeProvider provider) {
+    /**
+     * 时移配方
+     */
+    public static void timeWarp(ItemLike item, ItemLike item1, int count, RegistrateRecipeProvider provider) {
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
             .icon(item1)
             .hasBlock(
@@ -50,10 +53,13 @@ public class TimeWarpRecipesLoader {
             .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), item)
             .spawnItem(new Vec3(0.0, -1.0, 0.0), item1, count)
             .unlockedBy(AnvilCraftDatagen.hasItem(item), AnvilCraftDatagen.has(item))
-            .save(provider, AnvilCraft.of("timewarp/" + BuiltInRegistries.ITEM.getKey(item1).getPath()));
+            .save(provider, AnvilCraft.of("timewarp/" + BuiltInRegistries.ITEM.getKey(item1.asItem()).getPath()));
     }
 
-    private static void timeWarpWithWater(Item item, Item item1, RegistrateRecipeProvider provider) {
+    /**
+     * 需水时移配方
+     */
+    public static void timeWarpWithWater(ItemLike item, ItemLike item1, RegistrateRecipeProvider provider) {
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
             .icon(item1)
             .hasBlock(
@@ -65,6 +71,6 @@ public class TimeWarpRecipesLoader {
             .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), item)
             .spawnItem(new Vec3(0.0, -1.0, 0.0), item1)
             .unlockedBy(AnvilCraftDatagen.hasItem(item), AnvilCraftDatagen.has(item))
-            .save(provider, AnvilCraft.of("timewarp/" + BuiltInRegistries.ITEM.getKey(item1).getPath()));
+            .save(provider, AnvilCraft.of("timewarp/" + BuiltInRegistries.ITEM.getKey(item1.asItem()).getPath()));
     }
 }

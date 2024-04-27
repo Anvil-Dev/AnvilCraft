@@ -3,8 +3,10 @@ package dev.dubhe.anvilcraft.init;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.entry.ItemEntry;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.generator.recipe.BulgingAndCrystallizeRecipesLoader;
+import dev.dubhe.anvilcraft.data.generator.recipe.TimeWarpRecipesLoader;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.crafting.ShapedTagRecipeBuilder;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
@@ -41,11 +43,13 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Map;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 
@@ -330,36 +334,6 @@ public class ModItems {
                 .save(provider, AnvilCraft.of("craft/magnet_ingot_8"));
         })
         .register();
-    public static final ItemEntry<Item> DEBRIS_SCRAP = REGISTRATE
-        .item("debris_scrap", Item::new)
-        .register();
-    public static final ItemEntry<Item> NETHER_STAR_SHARD = REGISTRATE
-        .item("nether_star_shard", Item::new)
-        .register();
-    public static final ItemEntry<Item> NETHERITE_CORE = REGISTRATE
-        .item("netherite_core", Item::new)
-        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-            .pattern("AAA")
-            .pattern("ABA")
-            .pattern("AAA")
-            .define('A', ModItems.DEBRIS_SCRAP)
-            .define('B', ModItems.NETHER_STAR_SHARD)
-            .unlockedBy("hasitem", RegistrateRecipeProvider.has(ModItems.DEBRIS_SCRAP))
-            .save(provider)
-        )
-        .register();
-    public static final ItemEntry<Item> NETHERITE_COIL = REGISTRATE
-        .item("netherite_coil", Item::new)
-        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-            .pattern("AAA")
-            .pattern("ABA")
-            .pattern("AAA")
-            .define('A', Items.LIGHT_WEIGHTED_PRESSURE_PLATE)
-            .define('B', ModItems.NETHERITE_CORE)
-            .unlockedBy("hasitem", RegistrateRecipeProvider.has(ModItems.NETHERITE_CORE))
-            .save(provider)
-        )
-        .register();
     public static final ItemEntry<Item> ELYTRA_FRAME = REGISTRATE
         .item("elytra_frame", Item::new)
         .register();
@@ -643,11 +617,11 @@ public class ModItems {
         .register();
 
     public static final ItemEntry<RoyalAnvilHammerItem> ROYAL_ANVIL_HAMMER = REGISTRATE
-            .item("royal_anvil_hammer", RoyalAnvilHammerItem::new)
-            .properties(properties -> properties.durability(150))
-            .model((ctx, provider) -> {
-            })
-            .register();
+        .item("royal_anvil_hammer", RoyalAnvilHammerItem::new)
+        .properties(properties -> properties.durability(150))
+        .model((ctx, provider) -> {
+        })
+        .register();
     public static final ItemEntry<CrabClawItem> CRAB_CLAW = REGISTRATE
         .item("crab_claw", CrabClawItem::new)
         .model((ctx, provider) -> {
@@ -691,6 +665,32 @@ public class ModItems {
                     RegistrateRecipeProvider.has(ModItemTags.TUNGSTEN_NUGGETS_FORGE)
                 )
                 .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_forge");
+            AnvilRecipe.Builder.create(RecipeCategory.MISC)
+                .icon(Items.ANCIENT_DEBRIS)
+                .hasBlock(
+                    ModBlocks.CORRUPTED_BEACON.get(),
+                    new Vec3(0.0, -2.0, 0.0),
+                    Map.entry(CorruptedBeaconBlock.LIT, true)
+                )
+                .hasBlock(Blocks.CAULDRON)
+                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 4, ctx.get())
+                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 4, ModItems.ROYAL_STEEL_INGOT)
+                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), Items.NETHER_STAR)
+                .spawnItem(new Vec3(0.0, -1.0, 0.0), Items.ANCIENT_DEBRIS)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ctx.get()), AnvilCraftDatagen.has(ctx.get()))
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_INGOT),
+                    AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT))
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(Items.NETHER_STAR),
+                    AnvilCraftDatagen.has(Items.NETHER_STAR)
+                )
+                .save(provider, AnvilCraft.of(
+                        "timewarp/"
+                            + BuiltInRegistries.ITEM.getKey(Items.ANCIENT_DEBRIS.asItem()).getPath()
+                            + "_first"
+                    )
+                );
         })
         .register();
     public static final ItemEntry<Item> TITANIUM_NUGGET = REGISTRATE
@@ -836,6 +836,28 @@ public class ModItems {
 
     public static final ItemEntry<Item> AMULET_BOX = REGISTRATE
         .item("amulet_box", Item::new)
+        .register();
+
+    public static final ItemEntry<Item> NETHERITE_CRYSTAL_NUCLEUS = REGISTRATE
+        .item("netherite_crystal_nucleus", Item::new)
+        .recipe((ctx, provider) -> {
+            ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
+                .pattern(" A ")
+                .pattern("ABA")
+                .pattern(" A ")
+                .define('A', ModItems.TUNGSTEN_NUGGET)
+                .define('B', Items.NETHERITE_SCRAP)
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItems.TUNGSTEN_NUGGET),
+                    RegistrateRecipeProvider.has(ModItems.TUNGSTEN_NUGGET)
+                )
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(Items.NETHERITE_SCRAP),
+                    RegistrateRecipeProvider.has(Items.NETHERITE_SCRAP)
+                )
+                .save(provider);
+            TimeWarpRecipesLoader.timeWarp(ctx.get(), Items.ANCIENT_DEBRIS, 2, provider);
+        })
         .register();
 
     public static void register() {

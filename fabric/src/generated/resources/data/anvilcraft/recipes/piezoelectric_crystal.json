@@ -3,19 +3,19 @@
   "category": "misc",
   "key": {
     "A": {
-      "item": "minecraft:light_weighted_pressure_plate"
+      "item": "minecraft:quartz_block"
     },
     "B": {
-      "item": "anvilcraft:netherite_core"
+      "item": "minecraft:copper_ingot"
     }
   },
   "pattern": [
-    "AAA",
     "ABA",
-    "AAA"
+    " B ",
+    "ABA"
   ],
   "result": {
-    "item": "anvilcraft:netherite_coil"
+    "item": "anvilcraft:piezoelectric_crystal"
   },
   "show_notification": true
 }

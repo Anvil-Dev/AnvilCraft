@@ -1,24 +1,36 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_netherite_coil": {
+    "has_copper_ingot": {
       "conditions": {
         "items": [
           {
             "items": [
-              "anvilcraft:netherite_coil"
+              "minecraft:crafting_table"
             ]
           }
         ]
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_soul_soil": {
+    "has_ferrite_core_magnet_block": {
       "conditions": {
         "items": [
           {
             "items": [
-              "minecraft:soul_soil"
+              "minecraft:crafting_table"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_iron_ingot": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "minecraft:crafting_table"
             ]
           }
         ]
@@ -27,21 +39,22 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "minecraft:ancient_debris"
+        "recipe": "anvilcraft:charge_collector"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_soul_soil",
-      "has_netherite_coil",
+      "has_ferrite_core_magnet_block",
+      "has_copper_ingot",
+      "has_iron_ingot",
       "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
-      "minecraft:ancient_debris"
+      "anvilcraft:charge_collector"
     ]
   },
   "sends_telemetry_event": false

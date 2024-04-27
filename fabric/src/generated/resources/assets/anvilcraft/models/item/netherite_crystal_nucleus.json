@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "anvilcraft:item/nether_star_shard"
+    "layer0": "anvilcraft:item/netherite_crystal_nucleus"
   }
 }
