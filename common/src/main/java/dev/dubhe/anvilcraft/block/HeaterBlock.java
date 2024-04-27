@@ -11,6 +11,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
@@ -21,12 +22,24 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
 public class HeaterBlock extends BaseEntityBlock implements IHammerRemovable {
+    public static final VoxelShape SHAPE = Shapes.or(
+        Block.box(1, 0, 13, 3, 2, 15),
+        Block.box(1, 0, 1, 3, 2, 3),
+        Block.box(13, 0, 1, 15, 2, 3),
+        Block.box(0, 2, 0, 16, 10, 16),
+        Block.box(0, 11, 0, 16, 16, 16),
+        Block.box(1, 10, 1, 15, 11, 15),
+        Block.box(13, 0, 13, 15, 2, 15)
+    );
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
 
     /**
@@ -86,5 +99,12 @@ public class HeaterBlock extends BaseEntityBlock implements IHammerRemovable {
             }
         }
         super.stepOn(level, pos, state, entity);
+    }
+
+    @Override
+    public @NotNull VoxelShape getShape(
+        @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context
+    ) {
+        return SHAPE;
     }
 }
