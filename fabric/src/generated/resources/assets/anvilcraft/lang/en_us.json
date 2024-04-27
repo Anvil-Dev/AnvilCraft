@@ -158,5 +158,17 @@
   "text.autoconfig.anvilcraft.option.redstoneEmpRadius": "Redstone EMP Radius Per Block",
   "text.autoconfig.anvilcraft.option.redstoneEmpRadius.@Tooltip": "Redstone EMP distance generated per block dropped by the anvil",
   "text.autoconfig.anvilcraft.title": "AnvilCraft Config",
+  "tooltip.anvilcraft.grid_information.consumer_stats": "Power Consumer Stats:",
+  "tooltip.anvilcraft.grid_information.input_power": "  Power Consumption: %d",
+  "tooltip.anvilcraft.grid_information.output_power": "  Power Generation: %d",
+  "tooltip.anvilcraft.grid_information.overloaded1": "It appears that this grid is overloaded.",
+  "tooltip.anvilcraft.grid_information.overloaded2": "Add more sources or remove the components",
+  "tooltip.anvilcraft.grid_information.overloaded3": "with a high stress impact.",
+  "tooltip.anvilcraft.grid_information.producer_stats": "Power Producer Stats:",
+  "tooltip.anvilcraft.grid_information.title": "Power Grid Stats:",
+  "tooltip.anvilcraft.grid_information.total_consumed": "  Total Consumption: %d",
+  "tooltip.anvilcraft.grid_information.total_generated": "  Total Generation: %d",
+  "tooltip.anvilcraft.grid_information.utilization": "  Power Utilization: %s"
+  "text.autoconfig.anvilcraft.title": "AnvilCraft Config",
   "tooltip.anvilcraft.jade.power_information": "Power Grid: %d/%d MW"
 }

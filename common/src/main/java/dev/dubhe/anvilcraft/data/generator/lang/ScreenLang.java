@@ -40,5 +40,16 @@ public class ScreenLang {
                         + ".base_slot_description",
                 "Put "
         );
+        provider.add("tooltip.anvilcraft.grid_information.title", "Power Grid Stats:");
+        provider.add("tooltip.anvilcraft.grid_information.producer_stats", "Power Producer Stats:");
+        provider.add("tooltip.anvilcraft.grid_information.consumer_stats", "Power Consumer Stats:");
+        provider.add("tooltip.anvilcraft.grid_information.output_power", "  Power Generation: %d");
+        provider.add("tooltip.anvilcraft.grid_information.input_power", "  Power Consumption: %d");
+        provider.add("tooltip.anvilcraft.grid_information.total_consumed", "  Total Consumption: %d");
+        provider.add("tooltip.anvilcraft.grid_information.total_generated", "  Total Generation: %d");
+        provider.add("tooltip.anvilcraft.grid_information.utilization", "  Power Utilization: %s");
+        provider.add("tooltip.anvilcraft.grid_information.overloaded1", "It appears that this grid is overloaded.");
+        provider.add("tooltip.anvilcraft.grid_information.overloaded2", "Add more sources or remove the components");
+        provider.add("tooltip.anvilcraft.grid_information.overloaded3", "with a high stress impact.");
     }
 }

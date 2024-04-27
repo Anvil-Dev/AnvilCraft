@@ -158,5 +158,17 @@
   "text.autoconfig.anvilcraft.option.redstoneEmpRadius": "ʞɔoןᗺ ɹǝԀ snıpɐᴚ ԀWƎ ǝuoʇspǝᴚ",
   "text.autoconfig.anvilcraft.option.redstoneEmpRadius.@Tooltip": "ןıʌuɐ ǝɥʇ ʎq pǝddoɹp ʞɔoןq ɹǝd pǝʇɐɹǝuǝb ǝɔuɐʇsıp ԀWƎ ǝuoʇspǝᴚ",
   "text.autoconfig.anvilcraft.title": "bıɟuoƆ ʇɟɐɹƆןıʌuⱯ",
+  "tooltip.anvilcraft.grid_information.consumer_stats": ":sʇɐʇS ɹǝɯnsuoƆ ɹǝʍoԀ",
+  "tooltip.anvilcraft.grid_information.input_power": "%d :uoıʇdɯnsuoƆ ɹǝʍoԀ  ",
+  "tooltip.anvilcraft.grid_information.output_power": "%d :uoıʇɐɹǝuǝ⅁ ɹǝʍoԀ  ",
+  "tooltip.anvilcraft.grid_information.overloaded1": "˙pǝpɐoןɹǝʌo sı pıɹb sıɥʇ ʇɐɥʇ sɹɐǝddɐ ʇI",
+  "tooltip.anvilcraft.grid_information.overloaded2": "sʇuǝuodɯoɔ ǝɥʇ ǝʌoɯǝɹ ɹo sǝɔɹnos ǝɹoɯ ppⱯ",
+  "tooltip.anvilcraft.grid_information.overloaded3": "˙ʇɔɐdɯı ssǝɹʇs ɥbıɥ ɐ ɥʇıʍ",
+  "tooltip.anvilcraft.grid_information.producer_stats": ":sʇɐʇS ɹǝɔnpoɹԀ ɹǝʍoԀ",
+  "tooltip.anvilcraft.grid_information.title": ":sʇɐʇS pıɹ⅁ ɹǝʍoԀ",
+  "tooltip.anvilcraft.grid_information.total_consumed": "%d :uoıʇdɯnsuoƆ ןɐʇo⟘  ",
+  "tooltip.anvilcraft.grid_information.total_generated": "%d :uoıʇɐɹǝuǝ⅁ ןɐʇo⟘  ",
+  "tooltip.anvilcraft.grid_information.utilization": "%s :uoıʇɐzıןıʇ∩ ɹǝʍoԀ  "
+  "text.autoconfig.anvilcraft.title": "bıɟuoƆ ʇɟɐɹƆןıʌuⱯ",
   "tooltip.anvilcraft.jade.power_information": "MW %d/%d :pıɹ⅁ ɹǝʍoԀ"
 }
