@@ -20,14 +20,14 @@ public class ModCustomTrades {
                 16, 2, 0.05f
             ));
             factories.add((entity, random) -> new MerchantOffer(
-                new ItemStack(Items.EMERALD, 4), new ItemStack(Items.SPYGLASS, 1),
-                2, 4, 0.05f
+                new ItemStack(Items.EMERALD, 1), new ItemStack(Items.TINTED_GLASS, 1),
+                12, 4, 0.05f
             ));
         });
         TradeOfferHelper.registerVillagerOffers(ModVillagers.JEWELER, 2, factories -> {
             factories.add((entity, random) -> new MerchantOffer(
-                new ItemStack(ModItems.ROYAL_STEEL_INGOT, 1), new ItemStack(Items.EMERALD, 6),
-                16, 20, 0.05f
+                new ItemStack(Items.SEA_LANTERN, 8), new ItemStack(Items.EMERALD, 1),
+                12, 10, 0.05f
             ));
             factories.add((entity, random) -> new MerchantOffer(
                 new ItemStack(ModItems.AMBER, 4), new ItemStack(Items.EMERALD, 1),
@@ -54,11 +54,11 @@ public class ModCustomTrades {
         });
         TradeOfferHelper.registerVillagerOffers(ModVillagers.JEWELER, 4, factories -> {
             factories.add((entity, random) -> new MerchantOffer(
-                new ItemStack(ModBlocks.AMBER_BLOCK), ItemStack.EMPTY, new ItemStack(Items.EMERALD, 8),
-                2, 2, 10, 0.05f
+                new ItemStack(Items.NAUTILUS_SHELL), ItemStack.EMPTY, new ItemStack(Items.EMERALD, 2),
+                12, 10, 0.05f
             ));
             factories.add((entity, random) -> new MerchantOffer(
-                new ItemStack(ModBlocks.AMBER_BLOCK), ItemStack.EMPTY, new ItemStack(Items.EMERALD, 24),
+                new ItemStack(ModBlocks.CORRUPTED_BEACON), ItemStack.EMPTY, new ItemStack(Items.EMERALD, 24),
                 2, 2, 30, 0.05f
             ));
         });

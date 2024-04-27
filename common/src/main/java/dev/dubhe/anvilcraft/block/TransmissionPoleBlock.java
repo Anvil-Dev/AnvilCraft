@@ -6,12 +6,16 @@ import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.state.Half;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
+import javax.annotation.Nonnull;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -25,15 +29,29 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import javax.annotation.Nonnull;
 
 public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRemovable {
     public static final EnumProperty<Half> HALF = EnumProperty.create("half", Half.class);
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
     public static final EnumProperty<IPowerComponent.Switch> SWITCH = IPowerComponent.SWITCH;
+    public static final VoxelShape TRANSMISSION_POLE_TOP =
+        Shapes.or(
+            Block.box(3, 5, 3, 13, 16, 13),
+            Block.box(6, 0, 6, 10, 5, 10));
+
+    public static final VoxelShape TRANSMISSION_POLE_MID =
+        Block.box(6, 0, 6, 10, 16, 10);
+
+    public static final VoxelShape TRANSMISSION_POLE_BASE =
+        Shapes.or(
+            Block.box(3, 4, 3, 13, 10, 13),
+            Block.box(0, 0, 0, 16, 4, 16),
+            Block.box(6, 10, 6, 10, 16, 10));
 
     /**
      * @param properties 属性
@@ -74,6 +92,16 @@ public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRem
     }
 
     @Override
+    public @NotNull VoxelShape getShape(
+        @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context
+    ) {
+        if (state.getValue(HALF) == Half.BOTTOM) return TRANSMISSION_POLE_BASE;
+        if (state.getValue(HALF) == Half.MID) return TRANSMISSION_POLE_MID;
+        if (state.getValue(HALF) == Half.TOP) return TRANSMISSION_POLE_TOP;
+        return super.getShape(state, level, pos, context);
+    }
+
+    @Override
     public void setPlacedBy(
         @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state,
         LivingEntity placer, @NotNull ItemStack stack
@@ -91,6 +119,12 @@ public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRem
         if (!level.isClientSide) {
             TransmissionPoleBlock.preventDropFromOtherPart(level, pos, state, player);
         }
+        level.playSound(null,
+            pos,
+            SoundEvents.BEACON_DEACTIVATE,
+            SoundSource.BLOCKS,
+            1f,
+            1f);
         super.playerWillDestroy(level, pos, state, player);
     }
 
@@ -207,4 +241,6 @@ public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRem
             }
         }
     }
+
+
 }

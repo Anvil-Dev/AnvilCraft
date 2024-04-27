@@ -1,5 +1,9 @@
 package dev.dubhe.anvilcraft.init;
 
+import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
+import static dev.dubhe.anvilcraft.api.power.IPowerComponent.OVERLOAD;
+import static dev.dubhe.anvilcraft.api.power.IPowerComponent.SWITCH;
+
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import dev.dubhe.anvilcraft.AnvilCraft;
@@ -17,6 +21,7 @@ import dev.dubhe.anvilcraft.block.JewelCraftingTable;
 import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
 import dev.dubhe.anvilcraft.block.PiezoelectricCrystalBlock;
+import dev.dubhe.anvilcraft.block.ResinBlock;
 import dev.dubhe.anvilcraft.block.RoyalAnvilBlock;
 import dev.dubhe.anvilcraft.block.RoyalGrindstone;
 import dev.dubhe.anvilcraft.block.RoyalSmithingTableBlock;
@@ -30,6 +35,8 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.item.CursedBlockItem;
 import dev.dubhe.anvilcraft.item.PlaceInWaterBlockItem;
 import dev.dubhe.anvilcraft.item.ResinBlockItem;
+import dev.dubhe.anvilcraft.item.TransmissionPoleBlockItem;
+import java.util.Map;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
@@ -46,17 +53,10 @@ import net.minecraft.world.level.block.GravelBlock;
 import net.minecraft.world.level.block.HalfTransparentBlock;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.SlabBlock;
-import net.minecraft.world.level.block.SlimeBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.phys.Vec3;
-
-import java.util.Map;
-
-import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
-import static dev.dubhe.anvilcraft.api.power.IPowerComponent.OVERLOAD;
-import static dev.dubhe.anvilcraft.api.power.IPowerComponent.SWITCH;
 
 public class ModBlocks {
     public static final BlockEntry<? extends Block> STAMPING_PLATFORM = REGISTRATE
@@ -411,7 +411,7 @@ public class ModBlocks {
             .save(provider))
         .register();
     public static final BlockEntry<? extends Block> RESIN_BLOCK = REGISTRATE
-        .block("resin_block", SlimeBlock::new)
+        .block("resin_block", ResinBlock::new)
         .initialProperties(() -> Blocks.SLIME_BLOCK)
         .blockstate((ctx, provider) -> {
         })
@@ -495,7 +495,7 @@ public class ModBlocks {
         )
         .blockstate((ctx, provider) -> {
         })
-        .item()
+        .item(TransmissionPoleBlockItem::new)
         .model((ctx, provider) -> {
         })
         .build()
@@ -631,7 +631,7 @@ public class ModBlocks {
                 .pattern(" A ")
                 .pattern("B B")
                 .pattern("CCC")
-                .define('A', ModBlocks.FERRITE_CORE_MAGNET_BLOCK)
+                .define('A', ModItems.MAGNETOELECTRIC_CORE)
                 .define('B', Items.COPPER_INGOT)
                 .define('C', Items.IRON_INGOT)
                 .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FERRITE_CORE_MAGNET_BLOCK),

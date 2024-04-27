@@ -53,6 +53,8 @@ public class TransmissionPoleBlockEntity extends BlockEntity implements IPowerTr
         return this.getLevel();
     }
 
+
+
     /**
      * @param level 世界
      * @param pos   位置
