@@ -52,7 +52,7 @@ abstract class LevelRendererMixin {
         Entity entity = camera.getEntity();
         boolean bl = true;
         for (ItemStack slot : entity.getArmorSlots()) {
-            if (slot.is(ModItems.ANVIL_HAMMER.get())) {
+            if (slot.is(ModItems.ANVIL_HAMMER.get()) || slot.is(ModItems.ROYAL_ANVIL_HAMMER.get())) {
                 bl = false;
                 break;
             }
