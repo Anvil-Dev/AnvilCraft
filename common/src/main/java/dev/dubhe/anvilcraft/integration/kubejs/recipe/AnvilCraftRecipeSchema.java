@@ -46,7 +46,10 @@ public interface AnvilCraftRecipeSchema {
         @HideFromJS
         @Override
         public RecipeJS id(ResourceLocation id) {
-            this.id = new ResourceLocation(id.getNamespace().equals("minecraft") ? this.type.id.getNamespace() : id.getNamespace(), "%s/%s".formatted(this.type.id.getPath(), id.getPath()));
+            this.id = new ResourceLocation(
+                id.getNamespace().equals("minecraft") ? this.type.id.getNamespace() : id.getNamespace(),
+                "%s/%s".formatted(this.type.id.getPath(), id.getPath())
+            );
             return this;
         }
 
@@ -84,7 +87,8 @@ public interface AnvilCraftRecipeSchema {
             return runCommand(new Vec3(0, -1, 0), chance, command);
         }
 
-        public AnvilCraftRecipeJs runCommand(String command, double offsetX, double offsetY, double offsetZ, double chance) {
+        public AnvilCraftRecipeJs runCommand(
+            String command, double offsetX, double offsetY, double offsetZ, double chance) {
             return runCommand(new Vec3(offsetX, offsetY, offsetZ), chance, command);
         }
 
@@ -119,7 +123,8 @@ public interface AnvilCraftRecipeSchema {
             return setBlock(new Vec3(0, -1, 0), chance, state);
         }
 
-        public AnvilCraftRecipeJs setBlock(double offsetX, double offsetY, double offsetZ, double chance, BlockState state) {
+        public AnvilCraftRecipeJs setBlock(
+            double offsetX, double offsetY, double offsetZ, double chance, BlockState state) {
             return setBlock(new Vec3(offsetX, offsetY, offsetZ), chance, state);
         }
 
@@ -136,7 +141,8 @@ public interface AnvilCraftRecipeSchema {
             return spawnExperience(new Vec3(0, -1, 0), chance, experience);
         }
 
-        public AnvilCraftRecipeJs spawnExperience(double offsetX, double offsetY, double offsetZ, double chance, int experience) {
+        public AnvilCraftRecipeJs spawnExperience(
+            double offsetX, double offsetY, double offsetZ, double chance, int experience) {
             return spawnExperience(new Vec3(offsetX, offsetY, offsetZ), chance, experience);
         }
 
@@ -153,7 +159,8 @@ public interface AnvilCraftRecipeSchema {
             return spawnItem(new Vec3(0, -1, 0), chance, result);
         }
 
-        public AnvilCraftRecipeJs spawnItem(double offsetX, double offsetY, double offsetZ, double chance, OutputItem result) {
+        public AnvilCraftRecipeJs spawnItem(
+            double offsetX, double offsetY, double offsetZ, double chance, OutputItem result) {
             return spawnItem(new Vec3(offsetX, offsetY, offsetZ), chance, result);
         }
 
@@ -224,7 +231,8 @@ public interface AnvilCraftRecipeSchema {
             return hasBlock(offsetX, offsetY, offsetZ, predicate);
         }
 
-        public AnvilCraftRecipeJs hasBlock(double offsetX, double offsetY, double offsetZ, HasBlock.ModBlockPredicate matchBlock) {
+        public AnvilCraftRecipeJs hasBlock(
+            double offsetX, double offsetY, double offsetZ, HasBlock.ModBlockPredicate matchBlock) {
             return hasBlock(new Vec3(offsetX, offsetY, offsetZ), matchBlock);
         }
 
@@ -237,7 +245,8 @@ public interface AnvilCraftRecipeSchema {
             return hasBlockIngredient(0, -1, 0, block);
         }
 
-        public AnvilCraftRecipeJs hasBlockIngredient(double offsetX, double offsetY, double offsetZ, Block... block) {
+        public AnvilCraftRecipeJs hasBlockIngredient(
+            double offsetX, double offsetY, double offsetZ, Block... block) {
             HasBlock.ModBlockPredicate predicate = new HasBlock.ModBlockPredicate();
             predicate.block(block);
             return hasBlockIngredient(offsetX, offsetY, offsetZ, predicate);
@@ -247,7 +256,8 @@ public interface AnvilCraftRecipeSchema {
             return hasBlockIngredient(0, -1, 0, blockState);
         }
 
-        public AnvilCraftRecipeJs hasBlockIngredient(double offsetX, double offsetY, double offsetZ, BlockState blockState) {
+        public AnvilCraftRecipeJs hasBlockIngredient(
+            double offsetX, double offsetY, double offsetZ, BlockState blockState) {
             HasBlock.ModBlockPredicate predicate = new HasBlock.ModBlockPredicate();
             predicate.block(blockState.getBlock());
             for (var entry : blockState.getValues().entrySet()) {
@@ -256,7 +266,8 @@ public interface AnvilCraftRecipeSchema {
             return hasBlockIngredient(offsetX, offsetY, offsetZ, predicate);
         }
 
-        public AnvilCraftRecipeJs hasBlockIngredient(double offsetX, double offsetY, double offsetZ, HasBlock.ModBlockPredicate matchBlock) {
+        public AnvilCraftRecipeJs hasBlockIngredient(
+            double offsetX, double offsetY, double offsetZ, HasBlock.ModBlockPredicate matchBlock) {
             return hasBlockIngredient(new Vec3(offsetX, offsetY, offsetZ), matchBlock);
         }
 
@@ -285,7 +296,8 @@ public interface AnvilCraftRecipeSchema {
             return hasFluidCauldron(0, -1, 0, matchBlock, deplete);
         }
 
-        public AnvilCraftRecipeJs hasFluidCauldron(double offsetX, double offsetY, double offsetZ, Block matchBlock, int deplete) {
+        public AnvilCraftRecipeJs hasFluidCauldron(
+            double offsetX, double offsetY, double offsetZ, Block matchBlock, int deplete) {
             return hasFluidCauldron(new Vec3(offsetX, offsetY, offsetZ), matchBlock, deplete);
         }
 
@@ -317,7 +329,9 @@ public interface AnvilCraftRecipeSchema {
         }
 
         public AnvilCraftRecipeJs hasItem(double offsetX, double offsetY, double offsetZ, ItemStack itemStack) {
-            ItemPredicate.Builder builder = ItemPredicate.Builder.item().of(itemStack.getItem()).withCount(MinMaxBounds.Ints.atLeast(itemStack.getCount()));
+            ItemPredicate.Builder builder = ItemPredicate.Builder.item()
+                .of(itemStack.getItem())
+                .withCount(MinMaxBounds.Ints.atLeast(itemStack.getCount()));
             if (itemStack.hasTag()) builder.hasNbt(itemStack.getOrCreateTag());
             return hasItem(offsetX, offsetY, offsetZ, builder.build());
         }
@@ -335,7 +349,8 @@ public interface AnvilCraftRecipeSchema {
             return hasItemIngredient(0, -1, 0, count, items);
         }
 
-        public AnvilCraftRecipeJs hasItemIngredient(double offsetX, double offsetY, double offsetZ, int count, ItemLike... items) {
+        public AnvilCraftRecipeJs hasItemIngredient(
+            double offsetX, double offsetY, double offsetZ, int count, ItemLike... items) {
             ItemPredicate predicate = ItemPredicate.Builder.item().of(items).build();
             return hasItemIngredient(offsetX, offsetY, offsetZ, predicate);
         }
@@ -344,7 +359,8 @@ public interface AnvilCraftRecipeSchema {
             return hasItemIngredient(0, -1, 0, count, items);
         }
 
-        public AnvilCraftRecipeJs hasItemIngredient(double offsetX, double offsetY, double offsetZ, int count, TagKey<Item> items) {
+        public AnvilCraftRecipeJs hasItemIngredient(
+            double offsetX, double offsetY, double offsetZ, int count, TagKey<Item> items) {
             ItemPredicate predicate = ItemPredicate.Builder.item().of(items).build();
             return hasItemIngredient(offsetX, offsetY, offsetZ, predicate);
         }
@@ -354,7 +370,9 @@ public interface AnvilCraftRecipeSchema {
         }
 
         public AnvilCraftRecipeJs hasItemIngredient(double offsetX, double offsetY, double offsetZ, ItemStack itemStack) {
-            ItemPredicate.Builder builder = ItemPredicate.Builder.item().of(itemStack.getItem()).withCount(MinMaxBounds.Ints.atLeast(itemStack.getCount()));
+            ItemPredicate.Builder builder = ItemPredicate.Builder.item()
+                .of(itemStack.getItem())
+                .withCount(MinMaxBounds.Ints.atLeast(itemStack.getCount()));
             if (itemStack.hasTag()) builder.hasNbt(itemStack.getOrCreateTag());
             return hasItemIngredient(offsetX, offsetY, offsetZ, builder.build());
         }
@@ -374,12 +392,16 @@ public interface AnvilCraftRecipeSchema {
         }
     }
 
-    RecipeKey<ResourceLocation> ID = AnvilCraftRecipeComponents.RESOURCE_LOCATION.key("id");
-    RecipeKey<RecipeOutcome[]> OUTCOMES = AnvilCraftRecipeComponents.RECIPE_OUTCOME.asArray().key("outcomes").defaultOptional();
+    RecipeKey<ResourceLocation> ID =
+        AnvilCraftRecipeComponents.RESOURCE_LOCATION.key("id");
+    RecipeKey<RecipeOutcome[]> OUTCOMES =
+        AnvilCraftRecipeComponents.RECIPE_OUTCOME.asArray().key("outcomes").defaultOptional();
+    RecipeKey<RecipePredicate[]> PREDICATES =
+        AnvilCraftRecipeComponents.RECIPE_PREDICATE.asArray().key("predicates").defaultOptional();
 
-    RecipeKey<RecipePredicate[]> PREDICATES = AnvilCraftRecipeComponents.RECIPE_PREDICATE.asArray().key("predicates").defaultOptional();
+    RecipeKey<OutputItem> ICON =
+        ItemComponents.OUTPUT.key("icon").optional(OutputItem.of(ModItems.ROYAL_STEEL_NUGGET));
 
-    RecipeKey<OutputItem> ICON = ItemComponents.OUTPUT.key("icon").optional(OutputItem.of(ModItems.ROYAL_STEEL_NUGGET));
-
-    RecipeSchema SCHEMA = new RecipeSchema(AnvilCraftRecipeJs.class, AnvilCraftRecipeJs::new, OUTCOMES, PREDICATES, ICON).constructor(((recipe, schemaType, keys, from) -> recipe.id(from.getValue(recipe, ID))), ID);
+    RecipeSchema SCHEMA = new RecipeSchema(AnvilCraftRecipeJs.class, AnvilCraftRecipeJs::new, OUTCOMES, PREDICATES, ICON)
+        .constructor(((recipe, schemaType, keys, from) -> recipe.id(from.getValue(recipe, ID))), ID);
 }
