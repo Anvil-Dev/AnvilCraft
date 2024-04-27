@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "anvilcraft:ferrite_core_magnet_block"
+    },
+    "B": {
+      "item": "minecraft:copper_ingot"
+    },
+    "C": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "pattern": [
+    " A ",
+    "B B",
+    "CCC"
+  ],
+  "result": {
+    "item": "anvilcraft:charge_collector"
+  },
+  "show_notification": true
+}

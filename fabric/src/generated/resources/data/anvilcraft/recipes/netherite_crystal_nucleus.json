@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "A": {
+      "item": "anvilcraft:tungsten_nugget"
+    },
+    "B": {
+      "item": "minecraft:netherite_scrap"
+    }
+  },
+  "pattern": [
+    " A ",
+    "ABA",
+    " A "
+  ],
+  "result": {
+    "item": "anvilcraft:netherite_crystal_nucleus"
+  },
+  "show_notification": true
+}
