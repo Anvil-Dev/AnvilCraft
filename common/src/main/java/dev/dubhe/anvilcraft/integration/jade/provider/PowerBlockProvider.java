@@ -36,7 +36,6 @@ public enum PowerBlockProvider implements IBlockComponentProvider, IServerDataPr
                 color = 0xFFFF0000;
             }
 
-//            tooltip.add(Component.translatable("tooltip.anvilcraft.jade.power_information"));
             tooltip.add(
                 elementHelper.progress(
                     percent,
@@ -46,9 +45,6 @@ public enum PowerBlockProvider implements IBlockComponentProvider, IServerDataPr
                     true
                 )
             );
-//            tooltip.add(
-//                Component.translatable("tooltip.anvilcraft.jade.power_consumption", serverData.getInt("consume"))
-//            );
         }
     }
 
