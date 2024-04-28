@@ -6,7 +6,6 @@
   "mixins": [
     "CraftingHelperMixin",
     "FallingBlockEntityMixin",
-    "ForgeItemStackMixin",
     "LevelChunkMixin",
     "LightningBoltMixin",
     "MinecraftServerMixin",

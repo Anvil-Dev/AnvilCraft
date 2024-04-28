@@ -3,10 +3,12 @@ package dev.dubhe.anvilcraft.block;
 import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import javax.annotation.Nonnull;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
@@ -53,16 +55,10 @@ public class PiezoelectricCrystalBlock extends Block implements IHammerRemovable
             .getNearestChargeCollect(blockPos);
         Iterator<Entry<Float, ChargeCollectorBlockEntity>> iterator = chargeCollectorCollection.iterator();
         int surplus = chargeNum;
-        for (int i = 0; i < chargeCollectorCollection.size(); i++) {
-            ChargeCollectorBlockEntity chargeCollectorBlockEntity = iterator.next().getValue();
-            int x = chargeCollectorBlockEntity.getPos().getX();
-            int y = chargeCollectorBlockEntity.getPos().getY();
-            int z = chargeCollectorBlockEntity.getPos().getZ();
-            if (((x - 2) > blockPos.getX() || (x + 2) < blockPos.getX())
-                || ((y - 2) > blockPos.getY() || (y + 2) < blockPos.getY())
-                || ((z - 2) > blockPos.getZ() || (z + 2) < blockPos.getZ())) {
-                return;
-            }
+        while (iterator.hasNext()) {
+            Entry<Float, ChargeCollectorBlockEntity> entry = iterator.next();
+            ChargeCollectorBlockEntity chargeCollectorBlockEntity = entry.getValue();
+            if (!ChargeCollectorManager.canCollect(chargeCollectorBlockEntity, blockPos)) return;
             surplus = chargeCollectorBlockEntity.incomingCharge(surplus);
             if (surplus == 0) return;
         }
