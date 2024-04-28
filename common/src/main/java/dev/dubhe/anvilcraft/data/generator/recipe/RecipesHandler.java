@@ -18,6 +18,7 @@ public class RecipesHandler {
         CompactionRecipesLoader.init(provider);
         CompressRecipesLoader.init(provider);
         CookingRecipesLoader.init(provider);
+        HeaterRecipesLoader.init(provider);
         ItemInjectRecipesLoader.init(provider);
         SmashBlockRecipesLoader.init(provider);
         SievingRecipesLoader.init(provider);

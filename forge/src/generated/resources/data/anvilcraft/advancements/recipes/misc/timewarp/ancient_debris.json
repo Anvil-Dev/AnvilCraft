@@ -1,24 +1,12 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_nether_star": {
+    "has_netherite_crystal_nucleus": {
       "conditions": {
         "items": [
           {
             "items": [
-              "minecraft:nether_star"
-            ]
-          }
-        ]
-      },
-      "trigger": "minecraft:inventory_changed"
-    },
-    "has_royal_steel_ingot": {
-      "conditions": {
-        "items": [
-          {
-            "items": [
-              "anvilcraft:royal_steel_ingot"
+              "anvilcraft:netherite_crystal_nucleus"
             ]
           }
         ]
@@ -30,25 +18,11 @@
         "recipe": "anvilcraft:timewarp/ancient_debris"
       },
       "trigger": "minecraft:recipe_unlocked"
-    },
-    "has_tungsten_ingot": {
-      "conditions": {
-        "items": [
-          {
-            "items": [
-              "anvilcraft:tungsten_ingot"
-            ]
-          }
-        ]
-      },
-      "trigger": "minecraft:inventory_changed"
     }
   },
   "requirements": [
     [
-      "has_tungsten_ingot",
-      "has_royal_steel_ingot",
-      "has_nether_star",
+      "has_netherite_crystal_nucleus",
       "has_the_recipe"
     ]
   ],

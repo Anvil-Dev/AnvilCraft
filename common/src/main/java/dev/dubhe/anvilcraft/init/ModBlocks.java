@@ -1,9 +1,5 @@
 package dev.dubhe.anvilcraft.init;
 
-import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
-import static dev.dubhe.anvilcraft.api.power.IPowerComponent.OVERLOAD;
-import static dev.dubhe.anvilcraft.api.power.IPowerComponent.SWITCH;
-
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import dev.dubhe.anvilcraft.AnvilCraft;
@@ -20,6 +16,7 @@ import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
 import dev.dubhe.anvilcraft.block.JewelCraftingTable;
 import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
+import dev.dubhe.anvilcraft.block.MeltGemCauldron;
 import dev.dubhe.anvilcraft.block.PiezoelectricCrystalBlock;
 import dev.dubhe.anvilcraft.block.ResinBlock;
 import dev.dubhe.anvilcraft.block.RoyalAnvilBlock;
@@ -36,7 +33,6 @@ import dev.dubhe.anvilcraft.item.CursedBlockItem;
 import dev.dubhe.anvilcraft.item.PlaceInWaterBlockItem;
 import dev.dubhe.anvilcraft.item.ResinBlockItem;
 import dev.dubhe.anvilcraft.item.TransmissionPoleBlockItem;
-import java.util.Map;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
@@ -57,6 +53,12 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.Map;
+
+import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
+import static dev.dubhe.anvilcraft.api.power.IPowerComponent.OVERLOAD;
+import static dev.dubhe.anvilcraft.api.power.IPowerComponent.SWITCH;
 
 public class ModBlocks {
     public static final BlockEntry<? extends Block> STAMPING_PLATFORM = REGISTRATE
@@ -606,17 +608,77 @@ public class ModBlocks {
             })
             .initialProperties(() -> Blocks.IRON_BLOCK)
             .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-                .pattern("ABA")
-                .pattern(" B ")
-                .pattern("ABA")
-                .define('A', Blocks.QUARTZ_BLOCK)
-                .define('B', Items.COPPER_INGOT)
-                .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.QUARTZ_BLOCK),
-                    AnvilCraftDatagen.has(Blocks.CRAFTING_TABLE))
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.COPPER_INGOT),
-                    AnvilCraftDatagen.has(Blocks.CRAFTING_TABLE))
-                .save(provider))
+            .recipe((ctx, provider) -> {
+                ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                    .pattern("ABA")
+                    .pattern(" B ")
+                    .pattern("ABA")
+                    .define('A', Items.COPPER_INGOT)
+                    .define('B', ModItemTags.QUARTZ_BLOCKS)
+                    .unlockedBy(
+                        AnvilCraftDatagen.hasItem(Items.COPPER_INGOT),
+                        AnvilCraftDatagen.has(Items.COPPER_INGOT)
+                    )
+                    .unlockedBy(
+                        AnvilCraftDatagen.hasItem(ModItemTags.QUARTZ_BLOCKS),
+                        AnvilCraftDatagen.has(ModItemTags.QUARTZ_BLOCKS)
+                    )
+                    .save(provider);
+                ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                    .pattern("ABA")
+                    .pattern(" B ")
+                    .pattern("ABA")
+                    .define('A', Items.COPPER_INGOT)
+                    .define('B', ModItemTags.AMETHYST_BLOCKS)
+                    .unlockedBy(
+                        AnvilCraftDatagen.hasItem(Items.COPPER_INGOT),
+                        AnvilCraftDatagen.has(Items.COPPER_INGOT)
+                    )
+                    .unlockedBy(
+                        AnvilCraftDatagen.hasItem(ModItemTags.AMETHYST_BLOCKS),
+                        AnvilCraftDatagen.has(ModItemTags.AMETHYST_BLOCKS)
+                    )
+                    .save(
+                        provider,
+                        BuiltInRegistries.ITEM.getKey(ctx.get().asItem()) + "_amethyst"
+                    );
+                ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                    .pattern("ABA")
+                    .pattern(" B ")
+                    .pattern("ABA")
+                    .define('A', Items.COPPER_INGOT)
+                    .define('B', ModItemTags.QUARTZ_BLOCKS_FORGE)
+                    .unlockedBy(
+                        AnvilCraftDatagen.hasItem(Items.COPPER_INGOT),
+                        AnvilCraftDatagen.has(Items.COPPER_INGOT)
+                    )
+                    .unlockedBy(
+                        AnvilCraftDatagen.hasItem(ModItemTags.QUARTZ_BLOCKS_FORGE),
+                        AnvilCraftDatagen.has(ModItemTags.QUARTZ_BLOCKS_FORGE)
+                    )
+                    .save(
+                        provider,
+                        BuiltInRegistries.ITEM.getKey(ctx.get().asItem()) + "_forge"
+                    );
+                ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                    .pattern("ABA")
+                    .pattern(" B ")
+                    .pattern("ABA")
+                    .define('A', Items.COPPER_INGOT)
+                    .define('B', ModItemTags.AMETHYST_BLOCKS_FORGE)
+                    .unlockedBy(
+                        AnvilCraftDatagen.hasItem(Items.COPPER_INGOT),
+                        AnvilCraftDatagen.has(Items.COPPER_INGOT)
+                    )
+                    .unlockedBy(
+                        AnvilCraftDatagen.hasItem(ModItemTags.AMETHYST_BLOCKS_FORGE),
+                        AnvilCraftDatagen.has(ModItemTags.AMETHYST_BLOCKS_FORGE)
+                    )
+                    .save(
+                        provider,
+                        BuiltInRegistries.ITEM.getKey(ctx.get().asItem()) + "_amethyst_forge"
+                    );
+            })
             .register();
     public static final BlockEntry<ChargeCollectorBlock> CHARGE_COLLECTOR =
         REGISTRATE
@@ -634,14 +696,29 @@ public class ModBlocks {
                 .define('A', ModItems.MAGNETOELECTRIC_CORE)
                 .define('B', Items.COPPER_INGOT)
                 .define('C', Items.IRON_INGOT)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FERRITE_CORE_MAGNET_BLOCK),
-                    AnvilCraftDatagen.has(Blocks.CRAFTING_TABLE))
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.COPPER_INGOT),
-                    AnvilCraftDatagen.has(Blocks.CRAFTING_TABLE))
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT),
-                    AnvilCraftDatagen.has(Blocks.CRAFTING_TABLE))
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
+                    AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
+                )
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(Items.COPPER_INGOT),
+                    AnvilCraftDatagen.has(Items.COPPER_INGOT)
+                )
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(Items.IRON_INGOT),
+                    AnvilCraftDatagen.has(Items.IRON_INGOT)
+                )
                 .save(provider))
             .register();
+
+    public static final BlockEntry<MeltGemCauldron> MELT_GEM_CAULDRON = REGISTRATE
+        .block("melt_gem_cauldron", MeltGemCauldron::new)
+        .initialProperties(() -> Blocks.CAULDRON)
+        .blockstate((ctx, provider) -> {
+        })
+        .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
 
     public static void register() {
     }

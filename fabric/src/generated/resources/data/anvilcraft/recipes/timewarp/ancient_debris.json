@@ -13,6 +13,7 @@
         0.0
       ],
       "result": {
+        "count": 2,
         "item": "minecraft:ancient_debris"
       }
     }
@@ -51,42 +52,10 @@
       "type": "has_item_ingredient",
       "match_item": {
         "count": {
-          "min": 4
-        },
-        "items": [
-          "anvilcraft:tungsten_ingot"
-        ]
-      },
-      "offset": [
-        0.0,
-        -1.0,
-        0.0
-      ]
-    },
-    {
-      "type": "has_item_ingredient",
-      "match_item": {
-        "count": {
-          "min": 4
-        },
-        "items": [
-          "anvilcraft:royal_steel_ingot"
-        ]
-      },
-      "offset": [
-        0.0,
-        -1.0,
-        0.0
-      ]
-    },
-    {
-      "type": "has_item_ingredient",
-      "match_item": {
-        "count": {
           "min": 1
         },
         "items": [
-          "minecraft:nether_star"
+          "anvilcraft:netherite_crystal_nucleus"
         ]
       },
       "offset": [

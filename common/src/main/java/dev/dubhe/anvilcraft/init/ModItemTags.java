@@ -33,6 +33,8 @@ public class ModItemTags {
     public static final TagKey<Item> TIN_NUGGETS = bindC("tin_nuggets");
     public static final TagKey<Item> TIN_INGOTS = bindC("tin_ingots");
     public static final TagKey<Item> COPPER_NUGGETS = bindC("copper_nuggets");
+    public static final TagKey<Item> QUARTZ_BLOCKS = bindC("quartz_blocks");
+    public static final TagKey<Item> AMETHYST_BLOCKS = bindC("amethyst_blocks");
 
     public static final TagKey<Item> FLOUR_FORGE = bindForge("flour");
     public static final TagKey<Item> WHEAT_FLOUR_FORGE = bindForge("flour/wheat");
@@ -58,6 +60,9 @@ public class ModItemTags {
     public static final TagKey<Item> TIN_NUGGETS_FORGE = bindForge("tin_nuggets");
     public static final TagKey<Item> TIN_INGOTS_FORGE = bindForge("tin_ingots");
     public static final TagKey<Item> COPPER_NUGGETS_FORGE = bindForge("copper_nuggets");
+    public static final TagKey<Item> QUARTZ_BLOCKS_FORGE = bindForge("quartz_blocks");
+    public static final TagKey<Item> AMETHYST_BLOCKS_FORGE = bindForge("amethyst_blocks");
+
 
     public static final TagKey<Item> ROYAL_STEEL_PICKAXE_BASE = bind("royal_steel_pickaxe_base");
     public static final TagKey<Item> ROYAL_STEEL_AXE_BASE = bind("royal_steel_axe_base");

@@ -3,7 +3,7 @@
   "category": "misc",
   "key": {
     "A": {
-      "item": "anvilcraft:ferrite_core_magnet_block"
+      "item": "anvilcraft:magnetoelectric_core"
     },
     "B": {
       "item": "minecraft:copper_ingot"

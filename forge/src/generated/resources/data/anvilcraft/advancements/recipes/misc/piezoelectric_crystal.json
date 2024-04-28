@@ -6,20 +6,18 @@
         "items": [
           {
             "items": [
-              "minecraft:crafting_table"
+              "minecraft:copper_ingot"
             ]
           }
         ]
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_quartz_block": {
+    "has_quartz_blocks": {
       "conditions": {
         "items": [
           {
-            "items": [
-              "minecraft:crafting_table"
-            ]
+            "tag": "c:quartz_blocks"
           }
         ]
       },
@@ -34,8 +32,8 @@
   },
   "requirements": [
     [
-      "has_quartz_block",
       "has_copper_ingot",
+      "has_quartz_blocks",
       "has_the_recipe"
     ]
   ],
