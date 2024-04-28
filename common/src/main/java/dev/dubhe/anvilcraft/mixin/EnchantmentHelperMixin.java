@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.mixin.fabric;
+package dev.dubhe.anvilcraft.mixin;
 
 import dev.dubhe.anvilcraft.item.HasDefaultEnchantment;
 import net.minecraft.world.item.ItemStack;
