@@ -11,7 +11,6 @@ import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
@@ -75,7 +74,8 @@ abstract class AnvilBlockMixin extends FallingBlock {
         boolean movedByPiston
     ) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
-        this.anvilCraft$wasAttracted(state, level, pos);
+        BlockState state1 = level.getBlockState(pos.above());
+        if (!this.anvilCraft$isAttracts(state1)) this.anvilCraft$wasAttracted(state, level, pos);
     }
 
     @Unique
@@ -94,6 +94,7 @@ abstract class AnvilBlockMixin extends FallingBlock {
             level.setBlockAndUpdate(magnet.below(), state);
             level.setBlockAndUpdate(anvil, state.getFluidState().createLegacyBlock());
             AnimateAscendingBlockEntity.animate(level, anvil, state, magnet.below());
+            return;
         }
     }
 
