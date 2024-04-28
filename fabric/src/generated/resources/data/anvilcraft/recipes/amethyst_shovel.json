@@ -15,7 +15,7 @@
     "B"
   ],
   "result": {
-    "data": "{Damage:0,Enchantments:[{id:\"minecraft:fortune\",lvl:3s}]}",
+    "data": "{Damage:0,Enchantments:[{id:\"minecraft:efficiency\",lvl:3s}]}",
     "item": "anvilcraft:amethyst_shovel"
   },
   "show_notification": true

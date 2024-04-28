@@ -9,6 +9,11 @@ import dev.dubhe.anvilcraft.data.generator.recipe.BulgingAndCrystallizeRecipesLo
 import dev.dubhe.anvilcraft.data.generator.recipe.TimeWarpRecipesLoader;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.crafting.ShapedTagRecipeBuilder;
+import dev.dubhe.anvilcraft.item.AmethystAxeItem;
+import dev.dubhe.anvilcraft.item.AmethystHoeItem;
+import dev.dubhe.anvilcraft.item.AmethystPickaxeItem;
+import dev.dubhe.anvilcraft.item.AmethystShovelItem;
+import dev.dubhe.anvilcraft.item.AmethystSwordItem;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import dev.dubhe.anvilcraft.item.CapacitorItem;
 import dev.dubhe.anvilcraft.item.CrabClawItem;
@@ -16,39 +21,33 @@ import dev.dubhe.anvilcraft.item.CursedItem;
 import dev.dubhe.anvilcraft.item.GeodeItem;
 import dev.dubhe.anvilcraft.item.MagnetItem;
 import dev.dubhe.anvilcraft.item.ModFoods;
-import dev.dubhe.anvilcraft.item.ModTiers;
 import dev.dubhe.anvilcraft.item.RoyalAnvilHammerItem;
+import dev.dubhe.anvilcraft.item.RoyalAxeItem;
+import dev.dubhe.anvilcraft.item.RoyalHoeItem;
+import dev.dubhe.anvilcraft.item.RoyalPickaxeItem;
+import dev.dubhe.anvilcraft.item.RoyalShovelItem;
+import dev.dubhe.anvilcraft.item.RoyalSwordItem;
 import dev.dubhe.anvilcraft.item.RoyalUpgradeTemplateItem;
 import dev.dubhe.anvilcraft.item.TopazItem;
 import dev.dubhe.anvilcraft.item.UtusanItem;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
-import net.minecraft.network.chat.Component;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.BowlFoodItem;
 import net.minecraft.world.item.HoeItem;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.PickaxeItem;
 import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.Tiers;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 import java.util.Map;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
@@ -72,28 +71,7 @@ public class ModItems {
         .item("geode", GeodeItem::new)
         .register();
     public static final ItemEntry<? extends PickaxeItem> AMETHYST_PICKAXE = REGISTRATE
-        .item("amethyst_pickaxe", properties ->
-            new PickaxeItem(ModTiers.AMETHYST, 1, -2.8f, properties) {
-                @Override
-                public @NotNull ItemStack getDefaultInstance() {
-                    ItemStack stack = super.getDefaultInstance();
-                    stack.enchant(Enchantments.BLOCK_FORTUNE, 3);
-                    return stack;
-                }
-
-                @Override
-                public void appendHoverText(
-                    @NotNull ItemStack stack,
-                    @Nullable Level level,
-                    @NotNull List<Component> tooltipComponents,
-                    @NotNull TooltipFlag isAdvanced
-                ) {
-                    super.appendHoverText(stack, level, tooltipComponents, isAdvanced);
-                    tooltipComponents
-                        .add(Component.translatable("item.anvilcraft.amethyst_pickaxe.tooltip")
-                            .withStyle(ChatFormatting.GRAY));
-                }
-            })
+        .item("amethyst_pickaxe", AmethystPickaxeItem::new)
         .recipe((ctx, provider) ->
             ShapedTagRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get().asItem().getDefaultInstance())
                 .pattern("AAA")
@@ -108,14 +86,7 @@ public class ModItems {
         .tag(ModItemTags.PICKAXES, ItemTags.CLUSTER_MAX_HARVESTABLES)
         .register();
     public static final ItemEntry<? extends AxeItem> AMETHYST_AXE = REGISTRATE
-        .item("amethyst_axe", properties -> new AxeItem(ModTiers.AMETHYST, 7, -3.2f, properties) {
-            @Override
-            public @NotNull ItemStack getDefaultInstance() {
-                ItemStack stack = super.getDefaultInstance();
-                stack.enchant(ModEnchantments.FELLING.get(), 1);
-                return stack;
-            }
-        })
+        .item("amethyst_axe", AmethystAxeItem::new)
         .recipe((ctx, provider) ->
             ShapedTagRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get().asItem().getDefaultInstance())
                 .pattern("AA")
@@ -130,14 +101,7 @@ public class ModItems {
         .tag(ModItemTags.AXES)
         .register();
     public static final ItemEntry<? extends HoeItem> AMETHYST_HOE = REGISTRATE
-        .item("amethyst_hoe", properties -> new HoeItem(ModTiers.AMETHYST, -1, -2.0f, properties) {
-            @Override
-            public @NotNull ItemStack getDefaultInstance() {
-                ItemStack stack = super.getDefaultInstance();
-                stack.enchant(ModEnchantments.HARVEST.get(), 1);
-                return stack;
-            }
-        })
+        .item("amethyst_hoe", AmethystHoeItem::new)
         .recipe((ctx, provider) ->
             ShapedTagRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get().asItem().getDefaultInstance())
                 .pattern("AA")
@@ -152,14 +116,7 @@ public class ModItems {
         .tag(ModItemTags.HOES)
         .register();
     public static final ItemEntry<? extends SwordItem> AMETHYST_SWORD = REGISTRATE
-        .item("amethyst_sword", properties -> new SwordItem(ModTiers.AMETHYST, 3, -2.4f, properties) {
-            @Override
-            public @NotNull ItemStack getDefaultInstance() {
-                ItemStack stack = super.getDefaultInstance();
-                stack.enchant(ModEnchantments.BEHEADING.get(), 1);
-                return stack;
-            }
-        })
+        .item("amethyst_sword", AmethystSwordItem::new)
         .recipe((ctx, provider) ->
             ShapedTagRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get().asItem().getDefaultInstance())
                 .pattern("A")
@@ -174,14 +131,7 @@ public class ModItems {
         .tag(ModItemTags.SWORDS)
         .register();
     public static final ItemEntry<? extends ShovelItem> AMETHYST_SHOVEL = REGISTRATE
-        .item("amethyst_shovel", properties -> new ShovelItem(ModTiers.AMETHYST, 1.5f, -3.0f, properties) {
-            @Override
-            public @NotNull ItemStack getDefaultInstance() {
-                ItemStack stack = super.getDefaultInstance();
-                stack.enchant(Enchantments.BLOCK_FORTUNE, 3);
-                return stack;
-            }
-        })
+        .item("amethyst_shovel", AmethystShovelItem::new)
         .recipe((ctx, provider) ->
             ShapedTagRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get().asItem().getDefaultInstance())
                 .pattern("A")
@@ -384,53 +334,28 @@ public class ModItems {
         .register();
     // 工具
     public static final ItemEntry<? extends Item> ROYAL_STEEL_PICKAXE = REGISTRATE
-        .item("royal_steel_pickaxe", properties -> new PickaxeItem(Tiers.DIAMOND, 1, -2.8f,
-            properties.durability(1561)) {
-            @Override
-            public @NotNull ItemStack getDefaultInstance() {
-                return super.getDefaultInstance();
-            }
-        })
+        .item("royal_steel_pickaxe", RoyalPickaxeItem::new)
+        .properties(properties -> properties.durability(1561))
         .model((ctx, provider) -> provider.handheld(ctx))
         .register();
     public static final ItemEntry<? extends Item> ROYAL_STEEL_AXE = REGISTRATE
-        .item("royal_steel_axe", properties -> new AxeItem(Tiers.DIAMOND, 5, -3.0f,
-            properties.durability(1561)) {
-            @Override
-            public @NotNull ItemStack getDefaultInstance() {
-                return super.getDefaultInstance();
-            }
-        })
+        .item("royal_steel_axe", RoyalAxeItem::new)
+        .properties(properties -> properties.durability(1561))
         .model((ctx, provider) -> provider.handheld(ctx))
         .register();
     public static final ItemEntry<? extends Item> ROYAL_STEEL_SHOVEL = REGISTRATE
-        .item("royal_steel_shovel", properties -> new ShovelItem(Tiers.DIAMOND, 1.5f, -3.0f,
-            properties.durability(1561)) {
-            @Override
-            public @NotNull ItemStack getDefaultInstance() {
-                return super.getDefaultInstance();
-            }
-        })
+        .item("royal_steel_shovel", RoyalShovelItem::new)
+        .properties(properties -> properties.durability(1561))
         .model((ctx, provider) -> provider.handheld(ctx))
         .register();
     public static final ItemEntry<? extends Item> ROYAL_STEEL_HOE = REGISTRATE
-        .item("royal_steel_hoe", properties -> new HoeItem(Tiers.DIAMOND, -3, 0,
-            properties.durability(1561)) {
-            @Override
-            public @NotNull ItemStack getDefaultInstance() {
-                return super.getDefaultInstance();
-            }
-        })
+        .item("royal_steel_hoe", RoyalHoeItem::new)
+        .properties(properties -> properties.durability(1561))
         .model((ctx, provider) -> provider.handheld(ctx))
         .register();
     public static final ItemEntry<? extends Item> ROYAL_STEEL_SWORD = REGISTRATE
-        .item("royal_steel_sword", properties -> new SwordItem(Tiers.DIAMOND, 3, -2.4f,
-            properties.durability(1561)) {
-            @Override
-            public @NotNull ItemStack getDefaultInstance() {
-                return super.getDefaultInstance();
-            }
-        })
+        .item("royal_steel_sword", RoyalSwordItem::new)
+        .properties(properties -> properties.durability(1561))
         .model((ctx, provider) -> provider.handheld(ctx))
         .register();
     // 升级模板

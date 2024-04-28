@@ -1,7 +1,9 @@
 package dev.dubhe.anvilcraft.item;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Tiers;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -12,24 +14,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 
-public class RoyalAnvilHammerItem extends AnvilHammerItem implements HasDefaultEnchantment {
-    /**
-     * 初始化铁砧锤
-     *
-     * @param properties 物品属性
-     */
-    public RoyalAnvilHammerItem(Properties properties) {
-        super(properties);
-    }
-
-    @Override
-    protected float getAttackDamageModifierAmount() {
-        return 7;
-    }
-
-    @Override
-    protected float calculateFallDamageBonus(float fallDistance) {
-        return Math.min(80, fallDistance * 2);
+public class RoyalAxeItem extends AxeItem implements HasDefaultEnchantment {
+    public RoyalAxeItem(Properties properties) {
+        super(Tiers.DIAMOND, 5, -3.0f, properties);
     }
 
     @Override

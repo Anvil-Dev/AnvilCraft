@@ -117,6 +117,13 @@ public class SimpleChuteBlock extends BaseEntityBlock implements
         }
     }
 
+    @Override
+    public @NotNull ItemStack getCloneItemStack(
+            @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull BlockState state
+    ) {
+        return new ItemStack(ModBlocks.CHUTE);
+    }
+
     @SuppressWarnings("deprecation")
     @Override
     public void tick(
