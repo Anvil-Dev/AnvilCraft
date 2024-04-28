@@ -1,12 +1,13 @@
 package dev.dubhe.anvilcraft.api.chargecollector;
 
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
+
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+
 import net.minecraft.core.BlockPos;
 import org.joml.Vector3f;
 
@@ -34,11 +35,29 @@ public class ChargeCollectorManager {
         Map<Float, ChargeCollectorBlockEntity> distanceMap = new HashMap<>();
         for (Map.Entry<BlockPos, ChargeCollectorBlockEntity> entry : CHARGE_COLLECTOR_MAP.entrySet()) {
             float distance = Vector3f.distance(
-                  entry.getKey().getX(), entry.getKey().getY(), entry.getKey().getZ(),
-                  blockPos.getX(), blockPos.getY(), blockPos.getZ());
+                entry.getKey().getX(), entry.getKey().getY(), entry.getKey().getZ(),
+                blockPos.getX(), blockPos.getY(), blockPos.getZ());
             distanceMap.put(distance, entry.getValue());
         }
         return distanceMap.entrySet().stream()
-            .sorted(Comparator.comparing(Entry::getKey)).collect(Collectors.toList());
+            .sorted(Entry.comparingByKey()).collect(Collectors.toList());
+    }
+
+    /**
+     * 判断是否能被集电器收集
+     *
+     * @param blockEntity 集电器方块实体
+     * @param blockPos    电荷的位置
+     * @return 是否能被集点器收集
+     */
+    public static boolean canCollect(ChargeCollectorBlockEntity blockEntity, BlockPos blockPos) {
+        System.out.println(blockEntity.getPos());
+        System.out.println(blockPos);
+        return blockEntity.getPos().getX() - 2 <= blockPos.getX()
+            && blockEntity.getPos().getY() - 2 <= blockPos.getY()
+            && blockEntity.getPos().getZ() - 2 <= blockPos.getZ()
+            && blockEntity.getPos().getX() + 2 >= blockPos.getX()
+            && blockEntity.getPos().getY() + 2 >= blockPos.getY()
+            && blockEntity.getPos().getZ() + 2 >= blockPos.getZ();
     }
 }

@@ -1,35 +1,37 @@
 {
-  "required": true,
-  "minVersion": "0.8",
-  "package": "dev.dubhe.anvilcraft.mixin",
-  "compatibilityLevel": "JAVA_17",
-  "mixins": [
-    "AbstractCauldronBlockMixin",
-    "AnvilBlockMixin",
-    "BeaconMenuMixin",
-    "BucketItemMixin",
-    "ClientboundUpdateRecipesPacketMixin",
-    "DiggerItemMixin",
-    "DispenseItemEmptyBottleBehaviorMixin",
-    "DispenseItemEmptyBucketBehaviorMixin",
-    "DispenseItemWaterBottleBehaviorMixin",
-    "FlyingHitEntityMixin",
-    "HoeItemMixin",
-    "ItemEntityMixin",
-    "LivingEntityMixin",
-    "PlayerHitEntityMixin",
-    "SolidBucketItemMixin",
-    "accessor.BaseSpawnerAccessor",
-    "accessor.FallingBlockEntityAccessor",
-    "accessor.LootContextParamSetsAccessor"
-  ],
-  "client": [
-    "LevelRendererMixin",
-    "PowerGridInformationRenderMixin",
-    "accessor.ItemInHandRendererAccessor",
-    "accessor.MinecraftAccessor"
-  ],
-  "injectors": {
-    "defaultRequire": 1
+    "required": true,
+    "minVersion": "0.8",
+    "package": "dev.dubhe.anvilcraft.mixin",
+    "compatibilityLevel": "JAVA_17",
+    "mixins": [
+        "AbstractCauldronBlockMixin",
+        "AnvilBlockMixin",
+        "BeaconMenuMixin",
+        "BucketItemMixin",
+        "ClientboundUpdateRecipesPacketMixin",
+        "DiggerItemMixin",
+        "DispenseItemEmptyBottleBehaviorMixin",
+        "DispenseItemEmptyBucketBehaviorMixin",
+        "DispenseItemWaterBottleBehaviorMixin",
+        "EnchantmentHelperMixin",
+        "FlyingHitEntityMixin",
+        "HoeItemMixin",
+        "ItemEntityMixin",
+        "LivingEntityMixin",
+        "PistonStructureResolverMixin",
+        "PlayerHitEntityMixin",
+        "SolidBucketItemMixin",
+        "accessor.BaseSpawnerAccessor",
+        "accessor.FallingBlockEntityAccessor",
+        "accessor.LootContextParamSetsAccessor"
+    ],
+    "client": [
+        "LevelRendererMixin",
+        "PowerGridInformationRenderMixin",
+        "accessor.ItemInHandRendererAccessor",
+        "accessor.MinecraftAccessor"
+    ],
+    "injectors": {
+        "defaultRequire": 1
   }
 }
