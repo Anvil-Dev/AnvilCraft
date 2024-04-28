@@ -5,10 +5,13 @@
 		"particle": "anvilcraft:block/block_placer_back",
 		"back": "anvilcraft:block/block_placer_back",
 		"bottom": "anvilcraft:block/block_placer_bottom",
-		"claw": "anvilcraft:block/block_placer_claw",
 		"face": "anvilcraft:block/block_placer_face",
 		"side": "anvilcraft:block/block_placer_side",
-		"top": "anvilcraft:block/block_placer_top"
+		"top": "anvilcraft:block/block_placer_top",
+		"claw1": "anvilcraft:block/crab_claw",
+		"claw2": "anvilcraft:block/crab_claw_in",
+		"claw3": "anvilcraft:block/crab_claw_movable",
+		"claw4": "anvilcraft:block/crab_claw_movable_in"
 	},
 	"elements": [
 		{
@@ -64,42 +67,57 @@
 			}
 		},
 		{
-			"from": [6.1, 5.1, 0.1],
-			"to": [9.9, 7, 11],
-			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 9.5]},
+			"from": [5, 5, 0],
+			"to": [11, 11, 10],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 5, 7]},
 			"faces": {
-				"north": {"uv": [12, 6, 16, 8], "texture": "#claw"},
-				"east": {"uv": [11, 11, 0, 13], "texture": "#claw"},
-				"south": {"uv": [12, 14, 16, 16], "texture": "#claw"},
-				"west": {"uv": [0, 11, 11, 13], "texture": "#claw"},
-				"up": {"uv": [13, 7, 2, 11], "rotation": 270, "texture": "#claw"},
-				"down": {"uv": [11, 12, 0, 16], "rotation": 90, "texture": "#claw"}
+				"north": {"uv": [10, 0, 16, 6], "texture": "#claw1"},
+				"east": {"uv": [10, 5, 0, 11], "texture": "#claw1"},
+				"south": {"uv": [10, 6, 16, 12], "texture": "#claw1"},
+				"west": {"uv": [0, 5, 10, 11], "texture": "#claw1"},
+				"up": {"uv": [10, 0, 0, 6], "rotation": 270, "texture": "#claw1"},
+				"down": {"uv": [10, 10, 0, 16], "rotation": 90, "texture": "#claw1"}
 			}
 		},
 		{
-			"from": [6, 7, 2],
-			"to": [10, 11, 11],
-			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 9.5]},
+			"name": "cube inverted",
+			"from": [11, 11, 7],
+			"to": [5, 5, 0],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 5, 7]},
 			"faces": {
-				"north": {"uv": [12, 0, 16, 4], "texture": "#claw"},
-				"east": {"uv": [11, 3, 2, 7], "texture": "#claw"},
-				"south": {"uv": [12, 8, 16, 12], "texture": "#claw"},
-				"west": {"uv": [2, 3, 11, 7], "texture": "#claw"},
-				"up": {"uv": [11, 0, 2, 4], "rotation": 270, "texture": "#claw"},
-				"down": {"uv": [12, 7, 3, 11], "rotation": 90, "texture": "#claw"}
+				"north": {"uv": [10, 12, 16, 6], "texture": "#claw2"},
+				"east": {"uv": [0, 11, 10, 5], "texture": "#claw2"},
+				"south": {"uv": [10, 6, 16, 0], "texture": "#claw2"},
+				"west": {"uv": [7, 11, 0, 5], "texture": "#claw2"},
+				"up": {"uv": [7, 16, 0, 10], "rotation": 90, "texture": "#claw2"},
+				"down": {"uv": [7, 6, 0, 0], "rotation": 270, "texture": "#claw2"}
 			}
 		},
 		{
-			"from": [6, 5, 0],
-			"to": [10, 11, 2],
-			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 9.5]},
+			"from": [5.5, 5.1, 0.1],
+			"to": [10.5, 7.1, 7.1],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 5.1, 6.1]},
 			"faces": {
-				"north": {"uv": [12, 0, 16, 6], "texture": "#claw"},
-				"east": {"uv": [2, 3, 0, 9], "texture": "#claw"},
-				"south": {"uv": [2, 7, 8, 11], "rotation": 270, "texture": "#claw"},
-				"west": {"uv": [0, 3, 2, 9], "texture": "#claw"},
-				"up": {"uv": [2, 0, 0, 4], "rotation": 270, "texture": "#claw"},
-				"down": {"uv": [2, 12, 0, 16], "rotation": 90, "texture": "#claw"}
+				"north": {"uv": [7, 0, 12, 2], "texture": "#claw3"},
+				"east": {"uv": [7, 5, 0, 7], "texture": "#claw3"},
+				"south": {"uv": [7, 5, 12, 7], "texture": "#claw3"},
+				"west": {"uv": [0, 5, 7, 7], "texture": "#claw3"},
+				"up": {"uv": [0, 0, 7, 5], "rotation": 90, "texture": "#claw3"},
+				"down": {"uv": [0, 7, 7, 12], "rotation": 270, "texture": "#claw3"}
+			}
+		},
+		{
+			"name": "cube inverted",
+			"from": [10.5, 7.1, 5.1],
+			"to": [5.5, 5.1, 0.1],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 5.1, 6.1]},
+			"faces": {
+				"north": {"uv": [7, 7, 12, 5], "texture": "#claw4"},
+				"east": {"uv": [0, 7, 5, 5], "texture": "#claw4"},
+				"south": {"uv": [7, 2, 12, 0], "texture": "#claw4"},
+				"west": {"uv": [5, 7, 0, 5], "texture": "#claw4"},
+				"up": {"uv": [0, 12, 5, 7], "rotation": 270, "texture": "#claw4"},
+				"down": {"uv": [0, 5, 5, 0], "rotation": 90, "texture": "#claw4"}
 			}
 		}
 	],
@@ -112,9 +130,9 @@
 		},
 		{
 			"name": "group",
-			"origin": [5, 4, 8],
+			"origin": [8, 5.1, 9.1],
 			"color": 0,
-			"children": [5, 6, 7]
+			"children": [5, 6, 7, 8]
 		}
 	]
 }
