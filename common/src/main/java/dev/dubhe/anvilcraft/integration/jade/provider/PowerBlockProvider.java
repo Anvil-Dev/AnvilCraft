@@ -29,8 +29,6 @@ public enum PowerBlockProvider implements IBlockComponentProvider, IServerDataPr
             int color;
             float percent = (float) consume / generate;
             if (percent < 0.75) {
-                color = 0xFF32CD32;
-            } else if (percent <= 1) {
                 color = 0xFFFFD700;
             } else {
                 color = 0xFFFF0000;
@@ -41,7 +39,10 @@ public enum PowerBlockProvider implements IBlockComponentProvider, IServerDataPr
                     percent,
                     Component.translatable("tooltip.anvilcraft.jade.power_information", consume, generate),
                     elementHelper.progressStyle().color(color).textColor(-1),
-                    Util.make(BoxStyle.DEFAULT, boxStyle -> boxStyle.borderColor = 0xFF555555),
+                    Util.make(BoxStyle.DEFAULT, boxStyle -> {
+                        boxStyle.borderColor = 0xFF555555;
+                        boxStyle.bgColor = 0xFF32CD32;
+                    }),
                     true
                 )
             );
