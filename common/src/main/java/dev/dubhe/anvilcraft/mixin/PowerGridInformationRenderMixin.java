@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.mixin;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
+import dev.dubhe.anvilcraft.api.power.PowerComponentInfo;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.init.ModItems;
 import net.minecraft.ChatFormatting;
@@ -96,17 +97,19 @@ public abstract class PowerGridInformationRenderMixin {
         if (powerGrids.isEmpty()) return;
         PowerGrid.SimplePowerGrid grid = powerGrids.get(0);
         if (grid == null) return;
+        PowerComponentInfo componentInfo = grid.getMappedPowerComponentInfo().get(pos);
         final int tooltipPosX = screenWidth / 2 + 10;
         final int tooltipPosY = screenHeight / 2 + 10;
         overloaded |= grid.getConsume() > grid.getGenerate();
         List<Component> lines = new ArrayList<>();
+
         if (powerComponent instanceof IPowerProducer producer) {
             lines.add(Component.translatable("tooltip.anvilcraft.grid_information.producer_stats")
                     .setStyle(Style.EMPTY.applyFormat(ChatFormatting.BLUE))
             );
             lines.add(Component.translatable(
                     "tooltip.anvilcraft.grid_information.output_power",
-                    producer.getOutputPower()
+                    componentInfo == null ? producer.getOutputPower() : componentInfo.produces()
             ).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
         } else if (powerComponent instanceof IPowerConsumer consumer) {
             lines.add(Component.translatable("tooltip.anvilcraft.grid_information.consumer_stats")
@@ -114,7 +117,7 @@ public abstract class PowerGridInformationRenderMixin {
             );
             lines.add(Component.translatable(
                     "tooltip.anvilcraft.grid_information.input_power",
-                    consumer.getInputPower()
+                    componentInfo == null ? consumer.getInputPower() : componentInfo.consumes()
             ).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
         }
         List<Component> tooltipLines = List.of(
@@ -139,9 +142,9 @@ public abstract class PowerGridInformationRenderMixin {
         anvilCraft$renderInfo(
                 guiGraphics,
                 this.getFont(),
-                 state != null
-                         ? state.getBlock().asItem().getDefaultInstance()
-                         : ModItems.MAGNETOELECTRIC_CORE.asStack(),
+                state != null
+                        ? state.getBlock().asItem().getDefaultInstance()
+                        : ModItems.MAGNETOELECTRIC_CORE.asStack(),
                 lines,
                 tooltipPosX,
                 tooltipPosY
