@@ -124,7 +124,7 @@
   "screen.anvilcraft.royal_grindstone.remove_curse_number": "Снимите %i проклятия",
   "screen.anvilcraft.royal_grindstone.remove_repair_cost": "Удалить %i стоимость ремонта",
   "screen.anvilcraft.royal_grindstone.title": "Удалить проклятие и стоимость ремонта",
-  "screen.anvilcraft.royal_steel_upgrade_smithing_template": "Шаблон улучшения королевской стали",
+  "screen.anvilcraft.royal_steel_upgrade_smithing_template": "Королевские апгрейды",
   "screen.anvilcraft.slot.disable.tooltip": "Использование кликов по элементам для установки фильтра",
   "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.additions_slot_description": "Положите слиток королевской стали",
   "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.applies_to": "Инструменты или кованые блоки",
@@ -158,5 +158,18 @@
   "text.autoconfig.anvilcraft.option.redstoneEmpRadius": "Радиус EMP Редстоуна",
   "text.autoconfig.anvilcraft.option.redstoneEmpRadius.@Tooltip": "Дистанция EMP красного камня, создаваемая за каждый блок, брошенный наковальней",
   "text.autoconfig.anvilcraft.title": "Конфигурация AnvilCraft",
-  "tooltip.anvilcraft.jade.power_information": "Электросеть: %d/%d МВт"
+  "tooltip.anvilcraft.jade.power_information": "Электросеть: %d/%d МВт",
+  "block.anvilcraft.melt_gem_cauldron": "Котел с расплавленными самоцветами",
+  "item.anvilcraft.default_enchantment.tooltip": "Имеет заточки по умолчанию:",
+  "tooltip.anvilcraft.grid_information.consumer_stats": "Статистика потребителя электроэнергии:",
+  "tooltip.anvilcraft.grid_information.input_power": "  Потребляемая мощность: %d",
+  "tooltip.anvilcraft.grid_information.output_power": "  Выработка электроэнергии: %d",
+  "tooltip.anvilcraft.grid_information.overloaded1": "Похоже, что эта сетка перегружена.",
+  "tooltip.anvilcraft.grid_information.overloaded2": "Добавление дополнительного оборудования для выработки электроэнергии",
+  "tooltip.anvilcraft.grid_information.overloaded3": "или уберите мощные приборы.",
+  "tooltip.anvilcraft.grid_information.producer_stats": "Характеристики производителя энергии:",
+  "tooltip.anvilcraft.grid_information.title": "Характеристики электросети:",
+  "tooltip.anvilcraft.grid_information.total_consumed": "  Общее потребление: %d",
+  "tooltip.anvilcraft.grid_information.total_generated": "  Общая генерация: %d",
+  "tooltip.anvilcraft.grid_information.utilization": "  Использование энергии: %s"
 }

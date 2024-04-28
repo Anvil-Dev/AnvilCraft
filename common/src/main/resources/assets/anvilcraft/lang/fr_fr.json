@@ -124,7 +124,7 @@
   "screen.anvilcraft.royal_grindstone.remove_curse_number": "Supprimer la %i malédiction",
   "screen.anvilcraft.royal_grindstone.remove_repair_cost": "Supprimer  la pénalité d'enchantement de niveau %i",
   "screen.anvilcraft.royal_grindstone.title": "Supprimer les pénalités de malédiction et d'enchantement",
-  "screen.anvilcraft.royal_steel_upgrade_smithing_template": "Modèle de forge-Amélioration royale",
+  "screen.anvilcraft.royal_steel_upgrade_smithing_template": "Amélioration royale",
   "screen.anvilcraft.slot.disable.tooltip": "Utiliser les clics sur les éléments pour définir le filtre",
   "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.additions_slot_description": "Mettre les lingots d'acier royal",
   "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.applies_to": "Outils ou blocs forgés",
@@ -158,5 +158,18 @@
   "text.autoconfig.anvilcraft.option.redstoneEmpRadius": "Rayon EMP de Redstone",
   "text.autoconfig.anvilcraft.option.redstoneEmpRadius.@Tooltip": "Distance EMP de redstone générée par bloc lâché par l'enclume",
   "text.autoconfig.anvilcraft.title": "Configuration d'AnvilCraft",
-  "tooltip.anvilcraft.jade.power_information": "Réseau électrique : %d/%d MW"
+  "tooltip.anvilcraft.jade.power_information": "Réseau électrique: %d/%d MW",
+  "block.anvilcraft.melt_gem_cauldron": "Chaudron de gemme fondue",
+  "item.anvilcraft.default_enchantment.tooltip": "Possède des enchantements par défaut:",
+  "tooltip.anvilcraft.grid_information.consumer_stats": "Statistiques sur les consommateurs d'énergie:",
+  "tooltip.anvilcraft.grid_information.input_power": "  Consommation d'énergie: %d",
+  "tooltip.anvilcraft.grid_information.output_power": "  Production d'énergie: %d",
+  "tooltip.anvilcraft.grid_information.overloaded1": "Il semble que cette grille soit surchargée.",
+  "tooltip.anvilcraft.grid_information.overloaded2": "Ajoutez d'autres sources",
+  "tooltip.anvilcraft.grid_information.overloaded3": "ou supprimez les composants à fort impact de contrainte.",
+  "tooltip.anvilcraft.grid_information.producer_stats": "Statistiques des producteurs d'électricité:",
+  "tooltip.anvilcraft.grid_information.title": "Statistiques du réseau électrique:",
+  "tooltip.anvilcraft.grid_information.total_consumed": "  Consommation totale: %d",
+  "tooltip.anvilcraft.grid_information.total_generated": "  Génération totale: %d",
+  "tooltip.anvilcraft.grid_information.utilization": "  Consommation d'énergie: %s"
 }

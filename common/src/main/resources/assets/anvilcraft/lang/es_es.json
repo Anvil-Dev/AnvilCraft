@@ -124,7 +124,7 @@
   "screen.anvilcraft.royal_grindstone.remove_curse_number": "Elimina %i maldiciones",
   "screen.anvilcraft.royal_grindstone.remove_repair_cost": "Eliminar %i penalización de encantamiento",
   "screen.anvilcraft.royal_grindstone.title": "Eliminar maldiciones y penalizaciones",
-  "screen.anvilcraft.royal_steel_upgrade_smithing_template": "Plantilla de mejora de acero real",
+  "screen.anvilcraft.royal_steel_upgrade_smithing_template": "Mejoras reales",
   "screen.anvilcraft.slot.disable.tooltip": "Usar clics en elementos para establecer el filtro",
   "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.additions_slot_description": "Coloque el lingote de acero real",
   "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.applies_to": "Herramientas o bloques forjados",
@@ -158,5 +158,18 @@
   "text.autoconfig.anvilcraft.option.redstoneEmpRadius": "Radio EMP de Redstone",
   "text.autoconfig.anvilcraft.option.redstoneEmpRadius.@Tooltip": "Distancia EMP de Redstone generada por bloque dejado caer por el yunque",
   "text.autoconfig.anvilcraft.title": "AnvilCraft Config",
-  "tooltip.anvilcraft.jade.power_information": "Red eléctrica: %d/%d MW"
+  "tooltip.anvilcraft.jade.power_information": "Red eléctrica: %d/%d MW",
+  "block.anvilcraft.melt_gem_cauldron": "Caldero de gemas derretidas",
+  "item.anvilcraft.default_enchantment.tooltip": "Tiene encantamientos predeterminados:",
+  "tooltip.anvilcraft.grid_information.consumer_stats": "Estadísticas de consumo de energía:",
+  "tooltip.anvilcraft.grid_information.input_power": "  Consumo de energía: %d",
+  "tooltip.anvilcraft.grid_information.output_power": "  Generación de energía: %d",
+  "tooltip.anvilcraft.grid_information.overloaded1": "Parece que esta cuadrícula está sobrecargada.",
+  "tooltip.anvilcraft.grid_information.overloaded2": "Agregue más equipos de generación de energía",
+  "tooltip.anvilcraft.grid_information.overloaded3": "o retire los electrodomésticos de alta potencia.",
+  "tooltip.anvilcraft.grid_information.producer_stats": "Estadísticas del productor de energía:",
+  "tooltip.anvilcraft.grid_information.title": "Estadísticas de la red eléctrica:",
+  "tooltip.anvilcraft.grid_information.total_consumed": "  Consumo total: %d",
+  "tooltip.anvilcraft.grid_information.total_generated": "  Generación total: %d",
+  "tooltip.anvilcraft.grid_information.utilization": "  Utilización de energía: %s"
 }

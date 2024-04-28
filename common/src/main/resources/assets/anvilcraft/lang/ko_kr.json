@@ -124,7 +124,7 @@
   "screen.anvilcraft.royal_grindstone.remove_curse_number": "저주 %i개 제거",
   "screen.anvilcraft.royal_grindstone.remove_repair_cost": "%i레벨 페널티 제거",
   "screen.anvilcraft.royal_grindstone.title": "저주와 인챈트 페널티를 제거합니다",
-  "screen.anvilcraft.royal_steel_upgrade_smithing_template": "대장간 템플릿-로얄 스틸 업그레이드",
+  "screen.anvilcraft.royal_steel_upgrade_smithing_template": "로얄 스틸 업그레이드",
   "screen.anvilcraft.slot.disable.tooltip": "항목 클릭을 사용하여 필터 설정",
   "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.additions_slot_description": "왕실 강철 주괴 넣어",
   "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.applies_to": "도구 또는 단조 블록",
@@ -158,5 +158,18 @@
   "text.autoconfig.anvilcraft.option.redstoneEmpRadius": "레드스톤 EMP 반경",
   "text.autoconfig.anvilcraft.option.redstoneEmpRadius.@Tooltip": "모루가 떨어뜨린 블록당 생성되는 레드스톤 EMP 거리",
   "text.autoconfig.anvilcraft.title": "AnvilCraft 구성",
-  "tooltip.anvilcraft.jade.power_information": "전력망: %d/%d MW"
+  "tooltip.anvilcraft.jade.power_information": "전력망: %d/%d MW",
+  "block.anvilcraft.melt_gem_cauldron": "멜트 젬 가마솥",
+  "item.anvilcraft.default_enchantment.tooltip": "기본 인챈트가 있습니다.",
+  "tooltip.anvilcraft.grid_information.consumer_stats": "전력 소비자 통계:",
+  "tooltip.anvilcraft.grid_information.input_power": "  전력 소비: %d",
+  "tooltip.anvilcraft.grid_information.output_power": "  발전량: %d",
+  "tooltip.anvilcraft.grid_information.overloaded1": "이 그리드에 과부하가 걸린 것 같습니다.",
+  "tooltip.anvilcraft.grid_information.overloaded2": "더 많은 발전 장비 추가",
+  "tooltip.anvilcraft.grid_information.overloaded3": "또는 고전력 기기를 제거하십시오.",
+  "tooltip.anvilcraft.grid_information.producer_stats": "파워 프로듀서 통계:",
+  "tooltip.anvilcraft.grid_information.title": "전력망 통계:",
+  "tooltip.anvilcraft.grid_information.total_consumed": "  총 소비량: %d",
+  "tooltip.anvilcraft.grid_information.total_generated": "  총 생성: %d",
+  "tooltip.anvilcraft.grid_information.utilization": "  전력 사용률: %s"
 }
