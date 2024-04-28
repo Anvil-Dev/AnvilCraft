@@ -10,23 +10,31 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Ingredient;
 
 public class SmithingRecipesLoader {
+    /**
+     * 初始化
+     *
+     * @param provider 提供器
+     */
     public static void init(RegistrateRecipeProvider provider) {
         SmithingTransformRecipeBuilder
-                .smithing(
-                        Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
-                        Ingredient.of(ModItems.ANVIL_HAMMER),
-                        Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK),
-                        RecipeCategory.TOOLS,
-                        ModItems.ROYAL_ANVIL_HAMMER.asItem()
-                ).unlocks(
-                        AnvilCraftDatagen.hasItem(ModItems.ANVIL_HAMMER),
-                        AnvilCraftDatagen.has(ModItems.ANVIL_HAMMER)
-                ).unlocks(
-                        AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
-                        AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE)
-                ).save(
-                        provider,
-                        new ResourceLocation("anvilcraft", "anvil_hammer_upgrade")
-                );
+            .smithing(
+                Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
+                Ingredient.of(ModItems.ANVIL_HAMMER),
+                Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK),
+                RecipeCategory.TOOLS,
+                ModItems.ROYAL_ANVIL_HAMMER.asItem()
+            )
+            .unlocks(
+                AnvilCraftDatagen.hasItem(ModItems.ANVIL_HAMMER),
+                AnvilCraftDatagen.has(ModItems.ANVIL_HAMMER)
+            )
+            .unlocks(
+                AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
+                AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE)
+            )
+            .save(
+                provider,
+                new ResourceLocation("anvilcraft", "anvil_hammer_upgrade")
+            );
     }
 }

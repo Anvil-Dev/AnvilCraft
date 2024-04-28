@@ -559,6 +559,7 @@ public interface AnvilCraftRecipeSchema {
     RecipeKey<OutputItem> ICON =
         ItemComponents.OUTPUT.key("icon").optional(OutputItem.of(ModItems.ROYAL_STEEL_NUGGET));
 
-    RecipeSchema SCHEMA = new RecipeSchema(AnvilCraftRecipeJs.class, AnvilCraftRecipeJs::new, OUTCOMES, PREDICATES, ICON)
-        .constructor(((recipe, schemaType, keys, from) -> recipe.id(from.getValue(recipe, ID))), ID);
+    RecipeSchema SCHEMA = new RecipeSchema(
+        AnvilCraftRecipeJs.class, AnvilCraftRecipeJs::new, OUTCOMES, PREDICATES, ICON
+    ).constructor(((recipe, schemaType, keys, from) -> recipe.id(from.getValue(recipe, ID))), ID);
 }
