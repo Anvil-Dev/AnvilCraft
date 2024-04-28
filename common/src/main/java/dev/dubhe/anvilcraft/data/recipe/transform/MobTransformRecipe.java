@@ -49,6 +49,9 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
     private List<TransformResult> results;
     private final ItemStack iconSrc;
 
+    /**
+     * 生物转化配方
+     */
     public MobTransformRecipe(
             ResourceLocation id,
             ItemStack iconSrc,
@@ -79,6 +82,9 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
         return ItemStack.EMPTY;
     }
 
+    /**
+     * 结果
+     */
     public EntityType<?> result(RandomSource randomSource) {
         if (results.size() == 1) return results.get(0).resultEntityType();
         List<TransformResult> sorted = new ArrayList<>(results.stream()
@@ -207,6 +213,9 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
             return this;
         }
 
+        /**
+         * 构造
+         */
         public MobTransformRecipe build() {
             MobTransformRecipe r = new MobTransformRecipe(id, iconSrc);
             r.inputEntityType = inputEntityType;
@@ -214,6 +223,9 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
             return r;
         }
 
+        /**
+         * 完成
+         */
         public FinishedMobTransformRecipe finish() {
             this.advancement
                     .parent(ROOT_RECIPE_ADVANCEMENT)
