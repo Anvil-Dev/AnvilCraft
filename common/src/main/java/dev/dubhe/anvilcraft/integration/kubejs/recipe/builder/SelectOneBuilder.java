@@ -167,4 +167,13 @@ public class SelectOneBuilder {
         outcomes.forEach(selectOne::add);
         return selectOne;
     }
+
+    /**
+     * 构造 SelectOneBuilder
+     *
+     * @return SelectOneBuilder
+     */
+    public static SelectOneBuilder builder() {
+        return new SelectOneBuilder();
+    }
 }
