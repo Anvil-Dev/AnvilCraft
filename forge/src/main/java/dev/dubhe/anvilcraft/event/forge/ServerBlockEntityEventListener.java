@@ -1,9 +1,11 @@
 package dev.dubhe.anvilcraft.event.forge;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
 import dev.dubhe.anvilcraft.api.event.forge.BlockEntityEvent;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
+import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
@@ -18,6 +20,9 @@ public class ServerBlockEntityEventListener {
         if (event.getEntity() instanceof IPowerComponent component) {
             PowerGrid.addComponent(component);
         }
+        if (event.getEntity() instanceof ChargeCollectorBlockEntity chargeCollector) {
+            ChargeCollectorManager.addChargeCollector(chargeCollector);
+        }
     }
 
     /**
@@ -27,6 +32,9 @@ public class ServerBlockEntityEventListener {
     public static void onUnload(@NotNull BlockEntityEvent.ServerUnload event) {
         if (event.getEntity() instanceof IPowerComponent component) {
             PowerGrid.removeComponent(component);
+        }
+        if (event.getEntity() instanceof ChargeCollectorBlockEntity chargeCollector) {
+            ChargeCollectorManager.removeChargeCollector(chargeCollector);
         }
     }
 }
