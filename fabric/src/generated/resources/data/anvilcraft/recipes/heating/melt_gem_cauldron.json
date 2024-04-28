@@ -1,11 +1,11 @@
 {
   "type": "anvilcraft:anvil_processing",
   "icon": {
-    "item": "minecraft:ancient_debris"
+    "item": "minecraft:emerald_block"
   },
   "outcomes": [
     {
-      "type": "spawn_item",
+      "type": "set_block",
       "chance": 1.0,
       "offset": [
         0.0,
@@ -13,8 +13,7 @@
         0.0
       ],
       "result": {
-        "count": 2,
-        "item": "minecraft:ancient_debris"
+        "block": "anvilcraft:melt_gem_cauldron"
       }
     }
   ],
@@ -23,10 +22,10 @@
       "type": "has_block",
       "match_block": {
         "blocks": [
-          "anvilcraft:corrupted_beacon"
+          "anvilcraft:heater"
         ],
         "state": {
-          "lit": "true"
+          "overload": "false"
         }
       },
       "offset": [
@@ -36,7 +35,7 @@
       ]
     },
     {
-      "type": "has_block",
+      "type": "has_block_ingredient",
       "match_block": {
         "blocks": [
           "minecraft:cauldron"
@@ -55,7 +54,10 @@
           "min": 1
         },
         "items": [
-          "anvilcraft:netherite_crystal_nucleus"
+          "minecraft:emerald_block",
+          "anvilcraft:ruby_block",
+          "anvilcraft:topaz_block",
+          "anvilcraft:sapphire_block"
         ]
       },
       "offset": [

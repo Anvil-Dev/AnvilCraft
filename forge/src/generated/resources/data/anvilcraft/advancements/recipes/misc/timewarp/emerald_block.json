@@ -1,12 +1,12 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_netherite_crystal_nucleus": {
+    "has_emerald": {
       "conditions": {
         "items": [
           {
             "items": [
-              "anvilcraft:netherite_crystal_nucleus"
+              "minecraft:emerald"
             ]
           }
         ]
@@ -15,20 +15,20 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:timewarp/ancient_debris"
+        "recipe": "anvilcraft:timewarp/emerald_block"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_netherite_crystal_nucleus",
+      "has_emerald",
       "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:timewarp/ancient_debris"
+      "anvilcraft:timewarp/emerald_block"
     ]
   },
   "sends_telemetry_event": false
