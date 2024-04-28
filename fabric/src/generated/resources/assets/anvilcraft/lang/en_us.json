@@ -168,7 +168,6 @@
   "tooltip.anvilcraft.grid_information.title": "Power Grid Stats:",
   "tooltip.anvilcraft.grid_information.total_consumed": "  Total Consumption: %d",
   "tooltip.anvilcraft.grid_information.total_generated": "  Total Generation: %d",
-  "tooltip.anvilcraft.grid_information.utilization": "  Power Utilization: %s"
-  "text.autoconfig.anvilcraft.title": "AnvilCraft Config",
+  "tooltip.anvilcraft.grid_information.utilization": "  Power Utilization: %s",
   "tooltip.anvilcraft.jade.power_information": "Power Grid: %d/%d MW"
 }
