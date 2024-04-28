@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.entity.render;
+package dev.dubhe.anvilcraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.entity.AnimateAscendingBlockEntity;

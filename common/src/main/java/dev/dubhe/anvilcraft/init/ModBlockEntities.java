@@ -8,8 +8,8 @@ import dev.dubhe.anvilcraft.block.entity.CorruptedBeaconBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeGeneratorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeaterBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CorruptedBeaconRenderer;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
@@ -33,6 +33,12 @@ public class ModBlockEntities {
         .validBlock(ModBlocks.SIMPLE_CHUTE)
         .register();
 
+    public static final BlockEntityEntry<CrabTrapBlockEntity> CRAB_TRAP = REGISTRATE
+        .blockEntity("crab_trap", CrabTrapBlockEntity::createBlockEntity)
+        .onRegister(CrabTrapBlockEntity::onBlockEntityRegister)
+        .validBlock(ModBlocks.CRAB_TRAP)
+        .register();
+
     public static final BlockEntityEntry<CorruptedBeaconBlockEntity> CORRUPTED_BEACON = REGISTRATE
         .blockEntity("corrupted_beacon", CorruptedBeaconBlockEntity::createBlockEntity)
         .validBlock(ModBlocks.CORRUPTED_BEACON)
@@ -53,13 +59,9 @@ public class ModBlockEntities {
         .blockEntity("transmission_pole", TransmissionPoleBlockEntity::createBlockEntity)
         .validBlock(ModBlocks.TRANSMISSION_POLE)
         .register();
-    public static final BlockEntityEntry<CrabTrapBlockEntity> CRAB_TRAP = REGISTRATE
-        .blockEntity("crab_trap", CrabTrapBlockEntity::createBlockEntity)
-        .onRegister(CrabTrapBlockEntity::onBlockEntityRegister)
-        .validBlock(ModBlocks.CRAB_TRAP)
-        .register();
+
     public static final BlockEntityEntry<ChargeCollectorBlockEntity> CHARGE_COLLECTOR = REGISTRATE
-        .blockEntity("crab_trap", ChargeCollectorBlockEntity::createBlockEntity)
+        .blockEntity("charge_collector", ChargeCollectorBlockEntity::createBlockEntity)
         .validBlock(ModBlocks.CHARGE_COLLECTOR)
         .register();
 

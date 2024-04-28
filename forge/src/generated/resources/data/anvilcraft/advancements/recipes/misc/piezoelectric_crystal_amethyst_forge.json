@@ -1,6 +1,16 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
+    "has_amethyst_blocks": {
+      "conditions": {
+        "items": [
+          {
+            "tag": "forge:amethyst_blocks"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
     "has_copper_ingot": {
       "conditions": {
         "items": [
@@ -13,19 +23,9 @@
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_quartz_blocks": {
-      "conditions": {
-        "items": [
-          {
-            "tag": "c:quartz_blocks"
-          }
-        ]
-      },
-      "trigger": "minecraft:inventory_changed"
-    },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:piezoelectric_crystal"
+        "recipe": "anvilcraft:piezoelectric_crystal_amethyst_forge"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -33,13 +33,13 @@
   "requirements": [
     [
       "has_copper_ingot",
-      "has_quartz_blocks",
+      "has_amethyst_blocks",
       "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:piezoelectric_crystal"
+      "anvilcraft:piezoelectric_crystal_amethyst_forge"
     ]
   },
   "sends_telemetry_event": false

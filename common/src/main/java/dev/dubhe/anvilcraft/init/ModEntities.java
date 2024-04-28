@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.init;
 import com.tterrag.registrate.util.entry.EntityEntry;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.entity.AnimateAscendingBlockEntity;
-import dev.dubhe.anvilcraft.entity.render.AscendingBlockRenderer;
+import dev.dubhe.anvilcraft.client.renderer.entity.AscendingBlockRenderer;
 import net.minecraft.world.entity.MobCategory;
 
 public class ModEntities {

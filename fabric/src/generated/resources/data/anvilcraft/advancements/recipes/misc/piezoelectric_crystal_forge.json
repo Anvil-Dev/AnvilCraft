@@ -17,7 +17,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "c:quartz_blocks"
+            "tag": "forge:quartz_blocks"
           }
         ]
       },
@@ -25,7 +25,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:piezoelectric_crystal"
+        "recipe": "anvilcraft:piezoelectric_crystal_forge"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -39,7 +39,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:piezoelectric_crystal"
+      "anvilcraft:piezoelectric_crystal_forge"
     ]
   },
   "sends_telemetry_event": false
