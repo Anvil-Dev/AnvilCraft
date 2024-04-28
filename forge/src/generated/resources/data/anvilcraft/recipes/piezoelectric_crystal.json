@@ -3,10 +3,10 @@
   "category": "misc",
   "key": {
     "A": {
-      "item": "minecraft:quartz_block"
+      "item": "minecraft:copper_ingot"
     },
     "B": {
-      "item": "minecraft:copper_ingot"
+      "tag": "c:quartz_blocks"
     }
   },
   "pattern": [

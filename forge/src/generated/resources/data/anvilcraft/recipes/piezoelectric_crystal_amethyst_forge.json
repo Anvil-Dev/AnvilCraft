@@ -6,7 +6,7 @@
       "item": "minecraft:copper_ingot"
     },
     "B": {
-      "tag": "c:quartz_blocks"
+      "tag": "forge:amethyst_blocks"
     }
   },
   "pattern": [
