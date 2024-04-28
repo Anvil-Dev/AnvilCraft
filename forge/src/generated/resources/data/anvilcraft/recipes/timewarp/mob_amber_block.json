@@ -61,7 +61,7 @@
         "items": [
           "anvilcraft:resin_block"
         ],
-        "nbt": "{is_monster:1b}"
+        "nbt": "{is_monster:0b}"
       },
       "offset": [
         0.0,
