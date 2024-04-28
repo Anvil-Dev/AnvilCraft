@@ -32,10 +32,5 @@ public class OtherLang {
             "entity.minecraft.villager.jeweler",
             "Jeweler"
         );
-
-        provider.add(
-            "block.anvilcraft.resin_block.has_mob",
-            "Contains %s Resin Block"
-        );
     }
 }

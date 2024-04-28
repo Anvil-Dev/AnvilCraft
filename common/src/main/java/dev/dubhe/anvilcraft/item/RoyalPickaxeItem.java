@@ -28,9 +28,6 @@ public class RoyalPickaxeItem extends PickaxeItem implements HasDefaultEnchantme
         @NotNull TooltipFlag isAdvanced
     ) {
         super.appendHoverText(stack, level, tooltipComponents, isAdvanced);
-        tooltipComponents
-            .add(Component.translatable("item.anvilcraft.amethyst_pickaxe.tooltip")
-                .withStyle(ChatFormatting.GRAY));
         tooltipComponents.addAll(this.getDefaultEnchantmentsTooltip());
     }
 

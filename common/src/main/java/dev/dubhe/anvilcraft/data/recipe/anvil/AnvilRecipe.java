@@ -30,6 +30,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -51,6 +52,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -63,6 +65,7 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
     @Getter
     private final List<RecipeOutcome> outcomes = new ArrayList<>();
     private final ItemStack icon;
+    private final Map<String, CompoundTag> data = new HashMap<>();
 
     public AnvilRecipe(ResourceLocation id, ItemStack icon) {
         this.id = id;
@@ -97,8 +100,19 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
      */
     public boolean craft(@NotNull AnvilCraftingContainer container) {
         if (!this.matches(container, container.getLevel())) return false;
-        for (RecipePredicate predicate : this.predicates) predicate.process(container);
-        for (RecipeOutcome outcome : this.outcomes) outcome.process(container);
+        for (RecipePredicate predicate : this.predicates) {
+            predicate.process(container);
+            if (predicate instanceof HasData hasData) {
+                Map.Entry<String, CompoundTag> entry = hasData.getData();
+                if (entry != null) this.data.put(entry.getKey(), entry.getValue());
+            }
+        }
+        for (RecipeOutcome outcome : this.outcomes) {
+            if (outcome instanceof CanSetData canSetData) {
+                canSetData.setData(this.data);
+            }
+            outcome.process(container);
+        }
         return true;
     }
 

@@ -71,9 +71,12 @@ public class VillagerEventListener {
                 new ItemStack(Items.NAUTILUS_SHELL), ItemStack.EMPTY, new ItemStack(Items.EMERALD, 2),
                 12, 10, 0.05f
             ));
-            trades.get(4).add((entity, random) -> new MerchantOffer(
-                new ItemStack(ModBlocks.CORRUPTED_BEACON), ItemStack.EMPTY, new ItemStack(Items.EMERALD, 24),
-                2, 2, 30, 0.05f
+            trades.get(4).add((entity, random) -> ((int) (random.nextDouble() * 2)) == 1 ? new MerchantOffer(
+                new ItemStack(ModBlocks.MOB_AMBER_BLOCK), ItemStack.EMPTY, new ItemStack(Items.EMERALD, 8),
+                2, 10, 0.05f
+            ) : new MerchantOffer(
+                new ItemStack(ModBlocks.RESENTFUL_AMBER_BLOCK), ItemStack.EMPTY, new ItemStack(Items.EMERALD, 24),
+                2, 30, 0.05f
             ));
 
             // level 5

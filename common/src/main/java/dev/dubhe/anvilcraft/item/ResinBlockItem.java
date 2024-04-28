@@ -1,20 +1,13 @@
 package dev.dubhe.anvilcraft.item;
 
 import dev.dubhe.anvilcraft.init.ModItems;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -79,41 +72,5 @@ public class ResinBlockItem extends HasMobBlockItem {
         RandomSource random = level.getRandom();
         ItemStack back = new ItemStack(ModItems.RESIN, random.nextInt(1, 4));
         player.getInventory().placeItemBackInInventory(back);
-    }
-
-    private static void saveMobInItem(
-        @NotNull Level level, @NotNull Mob entity, @NotNull Player player, @NotNull ItemStack stack
-    ) {
-        stack = stack.split(1);
-        if (level.isClientSide()) {
-            Item item = stack.getItem();
-            if (item instanceof ResinBlockItem item1) {
-                BlockPos blockPos = entity.getOnPos();
-                BlockState blockState = item1.getBlock().defaultBlockState();
-                SoundType soundType = blockState.getSoundType();
-                level.playSound(
-                    player, blockPos, item1.getPlaceSound(blockState), SoundSource.BLOCKS,
-                    (soundType.getVolume() + 1.0f) / 2.0f, soundType.getPitch() * 0.8f
-                );
-            }
-            return;
-        }
-        if (entity instanceof Monster monster) {
-            MobEffectInstance instance = monster.getEffect(MobEffects.WEAKNESS);
-            if (instance == null) return;
-        }
-        CompoundTag entityTag = new CompoundTag();
-        entity.save(entityTag);
-        entityTag.remove(Entity.UUID_TAG);
-        MutableComponent name = Component.translatable(
-            "block.anvilcraft.resin_block.has_mob",
-            entity.getDisplayName().copy().withStyle(ChatFormatting.DARK_PURPLE)
-        ).withStyle(ChatFormatting.AQUA).withStyle(Style.EMPTY.withItalic(false));
-        stack.setHoverName(name);
-        CompoundTag tag = stack.getOrCreateTag();
-        tag.put("entity", entityTag);
-        stack.setTag(tag);
-        player.getInventory().placeItemBackInInventory(stack);
-        entity.remove(Entity.RemovalReason.DISCARDED);
     }
 }

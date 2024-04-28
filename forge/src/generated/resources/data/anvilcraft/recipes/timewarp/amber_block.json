@@ -57,6 +57,9 @@
           "anvilcraft:resin_block"
         ]
       },
+      "not_has_tag": [
+        "entity"
+      ],
       "offset": [
         0.0,
         -1.0,
