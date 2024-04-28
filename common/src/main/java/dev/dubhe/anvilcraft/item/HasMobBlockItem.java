@@ -18,6 +18,7 @@ public class HasMobBlockItem extends BlockItem {
     }
 
     public static boolean hasMob(@NotNull ItemStack stack) {
+        if (!stack.hasTag()) return false;
         return stack.getOrCreateTag().contains("entity");
     }
 
