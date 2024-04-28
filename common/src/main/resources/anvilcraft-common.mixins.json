@@ -18,6 +18,7 @@
         "HoeItemMixin",
         "ItemEntityMixin",
         "LivingEntityMixin",
+        "PistonStructureResolverMixin",
         "PlayerHitEntityMixin",
         "SolidBucketItemMixin",
         "accessor.BaseSpawnerAccessor",
@@ -32,5 +33,5 @@
     ],
     "injectors": {
         "defaultRequire": 1
-    }
+  }
 }
