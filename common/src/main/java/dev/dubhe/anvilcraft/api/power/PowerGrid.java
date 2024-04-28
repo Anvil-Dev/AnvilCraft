@@ -1,16 +1,12 @@
 package dev.dubhe.anvilcraft.api.power;
 
-import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.PrimitiveCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.renderer.PowerGridRenderer;
 import dev.dubhe.anvilcraft.network.PowerGridRemovePack;
 import dev.dubhe.anvilcraft.network.PowerGridSyncPack;
 import lombok.Getter;
-import net.minecraft.client.gui.components.tabs.Tab;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -30,11 +26,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 /**
  * 电网
@@ -334,14 +327,10 @@ public class PowerGrid {
                 Codec.INT.fieldOf("hash").forGetter(o -> o.hash),
                 Codec.STRING.fieldOf("level").forGetter(o -> o.level),
                 BlockPos.CODEC.fieldOf("pos").forGetter(o -> o.pos),
-                BlockPos.CODEC
+                PowerComponentInfo.CODEC
                         .listOf()
-                        .fieldOf("blocks")
-                        .forGetter(o -> o.blocks),
-                Codec.INT
-                        .listOf()
-                        .fieldOf("rangeByIndex")
-                        .forGetter(o -> o.rangeByIndex),
+                        .fieldOf("powerComponentInfoList")
+                        .forGetter(it -> it.powerComponentInfoList),
                 Codec.INT.fieldOf("generate").forGetter(o -> o.generate),
                 Codec.INT.fieldOf("consume").forGetter(o -> o.consume)
         ).apply(ins, SimplePowerGrid::new));
@@ -349,31 +338,32 @@ public class PowerGrid {
         private final int hash;
         private final String level;
         private final BlockPos pos;
-        private Map<BlockPos, Integer> ranges = new HashMap<>();
+        private final Map<BlockPos, Integer> ranges = new HashMap<>();
         private List<BlockPos> blocks = new ArrayList<>();
-        private List<Integer> rangeByIndex = new ArrayList<>();
+        private final List<PowerComponentInfo> powerComponentInfoList = new ArrayList<>();
         private int generate = 0; // 发电功率
         private int consume = 0;  // 耗电功率
+
+        private final Map<BlockPos, PowerComponentInfo> mappedPowerComponentInfo = new HashMap<>();
 
         public SimplePowerGrid(
                 int hash,
                 String level,
                 BlockPos pos,
-                List<BlockPos> blocks,
-                List<Integer> ranges,
+                List<PowerComponentInfo> powerComponentInfoList,
                 int generate,
                 int consume
         ) {
             this.pos = pos;
             this.level = level;
             this.hash = hash;
-            this.blocks = blocks;
-            this.rangeByIndex = ranges;
-            for (int i = 0; i < blocks.size(); i++) {
-                this.ranges.put(blocks.get(i), ranges.get(i));
-            }
             this.generate = generate;
             this.consume = consume;
+            blocks.addAll(powerComponentInfoList.stream().map(PowerComponentInfo::pos).toList());
+            powerComponentInfoList.forEach(it -> {
+                mappedPowerComponentInfo.put(it.pos(), it);
+                ranges.put(it.pos(), it.range());
+            });
         }
 
         /**
@@ -381,7 +371,6 @@ public class PowerGrid {
          */
         public void encode(@NotNull FriendlyByteBuf buf) {
             this.blocks = ranges.keySet().stream().toList();
-            this.rangeByIndex = ranges.values().stream().toList();
             var tag1 = CODEC.encodeStart(NbtOps.INSTANCE, this);
             Tag tag = CODEC.encodeStart(NbtOps.INSTANCE, this)
                     .getOrThrow(false, ignored -> {
@@ -412,16 +401,53 @@ public class PowerGrid {
             this.hash = grid.hashCode();
             this.level = grid.getLevel().dimension().location().toString();
             this.pos = grid.getPos();
-            grid.storages.forEach(this::addRange);
-            grid.producers.forEach(this::addRange);
-            grid.consumers.forEach(this::addRange);
-            grid.transmitters.forEach(this::addRange);
+            Map<BlockPos, PowerComponentInfo> infoMap = new HashMap<>();
+            grid.storages.forEach(it -> infoMap.put(
+                    it.getPos(),
+                    new PowerComponentInfo(
+                            it.getPos(),
+                            0,
+                            0,
+                            it.getPowerAmount(),
+                            it.getCapacity(),
+                            it.getRange()
+                    )));
+            grid.producers.forEach(it -> infoMap.put(
+                    it.getPos(),
+                    new PowerComponentInfo(
+                            it.getPos(),
+                            0,
+                            it.getOutputPower(),
+                            0,
+                            0,
+                            it.getRange()
+                    )));
+            grid.consumers.forEach(it -> infoMap.put(
+                    it.getPos(),
+                    new PowerComponentInfo(
+                            it.getPos(),
+                            it.getInputPower(),
+                            0,
+                            0,
+                            0,
+                            it.getRange()
+                    )));
+            grid.transmitters.forEach(it -> infoMap.put(
+                    it.getPos(),
+                    new PowerComponentInfo(
+                            it.getPos(),
+                            0,
+                            0,
+                            0,
+                            0,
+                            it.getRange()
+                    )));
+            infoMap.values().forEach(it -> {
+                this.ranges.put(it.pos(), it.range());
+                this.powerComponentInfoList.add(it);
+            });
             this.consume = grid.consume;
             this.generate = grid.generate;
-        }
-
-        public void addRange(@NotNull IPowerComponent component) {
-            this.ranges.put(component.getPos(), component.getRange());
         }
 
         /**
