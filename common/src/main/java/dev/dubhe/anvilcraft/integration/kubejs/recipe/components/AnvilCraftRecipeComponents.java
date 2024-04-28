@@ -35,7 +35,9 @@ public class AnvilCraftRecipeComponents {
 
         @Override
         public ResourceLocation read(RecipeJS recipe, Object from) {
-            return from instanceof CharSequence c ? ResourceLocation.tryParse(c.toString()) : ResourceLocation.tryParse(String.valueOf(from));
+            return from instanceof CharSequence c
+                ? ResourceLocation.tryParse(c.toString())
+                : ResourceLocation.tryParse(String.valueOf(from));
         }
 
         @Override

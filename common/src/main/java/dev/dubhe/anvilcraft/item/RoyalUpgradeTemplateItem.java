@@ -36,6 +36,9 @@ public class RoyalUpgradeTemplateItem extends SmithingTemplateItem {
             "item/empty_slot_block"
     );
 
+    /**
+     * @param properties 物品属性
+     */
     public RoyalUpgradeTemplateItem(@SuppressWarnings("unused") Properties properties) {
         super(APPLIES_TO,
                 UPGRADE_INGREDIENTS,
