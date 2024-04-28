@@ -22,6 +22,21 @@ public interface IPowerStorage extends IPowerProducer, IPowerConsumer {
      */
     int extract(int power);
 
+
+    /**
+     * 获取已存储的电量
+     *
+     * @return 电量值
+     */
+    int getPowerAmount();
+
+    /**
+     * 获取储电容量
+     *
+     * @return 储电容量
+     */
+    int getCapacity();
+
     @Override
     default @NotNull PowerComponentType getComponentType() {
         return PowerComponentType.STORAGE;

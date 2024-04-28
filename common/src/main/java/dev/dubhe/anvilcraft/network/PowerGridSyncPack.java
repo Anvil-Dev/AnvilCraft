@@ -8,6 +8,9 @@ import lombok.Getter;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
@@ -27,7 +30,10 @@ public class PowerGridSyncPack implements Packet {
      * @param buf 缓冲区
      */
     public PowerGridSyncPack(@NotNull FriendlyByteBuf buf) {
-        this.grid = new PowerGrid.SimplePowerGrid(buf);
+        CompoundTag tag = buf.readNbt();
+        Tag data = tag.get("data");
+        this.grid = PowerGrid.SimplePowerGrid.CODEC.decode(NbtOps.INSTANCE, data)
+                .getOrThrow(false, ignored -> {}).getFirst();
     }
 
     @Override

@@ -25,6 +25,7 @@
   ],
   "client": [
     "LevelRendererMixin",
+    "PowerGridInformationRenderMixin",
     "accessor.ItemInHandRendererAccessor",
     "accessor.MinecraftAccessor"
   ],

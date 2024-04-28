@@ -11,6 +11,7 @@ import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -89,8 +90,9 @@ public class MagnetBlock extends Block {
             BlockState state1 = level.getBlockState(currentPos);
 
             if (state1.is(BlockTags.ANVIL)) {
-                level.setBlock(currentPos, state1.getFluidState().createLegacyBlock(), 3);
                 level.setBlockAndUpdate(magnetPos.below(), state1);
+                level.setBlockAndUpdate(currentPos, Blocks.AIR.defaultBlockState());
+
                 AnimateAscendingBlockEntity.animate(level, currentPos, state1, magnetPos.below());
                 break;
             }
