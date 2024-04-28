@@ -1,7 +1,7 @@
 {
   "type": "anvilcraft:anvil_processing",
   "icon": {
-    "item": "minecraft:ancient_debris"
+    "item": "anvilcraft:sapphire_block"
   },
   "outcomes": [
     {
@@ -13,8 +13,19 @@
         0.0
       ],
       "result": {
-        "count": 2,
-        "item": "minecraft:ancient_debris"
+        "item": "anvilcraft:sapphire_block"
+      }
+    },
+    {
+      "type": "set_block",
+      "chance": 1.0,
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "result": {
+        "block": "minecraft:cauldron"
       }
     }
   ],
@@ -36,10 +47,10 @@
       ]
     },
     {
-      "type": "has_block",
+      "type": "has_block_ingredient",
       "match_block": {
         "blocks": [
-          "minecraft:cauldron"
+          "anvilcraft:melt_gem_cauldron"
         ]
       },
       "offset": [
@@ -55,7 +66,7 @@
           "min": 1
         },
         "items": [
-          "anvilcraft:netherite_crystal_nucleus"
+          "anvilcraft:sapphire"
         ]
       },
       "offset": [

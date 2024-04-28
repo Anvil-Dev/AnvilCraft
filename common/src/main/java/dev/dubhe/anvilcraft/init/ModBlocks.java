@@ -16,6 +16,7 @@ import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
 import dev.dubhe.anvilcraft.block.JewelCraftingTable;
 import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
+import dev.dubhe.anvilcraft.block.MeltGemCauldron;
 import dev.dubhe.anvilcraft.block.PiezoelectricCrystalBlock;
 import dev.dubhe.anvilcraft.block.ResinBlock;
 import dev.dubhe.anvilcraft.block.RoyalAnvilBlock;
@@ -709,6 +710,15 @@ public class ModBlocks {
                 )
                 .save(provider))
             .register();
+
+    public static final BlockEntry<MeltGemCauldron> MELT_GEM_CAULDRON = REGISTRATE
+        .block("melt_gem_cauldron", MeltGemCauldron::new)
+        .initialProperties(() -> Blocks.CAULDRON)
+        .blockstate((ctx, provider) -> {
+        })
+        .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
 
     public static void register() {
     }

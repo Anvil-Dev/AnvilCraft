@@ -29,6 +29,7 @@
     "anvilcraft:transmission_pole",
     "anvilcraft:jewelcrafting_table",
     "anvilcraft:piezoelectric_crystal",
-    "anvilcraft:charge_collector"
+    "anvilcraft:charge_collector",
+    "anvilcraft:melt_gem_cauldron"
   ]
 }

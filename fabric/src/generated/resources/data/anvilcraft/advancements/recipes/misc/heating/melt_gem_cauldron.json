@@ -1,0 +1,74 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_emerald_block": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "minecraft:emerald_block"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_ruby_block": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "anvilcraft:ruby_block"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_sapphire_block": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "anvilcraft:sapphire_block"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:heating/melt_gem_cauldron"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "has_topaz_block": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "anvilcraft:topaz_block"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_emerald_block",
+      "has_ruby_block",
+      "has_topaz_block",
+      "has_sapphire_block",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:heating/melt_gem_cauldron"
+    ]
+  },
+  "sends_telemetry_event": false
+}
