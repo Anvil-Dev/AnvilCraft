@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.entity;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
+import dev.dubhe.anvilcraft.api.depository.IItemDepository;
 import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
 import dev.dubhe.anvilcraft.block.ChuteBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
@@ -109,44 +110,50 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
     public void tick() {
         if (cooldown <= 0) {
             if (getBlockState().getValue(ChuteBlock.ENABLED)) {
-                if (ItemDepositoryHelper.getItemDepository(getLevel(),
-                    getBlockPos().relative(Direction.UP), Direction.UP.getOpposite()) != null) {
+                IItemDepository depository = ItemDepositoryHelper.getItemDepository(
+                    getLevel(),
+                    getBlockPos().relative(Direction.UP),
+                    Direction.UP.getOpposite()
+                );
+                if (depository != null) {
                     // 尝试从上方容器输入
-                    ItemDepositoryHelper.importToTarget(depository,
-                        64, stack -> true, getLevel(),
-                        getBlockPos().relative(Direction.UP), Direction.UP.getOpposite());
+                    ItemDepositoryHelper.importToTarget(this.depository, 64, stack -> true, depository);
                 } else {
                     List<ItemEntity> itemEntities = getLevel().getEntitiesOfClass(
                         ItemEntity.class, new AABB(getBlockPos().relative(Direction.UP)),
                         itemEntity -> !itemEntity.getItem().isEmpty());
                     for (ItemEntity itemEntity : itemEntities) {
-                        ItemStack remaining = ItemDepositoryHelper.insertItem(depository, itemEntity.getItem(), true);
+                        ItemStack remaining = ItemDepositoryHelper.insertItem(
+                            this.depository, itemEntity.getItem(), true
+                        );
                         if (!remaining.isEmpty()) continue;
-                        ItemDepositoryHelper.insertItem(depository, itemEntity.getItem(), false);
+                        ItemDepositoryHelper.insertItem(this.depository, itemEntity.getItem(), false);
                         itemEntity.kill();
                         break;
                     }
                 }
-                if (ItemDepositoryHelper.getItemDepository(getLevel(),
-                    getBlockPos().relative(getDirection()), getDirection().getOpposite()) != null) {
+                depository = ItemDepositoryHelper.getItemDepository(
+                    getLevel(),
+                    getBlockPos().relative(this.getDirection()),
+                    this.getDirection().getOpposite()
+                );
+                if (depository != null) {
                     // 尝试向朝向容器输出
-                    if (!depository.isEmpty()) {
-                        ItemDepositoryHelper.exportToTarget(depository,
-                            64, stack -> true, getLevel(),
-                            getBlockPos().relative(getDirection()), getDirection().getOpposite());
+                    if (!this.depository.isEmpty()) {
+                        ItemDepositoryHelper.exportToTarget(this.depository, 64, stack -> true, depository);
                     }
                 } else {
                     Vec3 center = getBlockPos().relative(getDirection()).getCenter();
                     AABB aabb = new AABB(center.add(-0.125, -0.125, -0.125), center.add(0.125, 0.125, 0.125));
                     if (getLevel().noCollision(aabb)) {
-                        for (int i = 0; i < depository.getSlots(); i++) {
-                            ItemStack stack = depository.getStack(i);
+                        for (int i = 0; i < this.depository.getSlots(); i++) {
+                            ItemStack stack = this.depository.getStack(i);
                             if (!stack.isEmpty()) {
                                 ItemEntity itemEntity = new ItemEntity(
                                     getLevel(), center.x, center.y, center.z, stack, 0, 0, 0);
                                 itemEntity.setDefaultPickUpDelay();
                                 getLevel().addFreshEntity(itemEntity);
-                                depository.setStack(i, ItemStack.EMPTY);
+                                this.depository.setStack(i, ItemStack.EMPTY);
                                 break;
                             }
                         }

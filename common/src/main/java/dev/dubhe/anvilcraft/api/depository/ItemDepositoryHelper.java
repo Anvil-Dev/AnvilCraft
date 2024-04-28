@@ -36,36 +36,29 @@ public class ItemDepositoryHelper {
      * @param source    物品源
      * @param maxAmount 导出的最大数量
      * @param predicate 能够导出的物品
-     * @param level     当前 Level
-     * @param pos       导出目标的位置
-     * @param direction 导出目标的方向
+     * @param target    目标
      */
-    @SuppressWarnings({"DuplicatedCode", "UnreachableCode"})
+    @SuppressWarnings("DuplicatedCode")
     public static void exportToTarget(
-        IItemDepository source,
+        @NotNull IItemDepository source,
         int maxAmount,
         Predicate<ItemStack> predicate,
-        @NotNull Level level,
-        BlockPos pos,
-        Direction direction
+        IItemDepository target
     ) {
-        if (level.getBlockState(pos).hasBlockEntity()) {
-            IItemDepository target = getItemDepository(level, pos, direction);
-            for (int srcIndex = 0; srcIndex < source.getSlots(); srcIndex++) {
-                ItemStack sourceStack = source.extract(srcIndex, Integer.MAX_VALUE, true);
-                if (sourceStack.isEmpty() || !predicate.test(sourceStack)) {
-                    continue;
-                }
-                ItemStack remainder = insertItem(target, sourceStack, true);
-                int amountToInsert = sourceStack.getCount() - remainder.getCount();
-                if (amountToInsert > 0) {
-                    sourceStack = source.extract(srcIndex, Math.min(maxAmount, amountToInsert), false);
-                    remainder = insertItem(target, sourceStack, false);
-                    maxAmount -= Math.min(maxAmount, amountToInsert);
-                    source.insert(srcIndex, remainder, false);
-                }
-                if (maxAmount <= 0) return;
+        for (int srcIndex = 0; srcIndex < source.getSlots(); srcIndex++) {
+            ItemStack sourceStack = source.extract(srcIndex, Integer.MAX_VALUE, true);
+            if (sourceStack.isEmpty() || !predicate.test(sourceStack)) {
+                continue;
             }
+            ItemStack remainder = insertItem(target, sourceStack, true);
+            int amountToInsert = sourceStack.getCount() - remainder.getCount();
+            if (amountToInsert > 0) {
+                sourceStack = source.extract(srcIndex, Math.min(maxAmount, amountToInsert), false);
+                remainder = insertItem(target, sourceStack, false);
+                maxAmount -= Math.min(maxAmount, amountToInsert);
+                source.insert(srcIndex, remainder, false);
+            }
+            if (maxAmount <= 0) return;
         }
     }
 
@@ -75,35 +68,28 @@ public class ItemDepositoryHelper {
      * @param target    物品目标
      * @param maxAmount 导入的最大数量
      * @param predicate 能够导入的物品
-     * @param level     当前 Level
-     * @param pos       导入物品源的位置
-     * @param direction 导入物品源的方向
+     * @param source    物品源
      */
-    @SuppressWarnings({"DuplicatedCode", "UnreachableCode"})
+    @SuppressWarnings("DuplicatedCode")
     public static void importToTarget(
         IItemDepository target,
         int maxAmount,
         Predicate<ItemStack> predicate,
-        @NotNull Level level,
-        BlockPos pos,
-        Direction direction
+        @NotNull IItemDepository source
     ) {
-        if (level.getBlockState(pos).hasBlockEntity()) {
-            IItemDepository source = getItemDepository(level, pos, direction);
-            for (int srcIndex = 0; srcIndex < source.getSlots(); srcIndex++) {
-                ItemStack sourceStack = source.extract(srcIndex, Integer.MAX_VALUE, true);
-                if (sourceStack.isEmpty() || !predicate.test(sourceStack)) {
-                    continue;
-                }
-                ItemStack remainder = insertItem(target, sourceStack, true);
-                int amountToInsert = sourceStack.getCount() - remainder.getCount();
-                if (amountToInsert > 0) {
-                    sourceStack = source.extract(srcIndex, Math.min(maxAmount, amountToInsert), false);
-                    insertItem(target, sourceStack, false);
-                    maxAmount -= Math.min(maxAmount, amountToInsert);
-                }
-                if (maxAmount <= 0) return;
+        for (int srcIndex = 0; srcIndex < source.getSlots(); srcIndex++) {
+            ItemStack sourceStack = source.extract(srcIndex, Integer.MAX_VALUE, true);
+            if (sourceStack.isEmpty() || !predicate.test(sourceStack)) {
+                continue;
             }
+            ItemStack remainder = insertItem(target, sourceStack, true);
+            int amountToInsert = sourceStack.getCount() - remainder.getCount();
+            if (amountToInsert > 0) {
+                sourceStack = source.extract(srcIndex, Math.min(maxAmount, amountToInsert), false);
+                insertItem(target, sourceStack, false);
+                maxAmount -= Math.min(maxAmount, amountToInsert);
+            }
+            if (maxAmount <= 0) return;
         }
     }
 
