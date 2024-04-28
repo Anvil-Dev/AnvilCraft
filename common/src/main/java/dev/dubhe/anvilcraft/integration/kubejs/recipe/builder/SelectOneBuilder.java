@@ -162,6 +162,9 @@ public class SelectOneBuilder {
         return addOutcome(spawnItem);
     }
 
+    /**
+     * KubeJS
+     */
     public SelectOne build() {
         SelectOne selectOne = new SelectOne();
         outcomes.forEach(selectOne::add);

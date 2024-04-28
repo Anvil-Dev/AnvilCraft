@@ -17,6 +17,9 @@ public class MobTransformContainer implements Container {
     private final Entity entity;
     private final RandomSource random;
 
+    /**
+     * 生物转化容器
+     */
     public MobTransformContainer(Level level, BlockPos pos, Entity entity) {
         this.level = level;
         this.random = this.level.getRandom();

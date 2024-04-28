@@ -16,6 +16,9 @@ public class FinishedMobTransformRecipe implements FinishedRecipe {
     private final Advancement.Builder advancement;
     private final ResourceLocation advancementId;
 
+    /**
+     * 生物转化配方
+     */
     public FinishedMobTransformRecipe(
             MobTransformRecipe recipe,
             Advancement.Builder advancement,
