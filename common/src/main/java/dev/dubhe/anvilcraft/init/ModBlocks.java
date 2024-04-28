@@ -497,6 +497,7 @@ public class ModBlocks {
                 .of(ModBlocks.RESIN_BLOCK)
                 .withCount(MinMaxBounds.Ints.atLeast(1))
                 .hasNbt(tag);
+            tag = new CompoundTag();
             tag.putBoolean("is_monster", true);
             ItemPredicate.Builder monster = ItemPredicate.Builder
                 .item()
