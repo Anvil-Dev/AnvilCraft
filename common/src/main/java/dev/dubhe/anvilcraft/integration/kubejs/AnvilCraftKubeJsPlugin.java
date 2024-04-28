@@ -17,6 +17,7 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.NotHasBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.AnvilCraftRecipeSchema;
+import dev.dubhe.anvilcraft.integration.kubejs.recipe.builder.SelectOneBuilder;
 import dev.latvian.mods.kubejs.KubeJSPlugin;
 import dev.latvian.mods.kubejs.recipe.schema.RegisterRecipeSchemasEvent;
 import dev.latvian.mods.kubejs.script.BindingsEvent;
@@ -58,12 +59,15 @@ public class AnvilCraftKubeJsPlugin extends KubeJSPlugin {
         event.add("SpawnExperience", SpawnExperience.class);
         event.add("SpawnItem", SpawnItem.class);
 
-        //predicates
+        // predicates
         event.add("HasBlock", HasBlock.class);
         event.add("HasBlockIngredient", HasBlockIngredient.class);
         event.add("HasFluidCauldron", HasFluidCauldron.class);
         event.add("HasItem", HasItem.class);
         event.add("HasItemIngredient", HasItemIngredient.class);
         event.add("NotHasBlock", NotHasBlock.class);
+
+        // builder
+        event.add("SelectOneBuilder", SelectOneBuilder.class);
     }
 }

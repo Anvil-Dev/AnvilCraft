@@ -15,6 +15,7 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItem;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItemIngredient;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
+import dev.dubhe.anvilcraft.integration.kubejs.recipe.builder.SelectOneBuilder;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.components.AnvilCraftRecipeComponents;
 import dev.latvian.mods.kubejs.item.OutputItem;
 import dev.latvian.mods.kubejs.recipe.RecipeJS;
@@ -58,10 +59,7 @@ public interface AnvilCraftRecipeSchema {
         ///////////////////////////////////
 
         /**
-         * 为配方添加 outcome
-         *
-         * @param outcome outcome
-         * @return Self
+         * KubeJS
          */
         public AnvilCraftRecipeJs addOutcome(final RecipeOutcome outcome) {
             if (getValue(OUTCOMES) == null) setValue(OUTCOMES, new RecipeOutcome[0]);
@@ -70,38 +68,53 @@ public interface AnvilCraftRecipeSchema {
             return this;
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs damageAnvil() {
             return damageAnvil(1.0);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs damageAnvil(double chance) {
             DamageAnvil damageAnvil = new DamageAnvil(chance);
             return addOutcome(damageAnvil);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs runCommand(String command) {
             return runCommand(command, 1.0);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs runCommand(String command, double chance) {
             return runCommand(new Vec3(0, -1, 0), chance, command);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs runCommand(
             String command, double offsetX, double offsetY, double offsetZ, double chance) {
             return runCommand(new Vec3(offsetX, offsetY, offsetZ), chance, command);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs runCommand(Vec3 offset, double chance, String command) {
             RunCommand runCommand = new RunCommand(offset, chance, command);
             return addOutcome(runCommand);
         }
 
         /**
-         * 添加 SelectOne outcome
-         *
-         * @param outcomes outcomes
-         * @return Self
+         * KubeJS
          */
         public AnvilCraftRecipeJs selectOne(RecipeOutcome... outcomes) {
             SelectOne selectOne = new SelectOne();
@@ -111,63 +124,112 @@ public interface AnvilCraftRecipeSchema {
             return addOutcome(selectOne);
         }
 
+        /**
+         * KubeJS
+         */
+        public AnvilCraftRecipeJs selectOne(SelectOneBuilder builder) {
+            return addOutcome(builder.build());
+        }
+
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs setBlock(Block block) {
             return setBlock(block.defaultBlockState());
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs setBlock(BlockState block) {
             return setBlock(1.0, block);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs setBlock(double chance, BlockState state) {
             return setBlock(new Vec3(0, -1, 0), chance, state);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs setBlock(
             double offsetX, double offsetY, double offsetZ, double chance, BlockState state) {
             return setBlock(new Vec3(offsetX, offsetY, offsetZ), chance, state);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs setBlock(Vec3 offset, double chance, BlockState result) {
             SetBlock setBlock = new SetBlock(offset, chance, result);
             return addOutcome(setBlock);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs spawnExperience(int experience) {
             return spawnExperience(1.0, experience);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs spawnExperience(double chance, int experience) {
             return spawnExperience(new Vec3(0, -1, 0), chance, experience);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs spawnExperience(
             double offsetX, double offsetY, double offsetZ, double chance, int experience) {
             return spawnExperience(new Vec3(offsetX, offsetY, offsetZ), chance, experience);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs spawnExperience(Vec3 offset, double chance, int experience) {
             SpawnExperience spawnExperience = new SpawnExperience(offset, chance, experience);
             return addOutcome(spawnExperience);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs spawnItem(OutputItem result) {
             return spawnItem(1.0, result);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs spawnItem(double chance, OutputItem result) {
             return spawnItem(new Vec3(0, -1, 0), chance, result);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs spawnItem(
             double offsetX, double offsetY, double offsetZ, double chance, OutputItem result) {
             return spawnItem(new Vec3(offsetX, offsetY, offsetZ), chance, result);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs spawnItem(Vec3 offset, double chance, OutputItem result) {
             return spawnItem(new Vec3(offset.x, offset.y, offset.z), chance, result.item);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs spawnItem(Vec3 offset, double chance, ItemStack result) {
             SpawnItem spawnItem = new SpawnItem(offset, chance, result);
             return addOutcome(spawnItem);
@@ -178,10 +240,7 @@ public interface AnvilCraftRecipeSchema {
         /////////////////////////////////////
 
         /**
-         * 为配方添加 predicate
-         *
-         * @param predicate predicate
-         * @return Self
+         * KubeJS
          */
         public AnvilCraftRecipeJs addPredicate(RecipePredicate predicate) {
             if (getValue(PREDICATES) == null) setValue(PREDICATES, new RecipePredicate[0]);
@@ -190,39 +249,35 @@ public interface AnvilCraftRecipeSchema {
             return this;
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs hasBlock(Block... block) {
             return hasBlock(0, -1, 0, block);
         }
 
         /**
-         * 检查是否有方块
-         *
-         * @param offsetX 偏移X
-         * @param offsetY 偏移Y
-         * @param offsetZ 偏移Z
-         * @param block   方块列表
-         * @return Self
+         * KubeJS
          */
-        public AnvilCraftRecipeJs hasBlock(double offsetX, double offsetY, double offsetZ, Block... block) {
+        public AnvilCraftRecipeJs hasBlock(
+            double offsetX, double offsetY, double offsetZ, Block... block) {
             HasBlock.ModBlockPredicate predicate = new HasBlock.ModBlockPredicate();
             predicate.block(block);
             return hasBlock(offsetX, offsetY, offsetZ, predicate);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs hasBlock(BlockState blockState) {
             return hasBlock(0, -1, 0, blockState);
         }
 
         /**
-         * 检查是否有方块
-         *
-         * @param offsetX    偏移X
-         * @param offsetY    偏移Y
-         * @param offsetZ    偏移Z
-         * @param blockState 方块状态
-         * @return Self
+         * KubeJS
          */
-        public AnvilCraftRecipeJs hasBlock(double offsetX, double offsetY, double offsetZ, BlockState blockState) {
+        public AnvilCraftRecipeJs hasBlock(
+            double offsetX, double offsetY, double offsetZ, BlockState blockState) {
             HasBlock.ModBlockPredicate predicate = new HasBlock.ModBlockPredicate();
             predicate.block(blockState.getBlock());
             for (var entry : blockState.getValues().entrySet()) {
@@ -231,20 +286,32 @@ public interface AnvilCraftRecipeSchema {
             return hasBlock(offsetX, offsetY, offsetZ, predicate);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs hasBlock(
             double offsetX, double offsetY, double offsetZ, HasBlock.ModBlockPredicate matchBlock) {
             return hasBlock(new Vec3(offsetX, offsetY, offsetZ), matchBlock);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs hasBlock(Vec3 offset, HasBlock.ModBlockPredicate matchBlock) {
             HasBlock hasBlock = new HasBlock(offset, matchBlock);
             return addPredicate(hasBlock);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs hasBlockIngredient(Block... block) {
             return hasBlockIngredient(0, -1, 0, block);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs hasBlockIngredient(
             double offsetX, double offsetY, double offsetZ, Block... block) {
             HasBlock.ModBlockPredicate predicate = new HasBlock.ModBlockPredicate();
@@ -252,10 +319,16 @@ public interface AnvilCraftRecipeSchema {
             return hasBlockIngredient(offsetX, offsetY, offsetZ, predicate);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs hasBlockIngredient(BlockState blockState) {
             return hasBlockIngredient(0, -1, 0, blockState);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs hasBlockIngredient(
             double offsetX, double offsetY, double offsetZ, BlockState blockState) {
             HasBlock.ModBlockPredicate predicate = new HasBlock.ModBlockPredicate();
@@ -266,68 +339,117 @@ public interface AnvilCraftRecipeSchema {
             return hasBlockIngredient(offsetX, offsetY, offsetZ, predicate);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs hasBlockIngredient(
             double offsetX, double offsetY, double offsetZ, HasBlock.ModBlockPredicate matchBlock) {
             return hasBlockIngredient(new Vec3(offsetX, offsetY, offsetZ), matchBlock);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs hasBlockIngredient(Vec3 offset, HasBlock.ModBlockPredicate matchBlock) {
             HasBlock hasBlock = new HasBlockIngredient(offset, matchBlock);
             return addPredicate(hasBlock);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs hasLavaFluidCauldron(int deplete) {
             return hasWaterFluidCauldron(0, -1, 0, deplete);
         }
 
-        public AnvilCraftRecipeJs hasLavaFluidCauldron(double offsetX, double offsetY, double offsetZ, int deplete) {
+        /**
+         * KubeJS
+         */
+        public AnvilCraftRecipeJs hasLavaFluidCauldron(
+            double offsetX, double offsetY, double offsetZ, int deplete) {
             return hasFluidCauldron(offsetX, offsetY, offsetZ, ModBlocks.LAVA_CAULDRON.get(), deplete);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs hasWaterFluidCauldron(int deplete) {
             return hasWaterFluidCauldron(0, -1, 0, deplete);
         }
 
-        public AnvilCraftRecipeJs hasWaterFluidCauldron(double offsetX, double offsetY, double offsetZ, int deplete) {
+        /**
+         * KubeJS
+         */
+        public AnvilCraftRecipeJs hasWaterFluidCauldron(
+            double offsetX, double offsetY, double offsetZ, int deplete) {
             return hasFluidCauldron(offsetX, offsetY, offsetZ, Blocks.WATER_CAULDRON, deplete);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs hasFluidCauldron(Block matchBlock, int deplete) {
             return hasFluidCauldron(0, -1, 0, matchBlock, deplete);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs hasFluidCauldron(
             double offsetX, double offsetY, double offsetZ, Block matchBlock, int deplete) {
             return hasFluidCauldron(new Vec3(offsetX, offsetY, offsetZ), matchBlock, deplete);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs hasFluidCauldron(Vec3 offset, Block matchBlock, int deplete) {
             HasFluidCauldron hasFluidCauldron = new HasFluidCauldron(offset, matchBlock, deplete);
             return addPredicate(hasFluidCauldron);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs hasItem(int count, ItemLike... items) {
             return hasItem(0, -1, 0, count, items);
         }
 
-        public AnvilCraftRecipeJs hasItem(double offsetX, double offsetY, double offsetZ, int count, ItemLike... items) {
+        /**
+         * KubeJS
+         */
+        public AnvilCraftRecipeJs hasItem(
+            double offsetX, double offsetY, double offsetZ, int count, ItemLike... items) {
             ItemPredicate predicate = ItemPredicate.Builder.item().of(items).build();
             return hasItem(offsetX, offsetY, offsetZ, predicate);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs hasItem(int count, TagKey<Item> items) {
             return hasItem(0, -1, 0, count, items);
         }
 
-        public AnvilCraftRecipeJs hasItem(double offsetX, double offsetY, double offsetZ, int count, TagKey<Item> items) {
+        /**
+         * KubeJS
+         */
+        public AnvilCraftRecipeJs hasItem(
+            double offsetX, double offsetY, double offsetZ, int count, TagKey<Item> items) {
             ItemPredicate predicate = ItemPredicate.Builder.item().of(items).build();
             return hasItem(offsetX, offsetY, offsetZ, predicate);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs hasItem(ItemStack itemStack) {
             return hasItem(0, -1, 0, itemStack);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs hasItem(double offsetX, double offsetY, double offsetZ, ItemStack itemStack) {
             ItemPredicate.Builder builder = ItemPredicate.Builder.item()
                 .of(itemStack.getItem())
@@ -336,40 +458,65 @@ public interface AnvilCraftRecipeSchema {
             return hasItem(offsetX, offsetY, offsetZ, builder.build());
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs hasItem(double offsetX, double offsetY, double offsetZ, ItemPredicate matchItem) {
             return hasItem(new Vec3(offsetX, offsetY, offsetZ), matchItem);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs hasItem(Vec3 offset, ItemPredicate matchItem) {
             HasItem hasItem = new HasItem(offset, matchItem);
             return addPredicate(hasItem);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs hasItemIngredient(int count, ItemLike... items) {
             return hasItemIngredient(0, -1, 0, count, items);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs hasItemIngredient(
             double offsetX, double offsetY, double offsetZ, int count, ItemLike... items) {
             ItemPredicate predicate = ItemPredicate.Builder.item().of(items).build();
             return hasItemIngredient(offsetX, offsetY, offsetZ, predicate);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs hasItemIngredient(int count, TagKey<Item> items) {
             return hasItemIngredient(0, -1, 0, count, items);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs hasItemIngredient(
             double offsetX, double offsetY, double offsetZ, int count, TagKey<Item> items) {
             ItemPredicate predicate = ItemPredicate.Builder.item().of(items).build();
             return hasItemIngredient(offsetX, offsetY, offsetZ, predicate);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs hasItemIngredient(ItemStack itemStack) {
             return hasItemIngredient(0, -1, 0, itemStack);
         }
 
-        public AnvilCraftRecipeJs hasItemIngredient(double offsetX, double offsetY, double offsetZ, ItemStack itemStack) {
+        /**
+         * KubeJS
+         */
+        public AnvilCraftRecipeJs hasItemIngredient(
+            double offsetX, double offsetY, double offsetZ, ItemStack itemStack) {
             ItemPredicate.Builder builder = ItemPredicate.Builder.item()
                 .of(itemStack.getItem())
                 .withCount(MinMaxBounds.Ints.atLeast(itemStack.getCount()));
@@ -377,15 +524,25 @@ public interface AnvilCraftRecipeSchema {
             return hasItemIngredient(offsetX, offsetY, offsetZ, builder.build());
         }
 
-        public AnvilCraftRecipeJs hasItemIngredient(double offsetX, double offsetY, double offsetZ, ItemPredicate matchItem) {
+        /**
+         * KubeJS
+         */
+        public AnvilCraftRecipeJs hasItemIngredient(
+            double offsetX, double offsetY, double offsetZ, ItemPredicate matchItem) {
             return hasItemIngredient(new Vec3(offsetX, offsetY, offsetZ), matchItem);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs hasItemIngredient(Vec3 offset, ItemPredicate matchItem) {
             HasItem hasItem = new HasItemIngredient(offset, matchItem);
             return addPredicate(hasItem);
         }
 
+        /**
+         * KubeJS
+         */
         public AnvilCraftRecipeJs icon(OutputItem outputItem) {
             setValue(ICON, outputItem);
             return this;
