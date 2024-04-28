@@ -17,7 +17,9 @@ import dev.dubhe.anvilcraft.block.JewelCraftingTable;
 import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
 import dev.dubhe.anvilcraft.block.MeltGemCauldron;
+import dev.dubhe.anvilcraft.block.MobAmberBlock;
 import dev.dubhe.anvilcraft.block.PiezoelectricCrystalBlock;
+import dev.dubhe.anvilcraft.block.ResentfulAmberBlock;
 import dev.dubhe.anvilcraft.block.ResinBlock;
 import dev.dubhe.anvilcraft.block.RoyalAnvilBlock;
 import dev.dubhe.anvilcraft.block.RoyalGrindstone;
@@ -29,13 +31,23 @@ import dev.dubhe.anvilcraft.block.state.Half;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.generator.recipe.SmashBlockRecipesLoader;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
+import dev.dubhe.anvilcraft.data.recipe.anvil.RecipeOutcome;
+import dev.dubhe.anvilcraft.data.recipe.anvil.RecipePredicate;
+import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SelectOne;
+import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SpawnItem;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItem;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItemIngredient;
 import dev.dubhe.anvilcraft.item.CursedBlockItem;
+import dev.dubhe.anvilcraft.item.HasMobBlockItem;
 import dev.dubhe.anvilcraft.item.PlaceInWaterBlockItem;
 import dev.dubhe.anvilcraft.item.ResinBlockItem;
 import dev.dubhe.anvilcraft.item.TransmissionPoleBlockItem;
+import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.BlockItem;
@@ -431,6 +443,7 @@ public class ModBlocks {
                 AnvilCraftDatagen.has(ModItems.RESIN))
             .save(provider))
         .register();
+
     public static final BlockEntry<? extends Block> AMBER_BLOCK = REGISTRATE
         .block("amber_block", HalfTransparentBlock::new)
         .initialProperties(() -> Blocks.EMERALD_BLOCK)
@@ -440,14 +453,129 @@ public class ModBlocks {
         .simpleItem()
         .defaultLoot()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-            .pattern("AAA")
-            .pattern("AAA")
-            .pattern("AAA")
-            .define('A', ModItems.AMBER)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.AMBER), AnvilCraftDatagen.has(ModItems.AMBER))
-            .save(provider))
+        .recipe((ctx, provider) -> {
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItems.AMBER)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.AMBER), AnvilCraftDatagen.has(ModItems.AMBER))
+                .save(provider);
+            ItemPredicate.Builder item = ItemPredicate.Builder
+                .item()
+                .of(ModBlocks.RESIN_BLOCK)
+                .withCount(MinMaxBounds.Ints.atLeast(1));
+            HasItem hasItem = new HasItemIngredient(new Vec3(0.0, -1.0, 0.0), item.build()).notHasTag("entity");
+            AnvilRecipe.Builder.create(RecipeCategory.MISC)
+                .icon(ctx.get())
+                .hasBlock(
+                    ModBlocks.CORRUPTED_BEACON.get(),
+                    new Vec3(0.0, -2.0, 0.0),
+                    Map.entry(CorruptedBeaconBlock.LIT, true)
+                )
+                .hasBlock(Blocks.CAULDRON)
+                .addPredicates(hasItem)
+                .spawnItem(new Vec3(0.0, -1.0, 0.0), ctx.get(), 1)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ctx.get()), AnvilCraftDatagen.has(ModBlocks.RESIN_BLOCK))
+                .save(
+                    provider,
+                    AnvilCraft.of("timewarp/" + BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath())
+                );
+        })
         .register();
+
+    public static final BlockEntry<MobAmberBlock> MOB_AMBER_BLOCK = REGISTRATE
+        .block("mob_amber_block", MobAmberBlock::new)
+        .blockstate((ctx, provider) -> {
+        })
+        .item(HasMobBlockItem::new)
+        .recipe((ctx, provider) -> {
+            CompoundTag tag = new CompoundTag();
+            tag.putBoolean("is_monster", false);
+            ItemPredicate.Builder item = ItemPredicate.Builder
+                .item()
+                .of(ModBlocks.RESIN_BLOCK)
+                .withCount(MinMaxBounds.Ints.atLeast(1))
+                .hasNbt(tag);
+            tag.putBoolean("is_monster", true);
+            ItemPredicate.Builder monster = ItemPredicate.Builder
+                .item()
+                .of(ModBlocks.RESIN_BLOCK)
+                .withCount(MinMaxBounds.Ints.atLeast(1))
+                .hasNbt(tag);
+            RecipePredicate hasItem = new HasItemIngredient(new Vec3(0.0, -1.0, 0.0), item.build())
+                .hasTag("entity")
+                .saveItemData("resin");
+            RecipePredicate hasItemMonster = new HasItemIngredient(new Vec3(0.0, -1.0, 0.0), monster.build())
+                .hasTag("entity")
+                .saveItemData("resin");
+            RecipeOutcome spawnItem0 = new SpawnItem(
+                new Vec3(0.0, -1.0, 0.0),
+                1.0,
+                ctx.get().getDefaultInstance()
+            ).loadItemData("resin");
+            RecipeOutcome spawnItem1 = new SpawnItem(
+                new Vec3(0.0, -1.0, 0.0),
+                0.95,
+                ctx.get().getDefaultInstance()
+            ).loadItemData("resin");
+            RecipeOutcome spawnItem2 = new SpawnItem(
+                new Vec3(0.0, -1.0, 0.0),
+                0.05,
+                ModBlocks.RESENTFUL_AMBER_BLOCK.asItem().getDefaultInstance()
+            ).loadItemData("resin");
+            AnvilRecipe.Builder.create(RecipeCategory.MISC)
+                .icon(ctx.get())
+                .hasBlock(
+                    ModBlocks.CORRUPTED_BEACON.get(),
+                    new Vec3(0.0, -2.0, 0.0),
+                    Map.entry(CorruptedBeaconBlock.LIT, true)
+                )
+                .hasBlock(Blocks.CAULDRON)
+                .addPredicates(hasItem)
+                .addOutcomes(spawnItem0)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ctx.get()), AnvilCraftDatagen.has(ModBlocks.RESIN_BLOCK))
+                .save(
+                    provider,
+                    AnvilCraft.of("timewarp/" + BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath())
+                );
+            AnvilRecipe.Builder.create(RecipeCategory.MISC)
+                .icon(ctx.get())
+                .hasBlock(
+                    ModBlocks.CORRUPTED_BEACON.get(),
+                    new Vec3(0.0, -2.0, 0.0),
+                    Map.entry(CorruptedBeaconBlock.LIT, true)
+                )
+                .hasBlock(Blocks.CAULDRON)
+                .addPredicates(hasItemMonster)
+                .addOutcomes(new SelectOne().add(spawnItem1).add(spawnItem2))
+                .unlockedBy(AnvilCraftDatagen.hasItem(ctx.get()), AnvilCraftDatagen.has(ModBlocks.RESIN_BLOCK))
+                .save(
+                    provider,
+                    AnvilCraft.of(
+                        "timewarp/"
+                            + BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath()
+                            + "_resentful"
+                    )
+                );
+        })
+        .build()
+        .initialProperties(ModBlocks.AMBER_BLOCK)
+        .defaultLoot()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<ResentfulAmberBlock> RESENTFUL_AMBER_BLOCK = REGISTRATE
+        .block("resentful_amber_block", ResentfulAmberBlock::new)
+        .blockstate((ctx, provider) -> {
+        })
+        .item(HasMobBlockItem::new)
+        .build()
+        .initialProperties(ModBlocks.AMBER_BLOCK)
+        .defaultLoot()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
     public static final BlockEntry<? extends Block> CREATIVE_GENERATOR = REGISTRATE
         .block("creative_generator", CreativeGeneratorBlock::new)
         .initialProperties(ModBlocks.MAGNET_BLOCK)

@@ -4,8 +4,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
+import dev.dubhe.anvilcraft.data.recipe.anvil.CanSetData;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipeOutcome;
 import lombok.Getter;
+import lombok.Setter;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.RandomSource;
@@ -13,13 +16,17 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Getter
-public class SelectOne implements RecipeOutcome {
+public class SelectOne implements RecipeOutcome, CanSetData {
     private final String type = "select_one";
     private final double chance;
     private final List<RecipeOutcome> outcomes = new ArrayList<>();
+    @Setter
+    private Map<String, CompoundTag> data = new HashMap<>();
 
     public SelectOne add(RecipeOutcome outcome) {
         this.outcomes.add(outcome);
@@ -63,6 +70,9 @@ public class SelectOne implements RecipeOutcome {
         if (random.nextDouble() > this.chance) return true;
         List<Double> weights = this.outcomes.stream().map(RecipeOutcome::getChance).toList();
         RecipeOutcome outcome = SelectOne.weightedRandomSelect(this.outcomes, weights, random);
+        if (outcome instanceof CanSetData canSetData) {
+            canSetData.setData(this.data);
+        }
         if (outcome != null) outcome.process(container);
         return true;
     }
