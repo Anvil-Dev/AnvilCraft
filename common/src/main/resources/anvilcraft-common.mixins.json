@@ -13,6 +13,7 @@
         "DispenseItemEmptyBottleBehaviorMixin",
         "DispenseItemEmptyBucketBehaviorMixin",
         "DispenseItemWaterBottleBehaviorMixin",
+        "EnchantmentHelperMixin",
         "FlyingHitEntityMixin",
         "HoeItemMixin",
         "ItemEntityMixin",
