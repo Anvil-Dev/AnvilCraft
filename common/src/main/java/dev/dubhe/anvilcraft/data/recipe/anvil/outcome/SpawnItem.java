@@ -6,10 +6,13 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
+import dev.dubhe.anvilcraft.data.recipe.anvil.CanSetData;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipeOutcome;
 import dev.dubhe.anvilcraft.util.IItemStackUtil;
 import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.RandomSource;
@@ -19,12 +22,22 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
+
 @Getter
-public class SpawnItem implements RecipeOutcome {
+public class SpawnItem implements RecipeOutcome, CanSetData {
     private final String type = "spawn_item";
     private final Vec3 offset;
     private final double chance;
     private final ItemStack result;
+    private String path = null;
+    @Setter
+    private Map<String, CompoundTag> data = null;
+
+    public SpawnItem loadItemData(String path) {
+        this.path = path;
+        return this;
+    }
 
     /**
      * 产生物品
@@ -45,6 +58,9 @@ public class SpawnItem implements RecipeOutcome {
     public SpawnItem(@NotNull FriendlyByteBuf buffer) {
         this.offset = new Vec3(buffer.readVector3f());
         this.chance = buffer.readDouble();
+        if (buffer.readBoolean()) {
+            this.path = buffer.readUtf();
+        }
         this.result = buffer.readItem();
     }
 
@@ -67,6 +83,9 @@ public class SpawnItem implements RecipeOutcome {
         if (serializedRecipe.has("chance")) {
             this.chance = GsonHelper.getAsDouble(serializedRecipe, "chance");
         } else this.chance = 1.0;
+        if (serializedRecipe.has("data_path")) {
+            this.path = GsonHelper.getAsString(serializedRecipe, "data_path");
+        }
         this.result = IItemStackUtil.fromJson(GsonHelper.getAsJsonObject(serializedRecipe, "result"));
     }
 
@@ -77,7 +96,11 @@ public class SpawnItem implements RecipeOutcome {
         if (random.nextDouble() > this.chance) return true;
         BlockPos pos = container.getPos();
         Vec3 vec3 = pos.getCenter().add(this.offset);
-        ItemEntity entity = new ItemEntity(level, vec3.x, vec3.y, vec3.z, this.result.copy(), 0.0d, 0.0d, 0.0d);
+        ItemStack stack = this.result.copy();
+        if (this.path != null && this.data != null && this.data.containsKey(this.path)) {
+            stack.setTag(this.data.get(this.path));
+        }
+        ItemEntity entity = new ItemEntity(level, vec3.x, vec3.y, vec3.z, stack, 0.0d, 0.0d, 0.0d);
         return level.addFreshEntity(entity);
     }
 
@@ -86,6 +109,10 @@ public class SpawnItem implements RecipeOutcome {
         buffer.writeUtf(this.getType());
         buffer.writeVector3f(this.offset.toVector3f());
         buffer.writeDouble(this.chance);
+        buffer.writeBoolean(this.path == null);
+        if (this.path != null) {
+            buffer.writeUtf(this.path);
+        }
         buffer.writeItem(this.result);
     }
 
@@ -99,6 +126,7 @@ public class SpawnItem implements RecipeOutcome {
         object.add("offset", offset);
         object.addProperty("chance", this.chance);
         object.add("result", IItemStackUtil.toJson(this.result));
+        if (this.path != null) object.addProperty("data_path", this.path);
         return object;
     }
 }

@@ -101,7 +101,7 @@ public class ItemDepositoryHelperImpl {
      * @param depository 物品容器
      * @return 物品容器
      */
-    public static IItemHandler toItemHandler(IItemDepository depository) {
+    public static @NotNull IItemHandler toItemHandler(IItemDepository depository) {
         return new IItemHandler() {
 
             @Override

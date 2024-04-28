@@ -8,9 +8,12 @@ import dev.dubhe.anvilcraft.block.entity.CorruptedBeaconBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeGeneratorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeaterBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.MobAmberBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.ResentfulAmberBlock;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CorruptedBeaconRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.HasMobBlockRenderer;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 
@@ -63,6 +66,18 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<ChargeCollectorBlockEntity> CHARGE_COLLECTOR = REGISTRATE
         .blockEntity("charge_collector", ChargeCollectorBlockEntity::createBlockEntity)
         .validBlock(ModBlocks.CHARGE_COLLECTOR)
+        .register();
+
+    public static final BlockEntityEntry<MobAmberBlockEntity> MOB_AMBER_BLOCK = REGISTRATE
+        .blockEntity("mob_amber_block", MobAmberBlockEntity::createBlockEntity)
+        .renderer(() -> HasMobBlockRenderer::new)
+        .validBlock(ModBlocks.MOB_AMBER_BLOCK)
+        .register();
+
+    public static final BlockEntityEntry<ResentfulAmberBlock> RESENTFUL_AMBER_BLOCK = REGISTRATE
+        .blockEntity("resentful_amber_block", ResentfulAmberBlock::createBlockEntity)
+        .renderer(() -> HasMobBlockRenderer::new)
+        .validBlock(ModBlocks.RESENTFUL_AMBER_BLOCK)
         .register();
 
     public static void register() {

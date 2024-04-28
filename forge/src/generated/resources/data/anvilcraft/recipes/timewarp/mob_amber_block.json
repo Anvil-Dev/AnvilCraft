@@ -1,19 +1,20 @@
 {
   "type": "anvilcraft:anvil_processing",
   "icon": {
-    "item": "anvilcraft:amber_block"
+    "item": "anvilcraft:mob_amber_block"
   },
   "outcomes": [
     {
       "type": "spawn_item",
       "chance": 1.0,
+      "data_path": "resin",
       "offset": [
         0.0,
         -1.0,
         0.0
       ],
       "result": {
-        "item": "anvilcraft:amber_block"
+        "item": "anvilcraft:mob_amber_block"
       }
     }
   ],
@@ -49,17 +50,19 @@
     },
     {
       "type": "has_item_ingredient",
+      "data_path": "resin",
+      "has_tag": [
+        "entity"
+      ],
       "match_item": {
         "count": {
           "min": 1
         },
         "items": [
           "anvilcraft:resin_block"
-        ]
+        ],
+        "nbt": "{is_monster:1b}"
       },
-      "not_has_tag": [
-        "entity"
-      ],
       "offset": [
         0.0,
         -1.0,

@@ -1,7 +1,7 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_resin_block": {
+    "has_amber_block": {
       "conditions": {
         "items": [
           {
@@ -22,7 +22,7 @@
   },
   "requirements": [
     [
-      "has_resin_block",
+      "has_amber_block",
       "has_the_recipe"
     ]
   ],

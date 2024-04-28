@@ -25,7 +25,6 @@ public class TimeWarpRecipesLoader {
     public static void init(RegistrateRecipeProvider provider) {
         timeWarpWithWater(ModItems.SEA_HEART_SHELL_SHARD, ModItems.SEA_HEART_SHELL, provider);
         timeWarp(ModItems.RESIN, ModItems.AMBER, 1, provider);
-        timeWarp(ModBlocks.RESIN_BLOCK, ModBlocks.AMBER_BLOCK.asItem(), 1, provider);
         timeWarp(Items.OBSIDIAN, Items.CRYING_OBSIDIAN, 1, provider);
         timeWarp(Items.CHARCOAL, Items.COAL, 1, provider);
         timeWarp(Items.SAND, Items.DIRT, 1, provider);
