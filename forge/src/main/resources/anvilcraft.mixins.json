@@ -6,9 +6,10 @@
   "mixins": [
     "CraftingHelperMixin",
     "FallingBlockEntityMixin",
+    "ForgeItemStackMixin",
+    "LevelChunkMixin",
     "LightningBoltMixin",
     "MinecraftServerMixin",
-    "LevelChunkMixin",
     "PistonMovingBlockEntityMixin"
   ],
   "client": [
