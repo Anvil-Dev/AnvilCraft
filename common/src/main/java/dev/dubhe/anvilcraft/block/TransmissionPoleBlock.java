@@ -19,7 +19,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -92,6 +91,7 @@ public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRem
         return RenderShape.MODEL;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public @NotNull VoxelShape getShape(
         @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context
@@ -139,40 +139,39 @@ public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRem
         Half half = state.getValue(HALF);
         if (
             half == Half.TOP
-                && (blockState = level.getBlockState(blockPos = pos.below())).is(state.getBlock())
-                && blockState.getValue(HALF) == Half.MID
-                && (blockState1 = level.getBlockState(blockPos1 = blockPos.below())).is(state.getBlock())
-                && blockState1.getValue(HALF) == Half.BOTTOM
+                && (blockState = level.getBlockState(blockPos = pos.below(2))).is(state.getBlock())
+                && blockState.getValue(HALF) == Half.BOTTOM
+                && (blockState1 = level.getBlockState(blockPos1 = pos.below())).is(state.getBlock())
+                && blockState1.getValue(HALF) == Half.MID
         ) {
-            breakOtherPart(level, blockPos, blockState, blockPos1, blockState1, player);
+            breakOtherPart(level, blockPos, blockPos1, pos, player);
         } else if (
             half == Half.MID
-                && (blockState = level.getBlockState(blockPos = pos.above())).is(state.getBlock())
-                && blockState.getValue(HALF) == Half.TOP
-                && (blockState1 = level.getBlockState(blockPos1 = pos.below())).is(state.getBlock())
-                && blockState1.getValue(HALF) == Half.BOTTOM
+                && (blockState = level.getBlockState(blockPos = pos.below())).is(state.getBlock())
+                && blockState.getValue(HALF) == Half.BOTTOM
+                && (blockState1 = level.getBlockState(blockPos1 = pos.above())).is(state.getBlock())
+                && blockState1.getValue(HALF) == Half.TOP
         ) {
-            breakOtherPart(level, blockPos, blockState, blockPos1, blockState1, player);
+            breakOtherPart(level, blockPos, blockPos1, pos, player);
         } else if (
             half == Half.BOTTOM
                 && (blockState = level.getBlockState(blockPos = pos.above())).is(state.getBlock())
                 && blockState.getValue(HALF) == Half.MID
-                && (blockState1 = level.getBlockState(blockPos1 = blockPos.above())).is(state.getBlock())
+                && (blockState1 = level.getBlockState(blockPos1 = pos.above(2))).is(state.getBlock())
                 && blockState1.getValue(HALF) == Half.TOP
         ) {
-            breakOtherPart(level, blockPos, blockState, blockPos1, blockState1, player);
+            breakOtherPart(level, pos, blockPos, blockPos1, player);
         }
     }
 
     private static void breakOtherPart(
-        @NotNull Level level, BlockPos blockPos, @NotNull BlockState blockState,
-        BlockPos blockPos1, @NotNull BlockState blockState1, Player player
+        @NotNull Level level, BlockPos pos, BlockPos blockPos,
+        BlockPos blockPos1, Player player
     ) {
-        BlockState blockState2 = Blocks.AIR.defaultBlockState();
-        level.setBlock(blockPos, blockState2, 35);
-        level.levelEvent(player, 2001, blockPos, Block.getId(blockState));
-        level.setBlock(blockPos1, blockState2, 35);
-        level.levelEvent(player, 2001, blockPos1, Block.getId(blockState1));
+        boolean drop = player == null || !player.getAbilities().instabuild;
+        level.destroyBlock(pos, drop, player);
+        level.destroyBlock(blockPos, drop, player);
+        level.destroyBlock(blockPos1, drop, player);
     }
 
     @Nullable
@@ -224,6 +223,17 @@ public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRem
         }
     }
 
+    @SuppressWarnings("deprecation")
+    @Override
+    public void onRemove(
+        @NotNull BlockState state, @NotNull Level level,
+        @NotNull BlockPos pos, @NotNull BlockState newState, boolean movedByPiston
+    ) {
+        super.onRemove(state, level, pos, newState, movedByPiston);
+        if (state.is(newState.getBlock()) && state.getValue(HALF) == newState.getValue(HALF)) return;
+        preventDropFromOtherPart(level, pos, state, null);
+    }
+
     @Override
     @SuppressWarnings("deprecation")
     public boolean canSurvive(@NotNull BlockState state, @NotNull LevelReader level, @NotNull BlockPos pos) {
@@ -242,6 +252,4 @@ public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRem
             }
         }
     }
-
-
 }
