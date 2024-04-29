@@ -21,6 +21,24 @@
 * Pressing: Press two squares into one
 * Block Break: Breaks blocks on the Stone Cutter
 
+## Usage
+
+Download the corresponding version of AnvilCraftMod and place it in the `mods` folder to start the game.
+
+## Maintainer
+
+[@Gugle](https://github.com/Gu-ZT)
+
+## Contributing
+
+We welcome you to join us! Create an [Issue](https://github.com/Anvil-Dev/AnvilCraft/issues/new/choose) or create a Pull Request.
+
+AnvilCraft follows the [Contributor Covenant](http://contributor-covenant.org/version/1/3/0/) Code of Conduct.
+
+## License
+
+[LGPL](https://github.com/Anvil-Dev/AnvilCraft/blob/releases/1.20.1/LICENSE) © Gugle
+
 ## Contact us:
 
 * Please go to our [Discord Server（gAnWeZNKGh）](https://discord.com/invite/gAnWeZNKGh) to communicate and give feedback
