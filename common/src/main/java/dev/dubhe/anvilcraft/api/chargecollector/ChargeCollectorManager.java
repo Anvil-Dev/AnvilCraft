@@ -50,8 +50,6 @@ public class ChargeCollectorManager {
      * @return 是否能被集点器收集
      */
     public static boolean canCollect(ChargeCollectorBlockEntity blockEntity, BlockPos blockPos) {
-        System.out.println(blockEntity.getPos());
-        System.out.println(blockPos);
         return blockEntity.getPos().getX() - 2 <= blockPos.getX()
             && blockEntity.getPos().getY() - 2 <= blockPos.getY()
             && blockEntity.getPos().getZ() - 2 <= blockPos.getZ()
