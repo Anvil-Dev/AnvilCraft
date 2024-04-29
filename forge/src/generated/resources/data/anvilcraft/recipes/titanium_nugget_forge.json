@@ -3,7 +3,7 @@
   "category": "misc",
   "ingredients": [
     {
-      "tag": "forge:titanium_ingots"
+      "tag": "forge:ingots/titanium"
     }
   ],
   "result": {

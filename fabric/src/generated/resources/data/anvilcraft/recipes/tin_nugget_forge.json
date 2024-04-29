@@ -3,7 +3,7 @@
   "category": "misc",
   "ingredients": [
     {
-      "tag": "forge:tin_ingots"
+      "tag": "forge:ingots/tin"
     }
   ],
   "result": {

@@ -83,7 +83,7 @@ public class ModItems {
                 .save(provider)
         )
         .model((ctx, provider) -> provider.handheld(ctx))
-        .tag(ModItemTags.PICKAXES, ItemTags.CLUSTER_MAX_HARVESTABLES)
+        .tag(ItemTags.PICKAXES, ItemTags.CLUSTER_MAX_HARVESTABLES)
         .register();
     public static final ItemEntry<? extends AxeItem> AMETHYST_AXE = REGISTRATE
         .item("amethyst_axe", AmethystAxeItem::new)
@@ -98,7 +98,7 @@ public class ModItems {
                 .save(provider)
         )
         .model((ctx, provider) -> provider.handheld(ctx))
-        .tag(ModItemTags.AXES)
+        .tag(ItemTags.AXES)
         .register();
     public static final ItemEntry<? extends HoeItem> AMETHYST_HOE = REGISTRATE
         .item("amethyst_hoe", AmethystHoeItem::new)
@@ -113,7 +113,7 @@ public class ModItems {
                 .save(provider)
         )
         .model((ctx, provider) -> provider.handheld(ctx))
-        .tag(ModItemTags.HOES)
+        .tag(ItemTags.HOES)
         .register();
     public static final ItemEntry<? extends SwordItem> AMETHYST_SWORD = REGISTRATE
         .item("amethyst_sword", AmethystSwordItem::new)
@@ -128,7 +128,7 @@ public class ModItems {
                 .save(provider)
         )
         .model((ctx, provider) -> provider.handheld(ctx))
-        .tag(ModItemTags.SWORDS)
+        .tag(ItemTags.SWORDS)
         .register();
     public static final ItemEntry<? extends ShovelItem> AMETHYST_SHOVEL = REGISTRATE
         .item("amethyst_shovel", AmethystShovelItem::new)
@@ -143,7 +143,7 @@ public class ModItems {
                 .save(provider)
         )
         .model((ctx, provider) -> provider.handheld(ctx))
-        .tag(ModItemTags.SHOVELS)
+        .tag(ItemTags.SHOVELS)
         .register();
     public static final ItemEntry<Item> COCOA_LIQUOR = REGISTRATE
         .item("cocoa_liquor", Item::new)

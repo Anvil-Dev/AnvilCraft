@@ -1,16 +1,6 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_amethyst_blocks": {
-      "conditions": {
-        "items": [
-          {
-            "tag": "forge:amethyst_blocks"
-          }
-        ]
-      },
-      "trigger": "minecraft:inventory_changed"
-    },
     "has_copper_ingot": {
       "conditions": {
         "items": [
@@ -18,6 +8,16 @@
             "items": [
               "minecraft:copper_ingot"
             ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_storage_blocks/amethyst": {
+      "conditions": {
+        "items": [
+          {
+            "tag": "forge:storage_blocks/amethyst"
           }
         ]
       },
@@ -33,7 +33,7 @@
   "requirements": [
     [
       "has_copper_ingot",
-      "has_amethyst_blocks",
+      "has_storage_blocks/amethyst",
       "has_the_recipe"
     ]
   ],

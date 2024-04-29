@@ -3,7 +3,7 @@
   "category": "equipment",
   "key": {
     "A": {
-      "tag": "forge:iron_plates"
+      "tag": "forge:plates/iron"
     },
     "B": {
       "item": "minecraft:iron_ingot"
