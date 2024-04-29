@@ -85,4 +85,8 @@ public class AnvilCraftConfig implements ConfigData {
     @ConfigEntry.Gui.Tooltip
     @ConfigEntry.BoundedDiscrete(max = 24, min = 2)
     public int fellingBlockPerLevel = 2;
+
+    @Comment("The maximum number of logs that can be cut per level of Felling enchantment")
+    @ConfigEntry.Gui.Tooltip
+    public double powerLoss = 0.1;
 }

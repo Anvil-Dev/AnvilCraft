@@ -31,6 +31,7 @@ dependencyResolutionManagement {
         def jadeFabricVersion = "11.8.0"
         def registrateFabricVersion = "1.4.5-MC1.20.1"
         def reachEntityAttributesVersion = "2.4.0"
+        def teamRebornEnergyVersion = "2.3.0"
 
 
         // Forge
@@ -101,6 +102,9 @@ dependencyResolutionManagement {
 
             def reachEntityAttributes = version("reach-entity-attributes", reachEntityAttributesVersion)
             library("reachEntityAttributes", "com.jamieswhiteshirt", "reach-entity-attributes").versionRef(reachEntityAttributes)
+
+            def teamRebornEnergy = version("teamRebornEnergy", teamRebornEnergyVersion)
+            library("teamRebornEnergy", "teamreborn", "energy").versionRef(teamRebornEnergy)
         }
 
         forge {

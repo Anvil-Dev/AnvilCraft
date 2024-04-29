@@ -133,6 +133,9 @@ dependencies {
     //reach-entity-attributes
     modImplementation(fabric.reachEntityAttributes)
     include(fabric.reachEntityAttributes)
+
+    // Team Reborn Energy
+    modImplementation(fabric.teamRebornEnergy)
 }
 
 
