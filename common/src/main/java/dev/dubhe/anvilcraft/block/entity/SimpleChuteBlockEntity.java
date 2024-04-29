@@ -98,6 +98,7 @@ public class SimpleChuteBlockEntity extends BlockEntity {
         } else {
             cooldown--;
         }
+        level.updateNeighbourForOutputSignal(getBlockPos(), getBlockState().getBlock());
     }
 
     private Direction getDirection() {
