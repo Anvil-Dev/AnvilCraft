@@ -25,6 +25,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2ic;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -152,7 +153,9 @@ public abstract class PowerGridInformationRenderMixin {
     }
 
     @Unique
-    private static void anvilCraft$renderInfo(GuiGraphics thiz, Font font, ItemStack itemStack, List<Component> lines, int x, int y) {
+    private static void anvilCraft$renderInfo(
+        GuiGraphics thiz, Font font, ItemStack itemStack, @NotNull List<Component> lines, int x, int y
+    ) {
         ClientTooltipPositioner tooltipPositioner = DefaultTooltipPositioner.INSTANCE;
         List<ClientTooltipComponent> components = lines.stream()
                 .map(Component::getVisualOrderText)
