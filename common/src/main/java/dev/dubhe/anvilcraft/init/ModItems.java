@@ -195,6 +195,7 @@ public class ModItems {
             .unlockedBy("has_cocoa_liquor", RegistrateRecipeProvider.has(ModItems.COCOA_LIQUOR))
             .unlockedBy("has_cocoa_butter", RegistrateRecipeProvider.has(ModItems.COCOA_BUTTER))
             .unlockedBy("has_cream", RegistrateRecipeProvider.has(ModItems.CREAM))
+            .unlockedBy("has_sugar", RegistrateRecipeProvider.has(Items.SUGAR))
             .save(provider)
         )
         .register();
@@ -205,11 +206,12 @@ public class ModItems {
             .pattern("AAA")
             .pattern("BCB")
             .pattern("AAA")
-            .define('A', ModItems.COCOA_BUTTER)
+            .define('A', ModItems.COCOA_LIQUOR)
             .define('B', ModItems.CREAM)
             .define('C', Items.SUGAR)
-            .unlockedBy("has_cocoa_butter", RegistrateRecipeProvider.has(ModItems.COCOA_BUTTER))
+            .unlockedBy("has_cocoa_butter", RegistrateRecipeProvider.has(ModItems.COCOA_LIQUOR))
             .unlockedBy("has_cream", RegistrateRecipeProvider.has(ModItems.CREAM))
+            .unlockedBy("has_sugar", RegistrateRecipeProvider.has(Items.SUGAR))
             .save(provider)
         )
         .register();
@@ -225,6 +227,7 @@ public class ModItems {
             .define('C', Items.SUGAR)
             .unlockedBy("has_butter", RegistrateRecipeProvider.has(ModItems.COCOA_BUTTER))
             .unlockedBy("has_cream", RegistrateRecipeProvider.has(ModItems.CREAM))
+            .unlockedBy("has_sugar", RegistrateRecipeProvider.has(Items.SUGAR))
             .save(provider)
         )
         .register();
