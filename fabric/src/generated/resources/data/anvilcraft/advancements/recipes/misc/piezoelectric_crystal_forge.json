@@ -13,11 +13,11 @@
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_quartz_blocks": {
+    "has_storage_blocks/quartz": {
       "conditions": {
         "items": [
           {
-            "tag": "forge:quartz_blocks"
+            "tag": "forge:storage_blocks/quartz"
           }
         ]
       },
@@ -33,7 +33,7 @@
   "requirements": [
     [
       "has_copper_ingot",
-      "has_quartz_blocks",
+      "has_storage_blocks/quartz",
       "has_the_recipe"
     ]
   ],

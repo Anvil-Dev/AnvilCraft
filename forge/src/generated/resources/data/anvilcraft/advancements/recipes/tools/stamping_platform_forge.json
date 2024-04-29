@@ -13,11 +13,11 @@
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_iron_plates": {
+    "has_plates/iron": {
       "conditions": {
         "items": [
           {
-            "tag": "forge:iron_plates"
+            "tag": "forge:plates/iron"
           }
         ]
       },
@@ -32,7 +32,7 @@
   },
   "requirements": [
     [
-      "has_iron_plates",
+      "has_plates/iron",
       "has_iron_ingot",
       "has_the_recipe"
     ]

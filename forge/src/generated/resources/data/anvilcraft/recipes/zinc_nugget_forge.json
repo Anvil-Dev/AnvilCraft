@@ -3,7 +3,7 @@
   "category": "misc",
   "ingredients": [
     {
-      "tag": "forge:zinc_ingots"
+      "tag": "forge:ingots/zinc"
     }
   ],
   "result": {
