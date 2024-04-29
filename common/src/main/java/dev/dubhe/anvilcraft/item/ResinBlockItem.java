@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.item;
 
 import dev.dubhe.anvilcraft.init.ModItems;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
@@ -65,12 +64,10 @@ public class ResinBlockItem extends HasMobBlockItem {
         }
         Entity entity = HasMobBlockItem.getMobFromItem(level, stack);
         if (entity == null) return;
-        CompoundTag tag = stack.getOrCreateTag();
-        tag.remove("entity");
         entity.moveTo(pos.getCenter());
         level.addFreshEntity(entity);
         RandomSource random = level.getRandom();
         ItemStack back = new ItemStack(ModItems.RESIN, random.nextInt(1, 4));
-        player.getInventory().placeItemBackInInventory(back);
+        if (!player.isCreative()) player.getInventory().placeItemBackInInventory(back);
     }
 }
