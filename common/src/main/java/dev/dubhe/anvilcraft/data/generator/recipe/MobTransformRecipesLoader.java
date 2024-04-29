@@ -55,7 +55,7 @@ public class MobTransformRecipesLoader {
                 .result(EntityType.ZOMBIE_HORSE, 0.1)
                 .accept(provider);
 
-        MobTransformRecipe.builder("sliverfish")
+        MobTransformRecipe.builder("silverfish")
                 .input(EntityType.SILVERFISH)
                 .result(EntityType.ENDERMITE, 1)
                 .accept(provider);
