@@ -51,6 +51,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Map;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
+import static dev.dubhe.anvilcraft.api.power.IPowerComponent.OVERLOAD;
 
 @SuppressWarnings("unused")
 public class ModItems {
@@ -761,6 +762,171 @@ public class ModItems {
                 .save(provider);
         })
         .register();
+
+    public static final ItemEntry<Item> BRONZE_INGOT = REGISTRATE
+        .item("bronze_ingot", Item::new)
+        .tag(ModItemTags.BRONZE_INGOTS, ModItemTags.BRONZE_INGOTS_FORGE)
+        .recipe((ctx, provider) -> {
+            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
+                .requires(Ingredient.of(ModItemTags.BRONZE_NUGGETS),9)
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItemTags.BRONZE_NUGGETS),
+                    AnvilCraftDatagen.has(ModItemTags.BRONZE_NUGGETS)
+                )
+                .save(provider);
+            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
+                .requires(Ingredient.of(ModItemTags.BRONZE_NUGGETS_FORGE),9)
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItemTags.BRONZE_NUGGETS_FORGE),
+                    AnvilCraftDatagen.has(ModItemTags.BRONZE_NUGGETS_FORGE)
+                )
+                .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_forge");
+            AnvilRecipe.Builder.create(RecipeCategory.MISC, ctx.get().getDefaultInstance())
+                .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(OVERLOAD, false))
+                .hasBlock(Blocks.CAULDRON)
+                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 1, ModItemTags.TIN_INGOTS)
+                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 1, Items.COPPER_INGOT)
+                .spawnItem(new Vec3(0.0, -1.0, 0.0), ctx.get().asItem(), 2)
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItemTags.TIN_INGOTS),
+                    AnvilCraftDatagen.has(ModItemTags.TIN_INGOTS)
+                )
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(Items.COPPER_INGOT),
+                    AnvilCraftDatagen.has(Items.COPPER_INGOT)
+                )
+                .save(
+                    provider,
+                    AnvilCraft.of(
+                        "heating/" + BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath()
+                    )
+                );
+            AnvilRecipe.Builder.create(RecipeCategory.MISC, ctx.get().getDefaultInstance())
+                .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(OVERLOAD, false))
+                .hasBlock(Blocks.CAULDRON)
+                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 1, ModItemTags.TIN_INGOTS_FORGE)
+                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 1, Items.COPPER_INGOT)
+                .spawnItem(new Vec3(0.0, -1.0, 0.0), ctx.get().asItem(), 2)
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItemTags.TIN_INGOTS_FORGE),
+                    AnvilCraftDatagen.has(ModItemTags.TIN_INGOTS_FORGE)
+                )
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(Items.COPPER_INGOT),
+                    AnvilCraftDatagen.has(Items.COPPER_INGOT)
+                )
+                .save(
+                    provider,
+                    AnvilCraft.of(
+                        "heating/" + BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath() + "_forge"
+                    )
+                );
+        })
+        .register();
+
+//    public static final ItemEntry<Item> BRONZE_NUGGET = REGISTRATE
+//        .item("bronze_nugget", Item::new)
+//        .tag(ModItemTags.BRONZE_NUGGETS, ModItemTags.BRONZE_NUGGETS_FORGE)
+//        .recipe((ctx, provider) -> {
+//            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+//                .requires(ModItemTags.BRONZE_INGOTS)
+//                .unlockedBy(
+//                    AnvilCraftDatagen.hasItem(ModItemTags.BRONZE_INGOTS),
+//                    AnvilCraftDatagen.has(ModItemTags.BRONZE_INGOTS)
+//                )
+//                .save(provider);
+//            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+//                .requires(ModItemTags.BRONZE_INGOTS_FORGE)
+//                .unlockedBy(
+//                    AnvilCraftDatagen.hasItem(ModItemTags.BRONZE_INGOTS_FORGE),
+//                    AnvilCraftDatagen.has(ModItemTags.BRONZE_INGOTS_FORGE)
+//                )
+//                .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_forge");
+//        })
+//        .register();
+
+    public static final ItemEntry<Item> BRASS_INGOT = REGISTRATE
+        .item("brass_ingot", Item::new)
+        .tag(ModItemTags.BRASS_INGOTS, ModItemTags.BRASS_INGOTS_FORGE)
+        .recipe((ctx, provider) -> {
+            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
+                .requires(Ingredient.of(ModItemTags.BRASS_NUGGETS),9)
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItemTags.BRASS_NUGGETS),
+                    AnvilCraftDatagen.has(ModItemTags.BRASS_NUGGETS)
+                )
+                .save(provider);
+            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
+                .requires(Ingredient.of(ModItemTags.BRASS_NUGGETS_FORGE),9)
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItemTags.BRASS_NUGGETS_FORGE),
+                    AnvilCraftDatagen.has(ModItemTags.BRASS_NUGGETS_FORGE)
+                )
+                .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_forge");
+            AnvilRecipe.Builder.create(RecipeCategory.MISC, ctx.get().getDefaultInstance())
+                .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(OVERLOAD, false))
+                .hasBlock(Blocks.CAULDRON)
+                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 1, ModItemTags.ZINC_INGOTS)
+                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 1, Items.COPPER_INGOT)
+                .spawnItem(new Vec3(0.0, -1.0, 0.0), ctx.get().asItem(), 2)
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItemTags.ZINC_INGOTS),
+                    AnvilCraftDatagen.has(ModItemTags.ZINC_INGOTS)
+                )
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(Items.COPPER_INGOT),
+                    AnvilCraftDatagen.has(Items.COPPER_INGOT)
+                )
+                .save(
+                    provider,
+                    AnvilCraft.of(
+                        "heating/" + BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath()
+                    )
+                );
+            AnvilRecipe.Builder.create(RecipeCategory.MISC, ctx.get().getDefaultInstance())
+                .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(OVERLOAD, false))
+                .hasBlock(Blocks.CAULDRON)
+                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 1, ModItemTags.ZINC_INGOTS_FORGE)
+                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 1, Items.COPPER_INGOT)
+                .spawnItem(new Vec3(0.0, -1.0, 0.0), ctx.get().asItem(), 2)
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItemTags.ZINC_INGOTS_FORGE),
+                    AnvilCraftDatagen.has(ModItemTags.ZINC_INGOTS_FORGE)
+                )
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(Items.COPPER_INGOT),
+                    AnvilCraftDatagen.has(Items.COPPER_INGOT)
+                )
+                .save(
+                    provider,
+                    AnvilCraft.of(
+                        "heating/" + BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath() + "_forge"
+                    )
+                );
+        })
+        .register();
+
+//    public static final ItemEntry<Item> BRASS_NUGGET = REGISTRATE
+//        .item("brass_nugget", Item::new)
+//        .tag(ModItemTags.BRASS_NUGGETS, ModItemTags.BRASS_NUGGETS_FORGE)
+//        .recipe((ctx, provider) -> {
+//            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+//                .requires(ModItemTags.BRASS_INGOTS)
+//                .unlockedBy(
+//                    AnvilCraftDatagen.hasItem(ModItemTags.BRASS_INGOTS),
+//                    AnvilCraftDatagen.has(ModItemTags.BRASS_INGOTS)
+//                )
+//                .save(provider);
+//            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+//                .requires(ModItemTags.BRASS_INGOTS_FORGE)
+//                .unlockedBy(
+//                    AnvilCraftDatagen.hasItem(ModItemTags.BRASS_INGOTS_FORGE),
+//                    AnvilCraftDatagen.has(ModItemTags.BRASS_INGOTS_FORGE)
+//                )
+//                .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_forge");
+//        })
+//        .register();
+
 
     public static final ItemEntry<Item> AMULET_BOX = REGISTRATE
         .item("amulet_box", Item::new)

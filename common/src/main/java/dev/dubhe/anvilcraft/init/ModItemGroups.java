@@ -58,6 +58,10 @@ public class ModItemGroups {
                 entries.accept(ModItems.TITANIUM_NUGGET.get().getDefaultInstance());
                 entries.accept(ModItems.TUNGSTEN_INGOT.get().getDefaultInstance());
                 entries.accept(ModItems.TUNGSTEN_NUGGET.get().getDefaultInstance());
+                entries.accept(ModItems.BRONZE_INGOT.get().getDefaultInstance());
+//                entries.accept(ModItems.BRONZE_NUGGET.get().getDefaultInstance());
+                entries.accept(ModItems.BRASS_INGOT.get().getDefaultInstance());
+//                entries.accept(ModItems.BRASS_NUGGET.get().getDefaultInstance());
                 entries.accept(ModItems.TOPAZ.get().getDefaultInstance());
                 entries.accept(ModItems.RUBY.get().getDefaultInstance());
                 entries.accept(ModItems.SAPPHIRE.get().getDefaultInstance());
