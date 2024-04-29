@@ -158,7 +158,7 @@ public class AutoCrafterMenu extends BaseMachineMenu implements IFilterMenu, Con
         //if (!level.isClientSide) return;
         RecipeManager recipeManager = level.getRecipeManager();
         Optional<CraftingRecipe> recipe = recipeManager
-            .getRecipeFor(RecipeType.CRAFTING, blockEntity.getCraftingContainer(), level);
+            .getRecipeFor(RecipeType.CRAFTING, blockEntity.getDummyCraftingContainer(), level);
         if (recipe.isPresent()) {
             ItemStack resultItem = recipe.get().getResultItem(level.registryAccess());
             this.resultSlot.set(resultItem);
@@ -177,5 +177,10 @@ public class AutoCrafterMenu extends BaseMachineMenu implements IFilterMenu, Con
     @Override
     public void dataChanged(@NotNull AbstractContainerMenu containerMenu, int dataSlotIndex, int value) {
 
+    }
+
+    @Override
+    public void flush() {
+        this.onChanged();
     }
 }
