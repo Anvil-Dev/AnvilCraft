@@ -61,79 +61,6 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
         }
     };
     private int cooldown = AnvilCraft.config.autoCrafterCooldown;
-    private final CraftingContainer craftingContainer = new CraftingContainer() {
-        @Override
-        public int getWidth() {
-            return 3;
-        }
-
-        @Override
-        public int getHeight() {
-            return 3;
-        }
-
-        @Override
-        public List<ItemStack> getItems() {
-            return depository.getStacks();
-        }
-
-        @Override
-        public int getContainerSize() {
-            return depository.getSlots();
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return depository.isEmpty();
-        }
-
-        @Override
-        public ItemStack getItem(int slot) {
-            return depository.getStack(slot);
-        }
-
-        @Override
-        public ItemStack removeItem(int slot, int amount) {
-            ItemStack stack = depository.extract(slot, amount, false, true);
-            AutoCrafterBlockEntity.this.setChanged();
-            return stack;
-        }
-
-        @Override
-        public ItemStack removeItemNoUpdate(int slot) {
-            return depository.clearItem(slot);
-        }
-
-        @Override
-        public void setItem(int slot, ItemStack stack) {
-            depository.setStack(slot, stack);
-        }
-
-        @Override
-        public void setChanged() {
-            AutoCrafterBlockEntity.this.setChanged();
-        }
-
-        @Override
-        public boolean stillValid(Player player) {
-            return true;
-        }
-
-        @Override
-        public void clearContent() {
-            for (int i = 0; i < this.getContainerSize(); i++) {
-                depository.clearItem(i);
-            }
-        }
-
-        @Override
-        public void fillStackedContents(StackedContents contents) {
-            for (int i = 0; i < this.getContainerSize(); i++) {
-                ItemStack itemStack = this.getItem(i);
-                contents.accountSimpleStack(itemStack);
-            }
-        }
-    };
 
 
     protected AutoCrafterBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
@@ -382,4 +309,156 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
     public Level getCurrentLevel() {
         return this.getLevel();
     }
+
+    private final CraftingContainer craftingContainer = new CraftingContainer() {
+        @Override
+        public int getWidth() {
+            return 3;
+        }
+
+        @Override
+        public int getHeight() {
+            return 3;
+        }
+
+        @Override
+        public List<ItemStack> getItems() {
+            return depository.getStacks();
+        }
+
+        @Override
+        public int getContainerSize() {
+            return depository.getSlots();
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return depository.isEmpty();
+        }
+
+        @Override
+        public ItemStack getItem(int slot) {
+            return depository.getStack(slot);
+        }
+
+        @Override
+        public ItemStack removeItem(int slot, int amount) {
+            ItemStack stack = depository.extract(slot, amount, false, true);
+            AutoCrafterBlockEntity.this.setChanged();
+            return stack;
+        }
+
+        @Override
+        public ItemStack removeItemNoUpdate(int slot) {
+            return depository.clearItem(slot);
+        }
+
+        @Override
+        public void setItem(int slot, ItemStack stack) {
+            depository.setStack(slot, stack);
+        }
+
+        @Override
+        public void setChanged() {
+            AutoCrafterBlockEntity.this.setChanged();
+        }
+
+        @Override
+        public boolean stillValid(Player player) {
+            return true;
+        }
+
+        @Override
+        public void clearContent() {
+            for (int i = 0; i < this.getContainerSize(); i++) {
+                depository.clearItem(i);
+            }
+        }
+
+        @Override
+        public void fillStackedContents(StackedContents contents) {
+            for (int i = 0; i < this.getContainerSize(); i++) {
+                ItemStack itemStack = this.getItem(i);
+                contents.accountSimpleStack(itemStack);
+            }
+        }
+    };
+
+    private final CraftingContainer dummyCraftingContainer = new CraftingContainer() {
+        @Override
+        public int getWidth() {
+            return 3;
+        }
+
+        @Override
+        public int getHeight() {
+            return 3;
+        }
+
+        @Override
+        public @NotNull List<ItemStack> getItems() {
+            int size = this.getContainerSize();
+            List<ItemStack> list = NonNullList.withSize(size, ItemStack.EMPTY);
+            for (int i = 0; i < size; i++) {
+                list.set(i, this.getItem(i));
+            }
+            return list;
+        }
+
+        @Override
+        public int getContainerSize() {
+            return depository.getSlots();
+        }
+
+        @Override
+        public boolean isEmpty() {
+            for (ItemStack item : this.getItems()) {
+                if (!item.isEmpty()) return false;
+            }
+            return true;
+        }
+
+        @Override
+        public @NotNull ItemStack getItem(int slot) {
+            ItemStack stack = depository.getStack(slot);
+            if (stack.isEmpty()) stack = depository.getFilter(slot);
+            return stack;
+        }
+
+        @Override
+        public @NotNull ItemStack removeItem(int slot, int amount) {
+            return this.getItem(slot);
+        }
+
+        @Override
+        public @NotNull ItemStack removeItemNoUpdate(int slot) {
+            return this.getItem(slot);
+        }
+
+        @Override
+        public void setItem(int slot, ItemStack stack) {
+        }
+
+        @Override
+        public void setChanged() {
+            AutoCrafterBlockEntity.this.setChanged();
+        }
+
+        @Override
+        public boolean stillValid(Player player) {
+            return true;
+        }
+
+        @Override
+        public void clearContent() {
+        }
+
+        @Override
+        public void fillStackedContents(StackedContents contents) {
+            for (int i = 0; i < this.getContainerSize(); i++) {
+                ItemStack itemStack = this.getItem(i);
+                contents.accountSimpleStack(itemStack);
+            }
+        }
+    };
 }
