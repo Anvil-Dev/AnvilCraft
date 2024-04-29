@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.vehicle.ContainerEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -41,10 +42,7 @@ public class ItemDepositoryHelperImpl {
             }
         }
         List<Entity> entities = level.getEntitiesOfClass(Entity.class, new AABB(pos))
-                .stream().filter(entity -> entity.getType() == EntityType.CHEST_BOAT
-                        || entity.getType() == EntityType.CHEST_MINECART
-                        || entity.getType() == EntityType.HOPPER_MINECART
-                )
+                .stream().filter(entity -> entity instanceof ContainerEntity)
                 .toList();
         if (entities.isEmpty()) return null;
         for (Entity entity : entities) {
