@@ -10,6 +10,9 @@ def mod_id = getConfig("mod_id")
 
 loom {
     accessWidenerPath = file("src/main/resources/${mod_id}.accesswidener")
+    mixin {
+
+    }
 }
 
 configurations {

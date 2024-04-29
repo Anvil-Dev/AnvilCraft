@@ -9,7 +9,9 @@
     "LevelChunkMixin",
     "LightningBoltMixin",
     "MinecraftServerMixin",
-    "PistonMovingBlockEntityMixin"
+    "PistonMovingBlockEntityMixin",
+    "ZetaPistonCompatMixin",
+    "accessor.PistonStructorResolverAccessor"
   ],
   "client": [
   ],
