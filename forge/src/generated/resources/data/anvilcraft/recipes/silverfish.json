@@ -1,6 +1,6 @@
 {
   "type": "anvilcraft:mob_transform",
-  "id": "anvilcraft:sliverfish",
+  "id": "anvilcraft:silverfish",
   "input": "minecraft:silverfish",
   "results": [
     {

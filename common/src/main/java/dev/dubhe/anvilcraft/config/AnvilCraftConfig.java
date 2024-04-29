@@ -89,4 +89,8 @@ public class AnvilCraftConfig implements ConfigData {
     @Comment("Should show anvil levitate animation")
     @ConfigEntry.Gui.Tooltip
     public boolean displayAnvilAnimation = true;
+
+    @Comment("The maximum number of logs that can be cut per level of Felling enchantment")
+    @ConfigEntry.Gui.Tooltip
+    public double powerLoss = 0.1;
 }

@@ -106,6 +106,9 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.HEATER.asStack());
                 entries.accept(ModBlocks.TRANSMISSION_POLE.asStack());
                 entries.accept(ModBlocks.CHARGE_COLLECTOR.asStack());
+                entries.accept(ModBlocks.POWER_CONVERTER_SMALL.asStack());
+                entries.accept(ModBlocks.POWER_CONVERTER_MIDDLE.asStack());
+                entries.accept(ModBlocks.POWER_CONVERTER_BIG.asStack());
                 entries.accept(ModBlocks.PIEZOELECTRIC_CRYSTAL.asStack());
                 entries.accept(ModBlocks.JEWEL_CRAFTING_TABLE.asStack());
                 entries.accept(ModBlocks.MAGNET_BLOCK.asStack());

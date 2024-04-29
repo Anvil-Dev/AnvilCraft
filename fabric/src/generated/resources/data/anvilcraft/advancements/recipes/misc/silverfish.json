@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:sliverfish"
+        "recipe": "anvilcraft:silverfish"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -15,7 +15,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:sliverfish"
+      "anvilcraft:silverfish"
     ]
   },
   "sends_telemetry_event": false

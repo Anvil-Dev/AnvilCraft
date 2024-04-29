@@ -19,6 +19,9 @@ import dev.dubhe.anvilcraft.block.MagnetBlock;
 import dev.dubhe.anvilcraft.block.MeltGemCauldron;
 import dev.dubhe.anvilcraft.block.MobAmberBlock;
 import dev.dubhe.anvilcraft.block.PiezoelectricCrystalBlock;
+import dev.dubhe.anvilcraft.block.PowerConverterBigBlock;
+import dev.dubhe.anvilcraft.block.PowerConverterMiddleBlock;
+import dev.dubhe.anvilcraft.block.PowerConverterSmallBlock;
 import dev.dubhe.anvilcraft.block.ResentfulAmberBlock;
 import dev.dubhe.anvilcraft.block.ResinBlock;
 import dev.dubhe.anvilcraft.block.RoyalAnvilBlock;
@@ -846,6 +849,99 @@ public class ModBlocks {
         .blockstate((ctx, provider) -> {
         })
         .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<PowerConverterSmallBlock> POWER_CONVERTER_SMALL = REGISTRATE
+        .block("power_converter_small", PowerConverterSmallBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.lightLevel(state -> {
+            if (state.getValue(OVERLOAD)) return 6;
+            else return 15;
+        }))
+        .blockstate((ctx, provider) -> {
+        })
+        .recipe((ctx, provider) -> {
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("A")
+                .pattern("B")
+                .define('A', ModItems.MAGNETOELECTRIC_CORE)
+                .define('B', ModItemTags.COPPER_NUGGETS)
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
+                    AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
+                )
+                .save(provider);
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("A")
+                .pattern("B")
+                .define('A', ModItems.MAGNETOELECTRIC_CORE)
+                .define('B', ModItemTags.COPPER_NUGGETS_FORGE)
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
+                    AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
+                )
+                .save(
+                    provider,
+                    BuiltInRegistries.ITEM.getKey(ctx.get().asItem()) + "_forge"
+                );
+        })
+        .defaultLoot()
+        .item()
+        .model((ctx, provider) -> provider.blockItem(ctx))
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<PowerConverterMiddleBlock> POWER_CONVERTER_MIDDLE = REGISTRATE
+        .block("power_converter_middle", PowerConverterMiddleBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.lightLevel(state -> {
+            if (state.getValue(OVERLOAD)) return 6;
+            else return 15;
+        }))
+        .blockstate((ctx, provider) -> {
+        })
+        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern("A")
+            .pattern("B")
+            .define('A', ModItems.MAGNETOELECTRIC_CORE)
+            .define('B', Items.COPPER_INGOT)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
+                AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
+            )
+            .save(provider))
+        .defaultLoot()
+        .item()
+        .model((ctx, provider) -> provider.blockItem(ctx))
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<PowerConverterBigBlock> POWER_CONVERTER_BIG = REGISTRATE
+        .block("power_converter_big", PowerConverterBigBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.lightLevel(state -> {
+            if (state.getValue(OVERLOAD)) return 6;
+            else return 15;
+        }))
+        .blockstate((ctx, provider) -> {
+        })
+        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern("A")
+            .pattern("B")
+            .define('A', ModItems.MAGNETOELECTRIC_CORE)
+            .define('B', Items.COPPER_BLOCK)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
+                AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
+            )
+            .save(provider))
+        .defaultLoot()
+        .item()
+        .model((ctx, provider) -> provider.blockItem(ctx))
+        .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
