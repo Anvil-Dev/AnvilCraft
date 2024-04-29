@@ -33,7 +33,7 @@ Download the corresponding version of AnvilCraftMod and place it in the `mods` f
 
 We welcome you to join us! Create an [Issue](https://github.com/Anvil-Dev/AnvilCraft/issues/new/choose) or create a Pull Request.
 
-AnvilCraft follows the [Contributor Covenant](http://contributor-covenant.org/version/1/3/0/) Code of Conduct.
+AnvilCraft follows the [Contributor Covenant](https://www.contributor-covenant.org/version/2/1/code_of_conduct/) Code of Conduct.
 
 ## License
 

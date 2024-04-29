@@ -32,7 +32,7 @@
 
 非常欢迎你的加入！提一个 [Issue](https://github.com/Anvil-Dev/AnvilCraft/issues/new/choose) 或者提交一个 Pull Request。
 
-铁砧工艺遵循 [Contributor Covenant](http://contributor-covenant.org/version/1/3/0/) 行为规范。
+铁砧工艺遵循 [Contributor Covenant](https://www.contributor-covenant.org/zh-cn/version/2/1/code_of_conduct/) 行为规范。
 
 ## 使用许可
 
