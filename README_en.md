@@ -25,6 +25,10 @@
 
 Download the corresponding version of AnvilCraftMod and place it in the `mods` folder to start the game.
 
+## Maintainer
+
+[@Gugle](https://github.com/Gu-ZT)
+
 ## Contributing
 
 We welcome you to join us! Create an [Issue](https://github.com/Anvil-Dev/AnvilCraft/issues/new/choose) or create a Pull Request.
