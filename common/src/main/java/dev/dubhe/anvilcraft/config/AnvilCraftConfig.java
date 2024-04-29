@@ -85,4 +85,8 @@ public class AnvilCraftConfig implements ConfigData {
     @ConfigEntry.Gui.Tooltip
     @ConfigEntry.BoundedDiscrete(max = 24, min = 2)
     public int fellingBlockPerLevel = 2;
+
+    @Comment("Should show anvil levitate animation")
+    @ConfigEntry.Gui.Tooltip
+    public boolean displayAnvilAnimation = true;
 }
