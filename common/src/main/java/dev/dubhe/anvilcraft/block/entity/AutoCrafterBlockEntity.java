@@ -160,6 +160,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
         this.flushState(level, pos);
         BlockState state = level.getBlockState(pos);
         if (state.getValue(AutoCrafterBlock.LIT)) craft(level);
+        level.updateNeighbourForOutputSignal(pos, state.getBlock());
     }
 
     private boolean canCraft() {

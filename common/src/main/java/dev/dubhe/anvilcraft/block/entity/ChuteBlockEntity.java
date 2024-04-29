@@ -164,6 +164,7 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
         } else {
             cooldown--;
         }
+        level.updateNeighbourForOutputSignal(getBlockPos(), getBlockState().getBlock());
     }
 
     /**
