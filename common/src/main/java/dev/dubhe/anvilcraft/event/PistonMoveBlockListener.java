@@ -8,13 +8,17 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 public class PistonMoveBlockListener {
-    public static void onPistonMoveBlocks(Level level, List<BlockPos> blocks) {
+    /**
+     * 活塞移动方块
+     */
+    public static void onPistonMoveBlocks(@NotNull Level level, @NotNull List<BlockPos> blocks) {
         RandomSource random = level.random;
         for (BlockPos pos : blocks) {
             if (!level.getBlockState(pos).is(ModBlocks.MAGNET_BLOCK.get())) continue;

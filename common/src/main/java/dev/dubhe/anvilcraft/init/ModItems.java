@@ -768,14 +768,14 @@ public class ModItems {
         .tag(ModItemTags.BRONZE_INGOTS, ModItemTags.BRONZE_INGOTS_FORGE)
         .recipe((ctx, provider) -> {
             ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
-                .requires(Ingredient.of(ModItemTags.BRONZE_NUGGETS),9)
+                .requires(Ingredient.of(ModItemTags.BRONZE_NUGGETS), 9)
                 .unlockedBy(
                     AnvilCraftDatagen.hasItem(ModItemTags.BRONZE_NUGGETS),
                     AnvilCraftDatagen.has(ModItemTags.BRONZE_NUGGETS)
                 )
                 .save(provider);
             ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
-                .requires(Ingredient.of(ModItemTags.BRONZE_NUGGETS_FORGE),9)
+                .requires(Ingredient.of(ModItemTags.BRONZE_NUGGETS_FORGE), 9)
                 .unlockedBy(
                     AnvilCraftDatagen.hasItem(ModItemTags.BRONZE_NUGGETS_FORGE),
                     AnvilCraftDatagen.has(ModItemTags.BRONZE_NUGGETS_FORGE)
@@ -824,40 +824,40 @@ public class ModItems {
         })
         .register();
 
-//    public static final ItemEntry<Item> BRONZE_NUGGET = REGISTRATE
-//        .item("bronze_nugget", Item::new)
-//        .tag(ModItemTags.BRONZE_NUGGETS, ModItemTags.BRONZE_NUGGETS_FORGE)
-//        .recipe((ctx, provider) -> {
-//            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
-//                .requires(ModItemTags.BRONZE_INGOTS)
-//                .unlockedBy(
-//                    AnvilCraftDatagen.hasItem(ModItemTags.BRONZE_INGOTS),
-//                    AnvilCraftDatagen.has(ModItemTags.BRONZE_INGOTS)
-//                )
-//                .save(provider);
-//            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
-//                .requires(ModItemTags.BRONZE_INGOTS_FORGE)
-//                .unlockedBy(
-//                    AnvilCraftDatagen.hasItem(ModItemTags.BRONZE_INGOTS_FORGE),
-//                    AnvilCraftDatagen.has(ModItemTags.BRONZE_INGOTS_FORGE)
-//                )
-//                .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_forge");
-//        })
-//        .register();
+    //    public static final ItemEntry<Item> BRONZE_NUGGET = REGISTRATE
+    //        .item("bronze_nugget", Item::new)
+    //        .tag(ModItemTags.BRONZE_NUGGETS, ModItemTags.BRONZE_NUGGETS_FORGE)
+    //        .recipe((ctx, provider) -> {
+    //            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+    //                .requires(ModItemTags.BRONZE_INGOTS)
+    //                .unlockedBy(
+    //                    AnvilCraftDatagen.hasItem(ModItemTags.BRONZE_INGOTS),
+    //                    AnvilCraftDatagen.has(ModItemTags.BRONZE_INGOTS)
+    //                )
+    //                .save(provider);
+    //            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+    //                .requires(ModItemTags.BRONZE_INGOTS_FORGE)
+    //                .unlockedBy(
+    //                    AnvilCraftDatagen.hasItem(ModItemTags.BRONZE_INGOTS_FORGE),
+    //                    AnvilCraftDatagen.has(ModItemTags.BRONZE_INGOTS_FORGE)
+    //                )
+    //                .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_forge");
+    //        })
+    //        .register();
 
     public static final ItemEntry<Item> BRASS_INGOT = REGISTRATE
         .item("brass_ingot", Item::new)
         .tag(ModItemTags.BRASS_INGOTS, ModItemTags.BRASS_INGOTS_FORGE)
         .recipe((ctx, provider) -> {
             ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
-                .requires(Ingredient.of(ModItemTags.BRASS_NUGGETS),9)
+                .requires(Ingredient.of(ModItemTags.BRASS_NUGGETS), 9)
                 .unlockedBy(
                     AnvilCraftDatagen.hasItem(ModItemTags.BRASS_NUGGETS),
                     AnvilCraftDatagen.has(ModItemTags.BRASS_NUGGETS)
                 )
                 .save(provider);
             ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
-                .requires(Ingredient.of(ModItemTags.BRASS_NUGGETS_FORGE),9)
+                .requires(Ingredient.of(ModItemTags.BRASS_NUGGETS_FORGE), 9)
                 .unlockedBy(
                     AnvilCraftDatagen.hasItem(ModItemTags.BRASS_NUGGETS_FORGE),
                     AnvilCraftDatagen.has(ModItemTags.BRASS_NUGGETS_FORGE)
@@ -906,26 +906,26 @@ public class ModItems {
         })
         .register();
 
-//    public static final ItemEntry<Item> BRASS_NUGGET = REGISTRATE
-//        .item("brass_nugget", Item::new)
-//        .tag(ModItemTags.BRASS_NUGGETS, ModItemTags.BRASS_NUGGETS_FORGE)
-//        .recipe((ctx, provider) -> {
-//            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
-//                .requires(ModItemTags.BRASS_INGOTS)
-//                .unlockedBy(
-//                    AnvilCraftDatagen.hasItem(ModItemTags.BRASS_INGOTS),
-//                    AnvilCraftDatagen.has(ModItemTags.BRASS_INGOTS)
-//                )
-//                .save(provider);
-//            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
-//                .requires(ModItemTags.BRASS_INGOTS_FORGE)
-//                .unlockedBy(
-//                    AnvilCraftDatagen.hasItem(ModItemTags.BRASS_INGOTS_FORGE),
-//                    AnvilCraftDatagen.has(ModItemTags.BRASS_INGOTS_FORGE)
-//                )
-//                .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_forge");
-//        })
-//        .register();
+    //    public static final ItemEntry<Item> BRASS_NUGGET = REGISTRATE
+    //        .item("brass_nugget", Item::new)
+    //        .tag(ModItemTags.BRASS_NUGGETS, ModItemTags.BRASS_NUGGETS_FORGE)
+    //        .recipe((ctx, provider) -> {
+    //            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+    //                .requires(ModItemTags.BRASS_INGOTS)
+    //                .unlockedBy(
+    //                    AnvilCraftDatagen.hasItem(ModItemTags.BRASS_INGOTS),
+    //                    AnvilCraftDatagen.has(ModItemTags.BRASS_INGOTS)
+    //                )
+    //                .save(provider);
+    //            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+    //                .requires(ModItemTags.BRASS_INGOTS_FORGE)
+    //                .unlockedBy(
+    //                    AnvilCraftDatagen.hasItem(ModItemTags.BRASS_INGOTS_FORGE),
+    //                    AnvilCraftDatagen.has(ModItemTags.BRASS_INGOTS_FORGE)
+    //                )
+    //                .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_forge");
+    //        })
+    //        .register();
 
 
     public static final ItemEntry<Item> AMULET_BOX = REGISTRATE

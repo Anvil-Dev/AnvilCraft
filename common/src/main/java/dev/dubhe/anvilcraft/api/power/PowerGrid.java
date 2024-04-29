@@ -346,13 +346,16 @@ public class PowerGrid {
 
         private final Map<BlockPos, PowerComponentInfo> mappedPowerComponentInfo = new HashMap<>();
 
+        /**
+         * 简单电网
+         */
         public SimplePowerGrid(
-                int hash,
-                String level,
-                BlockPos pos,
-                List<PowerComponentInfo> powerComponentInfoList,
-                int generate,
-                int consume
+            int hash,
+            String level,
+            BlockPos pos,
+            @NotNull List<PowerComponentInfo> powerComponentInfoList,
+            int generate,
+            int consume
         ) {
             this.pos = pos;
             this.level = level;
@@ -471,6 +474,9 @@ public class PowerGrid {
             return pos.subtract(this.pos);
         }
 
+        /**
+         * 寻找电网
+         */
         public static List<SimplePowerGrid> findPowerGrid(BlockPos pos) {
             return PowerGridRenderer.getGrids()
                     .values().stream()

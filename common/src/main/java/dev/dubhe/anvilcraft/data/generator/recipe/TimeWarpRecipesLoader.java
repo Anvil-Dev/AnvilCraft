@@ -78,6 +78,9 @@ public class TimeWarpRecipesLoader {
             .save(provider, AnvilCraft.of("timewarp/" + BuiltInRegistries.ITEM.getKey(item1.asItem()).getPath()));
     }
 
+    /**
+     * 需要熔融宝石的时移配方
+     */
     public static void timeWarpWithMeltGem(ItemLike item, ItemLike item1, RegistrateRecipeProvider provider) {
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
             .icon(item1)

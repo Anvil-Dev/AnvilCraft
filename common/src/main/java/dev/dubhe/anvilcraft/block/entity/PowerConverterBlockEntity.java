@@ -47,8 +47,11 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
         inputPower = tag.getInt("InputPower");
     }
 
+    /**
+     * tick
+     */
     public void tick() {
-        flushState(getLevel(), getBlockPos());
+        if (this.level != null) flushState(this.level, getBlockPos());
         if (getBlockState().getValue(BasePowerConverterBlock.OVERLOAD)) return;
         int amount = (int) (inputPower * 60 * (1 - AnvilCraft.config.powerLoss));
         Direction face = getBlockState().getValue(BasePowerConverterBlock.FACING);
