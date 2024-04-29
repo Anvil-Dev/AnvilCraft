@@ -35,43 +35,38 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
 
     public static final Codec<MobTransformRecipe> CODEC = RecordCodecBuilder.create(ins -> ins.group(
             ResourceLocation.CODEC.fieldOf("id").forGetter(o -> o.id),
-            ItemStack.CODEC.fieldOf("iconSrc").forGetter(o -> o.iconSrc),
             ResourceLocation.CODEC
-                    .fieldOf("inputEntityType")
-                    .forGetter(o -> BuiltInRegistries.ENTITY_TYPE.getKey(o.inputEntityType)),
+                    .fieldOf("input")
+                    .forGetter(o -> BuiltInRegistries.ENTITY_TYPE.getKey(o.input)),
             TransformResult.CODEC.listOf().fieldOf("results").forGetter(o -> o.results)
     ).apply(ins, MobTransformRecipe::new));
 
     private final ResourceLocation id;
     @Getter
-    private EntityType<?> inputEntityType;
+    private EntityType<?> input;
     @Getter
     private List<TransformResult> results;
-    private final ItemStack iconSrc;
 
     /**
      * 生物转化配方
      */
     public MobTransformRecipe(
             ResourceLocation id,
-            ItemStack iconSrc,
-            ResourceLocation inputEntityType,
+            ResourceLocation input,
             List<TransformResult> results
     ) {
         this.id = id;
-        this.iconSrc = iconSrc;
         this.results = results;
-        this.inputEntityType = BuiltInRegistries.ENTITY_TYPE.get(inputEntityType);
+        this.input = BuiltInRegistries.ENTITY_TYPE.get(input);
     }
 
-    public MobTransformRecipe(ResourceLocation id, ItemStack iconSrc) {
+    public MobTransformRecipe(ResourceLocation id) {
         this.id = id;
-        this.iconSrc = iconSrc;
     }
 
     @Override
     public boolean matches(@NotNull MobTransformContainer container, @NotNull Level level) {
-        return container.getEntity().getType() == inputEntityType;
+        return container.getEntity().getType() == input;
     }
 
     @Override
@@ -112,7 +107,7 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
 
     @Override
     public @NotNull ItemStack getResultItem(@NotNull RegistryAccess registryAccess) {
-        return iconSrc;
+        return ItemStack.EMPTY;
     }
 
     @Override
@@ -147,25 +142,24 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
                 @NotNull JsonObject serializedRecipe
         ) {
             return MobTransformRecipe.CODEC
-                    .parse(JsonOps.INSTANCE, serializedRecipe.getAsJsonObject("recipe"))
+                    .parse(JsonOps.INSTANCE, serializedRecipe)
                     .getOrThrow(false, ignored -> {
                     });
         }
 
         @Override
         public @NotNull MobTransformRecipe fromNetwork(@NotNull ResourceLocation recipeId, FriendlyByteBuf buffer) {
-            MobTransformRecipe recipe = new MobTransformRecipe(recipeId, buffer.readItem());
+            MobTransformRecipe recipe = new MobTransformRecipe(recipeId);
             ResourceLocation inputMobTypeIdentifier = buffer.readResourceLocation();
             recipe.results = buffer.readList(TransformResult::fromByteBuf);
-            recipe.inputEntityType = BuiltInRegistries.ENTITY_TYPE.get(inputMobTypeIdentifier);
+            recipe.input = BuiltInRegistries.ENTITY_TYPE.get(inputMobTypeIdentifier);
             return recipe;
         }
 
         @Override
         public void toNetwork(FriendlyByteBuf buffer, MobTransformRecipe recipe) {
-            buffer.writeItem(recipe.iconSrc);
             ResourceLocation inputMobTypeIdentifier =
-                    BuiltInRegistries.ENTITY_TYPE.getKey(recipe.inputEntityType);
+                    BuiltInRegistries.ENTITY_TYPE.getKey(recipe.input);
             buffer.writeResourceLocation(inputMobTypeIdentifier);
             buffer.writeCollection(recipe.results, TransformResult::intoByteBuf);
         }
@@ -180,7 +174,6 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
         private final ResourceLocation id;
         private EntityType<?> inputEntityType;
         private final List<TransformResult> results = new ArrayList<>();
-        private ItemStack iconSrc = ItemStack.EMPTY;
         private Advancement.Builder advancement = Advancement.Builder.recipeAdvancement();
         private RecipeCategory category = RecipeCategory.MISC;
 
@@ -208,17 +201,12 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
             return this;
         }
 
-        public Builder icon(ItemStack iconSrc) {
-            this.iconSrc = iconSrc;
-            return this;
-        }
-
         /**
          * 构造
          */
         public MobTransformRecipe build() {
-            MobTransformRecipe r = new MobTransformRecipe(id, iconSrc);
-            r.inputEntityType = inputEntityType;
+            MobTransformRecipe r = new MobTransformRecipe(id);
+            r.input = inputEntityType;
             r.results = results;
             return r;
         }
