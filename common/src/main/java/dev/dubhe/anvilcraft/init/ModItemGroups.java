@@ -94,6 +94,8 @@ public class ModItemGroups {
                 entries.accept(Items.IRON_TRAPDOOR.getDefaultInstance());
                 entries.accept(Items.CAULDRON.getDefaultInstance());
                 entries.accept(Items.CAMPFIRE.getDefaultInstance());
+                entries.accept(Items.STONECUTTER.getDefaultInstance());
+                entries.accept(Items.SCAFFOLDING.getDefaultInstance());
                 entries.accept(ModBlocks.STAMPING_PLATFORM.asStack());
                 entries.accept(ModBlocks.CORRUPTED_BEACON.asStack());
                 entries.accept(Items.ANVIL.getDefaultInstance());
