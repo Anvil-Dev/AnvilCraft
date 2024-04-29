@@ -784,7 +784,7 @@ public class ModItems {
                     RegistrateRecipeProvider.has(Items.NETHERITE_SCRAP)
                 )
                 .save(provider);
-            TimeWarpRecipesLoader.timeWarp(ctx.get(), Items.ANCIENT_DEBRIS, 2, provider);
+            TimeWarpRecipesLoader.timeWarp(ctx.get(), Items.ANCIENT_DEBRIS, 1, provider);
         })
         .register();
 
