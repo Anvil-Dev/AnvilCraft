@@ -77,6 +77,7 @@ public class HasMobBlockItem extends BlockItem {
      * 获取物品中的实体
      */
     public static @Nullable Entity getMobFromItem(Level level, @NotNull ItemStack stack) {
+        if (!stack.hasTag()) return null;
         CompoundTag tag = stack.getOrCreateTag();
         if (!tag.contains("entity")) return null;
         CompoundTag entityTag = tag.getCompound("entity");
