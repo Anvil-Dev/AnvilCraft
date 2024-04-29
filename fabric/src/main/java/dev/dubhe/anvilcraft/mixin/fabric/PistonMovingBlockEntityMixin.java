@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.mixin.fabric;
 
 import dev.dubhe.anvilcraft.block.ResinBlock;
 import net.minecraft.world.level.block.Block;
-
 import net.minecraft.world.level.block.SlimeBlock;
 import net.minecraft.world.level.block.piston.PistonMovingBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;

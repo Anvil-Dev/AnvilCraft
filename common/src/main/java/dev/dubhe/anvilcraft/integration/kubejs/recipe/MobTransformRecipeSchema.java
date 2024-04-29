@@ -10,8 +10,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import org.apache.commons.lang3.ArrayUtils;
 
-import java.util.ArrayList;
-
 /**
  * 生物转换配方架构
  */

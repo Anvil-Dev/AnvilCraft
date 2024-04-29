@@ -3,12 +3,6 @@ package dev.dubhe.anvilcraft.block;
 import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
-
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map.Entry;
-import javax.annotation.Nonnull;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
@@ -18,6 +12,11 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map.Entry;
 
 public class PiezoelectricCrystalBlock extends Block implements IHammerRemovable {
     public static VoxelShape SHAPE = Shapes.or(
