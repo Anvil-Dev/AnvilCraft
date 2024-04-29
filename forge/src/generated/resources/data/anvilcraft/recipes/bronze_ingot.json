@@ -1,0 +1,36 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "tag": "c:bronze_nuggets"
+    },
+    {
+      "tag": "c:bronze_nuggets"
+    },
+    {
+      "tag": "c:bronze_nuggets"
+    },
+    {
+      "tag": "c:bronze_nuggets"
+    },
+    {
+      "tag": "c:bronze_nuggets"
+    },
+    {
+      "tag": "c:bronze_nuggets"
+    },
+    {
+      "tag": "c:bronze_nuggets"
+    },
+    {
+      "tag": "c:bronze_nuggets"
+    },
+    {
+      "tag": "c:bronze_nuggets"
+    }
+  ],
+  "result": {
+    "item": "anvilcraft:bronze_ingot"
+  }
+}
