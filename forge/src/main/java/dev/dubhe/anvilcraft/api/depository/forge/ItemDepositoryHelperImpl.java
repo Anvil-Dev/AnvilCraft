@@ -4,6 +4,8 @@ import dev.dubhe.anvilcraft.api.depository.IItemDepository;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.vehicle.ContainerEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -34,15 +36,18 @@ public class ItemDepositoryHelperImpl {
         BlockEntity be = level.getBlockEntity(pos);
         if (be != null) {
             LazyOptional<IItemHandler> capability =
-                be.getCapability(ForgeCapabilities.ITEM_HANDLER, direction.getOpposite());
+                    be.getCapability(ForgeCapabilities.ITEM_HANDLER, direction.getOpposite());
             if (capability.isPresent() && capability.resolve().isPresent()) {
                 return toItemDepository(capability.resolve().get());
             }
         }
-        List<Entity> entities = level.getEntitiesOfClass(Entity.class, new AABB(pos));
+        List<Entity> entities = level.getEntitiesOfClass(Entity.class, new AABB(pos))
+                .stream().filter(entity -> entity instanceof ContainerEntity)
+                .toList();
+        if (entities.isEmpty()) return null;
         for (Entity entity : entities) {
             LazyOptional<IItemHandler> capability =
-                entity.getCapability(ForgeCapabilities.ITEM_HANDLER, direction.getOpposite());
+                    entity.getCapability(ForgeCapabilities.ITEM_HANDLER, direction.getOpposite());
             if (capability.isPresent() && capability.resolve().isPresent()) {
                 return toItemDepository(capability.resolve().get());
             }
@@ -75,7 +80,7 @@ public class ItemDepositoryHelperImpl {
 
             @Override
             public ItemStack insert(
-                int slot, ItemStack stack, boolean simulate, boolean notifyChanges, boolean isServer
+                    int slot, ItemStack stack, boolean simulate, boolean notifyChanges, boolean isServer
             ) {
                 return handler.insertItem(slot, stack, simulate);
             }

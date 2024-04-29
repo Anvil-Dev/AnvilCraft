@@ -31,11 +31,13 @@ public class FinishedMobTransformRecipe implements FinishedRecipe {
 
     @Override
     public void serializeRecipeData(@NotNull JsonObject json) {
-        JsonElement jsonObject = MobTransformRecipe.CODEC
+        JsonElement jsonElement = MobTransformRecipe.CODEC
                 .encodeStart(JsonOps.INSTANCE, this.recipe)
                 .getOrThrow(false, ignored -> {
                 });
-        json.add("recipe", jsonObject);
+        jsonElement.getAsJsonObject()
+                .asMap()
+                .forEach(json::add);
     }
 
     @Override
