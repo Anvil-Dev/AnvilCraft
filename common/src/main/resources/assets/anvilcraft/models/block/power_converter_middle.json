@@ -1,0 +1,23 @@
+{
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/block",
+	"textures": {
+		"0": "anvilcraft:block/power_converter",
+		"particle": "anvilcraft:block/power_converter"
+	},
+	"elements": [
+		{
+			"from": [6, 0, 6],
+			"to": [10, 8, 10],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 0, 8]},
+			"faces": {
+				"north": {"uv": [2, 0, 6, 8], "texture": "#0"},
+				"east": {"uv": [2, 0, 6, 8], "texture": "#0"},
+				"south": {"uv": [2, 0, 6, 8], "texture": "#0"},
+				"west": {"uv": [2, 0, 6, 8], "texture": "#0"},
+				"up": {"uv": [2, 0, 6, 4], "texture": "#0"},
+				"down": {"uv": [2, 8, 6, 12], "texture": "#0"}
+			}
+		}
+	]
+}
