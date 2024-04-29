@@ -28,22 +28,25 @@ public interface MobTransformRecipeSchema {
             return this;
         }
 
+        /**
+         * KubeJS
+         */
         public MobTransformRecipeJs input(EntityType<?> entityType) {
             setValue(INPUT, entityType);
             save();
             return this;
         }
 
+        /**
+         * KubeJS
+         */
         public MobTransformRecipeJs addOutput(EntityType<?> entityType) {
             return addOutput(entityType, 1.0);
         }
 
-//        public MobTransformRecipeJs addOutput(String entityType, double probability) {
-//            EntityType<?> e = EntityType.byString(entityType)
-//                .orElseThrow(() -> new IllegalArgumentException("Unknown entity type: " + entityType));
-//            return addOutput(e, probability);
-//        }
-
+        /**
+         * KubeJS
+         */
         public MobTransformRecipeJs addOutput(EntityType<?> entityType, double probability) {
             if (getValue(RESULTS) == null) setValue(RESULTS, new TransformResult[0]);
             TransformResult result = new TransformResult(entityType, probability);
