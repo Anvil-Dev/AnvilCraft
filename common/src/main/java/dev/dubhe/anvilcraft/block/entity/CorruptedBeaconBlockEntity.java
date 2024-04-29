@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.block.entity;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
-import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.transform.MobTransformContainer;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
@@ -33,7 +32,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 public class CorruptedBeaconBlockEntity extends BlockEntity {
     List<BeaconBeamSection> beamSections = Lists.newArrayList();

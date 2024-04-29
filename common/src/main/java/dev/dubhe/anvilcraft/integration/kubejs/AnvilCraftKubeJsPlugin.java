@@ -17,12 +17,14 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.NotHasBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.AnvilCraftRecipeSchema;
+import dev.dubhe.anvilcraft.integration.kubejs.recipe.MobTransformRecipeSchema;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.builder.SelectOneBuilder;
 import dev.latvian.mods.kubejs.KubeJSPlugin;
 import dev.latvian.mods.kubejs.recipe.schema.RegisterRecipeSchemasEvent;
 import dev.latvian.mods.kubejs.script.BindingsEvent;
 import dev.latvian.mods.kubejs.script.ScriptType;
 import dev.latvian.mods.kubejs.util.ClassFilter;
+import net.minecraft.world.entity.EntityType;
 
 public class AnvilCraftKubeJsPlugin extends KubeJSPlugin {
 
@@ -35,6 +37,7 @@ public class AnvilCraftKubeJsPlugin extends KubeJSPlugin {
     public void registerRecipeSchemas(RegisterRecipeSchemasEvent event) {
         super.registerRecipeSchemas(event);
         event.register(AnvilCraft.of("anvil_processing"), AnvilCraftRecipeSchema.SCHEMA);
+        event.register(AnvilCraft.of("mob_transform"), MobTransformRecipeSchema.SCHEMA);
     }
 
     @Override
@@ -46,6 +49,9 @@ public class AnvilCraftKubeJsPlugin extends KubeJSPlugin {
     @Override
     public void registerBindings(BindingsEvent event) {
         super.registerBindings(event);
+
+        // minecraft
+        event.add("EntityType", EntityType.class);
 
         event.add("AnvilCraftItems", ModItems.class);
         event.add("AnvilCraftBlocks", ModBlocks.class);

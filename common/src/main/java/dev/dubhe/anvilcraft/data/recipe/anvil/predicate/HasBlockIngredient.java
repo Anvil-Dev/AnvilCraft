@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.data.recipe.anvil.predicate;
 import com.google.gson.JsonObject;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
 import lombok.Getter;
-import net.minecraft.advancements.critereon.BlockPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.Level;

@@ -5,11 +5,15 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipeOutcome;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipePredicate;
+import dev.dubhe.anvilcraft.data.recipe.transform.TransformResult;
 import dev.latvian.mods.kubejs.recipe.RecipeJS;
 import dev.latvian.mods.kubejs.recipe.component.RecipeComponent;
 import dev.latvian.mods.kubejs.typings.desc.DescriptionContext;
 import dev.latvian.mods.kubejs.typings.desc.TypeDescJS;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
+
+import java.util.Optional;
 
 public class AnvilCraftRecipeComponents {
     public static final RecipeComponent<ResourceLocation> RESOURCE_LOCATION = new RecipeComponent<>() {
@@ -97,4 +101,53 @@ public class AnvilCraftRecipeComponents {
         }
     };
 
+    public static final RecipeComponent<EntityType<?>> RECIPE_ENTITY = new RecipeComponent<>() {
+        @Override
+        public String componentType() {
+            return "entity_type";
+        }
+
+        @Override
+        public Class<?> componentClass() {
+            return EntityType.class;
+        }
+
+        @Override
+        public JsonElement write(RecipeJS recipe, EntityType<?> value) {
+            return new JsonPrimitive(EntityType.getKey(value).toString());
+        }
+
+        @Override
+        public EntityType<?> read(RecipeJS recipe, Object from) {
+            Optional<EntityType<?>> entityType = from instanceof CharSequence c
+                ? EntityType.byString(c.toString())
+                : EntityType.byString(String.valueOf(from));
+            return entityType.orElse(null);
+        }
+    };
+
+    public static final RecipeComponent<TransformResult> RECIPE_TRANSFORM_RESULT = new RecipeComponent<>() {
+        @Override
+        public String componentType() {
+            return "recipe_transform_result";
+        }
+
+        @Override
+        public Class<?> componentClass() {
+            return TransformResult.class;
+        }
+
+        @Override
+        public JsonElement write(RecipeJS recipe, TransformResult value) {
+            return value.toJson();
+        }
+
+        @Override
+        public TransformResult read(RecipeJS recipe, Object from) {
+            if (from instanceof JsonObject jsonObject) {
+                return TransformResult.fromJson(jsonObject);
+            }
+            return null;
+        }
+    };
 }

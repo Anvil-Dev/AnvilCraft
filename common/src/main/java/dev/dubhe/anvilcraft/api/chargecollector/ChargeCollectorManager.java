@@ -1,15 +1,14 @@
 package dev.dubhe.anvilcraft.api.chargecollector;
 
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
+import net.minecraft.core.BlockPos;
+import org.joml.Vector3f;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
-
-import net.minecraft.core.BlockPos;
-import org.joml.Vector3f;
 
 public class ChargeCollectorManager {
     private static final Map<BlockPos, ChargeCollectorBlockEntity> CHARGE_COLLECTOR_MAP = new HashMap<>();

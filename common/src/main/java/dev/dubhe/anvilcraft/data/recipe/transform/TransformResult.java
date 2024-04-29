@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.data.recipe.transform;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
@@ -44,6 +45,10 @@ public record TransformResult(EntityType<?> resultEntityType, double probability
         return CODEC.parse(JsonOps.INSTANCE, jsonObject)
                 .getOrThrow(false, ignored -> {
                 });
+    }
+
+    public JsonElement toJson() {
+        return CODEC.encodeStart(JsonOps.INSTANCE, this).getOrThrow(false, ignored -> {});
     }
 
     /**

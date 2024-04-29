@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.state.Half;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
-import javax.annotation.Nonnull;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
@@ -34,6 +33,8 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nonnull;
 
 public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRemovable {
     public static final EnumProperty<Half> HALF = EnumProperty.create("half", Half.class);
