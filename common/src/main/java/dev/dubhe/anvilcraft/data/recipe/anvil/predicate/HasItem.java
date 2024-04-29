@@ -97,10 +97,12 @@ public class HasItem implements RecipePredicate, HasData {
         if (buffer.readBoolean()) {
             this.path = buffer.readUtf();
         }
-        for (int i = 0; i < buffer.readVarInt(); i++) {
+        int read = buffer.readVarInt();
+        for (int i = 0; i < read; i++) {
             this.hasTag.add(buffer.readUtf());
         }
-        for (int i = 0; i < buffer.readVarInt(); i++) {
+        read = buffer.readVarInt();
+        for (int i = 0; i < read; i++) {
             this.notHasTag.add(buffer.readUtf());
         }
         this.matchItem = ItemPredicate.fromJson(AnvilCraft.GSON.fromJson(buffer.readUtf(), JsonElement.class));
@@ -155,7 +157,7 @@ public class HasItem implements RecipePredicate, HasData {
     public void toNetwork(@NotNull FriendlyByteBuf buffer) {
         buffer.writeUtf(this.getType());
         buffer.writeVector3f(this.offset.toVector3f());
-        buffer.writeBoolean(this.path == null);
+        buffer.writeBoolean(this.path != null);
         if (this.path != null) {
             buffer.writeUtf(this.path);
         }

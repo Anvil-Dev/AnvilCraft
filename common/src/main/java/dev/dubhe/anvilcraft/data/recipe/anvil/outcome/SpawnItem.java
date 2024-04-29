@@ -109,7 +109,7 @@ public class SpawnItem implements RecipeOutcome, CanSetData {
         buffer.writeUtf(this.getType());
         buffer.writeVector3f(this.offset.toVector3f());
         buffer.writeDouble(this.chance);
-        buffer.writeBoolean(this.path == null);
+        buffer.writeBoolean(this.path != null);
         if (this.path != null) {
             buffer.writeUtf(this.path);
         }
