@@ -46,7 +46,8 @@ public class SelectOne implements RecipeOutcome, CanSetData {
      */
     public SelectOne(@NotNull FriendlyByteBuf buffer) {
         this(buffer.readDouble());
-        for (int i = 0; i < buffer.readVarInt(); i++) {
+        int size = buffer.readVarInt();
+        for (int i = 0; i < size; i++) {
             this.add(RecipeOutcome.fromNetwork(buffer));
         }
     }

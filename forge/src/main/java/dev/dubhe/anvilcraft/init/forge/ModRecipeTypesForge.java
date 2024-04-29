@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.init.forge;
 
-import com.mojang.datafixers.util.Pair;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -17,15 +17,22 @@ public class ModRecipeTypesForge {
      * @param event 事件
      */
     public static void register(RegisterEvent event) {
-        for (Map.Entry<String, Pair<RecipeSerializer<?>, RecipeType<?>>> entry
+        for (Map.Entry<String, Map.Entry<RecipeSerializer<?>, RecipeType<?>>> entry
                 : ModRecipeTypes.RECIPE_TYPES.entrySet()) {
-            if (entry.getValue().getFirst() != null) {
-                event.register(ForgeRegistries.Keys.RECIPE_SERIALIZERS, (helper) ->
-                        helper.register(AnvilCraft.of(entry.getKey()), entry.getValue().getFirst()));
+            ResourceLocation location = AnvilCraft.of(entry.getKey());
+            RecipeSerializer<?> serializer = entry.getValue().getKey();
+            RecipeType<?> type = entry.getValue().getValue();
+            if (serializer != null) {
+                event.register(
+                    ForgeRegistries.Keys.RECIPE_SERIALIZERS,
+                    (helper) -> helper.register(location, serializer)
+                );
             }
-            if (entry.getValue().getSecond() != null) {
-                event.register(ForgeRegistries.Keys.RECIPE_TYPES, (helper) ->
-                        helper.register(AnvilCraft.of(entry.getKey()), entry.getValue().getSecond()));
+            if (type != null) {
+                event.register(
+                    ForgeRegistries.Keys.RECIPE_TYPES,
+                    (helper) -> helper.register(location, type)
+                );
             }
         }
     }
