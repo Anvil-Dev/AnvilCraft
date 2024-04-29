@@ -29,13 +29,15 @@ public class ItemDepositoryHelperImpl {
     @Nullable
     public static IItemDepository getItemDepository(@NotNull Level level, BlockPos pos, Direction direction) {
         Storage<ItemVariant> target = ItemStorage.SIDED.find(level, pos, direction);
-        List<Entity> entities = level.getEntitiesOfClass(Entity.class, new AABB(pos));
         if (target == null) {
-            for (Entity entity : entities) {
-                if (!(entity instanceof ContainerEntity container)) continue;
-                target = InventoryStorage.of(container, null);
-                break;
-            }
+            List<InventoryStorage> entities = level
+                .getEntitiesOfClass(Entity.class, new AABB(pos))
+                .stream()
+                .filter(entity -> entity instanceof ContainerEntity)
+                .map(entity -> (ContainerEntity) entity)
+                .map(container -> InventoryStorage.of(container, null))
+                .toList();
+            if (!entities.isEmpty()) target = entities.get(level.getRandom().nextInt(0, entities.size()));
         }
         if (target == null) return null;
         return toItemDepository(target);
