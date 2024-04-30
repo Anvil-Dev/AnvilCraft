@@ -11,6 +11,7 @@ public class LangHandler {
     public static void init(RegistrateLangProvider provider) {
         AdvancementLang.init(provider);
         ConfigScreenLang.init(provider);
+        ItemTooltipLang.init(provider);
         JadeLang.init(provider);
         ScreenLang.init(provider);
         OtherLang.init(provider);
