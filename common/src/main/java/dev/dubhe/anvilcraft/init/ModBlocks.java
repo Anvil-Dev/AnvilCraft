@@ -989,6 +989,57 @@ public class ModBlocks {
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
+    public static final BlockEntry<? extends Block> REMOTE_TRANSMISSION_POLE = REGISTRATE
+        .block("remote_transmission_pole", TransmissionPoleBlock::new)
+        .initialProperties(ModBlocks.MAGNET_BLOCK)
+        .properties(properties -> properties.noOcclusion()
+            .lightLevel(
+                state -> {
+                    if (state.getValue(TransmissionPoleBlock.HALF) != Half.TOP) return 0;
+                    if (state.getValue(SWITCH) == IPowerComponent.Switch.OFF) return 0;
+                    if (state.getValue(OVERLOAD)) return 6;
+                    return 15;
+                }
+            )
+        )
+        .blockstate((ctx, provider) -> {
+        })
+        .item(TransmissionPoleBlockItem::new)
+        .model((ctx, provider) -> {
+        })
+        .build()
+        .loot((tables, block) -> {
+            LootItemBlockStatePropertyCondition.Builder properties = LootItemBlockStatePropertyCondition
+                .hasBlockStateProperties(block)
+                .setProperties(
+                    StatePropertiesPredicate.Builder.properties()
+                        .hasProperty(TransmissionPoleBlock.HALF, Half.BOTTOM)
+                );
+            LootPool.Builder pool = LootPool
+                .lootPool()
+                .add(LootItem.lootTableItem(block))
+                .when(properties)
+                .when(ExplosionCondition.survivesExplosion())
+                .setRolls(ConstantValue.exactly(1.0f));
+            LootTable.Builder builder = LootTable.lootTable().withPool(pool);
+            tables.add(block, builder);
+        })
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern("A")
+            .pattern("B")
+            .pattern("C")
+            .define('A', ModItems.MAGNETOELECTRIC_CORE)
+            .define('B', Items.LIGHTNING_ROD)
+            .define('C', Items.IRON_BLOCK)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
+                AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
+            )
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.LIGHTNING_ROD), AnvilCraftDatagen.has(Items.LIGHTNING_ROD))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_BLOCK), AnvilCraftDatagen.has(Items.IRON_BLOCK))
+            .save(provider))
+        .register();
 
     public static void register() {
     }

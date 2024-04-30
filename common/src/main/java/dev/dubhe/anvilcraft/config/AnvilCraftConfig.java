@@ -81,6 +81,12 @@ public class AnvilCraftConfig implements ConfigData {
     @SerializedName("Range of Power Transmitter")
     public int powerTransmitterRange = 8;
 
+    @Comment("The power transmitter can identify the range of the power transmitter")
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(max = 64, min = 1)
+    @SerializedName("Range of Power Transmitter")
+    public int remotePowerTransmitterRange = 16;
+
     @Comment("The maximum number of logs that can be cut per level of Felling enchantment")
     @ConfigEntry.Gui.Tooltip
     @ConfigEntry.BoundedDiscrete(max = 24, min = 2)

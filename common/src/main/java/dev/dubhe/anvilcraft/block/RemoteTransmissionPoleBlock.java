@@ -2,10 +2,11 @@ package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
-import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.RemoteTransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.state.Half;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
+import javax.annotation.Nonnull;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
@@ -33,9 +34,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-
-public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRemovable {
+public class RemoteTransmissionPoleBlock extends BaseEntityBlock implements IHammerRemovable {
     public static final EnumProperty<Half> HALF = EnumProperty.create("half", Half.class);
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
     public static final EnumProperty<IPowerComponent.Switch> SWITCH = IPowerComponent.SWITCH;
@@ -56,7 +55,7 @@ public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRem
     /**
      * @param properties 属性
      */
-    public TransmissionPoleBlock(Properties properties) {
+    public RemoteTransmissionPoleBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(
             this.stateDefinition.any()
@@ -110,6 +109,8 @@ public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRem
         BlockPos above = pos.above();
         level.setBlockAndUpdate(above, state.setValue(HALF, Half.MID).setValue(SWITCH, IPowerComponent.Switch.ON));
         above = above.above();
+        level.setBlockAndUpdate(above, state.setValue(HALF, Half.MID).setValue(SWITCH, IPowerComponent.Switch.ON));
+        above = above.above();
         level.setBlockAndUpdate(above, state.setValue(HALF, Half.TOP));
     }
 
@@ -118,7 +119,7 @@ public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRem
         @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player
     ) {
         if (!level.isClientSide) {
-            TransmissionPoleBlock.preventDropFromOtherPart(level, pos, state, player);
+            RemoteTransmissionPoleBlock.preventDropFromOtherPart(level, pos, state, player);
         }
         level.playSound(null,
             pos,
@@ -136,48 +137,63 @@ public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRem
         BlockState blockState;
         BlockPos blockPos1;
         BlockState blockState1;
+        BlockPos blockPos2;
+        BlockState blockState2;
         Half half = state.getValue(HALF);
         if (
             half == Half.TOP
-                && (blockState = level.getBlockState(blockPos = pos.below(2))).is(state.getBlock())
+                && (blockState = level.getBlockState(blockPos = pos.below(3))).is(state.getBlock())
+                && blockState.getValue(HALF) == Half.BOTTOM
+                && (blockState1 = level.getBlockState(blockPos1 = pos.below(2))).is(state.getBlock())
+                && blockState1.getValue(HALF) == Half.MID
+                && (blockState2 = level.getBlockState(blockPos2 = pos.below())).is(state.getBlock())
+                && blockState2.getValue(HALF) == Half.MID
+        ) {
+            breakOtherPart(level, blockPos, blockPos1, blockPos2, pos, player);
+        } else if (
+            half == Half.MID
+                && (((blockState = level.getBlockState(blockPos = pos.below())).is(state.getBlock())
+                && blockState.getValue(HALF) == Half.BOTTOM
+                && (blockState1 = level.getBlockState(blockPos1 = pos.above())).is(state.getBlock())
+                && blockState1.getValue(HALF) == Half.MID
+                && (blockState2 = level.getBlockState(blockPos2 = pos.above(2))).is(state.getBlock())
+                && blockState2.getValue(HALF) == Half.TOP)
+                || ((blockState = level.getBlockState(blockPos = pos.below(2))).is(state.getBlock())
                 && blockState.getValue(HALF) == Half.BOTTOM
                 && (blockState1 = level.getBlockState(blockPos1 = pos.below())).is(state.getBlock())
                 && blockState1.getValue(HALF) == Half.MID
+                && (blockState2 = level.getBlockState(blockPos2 = pos.above())).is(state.getBlock())
+                && blockState2.getValue(HALF) == Half.TOP))
         ) {
-            breakOtherPart(level, blockPos, blockPos1, pos, player);
-        } else if (
-            half == Half.MID
-                && (blockState = level.getBlockState(blockPos = pos.below())).is(state.getBlock())
-                && blockState.getValue(HALF) == Half.BOTTOM
-                && (blockState1 = level.getBlockState(blockPos1 = pos.above())).is(state.getBlock())
-                && blockState1.getValue(HALF) == Half.TOP
-        ) {
-            breakOtherPart(level, blockPos, blockPos1, pos, player);
+            breakOtherPart(level, blockPos, blockPos1, blockPos2, pos, player);
         } else if (
             half == Half.BOTTOM
                 && (blockState = level.getBlockState(blockPos = pos.above())).is(state.getBlock())
                 && blockState.getValue(HALF) == Half.MID
                 && (blockState1 = level.getBlockState(blockPos1 = pos.above(2))).is(state.getBlock())
-                && blockState1.getValue(HALF) == Half.TOP
+                && blockState1.getValue(HALF) == Half.MID
+                && (blockState2 = level.getBlockState(blockPos2 = pos.above(3))).is(state.getBlock())
+                && blockState2.getValue(HALF) == Half.TOP
         ) {
-            breakOtherPart(level, pos, blockPos, blockPos1, player);
+            breakOtherPart(level, blockPos, blockPos1, blockPos2, pos, player);
         }
     }
 
     private static void breakOtherPart(
         @NotNull Level level, BlockPos pos, BlockPos blockPos,
-        BlockPos blockPos1, Player player
+        BlockPos blockPos1, BlockPos blockPos2, Player player
     ) {
         boolean drop = player == null || !player.getAbilities().instabuild;
         level.destroyBlock(pos, drop, player);
         level.destroyBlock(blockPos, drop, player);
         level.destroyBlock(blockPos1, drop, player);
+        level.destroyBlock(blockPos2, drop, player);
     }
 
     @Nullable
     @Override
     public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
-        return new TransmissionPoleBlockEntity(pos, state);
+        return new RemoteTransmissionPoleBlockEntity(pos, state);
     }
 
     @Nullable
@@ -186,7 +202,7 @@ public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRem
         @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type
     ) {
         if (level.isClientSide) return null;
-        return createTickerHelper(type, ModBlockEntities.TRANSMISSION_POLE.get(),
+        return createTickerHelper(type, ModBlockEntities.REMOTE_TRANSMISSION_POLE.get(),
             (level1, pos, state1, entity) -> entity.tick(level1, pos));
     }
 
@@ -206,7 +222,7 @@ public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRem
         if (state.getValue(HALF) != Half.BOTTOM) return;
         BlockPos topPos = pos.above(2);
         BlockState topState = level.getBlockState(topPos);
-        if (!topState.is(ModBlocks.TRANSMISSION_POLE.get())) return;
+        if (!topState.is(ModBlocks.REMOTE_TRANSMISSION_POLE.get())) return;
         if (topState.getValue(HALF) != Half.TOP) return;
         IPowerComponent.Switch sw = state.getValue(SWITCH);
         boolean bl = sw == IPowerComponent.Switch.ON;
@@ -241,7 +257,8 @@ public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRem
             case TOP -> {
                 BlockState state1 = level.getBlockState(pos.below());
                 BlockState state2 = level.getBlockState(pos.below(2));
-                return state1.is(this) && state2.is(this);
+                BlockState state3 = level.getBlockState(pos.below(3));
+                return state1.is(this) && state2.is(this) && state3.is(this);
             }
             case MID -> {
                 BlockState state2 = level.getBlockState(pos.below());
