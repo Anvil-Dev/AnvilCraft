@@ -1,0 +1,10 @@
+{
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "anvilcraft:block/load_monitor",
+	"textures": {
+		"particle": "anvilcraft:block/load_monitor_5",
+		"side": "anvilcraft:block/load_monitor_5",
+		"bottom": "anvilcraft:block/load_monitor_bottom",
+		"top": "anvilcraft:block/load_monitor_top"
+	}
+}
