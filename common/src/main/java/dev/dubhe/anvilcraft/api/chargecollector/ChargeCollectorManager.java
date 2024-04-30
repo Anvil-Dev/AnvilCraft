@@ -57,4 +57,8 @@ public class ChargeCollectorManager {
             && blockEntity.getPos().getY() + 2 >= blockPos.getY()
             && blockEntity.getPos().getZ() + 2 >= blockPos.getZ();
     }
+
+    public static void cleanMap() {
+        CHARGE_COLLECTOR_MAP.clear();
+    }
 }

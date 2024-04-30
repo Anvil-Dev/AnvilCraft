@@ -40,6 +40,10 @@ public class PowerGridRenderer {
         }
     }
 
+    public static void cleanAllGrid() {
+        grids.clear();
+    }
+
     @SuppressWarnings("SameParameterValue")
     private static void renderOutline(
         PoseStack poseStack, VertexConsumer consumer,

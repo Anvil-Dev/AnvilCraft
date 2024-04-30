@@ -13,5 +13,6 @@ public class ModFabricEventsListener {
         ServerBlockEntityEventListener.init();
         PlayerEventListener.init();
         CommandEventListener.init();
+        ServerWorldEventListener.init();
     }
 }
