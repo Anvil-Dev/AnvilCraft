@@ -32,8 +32,8 @@ public interface IPowerComponent {
      */
     default VoxelShape getShape() {
         return Shapes.box(
-            -this.getRange(), -this.getRange(), -this.getRange(),
-            this.getRange() + 1, this.getRange() + 1, this.getRange() + 1
+                -this.getRange(), -this.getRange(), -this.getRange(),
+                this.getRange() + 1, this.getRange() + 1, this.getRange() + 1
         );
     }
 

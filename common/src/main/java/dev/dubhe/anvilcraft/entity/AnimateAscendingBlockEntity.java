@@ -12,13 +12,16 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,6 +43,7 @@ public class AnimateAscendingBlockEntity extends Entity {
     public AnimateAscendingBlockEntity(EntityType<? extends AnimateAscendingBlockEntity> entityType, Level level) {
         super(entityType, level);
         this.blockState = Blocks.SAND.defaultBlockState();
+        this.noPhysics = true;
     }
 
     private AnimateAscendingBlockEntity(Level level, double x, double y, double z, BlockState state, BlockPos endPos) {
@@ -89,9 +93,11 @@ public class AnimateAscendingBlockEntity extends Entity {
         this.move(MoverType.SELF, this.getDeltaMovement());
         if (this.level().isClientSide) return;
         BlockPos current = this.blockPosition();
+        BlockPos eyePos = BlockPos.containing(this.getEyePosition());
         BlockPos up = current.above();
         if (!this.level().getBlockState(up).isAir()
                 || current.getY() >= getEndPos().getY()
+                || eyePos.getY() >= getEndPos().getY()
         ) {
             this.discard();
         }
@@ -142,5 +148,15 @@ public class AnimateAscendingBlockEntity extends Entity {
         double f = packet.getZ();
         this.setPos(d, e, f);
         this.setStartPos(this.blockPosition());
+    }
+
+    @Override
+    protected @NotNull AABB getBoundingBoxForPose(@NotNull Pose pose) {
+        return getDimensions(pose).makeBoundingBox(position());
+    }
+
+    @Override
+    public @NotNull EntityDimensions getDimensions(@NotNull Pose pose) {
+        return EntityDimensions.fixed(1, 1);
     }
 }
