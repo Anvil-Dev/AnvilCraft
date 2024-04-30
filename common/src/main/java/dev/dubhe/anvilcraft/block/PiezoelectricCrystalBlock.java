@@ -46,10 +46,8 @@ public class PiezoelectricCrystalBlock extends Block implements IHammerRemovable
      * 被铁砧砸事件
      */
     public void onHitByAnvil(float fallDistance, BlockPos blockPos) {
-        int chargeNum = (int) fallDistance + 1;
-        if (chargeNum > 4) {
-            chargeNum = 4;
-        }
+        int distance = fallDistance > 3 ? 3 : (int) fallDistance;
+        int chargeNum = (int) Math.pow(2, distance);
         Collection<Entry<Float, ChargeCollectorBlockEntity>> chargeCollectorCollection = ChargeCollectorManager
             .getNearestChargeCollect(blockPos);
         Iterator<Entry<Float, ChargeCollectorBlockEntity>> iterator = chargeCollectorCollection.iterator();
