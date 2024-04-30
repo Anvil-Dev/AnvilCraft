@@ -19,6 +19,7 @@ import org.jetbrains.annotations.Nullable;
 public class PowerConverterBlockEntity extends BlockEntity implements IPowerConsumer {
     private PowerGrid grid = null;
     private int inputPower;
+    private int countdown = 0;
 
     public PowerConverterBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         this(type, pos, blockState, 1);
@@ -39,12 +40,14 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         tag.putInt("InputPower", inputPower);
+        tag.putInt("Countdown", countdown);
     }
 
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
         inputPower = tag.getInt("InputPower");
+        countdown = tag.getInt("Countdown");
     }
 
     /**
@@ -52,10 +55,19 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
      */
     public void tick() {
         if (this.level != null) flushState(this.level, getBlockPos());
-        if (getBlockState().getValue(BasePowerConverterBlock.OVERLOAD)) return;
-        int amount = (int) (inputPower * 60 * (1 - AnvilCraft.config.powerLoss));
-        Direction face = getBlockState().getValue(BasePowerConverterBlock.FACING);
-        EnergyHelper.insertEnergy(getLevel(), getBlockPos().relative(face), face.getOpposite(), amount);
+        if (countdown != 0) {
+            countdown--;
+        } else {
+            countdown = AnvilCraft.config.powerConverter.powerConverterCountdown;
+            if (getBlockState().getValue(BasePowerConverterBlock.OVERLOAD)) return;
+            int amountTick = (int) (
+                inputPower * AnvilCraft.config.powerConverter.powerConverterEfficiency *
+                    (1 - AnvilCraft.config.powerConverter.powerConverterLoss)
+            );
+            int amount = amountTick * AnvilCraft.config.powerConverter.powerConverterCountdown;
+            Direction face = getBlockState().getValue(BasePowerConverterBlock.FACING);
+            EnergyHelper.insertEnergy(getLevel(), getBlockPos().relative(face), face.getOpposite(), amount);
+        }
     }
 
     @Override

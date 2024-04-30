@@ -1,0 +1,35 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_power_converter_small": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "anvilcraft:power_converter_small"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:power_converter_middle_from_small"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_power_converter_small",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:power_converter_middle_from_small"
+    ]
+  },
+  "sends_telemetry_event": false
+}
