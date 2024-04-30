@@ -1,0 +1,40 @@
+{
+    "variants": {
+        "overload=true": {
+            "model": "anvilcraft:block/load_monitor_overload"
+        },
+        "overload=false,load=0": {
+            "model": "anvilcraft:block/load_monitor_0"
+        },
+        "overload=false,load=1": {
+            "model": "anvilcraft:block/load_monitor_1"
+        },
+        "overload=false,load=2": {
+            "model": "anvilcraft:block/load_monitor_2"
+        },
+        "overload=false,load=3": {
+            "model": "anvilcraft:block/load_monitor_3"
+        },
+        "overload=false,load=4": {
+            "model": "anvilcraft:block/load_monitor_4"
+        },
+        "overload=false,load=5": {
+            "model": "anvilcraft:block/load_monitor_5"
+        },
+        "overload=false,load=6": {
+            "model": "anvilcraft:block/load_monitor_6"
+        },
+        "overload=false,load=7": {
+            "model": "anvilcraft:block/load_monitor_7"
+        },
+        "overload=false,load=8": {
+            "model": "anvilcraft:block/load_monitor_8"
+        },
+        "overload=false,load=9": {
+            "model": "anvilcraft:block/load_monitor_9"
+        },
+        "overload=false,load=10": {
+            "model": "anvilcraft:block/load_monitor_10"
+        }
+    }
+}
