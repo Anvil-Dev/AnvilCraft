@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,9 +23,16 @@ public class PistonMoveBlockListener {
         RandomSource random = level.random;
         for (BlockPos pos : blocks) {
             if (!level.getBlockState(pos).is(ModBlocks.MAGNET_BLOCK.get())) continue;
-            boolean b = isNearbyCopperBlock(level, pos);
+            int b = isNearbyCopperBlock(level, pos);
             double r = random.nextDouble();
-            if (b && r < 0.25) {
+            double p;
+            if (b == 0) {
+                p = 0;
+            } else {
+                p = Math.pow(0.5, b + 1);
+            }
+            System.out.print(p + "|b=" + b);
+            if (r < p) {
                 Collection<Map.Entry<Float, ChargeCollectorBlockEntity>> nearestChargeCollect =
                     ChargeCollectorManager.getNearestChargeCollect(pos);
                 for (var floatChargeCollectorBlockEntityEntry : nearestChargeCollect) {
@@ -34,19 +42,24 @@ public class PistonMoveBlockListener {
                         if (unCharged == 0) {
                             break;
                         }
-
                     }
                 }
             }
         }
     }
 
-    private static boolean isNearbyCopperBlock(Level level, BlockPos pos) {
+    private static int isNearbyCopperBlock(Level level, BlockPos pos) {
         for (Direction face : Direction.values()) {
             if (level.getBlockState(pos.relative(face)).is(Blocks.COPPER_BLOCK)) {
-                return true;
+                return 1;
+            } else if (level.getBlockState(pos.relative(face)).is(Blocks.EXPOSED_COPPER)) {
+                return 2;
+            } else if (level.getBlockState(pos.relative(face)).is(Blocks.WEATHERED_COPPER)) {
+                return 3;
+            } else if (level.getBlockState(pos.relative(face)).is(Blocks.OXIDIZED_COPPER)) {
+                return 0;
             }
         }
-        return false;
+        return 0;
     }
 }
