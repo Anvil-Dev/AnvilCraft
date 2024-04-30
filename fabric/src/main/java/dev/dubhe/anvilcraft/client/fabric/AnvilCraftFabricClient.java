@@ -1,9 +1,11 @@
 package dev.dubhe.anvilcraft.client.fabric;
 
+import dev.dubhe.anvilcraft.event.TooltipEventListener;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.util.IBlockHighlightUtil;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
+import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -27,5 +29,7 @@ public class AnvilCraftFabricClient implements ClientModInitializer {
             if (consumers == null) return;
             IBlockHighlightUtil.render(context.world(), consumers, context.matrixStack(), context.camera());
         });
+
+        ItemTooltipCallback.EVENT.register((stack, context, lines) -> TooltipEventListener.addTooltip(stack, lines));
     }
 }
