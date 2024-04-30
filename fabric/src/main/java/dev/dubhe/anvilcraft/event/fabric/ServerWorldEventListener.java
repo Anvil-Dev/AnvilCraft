@@ -1,18 +1,15 @@
 package dev.dubhe.anvilcraft.event.fabric;
 
 import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
-import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.client.renderer.PowerGridRenderer;
-import dev.dubhe.anvilcraft.network.PowerGridRemovePack;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerBlockEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
 
 public class ServerWorldEventListener {
-  /**
-   * 初始化
-   */
+    /**
+     * 初始化
+     */
     public static void init() {
         ServerWorldEvents.UNLOAD.register(ServerWorldEventListener::onUnload);
     }
