@@ -5,7 +5,7 @@
 		"particle": "anvilcraft:block/chute",
 		"side": "anvilcraft:block/chute",
 		"bottom": "anvilcraft:block/chute_bottom",
-		"top": "anvilcraft:block/chute_top",
+		"top": "anvilcraft:block/chute_top_directional",
 		"simple": "anvilcraft:block/simple_chute",
 		"direction": "anvilcraft:block/simple_chute_directional"
 	},
