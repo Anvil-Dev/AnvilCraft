@@ -3,8 +3,6 @@ package dev.dubhe.anvilcraft.event.forge;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
 import dev.dubhe.anvilcraft.client.renderer.PowerGridRenderer;
-import dev.dubhe.anvilcraft.item.AnvilHammerItem;
-import net.minecraft.world.InteractionHand;
 import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
