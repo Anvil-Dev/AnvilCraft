@@ -19,10 +19,10 @@ public class TooltipEventListener {
     private static final Map<Item, String> map = Maps.newHashMap();
 
     static {
-        map.put(ModItems.MAGNET.get(), "Attract surrounding objects during use");
+        map.put(ModItems.MAGNET.get(), "Attract surrounding items when use");
         map.put(ModItems.GEODE.get(), "Find the surrounding Amethyst Geode when using it");
-        map.put(ModItems.ANVIL_HAMMER.get(), "It's a hammer, an anvil, a wrench, goggles, and a heavy hammer");
-        map.put(ModItems.ROYAL_ANVIL_HAMMER.get(), "It's a hammer, an anvil, a wrench, goggles, and a heavy hammer");
+        map.put(ModItems.ANVIL_HAMMER.get(), "It's a hammer, an anvil, a wrench, goggles, and a mace");
+        map.put(ModItems.ROYAL_ANVIL_HAMMER.get(), "It's a hammer, an anvil, a wrench, goggles, and a mace");
         map.put(ModBlocks.CURSED_GOLD_BLOCK.asItem(), "Carriers will be cursed");
         map.put(ModItems.CURSED_GOLD_INGOT.get(), "Carriers will be cursed");
         map.put(ModItems.CURSED_GOLD_NUGGET.get(), "Carriers will be cursed");
@@ -44,12 +44,12 @@ public class TooltipEventListener {
         map.put(ModBlocks.HOLLOW_MAGNET_BLOCK.asItem(), "Attracting the anvil below, when pushed and pulled by the piston, causes adjacent copper blocks to generate charges");
         map.put(ModBlocks.FERRITE_CORE_MAGNET_BLOCK.asItem(), "Attracting the anvil below, when pushed and pulled by the piston, causes adjacent copper blocks to generate charges");
         map.put(ModBlocks.AUTO_CRAFTER.asItem(), "consumes 1 MW");
-        map.put(ModBlocks.ROYAL_STEEL_BLOCK.asItem(), "Anti Creeper");
-        map.put(ModBlocks.SMOOTH_ROYAL_STEEL_BLOCK.asItem(), "Anti Creeper");
-        map.put(ModBlocks.CUT_ROYAL_STEEL_BLOCK.asItem(), "Anti Creeper");
-        map.put(ModBlocks.CUT_ROYAL_STEEL_STAIRS.asItem(), "Anti Creeper");
-        map.put(ModBlocks.CUT_ROYAL_STEEL_SLAB.asItem(), "Anti Creeper");
-        map.put(ModBlocks.TEMPERING_GLASS.asItem(), "Anti Creeper, Can be collected by hand");
+        map.put(ModBlocks.ROYAL_STEEL_BLOCK.asItem(), "Creeper proof");
+        map.put(ModBlocks.SMOOTH_ROYAL_STEEL_BLOCK.asItem(), "Creeper proof");
+        map.put(ModBlocks.CUT_ROYAL_STEEL_BLOCK.asItem(), "Creeper proof");
+        map.put(ModBlocks.CUT_ROYAL_STEEL_STAIRS.asItem(), "Creeper proof");
+        map.put(ModBlocks.CUT_ROYAL_STEEL_SLAB.asItem(), "Creeper proof");
+        map.put(ModBlocks.TEMPERING_GLASS.asItem(), "Creeper proof, can be collected by hand");
     }
 
     public static final Map<Item, String> NEED_TOOLTIP_ITEM = Collections.unmodifiableMap(map);
