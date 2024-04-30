@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "count": 3,
+  "ingredient": {
+    "item": "anvilcraft:power_converter_middle"
+  },
+  "result": "anvilcraft:power_converter_small"
+}

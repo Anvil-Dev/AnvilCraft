@@ -90,7 +90,22 @@ public class AnvilCraftConfig implements ConfigData {
     @ConfigEntry.Gui.Tooltip
     public boolean displayAnvilAnimation = true;
 
-    @Comment("The maximum number of logs that can be cut per level of Felling enchantment")
-    @ConfigEntry.Gui.Tooltip
-    public double powerLoss = 0.1;
+    @ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
+    public PowerConverter powerConverter = new PowerConverter();
+
+    public static class PowerConverter implements ConfigData {
+        @Comment("The working interval of power converters")
+        @ConfigEntry.Gui.Tooltip
+        @ConfigEntry.BoundedDiscrete(min = 1, max = 60)
+        public int powerConverterCountdown = 10;
+
+        @Comment("Energy efficiency of energy converters (1 MW => xx FE/t)")
+        @ConfigEntry.Gui.Tooltip
+        @ConfigEntry.BoundedDiscrete(min = 1, max = 1000)
+        public int powerConverterEfficiency = 80;
+
+        @Comment("Power loss of energy converters")
+        @ConfigEntry.Gui.Tooltip
+        public double powerConverterLoss = 0.1;
+    }
 }

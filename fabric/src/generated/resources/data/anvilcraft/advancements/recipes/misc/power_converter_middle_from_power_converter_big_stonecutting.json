@@ -1,12 +1,12 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_magnetoelectric_core": {
+    "has_power_converter_big": {
       "conditions": {
         "items": [
           {
             "items": [
-              "anvilcraft:magnetoelectric_core"
+              "anvilcraft:power_converter_big"
             ]
           }
         ]
@@ -15,20 +15,20 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:power_converter_middle"
+        "recipe": "minecraft:power_converter_middle_from_power_converter_big_stonecutting"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_magnetoelectric_core",
+      "has_power_converter_big",
       "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:power_converter_middle"
+      "minecraft:power_converter_middle_from_power_converter_big_stonecutting"
     ]
   },
   "sends_telemetry_event": false

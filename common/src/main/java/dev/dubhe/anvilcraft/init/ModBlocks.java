@@ -51,6 +51,7 @@ import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.data.recipes.packs.VanillaRecipeProvider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
@@ -884,29 +885,14 @@ public class ModBlocks {
         .blockstate((ctx, provider) -> {
         })
         .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-                .pattern("A")
-                .pattern("B")
-                .define('A', ModItems.MAGNETOELECTRIC_CORE)
-                .define('B', ModItemTags.COPPER_NUGGETS)
-                .unlockedBy(
-                    AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
-                    AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
-                )
-                .save(provider);
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-                .pattern("A")
-                .pattern("B")
-                .define('A', ModItems.MAGNETOELECTRIC_CORE)
-                .define('B', ModItemTags.COPPER_NUGGETS_FORGE)
-                .unlockedBy(
-                    AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
-                    AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
-                )
-                .save(
-                    provider,
-                    BuiltInRegistries.ITEM.getKey(ctx.get().asItem()) + "_forge"
-                );
+            VanillaRecipeProvider.stonecutterResultFromBase(
+                provider, RecipeCategory.MISC,
+                ctx.get().asItem(), ModBlocks.POWER_CONVERTER_MIDDLE, 3
+            );
+            VanillaRecipeProvider.stonecutterResultFromBase(
+                provider, RecipeCategory.MISC,
+                ctx.get().asItem(), ModBlocks.POWER_CONVERTER_BIG, 9
+            );
         })
         .defaultLoot()
         .item()
@@ -924,16 +910,25 @@ public class ModBlocks {
         }))
         .blockstate((ctx, provider) -> {
         })
-        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-            .pattern("A")
-            .pattern("B")
-            .define('A', ModItems.MAGNETOELECTRIC_CORE)
-            .define('B', Items.COPPER_INGOT)
-            .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
-                AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
-            )
-            .save(provider))
+        .recipe((ctx, provider) -> {
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("A")
+                .pattern("A")
+                .pattern("A")
+                .define('A', ModBlocks.POWER_CONVERTER_SMALL)
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModBlocks.POWER_CONVERTER_SMALL),
+                    AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_SMALL)
+                )
+                .save(
+                    provider,
+                    BuiltInRegistries.ITEM.getKey(ctx.get().asItem()) + "_from_small"
+                );
+            VanillaRecipeProvider.stonecutterResultFromBase(
+                provider, RecipeCategory.MISC,
+                ctx.get().asItem(), ModBlocks.POWER_CONVERTER_BIG, 3
+            );
+        })
         .defaultLoot()
         .item()
         .model((ctx, provider) -> provider.blockItem(ctx))
@@ -950,16 +945,44 @@ public class ModBlocks {
         }))
         .blockstate((ctx, provider) -> {
         })
-        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-            .pattern("A")
-            .pattern("B")
-            .define('A', ModItems.MAGNETOELECTRIC_CORE)
-            .define('B', Items.COPPER_BLOCK)
-            .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
-                AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
-            )
-            .save(provider))
+        .recipe((ctx, provider) -> {
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("A")
+                .pattern("B")
+                .define('A', ModItems.MAGNETOELECTRIC_CORE)
+                .define('B', Items.COPPER_BLOCK)
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
+                    AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
+                )
+                .save(provider);
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("A")
+                .pattern("A")
+                .pattern("A")
+                .define('A', ModBlocks.POWER_CONVERTER_MIDDLE)
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModBlocks.POWER_CONVERTER_MIDDLE),
+                    AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_MIDDLE)
+                )
+                .save(
+                    provider,
+                    BuiltInRegistries.ITEM.getKey(ctx.get().asItem()) + "_from_middle"
+                );
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModBlocks.POWER_CONVERTER_SMALL)
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModBlocks.POWER_CONVERTER_MIDDLE),
+                    AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_MIDDLE)
+                )
+                .save(
+                    provider,
+                    BuiltInRegistries.ITEM.getKey(ctx.get().asItem()) + "_from_small"
+                );
+        })
         .defaultLoot()
         .item()
         .model((ctx, provider) -> provider.blockItem(ctx))

@@ -3,15 +3,13 @@
   "category": "misc",
   "key": {
     "A": {
-      "item": "anvilcraft:magnetoelectric_core"
-    },
-    "B": {
-      "item": "minecraft:copper_ingot"
+      "item": "anvilcraft:power_converter_small"
     }
   },
   "pattern": [
     "A",
-    "B"
+    "A",
+    "A"
   ],
   "result": {
     "item": "anvilcraft:power_converter_middle"

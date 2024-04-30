@@ -3,18 +3,16 @@
   "category": "misc",
   "key": {
     "A": {
-      "item": "anvilcraft:magnetoelectric_core"
-    },
-    "B": {
-      "tag": "c:copper_nuggets"
+      "item": "anvilcraft:power_converter_middle"
     }
   },
   "pattern": [
     "A",
-    "B"
+    "A",
+    "A"
   ],
   "result": {
-    "item": "anvilcraft:power_converter_small"
+    "item": "anvilcraft:power_converter_big"
   },
   "show_notification": true
 }

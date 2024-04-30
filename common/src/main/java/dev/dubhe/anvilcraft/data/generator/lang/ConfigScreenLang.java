@@ -5,9 +5,10 @@ import com.tterrag.registrate.providers.RegistrateLangProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
 import dev.dubhe.anvilcraft.util.IFormattingUtil;
-import me.shedaniel.autoconfig.ConfigData;
+import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.Comment;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 
@@ -23,20 +24,28 @@ public class ConfigScreenLang {
      */
     public static void init(@NotNull RegistrateLangProvider provider) {
         provider.add("text.autoconfig.anvilcraft.title", "AnvilCraft Config");
-        readConfigClass(AnvilCraftConfig.class, provider);
+        readConfigClass(AnvilCraftConfig.class, provider, null);
     }
+
 
     @SuppressWarnings("SameParameterValue")
     private static void readConfigClass(
-        @NotNull Class<? extends ConfigData> configClass, RegistrateLangProvider provider
+        @NotNull Class<?> configClass, RegistrateLangProvider provider, @Nullable String parent
     ) {
         for (Field field : configClass.getDeclaredFields()) {
             String fieldName = field.getName();
             String name;
+            if (field.isAnnotationPresent(ConfigEntry.Gui.CollapsibleObject.class)
+                || field.isAnnotationPresent(ConfigEntry.Gui.TransitiveObject.class)) {
+                readConfigClass(field.getType(), provider, fieldName);
+            }
             if (field.isAnnotationPresent(SerializedName.class)) {
                 name = field.getAnnotation(SerializedName.class).value();
             } else {
                 name = IFormattingUtil.toEnglishName(IFormattingUtil.toLowerCaseUnder(fieldName));
+            }
+            if (parent != null) {
+                fieldName = parent + "." + fieldName;
             }
             provider.add(OPTION_STRING.formatted(AnvilCraft.MOD_ID, fieldName), name);
             if (field.isAnnotationPresent(Comment.class)) {
