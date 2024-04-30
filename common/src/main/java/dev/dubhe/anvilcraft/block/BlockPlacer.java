@@ -2,6 +2,8 @@ package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.api.depository.IItemDepository;
 import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
+import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
+import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.state.Orientation;
 import javax.annotation.Nonnull;
 import net.minecraft.core.BlockPos;
@@ -29,7 +31,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class BlockPlacer extends Block {
+public class BlockPlacer extends Block implements IHammerRemovable, IHammerChangeable {
 
     public static final VoxelShape NORTH_UP_SHAPE = Shapes.or(
         Block.box(0, 13, 4, 16, 16, 16),
@@ -257,5 +259,14 @@ public class BlockPlacer extends Block {
             placeBlockState = placeBlockState.setValue(ORIENTATION, orientation.opposite());
         }
         level.setBlockAndUpdate(placePos, placeBlockState);
+    }
+
+    @Override
+    public boolean change(Player player, BlockPos blockPos, @NotNull Level level,
+        ItemStack anvilHammer) {
+        BlockState state = defaultBlockState();
+        state.setValue(ORIENTATION, level.getBlockState(blockPos).getValue(ORIENTATION).next());
+        level.setBlockAndUpdate(blockPos, state);
+        return true;
     }
 }

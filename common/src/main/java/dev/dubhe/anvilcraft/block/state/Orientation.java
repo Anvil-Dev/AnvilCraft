@@ -50,4 +50,24 @@ public enum Orientation implements StringRepresentable {
             case DOWN_EAST -> Orientation.UP_EAST;
         };
     }
+
+    /**
+     * 获取下一个的方向
+     */
+    public Orientation next() {
+        return switch (this) {
+            default -> Orientation.NORTH_UP;
+            case SOUTH_UP -> Orientation.WEST_UP;
+            case WEST_UP -> Orientation.EAST_UP;
+            case EAST_UP -> Orientation.UP_NORTH;
+            case UP_NORTH -> Orientation.UP_SOUTH;
+            case UP_SOUTH -> Orientation.UP_WEST;
+            case UP_WEST -> Orientation.UP_EAST;
+            case UP_EAST -> Orientation.DOWN_NORTH;
+            case DOWN_NORTH -> Orientation.DOWN_SOUTH;
+            case DOWN_SOUTH -> Orientation.DOWN_WEST;
+            case DOWN_WEST -> Orientation.DOWN_EAST;
+            case DOWN_EAST -> Orientation.SOUTH_UP;
+        };
+    }
 }
