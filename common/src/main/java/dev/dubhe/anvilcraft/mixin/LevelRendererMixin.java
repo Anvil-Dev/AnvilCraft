@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.mixin;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.dubhe.anvilcraft.client.renderer.PowerGridRenderer;
-import dev.dubhe.anvilcraft.init.ModItems;
+import dev.dubhe.anvilcraft.item.IEngineerGoggles;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Camera;
@@ -52,7 +52,7 @@ abstract class LevelRendererMixin {
         Entity entity = camera.getEntity();
         boolean bl = true;
         for (ItemStack slot : entity.getArmorSlots()) {
-            if (slot.is(ModItems.ANVIL_HAMMER.get()) || slot.is(ModItems.ROYAL_ANVIL_HAMMER.get())) {
+            if (slot.getItem() instanceof IEngineerGoggles) {
                 bl = false;
                 break;
             }

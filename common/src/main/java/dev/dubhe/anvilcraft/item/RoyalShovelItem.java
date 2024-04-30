@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 
-public class RoyalShovelItem extends ShovelItem implements HasDefaultEnchantment {
+public class RoyalShovelItem extends ShovelItem implements IHasDefaultEnchantment {
     public RoyalShovelItem(Properties properties) {
         super(Tiers.DIAMOND, 1.5f, -3.0f, properties);
     }

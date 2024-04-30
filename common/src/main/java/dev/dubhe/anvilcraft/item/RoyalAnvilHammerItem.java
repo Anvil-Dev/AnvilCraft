@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 
-public class RoyalAnvilHammerItem extends AnvilHammerItem implements HasDefaultEnchantment {
+public class RoyalAnvilHammerItem extends AnvilHammerItem implements IHasDefaultEnchantment {
     /**
      * 初始化铁砧锤
      *

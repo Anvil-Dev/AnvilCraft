@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import dev.dubhe.anvilcraft.init.ModItems;
+import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
@@ -34,19 +35,19 @@ public abstract class PlayerHitEntityMixin extends LivingEntity {
     private void onFlyingHitBlock(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         if (!((Object) this instanceof ServerPlayer)) return;
         if (!this.isFallFlying()) return;
-        if (!this.getItemBySlot(EquipmentSlot.HEAD).is(ModItems.ANVIL_HAMMER.get())
-                && !this.getItemBySlot(EquipmentSlot.HEAD).is(ModItems.ROYAL_ANVIL_HAMMER.get())
+        if (!(this.getItemBySlot(EquipmentSlot.HEAD).getItem() instanceof AnvilHammerItem)
+            && !this.getItemBySlot(EquipmentSlot.HEAD).is(ModItems.ROYAL_ANVIL_HAMMER.get())
         ) return;
         AABB headBlockBoundBox = AABB.ofSize(
-                this.getEyePosition(),
-                1,
-                1,
-                1
+            this.getEyePosition(),
+            1,
+            1,
+            1
         );
         List<LivingEntity> entities = level().getEntitiesOfClass(
-                LivingEntity.class,
-                headBlockBoundBox,
-                it -> it != (Object) this
+            LivingEntity.class,
+            headBlockBoundBox,
+            it -> it != (Object) this
         );
         if (entities.isEmpty()) return;
         Vec3 movement = getDeltaMovement();
@@ -76,9 +77,9 @@ public abstract class PlayerHitEntityMixin extends LivingEntity {
 
         if (itemStack.isDamageableItem()) {
             itemStack.hurtAndBreak(
-                    1,
-                    player,
-                    e -> e.broadcastBreakEvent(EquipmentSlot.MAINHAND)
+                1,
+                player,
+                e -> e.broadcastBreakEvent(EquipmentSlot.MAINHAND)
             );
         }
     }
