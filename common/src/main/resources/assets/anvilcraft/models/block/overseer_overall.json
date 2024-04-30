@@ -1,0 +1,84 @@
+{
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/block",
+	"textures": {
+		"particle": "anvilcraft:block/overseer_base_3",
+		"side": "anvilcraft:block/overseer_base_3",
+		"bottom": "anvilcraft:block/overseer_bottom",
+		"top": "anvilcraft:block/overseer_top",
+		"sidetop": "anvilcraft:block/overseer_top_3"
+	},
+	"elements": [
+		{
+			"from": [0, -8, 0],
+			"to": [16, -4, 16],
+			"faces": {
+				"north": {"uv": [0, 12, 16, 16], "texture": "#side"},
+				"east": {"uv": [0, 12, 16, 16], "texture": "#side"},
+				"south": {"uv": [0, 12, 16, 16], "texture": "#side"},
+				"west": {"uv": [0, 12, 16, 16], "texture": "#side"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#bottom"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#bottom"}
+			}
+		},
+		{
+			"from": [4, -2, 4],
+			"to": [12, 8, 12],
+			"faces": {
+				"north": {"uv": [4, 0, 12, 10], "texture": "#side"},
+				"east": {"uv": [4, 0, 12, 10], "texture": "#side"},
+				"south": {"uv": [4, 0, 12, 10], "texture": "#side"},
+				"west": {"uv": [4, 0, 12, 10], "texture": "#side"},
+				"down": {"uv": [4, 4, 12, 12], "texture": "#top"}
+			}
+		},
+		{
+			"from": [4, 8, 4],
+			"to": [12, 23, 12],
+			"faces": {
+				"north": {"uv": [4, 1, 12, 16], "texture": "#sidetop"},
+				"east": {"uv": [4, 1, 12, 16], "texture": "#sidetop"},
+				"south": {"uv": [4, 1, 12, 16], "texture": "#sidetop"},
+				"west": {"uv": [4, 1, 12, 16], "texture": "#sidetop"},
+				"up": {"uv": [4, 4, 12, 12], "texture": "#top"}
+			}
+		}
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [45, 45, 0],
+			"translation": [0, 0.25, 0],
+			"scale": [0.2, 0.2, 0.2]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [45, 45, 0],
+			"translation": [0, 0.25, 0],
+			"scale": [0.2, 0.2, 0.2]
+		},
+		"firstperson_righthand": {
+			"rotation": [0, 45, 0],
+			"translation": [1.75, 2.75, 0],
+			"scale": [0.2, 0.2, 0.2]
+		},
+		"firstperson_lefthand": {
+			"rotation": [0, 45, 0],
+			"translation": [1.75, 2.75, 0],
+			"scale": [0.2, 0.2, 0.2]
+		},
+		"ground": {
+			"translation": [0, 3, 0],
+			"scale": [0.25, 0.25, 0.25]
+		},
+		"gui": {
+			"rotation": [30, 225, 0],
+			"translation": [0, 0.75, 0],
+			"scale": [0.45, 0.45, 0.45]
+		},
+		"head": {
+			"translation": [0, 17.75, 0]
+		},
+		"fixed": {
+			"scale": [0.5, 0.5, 0.5]
+		}
+	}
+}
