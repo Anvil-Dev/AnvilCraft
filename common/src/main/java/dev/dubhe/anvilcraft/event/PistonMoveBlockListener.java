@@ -7,8 +7,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -23,6 +24,7 @@ public class PistonMoveBlockListener {
         RandomSource random = level.random;
         for (BlockPos pos : blocks) {
             if (!level.getBlockState(pos).is(ModBlocks.MAGNET_BLOCK.get())) continue;
+            if (level.getBlockState(pos).is(ModBlocks.MAGNET_BLOCK.get()) && level.getBlockState(pos).getValue(BlockStateProperties.LIT)) continue;
             int b = isNearbyCopperBlock(level, pos);
             double r = random.nextDouble();
             double p;
