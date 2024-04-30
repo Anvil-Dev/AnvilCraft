@@ -35,6 +35,7 @@
     "anvilcraft:melt_gem_cauldron",
     "anvilcraft:power_converter_small",
     "anvilcraft:power_converter_middle",
-    "anvilcraft:power_converter_big"
+    "anvilcraft:power_converter_big",
+    "anvilcraft:block_placer"
   ]
 }
