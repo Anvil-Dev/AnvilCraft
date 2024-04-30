@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 
-public class RoyalAxeItem extends AxeItem implements HasDefaultEnchantment {
+public class RoyalAxeItem extends AxeItem implements IHasDefaultEnchantment {
     public RoyalAxeItem(Properties properties) {
         super(Tiers.DIAMOND, 5, -3.0f, properties);
     }

@@ -49,9 +49,10 @@ public class ResinBlockItem extends HasMobBlockItem {
     }
 
     private static void spawnMobFromItem(@NotNull Level level, Player player, BlockPos pos, @NotNull ItemStack stack) {
+        ItemStack copy = stack.copy();
         stack.shrink(1);
         if (level.isClientSide()) {
-            Item item = stack.getItem();
+            Item item = copy.getItem();
             if (item instanceof ResinBlockItem item1) {
                 BlockState blockState = item1.getBlock().defaultBlockState();
                 SoundType soundType = blockState.getSoundType();
@@ -62,12 +63,12 @@ public class ResinBlockItem extends HasMobBlockItem {
             }
             return;
         }
-        Entity entity = HasMobBlockItem.getMobFromItem(level, stack);
+        Entity entity = HasMobBlockItem.getMobFromItem(level, copy);
         if (entity == null) return;
         entity.moveTo(pos.getCenter());
         level.addFreshEntity(entity);
         RandomSource random = level.getRandom();
         ItemStack back = new ItemStack(ModItems.RESIN, random.nextInt(1, 4));
-        if (!player.isCreative()) player.getInventory().placeItemBackInInventory(back);
+        if (!player.getAbilities().instabuild) player.getInventory().placeItemBackInInventory(back);
     }
 }

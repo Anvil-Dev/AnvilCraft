@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 
-public class RoyalPickaxeItem extends PickaxeItem implements HasDefaultEnchantment {
+public class RoyalPickaxeItem extends PickaxeItem implements IHasDefaultEnchantment {
     public RoyalPickaxeItem(Properties properties) {
         super(Tiers.DIAMOND, 1, -2.8f, properties);
     }
