@@ -66,10 +66,12 @@
 	"gui_light": "front",
 	"display": {
 		"thirdperson_righthand": {
+			"rotation": [0, 0, -90],
 			"translation": [0, -2, -2],
 			"scale": [0.8, 0.8, 0.8]
 		},
 		"thirdperson_lefthand": {
+			"rotation": [0, 0, -90],
 			"translation": [0, -2, -2],
 			"scale": [0.8, 0.8, 0.8]
 		},
