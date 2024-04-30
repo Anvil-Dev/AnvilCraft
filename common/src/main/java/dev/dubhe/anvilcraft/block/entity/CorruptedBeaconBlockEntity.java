@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.data.recipe.transform.MobTransformContainer;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
+import java.util.Objects;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -187,7 +188,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
         AABB aabb = new AABB(pos).expandTowards(0.0, level.getHeight(), 0.0);
         List<LivingEntity> list = level.getEntitiesOfClass(LivingEntity.class, aabb);
         if (list.isEmpty()) return;
-        RecipeManager manager = level.getServer().getRecipeManager();
+        RecipeManager manager = Objects.requireNonNull(level.getServer()).getRecipeManager();
         for (LivingEntity livingEntity : list) {
             MobTransformContainer container = new MobTransformContainer(level, pos, livingEntity);
             livingEntity.addEffect(new MobEffectInstance(MobEffects.WITHER, 120, 0, true, true));
@@ -251,5 +252,17 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
                     Math.max(0.0f, 1 - color[2] - 0.3f)
             };
         }
+    }
+
+    /**
+     * 为了适配forge中修改的渲染逻辑所添加的函数
+     * 返回一个无限碰撞箱
+     *
+     * @return forge中为原版信标生成的无限碰撞箱
+     */
+    @SuppressWarnings("unused")
+    public AABB getRenderBoundingBox() {
+        return new AABB(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY,
+            Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
     }
 }
