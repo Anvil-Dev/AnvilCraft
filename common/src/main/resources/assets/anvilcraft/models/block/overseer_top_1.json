@@ -1,0 +1,9 @@
+{
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "anvilcraft:block/overseer_top_0",
+	"textures": {
+		"particle": "anvilcraft:block/overseer_top_1",
+		"side": "anvilcraft:block/overseer_top_1",
+		"top": "anvilcraft:block/overseer_top"
+	}
+}
