@@ -18,6 +18,7 @@ public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerPro
     private int chargeNum = 0;
     private PowerGrid grid = null;
     private int power = 0;
+    private final int efficiency = 32;
 
     public static @NotNull ChargeCollectorBlockEntity createBlockEntity(
         BlockEntityType<?> type, BlockPos pos, BlockState blockState
@@ -84,7 +85,7 @@ public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerPro
      * @return 溢出的电荷数(既未被添加至收集器的电荷数)
      */
     public int incomingCharge(int num) {
-        int surplus = num - (8 - this.chargeNum);
+        int surplus = num - (this.efficiency - this.chargeNum);
         if (surplus < 0) {
             surplus = 0;
         }
