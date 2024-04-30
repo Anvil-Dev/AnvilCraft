@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.api.power.PowerComponentInfo;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.init.ModItems;
+import dev.dubhe.anvilcraft.item.IEngineerGoggles;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -45,30 +46,27 @@ public abstract class PowerGridInformationRenderMixin {
     public abstract Font getFont();
 
     @Shadow
-    protected int screenHeight;
+    private int screenHeight;
 
     @Shadow
-    protected int screenWidth;
+    private int screenWidth;
 
     @Shadow
     @Final
-    protected Minecraft minecraft;
+    private Minecraft minecraft;
 
     @Inject(
-            method = "render",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/Gui;renderCrosshair(Lnet/minecraft/client/gui/GuiGraphics;)V",
-                    shift = At.Shift.AFTER
-            )
+        method = "render",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/gui/Gui;renderCrosshair(Lnet/minecraft/client/gui/GuiGraphics;)V",
+            shift = At.Shift.AFTER
+        )
     )
     void onHudRender(GuiGraphics guiGraphics, float partialTick, CallbackInfo ci) {
         if (minecraft.player == null || minecraft.isPaused()) return;
         if (minecraft.screen != null) return;
-        if (!minecraft.player.getItemBySlot(EquipmentSlot.HEAD).is(ModItems.ANVIL_HAMMER.get())
-                && !minecraft.player.getItemBySlot(EquipmentSlot.HEAD).is(ModItems.ROYAL_ANVIL_HAMMER.get())
-        ) return;
-
+        if (!(minecraft.player.getItemBySlot(EquipmentSlot.HEAD).getItem() instanceof IEngineerGoggles)) return;
         HitResult hit = minecraft.hitResult;
         if (hit == null) return;
         BlockPos pos = null;
@@ -84,9 +82,9 @@ public abstract class PowerGridInformationRenderMixin {
             if (e instanceof IPowerComponent ipc) {
                 if (e.getBlockState().hasProperty(IPowerComponent.OVERLOAD)) {
                     overloaded = e.getBlockState()
-                            .getValues()
-                            .getOrDefault(IPowerComponent.OVERLOAD, true)
-                            .equals(Boolean.TRUE);
+                        .getValues()
+                        .getOrDefault(IPowerComponent.OVERLOAD, true)
+                        .equals(Boolean.TRUE);
                 }
                 state = e.getBlockState();
                 powerComponent = ipc;
@@ -106,32 +104,32 @@ public abstract class PowerGridInformationRenderMixin {
 
         if (powerComponent instanceof IPowerProducer producer) {
             lines.add(Component.translatable("tooltip.anvilcraft.grid_information.producer_stats")
-                    .setStyle(Style.EMPTY.applyFormat(ChatFormatting.BLUE))
+                .setStyle(Style.EMPTY.applyFormat(ChatFormatting.BLUE))
             );
             lines.add(Component.translatable(
-                    "tooltip.anvilcraft.grid_information.output_power",
-                    componentInfo == null ? producer.getOutputPower() : componentInfo.produces()
+                "tooltip.anvilcraft.grid_information.output_power",
+                componentInfo == null ? producer.getOutputPower() : componentInfo.produces()
             ).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
         } else if (powerComponent instanceof IPowerConsumer consumer) {
             lines.add(Component.translatable("tooltip.anvilcraft.grid_information.consumer_stats")
-                    .setStyle(Style.EMPTY.applyFormat(ChatFormatting.BLUE))
+                .setStyle(Style.EMPTY.applyFormat(ChatFormatting.BLUE))
             );
             lines.add(Component.translatable(
-                    "tooltip.anvilcraft.grid_information.input_power",
-                    componentInfo == null ? consumer.getInputPower() : componentInfo.consumes()
+                "tooltip.anvilcraft.grid_information.input_power",
+                componentInfo == null ? consumer.getInputPower() : componentInfo.consumes()
             ).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
         }
         List<Component> tooltipLines = List.of(
-                Component.translatable("tooltip.anvilcraft.grid_information.title")
-                        .setStyle(Style.EMPTY.applyFormat(ChatFormatting.BLUE)),
-                Component.translatable(
-                        "tooltip.anvilcraft.grid_information.total_consumed",
-                        grid.getConsume()
-                ).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)),
-                Component.translatable(
-                        "tooltip.anvilcraft.grid_information.total_generated",
-                        grid.getGenerate()
-                ).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY))
+            Component.translatable("tooltip.anvilcraft.grid_information.title")
+                .setStyle(Style.EMPTY.applyFormat(ChatFormatting.BLUE)),
+            Component.translatable(
+                "tooltip.anvilcraft.grid_information.total_consumed",
+                grid.getConsume()
+            ).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)),
+            Component.translatable(
+                "tooltip.anvilcraft.grid_information.total_generated",
+                grid.getGenerate()
+            ).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY))
         );
         lines.addAll(tooltipLines);
         if (overloaded) {
@@ -141,14 +139,14 @@ public abstract class PowerGridInformationRenderMixin {
 
         }
         anvilCraft$renderInfo(
-                guiGraphics,
-                this.getFont(),
-                state != null
-                        ? state.getBlock().asItem().getDefaultInstance()
-                        : ModItems.MAGNETOELECTRIC_CORE.asStack(),
-                lines,
-                tooltipPosX,
-                tooltipPosY
+            guiGraphics,
+            this.getFont(),
+            state != null
+                ? state.getBlock().asItem().getDefaultInstance()
+                : ModItems.MAGNETOELECTRIC_CORE.asStack(),
+            lines,
+            tooltipPosX,
+            tooltipPosY
         );
     }
 
@@ -158,9 +156,9 @@ public abstract class PowerGridInformationRenderMixin {
     ) {
         ClientTooltipPositioner tooltipPositioner = DefaultTooltipPositioner.INSTANCE;
         List<ClientTooltipComponent> components = lines.stream()
-                .map(Component::getVisualOrderText)
-                .map(ClientTooltipComponent::create)
-                .toList();
+            .map(Component::getVisualOrderText)
+            .map(ClientTooltipComponent::create)
+            .toList();
         if (components.isEmpty()) return;
         int width = 0;
         int height = components.size() == 1 ? -2 : 0;
@@ -171,12 +169,12 @@ public abstract class PowerGridInformationRenderMixin {
         }
 
         Vector2ic vector2ic = tooltipPositioner.positionTooltip(
-                thiz.guiWidth(),
-                thiz.guiHeight(),
-                x,
-                y,
-                width,
-                height
+            thiz.guiWidth(),
+            thiz.guiHeight(),
+            x,
+            y,
+            width,
+            height
         );
         int vx = vector2ic.x();
         int vy = vector2ic.y();
@@ -186,12 +184,12 @@ public abstract class PowerGridInformationRenderMixin {
         int finalWidth = width;
         int finalHeight = height + 16;
         TooltipRenderUtil.renderTooltipBackground(
-                thiz,
-                vx,
-                finalVy,
-                finalWidth,
-                finalHeight,
-                400
+            thiz,
+            vx,
+            finalVy,
+            finalWidth,
+            finalHeight,
+            400
         );
 
         thiz.pose().translate(0.0F, 0.0F, 400.0F);

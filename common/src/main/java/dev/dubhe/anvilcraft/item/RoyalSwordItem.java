@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 
-public class RoyalSwordItem extends SwordItem implements HasDefaultEnchantment {
+public class RoyalSwordItem extends SwordItem implements IHasDefaultEnchantment {
     public RoyalSwordItem(Properties properties) {
         super(Tiers.DIAMOND, 3, -2.4f, properties);
     }

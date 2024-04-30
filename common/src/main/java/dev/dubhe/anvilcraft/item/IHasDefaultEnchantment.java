@@ -11,7 +11,7 @@ import java.util.Map;
 /**
  * 有默认附魔
  */
-public interface HasDefaultEnchantment {
+public interface IHasDefaultEnchantment {
     Map<Enchantment, Integer> getDefaultEnchantments();
 
     default int getDefaultEnchantmentLevel(Enchantment enchantment) {

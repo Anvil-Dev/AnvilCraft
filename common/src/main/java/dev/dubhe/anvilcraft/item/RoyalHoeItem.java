@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 
-public class RoyalHoeItem extends HoeItem implements HasDefaultEnchantment {
+public class RoyalHoeItem extends HoeItem implements IHasDefaultEnchantment {
     public RoyalHoeItem(Properties properties) {
         super(Tiers.DIAMOND, -3, 0, properties);
     }
