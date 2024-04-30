@@ -24,7 +24,8 @@ public class PistonMoveBlockListener {
         RandomSource random = level.random;
         for (BlockPos pos : blocks) {
             if (!level.getBlockState(pos).is(ModBlocks.MAGNET_BLOCK.get())) continue;
-            if (level.getBlockState(pos).is(ModBlocks.MAGNET_BLOCK.get()) && level.getBlockState(pos).getValue(BlockStateProperties.LIT)) continue;
+            if (level.getBlockState(pos).is(ModBlocks.MAGNET_BLOCK.get())
+                && level.getBlockState(pos).getValue(BlockStateProperties.LIT)) continue;
             int b = isNearbyCopperBlock(level, pos);
             double r = random.nextDouble();
             double p;
