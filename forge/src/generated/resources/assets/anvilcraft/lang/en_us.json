@@ -214,7 +214,7 @@
   "tooltip.anvilcraft.item.royal_smithing_table": "Saving your Smithing Template",
   "tooltip.anvilcraft.item.royal_steel_block": "Creeper proof",
   "tooltip.anvilcraft.item.smooth_royal_steel_block": "Creeper proof",
-  "tooltip.anvilcraft.item.tempering_glass": "Creeper proof, can be collected by hand",
+  "tooltip.anvilcraft.item.tempering_glass": "Creeper proof, No tools required on collect",
   "tooltip.anvilcraft.item.topaz": "Containing the power of lightning",
   "tooltip.anvilcraft.item.transmission_pole": "Build a power grid with a transmission distance of 8",
   "tooltip.anvilcraft.jade.power_information": "Power Grid: %d/%d MW"

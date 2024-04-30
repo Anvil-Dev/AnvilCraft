@@ -49,7 +49,7 @@ public class TooltipEventListener {
         map.put(ModBlocks.CUT_ROYAL_STEEL_BLOCK.asItem(), "Creeper proof");
         map.put(ModBlocks.CUT_ROYAL_STEEL_STAIRS.asItem(), "Creeper proof");
         map.put(ModBlocks.CUT_ROYAL_STEEL_SLAB.asItem(), "Creeper proof");
-        map.put(ModBlocks.TEMPERING_GLASS.asItem(), "Creeper proof, can be collected by hand");
+        map.put(ModBlocks.TEMPERING_GLASS.asItem(), "Creeper proof, No tools required on collect");
     }
 
     public static final Map<Item, String> NEED_TOOLTIP_ITEM = Collections.unmodifiableMap(map);
