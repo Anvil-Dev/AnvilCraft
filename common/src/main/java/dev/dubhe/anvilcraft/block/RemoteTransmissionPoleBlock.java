@@ -117,12 +117,6 @@ public class RemoteTransmissionPoleBlock extends BaseEntityBlock implements IHam
     ) {
         if (level.isClientSide) return;
         switch (state.getValue(HALF)) {
-            default -> {
-                level.destroyBlock(pos.above(), false, null);
-                level.destroyBlock(pos.above(2), false, null);
-                level.destroyBlock(pos.above(3), false, null);
-
-            }
             case MID -> {
                 if (
                     level.getBlockState(pos.below()).hasProperty(HALF)
@@ -137,6 +131,12 @@ public class RemoteTransmissionPoleBlock extends BaseEntityBlock implements IHam
                 level.destroyBlock(pos.below(), false, null);
                 level.destroyBlock(pos.below(2), false, null);
                 level.destroyBlock(pos.below(3), false, null);
+            }
+            default -> {
+                level.destroyBlock(pos.above(), false, null);
+                level.destroyBlock(pos.above(2), false, null);
+                level.destroyBlock(pos.above(3), false, null);
+
             }
         }
         level.playSound(null,

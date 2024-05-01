@@ -119,11 +119,6 @@ public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRem
     ) {
         if (level.isClientSide) return;
         switch (state.getValue(HALF)) {
-            default -> {
-                level.destroyBlock(pos.above(), false, null);
-                level.destroyBlock(pos.above(2), false, null);
-
-            }
             case MID -> {
                 level.destroyBlock(pos.above(), false, null);
                 level.destroyBlock(pos.below(), false, null);
@@ -131,6 +126,10 @@ public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRem
             case TOP -> {
                 level.destroyBlock(pos.below(), false, null);
                 level.destroyBlock(pos.below(2), false, null);
+            }
+            default -> {
+                level.destroyBlock(pos.above(), false, null);
+                level.destroyBlock(pos.above(2), false, null);
             }
         }
         level.playSound(null,
