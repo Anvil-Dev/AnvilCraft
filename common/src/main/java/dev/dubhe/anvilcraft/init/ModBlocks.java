@@ -19,6 +19,7 @@ import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
 import dev.dubhe.anvilcraft.block.JewelCraftingTable;
 import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
+import dev.dubhe.anvilcraft.block.LoadMonitorBlock;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
 import dev.dubhe.anvilcraft.block.MeltGemCauldron;
 import dev.dubhe.anvilcraft.block.MobAmberBlock;
@@ -1000,6 +1001,36 @@ public class ModBlocks {
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.TRANSMISSION_POLE),
                 AnvilCraftDatagen.has(ModBlocks.TRANSMISSION_POLE))
             .save(provider))
+        .register();
+
+    public static final BlockEntry<LoadMonitorBlock> LOAD_MONITOR = REGISTRATE
+        .block("load_monitor", LoadMonitorBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.lightLevel(state -> {
+            if (state.getValue(OVERLOAD)) return 6;
+            else return 15;
+        }).noOcclusion())
+        .blockstate((ctx, provider) -> {
+        })
+        .defaultLoot()
+        .item()
+        .model((ctx, provider) -> provider.blockItem(ctx, "_0"))
+        .build()
+        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern("A")
+            .pattern("B")
+            .define('A', Items.COMPASS)
+            .define('B', ModItems.MAGNETOELECTRIC_CORE)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.COMPASS),
+                AnvilCraftDatagen.has(Items.COMPASS)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
+                AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
+            )
+            .save(provider)
+        )
         .register();
 
     public static void register() {
