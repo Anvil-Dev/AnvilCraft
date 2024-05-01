@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
@@ -29,12 +30,13 @@ public class PiezoelectricCrystalBlock extends Block implements IHammerRemovable
         super(properties);
     }
 
-
+    @SuppressWarnings("deprecation")
     @Override
     public @Nonnull RenderShape getRenderShape(@Nonnull BlockState state) {
         return RenderShape.MODEL;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public @NotNull VoxelShape getShape(
         @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context
@@ -45,21 +47,35 @@ public class PiezoelectricCrystalBlock extends Block implements IHammerRemovable
     /**
      * 被铁砧砸事件
      */
-    public void onHitByAnvil(float fallDistance, BlockPos blockPos) {
-        int chargeNum = (int) fallDistance + 1;
-        if (chargeNum > 4) {
-            chargeNum = 4;
-        }
+    public void onHitByAnvil(float fallDistance, Level level, BlockPos blockPos) {
+        int distance = fallDistance > 3 ? 3 : (int) fallDistance;
+        int chargeNum = (int) Math.pow(2, distance);
+        this.charge(chargeNum, blockPos);
+        pressureConduction(level, blockPos, chargeNum / 2, 4);
+    }
+
+    private void charge(int chargeNum, BlockPos blockPos) {
         Collection<Entry<Float, ChargeCollectorBlockEntity>> chargeCollectorCollection = ChargeCollectorManager
-            .getNearestChargeCollect(blockPos);
+               .getNearestChargeCollect(blockPos);
         Iterator<Entry<Float, ChargeCollectorBlockEntity>> iterator = chargeCollectorCollection.iterator();
-        int surplus = chargeNum;
+        double surplus = chargeNum;
         while (iterator.hasNext()) {
             Entry<Float, ChargeCollectorBlockEntity> entry = iterator.next();
             ChargeCollectorBlockEntity chargeCollectorBlockEntity = entry.getValue();
             if (!ChargeCollectorManager.canCollect(chargeCollectorBlockEntity, blockPos)) return;
             surplus = chargeCollectorBlockEntity.incomingCharge(surplus);
             if (surplus == 0) return;
+        }
+    }
+
+    private void pressureConduction(Level level, BlockPos blockPos, int chargeNum, int count) {
+        int c = count - 1;
+        if (c <= 0) return;
+        BlockPos pos = blockPos.below();
+        if (level.getBlockState(pos).getBlock() instanceof PiezoelectricCrystalBlock block) {
+            if (chargeNum == 0) return;
+            this.charge(chargeNum, blockPos);
+            block.pressureConduction(level, pos, chargeNum / 2, c);
         }
     }
 }

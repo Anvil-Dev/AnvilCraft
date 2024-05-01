@@ -11,11 +11,11 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "anvilcraft:transmission_pole"
+          "name": "anvilcraft:load_monitor"
         }
       ],
       "rolls": 1.0
     }
   ],
-  "random_sequence": "anvilcraft:blocks/transmission_pole"
+  "random_sequence": "anvilcraft:blocks/load_monitor"
 }

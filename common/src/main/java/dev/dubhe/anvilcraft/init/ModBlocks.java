@@ -20,6 +20,7 @@ import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
 import dev.dubhe.anvilcraft.block.JewelCraftingTable;
 import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
+import dev.dubhe.anvilcraft.block.LoadMonitorBlock;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
 import dev.dubhe.anvilcraft.block.MeltGemCauldron;
 import dev.dubhe.anvilcraft.block.MobAmberBlock;
@@ -27,6 +28,7 @@ import dev.dubhe.anvilcraft.block.PiezoelectricCrystalBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterBigBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterMiddleBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterSmallBlock;
+import dev.dubhe.anvilcraft.block.RemoteTransmissionPoleBlock;
 import dev.dubhe.anvilcraft.block.ResentfulAmberBlock;
 import dev.dubhe.anvilcraft.block.ResinBlock;
 import dev.dubhe.anvilcraft.block.RoyalAnvilBlock;
@@ -48,12 +50,12 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItemIngredient;
 import dev.dubhe.anvilcraft.item.CursedBlockItem;
 import dev.dubhe.anvilcraft.item.HasMobBlockItem;
 import dev.dubhe.anvilcraft.item.PlaceInWaterBlockItem;
+import dev.dubhe.anvilcraft.item.RemoteTransmissionPoleBlockItem;
 import dev.dubhe.anvilcraft.item.ResinBlockItem;
 import dev.dubhe.anvilcraft.item.TransmissionPoleBlockItem;
 import java.util.Map;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.MinMaxBounds;
-import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
@@ -75,12 +77,6 @@ import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.storage.loot.LootPool;
-import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.predicates.ExplosionCondition;
-import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.phys.Vec3;
 
 public class ModBlocks {
@@ -668,22 +664,6 @@ public class ModBlocks {
         .model((ctx, provider) -> {
         })
         .build()
-        .loot((tables, block) -> {
-            LootItemBlockStatePropertyCondition.Builder properties = LootItemBlockStatePropertyCondition
-                .hasBlockStateProperties(block)
-                .setProperties(
-                    StatePropertiesPredicate.Builder.properties()
-                        .hasProperty(TransmissionPoleBlock.HALF, Half.BOTTOM)
-                );
-            LootPool.Builder pool = LootPool
-                .lootPool()
-                .add(LootItem.lootTableItem(block))
-                .when(properties)
-                .when(ExplosionCondition.survivesExplosion())
-                .setRolls(ConstantValue.exactly(1.0f));
-            LootTable.Builder builder = LootTable.lootTable().withPool(pool);
-            tables.add(block, builder);
-        })
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
             .pattern("A")
@@ -1027,6 +1007,70 @@ public class ModBlocks {
         .model((ctx, provider) -> provider.blockItem(ctx))
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+    public static final BlockEntry<? extends Block> REMOTE_TRANSMISSION_POLE = REGISTRATE
+        .block("remote_transmission_pole", RemoteTransmissionPoleBlock::new)
+        .initialProperties(ModBlocks.MAGNET_BLOCK)
+        .properties(properties -> properties.noOcclusion()
+            .lightLevel(
+                state -> {
+                    if (state.getValue(RemoteTransmissionPoleBlock.HALF) != Half.TOP) return 0;
+                    if (state.getValue(SWITCH) == IPowerComponent.Switch.OFF) return 0;
+                    if (state.getValue(OVERLOAD)) return 6;
+                    return 15;
+                }
+            )
+        )
+        .blockstate((ctx, provider) -> {
+        })
+        .item(RemoteTransmissionPoleBlockItem::new)
+        .model((ctx, provider) -> {
+        })
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern("A")
+            .pattern("B")
+            .pattern("C")
+            .define('A', ModItems.MAGNETOELECTRIC_CORE)
+            .define('B', ModBlocks.TRANSMISSION_POLE)
+            .define('C', Items.ANVIL)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
+                AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.TRANSMISSION_POLE),
+                AnvilCraftDatagen.has(ModBlocks.TRANSMISSION_POLE))
+            .save(provider))
+        .register();
+
+    public static final BlockEntry<LoadMonitorBlock> LOAD_MONITOR = REGISTRATE
+        .block("load_monitor", LoadMonitorBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.lightLevel(state -> {
+            if (state.getValue(OVERLOAD)) return 6;
+            else return 15;
+        }).noOcclusion())
+        .blockstate((ctx, provider) -> {
+        })
+        .defaultLoot()
+        .item()
+        .model((ctx, provider) -> provider.blockItem(ctx, "_0"))
+        .build()
+        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern("A")
+            .pattern("B")
+            .define('A', Items.COMPASS)
+            .define('B', ModItems.MAGNETOELECTRIC_CORE)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.COMPASS),
+                AnvilCraftDatagen.has(Items.COMPASS)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
+                AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
+            )
+            .save(provider)
+        )
         .register();
     public static final BlockEntry<BlockPlacer> BLOCK_PLACER = REGISTRATE
         .block("block_placer", BlockPlacer::new)
