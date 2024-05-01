@@ -1,9 +1,10 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerTransmitter;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
-import dev.dubhe.anvilcraft.block.TransmissionPoleBlock;
+import dev.dubhe.anvilcraft.block.RemoteTransmissionPoleBlock;
 import dev.dubhe.anvilcraft.block.state.Half;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
@@ -18,20 +19,20 @@ import org.jetbrains.annotations.NotNull;
 
 @Getter
 @Setter
-public class TransmissionPoleBlockEntity extends BlockEntity implements IPowerTransmitter {
+public class RemoteTransmissionPoleBlockEntity extends BlockEntity implements IPowerTransmitter {
     private PowerGrid grid;
 
-    public TransmissionPoleBlockEntity(BlockPos pos, BlockState blockState) {
-        this(ModBlockEntities.TRANSMISSION_POLE.get(), pos, blockState);
+    public RemoteTransmissionPoleBlockEntity(BlockPos pos, BlockState blockState) {
+        this(ModBlockEntities.REMOTE_TRANSMISSION_POLE.get(), pos, blockState);
     }
 
-    public static @NotNull TransmissionPoleBlockEntity createBlockEntity(
+    public static @NotNull RemoteTransmissionPoleBlockEntity createBlockEntity(
         BlockEntityType<?> type, BlockPos pos, BlockState blockState
     ) {
-        return new TransmissionPoleBlockEntity(type, pos, blockState);
+        return new RemoteTransmissionPoleBlockEntity(type, pos, blockState);
     }
 
-    private TransmissionPoleBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+    private RemoteTransmissionPoleBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
 
@@ -43,8 +44,9 @@ public class TransmissionPoleBlockEntity extends BlockEntity implements IPowerTr
     @Override
     public @NotNull PowerComponentType getComponentType() {
         if (this.getLevel() == null) return PowerComponentType.INVALID;
-        if (!this.getBlockState().is(ModBlocks.TRANSMISSION_POLE.get())) return PowerComponentType.INVALID;
-        if (this.getBlockState().getValue(TransmissionPoleBlock.HALF) != Half.TOP) return PowerComponentType.INVALID;
+        if (!this.getBlockState().is(ModBlocks.REMOTE_TRANSMISSION_POLE.get())) return PowerComponentType.INVALID;
+        if (this.getBlockState().getValue(RemoteTransmissionPoleBlock.HALF) != Half.TOP)
+            return PowerComponentType.INVALID;
         return PowerComponentType.TRANSMITTER;
     }
 
@@ -61,13 +63,18 @@ public class TransmissionPoleBlockEntity extends BlockEntity implements IPowerTr
      */
     public void tick(@NotNull Level level, @NotNull BlockPos pos) {
         BlockState state = level.getBlockState(pos);
-        if (!state.is(ModBlocks.TRANSMISSION_POLE.get())) return;
-        if (state.getValue(TransmissionPoleBlock.HALF) != Half.TOP) return;
-        if (state.getValue(TransmissionPoleBlock.SWITCH) == Switch.OFF && this.getGrid() != null) {
+        if (!state.is(ModBlocks.REMOTE_TRANSMISSION_POLE.get())) return;
+        if (state.getValue(RemoteTransmissionPoleBlock.HALF) != Half.TOP) return;
+        if (state.getValue(RemoteTransmissionPoleBlock.SWITCH) == Switch.OFF && this.getGrid() != null) {
             this.getGrid().remove(this);
-        } else if (state.getValue(TransmissionPoleBlock.SWITCH) == Switch.ON && this.getGrid() == null) {
+        } else if (state.getValue(RemoteTransmissionPoleBlock.SWITCH) == Switch.ON && this.getGrid() == null) {
             PowerGrid.addComponent(this);
         }
         this.flushState(level, pos);
+    }
+
+    @Override
+    public int getRange() {
+        return AnvilCraft.config.remotePowerTransmitterRange;
     }
 }

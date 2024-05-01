@@ -1,0 +1,40 @@
+{
+  "variants": {
+    "half=bottom,overload=false,switch=on": {
+      "model": "anvilcraft:block/remote_transmission_pole_base"
+    },
+    "half=mid,overload=false,switch=on": {
+      "model": "anvilcraft:block/remote_transmission_pole_mid"
+    },
+    "half=top,overload=false,switch=on": {
+      "model": "anvilcraft:block/remote_transmission_pole_top"
+    },
+    "half=bottom,overload=true,switch=on": {
+      "model": "anvilcraft:block/remote_transmission_pole_base"
+    },
+    "half=mid,overload=true,switch=on": {
+      "model": "anvilcraft:block/remote_transmission_pole_mid"
+    },
+    "half=top,overload=true,switch=on": {
+      "model": "anvilcraft:block/remote_transmission_pole_top_overload"
+    },
+    "half=bottom,overload=false,switch=off": {
+      "model": "anvilcraft:block/remote_transmission_pole_base"
+    },
+    "half=mid,overload=false,switch=off": {
+      "model": "anvilcraft:block/remote_transmission_pole_mid"
+    },
+    "half=top,overload=false,switch=off": {
+      "model": "anvilcraft:block/remote_transmission_pole_top_off"
+    },
+    "half=bottom,overload=true,switch=off": {
+      "model": "anvilcraft:block/remote_transmission_pole_base"
+    },
+    "half=mid,overload=true,switch=off": {
+      "model": "anvilcraft:block/remote_transmission_pole_mid"
+    },
+    "half=top,overload=true,switch=off": {
+      "model": "anvilcraft:block/remote_transmission_pole_top_off"
+    }
+  }
+}

@@ -25,10 +25,10 @@ import org.jetbrains.annotations.Nullable;
 
 public class JewelCraftingTable extends Block {
     public static final VoxelShape SHAPE = Shapes.or(
-        Block.box(0, 0, 0, 2, 2, 2),
-        Block.box(14, 0, 0, 16, 2, 2),
-        Block.box(14, 0, 14, 16, 2, 16),
-        Block.box(0, 0, 14, 2, 2, 16),
+        Block.box(0, 0, 0, 3, 2, 3),
+        Block.box(13, 0, 0, 16, 2, 3),
+        Block.box(13, 0, 13, 16, 2, 16),
+        Block.box(0, 0, 13, 3, 2, 16),
         Block.box(0, 2, 0, 16, 12, 16)
     );
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;

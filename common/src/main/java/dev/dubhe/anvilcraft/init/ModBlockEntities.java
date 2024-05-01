@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.block.entity.LoadMonitorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PowerConverterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeaterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.MobAmberBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.RemoteTransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ResentfulAmberBlock;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
@@ -60,7 +61,7 @@ public class ModBlockEntities {
         .validBlock(ModBlocks.HEATER)
         .register();
 
-    public static final BlockEntityEntry<TransmissionPoleBlockEntity> REMOTE_TRANSMISSION_POLE = REGISTRATE
+    public static final BlockEntityEntry<TransmissionPoleBlockEntity> TRANSMISSION_POLE = REGISTRATE
         .blockEntity("transmission_pole", TransmissionPoleBlockEntity::createBlockEntity)
         .validBlock(ModBlocks.TRANSMISSION_POLE)
         .register();
@@ -87,6 +88,11 @@ public class ModBlockEntities {
         .validBlocks(ModBlocks.POWER_CONVERTER_SMALL, ModBlocks.POWER_CONVERTER_MIDDLE, ModBlocks.POWER_CONVERTER_BIG)
         .register();
 
+    public static final BlockEntityEntry<RemoteTransmissionPoleBlockEntity> REMOTE_TRANSMISSION_POLE = REGISTRATE
+        .blockEntity("remote_transmission_pole", RemoteTransmissionPoleBlockEntity::createBlockEntity)
+        .validBlock(ModBlocks.REMOTE_TRANSMISSION_POLE)
+        .register();
+      
     public static final BlockEntityEntry<LoadMonitorBlockEntity> LOAD_MONITOR = REGISTRATE
         .blockEntity("load_monitor", LoadMonitorBlockEntity::new)
         .validBlock(ModBlocks.LOAD_MONITOR)

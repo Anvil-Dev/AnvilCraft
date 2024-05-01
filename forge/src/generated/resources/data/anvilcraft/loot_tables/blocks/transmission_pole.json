@@ -5,13 +5,6 @@
       "bonus_rolls": 0.0,
       "conditions": [
         {
-          "block": "anvilcraft:transmission_pole",
-          "condition": "minecraft:block_state_property",
-          "properties": {
-            "half": "bottom"
-          }
-        },
-        {
           "condition": "minecraft:survives_explosion"
         }
       ],

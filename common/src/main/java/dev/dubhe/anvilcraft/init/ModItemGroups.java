@@ -111,6 +111,7 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.CREATIVE_GENERATOR.asStack());
                 entries.accept(ModBlocks.HEATER.asStack());
                 entries.accept(ModBlocks.TRANSMISSION_POLE.asStack());
+                entries.accept(ModBlocks.REMOTE_TRANSMISSION_POLE.asStack());
                 entries.accept(ModBlocks.CHARGE_COLLECTOR.asStack());
                 entries.accept(ModBlocks.LOAD_MONITOR.asStack());
                 entries.accept(ModBlocks.POWER_CONVERTER_SMALL.asStack());
