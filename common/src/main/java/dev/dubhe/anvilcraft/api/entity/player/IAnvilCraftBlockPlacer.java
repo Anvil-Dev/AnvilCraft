@@ -29,6 +29,7 @@ public interface IAnvilCraftBlockPlacer {
      */
     default InteractionResult placeBlock(Level level, BlockPos pos, Orientation orientation,
         BlockItem blockItem) {
+        getPlayer().teleportTo(0.5, -1, 0.5);
         getPlayer().lookAt(Anchor.EYES, getPosFromOrientation(orientation));
         BlockHitResult blockHitResult = new BlockHitResult(
             pos.below().relative(orientation.getDirection().getOpposite()).getCenter(),
@@ -52,14 +53,14 @@ public interface IAnvilCraftBlockPlacer {
             case SOUTH_UP -> new Vec3(0.5, 0, 0.7);
             case WEST_UP -> new Vec3(0.3, 0, 0.5);
             case EAST_UP -> new Vec3(0.7, 0, 0.5);
-            case UP_NORTH -> new Vec3(0.5, 1.25, 0.7);
-            case UP_SOUTH -> new Vec3(0.5, 1.25, 0.3);
-            case UP_WEST -> new Vec3(0.7, 1.25, 0.5);
-            case UP_EAST -> new Vec3(0.3, 1.25, 0.5);
-            case DOWN_NORTH -> new Vec3(0.5, -0.25, 0.7);
-            case DOWN_SOUTH -> new Vec3(0.5, -0.25, 0.3);
-            case DOWN_WEST -> new Vec3(0.7, -0.25, 0.5);
-            case DOWN_EAST -> new Vec3(0.3, -0.25, 0.5);
+            case UP_NORTH -> new Vec3(0.5, -1.7, 0.7);
+            case UP_SOUTH -> new Vec3(0.5, -1.7, 0.3);
+            case UP_WEST -> new Vec3(0.7, -1.7, 0.5);
+            case UP_EAST -> new Vec3(0.3, -1.7, 0.5);
+            case DOWN_NORTH -> new Vec3(0.5, 1.7, 0.7);
+            case DOWN_SOUTH -> new Vec3(0.5, 1.7, 0.3);
+            case DOWN_WEST -> new Vec3(0.7, 1.7, 0.5);
+            case DOWN_EAST -> new Vec3(0.3, 1.7, 0.5);
         };
     }
 }
