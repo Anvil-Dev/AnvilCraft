@@ -1,5 +1,9 @@
 package dev.dubhe.anvilcraft.init;
 
+import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
+import static dev.dubhe.anvilcraft.api.power.IPowerComponent.OVERLOAD;
+import static dev.dubhe.anvilcraft.api.power.IPowerComponent.SWITCH;
+
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import dev.dubhe.anvilcraft.AnvilCraft;
@@ -47,9 +51,9 @@ import dev.dubhe.anvilcraft.item.PlaceInWaterBlockItem;
 import dev.dubhe.anvilcraft.item.RemoteTransmissionPoleBlockItem;
 import dev.dubhe.anvilcraft.item.ResinBlockItem;
 import dev.dubhe.anvilcraft.item.TransmissionPoleBlockItem;
+import java.util.Map;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.MinMaxBounds;
-import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
@@ -71,19 +75,7 @@ import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.storage.loot.LootPool;
-import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.predicates.ExplosionCondition;
-import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.phys.Vec3;
-
-import java.util.Map;
-
-import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
-import static dev.dubhe.anvilcraft.api.power.IPowerComponent.OVERLOAD;
-import static dev.dubhe.anvilcraft.api.power.IPowerComponent.SWITCH;
 
 public class ModBlocks {
     public static final BlockEntry<? extends Block> STAMPING_PLATFORM = REGISTRATE
@@ -643,22 +635,6 @@ public class ModBlocks {
         .model((ctx, provider) -> {
         })
         .build()
-        .loot((tables, block) -> {
-            LootItemBlockStatePropertyCondition.Builder properties = LootItemBlockStatePropertyCondition
-                .hasBlockStateProperties(block)
-                .setProperties(
-                    StatePropertiesPredicate.Builder.properties()
-                        .hasProperty(TransmissionPoleBlock.HALF, Half.BOTTOM)
-                );
-            LootPool.Builder pool = LootPool
-                .lootPool()
-                .add(LootItem.lootTableItem(block))
-                .when(properties)
-                .when(ExplosionCondition.survivesExplosion())
-                .setRolls(ConstantValue.exactly(1.0f));
-            LootTable.Builder builder = LootTable.lootTable().withPool(pool);
-            tables.add(block, builder);
-        })
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
             .pattern("A")

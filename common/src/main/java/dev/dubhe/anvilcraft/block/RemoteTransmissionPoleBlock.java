@@ -178,7 +178,7 @@ public class RemoteTransmissionPoleBlock extends BaseEntityBlock implements IHam
             return;
         }
         if (state.getValue(HALF) != Half.BOTTOM) return;
-        BlockPos topPos = pos.above(2);
+        BlockPos topPos = pos.above(3);
         BlockState topState = level.getBlockState(topPos);
         if (!topState.is(ModBlocks.REMOTE_TRANSMISSION_POLE.get())) return;
         if (topState.getValue(HALF) != Half.TOP) return;

@@ -210,6 +210,7 @@
   "tooltip.anvilcraft.item.power_converter_big": "Convert power into FE, consumes 9 MW",
   "tooltip.anvilcraft.item.power_converter_middle": "Convert power into FE, consumes 3 MW",
   "tooltip.anvilcraft.item.power_converter_small": "Convert power into FE, consumes 1 MW",
+  "tooltip.anvilcraft.item.remote_transmission_pole": "Build a power grid with a transmission distance of 8",
   "tooltip.anvilcraft.item.resin_block": "Use to capture friendly or weak hostile creatures LivingEntity",
   "tooltip.anvilcraft.item.royal_anvil": "Unbreakable and powerful compatibility",
   "tooltip.anvilcraft.item.royal_anvil_hammer": "It's a hammer, an anvil, a wrench, goggles, and a mace",

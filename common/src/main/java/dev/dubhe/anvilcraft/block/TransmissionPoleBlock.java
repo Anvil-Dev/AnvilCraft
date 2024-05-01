@@ -169,9 +169,7 @@ public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRem
         @NotNull BlockPos neighborPos,
         boolean movedByPiston
     ) {
-        if (level.isClientSide) {
-            return;
-        }
+        if (level.isClientSide) return;
         if (state.getValue(HALF) != Half.BOTTOM) return;
         BlockPos topPos = pos.above(2);
         BlockState topState = level.getBlockState(topPos);
