@@ -31,9 +31,13 @@ public interface IAnvilCraftBlockPlacer {
         BlockItem blockItem) {
         getPlayer().teleportTo(0.5, -1, 0.5);
         getPlayer().lookAt(Anchor.EYES, getPosFromOrientation(orientation));
+        Vec3 clickClickLocation = getPosFromOrientation(orientation);
+        double x = clickClickLocation.x;
+        double y = clickClickLocation.y;
+        double z = clickClickLocation.z;
         BlockHitResult blockHitResult = new BlockHitResult(
-            pos.below().relative(orientation.getDirection().getOpposite()).getCenter(),
-            orientation.getDirection(),
+            pos.getCenter().add(-0.5, -0.5, -0.5).add(x, 1 - y, z),
+            orientation.getDirection().getOpposite(),
             pos,
             false
         );
@@ -49,18 +53,18 @@ public interface IAnvilCraftBlockPlacer {
 
     private Vec3 getPosFromOrientation(Orientation orientation) {
         return switch (orientation) {
-            case NORTH_UP -> new Vec3(0.5, 0, 0.3);
-            case SOUTH_UP -> new Vec3(0.5, 0, 0.7);
-            case WEST_UP -> new Vec3(0.3, 0, 0.5);
-            case EAST_UP -> new Vec3(0.7, 0, 0.5);
-            case UP_NORTH -> new Vec3(0.5, -1.7, 0.7);
-            case UP_SOUTH -> new Vec3(0.5, -1.7, 0.3);
-            case UP_WEST -> new Vec3(0.7, -1.7, 0.5);
-            case UP_EAST -> new Vec3(0.3, -1.7, 0.5);
-            case DOWN_NORTH -> new Vec3(0.5, -1.7, 0.7);
-            case DOWN_SOUTH -> new Vec3(0.5, -1.7, 0.3);
-            case DOWN_WEST -> new Vec3(0.7, -1.7, 0.5);
-            case DOWN_EAST -> new Vec3(0.3, -1.7, 0.5);
+            case NORTH_UP -> new Vec3(0.5, 1, 0.3);
+            case SOUTH_UP -> new Vec3(0.5, 1, 0.7);
+            case WEST_UP -> new Vec3(0.3, 1, 0.5);
+            case EAST_UP -> new Vec3(0.7, 1, 0.5);
+            case UP_NORTH -> new Vec3(0.5, 0.1, 0.7);
+            case UP_SOUTH -> new Vec3(0.5, 0.1, 0.3);
+            case UP_WEST -> new Vec3(0.7, 0.1, 0.5);
+            case UP_EAST -> new Vec3(0.3, 0.1, 0.5);
+            case DOWN_NORTH -> new Vec3(0.5, 0.9, 0.7);
+            case DOWN_SOUTH -> new Vec3(0.5, 0.9, 0.3);
+            case DOWN_WEST -> new Vec3(0.7, 0.9, 0.5);
+            case DOWN_EAST -> new Vec3(0.3, 0.9, 0.5);
         };
     }
 }
