@@ -57,10 +57,10 @@ public interface IAnvilCraftBlockPlacer {
             case UP_SOUTH -> new Vec3(0.5, -1.7, 0.3);
             case UP_WEST -> new Vec3(0.7, -1.7, 0.5);
             case UP_EAST -> new Vec3(0.3, -1.7, 0.5);
-            case DOWN_NORTH -> new Vec3(0.5, 1.7, 0.7);
-            case DOWN_SOUTH -> new Vec3(0.5, 1.7, 0.3);
-            case DOWN_WEST -> new Vec3(0.7, 1.7, 0.5);
-            case DOWN_EAST -> new Vec3(0.3, 1.7, 0.5);
+            case DOWN_NORTH -> new Vec3(0.5, -1.7, 0.7);
+            case DOWN_SOUTH -> new Vec3(0.5, -1.7, 0.3);
+            case DOWN_WEST -> new Vec3(0.7, -1.7, 0.5);
+            case DOWN_EAST -> new Vec3(0.3, -1.7, 0.5);
         };
     }
 }
