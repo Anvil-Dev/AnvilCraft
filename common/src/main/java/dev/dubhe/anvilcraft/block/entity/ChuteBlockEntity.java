@@ -117,11 +117,14 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
                 );
                 if (depository != null) {
                     // 尝试从上方容器输入
-                    ItemDepositoryHelper.importToTarget(this.depository, 64, stack -> true, depository);
+                    if (ItemDepositoryHelper.importToTarget(this.depository, 64, stack -> true, depository)) {
+                        cooldown = AnvilCraft.config.chuteMaxCooldown;
+                    }
                 } else {
                     List<ItemEntity> itemEntities = getLevel().getEntitiesOfClass(
                         ItemEntity.class, new AABB(getBlockPos().relative(Direction.UP)),
                         itemEntity -> !itemEntity.getItem().isEmpty());
+                    int prevSize = itemEntities.size();
                     for (ItemEntity itemEntity : itemEntities) {
                         ItemStack remaining = ItemDepositoryHelper.insertItem(
                             this.depository, itemEntity.getItem(), true
@@ -130,6 +133,9 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
                         ItemDepositoryHelper.insertItem(this.depository, itemEntity.getItem(), false);
                         itemEntity.kill();
                         break;
+                    }
+                    if (prevSize > itemEntities.size()) {
+                        cooldown = AnvilCraft.config.chuteMaxCooldown;
                     }
                 }
                 depository = ItemDepositoryHelper.getItemDepository(
@@ -140,7 +146,9 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
                 if (depository != null) {
                     // 尝试向朝向容器输出
                     if (!this.depository.isEmpty()) {
-                        ItemDepositoryHelper.exportToTarget(this.depository, 64, stack -> true, depository);
+                        if (ItemDepositoryHelper.exportToTarget(this.depository, 64, stack -> true, depository)) {
+                            cooldown = AnvilCraft.config.chuteMaxCooldown;
+                        }
                     }
                 } else {
                     Vec3 center = getBlockPos().relative(getDirection()).getCenter();
@@ -154,13 +162,13 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
                                 itemEntity.setDefaultPickUpDelay();
                                 getLevel().addFreshEntity(itemEntity);
                                 this.depository.setStack(i, ItemStack.EMPTY);
+                                cooldown = AnvilCraft.config.chuteMaxCooldown;
                                 break;
                             }
                         }
                     }
                 }
             }
-            cooldown = AnvilCraft.config.chuteMaxCooldown;
         } else {
             cooldown--;
         }
