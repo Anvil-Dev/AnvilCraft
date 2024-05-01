@@ -22,6 +22,7 @@ import dev.dubhe.anvilcraft.block.PiezoelectricCrystalBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterBigBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterMiddleBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterSmallBlock;
+import dev.dubhe.anvilcraft.block.RemoteTransmissionPoleBlock;
 import dev.dubhe.anvilcraft.block.ResentfulAmberBlock;
 import dev.dubhe.anvilcraft.block.ResinBlock;
 import dev.dubhe.anvilcraft.block.RoyalAnvilBlock;
@@ -43,6 +44,7 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItemIngredient;
 import dev.dubhe.anvilcraft.item.CursedBlockItem;
 import dev.dubhe.anvilcraft.item.HasMobBlockItem;
 import dev.dubhe.anvilcraft.item.PlaceInWaterBlockItem;
+import dev.dubhe.anvilcraft.item.RemoteTransmissionPoleBlockItem;
 import dev.dubhe.anvilcraft.item.ResinBlockItem;
 import dev.dubhe.anvilcraft.item.TransmissionPoleBlockItem;
 import net.minecraft.advancements.critereon.ItemPredicate;
@@ -990,12 +992,12 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
     public static final BlockEntry<? extends Block> REMOTE_TRANSMISSION_POLE = REGISTRATE
-        .block("remote_transmission_pole", TransmissionPoleBlock::new)
+        .block("remote_transmission_pole", RemoteTransmissionPoleBlock::new)
         .initialProperties(ModBlocks.MAGNET_BLOCK)
         .properties(properties -> properties.noOcclusion()
             .lightLevel(
                 state -> {
-                    if (state.getValue(TransmissionPoleBlock.HALF) != Half.TOP) return 0;
+                    if (state.getValue(RemoteTransmissionPoleBlock.HALF) != Half.TOP) return 0;
                     if (state.getValue(SWITCH) == IPowerComponent.Switch.OFF) return 0;
                     if (state.getValue(OVERLOAD)) return 6;
                     return 15;
@@ -1004,40 +1006,23 @@ public class ModBlocks {
         )
         .blockstate((ctx, provider) -> {
         })
-        .item(TransmissionPoleBlockItem::new)
+        .item(RemoteTransmissionPoleBlockItem::new)
         .model((ctx, provider) -> {
         })
         .build()
-        .loot((tables, block) -> {
-            LootItemBlockStatePropertyCondition.Builder properties = LootItemBlockStatePropertyCondition
-                .hasBlockStateProperties(block)
-                .setProperties(
-                    StatePropertiesPredicate.Builder.properties()
-                        .hasProperty(TransmissionPoleBlock.HALF, Half.BOTTOM)
-                );
-            LootPool.Builder pool = LootPool
-                .lootPool()
-                .add(LootItem.lootTableItem(block))
-                .when(properties)
-                .when(ExplosionCondition.survivesExplosion())
-                .setRolls(ConstantValue.exactly(1.0f));
-            LootTable.Builder builder = LootTable.lootTable().withPool(pool);
-            tables.add(block, builder);
-        })
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
             .pattern("A")
             .pattern("B")
             .pattern("C")
             .define('A', ModItems.MAGNETOELECTRIC_CORE)
-            .define('B', Items.LIGHTNING_ROD)
-            .define('C', Items.IRON_BLOCK)
+            .define('B', ModBlocks.TRANSMISSION_POLE)
+            .define('C', Items.ANVIL)
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
-                AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
-            )
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.LIGHTNING_ROD), AnvilCraftDatagen.has(Items.LIGHTNING_ROD))
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_BLOCK), AnvilCraftDatagen.has(Items.IRON_BLOCK))
+                AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.TRANSMISSION_POLE),
+                AnvilCraftDatagen.has(ModBlocks.TRANSMISSION_POLE))
             .save(provider))
         .register();
 

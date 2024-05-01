@@ -117,8 +117,21 @@ public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRem
     public void playerWillDestroy(
         @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player
     ) {
-        if (!level.isClientSide) {
-            TransmissionPoleBlock.preventDropFromOtherPart(level, pos, state, player);
+        if (level.isClientSide) return;
+        switch (state.getValue(HALF)) {
+            default -> {
+                level.destroyBlock(pos.above(), false, null);
+                level.destroyBlock(pos.above(2), false, null);
+
+            }
+            case MID -> {
+                level.destroyBlock(pos.above(), false, null);
+                level.destroyBlock(pos.below(), false, null);
+            }
+            case TOP -> {
+                level.destroyBlock(pos.below(), false, null);
+                level.destroyBlock(pos.below(2), false, null);
+            }
         }
         level.playSound(null,
             pos,
@@ -129,50 +142,6 @@ public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRem
         super.playerWillDestroy(level, pos, state, player);
     }
 
-    private static void preventDropFromOtherPart(
-        Level level, BlockPos pos, @NotNull BlockState state, Player player
-    ) {
-        BlockPos blockPos;
-        BlockState blockState;
-        BlockPos blockPos1;
-        BlockState blockState1;
-        Half half = state.getValue(HALF);
-        if (
-            half == Half.TOP
-                && (blockState = level.getBlockState(blockPos = pos.below(2))).is(state.getBlock())
-                && blockState.getValue(HALF) == Half.BOTTOM
-                && (blockState1 = level.getBlockState(blockPos1 = pos.below())).is(state.getBlock())
-                && blockState1.getValue(HALF) == Half.MID
-        ) {
-            breakOtherPart(level, blockPos, blockPos1, pos, player);
-        } else if (
-            half == Half.MID
-                && (blockState = level.getBlockState(blockPos = pos.below())).is(state.getBlock())
-                && blockState.getValue(HALF) == Half.BOTTOM
-                && (blockState1 = level.getBlockState(blockPos1 = pos.above())).is(state.getBlock())
-                && blockState1.getValue(HALF) == Half.TOP
-        ) {
-            breakOtherPart(level, blockPos, blockPos1, pos, player);
-        } else if (
-            half == Half.BOTTOM
-                && (blockState = level.getBlockState(blockPos = pos.above())).is(state.getBlock())
-                && blockState.getValue(HALF) == Half.MID
-                && (blockState1 = level.getBlockState(blockPos1 = pos.above(2))).is(state.getBlock())
-                && blockState1.getValue(HALF) == Half.TOP
-        ) {
-            breakOtherPart(level, pos, blockPos, blockPos1, player);
-        }
-    }
-
-    private static void breakOtherPart(
-        @NotNull Level level, BlockPos pos, BlockPos blockPos,
-        BlockPos blockPos1, Player player
-    ) {
-        boolean drop = player == null || !player.getAbilities().instabuild;
-        level.destroyBlock(pos, drop, player);
-        level.destroyBlock(blockPos, drop, player);
-        level.destroyBlock(blockPos1, drop, player);
-    }
 
     @Nullable
     @Override
@@ -221,17 +190,6 @@ public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRem
             level.setBlockAndUpdate(pos, state);
             level.setBlockAndUpdate(topPos, topState);
         }
-    }
-
-    @SuppressWarnings("deprecation")
-    @Override
-    public void onRemove(
-        @NotNull BlockState state, @NotNull Level level,
-        @NotNull BlockPos pos, @NotNull BlockState newState, boolean movedByPiston
-    ) {
-        super.onRemove(state, level, pos, newState, movedByPiston);
-        if (state.is(newState.getBlock()) && state.getValue(HALF) == newState.getValue(HALF)) return;
-        preventDropFromOtherPart(level, pos, state, null);
     }
 
     @Override
