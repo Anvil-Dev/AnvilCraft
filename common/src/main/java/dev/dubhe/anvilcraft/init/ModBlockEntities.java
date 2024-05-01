@@ -91,6 +91,7 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<RemoteTransmissionPoleBlockEntity> REMOTE_TRANSMISSION_POLE = REGISTRATE
         .blockEntity("remote_transmission_pole", RemoteTransmissionPoleBlockEntity::createBlockEntity)
         .validBlock(ModBlocks.REMOTE_TRANSMISSION_POLE)
+        .register();
       
     public static final BlockEntityEntry<LoadMonitorBlockEntity> LOAD_MONITOR = REGISTRATE
         .blockEntity("load_monitor", LoadMonitorBlockEntity::new)
