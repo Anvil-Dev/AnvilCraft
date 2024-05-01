@@ -13,9 +13,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerProducer {
+
+    private static final double MAX_POWER_PER_INCOMING = 32;
+
     private final int cooldown = 40;
     private int cooldownCount = 40;
-    private int chargeNum = 0;
+    private double chargeNum = 0;
     private PowerGrid grid = null;
     private int power = 0;
 
@@ -72,7 +75,7 @@ public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerPro
             return;
         }
         this.cooldownCount = this.cooldown;
-        this.power = this.chargeNum;
+        this.power = (int) Math.floor(this.chargeNum);
         this.chargeNum = 0;
     }
 
@@ -83,8 +86,8 @@ public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerPro
      *
      * @return 溢出的电荷数(既未被添加至收集器的电荷数)
      */
-    public int incomingCharge(int num) {
-        int surplus = num - (8 - this.chargeNum);
+    public double incomingCharge(double num) {
+        double surplus = num - (MAX_POWER_PER_INCOMING - this.chargeNum);
         if (surplus < 0) {
             surplus = 0;
         }

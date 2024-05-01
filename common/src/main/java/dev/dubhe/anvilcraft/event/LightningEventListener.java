@@ -47,7 +47,7 @@ public class LightningEventListener {
 
     private void lightningCharge(BlockPos pos, BlockState state) {
         if (state.is(Blocks.COPPER_BLOCK) || state.is(Blocks.LIGHTNING_ROD)) {
-            int unCharged = 16;
+            double unCharged = 32;
             Collection<Map.Entry<Float, ChargeCollectorBlockEntity>> nearestChargeCollect =
                 ChargeCollectorManager.getNearestChargeCollect(pos);
             for (var floatChargeCollectorBlockEntityEntry : nearestChargeCollect) {
