@@ -90,6 +90,11 @@ public class AnvilCraftConfig implements ConfigData {
     @ConfigEntry.Gui.Tooltip
     public boolean displayAnvilAnimation = true;
 
+    @Comment("Maximum cooldown of load monitor")
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(max = 60, min = 1)
+    public int loadMonitor = 10;
+
     @ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
     public PowerConverter powerConverter = new PowerConverter();
 
