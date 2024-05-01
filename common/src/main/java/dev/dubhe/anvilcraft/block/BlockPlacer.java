@@ -1,14 +1,21 @@
 package dev.dubhe.anvilcraft.block;
 
+import static dev.dubhe.anvilcraft.api.entity.player.AnvilCraftBlockPlacer.anvilCraftBlockPlacer;
+
 import dev.dubhe.anvilcraft.api.depository.IItemDepository;
 import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.state.Orientation;
+import java.util.List;
 import javax.annotation.Nonnull;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -16,15 +23,14 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.DirectionalBlock;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.RenderShape;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.entity.EntityTypeTest;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -224,41 +230,54 @@ public class BlockPlacer extends Block implements IHammerRemovable, IHammerChang
         BlockPos blockPos,
         Orientation orientation
     ) {
+        // 判断是放置位置是否为可替换方块
         Direction direction = getDirection(orientation);
         if (!(level.getBlockState(blockPos.relative(direction, distance)).is(BlockTags.REPLACEABLE))) return;
-        BlockEntity containerBlockEntity = level.getBlockEntity(
-            blockPos.relative(direction.getOpposite()));
-        if (containerBlockEntity == null) return;
+        // 获取放置方块类型
+        BlockItem placeItem = null;
+        if (!(level instanceof ServerLevel)) return;
         IItemDepository itemDepository =
             ItemDepositoryHelper.getItemDepository(
                 level,
                 blockPos.relative(direction.getOpposite()),
                 direction
             );
-        Block placeBlock = null;
-        for (int slot = 0; slot < itemDepository.getSlots(); slot++) {
+        int slot;
+        for (slot = 0; itemDepository != null && slot < itemDepository.getSlots(); slot++) {
             ItemStack blockItemStack = itemDepository.extract(slot, 1, true);
             if (!blockItemStack.isEmpty() && blockItemStack.getItem() instanceof BlockItem blockItem) {
-                placeBlock = blockItem.getBlock();
-                itemDepository.extract(slot, 1, false);
+                placeItem = blockItem;
                 break;
             }
         }
-        if (placeBlock == null) return;
+        ItemEntity itemEntity = null;
+        ItemStack itemStack = null;
+        if (itemDepository == null) {
+            AABB aabb = new AABB(blockPos.relative(direction.getOpposite()));
+            List<ItemEntity> itemEntityList =
+                level.getEntities(EntityTypeTest.forClass(ItemEntity.class), aabb, Entity::isAlive);
+            if (itemEntityList.isEmpty()) {
+                return;
+            }
+            itemEntity = itemEntityList.get(0);
+            itemStack = itemEntity.getItem();
+            if (!(itemStack.getItem() instanceof BlockItem blockItem)) {
+                return;
+            }
+            placeItem = blockItem;
+        }
+        if (placeItem == null) return;
         BlockPos placePos = blockPos.relative(direction, distance);
-        BlockState placeBlockState = placeBlock.defaultBlockState();
-        if (
-            placeBlockState.hasProperty(HorizontalDirectionalBlock.FACING)
-                && !(direction.getOpposite() == Direction.UP || direction.getOpposite() == Direction.DOWN)
-        ) {
-            placeBlockState = placeBlockState.setValue(BlockStateProperties.FACING, direction.getOpposite());
-        } else if (placeBlockState.hasProperty(DirectionalBlock.FACING)) {
-            placeBlockState = placeBlockState.setValue(DirectionalBlock.FACING, direction.getOpposite());
+        // 放置方块
+        if (anvilCraftBlockPlacer.placeBlock(level, placePos, direction, placeItem)
+            == InteractionResult.FAIL) return;
+        // 清除消耗的物品
+        if (itemDepository != null) {
+            itemDepository.extract(slot, 1, false);
+        } else if (itemEntity != null && itemStack != null) {
+            itemStack.setCount(itemStack.getCount() - 1);
+            itemEntity.setItem(itemStack);
         }
-        if (placeBlockState.hasProperty(ORIENTATION)) {
-            placeBlockState = placeBlockState.setValue(ORIENTATION, orientation.opposite());
-        }
-        level.setBlockAndUpdate(placePos, placeBlockState);
     }
 
     @Override

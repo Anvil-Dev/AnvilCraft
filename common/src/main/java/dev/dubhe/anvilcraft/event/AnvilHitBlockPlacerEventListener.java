@@ -23,7 +23,7 @@ public class AnvilHitBlockPlacerEventListener {
         BlockState state = level.getBlockState(pos);
         Block block = state.getBlock();
         if (block instanceof BlockPlacer blockPlacer) {
-            int distance = (int) event.getFallDistance() + 1;
+            int distance = (int) event.getFallDistance() + 2;
             distance = Math.min(distance, 5);
             blockPlacer.placeBlock(distance, level, pos, state.getValue(BlockPlacer.ORIENTATION));
         }
