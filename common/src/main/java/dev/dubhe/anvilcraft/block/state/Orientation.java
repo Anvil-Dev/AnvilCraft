@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.state;
 
+import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.NotNull;
 
@@ -68,6 +69,20 @@ public enum Orientation implements StringRepresentable {
             case DOWN_SOUTH -> Orientation.DOWN_WEST;
             case DOWN_WEST -> Orientation.DOWN_EAST;
             case DOWN_EAST -> Orientation.SOUTH_UP;
+        };
+    }
+
+    /**
+     * 获取对应的方向
+     */
+    public Direction getDirection() {
+        return switch (this) {
+            default -> Direction.NORTH;
+            case SOUTH_UP -> Direction.SOUTH;
+            case WEST_UP -> Direction.WEST;
+            case EAST_UP -> Direction.EAST;
+            case UP_NORTH, UP_SOUTH, UP_WEST, UP_EAST -> Direction.UP;
+            case DOWN_NORTH, DOWN_SOUTH, DOWN_WEST, DOWN_EAST -> Direction.DOWN;
         };
     }
 }

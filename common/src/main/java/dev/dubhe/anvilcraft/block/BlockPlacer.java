@@ -171,17 +171,6 @@ public class BlockPlacer extends Block implements IHammerRemovable, IHammerChang
         };
     }
 
-    private Direction getDirection(Orientation orientation) {
-        return switch (orientation) {
-            default -> Direction.NORTH;
-            case SOUTH_UP -> Direction.SOUTH;
-            case WEST_UP -> Direction.WEST;
-            case EAST_UP -> Direction.EAST;
-            case UP_NORTH, UP_SOUTH, UP_WEST, UP_EAST -> Direction.UP;
-            case DOWN_NORTH, DOWN_SOUTH, DOWN_WEST, DOWN_EAST -> Direction.DOWN;
-        };
-    }
-
     @Override
     @Nullable
     public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
@@ -231,7 +220,7 @@ public class BlockPlacer extends Block implements IHammerRemovable, IHammerChang
         Orientation orientation
     ) {
         // 判断是放置位置是否为可替换方块
-        Direction direction = getDirection(orientation);
+        Direction direction = orientation.getDirection();
         if (!(level.getBlockState(blockPos.relative(direction, distance)).is(BlockTags.REPLACEABLE))) return;
         // 获取放置方块类型
         BlockItem placeItem = null;
@@ -269,7 +258,7 @@ public class BlockPlacer extends Block implements IHammerRemovable, IHammerChang
         if (placeItem == null) return;
         BlockPos placePos = blockPos.relative(direction, distance);
         // 放置方块
-        if (anvilCraftBlockPlacer.placeBlock(level, placePos, direction, placeItem)
+        if (anvilCraftBlockPlacer.placeBlock(level, placePos, orientation, placeItem)
             == InteractionResult.FAIL) return;
         // 清除消耗的物品
         if (itemDepository != null) {
