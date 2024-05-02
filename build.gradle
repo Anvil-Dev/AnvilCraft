@@ -55,6 +55,9 @@ subprojects {
         maven { // TOP-Fabric
             url "https://maven.wispforest.io"
         }
+        maven { // Patchouli
+            url "https://maven.blamejared.com"
+        }
     }
 
     dependencies {

@@ -75,6 +75,9 @@ dependencies {
 
     // cloth config api
     modCompileOnly fabric.clothConfig
+
+    // Patchouli
+    modImplementation fabric.patchouli
 }
 
 publishing {
