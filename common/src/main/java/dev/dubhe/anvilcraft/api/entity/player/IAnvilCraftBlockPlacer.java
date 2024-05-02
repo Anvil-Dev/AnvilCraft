@@ -1,6 +1,10 @@
 package dev.dubhe.anvilcraft.api.entity.player;
 
 import dev.dubhe.anvilcraft.block.state.Orientation;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import net.fabricmc.loader.impl.util.log.Log;
+import net.fabricmc.loader.impl.util.log.LogCategory;
 import net.minecraft.commands.arguments.EntityAnchorArgument.Anchor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -9,6 +13,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
@@ -29,12 +34,12 @@ public interface IAnvilCraftBlockPlacer {
      */
     default InteractionResult placeBlock(Level level, BlockPos pos, Orientation orientation,
         BlockItem blockItem) {
-        getPlayer().teleportTo(0.5, -1, 0.5);
-        getPlayer().lookAt(Anchor.EYES, getPosFromOrientation(orientation));
         Vec3 clickClickLocation = getPosFromOrientation(orientation);
         double x = clickClickLocation.x;
         double y = clickClickLocation.y;
         double z = clickClickLocation.z;
+        getPlayer().teleportTo(0.5, -1, 0.5);
+        getPlayer().lookAt(Anchor.EYES, new Vec3(x, 1 - y, z));
         BlockHitResult blockHitResult = new BlockHitResult(
             pos.getCenter().add(-0.5, -0.5, -0.5).add(x, 1 - y, z),
             orientation.getDirection().getOpposite(),
@@ -48,15 +53,26 @@ public interface IAnvilCraftBlockPlacer {
                 new ItemStack(blockItem),
             blockHitResult
         );
-        return blockItem.place(blockPlaceContext);
+        Class<?> blockItemClass = blockItem.getClass();
+        try {
+            Method blockItemMethod = blockItemClass.getMethod("getPlacementState",
+                BlockPlaceContext.class);
+            blockItemMethod.setAccessible(true);
+            BlockState blockState = (BlockState) blockItemMethod.invoke(blockItem, blockPlaceContext);
+            if ((blockState) == null) return InteractionResult.FAIL;
+            level.setBlockAndUpdate(pos, blockState);
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            Log.error(LogCategory.LOG, "Failed to get blockState " + e.getLocalizedMessage());
+        }
+        return InteractionResult.SUCCESS;
     }
 
     private Vec3 getPosFromOrientation(Orientation orientation) {
         return switch (orientation) {
-            case NORTH_UP -> new Vec3(0.5, 1, 0.3);
-            case SOUTH_UP -> new Vec3(0.5, 1, 0.7);
-            case WEST_UP -> new Vec3(0.3, 1, 0.5);
-            case EAST_UP -> new Vec3(0.7, 1, 0.5);
+            case NORTH_UP -> new Vec3(0.5, 0.5, 0.3);
+            case SOUTH_UP -> new Vec3(0.5, 0.5, 0.7);
+            case WEST_UP -> new Vec3(0.3, 0.5, 0.5);
+            case EAST_UP -> new Vec3(0.7, 0.5, 0.5);
             case UP_NORTH -> new Vec3(0.5, 0.1, 0.7);
             case UP_SOUTH -> new Vec3(0.5, 0.1, 0.3);
             case UP_WEST -> new Vec3(0.7, 0.1, 0.5);
