@@ -55,7 +55,7 @@ public interface IAnvilCraftBlockPlacer {
             blockHitResult
         );
         Class<?> blockItemClass = blockItem.getClass();
-        System.out.println(blockItemClass.getMethods());
+        System.out.println(Arrays.stream(blockItemClass.getMethods()).toList());
         try {
             Method blockItemMethod = Arrays.stream(blockItemClass.getMethods()).toList().get(6);
             blockItemMethod.setAccessible(true);
