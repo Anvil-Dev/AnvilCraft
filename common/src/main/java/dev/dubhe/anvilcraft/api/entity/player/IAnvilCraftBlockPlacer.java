@@ -55,9 +55,15 @@ public interface IAnvilCraftBlockPlacer {
             blockHitResult
         );
         Class<?> blockItemClass = blockItem.getClass();
-        System.out.println(Arrays.stream(blockItemClass.getMethods()).toList());
         try {
-            Method blockItemMethod = Arrays.stream(blockItemClass.getMethods()).toList().get(6);
+            Method blockItemMethod = null;
+            for (Method method : Arrays.stream(blockItemClass.getMethods()).toList()) {
+                if (method.getReturnType() == BlockState.class
+                    && Arrays.stream(method.getParameters()).toList().get(0).getType() == BlockPlaceContext.class) {
+                    blockItemMethod = method;
+                }
+            }
+            if (blockItemMethod == null) return InteractionResult.FAIL;
             blockItemMethod.setAccessible(true);
             BlockState blockState = (BlockState) blockItemMethod.invoke(blockItem, blockPlaceContext);
             if ((blockState) == null) return InteractionResult.FAIL;
