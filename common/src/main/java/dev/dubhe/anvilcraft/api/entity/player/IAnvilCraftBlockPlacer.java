@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.api.entity.player;
 import dev.dubhe.anvilcraft.block.state.Orientation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import net.fabricmc.loader.impl.util.log.Log;
 import net.fabricmc.loader.impl.util.log.LogCategory;
 import net.minecraft.commands.arguments.EntityAnchorArgument.Anchor;
@@ -54,15 +55,16 @@ public interface IAnvilCraftBlockPlacer {
             blockHitResult
         );
         Class<?> blockItemClass = blockItem.getClass();
+        System.out.println(blockItemClass.getMethods());
         try {
-            Method blockItemMethod = blockItemClass.getMethod("getPlacementState",
-                BlockPlaceContext.class);
+            Method blockItemMethod = Arrays.stream(blockItemClass.getMethods()).toList().get(6);
             blockItemMethod.setAccessible(true);
             BlockState blockState = (BlockState) blockItemMethod.invoke(blockItem, blockPlaceContext);
             if ((blockState) == null) return InteractionResult.FAIL;
             level.setBlockAndUpdate(pos, blockState);
-        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+        } catch (InvocationTargetException | IllegalAccessException e) {
             Log.error(LogCategory.LOG, "Failed to get blockState " + e.getLocalizedMessage());
+            return InteractionResult.FAIL;
         }
         return InteractionResult.SUCCESS;
     }
