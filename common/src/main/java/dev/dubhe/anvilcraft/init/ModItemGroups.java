@@ -17,6 +17,7 @@ public class ModItemGroups {
         .defaultCreativeTab("item", builder -> builder
             .icon(ModItems.MAGNET_INGOT::asStack)
             .displayItems((ctx, entries) -> {
+                entries.accept(ModItems.GUIDE_BOOK.get().getDefaultInstance());
                 entries.accept(ModItems.MAGNET.get().getDefaultInstance());
                 entries.accept(ModItems.GEODE.get().getDefaultInstance());
                 entries.accept(ModItems.AMETHYST_PICKAXE.get().getDefaultInstance());
