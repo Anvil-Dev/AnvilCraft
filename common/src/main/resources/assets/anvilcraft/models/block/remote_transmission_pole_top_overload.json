@@ -1,0 +1,7 @@
+{
+	"parent": "anvilcraft:block/remote_transmission_pole_top",
+	"textures": {
+		"particle": "anvilcraft:block/remote_transmission_pole_head_overload",
+		"head": "anvilcraft:block/remote_transmission_pole_head_overload"
+	}
+}
