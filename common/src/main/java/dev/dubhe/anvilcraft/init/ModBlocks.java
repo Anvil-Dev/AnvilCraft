@@ -272,7 +272,7 @@ public class ModBlocks {
         .properties(properties -> properties.explosionResistance(15.0F))
         .simpleItem()
         .defaultLoot()
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS, ModBlockTags.OVERSEER_BASE)
         .recipe((ctx, provider) -> {
             ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                 .pattern("AAA")
@@ -305,6 +305,7 @@ public class ModBlocks {
         .register();
     public static final BlockEntry<? extends Block> SMOOTH_ROYAL_STEEL_BLOCK = REGISTRATE
         .block("smooth_royal_steel_block", Block::new)
+        .tag(ModBlockTags.OVERSEER_BASE)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(properties -> properties.explosionResistance(15.0F))
         .simpleItem()
@@ -313,6 +314,7 @@ public class ModBlocks {
         .register();
     public static final BlockEntry<? extends Block> CUT_ROYAL_STEEL_BLOCK = REGISTRATE
         .block("cut_royal_steel_block", Block::new)
+        .tag(ModBlockTags.OVERSEER_BASE)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(properties -> properties.explosionResistance(15.0F))
         .simpleItem()
@@ -329,6 +331,7 @@ public class ModBlocks {
         .register();
     public static final BlockEntry<? extends Block> CUT_ROYAL_STEEL_SLAB = REGISTRATE
         .block("cut_royal_steel_slab", SlabBlock::new)
+        .tag(ModBlockTags.OVERSEER_BASE)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(properties -> properties.explosionResistance(15.0F))
         .blockstate((ctx, provider) -> provider.slabBlock(ctx.get(),
@@ -347,6 +350,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> CUT_ROYAL_STEEL_STAIRS = REGISTRATE
         .block("cut_royal_steel_stairs", (properties) ->
             new StairBlock(ModBlocks.CUT_ROYAL_STEEL_BLOCK.getDefaultState(), properties))
+        .tag(ModBlockTags.OVERSEER_BASE)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(properties -> properties.explosionResistance(15.0F))
         .blockstate((ctx, provider) -> provider.stairsBlock(ctx.get(),

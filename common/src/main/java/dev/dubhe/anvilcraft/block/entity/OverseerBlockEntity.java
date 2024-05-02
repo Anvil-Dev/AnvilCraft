@@ -1,16 +1,22 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.block.OverseerBlock;
+import dev.dubhe.anvilcraft.block.state.Half;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.ModBlockTags;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.jetbrains.annotations.NotNull;
 
 public class OverseerBlockEntity extends BlockEntity {
+    private int waterLoggerBlockNum = 0;
 
     public OverseerBlockEntity(BlockPos pos, BlockState blockState) {
-        this(ModBlockEntities.REMOTE_TRANSMISSION_POLE.get(), pos, blockState);
+        this(ModBlockEntities.OVERSEER.get(), pos, blockState);
     }
 
     public static @NotNull OverseerBlockEntity createBlockEntity(
@@ -23,4 +29,39 @@ public class OverseerBlockEntity extends BlockEntity {
         super(type, pos, blockState);
     }
 
+    /**
+     * tick 逻辑
+     *
+     * @param level       世界
+     * @param pos         坐标
+     * @param state       方块状态
+     */
+    @SuppressWarnings("unused")
+    public void tick(
+        Level level, @NotNull BlockPos pos, BlockState state
+    ) {
+        checkBase(level, pos, state);
+    }
+
+    private void checkBase(Level level, @NotNull BlockPos pos, BlockState state) {
+        waterLoggerBlockNum = 0;
+        for (int laminar = 1; laminar <= 3; laminar++) {
+            for (int x = pos.getX() - 1; x <= pos.getX() + 1; x++) {
+                for (int z = pos.getZ() - 1; z <= pos.getZ() + 1; z++) {
+                    BlockPos basePos = new BlockPos(x, pos.getY() - laminar, z);
+                    if (!level.getBlockState(basePos).is(ModBlockTags.OVERSEER_BASE)) return;
+                    if (level.getBlockState(basePos).hasProperty(BlockStateProperties.WATERLOGGED)
+                        && level.getBlockState(basePos).getValue(BlockStateProperties.WATERLOGGED))
+                        waterLoggerBlockNum++;
+                }
+            }
+            level.setBlock(pos, state.setValue(OverseerBlock.LEVEL, laminar + 1), 2);
+            level.setBlock(pos.above(),
+                state
+                    .setValue(OverseerBlock.LEVEL, laminar + 1)
+                    .setValue(OverseerBlock.HALF, Half.TOP),
+                2
+            );
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.block.entity.OverseerBlockEntity;
 import dev.dubhe.anvilcraft.block.state.Half;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import javax.annotation.Nonnull;
@@ -102,7 +103,7 @@ public class OverseerBlock extends BaseEntityBlock {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
-        return null;
+        return new OverseerBlockEntity(pos, state);
     }
 
     @Nullable
@@ -111,7 +112,8 @@ public class OverseerBlock extends BaseEntityBlock {
         @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type
     ) {
         if (level.isClientSide) return null;
-        return createTickerHelper(type, ModBlockEntities.TRANSMISSION_POLE.get(),
-            (level1, pos, state1, entity) -> entity.tick(level1, pos));
+        if (state.getValue(HALF) == Half.TOP) return null;
+        return createTickerHelper(type, ModBlockEntities.OVERSEER.get(),
+            (level1, pos, state1, entity) -> entity.tick(level1, pos, state1));
     }
 }
