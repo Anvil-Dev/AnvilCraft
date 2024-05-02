@@ -9,7 +9,7 @@ import com.tterrag.registrate.util.entry.BlockEntry;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
-import dev.dubhe.anvilcraft.block.BlockPlacer;
+import dev.dubhe.anvilcraft.block.BlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.ChargeCollectorBlock;
 import dev.dubhe.anvilcraft.block.ChuteBlock;
 import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
@@ -1072,8 +1072,8 @@ public class ModBlocks {
             .save(provider)
         )
         .register();
-    public static final BlockEntry<BlockPlacer> BLOCK_PLACER = REGISTRATE
-        .block("block_placer", BlockPlacer::new)
+    public static final BlockEntry<BlockPlacerBlock> BLOCK_PLACER = REGISTRATE
+        .block("block_placer", BlockPlacerBlock::new)
         .simpleItem()
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(BlockBehaviour.Properties::noOcclusion)

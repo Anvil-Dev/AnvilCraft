@@ -37,7 +37,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class BlockPlacer extends Block implements IHammerRemovable, IHammerChangeable {
+public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammerChangeable {
 
     public static final VoxelShape NORTH_UP_SHAPE = Shapes.or(
         Block.box(0, 13, 4, 16, 16, 16),
@@ -106,7 +106,7 @@ public class BlockPlacer extends Block implements IHammerRemovable, IHammerChang
     /**
     * @param properties 方块属性
     */
-    public BlockPlacer(Properties properties) {
+    public BlockPlacerBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(
             this.stateDefinition.any()

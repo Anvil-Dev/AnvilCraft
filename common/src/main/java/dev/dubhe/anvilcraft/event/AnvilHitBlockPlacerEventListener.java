@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.api.event.SubscribeEvent;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
-import dev.dubhe.anvilcraft.block.BlockPlacer;
+import dev.dubhe.anvilcraft.block.BlockPlacerBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -22,10 +22,10 @@ public class AnvilHitBlockPlacerEventListener {
         BlockPos pos = event.getPos().below();
         BlockState state = level.getBlockState(pos);
         Block block = state.getBlock();
-        if (block instanceof BlockPlacer blockPlacer) {
+        if (block instanceof BlockPlacerBlock blockPlacerBlock) {
             int distance = (int) event.getFallDistance() + 2;
             distance = Math.min(distance, 5);
-            blockPlacer.placeBlock(distance, level, pos, state.getValue(BlockPlacer.ORIENTATION));
+            blockPlacerBlock.placeBlock(distance, level, pos, state.getValue(BlockPlacerBlock.ORIENTATION));
         }
     }
 }
