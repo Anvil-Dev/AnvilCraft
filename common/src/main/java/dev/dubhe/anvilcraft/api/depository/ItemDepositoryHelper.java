@@ -37,14 +37,17 @@ public class ItemDepositoryHelper {
      * @param maxAmount 导出的最大数量
      * @param predicate 能够导出的物品
      * @param target    目标
+     *
+     * @return 是否导出了物品
      */
     @SuppressWarnings("DuplicatedCode")
-    public static void exportToTarget(
+    public static boolean exportToTarget(
         @NotNull IItemDepository source,
         int maxAmount,
         Predicate<ItemStack> predicate,
         IItemDepository target
     ) {
+        boolean hasDone = false;
         for (int srcIndex = 0; srcIndex < source.getSlots(); srcIndex++) {
             ItemStack sourceStack = source.extract(srcIndex, Integer.MAX_VALUE, true);
             if (sourceStack.isEmpty() || !predicate.test(sourceStack)) {
@@ -54,12 +57,15 @@ public class ItemDepositoryHelper {
             int amountToInsert = sourceStack.getCount() - remainder.getCount();
             if (amountToInsert > 0) {
                 sourceStack = source.extract(srcIndex, Math.min(maxAmount, amountToInsert), false);
+                int sourceStackCount = sourceStack.getCount();
                 remainder = insertItem(target, sourceStack, false);
+                hasDone = remainder.getCount() < sourceStackCount;
                 maxAmount -= Math.min(maxAmount, amountToInsert);
                 source.insert(srcIndex, remainder, false);
             }
-            if (maxAmount <= 0) return;
+            if (maxAmount <= 0) return hasDone;
         }
+        return hasDone;
     }
 
     /**
@@ -69,14 +75,17 @@ public class ItemDepositoryHelper {
      * @param maxAmount 导入的最大数量
      * @param predicate 能够导入的物品
      * @param source    物品源
+     *
+     * @return 是否导入了物品
      */
     @SuppressWarnings("DuplicatedCode")
-    public static void importToTarget(
+    public static boolean importToTarget(
         IItemDepository target,
         int maxAmount,
         Predicate<ItemStack> predicate,
         @NotNull IItemDepository source
     ) {
+        boolean hasDone = false;
         for (int srcIndex = 0; srcIndex < source.getSlots(); srcIndex++) {
             ItemStack sourceStack = source.extract(srcIndex, Integer.MAX_VALUE, true);
             if (sourceStack.isEmpty() || !predicate.test(sourceStack)) {
@@ -86,11 +95,14 @@ public class ItemDepositoryHelper {
             int amountToInsert = sourceStack.getCount() - remainder.getCount();
             if (amountToInsert > 0) {
                 sourceStack = source.extract(srcIndex, Math.min(maxAmount, amountToInsert), false);
-                insertItem(target, sourceStack, false);
+                int sourceStackCount = sourceStack.getCount();
+                ItemStack hasNotTransferred = insertItem(target, sourceStack, false);
+                hasDone = hasNotTransferred.getCount() < sourceStackCount;
                 maxAmount -= Math.min(maxAmount, amountToInsert);
             }
-            if (maxAmount <= 0) return;
+            if (maxAmount <= 0) return hasDone;
         }
+        return hasDone;
     }
 
     /**
