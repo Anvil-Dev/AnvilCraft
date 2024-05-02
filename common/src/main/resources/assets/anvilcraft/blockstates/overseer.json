@@ -1,0 +1,28 @@
+{
+  "variants": {
+    "half=top,level=1": {
+      "model": "anvilcraft:block/overseer_top_0"
+    },
+    "half=top,level=2": {
+      "model": "anvilcraft:block/overseer_top_1"
+    },
+    "half=top,level=3": {
+      "model": "anvilcraft:block/overseer_top_2"
+    },
+    "half=top,level=4": {
+      "model": "anvilcraft:block/overseer_top_3"
+    },
+    "half=bottom,level=1": {
+      "model": "anvilcraft:block/overseer_base_0"
+    },
+    "half=bottom,level=2": {
+      "model": "anvilcraft:block/overseer_base_1"
+    },
+    "half=bottom,level=3": {
+      "model": "anvilcraft:block/overseer_base_2"
+    },
+    "half=bottom,level=4": {
+      "model": "anvilcraft:block/overseer_base_3"
+    }
+  }
+}

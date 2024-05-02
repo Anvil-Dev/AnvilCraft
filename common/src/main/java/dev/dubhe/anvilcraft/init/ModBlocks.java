@@ -23,6 +23,7 @@ import dev.dubhe.anvilcraft.block.LoadMonitorBlock;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
 import dev.dubhe.anvilcraft.block.MeltGemCauldron;
 import dev.dubhe.anvilcraft.block.MobAmberBlock;
+import dev.dubhe.anvilcraft.block.OverseerBlock;
 import dev.dubhe.anvilcraft.block.PiezoelectricCrystalBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterBigBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterMiddleBlock;
@@ -48,6 +49,7 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItem;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItemIngredient;
 import dev.dubhe.anvilcraft.item.CursedBlockItem;
 import dev.dubhe.anvilcraft.item.HasMobBlockItem;
+import dev.dubhe.anvilcraft.item.OverseerBlockItem;
 import dev.dubhe.anvilcraft.item.PlaceInWaterBlockItem;
 import dev.dubhe.anvilcraft.item.RemoteTransmissionPoleBlockItem;
 import dev.dubhe.anvilcraft.item.ResinBlockItem;
@@ -1031,6 +1033,37 @@ public class ModBlocks {
             )
             .save(provider)
         )
+        .register();
+
+    public static final BlockEntry<OverseerBlock> OVERSEER_BLOCK = REGISTRATE
+        .block("overseer", OverseerBlock::new)
+        .initialProperties(() -> Blocks.OBSIDIAN)
+        .properties(BlockBehaviour.Properties::noOcclusion)
+        .blockstate((ctx, provider) -> {
+        })
+        .defaultLoot()
+        .item(OverseerBlockItem::new)
+        .model((ctx, provider) -> {
+        })
+        .build()
+        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern("ABA")
+            .pattern("ABA")
+            .pattern("CBC")
+            .define('A', Items.OBSIDIAN)
+            .define('B', Items.ENDER_EYE)
+            .define('C', ModBlocks.ROYAL_STEEL_BLOCK)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.ROYAL_STEEL_BLOCK),
+                AnvilCraftDatagen.has(ModBlocks.ROYAL_STEEL_BLOCK)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.ENDER_EYE),
+                AnvilCraftDatagen.has(Items.ENDER_EYE)
+            )
+            .save(provider)
+        )
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
     public static void register() {
