@@ -50,7 +50,7 @@ public interface IAnvilCraftBlockPlacer {
                 new ItemStack(blockItem),
             blockHitResult
         );
-        BlockState blockState = ((BlockItemInvoker) blockItem).getPlacementState(blockPlaceContext);
+        BlockState blockState = ((BlockItemInvoker) blockItem).invokerGetPlacementState(blockPlaceContext);
         if (blockState == null) return InteractionResult.FAIL;
         level.setBlockAndUpdate(pos, blockState);
         blockItem.getBlock().setPlacedBy(level, pos, blockState, getPlayer(), new ItemStack(blockItem));

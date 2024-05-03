@@ -12,5 +12,5 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 @Mixin(BlockItem.class)
 public interface BlockItemInvoker {
     @Invoker("getPlacementState")
-    BlockState getPlacementState(BlockPlaceContext blockPlaceContext);
+    BlockState invokerGetPlacementState(BlockPlaceContext blockPlaceContext);
 }
