@@ -1,11 +1,7 @@
 package dev.dubhe.anvilcraft.api.entity.player;
 
 import dev.dubhe.anvilcraft.block.state.Orientation;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import net.fabricmc.loader.impl.util.log.Log;
-import net.fabricmc.loader.impl.util.log.LogCategory;
+import dev.dubhe.anvilcraft.mixin.BlockItemInvoker;
 import net.minecraft.commands.arguments.EntityAnchorArgument.Anchor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -54,17 +50,10 @@ public interface IAnvilCraftBlockPlacer {
                 new ItemStack(blockItem),
             blockHitResult
         );
-        Class<?> blockItemClass = blockItem.getClass();
-        try {
-            Method blockItemMethod = Arrays.stream(blockItemClass.getMethods()).toList().get(8);
-            blockItemMethod.setAccessible(true);
-            BlockState blockState = (BlockState) blockItemMethod.invoke(blockItem, blockPlaceContext);
-            if ((blockState) == null) return InteractionResult.FAIL;
-            level.setBlockAndUpdate(pos, blockState);
-        } catch (InvocationTargetException | IllegalAccessException e) {
-            Log.error(LogCategory.LOG, "Failed to get blockState " + e.getLocalizedMessage());
-            return InteractionResult.FAIL;
-        }
+        BlockState blockState = ((BlockItemInvoker) blockItem).getPlacementState(blockPlaceContext);
+        if (blockState == null) return InteractionResult.FAIL;
+        level.setBlockAndUpdate(pos, blockState);
+        blockItem.getBlock().setPlacedBy(level, pos, blockState, getPlayer(), new ItemStack(blockItem));
         return InteractionResult.SUCCESS;
     }
 
