@@ -251,9 +251,23 @@ AnvilCraft follows the [Contributor Covenant](https://www.contributor-covenant.o
         <a title="Money">💵</a>
       </td>
       <td align="center">
+        <a href="https://space.bilibili.com/88168221">
+          <img src="https://i0.hdslb.com/bfs/face/bf107d8fa848d4df7c5d7550c771e87428de6d21.jpg" width="100px" height="100px" alt=""/><br />
+          <sub><b>栗原白芷</b></sub>
+        </a><br />
+        <a title="Money">💵</a>
+      </td>
+      <td align="center">
         <a href="https://space.bilibili.com/23416735">
           <img src="https://i1.hdslb.com/bfs/face/de60c18ecb871506989ddfd1a4d33fef804bd8ef.jpg" width="100px" height="100px" alt=""/><br />
           <sub><b>鸽の念</b></sub>
+        </a><br />
+        <a title="Money">💵</a>
+      </td>
+      <td align="center">
+        <a href="https://space.bilibili.com/475517877">
+          <img src="https://i0.hdslb.com/bfs/face/bd995ed6147ead8e05aefdb65ad860f22c941a9f.jpg" width="100px" height="100px" alt=""/><br />
+          <sub><b>言文夕十</b></sub>
         </a><br />
         <a title="Money">💵</a>
       </td>
