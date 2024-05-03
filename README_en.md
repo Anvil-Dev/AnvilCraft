@@ -207,6 +207,13 @@ AnvilCraft follows the [Contributor Covenant](https://www.contributor-covenant.o
         <a title="Money">💵</a>
       </td>
       <td align="center">
+        <a href="https://space.bilibili.com/276999874">
+          <img src="https://i1.hdslb.com/bfs/face/03f5edfb60a02b418bf4fbe8a6899b85b9bafb21.jpg" width="100px" height="100px" alt=""/><br />
+          <sub><b>客行远_Antoine</b></sub>
+        </a><br />
+        <a title="Money">💵</a>
+      </td>
+      <td align="center">
         <a href="https://space.bilibili.com/454566094">
           <img src="https://i1.hdslb.com/bfs/face/feb236fef6471a90ce4ded663de089ffe72cb76a.jpg" width="100px" height="100px" alt=""/><br />
           <sub><b>HS_Frederick</b></sub>
@@ -234,6 +241,8 @@ AnvilCraft follows the [Contributor Covenant](https://www.contributor-covenant.o
         </a><br />
         <a title="Money">💵</a>
       </td>
+    </tr>
+    <tr>
       <td align="center">
         <a href="https://space.bilibili.com/333119688">
           <img src="https://i0.hdslb.com/bfs/face/df5ec91627cb4fe4bf936bea40e79546d95db664.jpg" width="100px" height="100px" alt=""/><br />
@@ -241,12 +250,17 @@ AnvilCraft follows the [Contributor Covenant](https://www.contributor-covenant.o
         </a><br />
         <a title="Money">💵</a>
       </td>
-    </tr>
-    <tr>
       <td align="center">
         <a href="https://space.bilibili.com/528521905">
           <img src="https://i1.hdslb.com/bfs/face/79ca0cb470cf3c15ab33c77a237558a5d3743adc.jpg" width="100px" height="100px" alt=""/><br />
           <sub><b>Bi2Nb9O3</b></sub>
+        </a><br />
+        <a title="Money">💵</a>
+      </td>
+      <td align="center">
+        <a href="https://space.bilibili.com/88168221">
+          <img src="https://i0.hdslb.com/bfs/face/bf107d8fa848d4df7c5d7550c771e87428de6d21.jpg" width="100px" height="100px" alt=""/><br />
+          <sub><b>栗原白芷</b></sub>
         </a><br />
         <a title="Money">💵</a>
       </td>
@@ -257,6 +271,12 @@ AnvilCraft follows the [Contributor Covenant](https://www.contributor-covenant.o
         </a><br />
         <a title="Money">💵</a>
       </td>
+      <td align="center">
+        <a href="https://space.bilibili.com/475517877">
+          <img src="https://i0.hdslb.com/bfs/face/bd995ed6147ead8e05aefdb65ad860f22c941a9f.jpg" width="100px" height="100px" alt=""/><br />
+          <sub><b>言文夕十</b></sub>
+        </a><br />
+        <a title="Money">💵</a>
+      </td>
     </tr>
   </table>
-  

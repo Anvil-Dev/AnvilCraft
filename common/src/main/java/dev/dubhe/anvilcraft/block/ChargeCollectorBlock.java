@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import net.minecraft.core.BlockPos;
@@ -18,7 +19,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class ChargeCollectorBlock extends BaseEntityBlock {
+public class ChargeCollectorBlock extends BaseEntityBlock implements IHammerRemovable {
     public static VoxelShape SHAPE = Shapes.or(
         Block.box(0, 0, 0, 16, 4, 16),
         Block.box(3, 6, 3, 13, 16, 13),

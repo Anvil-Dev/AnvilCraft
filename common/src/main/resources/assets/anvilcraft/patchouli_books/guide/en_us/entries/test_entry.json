@@ -1,0 +1,11 @@
+{
+    "name": "Test Entry",
+    "category": "anvilcraft:test_category",
+    "icon": "minecraft:anvil",
+    "pages": [
+        {
+            "type": "patchouli:text",
+            "text": "Test Page"
+        }
+    ]
+}
