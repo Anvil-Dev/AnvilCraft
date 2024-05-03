@@ -1,7 +1,7 @@
 {
   "type": "anvilcraft:anvil_processing",
   "icon": {
-    "item": "minecraft:gold_block"
+    "item": "minecraft:calcite"
   },
   "outcomes": [
     {
@@ -13,8 +13,7 @@
         0.0
       ],
       "result": {
-        "count": 2,
-        "item": "minecraft:gold_block"
+        "item": "minecraft:calcite"
       }
     }
   ],
@@ -23,10 +22,10 @@
       "type": "has_block",
       "match_block": {
         "blocks": [
-          "anvilcraft:heater"
+          "anvilcraft:corrupted_beacon"
         ],
         "state": {
-          "overload": "false"
+          "lit": "true"
         }
       },
       "offset": [
@@ -52,10 +51,10 @@
       "type": "has_item_ingredient",
       "match_item": {
         "count": {
-          "min": 1
+          "min": 8
         },
         "items": [
-          "minecraft:raw_gold_block"
+          "anvilcraft:lime_powder"
         ]
       },
       "offset": [

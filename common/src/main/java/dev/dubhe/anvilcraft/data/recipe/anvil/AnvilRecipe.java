@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import dev.dubhe.anvilcraft.data.RecipeItem;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.DamageAnvil;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.RunCommand;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SelectOne;
@@ -388,6 +389,18 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
             return this.hasItemIngredient(Vec3.ZERO, itemStack);
         }
 
+        /**
+         * @param vec3       偏移量
+         * @param recipeItem 物品
+         * @return 构造器
+         */
+        public @NotNull Builder hasItemIngredient(Vec3 vec3, RecipeItem recipeItem) {
+            if (recipeItem.getItem() == null)
+                return this.hasItemIngredient(vec3, recipeItem.getCount(), recipeItem.getItemTagKey());
+            else return this.hasItemIngredient(vec3, recipeItem.getCount(), recipeItem.getItem());
+
+        }
+
         public @NotNull Builder hasBlock(Vec3 offset, Block... blocks) {
             return this.addPredicates(new HasBlock(offset, new HasBlock.ModBlockPredicate().block(blocks)));
         }
@@ -580,6 +593,10 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
 
         public @NotNull Builder spawnItem(ItemStack item) {
             return this.spawnItem(1.0, item);
+        }
+
+        public @NotNull Builder spawnItem(Vec3 vec3, RecipeItem recipeItem) {
+            return this.spawnItem(vec3, recipeItem.getChance(), recipeItem.getItem(), recipeItem.getCount());
         }
 
         /**

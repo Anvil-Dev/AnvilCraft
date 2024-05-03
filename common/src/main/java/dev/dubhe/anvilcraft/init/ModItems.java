@@ -4,6 +4,7 @@ import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.entry.ItemEntry;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
+import dev.dubhe.anvilcraft.data.RecipeItem;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.generator.recipe.BulgingAndCrystallizeRecipesLoader;
 import dev.dubhe.anvilcraft.data.generator.recipe.TimeWarpRecipesLoader;
@@ -210,7 +211,7 @@ public class ModItems {
             .pattern("BCB")
             .pattern("AAA")
             .define('A', ModItems.COCOA_LIQUOR)
-            .define('B', ModItems.CREAM)
+            .define('B', ModItems.COCOA_BUTTER)
             .define('C', Items.SUGAR)
             .unlockedBy("has_cocoa_butter", RegistrateRecipeProvider.has(ModItems.COCOA_LIQUOR))
             .unlockedBy("has_cream", RegistrateRecipeProvider.has(ModItems.CREAM))
@@ -521,7 +522,7 @@ public class ModItems {
             .pattern("ABA")
             .define('A', Items.IRON_INGOT)
             .define('B', Items.COPPER_INGOT)
-            .define('C', Items.TERRACOTTA)
+            .define('C', ModItems.RESIN)
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), RegistrateRecipeProvider.has(Items.IRON_INGOT))
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.COPPER_INGOT), RegistrateRecipeProvider.has(Items.COPPER_INGOT))
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.TERRACOTTA), RegistrateRecipeProvider.has(Items.TERRACOTTA))
@@ -952,7 +953,10 @@ public class ModItems {
                     RegistrateRecipeProvider.has(Items.NETHERITE_SCRAP)
                 )
                 .save(provider);
-            TimeWarpRecipesLoader.timeWarp(ctx.get(), Items.ANCIENT_DEBRIS, 1, provider);
+            TimeWarpRecipesLoader.timeWarp(
+                new RecipeItem(ctx.get()),
+                new RecipeItem(Items.ANCIENT_DEBRIS)
+            );
         })
         .register();
 
@@ -962,6 +966,10 @@ public class ModItems {
         // 使用原版书的贴图替代着先，等贴图画出来
         .model((ctx, provider) -> provider.generated(ctx, new ResourceLocation("item/book")))
         .lang("AnvilCraft Guide Book")
+        .register();
+
+    public static final ItemEntry<Item> LIME_POWDER = REGISTRATE
+        .item("lime_powder", Item::new)
         .register();
 
     public static void register() {
