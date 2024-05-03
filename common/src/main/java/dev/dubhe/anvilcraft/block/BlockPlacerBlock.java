@@ -273,7 +273,7 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
     public boolean change(Player player, BlockPos blockPos, @NotNull Level level,
         ItemStack anvilHammer) {
         BlockState state = defaultBlockState();
-        state.setValue(ORIENTATION, level.getBlockState(blockPos).getValue(ORIENTATION).next());
+        state = state.setValue(ORIENTATION, level.getBlockState(blockPos).getValue(ORIENTATION).next());
         level.setBlockAndUpdate(blockPos, state);
         return true;
     }
