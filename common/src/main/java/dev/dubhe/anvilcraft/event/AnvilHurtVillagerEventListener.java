@@ -3,10 +3,11 @@ package dev.dubhe.anvilcraft.event;
 import dev.dubhe.anvilcraft.api.event.SubscribeEvent;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilHurtEntityEvent;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.npc.VillagerData;
 import net.minecraft.world.entity.npc.VillagerProfession;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 public class AnvilHurtVillagerEventListener {
@@ -18,6 +19,7 @@ public class AnvilHurtVillagerEventListener {
     @SuppressWarnings("unused")
     @SubscribeEvent
     public void onAnvilHurtEntity(@NotNull AnvilHurtEntityEvent event) {
+        Level level = event.getLevel();
         if (event.getHurtedEntity() instanceof Villager villager) {
             RandomSource random = event.getLevel().random;
             double change = random.nextDouble();
@@ -27,11 +29,13 @@ public class AnvilHurtVillagerEventListener {
                 return;
             }
             VillagerData villagerData = villager.getVillagerData();
-            Villager changedVillager = villager.convertTo(EntityType.VILLAGER, true);
-            if (changedVillager == null) return;
             if (villagerData.getProfession() == VillagerProfession.NITWIT) {
-                changedVillager.setVillagerData(villagerData.setProfession(VillagerProfession.NITWIT));
-            } else changedVillager.setVillagerData(villagerData.setProfession(VillagerProfession.NONE));
+                villager.setVillagerData(villagerData.setProfession(VillagerProfession.NITWIT));
+            } else villager.setVillagerData(villagerData.setProfession(VillagerProfession.NONE));
+            villager.releasePoi(MemoryModuleType.HOME);
+            villager.releasePoi(MemoryModuleType.JOB_SITE);
+            villager.releasePoi(MemoryModuleType.POTENTIAL_JOB_SITE);
+            villager.releasePoi(MemoryModuleType.MEETING_POINT);
         }
     }
 }

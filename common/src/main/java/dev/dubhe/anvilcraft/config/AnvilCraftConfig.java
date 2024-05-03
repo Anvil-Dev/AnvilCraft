@@ -50,7 +50,7 @@ public class AnvilCraftConfig implements ConfigData {
     @Comment("Maximum cooldown time of chute (in ticks)")
     @ConfigEntry.Gui.Tooltip
     @ConfigEntry.BoundedDiscrete(max = 80, min = 1)
-    public int chuteMaxCooldown = 4;
+    public int chuteMaxCooldown = 8;
 
     @Comment("Maximum cooldown time of auto crafter (in ticks)")
     @ConfigEntry.Gui.Tooltip

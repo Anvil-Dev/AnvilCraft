@@ -151,6 +151,9 @@ dependencies {
     // cloth config api
     modImplementation(forge.clothConfig)
     include(forge.clothConfig)
+
+    // Patchouli
+    modImplementation forge.patchouli
 }
 
 processResources {

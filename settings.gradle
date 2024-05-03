@@ -32,6 +32,7 @@ dependencyResolutionManagement {
         def registrateFabricVersion = "1.4.5-MC1.20.1"
         def reachEntityAttributesVersion = "2.4.0"
         def teamRebornEnergyVersion = "2.3.0"
+        def patchouliFabricVersion = "1.20.1-84-FABRIC"
 
 
         // Forge
@@ -40,6 +41,7 @@ dependencyResolutionManagement {
         def createForgeVersion = "0.5.1.f-27"
         def flywheelForgeVersion = "0.6.10-10"
         def jadeForgeVersion = "11.8.0"
+        def patchouliForgeVersion = "1.20.1-84-FORGE"
 
         // Libs
         def quiltMappingsVersion = "23"  // https://lambdaurora.dev/tools/import_quilt.html
@@ -105,6 +107,9 @@ dependencyResolutionManagement {
 
             def teamRebornEnergy = version("teamRebornEnergy", teamRebornEnergyVersion)
             library("teamRebornEnergy", "teamreborn", "energy").versionRef(teamRebornEnergy)
+
+            def patchouli = version("patchouli", patchouliFabricVersion)
+            library("patchouli", "vazkii.patchouli", "Patchouli").versionRef(patchouli)
         }
 
         forge {
@@ -148,6 +153,9 @@ dependencyResolutionManagement {
 
             def clothConfig = version("clothConfig", clothConfigVersion)
             library("clothConfig", "me.shedaniel.cloth", "cloth-config-forge").versionRef(clothConfig)
+
+            def patchouli = version("patchouli", patchouliForgeVersion)
+            library("patchouli", "vazkii.patchouli", "Patchouli").versionRef(patchouli)
         }
 
         libs {

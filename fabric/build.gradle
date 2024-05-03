@@ -136,6 +136,9 @@ dependencies {
 
     // Team Reborn Energy
     modImplementation(fabric.teamRebornEnergy)
+
+    // Patchouli
+    modImplementation fabric.patchouli
 }
 
 

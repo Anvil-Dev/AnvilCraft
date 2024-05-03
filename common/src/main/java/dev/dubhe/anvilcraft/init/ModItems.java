@@ -19,6 +19,7 @@ import dev.dubhe.anvilcraft.item.CapacitorItem;
 import dev.dubhe.anvilcraft.item.CrabClawItem;
 import dev.dubhe.anvilcraft.item.CursedItem;
 import dev.dubhe.anvilcraft.item.GeodeItem;
+import dev.dubhe.anvilcraft.item.GuideBookItem;
 import dev.dubhe.anvilcraft.item.MagnetItem;
 import dev.dubhe.anvilcraft.item.ModFoods;
 import dev.dubhe.anvilcraft.item.RoyalAnvilHammerItem;
@@ -35,6 +36,7 @@ import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.BowlFoodItem;
@@ -952,6 +954,14 @@ public class ModItems {
                 .save(provider);
             TimeWarpRecipesLoader.timeWarp(ctx.get(), Items.ANCIENT_DEBRIS, 1, provider);
         })
+        .register();
+
+    public static final ItemEntry<GuideBookItem> GUIDE_BOOK = REGISTRATE
+        .item("guide_book", GuideBookItem::new)
+        .properties(p -> p.stacksTo(1))
+        // 使用原版书的贴图替代着先，等贴图画出来
+        .model((ctx, provider) -> provider.generated(ctx, new ResourceLocation("item/book")))
+        .lang("AnvilCraft Guide Book")
         .register();
 
     public static void register() {

@@ -37,6 +37,9 @@
     "anvilcraft:power_converter_middle",
     "anvilcraft:power_converter_big",
     "anvilcraft:remote_transmission_pole",
-    "anvilcraft:overseer"
+    "anvilcraft:overseer",
+    "anvilcraft:block_placer",
+    "anvilcraft:power_converter_big",
+    "anvilcraft:remote_transmission_pole"
   ]
 }

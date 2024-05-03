@@ -17,6 +17,7 @@ public class ModItemGroups {
         .defaultCreativeTab("item", builder -> builder
             .icon(ModItems.MAGNET_INGOT::asStack)
             .displayItems((ctx, entries) -> {
+                entries.accept(ModItems.GUIDE_BOOK.get().getDefaultInstance());
                 entries.accept(ModItems.MAGNET.get().getDefaultInstance());
                 entries.accept(ModItems.GEODE.get().getDefaultInstance());
                 entries.accept(ModItems.AMETHYST_PICKAXE.get().getDefaultInstance());
@@ -118,6 +119,7 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.POWER_CONVERTER_MIDDLE.asStack());
                 entries.accept(ModBlocks.POWER_CONVERTER_BIG.asStack());
                 entries.accept(ModBlocks.PIEZOELECTRIC_CRYSTAL.asStack());
+                entries.accept(ModBlocks.BLOCK_PLACER.asStack());
                 entries.accept(ModBlocks.JEWEL_CRAFTING_TABLE.asStack());
                 entries.accept(ModBlocks.MAGNET_BLOCK.asStack());
                 entries.accept(ModBlocks.HOLLOW_MAGNET_BLOCK.asStack());
