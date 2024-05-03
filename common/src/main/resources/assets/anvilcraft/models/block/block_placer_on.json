@@ -1,6 +1,7 @@
 {
 	"credit": "Made by XeKr with Blockbench",
 	"parent": "minecraft:block/cube",
+	"render_type": "minecraft:cutout",
 	"textures": {
 		"particle": "anvilcraft:block/block_placer_back_on",
 		"back": "anvilcraft:block/block_placer_back_on",
