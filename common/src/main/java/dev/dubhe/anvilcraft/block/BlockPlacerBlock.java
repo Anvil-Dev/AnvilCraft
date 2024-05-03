@@ -198,10 +198,7 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
                 case EAST -> orientation = Orientation.EAST_UP;
             }
         }
-        Player player = context.getPlayer();
-        if (player != null && !player.isShiftKeyDown()) {
-            orientation = orientation.opposite();
-        }
+        orientation = orientation.opposite();
         return defaultBlockState().setValue(ORIENTATION, orientation);
     }
 
