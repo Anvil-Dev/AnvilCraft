@@ -1,10 +1,13 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
 import dev.dubhe.anvilcraft.block.entity.OverseerBlockEntity;
 import dev.dubhe.anvilcraft.block.state.Half;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import javax.annotation.Nonnull;
+import net.fabricmc.fabric.impl.resource.loader.ServerLanguageUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -91,7 +94,6 @@ public class OverseerBlock extends BaseEntityBlock {
     public void playerWillDestroy(
         @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player
     ) {
-        if (level.isClientSide) return;
         if (state.getValue(HALF) == Half.TOP) {
             level.destroyBlock(pos.below(), false, null);
         } else {

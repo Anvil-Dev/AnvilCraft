@@ -1,10 +1,13 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
+import dev.dubhe.anvilcraft.api.world.load.LoadChuckData;
 import dev.dubhe.anvilcraft.block.OverseerBlock;
 import dev.dubhe.anvilcraft.block.state.Half;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -40,12 +43,27 @@ public class OverseerBlockEntity extends BlockEntity {
     public void tick(
         Level level, @NotNull BlockPos pos, BlockState state
     ) {
+        if (!(level instanceof ServerLevel serverLevel)) return;
         checkBase(level, pos, state);
+        BlockState updatedState = level.getBlockState(pos);
+        if (state != updatedState)
+            LevelLoadManager.register(
+                pos,
+                LoadChuckData.creatLoadChuckData(updatedState.getValue(OverseerBlock.LEVEL), pos, false),
+                serverLevel
+            );
     }
 
     private void checkBase(Level level, @NotNull BlockPos pos, BlockState state) {
         waterLoggerBlockNum = 0;
-        for (int laminar = 1; laminar <= 3; laminar++) {
+        for (int laminar = 1; laminar <= 4; laminar++) {
+            level.setBlock(pos, state.setValue(OverseerBlock.LEVEL, laminar), 2);
+            level.setBlock(pos.above(),
+                state
+                    .setValue(OverseerBlock.LEVEL, laminar)
+                    .setValue(OverseerBlock.HALF, Half.TOP),
+                2
+            );
             for (int x = pos.getX() - 1; x <= pos.getX() + 1; x++) {
                 for (int z = pos.getZ() - 1; z <= pos.getZ() + 1; z++) {
                     BlockPos basePos = new BlockPos(x, pos.getY() - laminar, z);
@@ -55,13 +73,6 @@ public class OverseerBlockEntity extends BlockEntity {
                         waterLoggerBlockNum++;
                 }
             }
-            level.setBlock(pos, state.setValue(OverseerBlock.LEVEL, laminar + 1), 2);
-            level.setBlock(pos.above(),
-                state
-                    .setValue(OverseerBlock.LEVEL, laminar + 1)
-                    .setValue(OverseerBlock.HALF, Half.TOP),
-                2
-            );
         }
     }
 }

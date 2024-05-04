@@ -19,6 +19,7 @@ public class OverseerBlockItem extends BlockItem {
     public boolean canPlace(BlockPlaceContext context, @NotNull BlockState state) {
         Level level = context.getLevel();
         BlockPos blockPos = context.getClickedPos();
-        return level.getBlockState(blockPos.above()).is(BlockTags.REPLACEABLE);
+        return level.getBlockState(blockPos.above()).is(BlockTags.REPLACEABLE)
+            && super.canPlace(context, state);
     }
 }
