@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "minecraft:cobblestone"
+    },
+    "B": {
+      "item": "anvilcraft:crab_claw"
+    },
+    "C": {
+      "item": "minecraft:redstone"
+    },
+    "D": {
+      "item": "minecraft:hopper"
+    }
+  },
+  "pattern": [
+    "AAA",
+    "BCD",
+    "AAA"
+  ],
+  "result": {
+    "item": "anvilcraft:block_placer"
+  },
+  "show_notification": true
+}

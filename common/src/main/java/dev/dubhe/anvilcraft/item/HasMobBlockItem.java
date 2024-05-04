@@ -119,7 +119,7 @@ public class HasMobBlockItem extends BlockItem {
             tag.putBoolean("is_monster", false);
         }
         CompoundTag entityTag = new CompoundTag();
-        entity.save(entityTag);
+        entity.saveAsPassenger(entityTag);
         entityTag.remove(Entity.UUID_TAG);
         tag.put("entity", entityTag);
         stack.setTag(tag);
