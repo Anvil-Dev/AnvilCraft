@@ -52,12 +52,9 @@ public class SuperHeatingRecipesLoader {
             new RecipeItem(ModItems.ROYAL_STEEL_INGOT)
         );
         superHeating(ModItems.WOOD_FIBER.get(), 4, new RecipeItem(Items.CHARCOAL));
-        superHeating(
-            ModItems.LIME_POWDER.get(),
-            new RecipeItem(ModItems.CRAB_CLAW),
-            new RecipeItem(Items.NAUTILUS_SHELL),
-            new RecipeItem(ModItemTags.DEAD_TUBE)
-        );
+        superHeating(1, ModItems.LIME_POWDER.get(), new RecipeItem(ModItems.CRAB_CLAW));
+        superHeating(2, ModItems.LIME_POWDER.get(), new RecipeItem(ModItemTags.DEAD_TUBE));
+        superHeating(3, ModItems.LIME_POWDER.get(), new RecipeItem(Items.NAUTILUS_SHELL));
     }
 
     private static void superHeating(Item out, int count, RecipeItem... items) {
@@ -93,12 +90,35 @@ public class SuperHeatingRecipesLoader {
             );
             else builder = builder.hasItemIngredient(new Vec3(0.0, -1.0, 0.0), item.getCount(), item.getItem())
 
-            .unlockedBy(AnvilCraftDatagen.hasItem(item), AnvilCraftDatagen.has(item));
+                .unlockedBy(AnvilCraftDatagen.hasItem(item), AnvilCraftDatagen.has(item));
         }
         builder
             .save(provider, AnvilCraft.of("heating/" + BuiltInRegistries.ITEM
                 .getKey(output)
                 .getPath()));
+    }
+
+    private static void superHeating(int index, Item output, RecipeItem... items) {
+        if (SuperHeatingRecipesLoader.provider == null) return;
+        Builder builder = AnvilRecipe.Builder.create(RecipeCategory.MISC)
+            .icon(output)
+            .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(OVERLOAD, false))
+            .hasBlock(Blocks.CAULDRON)
+            .spawnItem(new Vec3(0.0, -1.0, 0.0), output, 1);
+        for (RecipeItem item : items) {
+            if (
+                item.getItem() == null) builder = builder.hasItemIngredient(new Vec3(0.0, -1.0, 0.0),
+                item.getCount(),
+                item.getItemTagKey()
+            );
+            else builder = builder.hasItemIngredient(new Vec3(0.0, -1.0, 0.0), item.getCount(), item.getItem())
+
+                .unlockedBy(AnvilCraftDatagen.hasItem(item), AnvilCraftDatagen.has(item));
+        }
+        builder
+            .save(provider, AnvilCraft.of("heating/" + BuiltInRegistries.ITEM
+                .getKey(output)
+                .getPath() + index));
     }
 
     private static void superHeating(Item enter, int count, Block output) {
