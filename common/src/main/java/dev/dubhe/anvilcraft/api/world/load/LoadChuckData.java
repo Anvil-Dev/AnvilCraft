@@ -9,14 +9,24 @@ import net.minecraft.world.level.ChunkPos;
 
 @Getter
 public class LoadChuckData {
+    private final BlockPos centerPos;
     private final int level;
     private final List<ChunkPos> chunkPosList;
     private final boolean isNeedRandomTick;
+    private final ServerLevel serverLevel;
 
-    private LoadChuckData(List<ChunkPos> chunkPosList, boolean isNeedRandomTick, int level) {
+    private LoadChuckData(
+        BlockPos centerPos,
+        List<ChunkPos> chunkPosList,
+        boolean isNeedRandomTick,
+        int level,
+        ServerLevel serverLevel
+    ) {
+        this.centerPos = centerPos;
         this.chunkPosList = chunkPosList;
         this.isNeedRandomTick = isNeedRandomTick;
         this.level = level;
+        this.serverLevel = serverLevel;
     }
 
     /**
@@ -27,7 +37,12 @@ public class LoadChuckData {
      * @param isNeedRandomTick 是否需要随机刻加载
      * @return 强加载区块区域数据
      */
-    public static LoadChuckData creatLoadChuckData(int level, BlockPos centerPos, boolean isNeedRandomTick) {
+    public static LoadChuckData creatLoadChuckData(
+        int level,
+        BlockPos centerPos,
+        boolean isNeedRandomTick,
+        ServerLevel serverLevel
+    ) {
         List<ChunkPos> chunkPosList = new ArrayList<>();
         ChunkPos centerChunkPos = new ChunkPos(centerPos);
         for (int x = centerChunkPos.x - level + 1; x < centerChunkPos.x + level; x++) {
@@ -35,14 +50,16 @@ public class LoadChuckData {
                 chunkPosList.add(new ChunkPos(x, z));
             }
         }
-        return new LoadChuckData(chunkPosList, isNeedRandomTick, level);
+        return new LoadChuckData(centerPos, chunkPosList, isNeedRandomTick, level, serverLevel);
     }
 
     public void load(ServerLevel level) {
-        for (ChunkPos chunkPos : chunkPosList) level.setChunkForced(chunkPos.x, chunkPos.z, true);
+        if (this.isNeedRandomTick) RandomChuckTickLoadManager.register(this.centerPos, this);
+        else for (ChunkPos chunkPos : chunkPosList) level.setChunkForced(chunkPos.x, chunkPos.z, true);
     }
 
     public void unLoad(ServerLevel level) {
-        for (ChunkPos chunkPos : chunkPosList) level.setChunkForced(chunkPos.x, chunkPos.z, false);
+        if (this.isNeedRandomTick) RandomChuckTickLoadManager.unregister(this.centerPos);
+        else for (ChunkPos chunkPos : chunkPosList) level.setChunkForced(chunkPos.x, chunkPos.z, false);
     }
 }

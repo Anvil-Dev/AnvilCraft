@@ -30,7 +30,9 @@ public class ServerBlockEntityEventListener {
                 LoadChuckData.creatLoadChuckData(
                     overseerBlockEntity.getBlockState().getValue(OverseerBlock.LEVEL),
                     overseerBlockEntity.getBlockPos(),
-                    false),
+                    false,
+                    level
+                ),
                 level);
         }
     }

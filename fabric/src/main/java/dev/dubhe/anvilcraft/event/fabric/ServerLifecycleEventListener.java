@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.server.ServerEndDataPackReloadEvent;
 import dev.dubhe.anvilcraft.api.event.server.ServerStartedEvent;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
+import dev.dubhe.anvilcraft.api.world.load.RandomChuckTickLoadManager;
 import dev.dubhe.anvilcraft.util.fabric.ServerHooks;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -35,6 +36,7 @@ public class ServerLifecycleEventListener {
 
     private static void startTick(MinecraftServer server) {
         PowerGrid.tickGrid();
+        RandomChuckTickLoadManager.tick();
     }
 
     private static void onServerStopping(MinecraftServer server) {

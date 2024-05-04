@@ -17,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class OverseerBlockEntity extends BlockEntity {
     private int waterLoggerBlockNum = 0;
+    private int lastWaterLoggerBlockNum = 0;
 
     public OverseerBlockEntity(BlockPos pos, BlockState blockState) {
         this(ModBlockEntities.OVERSEER.get(), pos, blockState);
@@ -46,16 +47,23 @@ public class OverseerBlockEntity extends BlockEntity {
         if (!(level instanceof ServerLevel serverLevel)) return;
         checkBase(level, pos, state);
         BlockState updatedState = level.getBlockState(pos);
-        if (state != updatedState)
+        if (state != updatedState || this.waterLoggerBlockNum != this.lastWaterLoggerBlockNum) {
+            this.lastWaterLoggerBlockNum = this.waterLoggerBlockNum;
             LevelLoadManager.register(
                 pos,
-                LoadChuckData.creatLoadChuckData(updatedState.getValue(OverseerBlock.LEVEL), pos, false),
+                LoadChuckData.creatLoadChuckData(
+                    updatedState.getValue(OverseerBlock.LEVEL),
+                    pos,
+                    (this.waterLoggerBlockNum >= 4),
+                    serverLevel
+                ),
                 serverLevel
             );
+        }
     }
 
     private void checkBase(Level level, @NotNull BlockPos pos, BlockState state) {
-        waterLoggerBlockNum = 0;
+        int waterLoggerBlockNum = 0;
         for (int laminar = 1; laminar <= 4; laminar++) {
             level.setBlock(pos, state.setValue(OverseerBlock.LEVEL, laminar), 2);
             level.setBlock(pos.above(),
@@ -67,12 +75,16 @@ public class OverseerBlockEntity extends BlockEntity {
             for (int x = pos.getX() - 1; x <= pos.getX() + 1; x++) {
                 for (int z = pos.getZ() - 1; z <= pos.getZ() + 1; z++) {
                     BlockPos basePos = new BlockPos(x, pos.getY() - laminar, z);
-                    if (!level.getBlockState(basePos).is(ModBlockTags.OVERSEER_BASE)) return;
+                    if (!level.getBlockState(basePos).is(ModBlockTags.OVERSEER_BASE)) {
+                        this.waterLoggerBlockNum = waterLoggerBlockNum;
+                        return;
+                    }
                     if (level.getBlockState(basePos).hasProperty(BlockStateProperties.WATERLOGGED)
                         && level.getBlockState(basePos).getValue(BlockStateProperties.WATERLOGGED))
                         waterLoggerBlockNum++;
                 }
             }
         }
+        this.waterLoggerBlockNum = waterLoggerBlockNum;
     }
 }
