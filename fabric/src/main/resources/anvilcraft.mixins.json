@@ -10,6 +10,7 @@
     "ShapedRecipeMixin"
   ],
   "client": [
+    "ModelBakeryMixin"
   ],
   "injectors": {
     "defaultRequire": 1
