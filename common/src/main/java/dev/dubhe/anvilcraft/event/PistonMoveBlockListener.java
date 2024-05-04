@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
+import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager.Entry;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlocks;
@@ -36,10 +37,10 @@ public class PistonMoveBlockListener {
             if (blockState.getValue(MagnetBlock.LIT)) continue;
             double n = getChargeNum(level, pos);
             if (n > 0) {
-                Collection<Map.Entry<Float, ChargeCollectorBlockEntity>> nearestChargeCollect =
+                Collection<Entry> nearestChargeCollect =
                     ChargeCollectorManager.getNearestChargeCollect(pos);
                 for (var floatChargeCollectorBlockEntityEntry : nearestChargeCollect) {
-                    ChargeCollectorBlockEntity blockEntity = floatChargeCollectorBlockEntityEntry.getValue();
+                    ChargeCollectorBlockEntity blockEntity = floatChargeCollectorBlockEntityEntry.getBlockEntity();
                     if (ChargeCollectorManager.canCollect(blockEntity, pos)) {
                         double unCharged = blockEntity.incomingCharge(n);
                         if (unCharged == 0) {
