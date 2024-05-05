@@ -3,7 +3,7 @@
   "category": "misc",
   "key": {
     "A": {
-      "item": "minecraft:diamond"
+      "item": "minecraft:grindstone"
     },
     "B": {
       "item": "minecraft:glass"
@@ -14,16 +14,13 @@
     "D": {
       "item": "minecraft:smooth_stone"
     },
-    "E": {
-      "item": "minecraft:stonecutter"
-    },
     "F": {
       "tag": "minecraft:planks"
     }
   },
   "pattern": [
     "ABC",
-    "DED",
+    "DDD",
     "F F"
   ],
   "result": {

@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.data.generator.recipe;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
+import dev.dubhe.anvilcraft.data.RecipeItem;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.init.ModBlocks;
@@ -17,37 +18,42 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Map;
 
 public class TimeWarpRecipesLoader {
+    public static RegistrateRecipeProvider provider = null;
+    
     /**
      * 初始化时移配方
      *
      * @param provider 提供器
      */
     public static void init(RegistrateRecipeProvider provider) {
-        timeWarpWithWater(ModItems.SEA_HEART_SHELL_SHARD, ModItems.SEA_HEART_SHELL, provider);
-        timeWarp(ModItems.RESIN, ModItems.AMBER, 1, provider);
-        timeWarp(Items.OBSIDIAN, Items.CRYING_OBSIDIAN, 1, provider);
-        timeWarp(Items.CHARCOAL, Items.COAL, 1, provider);
-        timeWarp(Items.SAND, Items.DIRT, 1, provider);
-        timeWarp(Items.IRON_BLOCK, Items.RAW_IRON, 3, provider);
-        timeWarp(Items.GOLD_BLOCK, Items.RAW_GOLD, 3, provider);
-        timeWarp(Items.COPPER_BLOCK, Items.RAW_COPPER, 3, provider);
-        timeWarp(ModItems.GEODE, Items.BUDDING_AMETHYST, 1, provider);
-        timeWarp(ModBlocks.CINERITE, Items.TUFF, 1, provider);
-        timeWarp(ModBlocks.NETHER_DUST, Items.SOUL_SOIL, 1, provider);
-        timeWarp(ModBlocks.END_DUST, Items.END_STONE, 1, provider);
+        TimeWarpRecipesLoader.provider = provider;
+        timeWarpWithWater(ModItems.SEA_HEART_SHELL_SHARD, ModItems.SEA_HEART_SHELL);
+        timeWarp(new RecipeItem(ModItems.RESIN), new RecipeItem(ModItems.AMBER));
+        timeWarp(new RecipeItem(Items.OBSIDIAN), new RecipeItem(Items.CRYING_OBSIDIAN));
+        timeWarp(new RecipeItem(Items.CHARCOAL), new RecipeItem(Items.COAL));
+        timeWarp(new RecipeItem(Items.SAND), new RecipeItem(Items.DIRT));
+        timeWarp(new RecipeItem(Items.IRON_BLOCK), new RecipeItem(Items.RAW_IRON, 3));
+        timeWarp(new RecipeItem(Items.GOLD_BLOCK), new RecipeItem(Items.RAW_GOLD, 3));
+        timeWarp(new RecipeItem(Items.COPPER_BLOCK), new RecipeItem(Items.RAW_COPPER, 3));
+        timeWarp(new RecipeItem(ModItems.GEODE), new RecipeItem(Items.BUDDING_AMETHYST));
+        timeWarp(new RecipeItem(ModBlocks.CINERITE), new RecipeItem(Items.TUFF));
+        timeWarp(new RecipeItem(ModBlocks.NETHER_DUST), new RecipeItem(Items.SOUL_SOIL));
+        timeWarp(new RecipeItem(ModBlocks.END_DUST), new RecipeItem(Items.END_STONE));
+        timeWarp(new RecipeItem(ModItems.LIME_POWDER, 8), new RecipeItem(Items.CALCITE));
 
-        timeWarpWithMeltGem(Items.EMERALD, Items.EMERALD_BLOCK, provider);
-        timeWarpWithMeltGem(ModItems.RUBY, ModBlocks.RUBY_BLOCK, provider);
-        timeWarpWithMeltGem(ModItems.TOPAZ, ModBlocks.TOPAZ_BLOCK, provider);
-        timeWarpWithMeltGem(ModItems.SAPPHIRE, ModBlocks.SAPPHIRE_BLOCK, provider);
+        timeWarpWithMeltGem(Items.EMERALD, Items.EMERALD_BLOCK);
+        timeWarpWithMeltGem(ModItems.RUBY, ModBlocks.RUBY_BLOCK);
+        timeWarpWithMeltGem(ModItems.TOPAZ, ModBlocks.TOPAZ_BLOCK);
+        timeWarpWithMeltGem(ModItems.SAPPHIRE, ModBlocks.SAPPHIRE_BLOCK);
     }
 
     /**
      * 时移配方
      */
-    public static void timeWarp(ItemLike item, ItemLike item1, int count, RegistrateRecipeProvider provider) {
+    public static void timeWarp(RecipeItem item, RecipeItem item1) {
+        if (TimeWarpRecipesLoader.provider == null) return;
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
-            .icon(item1)
+            .icon(item1.getItem().asItem())
             .hasBlock(
                 ModBlocks.CORRUPTED_BEACON.get(),
                 new Vec3(0.0, -2.0, 0.0),
@@ -55,15 +61,17 @@ public class TimeWarpRecipesLoader {
             )
             .hasBlock(Blocks.CAULDRON)
             .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), item)
-            .spawnItem(new Vec3(0.0, -1.0, 0.0), item1, count)
+            .spawnItem(new Vec3(0.0, -1.0, 0.0), item1)
             .unlockedBy(AnvilCraftDatagen.hasItem(item), AnvilCraftDatagen.has(item))
-            .save(provider, AnvilCraft.of("timewarp/" + BuiltInRegistries.ITEM.getKey(item1.asItem()).getPath()));
+            .save(provider, AnvilCraft.of("timewarp/"
+                + BuiltInRegistries.ITEM.getKey(item1.getItem().asItem()).getPath()));
     }
 
     /**
      * 需水时移配方
      */
-    public static void timeWarpWithWater(ItemLike item, ItemLike item1, RegistrateRecipeProvider provider) {
+    public static void timeWarpWithWater(ItemLike item, ItemLike item1) {
+        if (TimeWarpRecipesLoader.provider == null) return;
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
             .icon(item1)
             .hasBlock(
@@ -81,7 +89,8 @@ public class TimeWarpRecipesLoader {
     /**
      * 需要熔融宝石的时移配方
      */
-    public static void timeWarpWithMeltGem(ItemLike item, ItemLike item1, RegistrateRecipeProvider provider) {
+    public static void timeWarpWithMeltGem(ItemLike item, ItemLike item1) {
+        if (TimeWarpRecipesLoader.provider == null) return;
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
             .icon(item1)
             .hasBlock(
