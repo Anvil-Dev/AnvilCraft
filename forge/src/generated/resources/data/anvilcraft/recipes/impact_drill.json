@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "minecraft:netherite_ingot"
+    },
+    "B": {
+      "item": "minecraft:piston"
+    },
+    "C": {
+      "item": "minecraft:redstone"
+    },
+    "D": {
+      "item": "minecraft:cobblestone"
+    }
+  },
+  "pattern": [
+    " A ",
+    "ABA",
+    "DCD"
+  ],
+  "result": {
+    "item": "anvilcraft:impact_drill"
+  },
+  "show_notification": true
+}

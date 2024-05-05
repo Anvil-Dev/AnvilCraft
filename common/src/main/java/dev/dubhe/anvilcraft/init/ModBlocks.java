@@ -18,6 +18,7 @@ import dev.dubhe.anvilcraft.block.CreativeGeneratorBlock;
 import dev.dubhe.anvilcraft.block.FerriteCoreMagnetBlock;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
+import dev.dubhe.anvilcraft.block.ImpactDrillBlock;
 import dev.dubhe.anvilcraft.block.JewelCraftingTable;
 import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
 import dev.dubhe.anvilcraft.block.LoadMonitorBlock;
@@ -1092,6 +1093,37 @@ public class ModBlocks {
                 AnvilCraftDatagen.hasItem(ModItems.CRAB_CLAW),
                 AnvilCraftDatagen.has(ModItems.CRAB_CLAW)
             )
+            .save(provider))
+        .register();
+
+    public static final BlockEntry<ImpactDrillBlock> IMPACT_DRILL = REGISTRATE
+        .block("impact_drill", ImpactDrillBlock::new)
+        .simpleItem()
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(BlockBehaviour.Properties::noOcclusion)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .blockstate((ctx, provider) -> {
+        })
+        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern(" A ")
+            .pattern("ABA")
+            .pattern("DCD")
+            .define('A', Items.NETHERITE_INGOT)
+            .define('B', Items.PISTON)
+            .define('C', Items.REDSTONE)
+            .define('D', Items.COBBLESTONE)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.NETHERITE_INGOT),
+                AnvilCraftDatagen.has(Items.NETHERITE_INGOT))
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.PISTON),
+                AnvilCraftDatagen.has(Items.PISTON))
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.REDSTONE),
+                AnvilCraftDatagen.has(Items.REDSTONE))
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.COBBLESTONE),
+                AnvilCraftDatagen.has(Items.COBBLESTONE))
             .save(provider))
         .register();
 

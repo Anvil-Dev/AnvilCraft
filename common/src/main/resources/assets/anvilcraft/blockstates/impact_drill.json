@@ -1,63 +1,49 @@
 {
   "variants": {
-    "facing=down,triggered=true": {
-      "model": "anvilcraft:block/block_placer",
-      "x": 90,
-      "y": 90
-    },
     "facing=up,triggered=true": {
-      "model": "anvilcraft:block/block_placer_on",
-      "x": 90,
-      "y": 90
+      "model": "anvilcraft:block/impact_drill_on",
+      "x": 270
+    },
+    "facing=down,triggered=true": {
+      "model": "anvilcraft:block/impact_drill_on",
+      "x": 90
     },
     "facing=north,triggered=true": {
-      "model": "anvilcraft:block/block_placer_on",
-      "x": 90,
-      "y": 90
-    },
-    "facing=east,triggered=true": {
-      "model": "anvilcraft:block/block_placer_on",
-      "x": 90,
-      "y": 90
+      "model": "anvilcraft:block/impact_drill_on"
     },
     "facing=south,triggered=true": {
-      "model": "anvilcraft:block/block_placer_on",
-      "x": 90,
-      "y": 90
+      "model": "anvilcraft:block/impact_drill_on",
+      "x": 180
     },
     "facing=west,triggered=true": {
-      "model": "anvilcraft:block/block_placer_on",
-      "x": 90,
-      "y": 90
+      "model": "anvilcraft:block/impact_drill_on",
+      "y": 270
     },
-    "facing=down,triggered=false": {
-      "model": "anvilcraft:block/block_placer",
-      "x": 90,
+    "facing=east,triggered=true": {
+      "model": "anvilcraft:block/impact_drill_on",
       "y": 90
     },
     "facing=up,triggered=false": {
-      "model": "anvilcraft:block/block_placer_on",
-      "x": 90,
-      "y": 90
+      "model": "anvilcraft:block/impact_drill",
+      "x": 270
+    },
+    "facing=down,triggered=false": {
+      "model": "anvilcraft:block/impact_drill",
+      "x": 90
     },
     "facing=north,triggered=false": {
-      "model": "anvilcraft:block/block_placer_on",
-      "x": 90,
-      "y": 90
-    },
-    "facing=east,triggered=false": {
-      "model": "anvilcraft:block/block_placer_on",
-      "x": 90,
-      "y": 90
+      "model": "anvilcraft:block/impact_drill"
     },
     "facing=south,triggered=false": {
-      "model": "anvilcraft:block/block_placer_on",
-      "x": 90,
-      "y": 90
+      "model": "anvilcraft:block/impact_drill",
+      "x": 180
     },
-    "facing=west,triggered=false  ": {
-      "model": "anvilcraft:block/block_placer_on",
-      "x": 90,
+    "facing=west,triggered=false": {
+      "model": "anvilcraft:block/impact_drill",
+      "y": 270
+    },
+    "facing=east,triggered=false": {
+      "model": "anvilcraft:block/impact_drill",
       "y": 90
     }
   }
