@@ -55,11 +55,11 @@ public class LoadChuckData {
 
     public void load(ServerLevel level) {
         if (this.isNeedRandomTick) RandomChuckTickLoadManager.register(this.centerPos, this);
-        else for (ChunkPos chunkPos : chunkPosList) level.setChunkForced(chunkPos.x, chunkPos.z, true);
+        for (ChunkPos chunkPos : chunkPosList) level.setChunkForced(chunkPos.x, chunkPos.z, true);
     }
 
     public void unLoad(ServerLevel level) {
         if (this.isNeedRandomTick) RandomChuckTickLoadManager.unregister(this.centerPos);
-        else for (ChunkPos chunkPos : chunkPosList) level.setChunkForced(chunkPos.x, chunkPos.z, false);
+        for (ChunkPos chunkPos : chunkPosList) level.setChunkForced(chunkPos.x, chunkPos.z, false);
     }
 }
