@@ -4,8 +4,6 @@ import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
-import dev.dubhe.anvilcraft.api.world.load.LoadChuckData;
-import dev.dubhe.anvilcraft.block.OverseerBlock;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.OverseerBlockEntity;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerBlockEntityEvents;
@@ -24,16 +22,6 @@ public class ServerBlockEntityEventListener {
         }
         if (entity instanceof ChargeCollectorBlockEntity chargeCollector) {
             ChargeCollectorManager.addChargeCollector(chargeCollector);
-        }
-        if (entity instanceof OverseerBlockEntity overseerBlockEntity) {
-            LevelLoadManager.register(overseerBlockEntity.getBlockPos(),
-                LoadChuckData.creatLoadChuckData(
-                    overseerBlockEntity.getBlockState().getValue(OverseerBlock.LEVEL),
-                    overseerBlockEntity.getBlockPos(),
-                    false,
-                    level
-                ),
-                level);
         }
     }
 

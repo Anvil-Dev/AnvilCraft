@@ -1,11 +1,11 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
+import dev.dubhe.anvilcraft.api.world.load.LoadChuckData;
 import dev.dubhe.anvilcraft.block.entity.OverseerBlockEntity;
 import dev.dubhe.anvilcraft.block.state.Half;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import javax.annotation.Nonnull;
-import net.fabricmc.fabric.impl.resource.loader.ServerLanguageUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
@@ -88,6 +88,15 @@ public class OverseerBlock extends BaseEntityBlock {
     ) {
         BlockPos above = pos.above();
         level.setBlockAndUpdate(above, state.setValue(HALF, Half.TOP).setValue(LEVEL, 1));
+        if (!(level instanceof ServerLevel serverLevel)) return;
+        LevelLoadManager.register(pos,
+            LoadChuckData.creatLoadChuckData(
+                state.getValue(OverseerBlock.LEVEL),
+                pos,
+                false,
+                serverLevel
+            ),
+            serverLevel);
     }
 
     @Override

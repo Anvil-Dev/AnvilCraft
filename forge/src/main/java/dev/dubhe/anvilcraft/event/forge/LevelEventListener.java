@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.forge.AnvilCraftBlockPlacerFakePlayer;
 import dev.dubhe.anvilcraft.api.entity.player.AnvilCraftBlockPlacer;
+import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
 import dev.dubhe.anvilcraft.client.renderer.PowerGridRenderer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.event.level.LevelEvent;
@@ -24,10 +25,16 @@ public class LevelEventListener {
                 new AnvilCraftBlockPlacerFakePlayer(serverLevel);
     }
 
+    /**
+     * 世界卸载事件
+     */
     @SubscribeEvent
     public static void onLevelUnload(@NotNull LevelEvent.Unload event) {
         PowerGridRenderer.cleanAllGrid();
         ChargeCollectorManager.cleanMap();
+        if (event.getLevel() instanceof ServerLevel serverLevel) {
+            LevelLoadManager.removeAll(serverLevel);
+        }
     }
 
 }
