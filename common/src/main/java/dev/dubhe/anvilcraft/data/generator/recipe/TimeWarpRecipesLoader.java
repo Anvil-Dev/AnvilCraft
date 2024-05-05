@@ -41,6 +41,20 @@ public class TimeWarpRecipesLoader {
         timeWarp(new RecipeItem(ModBlocks.END_DUST), new RecipeItem(Items.END_STONE));
         timeWarp(new RecipeItem(ModItems.LIME_POWDER, 8), new RecipeItem(Items.CALCITE));
 
+        AnvilRecipe.Builder.create(RecipeCategory.MISC)
+            .icon(Items.WITHER_ROSE)
+            .hasBlock(
+                    ModBlocks.CORRUPTED_BEACON.get(),
+                    new Vec3(0.0, -2.0, 0.0),
+                    Map.entry(CorruptedBeaconBlock.LIT, true)
+            )
+            .hasBlock(Blocks.CAULDRON)
+            .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), Items.ROSE_BUSH)
+            .spawnItem(new Vec3(0.0, -1.0, 0.0), 0.2, Items.WITHER_ROSE)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.ROSE_BUSH), AnvilCraftDatagen.has(Items.ROSE_BUSH))
+            .save(provider, AnvilCraft.of("timewarp/"
+                    + BuiltInRegistries.ITEM.getKey(Items.WITHER_ROSE).getPath()));
+
         timeWarpWithMeltGem(Items.EMERALD, Items.EMERALD_BLOCK);
         timeWarpWithMeltGem(ModItems.RUBY, ModBlocks.RUBY_BLOCK);
         timeWarpWithMeltGem(ModItems.TOPAZ, ModBlocks.TOPAZ_BLOCK);
