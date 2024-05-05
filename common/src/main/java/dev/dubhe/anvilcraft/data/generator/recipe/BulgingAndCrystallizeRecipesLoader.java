@@ -14,7 +14,7 @@ import net.minecraft.world.phys.Vec3;
 
 public class BulgingAndCrystallizeRecipesLoader {
     /**
-     * 初始化彭发和晶化配方
+     * 初始化膨发和晶化配方
      *
      * @param provider 提供器
      */
