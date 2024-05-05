@@ -45,8 +45,8 @@ public class LoadChuckData {
     ) {
         List<ChunkPos> chunkPosList = new ArrayList<>();
         ChunkPos centerChunkPos = new ChunkPos(centerPos);
-        for (int x = centerChunkPos.x - level + 1; x < centerChunkPos.x + level; x++) {
-            for (int z = centerChunkPos.z - level + 1; z < centerChunkPos.z + level; z++) {
+        for (int x = centerChunkPos.x - level; x < centerChunkPos.x + level; x++) {
+            for (int z = centerChunkPos.z - level; z < centerChunkPos.z + level; z++) {
                 chunkPosList.add(new ChunkPos(x, z));
             }
         }

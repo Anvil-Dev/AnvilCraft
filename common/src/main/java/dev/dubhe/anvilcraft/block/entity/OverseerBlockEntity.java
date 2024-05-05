@@ -64,7 +64,7 @@ public class OverseerBlockEntity extends BlockEntity {
 
     private void checkBase(Level level, @NotNull BlockPos pos, BlockState state) {
         int waterLoggerBlockNum = 0;
-        for (int laminar = 1; laminar <= 4; laminar++) {
+        for (int laminar = 0; laminar < 4; laminar++) {
             level.setBlock(pos, state.setValue(OverseerBlock.LEVEL, laminar), 2);
             level.setBlock(pos.above(),
                 state
@@ -80,7 +80,7 @@ public class OverseerBlockEntity extends BlockEntity {
             );
             for (int x = pos.getX() - 1; x <= pos.getX() + 1; x++) {
                 for (int z = pos.getZ() - 1; z <= pos.getZ() + 1; z++) {
-                    BlockPos basePos = new BlockPos(x, pos.getY() - laminar, z);
+                    BlockPos basePos = new BlockPos(x, pos.getY() - laminar - 1, z);
                     if (!level.getBlockState(basePos).is(ModBlockTags.OVERSEER_BASE)) {
                         this.waterLoggerBlockNum = waterLoggerBlockNum;
                         return;

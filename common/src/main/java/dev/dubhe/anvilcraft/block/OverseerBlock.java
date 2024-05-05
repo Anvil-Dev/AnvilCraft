@@ -1,13 +1,10 @@
 package dev.dubhe.anvilcraft.block;
 
-import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
-import dev.dubhe.anvilcraft.api.world.load.LoadChuckData;
 import dev.dubhe.anvilcraft.block.entity.OverseerBlockEntity;
 import dev.dubhe.anvilcraft.block.state.Half;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import javax.annotation.Nonnull;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -39,7 +36,7 @@ public class OverseerBlock extends BaseEntityBlock {
     private static final VoxelShape OVERSEER_MID = Block.box(4, 0, 4, 12, 15, 12);
     private static final VoxelShape OVERSEER_TOP = Block.box(4, 0, 4, 12, 15, 12);
     public static final EnumProperty<Half> HALF = EnumProperty.create("half", Half.class);
-    public static final IntegerProperty LEVEL = IntegerProperty.create("level", 1, 4);
+    public static final IntegerProperty LEVEL = IntegerProperty.create("level", 0, 3);
 
     /**
      * @param properties 属性
@@ -49,7 +46,7 @@ public class OverseerBlock extends BaseEntityBlock {
         this.registerDefaultState(
             this.stateDefinition.any()
                 .setValue(HALF, Half.BOTTOM)
-                .setValue(LEVEL, 1)
+                .setValue(LEVEL, 0)
         );
     }
 
@@ -59,7 +56,7 @@ public class OverseerBlock extends BaseEntityBlock {
     public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
         return this.defaultBlockState()
             .setValue(HALF, Half.BOTTOM)
-            .setValue(LEVEL, 1);
+            .setValue(LEVEL, 0);
     }
 
     @Override
@@ -92,15 +89,6 @@ public class OverseerBlock extends BaseEntityBlock {
         level.setBlockAndUpdate(above, state.setValue(HALF, Half.MID).setValue(LEVEL, 1));
         above = pos.above();
         level.setBlockAndUpdate(above, state.setValue(HALF, Half.TOP).setValue(LEVEL, 1));
-        if (!(level instanceof ServerLevel serverLevel)) return;
-        LevelLoadManager.register(pos,
-            LoadChuckData.creatLoadChuckData(
-                state.getValue(OverseerBlock.LEVEL),
-                pos,
-                false,
-                serverLevel
-            ),
-            serverLevel);
     }
 
     @Override
