@@ -1,6 +1,7 @@
 {
   "type": "anvilcraft:anvil_processing",
   "icon": {
+    "count": 4,
     "item": "anvilcraft:cream"
   },
   "outcomes": [
@@ -13,6 +14,7 @@
         0.0
       ],
       "result": {
+        "count": 4,
         "item": "anvilcraft:cream"
       }
     }

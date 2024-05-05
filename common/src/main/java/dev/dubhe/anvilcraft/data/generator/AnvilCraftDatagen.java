@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.data.generator;
 
 import com.tterrag.registrate.providers.ProviderType;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
+import dev.dubhe.anvilcraft.data.RecipeItem;
 import dev.dubhe.anvilcraft.data.generator.lang.LangHandler;
 import dev.dubhe.anvilcraft.data.generator.loot.LootHandler;
 import dev.dubhe.anvilcraft.data.generator.recipe.RecipesHandler;
@@ -35,11 +36,33 @@ public class AnvilCraftDatagen {
         return RegistrateRecipeProvider.has(tag);
     }
 
+    /**
+     * @param item 物品
+     */
+    public static @NotNull InventoryChangeTrigger.TriggerInstance has(RecipeItem item) {
+        if (item.getItem() == null) {
+            return has(item.getItemTagKey());
+        } else {
+            return has(item.getItem());
+        }
+    }
+
     public static @NotNull String hasItem(@NotNull TagKey<Item> item) {
         return "has_" + item.location().getPath();
     }
 
     public static @NotNull String hasItem(@NotNull ItemLike item) {
         return "has_" + BuiltInRegistries.ITEM.getKey(item.asItem()).getPath();
+    }
+
+    /**
+     * @param item 物品
+     */
+    public static @NotNull String hasItem(RecipeItem item) {
+        if (item.getItem() == null) {
+            return hasItem(item.getItemTagKey());
+        } else {
+            return hasItem(item.getItem());
+        }
     }
 }
