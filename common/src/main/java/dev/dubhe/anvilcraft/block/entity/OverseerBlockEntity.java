@@ -69,6 +69,12 @@ public class OverseerBlockEntity extends BlockEntity {
             level.setBlock(pos.above(),
                 state
                     .setValue(OverseerBlock.LEVEL, laminar)
+                    .setValue(OverseerBlock.HALF, Half.MID),
+                2
+            );
+            level.setBlock(pos.above(2),
+                state
+                    .setValue(OverseerBlock.LEVEL, laminar)
                     .setValue(OverseerBlock.HALF, Half.TOP),
                 2
             );

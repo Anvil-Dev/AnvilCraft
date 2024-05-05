@@ -1,6 +1,6 @@
 {
 	"credit": "Made by XeKr with Blockbench",
-	"parent": "anvilcraft:block/overseer_base_0",
+	"parent": "anvilcraft:block/overseer_mid_0",
 	"textures": {
 		"particle": "anvilcraft:block/overseer_mid_1",
 		"side": "anvilcraft:block/overseer_mid_1"

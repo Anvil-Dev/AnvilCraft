@@ -20,6 +20,7 @@ public class OverseerBlockItem extends BlockItem {
         Level level = context.getLevel();
         BlockPos blockPos = context.getClickedPos();
         return level.getBlockState(blockPos.above()).is(BlockTags.REPLACEABLE)
+            && level.getBlockState(blockPos.above()).is(BlockTags.REPLACEABLE)
             && super.canPlace(context, state);
     }
 }
