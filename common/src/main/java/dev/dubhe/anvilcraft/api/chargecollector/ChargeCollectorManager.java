@@ -1,14 +1,16 @@
 package dev.dubhe.anvilcraft.api.chargecollector;
 
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import org.joml.Vector3f;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 public class ChargeCollectorManager {
     private static final Map<BlockPos, ChargeCollectorBlockEntity> CHARGE_COLLECTOR_MAP = new HashMap<>();
@@ -30,16 +32,16 @@ public class ChargeCollectorManager {
     /**
      * 获取最近的集电器的Collection集合(以从近至远排序)
      */
-    public static Collection<Entry<Float, ChargeCollectorBlockEntity>> getNearestChargeCollect(BlockPos blockPos) {
-        Map<Float, ChargeCollectorBlockEntity> distanceMap = new HashMap<>();
+    public static Collection<Entry> getNearestChargeCollect(BlockPos blockPos) {
+        List<Entry> distanceList = new ArrayList<>();
         for (Map.Entry<BlockPos, ChargeCollectorBlockEntity> entry : CHARGE_COLLECTOR_MAP.entrySet()) {
-            float distance = Vector3f.distance(
+            double distance = Vector3f.distance(
                 entry.getKey().getX(), entry.getKey().getY(), entry.getKey().getZ(),
                 blockPos.getX(), blockPos.getY(), blockPos.getZ());
-            distanceMap.put(distance, entry.getValue());
+            distanceList.add(new Entry(distance, entry.getValue()));
         }
-        return distanceMap.entrySet().stream()
-            .sorted(Entry.comparingByKey()).collect(Collectors.toList());
+        return distanceList.stream()
+            .sorted(Comparator.comparing(Entry::getDistance)).collect(Collectors.toList());
     }
 
     /**
@@ -60,5 +62,17 @@ public class ChargeCollectorManager {
 
     public static void cleanMap() {
         CHARGE_COLLECTOR_MAP.clear();
+    }
+
+    @Getter
+    public static class Entry {
+        public final double distance;
+        public final ChargeCollectorBlockEntity blockEntity;
+
+        public Entry(Double distance, ChargeCollectorBlockEntity blockEntity) {
+            this.distance = distance;
+            this.blockEntity = blockEntity;
+        }
+
     }
 }

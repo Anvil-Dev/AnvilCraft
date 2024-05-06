@@ -1,8 +1,11 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
+import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager.Entry;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
+import java.util.Collection;
+import javax.annotation.Nonnull;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -13,11 +16,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
-
-import javax.annotation.Nonnull;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map.Entry;
 
 public class PiezoelectricCrystalBlock extends Block implements IHammerRemovable {
     public static VoxelShape SHAPE = Shapes.or(
@@ -48,20 +46,18 @@ public class PiezoelectricCrystalBlock extends Block implements IHammerRemovable
      * 被铁砧砸事件
      */
     public void onHitByAnvil(float fallDistance, Level level, BlockPos blockPos) {
-        int distance = fallDistance > 3 ? 3 : (int) fallDistance;
+        int distance = (int) Math.min(3, fallDistance);
         int chargeNum = (int) Math.pow(2, distance);
         this.charge(chargeNum, blockPos);
         pressureConduction(level, blockPos, chargeNum / 2, 4);
     }
 
     private void charge(int chargeNum, BlockPos blockPos) {
-        Collection<Entry<Float, ChargeCollectorBlockEntity>> chargeCollectorCollection = ChargeCollectorManager
+        Collection<Entry> chargeCollectorCollection = ChargeCollectorManager
                .getNearestChargeCollect(blockPos);
-        Iterator<Entry<Float, ChargeCollectorBlockEntity>> iterator = chargeCollectorCollection.iterator();
         double surplus = chargeNum;
-        while (iterator.hasNext()) {
-            Entry<Float, ChargeCollectorBlockEntity> entry = iterator.next();
-            ChargeCollectorBlockEntity chargeCollectorBlockEntity = entry.getValue();
+        for (Entry entry : chargeCollectorCollection) {
+            ChargeCollectorBlockEntity chargeCollectorBlockEntity = entry.getBlockEntity();
             if (!ChargeCollectorManager.canCollect(chargeCollectorBlockEntity, blockPos)) return;
             surplus = chargeCollectorBlockEntity.incomingCharge(surplus);
             if (surplus == 0) return;

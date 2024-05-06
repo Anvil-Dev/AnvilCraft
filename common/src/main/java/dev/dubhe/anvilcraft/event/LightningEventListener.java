@@ -2,17 +2,16 @@ package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
+import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager.Entry;
 import dev.dubhe.anvilcraft.api.event.SubscribeEvent;
 import dev.dubhe.anvilcraft.api.event.entity.LightningStrikeEvent;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlocks;
+import java.util.Collection;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Collection;
-import java.util.Map;
 
 public class LightningEventListener {
     /**
@@ -20,6 +19,7 @@ public class LightningEventListener {
      *
      * @param event 雷击事件
      */
+    @SuppressWarnings("unused")
     @SubscribeEvent
     public void onLightingStrike(@NotNull LightningStrikeEvent event) {
         BlockPos pos = event.getPos();
@@ -48,10 +48,10 @@ public class LightningEventListener {
     private void lightningCharge(BlockPos pos, BlockState state) {
         if (state.is(Blocks.COPPER_BLOCK) || state.is(Blocks.LIGHTNING_ROD)) {
             double unCharged = 32;
-            Collection<Map.Entry<Float, ChargeCollectorBlockEntity>> nearestChargeCollect =
+            Collection<Entry> nearestChargeCollect =
                 ChargeCollectorManager.getNearestChargeCollect(pos);
             for (var floatChargeCollectorBlockEntityEntry : nearestChargeCollect) {
-                ChargeCollectorBlockEntity blockEntity = floatChargeCollectorBlockEntityEntry.getValue();
+                ChargeCollectorBlockEntity blockEntity = floatChargeCollectorBlockEntityEntry.getBlockEntity();
                 if (ChargeCollectorManager.canCollect(blockEntity, pos)) {
                     unCharged = blockEntity.incomingCharge(unCharged);
                     if (unCharged <= 0) break;

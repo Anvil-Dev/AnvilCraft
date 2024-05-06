@@ -18,6 +18,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -152,18 +153,38 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
                     }
                 } else {
                     Vec3 center = getBlockPos().relative(getDirection()).getCenter();
+                    List<ItemEntity> itemEntities = getLevel().getEntitiesOfClass(
+                        ItemEntity.class, new AABB(getBlockPos().relative(Direction.DOWN)),
+                        itemEntity -> !itemEntity.getItem().isEmpty());
                     AABB aabb = new AABB(center.add(-0.125, -0.125, -0.125), center.add(0.125, 0.125, 0.125));
                     if (getLevel().noCollision(aabb)) {
                         for (int i = 0; i < this.depository.getSlots(); i++) {
                             ItemStack stack = this.depository.getStack(i);
                             if (!stack.isEmpty()) {
-                                ItemEntity itemEntity = new ItemEntity(
-                                    getLevel(), center.x, center.y, center.z, stack, 0, 0, 0);
-                                itemEntity.setDefaultPickUpDelay();
-                                getLevel().addFreshEntity(itemEntity);
-                                this.depository.setStack(i, ItemStack.EMPTY);
-                                cooldown = AnvilCraft.config.chuteMaxCooldown;
-                                break;
+                                int sameItemCount = 0;
+                                for (ItemEntity entity : itemEntities) {
+                                    if (entity.getItem().getItem() == stack.getItem()) {
+                                        sameItemCount += entity.getItem().getCount();
+                                    }
+                                }
+                                if (sameItemCount < stack.getItem().getMaxStackSize()) {
+                                    ItemStack droppedItemStack = stack.copy();
+                                    int droppedItemCount = Math.min(stack.getCount(),
+                                        stack.getMaxStackSize() - sameItemCount);
+                                    droppedItemStack.setCount(droppedItemCount);
+                                    stack.setCount(stack.getCount() - droppedItemCount);
+                                    if (stack.getCount() == 0) stack = ItemStack.EMPTY;
+                                    ItemEntity itemEntity = new ItemEntity(
+                                        getLevel(), center.x, center.y, center.z,
+                                        droppedItemStack,
+                                        0, 0, 0);
+                                    itemEntity.setDefaultPickUpDelay();
+                                    getLevel().addFreshEntity(itemEntity);
+                                    this.depository.setStack(i, stack);
+                                    cooldown = AnvilCraft.config.chuteMaxCooldown;
+                                    break;
+                                }
+
                             }
                         }
                     }

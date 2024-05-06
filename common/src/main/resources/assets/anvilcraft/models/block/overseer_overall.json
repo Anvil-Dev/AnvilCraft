@@ -2,16 +2,17 @@
 	"credit": "Made by XeKr with Blockbench",
 	"parent": "minecraft:block/block",
 	"textures": {
-		"particle": "anvilcraft:block/overseer_base_3",
-		"side": "anvilcraft:block/overseer_base_3",
-		"bottom": "anvilcraft:block/overseer_bottom",
 		"top": "anvilcraft:block/overseer_top",
-		"sidetop": "anvilcraft:block/overseer_top_3"
+		"sidetop": "anvilcraft:block/overseer_top_1",
+		"sidemid": "anvilcraft:block/overseer_mid_1",
+		"particle": "anvilcraft:block/overseer_base_1",
+		"side": "anvilcraft:block/overseer_base_1",
+		"bottom": "anvilcraft:block/overseer_bottom"
 	},
 	"elements": [
 		{
-			"from": [0, -8, 0],
-			"to": [16, -4, 16],
+			"from": [0, -16, 0],
+			"to": [16, -12, 16],
 			"faces": {
 				"north": {"uv": [0, 12, 16, 16], "texture": "#side"},
 				"east": {"uv": [0, 12, 16, 16], "texture": "#side"},
@@ -22,25 +23,35 @@
 			}
 		},
 		{
-			"from": [4, -2, 4],
-			"to": [12, 8, 12],
+			"from": [2, 20, 2],
+			"to": [14, 32, 14],
 			"faces": {
-				"north": {"uv": [4, 0, 12, 10], "texture": "#side"},
-				"east": {"uv": [4, 0, 12, 10], "texture": "#side"},
-				"south": {"uv": [4, 0, 12, 10], "texture": "#side"},
-				"west": {"uv": [4, 0, 12, 10], "texture": "#side"},
-				"down": {"uv": [4, 4, 12, 12], "texture": "#top"}
+				"north": {"uv": [2, 4, 14, 16], "texture": "#sidetop"},
+				"east": {"uv": [2, 4, 14, 16], "texture": "#sidetop"},
+				"south": {"uv": [2, 4, 14, 16], "texture": "#sidetop"},
+				"west": {"uv": [2, 4, 14, 16], "texture": "#sidetop"},
+				"up": {"uv": [2, 2, 14, 14], "texture": "#top"}
 			}
 		},
 		{
-			"from": [4, 8, 4],
-			"to": [12, 23, 12],
+			"from": [2, -8, 2],
+			"to": [14, 4, 14],
 			"faces": {
-				"north": {"uv": [4, 1, 12, 16], "texture": "#sidetop"},
-				"east": {"uv": [4, 1, 12, 16], "texture": "#sidetop"},
-				"south": {"uv": [4, 1, 12, 16], "texture": "#sidetop"},
-				"west": {"uv": [4, 1, 12, 16], "texture": "#sidetop"},
-				"up": {"uv": [4, 4, 12, 12], "texture": "#top"}
+				"north": {"uv": [2, 0, 14, 12], "texture": "#side"},
+				"east": {"uv": [2, 0, 14, 12], "texture": "#side"},
+				"south": {"uv": [2, 0, 14, 12], "texture": "#side"},
+				"west": {"uv": [2, 0, 14, 12], "texture": "#side"},
+				"down": {"uv": [2, 2, 14, 14], "texture": "#top"}
+			}
+		},
+		{
+			"from": [2, 4, 2],
+			"to": [14, 20, 14],
+			"faces": {
+				"north": {"uv": [2, 0, 14, 16], "texture": "#sidemid"},
+				"east": {"uv": [2, 0, 14, 16], "texture": "#sidemid"},
+				"south": {"uv": [2, 0, 14, 16], "texture": "#sidemid"},
+				"west": {"uv": [2, 0, 14, 16], "texture": "#sidemid"}
 			}
 		}
 	],
@@ -71,14 +82,13 @@
 		},
 		"gui": {
 			"rotation": [30, 225, 0],
-			"translation": [0, 0.75, 0],
-			"scale": [0.45, 0.45, 0.45]
+			"scale": [0.3, 0.3, 0.3]
 		},
 		"head": {
-			"translation": [0, 17.75, 0]
+			"translation": [0, 17, 0]
 		},
 		"fixed": {
-			"scale": [0.5, 0.5, 0.5]
+			"scale": [0.33, 0.33, 0.33]
 		}
 	}
 }
