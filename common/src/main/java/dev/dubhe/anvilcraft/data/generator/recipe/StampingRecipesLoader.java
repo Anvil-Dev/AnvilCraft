@@ -57,7 +57,7 @@ public class StampingRecipesLoader {
             new RecipeItem(0.5, Items.PRISMARINE_CRYSTALS),
             new RecipeItem(Items.PRISMARINE_SHARD));
         stamping(ModItems.GEODE.get(),
-            new RecipeItem(Items.AMETHYST_SHARD, 2),
+            new RecipeItem(Items.AMETHYST_SHARD, 8),
             new RecipeItem(ModItems.TOPAZ, 1, true),
             new RecipeItem(ModItems.SAPPHIRE, 1, true),
             new RecipeItem(ModItems.RUBY, 1, true)
