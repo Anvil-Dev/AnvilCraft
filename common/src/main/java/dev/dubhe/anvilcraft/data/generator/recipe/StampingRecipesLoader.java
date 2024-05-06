@@ -67,6 +67,9 @@ public class StampingRecipesLoader {
             new RecipeItem(ModItems.WOOD_FIBER, 2),
             new RecipeItem(ModItems.RESIN),
             new RecipeItem(Items.PRISMARINE_SHARD));
+        stamping(
+            Items.CHERRY_LEAVES,
+            new RecipeItem(Items.PINK_PETALS));
 
         reclaim(Items.CHAINMAIL_HELMET, Items.CHAIN);
         reclaim(Items.CHAINMAIL_CHESTPLATE, Items.CHAIN);

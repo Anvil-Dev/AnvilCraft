@@ -1,0 +1,37 @@
+{
+  "type": "anvilcraft:anvil_processing",
+  "icon": {
+    "item": "minecraft:anvil"
+  },
+  "outcomes": [],
+  "predicates": [
+    {
+      "type": "has_block",
+      "match_block": {
+        "blocks": [
+          "minecraft:scaffolding"
+        ]
+      },
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ]
+    },
+    {
+      "type": "has_item_leaves",
+      "input_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "leaves_chance": 0.5,
+      "output_offset": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "sapling_chance": 0.2
+    }
+  ]
+}

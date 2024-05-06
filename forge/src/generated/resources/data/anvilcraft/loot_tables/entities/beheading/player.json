@@ -22,6 +22,10 @@
         },
         {
           "condition": "minecraft:killed_by_player"
+        },
+        {
+          "chance": 0.5,
+          "condition": "minecraft:random_chance"
         }
       ],
       "entries": [
@@ -59,6 +63,10 @@
         },
         {
           "condition": "minecraft:killed_by_player"
+        },
+        {
+          "chance": 0.8,
+          "condition": "minecraft:random_chance"
         }
       ],
       "entries": [

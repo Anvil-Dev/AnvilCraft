@@ -53,6 +53,10 @@ public class SievingRecipesLoader {
             Map.entry(Items.QUARTZ, 1.0),
             Map.entry(ModItems.TIN_NUGGET, 0.2)
         );
+        AnvilRecipe.Builder.create(RecipeCategory.MISC)
+            .hasBlock(Blocks.SCAFFOLDING)
+            .hasItemLeaves(Vec3.ZERO, new Vec3(0.0, -1.0, 0.0), 0.5, 0.2)
+            .save(provider, AnvilCraft.of("sieving/leaves"));
     }
 
     /**

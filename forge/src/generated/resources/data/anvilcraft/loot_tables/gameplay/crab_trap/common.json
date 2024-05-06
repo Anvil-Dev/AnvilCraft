@@ -16,7 +16,8 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:seagrass"
+          "name": "minecraft:seagrass",
+          "weight": 15
         }
       ],
       "rolls": 1.0
