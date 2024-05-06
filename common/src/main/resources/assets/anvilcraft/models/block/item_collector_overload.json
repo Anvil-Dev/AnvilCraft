@@ -1,0 +1,9 @@
+{
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "anvilcraft:block/item_collector",
+	"textures": {
+		"bottom": "anvilcraft:block/item_collector_bottom",
+		"side": "anvilcraft:block/item_collector_side_overload",
+		"top": "anvilcraft:block/item_collector_top_overload"
+	}
+}

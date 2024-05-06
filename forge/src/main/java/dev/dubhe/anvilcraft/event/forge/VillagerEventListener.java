@@ -63,7 +63,7 @@ public class VillagerEventListener {
             trades.get(3).add((entity, random) -> new MerchantOffer(
                 new ItemStack(Items.EMERALD, 40), new ItemStack(ModItems.ROYAL_STEEL_INGOT, 4),
                 new ItemStack(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE, 1),
-                1, 10, 0.05f
+                2, 10, 0.05f
             ));
 
             // level 4
@@ -83,7 +83,7 @@ public class VillagerEventListener {
             trades.get(5).add((entity, random) -> new MerchantOffer(
                 new ItemStack(Items.EMERALD, 64), new ItemStack(Blocks.SMOOTH_BASALT, 32),
                 new ItemStack(ModItems.GEODE),
-                1, 30, 0.05f
+                4, 30, 0.05f
             ));
             trades.get(5).add((entity, random) -> new MerchantOffer(
                 new ItemStack(Items.EMERALD, 64), new ItemStack(Items.TOTEM_OF_UNDYING),

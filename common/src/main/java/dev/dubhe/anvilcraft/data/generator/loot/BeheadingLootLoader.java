@@ -105,6 +105,7 @@ public class BeheadingLootLoader {
                         ).build())
                 ))
                 .when(LootItemKilledByPlayerCondition.killedByPlayer())
+                .when(LootItemRandomChanceCondition.randomChance(0.5f))
         )
         .withPool(
             LootPool.lootPool()
@@ -121,6 +122,7 @@ public class BeheadingLootLoader {
                         ).build())
                 ))
                 .when(LootItemKilledByPlayerCondition.killedByPlayer())
+                .when(LootItemRandomChanceCondition.randomChance(0.8f))
         )
         .withPool(
             LootPool.lootPool()
@@ -140,7 +142,48 @@ public class BeheadingLootLoader {
         );
     private static final LootTable.Builder ZOMBIE = genBeheading(Items.ZOMBIE_HEAD);
     private static final LootTable.Builder CREEPER = genBeheading(Items.CREEPER_HEAD);
-    private static final LootTable.Builder ENDER_DRAGON = genBeheading(Items.DRAGON_HEAD);
+    private static final LootTable.Builder ENDER_DRAGON =  LootTable.lootTable()
+        .withPool(
+            LootPool.lootPool()
+                .setRolls(ConstantValue.exactly(1.0f))
+                .add(LootItem.lootTableItem(Items.DRAGON_HEAD))
+                .when(LootItemEntityPropertyCondition.hasProperties(
+                    LootContext.EntityTarget.KILLER,
+                    EntityPredicate.Builder.entity()
+                        .equipment(EntityEquipmentPredicate.Builder.equipment().mainhand(
+                            ItemPredicate.Builder.item().hasEnchantment(BEHEADING_1).build()
+                        ).build())
+                ))
+                .when(LootItemKilledByPlayerCondition.killedByPlayer())
+                .when(LootItemRandomChanceCondition.randomChance(0.5f))
+        )
+        .withPool(
+            LootPool.lootPool()
+                .setRolls(ConstantValue.exactly(1.0f))
+                .add(LootItem.lootTableItem(Items.DRAGON_HEAD))
+                .when(LootItemEntityPropertyCondition.hasProperties(
+                    LootContext.EntityTarget.KILLER,
+                    EntityPredicate.Builder.entity()
+                        .equipment(EntityEquipmentPredicate.Builder.equipment().mainhand(
+                            ItemPredicate.Builder.item().hasEnchantment(BEHEADING_2).build()
+                        ).build())
+                ))
+                .when(LootItemKilledByPlayerCondition.killedByPlayer())
+                .when(LootItemRandomChanceCondition.randomChance(0.8f))
+        )
+        .withPool(
+            LootPool.lootPool()
+                .setRolls(ConstantValue.exactly(1.0f))
+                .add(LootItem.lootTableItem(Items.DRAGON_HEAD))
+                .when(LootItemEntityPropertyCondition.hasProperties(
+                    LootContext.EntityTarget.KILLER,
+                    EntityPredicate.Builder.entity()
+                        .equipment(EntityEquipmentPredicate.Builder.equipment().mainhand(
+                            ItemPredicate.Builder.item().hasEnchantment(BEHEADING_3).build()
+                        ).build())
+                ))
+                .when(LootItemKilledByPlayerCondition.killedByPlayer())
+        );
     private static final LootTable.Builder PIGLIN = genBeheading(Items.PIGLIN_HEAD);
 
     public static final Map<EntityType<?>, ResourceLocation> BEHEADING = new HashMap<>() {
