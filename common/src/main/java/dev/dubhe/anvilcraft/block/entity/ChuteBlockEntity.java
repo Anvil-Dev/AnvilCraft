@@ -154,7 +154,7 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
                 } else {
                     Vec3 center = getBlockPos().relative(getDirection()).getCenter();
                     List<ItemEntity> itemEntities = getLevel().getEntitiesOfClass(
-                        ItemEntity.class, new AABB(getBlockPos().relative(Direction.DOWN)),
+                        ItemEntity.class, new AABB(getBlockPos().relative(getDirection())),
                         itemEntity -> !itemEntity.getItem().isEmpty());
                     AABB aabb = new AABB(center.add(-0.125, -0.125, -0.125), center.add(0.125, 0.125, 0.125));
                     if (getLevel().noCollision(aabb)) {
