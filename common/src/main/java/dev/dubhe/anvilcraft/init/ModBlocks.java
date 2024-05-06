@@ -48,6 +48,7 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SpawnItem;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItem;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItemIngredient;
 import dev.dubhe.anvilcraft.item.CursedBlockItem;
+import dev.dubhe.anvilcraft.item.EndDustBlockItem;
 import dev.dubhe.anvilcraft.item.HasMobBlockItem;
 import dev.dubhe.anvilcraft.item.PlaceInWaterBlockItem;
 import dev.dubhe.anvilcraft.item.RemoteTransmissionPoleBlockItem;
@@ -761,7 +762,8 @@ public class ModBlocks {
         .register();
     public static final BlockEntry<Block> END_DUST = REGISTRATE
         .block("end_dust", Block::new)
-        .simpleItem()
+        .item(EndDustBlockItem::new)
+        .build()
         .initialProperties(() -> Blocks.BLACK_CONCRETE_POWDER)
         .recipe(
             (ctx, provider) -> SmashBlockRecipesLoader.smash(Blocks.END_STONE, ctx.get(), provider))
