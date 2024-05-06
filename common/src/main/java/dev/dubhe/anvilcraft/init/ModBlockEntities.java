@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.block.entity.CorruptedBeaconBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeGeneratorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LoadMonitorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.OverseerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PowerConverterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeaterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.MobAmberBlockEntity;
@@ -92,10 +93,15 @@ public class ModBlockEntities {
         .blockEntity("remote_transmission_pole", RemoteTransmissionPoleBlockEntity::createBlockEntity)
         .validBlock(ModBlocks.REMOTE_TRANSMISSION_POLE)
         .register();
-      
+
     public static final BlockEntityEntry<LoadMonitorBlockEntity> LOAD_MONITOR = REGISTRATE
         .blockEntity("load_monitor", LoadMonitorBlockEntity::new)
         .validBlock(ModBlocks.LOAD_MONITOR)
+        .register();
+
+    public static final BlockEntityEntry<OverseerBlockEntity> OVERSEER = REGISTRATE
+        .blockEntity("overseer", OverseerBlockEntity::createBlockEntity)
+        .validBlock(ModBlocks.OVERSEER_BLOCK)
         .register();
 
     public static void register() {

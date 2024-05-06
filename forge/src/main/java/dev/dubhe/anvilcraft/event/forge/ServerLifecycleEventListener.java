@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.forge.DataPackReloadedEvent;
 import dev.dubhe.anvilcraft.api.event.server.ServerEndDataPackReloadEvent;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
+import dev.dubhe.anvilcraft.api.world.load.RandomChuckTickLoadManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.resources.CloseableResourceManager;
 import net.minecraftforge.event.TickEvent;
@@ -41,6 +42,7 @@ public class ServerLifecycleEventListener {
     public static void onTick(@NotNull TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.START) return;
         PowerGrid.tickGrid();
+        RandomChuckTickLoadManager.tick();
     }
 
     /**
