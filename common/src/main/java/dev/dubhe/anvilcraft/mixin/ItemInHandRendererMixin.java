@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.init.ModItems;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
@@ -66,18 +67,37 @@ abstract class ItemInHandRendererMixin {
                 ci.cancel();
                 return;
             }
-            ModelResourceLocation location =
-                    this.mainHandItem.getItem() instanceof BlockItem
-                            ? anvilCraft$HOLDING_BLOCK : anvilCraft$HOLDING_ITEM;
+            boolean isBlockItem = this.mainHandItem.getItem() instanceof BlockItem;
+            if (player.isUsingItem() && player.getUseItemRemainingTicks() > 0 && player.getUsedItemHand() == hand) {
+                switch (stack.getUseAnimation()) {
+                    case EAT:
+                    case DRINK:
+                    case BOW:
+                        poseStack.translate(0, -0.25, 0.05);
+                        break;
+                    default:
+                        break;
+                }
+            }
             this.itemRenderer.render(
                     this.offHandItem,
                     ItemDisplayContext.FIRST_PERSON_RIGHT_HAND, false,
                     poseStack, buffer,
                     combinedLight,
                     OverlayTexture.NO_OVERLAY,
-                    this.itemRenderer.getItemModelShaper().getModelManager().getModel(location)
+                    this.itemRenderer.getItemModelShaper().getModelManager().getModel(
+                        isBlockItem ? anvilCraft$HOLDING_BLOCK : anvilCraft$HOLDING_ITEM
+                    )
             );
-            poseStack.translate(0.1, 0.3, -0.3);
+            if (isBlockItem) {
+                poseStack.mulPose(Axis.YP.rotationDegrees(60f));
+                poseStack.mulPose(Axis.XP.rotationDegrees(25f));
+                poseStack.scale(0.5f, 0.5f, 0.5f);
+                poseStack.translate(0.25, 0.4, -0.1);
+            } else {
+                poseStack.mulPose(Axis.ZP.rotationDegrees(5f));
+                poseStack.translate(0, 0.3, -0.05);
+            }
         }
     }
 }
