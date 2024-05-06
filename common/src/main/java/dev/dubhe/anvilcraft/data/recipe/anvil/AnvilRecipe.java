@@ -16,6 +16,7 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasBlockIngredient;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasFluidCauldron;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItem;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItemIngredient;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItemLeaves;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.NotHasBlock;
 import dev.dubhe.anvilcraft.util.IItemStackUtil;
 import lombok.Getter;
@@ -401,6 +402,15 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
 
         }
 
+        public @NotNull Builder hasItemLeaves(
+                Vec3 inputOffset,
+                Vec3 outputOffset,
+                double leavesChance,
+                double saplingChance
+        ) {
+            return this.addPredicates(new HasItemLeaves(inputOffset, outputOffset, leavesChance, saplingChance));
+        }
+
         public @NotNull Builder hasBlock(Vec3 offset, Block... blocks) {
             return this.addPredicates(new HasBlock(offset, new HasBlock.ModBlockPredicate().block(blocks)));
         }
@@ -783,6 +793,7 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
     public static void init() {
         RecipePredicate.register("has_item", HasItem::new, HasItem::new);
         RecipePredicate.register("has_item_ingredient", HasItemIngredient::new, HasItemIngredient::new);
+        RecipePredicate.register("has_item_leaves", HasItemLeaves::new, HasItemLeaves::new);
         RecipePredicate.register("has_block", HasBlock::new, HasBlock::new);
         RecipePredicate.register("not_has_block", NotHasBlock::new, NotHasBlock::new);
         RecipePredicate.register("has_block_ingredient", HasBlockIngredient::new, HasBlockIngredient::new);

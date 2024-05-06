@@ -21,11 +21,11 @@
           }
         },
         {
-          "chance": 0.01,
-          "condition": "minecraft:random_chance"
+          "condition": "minecraft:killed_by_player"
         },
         {
-          "condition": "minecraft:killed_by_player"
+          "chance": 0.5,
+          "condition": "minecraft:random_chance"
         }
       ],
       "entries": [
@@ -56,11 +56,11 @@
           }
         },
         {
-          "chance": 0.02,
-          "condition": "minecraft:random_chance"
+          "condition": "minecraft:killed_by_player"
         },
         {
-          "condition": "minecraft:killed_by_player"
+          "chance": 0.8,
+          "condition": "minecraft:random_chance"
         }
       ],
       "entries": [
@@ -89,10 +89,6 @@
               }
             }
           }
-        },
-        {
-          "chance": 0.03,
-          "condition": "minecraft:random_chance"
         },
         {
           "condition": "minecraft:killed_by_player"
