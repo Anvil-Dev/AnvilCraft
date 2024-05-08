@@ -12,7 +12,7 @@ body:
         填写此 `issue` 前，请先确认已经开启的 `issue` 没有类似或重复的 `issue`。
 
   - type: dropdown
-    id: OSver
+    id: system
     attributes:
       label: OS Version - 操作系统
       options:
@@ -30,6 +30,18 @@ body:
         What version of Minecraft do you use?
         你使用的 Minecraft 版本是什么
       placeholder: Minecraft version
+    validations:
+      required: true
+
+  - type: dropdown
+    id: mod_loader
+    attributes:
+      label: Mod Loader - 模组加载器
+      options:
+        - Forge
+        - NeoForge
+        - Fabric
+        - Quilt
     validations:
       required: true
 
