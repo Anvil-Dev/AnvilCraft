@@ -10,7 +10,6 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SelectOne;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SpawnItem;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
-import java.util.Arrays;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.tags.ItemTags;
@@ -22,6 +21,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TieredItem;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.Arrays;
 
 public class StampingRecipesLoader {
     private static RegistrateRecipeProvider provider = null;
@@ -64,9 +65,8 @@ public class StampingRecipesLoader {
         );
         stamping(
             ItemTags.LOGS,
-            new RecipeItem(ModItems.WOOD_FIBER, 2),
-            new RecipeItem(ModItems.RESIN),
-            new RecipeItem(Items.PRISMARINE_SHARD));
+            new RecipeItem(ModItems.WOOD_FIBER, 1),
+            new RecipeItem(0.25, ModItems.RESIN));
         stamping(
             Items.CHERRY_LEAVES,
             new RecipeItem(Items.PINK_PETALS));

@@ -10,7 +10,7 @@ public class RecipeItem {
     private final ItemLike item;
     private final TagKey<Item> itemTagKey;
     private final double chance;
-    private final Integer count;
+    private final int count;
     private final boolean isSelectOne;
 
     /**
