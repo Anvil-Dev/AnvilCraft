@@ -18,6 +18,7 @@ import dev.dubhe.anvilcraft.block.CreativeGeneratorBlock;
 import dev.dubhe.anvilcraft.block.FerriteCoreMagnetBlock;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
+import dev.dubhe.anvilcraft.block.HoneyCauldronBlock;
 import dev.dubhe.anvilcraft.block.JewelCraftingTable;
 import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
 import dev.dubhe.anvilcraft.block.LoadMonitorBlock;
@@ -894,6 +895,15 @@ public class ModBlocks {
         .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
+
+    public static final BlockEntry<HoneyCauldronBlock> HONEY_CAULDRON = REGISTRATE
+            .block("honey_cauldron", HoneyCauldronBlock::new)
+            .initialProperties(() -> Blocks.CAULDRON)
+            .blockstate((ctx, provider) -> {
+            })
+            .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .register();
 
     public static final BlockEntry<PowerConverterSmallBlock> POWER_CONVERTER_SMALL = REGISTRATE
         .block("power_converter_small", PowerConverterSmallBlock::new)
