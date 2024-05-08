@@ -199,6 +199,10 @@ public class AnvilEventListener {
         MinecraftServer server = level.getServer();
         if (server == null) return;
         for (ItemStack stack : stacks) {
+            if (count <= 0) {
+                remainders.add(stack);
+                continue;
+            }
             ItemStack type = stack.copy();
             type.setCount(1);
             int deplete = 9;
@@ -241,7 +245,6 @@ public class AnvilEventListener {
                 .peek(item -> item.setCount(item.getCount() * size))
                 .toList()
             );
-            if (count <= 0) break;
         }
     }
 
@@ -255,6 +258,10 @@ public class AnvilEventListener {
         MinecraftServer server = level.getServer();
         if (server == null) return;
         for (ItemStack stack : stacks) {
+            if (count <= 0) {
+                remainders.add(stack);
+                continue;
+            }
             ItemStack type = stack.copy();
             type.setCount(1);
             CraftingContainer container = new SimpleCraftingContainer(type);
@@ -285,7 +292,6 @@ public class AnvilEventListener {
                 .peek(item -> item.setCount(item.getCount() * size))
                 .toList()
             );
-            if (count <= 0) break;
         }
     }
 
@@ -315,12 +321,16 @@ public class AnvilEventListener {
         List<ItemStack> remainders,
         List<ItemStack> results,
         RecipeType<? extends AbstractCookingRecipe> recipeType,
-        int count,
+        int maxProcessCount,
         int yield
     ) {
         MinecraftServer server = level.getServer();
         if (server == null) return;
         for (ItemStack stack : stacks) {
+            if (maxProcessCount <= 0) {
+                remainders.add(stack);
+                continue;
+            }
             ItemStack type = stack.copy();
             type.setCount(1);
             SimpleContainer container = new SimpleContainer(type);
@@ -330,8 +340,8 @@ public class AnvilEventListener {
                 remainders.add(stack);
                 continue;
             }
-            int size = Math.min(count, stack.getCount());
-            count -= size;
+            int size = Math.min(maxProcessCount, stack.getCount());
+            maxProcessCount -= size;
             int remainder = stack.getCount() - size;
             stack.setCount(remainder);
             if (remainder != 0) remainders.add(stack);
@@ -340,7 +350,6 @@ public class AnvilEventListener {
             int resultCount = result.getCount() * size * yield;
             result.setCount(resultCount);
             results.add(result);
-            if (count <= 0) break;
         }
     }
 
