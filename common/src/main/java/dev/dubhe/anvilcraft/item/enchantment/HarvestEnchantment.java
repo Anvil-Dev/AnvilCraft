@@ -54,11 +54,12 @@ public class HarvestEnchantment extends ModEnchantment {
         BlockState state0 = level.getBlockState(pos);
         boolean flag = false;
         if (state0.getBlock() instanceof CropBlock cropBlock) {
-            if (state0.getValue(CropBlock.AGE) == CropBlock.MAX_AGE) {
+            if (cropBlock.isMaxAge(state0)) {
                 flag = true;
                 BlockEntity entity = level.getBlockEntity(pos);
+                cropBlock.playerWillDestroy(level, pos, state0, player);
                 cropBlock.playerDestroy(level, player, pos, state0, entity, tool);
-                level.setBlockAndUpdate(pos, state0.setValue(CropBlock.AGE, 0));
+                level.setBlockAndUpdate(pos, cropBlock.getStateForAge(0));
             }
         } else return;
         int max = (int) Math.pow(enchantments.get(ModEnchantments.HARVEST.get()) * 2 + 1, 2);
@@ -77,10 +78,11 @@ public class HarvestEnchantment extends ModEnchantment {
                     if (!(state.getBlock() instanceof CropBlock block)) continue;
                     if (max-- <= 0) break felling;
                     posList2.add(nextOffset);
-                    if (state.getValue(CropBlock.AGE) != CropBlock.MAX_AGE) continue;
+                    if (!block.isMaxAge(state)) continue;
                     BlockEntity entity = level.getBlockEntity(nextOffset);
+                    block.playerWillDestroy(level, nextOffset, state, player);
                     block.playerDestroy(level, player, nextOffset, state, entity, tool);
-                    level.setBlockAndUpdate(nextOffset, state.setValue(CropBlock.AGE, 0));
+                    level.setBlockAndUpdate(nextOffset, block.getStateForAge(0));
                 }
                 iterator.remove();
             }
