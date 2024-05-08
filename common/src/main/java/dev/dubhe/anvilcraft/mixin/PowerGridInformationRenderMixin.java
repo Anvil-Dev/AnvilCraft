@@ -183,15 +183,14 @@ public abstract class PowerGridInformationRenderMixin {
         int finalVy = vy;
         int finalWidth = width;
         int finalHeight = height + 16;
-        TooltipRenderUtil.renderTooltipBackground(
-            thiz,
-            vx,
-            finalVy,
-            finalWidth,
-            finalHeight,
-            400
-        );
-
+        thiz.drawManaged(() -> TooltipRenderUtil.renderTooltipBackground(
+                thiz,
+                vx,
+                finalVy,
+                finalWidth,
+                finalHeight,
+                400
+        ));
         thiz.pose().translate(0.0F, 0.0F, 400.0F);
 
         thiz.renderFakeItem(itemStack, vx, vy);
