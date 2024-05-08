@@ -1,0 +1,32 @@
+{
+    "name": "流程-获得磁铁",
+    "category": "anvilcraft:process",
+    "icon": "anvilcraft:magnet_ingot",
+    "pages": [
+        {
+            "type": "patchouli:text",
+            "text": "磁铁块帮助你简单地将铁砧抬起再砸下。有三种磁铁块，功能基本相同，有些可以互相转化。第一个磁铁块的获取方式：铁块被雷击转化为空心磁铁块，雷击的影响范围可以通过配置文件更改，默认是水平3x3格，高2格"
+        },
+		{
+            "type": "patchouli:spotlight",
+            "item":"anvilcraft:topaz,minecraft:lightning_rod",
+            "title":"人工引雷",
+			"text": "在铁块上放置避雷针以吸引雷击，如果你等不到雷雨天，使用黄玉右键避雷针会消耗黄玉制造一道闪电，黄玉可以从晶洞获得。"
+        },
+		{
+            "type": "patchouli:crafting",
+            "recipe":"anvilcraft:craft/magnet_ingot_8",
+            "recipe2":"anvilcraft:ferrite_core_magnet_block"
+        },
+		{
+            "type": "patchouli:crafting",
+            "recipe":"anvilcraft:craft/magnet_ingot_9",
+			"text": "雷击得到的空心磁铁块可以分解为8个磁铁锭，磁铁锭可以与铁锭合成铁芯磁铁块，铁芯磁铁块置于世界中逐渐转变为磁铁块，磁铁块可以拆解为9个磁铁锭，这是磁铁再生的一种方法。"
+        },
+		{
+            "type": "patchouli:spotlight",
+            "item":"anvilcraft:hollow_magnet_block",
+			"text": "人工将铁锭逐个丢入空心磁铁块中央的洞，铁锭有概率转化为磁铁锭，这是磁铁再生的另一个方法。"
+        }
+    ]
+}
