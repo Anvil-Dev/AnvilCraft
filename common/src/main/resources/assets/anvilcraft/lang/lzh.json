@@ -228,5 +228,9 @@
   "tooltip.anvilcraft.item.tempering_glass": "禦孳伏臨，可以手採之",
   "tooltip.anvilcraft.item.topaz": "蘊閃電之威",
   "tooltip.anvilcraft.item.transmission_pole": "構築電域，輸電之距捌塊也",
-  "tooltip.anvilcraft.jade.power_information": "電域：%d/%d MW"
+  "tooltip.anvilcraft.jade.power_information": "電域：%d/%d MW",
+  "block.anvilcraft.arrow": "箭",
+  "block.anvilcraft.honey_cauldron": "蜜居之釜",
+  "block.anvilcraft.overseer": "載械",
+  "item.anvilcraft.lime_powder": "石灰末"
 }
