@@ -228,5 +228,9 @@
   "tooltip.anvilcraft.item.tempering_glass": "防苦力怕，可徒手采集",
   "tooltip.anvilcraft.item.topaz": "蕴含闪电的力量",
   "tooltip.anvilcraft.item.transmission_pole": "组建电网，传输距离为8个方块",
-  "tooltip.anvilcraft.jade.power_information": "电网：%d/%d MW"
+  "tooltip.anvilcraft.jade.power_information": "电网：%d/%d MW",
+  "block.anvilcraft.arrow": "箭头方块",
+  "block.anvilcraft.honey_cauldron": "装有蜂蜜的炼药锅",
+  "block.anvilcraft.overseer": "监督者",
+  "item.anvilcraft.lime_powder": "石灰粉"
 }
