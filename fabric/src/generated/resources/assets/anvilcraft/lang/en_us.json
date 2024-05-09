@@ -1,5 +1,6 @@
 {
   "block.anvilcraft.amber_block": "Amber Block",
+  "block.anvilcraft.arrow": "Arrow",
   "block.anvilcraft.auto_crafter": "Auto Crafter",
   "block.anvilcraft.block_placer": "Block Placer",
   "block.anvilcraft.charge_collector": "Charge Collector",
@@ -16,6 +17,7 @@
   "block.anvilcraft.ferrite_core_magnet_block": "Ferrite Core Magnet Block",
   "block.anvilcraft.heater": "Heater",
   "block.anvilcraft.hollow_magnet_block": "Hollow Magnet Block",
+  "block.anvilcraft.honey_cauldron": "Honey Cauldron",
   "block.anvilcraft.jewelcrafting_table": "Jewel Crafting Table",
   "block.anvilcraft.lava_cauldron": "Lava Cauldron",
   "block.anvilcraft.load_monitor": "Load Monitor",
