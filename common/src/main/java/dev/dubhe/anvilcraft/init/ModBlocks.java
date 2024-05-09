@@ -8,6 +8,7 @@ import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
+import dev.dubhe.anvilcraft.block.ArrowBlock;
 import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
 import dev.dubhe.anvilcraft.block.BlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.ChargeCollectorBlock;
@@ -57,7 +58,9 @@ import dev.dubhe.anvilcraft.item.PlaceInWaterBlockItem;
 import dev.dubhe.anvilcraft.item.RemoteTransmissionPoleBlockItem;
 import dev.dubhe.anvilcraft.item.ResinBlockItem;
 import dev.dubhe.anvilcraft.item.TransmissionPoleBlockItem;
+
 import java.util.Map;
+
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -897,13 +900,13 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<HoneyCauldronBlock> HONEY_CAULDRON = REGISTRATE
-            .block("honey_cauldron", HoneyCauldronBlock::new)
-            .initialProperties(() -> Blocks.CAULDRON)
-            .blockstate((ctx, provider) -> {
-            })
-            .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
-            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-            .register();
+        .block("honey_cauldron", HoneyCauldronBlock::new)
+        .initialProperties(() -> Blocks.CAULDRON)
+        .blockstate((ctx, provider) -> {
+        })
+        .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
 
     public static final BlockEntry<PowerConverterSmallBlock> POWER_CONVERTER_SMALL = REGISTRATE
         .block("power_converter_small", PowerConverterSmallBlock::new)
@@ -1141,6 +1144,15 @@ public class ModBlocks {
             .save(provider)
         )
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<ArrowBlock> ARROW = REGISTRATE
+        .block("arrow", ArrowBlock::new)
+        .initialProperties(() -> Blocks.STONE)
+        .properties(BlockBehaviour.Properties::noOcclusion)
+        .blockstate((ctx, provider) -> {
+        })
+        .simpleItem()
         .register();
 
     public static void register() {
