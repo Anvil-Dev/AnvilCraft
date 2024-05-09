@@ -1,0 +1,29 @@
+{
+    "name": "流程3-开始铁砧加工",
+    "category": "anvilcraft:process",
+    "icon": "minecraft:anvil",
+    "pages": [
+        {
+            "type": "patchouli:text",
+            "text": "让铁砧落在需要被加工的方块上就可以加工该方块；铁砧落在冲压平台、炼药锅、铁活版门、脚手架等方块上时，会加工其中或其上的物品。使用磁铁块帮助你完成半自动：磁铁块自动吸起下方五格以内的铁砧，磁铁块被红石激活失去磁性使铁砧下落。如果没有磁铁块，你也可以手动拆除铁砧再将其放置来持续加工，或者设计红石机器。"
+        },
+		{
+            "type": "patchouli:multiblock",
+            "name": "铁砧加工方块",
+			"multiblock": {
+				"mapping": {
+					"A": "minecraft:anvil",
+					"C": "minecraft:cobblestone",
+					"G": "minecraft:gravel"
+				},
+				"pattern": [
+					[ "A  ", "   ", "   " ], 
+					[ "   ", "   ", "  A" ],
+					[ "C  ", " 0 ", "  G" ]
+				]
+			},
+			"enable_visualize":"false",
+			"text": "下落前，铁砧下方有圆石，下落后圆石转化为砂砾。"
+        }
+    ]
+}
