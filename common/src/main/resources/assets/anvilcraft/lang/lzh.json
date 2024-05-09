@@ -1,5 +1,6 @@
 {
   "block.anvilcraft.amber_block": "琥珀石塊",
+  "block.anvilcraft.arrow": "箭",
   "block.anvilcraft.auto_crafter": "墨家機關盒",
   "block.anvilcraft.block_placer": "置械",
   "block.anvilcraft.charge_collector": "電集",
@@ -16,6 +17,7 @@
   "block.anvilcraft.ferrite_core_magnet_block": "鐵芯礠石塊",
   "block.anvilcraft.heater": "電煖械",
   "block.anvilcraft.hollow_magnet_block": "通心礠石塊",
+  "block.anvilcraft.honey_cauldron": "蜜居之釜",
   "block.anvilcraft.jewelcrafting_table": "珠寶製案",
   "block.anvilcraft.lava_cauldron": "熔嚴居之釜",
   "block.anvilcraft.load_monitor": "監械",
@@ -23,6 +25,7 @@
   "block.anvilcraft.melt_gem_cauldron": "熔玉居之釜",
   "block.anvilcraft.mob_amber_block": "含物琥珀",
   "block.anvilcraft.nether_dust": "焱界尘",
+  "block.anvilcraft.overseer": "載械",
   "block.anvilcraft.piezoelectric_crystal": "壓極",
   "block.anvilcraft.power_converter_big": "轉鈕（大）",
   "block.anvilcraft.power_converter_middle": "轉鈕（中）",
@@ -87,6 +90,7 @@
   "item.anvilcraft.geode.find": "疑紫水玉穴，於%s",
   "item.anvilcraft.guide_book": "鐵砧匠藝指南",
   "item.anvilcraft.hardend_resin": "堅樹漆",
+  "item.anvilcraft.lime_powder": "石灰末",
   "item.anvilcraft.magnet": "手執礠石",
   "item.anvilcraft.magnet_ingot": "礠石錠",
   "item.anvilcraft.magnetoelectric_core": "磁電之核",
@@ -228,9 +232,5 @@
   "tooltip.anvilcraft.item.tempering_glass": "禦孳伏臨，可以手採之",
   "tooltip.anvilcraft.item.topaz": "蘊閃電之威",
   "tooltip.anvilcraft.item.transmission_pole": "構築電域，輸電之距捌塊也",
-  "tooltip.anvilcraft.jade.power_information": "電域：%d/%d MW",
-  "block.anvilcraft.arrow": "箭",
-  "block.anvilcraft.honey_cauldron": "蜜居之釜",
-  "block.anvilcraft.overseer": "載械",
-  "item.anvilcraft.lime_powder": "石灰末"
+  "tooltip.anvilcraft.jade.power_information": "電域：%d/%d MW"
 }
