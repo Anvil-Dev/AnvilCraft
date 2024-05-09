@@ -1,5 +1,6 @@
 {
   "block.anvilcraft.amber_block": "琥珀块",
+  "block.anvilcraft.arrow": "箭头方块",
   "block.anvilcraft.auto_crafter": "自动合成器",
   "block.anvilcraft.block_placer": "方块放置器",
   "block.anvilcraft.charge_collector": "集电器",
@@ -16,6 +17,7 @@
   "block.anvilcraft.ferrite_core_magnet_block": "铁芯磁铁块",
   "block.anvilcraft.heater": "加热器",
   "block.anvilcraft.hollow_magnet_block": "空心磁铁块",
+  "block.anvilcraft.honey_cauldron": "装有蜂蜜的炼药锅",
   "block.anvilcraft.jewelcrafting_table": "珠宝加工台",
   "block.anvilcraft.lava_cauldron": "装有熔岩的炼药锅",
   "block.anvilcraft.load_monitor": "负载监视器",
@@ -23,6 +25,7 @@
   "block.anvilcraft.melt_gem_cauldron": "装有熔融宝石的炼药锅",
   "block.anvilcraft.mob_amber_block": "含生物琥珀块",
   "block.anvilcraft.nether_dust": "下界尘",
+  "block.anvilcraft.overseer": "监督者",
   "block.anvilcraft.piezoelectric_crystal": "压电晶体",
   "block.anvilcraft.power_converter_big": "能量转换器（大）",
   "block.anvilcraft.power_converter_middle": "能量转换器（中）",
@@ -87,6 +90,7 @@
   "item.anvilcraft.geode.find": "找到疑似紫晶洞，位于%s",
   "item.anvilcraft.guide_book": "铁砧工艺指南",
   "item.anvilcraft.hardend_resin": "硬化树脂",
+  "item.anvilcraft.lime_powder": "石灰粉",
   "item.anvilcraft.magnet": "手持磁铁",
   "item.anvilcraft.magnet_ingot": "磁铁锭",
   "item.anvilcraft.magnetoelectric_core": "磁电核心",
@@ -228,9 +232,5 @@
   "tooltip.anvilcraft.item.tempering_glass": "防苦力怕，可徒手采集",
   "tooltip.anvilcraft.item.topaz": "蕴含闪电的力量",
   "tooltip.anvilcraft.item.transmission_pole": "组建电网，传输距离为8个方块",
-  "tooltip.anvilcraft.jade.power_information": "电网：%d/%d MW",
-  "block.anvilcraft.arrow": "箭头方块",
-  "block.anvilcraft.honey_cauldron": "装有蜂蜜的炼药锅",
-  "block.anvilcraft.overseer": "监督者",
-  "item.anvilcraft.lime_powder": "石灰粉"
+  "tooltip.anvilcraft.jade.power_information": "电网：%d/%d MW"
 }
