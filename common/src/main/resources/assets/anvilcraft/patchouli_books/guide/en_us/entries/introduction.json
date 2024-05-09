@@ -1,7 +1,8 @@
 {
-    "name": "基本介绍",
+    "name": "基础介绍",
     "category": "anvilcraft:basic_gameplay",
     "icon": "minecraft:anvil",
+    "priority": "true",
     "pages": [
         {
             "type": "patchouli:text",
