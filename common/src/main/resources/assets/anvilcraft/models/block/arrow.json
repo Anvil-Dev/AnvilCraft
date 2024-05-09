@@ -57,6 +57,7 @@
 			"name": "cube inverted",
 			"from": [9.5, 13.5, 7.5],
 			"to": [6.5, 8.5, 2.5],
+			"shade": false,
 			"rotation": {"angle": -45, "axis": "x", "origin": [8, 8, 8]},
 			"faces": {
 				"east": {"uv": [0, 14, 4, 10], "texture": "#0"},
@@ -69,6 +70,7 @@
 			"name": "cube inverted",
 			"from": [9.5, 13.5, 13.5],
 			"to": [6.5, 8.5, 7.5],
+			"shade": false,
 			"rotation": {"angle": -45, "axis": "x", "origin": [8, 8, 8]},
 			"faces": {
 				"north": {"uv": [15, 8, 11, 10], "rotation": 90, "texture": "#0"},
@@ -82,6 +84,7 @@
 			"name": "cube inverted",
 			"from": [9.5, 7.5, 13.5],
 			"to": [6.5, 2.5, 7.5],
+			"shade": false,
 			"rotation": {"angle": 45, "axis": "x", "origin": [8, 8, 8]},
 			"faces": {
 				"north": {"uv": [11, 8, 15, 10], "rotation": 90, "texture": "#0"},
@@ -95,6 +98,7 @@
 			"name": "cube inverted",
 			"from": [9, 11, 15],
 			"to": [7, 5, 4.5],
+			"shade": false,
 			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
 			"faces": {
 				"north": {"uv": [13, 16, 14, 11], "texture": "#0"},
