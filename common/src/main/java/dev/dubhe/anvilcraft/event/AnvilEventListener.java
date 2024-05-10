@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.IHasMultiBlock;
 import dev.dubhe.anvilcraft.api.depository.ItemDepository;
 import dev.dubhe.anvilcraft.api.event.SubscribeEvent;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
@@ -47,6 +48,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.SpawnData;
 import net.minecraft.world.level.block.BeehiveBlock;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
@@ -551,6 +553,9 @@ public class AnvilEventListener {
                 .withParameter(LootContextParams.TOOL, ItemStack.EMPTY)
                 .withOptionalParameter(LootContextParams.BLOCK_ENTITY, blockEntity);
         state.spawnAfterBreak(serverLevel, pos, ItemStack.EMPTY, false);
+        if (state.getBlock() instanceof IHasMultiBlock multiBlock) {
+            multiBlock.onRemove(level, pos, state);
+        }
         dropItems(state.getDrops(builder), level, pos.getCenter());
         level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
     }
