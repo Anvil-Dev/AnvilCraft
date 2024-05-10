@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.api.depository.ItemDepositorySlot;
 import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlocks;
+import lombok.Getter;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -18,8 +19,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class ItemCollectorMenu extends BaseMachineMenu implements IFilterMenu, ContainerListener {
-
+public class ItemCollectorMenu extends AbstractContainerMenu implements IFilterMenu, ContainerListener {
+    @Getter
     private final ItemCollectorBlockEntity blockEntity;
     private final Level level;
 
@@ -29,8 +30,8 @@ public class ItemCollectorMenu extends BaseMachineMenu implements IFilterMenu, C
             Inventory inventory,
             @NotNull BlockEntity machine
     ) {
-        super(menuType, containerId, machine);
-        AutoCrafterMenu.checkContainerSize(inventory, 9);
+        super(menuType, containerId);
+        ItemCollectorMenu.checkContainerSize(inventory, 9);
 
         this.blockEntity = (ItemCollectorBlockEntity) machine;
         this.level = inventory.player.level();
@@ -40,9 +41,12 @@ public class ItemCollectorMenu extends BaseMachineMenu implements IFilterMenu, C
 
         for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < 3; ++j) {
-                this.addSlot(
-                        new ItemDepositorySlot(this.blockEntity.getDepository(), i * 3 + j, 56 + j * 18, 18 + i * 18)
-                );
+                this.addSlot(new ItemDepositorySlot(
+                        this.blockEntity.getDepository(),
+                        i * 3 + j,
+                        98 + j * 18,
+                        18 + i * 18
+                ));
             }
         }
 
@@ -71,8 +75,8 @@ public class ItemCollectorMenu extends BaseMachineMenu implements IFilterMenu, C
     }
 
     private void onChanged() {
-    }
 
+    }
 
 
     @Override
@@ -135,7 +139,7 @@ public class ItemCollectorMenu extends BaseMachineMenu implements IFilterMenu, C
     @Override
     public boolean stillValid(@NotNull Player player) {
         return stillValid(
-                ContainerLevelAccess.create(level, blockEntity.getBlockPos()), player, ModBlocks.AUTO_CRAFTER.get()
+                ContainerLevelAccess.create(level, blockEntity.getBlockPos()), player, ModBlocks.ITEM_COLLECTOR.get()
         );
     }
 

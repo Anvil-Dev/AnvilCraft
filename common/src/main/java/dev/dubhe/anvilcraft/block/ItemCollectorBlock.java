@@ -5,10 +5,18 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.ModMenuTypes;
+import dev.dubhe.anvilcraft.network.MachineEnableFilterPack;
+import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
+import dev.dubhe.anvilcraft.network.SlotFilterChangePack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Containers;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -21,6 +29,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -97,6 +106,33 @@ public class ItemCollectorBlock extends BaseEntityBlock implements IHammerRemova
     @Override
     protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(POWERED).add(OVERLOAD);
+    }
+
+    @Override
+    @SuppressWarnings({"deprecation", "UnreachableCode"})
+    public @NotNull InteractionResult use(
+            @NotNull BlockState state,
+            @NotNull Level level,
+            @NotNull BlockPos pos,
+            @NotNull Player player,
+            @NotNull InteractionHand hand,
+            @NotNull BlockHitResult hit
+    ) {
+        if (level.isClientSide) {
+            return InteractionResult.SUCCESS;
+        }
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity instanceof ItemCollectorBlockEntity eb) {
+            if (player instanceof ServerPlayer serverPlayer) {
+                ModMenuTypes.open(serverPlayer, eb, pos);
+                new MachineEnableFilterPack(eb.isFilterEnabled()).send(serverPlayer);
+                for (int i = 0; i < eb.getFilteredItems().size(); i++) {
+                    new SlotDisableChangePack(i, eb.getDepository().getDisabled().get(i)).send(serverPlayer);
+                    new SlotFilterChangePack(i, eb.getFilter(i)).send(serverPlayer);
+                }
+            }
+        }
+        return InteractionResult.SUCCESS;
     }
 
     @Override

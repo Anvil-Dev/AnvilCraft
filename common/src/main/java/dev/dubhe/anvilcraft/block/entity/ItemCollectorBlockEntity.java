@@ -11,9 +11,9 @@ import dev.dubhe.anvilcraft.util.CyclingValue;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Getter
-public class ItemCollectorBlockEntity extends BaseMachineBlockEntity implements IFilterBlockEntity, IPowerConsumer {
+public class ItemCollectorBlockEntity extends BlockEntity implements MenuProvider, IFilterBlockEntity, IPowerConsumer {
     @Setter
     private PowerGrid grid;
     private final CyclingValue<Integer> rangeRadius = new CyclingValue<>(1, 2, 4, 8);
@@ -54,16 +54,6 @@ public class ItemCollectorBlockEntity extends BaseMachineBlockEntity implements 
     @Override
     public @NotNull BlockPos getPos() {
         return getBlockPos();
-    }
-
-    @Override
-    public Direction getDirection() {
-        return Direction.UP;
-    }
-
-    @Override
-    public void setDirection(Direction direction) {
-
     }
 
     @Override
@@ -99,7 +89,7 @@ public class ItemCollectorBlockEntity extends BaseMachineBlockEntity implements 
 
     @Nullable
     @Override
-    public AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
+    public AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
         return new ItemCollectorMenu(ModMenuTypes.ITEM_COLLECTOR.get(), i, inventory, this);
     }
 
@@ -114,7 +104,8 @@ public class ItemCollectorBlockEntity extends BaseMachineBlockEntity implements 
     public void gridTick() {
         BlockState state = level.getBlockState(getBlockPos());
         if (state.hasProperty(ItemCollectorBlock.POWERED)
-                && !state.getValue(ItemCollectorBlock.POWERED)) return;
+                && state.getValue(ItemCollectorBlock.POWERED)) return;
+
     }
 
     @ExpectPlatform
