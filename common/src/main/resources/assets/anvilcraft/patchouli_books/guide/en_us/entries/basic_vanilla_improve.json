@@ -1,0 +1,52 @@
+{
+    "name": "原版改进",
+    "category": "anvilcraft:basic_gameplay",
+    "icon": "minecraft:dispenser",
+    "sortnum": 4,
+    "pages": [
+        {
+            "type": "patchouli:text",
+            "text": "为了让铁砧处理过程更丝滑，本模组补全了一些原版本应该就有的功能。"
+        },
+		{
+            "type": "patchouli:multiblock",
+            "name": "炼药锅补全",
+			"multiblock": {
+				"mapping": {
+					"A": "anvilcraft:lava_cauldron[level=1]",
+					"B": "anvilcraft:lava_cauldron[level=2]",
+					"C": "minecraft:lava_cauldron"
+				},
+				"pattern": [
+					[ "   ", "   ", "   " ], 
+					[ "A  ", " B ", "  C" ],
+					[ "   ", " 0 ", "   " ]
+				]
+			},
+			"enable_visualize":"false",
+			"text": "补全原版缺失的炼药锅层数。"
+        },
+		{
+            "type": "patchouli:multiblock",
+            "name": "发射器操作炼药锅",
+			"multiblock": {
+				"mapping": {
+					"D": "minecraft:dispenser",
+					"C": "minecraft:cauldron",
+					"W": "minecraft:water_cauldron[level=3]"
+				},
+				"pattern": [
+					[ "  ", "  ", "  " ], 
+					[ "CD", "  ", "WD" ],
+					[ "  ", " 0", "  " ]
+				]
+			},
+			"enable_visualize":"false",
+			"text": "发射器使用水瓶、空瓶、熔岩桶、细雪桶、水桶、空桶交互炼药锅。"
+        },
+        {
+            "type": "patchouli:text",
+            "text": "发射器交互生物：$(br)发射器可以用铁锭修铁傀儡，发射器可以用桶交互牛接奶。"
+        }
+    ]
+}

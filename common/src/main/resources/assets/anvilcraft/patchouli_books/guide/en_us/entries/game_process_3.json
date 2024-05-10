@@ -65,7 +65,8 @@
 			"text": "再也不用抬头点拉杆或按钮了，敲击音符盒就会让铁砧落下一次。"
         },
 		{
-            "type": "patchouli:text",
+            "type": "patchouli:relations",
+            "entries": ["anvilcraft:basic_block_processing","anvilcraft:basic_item_processing"],
             "text": "左图中，冲压平台可以换成别的方块，下方还可以增加营火等方块，详细处理类别见铁砧处理相关章节。"
         }
     ]
