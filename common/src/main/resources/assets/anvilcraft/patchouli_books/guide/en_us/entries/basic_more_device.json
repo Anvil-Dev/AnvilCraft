@@ -1,0 +1,52 @@
+{
+    "name": "更多实用设备",
+    "category": "anvilcraft:basic_gameplay",
+    "icon": "anvilcraft:block_placer",
+    "sortnum": 5,
+    "pages": [
+        {
+            "type": "patchouli:text",
+            "text": "本页面的设备可以帮助你在初期实现自动化。"
+        },
+		{
+            "type": "patchouli:crafting",
+            "recipe":"anvilcraft:crab_trap",
+			"text": "$(item)蟹笼$()放置在水面，可以自动产出鱼获，四面紧邻的方块至少三个为水源或含水方块时正常工作。右键或铁砧砸之使其吐出产物。不同生物群系产出略有不同，但都会产出$(item)蟹钳$()。"
+        },
+		{
+            "type": "patchouli:spotlight",
+            "item":"anvilcraft:crab_claw",
+			"text": "主手或副手手持时增加3格触及距离，从$(item)蟹笼$()产出。"
+        },
+		{
+            "type": "patchouli:crafting",
+            "recipe":"anvilcraft:block_placer",
+			"text": "$(item)方块放置器$()有红石信号或被铁砧砸时放置方块，方块物品从其背后的容器方块、实体库存、掉落物中取。红石信号使其放置在面前，铁砧根据下落高度n使其间隔n格放置。可以被活塞推拉。"
+        },
+		{
+            "type": "patchouli:crafting",
+            "recipe":"anvilcraft:chute",
+			"text": "$(item)溜槽$()是一种特殊的漏斗，有9格容量，一次性输送一组物品，可以将物品丢出至世界上。打开gui可以查看库存、改变输出方向和设置过滤。"
+        },
+		{
+            "type": "patchouli:multiblock",
+            "name": "溜槽自动连接",
+			"multiblock": {
+				"mapping": {
+					"C": "anvilcraft:chute",
+					"S": "anvilcraft:simple_chute[tall=true]",
+					"A": "anvilcraft:chute[facing=west]",
+					"B": "anvilcraft:simple_chute[facing=west]",
+					"0": "anvilcraft:arrow"
+				},
+				"pattern": [
+					[ "C C", "   ", "   " ], 
+					[ "S C", "B A", "A A" ],
+					[ "S C", " 0 ", "   " ]
+				]
+			},
+			"enable_visualize":"false",
+			"text": "溜槽成链时，被指向的溜槽变为简化溜槽，不再从世界吸取物品，不能过滤。"
+        }
+    ]
+}

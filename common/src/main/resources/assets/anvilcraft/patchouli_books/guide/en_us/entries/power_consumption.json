@@ -1,0 +1,27 @@
+{
+    "name": "电能消耗",
+    "category": "anvilcraft:power_system",
+    "icon": "anvilcraft:heater",
+    "sortnum": 13,
+    "pages": [
+        {
+            "type": "patchouli:text",
+            "text": "用电器在电网中且电网发电功率大于等于耗电功率才可运行。"
+        },
+		{
+            "type": "patchouli:crafting",
+            "recipe":"anvilcraft:heater",
+			"text": "$(item)加热器$()耗电功率为8MW，加热上方方块，允许铁砧执行熔炼操作。"
+        },
+		{
+            "type": "patchouli:crafting",
+            "recipe":"anvilcraft:auto_crafter",
+			"text": "$(item)自动合成器$()耗电功率为1MW，是原版合成器的加强版，可以设置过滤，有持续的红石信号就每1秒合成64下。"
+        },
+		{
+            "type": "patchouli:crafting",
+            "recipe":"anvilcraft:power_converter_big",
+			"text": "$(item)能量转换器$()根据大小，耗电功率分别为1MW，3MW，9MW，可以为其附着的方块提供FE/RF/AE能量，每MW功率产生80FE/t，但有10%损耗。（配置文件可以调整每MW功率转化的量以及损耗系数）"
+        }
+    ]
+}
