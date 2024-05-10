@@ -1,7 +1,7 @@
 {
     "name": "基本方块处理",
     "category": "anvilcraft:basic_gameplay",
-    "icon": "minecraft:deepslate",
+    "icon": "minecraft:stone",
     "sortnum": 1,
     "pages": [
         {
@@ -78,6 +78,81 @@
 		{
             "type": "patchouli:text",
             "text": "苔藓块+泥土→草方块$(br)任意树叶+泥土→灰化土$(br)任意蘑菇块+泥土→菌丝体$(br)下界疣块+下界岩→绯红菌岩$(br)诡异疣块+下界岩→诡异菌岩$(br)石头+石头→深板岩$(br)冰+冰→浮冰$(br)浮冰+浮冰→蓝冰$(br)玄武岩+玄武岩→黑石"
+        },
+		{
+            "type": "patchouli:multiblock",
+            "name": "双方块处理：涂抹",
+			"multiblock": {
+				"mapping": {
+					"A": "minecraft:anvil",
+					"M": "minecraft:moss_block",
+					"C": "minecraft:cobblestone",
+					"G": "minecraft:mossy_cobblestone",
+					"0": "anvilcraft:arrow"
+				},
+				"pattern": [
+					[ "   ", "  A", "   " ], 
+					[ "   ", "A  ", "   " ],
+					[ "   ", "M M", "   " ],
+					[ "   ", "G0C", "   " ]
+				]
+			},
+			"enable_visualize":"false",
+			"text": "与压合不同的是上方的方块不会消耗。右边的列表给出更多可以发生此种转化的例子。"
+        },
+		{
+            "type": "patchouli:text",
+            "text": "苔藓块+圆石→苔石$(br)苔藓块+石砖→苔石砖$(br)蜜脾块+任意铜块→对应的涂蜡铜块"
+        },
+		{
+            "type": "patchouli:multiblock",
+            "name": "方块+炼药锅：压榨",
+			"multiblock": {
+				"mapping": {
+					"A": "minecraft:anvil",
+					"W": "minecraft:wet_sponge",
+					"S": "minecraft:sponge",
+					"C": "minecraft:cauldron",
+					"L": "minecraft:water_cauldron[level=1]",
+					"0": "anvilcraft:arrow"
+				},
+				"pattern": [
+					[ "   ", "  A", "   " ], 
+					[ "   ", "A  ", "   " ],
+					[ "   ", "S W", "   " ],
+					[ "   ", "L0C", "   " ]
+				]
+			},
+			"enable_visualize":"false",
+			"text": "炼药锅中会出现对应的单层液体。右边的列表给出更多可以发生此种转化的例子。"
+        },
+		{
+            "type": "patchouli:text",
+            "text": "湿海绵→海绵+水$(br)苔藓块→覆地苔藓+水$(br)岩浆块→下界岩+熔岩$(br)雪块→冰+细雪$(br)满蜂巢→空蜂巢+蜂蜜（特殊地，下方是三层蜂蜜时，继续砸满蜂巢将压成一个蜂蜜块，上述蜂巢皆可换成蜂箱）"
+        },
+		{
+            "type": "patchouli:multiblock",
+            "name": "方块+切石机：破坏",
+			"multiblock": {
+				"mapping": {
+					"A": "minecraft:anvil",
+					"C": "minecraft:cobblestone",
+					"S": "minecraft:stonecutter",
+					"0": "anvilcraft:arrow"
+				},
+				"pattern": [
+					[ "   ", "  A", "   " ], 
+					[ "   ", "A  ", "   " ],
+					[ "   ", "  C", "   " ],
+					[ "   ", "S0S", "   " ]
+				]
+			},
+			"enable_visualize":"false",
+			"text": "方块变为掉落物。右边详细说明。"
+        },
+		{
+            "type": "patchouli:text",
+            "text": "方块破坏遵循TNT破坏的掉落物表，即没有时运或精准效果。如果方块是超过TNT爆炸能破坏的抗爆强度如黑曜石，仍然可以破坏，但是铁砧将固定损坏一个耐久等级。为了防止方块破坏后铁砧掉在切石机上变为掉落物，你需要控制电路的时序。"
         }
     ]
 }
