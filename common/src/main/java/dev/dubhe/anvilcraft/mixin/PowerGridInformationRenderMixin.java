@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.api.power.PowerComponentInfo;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
+import dev.dubhe.anvilcraft.client.renderer.ui.TooltipRenderHelper;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.item.IEngineerGoggles;
 import net.minecraft.ChatFormatting;
@@ -138,7 +139,7 @@ public abstract class PowerGridInformationRenderMixin {
             }
 
         }
-        anvilCraft$renderInfo(
+        TooltipRenderHelper.renderTooltipWithItemIcon(
             guiGraphics,
             this.getFont(),
             state != null
@@ -148,68 +149,5 @@ public abstract class PowerGridInformationRenderMixin {
             tooltipPosX,
             tooltipPosY
         );
-    }
-
-    @Unique
-    private static void anvilCraft$renderInfo(
-        GuiGraphics thiz, Font font, ItemStack itemStack, @NotNull List<Component> lines, int x, int y
-    ) {
-        ClientTooltipPositioner tooltipPositioner = DefaultTooltipPositioner.INSTANCE;
-        List<ClientTooltipComponent> components = lines.stream()
-            .map(Component::getVisualOrderText)
-            .map(ClientTooltipComponent::create)
-            .toList();
-        if (components.isEmpty()) return;
-        int width = 0;
-        int height = components.size() == 1 ? -2 : 0;
-
-        for (ClientTooltipComponent component : components) {
-            width = Math.max(component.getWidth(font), width);
-            height += component.getHeight();
-        }
-
-        Vector2ic vector2ic = tooltipPositioner.positionTooltip(
-            thiz.guiWidth(),
-            thiz.guiHeight(),
-            x,
-            y,
-            width,
-            height
-        );
-        int vx = vector2ic.x();
-        int vy = vector2ic.y();
-        thiz.pose().pushPose();
-
-        int finalVy = vy;
-        int finalWidth = width;
-        int finalHeight = height + 16;
-        thiz.drawManaged(() -> TooltipRenderUtil.renderTooltipBackground(
-                thiz,
-                vx,
-                finalVy,
-                finalWidth,
-                finalHeight,
-                400
-        ));
-        thiz.pose().translate(0.0F, 0.0F, 400.0F);
-
-        thiz.renderFakeItem(itemStack, vx, vy);
-
-        vy += 16;
-
-        ClientTooltipComponent component;
-        for (int i = 0, q = vy; i < components.size(); ++i) {
-            component = components.get(i);
-            component.renderText(font, vx, q, thiz.pose().last().pose(), thiz.bufferSource());
-            q += component.getHeight() + (i == 0 ? 2 : 0);
-        }
-
-        for (int i = 0, q = vy; i < components.size(); ++i) {
-            component = components.get(i);
-            component.renderImage(font, vx, q, thiz);
-            q += component.getHeight() + (i == 0 ? 2 : 0);
-        }
-
-        thiz.pose().popPose();
     }
 }
