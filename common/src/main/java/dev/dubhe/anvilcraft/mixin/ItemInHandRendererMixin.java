@@ -102,29 +102,24 @@ abstract class ItemInHandRendererMixin {
                 );
                 return;
             }
-            boolean isBlockItem = this.mainHandItem.getItem() instanceof BlockItem;
-            boolean isUsingItem =
-                    player.isUsingItem() && player.getUseItemRemainingTicks() > 0 && player.getUsedItemHand() == hand;
-            if (isUsingItem) {
-                switch (stack.getUseAnimation()) {
-                    case EAT:
-                    case DRINK:
-                    case BOW:
+            boolean isBlockItem =
+                    this.itemRenderer.getModel(this.mainHandItem, player.level(), player, combinedLight).isGui3d()
+                    && this.mainHandItem.getItem() instanceof BlockItem;
+            switch (stack.getUseAnimation()) {
+                case EAT:
+                case DRINK:
+                    if (
+                            player.isUsingItem()
+                            && player.getUseItemRemainingTicks() > 0
+                            && player.getUsedItemHand() == hand
+                    ) {
                         poseStack.translate(0, -0.25, 0.05);
-                        break;
-                    case BLOCK:
-                        poseStack.pushPose();
-                        break;
-                    case SPEAR:
-                        poseStack.pushPose();
-                        poseStack.mulPose(Axis.XP.rotationDegrees(110f));
-                        poseStack.mulPose(Axis.ZP.rotationDegrees(-45f));
-                        poseStack.scale(0.6f, 0.6f, 0.6f);
-                        poseStack.translate(0.3, 0.05, -0.15);
-                        break;
-                    default:
-                        break;
-                }
+                    }
+                    break;
+                case NONE:
+                    break;
+                default:
+                    return;
             }
             this.itemRenderer.render(
                     this.offHandItem,
@@ -136,31 +131,14 @@ abstract class ItemInHandRendererMixin {
                             isBlockItem ? anvilCraft$HOLDING_BLOCK : anvilCraft$HOLDING_ITEM
                     )
             );
-            switch (stack.getUseAnimation()) {
-                case BLOCK:
-                    if (isUsingItem) {
-                        poseStack.popPose();
-                    }
-                    break;
-                case SPEAR:
-                    if (isUsingItem) {
-                        poseStack.popPose();
-                    } else {
-                        poseStack.mulPose(Axis.XP.rotationDegrees(35f));
-                        poseStack.mulPose(Axis.ZP.rotationDegrees(10f));
-                        poseStack.translate(-0.21, 0.3, -0.07);
-                    }
-                    break;
-                default:
-                    if (isBlockItem) {
-                        poseStack.mulPose(Axis.YP.rotationDegrees(60f));
-                        poseStack.mulPose(Axis.XP.rotationDegrees(25f));
-                        poseStack.scale(0.5f, 0.5f, 0.5f);
-                        poseStack.translate(0.25, 0.4, -0.1);
-                    } else {
-                        poseStack.mulPose(Axis.ZP.rotationDegrees(5f));
-                        poseStack.translate(0, 0.3, -0.05);
-                    }
+            if (isBlockItem) {
+                poseStack.mulPose(Axis.YP.rotationDegrees(60f));
+                poseStack.mulPose(Axis.XP.rotationDegrees(25f));
+                poseStack.scale(0.5f, 0.5f, 0.5f);
+                poseStack.translate(0.25, 0.4, -0.1);
+            } else {
+                poseStack.mulPose(Axis.ZP.rotationDegrees(5f));
+                poseStack.translate(0, 0.3, -0.05);
             }
         }
     }
