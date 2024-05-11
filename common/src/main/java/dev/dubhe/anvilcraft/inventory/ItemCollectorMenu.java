@@ -159,4 +159,14 @@ public class ItemCollectorMenu extends AbstractContainerMenu implements IFilterM
     public void flush() {
         this.onChanged();
     }
+
+    public void notify(int index, String name) {
+        if (name.contentEquals("rangeRadius")) {
+            blockEntity.getRangeRadius().fromIndex(index);
+        } else {
+            if (name.contentEquals("cooldown")) {
+                blockEntity.getCooldown().fromIndex(index);
+            }
+        }
+    }
 }

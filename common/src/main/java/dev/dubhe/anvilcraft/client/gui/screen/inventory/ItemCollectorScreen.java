@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.client.gui.screen.inventory;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.depository.ItemDepositorySlot;
 import dev.dubhe.anvilcraft.client.gui.component.EnableFilterButton;
+import dev.dubhe.anvilcraft.client.gui.component.ItemCollectorButton;
 import dev.dubhe.anvilcraft.client.gui.component.TextWidget;
 import dev.dubhe.anvilcraft.inventory.IFilterMenu;
 import dev.dubhe.anvilcraft.inventory.ItemCollectorMenu;
@@ -11,6 +12,7 @@ import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -29,33 +31,12 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
 
     @Getter
     private EnableFilterButton enableFilterButton = null;
-    private final TextWidget rangeWidget;
-    private final TextWidget cooldownWidget;
-    private final TextWidget powerCostWidget;
     private final ItemCollectorMenu menu;
 
     public ItemCollectorScreen(ItemCollectorMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
         this.menu = menu;
         this.minecraft = Minecraft.getInstance();
-        rangeWidget = new TextWidget(
-                57, 24,
-                20, 8,
-                minecraft.font,
-                () -> Component.literal(menu.getBlockEntity().getRangeRadius().get().toString())
-        );
-        cooldownWidget = new TextWidget(
-                57, 38,
-                20, 8,
-                minecraft.font,
-                () -> Component.literal(menu.getBlockEntity().getCooldown().get().toString())
-        );
-        powerCostWidget = new TextWidget(
-                43, 57,
-                20, 8,
-                minecraft.font,
-                () -> Component.literal(Integer.toString(menu.getBlockEntity().getInputPower()))
-        );
     }
 
     @Override
@@ -63,23 +44,83 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
         super.init();
         this.enableFilterButton = enableFilterButtonSupplier.apply(this.leftPos, this.topPos);
         this.addRenderableWidget(this.enableFilterButton);
-        this.addRenderableWidget(rangeWidget);
-        this.addRenderableWidget(cooldownWidget);
-        this.addRenderableWidget(powerCostWidget);
+        //range
+        this.addRenderableWidget(new TextWidget(
+                leftPos + 57, topPos + 24,
+                20, 8,
+                minecraft.font,
+                () -> Component.literal(menu.getBlockEntity().getRangeRadius().get().toString())
+        ));
+        //cooldown
+        this.addRenderableWidget(new TextWidget(
+                leftPos + 57, topPos + 38,
+                20, 8,
+                minecraft.font,
+                () -> Component.literal(menu.getBlockEntity().getCooldown().get().toString())
+        ));
+        //power cost
+        this.addRenderableWidget(new TextWidget(
+                leftPos + 43, topPos + 51,
+                20, 8,
+                minecraft.font,
+                () -> Component.literal(Integer.toString(menu.getBlockEntity().getInputPower()))
+        ));
         //range - +
-        this.addRenderableWidget(Button.builder(Component.literal("-"), (b) -> {
+        this.addRenderableWidget(new ItemCollectorButton(
+                leftPos + 43, topPos + 23,
+                "minus", (b) -> {
             menu.getBlockEntity().getRangeRadius().previous();
-        }).bounds(43, 23, 10, 10).build());
-        this.addRenderableWidget(Button.builder(Component.literal("+"), (b) -> {
+            menu.getBlockEntity().getRangeRadius().notifyServer();
+        }));
+        this.addRenderableWidget(new ItemCollectorButton(
+                leftPos + 81, topPos + 23,
+                "add", (b) -> {
             menu.getBlockEntity().getRangeRadius().next();
-        }).bounds(81, 23, 10, 10).build());
+            menu.getBlockEntity().getRangeRadius().notifyServer();
+        }));
         //cooldown - +
-        this.addRenderableWidget(Button.builder(Component.literal("-"), (b) -> {
+        this.addRenderableWidget(new ItemCollectorButton(
+                leftPos + 43, topPos + 37,
+                "minus", (b) -> {
             menu.getBlockEntity().getCooldown().previous();
-        }).bounds(43, 37, 10, 10).build());
-        this.addRenderableWidget(Button.builder(Component.literal("+"), (b) -> {
+            menu.getBlockEntity().getCooldown().notifyServer();
+        }));
+        this.addRenderableWidget(new ItemCollectorButton(
+                leftPos + 81, topPos + 37,
+                "add", (b) -> {
             menu.getBlockEntity().getCooldown().next();
-        }).bounds(81, 37, 10, 10).build());
+            menu.getBlockEntity().getCooldown().notifyServer();
+        }));
+
+        //range text
+        this.addRenderableWidget(new StringWidget(
+                leftPos + 7,
+                topPos + 24,
+                22,
+                9,
+                Component.translatable("screen.anvilcraft.item_collector.range"),
+                minecraft.font
+        ).alignLeft());
+
+        //cooldown text
+        this.addRenderableWidget(new StringWidget(
+                leftPos + 7,
+                topPos + 37,
+                22,
+                9,
+                Component.translatable("screen.anvilcraft.item_collector.cooldown"),
+                minecraft.font
+        ).alignLeft());
+
+        //input power text
+        this.addRenderableWidget(new StringWidget(
+                leftPos + 7,
+                topPos + 51,
+                22,
+                9,
+                Component.translatable("screen.anvilcraft.item_collector.input_power"),
+                minecraft.font
+        ).alignLeft());
     }
 
     @Override

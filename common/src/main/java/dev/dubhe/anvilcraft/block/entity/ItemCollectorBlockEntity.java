@@ -7,34 +7,58 @@ import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.ItemCollectorBlock;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.ItemCollectorMenu;
-import dev.dubhe.anvilcraft.util.CyclingValue;
+import dev.dubhe.anvilcraft.util.WatchableCyclingValue;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+
+import static net.minecraft.world.level.block.Block.UPDATE_CLIENTS;
+
 @Getter
-public class ItemCollectorBlockEntity extends BlockEntity implements MenuProvider, IFilterBlockEntity, IPowerConsumer {
+public class ItemCollectorBlockEntity
+        extends BlockEntity
+        implements MenuProvider, IFilterBlockEntity, IPowerConsumer {
     @Setter
     private PowerGrid grid;
-    private final CyclingValue<Integer> rangeRadius = new CyclingValue<>(1, 2, 4, 8);
-    private final CyclingValue<Integer> cooldown = new CyclingValue<>(1, 2, 5, 15, 60);
+    private final WatchableCyclingValue<Integer> rangeRadius = new WatchableCyclingValue<>("rangeRadius",
+            thiz -> {
+                this.setChanged();
+            },
+            1, 2, 4, 8
+    );
+    private final WatchableCyclingValue<Integer> cooldown = new WatchableCyclingValue<>("cooldown",
+            thiz -> {
+                this.setChanged();
+            },
+            1, 2, 5, 15, 60
+    );
 
     private final FilteredItemDepository depository = new FilteredItemDepository.Pollable(9) {
         @Override
         public void onContentsChanged(int slot) {
-            setChanged();
+            ItemCollectorBlockEntity.this.setChanged();
         }
     };
 
@@ -58,7 +82,7 @@ public class ItemCollectorBlockEntity extends BlockEntity implements MenuProvide
 
     @Override
     public int getInputPower() {
-        return 4 * rangeRadius.get() * (30 / cooldown.get());
+        return (int) (4 * rangeRadius.get() * (30.0 / cooldown.get()));
     }
 
     @Override
@@ -100,12 +124,46 @@ public class ItemCollectorBlockEntity extends BlockEntity implements MenuProvide
         throw new AssertionError();
     }
 
+    @Nullable
+    @Override
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public @NotNull CompoundTag getUpdateTag() {
+        CompoundTag tag = new CompoundTag();
+        tag.put("Inventory", this.depository.serializeNbt());
+        tag.putInt("Cooldown", cooldown.index());
+        tag.putInt("RangeRadius", rangeRadius.index());
+        return tag;
+    }
+
     @Override
     public void gridTick() {
+        if (level == null || level.isClientSide) return;
         BlockState state = level.getBlockState(getBlockPos());
         if (state.hasProperty(ItemCollectorBlock.POWERED)
                 && state.getValue(ItemCollectorBlock.POWERED)) return;
-
+        AABB box = AABB.ofSize(
+                Vec3.atCenterOf(getBlockPos()),
+                rangeRadius.get() * 2.0 + 1,
+                rangeRadius.get() * 2.0 + 1,
+                rangeRadius.get() * 2.0 + 1
+        );
+        List<ItemEntity> itemEntities = level.getEntitiesOfClass(ItemEntity.class, box);
+        for (ItemEntity itemEntity : itemEntities) {
+            ItemStack itemStack = itemEntity.getItem();
+            int slotIndex = 0;
+            while (itemStack != ItemStack.EMPTY && slotIndex < 9) {
+                itemStack = depository.insert(slotIndex++, itemStack, false);
+            }
+            if (itemStack != ItemStack.EMPTY) {
+                itemEntity.setItem(itemStack);
+            } else {
+                itemEntity.remove(Entity.RemovalReason.DISCARDED);
+            }
+        }
     }
 
     @ExpectPlatform
