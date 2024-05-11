@@ -22,15 +22,6 @@ public class VanillaRecipesLoader {
      * @param provider 提供器
      */
     public static void init(RegistrateRecipeProvider provider) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, Items.ELYTRA)
-            .pattern("ABA")
-            .pattern("C C")
-            .pattern("C C")
-            .define('A', ModItems.ELYTRA_MEMBRANE)
-            .define('B', Items.STRING)
-            .define('C', Items.FEATHER)
-            .unlockedBy("hasitem", RegistrateRecipeProvider.has(ModItems.ELYTRA_MEMBRANE))
-            .save(provider);
         ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, Items.CHIPPED_ANVIL)
             .pattern("AAB")
             .pattern(" B ")

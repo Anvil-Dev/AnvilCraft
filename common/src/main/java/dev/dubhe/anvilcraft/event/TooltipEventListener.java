@@ -31,8 +31,8 @@ public class TooltipEventListener {
         map.put(ModBlocks.CRAB_TRAP.asItem(), "Placing it in the water to help you catch aquatic products");
         map.put(ModItems.CRAB_CLAW.get(), "Increase touch distance when holding");
         map.put(ModBlocks.ROYAL_ANVIL.asItem(), "Unbreakable and powerful compatibility");
-        map.put(ModBlocks.ROYAL_GRINDSTONE.asItem(), "Eliminating Curses and Punishing");
-        map.put(ModBlocks.ROYAL_SMITHING_TABLE.asItem(), "Saving your Smithing Template");
+        map.put(ModBlocks.ROYAL_GRINDSTONE.asItem(), "Creeper proof, Eliminating Curses and Punishing");
+        map.put(ModBlocks.ROYAL_SMITHING_TABLE.asItem(), "Creeper proof, Saving your Smithing Template");
         map.put(ModBlocks.HEATER.asItem(), "Heating the block above, consumes 8 MW");
         map.put(ModBlocks.TRANSMISSION_POLE.asItem(), "Build a power grid with a transmission distance of 8");
         map.put(ModBlocks.CHARGE_COLLECTOR.asItem(), "Collecting charges to generate power");
