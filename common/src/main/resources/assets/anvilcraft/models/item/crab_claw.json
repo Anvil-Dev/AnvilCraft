@@ -90,7 +90,7 @@
 			"scale": [0.5, 0.5, 0.5]
 		},
 		"gui": {
-			"rotation": [135, 60, -90],
+			"rotation": [45, 60, 0],
 			"translation": [0, 0, 0.75]
 		},
 		"head": {
