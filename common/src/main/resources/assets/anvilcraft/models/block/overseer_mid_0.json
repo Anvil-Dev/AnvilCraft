@@ -1,0 +1,20 @@
+{
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/block",
+	"textures": {
+		"particle": "anvilcraft:block/overseer_mid_0",
+		"side": "anvilcraft:block/overseer_mid_0"
+	},
+	"elements": [
+		{
+			"from": [2, 4, 2],
+			"to": [14, 20, 14],
+			"faces": {
+				"north": {"uv": [2, 0, 14, 16], "texture": "#side"},
+				"east": {"uv": [2, 0, 14, 16], "texture": "#side"},
+				"south": {"uv": [2, 0, 14, 16], "texture": "#side"},
+				"west": {"uv": [2, 0, 14, 16], "texture": "#side"}
+			}
+		}
+	]
+}

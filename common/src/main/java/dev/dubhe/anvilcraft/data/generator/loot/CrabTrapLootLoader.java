@@ -45,7 +45,7 @@ public class CrabTrapLootLoader {
     private static final LootTable.Builder COMMON = LootTable.lootTable().withPool(
         LootPool.lootPool().setRolls(ConstantValue.exactly(1.0f))
             .add(LootItem.lootTableItem(ModItems.CRAB_CLAW).setWeight(1))
-            .add(LootItem.lootTableItem(Items.SEAGRASS).setWeight(1))
+            .add(LootItem.lootTableItem(Items.SEAGRASS).setWeight(15))
             .when(LootItemRandomChanceCondition.randomChance(0.1f))
     );
 

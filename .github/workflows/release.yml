@@ -51,6 +51,7 @@ jobs:
           MAVEN_URL: ${{ secrets.MAVEN_URL }}
           MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+        continue-on-error: true
 
       - name: Upload Release Jar
         uses: softprops/action-gh-release@v0.1.15
@@ -61,6 +62,7 @@ jobs:
 
       - name: publish fabric mc mod
         uses: Kir-Antipov/mc-publish@v3.3
+        continue-on-error: true
         with:
           name: AnvilCraftMod v${{ steps.version.outputs.version }}
           version: ${{ steps.version.outputs.version }}
@@ -85,6 +87,7 @@ jobs:
 
       - name: publish forge mc mod
         uses: Kir-Antipov/mc-publish@v3.3
+        continue-on-error: true
         with:
           name: AnvilCraftMod v${{ steps.version.outputs.version }}
           version: ${{ steps.version.outputs.version }}

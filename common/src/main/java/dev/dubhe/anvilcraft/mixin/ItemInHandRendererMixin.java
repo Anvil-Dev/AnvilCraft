@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.init.ModItems;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
@@ -9,6 +10,7 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -18,6 +20,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemInHandRenderer.class)
@@ -34,6 +37,26 @@ abstract class ItemInHandRendererMixin {
     @Shadow private ItemStack mainHandItem;
 
     @Shadow @Final private ItemRenderer itemRenderer;
+
+    @Shadow public abstract void renderItem(
+            LivingEntity entity,
+            ItemStack itemStack,
+            ItemDisplayContext displayContext,
+            boolean leftHand,
+            PoseStack poseStack,
+            MultiBufferSource buffer,
+            int seed
+    );
+
+    @Redirect(
+            method = "renderArmWithItem",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;isEmpty()Z",
+                    ordinal = 0)
+    )
+    private boolean isEmpty(ItemStack instance) {
+        if (this.offHandItem.is(ModItems.CRAB_CLAW.get())) return false;
+        return instance.isEmpty();
+    }
 
     @Inject(
             method = "renderArmWithItem",
@@ -63,21 +86,60 @@ abstract class ItemInHandRendererMixin {
     ) {
         if (this.offHandItem.is(ModItems.CRAB_CLAW.get()) && !this.mainHandItem.is(ModItems.CRAB_CLAW.get())) {
             if (hand == InteractionHand.OFF_HAND) {
+                poseStack.popPose();
                 ci.cancel();
                 return;
             }
-            ModelResourceLocation location =
-                    this.mainHandItem.getItem() instanceof BlockItem
-                            ? anvilCraft$HOLDING_BLOCK : anvilCraft$HOLDING_ITEM;
+            if (this.mainHandItem.isEmpty()) {
+                this.renderItem(
+                        player,
+                        this.offHandItem,
+                        ItemDisplayContext.FIRST_PERSON_RIGHT_HAND,
+                        false,
+                        poseStack,
+                        buffer,
+                        combinedLight
+                );
+                return;
+            }
+            boolean isBlockItem =
+                    this.itemRenderer.getModel(this.mainHandItem, player.level(), player, combinedLight).isGui3d()
+                    && this.mainHandItem.getItem() instanceof BlockItem;
+            switch (stack.getUseAnimation()) {
+                case EAT:
+                case DRINK:
+                    if (
+                            player.isUsingItem()
+                            && player.getUseItemRemainingTicks() > 0
+                            && player.getUsedItemHand() == hand
+                    ) {
+                        poseStack.translate(0, -0.25, 0.05);
+                    }
+                    break;
+                case NONE:
+                    break;
+                default:
+                    return;
+            }
             this.itemRenderer.render(
                     this.offHandItem,
                     ItemDisplayContext.FIRST_PERSON_RIGHT_HAND, false,
                     poseStack, buffer,
                     combinedLight,
                     OverlayTexture.NO_OVERLAY,
-                    this.itemRenderer.getItemModelShaper().getModelManager().getModel(location)
+                    this.itemRenderer.getItemModelShaper().getModelManager().getModel(
+                            isBlockItem ? anvilCraft$HOLDING_BLOCK : anvilCraft$HOLDING_ITEM
+                    )
             );
-            poseStack.translate(0.1, 0.3, -0.3);
+            if (isBlockItem) {
+                poseStack.mulPose(Axis.YP.rotationDegrees(60f));
+                poseStack.mulPose(Axis.XP.rotationDegrees(25f));
+                poseStack.scale(0.5f, 0.5f, 0.5f);
+                poseStack.translate(0.25, 0.4, -0.1);
+            } else {
+                poseStack.mulPose(Axis.ZP.rotationDegrees(5f));
+                poseStack.translate(0, 0.3, -0.05);
+            }
         }
     }
 }

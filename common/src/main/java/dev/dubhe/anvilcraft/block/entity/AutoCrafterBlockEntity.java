@@ -103,10 +103,9 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
     @SuppressWarnings("UnreachableCode")
     private void craft(@NotNull Level level) {
         if (craftingContainer.isEmpty()) return;
-        if (cooldown <= 0) {
-            cooldown = AnvilCraft.config.autoCrafterCooldown;
+        if (cooldown > 0) {
+            cooldown--;
         }
-        cooldown--;
         if (!canCraft()) return;
         ItemStack result;
         Optional<AutoCrafterCache> cacheOptional = cache
@@ -172,6 +171,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
         for (int i = 0; i < depository.getSlots(); i++) {
             depository.extract(i, times, false);
         }
+        cooldown = AnvilCraft.config.autoCrafterCooldown;
         level.updateNeighborsAt(getBlockPos(), ModBlocks.AUTO_CRAFTER.get());
     }
 

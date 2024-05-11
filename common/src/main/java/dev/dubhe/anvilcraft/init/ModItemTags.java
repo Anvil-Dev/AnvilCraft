@@ -69,6 +69,7 @@ public class ModItemTags {
     public static final TagKey<Item> CAPACITOR = bind("capacitor");
     public static final TagKey<Item> GEMS = bind("gems");
     public static final TagKey<Item> GEM_BLOCKS = bind("gem_blocks");
+    public static final TagKey<Item> DEAD_TUBE = bind("dead_tube");
 
 
     private static @NotNull TagKey<Item> bindC(String id) {

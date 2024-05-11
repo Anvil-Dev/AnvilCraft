@@ -1,0 +1,27 @@
+{
+  "variants": {
+    "facing=down": {
+      "model": "anvilcraft:block/arrow",
+      "x": 90
+    },
+    "facing=east": {
+      "model": "anvilcraft:block/arrow",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "anvilcraft:block/arrow"
+    },
+    "facing=south": {
+      "model": "anvilcraft:block/arrow",
+      "y": 180
+    },
+    "facing=up": {
+      "model": "anvilcraft:block/arrow",
+      "x": 270
+    },
+    "facing=west": {
+      "model": "anvilcraft:block/arrow",
+      "y": 270
+    }
+  }
+}

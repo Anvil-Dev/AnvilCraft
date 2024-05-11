@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.IHasMultiBlock;
 import dev.dubhe.anvilcraft.api.depository.ItemDepository;
 import dev.dubhe.anvilcraft.api.event.SubscribeEvent;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
@@ -46,8 +47,11 @@ import net.minecraft.world.level.BaseSpawner;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.SpawnData;
+import net.minecraft.world.level.block.BeehiveBlock;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CampfireBlock;
+import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.RedstoneTorchBlock;
 import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -72,8 +76,8 @@ import java.util.Optional;
 public class AnvilEventListener {
     private static final RegistryAccess ACCESS = new RegistryAccess.ImmutableRegistryAccess(List.of());
     private static final List<Item> PASS = List.of(
-        Items.IRON_TRAPDOOR,
-        Items.PRISMARINE
+            Items.IRON_TRAPDOOR,
+            Items.PRISMARINE
     );
 
     /**
@@ -92,6 +96,7 @@ public class AnvilEventListener {
         BlockState state = level.getBlockState(belowPos);
         if (state.is(Blocks.REDSTONE_BLOCK)) redstoneEmp(level, belowPos, event.getFallDistance());
         if (state.is(Blocks.SPAWNER)) hitSpawner(level, belowPos, event.getFallDistance());
+        if (state.is(Blocks.BEEHIVE) || state.is(Blocks.BEE_NEST)) hitBeeNest(level, state, belowPos);
         belowPos = belowPos.below();
         state = level.getBlockState(belowPos);
         if (state.is(Blocks.STONECUTTER)) brokeBlock(level, belowPos.above(), event);
@@ -101,9 +106,45 @@ public class AnvilEventListener {
         if (this.isSmash(level, pos) && this.craft(level, pos, this::smash, 0)) return;
         AnvilCraftingContainer container = new AnvilCraftingContainer(level, pos, event.getEntity());
         Optional<AnvilRecipe> optional = server
-            .getRecipeManager()
-            .getRecipeFor(ModRecipeTypes.ANVIL_RECIPE, container, level);
+                .getRecipeManager()
+                .getRecipeFor(ModRecipeTypes.ANVIL_RECIPE, container, level);
         optional.ifPresent(anvilRecipe -> anvilProcess(anvilRecipe, container, event));
+    }
+
+    private void hitBeeNest(Level level, BlockState state, BlockPos pos) {
+        if (!state.hasBlockEntity()) return;
+        int honeyLevel = state.getValue(BeehiveBlock.HONEY_LEVEL);
+        if (honeyLevel < BeehiveBlock.MAX_HONEY_LEVELS) return;
+        level.setBlockAndUpdate(pos, state.setValue(BeehiveBlock.HONEY_LEVEL, 0));
+        BlockPos potPos = pos.below();
+        BlockState pot = level.getBlockState(potPos);
+        if (pot.is(Blocks.CAULDRON)) {
+            level.setBlockAndUpdate(
+                    potPos,
+                    ModBlocks.HONEY_CAULDRON.getDefaultState()
+            );
+            level.setBlockAndUpdate(
+                    potPos,
+                    level.getBlockState(potPos)
+                            .setValue(LayeredCauldronBlock.LEVEL, 1)
+            );
+        } else {
+            if (pot.is(ModBlocks.HONEY_CAULDRON.get())) {
+                int cauldronHoneyLevel = pot.getValue(LayeredCauldronBlock.LEVEL);
+                if (cauldronHoneyLevel < LayeredCauldronBlock.MAX_FILL_LEVEL) {
+                    level.setBlockAndUpdate(
+                            potPos,
+                            pot.setValue(LayeredCauldronBlock.LEVEL, cauldronHoneyLevel + 1)
+                    );
+                } else {
+                    level.setBlockAndUpdate(
+                            potPos,
+                            Blocks.CAULDRON.defaultBlockState()
+                    );
+                    this.returnItems(level, potPos, List.of(Items.HONEY_BLOCK.getDefaultInstance()));
+                }
+            }
+        }
     }
 
     private List<ItemStack> getItemStackForSpace(@NotNull Level level, @NotNull BlockPos pos) {
@@ -112,9 +153,9 @@ public class AnvilEventListener {
         for (ItemEntity entity : entities) {
             ItemStack item = entity.getItem();
             Optional<ItemStack> optional = items.keySet()
-                .stream()
-                .filter(i -> ItemStack.isSameItemSameTags(i, item))
-                .findFirst();
+                    .stream()
+                    .filter(i -> ItemStack.isSameItemSameTags(i, item))
+                    .findFirst();
             ItemStack type;
             type = optional.orElseGet(item::copy);
             type.setCount(1);
@@ -164,16 +205,16 @@ public class AnvilEventListener {
         BlockState state = level.getBlockState(pos.below());
         BlockState state1 = level.getBlockState(pos.below(2));
         return state.is(Blocks.CAULDRON)
-            && state1.is(ModBlocks.HEATER.get())
-            && !state1.getValue(IPowerComponent.OVERLOAD);
+                && state1.is(ModBlocks.HEATER.get())
+                && !state1.getValue(IPowerComponent.OVERLOAD);
     }
 
     private boolean isSmoking(@NotNull Level level, @NotNull BlockPos pos) {
         BlockState state = level.getBlockState(pos.below());
         BlockState state1 = level.getBlockState(pos.below(2));
         return state.is(Blocks.CAULDRON)
-            && state1.is(BlockTags.CAMPFIRES)
-            && state1.getValue(CampfireBlock.LIT);
+                && state1.is(BlockTags.CAMPFIRES)
+                && state1.getValue(CampfireBlock.LIT);
     }
 
     private boolean isCompress(@NotNull Level level, @NotNull BlockPos pos) {
@@ -185,31 +226,35 @@ public class AnvilEventListener {
     private boolean isSmash(@NotNull Level level, @NotNull BlockPos pos) {
         BlockState state = level.getBlockState(pos.below());
         return state.is(Blocks.IRON_TRAPDOOR)
-            && !state.getValue(TrapDoorBlock.OPEN)
-            && state.getValue(TrapDoorBlock.HALF) == Half.TOP;
+                && !state.getValue(TrapDoorBlock.OPEN)
+                && state.getValue(TrapDoorBlock.HALF) == Half.TOP;
     }
 
     private void compress(
-        @NotNull Level level,
-        @NotNull List<ItemStack> stacks,
-        List<ItemStack> remainders,
-        List<ItemStack> results,
-        int count
+            @NotNull Level level,
+            @NotNull List<ItemStack> stacks,
+            List<ItemStack> remainders,
+            List<ItemStack> results,
+            int count
     ) {
         MinecraftServer server = level.getServer();
         if (server == null) return;
         for (ItemStack stack : stacks) {
+            if (count <= 0) {
+                remainders.add(stack);
+                continue;
+            }
             ItemStack type = stack.copy();
             type.setCount(1);
             int deplete = 9;
             CraftingContainer container = SimpleCraftingContainer.create9x(type);
             Optional<? extends CraftingRecipe> optional = server.getRecipeManager()
-                .getRecipeFor(RecipeType.CRAFTING, container, level);
+                    .getRecipeFor(RecipeType.CRAFTING, container, level);
             if (optional.isEmpty()) {
                 deplete = 4;
                 container = SimpleCraftingContainer.create4x(type);
                 optional = server.getRecipeManager()
-                    .getRecipeFor(RecipeType.CRAFTING, container, level);
+                        .getRecipeFor(RecipeType.CRAFTING, container, level);
             }
             if (optional.isEmpty() || stack.getCount() < deplete) {
                 remainders.add(stack);
@@ -236,30 +281,33 @@ public class AnvilEventListener {
             result.setCount(resultCount);
             results.add(result);
             results.addAll(recipe.getRemainingItems(container)
-                .stream()
-                .map(ItemStack::copy)
-                .peek(item -> item.setCount(item.getCount() * size))
-                .toList()
+                    .stream()
+                    .map(ItemStack::copy)
+                    .peek(item -> item.setCount(item.getCount() * size))
+                    .toList()
             );
-            if (count <= 0) break;
         }
     }
 
     private void smash(
-        @NotNull Level level,
-        @NotNull List<ItemStack> stacks,
-        List<ItemStack> remainders,
-        List<ItemStack> results,
-        int count
+            @NotNull Level level,
+            @NotNull List<ItemStack> stacks,
+            List<ItemStack> remainders,
+            List<ItemStack> results,
+            int count
     ) {
         MinecraftServer server = level.getServer();
         if (server == null) return;
         for (ItemStack stack : stacks) {
+            if (count <= 0) {
+                remainders.add(stack);
+                continue;
+            }
             ItemStack type = stack.copy();
             type.setCount(1);
             CraftingContainer container = new SimpleCraftingContainer(type);
             Optional<? extends CraftingRecipe> optional = server.getRecipeManager()
-                .getRecipeFor(RecipeType.CRAFTING, container, level);
+                    .getRecipeFor(RecipeType.CRAFTING, container, level);
             if (optional.isEmpty()) {
                 remainders.add(stack);
                 continue;
@@ -280,58 +328,61 @@ public class AnvilEventListener {
             result.setCount(resultCount);
             results.add(result);
             results.addAll(recipe.getRemainingItems(container)
-                .stream()
-                .map(ItemStack::copy)
-                .peek(item -> item.setCount(item.getCount() * size))
-                .toList()
+                    .stream()
+                    .map(ItemStack::copy)
+                    .peek(item -> item.setCount(item.getCount() * size))
+                    .toList()
             );
-            if (count <= 0) break;
         }
     }
 
     private void heating(
-        @NotNull Level level,
-        @NotNull List<ItemStack> stacks,
-        List<ItemStack> remainders,
-        List<ItemStack> results,
-        int count
+            @NotNull Level level,
+            @NotNull List<ItemStack> stacks,
+            List<ItemStack> remainders,
+            List<ItemStack> results,
+            int count
     ) {
         this.cooking(level, stacks, remainders, results, RecipeType.BLASTING, count, 2);
     }
 
     private void smoking(
-        @NotNull Level level,
-        @NotNull List<ItemStack> stacks,
-        List<ItemStack> remainders,
-        List<ItemStack> results,
-        int count
+            @NotNull Level level,
+            @NotNull List<ItemStack> stacks,
+            List<ItemStack> remainders,
+            List<ItemStack> results,
+            int count
     ) {
         this.cooking(level, stacks, remainders, results, RecipeType.SMOKING, count, 1);
     }
 
     private void cooking(
-        @NotNull Level level,
-        @NotNull List<ItemStack> stacks,
-        List<ItemStack> remainders,
-        List<ItemStack> results,
-        RecipeType<? extends AbstractCookingRecipe> recipeType,
-        int count,
-        int yield
+            @NotNull Level level,
+            @NotNull List<ItemStack> stacks,
+            List<ItemStack> remainders,
+            List<ItemStack> results,
+            RecipeType<? extends AbstractCookingRecipe> recipeType,
+            int maxProcessCount,
+            int yield
     ) {
         MinecraftServer server = level.getServer();
         if (server == null) return;
         for (ItemStack stack : stacks) {
+            if (maxProcessCount <= 0) {
+                remainders.add(stack);
+                continue;
+            }
             ItemStack type = stack.copy();
             type.setCount(1);
             SimpleContainer container = new SimpleContainer(type);
             Optional<? extends AbstractCookingRecipe> optional = server.getRecipeManager()
-                .getRecipeFor(recipeType, container, level);
+                    .getRecipeFor(recipeType, container, level);
             if (optional.isEmpty()) {
                 remainders.add(stack);
                 continue;
             }
-            int size = Math.min(count, stack.getCount());
-            count -= size;
+            int size = Math.min(maxProcessCount, stack.getCount());
+            maxProcessCount -= size;
             int remainder = stack.getCount() - size;
             stack.setCount(remainder);
             if (remainder != 0) remainders.add(stack);
@@ -340,7 +391,6 @@ public class AnvilEventListener {
             int resultCount = result.getCount() * size * yield;
             result.setCount(resultCount);
             results.add(result);
-            if (count <= 0) break;
         }
     }
 
@@ -365,11 +415,11 @@ public class AnvilEventListener {
     }
 
     private void spawnEntities(
-        SpawnData spawnData,
-        ServerLevel serverLevel,
-        BlockPos pos,
-        RandomSource randomSource,
-        @NotNull BaseSpawnerAccessor accessor
+            SpawnData spawnData,
+            ServerLevel serverLevel,
+            BlockPos pos,
+            RandomSource randomSource,
+            @NotNull BaseSpawnerAccessor accessor
     ) {
         for (int i = 0; i < accessor.getSpawnCount(); ++i) {
             CompoundTag compoundTag = spawnData.getEntityToSpawn();
@@ -387,8 +437,8 @@ public class AnvilEventListener {
                 x = listTag.getDouble(0);
             } else {
                 x = (double) pos.getX()
-                    + (randomSource.nextDouble() - randomSource.nextDouble())
-                    * accessor.getSpawnRange() + 0.5;
+                        + (randomSource.nextDouble() - randomSource.nextDouble())
+                        * accessor.getSpawnRange() + 0.5;
             }
             if (size >= 2) {
                 y = listTag.getDouble(1);
@@ -399,31 +449,31 @@ public class AnvilEventListener {
                 z = listTag.getDouble(2);
             } else {
                 z = (double) pos.getZ()
-                    + (randomSource.nextDouble() - randomSource.nextDouble())
-                    * accessor.getSpawnRange() + 0.5;
+                        + (randomSource.nextDouble() - randomSource.nextDouble())
+                        * accessor.getSpawnRange() + 0.5;
             }
             if (serverLevel.noCollision(optional.get().getAABB(x, y, z))) {
                 BlockPos blockPos = BlockPos.containing(x, y, z);
                 if (spawnData.getCustomSpawnRules().isPresent()) {
                     if (!optional.get().getCategory().isFriendly()
-                        && serverLevel.getDifficulty() == Difficulty.PEACEFUL
+                            && serverLevel.getDifficulty() == Difficulty.PEACEFUL
                     ) {
                         continue;
                     }
 
                     SpawnData.CustomSpawnRules customSpawnRules = spawnData.getCustomSpawnRules().get();
                     if (!customSpawnRules.blockLightLimit()
-                        .isValueInRange(serverLevel.getBrightness(LightLayer.BLOCK, blockPos))
-                        || !customSpawnRules.skyLightLimit()
-                        .isValueInRange(serverLevel.getBrightness(LightLayer.SKY, blockPos))) {
+                            .isValueInRange(serverLevel.getBrightness(LightLayer.BLOCK, blockPos))
+                            || !customSpawnRules.skyLightLimit()
+                            .isValueInRange(serverLevel.getBrightness(LightLayer.SKY, blockPos))) {
                         continue;
                     }
                 } else if (!SpawnPlacements.checkSpawnRules(
-                    optional.get(),
-                    serverLevel,
-                    MobSpawnType.SPAWNER,
-                    blockPos,
-                    serverLevel.getRandom()
+                        optional.get(),
+                        serverLevel,
+                        MobSpawnType.SPAWNER,
+                        blockPos,
+                        serverLevel.getRandom()
                 )) {
                     continue;
                 }
@@ -435,16 +485,16 @@ public class AnvilEventListener {
                     return;
                 }
                 AABB boundingBox = new AABB(
-                    pos.getX(),
-                    pos.getY(),
-                    pos.getZ(),
-                    pos.getX() + 1,
-                    pos.getY() + 1,
-                    pos.getZ() + 1
+                        pos.getX(),
+                        pos.getY(),
+                        pos.getZ(),
+                        pos.getX() + 1,
+                        pos.getY() + 1,
+                        pos.getZ() + 1
                 );
                 int k = serverLevel.getEntitiesOfClass(
-                    entity.getClass(),
-                    boundingBox.inflate(accessor.getSpawnRange())
+                        entity.getClass(),
+                        boundingBox.inflate(accessor.getSpawnRange())
                 ).size();
                 if (k >= accessor.getMaxNearbyEntities()) {
                     return;
@@ -453,18 +503,18 @@ public class AnvilEventListener {
                 entity.moveTo(entity.getX(), entity.getY(), entity.getZ(), randomSource.nextFloat() * 360.0F, 0.0F);
                 if (entity instanceof Mob mob) {
                     if (spawnData.getCustomSpawnRules().isEmpty()
-                        && !mob.checkSpawnRules(serverLevel, MobSpawnType.SPAWNER)
-                        || !mob.checkSpawnObstruction(serverLevel)) {
+                            && !mob.checkSpawnRules(serverLevel, MobSpawnType.SPAWNER)
+                            || !mob.checkSpawnObstruction(serverLevel)) {
                         continue;
                     }
 
                     if (spawnData.getEntityToSpawn().size() == 1 && spawnData.getEntityToSpawn().contains("id", 8)) {
                         ((Mob) entity).finalizeSpawn(
-                            serverLevel,
-                            serverLevel.getCurrentDifficultyAt(entity.blockPosition()),
-                            MobSpawnType.SPAWNER,
-                            null,
-                            null
+                                serverLevel,
+                                serverLevel.getCurrentDifficultyAt(entity.blockPosition()),
+                                MobSpawnType.SPAWNER,
+                                null,
+                                null
                         );
                     }
                 }
@@ -498,11 +548,14 @@ public class AnvilEventListener {
         if (state.getDestroySpeed(level, pos) < 0) return;
         BlockEntity blockEntity = state.hasBlockEntity() ? level.getBlockEntity(pos) : null;
         LootParams.Builder builder = new LootParams
-            .Builder(serverLevel)
-            .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos))
-            .withParameter(LootContextParams.TOOL, ItemStack.EMPTY)
-            .withOptionalParameter(LootContextParams.BLOCK_ENTITY, blockEntity);
+                .Builder(serverLevel)
+                .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos))
+                .withParameter(LootContextParams.TOOL, ItemStack.EMPTY)
+                .withOptionalParameter(LootContextParams.BLOCK_ENTITY, blockEntity);
         state.spawnAfterBreak(serverLevel, pos, ItemStack.EMPTY, false);
+        if (state.getBlock() instanceof IHasMultiBlock multiBlock) {
+            multiBlock.onRemove(level, pos, state);
+        }
         dropItems(state.getDrops(builder), level, pos.getCenter());
         level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
     }
@@ -608,11 +661,11 @@ public class AnvilEventListener {
     @FunctionalInterface
     interface Crafting {
         void crafting(
-            @NotNull Level level,
-            List<ItemStack> stacks,
-            List<ItemStack> remainders,
-            List<ItemStack> results,
-            int count
+                @NotNull Level level,
+                List<ItemStack> stacks,
+                List<ItemStack> remainders,
+                List<ItemStack> results,
+                int count
         );
     }
 }

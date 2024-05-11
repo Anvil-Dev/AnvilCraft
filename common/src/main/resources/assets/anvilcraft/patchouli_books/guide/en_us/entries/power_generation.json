@@ -1,0 +1,35 @@
+{
+    "name": "电能产生",
+    "category": "anvilcraft:power_system",
+    "icon": "anvilcraft:charge_collector",
+    "sortnum": 11,
+    "pages": [
+        {
+            "type": "patchouli:text",
+            "text": "使用集电器收集电荷发电。一些方块行为会产生电荷：铁砧砸到压电晶体、活塞推拉紧邻铜块的磁铁、铜块被雷劈。"
+        },
+		{
+            "type": "patchouli:crafting",
+            "recipe":"anvilcraft:charge_collector",
+			"text": "$(item)集电器$()是发电设施的核心部件，发电功率上限为32MW。工作范围是以自己为中心5x5x5，集电器一个周期之内收到的电荷数量将成为它下个周期的发电功率（个→MW）。周期默认为2秒。"
+        },
+		{
+            "type": "patchouli:crafting",
+            "recipe":"anvilcraft:piezoelectric_crystal",
+            "recipe2":"anvilcraft:piezoelectric_crystal_amethyst",
+			"text": ""
+        },
+		{
+            "type": "patchouli:text",
+            "text": "$(item)压电晶体$()被铁砧砸可以产生电荷。铁砧下落高度越高产生的电荷越多，1到4格的高度分别对应产生1，2，4，8个电荷。竖向堆叠的压电晶体也可以增加产电荷的量，每个压电晶体产生它上方压电晶体一半的电荷量，小数向下取整。"
+        },
+		{
+            "type": "patchouli:text",
+            "text": "$(item)磁铁块$()被活塞推拉时紧贴着的铜块可以产生电荷。每次移动产生1/8个电荷，涂蜡铜块无法产生电荷，铜块生锈会使电荷生产量减少，四个阶段的电荷产出：1/8，1/16，1/32，0。电荷数量被集电器汇总后向下取整。"
+        },
+		{
+            "type": "patchouli:text",
+            "text": "$(item)避雷针$()被雷劈可以产生电荷。每次产生32个电荷。"
+        }
+    ]
+}

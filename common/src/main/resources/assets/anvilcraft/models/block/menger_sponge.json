@@ -1,0 +1,58 @@
+{
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/block",
+	"render_type": "minecraft:cutout",
+	"textures": {
+		"0": "anvilcraft:block/menger_sponge",
+		"1": "anvilcraft:block/menger_sponge_inner",
+		"particle": "anvilcraft:block/menger_sponge"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 0],
+			"to": [16, 16, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#0", "cullface": "north"},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#0", "cullface": "east"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#0", "cullface": "south"},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#0", "cullface": "west"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#0", "cullface": "up"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#0", "cullface": "down"}
+			}
+		},
+		{
+			"name": "cube inverted",
+			"from": [16, 10, 10],
+			"to": [0, 6, 6],
+			"faces": {
+				"north": {"uv": [16, 10, 0, 6], "texture": "#1", "cullface": "south"},
+				"south": {"uv": [16, 10, 0, 6], "texture": "#1", "cullface": "north"},
+				"up": {"uv": [16, 10, 0, 6], "texture": "#1", "cullface": "down"},
+				"down": {"uv": [16, 10, 0, 6], "texture": "#1", "cullface": "up"}
+			}
+		},
+		{
+			"name": "cube inverted",
+			"from": [10, 10, 16],
+			"to": [6, 6, 0],
+			"faces": {
+				"east": {"uv": [16, 10, 0, 6], "texture": "#1", "cullface": "west"},
+				"west": {"uv": [16, 10, 0, 6], "texture": "#1", "cullface": "east"},
+				"up": {"uv": [10, 16, 6, 0], "texture": "#1", "cullface": "down"},
+				"down": {"uv": [10, 16, 6, 0], "texture": "#1", "cullface": "up"}
+			}
+		},
+		{
+			"name": "cube inverted",
+			"from": [10, 16, 10],
+			"to": [6, 0, 6],
+			"faces": {
+				"north": {"uv": [10, 16, 6, 0], "texture": "#1", "cullface": "south"},
+				"east": {"uv": [10, 16, 6, 0], "texture": "#1", "cullface": "west"},
+				"south": {"uv": [10, 16, 6, 0], "texture": "#1", "cullface": "north"},
+				"west": {"uv": [10, 16, 6, 0], "texture": "#1", "cullface": "east"}
+			}
+		}
+	],
+	"display": {}
+}

@@ -62,5 +62,16 @@ public class ItemTagLoader {
                 .add(ModBlocks.RUBY_BLOCK.asItem())
                 .add(ModBlocks.SAPPHIRE_BLOCK.asItem())
                 .add(ModBlocks.TOPAZ_BLOCK.asItem());
+        provider.addTag(ModItemTags.DEAD_TUBE).setReplace(false)
+                .add(Items.DEAD_BRAIN_CORAL)
+                .add(Items.DEAD_BUBBLE_CORAL)
+                .add(Items.DEAD_FIRE_CORAL)
+                .add(Items.DEAD_HORN_CORAL)
+                .add(Items.DEAD_TUBE_CORAL)
+                .add(Items.DEAD_TUBE_CORAL_FAN)
+                .add(Items.DEAD_BRAIN_CORAL_FAN)
+                .add(Items.DEAD_BUBBLE_CORAL_FAN)
+                .add(Items.DEAD_FIRE_CORAL_FAN)
+                .add(Items.DEAD_HORN_CORAL_FAN);
     }
 }

@@ -33,11 +33,13 @@
     "anvilcraft:piezoelectric_crystal",
     "anvilcraft:charge_collector",
     "anvilcraft:melt_gem_cauldron",
+    "anvilcraft:honey_cauldron",
     "anvilcraft:power_converter_small",
     "anvilcraft:power_converter_middle",
     "anvilcraft:power_converter_big",
     "anvilcraft:remote_transmission_pole",
     "anvilcraft:block_placer",
-    "anvilcraft:impact_drill"
+    "anvilcraft:impact_drill",
+    "anvilcraft:overseer"
   ]
 }

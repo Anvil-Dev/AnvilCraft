@@ -132,7 +132,7 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
         int removeCurseNumber = 0;
         Iterator<Enchantment> iterator = curseMap.keySet().iterator();
         final int needGold = 16;
-        while (goldNumber >= needGold && curseNumber > 0 && goldUsed + needGold < 64) {
+        while (goldNumber >= needGold && curseNumber > 0 && goldUsed < 64) {
             Map<Enchantment, Integer> map = EnchantmentHelper.getEnchantments(result);
             map.remove(iterator.next());
             ItemStack itemStack = result.copy();
@@ -142,6 +142,7 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
             result = itemStack.copy();
             curseNumber -= 1;
             goldUsed += needGold;
+            goldNumber -= needGold;
             removeCurseNumber += 1;
         }
         if (result.is(Items.ENCHANTED_BOOK) && EnchantmentHelper.getEnchantments(result).isEmpty()) {

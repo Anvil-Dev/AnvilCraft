@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.event.fabric;
 import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.fabric.AnvilCraftBlockPlacerFakePlayer;
 import dev.dubhe.anvilcraft.api.entity.player.AnvilCraftBlockPlacer;
+import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
 import dev.dubhe.anvilcraft.client.renderer.PowerGridRenderer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.minecraft.server.MinecraftServer;
@@ -26,5 +27,8 @@ public class ServerWorldEventListener {
     private static void onUnload(MinecraftServer server, Level level) {
         PowerGridRenderer.cleanAllGrid();
         ChargeCollectorManager.cleanMap();
+        if (level instanceof ServerLevel serverLevel) {
+            LevelLoadManager.removeAll(serverLevel);
+        }
     }
 }

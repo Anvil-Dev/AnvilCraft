@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.api.IHasMultiBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
@@ -35,23 +36,23 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
-public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRemovable {
+public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRemovable, IHasMultiBlock {
     public static final EnumProperty<Half> HALF = EnumProperty.create("half", Half.class);
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
     public static final EnumProperty<IPowerComponent.Switch> SWITCH = IPowerComponent.SWITCH;
     public static final VoxelShape TRANSMISSION_POLE_TOP =
-        Shapes.or(
-            Block.box(3, 5, 3, 13, 16, 13),
-            Block.box(6, 0, 6, 10, 5, 10));
+            Shapes.or(
+                    Block.box(3, 5, 3, 13, 16, 13),
+                    Block.box(6, 0, 6, 10, 5, 10));
 
     public static final VoxelShape TRANSMISSION_POLE_MID =
-        Block.box(6, 0, 6, 10, 16, 10);
+            Block.box(6, 0, 6, 10, 16, 10);
 
     public static final VoxelShape TRANSMISSION_POLE_BASE =
-        Shapes.or(
-            Block.box(3, 4, 3, 13, 10, 13),
-            Block.box(0, 0, 0, 16, 4, 16),
-            Block.box(6, 10, 6, 10, 16, 10));
+            Shapes.or(
+                    Block.box(3, 4, 3, 13, 10, 13),
+                    Block.box(0, 0, 0, 16, 4, 16),
+                    Block.box(6, 10, 6, 10, 16, 10));
 
     /**
      * @param properties 属性
@@ -59,10 +60,10 @@ public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRem
     public TransmissionPoleBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(
-            this.stateDefinition.any()
-                .setValue(HALF, Half.BOTTOM)
-                .setValue(OVERLOAD, true)
-                .setValue(SWITCH, IPowerComponent.Switch.ON)
+                this.stateDefinition.any()
+                        .setValue(HALF, Half.BOTTOM)
+                        .setValue(OVERLOAD, true)
+                        .setValue(SWITCH, IPowerComponent.Switch.ON)
         );
     }
 
@@ -72,13 +73,13 @@ public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRem
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();
         IPowerComponent.Switch sw =
-            level.hasNeighborSignal(pos)
-                ? IPowerComponent.Switch.OFF
-                : IPowerComponent.Switch.ON;
+                level.hasNeighborSignal(pos)
+                        ? IPowerComponent.Switch.OFF
+                        : IPowerComponent.Switch.ON;
         return this.defaultBlockState()
-            .setValue(HALF, Half.BOTTOM)
-            .setValue(OVERLOAD, true)
-            .setValue(SWITCH, sw);
+                .setValue(HALF, Half.BOTTOM)
+                .setValue(OVERLOAD, true)
+                .setValue(SWITCH, sw);
     }
 
     @Override
@@ -94,7 +95,7 @@ public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRem
     @SuppressWarnings("deprecation")
     @Override
     public @NotNull VoxelShape getShape(
-        @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context
+            @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context
     ) {
         if (state.getValue(HALF) == Half.BOTTOM) return TRANSMISSION_POLE_BASE;
         if (state.getValue(HALF) == Half.MID) return TRANSMISSION_POLE_MID;
@@ -104,8 +105,8 @@ public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRem
 
     @Override
     public void setPlacedBy(
-        @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state,
-        LivingEntity placer, @NotNull ItemStack stack
+            @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state,
+            LivingEntity placer, @NotNull ItemStack stack
     ) {
         BlockPos above = pos.above();
         level.setBlockAndUpdate(above, state.setValue(HALF, Half.MID).setValue(SWITCH, IPowerComponent.Switch.ON));
@@ -115,29 +116,16 @@ public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRem
 
     @Override
     public void playerWillDestroy(
-        @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player
+            @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player
     ) {
         if (level.isClientSide) return;
-        switch (state.getValue(HALF)) {
-            case MID -> {
-                level.destroyBlock(pos.above(), false, null);
-                level.destroyBlock(pos.below(), false, null);
-            }
-            case TOP -> {
-                level.destroyBlock(pos.below(), false, null);
-                level.destroyBlock(pos.below(2), false, null);
-            }
-            default -> {
-                level.destroyBlock(pos.above(), false, null);
-                level.destroyBlock(pos.above(2), false, null);
-            }
-        }
+        onRemove(level, pos, state);
         level.playSound(null,
-            pos,
-            SoundEvents.BEACON_DEACTIVATE,
-            SoundSource.BLOCKS,
-            1f,
-            1f);
+                pos,
+                SoundEvents.BEACON_DEACTIVATE,
+                SoundSource.BLOCKS,
+                1f,
+                1f);
         super.playerWillDestroy(level, pos, state, player);
     }
 
@@ -151,22 +139,22 @@ public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRem
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-        @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type
+            @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type
     ) {
         if (level.isClientSide) return null;
         return createTickerHelper(type, ModBlockEntities.TRANSMISSION_POLE.get(),
-            (level1, pos, state1, entity) -> entity.tick(level1, pos));
+                (level1, pos, state1, entity) -> entity.tick(level1, pos));
     }
 
     @Override
     @SuppressWarnings("deprecation")
     public void neighborChanged(
-        @NotNull BlockState state,
-        @NotNull Level level,
-        @NotNull BlockPos pos,
-        @NotNull Block neighborBlock,
-        @NotNull BlockPos neighborPos,
-        boolean movedByPiston
+            @NotNull BlockState state,
+            @NotNull Level level,
+            @NotNull BlockPos pos,
+            @NotNull Block neighborBlock,
+            @NotNull BlockPos neighborPos,
+            boolean movedByPiston
     ) {
         if (level.isClientSide) return;
         if (state.getValue(HALF) != Half.BOTTOM) return;
@@ -206,5 +194,28 @@ public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRem
                 return state.isFaceSturdy(level, pos.below(), Direction.UP);
             }
         }
+    }
+
+    @Override
+    public void onRemove(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state) {
+        switch (state.getValue(HALF)) {
+            case MID -> {
+                level.destroyBlock(pos.above(), false, null);
+                level.destroyBlock(pos.below(), false, null);
+            }
+            case TOP -> {
+                level.destroyBlock(pos.below(), false, null);
+                level.destroyBlock(pos.below(2), false, null);
+            }
+            default -> {
+                level.destroyBlock(pos.above(), false, null);
+                level.destroyBlock(pos.above(2), false, null);
+            }
+        }
+    }
+
+    @Override
+    public void onPlace(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state) {
+
     }
 }

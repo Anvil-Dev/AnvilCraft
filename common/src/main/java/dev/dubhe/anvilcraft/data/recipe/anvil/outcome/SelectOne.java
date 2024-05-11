@@ -28,6 +28,10 @@ public class SelectOne implements RecipeOutcome, CanSetData {
     @Setter
     private Map<String, CompoundTag> data = new HashMap<>();
 
+    public boolean isEmpty() {
+        return this.outcomes.isEmpty();
+    }
+
     public SelectOne add(RecipeOutcome outcome) {
         this.outcomes.add(outcome);
         return this;

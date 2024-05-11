@@ -8,6 +8,7 @@ import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
+import dev.dubhe.anvilcraft.block.ArrowBlock;
 import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
 import dev.dubhe.anvilcraft.block.BlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.ChargeCollectorBlock;
@@ -19,12 +20,14 @@ import dev.dubhe.anvilcraft.block.FerriteCoreMagnetBlock;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
 import dev.dubhe.anvilcraft.block.ImpactDrillBlock;
+import dev.dubhe.anvilcraft.block.HoneyCauldronBlock;
 import dev.dubhe.anvilcraft.block.JewelCraftingTable;
 import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
 import dev.dubhe.anvilcraft.block.LoadMonitorBlock;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
 import dev.dubhe.anvilcraft.block.MeltGemCauldron;
 import dev.dubhe.anvilcraft.block.MobAmberBlock;
+import dev.dubhe.anvilcraft.block.OverseerBlock;
 import dev.dubhe.anvilcraft.block.PiezoelectricCrystalBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterBigBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterMiddleBlock;
@@ -49,12 +52,16 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SpawnItem;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItem;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItemIngredient;
 import dev.dubhe.anvilcraft.item.CursedBlockItem;
+import dev.dubhe.anvilcraft.item.EndDustBlockItem;
 import dev.dubhe.anvilcraft.item.HasMobBlockItem;
+import dev.dubhe.anvilcraft.item.OverseerBlockItem;
 import dev.dubhe.anvilcraft.item.PlaceInWaterBlockItem;
 import dev.dubhe.anvilcraft.item.RemoteTransmissionPoleBlockItem;
 import dev.dubhe.anvilcraft.item.ResinBlockItem;
 import dev.dubhe.anvilcraft.item.TransmissionPoleBlockItem;
+
 import java.util.Map;
+
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -279,7 +286,7 @@ public class ModBlocks {
         .properties(properties -> properties.explosionResistance(15.0F))
         .simpleItem()
         .defaultLoot()
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS, ModBlockTags.OVERSEER_BASE)
         .recipe((ctx, provider) -> {
             ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                 .pattern("AAA")
@@ -316,6 +323,7 @@ public class ModBlocks {
         .register();
     public static final BlockEntry<? extends Block> SMOOTH_ROYAL_STEEL_BLOCK = REGISTRATE
         .block("smooth_royal_steel_block", Block::new)
+        .tag(ModBlockTags.OVERSEER_BASE)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(properties -> properties.explosionResistance(15.0F))
         .simpleItem()
@@ -324,6 +332,7 @@ public class ModBlocks {
         .register();
     public static final BlockEntry<? extends Block> CUT_ROYAL_STEEL_BLOCK = REGISTRATE
         .block("cut_royal_steel_block", Block::new)
+        .tag(ModBlockTags.OVERSEER_BASE)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(properties -> properties.explosionResistance(15.0F))
         .simpleItem()
@@ -340,6 +349,7 @@ public class ModBlocks {
         .register();
     public static final BlockEntry<? extends Block> CUT_ROYAL_STEEL_SLAB = REGISTRATE
         .block("cut_royal_steel_slab", SlabBlock::new)
+        .tag(ModBlockTags.OVERSEER_BASE)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(properties -> properties.explosionResistance(15.0F))
         .blockstate((ctx, provider) -> provider.slabBlock(ctx.get(),
@@ -358,6 +368,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> CUT_ROYAL_STEEL_STAIRS = REGISTRATE
         .block("cut_royal_steel_stairs", (properties) ->
             new StairBlock(ModBlocks.CUT_ROYAL_STEEL_BLOCK.getDefaultState(), properties))
+        .tag(ModBlockTags.OVERSEER_BASE)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(properties -> properties.explosionResistance(15.0F))
         .blockstate((ctx, provider) -> provider.stairsBlock(ctx.get(),
@@ -740,13 +751,12 @@ public class ModBlocks {
         .lang("Jewel Crafting Table")
         .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
             .pattern("ABC")
-            .pattern("DED")
+            .pattern("DDD")
             .pattern("F F")
-            .define('A', Items.DIAMOND)
+            .define('A', Blocks.GRINDSTONE)
             .define('B', Blocks.GLASS)
             .define('C', Blocks.GRINDSTONE)
             .define('D', Blocks.SMOOTH_STONE)
-            .define('E', Blocks.STONECUTTER)
             .define('F', ItemTags.PLANKS)
             .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.GRINDSTONE),
                 AnvilCraftDatagen.has(Blocks.GRINDSTONE))
@@ -763,7 +773,8 @@ public class ModBlocks {
         .register();
     public static final BlockEntry<Block> END_DUST = REGISTRATE
         .block("end_dust", Block::new)
-        .simpleItem()
+        .item(EndDustBlockItem::new)
+        .build()
         .initialProperties(() -> Blocks.BLACK_CONCRETE_POWDER)
         .recipe(
             (ctx, provider) -> SmashBlockRecipesLoader.smash(Blocks.END_STONE, ctx.get(), provider))
@@ -882,6 +893,15 @@ public class ModBlocks {
 
     public static final BlockEntry<MeltGemCauldron> MELT_GEM_CAULDRON = REGISTRATE
         .block("melt_gem_cauldron", MeltGemCauldron::new)
+        .initialProperties(() -> Blocks.CAULDRON)
+        .blockstate((ctx, provider) -> {
+        })
+        .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<HoneyCauldronBlock> HONEY_CAULDRON = REGISTRATE
+        .block("honey_cauldron", HoneyCauldronBlock::new)
         .initialProperties(() -> Blocks.CAULDRON)
         .blockstate((ctx, provider) -> {
         })
@@ -1057,7 +1077,7 @@ public class ModBlocks {
         .item()
         .model((ctx, provider) -> provider.blockItem(ctx, "_0"))
         .build()
-        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 4)
             .pattern("A")
             .pattern("B")
             .define('A', Items.COMPASS)
@@ -1125,6 +1145,46 @@ public class ModBlocks {
                 AnvilCraftDatagen.hasItem(Items.COBBLESTONE),
                 AnvilCraftDatagen.has(Items.COBBLESTONE))
             .save(provider))
+        .register();
+
+    public static final BlockEntry<OverseerBlock> OVERSEER_BLOCK = REGISTRATE
+        .block("overseer", OverseerBlock::new)
+        .initialProperties(() -> Blocks.OBSIDIAN)
+        .properties(BlockBehaviour.Properties::noOcclusion)
+        .blockstate((ctx, provider) -> {
+        })
+        .defaultLoot()
+        .item(OverseerBlockItem::new)
+        .model((ctx, provider) -> {
+        })
+        .build()
+        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern("ABA")
+            .pattern("ABA")
+            .pattern("CBC")
+            .define('A', Items.OBSIDIAN)
+            .define('B', Items.ENDER_EYE)
+            .define('C', ModBlocks.ROYAL_STEEL_BLOCK)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.ROYAL_STEEL_BLOCK),
+                AnvilCraftDatagen.has(ModBlocks.ROYAL_STEEL_BLOCK)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.ENDER_EYE),
+                AnvilCraftDatagen.has(Items.ENDER_EYE)
+            )
+            .save(provider)
+        )
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<ArrowBlock> ARROW = REGISTRATE
+        .block("arrow", ArrowBlock::new)
+        .initialProperties(() -> Blocks.STONE)
+        .properties(BlockBehaviour.Properties::noOcclusion)
+        .blockstate((ctx, provider) -> {
+        })
+        .simpleItem()
         .register();
 
     public static void register() {
