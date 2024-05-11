@@ -2,6 +2,8 @@
   "replace": false,
   "values": [
     "anvilcraft:cinerite",
-    "anvilcraft:quartz_sand"
+    "anvilcraft:quartz_sand",
+    "anvilcraft:deepslate_chips",
+    "anvilcraft:black_sand"
   ]
 }

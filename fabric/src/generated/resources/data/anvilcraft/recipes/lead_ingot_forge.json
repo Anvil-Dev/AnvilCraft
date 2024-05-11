@@ -1,0 +1,36 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "tag": "forge:nuggets/lead"
+    },
+    {
+      "tag": "forge:nuggets/lead"
+    },
+    {
+      "tag": "forge:nuggets/lead"
+    },
+    {
+      "tag": "forge:nuggets/lead"
+    },
+    {
+      "tag": "forge:nuggets/lead"
+    },
+    {
+      "tag": "forge:nuggets/lead"
+    },
+    {
+      "tag": "forge:nuggets/lead"
+    },
+    {
+      "tag": "forge:nuggets/lead"
+    },
+    {
+      "tag": "forge:nuggets/lead"
+    }
+  ],
+  "result": {
+    "item": "anvilcraft:lead_ingot"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "tag": "forge:nuggets/silver"
+    },
+    {
+      "tag": "forge:nuggets/silver"
+    },
+    {
+      "tag": "forge:nuggets/silver"
+    },
+    {
+      "tag": "forge:nuggets/silver"
+    },
+    {
+      "tag": "forge:nuggets/silver"
+    },
+    {
+      "tag": "forge:nuggets/silver"
+    },
+    {
+      "tag": "forge:nuggets/silver"
+    },
+    {
+      "tag": "forge:nuggets/silver"
+    },
+    {
+      "tag": "forge:nuggets/silver"
+    }
+  ],
+  "result": {
+    "item": "anvilcraft:silver_ingot"
+  }
+}

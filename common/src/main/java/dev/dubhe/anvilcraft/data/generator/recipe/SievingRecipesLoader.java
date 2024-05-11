@@ -53,6 +53,14 @@ public class SievingRecipesLoader {
             Map.entry(Items.QUARTZ, 1.0),
             Map.entry(ModItems.TIN_NUGGET, 0.2)
         );
+        sieving(provider, ModBlocks.DEEPSLATE_CHIPS,
+                Map.entry(ModItems.LIME_POWDER, 0.1),
+                Map.entry(ModItems.LEAD_NUGGET, 0.1)
+        );
+        sieving(provider, ModBlocks.BLACK_SAND,
+                Map.entry(Items.GUNPOWDER, 0.1),
+                Map.entry(ModItems.SILVER_NUGGET, 0.1)
+        );
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
             .hasBlock(Blocks.SCAFFOLDING)
             .hasItemLeaves(Vec3.ZERO, new Vec3(0.0, -1.0, 0.0), 0.5, 0.2)

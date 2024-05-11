@@ -235,7 +235,7 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.MINEABLE_WITH_AXE)
         .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
             .pattern("ABA")
-            .pattern("CDA")
+            .pattern("ADC")
             .pattern("AEA")
             .define('A', Items.IRON_INGOT)
             .define('B', Items.CRAFTING_TABLE)
@@ -780,6 +780,20 @@ public class ModBlocks {
         .recipe(
             (ctx, provider) -> SmashBlockRecipesLoader.smash(Blocks.END_STONE, ctx.get(), provider))
         .register();
+    public static final BlockEntry<FallingBlock> DEEPSLATE_CHIPS = REGISTRATE
+            .block("deepslate_chips", FallingBlock::new)
+            .initialProperties(() -> Blocks.SAND)
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_SHOVEL)
+            .register();
+    public static final BlockEntry<FallingBlock> BLACK_SAND = REGISTRATE
+            .block("black_sand", FallingBlock::new)
+            .initialProperties(() -> Blocks.SAND)
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_SHOVEL)
+            .register();
     public static final BlockEntry<PiezoelectricCrystalBlock> PIEZOELECTRIC_CRYSTAL =
         REGISTRATE
             .block("piezoelectric_crystal", PiezoelectricCrystalBlock::new)
@@ -1104,7 +1118,7 @@ public class ModBlocks {
         })
         .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
             .pattern("AAA")
-            .pattern("BCD")
+            .pattern("DCB")
             .pattern("AAA")
             .define('A', Items.COBBLESTONE)
             .define('B', ModItems.CRAB_CLAW)

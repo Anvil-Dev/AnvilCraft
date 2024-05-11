@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "tag": "c:silver_ingots"
+    }
+  ],
+  "result": {
+    "count": 9,
+    "item": "anvilcraft:silver_nugget"
+  }
+}
