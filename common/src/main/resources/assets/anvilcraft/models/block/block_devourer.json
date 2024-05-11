@@ -1,11 +1,12 @@
 {
 	"credit": "Made by XeKr with Blockbench",
 	"parent": "minecraft:block/cube",
+	"render_type": "minecraft:cutout",
 	"textures": {
 		"particle": "anvilcraft:block/impact_drill",
 		"drill": "anvilcraft:block/impact_drill",
-		"bottom": "anvilcraft:block/impact_drill_bottom_on",
-		"side": "anvilcraft:block/impact_drill_side_on",
+		"bottom": "anvilcraft:block/impact_drill_bottom",
+		"side": "anvilcraft:block/impact_drill_side",
 		"top": "anvilcraft:block/impact_drill_top"
 	},
 	"elements": [
@@ -35,8 +36,8 @@
 			}
 		},
 		{
-			"from": [6, 6, 0],
-			"to": [10, 10, 8],
+			"from": [6, 6, 3],
+			"to": [10, 10, 11],
 			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
 			"faces": {
 				"north": {"uv": [2, 0, 6, 4], "rotation": 180, "texture": "#drill"},
@@ -47,8 +48,8 @@
 			}
 		},
 		{
-			"from": [7, 7, -6],
-			"to": [9, 9, 2],
+			"from": [7, 7, 0],
+			"to": [9, 9, 8],
 			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
 			"faces": {
 				"north": {"uv": [0, 0, 2, 2], "rotation": 180, "texture": "#drill"},
@@ -59,8 +60,8 @@
 			}
 		},
 		{
-			"from": [4, 6, -2],
-			"to": [8, 10, 6],
+			"from": [4, 6, 3],
+			"to": [8, 10, 11],
 			"rotation": {"angle": 45, "axis": "y", "origin": [8, 8, 8]},
 			"faces": {
 				"north": {"uv": [2, 0, 6, 4], "rotation": 180, "texture": "#drill"},
@@ -71,8 +72,8 @@
 			}
 		},
 		{
-			"from": [5, 7, -10],
-			"to": [7, 9, -2],
+			"from": [5, 7, 0],
+			"to": [7, 9, 8],
 			"rotation": {"angle": 45, "axis": "y", "origin": [8, 8, 8]},
 			"faces": {
 				"north": {"uv": [0, 0, 2, 2], "rotation": 180, "texture": "#drill"},
@@ -83,8 +84,8 @@
 			}
 		},
 		{
-			"from": [6, 4, -2],
-			"to": [10, 8, 6],
+			"from": [6, 4, 3],
+			"to": [10, 8, 11],
 			"rotation": {"angle": -45, "axis": "x", "origin": [8, 8, 8]},
 			"faces": {
 				"north": {"uv": [2, 0, 6, 4], "rotation": 270, "texture": "#drill"},
@@ -95,8 +96,8 @@
 			}
 		},
 		{
-			"from": [7, 5, -10],
-			"to": [9, 7, -2],
+			"from": [7, 5, 0],
+			"to": [9, 7, 8],
 			"rotation": {"angle": -45, "axis": "x", "origin": [8, 8, 8]},
 			"faces": {
 				"north": {"uv": [0, 0, 2, 2], "rotation": 270, "texture": "#drill"},
@@ -107,8 +108,8 @@
 			}
 		},
 		{
-			"from": [8, 6, -2],
-			"to": [12, 10, 6],
+			"from": [8, 6, 3],
+			"to": [12, 10, 11],
 			"rotation": {"angle": -45, "axis": "y", "origin": [8, 8, 8]},
 			"faces": {
 				"north": {"uv": [2, 0, 6, 4], "texture": "#drill"},
@@ -119,8 +120,8 @@
 			}
 		},
 		{
-			"from": [9, 7, -10],
-			"to": [11, 9, -2],
+			"from": [9, 7, 0],
+			"to": [11, 9, 8],
 			"rotation": {"angle": -45, "axis": "y", "origin": [8, 8, 8]},
 			"faces": {
 				"north": {"uv": [0, 0, 2, 2], "texture": "#drill"},
@@ -131,8 +132,8 @@
 			}
 		},
 		{
-			"from": [6, 8, -2],
-			"to": [10, 12, 6],
+			"from": [6, 8, 3],
+			"to": [10, 12, 11],
 			"rotation": {"angle": 45, "axis": "x", "origin": [8, 8, 8]},
 			"faces": {
 				"north": {"uv": [2, 0, 6, 4], "rotation": 90, "texture": "#drill"},
@@ -143,8 +144,8 @@
 			}
 		},
 		{
-			"from": [7, 9, -10],
-			"to": [9, 11, -2],
+			"from": [7, 9, 0],
+			"to": [9, 11, 8],
 			"rotation": {"angle": 45, "axis": "x", "origin": [8, 8, 8]},
 			"faces": {
 				"north": {"uv": [0, 0, 2, 2], "rotation": 90, "texture": "#drill"},

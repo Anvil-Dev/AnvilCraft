@@ -74,10 +74,21 @@ public class BlockTagLoader {
             .add(Blocks.ANVIL)
             .add(Blocks.CHIPPED_ANVIL)
             .add(Blocks.DAMAGED_ANVIL);
-        provider.addTag(ModBlockTags.UNDER_CAULDRON)
+        provider.addTag(ModBlockTags.UNDER_CAULDRON).setReplace(false)
             .forceAddTag(BlockTags.CAMPFIRES)
             .add(Blocks.MAGMA_BLOCK)
             .add(ModBlocks.HEATER.get())
             .add(ModBlocks.CORRUPTED_BEACON.get());
+        provider.addTag(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING).setReplace(false)
+            .add(Blocks.STONE)
+            .add(Blocks.DEEPSLATE)
+            .add(Blocks.ANDESITE)
+            .add(Blocks.DIORITE)
+            .add(Blocks.GRANITE)
+            .add(Blocks.TUFF)
+            .add(Blocks.NETHERRACK)
+            .add(Blocks.BASALT)
+            .add(Blocks.BLACKSTONE)
+            .add(Blocks.END_STONE);
     }
 }

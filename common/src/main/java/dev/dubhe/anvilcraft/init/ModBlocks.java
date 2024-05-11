@@ -19,7 +19,7 @@ import dev.dubhe.anvilcraft.block.CreativeGeneratorBlock;
 import dev.dubhe.anvilcraft.block.FerriteCoreMagnetBlock;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
-import dev.dubhe.anvilcraft.block.ImpactDrillBlock;
+import dev.dubhe.anvilcraft.block.BlockDevourerBlock;
 import dev.dubhe.anvilcraft.block.HoneyCauldronBlock;
 import dev.dubhe.anvilcraft.block.JewelCraftingTable;
 import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
@@ -1116,8 +1116,8 @@ public class ModBlocks {
             .save(provider))
         .register();
 
-    public static final BlockEntry<ImpactDrillBlock> IMPACT_DRILL = REGISTRATE
-        .block("impact_drill", ImpactDrillBlock::new)
+    public static final BlockEntry<BlockDevourerBlock> BLOCK_DEVOURER = REGISTRATE
+        .block("block_devourer", BlockDevourerBlock::new)
         .simpleItem()
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(BlockBehaviour.Properties::noOcclusion)
@@ -1125,11 +1125,11 @@ public class ModBlocks {
         .blockstate((ctx, provider) -> {
         })
         .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-            .pattern(" A ")
-            .pattern("ABA")
-            .pattern("DCD")
+            .pattern("DA ")
+            .pattern("CBA")
+            .pattern("DA ")
             .define('A', Items.NETHERITE_INGOT)
-            .define('B', Items.PISTON)
+            .define('B', Items.DRAGON_HEAD)
             .define('C', Items.REDSTONE)
             .define('D', Items.COBBLESTONE)
             .unlockedBy(

@@ -1,49 +1,49 @@
 {
   "variants": {
     "facing=up,triggered=true": {
-      "model": "anvilcraft:block/impact_drill_on",
+      "model": "anvilcraft:block/block_devourer_on",
       "x": 270
     },
     "facing=down,triggered=true": {
-      "model": "anvilcraft:block/impact_drill_on",
+      "model": "anvilcraft:block/block_devourer_on",
       "x": 90
     },
     "facing=north,triggered=true": {
-      "model": "anvilcraft:block/impact_drill_on"
+      "model": "anvilcraft:block/block_devourer_on"
     },
     "facing=south,triggered=true": {
-      "model": "anvilcraft:block/impact_drill_on",
+      "model": "anvilcraft:block/block_devourer_on",
       "x": 180
     },
     "facing=west,triggered=true": {
-      "model": "anvilcraft:block/impact_drill_on",
+      "model": "anvilcraft:block/block_devourer_on",
       "y": 270
     },
     "facing=east,triggered=true": {
-      "model": "anvilcraft:block/impact_drill_on",
+      "model": "anvilcraft:block/block_devourer_on",
       "y": 90
     },
     "facing=up,triggered=false": {
-      "model": "anvilcraft:block/impact_drill",
+      "model": "anvilcraft:block/block_devourer",
       "x": 270
     },
     "facing=down,triggered=false": {
-      "model": "anvilcraft:block/impact_drill",
+      "model": "anvilcraft:block/block_devourer",
       "x": 90
     },
     "facing=north,triggered=false": {
-      "model": "anvilcraft:block/impact_drill"
+      "model": "anvilcraft:block/block_devourer"
     },
     "facing=south,triggered=false": {
-      "model": "anvilcraft:block/impact_drill",
+      "model": "anvilcraft:block/block_devourer",
       "x": 180
     },
     "facing=west,triggered=false": {
-      "model": "anvilcraft:block/impact_drill",
+      "model": "anvilcraft:block/block_devourer",
       "y": 270
     },
     "facing=east,triggered=false": {
-      "model": "anvilcraft:block/impact_drill",
+      "model": "anvilcraft:block/block_devourer",
       "y": 90
     }
   }
