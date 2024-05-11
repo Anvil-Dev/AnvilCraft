@@ -265,6 +265,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> ROYAL_GRINDSTONE = REGISTRATE
         .block("royal_grindstone", RoyalGrindstone::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(properties -> properties.explosionResistance(15.0F))
         .blockstate((ctx, provider) -> {
         })
         .simpleItem()
@@ -274,6 +275,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> ROYAL_SMITHING_TABLE = REGISTRATE
         .block("royal_smithing_table", RoyalSmithingTableBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(properties -> properties.explosionResistance(15.0F))
         .blockstate((ctx, provider) -> {
         })
         .simpleItem()
