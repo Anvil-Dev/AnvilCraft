@@ -31,6 +31,9 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
     private EnableFilterButton enableFilterButton = null;
     private final ItemCollectorMenu menu;
 
+    /**
+     * 物品收集器 Screen
+     */
     public ItemCollectorScreen(ItemCollectorMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
         this.menu = menu;
