@@ -1,17 +1,17 @@
 {
-    "name": "电力系统介绍",
+    "name": "Power Introduction",
     "category": "anvilcraft:power_system",
     "icon": "anvilcraft:magnetoelectric_core",
     "priority": "true",
     "pages": [
         {
             "type": "patchouli:text",
-            "text": "本模组电能是功率化的，电网中发电功率大于等于用电功率则所有用电器正常工作，反之则过载而无法工作。本模组电网是无线的，由输电杆提供供电范围，将发电器和用电器接入电网。功率单位为MW，可类比于现实的兆瓦，但无必然联系。"
+            "text": "The energy of this mod is power-based. If the power generated in the power grid is greater than or equal to the power consumed, all electrical appliances will work normally. Otherwise, it is overloaded and cannot work. The power grid is wireless in this mod, and the power supply range is provided by transmission poles, which connect generators and electrical appliances to the grid. The power unit is MW, which can be analogous to the actual megawatt, but there is no necessary connection."
         },
 		{
             "type": "patchouli:crafting",
             "recipe":"anvilcraft:magnetoelectric_core",
-			"text": "$(item)磁电核心$()是合成电力相关机器的关键部件。"
+			"text": "The $(item)magnetoelectric core$() is a key component of synthetic power-related machines."
         },
 		{
             "type": "patchouli:crafting",
@@ -20,7 +20,7 @@
         },
 		{
             "type": "patchouli:text",
-            "text": "$(item)铁砧锤$()是本模组的扳手，右键可以调整某些方块的方向，蹲下右键可以拆除某些方块；也是铁砧，左键方块对方块执行铁砧砸到方块的操作；也是重锤，从高处落下攻击生物对生物追加如同铁砧下落增加的伤害；也是护目镜，戴在头上可以查看电网范围和电网负载信息；还是头槌，戴在头上时鞘翅飞行撞击生物造成伤害。注意，左键敲击方块、左键攻击生物以及头槌撞击生物会消耗铁砧锤的耐久，其他操作不会。"
+            "text": "The $(item)anvil hammer$() is the wrench in this mod. You can debug the direction of some blocks with it, and dismantle some blocks with it when holding shift. At the same time, it is an anvil. Left-clicking on a block with it is same as the block being hit by a anvil. It is also a hammer, which drops attacking mobs from a height and adds damage to mobs as from an anvil falling. Also a goggles, which can be worn on the head to view the grid range and grid load info. It is also a head mallet, and when worn on the head, the elytra fly and hit mobs to deal damage. Note that left-clicking on a block, left-clicking and head-mallet hitting a mob will consume the anvil hammer's durability, but other operations will not."
         }
     ]
 }

@@ -1,20 +1,20 @@
 {
-    "name": "更多铁砧处理",
+    "name": "Basic More Processing",
     "category": "anvilcraft:basic_gameplay",
     "icon": "minecraft:spawner",
     "sortnum": 3,
     "pages": [
         {
             "type": "patchouli:text",
-            "text": "让$(item)铁砧$()落在生物脚下、刷怪笼上、红石块上会引起相应变化，本条目的后续页面依次介绍。"
+            "text": "Let $(item)anvil$() fall on the mob's feet, on the spawner or on the redstone block causes the change. The subsequent pages of this article are introduced in sequence."
         },
         {
             "type": "patchouli:text",
-            "text": "获得更多生物战利品：$(br)生物被铁砧砸到而伤害时，会按照原战利品表掉落物品，生物必须一次性受到足够伤害：一次40%血量→1倍掉落物；一次60%血量→2倍掉落物；一次80%血量→3倍掉落物。$(br)这种方式只能获得生物的一般掉落物，不会产出需要玩家手动击杀而产生的掉落物如烈焰棒。$(br)有一些生物可以自行或借助外力恢复血量，你可以借此制造不杀死生物的掉落物农场。"
+            "text": "Get more mob loot:$(br)When mobs are hit and damaged by an anvil, they will drop items according to the mob loot table. The mobs must be taken enough damage at once: 40% HP → 1x drops; 60% HP → 2x drops; 80% HP → 3x drops.$(br)This method only yields normal mob drops, and does not produce drops such as blaze rod that require the player to manually kill.$(br)There are mobs that can regenerate health on their own or with the help of external forces, which you can use to create drop farms that don't kill mobs."
         },
 		{
             "type": "patchouli:multiblock",
-            "name": "刷怪笼：强制刷怪",
+            "name": "Spawner: Forced Spawning",
 			"multiblock": {
 				"mapping": {
 					"A": "minecraft:anvil",
@@ -22,21 +22,21 @@
 					"0": "anvilcraft:arrow"
 				},
 				"pattern": [
-					[ "   ", "  A", "   " ], 
+					[ "   ", "  A", "   " ],
 					[ "   ", "A  ", "   " ],
 					[ "   ", "S0S", "   " ]
 				]
 			},
 			"enable_visualize":"false",
-			"text": "被砸中的刷怪笼会尝试刷怪，详细说明见右侧。"
+			"text": "Spawners that are hit will attempt to spawn. Detailed instructions on the right."
         },
         {
             "type": "patchouli:text",
-            "text": "铁砧下落高度越高刷怪概率越大。这种刷怪方式不需要周围有玩家，但需要满足刷怪笼刷怪的光照条件、周围怪物数量也会影响刷怪，将附近怪物快速运走或击杀能大大提高效率。"
+            "text": "The higher the drop height of the anvil, the greater the chance of spawning. This method of farming does not require players to be around, but it needs to meet the lighting conditions of the spawner and the number of mobs around it will also affect the spawning, and quickly transporting or killing nearby mobs can greatly improve efficiency."
         },
 		{
             "type": "patchouli:multiblock",
-            "name": "红石块：红石EMP",
+            "name": "Redstone Block: Redstone EMP",
 			"multiblock": {
 				"mapping": {
 					"A": "minecraft:anvil",
@@ -44,17 +44,17 @@
 					"0": "anvilcraft:arrow"
 				},
 				"pattern": [
-					[ "   ", "  A", "   " ], 
+					[ "   ", "  A", "   " ],
 					[ "   ", "A  ", "   " ],
 					[ "   ", "R0R", "   " ]
 				]
 			},
 			"enable_visualize":"false",
-			"text": "被砸中的红石块会产生红石EMP，详细说明见右侧。"
+			"text": "A hit Redstone Block will produce redstone EMP. Detailed instructions on the right."
         },
         {
             "type": "patchouli:text",
-            "text": "铁砧砸到红石块，会让与红石块同层的距离为r内的红石火把熄灭1gt，紧贴红石块的铁活版门阻止这个方向的EMP。$(br)r的计算方法：距离与掉落高度成正比，1格掉落高度传播6格，极限距离24格。"
+            "text": "When an anvil hits a redstone block, the redstone block torches within a distance of r on the same layer as the redstone block will be extinguished by 1gt. An iron trapdoor clinging to redstone block can prevent EMP from spreading in this direction.$(br)R is calculated: the distance is proportional to the drop height, the drop height of 1 block spreads 6 blocks, and the limit distance is 24 blocks."
         }
     ]
 }

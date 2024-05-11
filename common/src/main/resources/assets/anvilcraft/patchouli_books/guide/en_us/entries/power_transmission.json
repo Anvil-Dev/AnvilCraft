@@ -1,27 +1,27 @@
 {
-    "name": "电能传输",
+    "name": "Power Transmission",
     "category": "anvilcraft:power_system",
     "icon": "anvilcraft:transmission_pole",
     "sortnum": 12,
     "pages": [
         {
             "type": "patchouli:text",
-            "text": "每个输电杆有自己的供电范围，在范围内的发电器和用电器接入同一电网，两个输电杆有任意重合的供电范围即可并网。"
+            "text": "Each transmission pole has its own range of power supply. The generators and consumers within the range are connected to the same power grid. Two transmission poles can be connected to the grid if they have any overlapping power supply range."
         },
 		{
             "type": "patchouli:crafting",
             "recipe":"anvilcraft:transmission_pole",
-			"text": "$(item)输电杆$()供电距离8，范围以头部为中心17x17x17。"
+			"text": "The $(item)transmission pole$()'s power supply distance is 8. The range is centered on the head 17 x 17 x 17."
         },
 		{
             "type": "patchouli:crafting",
             "recipe":"anvilcraft:remote_transmission_pole",
-			"text": "$(item)远程输电杆$()供电距离16，范围以头部为中心33x33x33。"
+			"text": "The $(item)remote transmission pole$()'s power supply distance is 16. The range is centered on the head 33 x 33 x 33."
         },
 		{
             "type": "patchouli:crafting",
             "recipe":"anvilcraft:load_monitor",
-			"text": "$(item)负载监视器$()可以查看电网负载，用比较器按负载比例输出红石信号，过载时本身也将直接输出红石信号。"
+			"text": "The $(item)load monitor$() can display the grid load. Use the comparator to output the redstone signal in proportion to the load. When overloaded, it will also directly output the redstone signal."
         }
     ]
 }

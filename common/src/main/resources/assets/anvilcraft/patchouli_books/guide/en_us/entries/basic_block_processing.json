@@ -1,16 +1,16 @@
 {
-    "name": "基本方块处理",
+    "name": "Basic Block Processing",
     "category": "anvilcraft:basic_gameplay",
     "icon": "minecraft:stone",
     "sortnum": 1,
     "pages": [
         {
             "type": "patchouli:text",
-            "text": "让$(item)铁砧$()落在需要被加工的方块上就可以加工该方块，单个方块、多个方块、方块和炼药锅、方块和切石机都会触发不同的效果，本条目的后续页面依次介绍。在此之前，了解磁铁对铁砧加工的帮助会让你更方便地上手。"
+            "text": "Let $(item)anvil$() fall on the block that needs to be processed to process the block. A single block, multiple blocks, a block and a cauldron, a block and a stonecutter will all trigger different effects. The subsequent pages of this article will introduce relevant content in sequence. Before that, understanding how magnets help anvil machining will make it easier for you to get started."
         },
 		{
             "type": "patchouli:multiblock",
-            "name": "使用磁铁升降铁砧",
+            "name": "Using the magnet to raise and lower the anvil",
 			"multiblock": {
 				"mapping": {
 					"M": "anvilcraft:magnet_block",
@@ -22,18 +22,18 @@
 					"G": "minecraft:gravel"
 				},
 				"pattern": [
-					[ "   ", "D M", "P L" ], 
-					[ "   ", "  A", "   " ], 
+					[ "   ", "D M", "P L" ],
+					[ "   ", "  A", "   " ],
 					[ "   ", "A  ", "   " ],
 					[ "   ", "G0C", "   " ]
 				]
 			},
 			"enable_visualize":"false",
-			"text": "磁铁被红石信号激活而消磁，铁砧落下可以执行操作。"
+			"text": "The magnet is demagnetized when activated by a redstone signal, and the anvil is dropped to perform the operation."
         },
 		{
             "type": "patchouli:multiblock",
-            "name": "单方块处理：粉碎",
+            "name": "Single Block Processing: Crush",
 			"multiblock": {
 				"mapping": {
 					"A": "minecraft:anvil",
@@ -42,21 +42,21 @@
 					"0": "anvilcraft:arrow"
 				},
 				"pattern": [
-					[ "   ", "  A", "   " ], 
+					[ "   ", "  A", "   " ],
 					[ "   ", "A  ", "   " ],
 					[ "   ", "S0G", "   " ]
 				]
 			},
 			"enable_visualize":"false",
-			"text": "右边的列表给出更多可以发生此种转化的例子，有些可连续发生转化。"
+			"text": "The list on the right gives more examples of where such transformation can occur, some of which can occur consecutively."
         },
 		{
             "type": "patchouli:text",
-            "text": "圆石→沙砾→沙子$(br)磨制花岗岩→花岗岩→红沙$(br)磨制安山岩→安山岩→火山灰$(br)磨制闪长岩→闪长岩→石英砂$(br)石砖→裂纹石砖$(br)深板岩砖→裂纹深板岩砖$(br)深板岩瓦→裂纹深板岩瓦$(br)下界砖块→裂纹下界砖块$(br)磨制黑石砖→裂纹磨制黑石砖$(br)下界岩→下界尘$(br)末地石→末地尘$(br)灵魂土→灵魂沙$(br)深板岩→深板岩碎$(br)黑石→黑沙"
+            "text": "Cobblestone → Gravel → Sand$(br)Polished Granite → Granite → Red Sand$(br)Polished Andesite → Andesite → Cinerite$(br)Polished Diorite → Diorite → Quartz Sand$(br)Stone Bricks → Cracked Stone Brick$(br)Deepslate Bricks → Cracked Deepslate Bricks$(br)Deepslate Tiles → Cracked Deepslate Tiles$(br)Nether Bricks → Cracked Nether Bricks$(br)Polished Blackstone Bricks → Cracked Polished Blackstone Bricks$(br)Netherrack → Nether Dust$(br)End Stone → End Dust$(br)Soul Soil → Soul Sand$(br)Deepslate → Deepslate Chips$(br)Blackstone → Black Sand"
         },
 		{
             "type": "patchouli:multiblock",
-            "name": "双方块处理：压合",
+            "name": "Double Block Processing: Press",
 			"multiblock": {
 				"mapping": {
 					"A": "minecraft:anvil",
@@ -66,22 +66,22 @@
 					"0": "anvilcraft:arrow"
 				},
 				"pattern": [
-					[ "   ", "  A", "   " ], 
+					[ "   ", "  A", "   " ],
 					[ "   ", "   ", "   " ],
 					[ "   ", "A M", "   " ],
 					[ "   ", "G0D", "   " ]
 				]
 			},
 			"enable_visualize":"false",
-			"text": "右边的列表给出更多可以发生此种转化的例子。"
+			"text": "The list on the right gives more examples of where such transformation can occur."
         },
 		{
             "type": "patchouli:text",
-            "text": "苔藓块+泥土→草方块$(br)任意树叶+泥土→灰化土$(br)任意蘑菇块+泥土→菌丝体$(br)下界疣块+下界岩→绯红菌岩$(br)诡异疣块+下界岩→诡异菌岩$(br)石头+石头→深板岩$(br)冰+冰→浮冰$(br)浮冰+浮冰→蓝冰$(br)玄武岩+玄武岩→黑石"
+            "text": "Moss Block + Dirt → Grass Block$(br)Any Leaves + Dirt → Podzol$(br)Any Mushroom Block + Dirt → Mycelium$(br)Nether Wart Block + Netherrack → Crimson Nylium$(br)Warped Wart Block + Netherrack → Warped Nylium$(br)Stone + Stone → Deepslate$(br)Ice + Ice → Packed Ice$(br)Packed Ice + Packed Ice → Blue Ice$(br)Basalt + Basalt → Blackstone"
         },
 		{
             "type": "patchouli:multiblock",
-            "name": "双方块处理：涂抹",
+            "name": "Double Block Processing: Daub",
 			"multiblock": {
 				"mapping": {
 					"A": "minecraft:anvil",
@@ -91,22 +91,22 @@
 					"0": "anvilcraft:arrow"
 				},
 				"pattern": [
-					[ "   ", "  A", "   " ], 
+					[ "   ", "  A", "   " ],
 					[ "   ", "A  ", "   " ],
 					[ "   ", "M M", "   " ],
 					[ "   ", "G0C", "   " ]
 				]
 			},
 			"enable_visualize":"false",
-			"text": "与压合不同的是上方的方块不会消耗。右边的列表给出更多可以发生此种转化的例子。"
+			"text": "Unlike pressing, the block above will not be consumed. The list on the right gives more examples of where such transformation can occur."
         },
 		{
             "type": "patchouli:text",
-            "text": "苔藓块+圆石→苔石$(br)苔藓块+石砖→苔石砖$(br)蜜脾块+任意铜块→对应的涂蜡铜块"
+            "text": "Moss Block + Cobblestone → Mossy Stone$(br)Moss Block + Stone Bricks → Moss Stone Bricks$(br)Honeycomb Block + Any Copper Block → Corresponding Waxed Copper Block"
         },
 		{
             "type": "patchouli:multiblock",
-            "name": "方块+炼药锅：压榨",
+            "name": "Block + Cauldron: Squeeze",
 			"multiblock": {
 				"mapping": {
 					"A": "minecraft:anvil",
@@ -117,22 +117,22 @@
 					"0": "anvilcraft:arrow"
 				},
 				"pattern": [
-					[ "   ", "  A", "   " ], 
+					[ "   ", "  A", "   " ],
 					[ "   ", "A  ", "   " ],
 					[ "   ", "S W", "   " ],
 					[ "   ", "L0C", "   " ]
 				]
 			},
 			"enable_visualize":"false",
-			"text": "炼药锅中会出现对应的单层液体。右边的列表给出更多可以发生此种转化的例子。"
+			"text": "A single layer of liquid will appear in the cauldron. The list on the right gives more examples of where such transformation can occur, some of which can occur consecutively."
         },
 		{
             "type": "patchouli:text",
-            "text": "湿海绵→海绵+水$(br)苔藓块→覆地苔藓+水$(br)岩浆块→下界岩+熔岩$(br)雪块→冰+细雪$(br)满蜂巢→空蜂巢+蜂蜜（特殊地，下方是三层蜂蜜时，继续砸满蜂巢将压成一个蜂蜜块，上述蜂巢皆可换成蜂箱）"
+            "text": "Wet Sponge → Sponge + Water$(br)Moss blocks → Moss Carpet + Water$(br)Magma Block → Netherrack + Lava$(br)Snow Block → Ice + Powder Snow$(br)Full Bee Nest → Empty Bee Nest + Honey((Specially, when there are three layers of honey below, if you continue to squeeze the full bee nest, it will be crushed into a honey block. The above bee nest can be replaced with beehive)"
         },
 		{
             "type": "patchouli:multiblock",
-            "name": "方块+切石机：破坏",
+            "name": "Block + Stonecutter: Destroy",
 			"multiblock": {
 				"mapping": {
 					"A": "minecraft:anvil",
@@ -141,18 +141,18 @@
 					"0": "anvilcraft:arrow"
 				},
 				"pattern": [
-					[ "   ", "  A", "   " ], 
+					[ "   ", "  A", "   " ],
 					[ "   ", "A  ", "   " ],
 					[ "   ", "  C", "   " ],
 					[ "   ", "S0S", "   " ]
 				]
 			},
 			"enable_visualize":"false",
-			"text": "方块变为掉落物。右边详细说明。"
+			"text": "Block becomes dropped item. Detailed instructions on the right."
         },
 		{
             "type": "patchouli:text",
-            "text": "方块破坏遵循TNT破坏的掉落物表，即没有时运或精准效果。如果方块是超过TNT爆炸能破坏的抗爆强度如黑曜石，仍然可以破坏，但是铁砧将固定损坏一个耐久等级。为了防止方块破坏后铁砧掉在切石机上变为掉落物，你需要控制电路的时序。"
+            "text": "Block destruction follows the drop table of TNT destruction, i.e. it has no fortune or silk touch enchantment. If the block is higher than the blast resistance that the TNT explosion can break, such as obsidian, it can still be broken, but the anvil will be damaged by one durability level. In order to prevent the anvil from falling on the stonecutter and becoming the drop after the block is broken, you need to control the timing of the redstone circuit."
         }
     ]
 }

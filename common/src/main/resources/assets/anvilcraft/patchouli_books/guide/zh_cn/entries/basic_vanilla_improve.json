@@ -1,16 +1,16 @@
 {
-    "name": "Basic Vanilla Improve",
+    "name": "原版改进",
     "category": "anvilcraft:basic_gameplay",
     "icon": "minecraft:dispenser",
     "sortnum": 4,
     "pages": [
         {
             "type": "patchouli:text",
-            "text": "In order to make the anvil process smoother, this mod has completed some of the features that the vanilla should have."
+            "text": "为了让铁砧处理过程更丝滑，本模组补全了一些原版本应该就有的功能。"
         },
 		{
             "type": "patchouli:multiblock",
-            "name": "Completion of the Cauldron",
+            "name": "炼药锅补全",
 			"multiblock": {
 				"mapping": {
 					"A": "anvilcraft:lava_cauldron[level=1]",
@@ -18,17 +18,17 @@
 					"C": "minecraft:lava_cauldron"
 				},
 				"pattern": [
-					[ "   ", "   ", "   " ],
+					[ "   ", "   ", "   " ], 
 					[ "A  ", " B ", "  C" ],
 					[ "   ", " 0 ", "   " ]
 				]
 			},
 			"enable_visualize":"false",
-			"text": "Complete the missing cauldron layers in the vanilla."
+			"text": "补全原版缺失的炼药锅层数。"
         },
 		{
             "type": "patchouli:multiblock",
-            "name": "Dispenser Operates the Cauldron",
+            "name": "发射器操作炼药锅",
 			"multiblock": {
 				"mapping": {
 					"D": "minecraft:dispenser",
@@ -36,17 +36,17 @@
 					"W": "minecraft:water_cauldron[level=3]"
 				},
 				"pattern": [
-					[ "  ", "  ", "  " ],
+					[ "  ", "  ", "  " ], 
 					[ "CD", "  ", "WD" ],
 					[ "  ", " 0", "  " ]
 				]
 			},
 			"enable_visualize":"false",
-			"text": "The dispenser uses a water bottle, an empty bottle, a lava bucket, a powder snow bucket, a water bucket, and an empty bucket to interact with the cauldron."
+			"text": "发射器使用水瓶、空瓶、熔岩桶、细雪桶、水桶、空桶交互炼药锅。"
         },
         {
             "type": "patchouli:text",
-            "text": "Dispenser Interactive Mobs:$(br)The dispenser can use iron ingot to repair iron golem, and  can use bucket to interact with cow to receive milk."
+            "text": "发射器交互生物：$(br)发射器可以用铁锭修铁傀儡，发射器可以用桶交互牛接奶。"
         }
     ]
 }
