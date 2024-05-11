@@ -44,16 +44,19 @@ public class ItemCollectorBlockEntity
     private PowerGrid grid;
     private final WatchableCyclingValue<Integer> rangeRadius = new WatchableCyclingValue<>("rangeRadius",
             thiz -> {
+
                 this.setChanged();
             },
             1, 2, 4, 8
     );
     private final WatchableCyclingValue<Integer> cooldown = new WatchableCyclingValue<>("cooldown",
             thiz -> {
+                cd = thiz.get();
                 this.setChanged();
             },
             1, 2, 5, 15, 60
     );
+    private int cd = rangeRadius.get();
 
     private final FilteredItemDepository depository = new FilteredItemDepository.Pollable(9) {
         @Override
@@ -145,6 +148,10 @@ public class ItemCollectorBlockEntity
         BlockState state = level.getBlockState(getBlockPos());
         if (state.hasProperty(ItemCollectorBlock.POWERED)
                 && state.getValue(ItemCollectorBlock.POWERED)) return;
+        if (cd - 1 != 0) {
+            cd--;
+            return;
+        }
         AABB box = AABB.ofSize(
                 Vec3.atCenterOf(getBlockPos()),
                 rangeRadius.get() * 2.0 + 1,
@@ -164,6 +171,7 @@ public class ItemCollectorBlockEntity
                 itemEntity.remove(Entity.RemovalReason.DISCARDED);
             }
         }
+        cd = cooldown.get();
     }
 
     @ExpectPlatform
