@@ -37,7 +37,7 @@ public class StampingRecipesLoader {
         stamping(Items.IRON_INGOT, new RecipeItem(Items.HEAVY_WEIGHTED_PRESSURE_PLATE));
         stamping(Items.GOLD_INGOT, new RecipeItem(Items.LIGHT_WEIGHTED_PRESSURE_PLATE));
         stamping(Items.SNOWBALL, new RecipeItem(Items.SNOW));
-        stamping(ModItems.PULP.get(), new RecipeItem(Items.PAPER));
+        stamping(ModItems.WOOD_FIBER.get(), new RecipeItem(Items.PAPER));
         stamping(Items.MILK_BUCKET, new RecipeItem(ModItems.CREAM.get(), 4));
         stamping(Items.SUGAR_CANE, new RecipeItem(Items.PAPER), new RecipeItem(0.25, Items.SUGAR));
         stamping(

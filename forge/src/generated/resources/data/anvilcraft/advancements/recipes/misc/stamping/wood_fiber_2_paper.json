@@ -1,34 +1,34 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_elytra": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:stamping/wood_fiber_2_paper"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "has_wood_fiber": {
       "conditions": {
         "items": [
           {
             "items": [
-              "minecraft:elytra"
+              "anvilcraft:wood_fiber"
             ]
           }
         ]
       },
       "trigger": "minecraft:inventory_changed"
-    },
-    "has_the_recipe": {
-      "conditions": {
-        "recipe": "anvilcraft:elytra_frame"
-      },
-      "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_elytra",
+      "has_wood_fiber",
       "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:elytra_frame"
+      "anvilcraft:stamping/wood_fiber_2_paper"
     ]
   },
   "sends_telemetry_event": false
