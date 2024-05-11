@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:bulging/pulp"
+        "recipe": "anvilcraft:stamping/wood_fiber_2_paper"
       },
       "trigger": "minecraft:recipe_unlocked"
     },
@@ -28,7 +28,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:bulging/pulp"
+      "anvilcraft:stamping/wood_fiber_2_paper"
     ]
   },
   "sends_telemetry_event": false
