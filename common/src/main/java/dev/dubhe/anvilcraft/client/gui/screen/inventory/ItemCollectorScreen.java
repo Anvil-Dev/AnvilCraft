@@ -11,8 +11,6 @@ import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -27,12 +25,15 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
     private static final ResourceLocation CONTAINER_LOCATION =
             AnvilCraft.of("textures/gui/container/machine/background/item_collector.png");
     BiFunction<Integer, Integer, EnableFilterButton> enableFilterButtonSupplier =
-            this.getEnableFilterButtonSupplier(75, 55);
+            this.getEnableFilterButtonSupplier(75, 54);
 
     @Getter
     private EnableFilterButton enableFilterButton = null;
     private final ItemCollectorMenu menu;
 
+    /**
+     * 物品收集器 Screen
+     */
     public ItemCollectorScreen(ItemCollectorMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
         this.menu = menu;
@@ -91,36 +92,6 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
             menu.getBlockEntity().getCooldown().next();
             menu.getBlockEntity().getCooldown().notifyServer();
         }));
-
-        //range text
-        this.addRenderableWidget(new StringWidget(
-                leftPos + 7,
-                topPos + 24,
-                22,
-                9,
-                Component.translatable("screen.anvilcraft.item_collector.range"),
-                minecraft.font
-        ).alignLeft());
-
-        //cooldown text
-        this.addRenderableWidget(new StringWidget(
-                leftPos + 7,
-                topPos + 37,
-                22,
-                9,
-                Component.translatable("screen.anvilcraft.item_collector.cooldown"),
-                minecraft.font
-        ).alignLeft());
-
-        //input power text
-        this.addRenderableWidget(new StringWidget(
-                leftPos + 7,
-                topPos + 51,
-                22,
-                9,
-                Component.translatable("screen.anvilcraft.item_collector.input_power"),
-                minecraft.font
-        ).alignLeft());
     }
 
     @Override

@@ -38,6 +38,9 @@ public class ItemCollectorBlock extends BaseEntityBlock implements IHammerRemova
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
 
+    /**
+     * 物品收集器
+     */
     public ItemCollectorBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(

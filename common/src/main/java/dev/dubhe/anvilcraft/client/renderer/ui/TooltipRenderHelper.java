@@ -10,12 +10,21 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2ic;
-import org.spongepowered.asm.mixin.Unique;
 
 import java.util.List;
 
 public class TooltipRenderHelper {
 
+    /**
+     * 渲染带图标的Tooltip
+     *
+     * @param thiz      GuiGraphics
+     * @param font      字体
+     * @param itemStack 图标物品
+     * @param lines     Tooltip内容
+     * @param x         x坐标
+     * @param y         y坐标
+     */
     public static void renderTooltipWithItemIcon(
             GuiGraphics thiz,
             Font font,

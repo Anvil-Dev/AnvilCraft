@@ -11,6 +11,10 @@ import org.jetbrains.annotations.NotNull;
 public class ItemCollectorButton extends Button {
 
     private final ResourceLocation texture;
+
+    /**
+     * 物品收集器 screen 的加减按钮
+     */
     public ItemCollectorButton(int x, int y, String variant, OnPress onPress) {
         super(x,
                 y,

@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.util;
 
 import dev.dubhe.anvilcraft.network.ServerboundCyclingValueSyncPacket;
 import lombok.Getter;
-import net.minecraft.client.Minecraft;
 
 import java.util.function.Consumer;
 
@@ -13,6 +12,9 @@ public class WatchableCyclingValue<T> {
     @Getter
     private final String name;
 
+    /**
+     * 可监听的循环值选择器
+     */
     @SafeVarargs
     public WatchableCyclingValue(String name, Consumer<WatchableCyclingValue<T>> onChangedCallback, T... values) {
         this.onChangedCallback = onChangedCallback;
@@ -28,6 +30,11 @@ public class WatchableCyclingValue<T> {
         return values.length;
     }
 
+    /**
+     * 设置当前index
+     *
+     * @return this
+     */
     public WatchableCyclingValue<T> fromIndex(int index) {
         if (index >= values.length) {
             throw new IndexOutOfBoundsException(index);
@@ -45,6 +52,9 @@ public class WatchableCyclingValue<T> {
         return values[index];
     }
 
+    /**
+     * 下一个
+     */
     public T next() {
         if (index + 1 >= values.length) {
             index = 0;
@@ -54,6 +64,9 @@ public class WatchableCyclingValue<T> {
         return values[index++];
     }
 
+    /**
+     * 上一个
+     */
     public T previous() {
         if (index - 1 < 0) {
             index = values.length - 1;

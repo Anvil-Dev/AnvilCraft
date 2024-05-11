@@ -34,8 +34,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-import static net.minecraft.world.level.block.Block.UPDATE_CLIENTS;
-
 @Getter
 public class ItemCollectorBlockEntity
         extends BlockEntity
