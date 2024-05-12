@@ -27,18 +27,16 @@ public class AnvilHitBlockDevourerEventListener {
         Block block = state.getBlock();
         if (!(level instanceof ServerLevel serverLevel)) return;
         if (block instanceof BlockDevourerBlock devourerBlock && !state.getValue(BlockDevourerBlock.TRIGGERED)) {
+            int range = (int) event.getFallDistance() + 2;
+            range = Math.min(range, 3);
+            level.setBlock(pos, state.setValue(BlockDevourerBlock.TRIGGERED, true), 2);
+            devourerBlock.devourBlock(serverLevel, pos,
+                state.getValue(BlockDevourerBlock.FACING), range);
             if (state.getValue(BlockDevourerBlock.FACING) == Direction.DOWN
                 && level.getBlockState(pos.below()).getBlock().defaultDestroyTime() >= 0) {
-                devourerBlock.devourBlock(serverLevel, pos, state.getValue(BlockDevourerBlock.FACING), 0);
-                level.setBlock(pos, level.getBlockState(pos.above()), 2);
-                level.setBlock(pos.above(), Blocks.AIR.defaultBlockState(), 2);
+                level.setBlock(pos, Blocks.AIR.defaultBlockState(), 2);
                 level.setBlock(pos.below(), state.setValue(BlockDevourerBlock.TRIGGERED, true), 2);
-            } else {
-                int range = (int) event.getFallDistance() + 2;
-                range = Math.min(range, 3);
-                level.setBlock(pos, state.setValue(BlockDevourerBlock.TRIGGERED, true), 2);
-                devourerBlock.devourBlock(serverLevel, pos,
-                    state.getValue(BlockDevourerBlock.FACING), range);
+                level.scheduleTick(pos.below(), devourerBlock, 4);
             }
             level.scheduleTick(pos, devourerBlock, 4);
         }

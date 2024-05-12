@@ -199,7 +199,12 @@ public class BlockDevourerBlock extends DirectionalBlock implements IHammerChang
                 }
             }
             devouBlockState.getBlock().playerWillDestroy(level, devourBlockPos, devouBlockState, null);
-            level.destroyBlock(devourBlockPos, isDropOriginalPlace);
+            level.destroyBlock(
+                devourBlockPos,
+                (isDropOriginalPlace
+                && (!devouBlockState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)
+                    || (level.random.nextDouble() <= 0.05
+                    && devouBlockState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)))));
         }
     }
 }
