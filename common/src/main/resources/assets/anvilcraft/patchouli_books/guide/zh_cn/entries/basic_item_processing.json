@@ -1,0 +1,152 @@
+{
+    "name": "基本物品处理",
+    "category": "anvilcraft:basic_gameplay",
+    "icon": "minecraft:iron_ingot",
+    "sortnum": 2,
+    "pages": [
+        {
+            "type": "patchouli:text",
+            "text": "让$(item)铁砧$()落在特定方块上就可以加工该方块上或内部的物品，不同的特定方块有不同的处理，本条目的后续页面依次介绍。本模组增加了一种方块可以让直接被砸的物品不因碰撞箱挤压而乱飞：$(item)冲压平台$()。"
+        },
+		{
+            "type": "patchouli:crafting",
+            "recipe":"anvilcraft:stamping_platform",
+			"text": "铁压力板可以换成任意模组的铁板。"
+        },
+		{
+            "type": "patchouli:multiblock",
+            "name": "物品冲压",
+			"multiblock": {
+				"mapping": {
+					"A": "minecraft:anvil",
+					"S": "anvilcraft:stamping_platform",
+					"0": "anvilcraft:arrow"
+				},
+				"pattern": [
+					[ "   ", "  A", "   " ],
+					[ "   ", "A  ", "   " ],
+					[ "   ", "S0S", "   " ]
+				]
+			},
+			"enable_visualize":"false",
+			"text": "下方是冲压平台时执行物品冲压操作，原料和产物都在平台中，具体描述见右侧。"
+        },
+		{
+            "type": "patchouli:text",
+            "text": "可以将物品砸成对应的薄片，例如铁锭→铁压力板；金锭→金压力板；雪球→雪片；樱花树叶→粉色花瓣。$(br)还可以分离一些物品的不同组分，例如甘蔗→纸+糖；小麦→面粉+小麦种子；原木→木质纤维+树脂。$(br)还可以回收一些装备，锁链、金质、铁质和钻石工具武器盔甲可以分解出原料，远远多于熔炼得到的。"
+        },
+		{
+            "type": "patchouli:multiblock",
+            "name": "物品压缩",
+			"multiblock": {
+				"mapping": {
+					"A": "minecraft:anvil",
+					"C": "minecraft:cauldron",
+					"0": "anvilcraft:arrow"
+				},
+				"pattern": [
+					[ "   ", "  A", "   " ],
+					[ "   ", "A  ", "   " ],
+					[ "   ", "C0C", "   " ]
+				]
+			},
+			"enable_visualize":"false",
+			"text": "下方是炼药锅时执行物品压缩操作，原料和产物都在锅中，具体描述见右侧。"
+        },
+		{
+            "type": "patchouli:text",
+            "text": "如果物品有2x2或3x3的合成配方则会被执行，例如9铁粒→铁锭；9铁锭→铁块；4线→羊毛。如果一个物品既可以2x2合成又可以3x3合成，则执行3x3合成。$(br)除了原版的配方外，增加了3骨头→1骨块的配方也可以在此合成。"
+        },
+		{
+            "type": "patchouli:multiblock",
+            "name": "物品分解",
+			"multiblock": {
+				"mapping": {
+					"A": "minecraft:anvil",
+					"T": "minecraft:iron_trapdoor[half=top]",
+					"0": "anvilcraft:arrow"
+				},
+				"pattern": [
+					[ "   ", "  A", "   " ],
+					[ "   ", "A  ", "   " ],
+					[ "   ", "T0T", "   " ]
+				]
+			},
+			"enable_visualize":"false",
+			"text": "下方是铁活版门时执行物品分解操作，原料置于铁活版门上，产物出现在铁活版门下，具体描述见右侧。"
+        },
+		{
+            "type": "patchouli:text",
+            "text": "如果物品有1→n的合成配方则会被执行，例如1铁锭→9铁粒。$(br)额外地，原版可以通过打破方块来分解的也可执行，数量按最大来：例如西瓜→9西瓜片；雪块→4雪球；荧石→4荧石粉，黏土→4黏土球。$(br)一些原版无法分解的建筑方块也可以通过此方法分解：例如石英块→4石英；紫水晶块→4紫水晶碎片；滴水石块→4滴水石锥；蜜脾块→4蜜脾；海晶石→4海晶碎片；海晶石砖→9海晶碎片。"
+        },
+		{
+            "type": "patchouli:multiblock",
+            "name": "物品过筛",
+			"multiblock": {
+				"mapping": {
+					"A": "minecraft:anvil",
+					"S": "minecraft:scaffolding",
+					"0": "anvilcraft:arrow"
+				},
+				"pattern": [
+					[ "   ", "  A", "   " ],
+					[ "   ", "A  ", "   " ],
+					[ "   ", "S0S", "   " ]
+				]
+			},
+			"enable_visualize":"false",
+			"text": "下方是脚手架时执行物品过筛操作，原料置于脚手架上，产物出现在脚手架下，具体描述见右侧。"
+        },
+		{
+            "type": "patchouli:text",
+            "text": "过筛额外产出约一半原料，可循环利用。转化表如下（存在概率）：$(br)砂砾→燧石+铁粒$(br)沙子→黏土+金粒$(br)红沙→荧石粉+铜粒$(br)火山灰→青金石+锌粒$(br)石英砂→石英+锡粒$(br)深板岩碎→石灰粉+铅粒$(br)下界尘→红石粉+钨粒$(br)黑沙→火药+银粒$(br)末地尘→紫颂花+钛粒$(br)灵魂沙→下界疣$(br)树叶→对应的树苗"
+        },
+		{
+            "type": "patchouli:multiblock",
+            "name": "物品膨发",
+			"multiblock": {
+				"mapping": {
+					"A": "minecraft:anvil",
+					"W": "minecraft:water_cauldron[level=3]",
+					"C": "minecraft:water_cauldron[level=2]",
+					"0": "anvilcraft:arrow"
+				},
+				"pattern": [
+					[ "   ", "  A", "   " ],
+					[ "   ", "A  ", "   " ],
+					[ "   ", "C0W", "   " ]
+				]
+			},
+			"enable_visualize":"false",
+			"text": "下方是装水炼药锅时执行物品膨发操作，原料和产物都在锅中，消耗一层水，转化表见右侧。"
+        },
+		{
+            "type": "patchouli:text",
+            "text": "泥土→黏土$(br)绯红菌→下界疣块$(br)诡异菌→诡异疣块$(br)蜘蛛眼→发酵蜘蛛眼$(br)珊瑚→对应珊瑚块。"
+        },
+		{
+            "type": "patchouli:multiblock",
+            "name": "烹饪",
+			"multiblock": {
+				"mapping": {
+					"A": "minecraft:anvil",
+					"C": "minecraft:cauldron",
+					"F": "minecraft:campfire",
+					"0": "anvilcraft:arrow"
+				},
+				"pattern": [
+					[ "   ", "  A", "   " ],
+					[ "   ", "A  ", "   " ],
+					[ "   ", "C0C", "   " ],
+					[ "   ", "F F", "   " ]
+				]
+			},
+			"enable_visualize":"false",
+			"text": "下方是炼药锅和营火时执行烹饪操作，原料和产物都在锅中，有的配方需要水且消耗一层水，具体描述见右侧。"
+        },
+		{
+            "type": "patchouli:text",
+            "text": "自动兼容所有烟熏炉配方和营火配方，不需要水。$(br)有水时，可以发生如下转化：树脂→粘液球。"
+        }
+    ]
+}
