@@ -26,6 +26,8 @@ public class SmashBlockRecipesLoader {
         smash(Blocks.ANDESITE, ModBlocks.CINERITE.get(), provider);
         smash(Blocks.POLISHED_DIORITE, Blocks.DIORITE, provider);
         smash(Blocks.DIORITE, ModBlocks.QUARTZ_SAND.get(), provider);
+        smash(Blocks.DEEPSLATE, ModBlocks.DEEPSLATE_CHIPS.get(), provider);
+        smash(Blocks.BLACKSTONE, ModBlocks.BLACK_SAND.get(), provider);
         smash(Blocks.STONE_BRICKS, Blocks.CRACKED_STONE_BRICKS, provider);
         smash(Blocks.DEEPSLATE_BRICKS, Blocks.CRACKED_DEEPSLATE_BRICKS, provider);
         smash(Blocks.NETHER_BRICKS, Blocks.CRACKED_NETHER_BRICKS, provider);

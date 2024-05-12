@@ -1,0 +1,35 @@
+{
+  "type": "anvilcraft:anvil_processing",
+  "icon": {
+    "item": "anvilcraft:deepslate_chips"
+  },
+  "outcomes": [
+    {
+      "type": "set_block",
+      "chance": 1.0,
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "result": {
+        "block": "anvilcraft:deepslate_chips"
+      }
+    }
+  ],
+  "predicates": [
+    {
+      "type": "has_block",
+      "match_block": {
+        "blocks": [
+          "minecraft:deepslate"
+        ]
+      },
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ]
+    }
+  ]
+}

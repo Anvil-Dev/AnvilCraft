@@ -1,0 +1,36 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "tag": "c:uranium_nuggets"
+    },
+    {
+      "tag": "c:uranium_nuggets"
+    },
+    {
+      "tag": "c:uranium_nuggets"
+    },
+    {
+      "tag": "c:uranium_nuggets"
+    },
+    {
+      "tag": "c:uranium_nuggets"
+    },
+    {
+      "tag": "c:uranium_nuggets"
+    },
+    {
+      "tag": "c:uranium_nuggets"
+    },
+    {
+      "tag": "c:uranium_nuggets"
+    },
+    {
+      "tag": "c:uranium_nuggets"
+    }
+  ],
+  "result": {
+    "item": "anvilcraft:uranium_ingot"
+  }
+}

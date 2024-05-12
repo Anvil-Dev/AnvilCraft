@@ -180,4 +180,18 @@ public class ItemCollectorBlockEntity
     public void tick(Level level, BlockPos blockPos) {
         this.flushState(level, blockPos);
     }
+
+    /**
+     * 获取红石信号
+     *
+     */
+    public int getRedstoneSignal() {
+        int i = 0;
+        for (int j = 0; j < depository.getSlots(); ++j) {
+            ItemStack itemStack = depository.getStack(j);
+            if (itemStack.isEmpty() && !depository.isSlotDisabled(j)) continue;
+            ++i;
+        }
+        return i;
+    }
 }

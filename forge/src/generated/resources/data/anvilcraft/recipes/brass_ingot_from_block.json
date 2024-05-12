@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "anvilcraft:brass_block"
+    }
+  ],
+  "result": {
+    "count": 9,
+    "item": "anvilcraft:brass_ingot"
+  }
+}
