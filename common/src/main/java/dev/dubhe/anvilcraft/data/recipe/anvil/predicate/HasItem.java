@@ -428,8 +428,8 @@ public class HasItem implements RecipePredicate, HasData {
             }
             return isItem
                 && sameNbt
-                && this.count.matches(item.getCount())
-                && this.durability.matches(item.getDamageValue())
+                && (this.count == null || this.count.matches(item.getCount()))
+                && (this.durability == null || this.durability.matches(item.getDamageValue()))
                 && sameEnchant;
         }
     }
