@@ -1,16 +1,24 @@
 {
-    "name": "Basic Introduction",
-    "category": "anvilcraft:basic_gameplay",
-    "icon": "minecraft:anvil",
-    "priority": "true",
-    "pages": [
-        {
-            "type": "patchouli:text",
-            "text": "$(li)AnvilCraft is a mod that triggers effects by falling an anvil on a block, item or mob.$(li)Placing different blocks underneath the anvil will trigger different effects.$(li)You can automate the production or recycle some items in this way.$(li)In order to facilitate the lifting of the anvil, the mod adds the magnet block. You can use vanilla redstone machinery or manual operation instead, but it is more complicated."
-        },
-		{
-            "type": "patchouli:text",
-            "text": "$(li)The drop of the anvil can also be used to generate electricity and even power the electrical appliances of other mods. Based on this, this mod adds a power system and corresponding machines.$(li)Anvils have a lot of room for improvement in enchantment and forging, and this mod adds forging gameplay to increase the enchantment cap.$(li)These two parts are covered in dedicated sections."
-        }
-    ]
+  "name": "Basic Introduction",
+  "category": "anvilcraft:basic_gameplay",
+  "icon": "minecraft:anvil",
+  "priority": "true",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "$(li)AnvilCraft is a mod that triggers effects by falling an anvil on a block, item or mob.$(li)Placing different blocks underneath the anvil will trigger different effects.$(li)You can automate the production or recycle some items in this way."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(li)In order to facilitate the lifting of the anvil, the mod adds the magnet block. You can use vanilla redstone machinery or manual operation instead, but it is more complicated."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(li)The drop of the anvil can also be used to generate electricity and even power the electrical appliances of other mods. Based on this, this mod adds a power system and corresponding machines."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(li)Anvils have a lot of room for improvement in enchantment and forging, and this mod adds forging gameplay to increase the enchantment cap.$(li)These two parts are covered in dedicated sections."
+    }
+  ]
 }

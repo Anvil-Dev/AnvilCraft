@@ -1,52 +1,52 @@
 {
-    "name": "Basic Vanilla Improve",
-    "category": "anvilcraft:basic_gameplay",
-    "icon": "minecraft:dispenser",
-    "sortnum": 4,
-    "pages": [
-        {
-            "type": "patchouli:text",
-            "text": "In order to make the anvil process smoother, this mod has completed some of the features that the vanilla should have."
+  "name": "Basic Vanilla Improve",
+  "category": "anvilcraft:basic_gameplay",
+  "icon": "minecraft:dispenser",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "In order to make the anvil process smoother, this mod has completed some of the features that the vanilla should have."
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "Completion of Cauldrons",
+      "multiblock": {
+        "mapping": {
+          "A": "anvilcraft:lava_cauldron[level=1]",
+          "B": "anvilcraft:lava_cauldron[level=2]",
+          "C": "minecraft:lava_cauldron"
         },
-		{
-            "type": "patchouli:multiblock",
-            "name": "Completion of the Cauldron",
-			"multiblock": {
-				"mapping": {
-					"A": "anvilcraft:lava_cauldron[level=1]",
-					"B": "anvilcraft:lava_cauldron[level=2]",
-					"C": "minecraft:lava_cauldron"
-				},
-				"pattern": [
-					[ "   ", "   ", "   " ],
-					[ "A  ", " B ", "  C" ],
-					[ "   ", " 0 ", "   " ]
-				]
-			},
-			"enable_visualize":"false",
-			"text": "Complete the missing cauldron layers in the vanilla."
+        "pattern": [
+          ["   ", "   ", "   "],
+          ["A  ", " B ", "  C"],
+          ["   ", " 0 ", "   "]
+        ]
+      },
+      "enable_visualize": "false",
+      "text": "Complete the missing cauldron layers in the vanilla."
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "Dispensers Operate Cauldrons",
+      "multiblock": {
+        "mapping": {
+          "D": "minecraft:dispenser",
+          "C": "minecraft:cauldron",
+          "W": "minecraft:water_cauldron[level=3]"
         },
-		{
-            "type": "patchouli:multiblock",
-            "name": "Dispenser Operates the Cauldron",
-			"multiblock": {
-				"mapping": {
-					"D": "minecraft:dispenser",
-					"C": "minecraft:cauldron",
-					"W": "minecraft:water_cauldron[level=3]"
-				},
-				"pattern": [
-					[ "  ", "  ", "  " ],
-					[ "CD", "  ", "WD" ],
-					[ "  ", " 0", "  " ]
-				]
-			},
-			"enable_visualize":"false",
-			"text": "The dispenser uses a water bottle, an empty bottle, a lava bucket, a powder snow bucket, a water bucket, and an empty bucket to interact with the cauldron."
-        },
-        {
-            "type": "patchouli:text",
-            "text": "Dispenser Interactive Mobs:$(br)The dispenser can use iron ingot to repair iron golem, and  can use bucket to interact with cow to receive milk."
-        }
-    ]
+        "pattern": [
+          ["  ", "  ", "  "],
+          ["CD", "  ", "WD"],
+          ["  ", " 0", "  "]
+        ]
+      },
+      "enable_visualize": "false",
+      "text": "The dispenser uses water bottles, empty bottles, lava buckets, powder snow buckets, water buckets and empty buckets to interact with the cauldron."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Dispensers Interact with Mobs:$(br)The dispenser can use iron ingots to repair iron golem, and can use buckets to interact with cow to receive milk."
+    }
+  ]
 }

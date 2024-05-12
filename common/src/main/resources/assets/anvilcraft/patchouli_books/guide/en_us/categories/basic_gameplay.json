@@ -1,5 +1,5 @@
 {
-    "name": "Basic Gameplay",
-    "description": "The basic gameplay of the AnvilCraft mainly includes various changes caused by the fall of the anvil, which can transform blocks, process items, affect creatures, etc.$(br)This module adds some blocks to facilitate early automation, including block placer, chute, etc., which can be viewed in the $(thing)Basic More Device$() entry.",
-    "icon": "minecraft:anvil"
+  "name": "Basic Gameplay",
+  "description": "The basic gameplay of AnvilCraft mainly includes changes caused by the falling anvil, which can transform blocks, process items, affect mobs, etc.$(br)This mod adds some blocks to facilitate early automation, including block placer, chute, etc., which can be viewed in the $(thing)Basic More Device$() entry.",
+  "icon": "minecraft:anvil"
 }

@@ -1,68 +1,68 @@
 {
-    "name": "Process 2 - Get the Magnet",
-    "category": "anvilcraft:process",
-    "icon": "anvilcraft:magnet_ingot",
-    "pages": [
-        {
-            "type": "patchouli:text",
-            "text": "$(item)Magnet Block$() helps you simply lift the anvil up and down it. There are three types of magnet blocks, which have basically the same function, and some can be converted into each other. How to get the first batch of magnet blocks: $(item)Iron block $() is converted into a hollow magnet block by lightning strike. The impact range of lightning can be changed by config profiles. The default is 3 x 3 blocks horizontally and 2 blocks high."
+  "name": "Process 2 - Get Magnets",
+  "category": "anvilcraft:process",
+  "icon": "anvilcraft:magnet_ingot",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The $(item)Magnet Block$() helps you simply lift the anvil up and down it. There are three types of magnet blocks, which have basically the same function, and some can be converted into each other. How to get the first batch of magnet blocks: $(item)Iron block$() is converted into a hollow magnet block by lightning strike. The impact range of lightning can be changed by config profiles. The default is 3 x 3 blocks horizontally and 2 blocks high."
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "Lightning Convert Magnets",
+      "multiblock": {
+        "mapping": {
+          "L": "minecraft:lightning_rod",
+          "I": "minecraft:iron_block",
+          "0": "minecraft:iron_block"
         },
-		{
-            "type": "patchouli:multiblock",
-            "name": "Lightning Convert Magnet Blocks",
-			"multiblock": {
-				"mapping": {
-					"L": "minecraft:lightning_rod",
-					"I": "minecraft:iron_block",
-					"0": "minecraft:iron_block"
-				},
-				"pattern": [
-					[ "   ", " L ", "   " ],
-					[ "III", "III", "III" ],
-					[ "III", "I0I", "III" ]
-				]
-			},
-			"enable_visualize":"false",
-			"text": "Default lightning conversion magnet block range: After a lightning strike, the iron blocks in the picture will be converted into hollow magnet blocks."
+        "pattern": [
+          ["   ", " L ", "   "],
+          ["III", "III", "III"],
+          ["III", "I0I", "III"]
+        ]
+      },
+      "enable_visualize": "false",
+      "text": "Default lightning conversion magnet block range. After a lightning strike, the iron blocks in the picture will be converted into hollow magnet blocks."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "anvilcraft:topaz,minecraft:lightning_rod",
+      "title": "Artificial Channeling",
+      "text": "If you can't wait for a thunderstorm, right-clicking a lightning rod with $(item)Topaz$() will consume it to summon a lightning bolt. Topaz can be obtained from $(item)Geode$(). If you don't have enough geodes at this point, you can dig up more budding amethyst or trade with $(item)Jeweler$() villagers. If a thunderstorm has arrived, you can skip this page."
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "Smash Geode",
+      "multiblock": {
+        "mapping": {
+          "A": "minecraft:anvil",
+          "0": "anvilcraft:stamping_platform"
         },
-		{
-            "type": "patchouli:spotlight",
-            "item":"anvilcraft:topaz,minecraft:lightning_rod",
-            "title":"Artificial Channeling",
-			"text": "If you can't wait for a thunderstorm, right-clicking a lightning rod with $(item)topaz$() will consume it to summon a lightning bolt. Topaz can be obtained from $(item)geode$(). If you don't have enough geodes at this point, you can dig up more budding amethyst or trade with $(item)jeweler$() villagers. If a thunderstorm has arrived, you can skip this page."
-        },
-		{
-            "type": "patchouli:multiblock",
-            "name": "Smash the Geode",
-			"multiblock": {
-				"mapping": {
-					"A": "minecraft:anvil",
-					"0": "anvilcraft:stamping_platform"
-				},
-				"pattern": [
-					[ "A"],
-					[ " "],
-					[ "0"],
-					[ " "]
-				]
-			},
-			"enable_visualize":"false",
-			"text": "Place the geode on the $(item)stamping platform$(), and the anvil will smash the geode when it falls. There is a chance to obtain topaz."
-        },
-		{
-            "type": "patchouli:crafting",
-            "recipe":"anvilcraft:craft/magnet_ingot_8",
-            "recipe2":"anvilcraft:ferrite_core_magnet_block"
-        },
-		{
-            "type": "patchouli:crafting",
-            "recipe":"anvilcraft:craft/magnet_ingot_9",
-			"text": "The $(item)hollow magnet block$() obtained by lightning strike can be decomposed into 8 $(item)magnet ingots$(). Magnet ingots can be combined with iron ingots to form$(item)ferrite core magnet block$(). The ferrite core magnet block will gradually transform into $(item)magnet block$() when placed in the world. And the magnet block can be decomposed into 9 magnet ingots. This is a method of magnet regeneration."
-        },
-		{
-            "type": "patchouli:spotlight",
-            "item":"anvilcraft:hollow_magnet_block",
-			"text": "$(l)Manually$() throw the iron ingots into the hole of the hollow magnet block $(l)one by one$(), and the iron ingots are likely to be converted into magnet ingots, which is another method of magnet regeneration."
-        }
-    ]
+        "pattern": [
+          ["A"],
+          [" "],
+          ["0"],
+          [" "]
+        ]
+      },
+      "enable_visualize": "false",
+      "text": "Place the geode on the $(item)Stamping Platform$(), and the anvil will smash the geode when it falls. There is a chance to obtain topaz."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "anvilcraft:craft/magnet_ingot_8",
+      "recipe2": "anvilcraft:ferrite_core_magnet_block"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "anvilcraft:craft/magnet_ingot_9",
+      "text": "The $(item)Hollow Magnet Block$() obtained by lightning strike can be decomposed into 8 $(item)Magnet Ingots$(). Magnet ingots can be combined with iron ingots to form $(item)Ferrite Core Magnet Block$(). The ferrite core magnet block will gradually transform into $(item)Magnet Block$() when placed in the world. And the magnet block can be decomposed into 9 magnet ingots. This is a method of magnet regeneration."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "anvilcraft:hollow_magnet_block",
+      "text": "$(l)Manually$() throw the iron ingots into the hole of the hollow magnet block $(l)One by One$(), and the iron ingots are likely to be converted into magnet ingots, which is another method of magnet regeneration."
+    }
+  ]
 }

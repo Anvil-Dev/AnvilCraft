@@ -1,60 +1,60 @@
 {
-    "name": "Basic More Processing",
-    "category": "anvilcraft:basic_gameplay",
-    "icon": "minecraft:spawner",
-    "sortnum": 3,
-    "pages": [
-        {
-            "type": "patchouli:text",
-            "text": "Let $(item)anvil$() fall on the mob's feet, on the spawner or on the redstone block causes the change. The subsequent pages of this article are introduced in sequence."
+  "name": "Basic More Processing",
+  "category": "anvilcraft:basic_gameplay",
+  "icon": "minecraft:spawner",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Let $(item)anvil$() fall on the mob's feet, on the spawner or on the redstone block causes the change. The following pages of this entry are introduced in sequence."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Get more mob loot:$(br)When mobs are hit and damaged by an anvil, they will drop items according to the mob loot table. The mobs must be taken enough damage at once: 40% HP → 1x drops; 60% HP → 2x drops; 80% HP → 3x drops.$(br)This method only yields normal mob drops, and does not produce drops such as blaze rod that require the player to manually kill.$(br)There are mobs that can regenerate health on their own or with the help of external forces, which you can use to create drop farms that don't kill mobs."
+    },
+    {
+      "type": "patchouli:multblock",
+      "name": "Spawner: Forced Spawn",
+      "multiblock": {
+        "mapping": {
+          "A": "minecraft:anvil",
+          "S": "minecraft:spawner",
+          "0": "anvilcraft:arrow"
         },
-        {
-            "type": "patchouli:text",
-            "text": "Get more mob loot:$(br)When mobs are hit and damaged by an anvil, they will drop items according to the mob loot table. The mobs must be taken enough damage at once: 40% HP → 1x drops; 60% HP → 2x drops; 80% HP → 3x drops.$(br)This method only yields normal mob drops, and does not produce drops such as blaze rod that require the player to manually kill.$(br)There are mobs that can regenerate health on their own or with the help of external forces, which you can use to create drop farms that don't kill mobs."
+        "pattern": [
+          ["   ", "  A", "   "],
+          ["   ", "A  ", "   "],
+          ["   ", "S0S", "   "]
+        ]
+      },
+      "enable_visualize": "false",
+      "text": "Spawners that are hit will attempt to spawn. Detailed instructions on the right."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The higher the drop height of the anvil, the greater the chance of spawning. This method of farming does not require players to be around, but it needs to meet the lighting conditions of the spawner and the number of mobs around it will also affect the spawning, and quickly transporting or killing nearby mobs can greatly improve efficiency."
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "Redstone Block: Redstone EMP",
+      "multiblock": {
+        "mapping": {
+          "A": "minecraft:anvil",
+          "R": "minecraft:redstone_block",
+          "0": "anvilcraft:arrow"
         },
-		{
-            "type": "patchouli:multiblock",
-            "name": "Spawner: Forced Spawning",
-			"multiblock": {
-				"mapping": {
-					"A": "minecraft:anvil",
-					"S": "minecraft:spawner",
-					"0": "anvilcraft:arrow"
-				},
-				"pattern": [
-					[ "   ", "  A", "   " ],
-					[ "   ", "A  ", "   " ],
-					[ "   ", "S0S", "   " ]
-				]
-			},
-			"enable_visualize":"false",
-			"text": "Spawners that are hit will attempt to spawn. Detailed instructions on the right."
-        },
-        {
-            "type": "patchouli:text",
-            "text": "The higher the drop height of the anvil, the greater the chance of spawning. This method of farming does not require players to be around, but it needs to meet the lighting conditions of the spawner and the number of mobs around it will also affect the spawning, and quickly transporting or killing nearby mobs can greatly improve efficiency."
-        },
-		{
-            "type": "patchouli:multiblock",
-            "name": "Redstone Block: Redstone EMP",
-			"multiblock": {
-				"mapping": {
-					"A": "minecraft:anvil",
-					"R": "minecraft:redstone_block",
-					"0": "anvilcraft:arrow"
-				},
-				"pattern": [
-					[ "   ", "  A", "   " ],
-					[ "   ", "A  ", "   " ],
-					[ "   ", "R0R", "   " ]
-				]
-			},
-			"enable_visualize":"false",
-			"text": "A hit Redstone Block will produce redstone EMP. Detailed instructions on the right."
-        },
-        {
-            "type": "patchouli:text",
-            "text": "When an anvil hits a redstone block, the redstone block torches within a distance of r on the same layer as the redstone block will be extinguished by 1gt. An iron trapdoor clinging to redstone block can prevent EMP from spreading in this direction.$(br)R is calculated: the distance is proportional to the drop height, the drop height of 1 block spreads 6 blocks, and the limit distance is 24 blocks."
-        }
-    ]
+        "pattern": [
+          ["   ", "  A", "   "],
+          ["   ", "A  ", "   "],
+          ["   ", "R0R", "   "]
+        ]
+      },
+      "enable_visualize": "false",
+      "text": "A hit Redstone Block will produce redstone EMP. Detailed instructions on the right."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "When an anvil hits a redstone block, the redstone block torches within a distance of r on the same layer as the redstone block will be extinguished by 1gt. An iron trapdoor clinging to redstone block can prevent EMP from spreading in this direction.$(br)R is calculated: the distance is proportional to the drop height, the drop height of 1 block spreads 6 blocks, and the limit distance is 24 blocks."
+    }
+  ]
 }

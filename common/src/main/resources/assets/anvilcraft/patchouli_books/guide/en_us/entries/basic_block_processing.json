@@ -1,158 +1,158 @@
 {
-    "name": "Basic Block Processing",
-    "category": "anvilcraft:basic_gameplay",
-    "icon": "minecraft:stone",
-    "sortnum": 1,
-    "pages": [
-        {
-            "type": "patchouli:text",
-            "text": "Let $(item)anvil$() fall on the block that needs to be processed to process the block. A single block, multiple blocks, a block and a cauldron, a block and a stonecutter will all trigger different effects. The subsequent pages of this article will introduce relevant content in sequence. Before that, understanding how magnets help anvil machining will make it easier for you to get started."
+  "name": "Basic Block Processing",
+  "category": "anvilcraft:basic_gameplay",
+  "icon": "minecraft:stone",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Let $(item)anvil$() fall on the block to process the block. A single block, multiple blocks, a block and a cauldron, a block and a stonecutter will all trigger different effects. The flowing pages of this entry will introduce relevant content in sequence. Before that, understanding how magnets help anvil machining will make it easier for you to get started."
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "Magnets Control Anvils",
+      "multiblock": {
+        "mapping": {
+          "M": "anvilcraft:magnet_block",
+          "D": "anvilcraft:magnet_block[lit=true]",
+          "L": "minecraft:lever[facing=east,powered=false]",
+          "P": "minecraft:lever[facing=east,powered=true]",
+          "A": "minecraft:anvil",
+          "C": "minecraft:cobblestone",
+          "G": "minecraft:gravel"
         },
-		{
-            "type": "patchouli:multiblock",
-            "name": "Using the magnet to raise and lower the anvil",
-			"multiblock": {
-				"mapping": {
-					"M": "anvilcraft:magnet_block",
-					"D": "anvilcraft:magnet_block[lit=true]",
-					"L": "minecraft:lever[facing=east,powered=false]",
-					"P": "minecraft:lever[facing=east,powered=true]",
-					"A": "minecraft:anvil",
-					"C": "minecraft:cobblestone",
-					"G": "minecraft:gravel"
-				},
-				"pattern": [
-					[ "   ", "D M", "P L" ],
-					[ "   ", "  A", "   " ],
-					[ "   ", "A  ", "   " ],
-					[ "   ", "G0C", "   " ]
-				]
-			},
-			"enable_visualize":"false",
-			"text": "The magnet is demagnetized when activated by a redstone signal, and the anvil is dropped to perform the operation."
+        "pattern":  [
+          [ "   ", "D M", "P L" ],
+          [ "   ", "  A", "   " ],
+          [ "   ", "A  ", "   " ],
+          [ "   ", "G0C", "   " ]
+        ]
+      },
+      "enable_visualize": "false",
+      "text": "The magnet is demagnetized when activated by a redstone signal, and the anvil is dropped to perform the operation."
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "Single Block Processing: Crush",
+      "multiblock": {
+        "mapping": {
+          "A": "minecraft:anvil",
+          "S": "minecraft:sand",
+          "G": "minecraft:gravel",
+          "0": "anvilcraft:arrow"
         },
-		{
-            "type": "patchouli:multiblock",
-            "name": "Single Block Processing: Crush",
-			"multiblock": {
-				"mapping": {
-					"A": "minecraft:anvil",
-					"S": "minecraft:sand",
-					"G": "minecraft:gravel",
-					"0": "anvilcraft:arrow"
-				},
-				"pattern": [
-					[ "   ", "  A", "   " ],
-					[ "   ", "A  ", "   " ],
-					[ "   ", "S0G", "   " ]
-				]
-			},
-			"enable_visualize":"false",
-			"text": "The list on the right gives more examples of where such transformation can occur, some of which can occur consecutively."
+        "pattern": [
+          [ "   ", "  A", "   " ],
+          [ "   ", "A  ", "   " ],
+          [ "   ", "S0G", "   " ]
+        ]
+      },
+      "enable_visualize": "false",
+      "text": "The list on the right gives more examples of where such transformation can occur, some of which can occur consecutively."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Cobblestone→Gravel→Sand$(br)Polished Granite→Granite→Red Sand$(br)Polished Andesite→Andesite→Cinerite$(br)Polished Diorite→Diorite→Quartz Sand$(br)Stone Bricks→Cracked Stone Brick$(br)Deepslate Bricks→Cracked Deepslate Bricks$(br)Deepslate Tiles→Cracked Deepslate Tiles$(br)Nether Bricks→Cracked Nether Bricks$(br)Polished Blackstone Bricks→Cracked Polished Blackstone Bricks$(br)Netherrack→Nether Dust$(br)End Stone→End Dust$(br)Soul Soil→Soul Sand$(br)Deepslate→Deepslate Chips$(br)Blackstone→Black Sand"
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "Double Block Processing: Press",
+      "multiblock": {
+        "mapping": {
+          "A": "minecraft:anvil",
+          "M": "minecraft:moss_block",
+          "D": "minecraft:dirt",
+          "G": "minecraft:grass_block",
+          "0": "anvilcraft:arrow"
         },
-		{
-            "type": "patchouli:text",
-            "text": "Cobblestone → Gravel → Sand$(br)Polished Granite → Granite → Red Sand$(br)Polished Andesite → Andesite → Cinerite$(br)Polished Diorite → Diorite → Quartz Sand$(br)Stone Bricks → Cracked Stone Brick$(br)Deepslate Bricks → Cracked Deepslate Bricks$(br)Deepslate Tiles → Cracked Deepslate Tiles$(br)Nether Bricks → Cracked Nether Bricks$(br)Polished Blackstone Bricks → Cracked Polished Blackstone Bricks$(br)Netherrack → Nether Dust$(br)End Stone → End Dust$(br)Soul Soil → Soul Sand$(br)Deepslate → Deepslate Chips$(br)Blackstone → Black Sand"
+        "pattern": [
+          [ "   ", "  A", "   " ],
+          [ "   ", "   ", "   " ],
+          [ "   ", "A M", "   " ],
+          [ "   ", "G0D", "   " ]
+        ]
+      },
+      "enable_visualize": "false",
+      "text": "The list on the right gives more examples of where such transformation can occur."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Moss Block+Dirt→Grass Block$(br)Any Leaves+Dirt→Podzol$(br)Any Mushroom Block+Dirt→Mycelium$(br)Nether Wart Block+Netherrack→Crimson Nylium$(br)Warped Wart Block+Netherrack→Warped Nylium$(br)Stone+Stone→Deepslate$(br)Ice+Ice→Packed Ice$(br)Packed Ice+Packed Ice→Blue Ice$(br)Basalt+Basalt→Blackstone"
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "Double Block Processing: Daub",
+      "multiblock": {
+        "mapping": {
+          "A": "minecraft:anvil",
+          "M": "minecraft:moss_block",
+          "C": "minecraft:cobblestone",
+          "G": "minecraft:mossy_cobblestone",
+          "0": "anvilcraft:arrow"
         },
-		{
-            "type": "patchouli:multiblock",
-            "name": "Double Block Processing: Press",
-			"multiblock": {
-				"mapping": {
-					"A": "minecraft:anvil",
-					"M": "minecraft:moss_block",
-					"D": "minecraft:dirt",
-					"G": "minecraft:grass_block",
-					"0": "anvilcraft:arrow"
-				},
-				"pattern": [
-					[ "   ", "  A", "   " ],
-					[ "   ", "   ", "   " ],
-					[ "   ", "A M", "   " ],
-					[ "   ", "G0D", "   " ]
-				]
-			},
-			"enable_visualize":"false",
-			"text": "The list on the right gives more examples of where such transformation can occur."
+        "pattern": [
+          ["   ", "  A", "   "],
+          ["   ", "A  ", "   "],
+          ["   ", "M M", "   "],
+          ["   ", "G0C", "   "]
+        ]
+      },
+      "enable_visualize": "false",
+      "text": "Unlike pressing, the block above will not be consumed. The list on the right gives more examples of where such transformation can occur."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Moss Block+Cobblestone→Mossy Stone$(br)Moss Block+Stone Bricks→Moss Stone Bricks$(br)Honeycomb Block+Any Copper Block→Corresponding Waxed Copper Block"
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "Block+Cauldron: Squeeze",
+      "multiblock": {
+        "mapping": {
+          "A": "minecraft:anvil",
+          "W": "minecraft:wet_sponge",
+          "S": "minecraft:sponge",
+          "C": "minecraft:cauldron",
+          "L": "minecraft:water_cauldron[level=1]",
+          "0": "anvilcraft:arrow"
         },
-		{
-            "type": "patchouli:text",
-            "text": "Moss Block + Dirt → Grass Block$(br)Any Leaves + Dirt → Podzol$(br)Any Mushroom Block + Dirt → Mycelium$(br)Nether Wart Block + Netherrack → Crimson Nylium$(br)Warped Wart Block + Netherrack → Warped Nylium$(br)Stone + Stone → Deepslate$(br)Ice + Ice → Packed Ice$(br)Packed Ice + Packed Ice → Blue Ice$(br)Basalt + Basalt → Blackstone"
+        "pattern": [
+          ["   ", "  A", "   "],
+          ["   ", "A  ", "   "],
+          ["   ", "S W", "   "],
+          ["   ", "L0C", "   "]
+        ]
+      },
+      "enable_visualize": "false",
+      "text": "A single layer of liquid will appear in the cauldron. The list on the right gives more examples of where such transformation can occur, some of which can occur consecutively."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Wet Sponge→Sponge+Water$(br)Moss blocks→Moss Carpet+Water$(br)Magma Block→Netherrack+Lava$(br)Snow Block→Ice+Powder Snow$(br)Full Bee Nest→Empty Bee Nest+Honey((Specially, when there are three layers of honey below, if you continue to squeeze the full bee nest, it will be crushed into a honey block. The above bee nest can be replaced with beehive)"
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "Block+Stonecutter: Destroy",
+      "multiblock": {
+        "mapping": {
+          "A": "minecraft:anvil",
+          "C": "minecraft:cobblestone",
+          "S": "minecraft:stonecutter",
+          "0": "anvilcraft:arrow"
         },
-		{
-            "type": "patchouli:multiblock",
-            "name": "Double Block Processing: Daub",
-			"multiblock": {
-				"mapping": {
-					"A": "minecraft:anvil",
-					"M": "minecraft:moss_block",
-					"C": "minecraft:cobblestone",
-					"G": "minecraft:mossy_cobblestone",
-					"0": "anvilcraft:arrow"
-				},
-				"pattern": [
-					[ "   ", "  A", "   " ],
-					[ "   ", "A  ", "   " ],
-					[ "   ", "M M", "   " ],
-					[ "   ", "G0C", "   " ]
-				]
-			},
-			"enable_visualize":"false",
-			"text": "Unlike pressing, the block above will not be consumed. The list on the right gives more examples of where such transformation can occur."
-        },
-		{
-            "type": "patchouli:text",
-            "text": "Moss Block + Cobblestone → Mossy Stone$(br)Moss Block + Stone Bricks → Moss Stone Bricks$(br)Honeycomb Block + Any Copper Block → Corresponding Waxed Copper Block"
-        },
-		{
-            "type": "patchouli:multiblock",
-            "name": "Block + Cauldron: Squeeze",
-			"multiblock": {
-				"mapping": {
-					"A": "minecraft:anvil",
-					"W": "minecraft:wet_sponge",
-					"S": "minecraft:sponge",
-					"C": "minecraft:cauldron",
-					"L": "minecraft:water_cauldron[level=1]",
-					"0": "anvilcraft:arrow"
-				},
-				"pattern": [
-					[ "   ", "  A", "   " ],
-					[ "   ", "A  ", "   " ],
-					[ "   ", "S W", "   " ],
-					[ "   ", "L0C", "   " ]
-				]
-			},
-			"enable_visualize":"false",
-			"text": "A single layer of liquid will appear in the cauldron. The list on the right gives more examples of where such transformation can occur, some of which can occur consecutively."
-        },
-		{
-            "type": "patchouli:text",
-            "text": "Wet Sponge → Sponge + Water$(br)Moss blocks → Moss Carpet + Water$(br)Magma Block → Netherrack + Lava$(br)Snow Block → Ice + Powder Snow$(br)Full Bee Nest → Empty Bee Nest + Honey((Specially, when there are three layers of honey below, if you continue to squeeze the full bee nest, it will be crushed into a honey block. The above bee nest can be replaced with beehive)"
-        },
-		{
-            "type": "patchouli:multiblock",
-            "name": "Block + Stonecutter: Destroy",
-			"multiblock": {
-				"mapping": {
-					"A": "minecraft:anvil",
-					"C": "minecraft:cobblestone",
-					"S": "minecraft:stonecutter",
-					"0": "anvilcraft:arrow"
-				},
-				"pattern": [
-					[ "   ", "  A", "   " ],
-					[ "   ", "A  ", "   " ],
-					[ "   ", "  C", "   " ],
-					[ "   ", "S0S", "   " ]
-				]
-			},
-			"enable_visualize":"false",
-			"text": "Block becomes dropped item. Detailed instructions on the right."
-        },
-		{
-            "type": "patchouli:text",
-            "text": "Block destruction follows the drop table of TNT destruction, i.e. it has no fortune or silk touch enchantment. If the block is higher than the blast resistance that the TNT explosion can break, such as obsidian, it can still be broken, but the anvil will be damaged by one durability level. In order to prevent the anvil from falling on the stonecutter and becoming the drop after the block is broken, you need to control the timing of the redstone circuit."
-        }
-    ]
+        "pattern": [
+          ["   ", "  A", "   "],
+          ["   ", "A  ", "   "],
+          ["   ", "  C", "   "],
+          ["   ", "S0S", "   "]
+        ]
+      },
+      "enable_visualize": "false",
+      "text": "Block becomes dropped item. Detailed instructions on the right."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Block destruction follows the drop table of TNT destruction, i.e. it has no fortune or silk touch enchantment. If the block is higher than the blast resistance that the TNT explosion can break, such as obsidian, it can still be broken, but the anvil will be damaged by one durability level. In order to prevent the anvil from falling on the stonecutter and becoming the drop after the block is broken, you need to control the timing of the redstone circuit."
+    }
+  ]
 }

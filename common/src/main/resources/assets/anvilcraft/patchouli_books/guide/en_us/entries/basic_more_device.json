@@ -1,52 +1,52 @@
 {
-    "name": "Bisic More Device",
-    "category": "anvilcraft:basic_gameplay",
-    "icon": "anvilcraft:block_placer",
-    "sortnum": 5,
-    "pages": [
-        {
-            "type": "patchouli:text",
-            "text": "The equipment on this page can help you automate at an early stage."
+  "name": "Bisic More Device",
+  "category": "anvilcraft:basic_gameplay",
+  "icon": "anvilcraft:block_placer",
+  "sortnum": 5,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The equipments in this entry can help you automate at an early stage."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "anvilcraft:crab_trap",
+      "text": "$(item)Crab Trab$() should be placed on the water surface and can automatically produce fishing catch items. It will only work if there are at least three blocks around it that are water sources or waterlogged blocks. Right-click or hit it with an anvil to make it spit out the products. The output of different biomes is slightly different, but they will all produce $(item)Crab Claw$()."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "anvilcraft:crab_claw",
+      "text": "When held in the hand or off-hand, the reach distance is increased by 3 blocks. It is produced from $(item)Crab Trab$()."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "anvilcraft:block_placer",
+      "text": "$(item)Block Placer$() will place a block when there is a redstone signal or when hit by an anvil. Placed block items are taken from the container or drops behind it. The redstone signal causes it to place a block closely in front of it. Hit by an anvil, it will place the block n blocks away based on the height n of the anvil's fall. It can be pushed and pulled by pistons."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "anvilcraft:chute",
+      "text": "$(item)Chute$() is a special kind of hopper. It has 9 slots, transporting a group of items at a time, and can throw items out into the world. Open the GUI to view inventory, change output direction, and set filtration."
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "Chute Auto-Connection",
+      "multiblock": {
+        "mapping": {
+          "C": "anvilcraft:chute",
+          "S": "anvilcraft:simple_chute[tall=true]",
+          "A": "anvilcraft:chute[facing=west]",
+          "B": "anvilcraft:simple_chute[facing=west]",
+          "0": "anvilcraft:arrow"
         },
-		{
-            "type": "patchouli:crafting",
-            "recipe":"anvilcraft:crab_trap",
-			"text": "$(item)Crab trab$() is placed on the water surface and can automatically produce fishing catch items. At least three blocks next to each other are water sources or waterlogged blocks to work. Right-click or hit it with an anvil to make it spit out the products. The output of different biomes is slightly different, but they will all produce $(item)crab claw$()."
-        },
-		{
-            "type": "patchouli:spotlight",
-            "item":"anvilcraft:crab_claw",
-			"text": "When held in the hand or off-hand, the reach distance is increased by 3 blocks. It is produced from $(item)crab trap$()."
-        },
-		{
-            "type": "patchouli:crafting",
-            "recipe":"anvilcraft:block_placer",
-			"text": "$(item)Block Placer$() will place a block when there is a redstone signal or when hit by an anvil. Placed block items are taken from the container or drops behind it. The redstone signal causes it to place a block closely in front of it. Hit by an anvil, it will place the block n blocks away based on the height n of the anvil's fall. It can be pushed and pulled by pistons."
-        },
-		{
-            "type": "patchouli:crafting",
-            "recipe":"anvilcraft:chute",
-			"text": "$(item)Chute$()is a special kind of hopper. It has 9 slots, transporting a group of items at a time, and can throw items out into the world. Open the GUI to view inventory, change output direction, and set filtration."
-        },
-		{
-            "type": "patchouli:multiblock",
-            "name": "Chute Auto-Connection",
-			"multiblock": {
-				"mapping": {
-					"C": "anvilcraft:chute",
-					"S": "anvilcraft:simple_chute[tall=true]",
-					"A": "anvilcraft:chute[facing=west]",
-					"B": "anvilcraft:simple_chute[facing=west]",
-					"0": "anvilcraft:arrow"
-				},
-				"pattern": [
-					[ "C C", "   ", "   " ],
-					[ "S C", "B A", "A A" ],
-					[ "S C", " 0 ", "   " ]
-				]
-			},
-			"enable_visualize":"false",
-			"text": "When chute are chained, the pointed chute will become a simple chute and no longer draw items from the world, and cannot be set filtration."
-        }
-    ]
+        "pattern": [
+          ["C C", "   ", "   "],
+          ["S C","B A", "A A"],
+          ["S C", " 0 ", "   "]
+        ]
+      },
+      "enable_visualize": "false",
+      "text": "When chute are chained, the pointed chute will become a simple chute and no longer draw items from the world. It can not be set filtration, too."
+    }
+  ]
 }

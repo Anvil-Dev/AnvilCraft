@@ -1,21 +1,21 @@
 {
-  "name": "Process 1 - Opening",
+  "name": "Process 1-Opening",
   "category": "anvilcraft:process",
   "icon": "anvilcraft:geode",
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "This mod is very iron-intensive. In addition to building vanilla iron golem farm, this mod provides ways to quickly obtain basic ores. It starts with $(item)amethyst$(). $(item)Geode$() is your good partner at the beginning. If you open the reward chest, then you can find some in the reward chest. If there is no reward chest, mining $(item)budding amethyst$() will also drop geodes. One of the functions of the geode is to help you find the amethyst geode(feature)."
+      "text": "This mod is very iron-intensive. In addition to building vanilla iron golem farm, this mod provides ways to quickly obtain basic ores. It starts with $(item)Amethyst$(). $(item)Geode$() is your good partner at the beginning. If you open the reward chest, then you can find some in the reward chest. If there is no reward chest, mining $(item)Budding Amethyst$() will also drop geodes. One of the functions of the geode is to help you find the amethyst geode(feature)."
     },
     {
       "type": "patchouli:spotlight",
       "item": "anvilcraft:geode",
-      "text": "Right-click to locate a nearby amethyst geode. You can get amethyst shards and one of the following three gems when smashing the geode with an anvil on $(item)stamping platform$(): $(item)topaz$(), $(item)ruby$() and $(item)sapphire$(). In subsequent game step, you can also use the time-warp to change it back to $(item)budding amethyst$(). Jeweler villagers also trade geodes."
+      "text": "Right-click to locate a nearby amethyst geode. You can get amethyst shards and one of the following three gems when smashing the geode with an anvil on $(item)Stamping Platform$(): $(item)Topaz$(), $(item)Ruby$() and $(item)Sapphire$(). In subsequent game step, you can also use the time-warp to change it back to $(item)Budding Amethyst$(). Jeweler villagers also trade geodes."
     },
     {
       "type": "patchouli:spotlight",
       "item": "minecraft:amethyst_shard",
-      "text": "Use $(item)amethyst shards$() to make some tools. They're more durable than iron tools, and they come with enchantments that can help you grow quickly early in the game."
+      "text": "Use $(item)Amethyst Shards$() to make some tools. They're more durable than iron tools, and they come with enchantments that can help you grow quickly early in the game."
     },
     {
       "type": "patchouli:crafting",

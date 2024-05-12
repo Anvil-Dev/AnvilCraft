@@ -11,17 +11,17 @@
 		{
             "type": "patchouli:crafting",
             "recipe":"anvilcraft:transmission_pole",
-			"text": "The $(item)transmission pole$()'s power supply distance is 8. The range is centered on the head 17 x 17 x 17."
+			"text": "The $(item)Transmission Pole$()'s power supply distance is 8. The range is centered on the head 17 x 17 x 17."
         },
 		{
             "type": "patchouli:crafting",
             "recipe":"anvilcraft:remote_transmission_pole",
-			"text": "The $(item)remote transmission pole$()'s power supply distance is 16. The range is centered on the head 33 x 33 x 33."
+			"text": "The $(item)Remote Transmission Pole$()'s power supply distance is 16. The range is centered on the head 33 x 33 x 33."
         },
 		{
             "type": "patchouli:crafting",
             "recipe":"anvilcraft:load_monitor",
-			"text": "The $(item)load monitor$() can display the grid load. Use the comparator to output the redstone signal in proportion to the load. When overloaded, it will also directly output the redstone signal."
+			"text": "The $(item)Load Monitor$() can display the grid load. Use the comparator to output the redstone signal in proportion to the load. When overloaded, it will also directly output the redstone signal."
         }
     ]
 }

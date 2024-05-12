@@ -1,73 +1,76 @@
 {
-    "name": "Process 3 - Start Anvil Processing",
-    "category": "anvilcraft:process",
-    "icon": "minecraft:anvil",
-    "pages": [
-        {
-            "type": "patchouli:text",
-            "text": "The $(item)anvil$() can be processed by landing on the block to be processed. When the anvil falls on the block such as $(item)stamping platform$(), $(item)cauldron$(), $(item)iron trapdoor$(), $(item)scaffolding$(), etc., it will process items in or on it. Use the $(item)magnet block$() to help you with semi-automatic: The magnet block automatically picks up an anvil within five blocks below, and the magnet block is activated by redstone and loses its magnetism, causing the anvil to fall. If you don't have a magnet block, you can also manually remove the anvil and place it, or design a redstone machine."
+  "name": "Process 3 - Anvil Processing",
+  "category": "anvilcraft:process",
+  "icon": "minecraft:anvil",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The $(item)Anvil$() can be processed by landing on the block to be processed. When the anvil falls on the block such as $(item)Stamping Platform$(), $(item)Cauldron$(), $(item)Iron Trapdoor$(), $(item)Scaffolding$(), etc., it will process items in or on it. Use the $(item)Magnet Block$() to help you with semi-automatic: The magnet block automatically picks up an anvil within five blocks below, and the magnet block is activated by redstone and loses its magnetism, causing the anvil to fall. If you don't have a magnet block, you can also manually remove the anvil and place it, or design a redstone machine."
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "Magnets Control Anvils",
+      "multiblock": {
+        "mapping": {
+          "M": "anvilcraft:magnet_block",
+          "D": "anvilcraft:magnet_block[lit=true]",
+          "L": "minecraft:lever[facing=east,powered=false]",
+          "P": "minecraft:lever[facing=east,powered=true]",
+          "A": "minecraft:anvil",
+          "C": "minecraft:cobblestone",
+          "G": "minecraft:gravel"
         },
-		{
-            "type": "patchouli:multiblock",
-            "name": "Use a Magnet Block to Raise and Lower the Anvil",
-			"multiblock": {
-				"mapping": {
-					"M": "anvilcraft:magnet_block",
-					"D": "anvilcraft:magnet_block[lit=true]",
-					"L": "minecraft:lever[facing=east,powered=false]",
-					"P": "minecraft:lever[facing=east,powered=true]",
-					"A": "minecraft:anvil",
-					"C": "minecraft:cobblestone",
-					"G": "minecraft:gravel"
-				},
-				"pattern": [
-					[ "   ", "D M", "P L" ],
-					[ "   ", "  A", "   " ],
-					[ "   ", "A  ", "   " ],
-					[ "   ", "G0C", "   " ]
-				]
-			},
-			"enable_visualize":"false",
-			"text": "The magnet is demagnetized by the redstone signal. The anvil is dropped to perform actions."
+        "pattern": [
+          ["   ", "D M", "P L"],
+          ["   ", "  A", "   "],
+          ["   ", "A  ", "   "],
+          ["   ", "G0C", "   "]
+        ]
+      },
+      "enable_visualize": "false",
+      "text": "The magnet is demagnetized by the redstone signal. The anvil is dropped to perform actions."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(item)Anvil$() costs too much? This mod adds recipes for vanilla $(item)Chipped Anvil$() and $(item)Damaged Anvil$(). Don't worry, the height of one block will not cause the anvil to be damaged."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "anvilcraft:chipped_anvil",
+      "recipe2": "anvilcraft:damaged_anvil"
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "Convenient Anvil Workstation",
+      "multiblock": {
+        "mapping": {
+          "M": "anvilcraft:magnet_block",
+          "A": "minecraft:anvil",
+          "S": "anvilcraft:stamping_platform",
+          "D": "minecraft:observer[facing=down]",
+          "Z": "minecraft:observer[facing=south]",
+          "N": "minecraft:note_block",
+          "R": "minecraft:redstone_wire[north=side,south=side]",
+          "B": "minecraft:smooth_stone"
         },
-		{
-            "type": "patchouli:text",
-            "text": "$(item)Anvil$() costs too much? This mod adds recipes for vanilla $(item)chipped anvil$() and $(item)damaged anvil$(). Don't worry, the height of one block will not cause the anvil to be damaged."
-        },
-		{
-            "type": "patchouli:crafting",
-            "recipe":"anvilcraft:chipped_anvil",
-            "recipe2":"anvilcraft:damaged_anvil"
-        },
-		{
-            "type": "patchouli:multiblock",
-            "name": "Convenient Anvil Workstation",
-			"multiblock": {
-				"mapping": {
-					"M": "anvilcraft:magnet_block",
-					"A": "minecraft:anvil",
-					"S": "anvilcraft:stamping_platform",
-					"D": "minecraft:observer[facing=down]",
-					"Z": "minecraft:observer[facing=south]",
-					"N": "minecraft:note_block",
-					"R": "minecraft:redstone_wire[north=side,south=side]",
-					"B": "minecraft:smooth_stone"
-				},
-				"pattern": [
-					[ "RR "],
-					[ "DBM"],
-					[ "ZDA"],
-					[ " N "],
-					[ " 0S"]
-				]
-			},
-			"enable_visualize":"true",
-			"text": "No more looking up to click a lever or button. Hitting the note block causes the anvil to drop once."
-        },
-		{
-            "type": "patchouli:relations",
-            "entries": ["anvilcraft:basic_block_processing","anvilcraft:basic_item_processing"],
-            "text": "In the picture on the left, the stamping platform can be replaced with other blocks. Block such as campfire can also be added below. For detailed processing categories, see the relevant chapters on anvil processing."
-        }
-    ]
+        "pattern": [
+          ["RR "],
+          ["DBM"],
+          ["ZDA"],
+          [" N "],
+          [" 0S"]
+        ]
+      },
+      "enable_visualize": "true",
+      "text": "No more looking up to click a lever or button. Hitting the note block causes the anvil to drop once."
+    },
+    {
+      "type": "patchouli:relations",
+      "entries": [
+        "anvilcraft:basic_block_processing",
+        "anvilcraft:basic_item_processing"
+      ],
+      "text": "In the picture on the left, the stamping platform can be replaced with other blocks. Block such as campfire can also be added below. For detailed processing categories, see the relevant chapters on anvil processing."
+    }
+  ]
 }
