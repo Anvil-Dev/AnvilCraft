@@ -138,7 +138,8 @@ abstract class ItemInHandRendererMixin {
                 poseStack.translate(0.25, 0.4, -0.1);
             } else {
                 poseStack.mulPose(Axis.ZP.rotationDegrees(5f));
-                poseStack.translate(0, 0.3, -0.05);
+                poseStack.scale(0.75f, 0.75f, 0.75f);
+                poseStack.translate(0, 0.45, 0.02);
             }
         }
     }
