@@ -1,0 +1,73 @@
+{
+    "name": "流程3-开始铁砧加工",
+    "category": "anvilcraft:process",
+    "icon": "minecraft:anvil",
+    "pages": [
+        {
+            "type": "patchouli:text",
+            "text": "让$(item)铁砧$()落在需要被加工的方块上就可以加工该方块；铁砧落在$(item)冲压平台$()、$(item)炼药锅$()、$(item)铁活版门$()、$(item)脚手架$()等方块上时，会加工其中或其上的物品。使用$(item)磁铁块$()帮助你完成半自动：磁铁块自动吸起下方五格以内的铁砧，磁铁块被红石激活失去磁性使铁砧下落。如果没有磁铁块，你也可以手动拆除铁砧再将其放置或者设计红石机器。"
+        },
+		{
+            "type": "patchouli:multiblock",
+            "name": "使用磁铁升降铁砧",
+			"multiblock": {
+				"mapping": {
+					"M": "anvilcraft:magnet_block",
+					"D": "anvilcraft:magnet_block[lit=true]",
+					"L": "minecraft:lever[facing=east,powered=false]",
+					"P": "minecraft:lever[facing=east,powered=true]",
+					"A": "minecraft:anvil",
+					"C": "minecraft:cobblestone",
+					"G": "minecraft:gravel"
+				},
+				"pattern": [
+					[ "   ", "D M", "P L" ], 
+					[ "   ", "  A", "   " ], 
+					[ "   ", "A  ", "   " ],
+					[ "   ", "G0C", "   " ]
+				]
+			},
+			"enable_visualize":"false",
+			"text": "磁铁被红石信号激活而消磁，铁砧落下可以执行操作。"
+        },
+		{
+            "type": "patchouli:text",
+            "text": "$(item)铁砧$()造价太高？本模组为原版$(item)开裂的铁砧$()和$(item)损坏的铁砧$()增加了合成表。别担心，一格高的高度不会使铁砧继续受到损害。"
+        },
+		{
+            "type": "patchouli:crafting",
+            "recipe":"anvilcraft:chipped_anvil",
+            "recipe2":"anvilcraft:damaged_anvil"
+        },
+		{
+            "type": "patchouli:multiblock",
+            "name": "方便的铁砧工作站",
+			"multiblock": {
+				"mapping": {
+					"M": "anvilcraft:magnet_block",
+					"A": "minecraft:anvil",
+					"S": "anvilcraft:stamping_platform",
+					"D": "minecraft:observer[facing=down]",
+					"Z": "minecraft:observer[facing=south]",
+					"N": "minecraft:note_block",
+					"R": "minecraft:redstone_wire[north=side,south=side]",
+					"B": "minecraft:smooth_stone"
+				},
+				"pattern": [
+					[ "RR "], 
+					[ "DBM"], 
+					[ "ZDA"], 
+					[ " N "],
+					[ " 0S"]
+				]
+			},
+			"enable_visualize":"true",
+			"text": "再也不用抬头点拉杆或按钮了，敲击音符盒就会让铁砧落下一次。"
+        },
+		{
+            "type": "patchouli:relations",
+            "entries": ["anvilcraft:basic_block_processing","anvilcraft:basic_item_processing"],
+            "text": "左图中，冲压平台可以换成别的方块，下方还可以增加营火等方块，详细处理类别见铁砧处理相关章节。"
+        }
+    ]
+}

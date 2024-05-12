@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "powered=true,overload=true": {
+      "model": "anvilcraft:block/item_collector_overload"
+    },
+    "powered=true,overload=false": {
+      "model": "anvilcraft:block/item_collector_off"
+    },
+    "powered=false,overload=true": {
+      "model": "anvilcraft:block/item_collector_overload"
+    },
+    "powered=false,overload=false": {
+      "model": "anvilcraft:block/item_collector"
+    }
+  }
+}

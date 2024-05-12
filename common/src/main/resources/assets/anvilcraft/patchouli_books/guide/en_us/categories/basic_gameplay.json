@@ -1,5 +1,5 @@
 {
-    "name": "基础玩法",
-    "description": "铁砧工艺的基础玩法，主要包含了铁砧下落引起的各种变化，可以转化方块、加工物品、影响生物等。$(br)本模组添加了一些方块来方便早期的自动化，包括方块放置器、溜槽等，在$(thing)更多实用设备$()条目可以查看。",
-    "icon": "minecraft:anvil"
+  "name": "Basic Gameplay",
+  "description": "The basic gameplay of AnvilCraft mainly includes changes caused by the falling anvil, which can transform blocks, process items, affect mobs, etc.$(br)This mod adds some blocks to facilitate early automation, including block placer, chute, etc., which can be viewed in the $(thing)Basic More Device$() entry.",
+  "icon": "minecraft:anvil"
 }

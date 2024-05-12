@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.network.MachineEnableFilterPack;
 import dev.dubhe.anvilcraft.network.MachineOutputDirectionPack;
 import dev.dubhe.anvilcraft.network.PowerGridRemovePack;
 import dev.dubhe.anvilcraft.network.PowerGridSyncPack;
+import dev.dubhe.anvilcraft.network.ServerboundCyclingValueSyncPacket;
 import dev.dubhe.anvilcraft.network.SliderInitPack;
 import dev.dubhe.anvilcraft.network.SliderUpdatePack;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
@@ -49,6 +50,10 @@ public class ModNetworks {
     public static final ResourceLocation HAMMER_USE = Network.register(
         AnvilCraft.of("hammer_use"),
         HammerUsePack.class, HammerUsePack::new
+    );
+    public static final ResourceLocation CYCLING_VALUE = Network.register(
+            AnvilCraft.of("cycling_value"),
+            ServerboundCyclingValueSyncPacket.class, ServerboundCyclingValueSyncPacket::new
     );
 
     public static void register() {

@@ -21,6 +21,7 @@ import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
 import dev.dubhe.anvilcraft.block.BlockDevourerBlock;
 import dev.dubhe.anvilcraft.block.HoneyCauldronBlock;
+import dev.dubhe.anvilcraft.block.ItemCollectorBlock;
 import dev.dubhe.anvilcraft.block.JewelCraftingTable;
 import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
 import dev.dubhe.anvilcraft.block.LoadMonitorBlock;
@@ -901,6 +902,36 @@ public class ModBlocks {
         .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
+
+    public static final BlockEntry<ItemCollectorBlock> ITEM_COLLECTOR = REGISTRATE
+            .block("item_collector", ItemCollectorBlock::new)
+            .initialProperties(() -> Blocks.IRON_BLOCK)
+            .simpleItem()
+            .defaultLoot()
+            .blockstate((c, p) -> {})
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .recipe((c, p) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, c.get())
+                    .pattern("ABA")
+                    .pattern("CDC")
+                    .pattern("ACA")
+                    .define('A', Items.IRON_INGOT)
+                    .define('B', ModItems.MAGNET)
+                    .define('C', Items.HOPPER)
+                    .define('D', ModItems.MAGNETOELECTRIC_CORE)
+                    .unlockedBy(
+                            AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
+                            AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
+                    ).unlockedBy(
+                            AnvilCraftDatagen.hasItem(Items.IRON_INGOT),
+                            AnvilCraftDatagen.has(Items.IRON_INGOT)
+                    ).unlockedBy(
+                            AnvilCraftDatagen.hasItem(ModItems.MAGNET),
+                            AnvilCraftDatagen.has(ModItems.MAGNET)
+                    ).unlockedBy(
+                            AnvilCraftDatagen.hasItem(Items.HOPPER),
+                            AnvilCraftDatagen.has(Items.HOPPER)
+                    ).save(p))
+            .register();
 
     public static final BlockEntry<HoneyCauldronBlock> HONEY_CAULDRON = REGISTRATE
         .block("honey_cauldron", HoneyCauldronBlock::new)

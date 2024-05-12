@@ -40,6 +40,12 @@ public class ScreenLang {
                         + ".base_slot_description",
                 "Put "
         );
+
+        provider.add("screen.anvilcraft.item_collector.title", "Item Collector");
+        provider.add("screen.anvilcraft.item_collector.range", "Range");
+        provider.add("screen.anvilcraft.item_collector.cooldown", "Cooldown");
+        provider.add("screen.anvilcraft.item_collector.input_power", "Input Power");
+
         provider.add("tooltip.anvilcraft.grid_information.title", "Power Grid Stats:");
         provider.add("tooltip.anvilcraft.grid_information.producer_stats", "Power Producer Stats:");
         provider.add("tooltip.anvilcraft.grid_information.consumer_stats", "Power Consumer Stats:");
