@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CorruptedBeaconBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeGeneratorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LoadMonitorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.OverseerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PowerConverterBlockEntity;
@@ -27,6 +28,12 @@ public class ModBlockEntities {
         .onRegister(AutoCrafterBlockEntity::onBlockEntityRegister)
         .validBlock(ModBlocks.AUTO_CRAFTER)
         .register();
+
+    public static final BlockEntityEntry<ItemCollectorBlockEntity> ITEM_COLLECTOR = REGISTRATE
+            .blockEntity("item_collector", ItemCollectorBlockEntity::createBlockEntity)
+            .onRegister(ItemCollectorBlockEntity::onBlockEntityRegister)
+            .validBlock(ModBlocks.ITEM_COLLECTOR)
+            .register();
 
     public static final BlockEntityEntry<ChuteBlockEntity> CHUTE = REGISTRATE
         .blockEntity("chute", ChuteBlockEntity::createBlockEntity)
