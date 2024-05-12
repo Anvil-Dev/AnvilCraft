@@ -1,5 +1,5 @@
 {
-  "name": "Process 3 - Anvil Processing",
+  "name": "Process 3-Anvil Processing",
   "category": "anvilcraft:process",
   "icon": "minecraft:anvil",
   "pages": [
@@ -41,7 +41,7 @@
     },
     {
       "type": "patchouli:multiblock",
-      "name": "Convenient Anvil Workstation",
+      "name": "Simple Anvil Workstation",
       "multiblock": {
         "mapping": {
           "M": "anvilcraft:magnet_block",
