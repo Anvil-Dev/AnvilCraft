@@ -39,11 +39,11 @@ public class MagnetBlock extends Block {
     @Override
     @SuppressWarnings("deprecation")
     public void onPlace(
-        @NotNull BlockState state,
-        @NotNull Level level,
-        @NotNull BlockPos pos,
-        @NotNull BlockState oldState,
-        boolean movedByPiston
+            @NotNull BlockState state,
+            @NotNull Level level,
+            @NotNull BlockPos pos,
+            @NotNull BlockState oldState,
+            boolean movedByPiston
     ) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
         this.attract(state, level, pos);
@@ -57,12 +57,12 @@ public class MagnetBlock extends Block {
     @Override
     @SuppressWarnings("deprecation")
     public void neighborChanged(
-        @NotNull BlockState state,
-        @NotNull Level level,
-        @NotNull BlockPos pos,
-        @NotNull Block neighborBlock,
-        @NotNull BlockPos neighborPos,
-        boolean movedByPiston
+            @NotNull BlockState state,
+            @NotNull Level level,
+            @NotNull BlockPos pos,
+            @NotNull Block neighborBlock,
+            @NotNull BlockPos neighborPos,
+            boolean movedByPiston
     ) {
         if (level.isClientSide) {
             return;
@@ -109,7 +109,12 @@ public class MagnetBlock extends Block {
                     break checkAnvil;
                 }
             }
-            if (!level.isEmptyBlock(currentPos)) return;
+            BlockState blockState = level.getBlockState(currentPos);
+            // 使用!blockState.getFluidState().isEmpty()判断会将含水方块视为流体
+            if (level.isEmptyBlock(currentPos) || blockState.is(Blocks.WATER) || blockState.is(Blocks.LAVA)) {
+                continue;
+            }
+            return;
         }
     }
 
@@ -142,7 +147,7 @@ public class MagnetBlock extends Block {
     @Override
     @SuppressWarnings("deprecation")
     public void tick(
-        @NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random
+            @NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random
     ) {
         if (state.getValue(LIT) && !level.hasNeighborSignal(pos)) {
             level.setBlock(pos, state.cycle(LIT), 2);
