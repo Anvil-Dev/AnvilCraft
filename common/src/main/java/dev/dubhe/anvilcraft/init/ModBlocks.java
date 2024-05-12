@@ -951,7 +951,14 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> TEMPERING_GLASS = REGISTRATE
         .block("tempering_glass", GlassBlock::new)
         .initialProperties(() -> Blocks.GLASS)
-        .properties(properties -> properties.explosionResistance(15.0F))
+        .properties(properties -> properties
+            .explosionResistance(15.0F)
+            .noOcclusion()
+            .isValidSpawn(Blocks::never)
+            .isRedstoneConductor(Blocks::never)
+            .isSuffocating(Blocks::never)
+            .isViewBlocking(Blocks::never)
+        )
         .blockstate((ctx, provider) -> {
             provider.simpleBlock(ctx.get());
             provider.models().cubeAll(ctx.getName(), provider.modLoc("block/" + ctx.getName()))
@@ -991,6 +998,7 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.BLACK_CONCRETE_POWDER)
         .recipe((ctx, provider) -> SmashBlockRecipesLoader.smash(Blocks.NETHERRACK, ctx.get(),
             provider))
+        .tag(BlockTags.MINEABLE_WITH_SHOVEL)
         .register();
     public static final BlockEntry<Block> END_DUST = REGISTRATE
         .block("end_dust", Block::new)
@@ -999,6 +1007,7 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.BLACK_CONCRETE_POWDER)
         .recipe(
             (ctx, provider) -> SmashBlockRecipesLoader.smash(Blocks.END_STONE, ctx.get(), provider))
+        .tag(BlockTags.MINEABLE_WITH_SHOVEL)
         .register();
     public static final BlockEntry<FallingBlock> DEEPSLATE_CHIPS = REGISTRATE
             .block("deepslate_chips", FallingBlock::new)
