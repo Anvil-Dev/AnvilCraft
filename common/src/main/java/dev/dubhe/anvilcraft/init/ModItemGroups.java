@@ -143,6 +143,7 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.CINERITE.asStack());
                 entries.accept(ModBlocks.QUARTZ_SAND.asStack());
                 entries.accept(ModBlocks.TEMPERING_GLASS.asStack());
+                entries.accept(ModBlocks.ITEM_COLLECTOR.asStack());
             })
             .build()
         )
