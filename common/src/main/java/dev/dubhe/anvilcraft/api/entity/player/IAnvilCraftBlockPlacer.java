@@ -57,7 +57,12 @@ public interface IAnvilCraftBlockPlacer {
         level.setBlockAndUpdate(pos, blockState);
         blockItem.getBlock().setPlacedBy(level, pos, blockState, getPlayer(), new ItemStack(blockItem));
         SoundType soundType = blockState.getSoundType();
-        level.playSound(pos, blockItem.getPlace(blockState2), SoundSource.BLOCKS, (soundType.getVolume() + 1.0f) / 2.0f, soundType.getPitch() * 0.8f);
+        level.playSound(
+            getPlayer(),
+            pos,
+            blockItem.getPlaceSound(blockState),
+            SoundSource.BLOCKS, (soundType.getVolume() + 1.0f) / 2.0f,
+            soundType.getPitch() * 0.8f);
         return InteractionResult.SUCCESS;
     }
 
