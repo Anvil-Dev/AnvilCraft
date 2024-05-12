@@ -28,7 +28,6 @@ public class BulgingAndCrystallizeRecipesLoader {
         bulging(Items.FIRE_CORAL, Items.FIRE_CORAL_BLOCK, provider);
         bulging(Items.HORN_CORAL, Items.HORN_CORAL_BLOCK, provider);
         bulging(Items.TUBE_CORAL, Items.TUBE_CORAL_BLOCK, provider);
-        bulging(ModItems.WOOD_FIBER.get(), ModItems.PULP.get(), provider);
         bulging(ModItems.SPONGE_GEMMULE.get(), Items.WET_SPONGE, provider);
         crystallize(ModItems.SEA_HEART_SHELL_SHARD.get(), ModItems.PRISMARINE_CLUSTER.get(), provider);
     }

@@ -290,23 +290,6 @@ public class ModItems {
                 .save(provider, AnvilCraft.of("craft/magnet_ingot_8"));
         })
         .register();
-    public static final ItemEntry<Item> ELYTRA_FRAME = REGISTRATE
-        .item("elytra_frame", Item::new)
-        .register();
-    public static final ItemEntry<Item> ELYTRA_MEMBRANE = REGISTRATE
-        .item("elytra_membrane", Item::new)
-        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-            .pattern("AB")
-            .pattern("BB")
-            .define('A', ModItems.ELYTRA_FRAME)
-            .define('B', Items.PHANTOM_MEMBRANE)
-            .unlockedBy("hasitem", RegistrateRecipeProvider.has(ModItems.ELYTRA_FRAME))
-            .save(provider)
-        )
-        .register();
-    public static final ItemEntry<Item> PULP = REGISTRATE
-        .item("pulp", Item::new)
-        .register();
     public static final ItemEntry<Item> SPONGE_GEMMULE = REGISTRATE
         .item("sponge_gemmule", Item::new)
         .register();

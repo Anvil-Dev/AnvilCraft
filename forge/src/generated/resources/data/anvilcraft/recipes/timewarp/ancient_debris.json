@@ -1,7 +1,7 @@
 {
   "type": "anvilcraft:anvil_processing",
   "icon": {
-    "item": "anvilcraft:elytra_frame"
+    "item": "minecraft:ancient_debris"
   },
   "outcomes": [
     {
@@ -9,36 +9,11 @@
       "chance": 1.0,
       "offset": [
         0.0,
-        0.0,
+        -1.0,
         0.0
       ],
       "result": {
-        "item": "anvilcraft:elytra_frame"
-      }
-    },
-    {
-      "type": "spawn_item",
-      "chance": 1.0,
-      "offset": [
-        0.0,
-        0.0,
-        0.0
-      ],
-      "result": {
-        "item": "minecraft:phantom_membrane"
-      }
-    },
-    {
-      "type": "spawn_item",
-      "chance": 1.0,
-      "offset": [
-        0.0,
-        0.0,
-        0.0
-      ],
-      "result": {
-        "data": "{Damage:432}",
-        "item": "minecraft:elytra"
+        "item": "minecraft:ancient_debris"
       }
     }
   ],
@@ -47,7 +22,23 @@
       "type": "has_block",
       "match_block": {
         "blocks": [
-          "minecraft:smithing_table"
+          "anvilcraft:corrupted_beacon"
+        ],
+        "state": {
+          "lit": "true"
+        }
+      },
+      "offset": [
+        0.0,
+        -2.0,
+        0.0
+      ]
+    },
+    {
+      "type": "has_block",
+      "match_block": {
+        "blocks": [
+          "minecraft:cauldron"
         ]
       },
       "offset": [
@@ -59,16 +50,16 @@
     {
       "type": "has_item_ingredient",
       "match_item": {
-        "durability": {
-          "min": 432
+        "count": {
+          "min": 1
         },
         "items": [
-          "minecraft:elytra"
+          "anvilcraft:netherite_crystal_nucleus"
         ]
       },
       "offset": [
         0.0,
-        0.0,
+        -1.0,
         0.0
       ]
     }
