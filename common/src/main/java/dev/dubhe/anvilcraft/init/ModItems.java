@@ -568,17 +568,23 @@ public class ModItems {
             ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
                 .requires(ModBlocks.TUNGSTEN_BLOCK)
                 .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.TUNGSTEN_BLOCK.asItem()),
-                        AnvilCraftDatagen.has(ModBlocks.TUNGSTEN_BLOCK))
+                    AnvilCraftDatagen.has(ModBlocks.TUNGSTEN_BLOCK))
                 .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_from_block");
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
-                .requires(Ingredient.of(ModItemTags.TUNGSTEN_NUGGETS), 9)
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItemTags.TUNGSTEN_NUGGETS)
                 .unlockedBy(
                     AnvilCraftDatagen.hasItem(ModItemTags.TUNGSTEN_NUGGETS),
                     RegistrateRecipeProvider.has(ModItemTags.TUNGSTEN_NUGGETS)
                 )
                 .save(provider);
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
-                .requires(Ingredient.of(ModItemTags.TUNGSTEN_NUGGETS_FORGE), 9)
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItemTags.TUNGSTEN_NUGGETS_FORGE)
                 .unlockedBy(
                     AnvilCraftDatagen.hasItem(ModItemTags.TUNGSTEN_NUGGETS_FORGE),
                     RegistrateRecipeProvider.has(ModItemTags.TUNGSTEN_NUGGETS_FORGE)
@@ -639,17 +645,23 @@ public class ModItems {
             ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
                 .requires(ModBlocks.TITANIUM_BLOCK)
                 .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.TITANIUM_BLOCK.asItem()),
-                        AnvilCraftDatagen.has(ModBlocks.TITANIUM_BLOCK))
+                    AnvilCraftDatagen.has(ModBlocks.TITANIUM_BLOCK))
                 .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_from_block");
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
-                .requires(Ingredient.of(ModItemTags.TITANIUM_NUGGETS), 9)
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItemTags.TITANIUM_NUGGETS)
                 .unlockedBy(
                     AnvilCraftDatagen.hasItem(ModItemTags.TITANIUM_NUGGETS),
                     RegistrateRecipeProvider.has(ModItemTags.TITANIUM_NUGGETS)
                 )
                 .save(provider);
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
-                .requires(Ingredient.of(ModItemTags.TITANIUM_NUGGETS_FORGE), 9)
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItemTags.TITANIUM_NUGGETS_FORGE)
                 .unlockedBy(
                     AnvilCraftDatagen.hasItem(ModItemTags.TITANIUM_NUGGETS_FORGE),
                     RegistrateRecipeProvider.has(ModItemTags.TITANIUM_NUGGETS_FORGE)
@@ -686,15 +698,21 @@ public class ModItems {
                 .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.ZINC_BLOCK.asItem()),
                     AnvilCraftDatagen.has(ModBlocks.ZINC_BLOCK))
                 .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_from_block");
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
-                .requires(Ingredient.of(ModItemTags.ZINC_NUGGETS), 9)
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItemTags.ZINC_NUGGETS)
                 .unlockedBy(
                     AnvilCraftDatagen.hasItem(ModItemTags.ZINC_NUGGETS),
                     RegistrateRecipeProvider.has(ModItemTags.ZINC_NUGGETS)
                 )
                 .save(provider);
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
-                .requires(Ingredient.of(ModItemTags.ZINC_NUGGETS_FORGE), 9)
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItemTags.ZINC_NUGGETS_FORGE)
                 .unlockedBy(
                     AnvilCraftDatagen.hasItem(ModItemTags.ZINC_NUGGETS_FORGE),
                     RegistrateRecipeProvider.has(ModItemTags.ZINC_NUGGETS_FORGE)
@@ -731,15 +749,21 @@ public class ModItems {
                 .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.TIN_BLOCK.asItem()),
                     AnvilCraftDatagen.has(ModBlocks.TIN_BLOCK))
                 .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_from_block");
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
-                .requires(Ingredient.of(ModItemTags.TIN_NUGGETS), 9)
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItemTags.TIN_NUGGETS)
                 .unlockedBy(
                     AnvilCraftDatagen.hasItem(ModItemTags.TIN_NUGGETS),
                     RegistrateRecipeProvider.has(ModItemTags.TIN_NUGGETS)
                 )
                 .save(provider);
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
-                .requires(Ingredient.of(ModItemTags.TIN_NUGGETS_FORGE), 9)
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItemTags.TIN_NUGGETS_FORGE)
                 .unlockedBy(
                     AnvilCraftDatagen.hasItem(ModItemTags.TIN_NUGGETS_FORGE),
                     RegistrateRecipeProvider.has(ModItemTags.TIN_NUGGETS_FORGE)
@@ -776,15 +800,21 @@ public class ModItems {
                 .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.LEAD_BLOCK.asItem()),
                     AnvilCraftDatagen.has(ModBlocks.LEAD_BLOCK))
                 .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_from_block");
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
-                .requires(Ingredient.of(ModItemTags.LEAD_NUGGETS), 9)
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItemTags.LEAD_NUGGETS)
                 .unlockedBy(
                     AnvilCraftDatagen.hasItem(ModItemTags.LEAD_NUGGETS),
                     RegistrateRecipeProvider.has(ModItemTags.LEAD_NUGGETS)
                 )
                 .save(provider);
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
-                .requires(Ingredient.of(ModItemTags.LEAD_NUGGETS_FORGE), 9)
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItemTags.LEAD_NUGGETS_FORGE)
                 .unlockedBy(
                     AnvilCraftDatagen.hasItem(ModItemTags.LEAD_NUGGETS_FORGE),
                     RegistrateRecipeProvider.has(ModItemTags.LEAD_NUGGETS_FORGE)
@@ -821,15 +851,21 @@ public class ModItems {
                 .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.SILVER_BLOCK.asItem()),
                     AnvilCraftDatagen.has(ModBlocks.SILVER_BLOCK))
                 .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_from_block");
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
-                .requires(Ingredient.of(ModItemTags.SILVER_NUGGETS), 9)
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItemTags.SILVER_NUGGETS)
                 .unlockedBy(
                     AnvilCraftDatagen.hasItem(ModItemTags.SILVER_NUGGETS),
                     RegistrateRecipeProvider.has(ModItemTags.SILVER_NUGGETS)
                 )
                 .save(provider);
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
-                .requires(Ingredient.of(ModItemTags.SILVER_NUGGETS_FORGE), 9)
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItemTags.SILVER_NUGGETS_FORGE)
                 .unlockedBy(
                     AnvilCraftDatagen.hasItem(ModItemTags.SILVER_NUGGETS_FORGE),
                     RegistrateRecipeProvider.has(ModItemTags.SILVER_NUGGETS_FORGE)
@@ -866,15 +902,21 @@ public class ModItems {
                 .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.URANIUM_BLOCK.asItem()),
                     AnvilCraftDatagen.has(ModBlocks.URANIUM_BLOCK))
                 .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_from_block");
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
-                .requires(Ingredient.of(ModItemTags.URANIUM_NUGGETS), 9)
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItemTags.URANIUM_NUGGETS)
                 .unlockedBy(
                     AnvilCraftDatagen.hasItem(ModItemTags.URANIUM_NUGGETS),
                     RegistrateRecipeProvider.has(ModItemTags.URANIUM_NUGGETS)
                 )
                 .save(provider);
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
-                .requires(Ingredient.of(ModItemTags.URANIUM_NUGGETS_FORGE), 9)
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItemTags.URANIUM_NUGGETS_FORGE)
                 .unlockedBy(
                     AnvilCraftDatagen.hasItem(ModItemTags.URANIUM_NUGGETS_FORGE),
                     RegistrateRecipeProvider.has(ModItemTags.URANIUM_NUGGETS_FORGE)
@@ -910,20 +952,26 @@ public class ModItems {
             ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
                 .requires(ModBlocks.BRONZE_BLOCK)
                 .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BRONZE_BLOCK.asItem()),
-                        AnvilCraftDatagen.has(ModBlocks.BRONZE_BLOCK))
+                    AnvilCraftDatagen.has(ModBlocks.BRONZE_BLOCK))
                 .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_from_block");
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
-                .requires(Ingredient.of(ModItemTags.BRONZE_NUGGETS), 9)
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItemTags.BRONZE_NUGGETS)
                 .unlockedBy(
                     AnvilCraftDatagen.hasItem(ModItemTags.BRONZE_NUGGETS),
-                    AnvilCraftDatagen.has(ModItemTags.BRONZE_NUGGETS)
+                    RegistrateRecipeProvider.has(ModItemTags.BRONZE_NUGGETS)
                 )
                 .save(provider);
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
-                .requires(Ingredient.of(ModItemTags.BRONZE_NUGGETS_FORGE), 9)
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItemTags.BRONZE_NUGGETS_FORGE)
                 .unlockedBy(
                     AnvilCraftDatagen.hasItem(ModItemTags.BRONZE_NUGGETS_FORGE),
-                    AnvilCraftDatagen.has(ModItemTags.BRONZE_NUGGETS_FORGE)
+                    RegistrateRecipeProvider.has(ModItemTags.BRONZE_NUGGETS_FORGE)
                 )
                 .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_forge");
             AnvilRecipe.Builder.create(RecipeCategory.MISC, ctx.get().getDefaultInstance())
@@ -997,20 +1045,26 @@ public class ModItems {
             ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
                 .requires(ModBlocks.BRASS_BLOCK)
                 .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BRASS_BLOCK.asItem()),
-                        AnvilCraftDatagen.has(ModBlocks.BRASS_BLOCK))
+                    AnvilCraftDatagen.has(ModBlocks.BRASS_BLOCK))
                 .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_from_block");
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
-                .requires(Ingredient.of(ModItemTags.BRASS_NUGGETS), 9)
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItemTags.BRASS_NUGGETS)
                 .unlockedBy(
                     AnvilCraftDatagen.hasItem(ModItemTags.BRASS_NUGGETS),
-                    AnvilCraftDatagen.has(ModItemTags.BRASS_NUGGETS)
+                    RegistrateRecipeProvider.has(ModItemTags.BRASS_NUGGETS)
                 )
                 .save(provider);
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
-                .requires(Ingredient.of(ModItemTags.BRASS_NUGGETS_FORGE), 9)
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItemTags.BRASS_NUGGETS_FORGE)
                 .unlockedBy(
                     AnvilCraftDatagen.hasItem(ModItemTags.BRASS_NUGGETS_FORGE),
-                    AnvilCraftDatagen.has(ModItemTags.BRASS_NUGGETS_FORGE)
+                    RegistrateRecipeProvider.has(ModItemTags.BRASS_NUGGETS_FORGE)
                 )
                 .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_forge");
             AnvilRecipe.Builder.create(RecipeCategory.MISC, ctx.get().getDefaultInstance())
