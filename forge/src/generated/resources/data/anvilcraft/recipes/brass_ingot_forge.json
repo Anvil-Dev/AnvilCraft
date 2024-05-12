@@ -1,36 +1,18 @@
 {
-  "type": "minecraft:crafting_shapeless",
+  "type": "minecraft:crafting_shaped",
   "category": "misc",
-  "ingredients": [
-    {
-      "tag": "forge:nuggets/brass"
-    },
-    {
-      "tag": "forge:nuggets/brass"
-    },
-    {
-      "tag": "forge:nuggets/brass"
-    },
-    {
-      "tag": "forge:nuggets/brass"
-    },
-    {
-      "tag": "forge:nuggets/brass"
-    },
-    {
-      "tag": "forge:nuggets/brass"
-    },
-    {
-      "tag": "forge:nuggets/brass"
-    },
-    {
-      "tag": "forge:nuggets/brass"
-    },
-    {
+  "key": {
+    "A": {
       "tag": "forge:nuggets/brass"
     }
+  },
+  "pattern": [
+    "AAA",
+    "AAA",
+    "AAA"
   ],
   "result": {
     "item": "anvilcraft:brass_ingot"
-  }
+  },
+  "show_notification": true
 }
