@@ -6,14 +6,14 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "Let $(item)anvil$() fall on the mob's feet, on the spawner or on the redstone block causes the change. The following pages of this entry are introduced in sequence."
+      "text": "Let $(item)Anvil$() fall on the mob's feet, on the spawner or on the redstone block causes the change. The following pages of this entry are introduced in sequence."
     },
     {
       "type": "patchouli:text",
-      "text": "Get more mob loot:$(br)When mobs are hit and damaged by an anvil, they will drop items according to the mob loot table. The mobs must be taken enough damage at once: 40% HP → 1x drops; 60% HP → 2x drops; 80% HP → 3x drops.$(br)This method only yields normal mob drops, and does not produce drops such as blaze rod that require the player to manually kill.$(br)There are mobs that can regenerate health on their own or with the help of external forces, which you can use to create drop farms that don't kill mobs."
+      "text": "Get more mob loot:$(br)When mobs are hit and damaged by an anvil, they will drop items according to the mob loot table. The mobs must be taken enough damage at once: 40% HP→1x drops; 60% HP→2x drops; 80% HP→3x drops.$(br)This method only yields normal mob drops, and does not produce drops such as blaze rod that require the player to manually kill.$(br)There are mobs that can regenerate health on their own or with the help of external forces, which you can use to create drop farms that don't kill mobs."
     },
     {
-      "type": "patchouli:multblock",
+      "type": "patchouli:multiblock",
       "name": "Spawner: Forced Spawn",
       "multiblock": {
         "mapping": {
