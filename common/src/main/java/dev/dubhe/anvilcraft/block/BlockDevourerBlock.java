@@ -177,7 +177,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements IHammerChang
             if (!isDropOriginalPlace) {
                 for (
                     ItemStack itemStack :
-                    Block.getDrops(devouBlockState, level, devourerPos, level.getBlockEntity(devourerPos))
+                    Block.getDrops(devouBlockState, level, devourBlockPos, level.getBlockEntity(devourBlockPos))
                 ) {
                     if (
                         devouBlockState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)
