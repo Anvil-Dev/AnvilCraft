@@ -5,11 +5,13 @@ import dev.dubhe.anvilcraft.mixin.BlockItemInvoker;
 import net.minecraft.commands.arguments.EntityAnchorArgument.Anchor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -54,6 +56,13 @@ public interface IAnvilCraftBlockPlacer {
         if (blockState == null) return InteractionResult.FAIL;
         level.setBlockAndUpdate(pos, blockState);
         blockItem.getBlock().setPlacedBy(level, pos, blockState, getPlayer(), new ItemStack(blockItem));
+        SoundType soundType = blockState.getSoundType();
+        level.playSound(
+            getPlayer(),
+            pos,
+            blockItem.getPlaceSound(blockState),
+            SoundSource.BLOCKS, (soundType.getVolume() + 1.0f) / 2.0f,
+            soundType.getPitch() * 0.8f);
         return InteractionResult.SUCCESS;
     }
 
