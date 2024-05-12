@@ -4,7 +4,6 @@ import com.google.common.base.Predicates;
 import com.google.gson.JsonObject;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
 import lombok.Getter;
-import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
@@ -26,7 +25,7 @@ import java.util.List;
 public class HasItemIngredient extends HasItem {
     private final String type = "has_item_ingredient";
 
-    public HasItemIngredient(Vec3 offset, ItemPredicate matchItem) {
+    public HasItemIngredient(Vec3 offset, ModItemPredicate matchItem) {
         super(offset, matchItem);
     }
 
@@ -51,16 +50,16 @@ public class HasItemIngredient extends HasItem {
      * @return 拥有物品原料
      */
     public static @NotNull HasItemIngredient of(Vec3 offset, @NotNull Ingredient ingredient, int count) {
-        ItemPredicate.Builder item = ItemPredicate.Builder.item().withCount(MinMaxBounds.Ints.atLeast(count));
+        ModItemPredicate item = ModItemPredicate.of().withCount(MinMaxBounds.Ints.atLeast(count));
         List<Item> items = new ArrayList<>();
         for (Ingredient.Value value : ingredient.values) {
             if (value instanceof Ingredient.TagValue tagValue)
-                item.of(tagValue.tag);
+                item.withTag(tagValue.tag);
             if (value instanceof Ingredient.ItemValue itemValue)
                 items.add(itemValue.item.getItem());
         }
-        item.of(items.toArray(ItemLike[]::new));
-        return new HasItemIngredient(offset, item.build());
+        item.add(items.toArray(ItemLike[]::new));
+        return new HasItemIngredient(offset, item);
     }
 
     @Override
