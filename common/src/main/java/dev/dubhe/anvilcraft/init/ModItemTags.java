@@ -31,6 +31,8 @@ public class ModItemTags {
     public static final TagKey<Item> LEAD_INGOTS = bindC("lead_ingots");
     public static final TagKey<Item> SILVER_NUGGETS = bindC("silver_nuggets");
     public static final TagKey<Item> SILVER_INGOTS = bindC("silver_ingots");
+    public static final TagKey<Item> URANIUM_NUGGETS = bindC("uranium_nuggets");
+    public static final TagKey<Item> URANIUM_INGOTS = bindC("uranium_ingots");
     public static final TagKey<Item> COPPER_NUGGETS = bindC("copper_nuggets");
     public static final TagKey<Item> BRONZE_INGOTS = bindC("bronze_ingots");
     public static final TagKey<Item> BRONZE_NUGGETS = bindC("bronze_nuggets");
@@ -60,6 +62,8 @@ public class ModItemTags {
     public static final TagKey<Item> LEAD_INGOTS_FORGE = bindForge("ingots/lead");
     public static final TagKey<Item> SILVER_NUGGETS_FORGE = bindForge("nuggets/silver");
     public static final TagKey<Item> SILVER_INGOTS_FORGE = bindForge("ingots/silver");
+    public static final TagKey<Item> URANIUM_NUGGETS_FORGE = bindForge("nuggets/uranium");
+    public static final TagKey<Item> URANIUM_INGOTS_FORGE = bindForge("ingots/uranium");
     public static final TagKey<Item> BRONZE_INGOTS_FORGE = bindForge("ingots/bronze");
     public static final TagKey<Item> BRONZE_NUGGETS_FORGE = bindForge("nuggets/bronze");
     public static final TagKey<Item> BRASS_INGOTS_FORGE = bindForge("ingots/brass");

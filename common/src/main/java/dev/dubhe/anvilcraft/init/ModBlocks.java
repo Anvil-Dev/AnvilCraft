@@ -412,6 +412,231 @@ public class ModBlocks {
                 AnvilCraftDatagen.has(ModItems.CURSED_GOLD_INGOT))
             .save(provider))
         .register();
+    public static final BlockEntry<? extends Block> ZINC_BLOCK = REGISTRATE
+        .block("zinc_block", Block::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .simpleItem()
+        .defaultLoot()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS)
+        .recipe((ctx, provider) -> {
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItemTags.ZINC_INGOTS)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.ZINC_INGOTS),
+                        AnvilCraftDatagen.has(ModItemTags.ZINC_INGOTS))
+                .save(provider);
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItemTags.ZINC_INGOTS_FORGE)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.ZINC_INGOTS_FORGE),
+                        AnvilCraftDatagen.has(ModItemTags.ZINC_INGOTS_FORGE))
+                .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath() + "_forge");
+        })
+        .register();
+    public static final BlockEntry<? extends Block> TIN_BLOCK = REGISTRATE
+        .block("tin_block", Block::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .simpleItem()
+        .defaultLoot()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS)
+        .recipe((ctx, provider) -> {
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItemTags.TIN_INGOTS)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.TIN_INGOTS),
+                        AnvilCraftDatagen.has(ModItemTags.TIN_INGOTS))
+                .save(provider);
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItemTags.TIN_INGOTS_FORGE)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.TIN_INGOTS_FORGE),
+                        AnvilCraftDatagen.has(ModItemTags.TIN_INGOTS_FORGE))
+                .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath() + "_forge");
+        })
+        .register();
+    public static final BlockEntry<? extends Block> TITANIUM_BLOCK = REGISTRATE
+        .block("titanium_block", Block::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .simpleItem()
+        .defaultLoot()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS)
+        .recipe((ctx, provider) -> {
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItemTags.TITANIUM_INGOTS)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.TITANIUM_INGOTS),
+                        AnvilCraftDatagen.has(ModItemTags.TITANIUM_INGOTS))
+                .save(provider);
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItemTags.TITANIUM_INGOTS_FORGE)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.TITANIUM_INGOTS_FORGE),
+                        AnvilCraftDatagen.has(ModItemTags.TITANIUM_INGOTS_FORGE))
+                .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath() + "_forge");
+        })
+        .register();
+    public static final BlockEntry<? extends Block> TUNGSTEN_BLOCK = REGISTRATE
+        .block("tungsten_block", Block::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .simpleItem()
+        .defaultLoot()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS)
+        .recipe((ctx, provider) -> {
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItemTags.TUNGSTEN_INGOTS)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.TUNGSTEN_INGOTS),
+                        AnvilCraftDatagen.has(ModItemTags.TUNGSTEN_INGOTS))
+                .save(provider);
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItemTags.TUNGSTEN_INGOTS_FORGE)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.TUNGSTEN_INGOTS_FORGE),
+                        AnvilCraftDatagen.has(ModItemTags.TUNGSTEN_INGOTS_FORGE))
+                .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath() + "_forge");
+        })
+        .register();
+    public static final BlockEntry<? extends Block> LEAD_BLOCK = REGISTRATE
+        .block("lead_block", Block::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .simpleItem()
+        .defaultLoot()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS)
+        .recipe((ctx, provider) -> {
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItemTags.LEAD_INGOTS)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.LEAD_INGOTS),
+                        AnvilCraftDatagen.has(ModItemTags.LEAD_INGOTS))
+                .save(provider);
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItemTags.LEAD_INGOTS_FORGE)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.LEAD_INGOTS_FORGE),
+                        AnvilCraftDatagen.has(ModItemTags.LEAD_INGOTS_FORGE))
+                .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath() + "_forge");
+        })
+        .register();
+    public static final BlockEntry<? extends Block> SILVER_BLOCK = REGISTRATE
+        .block("silver_block", Block::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .simpleItem()
+        .defaultLoot()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS)
+        .recipe((ctx, provider) -> {
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItemTags.SILVER_INGOTS)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.SILVER_INGOTS),
+                        AnvilCraftDatagen.has(ModItemTags.SILVER_INGOTS))
+                .save(provider);
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItemTags.SILVER_INGOTS_FORGE)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.SILVER_INGOTS_FORGE),
+                        AnvilCraftDatagen.has(ModItemTags.SILVER_INGOTS_FORGE))
+                .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath() + "_forge");
+        })
+        .register();
+    public static final BlockEntry<? extends Block> URANIUM_BLOCK = REGISTRATE
+        .block("uranium_block", Block::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .simpleItem()
+        .defaultLoot()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS)
+        .recipe((ctx, provider) -> {
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItemTags.URANIUM_INGOTS)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.URANIUM_INGOTS),
+                        AnvilCraftDatagen.has(ModItemTags.URANIUM_INGOTS))
+                .save(provider);
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItemTags.URANIUM_INGOTS_FORGE)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.URANIUM_INGOTS_FORGE),
+                        AnvilCraftDatagen.has(ModItemTags.URANIUM_INGOTS_FORGE))
+                .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath() + "_forge");
+        })
+        .register();
+    public static final BlockEntry<? extends Block> BRONZE_BLOCK = REGISTRATE
+        .block("bronze_block", Block::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .simpleItem()
+        .defaultLoot()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS)
+        .recipe((ctx, provider) -> {
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItemTags.BRONZE_INGOTS)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.BRONZE_INGOTS),
+                        AnvilCraftDatagen.has(ModItemTags.BRONZE_INGOTS))
+                .save(provider);
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItemTags.BRONZE_INGOTS_FORGE)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.BRONZE_INGOTS_FORGE),
+                        AnvilCraftDatagen.has(ModItemTags.BRONZE_INGOTS_FORGE))
+                .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath() + "_forge");
+        })
+        .register();
+    public static final BlockEntry<? extends Block> BRASS_BLOCK = REGISTRATE
+        .block("brass_block", Block::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .simpleItem()
+        .defaultLoot()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS)
+        .recipe((ctx, provider) -> {
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItemTags.BRASS_INGOTS)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.BRASS_INGOTS),
+                        AnvilCraftDatagen.has(ModItemTags.BRASS_INGOTS))
+                .save(provider);
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItemTags.BRASS_INGOTS_FORGE)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.BRASS_INGOTS_FORGE),
+                        AnvilCraftDatagen.has(ModItemTags.BRASS_INGOTS_FORGE))
+                .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath() + "_forge");
+        })
+        .register();
     public static final BlockEntry<? extends Block> TOPAZ_BLOCK = REGISTRATE
         .block("topaz_block", Block::new)
         .initialProperties(() -> Blocks.EMERALD_BLOCK)
