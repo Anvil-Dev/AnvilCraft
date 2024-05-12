@@ -1,9 +1,5 @@
 package dev.dubhe.anvilcraft.init;
 
-import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
-import static dev.dubhe.anvilcraft.api.power.IPowerComponent.OVERLOAD;
-import static dev.dubhe.anvilcraft.api.power.IPowerComponent.SWITCH;
-
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import dev.dubhe.anvilcraft.AnvilCraft;
@@ -19,6 +15,7 @@ import dev.dubhe.anvilcraft.block.CreativeGeneratorBlock;
 import dev.dubhe.anvilcraft.block.FerriteCoreMagnetBlock;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
+import dev.dubhe.anvilcraft.block.BlockDevourerBlock;
 import dev.dubhe.anvilcraft.block.HoneyCauldronBlock;
 import dev.dubhe.anvilcraft.block.ItemCollectorBlock;
 import dev.dubhe.anvilcraft.block.JewelCraftingTable;
@@ -59,10 +56,6 @@ import dev.dubhe.anvilcraft.item.PlaceInWaterBlockItem;
 import dev.dubhe.anvilcraft.item.RemoteTransmissionPoleBlockItem;
 import dev.dubhe.anvilcraft.item.ResinBlockItem;
 import dev.dubhe.anvilcraft.item.TransmissionPoleBlockItem;
-
-import java.util.Map;
-
-import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -86,6 +79,12 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.Map;
+
+import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
+import static dev.dubhe.anvilcraft.api.power.IPowerComponent.OVERLOAD;
+import static dev.dubhe.anvilcraft.api.power.IPowerComponent.SWITCH;
 
 public class ModBlocks {
 
@@ -496,12 +495,10 @@ public class ModBlocks {
                 .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.AMBER),
                     AnvilCraftDatagen.has(ModItems.AMBER))
                 .save(provider);
-            ItemPredicate.Builder item = ItemPredicate.Builder
-                .item()
+            HasItem.ModItemPredicate item = HasItem.ModItemPredicate
                 .of(ModBlocks.RESIN_BLOCK)
                 .withCount(MinMaxBounds.Ints.atLeast(1));
-            HasItem hasItem = new HasItemIngredient(new Vec3(0.0, -1.0, 0.0),
-                item.build()).notHasTag("entity");
+            HasItem hasItem = new HasItemIngredient(new Vec3(0.0, -1.0, 0.0), item).notHasTag("entity");
             AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .icon(ctx.get())
                 .hasBlock(
@@ -530,23 +527,20 @@ public class ModBlocks {
         .recipe((ctx, provider) -> {
             CompoundTag tag = new CompoundTag();
             tag.putBoolean("is_monster", false);
-            ItemPredicate.Builder item = ItemPredicate.Builder
-                .item()
+            HasItem.ModItemPredicate item = HasItem.ModItemPredicate
                 .of(ModBlocks.RESIN_BLOCK)
                 .withCount(MinMaxBounds.Ints.atLeast(1))
-                .hasNbt(tag);
+                .withNbt(tag);
             tag = new CompoundTag();
             tag.putBoolean("is_monster", true);
-            ItemPredicate.Builder monster = ItemPredicate.Builder
-                .item()
+            HasItem.ModItemPredicate monster = HasItem.ModItemPredicate
                 .of(ModBlocks.RESIN_BLOCK)
                 .withCount(MinMaxBounds.Ints.atLeast(1))
-                .hasNbt(tag);
-            RecipePredicate hasItem = new HasItemIngredient(new Vec3(0.0, -1.0, 0.0), item.build())
+                .withNbt(tag);
+            RecipePredicate hasItem = new HasItemIngredient(new Vec3(0.0, -1.0, 0.0), item)
                 .hasTag("entity")
                 .saveItemData("resin");
-            RecipePredicate hasItemMonster = new HasItemIngredient(new Vec3(0.0, -1.0, 0.0),
-                monster.build())
+            RecipePredicate hasItemMonster = new HasItemIngredient(new Vec3(0.0, -1.0, 0.0), monster)
                 .hasTag("entity")
                 .saveItemData("resin");
             RecipeOutcome spawnItem0 = new SpawnItem(
@@ -903,34 +897,35 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<ItemCollectorBlock> ITEM_COLLECTOR = REGISTRATE
-            .block("item_collector", ItemCollectorBlock::new)
-            .initialProperties(() -> Blocks.IRON_BLOCK)
-            .simpleItem()
-            .defaultLoot()
-            .blockstate((c, p) -> {})
-            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-            .recipe((c, p) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, c.get())
-                    .pattern("ABA")
-                    .pattern("CDC")
-                    .pattern("ACA")
-                    .define('A', Items.IRON_INGOT)
-                    .define('B', ModItems.MAGNET)
-                    .define('C', Items.HOPPER)
-                    .define('D', ModItems.MAGNETOELECTRIC_CORE)
-                    .unlockedBy(
-                            AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
-                            AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
-                    ).unlockedBy(
-                            AnvilCraftDatagen.hasItem(Items.IRON_INGOT),
-                            AnvilCraftDatagen.has(Items.IRON_INGOT)
-                    ).unlockedBy(
-                            AnvilCraftDatagen.hasItem(ModItems.MAGNET),
-                            AnvilCraftDatagen.has(ModItems.MAGNET)
-                    ).unlockedBy(
-                            AnvilCraftDatagen.hasItem(Items.HOPPER),
-                            AnvilCraftDatagen.has(Items.HOPPER)
-                    ).save(p))
-            .register();
+        .block("item_collector", ItemCollectorBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .simpleItem()
+        .defaultLoot()
+        .blockstate((c, p) -> {
+        })
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .recipe((c, p) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, c.get())
+            .pattern("ABA")
+            .pattern("CDC")
+            .pattern("ACA")
+            .define('A', Items.IRON_INGOT)
+            .define('B', ModItems.MAGNET)
+            .define('C', Items.HOPPER)
+            .define('D', ModItems.MAGNETOELECTRIC_CORE)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
+                AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
+            ).unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.IRON_INGOT),
+                AnvilCraftDatagen.has(Items.IRON_INGOT)
+            ).unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.MAGNET),
+                AnvilCraftDatagen.has(ModItems.MAGNET)
+            ).unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.HOPPER),
+                AnvilCraftDatagen.has(Items.HOPPER)
+            ).save(p))
+        .register();
 
     public static final BlockEntry<HoneyCauldronBlock> HONEY_CAULDRON = REGISTRATE
         .block("honey_cauldron", HoneyCauldronBlock::new)
@@ -1145,6 +1140,37 @@ public class ModBlocks {
                 AnvilCraftDatagen.hasItem(ModItems.CRAB_CLAW),
                 AnvilCraftDatagen.has(ModItems.CRAB_CLAW)
             )
+            .save(provider))
+        .register();
+
+    public static final BlockEntry<BlockDevourerBlock> BLOCK_DEVOURER = REGISTRATE
+        .block("block_devourer", BlockDevourerBlock::new)
+        .simpleItem()
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(BlockBehaviour.Properties::noOcclusion)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .blockstate((ctx, provider) -> {
+        })
+        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern("DA ")
+            .pattern("CBA")
+            .pattern("DA ")
+            .define('A', Items.NETHERITE_INGOT)
+            .define('B', Items.DRAGON_HEAD)
+            .define('C', Items.REDSTONE)
+            .define('D', Items.COBBLESTONE)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.NETHERITE_INGOT),
+                AnvilCraftDatagen.has(Items.NETHERITE_INGOT))
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.PISTON),
+                AnvilCraftDatagen.has(Items.PISTON))
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.REDSTONE),
+                AnvilCraftDatagen.has(Items.REDSTONE))
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.COBBLESTONE),
+                AnvilCraftDatagen.has(Items.COBBLESTONE))
             .save(provider))
         .register();
 

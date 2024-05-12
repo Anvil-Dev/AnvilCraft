@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.OverseerBlockEntity;
 import dev.dubhe.anvilcraft.block.state.Half;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
@@ -29,7 +30,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class OverseerBlock extends BaseEntityBlock {
+public class OverseerBlock extends BaseEntityBlock implements IHammerRemovable {
 
     private static final VoxelShape OVERSEER_BASE = Shapes.or(
             Block.box(0, 0, 0, 16, 4, 16),

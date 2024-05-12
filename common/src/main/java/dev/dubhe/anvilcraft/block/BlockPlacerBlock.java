@@ -13,6 +13,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -123,6 +124,19 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
     protected void createBlockStateDefinition(
         @NotNull StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(ORIENTATION).add(TRIGGERED);
+    }
+
+    @Override
+    public void tick(
+        @NotNull BlockState state,
+        @NotNull ServerLevel level,
+        @NotNull BlockPos pos,
+        @NotNull RandomSource random
+    ) {
+        super.tick(state, level, pos, random);
+        if (!state.getValue(TRIGGERED)) return;
+        if (!level.hasNeighborSignal(pos))
+            level.setBlock(pos, state.setValue(TRIGGERED, false), 2);
     }
 
     @Override
