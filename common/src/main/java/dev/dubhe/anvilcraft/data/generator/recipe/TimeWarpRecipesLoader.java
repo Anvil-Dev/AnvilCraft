@@ -40,6 +40,7 @@ public class TimeWarpRecipesLoader {
         timeWarp(new RecipeItem(ModBlocks.NETHER_DUST), new RecipeItem(Items.SOUL_SOIL));
         timeWarp(new RecipeItem(ModBlocks.END_DUST), new RecipeItem(Items.END_STONE));
         timeWarp(new RecipeItem(ModItems.LIME_POWDER, 8), new RecipeItem(Items.CALCITE));
+        timeWarp(new RecipeItem(ModItems.NETHERITE_CRYSTAL_NUCLEUS), new RecipeItem(Items.ANCIENT_DEBRIS));
 
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
             .icon(Items.WITHER_ROSE)
