@@ -29,6 +29,7 @@ public class CompactionRecipesLoader {
         compaction(ModBlockTags.MUSHROOM_BLOCK, Blocks.DIRT, Blocks.MYCELIUM, provider);
         compaction(Blocks.NETHER_WART_BLOCK, Blocks.NETHERRACK, Blocks.CRIMSON_NYLIUM, provider);
         compaction(Blocks.WARPED_WART_BLOCK, Blocks.NETHERRACK, Blocks.WARPED_NYLIUM, provider);
+        compaction(Blocks.BASALT, Blocks.BASALT, Blocks.BLACKSTONE, provider);
     }
 
     /**

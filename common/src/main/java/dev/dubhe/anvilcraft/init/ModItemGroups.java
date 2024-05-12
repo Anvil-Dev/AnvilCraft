@@ -59,10 +59,17 @@ public class ModItemGroups {
                 entries.accept(ModItems.TITANIUM_NUGGET.get().getDefaultInstance());
                 entries.accept(ModItems.TUNGSTEN_INGOT.get().getDefaultInstance());
                 entries.accept(ModItems.TUNGSTEN_NUGGET.get().getDefaultInstance());
+                entries.accept(ModItems.LEAD_INGOT.get().getDefaultInstance());
+                entries.accept(ModItems.LEAD_NUGGET.get().getDefaultInstance());
+                entries.accept(ModItems.SILVER_INGOT.get().getDefaultInstance());
+                entries.accept(ModItems.SILVER_NUGGET.get().getDefaultInstance());
+                entries.accept(ModItems.URANIUM_INGOT.get().getDefaultInstance());
+                entries.accept(ModItems.URANIUM_NUGGET.get().getDefaultInstance());
                 entries.accept(ModItems.BRONZE_INGOT.get().getDefaultInstance());
                 //                entries.accept(ModItems.BRONZE_NUGGET.get().getDefaultInstance());
                 entries.accept(ModItems.BRASS_INGOT.get().getDefaultInstance());
                 //                entries.accept(ModItems.BRASS_NUGGET.get().getDefaultInstance());
+                entries.accept(ModItems.LIME_POWDER.get().getDefaultInstance());
                 entries.accept(ModItems.TOPAZ.get().getDefaultInstance());
                 entries.accept(ModItems.RUBY.get().getDefaultInstance());
                 entries.accept(ModItems.SAPPHIRE.get().getDefaultInstance());
@@ -133,6 +140,15 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.CUT_ROYAL_STEEL_SLAB.asStack());
                 entries.accept(ModBlocks.CUT_ROYAL_STEEL_STAIRS.asStack());
                 entries.accept(ModBlocks.CURSED_GOLD_BLOCK.asStack());
+                entries.accept(ModBlocks.ZINC_BLOCK.asStack());
+                entries.accept(ModBlocks.TIN_BLOCK.asStack());
+                entries.accept(ModBlocks.TITANIUM_BLOCK.asStack());
+                entries.accept(ModBlocks.TUNGSTEN_BLOCK.asStack());
+                entries.accept(ModBlocks.LEAD_BLOCK.asStack());
+                entries.accept(ModBlocks.SILVER_BLOCK.asStack());
+                entries.accept(ModBlocks.URANIUM_BLOCK.asStack());
+                entries.accept(ModBlocks.BRONZE_BLOCK.asStack());
+                entries.accept(ModBlocks.BRASS_BLOCK.asStack());
                 entries.accept(ModBlocks.TOPAZ_BLOCK.asStack());
                 entries.accept(ModBlocks.RUBY_BLOCK.asStack());
                 entries.accept(ModBlocks.SAPPHIRE_BLOCK.asStack());
@@ -143,6 +159,8 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.END_DUST.asStack());
                 entries.accept(ModBlocks.CINERITE.asStack());
                 entries.accept(ModBlocks.QUARTZ_SAND.asStack());
+                entries.accept(ModBlocks.DEEPSLATE_CHIPS.asStack());
+                entries.accept(ModBlocks.BLACK_SAND.asStack());
                 entries.accept(ModBlocks.TEMPERING_GLASS.asStack());
                 entries.accept(ModBlocks.ITEM_COLLECTOR.asStack());
             })
