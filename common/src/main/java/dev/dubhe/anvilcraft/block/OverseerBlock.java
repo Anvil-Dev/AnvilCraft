@@ -74,10 +74,11 @@ public class OverseerBlock extends BaseEntityBlock {
     public @NotNull VoxelShape getShape(
         @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context
     ) {
-        if (state.getValue(HALF) == Half.BOTTOM) return OVERSEER_BASE;
-        if (state.getValue(HALF) == Half.MID) return OVERSEER_MID;
-        if (state.getValue(HALF) == Half.TOP) return OVERSEER_TOP;
-        return super.getShape(state, level, pos, context);
+        return switch (state.getValue(HALF)) {
+            case TOP -> OVERSEER_TOP;
+            case MID -> OVERSEER_MID;
+            case BOTTOM -> OVERSEER_BASE;
+        };
     }
 
     @Override
