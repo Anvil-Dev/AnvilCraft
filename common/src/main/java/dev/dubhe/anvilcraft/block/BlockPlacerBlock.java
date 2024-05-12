@@ -22,7 +22,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CandleBlock;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.SeaPickleBlock;
+import net.minecraft.world.level.block.TurtleEggBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -218,12 +223,11 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
         // 判断是放置位置是否不能放置方块
         Direction direction = orientation.getDirection();
         BlockState blockState = level.getBlockState(blockPos.relative(direction, distance));
-        if (canNotBePlaced(level,blockState)) {
+        if (canNotBePlaced(level, blockState)) {
             return;
         }
         // 获取放置方块类型
         BlockItem placeItem = null;
-        if (!(level instanceof ServerLevel)) return;
         IItemDepository itemDepository =
             ItemDepositoryHelper.getItemDepository(
                 level,
@@ -259,7 +263,7 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
         if ((blockState.is(Blocks.TURTLE_EGG)
                 || blockState.is(Blocks.SEA_PICKLE)
                 || (blockState.getBlock() instanceof CandleBlock))
-                && blockState.getBlock() != placeItem.getBlock()){
+                && blockState.getBlock() != placeItem.getBlock()) {
             return;
         }
         BlockPos placePos = blockPos.relative(direction, distance);
@@ -281,17 +285,17 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
      * @return 当前位置是否不能放置方块
      */
     private boolean canNotBePlaced(Level level, BlockState blockState) {
-        if (level instanceof ServerLevel){
+        if (level instanceof ServerLevel) {
             // 可替换方块
             if (blockState.is(BlockTags.REPLACEABLE)) {
                 return false;
             }
             // 海龟蛋
-            if (blockState.is(Blocks.TURTLE_EGG) && blockState.getValue(TurtleEggBlock.EGGS) < 4){
+            if (blockState.is(Blocks.TURTLE_EGG) && blockState.getValue(TurtleEggBlock.EGGS) < 4) {
                 return false;
             }
             // 海泡菜
-            if (blockState.is(Blocks.SEA_PICKLE) && blockState.getValue(SeaPickleBlock.PICKLES) < 4){
+            if (blockState.is(Blocks.SEA_PICKLE) && blockState.getValue(SeaPickleBlock.PICKLES) < 4) {
                 return false;
             }
             // 蜡烛
