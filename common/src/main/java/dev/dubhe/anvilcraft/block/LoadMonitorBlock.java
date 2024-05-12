@@ -49,7 +49,7 @@ public class LoadMonitorBlock extends BaseEntityBlock {
 
     @Override
     public boolean isSignalSource(BlockState state) {
-        return state.getValue(OVERLOAD);
+        return true;
     }
 
     @Override
