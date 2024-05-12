@@ -23,7 +23,6 @@ import dev.latvian.mods.kubejs.recipe.RecipeKey;
 import dev.latvian.mods.kubejs.recipe.component.ItemComponents;
 import dev.latvian.mods.kubejs.recipe.schema.RecipeSchema;
 import dev.latvian.mods.rhino.util.HideFromJS;
-import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -35,6 +34,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.ArrayUtils;
+import org.jetbrains.annotations.NotNull;
 
 
 /**
@@ -420,8 +420,8 @@ public interface AnvilCraftRecipeSchema {
          */
         public AnvilCraftRecipeJs hasItem(
             double offsetX, double offsetY, double offsetZ, int count, ItemLike... items) {
-            ItemPredicate predicate = ItemPredicate.Builder.item().of(items).build();
-            return hasItem(offsetX, offsetY, offsetZ, predicate);
+            HasItem.ModItemPredicate item = HasItem.ModItemPredicate.of(items);
+            return hasItem(offsetX, offsetY, offsetZ, item);
         }
 
         /**
@@ -436,8 +436,8 @@ public interface AnvilCraftRecipeSchema {
          */
         public AnvilCraftRecipeJs hasItem(
             double offsetX, double offsetY, double offsetZ, int count, TagKey<Item> items) {
-            ItemPredicate predicate = ItemPredicate.Builder.item().of(items).build();
-            return hasItem(offsetX, offsetY, offsetZ, predicate);
+            HasItem.ModItemPredicate item = HasItem.ModItemPredicate.of(items);
+            return hasItem(offsetX, offsetY, offsetZ, item);
         }
 
         /**
@@ -451,24 +451,27 @@ public interface AnvilCraftRecipeSchema {
          * KubeJS
          */
         public AnvilCraftRecipeJs hasItem(double offsetX, double offsetY, double offsetZ, ItemStack itemStack) {
-            ItemPredicate.Builder builder = ItemPredicate.Builder.item()
+            HasItem.ModItemPredicate item = HasItem.ModItemPredicate
                 .of(itemStack.getItem())
                 .withCount(MinMaxBounds.Ints.atLeast(itemStack.getCount()));
-            if (itemStack.hasTag()) builder.hasNbt(itemStack.getOrCreateTag());
-            return hasItem(offsetX, offsetY, offsetZ, builder.build());
+            if (itemStack.hasTag()) item.withNbt(itemStack.getOrCreateTag());
+            return hasItem(offsetX, offsetY, offsetZ, item);
         }
 
         /**
          * KubeJS
          */
-        public AnvilCraftRecipeJs hasItem(double offsetX, double offsetY, double offsetZ, ItemPredicate matchItem) {
+        public AnvilCraftRecipeJs hasItem(
+            double offsetX, double offsetY, double offsetZ,
+            HasItem.ModItemPredicate matchItem
+        ) {
             return hasItem(new Vec3(offsetX, offsetY, offsetZ), matchItem);
         }
 
         /**
          * KubeJS
          */
-        public AnvilCraftRecipeJs hasItem(Vec3 offset, ItemPredicate matchItem) {
+        public AnvilCraftRecipeJs hasItem(Vec3 offset, HasItem.ModItemPredicate matchItem) {
             HasItem hasItem = new HasItem(offset, matchItem);
             return addPredicate(hasItem);
         }
@@ -485,8 +488,8 @@ public interface AnvilCraftRecipeSchema {
          */
         public AnvilCraftRecipeJs hasItemIngredient(
             double offsetX, double offsetY, double offsetZ, int count, ItemLike... items) {
-            ItemPredicate predicate = ItemPredicate.Builder.item().of(items).build();
-            return hasItemIngredient(offsetX, offsetY, offsetZ, predicate);
+            HasItem.ModItemPredicate item = HasItem.ModItemPredicate.of(items);
+            return hasItemIngredient(offsetX, offsetY, offsetZ, item);
         }
 
         /**
@@ -501,8 +504,8 @@ public interface AnvilCraftRecipeSchema {
          */
         public AnvilCraftRecipeJs hasItemIngredient(
             double offsetX, double offsetY, double offsetZ, int count, TagKey<Item> items) {
-            ItemPredicate predicate = ItemPredicate.Builder.item().of(items).build();
-            return hasItemIngredient(offsetX, offsetY, offsetZ, predicate);
+            HasItem.ModItemPredicate item = HasItem.ModItemPredicate.of(items);
+            return hasItemIngredient(offsetX, offsetY, offsetZ, item);
         }
 
         /**
@@ -516,26 +519,26 @@ public interface AnvilCraftRecipeSchema {
          * KubeJS
          */
         public AnvilCraftRecipeJs hasItemIngredient(
-            double offsetX, double offsetY, double offsetZ, ItemStack itemStack) {
-            ItemPredicate.Builder builder = ItemPredicate.Builder.item()
+            double offsetX, double offsetY, double offsetZ, @NotNull ItemStack itemStack) {
+            HasItem.ModItemPredicate item = HasItem.ModItemPredicate
                 .of(itemStack.getItem())
                 .withCount(MinMaxBounds.Ints.atLeast(itemStack.getCount()));
-            if (itemStack.hasTag()) builder.hasNbt(itemStack.getOrCreateTag());
-            return hasItemIngredient(offsetX, offsetY, offsetZ, builder.build());
+            if (itemStack.hasTag()) item.withNbt(itemStack.getOrCreateTag());
+            return hasItemIngredient(offsetX, offsetY, offsetZ, item);
         }
 
         /**
          * KubeJS
          */
         public AnvilCraftRecipeJs hasItemIngredient(
-            double offsetX, double offsetY, double offsetZ, ItemPredicate matchItem) {
+            double offsetX, double offsetY, double offsetZ, HasItem.ModItemPredicate matchItem) {
             return hasItemIngredient(new Vec3(offsetX, offsetY, offsetZ), matchItem);
         }
 
         /**
          * KubeJS
          */
-        public AnvilCraftRecipeJs hasItemIngredient(Vec3 offset, ItemPredicate matchItem) {
+        public AnvilCraftRecipeJs hasItemIngredient(Vec3 offset, HasItem.ModItemPredicate matchItem) {
             HasItem hasItem = new HasItemIngredient(offset, matchItem);
             return addPredicate(hasItem);
         }
