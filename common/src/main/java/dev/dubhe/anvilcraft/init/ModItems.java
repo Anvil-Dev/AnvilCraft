@@ -1110,6 +1110,8 @@ public class ModItems {
     public static final ItemEntry<GuideBookItem> GUIDE_BOOK = REGISTRATE
         .item("guide_book", GuideBookItem::new)
         .properties(p -> p.stacksTo(1))
+        .model((ctx, provider) -> {
+        })
         .lang("AnvilCraft Guide Book")
         .register();
 

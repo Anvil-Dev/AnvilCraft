@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
@@ -7,7 +8,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class PowerConverterSmallBlock extends BasePowerConverterBlock {
+public class PowerConverterSmallBlock extends BasePowerConverterBlock implements IHammerRemovable {
     public static final VoxelShape SHAPE_DOWN = Block.box(7, 0, 7, 9, 8, 9);
     public static final VoxelShape SHAPE_UP = Block.box(7, 8, 7, 9, 16, 9);
     public static final VoxelShape SHAPE_NORTH = Block.box(7, 7, 0, 9, 9, 8);

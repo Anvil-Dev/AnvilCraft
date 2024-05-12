@@ -1,5 +1,5 @@
 {
-    "name": "游戏流程",
-    "description": "一般的生存流程指南，仅供参考。如是整合包则需要参考整合包本身的任务或教程。模组流程不是固定的，本篇介绍的仅是最常规的流程。",
-    "icon": "minecraft:compass"
+  "name": "Game Flow",
+  "description": "A general guide to the survival process, for reference only. In the case of a modpack, you will need to refer to the tasks or tutorials of the modpack itself. The mod process is not fixed, and this article is only the most general one.",
+  "icon": "minecraft:compass"
 }

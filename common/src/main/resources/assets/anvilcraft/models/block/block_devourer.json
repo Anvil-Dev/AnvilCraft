@@ -1,6 +1,7 @@
 {
 	"credit": "Made by XeKr with Blockbench",
 	"parent": "minecraft:block/cube",
+	"render_type": "minecraft:cutout",
 	"textures": {
 		"particle": "anvilcraft:block/block_devourer_top",
 		"top": "anvilcraft:block/block_devourer_top",

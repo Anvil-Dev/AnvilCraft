@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.world.entity.Entity;
@@ -13,7 +14,7 @@ import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
-public class LavaCauldronBlock extends LayeredCauldronBlock {
+public class LavaCauldronBlock extends LayeredCauldronBlock implements IHammerRemovable {
     public LavaCauldronBlock(Properties properties) {
         super(properties, p -> false, CauldronInteraction.LAVA);
     }

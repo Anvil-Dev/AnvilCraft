@@ -24,7 +24,6 @@ import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.CriterionTriggerInstance;
 import net.minecraft.advancements.RequirementsStrategy;
-import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
 import net.minecraft.core.NonNullList;
@@ -259,9 +258,10 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
          * @return 构造器
          */
         public @NotNull Builder hasItem(Vec3 offset, int count, ItemLike... items) {
-            ItemPredicate.Builder item = ItemPredicate.Builder.item()
-                .of(items).withCount(MinMaxBounds.Ints.atLeast(count));
-            return this.addPredicates(new HasItem(offset, item.build()));
+            HasItem.ModItemPredicate item = HasItem.ModItemPredicate
+                .of(items)
+                .withCount(MinMaxBounds.Ints.atLeast(count));
+            return this.addPredicates(new HasItem(offset, item));
         }
 
         public @NotNull Builder hasItem(Vec3 offset, ItemLike... items) {
@@ -277,9 +277,10 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
          * @return 构造器
          */
         public @NotNull Builder hasItem(Vec3 offset, int count, TagKey<Item> items) {
-            ItemPredicate.Builder item = ItemPredicate.Builder.item()
-                .of(items).withCount(MinMaxBounds.Ints.atLeast(count));
-            return this.addPredicates(new HasItem(offset, item.build()));
+            HasItem.ModItemPredicate item = HasItem.ModItemPredicate
+                .of(items)
+                .withCount(MinMaxBounds.Ints.atLeast(count));
+            return this.addPredicates(new HasItem(offset, item));
         }
 
         public @NotNull Builder hasItem(Vec3 offset, TagKey<Item> items) {
@@ -294,10 +295,11 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
          * @return 构造器
          */
         public @NotNull Builder hasItem(Vec3 offset, @NotNull ItemStack itemStack) {
-            ItemPredicate.Builder item = ItemPredicate.Builder.item().of(itemStack.getItem())
+            HasItem.ModItemPredicate item = HasItem.ModItemPredicate
+                .of(itemStack.getItem())
                 .withCount(MinMaxBounds.Ints.atLeast(itemStack.getCount()));
-            if (itemStack.hasTag()) item.hasNbt(itemStack.getOrCreateTag());
-            return this.addPredicates(new HasItem(offset, item.build()));
+            if (itemStack.hasTag()) item.withNbt(itemStack.copy().getOrCreateTag());
+            return this.addPredicates(new HasItem(offset, item));
         }
 
         public @NotNull Builder hasItem(ItemLike... items) {
@@ -329,9 +331,10 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
          * @return 构造器
          */
         public @NotNull Builder hasItemIngredient(Vec3 offset, int count, ItemLike... items) {
-            ItemPredicate.Builder item = ItemPredicate.Builder.item()
-                .of(items).withCount(MinMaxBounds.Ints.atLeast(count));
-            return this.addPredicates(new HasItemIngredient(offset, item.build()));
+            HasItem.ModItemPredicate item = HasItem.ModItemPredicate
+                .of(items)
+                .withCount(MinMaxBounds.Ints.atLeast(count));
+            return this.addPredicates(new HasItemIngredient(offset, item));
         }
 
         public @NotNull Builder hasItemIngredient(Vec3 offset, ItemLike... items) {
@@ -347,9 +350,10 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
          * @return 构造器
          */
         public @NotNull Builder hasItemIngredient(Vec3 offset, int count, TagKey<Item> items) {
-            ItemPredicate.Builder item = ItemPredicate.Builder.item()
-                .of(items).withCount(MinMaxBounds.Ints.atLeast(count));
-            return this.addPredicates(new HasItemIngredient(offset, item.build()));
+            HasItem.ModItemPredicate item = HasItem.ModItemPredicate
+                .of(items)
+                .withCount(MinMaxBounds.Ints.atLeast(count));
+            return this.addPredicates(new HasItemIngredient(offset, item));
         }
 
         public @NotNull Builder hasItemIngredient(Vec3 offset, TagKey<Item> items) {
@@ -364,10 +368,11 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
          * @return 构造器
          */
         public @NotNull Builder hasItemIngredient(Vec3 offset, @NotNull ItemStack itemStack) {
-            ItemPredicate.Builder item = ItemPredicate.Builder.item().of(itemStack.getItem())
+            HasItem.ModItemPredicate item = HasItem.ModItemPredicate
+                .of(itemStack.getItem())
                 .withCount(MinMaxBounds.Ints.atLeast(itemStack.getCount()));
-            if (itemStack.hasTag()) item.hasNbt(itemStack.getOrCreateTag());
-            return this.addPredicates(new HasItemIngredient(offset, item.build()));
+            if (itemStack.hasTag()) item.withNbt(itemStack.getOrCreateTag());
+            return this.addPredicates(new HasItemIngredient(offset, item));
         }
 
         public @NotNull Builder hasItemIngredient(ItemLike... items) {
@@ -403,10 +408,10 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
         }
 
         public @NotNull Builder hasItemLeaves(
-                Vec3 inputOffset,
-                Vec3 outputOffset,
-                double leavesChance,
-                double saplingChance
+            Vec3 inputOffset,
+            Vec3 outputOffset,
+            double leavesChance,
+            double saplingChance
         ) {
             return this.addPredicates(new HasItemLeaves(inputOffset, outputOffset, leavesChance, saplingChance));
         }

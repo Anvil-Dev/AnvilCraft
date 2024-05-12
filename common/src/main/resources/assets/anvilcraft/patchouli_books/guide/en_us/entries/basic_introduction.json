@@ -1,16 +1,20 @@
 {
-    "name": "基础介绍",
-    "category": "anvilcraft:basic_gameplay",
-    "icon": "minecraft:anvil",
-    "priority": "true",
-    "pages": [
-        {
-            "type": "patchouli:text",
-            "text": "$(li)铁砧工艺是一个以铁砧下落砸到方块、物品或生物触发效果的模组。$(li)铁砧下方放置不同方块会触发不同效果。$(li)你可以用这种方式自动化生产或再生一些物品。$(li)为了方便将铁砧上抬，本模组增加了磁铁方块，你可以使用原版红石机械或手动操作代替，但较为繁琐。"
-        },
-		{
-            "type": "patchouli:text",
-            "text": "$(li)铁砧的下落也可用于发电，甚至为其他模组的电器供能，本模组以此为基础增加了电力系统和对应的机器。$(li)铁砧在附魔和锻造方面有着很大提升空间，本模组以此为基础增加了提高附魔上限的锻造玩法。$(li)这两个部分将在专门的章节介绍。"
-        }
-    ]
+  "name": "Basic Introduction",
+  "category": "anvilcraft:basic_gameplay",
+  "icon": "minecraft:anvil",
+  "priority": "true",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "$(li)AnvilCraft is a mod that triggers effects by falling an anvil on a block, item or mob.$(li)Placing different blocks underneath the anvil will trigger different effects.$(li)You can automate the production or recycle some items in this way."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(li)In order to facilitate the lifting of the anvil, the mod adds the magnet block. You can use vanilla redstone machinery or manual operation instead, but it is more complicated.$(li)The drop of the anvil can also be used to generate electricity and even power the electrical appliances of other mods. Based on this, this mod adds a power system and corresponding machines."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(li)Anvils have a lot of room for improvement in enchantment and forging, and this mod adds forging gameplay to increase the enchantment cap.$(li)These two parts are covered in dedicated sections."
+    }
+  ]
 }
