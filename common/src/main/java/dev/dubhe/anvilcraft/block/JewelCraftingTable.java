@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
 
+import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -23,7 +24,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class JewelCraftingTable extends Block {
+public class JewelCraftingTable extends Block implements IHammerRemovable {
     public static final VoxelShape SHAPE = Shapes.or(
         Block.box(0, 0, 0, 3, 2, 3),
         Block.box(13, 0, 0, 16, 2, 3),

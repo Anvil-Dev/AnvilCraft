@@ -24,6 +24,7 @@ public class AnvilCraftFabricClient implements ClientModInitializer {
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.JEWEL_CRAFTING_TABLE.get(), RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.PIEZOELECTRIC_CRYSTAL.get(), RenderType.translucent());
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.BLOCK_PLACER.get(), RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.BLOCK_DEVOURER.get(), RenderType.cutout());
         WorldRenderEvents.AFTER_ENTITIES.register(context -> {
             if (IBlockHighlightUtil.SUBCHUNKS.isEmpty()) return;
             MultiBufferSource consumers = context.consumers();
