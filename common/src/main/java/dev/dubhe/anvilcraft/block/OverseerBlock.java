@@ -4,7 +4,9 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.OverseerBlockEntity;
 import dev.dubhe.anvilcraft.block.state.Half;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
+
 import javax.annotation.Nonnull;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -31,8 +33,8 @@ import org.jetbrains.annotations.Nullable;
 public class OverseerBlock extends BaseEntityBlock implements IHammerRemovable {
 
     private static final VoxelShape OVERSEER_BASE = Shapes.or(
-        Block.box(0, 0, 0, 16, 4, 16),
-        Block.box(4, 6, 4, 12, 16, 12)
+            Block.box(0, 0, 0, 16, 4, 16),
+            Block.box(4, 6, 4, 12, 16, 12)
     );
     private static final VoxelShape OVERSEER_MID = Block.box(4, 0, 4, 12, 15, 12);
     private static final VoxelShape OVERSEER_TOP = Block.box(4, 0, 4, 12, 15, 12);
@@ -45,9 +47,9 @@ public class OverseerBlock extends BaseEntityBlock implements IHammerRemovable {
     public OverseerBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(
-            this.stateDefinition.any()
-                .setValue(HALF, Half.BOTTOM)
-                .setValue(LEVEL, 0)
+                this.stateDefinition.any()
+                        .setValue(HALF, Half.BOTTOM)
+                        .setValue(LEVEL, 0)
         );
     }
 
@@ -56,8 +58,8 @@ public class OverseerBlock extends BaseEntityBlock implements IHammerRemovable {
     @Nullable
     public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
         return this.defaultBlockState()
-            .setValue(HALF, Half.BOTTOM)
-            .setValue(LEVEL, 0);
+                .setValue(HALF, Half.BOTTOM)
+                .setValue(LEVEL, 0);
     }
 
     @Override
@@ -73,18 +75,20 @@ public class OverseerBlock extends BaseEntityBlock implements IHammerRemovable {
     @SuppressWarnings("deprecation")
     @Override
     public @NotNull VoxelShape getShape(
-        @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context
+            @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos,
+            @NotNull CollisionContext context
     ) {
-        if (state.getValue(HALF) == Half.BOTTOM) return OVERSEER_BASE;
-        if (state.getValue(HALF) == Half.MID) return OVERSEER_MID;
-        if (state.getValue(HALF) == Half.TOP) return OVERSEER_TOP;
-        return super.getShape(state, level, pos, context);
+        return switch (state.getValue(HALF)) {
+            case TOP -> OVERSEER_TOP;
+            case MID -> OVERSEER_MID;
+            case BOTTOM -> OVERSEER_BASE;
+        };
     }
 
     @Override
     public void setPlacedBy(
-        @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state,
-        LivingEntity placer, @NotNull ItemStack stack
+            @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state,
+            LivingEntity placer, @NotNull ItemStack stack
     ) {
         BlockPos above = pos.above();
         level.setBlockAndUpdate(above, state.setValue(HALF, Half.MID).setValue(LEVEL, 1));
@@ -94,7 +98,7 @@ public class OverseerBlock extends BaseEntityBlock implements IHammerRemovable {
 
     @Override
     public void playerWillDestroy(
-        @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player
+            @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player
     ) {
         if (level.isClientSide) return;
         switch (state.getValue(HALF)) {
@@ -123,11 +127,11 @@ public class OverseerBlock extends BaseEntityBlock implements IHammerRemovable {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-        @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type
+            @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type
     ) {
         if (level.isClientSide) return null;
         if (state.getValue(HALF) != Half.BOTTOM) return null;
         return createTickerHelper(type, ModBlockEntities.OVERSEER.get(),
-            (level1, pos, state1, entity) -> entity.tick(level1, pos, state1));
+                (level1, pos, state1, entity) -> entity.tick(level1, pos, state1));
     }
 }
