@@ -10,11 +10,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(li)In order to facilitate the lifting of the anvil, the mod adds the magnet block. You can use vanilla redstone machinery or manual operation instead, but it is more complicated."
-    },
-    {
-      "type": "patchouli:text",
-      "text": "$(li)The drop of the anvil can also be used to generate electricity and even power the electrical appliances of other mods. Based on this, this mod adds a power system and corresponding machines."
+      "text": "$(li)In order to facilitate the lifting of the anvil, the mod adds the magnet block. You can use vanilla redstone machinery or manual operation instead, but it is more complicated.$(li)The drop of the anvil can also be used to generate electricity and even power the electrical appliances of other mods. Based on this, this mod adds a power system and corresponding machines."
     },
     {
       "type": "patchouli:text",

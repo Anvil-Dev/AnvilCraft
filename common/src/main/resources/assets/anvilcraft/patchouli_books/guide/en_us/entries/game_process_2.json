@@ -5,7 +5,7 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "The $(item)Magnet Block$() helps you simply lift the anvil up and down it. There are three types of magnet blocks, which have basically the same function, and some can be converted into each other. How to get the first batch of magnet blocks: $(item)Iron block$() is converted into a hollow magnet block by lightning strike. The impact range of lightning can be changed by config profiles. The default is 3 x 3 blocks horizontally and 2 blocks high."
+      "text": "The $(item)Magnet Block$() will help you simply lift the anvil up and down it. There are three types of magnet blocks, which have basically the same function, and can invert into each other. How to get the first batch of magnet blocks: $(item)Iron block$() is converted into a hollow magnet block by lightning strike. You can change the impact range of lightning in config profile. The default is 3 x 3 blocks horizontally and 2 blocks high."
     },
     {
       "type": "patchouli:multiblock",
