@@ -90,4 +90,30 @@ public class ItemDepositorySlot extends Slot {
     public boolean isFilter() {
         return this.depository instanceof FilteredItemDepository;
     }
+
+    /**
+     * 获取指定槽位上的过滤器要过滤的物品
+     *
+     * @param slotIndex 槽位的索引
+     * @return 如果指定槽位是过滤器，返回过滤器要过滤的物品，否则返回空物品
+     */
+    public ItemStack getFilterItem(int slotIndex) {
+        if (this.depository instanceof FilteredItemDepository filtered) {
+            return filtered.getFilter(slotIndex);
+        }
+        return ItemStack.EMPTY;
+    }
+
+    /**
+     * 判断指定槽位是否被禁用
+     *
+     * @param slot 槽位
+     * @return 指定槽位是否被禁用
+     */
+    public boolean isSlotDisabled(int slot) {
+        if (this.depository instanceof FilteredItemDepository filtered) {
+            return filtered.isSlotDisabled(slot);
+        }
+        return false;
+    }
 }
