@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
+import static dev.dubhe.anvilcraft.api.entity.player.AnvilCraftBlockPlacer.anvilCraftBlockPlacer;
+
 import dev.dubhe.anvilcraft.api.depository.IItemDepository;
 import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
@@ -198,7 +200,12 @@ public class BlockDevourerBlock extends DirectionalBlock implements IHammerChang
                     }
                 }
             }
-            devouBlockState.getBlock().playerWillDestroy(level, devourBlockPos, devouBlockState, null);
+            devouBlockState.getBlock().playerWillDestroy(
+                level,
+                devourBlockPos,
+                devouBlockState,
+                anvilCraftBlockPlacer.getPlayer()
+            );
             level.destroyBlock(
                 devourBlockPos,
                 (isDropOriginalPlace
