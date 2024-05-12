@@ -190,6 +190,8 @@
   "text.autoconfig.anvilcraft.option.redstoneEmpRadius.@Tooltip": "ןıʌuɐ ǝɥʇ ʎq pǝddoɹp ʞɔoןq ɹǝd pǝʇɐɹǝuǝb ǝɔuɐʇsıp ԀWƎ ǝuoʇspǝᴚ",
   "text.autoconfig.anvilcraft.option.remotePowerTransmitterRange": "ɹǝʇʇıɯsuɐɹ⟘ ɹǝʍoԀ ɟo ǝbuɐᴚ",
   "text.autoconfig.anvilcraft.option.remotePowerTransmitterRange.@Tooltip": "ɹǝʇʇıɯsuɐɹʇ ɹǝʍod ǝɥʇ ɟo ǝbuɐɹ ǝɥʇ ʎɟıʇuǝpı uɐɔ ɹǝʇʇıɯsuɐɹʇ ɹǝʍod ǝɥ⟘",
+  "text.autoconfig.anvilcraft.option.sandDupingFix": "xıℲ buıdnᗡ puɐS",
+  "text.autoconfig.anvilcraft.option.sandDupingFix.@Tooltip": "ןɐʇɹod puǝ buısn buıdnp ʞɔoןq ʎʇıʌɐɹb ɹǝɥʇo puɐ puɐs ǝןqɐsıᗡ",
   "text.autoconfig.anvilcraft.title": "bıɟuoƆ ʇɟɐɹƆןıʌuⱯ",
   "tooltip.anvilcraft.grid_information.consumer_stats": ":sʇɐʇS ɹǝɯnsuoƆ ɹǝʍoԀ",
   "tooltip.anvilcraft.grid_information.input_power": "%d :uoıʇdɯnsuoƆ ɹǝʍoԀ  ",
