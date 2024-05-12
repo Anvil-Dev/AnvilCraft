@@ -191,13 +191,19 @@ public class FilteredItemDepository extends ItemDepository {
             int slotCount = this.getSlots();
             int slot = -1;
             int countInSlot = Integer.MAX_VALUE;
-            for (int i = slotCount - 1; i >= 0; i--) {
-                if (this.isSlotDisabled(i)) continue;
-                ItemStack stackInSlot = this.getStack(i);
-                if (!stackInSlot.isEmpty() && !ItemStack.isSameItemSameTags(stackInSlot, stack)) continue;
+            for (int index = slotCount - 1; index >= 0; index--) {
+                if (this.isSlotDisabled(index)) continue;
+                ItemStack stackInSlot = this.getStack(index);
+                if (this.isSlotDisabled(index)) continue;
+                if (!this.isFiltered(index, stack)) continue;
+                if (stackInSlot.isEmpty()) {
+                    slot = index;
+                    countInSlot = 0;
+                    continue;
+                } else if (!ItemStack.isSameItemSameTags(stackInSlot, stack)) continue;
                 int stackInSlotCount = stackInSlot.getCount();
-                if (stackInSlotCount <= countInSlot && stackInSlotCount < this.getSlotLimit(i)) {
-                    slot = i;
+                if (stackInSlotCount <= countInSlot && stackInSlotCount < this.getSlotLimit(index)) {
+                    slot = index;
                     countInSlot = stackInSlotCount;
                 }
             }
