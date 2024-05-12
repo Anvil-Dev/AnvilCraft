@@ -1,48 +1,48 @@
 {
   "variants": {
-    "facing=down,powered=false": {
+    "facing=down,triggered=false": {
       "model": "anvilcraft:block/block_devourer",
       "x": 90
     },
-    "facing=down,powered=true": {
+    "facing=down,triggered=true": {
       "model": "anvilcraft:block/block_devourer_on",
       "x": 90
     },
-    "facing=east,powered=false": {
+    "facing=east,triggered=false": {
       "model": "anvilcraft:block/block_devourer",
       "y": 90
     },
-    "facing=east,powered=true": {
+    "facing=east,triggered=true": {
       "model": "anvilcraft:block/block_devourer_on",
       "y": 90
     },
-    "facing=north,powered=false": {
+    "facing=north,triggered=false": {
       "model": "anvilcraft:block/block_devourer"
     },
-    "facing=north,powered=true": {
+    "facing=north,triggered=true": {
       "model": "anvilcraft:block/block_devourer_on"
     },
-    "facing=south,powered=false": {
+    "facing=south,triggered=false": {
       "model": "anvilcraft:block/block_devourer",
       "y": 180
     },
-    "facing=south,powered=true": {
+    "facing=south,triggered=true": {
       "model": "anvilcraft:block/block_devourer_on",
       "y": 180
     },
-    "facing=up,powered=false": {
+    "facing=up,triggered=false": {
       "model": "anvilcraft:block/block_devourer",
       "x": 270
     },
-    "facing=up,powered=true": {
+    "facing=up,triggered=true": {
       "model": "anvilcraft:block/block_devourer_on",
       "x": 270
     },
-    "facing=west,powered=false": {
+    "facing=west,triggered=false": {
       "model": "anvilcraft:block/block_devourer",
       "y": 270
     },
-    "facing=west,powered=true": {
+    "facing=west,triggered=true": {
       "model": "anvilcraft:block/block_devourer_on",
       "y": 270
     }
