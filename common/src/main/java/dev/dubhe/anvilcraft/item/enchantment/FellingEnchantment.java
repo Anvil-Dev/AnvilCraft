@@ -49,6 +49,24 @@ public class FellingEnchantment extends ModEnchantment {
     }
 
     /**
+     *
+     * 使该附魔无法从战利品、钓鱼中获得
+     */
+    @Override
+    public boolean isDiscoverable() {
+        return false;
+    }
+
+    /**
+     *
+     * 使该附魔无法从村民交易附魔书获得
+     */
+    @Override
+    public boolean isTradeable() {
+        return false;
+    }
+
+    /**
      * 伐木
      *
      * @param level 世界
