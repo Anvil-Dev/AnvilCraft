@@ -545,7 +545,7 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
         }
 
         public @NotNull Builder hasFluidCauldron(Vec3 offset, Block block) {
-            return this.hasFluidCauldron(offset, block, 1);
+            return this.hasFluidCauldron(offset, block, 0);
         }
 
         public @NotNull Builder hasFluidCauldronFull(Vec3 offset, Block block) {
