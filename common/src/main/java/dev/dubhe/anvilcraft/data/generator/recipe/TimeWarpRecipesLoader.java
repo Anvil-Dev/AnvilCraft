@@ -94,7 +94,7 @@ public class TimeWarpRecipesLoader {
                 new Vec3(0.0, -2.0, 0.0),
                 Map.entry(CorruptedBeaconBlock.LIT, true)
             )
-            .hasFluidCauldron(new Vec3(0.0, -1.0, 0.0), Blocks.WATER_CAULDRON, 3)
+            .hasFluidCauldronFull(new Vec3(0.0, -1.0, 0.0), Blocks.WATER_CAULDRON)
             .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), item)
             .spawnItem(new Vec3(0.0, -1.0, 0.0), item1)
             .unlockedBy(AnvilCraftDatagen.hasItem(item), AnvilCraftDatagen.has(item))

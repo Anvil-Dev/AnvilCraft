@@ -20,7 +20,7 @@
   "predicates": [
     {
       "type": "has_fluid_cauldron",
-      "deplete": 1,
+      "deplete": 0,
       "match_block": "minecraft:water_cauldron",
       "offset": [
         0.0,
