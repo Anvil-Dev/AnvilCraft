@@ -28,7 +28,16 @@ public class BulgingAndCrystallizeRecipesLoader {
         bulging(Items.FIRE_CORAL, Items.FIRE_CORAL_BLOCK, provider);
         bulging(Items.HORN_CORAL, Items.HORN_CORAL_BLOCK, provider);
         bulging(Items.TUBE_CORAL, Items.TUBE_CORAL_BLOCK, provider);
-        bulging(ModItems.SPONGE_GEMMULE.get(), Items.WET_SPONGE, provider);
+        AnvilRecipe.Builder.create(RecipeCategory.MISC)
+            .icon(Items.WET_SPONGE)
+            .hasFluidCauldron(new Vec3(0.0, -1.0, 0.0), Blocks.WATER_CAULDRON, 1)
+            .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), ModItems.SPONGE_GEMMULE.get())
+            .spawnItem(new Vec3(0.0, -1.0, 0.0), Items.WET_SPONGE)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.SPONGE_GEMMULE.get()),
+                AnvilCraftDatagen.has(ModItems.SPONGE_GEMMULE.get())
+            )
+            .save(provider, AnvilCraft.of("bulging/" + BuiltInRegistries.ITEM.getKey(Items.WET_SPONGE).getPath()));
         crystallize(ModItems.SEA_HEART_SHELL_SHARD.get(), ModItems.PRISMARINE_CLUSTER.get(), provider);
     }
 
@@ -52,7 +61,7 @@ public class BulgingAndCrystallizeRecipesLoader {
     private static void crystallize(Item item, Item item1, RegistrateRecipeProvider provider) {
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
             .icon(item1)
-            .hasFluidCauldron(new Vec3(0.0, -1.0, 0.0), Blocks.POWDER_SNOW_CAULDRON)
+            .hasFluidCauldron(new Vec3(0.0, -1.0, 0.0), Blocks.POWDER_SNOW_CAULDRON, 1)
             .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), item)
             .spawnItem(new Vec3(0.0, -1.0, 0.0), item1)
             .unlockedBy(AnvilCraftDatagen.hasItem(item), AnvilCraftDatagen.has(item))
