@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerProducer {
 
-    private static final double MAX_POWER_PER_INCOMING = 32;
+    private static final double MAX_POWER_PER_INCOMING = 128;
 
     private final int cooldown = 40;
     private int cooldownCount = 40;
