@@ -1,0 +1,23 @@
+{
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/cube",
+	"textures": {
+		"0": "anvilcraft:block/induction_light",
+		"particle": "anvilcraft:block/induction_light"
+	},
+	"elements": [
+		{
+			"from": [6, 0, 6],
+			"to": [10, 16, 10],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [4, 0, 8, 16], "texture": "#0"},
+				"east": {"uv": [4, 0, 8, 16], "texture": "#0"},
+				"south": {"uv": [4, 0, 8, 16], "texture": "#0"},
+				"west": {"uv": [4, 0, 8, 16], "texture": "#0"},
+				"up": {"uv": [0, 0, 4, 4], "texture": "#0"},
+				"down": {"uv": [0, 0, 4, 4], "texture": "#0"}
+			}
+		}
+	]
+}
