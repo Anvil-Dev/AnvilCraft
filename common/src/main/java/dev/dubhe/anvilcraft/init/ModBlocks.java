@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.ArrowBlock;
 import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
+import dev.dubhe.anvilcraft.block.BlockDevourerBlock;
 import dev.dubhe.anvilcraft.block.BlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.ChargeCollectorBlock;
 import dev.dubhe.anvilcraft.block.ChuteBlock;
@@ -15,7 +16,6 @@ import dev.dubhe.anvilcraft.block.CreativeGeneratorBlock;
 import dev.dubhe.anvilcraft.block.FerriteCoreMagnetBlock;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
-import dev.dubhe.anvilcraft.block.BlockDevourerBlock;
 import dev.dubhe.anvilcraft.block.HoneyCauldronBlock;
 import dev.dubhe.anvilcraft.block.ItemCollectorBlock;
 import dev.dubhe.anvilcraft.block.JewelCraftingTable;
@@ -57,6 +57,7 @@ import dev.dubhe.anvilcraft.item.RemoteTransmissionPoleBlockItem;
 import dev.dubhe.anvilcraft.item.ResinBlockItem;
 import dev.dubhe.anvilcraft.item.TransmissionPoleBlockItem;
 import net.minecraft.advancements.critereon.MinMaxBounds;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
@@ -64,9 +65,11 @@ import net.minecraft.data.recipes.packs.VanillaRecipeProvider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FallingBlock;
@@ -78,6 +81,7 @@ import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Map;
@@ -86,8 +90,8 @@ import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 import static dev.dubhe.anvilcraft.api.power.IPowerComponent.OVERLOAD;
 import static dev.dubhe.anvilcraft.api.power.IPowerComponent.SWITCH;
 
+@SuppressWarnings("unused")
 public class ModBlocks {
-
     public static final BlockEntry<? extends Block> STAMPING_PLATFORM = REGISTRATE
         .block("stamping_platform", StampingPlatformBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
@@ -425,7 +429,7 @@ public class ModBlocks {
                 .pattern("AAA")
                 .define('A', ModItemTags.ZINC_INGOTS)
                 .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.ZINC_INGOTS),
-                        AnvilCraftDatagen.has(ModItemTags.ZINC_INGOTS))
+                    AnvilCraftDatagen.has(ModItemTags.ZINC_INGOTS))
                 .save(provider);
             ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                 .pattern("AAA")
@@ -433,7 +437,7 @@ public class ModBlocks {
                 .pattern("AAA")
                 .define('A', ModItemTags.ZINC_INGOTS_FORGE)
                 .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.ZINC_INGOTS_FORGE),
-                        AnvilCraftDatagen.has(ModItemTags.ZINC_INGOTS_FORGE))
+                    AnvilCraftDatagen.has(ModItemTags.ZINC_INGOTS_FORGE))
                 .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath() + "_forge");
         })
         .register();
@@ -450,7 +454,7 @@ public class ModBlocks {
                 .pattern("AAA")
                 .define('A', ModItemTags.TIN_INGOTS)
                 .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.TIN_INGOTS),
-                        AnvilCraftDatagen.has(ModItemTags.TIN_INGOTS))
+                    AnvilCraftDatagen.has(ModItemTags.TIN_INGOTS))
                 .save(provider);
             ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                 .pattern("AAA")
@@ -458,7 +462,7 @@ public class ModBlocks {
                 .pattern("AAA")
                 .define('A', ModItemTags.TIN_INGOTS_FORGE)
                 .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.TIN_INGOTS_FORGE),
-                        AnvilCraftDatagen.has(ModItemTags.TIN_INGOTS_FORGE))
+                    AnvilCraftDatagen.has(ModItemTags.TIN_INGOTS_FORGE))
                 .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath() + "_forge");
         })
         .register();
@@ -475,7 +479,7 @@ public class ModBlocks {
                 .pattern("AAA")
                 .define('A', ModItemTags.TITANIUM_INGOTS)
                 .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.TITANIUM_INGOTS),
-                        AnvilCraftDatagen.has(ModItemTags.TITANIUM_INGOTS))
+                    AnvilCraftDatagen.has(ModItemTags.TITANIUM_INGOTS))
                 .save(provider);
             ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                 .pattern("AAA")
@@ -483,7 +487,7 @@ public class ModBlocks {
                 .pattern("AAA")
                 .define('A', ModItemTags.TITANIUM_INGOTS_FORGE)
                 .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.TITANIUM_INGOTS_FORGE),
-                        AnvilCraftDatagen.has(ModItemTags.TITANIUM_INGOTS_FORGE))
+                    AnvilCraftDatagen.has(ModItemTags.TITANIUM_INGOTS_FORGE))
                 .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath() + "_forge");
         })
         .register();
@@ -500,7 +504,7 @@ public class ModBlocks {
                 .pattern("AAA")
                 .define('A', ModItemTags.TUNGSTEN_INGOTS)
                 .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.TUNGSTEN_INGOTS),
-                        AnvilCraftDatagen.has(ModItemTags.TUNGSTEN_INGOTS))
+                    AnvilCraftDatagen.has(ModItemTags.TUNGSTEN_INGOTS))
                 .save(provider);
             ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                 .pattern("AAA")
@@ -508,7 +512,7 @@ public class ModBlocks {
                 .pattern("AAA")
                 .define('A', ModItemTags.TUNGSTEN_INGOTS_FORGE)
                 .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.TUNGSTEN_INGOTS_FORGE),
-                        AnvilCraftDatagen.has(ModItemTags.TUNGSTEN_INGOTS_FORGE))
+                    AnvilCraftDatagen.has(ModItemTags.TUNGSTEN_INGOTS_FORGE))
                 .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath() + "_forge");
         })
         .register();
@@ -525,7 +529,7 @@ public class ModBlocks {
                 .pattern("AAA")
                 .define('A', ModItemTags.LEAD_INGOTS)
                 .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.LEAD_INGOTS),
-                        AnvilCraftDatagen.has(ModItemTags.LEAD_INGOTS))
+                    AnvilCraftDatagen.has(ModItemTags.LEAD_INGOTS))
                 .save(provider);
             ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                 .pattern("AAA")
@@ -533,7 +537,7 @@ public class ModBlocks {
                 .pattern("AAA")
                 .define('A', ModItemTags.LEAD_INGOTS_FORGE)
                 .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.LEAD_INGOTS_FORGE),
-                        AnvilCraftDatagen.has(ModItemTags.LEAD_INGOTS_FORGE))
+                    AnvilCraftDatagen.has(ModItemTags.LEAD_INGOTS_FORGE))
                 .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath() + "_forge");
         })
         .register();
@@ -550,7 +554,7 @@ public class ModBlocks {
                 .pattern("AAA")
                 .define('A', ModItemTags.SILVER_INGOTS)
                 .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.SILVER_INGOTS),
-                        AnvilCraftDatagen.has(ModItemTags.SILVER_INGOTS))
+                    AnvilCraftDatagen.has(ModItemTags.SILVER_INGOTS))
                 .save(provider);
             ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                 .pattern("AAA")
@@ -558,7 +562,7 @@ public class ModBlocks {
                 .pattern("AAA")
                 .define('A', ModItemTags.SILVER_INGOTS_FORGE)
                 .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.SILVER_INGOTS_FORGE),
-                        AnvilCraftDatagen.has(ModItemTags.SILVER_INGOTS_FORGE))
+                    AnvilCraftDatagen.has(ModItemTags.SILVER_INGOTS_FORGE))
                 .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath() + "_forge");
         })
         .register();
@@ -575,7 +579,7 @@ public class ModBlocks {
                 .pattern("AAA")
                 .define('A', ModItemTags.URANIUM_INGOTS)
                 .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.URANIUM_INGOTS),
-                        AnvilCraftDatagen.has(ModItemTags.URANIUM_INGOTS))
+                    AnvilCraftDatagen.has(ModItemTags.URANIUM_INGOTS))
                 .save(provider);
             ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                 .pattern("AAA")
@@ -583,7 +587,7 @@ public class ModBlocks {
                 .pattern("AAA")
                 .define('A', ModItemTags.URANIUM_INGOTS_FORGE)
                 .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.URANIUM_INGOTS_FORGE),
-                        AnvilCraftDatagen.has(ModItemTags.URANIUM_INGOTS_FORGE))
+                    AnvilCraftDatagen.has(ModItemTags.URANIUM_INGOTS_FORGE))
                 .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath() + "_forge");
         })
         .register();
@@ -600,7 +604,7 @@ public class ModBlocks {
                 .pattern("AAA")
                 .define('A', ModItemTags.BRONZE_INGOTS)
                 .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.BRONZE_INGOTS),
-                        AnvilCraftDatagen.has(ModItemTags.BRONZE_INGOTS))
+                    AnvilCraftDatagen.has(ModItemTags.BRONZE_INGOTS))
                 .save(provider);
             ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                 .pattern("AAA")
@@ -608,7 +612,7 @@ public class ModBlocks {
                 .pattern("AAA")
                 .define('A', ModItemTags.BRONZE_INGOTS_FORGE)
                 .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.BRONZE_INGOTS_FORGE),
-                        AnvilCraftDatagen.has(ModItemTags.BRONZE_INGOTS_FORGE))
+                    AnvilCraftDatagen.has(ModItemTags.BRONZE_INGOTS_FORGE))
                 .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath() + "_forge");
         })
         .register();
@@ -625,7 +629,7 @@ public class ModBlocks {
                 .pattern("AAA")
                 .define('A', ModItemTags.BRASS_INGOTS)
                 .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.BRASS_INGOTS),
-                        AnvilCraftDatagen.has(ModItemTags.BRASS_INGOTS))
+                    AnvilCraftDatagen.has(ModItemTags.BRASS_INGOTS))
                 .save(provider);
             ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                 .pattern("AAA")
@@ -633,7 +637,7 @@ public class ModBlocks {
                 .pattern("AAA")
                 .define('A', ModItemTags.BRASS_INGOTS_FORGE)
                 .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.BRASS_INGOTS_FORGE),
-                        AnvilCraftDatagen.has(ModItemTags.BRASS_INGOTS_FORGE))
+                    AnvilCraftDatagen.has(ModItemTags.BRASS_INGOTS_FORGE))
                 .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath() + "_forge");
         })
         .register();
@@ -954,10 +958,10 @@ public class ModBlocks {
         .properties(properties -> properties
             .explosionResistance(15.0F)
             .noOcclusion()
-            .isValidSpawn(Blocks::never)
-            .isRedstoneConductor(Blocks::never)
-            .isSuffocating(Blocks::never)
-            .isViewBlocking(Blocks::never)
+            .isValidSpawn(ModBlocks::never)
+            .isRedstoneConductor(ModBlocks::never)
+            .isSuffocating(ModBlocks::never)
+            .isViewBlocking(ModBlocks::never)
         )
         .blockstate((ctx, provider) -> {
             provider.simpleBlock(ctx.get());
@@ -1010,19 +1014,19 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_SHOVEL)
         .register();
     public static final BlockEntry<FallingBlock> DEEPSLATE_CHIPS = REGISTRATE
-            .block("deepslate_chips", FallingBlock::new)
-            .initialProperties(() -> Blocks.SAND)
-            .simpleItem()
-            .defaultLoot()
-            .tag(BlockTags.MINEABLE_WITH_SHOVEL)
-            .register();
+        .block("deepslate_chips", FallingBlock::new)
+        .initialProperties(() -> Blocks.SAND)
+        .simpleItem()
+        .defaultLoot()
+        .tag(BlockTags.MINEABLE_WITH_SHOVEL)
+        .register();
     public static final BlockEntry<FallingBlock> BLACK_SAND = REGISTRATE
-            .block("black_sand", FallingBlock::new)
-            .initialProperties(() -> Blocks.SAND)
-            .simpleItem()
-            .defaultLoot()
-            .tag(BlockTags.MINEABLE_WITH_SHOVEL)
-            .register();
+        .block("black_sand", FallingBlock::new)
+        .initialProperties(() -> Blocks.SAND)
+        .simpleItem()
+        .defaultLoot()
+        .tag(BlockTags.MINEABLE_WITH_SHOVEL)
+        .register();
     public static final BlockEntry<PiezoelectricCrystalBlock> PIEZOELECTRIC_CRYSTAL =
         REGISTRATE
             .block("piezoelectric_crystal", PiezoelectricCrystalBlock::new)
@@ -1463,5 +1467,13 @@ public class ModBlocks {
         .register();
 
     public static void register() {
+    }
+
+    public static boolean never(BlockState state, BlockGetter blockGetter, BlockPos pos, EntityType<?> entity) {
+        return false;
+    }
+
+    public static boolean never(BlockState state, BlockGetter blockGetter, BlockPos pos) {
+        return false;
     }
 }
