@@ -13,6 +13,7 @@ import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FallingBlock;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
@@ -88,10 +89,9 @@ abstract class AnvilBlockMixin extends FallingBlock {
             magnet = magnet.above();
             BlockState state1 = level.getBlockState(magnet);
             if (!(state1.getBlock() instanceof MagnetBlock) || state1.getValue(LIT)) {
-                if (level.isEmptyBlock(magnet)) continue;
+                if (level.isEmptyBlock(magnet) || state1.getBlock() instanceof LiquidBlock) continue;
                 else return;
             }
-            if (!level.isEmptyBlock(magnet.below())) return;
             level.setBlockAndUpdate(magnet.below(), state);
             level.setBlockAndUpdate(anvil, Blocks.AIR.defaultBlockState());
             AnimateAscendingBlockEntity.animate(level, anvil, state, magnet.below());
