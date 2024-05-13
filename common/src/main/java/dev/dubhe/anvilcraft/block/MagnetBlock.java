@@ -12,6 +12,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -110,8 +111,7 @@ public class MagnetBlock extends Block {
                 }
             }
             BlockState blockState = level.getBlockState(currentPos);
-            // 使用!blockState.getFluidState().isEmpty()判断会将含水方块视为流体
-            if (level.isEmptyBlock(currentPos) || blockState.is(Blocks.WATER) || blockState.is(Blocks.LAVA)) {
+            if (level.isEmptyBlock(currentPos) || blockState.getBlock() instanceof LiquidBlock) {
                 continue;
             }
             return;
