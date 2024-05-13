@@ -9,6 +9,8 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.state.Orientation;
 import java.util.List;
 import javax.annotation.Nonnull;
+
+import io.github.fabricators_of_create.porting_lib.tags.Tags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -20,6 +22,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -238,6 +241,7 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
         Direction direction = orientation.getDirection();
         BlockState blockState = level.getBlockState(blockPos.relative(direction, distance));
         if (canNotBePlaced(level, blockState)) {
+            // 不能放置方块，方法直接结束
             return;
         }
         // 获取放置方块类型
@@ -265,14 +269,21 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
             if (itemEntityList.isEmpty()) {
                 return;
             }
-            itemEntity = itemEntityList.get(0);
-            itemStack = itemEntity.getItem();
-            if (!(itemStack.getItem() instanceof BlockItem blockItem)) {
+            for (ItemEntity entity : itemEntityList) {
+                if (entity.getItem().getItem() instanceof BlockItem blockItem) {
+                    itemEntity = entity;
+                    itemStack = entity.getItem();
+                    placeItem = blockItem;
+                    break;
+                }
+            }
+            if (itemEntity == null || itemStack == null) {
                 return;
             }
-            placeItem = blockItem;
         }
-        if (placeItem == null) return;
+        if (placeItem == null) {
+            return;
+        }
         // 检查海龟蛋，海泡菜，蜡烛是否可以被放置
         if ((blockState.is(Blocks.TURTLE_EGG)
                 || blockState.is(Blocks.SEA_PICKLE)
@@ -282,14 +293,23 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
         }
         BlockPos placePos = blockPos.relative(direction, distance);
         // 放置方块
-        if (anvilCraftBlockPlacer.placeBlock(level, placePos, orientation, placeItem)
-            == InteractionResult.FAIL) return;
+        if (anvilCraftBlockPlacer.placeBlock(level, placePos, orientation, placeItem) == InteractionResult.FAIL) {
+            return;
+        }
         // 清除消耗的物品
         if (itemDepository != null) {
+            // 处理细雪桶
+            // TODO 需要帮助：无法直接操作容器或实体身上的物品栏
             itemDepository.extract(slot, 1, false);
         } else if (itemEntity != null && itemStack != null) {
-            itemStack.setCount(itemStack.getCount() - 1);
-            itemEntity.setItem(itemStack);
+            int count = itemStack.getCount();
+            // 处理细雪桶
+            if (itemStack.is(Items.POWDER_SNOW_BUCKET)) {
+                itemEntity.setItem(new ItemStack(Items.BUCKET, count));
+            } else {
+                itemStack.setCount(count - 1);
+                itemEntity.setItem(itemStack);
+            }
         }
     }
 
