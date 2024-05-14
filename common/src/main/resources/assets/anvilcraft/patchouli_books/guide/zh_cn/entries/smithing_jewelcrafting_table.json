@@ -1,0 +1,17 @@
+{
+    "name": "珠宝加工台",
+    "category": "anvilcraft:smithing_system",
+    "icon": "anvilcraft:jewelcrafting_table",
+    "sortnum": 21,
+    "pages": [
+        {
+            "type": "patchouli:text",
+            "text": "是村民的工作方块。"
+        },
+		{
+            "type": "patchouli:crafting",
+            "recipe":"anvilcraft:jewelcrafting_table",
+			"text": "将珠宝加工台作为工作方块的村民将成为珠宝匠，可以与之交易一些铁砧工艺相关物品，包括重要的锻造模板。"
+        }
+    ]
+}
