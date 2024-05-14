@@ -62,7 +62,12 @@
     {
       "type": "patchouli:spotlight",
       "item": "anvilcraft:hollow_magnet_block",
-      "text": "$(l)Manually$() throw the iron ingots into the hole of the hollow magnet block $(l)One by One$(), and the iron ingots are likely to be converted into magnet ingots, which is another method of magnet regeneration."
+      "text": "$(l)Manually$() throw the iron ingots into the hole of the hollow magnet block $(l)One by One$(), and the iron ingots are likely to be converted into magnet ingots, which is another method of magnet regeneration. Other magnet blocks can also be crafted."
+    },
+	{
+        "type": "patchouli:crafting",
+        "recipe":"anvilcraft:hollow_magnet_block",
+        "recipe2":"anvilcraft:magnet_block"
     }
   ]
 }

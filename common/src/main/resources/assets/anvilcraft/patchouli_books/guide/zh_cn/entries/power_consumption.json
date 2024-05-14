@@ -1,5 +1,5 @@
 {
-    "name": "电能消耗",
+    "name": "电能使用",
     "category": "anvilcraft:power_system",
     "icon": "anvilcraft:heater",
     "sortnum": 13,
@@ -22,6 +22,11 @@
             "type": "patchouli:crafting",
             "recipe":"anvilcraft:power_converter_big",
 			"text": "$(item)能量转换器$()根据大小，耗电功率分别为1MW，3MW，9MW，可以为其附着的方块提供FE/RF/AE能量，每MW功率产生80FE/t，但有10%损耗。（配置文件可以调整每MW功率转化的量以及损耗系数）"
+        },
+		{
+            "type": "patchouli:crafting",
+            "recipe":"anvilcraft:item_collector",
+			"text": "$(item)物品收集器$()耗电功率随着手动设置的范围和冷却改变，可以收集大范围的掉落物，可以设置过滤。"
         }
     ]
 }
