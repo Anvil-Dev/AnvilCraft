@@ -69,7 +69,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
 
     @ExpectPlatform
     public static AutoCrafterBlockEntity createBlockEntity(
-        BlockEntityType<?> type, BlockPos pos, BlockState blockState
+            BlockEntityType<?> type, BlockPos pos, BlockState blockState
     ) {
         throw new AssertionError();
     }
@@ -109,9 +109,9 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
         if (!canCraft()) return;
         ItemStack result;
         Optional<AutoCrafterCache> cacheOptional = cache
-            .stream()
-            .filter(recipe -> recipe.test(craftingContainer))
-            .findFirst();
+                .stream()
+                .filter(recipe -> recipe.test(craftingContainer))
+                .findFirst();
         Optional<CraftingRecipe> optional;
         NonNullList<ItemStack> remaining;
         if (cacheOptional.isPresent()) {
@@ -145,7 +145,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
         result.setCount(result.getCount() * times);
         remaining.forEach(stack -> stack.setCount(stack.getCount() * times));
         IItemDepository itemDepository = ItemDepositoryHelper.getItemDepository(
-            level, getBlockPos().relative(getDirection()), getDirection().getOpposite()
+                level, getBlockPos().relative(getDirection()), getDirection().getOpposite()
         );
         if (itemDepository != null) {
             // 尝试向容器插入物品
@@ -213,13 +213,21 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
      * @return 红石信号强度
      */
     public int getRedstoneSignal() {
-        int i = 0;
-        for (int j = 0; j < depository.getSlots(); ++j) {
-            ItemStack itemStack = depository.getStack(j);
-            if (itemStack.isEmpty() && !depository.isSlotDisabled(j)) continue;
-            ++i;
+        int strength = 0;
+        for (int index = 0; index < depository.getSlots(); index++) {
+            ItemStack itemStack = depository.getStack(index);
+            // 槽位为未设置过滤的已禁用槽位
+            if (depository.isSlotDisabled(index) && depository.getFilter(index).isEmpty()) {
+                strength++;
+                continue;
+            }
+            // 槽位上没有物品
+            if (itemStack.isEmpty()) {
+                continue;
+            }
+            strength++;
         }
-        return i;
+        return strength;
     }
 
     @Nullable
@@ -259,7 +267,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
          * @param remaining 返还物品
          */
         public AutoCrafterCache(
-            @NotNull Container container, Optional<CraftingRecipe> recipe, NonNullList<ItemStack> remaining
+                @NotNull Container container, Optional<CraftingRecipe> recipe, NonNullList<ItemStack> remaining
         ) {
             this.container = new SimpleContainer(container.getContainerSize());
             for (int i = 0; i < container.getContainerSize(); i++) {
@@ -287,9 +295,9 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
         Level level = this.getLevel();
         if (level == null) return;
         ItemEntity itemEntity = new ItemEntity(
-            level, center.x, center.y, center.z,
-            stack,
-            0.25 * step.x, 0.25 * step.y, 0.25 * step.z
+                level, center.x, center.y, center.z,
+                stack,
+                0.25 * step.x, 0.25 * step.y, 0.25 * step.z
         );
         itemEntity.setDefaultPickUpDelay();
         level.addFreshEntity(itemEntity);
