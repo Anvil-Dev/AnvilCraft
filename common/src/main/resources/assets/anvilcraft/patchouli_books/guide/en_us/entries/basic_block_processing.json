@@ -33,7 +33,7 @@
     },
     {
       "type": "patchouli:multiblock",
-      "name": "Single Block Processing: Crush",
+      "name": "Crush",
       "multiblock": {
         "mapping": {
           "A": "minecraft:anvil",
@@ -52,11 +52,11 @@
     },
     {
       "type": "patchouli:text",
-      "text": "Cobblestone→Gravel→Sand$(br)Polished Granite→Granite→Red Sand$(br)Polished Andesite→Andesite→Cinerite$(br)Polished Diorite→Diorite→Quartz Sand$(br)Stone Bricks→Cracked Stone Brick$(br)Deepslate Bricks→Cracked Deepslate Bricks$(br)Deepslate Tiles→Cracked Deepslate Tiles$(br)Nether Bricks→Cracked Nether Bricks$(br)Polished Blackstone Bricks→Cracked Polished Blackstone Bricks$(br)Netherrack→Nether Dust$(br)End Stone→End Dust$(br)Soul Soil→Soul Sand$(br)Deepslate→Deepslate Chips$(br)Blackstone→Black Sand"
+      "text": "Cobblestone → Gravel → Sand; Polished Granite → Granite → Red Sand;$(br)Polished Andesite → Andesite → Cinerite;$(br)Polished Diorite → Diorite → Quartz Sand;$(br)Stone Bricks → Cracked Stone Brick;$(br)Deepslate Bricks → Cracked Deepslate Bricks;$(br)Deepslate Tiles → Cracked Deepslate Tiles;$(br)Nether Bricks → Cracked Nether Bricks;$(br)Polished Blackstone Bricks → Cracked Polished Blackstone Bricks;$(br)Netherrack → Nether Dust;$(br)End Stone → End Dust;$(br)Soul Soil → Soul Sand;$(br)Deepslate → Deepslate Chips;$(br)Blackstone → Black Sand"
     },
     {
       "type": "patchouli:multiblock",
-      "name": "Double Block Processing: Press",
+      "name": "Press",
       "multiblock": {
         "mapping": {
           "A": "minecraft:anvil",
@@ -77,11 +77,11 @@
     },
     {
       "type": "patchouli:text",
-      "text": "Moss Block+Dirt→Grass Block$(br)Any Leaves+Dirt→Podzol$(br)Any Mushroom Block+Dirt→Mycelium$(br)Nether Wart Block+Netherrack→Crimson Nylium$(br)Warped Wart Block+Netherrack→Warped Nylium$(br)Stone+Stone→Deepslate$(br)Ice+Ice→Packed Ice$(br)Packed Ice+Packed Ice→Blue Ice$(br)Basalt+Basalt→Blackstone"
+      "text": "Moss Block + Dirt → Grass Block;$(br)Any Leaves + Dirt → Podzol;$(br)Any Mushroom Block + Dirt → Mycelium;$(br)Nether Wart Block + Netherrack → Crimson Nylium;$(br)Warped Wart Block + Netherrack → Warped Nylium;$(br)Stone + Stone → Deepslate;$(br)Ice + Ice → Packed Ice;$(br)Packed Ice + Packed Ice → Blue Ice;$(br)Basalt + Basalt → Blackstone"
     },
     {
       "type": "patchouli:multiblock",
-      "name": "Double Block Processing: Daub",
+      "name": "Daub",
       "multiblock": {
         "mapping": {
           "A": "minecraft:anvil",
@@ -102,11 +102,11 @@
     },
     {
       "type": "patchouli:text",
-      "text": "Moss Block+Cobblestone→Mossy Stone$(br)Moss Block+Stone Bricks→Moss Stone Bricks$(br)Honeycomb Block+Any Copper Block→Corresponding Waxed Copper Block"
+      "text": "Moss Block + Cobblestone → Mossy Stone;$(br)Moss Block + Stone Bricks → Moss Stone Bricks;$(br)Honeycomb Block + Any Copper Block → Corresponding Waxed Copper Block"
     },
     {
       "type": "patchouli:multiblock",
-      "name": "Block+Cauldron: Squeeze",
+      "name": "Squeeze",
       "multiblock": {
         "mapping": {
           "A": "minecraft:anvil",
@@ -128,11 +128,11 @@
     },
     {
       "type": "patchouli:text",
-      "text": "Wet Sponge→Sponge+Water$(br)Moss blocks→Moss Carpet+Water$(br)Magma Block→Netherrack+Lava$(br)Snow Block→Ice+Powder Snow$(br)Full Bee Nest→Empty Bee Nest+Honey((Specially, when there are three layers of honey below, if you continue to squeeze the full bee nest, it will be crushed into a honey block. The above bee nest can be replaced with beehive)"
+      "text": "Wet Sponge → Sponge + Water;$(br)Moss blocks → Moss Carpet + Water;$(br)Magma Block → Netherrack + Lava;$(br)Snow Block → Ice + Powder Snow;$(br)Full Bee Nest → Empty Bee Nest + Honey(Specially, when there are three layers of honey below, if you continue to squeeze the full bee nest, it will be crushed into a honey block. The above bee nest can be replaced with beehive)"
     },
     {
       "type": "patchouli:multiblock",
-      "name": "Block+Stonecutter: Destroy",
+      "name": "break",
       "multiblock": {
         "mapping": {
           "A": "minecraft:anvil",

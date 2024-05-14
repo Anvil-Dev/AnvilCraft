@@ -1,5 +1,5 @@
 {
-  "name": "Power Consumption",
+  "name": "Power Usage",
   "category": "anvilcraft:power_system",
   "icon": "anvilcraft:heater",
   "sortnum": 13,
@@ -22,6 +22,11 @@
       "type": "patchouli:crafting",
       "recipe": "anvilcraft:power_converter_big",
       "text": "The $(item)Power Converter$()'s power consumption is 1MW, 3MW or 9MW respectively accroding to the size. It can provide FE/RF/AE energy to the block it is attached to. Each MW of power produces 80FE/t, but there is a 10% loss (The power conversion efficiency and the loss can be adjusted in the configuration file)."
-    }
+    },
+		{
+            "type": "patchouli:crafting",
+            "recipe":"anvilcraft:item_collector",
+			"text": "$(item)物品收集器$()耗电功率随着手动设置的范围和冷却改变，可以收集大范围的掉落物，可以设置过滤。"
+        }
   ]
 }

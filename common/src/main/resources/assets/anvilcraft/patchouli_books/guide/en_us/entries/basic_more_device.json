@@ -1,5 +1,5 @@
 {
-  "name": "Bisic More Device",
+  "name": "More Practical Device",
   "category": "anvilcraft:basic_gameplay",
   "icon": "anvilcraft:block_placer",
   "sortnum": 5,
@@ -8,6 +8,11 @@
       "type": "patchouli:text",
       "text": "The equipments in this entry can help you automate at an early stage."
     },
+		{
+            "type": "patchouli:crafting",
+            "recipe":"anvilcraft:magnet",
+			"text": "$(item)手持磁铁$()右键使用将附近物品吸引到脚下。"
+        },
     {
       "type": "patchouli:crafting",
       "recipe": "anvilcraft:crab_trap",
@@ -23,6 +28,11 @@
       "recipe": "anvilcraft:block_placer",
       "text": "$(item)Block Placer$() will place a block when there is a redstone signal or when hit by an anvil. Placed block items are taken from the container or drops behind it. The redstone signal causes it to place a block closely in front of it. Hit by an anvil, it will place the block n blocks away based on the height n of the anvil's fall. It can be pushed and pulled by pistons."
     },
+		{
+            "type": "patchouli:crafting",
+            "recipe":"anvilcraft:block_devourer",
+			"text": "$(item)方块吞噬器$()有红石信号或被铁砧砸时破坏前方方块，红石激活范围3x3，铁砧激活根据高度1和2分别为5x5和7x7，掉落物会尝试进入吞噬器后方的方块、实体内，无法进入则原地掉落。世界基质方块如石头、下界岩等只有极少概率掉落。"
+        },
     {
       "type": "patchouli:crafting",
       "recipe": "anvilcraft:chute",

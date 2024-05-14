@@ -10,6 +10,11 @@
         },
 		{
             "type": "patchouli:crafting",
+            "recipe":"anvilcraft:magnet",
+			"text": "$(item)手持磁铁$()右键使用将附近物品吸引到脚下。"
+        },
+		{
+            "type": "patchouli:crafting",
             "recipe":"anvilcraft:crab_trap",
 			"text": "$(item)蟹笼$()放置在水面，可以自动产出鱼获，四面紧邻的方块至少三个为水源或含水方块时正常工作。右键或铁砧砸之使其吐出产物。不同生物群系产出略有不同，但都会产出$(item)蟹钳$()。"
         },
@@ -22,6 +27,11 @@
             "type": "patchouli:crafting",
             "recipe":"anvilcraft:block_placer",
 			"text": "$(item)方块放置器$()有红石信号或被铁砧砸时放置方块，方块物品从其背后的容器方块、实体库存、掉落物中取。红石信号使其放置在面前，铁砧根据下落高度n使其间隔n格放置。可以被活塞推拉。"
+        },
+		{
+            "type": "patchouli:crafting",
+            "recipe":"anvilcraft:block_devourer",
+			"text": "$(item)方块吞噬器$()有红石信号或被铁砧砸时破坏前方方块，红石激活范围3x3，铁砧激活根据高度1和2分别为5x5和7x7，掉落物会尝试进入吞噬器后方的方块、实体内，无法进入则原地掉落。世界基质方块如石头、下界岩等只有极少概率掉落。"
         },
 		{
             "type": "patchouli:crafting",

@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.api.hammer;
 
+import dev.dubhe.anvilcraft.init.ModBlockTags;
 import net.minecraft.world.level.block.Block;
 
 import java.util.HashMap;
@@ -15,9 +16,20 @@ public class HammerManager {
         HammerManager.INIT_CHANGE.put(block, changeable);
     }
 
+    /**
+     * 获取方块修改方法实现
+     *
+     * @param block 方块
+     * @return 方块修改方法实现
+     */
     public static IHammerChangeable getChange(Block block) {
         if (block instanceof IHammerChangeable changeable) return changeable;
-        return HammerManager.CHANGE.getOrDefault(block, IHammerChangeableBlock.EMPTY);
+        return HammerManager.CHANGE.getOrDefault(
+            block,
+            block.defaultBlockState().is(ModBlockTags.HAMMER_CHANGEABLE)
+                ? IHammerChangeableBlock.DEFAULT
+                : IHammerChangeableBlock.EMPTY
+        );
     }
 
     /**

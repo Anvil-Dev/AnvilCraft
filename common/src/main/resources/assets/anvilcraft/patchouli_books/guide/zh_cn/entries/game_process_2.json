@@ -62,7 +62,12 @@
 		{
             "type": "patchouli:spotlight",
             "item":"anvilcraft:hollow_magnet_block",
-			"text": "$(l)人工$()将铁锭$(l)逐个$()丢入空心磁铁块中央的洞，铁锭有概率转化为磁铁锭，这是磁铁再生的另一个方法。"
+			"text": "$(l)人工$()将铁锭$(l)逐个$()丢入空心磁铁块中央的洞，铁锭有概率转化为磁铁锭，这是磁铁再生的另一个方法。其他磁铁块也可再合成。"
+        },
+		{
+            "type": "patchouli:crafting",
+            "recipe":"anvilcraft:hollow_magnet_block",
+            "recipe2":"anvilcraft:magnet_block"
         }
     ]
 }
