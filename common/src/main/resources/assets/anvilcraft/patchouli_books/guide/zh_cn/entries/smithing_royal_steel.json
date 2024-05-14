@@ -1,0 +1,61 @@
+{
+    "name": "皇家钢",
+    "category": "anvilcraft:smithing_system",
+    "icon": "anvilcraft:royal_steel_ingot",
+    "sortnum": 22,
+    "pages": [
+        {
+            "type": "patchouli:text",
+            "text": "皇家钢同时具有金属和宝石的性质，拥有很高的耐久和很高的附魔亲和性。"
+        },
+		{
+            "type": "patchouli:spotlight",
+            "item":"anvilcraft:royal_steel_ingot",
+			"text": "在下方有$(l:power_consumption)加热器$(/l)的炼药锅中，使用3铁锭，1钻石，1紫水晶碎片和1绿宝石（绿宝石可替换为黄玉、蓝宝石、红宝石）铁砧加工。"
+        },
+		{
+            "type": "patchouli:crafting",
+            "recipe":"anvilcraft:royal_steel_block",
+            "recipe2":"anvilcraft:royal_steel_nugget"
+        },
+		{
+            "type": "patchouli:spotlight",
+            "item":"anvilcraft:royal_steel_upgrade_smithing_template",
+			"text": "在村庄铁匠铺可以找到锻造模板，与$(l:smithing_jewelcrafting_table)珠宝匠$(/l)村民交易也可以得到锻造模板。"
+        },
+		{
+            "type": "patchouli:smithing",
+            "recipe":"anvilcraft:smithing/royal_smithing_table",
+			"text": "这是第一个你应该用皇家钢升级的物品，因为有了它之后你锻造的过程就不会再消耗任何锻造模板。"
+        },
+		{
+            "type": "patchouli:smithing",
+            "recipe":"anvilcraft:smithing/royal_anvil",
+			"text": "这个铁砧无论从多高落下都不会损坏，使用它也不会造成损坏。皇家铁砧可以让你在生存模式给物品强行添加一些不兼容的附魔，也不再会有过于昂贵。使用带特殊字符的命名牌还可以给物品名称改颜色和格式。"
+        },
+		{
+            "type": "patchouli:smithing",
+            "anchor": "royal_grindstone",
+            "recipe":"anvilcraft:smithing/royal_grindstone",
+			"text": "在皇家砂轮上使用金锭给物品祛除诅咒和附魔惩罚，正常附魔会被保留。金锭会转化为诅咒金锭。"
+        },
+		{
+            "type": "patchouli:smithing",
+            "recipe":"anvilcraft:smithing/royal_steel_pickaxe",
+            "recipe2":"anvilcraft:smithing/royal_steel_axe",
+			"text": "使用皇家钢锭升级你的工具，它们将自带耐久III。"
+        },
+		{
+            "type": "patchouli:smithing",
+            "recipe":"anvilcraft:smithing/royal_steel_shovel",
+            "recipe2":"anvilcraft:smithing/royal_steel_hoe",
+			"text": "使用皇家钢锭升级你的工具，它们将自带耐久III。"
+        },
+		{
+            "type": "patchouli:smithing",
+            "recipe":"anvilcraft:smithing/royal_steel_sword",
+            "recipe2":"anvilcraft:smithing/royal_anvil_hammer",
+			"text": "使用皇家钢锭升级你的武器，它们将自带耐久III。"
+        }
+    ]
+}

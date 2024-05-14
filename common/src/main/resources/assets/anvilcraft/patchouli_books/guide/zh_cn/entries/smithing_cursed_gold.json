@@ -1,0 +1,27 @@
+{
+    "name": "诅咒金",
+    "category": "anvilcraft:smithing_system",
+    "icon": "anvilcraft:cursed_gold_ingot",
+    "sortnum": 23,
+    "pages": [
+        {
+            "type": "patchouli:text",
+            "text": "散发着诅咒气息的物品，携带者将受到debuff；携带者使用皇家铁砧时会被雷劈。"
+        },
+		{
+            "type": "patchouli:spotlight",
+            "item":"anvilcraft:cursed_gold_ingot",
+			"text": "使用$(l:smithing_royal_steel#royal_grindstone)皇家砂轮$()祛除物品的诅咒和附魔惩罚时，金锭会转化为诅咒金锭。"
+        },
+		{
+            "type": "patchouli:crafting",
+            "recipe":"anvilcraft:cursed_gold_block",
+            "recipe2":"anvilcraft:cursed_gold_nugget"
+        },
+		{
+            "type": "patchouli:spotlight",
+            "item":"anvilcraft:corrupted_beacon",
+			"text": "完全使用诅咒金块作为信标底座，并使用诅咒金锭激活信标，信标有概率转化为腐化信标。底座层数越多，转化概率越大。使用诅咒金锭激活信标时天气将转为雷雨天。"
+        }
+    ]
+}

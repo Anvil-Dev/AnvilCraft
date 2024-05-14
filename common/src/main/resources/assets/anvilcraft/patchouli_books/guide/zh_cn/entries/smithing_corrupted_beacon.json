@@ -1,0 +1,41 @@
+{
+    "name": "腐化信标",
+    "category": "anvilcraft:smithing_system",
+    "icon": "anvilcraft:corrupted_beacon",
+    "sortnum": 24,
+    "pages": [
+        {
+            "type": "patchouli:text",
+            "text": "释放了被封印在信标之中的凋灵的力量。可以给于光柱内的生物凋灵效果，部分生物会转化为另一种生物，还可以配合铁砧加工。"
+        },
+		{
+            "type": "patchouli:text",
+            "text": "生物转化：$(br)猪→疣猪兽；$(br)牛→掠夺兽；$(br)守卫者→远古守卫者；$(br)猪灵→猪灵蛮兵；$(br)村民→30%掠夺者，60%卫道士，10%唤魔者；$(br)悦灵→恼鬼；$(br)蝙蝠→幻翼；$(br)马→10%僵尸马，90%骷髅马；$(br)蠹虫→末影螨"
+        },
+		{
+            "type": "patchouli:multiblock",
+            "name": "时移",
+			"multiblock": {
+				"mapping": {
+					"C": "anvilcraft:cursed_gold_block",
+					"B": "anvilcraft:corrupted_beacon[lit=true]",
+					"A": "minecraft:anvil",
+					"M": "anvilcraft:hollow_magnet_block[lit=false]"
+				},
+				"pattern": [
+					[ "   ", " M ", "   " ], 
+					[ "   ", " A ", "   " ], 
+					[ "   ", "   ", "   " ], 
+					[ "   ", " B ", "   " ],
+					[ "CCC", "C0C", "CCC" ]
+				]
+			},
+			"enable_visualize":"true",
+			"text": "想要实现时移操作，腐化信标必须是激活状态，这要求上方的磁铁块需要是空心磁铁块。"
+        },
+		{
+            "type": "patchouli:text",
+            "text": "时移：$(br)黑曜石→哭泣黑曜石；$(br)木炭→煤炭；$(br)金属块→粗矿；$(br)玫瑰丛→凋零玫瑰；$(br)晶洞→紫水晶母岩；$(br)火山灰→凝灰岩；$(br)下界尘→灵魂土；$(br)石灰粉→方解石"
+        }
+    ]
+}

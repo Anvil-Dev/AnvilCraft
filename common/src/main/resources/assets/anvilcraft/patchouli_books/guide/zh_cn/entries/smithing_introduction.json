@@ -1,0 +1,12 @@
+{
+    "name": "锻造系统介绍",
+    "category": "anvilcraft:smithing_system",
+    "icon": "anvilcraft:royal_anvil",
+    "priority": "true",
+    "pages": [
+        {
+            "type": "patchouli:text",
+            "text": "原版附魔有着诸多限制，通过使用更强的材料升级你的铁砧等锻造方块，逐步解除这些限制。这个过程的副产物还将引起一些奇妙的变化。"
+        }
+    ]
+}
