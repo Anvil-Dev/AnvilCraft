@@ -10,27 +10,17 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.Container;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.vehicle.ContainerEntity;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.CandleBlock;
-import net.minecraft.world.level.block.RenderShape;
-import net.minecraft.world.level.block.SeaPickleBlock;
-import net.minecraft.world.level.block.TurtleEggBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -165,7 +155,7 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
             if (triggered) {
                 return;
             }
-            tryPlaceBlock(1, level, pos, state.getValue(ORIENTATION));
+            placeBlock(1, level, pos, state.getValue(ORIENTATION));
         }
     }
 
@@ -235,13 +225,7 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
      * @param blockPos    放置位置
      * @param orientation 放置方向
      */
-    @Deprecated
-    public void placeBlock(
-            int distance,
-            Level level,
-            BlockPos blockPos,
-            Orientation orientation
-    ) {
+    public void placeBlock(int distance, Level level, BlockPos blockPos, Orientation orientation) {
         // 判断是放置位置是否不能放置方块
         Direction direction = orientation.getDirection();
         BlockState blockState = level.getBlockState(blockPos.relative(direction, distance));
@@ -250,39 +234,34 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
             return;
         }
         // 获取放置方块类型
-        BlockItem placeItem = null;
-        IItemDepository itemDepository =
-                ItemDepositoryHelper.getItemDepository(
-                        level,
-                        blockPos.relative(direction.getOpposite()),
-                        direction
-                );
+        ItemStack placeItem = null;
+        IItemDepository itemDepository = ItemDepositoryHelper.getItemDepository(level,
+                blockPos.relative(direction.getOpposite()), direction);
         int slot;
         for (slot = 0; itemDepository != null && slot < itemDepository.getSlots(); slot++) {
             ItemStack blockItemStack = itemDepository.extract(slot, 1, true);
-            if (!blockItemStack.isEmpty() && blockItemStack.getItem() instanceof BlockItem blockItem) {
-                placeItem = blockItem;
+            if (!blockItemStack.isEmpty() && blockItemStack.getItem() instanceof BlockItem) {
+                placeItem = blockItemStack;
                 break;
             }
         }
         ItemEntity itemEntity = null;
-        ItemStack itemStack = null;
+        // 从放置器背后的掉落物中获取物品
         if (itemDepository == null) {
             AABB aabb = new AABB(blockPos.relative(direction.getOpposite()));
-            List<ItemEntity> itemEntityList =
-                    level.getEntities(EntityTypeTest.forClass(ItemEntity.class), aabb, Entity::isAlive);
-            if (itemEntityList.isEmpty()) {
+            List<ItemEntity> entities
+                    = level.getEntities(EntityTypeTest.forClass(ItemEntity.class), aabb, Entity::isAlive);
+            if (entities.isEmpty()) {
                 return;
             }
-            for (ItemEntity entity : itemEntityList) {
-                if (entity.getItem().getItem() instanceof BlockItem blockItem) {
+            for (ItemEntity entity : entities) {
+                if (entity.getItem().getItem() instanceof BlockItem) {
                     itemEntity = entity;
-                    itemStack = entity.getItem();
-                    placeItem = blockItem;
+                    placeItem = entity.getItem();
                     break;
                 }
             }
-            if (itemEntity == null || itemStack == null) {
+            if (itemEntity == null) {
                 return;
             }
         }
@@ -290,127 +269,36 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
             return;
         }
         // 检查海龟蛋，海泡菜，蜡烛是否可以被放置
-        if ((blockState.is(Blocks.TURTLE_EGG)
-                || blockState.is(Blocks.SEA_PICKLE)
+        BlockItem blockItem = (BlockItem) placeItem.getItem();
+        if ((blockState.is(Blocks.TURTLE_EGG) || blockState.is(Blocks.SEA_PICKLE)
                 || (blockState.getBlock() instanceof CandleBlock))
-                && blockState.getBlock() != placeItem.getBlock()) {
+                && blockState.getBlock() != blockItem.getBlock()) {
             return;
         }
         BlockPos placePos = blockPos.relative(direction, distance);
         // 放置方块
-        if (anvilCraftBlockPlacer.placeBlock(level, placePos, orientation, placeItem) == InteractionResult.FAIL) {
+        if (anvilCraftBlockPlacer.placeBlock(level, placePos, orientation,
+                blockItem, placeItem) == InteractionResult.FAIL) {
             return;
         }
         // 清除消耗的物品
-        if (itemDepository != null) {
-            // 处理细雪桶：无法直接操作容器或实体身上的物品栏
-            itemDepository.extract(slot, 1, false);
-        } else if (itemEntity != null && itemStack != null) {
-            int count = itemStack.getCount();
+        if (itemDepository == null) {
+            if (itemEntity == null) {
+                return;
+            }
+            int count = itemEntity.getItem().getCount();
             // 处理细雪桶
-            if (itemStack.is(Items.POWDER_SNOW_BUCKET)) {
+            if (itemEntity.getItem().is(Items.POWDER_SNOW_BUCKET)) {
                 itemEntity.setItem(new ItemStack(Items.BUCKET, count));
             } else {
-                itemStack.setCount(count - 1);
-                itemEntity.setItem(itemStack);
+                itemEntity.getItem().shrink(1);
             }
-        }
-    }
-
-    /**
-     * 本方法是{@link BlockPlacerBlock#placeBlock(int, Level, BlockPos, Orientation)}的重新实现，旧的放置方块的方法中有个问题，
-     * 即放置细雪桶时，不会返还空桶。由于旧代码的限制，修复这个问题较为困难，因为它不能对容器或实体的物品栏直接进行修改，只能修改物品堆对象，
-     * 然而物品堆不是完全可变的，内部包含的物品被final修饰无法修改，为了实现返还空桶的功能，必须直接对物品栏进行操作，所以在本方法中，
-     * 当需要放置某个方块时，直接在方块或实体的物品栏中获取对应物品，对于掉落物实体，也封装成一个物品栏，以便在需要时能够方便地进行修改，
-     * 实现替换物品的功能。此外，本方法还可以放置物品展示框里的物品
-     *
-     * @param distance    放置距离
-     * @param level       放置世界
-     * @param blockPos    方块放置器的位置
-     * @param orientation 方块放置器的朝向
-     * @author cdqtzrc
-     */
-    public void tryPlaceBlock(int distance, Level level, BlockPos blockPos, Orientation orientation) {
-        // 判断是放置位置是否不能放置方块
-        Direction direction = orientation.getDirection();
-        BlockState blockState = level.getBlockState(blockPos.relative(direction, distance));
-        if (canNotBePlaced(level, blockState)) {
-            // 不能放置方块，方法直接结束
-            return;
-        }
-        BlockItem placeItem = null;
-        Container inventory = this.getInventory(level, blockPos.relative(direction.getOpposite()));
-        if (inventory.isEmpty()) {
-            return;
-        }
-        int index;
-        for (index = 0; index < inventory.getContainerSize(); index++) {
-            if (inventory.getItem(index).getItem() instanceof BlockItem blockItem) {
-                placeItem = blockItem;
-                break;
-            }
-        }
-        if (placeItem == null) {
-            return;
-        }
-        // 检查海龟蛋，海泡菜，蜡烛是否可以被放置
-        if ((blockState.is(Blocks.TURTLE_EGG)
-                || blockState.is(Blocks.SEA_PICKLE)
-                || (blockState.getBlock() instanceof CandleBlock))
-                && blockState.getBlock() != placeItem.getBlock()) {
-            return;
-        }
-        BlockPos placePos = blockPos.relative(direction, distance);
-        // 放置方块
-        if (anvilCraftBlockPlacer.placeBlock(level, placePos, orientation, placeItem) == InteractionResult.FAIL) {
-            return;
-        }
-        // 清除消耗的物品
-        ItemStack itemStack = inventory.getItem(index);
-        if (itemStack.is(Items.POWDER_SNOW_BUCKET)) {
-            inventory.setItem(index, new ItemStack(Items.BUCKET, itemStack.getCount()));
-        } else if (inventory instanceof ItemFrameWrapperContainer) {
-            // 正常情况下物品展示框中物品的堆叠数量永远为1
-            inventory.setItem(index, ItemStack.EMPTY);
         } else {
-            itemStack.shrink(1);
+            if (itemDepository.getStack(slot).is(Items.POWDER_SNOW_BUCKET)) {
+                itemDepository.insert(slot, new ItemStack(Items.BUCKET), false);
+            }
+            itemDepository.extract(slot, 1, false);
         }
-    }
-
-    /**
-     * @param level    方块放置器所在的世界
-     * @param blockPos 方块放置器背后的方块坐标
-     * @return 从方块放置器背后的方块或实体中获取一个物品栏
-     */
-    private Container getInventory(Level level, BlockPos blockPos) {
-        BlockEntity blockEntity = level.getBlockEntity(blockPos);
-        // 如果方块是个容器，直接将方块的物品栏返回
-        if (blockEntity instanceof Container container) {
-            return container;
-        }
-        // 获取方块放置器背后的容器实体
-        List<ContainerEntity> entities = level.getEntitiesOfClass(Entity.class, new AABB(blockPos)).stream()
-                .filter(entity -> entity instanceof ContainerEntity)
-                .map(entity -> (ContainerEntity) entity)
-                .toList();
-        // 如果背后有容器实体，将随机一个实体（转化为容器对象后）返回
-        if (!entities.isEmpty()) {
-            return entities.get(level.getRandom().nextInt(0, entities.size()));
-        }
-        // 如果背后没有容器实体，就查找方块后面的掉落物并封装成一个物品栏
-        AABB aabb = new AABB(blockPos);
-        List<ItemEntity> itemEntities
-                = level.getEntities(EntityTypeTest.forClass(ItemEntity.class), aabb, Entity::isAlive);
-        if (!itemEntities.isEmpty()) {
-            return new ItemEntityWrapperContainer(itemEntities);
-        }
-        // 从放置器背后的物品展示框获取物品栏
-        List<ItemFrame> itemFrames = level.getEntities(EntityTypeTest.forClass(ItemFrame.class), aabb, Entity::isAlive);
-        if (itemFrames.isEmpty()) {
-            // 如果放置器背后没有物品展示框，返回空物品栏
-            return new SimpleContainer();
-        }
-        return new ItemFrameWrapperContainer(itemFrames);
     }
 
     /**
@@ -445,83 +333,5 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
         state = state.setValue(ORIENTATION, level.getBlockState(blockPos).getValue(ORIENTATION).next());
         level.setBlockAndUpdate(blockPos, state);
         return true;
-    }
-
-    private abstract static class AbstractWrapperContainer extends SimpleContainer {
-        protected final List<? extends Entity> list;
-
-        private AbstractWrapperContainer(List<? extends Entity> list) {
-            super(list.size());
-            this.list = list;
-            this.init();
-        }
-
-        protected abstract void init();
-
-        protected abstract void setItemStack(int slotIndex, ItemStack itemStack);
-
-        @Override
-        public @NotNull ItemStack removeItem(int slot, int amount) {
-            ItemStack itemStack = super.removeItem(slot, amount);
-            this.setItemStack(slot, this.getItem(slot));
-            return itemStack;
-        }
-
-        @Override
-        public @NotNull ItemStack removeItemNoUpdate(int slot) {
-            ItemStack itemStack = super.removeItemNoUpdate(slot);
-            this.setItemStack(slot, this.getItem(slot));
-            return itemStack;
-        }
-
-        @Override
-        public void setItem(int slot, @NotNull ItemStack stack) {
-            super.setItem(slot, stack);
-            this.setItemStack(slot, this.getItem(slot));
-        }
-
-        @Override
-        public void clearContent() {
-            super.clearContent();
-            for (int index = 0; index < this.getContainerSize(); index++) {
-                this.setItemStack(index, ItemStack.EMPTY);
-            }
-        }
-    }
-
-    private static class ItemEntityWrapperContainer extends AbstractWrapperContainer {
-        private ItemEntityWrapperContainer(List<ItemEntity> list) {
-            super(list);
-        }
-
-        @Override
-        protected void init() {
-            for (int index = 0; index < this.getContainerSize(); index++) {
-                this.setItem(index, ((ItemEntity) list.get(index)).getItem());
-            }
-        }
-
-        @Override
-        protected void setItemStack(int slotIndex, ItemStack itemStack) {
-            ((ItemEntity) this.list.get(slotIndex)).setItem(itemStack);
-        }
-    }
-
-    private static class ItemFrameWrapperContainer extends AbstractWrapperContainer {
-        public ItemFrameWrapperContainer(List<ItemFrame> list) {
-            super(list);
-        }
-
-        @Override
-        protected void init() {
-            for (int index = 0; index < this.getContainerSize(); index++) {
-                this.setItem(index, ((ItemFrame) list.get(index)).getItem());
-            }
-        }
-
-        @Override
-        protected void setItemStack(int slotIndex, ItemStack itemStack) {
-            ((ItemFrame) this.list.get(slotIndex)).setItem(itemStack);
-        }
     }
 }

@@ -32,7 +32,7 @@ public interface IAnvilCraftBlockPlacer {
      * @return 放置结果
      */
     default InteractionResult placeBlock(Level level, BlockPos pos, Orientation orientation,
-        BlockItem blockItem) {
+                                         BlockItem blockItem, ItemStack itemStack) {
         Vec3 clickClickLocation = getPosFromOrientation(orientation);
         double x = clickClickLocation.x;
         double y = clickClickLocation.y;
@@ -46,16 +46,15 @@ public interface IAnvilCraftBlockPlacer {
             false
         );
         BlockPlaceContext blockPlaceContext =
-            new BlockPlaceContext(level,
-            getPlayer(),
-            getPlayer().getUsedItemHand(),
-                new ItemStack(blockItem),
-            blockHitResult
-        );
+            new BlockPlaceContext(level, getPlayer(), getPlayer().getUsedItemHand(), itemStack, blockHitResult);
         BlockState blockState = ((BlockItemInvoker) blockItem).invokerGetPlacementState(blockPlaceContext);
-        if (blockState == null) return InteractionResult.FAIL;
+        if (blockState == null) {
+            return InteractionResult.FAIL;
+        }
         level.setBlockAndUpdate(pos, blockState);
-        blockItem.getBlock().setPlacedBy(level, pos, blockState, getPlayer(), new ItemStack(blockItem));
+        blockItem.getBlock().setPlacedBy(level, pos, blockState, getPlayer(), itemStack);
+        // 使放置的方块实体有NBT
+        BlockItem.updateCustomBlockEntityTag(level, null, pos, itemStack);
         SoundType soundType = blockState.getSoundType();
         level.playSound(
             getPlayer(),
