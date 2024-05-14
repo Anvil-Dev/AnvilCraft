@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=single": {
+      "model": "anvilcraft:block/reinforced_concrete"
+    },
+    "type=top": {
+      "model": "anvilcraft:block/reinforced_concrete_top"
+    },
+    "type=bottom": {
+      "model": "anvilcraft:block/reinforced_concrete_bottom"
+    }
+  }
+}
