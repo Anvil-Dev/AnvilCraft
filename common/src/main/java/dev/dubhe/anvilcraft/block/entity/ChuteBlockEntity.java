@@ -18,7 +18,6 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -112,9 +111,9 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
         if (cooldown <= 0) {
             if (getBlockState().getValue(ChuteBlock.ENABLED)) {
                 IItemDepository depository = ItemDepositoryHelper.getItemDepository(
-                    getLevel(),
-                    getBlockPos().relative(Direction.UP),
-                    Direction.UP.getOpposite()
+                        getLevel(),
+                        getBlockPos().relative(Direction.UP),
+                        Direction.UP.getOpposite()
                 );
                 if (depository != null) {
                     // 尝试从上方容器输入
@@ -123,12 +122,12 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
                     }
                 } else {
                     List<ItemEntity> itemEntities = getLevel().getEntitiesOfClass(
-                        ItemEntity.class, new AABB(getBlockPos().relative(Direction.UP)),
-                        itemEntity -> !itemEntity.getItem().isEmpty());
+                            ItemEntity.class, new AABB(getBlockPos().relative(Direction.UP)),
+                            itemEntity -> !itemEntity.getItem().isEmpty());
                     int prevSize = itemEntities.size();
                     for (ItemEntity itemEntity : itemEntities) {
                         ItemStack remaining = ItemDepositoryHelper.insertItem(
-                            this.depository, itemEntity.getItem(), true
+                                this.depository, itemEntity.getItem(), true
                         );
                         if (!remaining.isEmpty()) continue;
                         ItemDepositoryHelper.insertItem(this.depository, itemEntity.getItem(), false);
@@ -140,9 +139,9 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
                     }
                 }
                 depository = ItemDepositoryHelper.getItemDepository(
-                    getLevel(),
-                    getBlockPos().relative(this.getDirection()),
-                    this.getDirection().getOpposite()
+                        getLevel(),
+                        getBlockPos().relative(this.getDirection()),
+                        this.getDirection().getOpposite()
                 );
                 if (depository != null) {
                     // 尝试向朝向容器输出
@@ -154,8 +153,8 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
                 } else {
                     Vec3 center = getBlockPos().relative(getDirection()).getCenter();
                     List<ItemEntity> itemEntities = getLevel().getEntitiesOfClass(
-                        ItemEntity.class, new AABB(getBlockPos().relative(getDirection())),
-                        itemEntity -> !itemEntity.getItem().isEmpty());
+                            ItemEntity.class, new AABB(getBlockPos().relative(getDirection())),
+                            itemEntity -> !itemEntity.getItem().isEmpty());
                     AABB aabb = new AABB(center.add(-0.125, -0.125, -0.125), center.add(0.125, 0.125, 0.125));
                     if (getLevel().noCollision(aabb)) {
                         for (int i = 0; i < this.depository.getSlots(); i++) {
@@ -170,14 +169,14 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
                                 if (sameItemCount < stack.getItem().getMaxStackSize()) {
                                     ItemStack droppedItemStack = stack.copy();
                                     int droppedItemCount = Math.min(stack.getCount(),
-                                        stack.getMaxStackSize() - sameItemCount);
+                                            stack.getMaxStackSize() - sameItemCount);
                                     droppedItemStack.setCount(droppedItemCount);
                                     stack.setCount(stack.getCount() - droppedItemCount);
                                     if (stack.getCount() == 0) stack = ItemStack.EMPTY;
                                     ItemEntity itemEntity = new ItemEntity(
-                                        getLevel(), center.x, center.y, center.z,
-                                        droppedItemStack,
-                                        0, 0, 0);
+                                            getLevel(), center.x, center.y, center.z,
+                                            droppedItemStack,
+                                            0, 0, 0);
                                     itemEntity.setDefaultPickUpDelay();
                                     getLevel().addFreshEntity(itemEntity);
                                     this.depository.setStack(i, stack);
@@ -202,13 +201,21 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
      * @return 红石信号强度
      */
     public int getRedstoneSignal() {
-        int i = 0;
-        for (int j = 0; j < depository.getSlots(); ++j) {
-            ItemStack itemStack = depository.getStack(j);
-            if (itemStack.isEmpty() && !depository.isSlotDisabled(j)) continue;
-            ++i;
+        int strength = 0;
+        for (int index = 0; index < depository.getSlots(); index++) {
+            ItemStack itemStack = depository.getStack(index);
+            // 槽位为未设置过滤的已禁用槽位
+            if (depository.isSlotDisabled(index) && depository.getFilter(index).isEmpty()) {
+                strength++;
+                continue;
+            }
+            // 槽位上没有物品
+            if (itemStack.isEmpty()) {
+                continue;
+            }
+            strength++;
         }
-        return i;
+        return strength;
     }
 }
 
