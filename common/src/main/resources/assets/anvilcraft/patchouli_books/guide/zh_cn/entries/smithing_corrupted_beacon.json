@@ -17,7 +17,9 @@
             "name": "时移",
 			"multiblock": {
 				"mapping": {
-					"C": "anvilcraft:cursed_gold_block",
+					"G": "anvilcraft:cursed_gold_block",
+					"0": "anvilcraft:cursed_gold_block",
+					"C": "minecraft:cauldron",
 					"B": "anvilcraft:corrupted_beacon[lit=true]",
 					"A": "minecraft:anvil",
 					"M": "anvilcraft:hollow_magnet_block[lit=false]"
@@ -26,8 +28,9 @@
 					[ "   ", " M ", "   " ], 
 					[ "   ", " A ", "   " ], 
 					[ "   ", "   ", "   " ], 
+					[ "   ", " C ", "   " ], 
 					[ "   ", " B ", "   " ],
-					[ "CCC", "C0C", "CCC" ]
+					[ "GGG", "G0G", "GGG" ]
 				]
 			},
 			"enable_visualize":"true",
