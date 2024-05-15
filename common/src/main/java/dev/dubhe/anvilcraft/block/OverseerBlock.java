@@ -99,7 +99,21 @@ public class OverseerBlock extends BaseEntityBlock implements IHammerRemovable {
     public void playerWillDestroy(
             @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player
     ) {
-        if (level.isClientSide) return;
+        if (level.isClientSide) {
+            return;
+        }
+        OverseerBlock.destroyBlock(level, pos, state);
+        super.playerWillDestroy(level, pos, state, player);
+    }
+
+    /**
+     * 破坏监督者方块
+     *
+     * @param level 破坏世界
+     * @param pos   监督者其中一个方块的位置
+     * @param state 监督者的方块状态
+     */
+    public static void destroyBlock(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state) {
         switch (state.getValue(HALF)) {
             case MID -> {
                 level.destroyBlock(pos.above(), false, null);
@@ -114,7 +128,6 @@ public class OverseerBlock extends BaseEntityBlock implements IHammerRemovable {
                 level.destroyBlock(pos.above(2), false, null);
             }
         }
-        super.playerWillDestroy(level, pos, state, player);
     }
 
     @Nullable
