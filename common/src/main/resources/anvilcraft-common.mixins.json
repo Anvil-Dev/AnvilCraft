@@ -20,6 +20,7 @@
     "HoeItemMixin",
     "ItemEntityMixin",
     "LivingEntityMixin",
+    "PistonBaseBlockMixin",
     "PistonStructureResolverMixin",
     "PlayerHitEntityMixin",
     "SolidBucketItemMixin",

@@ -26,7 +26,7 @@ public class AnvilHitBlockPlacerEventListener {
             int distance = (int) event.getFallDistance() + 2;
             distance = Math.min(distance, 5);
             level.setBlock(pos, state.setValue(BlockPlacerBlock.TRIGGERED, true), 2);
-            blockPlacerBlock.tryPlaceBlock(distance, level, pos, state.getValue(BlockPlacerBlock.ORIENTATION));
+            blockPlacerBlock.placeBlock(distance, level, pos, state.getValue(BlockPlacerBlock.ORIENTATION));
             level.scheduleTick(pos, blockPlacerBlock, 4);
         }
     }
