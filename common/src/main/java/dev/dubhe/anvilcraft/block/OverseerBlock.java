@@ -4,9 +4,6 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.OverseerBlockEntity;
 import dev.dubhe.anvilcraft.block.state.Half;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
-
-import javax.annotation.Nonnull;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -30,14 +27,16 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nonnull;
+
 public class OverseerBlock extends BaseEntityBlock implements IHammerRemovable {
 
     private static final VoxelShape OVERSEER_BASE = Shapes.or(
             Block.box(0, 0, 0, 16, 4, 16),
-            Block.box(4, 6, 4, 12, 16, 12)
+            Block.box(2, 8, 2, 14, 16, 14)
     );
-    private static final VoxelShape OVERSEER_MID = Block.box(4, 0, 4, 12, 15, 12);
-    private static final VoxelShape OVERSEER_TOP = Block.box(4, 0, 4, 12, 15, 12);
+    private static final VoxelShape OVERSEER_MID = Block.box(2, 0, 2, 14, 16, 14);
+    private static final VoxelShape OVERSEER_TOP = Block.box(2, 0, 2, 14, 16, 14);
     public static final EnumProperty<Half> HALF = EnumProperty.create("half", Half.class);
     public static final IntegerProperty LEVEL = IntegerProperty.create("level", 0, 3);
 
@@ -92,7 +91,7 @@ public class OverseerBlock extends BaseEntityBlock implements IHammerRemovable {
     ) {
         BlockPos above = pos.above();
         level.setBlockAndUpdate(above, state.setValue(HALF, Half.MID).setValue(LEVEL, 1));
-        above = pos.above();
+        above = above.above();
         level.setBlockAndUpdate(above, state.setValue(HALF, Half.TOP).setValue(LEVEL, 1));
     }
 
@@ -100,7 +99,21 @@ public class OverseerBlock extends BaseEntityBlock implements IHammerRemovable {
     public void playerWillDestroy(
             @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player
     ) {
-        if (level.isClientSide) return;
+        if (level.isClientSide) {
+            return;
+        }
+        OverseerBlock.destroyBlock(level, pos, state);
+        super.playerWillDestroy(level, pos, state, player);
+    }
+
+    /**
+     * 破坏监督者方块
+     *
+     * @param level 破坏世界
+     * @param pos   监督者其中一个方块的位置
+     * @param state 监督者的方块状态
+     */
+    public static void destroyBlock(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state) {
         switch (state.getValue(HALF)) {
             case MID -> {
                 level.destroyBlock(pos.above(), false, null);
@@ -115,7 +128,6 @@ public class OverseerBlock extends BaseEntityBlock implements IHammerRemovable {
                 level.destroyBlock(pos.above(2), false, null);
             }
         }
-        super.playerWillDestroy(level, pos, state, player);
     }
 
     @Nullable
