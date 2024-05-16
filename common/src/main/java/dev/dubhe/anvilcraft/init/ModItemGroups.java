@@ -78,6 +78,7 @@ public class ModItemGroups {
                 entries.accept(ModItems.HARDEND_RESIN.get().getDefaultInstance());
                 entries.accept(ModItems.WOOD_FIBER.get().getDefaultInstance());
                 entries.accept(ModItems.CIRCUIT_BOARD.get().getDefaultInstance());
+                entries.accept(ModItems.DISK.get().getDefaultInstance());
                 entries.accept(ModItems.SPONGE_GEMMULE.get().getDefaultInstance());
                 entries.accept(ModItems.SEA_HEART_SHELL_SHARD.get().getDefaultInstance());
                 entries.accept(ModItems.SEA_HEART_SHELL.get().getDefaultInstance());
