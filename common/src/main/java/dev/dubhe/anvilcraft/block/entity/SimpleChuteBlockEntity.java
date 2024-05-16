@@ -19,6 +19,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 @Getter
 public class SimpleChuteBlockEntity extends BlockEntity {
     private int cooldown = 0;
@@ -78,27 +80,48 @@ public class SimpleChuteBlockEntity extends BlockEntity {
                     }
                 } else {
                     Vec3 center = getBlockPos().relative(getDirection()).getCenter();
+                    List<ItemEntity> itemEntities = getLevel().getEntitiesOfClass(
+                        ItemEntity.class, new AABB(getBlockPos().relative(getDirection())),
+                        itemEntity -> !itemEntity.getItem().isEmpty());
                     AABB aabb = new AABB(center.add(-0.125, -0.125, -0.125), center.add(0.125, 0.125, 0.125));
                     if (getLevel().noCollision(aabb)) {
                         for (int i = 0; i < this.depository.getSlots(); i++) {
                             ItemStack stack = this.depository.getStack(i);
                             if (!stack.isEmpty()) {
-                                ItemEntity itemEntity = new ItemEntity(getLevel(),
-                                    center.x, center.y, center.z, stack, 0, 0, 0);
-                                itemEntity.setDefaultPickUpDelay();
-                                getLevel().addFreshEntity(itemEntity);
-                                this.depository.setStack(i, ItemStack.EMPTY);
-                                break;
+                                int sameItemCount = 0;
+                                for (ItemEntity entity : itemEntities) {
+                                    if (entity.getItem().getItem() == stack.getItem()) {
+                                        sameItemCount += entity.getItem().getCount();
+                                    }
+                                }
+                                if (sameItemCount < stack.getItem().getMaxStackSize()) {
+                                    ItemStack droppedItemStack = stack.copy();
+                                    int droppedItemCount = Math.min(stack.getCount(),
+                                        stack.getMaxStackSize() - sameItemCount);
+                                    droppedItemStack.setCount(droppedItemCount);
+                                    stack.setCount(stack.getCount() - droppedItemCount);
+                                    if (stack.getCount() == 0) stack = ItemStack.EMPTY;
+                                    ItemEntity itemEntity = new ItemEntity(
+                                        getLevel(), center.x, center.y, center.z,
+                                        droppedItemStack,
+                                        0, 0, 0);
+                                    itemEntity.setDefaultPickUpDelay();
+                                    getLevel().addFreshEntity(itemEntity);
+                                    this.depository.setStack(i, stack);
+                                    cooldown = AnvilCraft.config.chuteMaxCooldown;
+                                    break;
+                                }
                             }
                         }
                     }
                 }
             }
-            cooldown = AnvilCraft.config.chuteMaxCooldown;
         } else {
             cooldown--;
         }
-        level.updateNeighbourForOutputSignal(getBlockPos(), getBlockState().getBlock());
+        if (level != null) {
+            level.updateNeighbourForOutputSignal(getBlockPos(), getBlockState().getBlock());
+        }
     }
 
     private Direction getDirection() {
