@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "anvilcraft:block/silicon_block_top",
+    "side": "anvilcraft:block/silicon_block_side"
+  }
+}

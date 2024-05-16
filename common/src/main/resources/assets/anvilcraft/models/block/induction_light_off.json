@@ -1,0 +1,47 @@
+{
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/cube",
+	"textures": {
+		"0": "anvilcraft:block/induction_light",
+		"particle": "anvilcraft:block/induction_light"
+	},
+	"elements": [
+		{
+			"from": [6, 0, 6],
+			"to": [10, 2, 10],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [4, 14, 8, 16], "texture": "#0"},
+				"east": {"uv": [4, 14, 8, 16], "texture": "#0"},
+				"south": {"uv": [4, 14, 8, 16], "texture": "#0"},
+				"west": {"uv": [4, 14, 8, 16], "texture": "#0"},
+				"up": {"uv": [0, 0, 4, 4], "texture": "#0"},
+				"down": {"uv": [0, 0, 4, 4], "texture": "#0", "cullface": "down"}
+			}
+		},
+		{
+			"from": [6, 14, 6],
+			"to": [10, 16, 10],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [4, 0, 8, 2], "texture": "#0"},
+				"east": {"uv": [4, 0, 8, 2], "texture": "#0"},
+				"south": {"uv": [4, 0, 8, 2], "texture": "#0"},
+				"west": {"uv": [4, 0, 8, 2], "texture": "#0"},
+				"up": {"uv": [0, 0, 4, 4], "texture": "#0", "cullface": "up"},
+				"down": {"uv": [0, 0, 4, 4], "texture": "#0"}
+			}
+		},
+		{
+			"from": [6.5, 2, 6.5],
+			"to": [9.5, 14, 9.5],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [9, 2, 12, 14], "texture": "#0"},
+				"east": {"uv": [9, 2, 12, 14], "texture": "#0"},
+				"south": {"uv": [9, 2, 12, 14], "texture": "#0"},
+				"west": {"uv": [9, 2, 12, 14], "texture": "#0"}
+			}
+		}
+	]
+}
