@@ -129,6 +129,7 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
             goldNumber -= 1;
             goldUsed += 1;
         }
+        if (result.getBaseRepairCost() <= 0) result.removeTagKey("RepairCost");
         int removeCurseNumber = 0;
         Iterator<Enchantment> iterator = curseMap.keySet().iterator();
         final int needGold = 16;
@@ -169,7 +170,9 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
                     if (index == 2) {
                         slot.onTake(player, clickedItem);
                     }
-                    this.getSlot(index).setByPlayer(ItemStack.EMPTY);
+                    int surplus = clickedItem.getCount() - clickedItem.getMaxStackSize();
+                    ItemStack stack = surplus > 0 ? clickedItem.copyWithCount(surplus) : ItemStack.EMPTY;
+                    this.getSlot(index).setByPlayer(stack);
                 }
             } else {
                 ItemStack gold;
