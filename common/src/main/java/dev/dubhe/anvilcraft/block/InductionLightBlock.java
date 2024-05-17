@@ -13,7 +13,9 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -76,12 +78,23 @@ public class InductionLightBlock extends BaseEntityBlock implements IHammerRemov
     }
 
     @Override
+    public @Nonnull BlockState rotate(@Nonnull BlockState state, @Nonnull Rotation rotation) {
+        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public @Nonnull BlockState mirror(@Nonnull BlockState state, @Nonnull Mirror mirror) {
+        return state.rotate(mirror.getRotation(state.getValue(FACING)));
+    }
+
+    @Override
     @Nullable
     public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
         return this.defaultBlockState()
                 .setValue(POWERED, false)
                 .setValue(OVERLOAD, true)
-                .setValue(FACING, Direction.UP);
+                .setValue(FACING, context.getClickedFace().getOpposite());
     }
 
     @Nullable

@@ -1,16 +1,105 @@
 {
   "variants": {
-    "powered=true,overload=true": {
+    "powered=true,overload=true,facing=down": {
       "model": "anvilcraft:block/induction_light_overload"
     },
-    "powered=true,overload=false": {
+    "powered=true,overload=false,facing=down": {
       "model": "anvilcraft:block/induction_light_off"
     },
-    "powered=false,overload=true": {
+    "powered=false,overload=true,facing=down": {
       "model": "anvilcraft:block/induction_light_overload"
     },
-    "powered=false,overload=false": {
+    "powered=false,overload=false,facing=down": {
       "model": "anvilcraft:block/induction_light"
+    },
+
+    "powered=true,overload=true,facing=up": {
+      "model": "anvilcraft:block/induction_light_overload"
+    },
+    "powered=true,overload=false,facing=up": {
+      "model": "anvilcraft:block/induction_light_off"
+    },
+    "powered=false,overload=true,facing=up": {
+      "model": "anvilcraft:block/induction_light_overload"
+    },
+    "powered=false,overload=false,facing=up": {
+      "model": "anvilcraft:block/induction_light"
+    },
+
+    "powered=true,overload=true,facing=north": {
+      "model": "anvilcraft:block/induction_light_overload",
+      "x": 270
+    },
+    "powered=true,overload=false,facing=north": {
+      "model": "anvilcraft:block/induction_light_off",
+      "x": 270
+    },
+    "powered=false,overload=true,facing=north": {
+      "model": "anvilcraft:block/induction_light_overload",
+      "x": 270
+    },
+    "powered=false,overload=false,facing=north": {
+      "model": "anvilcraft:block/induction_light",
+      "x": 270
+    },
+
+    "powered=true,overload=true,facing=south": {
+      "model": "anvilcraft:block/induction_light_overload",
+      "x": 270
+    },
+    "powered=true,overload=false,facing=south": {
+      "model": "anvilcraft:block/induction_light_off",
+      "x": 270
+    },
+    "powered=false,overload=true,facing=south": {
+      "model": "anvilcraft:block/induction_light_overload",
+      "x": 270
+    },
+    "powered=false,overload=false,facing=south": {
+      "model": "anvilcraft:block/induction_light",
+      "x": 270
+    },
+
+    "powered=true,overload=true,facing=east": {
+      "model": "anvilcraft:block/induction_light_overload",
+      "x": 270,
+      "y": 90
+    },
+    "powered=true,overload=false,facing=east": {
+      "model": "anvilcraft:block/induction_light_off",
+      "x": 270,
+      "y": 90
+    },
+    "powered=false,overload=true,facing=east": {
+      "model": "anvilcraft:block/induction_light_overload",
+      "x": 270,
+      "y": 90
+    },
+    "powered=false,overload=false,facing=east": {
+      "model": "anvilcraft:block/induction_light",
+      "x": 270,
+      "y": 90
+    },
+
+    "powered=true,overload=true,facing=west": {
+      "model": "anvilcraft:block/induction_light_overload",
+      "x": 270,
+      "y": 90
+    },
+    "powered=true,overload=false,facing=west": {
+      "model": "anvilcraft:block/induction_light_off",
+      "x": 270,
+      "y": 90
+    },
+    "powered=false,overload=true,facing=west": {
+      "model": "anvilcraft:block/induction_light_overload",
+      "x": 270,
+      "y": 90
+    },
+    "powered=false,overload=false,facing=west": {
+      "model": "anvilcraft:block/induction_light",
+      "x": 270,
+      "y": 90
     }
   }
 }
