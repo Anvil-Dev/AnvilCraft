@@ -1,0 +1,52 @@
+{
+  "variants": {
+    "axis=x,overload=false,switch=on": {
+      "model": "minecraft:block/induction_light",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y,overload=false,switch=on": {
+      "model": "minecraft:block/induction_light"
+    },
+    "axis=z,overload=false,switch=on": {
+      "model": "minecraft:block/induction_light",
+      "x": 90
+    },
+    "axis=x,overload=false,switch=off": {
+      "model": "minecraft:block/induction_light_off",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y,overload=false,switch=off": {
+      "model": "minecraft:block/induction_light_off"
+    },
+    "axis=z,overload=false,switch=off": {
+      "model": "minecraft:block/induction_light_off",
+      "x": 90
+    },
+    "axis=x,overload=true,switch=on": {
+      "model": "minecraft:block/induction_light_overload",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y,overload=true,switch=on": {
+      "model": "minecraft:block/induction_light_overload"
+    },
+    "axis=z,overload=true,switch=on": {
+      "model": "minecraft:block/induction_light_overload",
+      "x": 90
+    },
+    "axis=x,overload=true,switch=off": {
+      "model": "minecraft:block/induction_light_off",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y,overload=true,switch=off": {
+      "model": "minecraft:block/induction_light_off"
+    },
+    "axis=z,overload=true,switch=off": {
+      "model": "minecraft:block/induction_light_off",
+      "x": 90
+    }
+  }
+}
