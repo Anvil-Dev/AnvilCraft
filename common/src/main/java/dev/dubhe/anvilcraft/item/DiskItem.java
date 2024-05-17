@@ -1,9 +1,11 @@
 package dev.dubhe.anvilcraft.item;
 
 import dev.dubhe.anvilcraft.api.IDiskCloneable;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
@@ -12,7 +14,6 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,7 +45,7 @@ public class DiskItem extends Item {
         return tag;
     }
 
-    public static void cancelData(ItemStack stack) {
+    public static void deleteData(ItemStack stack) {
         stack.getOrCreateTag().remove("DiskData");
     }
 
@@ -73,7 +74,10 @@ public class DiskItem extends Item {
                             .getString("StoredFrom")
             );
             String name = Component.translatable("block.anvilcraft." + storedFrom.getPath()).getString();
-            tooltipComponents.add(Component.translatable("item.anvilcraft.disk.stored_from", name));
+            tooltipComponents.add(
+                    Component.translatable("item.anvilcraft.disk.stored_from", name)
+                            .withStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY))
+            );
         }
     }
 
@@ -81,15 +85,14 @@ public class DiskItem extends Item {
     public @NotNull InteractionResult useOn(UseOnContext context) {
         Level level = context.getLevel();
         if (level.isClientSide) return InteractionResult.PASS;
-        if (!level.getBlockState(context.getClickedPos()).hasBlockEntity()) return InteractionResult.PASS;
-        BlockEntity blockEntity = level.getBlockEntity(context.getClickedPos());
         if (context.getPlayer().isShiftKeyDown()) {
             if (hasDataStored(context.getItemInHand())) {
-                cancelData(context.getItemInHand());
-                return InteractionResult.SUCCESS;
+                deleteData(context.getItemInHand());
             }
             return InteractionResult.SUCCESS;
         }
+        if (!level.getBlockState(context.getClickedPos()).hasBlockEntity()) return InteractionResult.PASS;
+        BlockEntity blockEntity = level.getBlockEntity(context.getClickedPos());
         if (blockEntity instanceof IDiskCloneable diskCloneable) {
             ItemStack stack = context.getItemInHand();
             if (hasDataStored(stack)) {
@@ -98,7 +101,7 @@ public class DiskItem extends Item {
                         .getKey(blockEntity.getType())
                         .toString())) return InteractionResult.PASS;
                 diskCloneable.applyDiskData(tag);
-                cancelData(stack);
+                deleteData(stack);
             } else {
                 CompoundTag tag = createData(stack);
                 tag.putString(

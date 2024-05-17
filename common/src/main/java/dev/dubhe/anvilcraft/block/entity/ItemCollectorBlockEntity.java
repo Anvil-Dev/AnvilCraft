@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.architectury.injectables.annotations.ExpectPlatform;
+import dev.dubhe.anvilcraft.api.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
@@ -37,7 +38,7 @@ import java.util.List;
 @Getter
 public class ItemCollectorBlockEntity
         extends BlockEntity
-        implements MenuProvider, IFilterBlockEntity, IPowerConsumer {
+        implements MenuProvider, IFilterBlockEntity, IPowerConsumer, IDiskCloneable {
     @Setter
     private PowerGrid grid;
     private final WatchableCyclingValue<Integer> rangeRadius = new WatchableCyclingValue<>("rangeRadius",
@@ -193,5 +194,15 @@ public class ItemCollectorBlockEntity
             ++i;
         }
         return i;
+    }
+
+    @Override
+    public void storeDiskData(CompoundTag tag) {
+        tag.put("Filtering", depository.serializeFiltering());
+    }
+
+    @Override
+    public void applyDiskData(CompoundTag data) {
+        depository.deserializeFiltering(data.getCompound("Filtering"));
     }
 }
