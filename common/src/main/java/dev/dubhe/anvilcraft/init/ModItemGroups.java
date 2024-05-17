@@ -66,9 +66,8 @@ public class ModItemGroups {
                 entries.accept(ModItems.URANIUM_INGOT.get().getDefaultInstance());
                 entries.accept(ModItems.URANIUM_NUGGET.get().getDefaultInstance());
                 entries.accept(ModItems.BRONZE_INGOT.get().getDefaultInstance());
-                //                entries.accept(ModItems.BRONZE_NUGGET.get().getDefaultInstance());
                 entries.accept(ModItems.BRASS_INGOT.get().getDefaultInstance());
-                //                entries.accept(ModItems.BRASS_NUGGET.get().getDefaultInstance());
+                entries.accept(ModItems.NETHERITE_CRYSTAL_NUCLEUS.get().getDefaultInstance());
                 entries.accept(ModItems.LIME_POWDER.get().getDefaultInstance());
                 entries.accept(ModItems.TOPAZ.get().getDefaultInstance());
                 entries.accept(ModItems.RUBY.get().getDefaultInstance());
