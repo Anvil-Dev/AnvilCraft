@@ -32,5 +32,9 @@ public class OtherLang {
             "entity.minecraft.villager.jeweler",
             "Jeweler"
         );
+        provider.add(
+                "item.anvilcraft.disk.stored_from",
+                "Stored from: %s"
+        );
     }
 }

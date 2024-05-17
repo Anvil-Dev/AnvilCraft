@@ -12,9 +12,12 @@ import org.jetbrains.annotations.NotNull;
 @Getter
 public class ItemDepository implements IItemDepository, INamedTagSerializable {
     private final NonNullList<ItemStack> stacks;
+    private final int size;
+
 
     public ItemDepository(int size) {
         this.stacks = NonNullList.withSize(size, ItemStack.EMPTY);
+        this.size = size;
     }
 
     @Override

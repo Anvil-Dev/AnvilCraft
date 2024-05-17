@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CorruptedBeaconBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeGeneratorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.InductionLightBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LoadMonitorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.OverseerBlockEntity;
@@ -105,6 +106,11 @@ public class ModBlockEntities {
         .blockEntity("load_monitor", LoadMonitorBlockEntity::new)
         .validBlock(ModBlocks.LOAD_MONITOR)
         .register();
+
+    public static final BlockEntityEntry<InductionLightBlockEntity> INDUCTION_LIGHT = REGISTRATE
+            .blockEntity("induction_light", InductionLightBlockEntity::new)
+            .validBlock(ModBlocks.INDUCTION_LIGHT)
+            .register();
 
     public static final BlockEntityEntry<OverseerBlockEntity> OVERSEER = REGISTRATE
         .blockEntity("overseer", OverseerBlockEntity::createBlockEntity)

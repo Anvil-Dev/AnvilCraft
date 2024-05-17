@@ -1,52 +1,54 @@
 {
   "variants": {
-    "axis=x,overload=false,switch=on": {
-      "model": "minecraft:block/induction_light",
-      "x": 90,
+    "powered=true,overload=true,axis=y": {
+      "model": "anvilcraft:block/induction_light_overload"
+    },
+    "powered=true,overload=false,axis=y": {
+      "model": "anvilcraft:block/induction_light_off"
+    },
+    "powered=false,overload=true,axis=y": {
+      "model": "anvilcraft:block/induction_light_overload"
+    },
+    "powered=false,overload=false,axis=y": {
+      "model": "anvilcraft:block/induction_light"
+    },
+
+    "powered=true,overload=true,axis=z": {
+      "model": "anvilcraft:block/induction_light_overload",
+      "x": 270
+    },
+    "powered=true,overload=false,axis=z": {
+      "model": "anvilcraft:block/induction_light_off",
+      "x": 270
+    },
+    "powered=false,overload=true,axis=z": {
+      "model": "anvilcraft:block/induction_light_overload",
+      "x": 270
+    },
+    "powered=false,overload=false,axis=z": {
+      "model": "anvilcraft:block/induction_light",
+      "x": 270
+    },
+
+    "powered=true,overload=true,axis=x": {
+      "model": "anvilcraft:block/induction_light_overload",
+      "x": 270,
       "y": 90
     },
-    "axis=y,overload=false,switch=on": {
-      "model": "minecraft:block/induction_light"
-    },
-    "axis=z,overload=false,switch=on": {
-      "model": "minecraft:block/induction_light",
-      "x": 90
-    },
-    "axis=x,overload=false,switch=off": {
-      "model": "minecraft:block/induction_light_off",
-      "x": 90,
+    "powered=true,overload=false,axis=x": {
+      "model": "anvilcraft:block/induction_light_off",
+      "x": 270,
       "y": 90
     },
-    "axis=y,overload=false,switch=off": {
-      "model": "minecraft:block/induction_light_off"
-    },
-    "axis=z,overload=false,switch=off": {
-      "model": "minecraft:block/induction_light_off",
-      "x": 90
-    },
-    "axis=x,overload=true,switch=on": {
-      "model": "minecraft:block/induction_light_overload",
-      "x": 90,
+    "powered=false,overload=true,axis=x": {
+      "model": "anvilcraft:block/induction_light_overload",
+      "x": 270,
       "y": 90
     },
-    "axis=y,overload=true,switch=on": {
-      "model": "minecraft:block/induction_light_overload"
-    },
-    "axis=z,overload=true,switch=on": {
-      "model": "minecraft:block/induction_light_overload",
-      "x": 90
-    },
-    "axis=x,overload=true,switch=off": {
-      "model": "minecraft:block/induction_light_off",
-      "x": 90,
+    "powered=false,overload=false,axis=x": {
+      "model": "anvilcraft:block/induction_light",
+      "x": 270,
       "y": 90
-    },
-    "axis=y,overload=true,switch=off": {
-      "model": "minecraft:block/induction_light_off"
-    },
-    "axis=z,overload=true,switch=off": {
-      "model": "minecraft:block/induction_light_off",
-      "x": 90
     }
   }
 }

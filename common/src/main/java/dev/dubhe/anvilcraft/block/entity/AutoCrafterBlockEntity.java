@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.api.depository.IItemDepository;
 import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
@@ -47,7 +48,7 @@ import java.util.function.Predicate;
 
 @Getter
 @SuppressWarnings("NullableProblems")
-public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IFilterBlockEntity, IPowerConsumer {
+public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IFilterBlockEntity, IPowerConsumer, IDiskCloneable {
     @Getter
     @Setter
     private PowerGrid grid;
@@ -249,6 +250,16 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IF
     @Override
     public @NotNull BlockPos getPos() {
         return this.getBlockPos();
+    }
+
+    @Override
+    public void storeDiskData(CompoundTag tag) {
+        tag.put("Filtering", depository.serializeFiltering());
+    }
+
+    @Override
+    public void applyDiskData(CompoundTag data) {
+        depository.deserializeFiltering(data.getCompound("Filtering"));
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")

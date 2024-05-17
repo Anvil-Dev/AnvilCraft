@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.entity.AutoCrafterBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.network.MachineEnableFilterPack;
 import dev.dubhe.anvilcraft.network.MachineOutputDirectionPack;
@@ -90,6 +91,15 @@ public class AutoCrafterBlock extends BaseEntityBlock implements IHammerChangeab
         }
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof AutoCrafterBlockEntity entity) {
+            if (player.getItemInHand(hand).is(ModItems.DISK.get())) {
+                return entity.useDisk(
+                        level,
+                        player,
+                        hand,
+                        player.getItemInHand(hand),
+                        hit
+                );
+            }
             if (player instanceof ServerPlayer serverPlayer) {
                 ModMenuTypes.open(serverPlayer, entity, pos);
                 new MachineOutputDirectionPack(entity.getDirection()).send(serverPlayer);
