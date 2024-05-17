@@ -15,4 +15,8 @@ public class EntityReachAttributeImpl {
     ) {
         return Suppliers.memoize(() -> ImmutableMultimap.of(ForgeMod.BLOCK_REACH.get(), modifier));
     }
+
+    public static Attribute getReachAttribute() {
+        return ForgeMod.BLOCK_REACH.get();
+    }
 }

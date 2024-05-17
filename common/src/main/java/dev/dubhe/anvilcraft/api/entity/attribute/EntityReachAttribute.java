@@ -15,4 +15,9 @@ public class EntityReachAttribute {
     ) {
         return null;
     }
+
+    @ExpectPlatform
+    public static Attribute getReachAttribute() {
+        return null;
+    }
 }
