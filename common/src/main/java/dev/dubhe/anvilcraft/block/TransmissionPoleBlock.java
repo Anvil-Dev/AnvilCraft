@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.api.IHasMultiBlock;
-import dev.dubhe.anvilcraft.api.TntDestroyListenerBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
@@ -10,16 +9,13 @@ import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -40,8 +36,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
-public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRemovable, IHasMultiBlock,
-    TntDestroyListenerBlock {
+public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRemovable, IHasMultiBlock {
     public static final EnumProperty<Half> HALF = EnumProperty.create("half", Half.class);
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
     public static final EnumProperty<IPowerComponent.Switch> SWITCH = IPowerComponent.SWITCH;
@@ -224,14 +219,9 @@ public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRem
 
     }
 
-    private void destroyOtherPart(Level level, BlockPos pos) {
+    private void destroyOtherPart(@NotNull Level level, BlockPos pos) {
         if (!level.getBlockState(pos).is(this)) return;
         level.destroyBlock(pos, false, null);
     }
 
-    @Override
-    public void tntWillDestroy(@NotNull Level level, @NotNull BlockPos blockPos,
-        @NotNull BlockState blockState) {
-        onRemove(level, blockPos, blockState);
-    }
 }
