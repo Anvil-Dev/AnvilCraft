@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.api.IDiskCloneable;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -11,6 +12,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -65,7 +67,13 @@ public class DiskItem extends Item {
     ) {
         super.appendHoverText(stack, level, tooltipComponents, isAdvanced);
         if (hasDataStored(stack)) {
-            tooltipComponents.add(Component.translatable("item.anvilcraft.disk.has_enchantment"));
+            ResourceLocation storedFrom = new ResourceLocation(
+                    stack.getOrCreateTag()
+                            .getCompound("DiskData")
+                            .getString("StoredFrom")
+            );
+            String name = Component.translatable("block.anvilcraft." + storedFrom.getPath()).getString();
+            tooltipComponents.add(Component.translatable("item.anvilcraft.disk.stored_from", name));
         }
     }
 
@@ -75,7 +83,7 @@ public class DiskItem extends Item {
         if (level.isClientSide) return InteractionResult.PASS;
         if (!level.getBlockState(context.getClickedPos()).hasBlockEntity()) return InteractionResult.PASS;
         BlockEntity blockEntity = level.getBlockEntity(context.getClickedPos());
-        if (context.getPlayer().isCrouching()) {
+        if (context.getPlayer().isShiftKeyDown()) {
             if (hasDataStored(context.getItemInHand())) {
                 cancelData(context.getItemInHand());
                 return InteractionResult.SUCCESS;
