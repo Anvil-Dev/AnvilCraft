@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.api.IHasMultiBlock;
+import dev.dubhe.anvilcraft.api.TntDestroyListenerBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.entity.RemoteTransmissionPoleBlockEntity;
@@ -37,7 +38,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class RemoteTransmissionPoleBlock extends BaseEntityBlock implements IHammerRemovable, IHasMultiBlock {
+public class RemoteTransmissionPoleBlock extends BaseEntityBlock implements IHammerRemovable, IHasMultiBlock,
+    TntDestroyListenerBlock {
     public static final EnumProperty<Half> HALF = EnumProperty.create("half", Half.class);
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
     public static final EnumProperty<IPowerComponent.Switch> SWITCH = IPowerComponent.SWITCH;
@@ -199,20 +201,20 @@ public class RemoteTransmissionPoleBlock extends BaseEntityBlock implements IHam
                 if (level.getBlockState(pos.below()).hasProperty(HALF)
                         && level.getBlockState(pos.below()).getValue(HALF) == Half.BOTTOM
                 ) {
-                    level.destroyBlock(pos.above(2), false, null);
-                } else level.destroyBlock(pos.below(2), false, null);
-                level.destroyBlock(pos.above(), false, null);
-                level.destroyBlock(pos.below(), false, null);
+                    destroyOtherPart(level, pos.above(2));
+                } else destroyOtherPart(level, pos.below(2));
+                destroyOtherPart(level, pos.above());
+                destroyOtherPart(level, pos.below());
             }
             case TOP -> {
-                level.destroyBlock(pos.below(), false, null);
-                level.destroyBlock(pos.below(2), false, null);
-                level.destroyBlock(pos.below(3), false, null);
+                destroyOtherPart(level, pos.below());
+                destroyOtherPart(level, pos.below(2));
+                destroyOtherPart(level, pos.below(3));
             }
             default -> {
-                level.destroyBlock(pos.above(), false, null);
-                level.destroyBlock(pos.above(2), false, null);
-                level.destroyBlock(pos.above(3), false, null);
+                destroyOtherPart(level, pos.above());
+                destroyOtherPart(level, pos.above(2));
+                destroyOtherPart(level, pos.above(3));
 
             }
         }
@@ -227,5 +229,16 @@ public class RemoteTransmissionPoleBlock extends BaseEntityBlock implements IHam
     @Override
     public void onPlace(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state) {
 
+    }
+
+    private void destroyOtherPart(Level level, BlockPos pos) {
+        if (!level.getBlockState(pos).is(this)) return;
+        level.destroyBlock(pos, false, null);
+    }
+
+    @Override
+    public void tntWillDestroy(@NotNull Level level, @NotNull BlockPos blockPos,
+        @NotNull BlockState blockState) {
+        onRemove(level, blockPos, blockState);
     }
 }

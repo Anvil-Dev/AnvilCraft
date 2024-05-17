@@ -15,6 +15,7 @@
     "DispenseItemEmptyBucketBehaviorMixin",
     "DispenseItemWaterBottleBehaviorMixin",
     "EnchantmentHelperMixin",
+    "ExplosionMixin",
     "FallingBlockEntityMixin",
     "FlyingHitEntityMixin",
     "HoeItemMixin",
