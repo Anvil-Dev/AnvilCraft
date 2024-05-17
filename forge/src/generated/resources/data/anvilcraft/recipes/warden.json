@@ -1,11 +1,11 @@
 {
   "type": "anvilcraft:mob_transform",
-  "id": "anvilcraft:pig",
-  "input": "minecraft:pig",
+  "id": "anvilcraft:warden",
+  "input": "minecraft:iron_golem",
   "results": [
     {
       "probability": 1.0,
-      "resultEntityType": "minecraft:hoglin"
+      "resultEntityType": "minecraft:warden"
     }
   ],
   "tagPredicates": []

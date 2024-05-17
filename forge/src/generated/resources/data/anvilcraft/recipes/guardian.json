@@ -7,5 +7,6 @@
       "probability": 1.0,
       "resultEntityType": "minecraft:elder_guardian"
     }
-  ]
+  ],
+  "tagPredicates": []
 }

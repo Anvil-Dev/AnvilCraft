@@ -1,0 +1,18 @@
+{
+  "type": "anvilcraft:mob_transform",
+  "id": "anvilcraft:warden",
+  "input": "minecraft:iron_golem",
+  "results": [
+    {
+      "probability": 1.0,
+      "resultEntityType": "minecraft:warden"
+    }
+  ],
+  "tagPredicates": [
+    {
+      "expected": 0,
+      "requirement": "EQUAL",
+      "tagKeyPath": "PlayerCreated"
+    }
+  ]
+}

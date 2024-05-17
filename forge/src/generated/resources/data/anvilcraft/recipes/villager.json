@@ -15,5 +15,6 @@
       "probability": 0.1,
       "resultEntityType": "minecraft:evoker"
     }
-  ]
+  ],
+  "tagPredicates": []
 }
