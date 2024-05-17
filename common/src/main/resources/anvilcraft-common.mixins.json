@@ -8,7 +8,6 @@
     "AnvilBlockMixin",
     "BeaconMenuMixin",
     "BlockItemInvoker",
-    "BucketItemMixin",
     "ClientboundUpdateRecipesPacketMixin",
     "DiggerItemMixin",
     "DispenseItemEmptyBottleBehaviorMixin",

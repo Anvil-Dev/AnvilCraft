@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.mixin;
+package dev.dubhe.anvilcraft.mixin.fabric;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundSource;
