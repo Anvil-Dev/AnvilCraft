@@ -200,16 +200,16 @@ public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRem
     public void onRemove(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state) {
         switch (state.getValue(HALF)) {
             case MID -> {
-                level.destroyBlock(pos.above(), false, null);
-                level.destroyBlock(pos.below(), false, null);
+                destroyOtherPart(level, pos.above());
+                destroyOtherPart(level, pos.below());
             }
             case TOP -> {
-                level.destroyBlock(pos.below(), false, null);
-                level.destroyBlock(pos.below(2), false, null);
+                destroyOtherPart(level, pos.below());
+                destroyOtherPart(level, pos.below(2));
             }
             default -> {
-                level.destroyBlock(pos.above(), false, null);
-                level.destroyBlock(pos.above(2), false, null);
+                destroyOtherPart(level, pos.above());
+                destroyOtherPart(level, pos.above(2));
             }
         }
     }
@@ -218,4 +218,10 @@ public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRem
     public void onPlace(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state) {
 
     }
+
+    private void destroyOtherPart(@NotNull Level level, BlockPos pos) {
+        if (!level.getBlockState(pos).is(this)) return;
+        level.destroyBlock(pos, false, null);
+    }
+
 }
