@@ -133,6 +133,7 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.HOLLOW_MAGNET_BLOCK.asStack());
                 entries.accept(ModBlocks.FERRITE_CORE_MAGNET_BLOCK.asStack());
                 entries.accept(ModBlocks.AUTO_CRAFTER.asStack());
+                entries.accept(ModBlocks.ITEM_COLLECTOR.asStack());
                 entries.accept(ModBlocks.CHUTE.asStack());
                 entries.accept(ModBlocks.ROYAL_STEEL_BLOCK.asStack());
                 entries.accept(ModBlocks.SMOOTH_ROYAL_STEEL_BLOCK.asStack());
@@ -162,7 +163,6 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.DEEPSLATE_CHIPS.asStack());
                 entries.accept(ModBlocks.BLACK_SAND.asStack());
                 entries.accept(ModBlocks.TEMPERING_GLASS.asStack());
-                entries.accept(ModBlocks.ITEM_COLLECTOR.asStack());
             })
             .build()
         )

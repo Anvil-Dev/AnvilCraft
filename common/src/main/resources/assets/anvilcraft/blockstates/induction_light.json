@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "powered=true,overload=true": {
+      "model": "anvilcraft:block/induction_light_overload"
+    },
+    "powered=true,overload=false": {
+      "model": "anvilcraft:block/induction_light_off"
+    },
+    "powered=false,overload=true": {
+      "model": "anvilcraft:block/induction_light_overload"
+    },
+    "powered=false,overload=false": {
+      "model": "anvilcraft:block/induction_light"
+    }
+  }
+}
