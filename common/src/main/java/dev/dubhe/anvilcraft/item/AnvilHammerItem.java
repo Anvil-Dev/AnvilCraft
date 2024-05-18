@@ -7,7 +7,9 @@ import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.api.hammer.HammerManager;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -23,6 +25,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Equipable;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Vanishable;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -33,6 +36,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public class AnvilHammerItem extends Item implements Vanishable, Equipable, IEngineerGoggles {
+    private static final Minecraft mc = Minecraft.getInstance();
     private static long lastDropAnvilTime = 0;
     private final Multimap<Attribute, AttributeModifier> defaultModifiers;
 
@@ -108,12 +112,42 @@ public class AnvilHammerItem extends Item implements Vanishable, Equipable, IEng
     public static void useBlock(
         @NotNull ServerPlayer player, BlockPos blockPos, @NotNull ServerLevel level, ItemStack anvilHammer
     ) {
+        if (rocketJump(player, level, blockPos)) return;
         if (player.isShiftKeyDown()) {
             breakBlock(player, blockPos, level, anvilHammer);
             return;
         }
         Block block = level.getBlockState(blockPos).getBlock();
         HammerManager.getChange(block).change(player, blockPos, level, anvilHammer);
+    }
+
+    private static boolean rocketJump(ServerPlayer serverPlayer, ServerLevel level, BlockPos blockPos) {
+        if (mc.player == null) return false;
+        ItemStack itemStack = serverPlayer.getInventory().offhand.get(0);
+        if (!itemStack.is(Items.FIREWORK_ROCKET)) return false;
+        if (!itemStack.hasTag()) return false;
+        int i = itemStack.getOrCreateTag().getCompound("Fireworks").getByte("Flight");
+        if (mc.player.getRotationVector().x > 70) {
+            if (!serverPlayer.getAbilities().instabuild) itemStack.shrink(1);
+            double power = i * 0.75 + 0.5;
+            serverPlayer.setDeltaMovement(0, power, 0);
+            mc.player.setDeltaMovement(0, power, 0);
+            level.sendParticles(
+                ParticleTypes.FIREWORK,
+                serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(),
+                20,
+                0, 0.5, 0,
+                0.05
+            );
+            level.playSound(
+                null,
+                blockPos,
+                SoundEvents.FIREWORK_ROCKET_LAUNCH,
+                SoundSource.PLAYERS
+            );
+            return true;
+        }
+        return false;
     }
 
     /**
