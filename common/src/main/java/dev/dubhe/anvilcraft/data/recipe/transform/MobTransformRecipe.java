@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.data.recipe.transform;
 
 import com.google.gson.JsonObject;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -31,7 +30,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import static net.minecraft.data.recipes.RecipeBuilder.ROOT_RECIPE_ADVANCEMENT;
 
@@ -39,11 +37,12 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
 
     public static final Codec<MobTransformRecipe> CODEC = RecordCodecBuilder.create(ins -> ins.group(
             ResourceLocation.CODEC.fieldOf("id").forGetter(o -> o.id),
-            ResourceLocation.CODEC
-                    .fieldOf("input")
+            ResourceLocation.CODEC.fieldOf("input")
                     .forGetter(o -> BuiltInRegistries.ENTITY_TYPE.getKey(o.input)),
             TransformResult.CODEC.listOf().fieldOf("results").forGetter(o -> o.results),
-            NumericTagValuePredicate.CODEC.listOf().optionalFieldOf("tagPredicates").forGetter(o -> java.util.Optional.ofNullable(o.tagPredicates))
+            NumericTagValuePredicate.CODEC.listOf()
+                    .optionalFieldOf("tagPredicates")
+                    .forGetter(o -> java.util.Optional.ofNullable(o.tagPredicates))
     ).apply(ins, MobTransformRecipe::new));
 
     private final ResourceLocation id;
@@ -190,7 +189,7 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
         private final List<TransformResult> results = new ArrayList<>();
         private Advancement.Builder advancement = Advancement.Builder.recipeAdvancement();
         private RecipeCategory category = RecipeCategory.MISC;
-        private final List<NumericTagValuePredicate> tagPredicates = new ArrayList<>();
+        private List<NumericTagValuePredicate> tagPredicates;
 
         Builder(ResourceLocation id) {
             this.id = id;
@@ -219,6 +218,9 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
         public Builder predicate(Consumer<NumericTagValuePredicate.Builder> predicateBuilder) {
             NumericTagValuePredicate.Builder builder = NumericTagValuePredicate.builder();
             predicateBuilder.accept(builder);
+            if (tagPredicates == null) {
+                tagPredicates = new ArrayList<>();
+            }
             tagPredicates.add(builder.build());
             return this;
         }

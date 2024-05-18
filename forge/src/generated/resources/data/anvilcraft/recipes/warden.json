@@ -8,5 +8,11 @@
       "resultEntityType": "minecraft:warden"
     }
   ],
-  "tagPredicates": []
+  "tagPredicates": [
+    {
+      "expected": 0,
+      "requirement": "EQUAL",
+      "tagKeyPath": "PlayerCreated"
+    }
+  ]
 }
