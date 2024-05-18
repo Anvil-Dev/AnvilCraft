@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.data;
 
 import lombok.Getter;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
@@ -221,5 +222,19 @@ public class RecipeItem {
         this.chance = chance;
         this.count = 1;
         this.isSelectOne = isSelectOne;
+    }
+
+    /**
+     *  获取key
+     *
+     * @return key
+     */
+    public String getKey() {
+        return this.item == null
+            ? this.itemTagKey == null
+                ? ""
+                : itemTagKey.location().getPath()
+            : BuiltInRegistries.ITEM
+                .getKey(this.item.asItem()).getPath();
     }
 }
