@@ -29,5 +29,6 @@ public class RecipesHandler {
         SuperHeatingRecipesLoader.init(provider);
         SmithingRecipesLoader.init(provider);
         MobTransformRecipesLoader.init(provider);
+        BulgingLikeRecipesLoader.init(provider);
     }
 }
