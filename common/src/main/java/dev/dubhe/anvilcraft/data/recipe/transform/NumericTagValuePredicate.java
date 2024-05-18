@@ -1,8 +1,11 @@
 package dev.dubhe.anvilcraft.data.recipe.transform;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.Getter;
 import net.minecraft.commands.arguments.NbtPathArgument;
@@ -31,6 +34,16 @@ public class NumericTagValuePredicate {
         this.tagKeyPath = tagKeyPath;
         this.requirement = requirement;
         this.expected = expected;
+    }
+
+    public static NumericTagValuePredicate fromJson(JsonObject jsonObject) {
+        return CODEC.decode(JsonOps.INSTANCE, jsonObject)
+                .getOrThrow(false, s -> {}).getFirst();
+    }
+
+    public JsonElement toJson() {
+        return CODEC.encodeStart(JsonOps.INSTANCE, this)
+                .getOrThrow(false, s -> {});
     }
 
     public enum ValueFunction implements StringRepresentable {
