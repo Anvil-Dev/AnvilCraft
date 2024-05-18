@@ -37,6 +37,7 @@
     "anvilcraft:resentful_amber_block",
     "anvilcraft:creative_generator",
     "anvilcraft:heater",
+    "anvilcraft:induction_light",
     "anvilcraft:transmission_pole",
     "anvilcraft:jewelcrafting_table",
     "anvilcraft:piezoelectric_crystal",
@@ -115,6 +116,8 @@
     "anvilcraft:reinforced_concrete_purple_wall",
     "anvilcraft:reinforced_concrete_red_wall",
     "anvilcraft:reinforced_concrete_white_wall",
-    "anvilcraft:reinforced_concrete_yellow_wall"
+    "anvilcraft:reinforced_concrete_yellow_wall",
+    "anvilcraft:overseer",
+    "anvilcraft:ruby_laser"
   ]
 }

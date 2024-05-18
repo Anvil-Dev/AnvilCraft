@@ -22,6 +22,7 @@ import dev.dubhe.anvilcraft.block.FerriteCoreMagnetBlock;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
 import dev.dubhe.anvilcraft.block.HoneyCauldronBlock;
+import dev.dubhe.anvilcraft.block.InductionLightBlock;
 import dev.dubhe.anvilcraft.block.ItemCollectorBlock;
 import dev.dubhe.anvilcraft.block.JewelCraftingTable;
 import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
@@ -884,6 +885,34 @@ public class ModBlocks {
             )
             .save(provider))
         .register();
+
+    public static final BlockEntry<InductionLightBlock> INDUCTION_LIGHT = REGISTRATE
+            .block("induction_light",InductionLightBlock::new)
+            .initialProperties(ModBlocks.MAGNET_BLOCK)
+            .properties(p -> p.noOcclusion().lightLevel(state -> {
+                if (state.getValue(InductionLightBlock.POWERED)) return 0;
+                if (state.getValue(InductionLightBlock.OVERLOAD)) return 7;
+                return 15;
+            }))
+            .blockstate((ctx, provider) -> {
+            })
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 8)
+                    .pattern("A")
+                    .pattern("B")
+                    .pattern("A")
+                    .define('A', Items.IRON_INGOT)
+                    .define('B', ModItems.MAGNETOELECTRIC_CORE)
+                    .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT),
+                            AnvilCraftDatagen.has(Items.IRON_INGOT))
+                    .unlockedBy(
+                            AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
+                            AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
+                    )
+                    .save(provider))
+            .register();
     public static final BlockEntry<? extends Block> TRANSMISSION_POLE = REGISTRATE
         .block("transmission_pole", TransmissionPoleBlock::new)
         .initialProperties(ModBlocks.MAGNET_BLOCK)

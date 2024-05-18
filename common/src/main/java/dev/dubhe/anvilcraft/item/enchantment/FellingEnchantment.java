@@ -65,34 +65,22 @@ public class FellingEnchantment extends ModEnchantment {
         if (player.isShiftKeyDown()) return;
         Map<Enchantment, Integer> enchantments = EnchantmentHelper.getEnchantments(tool);
         if (!enchantments.containsKey(ModEnchantments.FELLING.get())) return;
-        int max = enchantments.get(ModEnchantments.FELLING.get()) * AnvilCraft.config.fellingBlockPerLevel;
-        List<BlockPos> posList = new ArrayList<>();
-        posList.add(pos);
-        felling:
-        while (!posList.isEmpty()) {
-            Iterator<BlockPos> iterator = posList.iterator();
-            List<BlockPos> posList2 = new ArrayList<>();
-            while (iterator.hasNext()) {
-                BlockPos next = iterator.next();
-                for (BlockPos offset : OFFSET) {
-                    BlockPos nextOffset = next.offset(offset);
-                    BlockState state = level.getBlockState(nextOffset);
-                    if (!state.is(BlockTags.LOGS)) continue;
-                    if (max-- <= 0) break felling;
-                    posList2.add(nextOffset);
-                    Block block = state.getBlock();
-                    block.playerWillDestroy(level, nextOffset, state, player);
-                    boolean bl = level.removeBlock(nextOffset, false);
-                    if (bl) {
-                        block.destroy(level, nextOffset, state);
-                    }
-                    if (player.isCreative()) continue;
-                    BlockEntity entity = level.getBlockEntity(nextOffset);
-                    block.playerDestroy(level, player, nextOffset, state, entity, tool);
+        int max = (enchantments.get(ModEnchantments.FELLING.get()) * AnvilCraft.config.fellingBlockPerLevel) - 1;
+        while (max > 0) {
+            for (BlockPos offset : OFFSET) {
+                BlockPos offsetPos = pos.offset(offset);
+                BlockState state = level.getBlockState(offsetPos);
+                if (!state.is(BlockTags.LOGS)) continue;
+                if (max-- < 0) break;
+                Block block = state.getBlock();
+                boolean bl = level.removeBlock(offsetPos, false);
+                if (bl) {
+                    block.destroy(level, offsetPos, state);
                 }
-                iterator.remove();
+                if (player.isCreative()) continue;
+                BlockEntity entity = level.getBlockEntity(offsetPos);
+                block.playerDestroy(level, player, offsetPos, state, entity, tool);
             }
-            posList.addAll(posList2);
         }
     }
 }

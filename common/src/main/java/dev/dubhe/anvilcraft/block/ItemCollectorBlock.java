@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.entity.AutoCrafterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.network.MachineEnableFilterPack;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
@@ -127,6 +128,15 @@ public class ItemCollectorBlock extends BaseEntityBlock implements IHammerRemova
         }
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof ItemCollectorBlockEntity eb) {
+            if (player.getItemInHand(hand).is(ModItems.DISK.get())) {
+                return eb.useDisk(
+                        level,
+                        player,
+                        hand,
+                        player.getItemInHand(hand),
+                        hit
+                );
+            }
             if (player instanceof ServerPlayer serverPlayer) {
                 ModMenuTypes.open(serverPlayer, eb, pos);
                 new MachineEnableFilterPack(eb.isFilterEnabled()).send(serverPlayer);

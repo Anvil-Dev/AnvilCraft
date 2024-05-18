@@ -1,20 +1,40 @@
 package dev.dubhe.anvilcraft.api.depository;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.Getter;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 
 @Getter
 @SuppressWarnings("unused")
 public class FilteredItemDepository extends ItemDepository {
+
+    public static final Codec<FilteredItemDepository> CODEC = RecordCodecBuilder.create(ins -> ins.group(
+            Codec.BOOL.fieldOf("filterEnabled").forGetter(o -> o.filterEnabled),
+            ItemStack.CODEC.listOf().fieldOf("filteredItems").forGetter(o -> o.filteredItems),
+            Codec.BOOL.listOf().fieldOf("disabled").forGetter(o -> o.disabled)
+    ).apply(ins, FilteredItemDepository::new));
+
     private boolean filterEnabled = false;
-    private final NonNullList<ItemStack> filteredItems;
-    private final NonNullList<Boolean> disabled;
+    private NonNullList<ItemStack> filteredItems;
+    private NonNullList<Boolean> disabled;
+
+    public FilteredItemDepository(boolean filterEnabled, List<ItemStack> filteredItems, List<Boolean> disabled) {
+        super(filteredItems.size());
+        this.filteredItems = NonNullList.create();
+        this.filteredItems.addAll(filteredItems);
+        this.disabled = NonNullList.create();
+        this.disabled.addAll(disabled);
+    }
 
     /**
      * 有过滤的容器
@@ -57,7 +77,11 @@ public class FilteredItemDepository extends ItemDepository {
 
     @Override
     public void setStack(int slot, ItemStack stack) {
-        if (filterEnabled) this.setFilter(slot, stack);
+        if (filterEnabled) {
+            this.setFilter(slot, stack);
+        } else if (!stack.isEmpty()) {
+            this.setSlotDisabled(slot, false);
+        }
         super.setStack(slot, stack);
     }
 
@@ -169,6 +193,23 @@ public class FilteredItemDepository extends ItemDepository {
                 this.filteredItems.set(slot, ItemStack.of(itemTag.getCompound("filtered")));
             this.disabled.set(slot, itemTag.getBoolean("disabled"));
         }
+    }
+
+    public CompoundTag serializeFiltering() {
+        return (CompoundTag) CODEC.encodeStart(NbtOps.INSTANCE, this)
+                .getOrThrow(false, e -> {
+                });
+    }
+
+    public void deserializeFiltering(@NotNull CompoundTag tag) {
+        FilteredItemDepository depository = CODEC.decode(NbtOps.INSTANCE, tag)
+                .getOrThrow(false, s -> {
+                })
+                .getFirst();
+        if (this.getSize() != depository.getSize()) throw new IllegalArgumentException("Depository size mismatch");
+        this.filterEnabled = tag.getBoolean("filterEnabled");
+        this.filteredItems = depository.filteredItems;
+        this.disabled = depository.disabled;
     }
 
     public static class Pollable extends FilteredItemDepository {

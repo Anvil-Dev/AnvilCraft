@@ -19,6 +19,7 @@ import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import dev.dubhe.anvilcraft.item.CapacitorItem;
 import dev.dubhe.anvilcraft.item.CrabClawItem;
 import dev.dubhe.anvilcraft.item.CursedItem;
+import dev.dubhe.anvilcraft.item.DiskItem;
 import dev.dubhe.anvilcraft.item.GeodeItem;
 import dev.dubhe.anvilcraft.item.GuideBookItem;
 import dev.dubhe.anvilcraft.item.MagnetItem;
@@ -1172,6 +1173,33 @@ public class ModItems {
     public static final ItemEntry<Item> LIME_POWDER = REGISTRATE
         .item("lime_powder", Item::new)
         .register();
+
+    public static final ItemEntry<DiskItem> DISK = REGISTRATE
+            .item("disk", DiskItem::new)
+            .properties(p -> p.stacksTo(1))
+            .recipe((ctx, provider) -> {
+                ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
+                        .pattern("ABA")
+                        .pattern("ACA")
+                        .pattern("AAA")
+                        .define('A', ModItems.HARDEND_RESIN)
+                        .define('B', Items.IRON_INGOT)
+                        .define('C', ModItems.MAGNET_INGOT)
+                        .unlockedBy(
+                                AnvilCraftDatagen.hasItem(ModItems.HARDEND_RESIN),
+                                RegistrateRecipeProvider.has(ModItems.HARDEND_RESIN)
+                        )
+                        .unlockedBy(
+                                AnvilCraftDatagen.hasItem(Items.IRON_INGOT),
+                                RegistrateRecipeProvider.has(Items.IRON_INGOT)
+                        )
+                        .unlockedBy(
+                                AnvilCraftDatagen.hasItem(ModItems.MAGNET_INGOT),
+                                RegistrateRecipeProvider.has(ModItems.MAGNET_INGOT)
+                        )
+                        .save(provider);
+            })
+            .register();
 
     public static void register() {
     }

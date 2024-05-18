@@ -77,6 +77,7 @@ public class ModItemGroups {
                 entries.accept(ModItems.HARDEND_RESIN.get().getDefaultInstance());
                 entries.accept(ModItems.WOOD_FIBER.get().getDefaultInstance());
                 entries.accept(ModItems.CIRCUIT_BOARD.get().getDefaultInstance());
+                entries.accept(ModItems.DISK.get().getDefaultInstance());
                 entries.accept(ModItems.SPONGE_GEMMULE.get().getDefaultInstance());
                 entries.accept(ModItems.SEA_HEART_SHELL_SHARD.get().getDefaultInstance());
                 entries.accept(ModItems.SEA_HEART_SHELL.get().getDefaultInstance());
@@ -132,6 +133,7 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.HOLLOW_MAGNET_BLOCK.asStack());
                 entries.accept(ModBlocks.FERRITE_CORE_MAGNET_BLOCK.asStack());
                 entries.accept(ModBlocks.AUTO_CRAFTER.asStack());
+                entries.accept(ModBlocks.ITEM_COLLECTOR.asStack());
                 entries.accept(ModBlocks.CHUTE.asStack());
                 entries.accept(ModBlocks.ROYAL_STEEL_BLOCK.asStack());
                 entries.accept(ModBlocks.SMOOTH_ROYAL_STEEL_BLOCK.asStack());

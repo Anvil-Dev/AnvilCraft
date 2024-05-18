@@ -1,9 +1,10 @@
-package dev.dubhe.anvilcraft.mixin;
+package dev.dubhe.anvilcraft.mixin.forge;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BucketItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -20,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(BucketItem.class)
+@Mixin(value = BucketItem.class)
 abstract class BucketItemMixin {
     @Shadow
     @Final
@@ -28,15 +29,29 @@ abstract class BucketItemMixin {
     @Unique
     private final BucketItem anvilCraft$ths = (BucketItem) (Object) this;
 
-    @Inject(method = "emptyContents", at = @At("HEAD"), cancellable = true)
+    @Inject(
+            method = "emptyContents(Lnet/minecraft/world/entity/player/Player;"
+                    + "Lnet/minecraft/world/level/Level;"
+                    + "Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/phys/BlockHitResult;"
+                    + "Lnet/minecraft/world/item/ItemStack;)Z",
+            at = @At(value = "HEAD"),
+            cancellable = true,
+            remap = false
+    )
     private void putLiquidToCauldron(
-        Player player, @NotNull Level level, BlockPos pos, BlockHitResult result, CallbackInfoReturnable<Boolean> cir) {
+            Player player,
+            @NotNull Level level,
+            BlockPos pos,
+            BlockHitResult result,
+            ItemStack container,
+            CallbackInfoReturnable<Boolean> cir
+    ) {
         if (level.isInWorldBounds(pos)) {
             if (level.getBlockState(pos).is(Blocks.CAULDRON)) {
                 if (anvilCraft$ths.equals(Items.WATER_BUCKET)) {
                     if (!level.isClientSide) {
                         level.setBlockAndUpdate(
-                            pos, Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3)
+                                pos, Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3)
                         );
                     }
                 } else if (anvilCraft$ths.equals(Items.LAVA_BUCKET)) {

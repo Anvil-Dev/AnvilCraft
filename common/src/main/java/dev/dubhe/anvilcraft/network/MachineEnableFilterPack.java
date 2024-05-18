@@ -60,9 +60,10 @@ public class MachineEnableFilterPack implements Packet {
     public void handler() {
         Minecraft client = Minecraft.getInstance();
         client.execute(() -> {
-            if (!(client.screen instanceof IFilterScreen screen)) return;
-            screen.flush();
-            screen.setFilterEnabled(this.isFilterEnabled());
+            if (client.screen instanceof IFilterScreen screen) {
+                screen.setFilterEnabled(this.isFilterEnabled());
+                screen.flush();
+            }
         });
     }
 }

@@ -26,4 +26,8 @@ public class EntityReachAttributeImpl {
                 )
         );
     }
+
+    public static Attribute getReachAttribute() {
+        return ReachEntityAttributes.REACH;
+    }
 }

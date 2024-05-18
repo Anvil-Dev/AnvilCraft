@@ -18,7 +18,5 @@ public class ServerEventListener {
     public void onServerStarted(@NotNull ServerStartedEvent event) {
         ModHammerInits.init();
         HammerManager.register();
-        // Init EnchantmentDisableUtil
-        AnvilCraft.setEnchantmentDisableUtil(new EnchantmentDisableUtil());
     }
 }

@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.api.depository.IItemDepository;
 import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
@@ -31,7 +32,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 @Getter
-public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterBlockEntity {
+public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterBlockEntity, IDiskCloneable {
     private int cooldown = 0;
     private final FilteredItemDepository depository = new FilteredItemDepository(9) {
         @Override
@@ -217,6 +218,16 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
             strength++;
         }
         return strength;
+    }
+
+    @Override
+    public void storeDiskData(CompoundTag tag) {
+        tag.put("Filtering", depository.serializeFiltering());
+    }
+
+    @Override
+    public void applyDiskData(CompoundTag data) {
+        depository.deserializeFiltering(data.getCompound("Filtering"));
     }
 }
 
