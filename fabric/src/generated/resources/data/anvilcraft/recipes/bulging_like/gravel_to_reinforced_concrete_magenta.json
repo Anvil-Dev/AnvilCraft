@@ -1,0 +1,87 @@
+{
+  "type": "anvilcraft:anvil_processing",
+  "icon": {
+    "item": "anvilcraft:reinforced_concrete_magenta"
+  },
+  "outcomes": [
+    {
+      "type": "spawn_item",
+      "chance": 1.0,
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "result": {
+        "count": 16,
+        "item": "anvilcraft:reinforced_concrete_magenta"
+      }
+    }
+  ],
+  "predicates": [
+    {
+      "type": "has_block",
+      "match_block": {
+        "blocks": [
+          "anvilcraft:cement_cauldron"
+        ],
+        "state": {
+          "color": "magenta"
+        }
+      },
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ]
+    },
+    {
+      "type": "has_item_ingredient",
+      "match_item": {
+        "count": {
+          "min": 2
+        },
+        "items": [
+          "minecraft:gravel"
+        ]
+      },
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ]
+    },
+    {
+      "type": "has_item_ingredient",
+      "match_item": {
+        "count": {
+          "min": 2
+        },
+        "items": [
+          "minecraft:sand"
+        ]
+      },
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ]
+    },
+    {
+      "type": "has_item_ingredient",
+      "match_item": {
+        "count": {
+          "min": 8
+        },
+        "items": [
+          "minecraft:iron_bars"
+        ]
+      },
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ]
+    }
+  ]
+}

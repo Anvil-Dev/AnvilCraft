@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "anvilcraft:block/reinforced_concrete_orange_slab"
+    },
+    "type=double": {
+      "model": "anvilcraft:block/reinforced_concrete_orange"
+    },
+    "type=top": {
+      "model": "anvilcraft:block/reinforced_concrete_orange_slab_top"
+    }
+  }
+}

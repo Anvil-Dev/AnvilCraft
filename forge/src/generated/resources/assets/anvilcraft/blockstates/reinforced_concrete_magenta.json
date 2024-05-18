@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "half=bottom": {
+      "model": "anvilcraft:block/reinforced_concrete_bottom_magenta"
+    },
+    "half=mid": {
+      "model": "anvilcraft:block/reinforced_concrete_magenta"
+    },
+    "half=top": {
+      "model": "anvilcraft:block/reinforced_concrete_top_magenta"
+    }
+  }
+}
