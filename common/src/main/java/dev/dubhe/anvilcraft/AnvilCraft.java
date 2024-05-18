@@ -19,8 +19,7 @@ import dev.dubhe.anvilcraft.init.ModLootContextParamSet;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.ModNetworks;
 import dev.dubhe.anvilcraft.util.EnchantmentDisableUtil;
-import lombok.Getter;
-import lombok.Setter;
+import dev.dubhe.anvilcraft.util.Lazy;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
 import net.minecraft.resources.ResourceLocation;
@@ -35,11 +34,10 @@ public class AnvilCraft {
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
     public static final EventManager EVENT_BUS = new EventManager();
     public static AnvilCraftConfig config = AutoConfig
-        .register(AnvilCraftConfig.class, JanksonConfigSerializer::new)
-        .getConfig();
+            .register(AnvilCraftConfig.class, JanksonConfigSerializer::new)
+            .getConfig();
     // EnchantmentDisable
-    @Getter @Setter
-    public static EnchantmentDisableUtil enchantmentDisableUtil;
+    public static final Lazy<EnchantmentDisableUtil> enchantmentDisableUtil = new Lazy<>(EnchantmentDisableUtil::new);
 
     public static final AnvilCraftRegistrate REGISTRATE = AnvilCraftRegistrate.create(MOD_ID);
 
@@ -69,5 +67,9 @@ public class AnvilCraft {
 
     public static @NotNull ResourceLocation of(String path) {
         return new ResourceLocation(MOD_ID, path);
+    }
+
+    public static EnchantmentDisableUtil getEnchantmentDisableUtil() {
+        return AnvilCraft.enchantmentDisableUtil.get();
     }
 }

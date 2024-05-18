@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.data.generator.recipe;
 
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.data.recipe.transform.MobTransformRecipe;
+import dev.dubhe.anvilcraft.data.recipe.transform.NumericTagValuePredicate;
 import net.minecraft.world.entity.EntityType;
 
 public class MobTransformRecipesLoader {
@@ -58,6 +59,16 @@ public class MobTransformRecipesLoader {
         MobTransformRecipe.builder("silverfish")
                 .input(EntityType.SILVERFISH)
                 .result(EntityType.ENDERMITE, 1)
+                .accept(provider);
+
+        MobTransformRecipe.builder("warden")
+                .input(EntityType.IRON_GOLEM)
+                .result(EntityType.WARDEN, 1)
+                .predicate(b ->
+                        b.compare(NumericTagValuePredicate.ValueFunction.EQUAL)
+                                .lhs("PlayerCreated")
+                                .rhs(0)
+                )
                 .accept(provider);
     }
 }
