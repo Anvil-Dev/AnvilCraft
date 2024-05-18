@@ -27,7 +27,7 @@ public class EnchantmentDisableUtil {
 
 
     /**
-     * 添加禁用在附魔台中禁用的附魔
+     * 添加在附魔台中禁用的附魔
      *
      * @param enchantmentLocation 附魔命名路径
      * @return Boolean
@@ -39,7 +39,7 @@ public class EnchantmentDisableUtil {
     }
 
     /**
-     * 添加禁用在附魔台中禁用的附魔
+     * 添加在附魔台中禁用的附魔
      *
      * @param enchantmentPath 附魔命名路径
      * @return Boolean
@@ -51,7 +51,7 @@ public class EnchantmentDisableUtil {
     }
 
     /**
-     * 添加禁用在附魔台中禁用的附魔
+     * 添加在附魔台中禁用的附魔
      *
      * @param enchantmentIdStringList 附魔命名值列表
      * @return Boolean
