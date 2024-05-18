@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -128,8 +129,16 @@ public class AnvilHammerItem extends Item implements Vanishable, Equipable, IEng
         int i = itemStack.getOrCreateTag().getCompound("Fireworks").getByte("Flight");
         if (mc.player.getRotationVector().x > 70) {
             if (!serverPlayer.getAbilities().instabuild) itemStack.shrink(1);
-            serverPlayer.setDeltaMovement(0, i, 0);
-            mc.player.setDeltaMovement(0, i, 0);
+            double power = i * 0.75 + 0.5;
+            serverPlayer.setDeltaMovement(0, power, 0);
+            mc.player.setDeltaMovement(0, power, 0);
+            level.sendParticles(
+                ParticleTypes.FIREWORK,
+                serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(),
+                20,
+                0, 0.5, 0,
+                0.05
+            );
             level.playSound(
                 null,
                 blockPos,
