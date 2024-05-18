@@ -77,7 +77,11 @@ public class FilteredItemDepository extends ItemDepository {
 
     @Override
     public void setStack(int slot, ItemStack stack) {
-        if (filterEnabled) this.setFilter(slot, stack);
+        if (filterEnabled) {
+            this.setFilter(slot, stack);
+        } else if (!stack.isEmpty()) {
+            this.setSlotDisabled(slot, false);
+        }
         super.setStack(slot, stack);
     }
 
