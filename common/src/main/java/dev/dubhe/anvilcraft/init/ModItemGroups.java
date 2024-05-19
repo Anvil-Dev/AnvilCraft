@@ -163,7 +163,6 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.DEEPSLATE_CHIPS.asStack());
                 entries.accept(ModBlocks.BLACK_SAND.asStack());
                 entries.accept(ModBlocks.TEMPERING_GLASS.asStack());
-                entries.accept(ModBlocks.ITEM_COLLECTOR.asStack());
                 entries.accept(ModBlocks.REINFORCED_CONCRETE_BLACK.asStack());
                 entries.accept(ModBlocks.REINFORCED_CONCRETE_BLUE.asStack());
                 entries.accept(ModBlocks.REINFORCED_CONCRETE_BROWN.asStack());
