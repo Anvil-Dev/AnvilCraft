@@ -1,0 +1,8 @@
+{
+	"parent": "anvilcraft:block/charger",
+	"textures": {
+		"particle": "anvilcraft:block/charger_off",
+		"side": "anvilcraft:block/charger_off",
+		"bottom": "anvilcraft:block/charger_bottom"
+	}
+}
