@@ -887,7 +887,7 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<InductionLightBlock> INDUCTION_LIGHT = REGISTRATE
-            .block("induction_light",InductionLightBlock::new)
+            .block("induction_light", InductionLightBlock::new)
             .initialProperties(ModBlocks.MAGNET_BLOCK)
             .properties(p -> p.noOcclusion().lightLevel(state -> {
                 if (state.getValue(InductionLightBlock.POWERED)) return 0;
@@ -1642,6 +1642,8 @@ public class ModBlocks {
         return REGISTRATE
             .block("reinforced_concrete_" + color.toString(), ReinforcedConcreteBlock::new)
             .initialProperties(() -> Blocks.TERRACOTTA)
+            .properties(properties -> properties.explosionResistance(15.0F))
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
             .simpleItem()
             .blockstate((ctx, provider) -> {
                 provider.models().getBuilder("reinforced_concrete_" + color)
@@ -1669,8 +1671,6 @@ public class ModBlocks {
                     }
                 );
             })
-            .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
-            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
             .register();
     }
 
@@ -1682,6 +1682,7 @@ public class ModBlocks {
         return REGISTRATE
             .block("reinforced_concrete_" + color.toString() + "_slab", SlabBlock::new)
             .initialProperties(() -> Blocks.TERRACOTTA)
+            .properties(properties -> properties.explosionResistance(15.0F))
             .simpleItem()
             .blockstate((ctx, provider) -> provider.slabBlock(ctx.get(),
                 AnvilCraft.of("block/reinforced_concrete_" + color),
@@ -1696,7 +1697,7 @@ public class ModBlocks {
                         AnvilCraftDatagen.has(parent))
                     .save(provider, AnvilCraft.of("craft/reinforced_concrete_" + color + "_slab"));
                 VanillaRecipeProvider.stonecutterResultFromBase(provider, RecipeCategory.BUILDING_BLOCKS,
-                    ctx.get(), parent);
+                    ctx.get(), parent, 2);
             })
             .register();
     }
@@ -1708,6 +1709,7 @@ public class ModBlocks {
         return REGISTRATE
             .block("reinforced_concrete_" + color.toString() + "_stair", (properties) ->
                 new StairBlock(parent.getDefaultState(), properties))
+            .properties(properties -> properties.explosionResistance(15.0F))
             .initialProperties(() -> Blocks.TERRACOTTA)
             .simpleItem()
             .blockstate((ctx, provider) -> provider.stairsBlock(ctx.get(),
@@ -1739,7 +1741,9 @@ public class ModBlocks {
             .blockstate((ctx, provider) -> provider.wallBlock(ctx.get(),
                 AnvilCraft.of("block/reinforced_concrete_" + color + "_wall")))
             .defaultLoot()
+            .properties(properties -> properties.explosionResistance(15.0F))
             .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .tag(BlockTags.WALLS)
             .recipe((ctx, provider) -> {
                 ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 4)
                     .pattern("   ")
