@@ -116,8 +116,6 @@
     "anvilcraft:reinforced_concrete_purple_wall",
     "anvilcraft:reinforced_concrete_red_wall",
     "anvilcraft:reinforced_concrete_white_wall",
-    "anvilcraft:reinforced_concrete_yellow_wall",
-    "anvilcraft:overseer",
-    "anvilcraft:ruby_laser"
+    "anvilcraft:reinforced_concrete_yellow_wall"
   ]
 }
