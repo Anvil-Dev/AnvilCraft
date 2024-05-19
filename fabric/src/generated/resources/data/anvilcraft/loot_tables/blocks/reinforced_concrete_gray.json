@@ -11,7 +11,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:cauldron"
+          "name": "anvilcraft:reinforced_concrete_gray"
         }
       ],
       "rolls": 1.0

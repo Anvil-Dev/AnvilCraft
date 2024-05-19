@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.init;
 
 import com.tterrag.registrate.util.entry.RegistryEntry;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
@@ -13,9 +14,9 @@ import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 
 @SuppressWarnings("unused")
 public class ModItemGroups {
-    public static final RegistryEntry<CreativeModeTab> ANVILCRAFT_ITEM = REGISTRATE
-        .defaultCreativeTab("item", builder -> builder
-            .icon(ModItems.MAGNET_INGOT::asStack)
+    public static final RegistryEntry<CreativeModeTab> ANVILCRAFT_TOOL = REGISTRATE
+        .defaultCreativeTab("tools", builder -> builder
+            .icon(ModItems.MAGNET::asStack)
             .displayItems((ctx, entries) -> {
                 entries.accept(ModItems.GUIDE_BOOK.get().getDefaultInstance());
                 entries.accept(ModItems.MAGNET.get().getDefaultInstance());
@@ -33,40 +34,67 @@ public class ModItemGroups {
                 entries.accept(ModItems.ANVIL_HAMMER.get().getDefaultInstance());
                 entries.accept(ModItems.ROYAL_ANVIL_HAMMER.get().getDefaultInstance());
                 entries.accept(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE.get().getDefaultInstance());
-                entries.accept(ModItems.CREAM.get().getDefaultInstance());
-                entries.accept(ModItems.FLOUR.get().getDefaultInstance());
-                entries.accept(ModItems.DOUGH.get().getDefaultInstance());
+                entries.accept(ModItems.DISK.get().getDefaultInstance());
+                entries.accept(ModItems.CRAB_CLAW.asStack());
+                entries.accept(ModItems.CAPACITOR.get().getDefaultInstance());
+                entries.accept(ModItems.CAPACITOR_EMPTY.get().getDefaultInstance());
                 entries.accept(ModItems.CHOCOLATE.get().getDefaultInstance());
                 entries.accept(ModItems.CHOCOLATE_BLACK.get().getDefaultInstance());
                 entries.accept(ModItems.CHOCOLATE_WHITE.get().getDefaultInstance());
                 entries.accept(ModItems.CREAMY_BREAD_ROLL.get().getDefaultInstance());
-                entries.accept(ModItems.BEEF_MUSHROOM_STEW_RAW.get().getDefaultInstance());
                 entries.accept(ModItems.BEEF_MUSHROOM_STEW.get().getDefaultInstance());
-                entries.accept(ModItems.UTUSAN_RAW.get().getDefaultInstance());
                 entries.accept(ModItems.UTUSAN.get().getDefaultInstance());
+                entries.accept(ModItemGroups.createMaxLevelBook(ModEnchantments.FELLING));
+                entries.accept(ModItemGroups.createMaxLevelBook(ModEnchantments.HARVEST));
+                entries.accept(ModItemGroups.createMaxLevelBook(ModEnchantments.BEHEADING));
+            })
+            .title(REGISTRATE.addLang("itemGroup", AnvilCraft.of("tools"), "AnvilCraft: Utilities"))
+            .build()
+        )
+        .register();
+
+
+    public static final RegistryEntry<CreativeModeTab> ANVILCRAFT_INGREDIENTS = REGISTRATE
+        .defaultCreativeTab("ingredients", builder -> builder
+            .icon(ModItems.MAGNET_INGOT::asStack)
+            .displayItems((ctx, entries) -> {
+                entries.accept(ModItems.CREAM.get().getDefaultInstance());
+                entries.accept(ModItems.FLOUR.get().getDefaultInstance());
+                entries.accept(ModItems.DOUGH.get().getDefaultInstance());
+                entries.accept(ModItems.COCOA_LIQUOR.get().getDefaultInstance());
+                entries.accept(ModItems.COCOA_BUTTER.get().getDefaultInstance());
+                entries.accept(ModItems.COCOA_POWDER.get().getDefaultInstance());
+                entries.accept(ModItems.BEEF_MUSHROOM_STEW_RAW.get().getDefaultInstance());
+                entries.accept(ModItems.UTUSAN_RAW.get().getDefaultInstance());
+                entries.accept(ModItems.ROYAL_STEEL_NUGGET.get().getDefaultInstance());
+                entries.accept(ModItems.CURSED_GOLD_NUGGET.get().getDefaultInstance());
+                entries.accept(ModItems.COPPER_NUGGET.get().getDefaultInstance());
+                entries.accept(ModItems.ZINC_NUGGET.get().getDefaultInstance());
+                entries.accept(ModItems.TIN_NUGGET.get().getDefaultInstance());
+                entries.accept(ModItems.TITANIUM_NUGGET.get().getDefaultInstance());
+                entries.accept(ModItems.TUNGSTEN_NUGGET.get().getDefaultInstance());
+                entries.accept(ModItems.LEAD_NUGGET.get().getDefaultInstance());
+                entries.accept(ModItems.SILVER_NUGGET.get().getDefaultInstance());
+                entries.accept(ModItems.URANIUM_NUGGET.get().getDefaultInstance());
                 entries.accept(ModItems.MAGNET_INGOT.get().getDefaultInstance());
                 entries.accept(ModItems.ROYAL_STEEL_INGOT.get().getDefaultInstance());
-                entries.accept(ModItems.ROYAL_STEEL_NUGGET.get().getDefaultInstance());
                 entries.accept(ModItems.CURSED_GOLD_INGOT.get().getDefaultInstance());
-                entries.accept(ModItems.CURSED_GOLD_NUGGET.get().getDefaultInstance());
                 entries.accept(Items.COPPER_INGOT.getDefaultInstance());
-                entries.accept(ModItems.COPPER_NUGGET.get().getDefaultInstance());
                 entries.accept(ModItems.ZINC_INGOT.get().getDefaultInstance());
-                entries.accept(ModItems.ZINC_NUGGET.get().getDefaultInstance());
                 entries.accept(ModItems.TIN_INGOT.get().getDefaultInstance());
-                entries.accept(ModItems.TIN_NUGGET.get().getDefaultInstance());
                 entries.accept(ModItems.TITANIUM_INGOT.get().getDefaultInstance());
-                entries.accept(ModItems.TITANIUM_NUGGET.get().getDefaultInstance());
                 entries.accept(ModItems.TUNGSTEN_INGOT.get().getDefaultInstance());
-                entries.accept(ModItems.TUNGSTEN_NUGGET.get().getDefaultInstance());
                 entries.accept(ModItems.LEAD_INGOT.get().getDefaultInstance());
-                entries.accept(ModItems.LEAD_NUGGET.get().getDefaultInstance());
                 entries.accept(ModItems.SILVER_INGOT.get().getDefaultInstance());
-                entries.accept(ModItems.SILVER_NUGGET.get().getDefaultInstance());
                 entries.accept(ModItems.URANIUM_INGOT.get().getDefaultInstance());
-                entries.accept(ModItems.URANIUM_NUGGET.get().getDefaultInstance());
                 entries.accept(ModItems.BRONZE_INGOT.get().getDefaultInstance());
                 entries.accept(ModItems.BRASS_INGOT.get().getDefaultInstance());
+                entries.accept(ModItems.MAGNETOELECTRIC_CORE.get().getDefaultInstance());
+                entries.accept(ModItems.SEA_HEART_SHELL_SHARD.get().getDefaultInstance());
+                entries.accept(ModItems.SEA_HEART_SHELL.get().getDefaultInstance());
+                entries.accept(ModItems.PRISMARINE_CLUSTER.get().getDefaultInstance());
+                entries.accept(ModItems.PRISMARINE_BLADE.get().getDefaultInstance());
+                entries.accept(ModItems.SPONGE_GEMMULE.get().getDefaultInstance());
                 entries.accept(ModItems.NETHERITE_CRYSTAL_NUCLEUS.get().getDefaultInstance());
                 entries.accept(ModItems.LIME_POWDER.get().getDefaultInstance());
                 entries.accept(ModItems.TOPAZ.get().getDefaultInstance());
@@ -77,29 +105,14 @@ public class ModItemGroups {
                 entries.accept(ModItems.HARDEND_RESIN.get().getDefaultInstance());
                 entries.accept(ModItems.WOOD_FIBER.get().getDefaultInstance());
                 entries.accept(ModItems.CIRCUIT_BOARD.get().getDefaultInstance());
-                entries.accept(ModItems.DISK.get().getDefaultInstance());
-                entries.accept(ModItems.SPONGE_GEMMULE.get().getDefaultInstance());
-                entries.accept(ModItems.SEA_HEART_SHELL_SHARD.get().getDefaultInstance());
-                entries.accept(ModItems.SEA_HEART_SHELL.get().getDefaultInstance());
-                entries.accept(ModItems.PRISMARINE_CLUSTER.get().getDefaultInstance());
-                entries.accept(ModItems.PRISMARINE_BLADE.get().getDefaultInstance());
-                entries.accept(ModItems.COCOA_LIQUOR.get().getDefaultInstance());
-                entries.accept(ModItems.COCOA_BUTTER.get().getDefaultInstance());
-                entries.accept(ModItems.COCOA_POWDER.get().getDefaultInstance());
-                entries.accept(ModItems.CAPACITOR.get().getDefaultInstance());
-                entries.accept(ModItems.CAPACITOR_EMPTY.get().getDefaultInstance());
-                entries.accept(ModItems.MAGNETOELECTRIC_CORE.get().getDefaultInstance());
-                entries.accept(ModItems.CRAB_CLAW.asStack());
-                entries.accept(ModItemGroups.createMaxLevelBook(ModEnchantments.FELLING));
-                entries.accept(ModItemGroups.createMaxLevelBook(ModEnchantments.HARVEST));
-                entries.accept(ModItemGroups.createMaxLevelBook(ModEnchantments.BEHEADING));
             })
+            .title(REGISTRATE.addLang("itemGroup", AnvilCraft.of("ingredients"), "AnvilCraft: Ingredients"))
             .build()
         )
         .register();
 
-    public static final RegistryEntry<CreativeModeTab> ANVILCRAFT_BLOCK = REGISTRATE
-        .defaultCreativeTab("block", builder -> builder
+    public static final RegistryEntry<CreativeModeTab> ANVILCRAFT_FUNCTION_BLOCK = REGISTRATE
+        .defaultCreativeTab("functional_block", builder -> builder
             .icon(ModBlocks.MAGNET_BLOCK::asStack)
             .displayItems((ctx, entries) -> {
                 entries.accept(Items.IRON_TRAPDOOR.getDefaultInstance());
@@ -125,6 +138,8 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.POWER_CONVERTER_MIDDLE.asStack());
                 entries.accept(ModBlocks.POWER_CONVERTER_BIG.asStack());
                 entries.accept(ModBlocks.PIEZOELECTRIC_CRYSTAL.asStack());
+                entries.accept(ModBlocks.AUTO_CRAFTER.asStack());
+                entries.accept(ModBlocks.ITEM_COLLECTOR.asStack());
                 entries.accept(ModBlocks.BLOCK_PLACER.asStack());
                 entries.accept(ModBlocks.BLOCK_DEVOURER.asStack());
                 entries.accept(ModBlocks.OVERSEER_BLOCK.asStack());
@@ -132,9 +147,18 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.MAGNET_BLOCK.asStack());
                 entries.accept(ModBlocks.HOLLOW_MAGNET_BLOCK.asStack());
                 entries.accept(ModBlocks.FERRITE_CORE_MAGNET_BLOCK.asStack());
-                entries.accept(ModBlocks.AUTO_CRAFTER.asStack());
-                entries.accept(ModBlocks.ITEM_COLLECTOR.asStack());
+                entries.accept(ModBlocks.CRAB_TRAP.asStack());
                 entries.accept(ModBlocks.CHUTE.asStack());
+            })
+            .title(REGISTRATE.addLang("itemGroup", AnvilCraft.of("functional_block"), "AnvilCraft: Functional Block"))
+            .build()
+        )
+        .register();
+
+    public static final RegistryEntry<CreativeModeTab> ANVILCRAFT_BUILD_BLOCK = REGISTRATE
+        .defaultCreativeTab("building_block", builder -> builder
+            .icon(ModBlocks.REINFORCED_CONCRETE_BLACK::asStack)
+            .displayItems((ctx, entries) -> {
                 entries.accept(ModBlocks.ROYAL_STEEL_BLOCK.asStack());
                 entries.accept(ModBlocks.SMOOTH_ROYAL_STEEL_BLOCK.asStack());
                 entries.accept(ModBlocks.CUT_ROYAL_STEEL_BLOCK.asStack());
@@ -155,7 +179,6 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.SAPPHIRE_BLOCK.asStack());
                 entries.accept(ModBlocks.RESIN_BLOCK.asStack());
                 entries.accept(ModBlocks.AMBER_BLOCK.asStack());
-                entries.accept(ModBlocks.CRAB_TRAP.asStack());
                 entries.accept(ModBlocks.NETHER_DUST.asStack());
                 entries.accept(ModBlocks.END_DUST.asStack());
                 entries.accept(ModBlocks.CINERITE.asStack());
@@ -228,6 +251,7 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.REINFORCED_CONCRETE_WHITE_WALL.asStack());
                 entries.accept(ModBlocks.REINFORCED_CONCRETE_YELLOW_WALL.asStack());
             })
+            .title(REGISTRATE.addLang("itemGroup", AnvilCraft.of("building_block"), "AnvilCraft: Building Block"))
             .build()
         )
         .register();
