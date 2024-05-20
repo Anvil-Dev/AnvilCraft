@@ -7,7 +7,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -86,9 +89,6 @@ public class DiskItem extends Item {
         Level level = context.getLevel();
         if (level.isClientSide) return InteractionResult.PASS;
         if (context.getPlayer().isShiftKeyDown()) {
-            if (hasDataStored(context.getItemInHand())) {
-                deleteData(context.getItemInHand());
-            }
             return InteractionResult.SUCCESS;
         }
         if (!level.getBlockState(context.getClickedPos()).hasBlockEntity()) return InteractionResult.PASS;
@@ -113,5 +113,18 @@ public class DiskItem extends Item {
             return InteractionResult.SUCCESS;
         }
         return InteractionResult.FAIL;
+    }
+
+    @Override
+    public @NotNull InteractionResultHolder<ItemStack> use(Level level, @NotNull Player player,
+                                                           @NotNull InteractionHand usedHand) {
+        if (!level.isClientSide && player.isShiftKeyDown()) {
+            ItemStack itemStack = player.getItemInHand(usedHand);
+            if (hasDataStored(itemStack)) {
+                deleteData(itemStack);
+            }
+            return InteractionResultHolder.success(itemStack);
+        }
+        return super.use(level, player, usedHand);
     }
 }
