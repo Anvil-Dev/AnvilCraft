@@ -4,6 +4,9 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
@@ -54,4 +57,11 @@ public class HoneyCauldronBlock extends LayeredCauldronBlock implements IHammerR
             @NotNull BlockPos pos,
             @NotNull Fluid fluid
     ) {}
+
+    @Override
+    public @NotNull ItemStack getCloneItemStack(
+        @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull BlockState state
+    ) {
+        return new ItemStack(Items.CAULDRON);
+    }
 }
