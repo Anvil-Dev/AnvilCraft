@@ -5,15 +5,17 @@ import io.github.fabricators_of_create.porting_lib.models.generators.ConfiguredM
 import io.github.fabricators_of_create.porting_lib.models.generators.ModelFile;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.function.Supplier;
+
 public final class DangerUtil {
     private DangerUtil() {
     }
 
-    public static ConfiguredModel @NotNull [] genConfiguredModel(String path) {
-        return new ConfiguredModel[]{new ConfiguredModel(new ModelFile.UncheckedModelFile(AnvilCraft.of(path)))};
+    public static @NotNull Supplier<ConfiguredModel[]> genConfiguredModel(String path) {
+        return () -> new ConfiguredModel[]{new ConfiguredModel(new ModelFile.UncheckedModelFile(AnvilCraft.of(path)))};
     }
 
-    public static ModelFile.@NotNull UncheckedModelFile genUncheckedModelFile(String path) {
-        return new ModelFile.UncheckedModelFile(AnvilCraft.of(path));
+    public static @NotNull Supplier<ModelFile.UncheckedModelFile> genUncheckedModelFile(String path) {
+        return () -> new ModelFile.UncheckedModelFile(AnvilCraft.of(path));
     }
 }
