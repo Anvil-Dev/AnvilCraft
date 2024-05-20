@@ -28,6 +28,9 @@ public class FilteredItemDepository extends ItemDepository {
     private NonNullList<ItemStack> filteredItems;
     private NonNullList<Boolean> disabled;
 
+    /**
+     *
+     */
     public FilteredItemDepository(boolean filterEnabled, List<ItemStack> filteredItems, List<Boolean> disabled) {
         super(filteredItems.size());
         this.filteredItems = NonNullList.create();
@@ -195,12 +198,18 @@ public class FilteredItemDepository extends ItemDepository {
         }
     }
 
+    /**
+     *
+     */
     public CompoundTag serializeFiltering() {
         return (CompoundTag) CODEC.encodeStart(NbtOps.INSTANCE, this)
                 .getOrThrow(false, e -> {
                 });
     }
 
+    /**
+     *
+     */
     public void deserializeFiltering(@NotNull CompoundTag tag) {
         FilteredItemDepository depository = CODEC.decode(NbtOps.INSTANCE, tag)
                 .getOrThrow(false, s -> {

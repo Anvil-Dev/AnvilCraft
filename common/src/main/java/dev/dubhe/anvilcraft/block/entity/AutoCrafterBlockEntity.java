@@ -48,7 +48,8 @@ import java.util.function.Predicate;
 
 @Getter
 @SuppressWarnings("NullableProblems")
-public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements IFilterBlockEntity, IPowerConsumer, IDiskCloneable {
+public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements
+    IFilterBlockEntity, IPowerConsumer, IDiskCloneable {
     @Getter
     @Setter
     private PowerGrid grid;

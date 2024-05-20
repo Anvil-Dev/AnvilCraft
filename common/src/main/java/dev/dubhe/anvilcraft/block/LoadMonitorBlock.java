@@ -35,6 +35,9 @@ public class LoadMonitorBlock extends BaseEntityBlock {
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
     public static final IntegerProperty LOAD = IntegerProperty.create("load", 0, 10);
 
+    /**
+     *
+     */
     public LoadMonitorBlock(Properties properties) {
         super(properties);
         registerDefaultState(this.defaultBlockState()

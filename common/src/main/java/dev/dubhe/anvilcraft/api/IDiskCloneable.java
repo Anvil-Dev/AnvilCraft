@@ -20,6 +20,9 @@ public interface IDiskCloneable {
 
     void applyDiskData(CompoundTag data);
 
+    /**
+     *
+     */
     default InteractionResult useDisk(
             Level level,
             @Nullable Player player,

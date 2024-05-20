@@ -21,29 +21,40 @@ import java.util.function.BiFunction;
 @Getter
 public class NumericTagValuePredicate {
     public static final Codec<NumericTagValuePredicate> CODEC = RecordCodecBuilder.create(ins -> ins.group(
-            Codec.STRING.fieldOf("tagKeyPath").forGetter(o -> o.tagKeyPath),
-            ValueFunction.CODEC.fieldOf("requirement").forGetter(o -> o.requirement),
-            Codec.LONG.fieldOf("expected").forGetter(it -> it.expected)
+        Codec.STRING.fieldOf("tagKeyPath").forGetter(o -> o.tagKeyPath),
+        ValueFunction.CODEC.fieldOf("requirement").forGetter(o -> o.requirement),
+        Codec.LONG.fieldOf("expected").forGetter(it -> it.expected)
     ).apply(ins, NumericTagValuePredicate::new));
 
     private final String tagKeyPath;
     private final ValueFunction requirement;
     private final long expected;
 
+    /**
+     *
+     */
     public NumericTagValuePredicate(String tagKeyPath, ValueFunction requirement, long expected) {
         this.tagKeyPath = tagKeyPath;
         this.requirement = requirement;
         this.expected = expected;
     }
 
+    /**
+     *
+     */
     public static NumericTagValuePredicate fromJson(JsonObject jsonObject) {
         return CODEC.decode(JsonOps.INSTANCE, jsonObject)
-                .getOrThrow(false, s -> {}).getFirst();
+            .getOrThrow(false, s -> {
+            }).getFirst();
     }
 
+    /**
+     *
+     */
     public JsonElement toJson() {
         return CODEC.encodeStart(JsonOps.INSTANCE, this)
-                .getOrThrow(false, s -> {});
+            .getOrThrow(false, s -> {
+            });
     }
 
     public enum ValueFunction implements StringRepresentable {
@@ -121,6 +132,9 @@ public class NumericTagValuePredicate {
         }
     }
 
+    /**
+     *
+     */
     public boolean test(CompoundTag tag) {
         try {
             StringReader reader = new StringReader(tagKeyPath);
@@ -129,7 +143,7 @@ public class NumericTagValuePredicate {
             List<Tag> contract = path.get(tag);
             if (contract.size() >= 2)
                 throw new IllegalArgumentException(
-                        "TagValuePredicate does not allow multiple tag at path: " + tagKeyPath
+                    "TagValuePredicate does not allow multiple tag at path: " + tagKeyPath
                 );
             if (contract.isEmpty()) return false;
             Tag value = contract.get(0);
