@@ -60,8 +60,7 @@ import dev.dubhe.anvilcraft.item.PlaceInWaterBlockItem;
 import dev.dubhe.anvilcraft.item.RemoteTransmissionPoleBlockItem;
 import dev.dubhe.anvilcraft.item.ResinBlockItem;
 import dev.dubhe.anvilcraft.item.TransmissionPoleBlockItem;
-import io.github.fabricators_of_create.porting_lib.models.generators.ConfiguredModel;
-import io.github.fabricators_of_create.porting_lib.models.generators.ModelFile.UncheckedModelFile;
+import dev.dubhe.anvilcraft.util.DangerUtil;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -1648,27 +1647,21 @@ public class ModBlocks {
             .simpleItem()
             .blockstate((ctx, provider) -> {
                 provider.models().getBuilder("reinforced_concrete_" + color)
-                    .parent(new UncheckedModelFile("block/cube_all"))
+                    .parent(DangerUtil.genUncheckedModelFile("block/cube_all").get())
                     .texture("all", "block/reinforced_concrete_" + color);
                 provider.models().getBuilder("reinforced_concrete_top_" + color)
-                    .parent(new UncheckedModelFile("block/cube_column"))
+                    .parent(DangerUtil.genUncheckedModelFile("block/cube_column").get())
                     .texture("end", "block/reinforced_concrete_" + color)
                     .texture("side", "block/reinforced_concrete_" + color + "_top");
                 provider.models().getBuilder("reinforced_concrete_bottom_" + color)
-                    .parent(new UncheckedModelFile("block/cube_column"))
+                    .parent(DangerUtil.genUncheckedModelFile("block/cube_column").get())
                     .texture("end", "block/reinforced_concrete_" + color)
                     .texture("side", "block/reinforced_concrete_" + color + "_bottom");
                 provider.getVariantBuilder(ctx.get()).forAllStates(
                     blockState -> switch (blockState.getValue(ReinforcedConcreteBlock.HALF)) {
-                        case TOP -> new ConfiguredModel[]{
-                            new ConfiguredModel(
-                                new UncheckedModelFile(AnvilCraft.of("block/reinforced_concrete_top_" + color)))};
-                        case MID -> new ConfiguredModel[]{
-                            new ConfiguredModel(
-                                new UncheckedModelFile(AnvilCraft.of("block/reinforced_concrete_" + color)))};
-                        case BOTTOM -> new ConfiguredModel[]{
-                            new ConfiguredModel(
-                                new UncheckedModelFile(AnvilCraft.of("block/reinforced_concrete_bottom_" + color)))};
+                        case TOP -> DangerUtil.genConfiguredModel("block/reinforced_concrete_top_" + color).get();
+                        case MID -> DangerUtil.genConfiguredModel("block/reinforced_concrete_" + color).get();
+                        case BOTTOM -> DangerUtil.genConfiguredModel("block/reinforced_concrete_bottom_" + color).get();
                     }
                 );
             })
