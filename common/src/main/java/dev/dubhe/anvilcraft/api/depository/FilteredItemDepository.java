@@ -208,7 +208,8 @@ public class FilteredItemDepository extends ItemDepository {
                 .getFirst();
         if (this.getSize() != depository.getSize()) throw new IllegalArgumentException("Depository size mismatch");
         this.filterEnabled = tag.getBoolean("filterEnabled");
-        this.filteredItems = depository.filteredItems;
+        int size = depository.filteredItems.size();
+        this.filteredItems = NonNullList.of(ItemStack.EMPTY, depository.filteredItems.toArray(new ItemStack[size]));
         this.disabled = depository.disabled;
     }
 
