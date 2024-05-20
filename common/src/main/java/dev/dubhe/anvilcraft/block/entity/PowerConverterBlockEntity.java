@@ -61,8 +61,8 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
             cooldown = AnvilCraft.config.powerConverter.powerConverterCountdown;
             if (getBlockState().getValue(BasePowerConverterBlock.OVERLOAD)) return;
             int amountTick = (int) (
-                inputPower * AnvilCraft.config.powerConverter.powerConverterEfficiency *
-                    (1 - AnvilCraft.config.powerConverter.powerConverterLoss)
+                inputPower * AnvilCraft.config.powerConverter.powerConverterEfficiency
+                    * (1 - AnvilCraft.config.powerConverter.powerConverterLoss)
             );
             int amount = amountTick * AnvilCraft.config.powerConverter.powerConverterCountdown;
             Direction face = getBlockState().getValue(BasePowerConverterBlock.FACING);

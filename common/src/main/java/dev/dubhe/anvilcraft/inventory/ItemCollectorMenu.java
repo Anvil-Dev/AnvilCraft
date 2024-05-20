@@ -163,6 +163,9 @@ public class ItemCollectorMenu extends AbstractContainerMenu implements IFilterM
         this.onChanged();
     }
 
+    /**
+     *
+     */
     public void notify(int index, String name) {
         if (name.contentEquals("rangeRadius")) {
             blockEntity.getRangeRadius().fromIndex(index);

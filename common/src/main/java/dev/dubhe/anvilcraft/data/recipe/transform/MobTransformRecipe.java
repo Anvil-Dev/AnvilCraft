@@ -215,7 +215,10 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
             return this;
         }
 
-        public Builder predicate(Consumer<NumericTagValuePredicate.Builder> predicateBuilder) {
+        /**
+         *
+         */
+        public Builder predicate(@NotNull Consumer<NumericTagValuePredicate.Builder> predicateBuilder) {
             NumericTagValuePredicate.Builder builder = NumericTagValuePredicate.builder();
             predicateBuilder.accept(builder);
             if (tagPredicates == null) {

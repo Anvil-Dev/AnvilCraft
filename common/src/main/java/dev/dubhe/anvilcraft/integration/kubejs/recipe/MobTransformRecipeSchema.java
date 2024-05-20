@@ -56,6 +56,9 @@ public interface MobTransformRecipeSchema {
             return this;
         }
 
+        /**
+         *
+         */
         public MobTransformRecipeJs predicate(String nbtPath, String comparator, long value) {
             if (getValue(PREDICATES) == null) setValue(PREDICATES, new NumericTagValuePredicate[0]);
             NumericTagValuePredicate.ValueFunction fn = NumericTagValuePredicate.ValueFunction.valueOf(comparator);

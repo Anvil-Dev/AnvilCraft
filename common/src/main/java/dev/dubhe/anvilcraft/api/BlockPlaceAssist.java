@@ -38,8 +38,10 @@ public class BlockPlaceAssist {
                 .map(Pair::getFirst)
                 .collect(Collectors.toList());
     }
-
-
+    
+    /**
+     *
+     */
     public static @NotNull InteractionResult tryPlace(
             @NotNull BlockState state,
             @NotNull Level level,

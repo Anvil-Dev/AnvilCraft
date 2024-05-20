@@ -95,7 +95,10 @@ public class TransmissionPoleBlock extends BaseEntityBlock implements IHammerRem
     @SuppressWarnings("deprecation")
     @Override
     public @NotNull VoxelShape getShape(
-            @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context
+            @NotNull BlockState state,
+            @NotNull BlockGetter level,
+            @NotNull BlockPos pos,
+            @NotNull CollisionContext context
     ) {
         if (state.getValue(HALF) == Half.BOTTOM) return TRANSMISSION_POLE_BASE;
         if (state.getValue(HALF) == Half.MID) return TRANSMISSION_POLE_MID;

@@ -49,6 +49,9 @@ public class InductionLightBlock extends BaseEntityBlock implements IHammerRemov
     public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.AXIS;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
+    /**
+     *
+     */
     public InductionLightBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any()

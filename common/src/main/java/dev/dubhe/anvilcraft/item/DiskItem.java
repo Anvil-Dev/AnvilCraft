@@ -41,7 +41,9 @@ public class DiskItem extends Item {
         return stack.getOrCreateTag().getCompound("DiskData");
     }
 
-
+    /**
+     *
+     */
     public static CompoundTag createData(ItemStack stack) {
         CompoundTag tag = new CompoundTag();
         stack.getOrCreateTag().put("DiskData", tag);
