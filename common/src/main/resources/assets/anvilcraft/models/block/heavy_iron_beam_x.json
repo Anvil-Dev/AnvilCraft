@@ -1,0 +1,92 @@
+{
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/block",
+	"textures": {
+		"particle": "anvilcraft:block/heavy_iron_beam",
+		"end": "anvilcraft:block/heavy_iron_beam",
+		"side": "anvilcraft:block/heavy_iron_beam_side",
+		"top": "anvilcraft:block/heavy_iron_beam_x"
+	},
+	"elements": [
+		{
+			"from": [0, 12, 0],
+			"to": [16, 16, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [0, 0, 16, 4], "texture": "#side"},
+				"east": {"uv": [0, 0, 16, 4], "texture": "#end"},
+				"south": {"uv": [0, 0, 16, 4], "texture": "#side"},
+				"west": {"uv": [0, 0, 16, 4], "texture": "#end"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#top"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#top"}
+			}
+		},
+		{
+			"from": [0, 9, 4],
+			"to": [16, 12, 12],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [0, 4, 16, 7], "texture": "#side"},
+				"east": {"uv": [4, 4, 12, 7], "texture": "#end"},
+				"south": {"uv": [0, 4, 16, 7], "texture": "#side"},
+				"west": {"uv": [4, 4, 12, 7], "texture": "#end"},
+				"down": {"uv": [0, 4, 16, 12], "texture": "#top"}
+			}
+		},
+		{
+			"from": [0, 3, 6],
+			"to": [16, 9, 10],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [0, 7, 16, 13], "texture": "#side"},
+				"east": {"uv": [6, 7, 10, 13], "texture": "#end"},
+				"south": {"uv": [0, 7, 16, 13], "texture": "#side"},
+				"west": {"uv": [6, 7, 10, 13], "texture": "#end"}
+			}
+		},
+		{
+			"from": [0, 0, 4],
+			"to": [16, 3, 12],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [0, 13, 16, 16], "texture": "#side"},
+				"east": {"uv": [4, 4, 12, 7], "texture": "#end"},
+				"south": {"uv": [0, 13, 16, 16], "texture": "#side"},
+				"west": {"uv": [4, 4, 12, 7], "texture": "#end"},
+				"up": {"uv": [0, 4, 16, 12], "texture": "#top"},
+				"down": {"uv": [0, 4, 16, 12], "texture": "#top"}
+			}
+		}
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [75, 45, 0],
+			"translation": [0, 2.5, 0],
+			"scale": [0.375, 0.375, 0.375]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [75, 45, 0],
+			"translation": [0, 2.5, 0],
+			"scale": [0.375, 0.375, 0.375]
+		},
+		"firstperson_righthand": {
+			"rotation": [0, 45, 0],
+			"scale": [0.4, 0.4, 0.4]
+		},
+		"firstperson_lefthand": {
+			"rotation": [0, 225, 0],
+			"scale": [0.4, 0.4, 0.4]
+		},
+		"ground": {
+			"translation": [0, 3, 0],
+			"scale": [0.25, 0.25, 0.25]
+		},
+		"gui": {
+			"rotation": [30, 225, 0],
+			"scale": [0.625, 0.625, 0.625]
+		},
+		"fixed": {
+			"scale": [0.5, 0.5, 0.5]
+		}
+	}
+}
