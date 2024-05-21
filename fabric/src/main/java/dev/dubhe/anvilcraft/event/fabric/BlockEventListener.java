@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.event.fabric;
 
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
-import dev.dubhe.anvilcraft.network.HammerUsePack;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.minecraft.core.BlockPos;
@@ -9,6 +8,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
@@ -35,10 +35,8 @@ public class BlockEventListener {
     private static InteractionResult anvilHammerUse(
         @NotNull Player player, @NotNull Level level, InteractionHand hand, BlockHitResult hitResult
     ) {
-        if (player.getItemInHand(hand).getItem() instanceof AnvilHammerItem) {
-            if (level.isClientSide()) {
-                new HammerUsePack(hitResult.getBlockPos(), hand).send();
-            }
+        if (player.getItemInHand(hand).getItem() instanceof AnvilHammerItem item) {
+            item.useBlock(new UseOnContext(player, hand, hitResult));
             return InteractionResult.SUCCESS;
         }
         return InteractionResult.PASS;

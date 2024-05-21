@@ -7,7 +7,6 @@ import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.api.hammer.HammerManager;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -27,6 +26,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Vanishable;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -36,7 +36,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public class AnvilHammerItem extends Item implements Vanishable, Equipable, IEngineerGoggles {
-    private static final Minecraft mc = Minecraft.getInstance();
     private static long lastDropAnvilTime = 0;
     private final Multimap<Attribute, AttributeModifier> defaultModifiers;
 
@@ -109,42 +108,52 @@ public class AnvilHammerItem extends Item implements Vanishable, Equipable, IEng
     /**
      * 右键方块
      */
-    public static void useBlock(
-        @NotNull ServerPlayer player, BlockPos blockPos, @NotNull ServerLevel level, ItemStack anvilHammer
-    ) {
-        if (rocketJump(player, level, blockPos)) return;
-        if (player.isShiftKeyDown()) {
-            breakBlock(player, blockPos, level, anvilHammer);
+    public void useBlock(@NotNull UseOnContext context) {
+        Player player = context.getPlayer();
+        if (player == null) return;
+        Level level = context.getLevel();
+        BlockPos blockPos = context.getClickedPos();
+        ItemStack anvilHammer = context.getItemInHand();
+        if (rocketJump(context)) {
             return;
         }
-        Block block = level.getBlockState(blockPos).getBlock();
-        HammerManager.getChange(block).change(player, blockPos, level, anvilHammer);
+        if (!level.isClientSide()) {
+            if (player.isShiftKeyDown()) {
+                breakBlock((ServerPlayer) player, blockPos, (ServerLevel) level, anvilHammer);
+                return;
+            }
+            Block block = level.getBlockState(blockPos).getBlock();
+            HammerManager.getChange(block).change(player, blockPos, level, anvilHammer);
+        }
     }
 
-    private static boolean rocketJump(ServerPlayer serverPlayer, ServerLevel level, BlockPos blockPos) {
-        if (mc.player == null) return false;
-        ItemStack itemStack = serverPlayer.getInventory().offhand.get(0);
+    private static boolean rocketJump(UseOnContext context) {
+        Player player = context.getPlayer();
+        if (player == null) return false;
+        ItemStack itemStack = player.getInventory().offhand.get(0);
         if (!itemStack.is(Items.FIREWORK_ROCKET)) return false;
         if (!itemStack.hasTag()) return false;
         int i = itemStack.getOrCreateTag().getCompound("Fireworks").getByte("Flight");
-        if (mc.player.getRotationVector().x > 70) {
-            if (!serverPlayer.getAbilities().instabuild) itemStack.shrink(1);
+        if (player.getRotationVector().x > 70) {
+            if (!player.getAbilities().instabuild) itemStack.shrink(1);
             double power = i * 0.75 + 0.5;
-            serverPlayer.setDeltaMovement(0, power, 0);
-            mc.player.setDeltaMovement(0, power, 0);
-            level.sendParticles(
-                ParticleTypes.FIREWORK,
-                serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(),
-                20,
-                0, 0.5, 0,
-                0.05
-            );
-            level.playSound(
-                null,
-                blockPos,
-                SoundEvents.FIREWORK_ROCKET_LAUNCH,
-                SoundSource.PLAYERS
-            );
+            player.setDeltaMovement(0, power, 0);
+            Level level = context.getLevel();
+            if (level instanceof ServerLevel serverLevel) {
+                serverLevel.sendParticles(
+                    ParticleTypes.FIREWORK,
+                    player.getX(), player.getY(), player.getZ(),
+                    20,
+                    0, 0.5, 0,
+                    0.05
+                );
+                serverLevel.playSound(
+                    null,
+                    player.blockPosition(),
+                    SoundEvents.FIREWORK_ROCKET_LAUNCH,
+                    SoundSource.PLAYERS
+                );
+            }
             return true;
         }
         return false;

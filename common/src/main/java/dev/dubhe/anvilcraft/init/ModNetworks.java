@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.network.Network;
-import dev.dubhe.anvilcraft.network.HammerUsePack;
 import dev.dubhe.anvilcraft.network.MachineEnableFilterPack;
 import dev.dubhe.anvilcraft.network.MachineOutputDirectionPack;
 import dev.dubhe.anvilcraft.network.PowerGridRemovePack;
@@ -46,10 +45,6 @@ public class ModNetworks {
     public static final ResourceLocation POWER_GRID_REMOVE = Network.register(
         AnvilCraft.of("power_grid_remove"),
         PowerGridRemovePack.class, PowerGridRemovePack::new
-    );
-    public static final ResourceLocation HAMMER_USE = Network.register(
-        AnvilCraft.of("hammer_use"),
-        HammerUsePack.class, HammerUsePack::new
     );
     public static final ResourceLocation CYCLING_VALUE = Network.register(
             AnvilCraft.of("cycling_value"),

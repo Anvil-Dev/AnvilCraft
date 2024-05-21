@@ -2,9 +2,9 @@ package dev.dubhe.anvilcraft.event.forge;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
-import dev.dubhe.anvilcraft.network.HammerUsePack;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -33,10 +33,8 @@ public class BlockEventListener {
     @SubscribeEvent
     public static void anvilHammerUse(@NotNull PlayerInteractEvent.RightClickBlock event) {
         InteractionHand hand = event.getHand();
-        if (event.getEntity().getItemInHand(hand).getItem() instanceof AnvilHammerItem) {
-            if (event.getLevel().isClientSide()) {
-                new HammerUsePack(event.getPos(), hand).send();
-            }
+        if (event.getEntity().getItemInHand(hand).getItem() instanceof AnvilHammerItem item) {
+            item.useBlock(new UseOnContext(event.getEntity(), event.getHand(), event.getHitVec()));
             event.setCancellationResult(InteractionResult.SUCCESS);
             event.setCanceled(true);
         }
