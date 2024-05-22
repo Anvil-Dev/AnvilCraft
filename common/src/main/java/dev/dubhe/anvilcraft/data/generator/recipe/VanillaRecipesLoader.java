@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.init.ModItemTags;
 import dev.dubhe.anvilcraft.init.ModItems;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
 import net.minecraft.data.recipes.SmithingTransformRecipeBuilder;
 import net.minecraft.data.recipes.packs.VanillaRecipeProvider;
@@ -167,5 +168,20 @@ public class VanillaRecipesLoader {
                 AnvilCraftDatagen.has(ModBlocks.ROYAL_STEEL_BLOCK))
             .unlocks(AnvilCraftDatagen.hasItem(Items.SMITHING_TABLE), AnvilCraftDatagen.has(Items.SMITHING_TABLE))
             .save(provider, AnvilCraft.of("smithing/royal_smithing_table"));
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModBlocks.DISCHARGER)
+                .requires(ModBlocks.CHARGER, 1)
+                .unlockedBy(
+                        AnvilCraftDatagen.hasItem(ModBlocks.CHARGER),
+                        AnvilCraftDatagen.has(ModBlocks.CHARGER)
+                )
+                .save(provider, AnvilCraft.of("discharger_from_charger"));
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModBlocks.CHARGER)
+                .requires(ModBlocks.DISCHARGER, 1)
+                .unlockedBy(
+                        AnvilCraftDatagen.hasItem(ModBlocks.DISCHARGER),
+                        AnvilCraftDatagen.has(ModBlocks.DISCHARGER)
+                )
+                .save(provider, AnvilCraft.of("charger_from_discharger"));
     }
 }

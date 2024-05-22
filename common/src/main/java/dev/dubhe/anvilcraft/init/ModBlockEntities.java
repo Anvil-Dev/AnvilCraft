@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.init;
 import com.tterrag.registrate.util.entry.BlockEntityEntry;
 import dev.dubhe.anvilcraft.block.entity.AutoCrafterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.ChargerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CorruptedBeaconBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
@@ -116,6 +117,12 @@ public class ModBlockEntities {
         .blockEntity("overseer", OverseerBlockEntity::createBlockEntity)
         .validBlock(ModBlocks.OVERSEER_BLOCK)
         .register();
+
+    public static final BlockEntityEntry<ChargerBlockEntity> CHARGER = REGISTRATE
+            .blockEntity("charger", ChargerBlockEntity::new)
+            .validBlocks(ModBlocks.CHARGER, ModBlocks.DISCHARGER)
+            .onRegister(ChargerBlockEntity::onBlockEntityRegister)
+            .register();
 
     public static void register() {
     }

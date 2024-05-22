@@ -10,10 +10,12 @@ import dev.dubhe.anvilcraft.block.BlockDevourerBlock;
 import dev.dubhe.anvilcraft.block.BlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.CementCauldronBlock;
 import dev.dubhe.anvilcraft.block.ChargeCollectorBlock;
+import dev.dubhe.anvilcraft.block.ChargerBlock;
 import dev.dubhe.anvilcraft.block.ChuteBlock;
 import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.block.CrabTrapBlock;
 import dev.dubhe.anvilcraft.block.CreativeGeneratorBlock;
+import dev.dubhe.anvilcraft.block.DischargerBlock;
 import dev.dubhe.anvilcraft.block.FerriteCoreMagnetBlock;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
@@ -66,6 +68,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.data.recipes.packs.VanillaRecipeProvider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.BlockTags;
@@ -1540,6 +1543,46 @@ public class ModBlocks {
         .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
+
+    public static final BlockEntry<ChargerBlock> CHARGER = REGISTRATE
+            .block("charger", ChargerBlock::new)
+            .initialProperties(() -> Blocks.IRON_BLOCK)
+            .properties(BlockBehaviour.Properties::noOcclusion)
+            .blockstate((ctx, prov) -> {})
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                    .pattern("A A")
+                    .pattern("ABA")
+                    .pattern("CCC")
+                    .define('A', Items.COPPER_INGOT)
+                    .define('B', ModItems.MAGNETOELECTRIC_CORE)
+                    .define('C', Items.IRON_INGOT)
+                    .unlockedBy(
+                            AnvilCraftDatagen.hasItem(Items.COPPER_INGOT),
+                            AnvilCraftDatagen.has(Items.COPPER_INGOT)
+                    )
+                    .unlockedBy(
+                            AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
+                            AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
+                    )
+                    .unlockedBy(
+                            AnvilCraftDatagen.hasItem(Items.IRON_INGOT),
+                            AnvilCraftDatagen.has(Items.IRON_INGOT)
+                    )
+                    .save(provider)
+            )
+            .register();
+
+    public static final BlockEntry<DischargerBlock> DISCHARGER = REGISTRATE
+            .block("discharger", DischargerBlock::new)
+            .initialProperties(() -> Blocks.IRON_BLOCK)
+            .properties(BlockBehaviour.Properties::noOcclusion)
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .register();
 
     public static final BlockEntry<ReinforcedConcreteBlock> REINFORCED_CONCRETE_BLACK =
         registerReinforcedConcreteBlock(Color.BLACK);
