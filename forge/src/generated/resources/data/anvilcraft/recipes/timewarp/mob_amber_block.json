@@ -52,7 +52,7 @@
       "type": "has_item_ingredient",
       "data_path": "resin",
       "has_tag": [
-        "entity"
+        "BlockEntityTag.entity"
       ],
       "match_item": {
         "count": {

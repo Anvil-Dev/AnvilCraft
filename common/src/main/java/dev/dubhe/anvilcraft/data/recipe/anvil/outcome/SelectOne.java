@@ -72,13 +72,14 @@ public class SelectOne implements RecipeOutcome, CanSetData {
     @Override
     public boolean process(@NotNull AnvilCraftingContainer container) {
         RandomSource random = container.getLevel().random;
-        if (random.nextDouble() > this.chance) return true;
         List<Double> weights = this.outcomes.stream().map(RecipeOutcome::getChance).toList();
         RecipeOutcome outcome = SelectOne.weightedRandomSelect(this.outcomes, weights, random);
-        if (outcome instanceof CanSetData canSetData) {
-            canSetData.setData(this.data);
+        if (outcome != null) {
+            if (outcome instanceof CanSetData canSetData) {
+                canSetData.setData(this.data);
+            }
+            outcome.process(container);
         }
-        if (outcome != null) outcome.process(container);
         return true;
     }
 
@@ -94,37 +95,21 @@ public class SelectOne implements RecipeOutcome, CanSetData {
 
         // 创建累积概率数组
         List<Double> cumulativeProbabilities = new ArrayList<>();
-        double cumulativeSum = 0;
         for (double weight : weights) {
-            cumulativeSum += weight / totalWeight; // 归一化处理
-            cumulativeProbabilities.add(cumulativeSum);
+            cumulativeProbabilities.add(weight / totalWeight); // 归一化处理
         }
 
         double randomWeight = random.nextDouble(); // 生成0到1之间的随机浮点数
 
-        // 使用二分搜索找到对应的元素
-        int index = binarySearch(cumulativeProbabilities, randomWeight);
-        if (index < 0 || index >= elements.size()) return null;
-        return elements.get(index);
-    }
-
-    private static int binarySearch(@NotNull List<Double> cumulativeProbabilities, double value) {
-        int low = 0;
-        int high = cumulativeProbabilities.size() - 1;
-
-        while (low <= high) {
-            int mid = (low + high) / 2;
-            if (cumulativeProbabilities.get(mid) < value) {
-                low = mid + 1;
-            } else if (mid > 0 && cumulativeProbabilities.get(mid - 1) >= value) {
-                high = mid - 1;
-            } else {
-                return mid;
+        for (int index = 0; index < cumulativeProbabilities.size(); index++) {
+            randomWeight -= cumulativeProbabilities.get(index);
+            if (randomWeight <= 0) {
+                if (index >= elements.size()) break;
+                return elements.get(index);
             }
         }
-        return -1; // 如果权重正确，则永远不应该到达这里
+        return null;
     }
-
 
     @Override
     public void toNetwork(@NotNull FriendlyByteBuf buffer) {

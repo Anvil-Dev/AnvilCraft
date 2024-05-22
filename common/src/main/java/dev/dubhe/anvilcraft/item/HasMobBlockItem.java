@@ -1,13 +1,10 @@
 package dev.dubhe.anvilcraft.item;
 
-import dev.dubhe.anvilcraft.block.entity.HasMobBlockEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -19,11 +16,9 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -42,6 +37,7 @@ public class HasMobBlockItem extends BlockItem {
         @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag isAdvanced
     ) {
         super.appendHoverText(stack, level, tooltipComponents, isAdvanced);
+        if (!HasMobBlockItem.hasMob(stack)) return;
         Entity entity = HasMobBlockItem.getMobFromItem(level, stack);
         if (entity != null) {
             tooltipComponents.add(
@@ -51,26 +47,8 @@ public class HasMobBlockItem extends BlockItem {
     }
 
     public static boolean hasMob(@NotNull ItemStack stack) {
-        if (!stack.hasTag()) return false;
-        return stack.getOrCreateTag().contains("entity");
-    }
-
-    @Override
-    public @NotNull InteractionResult useOn(@NotNull UseOnContext context) {
-        InteractionResult result = super.useOn(context);
-        Level level = context.getLevel();
-        Direction clickedFace = context.getClickedFace();
-        BlockPos pos = context.getClickedPos();
-        ItemStack item = context.getItemInHand();
-        BlockEntity blockEntity = level.getBlockEntity(pos.relative(clickedFace));
-        if (
-            blockEntity != null
-                && item.getItem() instanceof HasMobBlockItem
-                && blockEntity instanceof HasMobBlockEntity entity
-        ) {
-            entity.setEntity(HasMobBlockItem.getMobFromItem(level, item));
-        }
-        return result;
+        if (!stack.hasTag() || !stack.getOrCreateTag().contains("BlockEntityTag")) return false;
+        return stack.getOrCreateTag().getCompound("BlockEntityTag").contains("entity");
     }
 
     /**
@@ -79,6 +57,7 @@ public class HasMobBlockItem extends BlockItem {
     public static @Nullable Entity getMobFromItem(Level level, @NotNull ItemStack stack) {
         if (!stack.hasTag()) return null;
         CompoundTag tag = stack.getOrCreateTag();
+        tag = tag.contains("BlockEntityTag") ? tag.getCompound("BlockEntityTag") : new CompoundTag();
         if (!tag.contains("entity")) return null;
         CompoundTag entityTag = tag.getCompound("entity");
         Optional<EntityType<?>> optional = EntityType.by(entityTag);
@@ -110,19 +89,21 @@ public class HasMobBlockItem extends BlockItem {
             }
             return;
         }
-        CompoundTag tag = stack.getOrCreateTag();
-        if (entity instanceof Monster monster) {
-            MobEffectInstance instance = monster.getEffect(MobEffects.WEAKNESS);
-            if (instance == null) return;
-            tag.putBoolean("is_monster", true);
-        } else {
-            tag.putBoolean("is_monster", false);
-        }
         CompoundTag entityTag = new CompoundTag();
         entity.saveAsPassenger(entityTag);
         entityTag.remove(Entity.UUID_TAG);
+        CompoundTag tag = stack.getOrCreateTag();
         tag.put("entity", entityTag);
-        stack.setTag(tag);
+        CompoundTag compoundTag = new CompoundTag();
+        if (entity instanceof Monster monster) {
+            MobEffectInstance instance = monster.getEffect(MobEffects.WEAKNESS);
+            if (instance == null && !player.getAbilities().instabuild) return;
+            compoundTag.putBoolean("is_monster", true);
+        } else {
+            compoundTag.putBoolean("is_monster", false);
+        }
+        compoundTag.put("BlockEntityTag", tag);
+        stack.setTag(compoundTag);
         player.getInventory().placeItemBackInInventory(stack);
         entity.remove(Entity.RemovalReason.DISCARDED);
     }
