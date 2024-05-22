@@ -103,7 +103,6 @@ public class DiskItem extends Item {
                         .getKey(blockEntity.getType())
                         .toString())) return InteractionResult.PASS;
                 diskCloneable.applyDiskData(tag);
-                deleteData(stack);
             } else {
                 CompoundTag tag = createData(stack);
                 tag.putString(

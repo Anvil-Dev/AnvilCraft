@@ -27,3 +27,6 @@ logoFile="pack.png" #optional
    versionRange="${minecraft_version}"
    ordering="NONE"
    side="BOTH"
+
+[mc-publish]
+    loaders=["forge"]
