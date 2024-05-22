@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.util.StateListener;
+import dev.dubhe.anvilcraft.util.WatchablePropertyDelegate;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
@@ -21,6 +22,9 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 public class ChargerBlockEntity
         extends BlockEntity
         implements IPowerConsumer, IPowerProducer, IFilterBlockEntity, StateListener<Boolean> {
@@ -28,6 +32,15 @@ public class ChargerBlockEntity
     @Setter
     private boolean isCharger;
     private int cd;
+    private final WatchablePropertyDelegate<Boolean> locked = new WatchablePropertyDelegate<>(false) {
+        @Override
+        protected void onChanged(Boolean oldValue, Boolean newValue) {
+            StringWriter sw = new StringWriter();
+            PrintWriter writer = new PrintWriter(sw);
+            new Exception().printStackTrace(writer);
+            System.out.printf("StateChanged %s -> %s\n%s", oldValue, newValue, sw);
+        }
+    };
 
     private final FilteredItemDepository depository = new FilteredItemDepository(1) {
 
@@ -39,13 +52,20 @@ public class ChargerBlockEntity
                 boolean notifyChanges,
                 boolean isServer
         ) {
-            if (cd == 0) {
+            if (!locked.get()) {
                 ItemStack original = stack.copy();
                 original.shrink(1);
                 if (original.isEmpty()) {
-                    return super.insert(slot, stack.copyWithCount(1), simulate, notifyChanges, isServer);
+                    ItemStack left = super.insert(slot, stack.copyWithCount(1), simulate, notifyChanges, isServer);
+                    if (left.isEmpty()) {
+                        locked.set(true);
+                    }
+                    return left;
                 } else {
                     ItemStack left = super.insert(slot, stack.copyWithCount(1), simulate, notifyChanges, isServer);
+                    if (left.isEmpty()) {
+                        locked.set(true);
+                    }
                     return stack.copyWithCount(stack.getCount() - 1 + left.getCount());
                 }
             } else {
@@ -60,7 +80,7 @@ public class ChargerBlockEntity
 
         @Override
         public ItemStack extract(int slot, int amount, boolean simulate, boolean notifyChanges) {
-            return cd == 0 ? super.extract(slot, amount, simulate, notifyChanges) : ItemStack.EMPTY;
+            return !locked.get() ? super.extract(slot, amount, simulate, notifyChanges) : ItemStack.EMPTY;
         }
     };
 
@@ -79,16 +99,22 @@ public class ChargerBlockEntity
 
     @Override
     public void gridTick() {
-        if (depository.isEmpty()) return;
-        if (cd == 0) {
-            resetCooldown();
+        if (depository.getStack(0).isEmpty()) {
+            locked.set(false);
+            return;
+        }
+        if (cd == 0 && containsValidItem(depository.getStack(0))) {
+            locked.set(true);
+            cd = 7;
             processItemTransform();
             return;
         }
         if (cd > 0) {
             cd--;
+            locked.set(true);
         } else {
             cd = 0;
+            locked.set(false);
         }
     }
 
@@ -163,7 +189,7 @@ public class ChargerBlockEntity
 
     @Override
     public int getInputPower() {
-        return cd == 0 && isCharger ? 0 : 32;
+        return locked.get() && isCharger ? 32 : 0;
     }
 
     @Override
@@ -173,7 +199,7 @@ public class ChargerBlockEntity
 
     @Override
     public int getOutputPower() {
-        return cd == 0 && !isCharger ? 0 : 24;
+        return locked.get() && !isCharger ? 24 : 0;
     }
 
     @Override
@@ -196,18 +222,11 @@ public class ChargerBlockEntity
         return isCharger;
     }
 
-    void resetCooldown() {
-        if (depository.isEmpty()) {
-            cd = 0;
-        } else {
-            cd = 7;
-        }
-    }
-
     @Override
     public void notifyStateChanged(Boolean newState) {
         isCharger = newState;
-        resetCooldown();
+        locked.set(false);
+        cd = 0;
     }
 
     @ExpectPlatform
