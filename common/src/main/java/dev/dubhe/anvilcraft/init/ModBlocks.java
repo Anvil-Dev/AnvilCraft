@@ -88,6 +88,12 @@ import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.WallBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.functions.CopyNbtFunction;
+import net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
@@ -734,7 +740,7 @@ public class ModBlocks {
             HasItem.ModItemPredicate item = HasItem.ModItemPredicate
                 .of(ModBlocks.RESIN_BLOCK)
                 .withCount(MinMaxBounds.Ints.atLeast(1));
-            HasItem hasItem = new HasItemIngredient(new Vec3(0.0, -1.0, 0.0), item).notHasTag("entity");
+            HasItem hasItem = new HasItemIngredient(new Vec3(0.0, -1.0, 0.0), item).notHasTag("BlockEntityTag.entity");
             AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .icon(ctx.get())
                 .hasBlock(
@@ -767,32 +773,13 @@ public class ModBlocks {
                 .of(ModBlocks.RESIN_BLOCK)
                 .withCount(MinMaxBounds.Ints.atLeast(1))
                 .withNbt(tag);
-            tag = new CompoundTag();
-            tag.putBoolean("is_monster", true);
-            HasItem.ModItemPredicate monster = HasItem.ModItemPredicate
-                .of(ModBlocks.RESIN_BLOCK)
-                .withCount(MinMaxBounds.Ints.atLeast(1))
-                .withNbt(tag);
             RecipePredicate hasItem = new HasItemIngredient(new Vec3(0.0, -1.0, 0.0), item)
-                .hasTag("entity")
-                .saveItemData("resin");
-            RecipePredicate hasItemMonster = new HasItemIngredient(new Vec3(0.0, -1.0, 0.0), monster)
-                .hasTag("entity")
+                .hasTag("BlockEntityTag.entity")
                 .saveItemData("resin");
             RecipeOutcome spawnItem0 = new SpawnItem(
                 new Vec3(0.0, -1.0, 0.0),
                 1.0,
                 ctx.get().getDefaultInstance()
-            ).loadItemData("resin");
-            RecipeOutcome spawnItem1 = new SpawnItem(
-                new Vec3(0.0, -1.0, 0.0),
-                0.95,
-                ctx.get().getDefaultInstance()
-            ).loadItemData("resin");
-            RecipeOutcome spawnItem2 = new SpawnItem(
-                new Vec3(0.0, -1.0, 0.0),
-                0.05,
-                ModBlocks.RESENTFUL_AMBER_BLOCK.asItem().getDefaultInstance()
             ).loadItemData("resin");
             AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .icon(ctx.get())
@@ -811,6 +798,26 @@ public class ModBlocks {
                     AnvilCraft.of(
                         "timewarp/" + BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath())
                 );
+
+            tag = new CompoundTag();
+            tag.putBoolean("is_monster", true);
+            HasItem.ModItemPredicate monster = HasItem.ModItemPredicate
+                .of(ModBlocks.RESIN_BLOCK)
+                .withCount(MinMaxBounds.Ints.atLeast(1))
+                .withNbt(tag);
+            RecipePredicate hasItemMonster = new HasItemIngredient(new Vec3(0.0, -1.0, 0.0), monster)
+                .hasTag("BlockEntityTag.entity")
+                .saveItemData("resin");
+            RecipeOutcome spawnItem1 = new SpawnItem(
+                new Vec3(0.0, -1.0, 0.0),
+                0.95,
+                ctx.get().getDefaultInstance()
+            ).loadItemData("resin");
+            RecipeOutcome spawnItem2 = new SpawnItem(
+                new Vec3(0.0, -1.0, 0.0),
+                0.05,
+                ModBlocks.RESENTFUL_AMBER_BLOCK.asItem().getDefaultInstance()
+            ).loadItemData("resin");
             AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .icon(ctx.get())
                 .hasBlock(
@@ -834,7 +841,19 @@ public class ModBlocks {
         })
         .build()
         .initialProperties(ModBlocks.AMBER_BLOCK)
-        .defaultLoot()
+        .loot((ctx, prov) -> {
+            LootTable.Builder builder = LootTable.lootTable()
+                .withPool(
+                    LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1.0f))
+                        .add(LootItem.lootTableItem(ModBlocks.MOB_AMBER_BLOCK))
+                        .apply(
+                            CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
+                                .copy("entity", "BlockEntityTag.entity")
+                        )
+                );
+            ctx.add(prov, builder);
+        })
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
@@ -845,7 +864,19 @@ public class ModBlocks {
         .item(HasMobBlockItem::new)
         .build()
         .initialProperties(ModBlocks.AMBER_BLOCK)
-        .defaultLoot()
+        .loot((ctx, prov) -> {
+            LootTable.Builder builder = LootTable.lootTable()
+                .withPool(
+                    LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1.0f))
+                        .add(LootItem.lootTableItem(ModBlocks.RESENTFUL_AMBER_BLOCK))
+                        .apply(
+                            CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
+                                .copy("entity", "BlockEntityTag.entity")
+                        )
+                );
+            ctx.add(prov, builder);
+        })
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 

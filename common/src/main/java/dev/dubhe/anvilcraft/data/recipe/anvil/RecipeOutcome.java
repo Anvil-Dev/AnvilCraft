@@ -4,6 +4,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -65,5 +67,15 @@ public interface RecipeOutcome {
 
     default double getChance() {
         return 1.0;
+    }
+
+    /**
+     *
+     */
+    default boolean processWithChance(@NotNull AnvilCraftingContainer container) {
+        Level level = container.getLevel();
+        RandomSource random = level.getRandom();
+        if (random.nextDouble() > this.getChance()) return true;
+        return this.process(container);
     }
 }
