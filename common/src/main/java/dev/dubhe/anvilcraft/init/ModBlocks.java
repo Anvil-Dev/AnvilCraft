@@ -1721,14 +1721,14 @@ public class ModBlocks {
             .simpleItem()
             .blockstate((ctx, provider) -> {
                 provider.models().getBuilder("reinforced_concrete_" + color)
-                    .parent(DangerUtil.genUncheckedModelFile("block/cube_all").get())
+                    .parent(DangerUtil.genUncheckedModelFile("minecraft", "block/cube_all").get())
                     .texture("all", "block/reinforced_concrete_" + color);
                 provider.models().getBuilder("reinforced_concrete_top_" + color)
-                    .parent(DangerUtil.genUncheckedModelFile("block/cube_column").get())
+                    .parent(DangerUtil.genUncheckedModelFile("minecraft", "block/cube_column").get())
                     .texture("end", "block/reinforced_concrete_" + color)
                     .texture("side", "block/reinforced_concrete_" + color + "_top");
                 provider.models().getBuilder("reinforced_concrete_bottom_" + color)
-                    .parent(DangerUtil.genUncheckedModelFile("block/cube_column").get())
+                    .parent(DangerUtil.genUncheckedModelFile("minecraft", "block/cube_column").get())
                     .texture("end", "block/reinforced_concrete_" + color)
                     .texture("side", "block/reinforced_concrete_" + color + "_bottom");
                 provider.getVariantBuilder(ctx.get()).forAllStates(

@@ -36,7 +36,7 @@ public class DischargerBlock extends BaseEntityBlock implements IHammerRemovable
 
     @Override
     public boolean change(Player player, BlockPos blockPos, @NotNull Level level, ItemStack anvilHammer) {
-        level.setBlock(blockPos, ModBlocks.DISCHARGER.getDefaultState(), 2);
+        level.setBlock(blockPos, ModBlocks.CHARGER.getDefaultState(), 2);
         if (level.getBlockEntity(blockPos) instanceof StateListener<?> listener) {
             StateListener<Boolean> thiz = (StateListener<Boolean>) listener;
             thiz.notifyStateChanged(false);

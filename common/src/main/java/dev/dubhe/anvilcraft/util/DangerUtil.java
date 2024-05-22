@@ -19,4 +19,8 @@ public final class DangerUtil {
     public static @NotNull Supplier<ModelFile.UncheckedModelFile> genUncheckedModelFile(String path) {
         return () -> new ModelFile.UncheckedModelFile(new ResourceLocation(path));
     }
+
+    public static @NotNull Supplier<ModelFile.UncheckedModelFile> genUncheckedModelFile(String namespace, String path) {
+        return () -> new ModelFile.UncheckedModelFile(new ResourceLocation(namespace, path));
+    }
 }

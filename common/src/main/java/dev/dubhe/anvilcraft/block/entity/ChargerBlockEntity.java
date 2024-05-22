@@ -28,6 +28,7 @@ public class ChargerBlockEntity
     @Setter
     private boolean isCharger;
     private int cd;
+
     private final FilteredItemDepository depository = new FilteredItemDepository(1) {
 
         @Override
