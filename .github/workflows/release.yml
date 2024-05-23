@@ -68,11 +68,35 @@ jobs:
             fabric/build/libs/anvilcraft-fabric-${{ steps.version.outputs.version }}.jar
             forge/build/libs/anvilcraft-forge-${{ steps.version.outputs.version }}.jar
 
-      - name: publish mc mod
+      - name: publish forge mc mod
         uses: Kir-Antipov/mc-publish@v3.3
         continue-on-error: true
         with:
-          name: AnvilCraftMod v${{ steps.version.outputs.version }}
+          name: "${{ steps.properties.outputs.mod_name }} For Forge v${{ steps.version.outputs.version }}"
+          version: ${{ steps.version.outputs.version }}
+          game-versions: 1.20.1
+          version-type: release
+          java: 17
+          fail-mode: skip
+          changelog: ${{ github.event.release.body }}
+
+          modrinth-id: vuISAWPc
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          modrinth-featured: true
+
+          curseforge-id: 986251
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+
+          files: |
+            forge/build/libs/anvilcraft-forge-${{ steps.version.outputs.version }}.jar
+            forge/build/libs/anvilcraft-forge-${{ steps.version.outputs.version }}-sources.jar
+            
+
+      - name: publish fabric mc mod
+        uses: Kir-Antipov/mc-publish@v3.3
+        continue-on-error: true
+        with:
+          name: "${{ steps.properties.outputs.mod_name }} For Fabric v${{ steps.version.outputs.version }}"
           version: ${{ steps.version.outputs.version }}
           game-versions: 1.20.1
           version-type: release
@@ -89,4 +113,4 @@ jobs:
 
           files: |
             fabric/build/libs/anvilcraft-fabric-${{ steps.version.outputs.version }}.jar
-            forge/build/libs/anvilcraft-forge-${{ steps.version.outputs.version }}.jar
+            fabric/build/libs/anvilcraft-fabric-${{ steps.version.outputs.version }}-sources.jar
