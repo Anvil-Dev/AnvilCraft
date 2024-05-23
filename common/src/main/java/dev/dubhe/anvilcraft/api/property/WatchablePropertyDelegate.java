@@ -1,8 +1,11 @@
-package dev.dubhe.anvilcraft.util;
+package dev.dubhe.anvilcraft.api.property;
+
+import java.util.UUID;
 
 public class WatchablePropertyDelegate<T> {
 
     protected T value = null;
+    private final UUID syncId = UUID.randomUUID();
 
     public WatchablePropertyDelegate(T value) {
         this.value = value;
@@ -21,10 +24,6 @@ public class WatchablePropertyDelegate<T> {
 
     public void set(T newValue) {
         if (value != newValue) onChanged(value, newValue);
-        this.value = newValue;
-    }
-
-    protected void setValue(T newValue) {
         this.value = newValue;
     }
 }

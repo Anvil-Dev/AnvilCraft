@@ -20,6 +20,7 @@ import dev.dubhe.anvilcraft.item.CapacitorItem;
 import dev.dubhe.anvilcraft.item.CrabClawItem;
 import dev.dubhe.anvilcraft.item.CursedItem;
 import dev.dubhe.anvilcraft.item.DiskItem;
+import dev.dubhe.anvilcraft.item.EmptyCapacitorItem;
 import dev.dubhe.anvilcraft.item.GeodeItem;
 import dev.dubhe.anvilcraft.item.GuideBookItem;
 import dev.dubhe.anvilcraft.item.MagnetItem;
@@ -496,8 +497,8 @@ public class ModItems {
                 .save(provider, RecipeBuilder.getDefaultRecipeId(ctx.get()).getPath() + "_forge");
         })
         .register();
-    public static final ItemEntry<CapacitorItem> CAPACITOR_EMPTY = REGISTRATE
-        .item("capacitor_empty", CapacitorItem::new)
+    public static final ItemEntry<EmptyCapacitorItem> CAPACITOR_EMPTY = REGISTRATE
+        .item("capacitor_empty", EmptyCapacitorItem::new)
         .tag(ModItemTags.CAPACITOR)
         .recipe((ctx, provider) -> ShapedTagRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get().getDefaultInstance())
             .pattern("ABA")

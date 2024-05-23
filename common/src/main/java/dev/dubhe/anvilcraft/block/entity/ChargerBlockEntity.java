@@ -2,14 +2,17 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
+import dev.dubhe.anvilcraft.api.item.IChargerChargeable;
+import dev.dubhe.anvilcraft.api.item.IChargerDischargeable;
+import dev.dubhe.anvilcraft.api.network.Packet;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
+import dev.dubhe.anvilcraft.block.ChargerBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.util.StateListener;
-import dev.dubhe.anvilcraft.util.WatchablePropertyDelegate;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
@@ -22,8 +25,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import static dev.dubhe.anvilcraft.api.power.PowerGrid.GRID_TICK;
 
 public class ChargerBlockEntity
         extends BlockEntity
@@ -31,16 +33,10 @@ public class ChargerBlockEntity
 
     @Setter
     private boolean isCharger;
+    private boolean previousDischargeFailed = false;
     private int cd;
-    private final WatchablePropertyDelegate<Boolean> locked = new WatchablePropertyDelegate<>(false) {
-        @Override
-        protected void onChanged(Boolean oldValue, Boolean newValue) {
-            StringWriter sw = new StringWriter();
-            PrintWriter writer = new PrintWriter(sw);
-            new Exception().printStackTrace(writer);
-            System.out.printf("StateChanged %s -> %s\n%s", oldValue, newValue, sw);
-        }
-    };
+    private boolean locked = false;
+    private boolean powered = false;
 
     private final FilteredItemDepository depository = new FilteredItemDepository(1) {
 
@@ -52,19 +48,19 @@ public class ChargerBlockEntity
                 boolean notifyChanges,
                 boolean isServer
         ) {
-            if (!locked.get()) {
+            if (!locked && !previousDischargeFailed) {
                 ItemStack original = stack.copy();
                 original.shrink(1);
                 if (original.isEmpty()) {
                     ItemStack left = super.insert(slot, stack.copyWithCount(1), simulate, notifyChanges, isServer);
-                    if (left.isEmpty()) {
-                        locked.set(true);
+                    if (left.isEmpty() && !simulate) {
+                        locked = true;
                     }
                     return left;
                 } else {
                     ItemStack left = super.insert(slot, stack.copyWithCount(1), simulate, notifyChanges, isServer);
-                    if (left.isEmpty()) {
-                        locked.set(true);
+                    if (left.isEmpty() && !simulate) {
+                        locked = true;
                     }
                     return stack.copyWithCount(stack.getCount() - 1 + left.getCount());
                 }
@@ -80,7 +76,7 @@ public class ChargerBlockEntity
 
         @Override
         public ItemStack extract(int slot, int amount, boolean simulate, boolean notifyChanges) {
-            return !locked.get() ? super.extract(slot, amount, simulate, notifyChanges) : ItemStack.EMPTY;
+            return !locked ? super.extract(slot, amount, simulate, notifyChanges) : ItemStack.EMPTY;
         }
     };
 
@@ -97,65 +93,27 @@ public class ChargerBlockEntity
         isCharger = blockState.is(ModBlocks.CHARGER.get());
     }
 
-    @Override
-    public void gridTick() {
-        if (depository.getStack(0).isEmpty()) {
-            locked.set(false);
-            return;
-        }
-        if (cd == 0 && containsValidItem(depository.getStack(0))) {
-            locked.set(true);
-            cd = 7;
-            processItemTransform();
-            return;
-        }
-        if (cd > 0) {
-            cd--;
-            locked.set(true);
-        } else {
-            cd = 0;
-            locked.set(false);
-        }
-    }
-
     private boolean containsValidItem(ItemStack stack) {
-        if (stack.is(ModItems.MAGNET.asItem())) {
-            if (isCharger) {
-                return stack.getDamageValue() != 0;
-            }
-            return false;
-        }
         if (isCharger) {
-            return stack.is(ModItems.CAPACITOR_EMPTY.asItem())
-                    || stack.is(Items.IRON_INGOT);
-        } else {
-            return stack.is(ModItems.CAPACITOR.asItem())
-                    || stack.is(ModItems.MAGNET_INGOT.asItem());
+            return stack.getItem() instanceof IChargerChargeable || stack.is(Items.IRON_INGOT);
         }
+        return stack.getItem() instanceof IChargerDischargeable;
     }
 
     private void processItemTransform() {
         ItemStack stack = depository.getStack(0).copy();
         if (stack.isEmpty() || !containsValidItem(stack)) return;
         if (isCharger) {
-            if (stack.is(ModItems.CAPACITOR_EMPTY.asItem())) {
-                depository.setStack(0, ModItems.CAPACITOR.asStack(1));
+            if (stack.getItem() instanceof IChargerChargeable chargeable) {
+                depository.setStack(0, chargeable.charge(stack));
                 return;
             }
             if (stack.is(Items.IRON_INGOT.asItem())) {
                 depository.setStack(0, ModItems.MAGNET_INGOT.asStack(1));
-                return;
-            }
-            if (stack.is(ModItems.MAGNET.asItem())) {
-                depository.setStack(0, ModItems.MAGNET.asStack(1));
             }
         } else {
-            if (stack.is(ModItems.MAGNET_INGOT.get())) {
-                depository.setStack(0, Items.IRON_INGOT.getDefaultInstance().copyWithCount(1));
-                return;
-            }
-            if (stack.is(Items.IRON_INGOT.asItem())) {
-                depository.setStack(0, ModItems.MAGNET_INGOT.asStack(1));
+            if (stack.getItem() instanceof IChargerDischargeable dischargeable) {
+                depository.setStack(0, dischargeable.discharge(stack));
             }
         }
     }
@@ -177,6 +135,8 @@ public class ChargerBlockEntity
         tag.putInt("Cooldown", cd);
         tag.put("Depository", depository.serializeNbt());
         tag.putBoolean("Mode", isCharger);
+        tag.putBoolean("PreviousDischargeFailed", previousDischargeFailed);
+        tag.putBoolean("Locked", locked);
     }
 
     @Override
@@ -185,11 +145,13 @@ public class ChargerBlockEntity
         cd = tag.getInt("Cooldown");
         depository.deserializeNbt(tag.getCompound("Depository"));
         isCharger = tag.getBoolean("Mode");
+        locked = tag.getBoolean("Locked");
+        previousDischargeFailed = tag.getBoolean("PreviousDischargeFailed");
     }
 
     @Override
     public int getInputPower() {
-        return locked.get() && isCharger ? 32 : 0;
+        return locked && isCharger && !powered ? 32 : 0;
     }
 
     @Override
@@ -199,7 +161,7 @@ public class ChargerBlockEntity
 
     @Override
     public int getOutputPower() {
-        return locked.get() && !isCharger ? 24 : 0;
+        return locked && !isCharger && !powered ? 24 : 0;
     }
 
     @Override
@@ -225,7 +187,10 @@ public class ChargerBlockEntity
     @Override
     public void notifyStateChanged(Boolean newState) {
         isCharger = newState;
-        locked.set(false);
+        if (isCharger) {
+            previousDischargeFailed = true;
+        }
+        locked = false;
         cd = 0;
     }
 
@@ -238,5 +203,55 @@ public class ChargerBlockEntity
 
     @ExpectPlatform
     public static void onBlockEntityRegister(BlockEntityType<ChargerBlockEntity> type) {
+    }
+
+    public void tick(Level level1, BlockPos blockPos) {
+        this.flushState(level1, blockPos);
+        BlockState state = level1.getBlockState(blockPos);
+        powered = state.getValue(ChargerBlock.POWERED);
+
+        if (level1.getGameTime() % 21 != 0) return;
+        if (depository.getStack(0).isEmpty()) {
+            locked = false;
+            return;
+        }
+        if (grid.isWork() && !isCharger) {
+            previousDischargeFailed = false;
+        }
+        if (powered) return;
+        if (cd == 0 && containsValidItem(depository.getStack(0))) {
+            locked = true;
+            cd = 7;
+            processItemTransform();
+            return;
+        }
+        if (previousDischargeFailed) {
+            if (cd <= 0) {
+                locked = false;
+            }
+            return;
+        }
+        if (isCharger) {
+            if (grid.isWork()) {
+                if (cd > 0) {
+                    cd--;
+                    locked = true;
+                } else {
+                    cd = 0;
+                    locked = false;
+                }
+            }
+            return;
+        }
+        if (cd > 0) {
+            cd--;
+            locked = true;
+        } else {
+            if (!grid.isWork() && !previousDischargeFailed) {
+                previousDischargeFailed = true;
+            }
+            cd = 0;
+            locked = false;
+        }
     }
 }
