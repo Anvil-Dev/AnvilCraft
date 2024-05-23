@@ -13,6 +13,8 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentCategory;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -61,7 +63,7 @@ public class FellingEnchantment extends ModEnchantment {
         Map<Enchantment, Integer> enchantments = EnchantmentHelper.getEnchantments(tool);
         if (!enchantments.containsKey(ModEnchantments.FELLING.get())) return;
         int max = (enchantments.get(ModEnchantments.FELLING.get()) * AnvilCraft.config.fellingBlockPerLevel) - 1;
-        FellingEnchantment.chainMine(level, pos, max);
+        FellingEnchantment.chainMine(level, player, pos, max, tool);
     }
 
     /**
@@ -71,14 +73,17 @@ public class FellingEnchantment extends ModEnchantment {
      * @param sourceBlock 源方块坐标
      * @param max         最大采集数量
      */
-    private static void chainMine(Level level, BlockPos sourceBlock, int max) {
+    private static void chainMine(Level level, Player player, BlockPos sourceBlock, int max, ItemStack tool) {
         BlockPos.breadthFirstTraversal(sourceBlock, Integer.MAX_VALUE, max, (blockPos, blockPosConsumer) -> {
             for (Direction direction : Direction.values()) {
                 blockPosConsumer.accept(blockPos.relative(direction));
             }
         }, blockPos -> {
-            if (level.getBlockState(blockPos).is(BlockTags.LOGS)) {
-                level.destroyBlock(blockPos, true);
+            BlockState blockState = level.getBlockState(blockPos);
+            if (blockState.is(BlockTags.LOGS)) {
+                BlockEntity blockEntity = level.getBlockEntity(blockPos);
+                level.removeBlock(blockPos, false);
+                blockState.getBlock().playerDestroy(level, player, blockPos, blockState, blockEntity, tool);
                 return true;
             }
             return sourceBlock.equals(blockPos);
