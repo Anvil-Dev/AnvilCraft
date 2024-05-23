@@ -16,6 +16,7 @@ import dev.dubhe.anvilcraft.block.CrabTrapBlock;
 import dev.dubhe.anvilcraft.block.CreativeGeneratorBlock;
 import dev.dubhe.anvilcraft.block.FerriteCoreMagnetBlock;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
+import dev.dubhe.anvilcraft.block.HeavyIronBeamBlock;
 import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
 import dev.dubhe.anvilcraft.block.HoneyCauldronBlock;
 import dev.dubhe.anvilcraft.block.InductionLightBlock;
@@ -403,6 +404,20 @@ public class ModBlocks {
                 AnvilCraftDatagen.has(ModBlocks.CUT_ROYAL_STEEL_BLOCK))
             .save(provider, AnvilCraft.of("craft/cut_royal_steel_stairs")))
         .register();
+
+    public static final BlockEntry<? extends Block> HEAVY_IRON_BEAM = REGISTRATE
+        .block("heavy_iron_beam", HeavyIronBeamBlock::new)
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .blockstate((ctx, provider) -> {
+        })
+        .item()
+        .model((ctx, provider) -> {
+        })
+        .build()
+        .defaultLoot()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
     public static final BlockEntry<? extends Block> LAVA_CAULDRON = REGISTRATE
         .block("lava_cauldron", LavaCauldronBlock::new)
         .initialProperties(() -> Blocks.LAVA_CAULDRON)
