@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.item.enchantment;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModEnchantments;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
@@ -12,14 +13,8 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentCategory;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 public class FellingEnchantment extends ModEnchantment {
@@ -66,21 +61,27 @@ public class FellingEnchantment extends ModEnchantment {
         Map<Enchantment, Integer> enchantments = EnchantmentHelper.getEnchantments(tool);
         if (!enchantments.containsKey(ModEnchantments.FELLING.get())) return;
         int max = (enchantments.get(ModEnchantments.FELLING.get()) * AnvilCraft.config.fellingBlockPerLevel) - 1;
-        while (max > 0) {
-            for (BlockPos offset : OFFSET) {
-                BlockPos offsetPos = pos.offset(offset);
-                BlockState state = level.getBlockState(offsetPos);
-                if (!state.is(BlockTags.LOGS)) continue;
-                if (max-- < 0) break;
-                Block block = state.getBlock();
-                boolean bl = level.removeBlock(offsetPos, false);
-                if (bl) {
-                    block.destroy(level, offsetPos, state);
-                }
-                if (player.isCreative()) continue;
-                BlockEntity entity = level.getBlockEntity(offsetPos);
-                block.playerDestroy(level, player, offsetPos, state, entity, tool);
+        FellingEnchantment.chainMine(level, pos, max);
+    }
+
+    /**
+     * 连锁破坏原木
+     *
+     * @param level       世界
+     * @param sourceBlock 源方块坐标
+     * @param max         最大采集数量
+     */
+    private static void chainMine(Level level, BlockPos sourceBlock, int max) {
+        BlockPos.breadthFirstTraversal(sourceBlock, Integer.MAX_VALUE, max, (blockPos, blockPosConsumer) -> {
+            for (Direction direction : Direction.values()) {
+                blockPosConsumer.accept(blockPos.relative(direction));
             }
-        }
+        }, blockPos -> {
+            if (level.getBlockState(blockPos).is(BlockTags.LOGS)) {
+                level.destroyBlock(blockPos, true);
+                return true;
+            }
+            return sourceBlock.equals(blockPos);
+        });
     }
 }
