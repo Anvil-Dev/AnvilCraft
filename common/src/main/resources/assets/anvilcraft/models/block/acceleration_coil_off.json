@@ -1,0 +1,11 @@
+{
+	"parent": "anvilcraft:block/acceleration_coil",
+	"render_type": "minecraft:cutout",
+	"textures": {
+		"bottom": "anvilcraft:block/acceleration_coil_bottom",
+		"top": "anvilcraft:block/acceleration_coil_top",
+		"particle": "anvilcraft:block/acceleration_coil_off",
+		"side": "anvilcraft:block/acceleration_coil_off",
+		"inner": "anvilcraft:block/acceleration_coil_inner"
+	}
+}
