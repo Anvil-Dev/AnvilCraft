@@ -4,7 +4,6 @@ import dev.architectury.injectables.annotations.ExpectPlatform;
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.api.item.IChargerChargeable;
 import dev.dubhe.anvilcraft.api.item.IChargerDischargeable;
-import dev.dubhe.anvilcraft.api.network.Packet;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
@@ -24,8 +23,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
-
-import static dev.dubhe.anvilcraft.api.power.PowerGrid.GRID_TICK;
 
 public class ChargerBlockEntity
         extends BlockEntity
