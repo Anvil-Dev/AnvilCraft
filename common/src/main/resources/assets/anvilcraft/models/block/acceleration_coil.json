@@ -1,0 +1,63 @@
+{
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/cube",
+	"render_type": "minecraft:cutout",
+	"textures": {
+		"bottom": "anvilcraft:block/acceleration_coil_bottom",
+		"top": "anvilcraft:block/acceleration_coil_top",
+		"particle": "anvilcraft:block/acceleration_coil",
+		"side": "anvilcraft:block/acceleration_coil",
+		"inner": "anvilcraft:block/acceleration_coil_inner"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 0],
+			"to": [16, 4, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [0, 12, 16, 16], "texture": "#side", "cullface": "north"},
+				"east": {"uv": [0, 12, 16, 16], "texture": "#side", "cullface": "east"},
+				"south": {"uv": [0, 12, 16, 16], "texture": "#side", "cullface": "south"},
+				"west": {"uv": [0, 12, 16, 16], "texture": "#side", "cullface": "west"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#bottom"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#bottom", "cullface": "down"}
+			}
+		},
+		{
+			"from": [2, 14, 2],
+			"to": [14, 16, 14],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [2, 0, 14, 2], "texture": "#side", "cullface": "north"},
+				"east": {"uv": [2, 0, 14, 2], "texture": "#side", "cullface": "east"},
+				"south": {"uv": [2, 0, 14, 2], "texture": "#side", "cullface": "south"},
+				"west": {"uv": [2, 0, 14, 2], "texture": "#side", "cullface": "west"},
+				"up": {"uv": [2, 2, 14, 14], "texture": "#top"},
+				"down": {"uv": [2, 2, 14, 14], "texture": "#top", "cullface": "down"}
+			}
+		},
+		{
+			"from": [3, 4, 3],
+			"to": [13, 14, 13],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [3, 2, 13, 12], "texture": "#side", "cullface": "north"},
+				"east": {"uv": [3, 2, 13, 12], "texture": "#side", "cullface": "east"},
+				"south": {"uv": [3, 2, 13, 12], "texture": "#side", "cullface": "south"},
+				"west": {"uv": [3, 2, 13, 12], "texture": "#side", "cullface": "west"}
+			}
+		},
+		{
+			"name": "cube inverted",
+			"from": [11, 16, 11],
+			"to": [5, 0, 5],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [5, 16, 11, 0], "texture": "#inner", "cullface": "south"},
+				"east": {"uv": [5, 16, 11, 0], "texture": "#inner", "cullface": "west"},
+				"south": {"uv": [5, 16, 11, 0], "texture": "#inner", "cullface": "north"},
+				"west": {"uv": [5, 16, 11, 0], "texture": "#inner", "cullface": "east"}
+			}
+		}
+	]
+}
