@@ -39,6 +39,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
 
         allSoundList = new SilencerSoundList(
                 Minecraft.getInstance(),
+                this,
                 80,
                 122,
                 offsetX + 6,
@@ -48,6 +49,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
 
         mutedSoundList = new SilencerSoundList(
                 Minecraft.getInstance(),
+                this,
                 80,
                 122,
                 topPos + 92,

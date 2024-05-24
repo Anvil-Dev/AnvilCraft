@@ -1,20 +1,18 @@
 package dev.dubhe.anvilcraft.client.gui.component;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.client.gui.screen.inventory.ActiveSilencerScreen;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.ContainerObjectSelectionList;
-import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.narration.NarratableEntry;
+import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
 import java.util.function.Consumer;
 
-public class SilencerSoundList extends ContainerObjectSelectionList<SilencerSoundList.SoundEntry> {
+public class SilencerSoundList extends ObjectSelectionList<SilencerSoundList.SoundEntry> {
 
     public static final ResourceLocation ACTIVE_SILENCER_ADD =
             AnvilCraft.of("textures/gui/container/machine/active_silencer_button_remove.png");
@@ -23,12 +21,18 @@ public class SilencerSoundList extends ContainerObjectSelectionList<SilencerSoun
 
     private final ResourceLocation buttonTexture;
 
-    public SilencerSoundList(Minecraft minecraft, int width, int height, int x0, int y0,
+    public SilencerSoundList(Minecraft minecraft,
+                             ActiveSilencerScreen screen,
+                             int width,
+                             int height,
+                             int x0,
+                             int y0,
                              ResourceLocation texture) {
         super(minecraft, width, height, y0, y0 + height, 20);
         this.buttonTexture = texture;
         this.x0 = x0;
         this.x1 = x0 + width;
+        this.centerListVertically = false;
         this.setRenderBackground(false);
         this.setRenderTopAndBottom(false);
         this.setRenderHeader(false, 0);
@@ -61,7 +65,7 @@ public class SilencerSoundList extends ContainerObjectSelectionList<SilencerSoun
     }
 
     @Getter
-    public abstract static class SoundEntry extends ContainerObjectSelectionList.Entry<SoundEntry> {
+    public abstract static class SoundEntry extends ObjectSelectionList.Entry<SoundEntry> {
         private final ResourceLocation sound;
         private final Component text;
         private final ResourceLocation background;
@@ -73,8 +77,8 @@ public class SilencerSoundList extends ContainerObjectSelectionList<SilencerSoun
         }
 
         @Override
-        public @NotNull List<? extends NarratableEntry> narratables() {
-            return List.of();
+        public Component getNarration() {
+            return Component.literal("");
         }
 
         @Override
@@ -112,10 +116,5 @@ public class SilencerSoundList extends ContainerObjectSelectionList<SilencerSoun
 
         @Override
         public abstract boolean mouseClicked(double mouseX, double mouseY, int button);
-
-        @Override
-        public @NotNull List<? extends GuiEventListener> children() {
-            return List.of();
-        }
     }
 }
