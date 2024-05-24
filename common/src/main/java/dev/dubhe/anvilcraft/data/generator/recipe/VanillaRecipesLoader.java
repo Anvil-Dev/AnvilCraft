@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.init.ModItemTags;
 import dev.dubhe.anvilcraft.init.ModItems;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
 import net.minecraft.data.recipes.SmithingTransformRecipeBuilder;
 import net.minecraft.data.recipes.packs.VanillaRecipeProvider;
@@ -70,6 +71,17 @@ public class VanillaRecipesLoader {
                 .define('A', ModItems.SPONGE_GEMMULE)
                 .unlockedBy("hasitem", AnvilCraftDatagen.has(ModItems.SPONGE_GEMMULE))
                 .save(provider);
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.HEAVY_IRON_BLOCK)
+            .pattern("AAA")
+            .pattern("AAA")
+            .pattern("AAA")
+            .define('A', Items.IRON_BLOCK)
+            .unlockedBy("hasitem", AnvilCraftDatagen.has(Items.IRON_BLOCK))
+            .save(provider);
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, Items.IRON_BLOCK, 9)
+            .requires(ModBlocks.HEAVY_IRON_BLOCK)
+            .unlockedBy("hasitem", RegistrateRecipeProvider.has(ModBlocks.HEAVY_IRON_BLOCK))
+            .save(provider);
 
         SimpleCookingRecipeBuilder.campfireCooking(Ingredient.of(ModItemTags.DOUGH), RecipeCategory.FOOD,
                 Items.BREAD, 0.35f, 600)
@@ -109,6 +121,36 @@ public class VanillaRecipesLoader {
             ModBlocks.CUT_ROYAL_STEEL_SLAB, ModBlocks.ROYAL_STEEL_BLOCK, 8);
         VanillaRecipeProvider.stonecutterResultFromBase(provider, RecipeCategory.BUILDING_BLOCKS,
             ModBlocks.SMOOTH_ROYAL_STEEL_BLOCK, ModBlocks.ROYAL_STEEL_BLOCK, 4);
+
+        VanillaRecipeProvider.stonecutterResultFromBase(provider, RecipeCategory.BUILDING_BLOCKS,
+            ModBlocks.POLISHED_HEAVY_IRON_BLOCK, ModBlocks.HEAVY_IRON_BLOCK);
+        VanillaRecipeProvider.stonecutterResultFromBase(provider, RecipeCategory.BUILDING_BLOCKS,
+            ModBlocks.POLISHED_HEAVY_IRON_SLAB, ModBlocks.HEAVY_IRON_BLOCK, 2);
+        VanillaRecipeProvider.stonecutterResultFromBase(provider, RecipeCategory.BUILDING_BLOCKS,
+            ModBlocks.POLISHED_HEAVY_IRON_STAIRS, ModBlocks.HEAVY_IRON_BLOCK);
+        VanillaRecipeProvider.stonecutterResultFromBase(provider, RecipeCategory.BUILDING_BLOCKS,
+            ModBlocks.POLISHED_HEAVY_IRON_SLAB, ModBlocks.POLISHED_HEAVY_IRON_BLOCK, 2);
+        VanillaRecipeProvider.stonecutterResultFromBase(provider, RecipeCategory.BUILDING_BLOCKS,
+            ModBlocks.POLISHED_HEAVY_IRON_STAIRS, ModBlocks.POLISHED_HEAVY_IRON_BLOCK);
+
+        VanillaRecipeProvider.stonecutterResultFromBase(provider, RecipeCategory.BUILDING_BLOCKS,
+            ModBlocks.CUT_HEAVY_IRON_BLOCK, ModBlocks.HEAVY_IRON_BLOCK, 4);
+        VanillaRecipeProvider.stonecutterResultFromBase(provider, RecipeCategory.BUILDING_BLOCKS,
+            ModBlocks.CUT_HEAVY_IRON_SLAB, ModBlocks.HEAVY_IRON_BLOCK, 8);
+        VanillaRecipeProvider.stonecutterResultFromBase(provider, RecipeCategory.BUILDING_BLOCKS,
+            ModBlocks.CUT_HEAVY_IRON_STAIRS, ModBlocks.HEAVY_IRON_BLOCK, 4);
+        VanillaRecipeProvider.stonecutterResultFromBase(provider, RecipeCategory.BUILDING_BLOCKS,
+            ModBlocks.CUT_HEAVY_IRON_SLAB, ModBlocks.CUT_HEAVY_IRON_BLOCK, 2);
+        VanillaRecipeProvider.stonecutterResultFromBase(provider, RecipeCategory.BUILDING_BLOCKS,
+            ModBlocks.CUT_HEAVY_IRON_STAIRS, ModBlocks.CUT_HEAVY_IRON_BLOCK);
+
+        VanillaRecipeProvider.stonecutterResultFromBase(provider, RecipeCategory.BUILDING_BLOCKS,
+            ModBlocks.HEAVY_IRON_PLATE, ModBlocks.HEAVY_IRON_BLOCK, 8);
+        VanillaRecipeProvider.stonecutterResultFromBase(provider, RecipeCategory.BUILDING_BLOCKS,
+            ModBlocks.HEAVY_IRON_COLUMN, ModBlocks.HEAVY_IRON_BLOCK, 4);
+        VanillaRecipeProvider.stonecutterResultFromBase(provider, RecipeCategory.BUILDING_BLOCKS,
+            ModBlocks.HEAVY_IRON_BEAM, ModBlocks.HEAVY_IRON_BLOCK, 4);
+
 
 
 

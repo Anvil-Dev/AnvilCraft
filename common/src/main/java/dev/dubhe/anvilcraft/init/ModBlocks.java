@@ -478,6 +478,8 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> HEAVY_IRON_COLUMN = REGISTRATE
         .block("heavy_iron_column", Block::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .blockstate((ctx, provider) -> {
+        })
         .simpleItem()
         .defaultLoot()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
