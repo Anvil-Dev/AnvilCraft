@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.init;
 
 import com.tterrag.registrate.util.entry.BlockEntityEntry;
+import dev.dubhe.anvilcraft.block.entity.ActiveSilencerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.AutoCrafterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChargerBlockEntity;
@@ -122,6 +123,11 @@ public class ModBlockEntities {
             .blockEntity("charger", ChargerBlockEntity::new)
             .validBlocks(ModBlocks.CHARGER, ModBlocks.DISCHARGER)
             .onRegister(ChargerBlockEntity::onBlockEntityRegister)
+            .register();
+
+    public static final BlockEntityEntry<ActiveSilencerBlockEntity> ACTIVE_SILENCER = REGISTRATE
+            .blockEntity("active_silencer", ActiveSilencerBlockEntity::new)
+            .validBlocks(ModBlocks.ACTIVE_SILENCER)
             .register();
 
     public static void register() {

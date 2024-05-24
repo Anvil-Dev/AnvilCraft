@@ -4,6 +4,7 @@ import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
+import dev.dubhe.anvilcraft.block.ActiveSilencerBlock;
 import dev.dubhe.anvilcraft.block.ArrowBlock;
 import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
 import dev.dubhe.anvilcraft.block.BlockDevourerBlock;
@@ -1463,6 +1464,33 @@ public class ModBlocks {
             )
             .save(provider))
         .register();
+
+    public static final BlockEntry<ActiveSilencerBlock> ACTIVE_SILENCER = REGISTRATE
+            .block("active_silencer", ActiveSilencerBlock::new)
+            .simpleItem()
+            .initialProperties(() -> Blocks.IRON_BLOCK)
+            .properties(BlockBehaviour.Properties::noOcclusion)
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .blockstate((ctx, provider) -> {
+            })
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                    .pattern("ABA")
+                    .pattern("ACA")
+                    .define('A', Items.AMETHYST_BLOCK)
+                    .define('B', Items.JUKEBOX)
+                    .define('C', Items.SCULK_SENSOR)
+                    .unlockedBy(
+                            AnvilCraftDatagen.hasItem(Items.AMETHYST_BLOCK),
+                            AnvilCraftDatagen.has(Items.AMETHYST_BLOCK)
+                    ).unlockedBy(
+                            AnvilCraftDatagen.hasItem(Items.JUKEBOX),
+                            AnvilCraftDatagen.has(Items.JUKEBOX)
+                    ).unlockedBy(
+                            AnvilCraftDatagen.hasItem(Items.SCULK_SENSOR),
+                            AnvilCraftDatagen.has(Items.SCULK_SENSOR)
+                    )
+                    .save(provider))
+            .register();
 
     public static final BlockEntry<BlockDevourerBlock> BLOCK_DEVOURER = REGISTRATE
         .block("block_devourer", BlockDevourerBlock::new)
