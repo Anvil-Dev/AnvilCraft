@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.network;
 
 import dev.dubhe.anvilcraft.api.network.Packet;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
+import dev.dubhe.anvilcraft.api.power.SimplePowerGrid;
 import dev.dubhe.anvilcraft.client.renderer.PowerGridRenderer;
 import dev.dubhe.anvilcraft.init.ModNetworks;
 import lombok.Getter;
@@ -17,13 +18,13 @@ import org.jetbrains.annotations.NotNull;
 
 @Getter
 public class PowerGridSyncPack implements Packet {
-    private final PowerGrid.SimplePowerGrid grid;
+    private final SimplePowerGrid grid;
 
     /**
      * 电网同步
      */
     public PowerGridSyncPack(PowerGrid grid) {
-        this.grid = new PowerGrid.SimplePowerGrid(grid);
+        this.grid = new SimplePowerGrid(grid);
     }
 
     /**
@@ -32,7 +33,7 @@ public class PowerGridSyncPack implements Packet {
     public PowerGridSyncPack(@NotNull FriendlyByteBuf buf) {
         CompoundTag tag = buf.readNbt();
         Tag data = tag.get("data");
-        this.grid = PowerGrid.SimplePowerGrid.CODEC.decode(NbtOps.INSTANCE, data)
+        this.grid = SimplePowerGrid.CODEC.decode(NbtOps.INSTANCE, data)
                 .getOrThrow(false, ignored -> {}).getFirst();
     }
 

@@ -29,6 +29,7 @@
     "accessor.LootContextParamSetsAccessor"
   ],
   "client": [
+    "ClientLevelMixin",
     "ItemInHandRendererMixin",
     "LevelRendererMixin",
     "PowerGridInformationRenderMixin",

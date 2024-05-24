@@ -5,7 +5,7 @@ import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.api.power.PowerComponentInfo;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
-import dev.dubhe.anvilcraft.api.power.PowerGrid;
+import dev.dubhe.anvilcraft.api.power.SimplePowerGrid;
 import dev.dubhe.anvilcraft.client.renderer.ui.TooltipRenderHelper;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.item.IEngineerGoggles;
@@ -86,9 +86,9 @@ public abstract class PowerGridInformationRenderMixin {
             }
         }
         if (powerComponent == null) return;
-        List<PowerGrid.SimplePowerGrid> powerGrids = PowerGrid.SimplePowerGrid.findPowerGrid(pos);
+        List<SimplePowerGrid> powerGrids = SimplePowerGrid.findPowerGrid(pos);
         if (powerGrids.isEmpty()) return;
-        PowerGrid.SimplePowerGrid grid = powerGrids.get(0);
+        SimplePowerGrid grid = powerGrids.get(0);
         if (grid == null) return;
         PowerComponentInfo componentInfo = grid.getMappedPowerComponentInfo().get(pos);
         final int tooltipPosX = screenWidth / 2 + 10;
