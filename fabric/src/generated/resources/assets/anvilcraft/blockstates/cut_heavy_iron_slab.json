@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "anvilcraft:block/cut_heavy_iron_slab"
+    },
+    "type=double": {
+      "model": "anvilcraft:block/cut_heavy_iron_block"
+    },
+    "type=top": {
+      "model": "anvilcraft:block/cut_heavy_iron_slab_top"
+    }
+  }
+}

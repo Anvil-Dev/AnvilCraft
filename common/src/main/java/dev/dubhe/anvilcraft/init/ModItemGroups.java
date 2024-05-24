@@ -165,6 +165,16 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.CUT_ROYAL_STEEL_BLOCK.asStack());
                 entries.accept(ModBlocks.CUT_ROYAL_STEEL_SLAB.asStack());
                 entries.accept(ModBlocks.CUT_ROYAL_STEEL_STAIRS.asStack());
+                entries.accept(ModBlocks.HEAVY_IRON_BLOCK.asStack());
+                entries.accept(ModBlocks.POLISHED_HEAVY_IRON_BLOCK.asStack());
+                entries.accept(ModBlocks.POLISHED_HEAVY_IRON_SLAB.asStack());
+                entries.accept(ModBlocks.POLISHED_HEAVY_IRON_STAIRS.asStack());
+                entries.accept(ModBlocks.CUT_HEAVY_IRON_BLOCK.asStack());
+                entries.accept(ModBlocks.CUT_HEAVY_IRON_SLAB.asStack());
+                entries.accept(ModBlocks.CUT_HEAVY_IRON_STAIRS.asStack());
+                entries.accept(ModBlocks.HEAVY_IRON_PLATE.asStack());
+                entries.accept(ModBlocks.HEAVY_IRON_COLUMN.asStack());
+                entries.accept(ModBlocks.HEAVY_IRON_BEAM.asStack());
                 entries.accept(ModBlocks.CURSED_GOLD_BLOCK.asStack());
                 entries.accept(ModBlocks.ZINC_BLOCK.asStack());
                 entries.accept(ModBlocks.TIN_BLOCK.asStack());
