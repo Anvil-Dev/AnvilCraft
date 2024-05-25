@@ -16,6 +16,8 @@ import dev.dubhe.anvilcraft.block.CrabTrapBlock;
 import dev.dubhe.anvilcraft.block.CreativeGeneratorBlock;
 import dev.dubhe.anvilcraft.block.FerriteCoreMagnetBlock;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
+import dev.dubhe.anvilcraft.block.HeavyIronBeamBlock;
+import dev.dubhe.anvilcraft.block.HeavyIronPlateBlock;
 import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
 import dev.dubhe.anvilcraft.block.HoneyCauldronBlock;
 import dev.dubhe.anvilcraft.block.InductionLightBlock;
@@ -402,6 +404,97 @@ public class ModBlocks {
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CUT_ROYAL_STEEL_BLOCK.asItem()),
                 AnvilCraftDatagen.has(ModBlocks.CUT_ROYAL_STEEL_BLOCK))
             .save(provider, AnvilCraft.of("craft/cut_royal_steel_stairs")))
+        .register();
+    public static final BlockEntry<? extends Block> HEAVY_IRON_BLOCK = REGISTRATE
+        .block("heavy_iron_block", Block::new)
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .simpleItem()
+        .defaultLoot()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+    public static final BlockEntry<? extends Block> POLISHED_HEAVY_IRON_BLOCK = REGISTRATE
+        .block("polished_heavy_iron_block", Block::new)
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .simpleItem()
+        .defaultLoot()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+    public static final BlockEntry<? extends Block> POLISHED_HEAVY_IRON_SLAB = REGISTRATE
+        .block("polished_heavy_iron_slab", SlabBlock::new)
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .blockstate((ctx, provider) -> provider.slabBlock(ctx.get(),
+            AnvilCraft.of("block/polished_heavy_iron_block"),
+            AnvilCraft.of("block/polished_heavy_iron_block")))
+        .simpleItem()
+        .defaultLoot()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+    public static final BlockEntry<? extends Block> POLISHED_HEAVY_IRON_STAIRS = REGISTRATE
+        .block("polished_heavy_iron_stairs",  (properties) ->
+            new StairBlock(ModBlocks.POLISHED_HEAVY_IRON_BLOCK.getDefaultState(), properties))
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .blockstate((ctx, provider) -> provider.stairsBlock(ctx.get(),
+            AnvilCraft.of("block/polished_heavy_iron_block")))
+        .simpleItem()
+        .defaultLoot()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+    public static final BlockEntry<? extends Block> CUT_HEAVY_IRON_BLOCK = REGISTRATE
+        .block("cut_heavy_iron_block", Block::new)
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .simpleItem()
+        .defaultLoot()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+    public static final BlockEntry<? extends Block> CUT_HEAVY_IRON_SLAB = REGISTRATE
+        .block("cut_heavy_iron_slab", SlabBlock::new)
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .blockstate((ctx, provider) -> provider.slabBlock(ctx.get(),
+            AnvilCraft.of("block/cut_heavy_iron_block"),
+            AnvilCraft.of("block/cut_heavy_iron_block")))
+        .simpleItem()
+        .defaultLoot()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+    public static final BlockEntry<? extends Block> CUT_HEAVY_IRON_STAIRS = REGISTRATE
+        .block("cut_heavy_iron_stairs", (properties) ->
+            new StairBlock(ModBlocks.CUT_HEAVY_IRON_BLOCK.getDefaultState(), properties))
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .blockstate((ctx, provider) -> provider.stairsBlock(ctx.get(),
+            AnvilCraft.of("block/cut_heavy_iron_block")))
+        .simpleItem()
+        .defaultLoot()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+    public static final BlockEntry<? extends Block> HEAVY_IRON_PLATE = REGISTRATE
+        .block("heavy_iron_plate", HeavyIronPlateBlock::new)
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .blockstate((ctx, provider) -> {
+        })
+        .simpleItem()
+        .defaultLoot()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+    public static final BlockEntry<? extends Block> HEAVY_IRON_COLUMN = REGISTRATE
+        .block("heavy_iron_column", Block::new)
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .blockstate((ctx, provider) -> {
+        })
+        .simpleItem()
+        .defaultLoot()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+    public static final BlockEntry<? extends Block> HEAVY_IRON_BEAM = REGISTRATE
+        .block("heavy_iron_beam", HeavyIronBeamBlock::new)
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .blockstate((ctx, provider) -> {
+        })
+        .item()
+        .model((ctx, provider) -> {
+        })
+        .build()
+        .defaultLoot()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
     public static final BlockEntry<? extends Block> LAVA_CAULDRON = REGISTRATE
         .block("lava_cauldron", LavaCauldronBlock::new)
