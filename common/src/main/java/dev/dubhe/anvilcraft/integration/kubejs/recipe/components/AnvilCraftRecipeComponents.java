@@ -69,7 +69,6 @@ public class AnvilCraftRecipeComponents {
 
         @Override
         public RecipeOutcome read(RecipeJS recipe, Object from) {
-            System.out.println(from);
             if (from instanceof JsonObject jsonObject) {
                 return RecipeOutcome.fromJson(jsonObject);
             }

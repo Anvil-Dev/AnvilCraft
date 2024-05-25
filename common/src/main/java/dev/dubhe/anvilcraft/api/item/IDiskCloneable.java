@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.api;
+package dev.dubhe.anvilcraft.api.item;
 
 import dev.dubhe.anvilcraft.init.ModItems;
 import net.minecraft.nbt.CompoundTag;

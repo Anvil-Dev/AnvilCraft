@@ -4,16 +4,19 @@ import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
+import dev.dubhe.anvilcraft.block.ActiveSilencerBlock;
 import dev.dubhe.anvilcraft.block.ArrowBlock;
 import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
 import dev.dubhe.anvilcraft.block.BlockDevourerBlock;
 import dev.dubhe.anvilcraft.block.BlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.CementCauldronBlock;
 import dev.dubhe.anvilcraft.block.ChargeCollectorBlock;
+import dev.dubhe.anvilcraft.block.ChargerBlock;
 import dev.dubhe.anvilcraft.block.ChuteBlock;
 import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.block.CrabTrapBlock;
 import dev.dubhe.anvilcraft.block.CreativeGeneratorBlock;
+import dev.dubhe.anvilcraft.block.DischargerBlock;
 import dev.dubhe.anvilcraft.block.FerriteCoreMagnetBlock;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.block.HeavyIronBeamBlock;
@@ -68,6 +71,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.data.recipes.packs.VanillaRecipeProvider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.BlockTags;
@@ -1554,6 +1558,33 @@ public class ModBlocks {
             .save(provider))
         .register();
 
+    public static final BlockEntry<ActiveSilencerBlock> ACTIVE_SILENCER = REGISTRATE
+            .block("active_silencer", ActiveSilencerBlock::new)
+            .simpleItem()
+            .initialProperties(() -> Blocks.IRON_BLOCK)
+            .properties(BlockBehaviour.Properties::noOcclusion)
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .blockstate((ctx, provider) -> {
+            })
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                    .pattern("ABA")
+                    .pattern("ACA")
+                    .define('A', Items.AMETHYST_BLOCK)
+                    .define('B', Items.JUKEBOX)
+                    .define('C', Items.SCULK_SENSOR)
+                    .unlockedBy(
+                            AnvilCraftDatagen.hasItem(Items.AMETHYST_BLOCK),
+                            AnvilCraftDatagen.has(Items.AMETHYST_BLOCK)
+                    ).unlockedBy(
+                            AnvilCraftDatagen.hasItem(Items.JUKEBOX),
+                            AnvilCraftDatagen.has(Items.JUKEBOX)
+                    ).unlockedBy(
+                            AnvilCraftDatagen.hasItem(Items.SCULK_SENSOR),
+                            AnvilCraftDatagen.has(Items.SCULK_SENSOR)
+                    )
+                    .save(provider))
+            .register();
+
     public static final BlockEntry<BlockDevourerBlock> BLOCK_DEVOURER = REGISTRATE
         .block("block_devourer", BlockDevourerBlock::new)
         .simpleItem()
@@ -1633,6 +1664,46 @@ public class ModBlocks {
         .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
+
+    public static final BlockEntry<ChargerBlock> CHARGER = REGISTRATE
+            .block("charger", ChargerBlock::new)
+            .initialProperties(() -> Blocks.IRON_BLOCK)
+            .properties(BlockBehaviour.Properties::noOcclusion)
+            .blockstate((ctx, prov) -> {})
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                    .pattern("A A")
+                    .pattern("ABA")
+                    .pattern("CCC")
+                    .define('A', Items.COPPER_INGOT)
+                    .define('B', ModItems.MAGNETOELECTRIC_CORE)
+                    .define('C', Items.IRON_INGOT)
+                    .unlockedBy(
+                            AnvilCraftDatagen.hasItem(Items.COPPER_INGOT),
+                            AnvilCraftDatagen.has(Items.COPPER_INGOT)
+                    )
+                    .unlockedBy(
+                            AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
+                            AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
+                    )
+                    .unlockedBy(
+                            AnvilCraftDatagen.hasItem(Items.IRON_INGOT),
+                            AnvilCraftDatagen.has(Items.IRON_INGOT)
+                    )
+                    .save(provider)
+            )
+            .register();
+
+    public static final BlockEntry<DischargerBlock> DISCHARGER = REGISTRATE
+            .block("discharger", DischargerBlock::new)
+            .initialProperties(() -> Blocks.IRON_BLOCK)
+            .properties(BlockBehaviour.Properties::noOcclusion)
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .register();
 
     public static final BlockEntry<ReinforcedConcreteBlock> REINFORCED_CONCRETE_BLACK =
         registerReinforcedConcreteBlock(Color.BLACK);
@@ -1771,14 +1842,14 @@ public class ModBlocks {
             .simpleItem()
             .blockstate((ctx, provider) -> {
                 provider.models().getBuilder("reinforced_concrete_" + color)
-                    .parent(DangerUtil.genUncheckedModelFile("block/cube_all").get())
+                    .parent(DangerUtil.genUncheckedModelFile("minecraft", "block/cube_all").get())
                     .texture("all", "block/reinforced_concrete_" + color);
                 provider.models().getBuilder("reinforced_concrete_top_" + color)
-                    .parent(DangerUtil.genUncheckedModelFile("block/cube_column").get())
+                    .parent(DangerUtil.genUncheckedModelFile("minecraft", "block/cube_column").get())
                     .texture("end", "block/reinforced_concrete_" + color)
                     .texture("side", "block/reinforced_concrete_" + color + "_top");
                 provider.models().getBuilder("reinforced_concrete_bottom_" + color)
-                    .parent(DangerUtil.genUncheckedModelFile("block/cube_column").get())
+                    .parent(DangerUtil.genUncheckedModelFile("minecraft", "block/cube_column").get())
                     .texture("end", "block/reinforced_concrete_" + color)
                     .texture("side", "block/reinforced_concrete_" + color + "_bottom");
                 provider.getVariantBuilder(ctx.get()).forAllStates(
