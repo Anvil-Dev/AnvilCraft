@@ -2,7 +2,9 @@ package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.block.entity.ActiveSilencerBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
+import dev.dubhe.anvilcraft.network.ClientboundMutedSoundSyncPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -18,6 +20,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
 
 public class ActiveSilencerBlock extends BaseEntityBlock {
     public ActiveSilencerBlock(Properties properties) {
@@ -46,7 +50,17 @@ public class ActiveSilencerBlock extends BaseEntityBlock {
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof ActiveSilencerBlockEntity eb) {
             if (player instanceof ServerPlayer serverPlayer) {
+                if (player.getItemInHand(hand).is(ModItems.DISK.get())) {
+                    return eb.useDisk(
+                            level,
+                            player,
+                            hand,
+                            player.getItemInHand(hand),
+                            hit
+                    );
+                }
                 ModMenuTypes.open(serverPlayer, eb, pos);
+                new ClientboundMutedSoundSyncPacket(new ArrayList<>(eb.getMutedSound())).send(serverPlayer);
             }
         }
         return InteractionResult.SUCCESS;

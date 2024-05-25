@@ -1,9 +1,13 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import com.mojang.serialization.Codec;
+import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
+import dev.dubhe.anvilcraft.api.sound.SoundEventListener;
+import dev.dubhe.anvilcraft.api.sound.SoundHelper;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.ActiveSilencerMenu;
 import lombok.Getter;
+import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -31,7 +35,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-public class ActiveSilencerBlockEntity extends BlockEntity implements MenuProvider {
+
+public class ActiveSilencerBlockEntity extends BlockEntity implements MenuProvider, SoundEventListener, IDiskCloneable {
     public static final Codec<List<ResourceLocation>> CODEC =
             ResourceLocation.CODEC.listOf().fieldOf("mutedSound").codec();
     @Getter
@@ -39,6 +44,9 @@ public class ActiveSilencerBlockEntity extends BlockEntity implements MenuProvid
 
     private final AABB range;
 
+    /**
+     * 主动消音器
+     */
     public ActiveSilencerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
         range = AABB.ofSize(
@@ -84,12 +92,20 @@ public class ActiveSilencerBlockEntity extends BlockEntity implements MenuProvid
         return tag;
     }
 
-    public boolean isInRange(Vec3 pos) {
-        return range.contains(pos);
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+        SoundHelper.INSTANCE.unregister(this);
+    }
+
+
+    @Override
+    public void setLevel(@NotNull Level level) {
+        super.setLevel(level);
+        SoundHelper.INSTANCE.register(this);
     }
 
     public void tick(Level level, BlockPos blockPos) {
-
     }
 
     @Override
@@ -116,5 +132,29 @@ public class ActiveSilencerBlockEntity extends BlockEntity implements MenuProvid
     public void removeSound(ResourceLocation soundId) {
         mutedSound.remove(soundId);
         this.setChanged();
+    }
+
+    @Override
+    public boolean shouldPlay(SoundInstance instance) {
+        boolean inRange = range.contains(new Vec3(instance.getX(), instance.getY(), instance.getZ()));
+        boolean inList = mutedSound.contains(instance.getLocation());
+        return !inRange || !inList;
+    }
+
+    @Override
+    public void storeDiskData(CompoundTag tag) {
+        Tag t = CODEC.encodeStart(NbtOps.INSTANCE, new ArrayList<>(mutedSound))
+                .getOrThrow(false, x -> {
+                });
+        tag.put("MutedSound", t);
+    }
+
+    @Override
+    public void applyDiskData(CompoundTag data) {
+        mutedSound.addAll(
+                CODEC.decode(NbtOps.INSTANCE, data.get("MutedSound"))
+                        .getOrThrow(false, x -> {
+                        }).getFirst()
+        );
     }
 }

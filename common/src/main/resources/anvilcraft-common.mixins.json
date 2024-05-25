@@ -19,12 +19,12 @@
     "FlyingHitEntityMixin",
     "HoeItemMixin",
     "ItemEntityMixin",
-    "SoundEngineMixin",
     "LivingEntityMixin",
     "PistonBaseBlockMixin",
     "PistonStructureResolverMixin",
     "PlayerHitEntityMixin",
     "SolidBucketItemMixin",
+    "SoundEngineMixin",
     "accessor.BaseSpawnerAccessor",
     "accessor.FallingBlockEntityAccessor",
     "accessor.LootContextParamSetsAccessor"
@@ -35,7 +35,7 @@
     "LevelRendererMixin",
     "PowerGridInformationRenderMixin",
     "accessor.ItemInHandRendererAccessor",
-    "accessor.MinecraftAccessor",
+    "accessor.MinecraftAccessor"
   ],
   "plugin": "dev.dubhe.anvilcraft.mixin.plugin.AnvilCraftMixinPlugin",
   "injectors": {

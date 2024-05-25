@@ -3,6 +3,8 @@ package dev.dubhe.anvilcraft.client.gui.screen.inventory;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.gui.component.SilencerSoundList;
 import dev.dubhe.anvilcraft.inventory.ActiveSilencerMenu;
+import dev.dubhe.anvilcraft.network.ServerboundAddMutedSoundPacket;
+import dev.dubhe.anvilcraft.network.ServerboundRemoveMutedSoundPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -14,6 +16,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+import java.util.Set;
+
 public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencerMenu> {
 
     private static final ResourceLocation CONTAINER_LOCATION =
@@ -24,6 +29,9 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     private SilencerSoundList allSoundList;
     private SilencerSoundList mutedSoundList;
 
+    /**
+     * 主动消音器gui
+     */
     public ActiveSilencerScreen(ActiveSilencerMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.menu = menu;
@@ -34,57 +42,82 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     protected void init() {
         super.init();
 
-        int offsetX = (this.width - this.imageWidth) / 2;
-        int offsetY = (this.height - this.imageHeight) / 2;
-
         allSoundList = new SilencerSoundList(
                 Minecraft.getInstance(),
                 this,
                 80,
-                122,
-                offsetX + 6,
-                offsetY + 34,
+                topPos + 33,
+                topPos + 155,
                 SilencerSoundList.ACTIVE_SILENCER_ADD
         );
+        allSoundList.setLeftPos(leftPos + 3);
 
         mutedSoundList = new SilencerSoundList(
                 Minecraft.getInstance(),
                 this,
                 80,
-                122,
-                topPos + 92,
-                leftPos + 34,
+                topPos + 33,
+                topPos + 155,
                 SilencerSoundList.ACTIVE_SILENCER_REMOVE
         );
+        mutedSoundList.setLeftPos(leftPos + 89);
 
         SoundManager manager = Minecraft.getInstance().getSoundManager();
+        Set<ResourceLocation> muted = menu.getBlockEntity().getMutedSound();
         for (ResourceLocation sound : BuiltInRegistries.SOUND_EVENT.keySet()) {
             WeighedSoundEvents events = manager.getSoundEvent(sound);
             if (events != null && events.getSubtitle() != null) {
                 allSoundList.addEntry(
                         sound,
                         events.getSubtitle(),
-                        args -> {
-                            System.out.println("Clicked add " + args);
-                        }
+                        this::add
                 );
             }
         }
-        for (ResourceLocation sound : menu.getBlockEntity().getMutedSound()) {
+        for (ResourceLocation sound : muted) {
             WeighedSoundEvents events = manager.getSoundEvent(sound);
             if (events != null && events.getSubtitle() != null) {
                 mutedSoundList.addEntry(
                         sound,
                         events.getSubtitle(),
-                        args -> {
-                            System.out.println("Clicked remove " + args);
-                        }
+                        this::remove,
+                        (x) -> x.setTextOffsetX(8)
                 );
+                allSoundList.removeEntry(sound);
             }
         }
 
         addRenderableWidget(allSoundList);
         addRenderableWidget(mutedSoundList);
+    }
+
+    private void add(SilencerSoundList.SoundEntryClickEventArgs args) {
+        allSoundList.removeEntry(args.sound());
+        mutedSoundList.addEntry(args.sound(), args.text(), this::remove, (x) -> x.setTextOffsetX(8));
+        new ServerboundAddMutedSoundPacket(args.sound()).send();
+    }
+
+    private void remove(SilencerSoundList.SoundEntryClickEventArgs args) {
+        mutedSoundList.removeEntry(args.sound());
+        allSoundList.addEntry(args.sound(), args.text(), this::add);
+        new ServerboundRemoveMutedSoundPacket(args.sound()).send();
+    }
+
+    public void handleSync(List<ResourceLocation> sounds) {
+        mutedSoundList.children().clear();
+        SoundManager manager = Minecraft.getInstance().getSoundManager();
+        for (ResourceLocation sound : sounds) {
+            WeighedSoundEvents events = manager.getSoundEvent(sound);
+            if (events != null && events.getSubtitle() != null) {
+                mutedSoundList.addEntry(
+                        sound,
+                        events.getSubtitle(),
+                        this::remove,
+                        (x) -> x.setTextOffsetX(8)
+                );
+                allSoundList.removeEntry(sound);
+            }
+        }
     }
 
     @Override

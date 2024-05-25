@@ -1,7 +1,9 @@
 package dev.dubhe.anvilcraft.network;
 
 import dev.dubhe.anvilcraft.api.network.Packet;
+import dev.dubhe.anvilcraft.client.gui.screen.inventory.ActiveSilencerScreen;
 import dev.dubhe.anvilcraft.init.ModNetworks;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
@@ -31,6 +33,8 @@ public class ClientboundMutedSoundSyncPacket implements Packet {
 
     @Override
     public void handler() {
-
+        if (Minecraft.getInstance().screen instanceof ActiveSilencerScreen screen) {
+            screen.handleSync(sounds);
+        }
     }
 }

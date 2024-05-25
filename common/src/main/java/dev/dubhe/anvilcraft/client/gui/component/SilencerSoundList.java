@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.client.gui.component;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.ActiveSilencerScreen;
 import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ObjectSelectionList;
@@ -15,28 +16,43 @@ import java.util.function.Consumer;
 public class SilencerSoundList extends ObjectSelectionList<SilencerSoundList.SoundEntry> {
 
     public static final ResourceLocation ACTIVE_SILENCER_ADD =
-            AnvilCraft.of("textures/gui/container/machine/active_silencer_button_remove.png");
-    public static final ResourceLocation ACTIVE_SILENCER_REMOVE =
             AnvilCraft.of("textures/gui/container/machine/active_silencer_button_add.png");
+    public static final ResourceLocation ACTIVE_SILENCER_REMOVE =
+            AnvilCraft.of("textures/gui/container/machine/active_silencer_button_remove.png");
 
     private final ResourceLocation buttonTexture;
+    private final int listWidth;
+    private final ActiveSilencerScreen parent;
 
+    /**
+     * 主动消音器的列表 View
+     *
+     * @param listWidth 列表宽度
+     * @param top       列表顶部 y 坐标
+     * @param bottom    列表底部 y 坐标
+     * @param texture   按钮材质
+     */
     public SilencerSoundList(Minecraft minecraft,
-                             ActiveSilencerScreen screen,
-                             int width,
-                             int height,
-                             int x0,
-                             int y0,
+                             ActiveSilencerScreen parent,
+                             int listWidth,
+                             int top,
+                             int bottom,
                              ResourceLocation texture) {
-        super(minecraft, width, height, y0, y0 + height, 20);
+        super(minecraft, listWidth, parent.height, top, bottom, 20);
         this.buttonTexture = texture;
-        this.x0 = x0;
-        this.x1 = x0 + width;
-        this.centerListVertically = false;
+        this.listWidth = listWidth;
+        this.parent = parent;
         this.setRenderBackground(false);
         this.setRenderTopAndBottom(false);
         this.setRenderHeader(false, 0);
         this.setRenderSelection(true);
+    }
+
+    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        super.render(guiGraphics, mouseX, mouseY, partialTick);
+        int i = this.getScrollbarPosition();
+        int j = i + 6;
+        //guiGraphics.fill(i, this.y0, j, this.y1, -16777216);
     }
 
     public void addEntry(
@@ -47,10 +63,27 @@ public class SilencerSoundList extends ObjectSelectionList<SilencerSoundList.Sou
         SoundEntry entry = new SoundEntry(sound, text, buttonTexture) {
             @Override
             public boolean mouseClicked(double mouseX, double mouseY, int button) {
-                callback.accept(new SoundEntryClickEventArgs(SilencerSoundList.this, this.getSound()));
+                callback.accept(new SoundEntryClickEventArgs(SilencerSoundList.this, this.getSound(), this.getText()));
                 return true;
             }
         };
+        addEntry(entry);
+    }
+
+    public void addEntry(
+            ResourceLocation sound,
+            Component text,
+            Consumer<SoundEntryClickEventArgs> callback,
+            Consumer<SoundEntry> handler
+    ) {
+        SoundEntry entry = new SoundEntry(sound, text, buttonTexture) {
+            @Override
+            public boolean mouseClicked(double mouseX, double mouseY, int button) {
+                callback.accept(new SoundEntryClickEventArgs(SilencerSoundList.this, this.getSound(), this.getText()));
+                return true;
+            }
+        };
+        handler.accept(entry);
         addEntry(entry);
     }
 
@@ -60,15 +93,28 @@ public class SilencerSoundList extends ObjectSelectionList<SilencerSoundList.Sou
 
     public record SoundEntryClickEventArgs(
             SilencerSoundList thiz,
-            ResourceLocation sound
+            ResourceLocation sound,
+            Component text
     ) {
     }
 
+    @Override
+    protected int getScrollbarPosition() {
+        return this.x0 + this.listWidth - 4;
+    }
+
+    @Override
+    public int getRowWidth() {
+        return this.listWidth;
+    }
+
     @Getter
-    public abstract static class SoundEntry extends ObjectSelectionList.Entry<SoundEntry> {
+    public abstract class SoundEntry extends ObjectSelectionList.Entry<SoundEntry> {
         private final ResourceLocation sound;
         private final Component text;
         private final ResourceLocation background;
+        @Setter
+        private int textOffsetX = 0;
 
         public SoundEntry(ResourceLocation sound, Component text, ResourceLocation background) {
             this.sound = sound;
@@ -78,8 +124,9 @@ public class SilencerSoundList extends ObjectSelectionList<SilencerSoundList.Sou
 
         @Override
         public Component getNarration() {
-            return Component.literal("");
+            return text;
         }
+
 
         @Override
         public void render(
@@ -94,24 +141,28 @@ public class SilencerSoundList extends ObjectSelectionList<SilencerSoundList.Sou
                 boolean hovering,
                 float partialTick
         ) {
+            guiGraphics.pose().pushPose();
+
             guiGraphics.blit(
                     background,
-                    top,
                     left,
+                    top,
                     0,
                     hovering ? 20 : 0,
-                    width,
-                    height,
+                    75,
+                    20,
                     75,
                     40
             );
+
             guiGraphics.drawString(
                     Minecraft.getInstance().font,
                     text,
-                    top + 2,
-                    left + 2,
-                    0x404040
+                    left + 2 + textOffsetX,
+                    top + 5,
+                    0xff_ff_ff
             );
+            guiGraphics.pose().popPose();
         }
 
         @Override
