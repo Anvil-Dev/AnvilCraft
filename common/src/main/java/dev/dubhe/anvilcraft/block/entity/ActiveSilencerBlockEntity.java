@@ -127,6 +127,7 @@ public class ActiveSilencerBlockEntity extends BlockEntity implements MenuProvid
     public void addSound(ResourceLocation soundId) {
         mutedSound.add(soundId);
         this.setChanged();
+
     }
 
     public void removeSound(ResourceLocation soundId) {
@@ -139,6 +140,12 @@ public class ActiveSilencerBlockEntity extends BlockEntity implements MenuProvid
         boolean inRange = range.contains(new Vec3(instance.getX(), instance.getY(), instance.getZ()));
         boolean inList = mutedSound.contains(instance.getLocation());
         return !inRange || !inList;
+    }
+
+
+    public void sync(List<ResourceLocation> sounds) {
+        this.mutedSound.clear();
+        this.mutedSound.addAll(sounds);
     }
 
     @Override

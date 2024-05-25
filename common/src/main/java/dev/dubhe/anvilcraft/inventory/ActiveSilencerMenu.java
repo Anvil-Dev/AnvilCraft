@@ -16,6 +16,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+
 public class ActiveSilencerMenu extends AbstractContainerMenu {
 
     @Getter
@@ -66,5 +68,9 @@ public class ActiveSilencerMenu extends AbstractContainerMenu {
 
     public void removeSound(ResourceLocation soundId) {
         blockEntity.removeSound(soundId);
+    }
+
+    public void handleSync(List<ResourceLocation> sounds) {
+        blockEntity.sync(sounds);
     }
 }

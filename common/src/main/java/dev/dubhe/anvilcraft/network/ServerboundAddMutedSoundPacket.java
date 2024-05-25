@@ -32,8 +32,10 @@ public class ServerboundAddMutedSoundPacket implements Packet {
 
     @Override
     public void handler(@NotNull MinecraftServer server, ServerPlayer player) {
-        if (player.containerMenu instanceof ActiveSilencerMenu menu) {
-            menu.addSound(soundId);
-        }
+        server.execute(() -> {
+            if (player.containerMenu instanceof ActiveSilencerMenu menu) {
+                menu.addSound(soundId);
+            }
+        });
     }
 }

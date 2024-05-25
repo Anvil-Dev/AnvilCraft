@@ -121,6 +121,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
                 allSoundList.removeEntry(sound);
             }
         }
+        menu.handleSync(sounds);
     }
 
     @Override
