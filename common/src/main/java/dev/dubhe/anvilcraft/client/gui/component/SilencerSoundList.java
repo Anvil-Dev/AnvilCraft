@@ -22,7 +22,6 @@ public class SilencerSoundList extends ObjectSelectionList<SilencerSoundList.Sou
 
     private final ResourceLocation buttonTexture;
     private final int listWidth;
-    private final ActiveSilencerScreen parent;
 
     /**
      * 主动消音器的列表 View
@@ -41,20 +40,15 @@ public class SilencerSoundList extends ObjectSelectionList<SilencerSoundList.Sou
         super(minecraft, listWidth, parent.height, top, bottom, 20);
         this.buttonTexture = texture;
         this.listWidth = listWidth;
-        this.parent = parent;
         this.setRenderBackground(false);
         this.setRenderTopAndBottom(false);
         this.setRenderHeader(false, 0);
         this.setRenderSelection(true);
     }
 
-    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-        int i = this.getScrollbarPosition();
-        int j = i + 6;
-        //guiGraphics.fill(i, this.y0, j, this.y1, -16777216);
-    }
-
+    /**
+     * 添加新声音项
+     */
     public void addEntry(
             ResourceLocation sound,
             Component text,
@@ -70,6 +64,11 @@ public class SilencerSoundList extends ObjectSelectionList<SilencerSoundList.Sou
         addEntry(entry);
     }
 
+    /**
+     * 添加新声音项
+     *
+     * @param handler 对新声音项进行添加前处理
+     */
     public void addEntry(
             ResourceLocation sound,
             Component text,
@@ -108,14 +107,20 @@ public class SilencerSoundList extends ObjectSelectionList<SilencerSoundList.Sou
         return this.listWidth;
     }
 
+    /**
+     * 声音项
+     */
     @Getter
-    public abstract class SoundEntry extends ObjectSelectionList.Entry<SoundEntry> {
+    public abstract static class SoundEntry extends ObjectSelectionList.Entry<SoundEntry> {
         private final ResourceLocation sound;
         private final Component text;
         private final ResourceLocation background;
         @Setter
         private int textOffsetX = 0;
 
+        /**
+         * 声音项
+         */
         public SoundEntry(ResourceLocation sound, Component text, ResourceLocation background) {
             this.sound = sound;
             this.text = text;
@@ -123,7 +128,7 @@ public class SilencerSoundList extends ObjectSelectionList<SilencerSoundList.Sou
         }
 
         @Override
-        public Component getNarration() {
+        public @NotNull Component getNarration() {
             return text;
         }
 

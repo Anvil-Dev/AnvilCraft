@@ -105,9 +105,6 @@ public class ActiveSilencerBlockEntity extends BlockEntity implements MenuProvid
         SoundHelper.INSTANCE.register(this);
     }
 
-    public void tick(Level level, BlockPos blockPos) {
-    }
-
     @Override
     public @NotNull Component getDisplayName() {
         return Component.translatable("screen.anvilcraft.active_silencer.title");
@@ -124,10 +121,12 @@ public class ActiveSilencerBlockEntity extends BlockEntity implements MenuProvid
         );
     }
 
+    /**
+     * 添加声音
+     */
     public void addSound(ResourceLocation soundId) {
         mutedSound.add(soundId);
         this.setChanged();
-
     }
 
     public void removeSound(ResourceLocation soundId) {

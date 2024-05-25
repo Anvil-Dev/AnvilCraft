@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.api.sound;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.resources.sounds.SoundInstance;
-import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;

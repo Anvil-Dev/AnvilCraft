@@ -14,8 +14,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
@@ -69,20 +67,5 @@ public class ActiveSilencerBlock extends BaseEntityBlock {
     @Override
     public @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
         return RenderShape.MODEL;
-    }
-
-    @Nullable
-    @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-            @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type
-    ) {
-        if (level.isClientSide) {
-            return null;
-        }
-        return createTickerHelper(
-                type,
-                ModBlockEntities.ACTIVE_SILENCER.get(),
-                (level1, blockPos, blockState, blockEntity) -> blockEntity.tick(level1, blockPos)
-        );
     }
 }

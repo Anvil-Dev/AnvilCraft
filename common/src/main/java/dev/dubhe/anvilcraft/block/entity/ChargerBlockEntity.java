@@ -202,6 +202,9 @@ public class ChargerBlockEntity
     public static void onBlockEntityRegister(BlockEntityType<ChargerBlockEntity> type) {
     }
 
+    /**
+     * 充放电器逻辑
+     */
     public void tick(Level level1, BlockPos blockPos) {
         this.flushState(level1, blockPos);
         BlockState state = level1.getBlockState(blockPos);
