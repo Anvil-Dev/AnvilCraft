@@ -1,9 +1,11 @@
 package dev.dubhe.anvilcraft.event.fabric;
 
 import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
+import dev.dubhe.anvilcraft.api.laser.LaserBlockManager;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
+import dev.dubhe.anvilcraft.block.entity.BaseLaserBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.OverseerBlockEntity;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerBlockEntityEvents;
@@ -23,6 +25,9 @@ public class ServerBlockEntityEventListener {
         if (entity instanceof ChargeCollectorBlockEntity chargeCollector) {
             ChargeCollectorManager.addChargeCollector(chargeCollector);
         }
+        if (entity instanceof BaseLaserBlockEntity baseLaserBlockEntity) {
+            LaserBlockManager.registerBlock(level, baseLaserBlockEntity);
+        }
     }
 
     private static void onUnload(BlockEntity entity, ServerLevel level) {
@@ -34,6 +39,10 @@ public class ServerBlockEntityEventListener {
         }
         if (entity instanceof OverseerBlockEntity overseerBlockEntity) {
             LevelLoadManager.unregister(overseerBlockEntity.getBlockPos(), level);
+            return;
+        }
+        if (entity instanceof BaseLaserBlockEntity baseLaserBlockEntity) {
+            LaserBlockManager.unregisterBlock(level, baseLaserBlockEntity.getBlockPos());
         }
     }
 }

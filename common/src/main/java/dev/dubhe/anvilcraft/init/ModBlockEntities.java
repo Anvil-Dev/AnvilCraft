@@ -16,6 +16,8 @@ import dev.dubhe.anvilcraft.block.entity.HeaterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.MobAmberBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RemoteTransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ResentfulAmberBlock;
+import dev.dubhe.anvilcraft.block.entity.RubyLaserBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.RubyPrismBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CorruptedBeaconRenderer;
@@ -115,6 +117,15 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<OverseerBlockEntity> OVERSEER = REGISTRATE
         .blockEntity("overseer", OverseerBlockEntity::createBlockEntity)
         .validBlock(ModBlocks.OVERSEER_BLOCK)
+        .register();
+
+    public static final BlockEntityEntry<RubyPrismBlockEntity> RUBY_PRISM = REGISTRATE
+        .blockEntity("ruby_prism", RubyPrismBlockEntity::createBlockEntity)
+        .validBlock(ModBlocks.RUBY_PRISM)
+        .register();
+    public static final BlockEntityEntry<RubyLaserBlockEntity> RUBY_LASER = REGISTRATE
+        .blockEntity("ruby_laser", RubyLaserBlockEntity::createBlockEntity)
+        .validBlock(ModBlocks.RUBY_LASER)
         .register();
 
     public static void register() {

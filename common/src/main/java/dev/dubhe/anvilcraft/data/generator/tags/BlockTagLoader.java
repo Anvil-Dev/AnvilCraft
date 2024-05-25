@@ -90,5 +90,10 @@ public class BlockTagLoader {
             .add(Blocks.BASALT)
             .add(Blocks.BLACKSTONE)
             .add(Blocks.END_STONE);
+        provider.addTag(ModBlockTags.GLASS).setReplace(false)
+            .add(ModBlocks.TEMPERING_GLASS.get());
+        provider.addTag(ModBlockTags.LASE_CAN_PASS_THROUGH).setReplace(false)
+            .forceAddTag(ModBlockTags.GLASS)
+            .forceAddTag(BlockTags.REPLACEABLE);
     }
 }
