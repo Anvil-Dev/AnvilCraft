@@ -37,6 +37,9 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
 
+    /**
+     * 充电器
+     */
     public ChargerBlock(Properties properties) {
         super(properties);
         registerDefaultState(getStateDefinition().any()

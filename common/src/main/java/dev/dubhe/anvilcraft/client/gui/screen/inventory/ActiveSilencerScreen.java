@@ -103,6 +103,9 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         new ServerboundRemoveMutedSoundPacket(args.sound()).send();
     }
 
+    /**
+     * 处理静音同步包
+     */
     public void handleSync(List<ResourceLocation> sounds) {
         mutedSoundList.children().clear();
         SoundManager manager = Minecraft.getInstance().getSoundManager();
