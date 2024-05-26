@@ -17,7 +17,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -110,8 +109,6 @@ public class SetBlock implements RecipeOutcome {
     @Override
     public boolean process(@NotNull AnvilCraftingContainer container) {
         Level level = container.getLevel();
-        RandomSource random = level.getRandom();
-        if (random.nextDouble() > this.chance) return true;
         BlockPos pos = container.getPos();
         Vec3 vec3 = pos.getCenter().add(this.offset);
         BlockPos blockPos = BlockPos.containing(vec3.x, vec3.y, vec3.z);

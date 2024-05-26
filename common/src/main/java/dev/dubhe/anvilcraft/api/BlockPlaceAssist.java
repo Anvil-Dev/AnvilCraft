@@ -38,8 +38,10 @@ public class BlockPlaceAssist {
                 .map(Pair::getFirst)
                 .collect(Collectors.toList());
     }
-
-
+    
+    /**
+     *
+     */
     public static @NotNull InteractionResult tryPlace(
             @NotNull BlockState state,
             @NotNull Level level,
@@ -87,9 +89,7 @@ public class BlockPlaceAssist {
                             (soundType.volume + 1) / 2.0f,
                             soundType.pitch * 0.8f
                     );
-                }
-                if (!player.isCreative()) {
-                    itemInHand.shrink(1);
+                    if (!player.getAbilities().instabuild) itemInHand.shrink(1);
                 }
                 return InteractionResult.CONSUME;
             }

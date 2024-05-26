@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.network.MachineEnableFilterPack;
 import dev.dubhe.anvilcraft.network.MachineOutputDirectionPack;
 import dev.dubhe.anvilcraft.network.PowerGridRemovePack;
 import dev.dubhe.anvilcraft.network.PowerGridSyncPack;
+import dev.dubhe.anvilcraft.network.RocketJumpPacket;
 import dev.dubhe.anvilcraft.network.ServerboundCyclingValueSyncPacket;
 import dev.dubhe.anvilcraft.network.SliderInitPack;
 import dev.dubhe.anvilcraft.network.SliderUpdatePack;
@@ -52,8 +53,12 @@ public class ModNetworks {
         HammerUsePack.class, HammerUsePack::new
     );
     public static final ResourceLocation CYCLING_VALUE = Network.register(
-            AnvilCraft.of("cycling_value"),
-            ServerboundCyclingValueSyncPacket.class, ServerboundCyclingValueSyncPacket::new
+        AnvilCraft.of("cycling_value"),
+        ServerboundCyclingValueSyncPacket.class, ServerboundCyclingValueSyncPacket::new
+    );
+    public static final ResourceLocation ROCKET_JUMP = Network.register(
+        AnvilCraft.of("rocket_jump"),
+        RocketJumpPacket.class, RocketJumpPacket::new
     );
 
     public static void register() {

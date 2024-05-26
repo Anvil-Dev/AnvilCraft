@@ -3,15 +3,23 @@
   "pools": [
     {
       "bonus_rolls": 0.0,
-      "conditions": [
-        {
-          "condition": "minecraft:survives_explosion"
-        }
-      ],
       "entries": [
         {
           "type": "minecraft:item",
           "name": "anvilcraft:mob_amber_block"
+        }
+      ],
+      "functions": [
+        {
+          "function": "minecraft:copy_nbt",
+          "ops": [
+            {
+              "op": "replace",
+              "source": "entity",
+              "target": "BlockEntityTag.entity"
+            }
+          ],
+          "source": "block_entity"
         }
       ],
       "rolls": 1.0

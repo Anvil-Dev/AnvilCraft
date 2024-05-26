@@ -60,8 +60,7 @@ import dev.dubhe.anvilcraft.item.PlaceInWaterBlockItem;
 import dev.dubhe.anvilcraft.item.RemoteTransmissionPoleBlockItem;
 import dev.dubhe.anvilcraft.item.ResinBlockItem;
 import dev.dubhe.anvilcraft.item.TransmissionPoleBlockItem;
-import io.github.fabricators_of_create.porting_lib.models.generators.ConfiguredModel;
-import io.github.fabricators_of_create.porting_lib.models.generators.ModelFile.UncheckedModelFile;
+import dev.dubhe.anvilcraft.util.DangerUtil;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -89,6 +88,12 @@ import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.WallBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.functions.CopyNbtFunction;
+import net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
@@ -735,7 +740,7 @@ public class ModBlocks {
             HasItem.ModItemPredicate item = HasItem.ModItemPredicate
                 .of(ModBlocks.RESIN_BLOCK)
                 .withCount(MinMaxBounds.Ints.atLeast(1));
-            HasItem hasItem = new HasItemIngredient(new Vec3(0.0, -1.0, 0.0), item).notHasTag("entity");
+            HasItem hasItem = new HasItemIngredient(new Vec3(0.0, -1.0, 0.0), item).notHasTag("BlockEntityTag.entity");
             AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .icon(ctx.get())
                 .hasBlock(
@@ -768,32 +773,13 @@ public class ModBlocks {
                 .of(ModBlocks.RESIN_BLOCK)
                 .withCount(MinMaxBounds.Ints.atLeast(1))
                 .withNbt(tag);
-            tag = new CompoundTag();
-            tag.putBoolean("is_monster", true);
-            HasItem.ModItemPredicate monster = HasItem.ModItemPredicate
-                .of(ModBlocks.RESIN_BLOCK)
-                .withCount(MinMaxBounds.Ints.atLeast(1))
-                .withNbt(tag);
             RecipePredicate hasItem = new HasItemIngredient(new Vec3(0.0, -1.0, 0.0), item)
-                .hasTag("entity")
-                .saveItemData("resin");
-            RecipePredicate hasItemMonster = new HasItemIngredient(new Vec3(0.0, -1.0, 0.0), monster)
-                .hasTag("entity")
+                .hasTag("BlockEntityTag.entity")
                 .saveItemData("resin");
             RecipeOutcome spawnItem0 = new SpawnItem(
                 new Vec3(0.0, -1.0, 0.0),
                 1.0,
                 ctx.get().getDefaultInstance()
-            ).loadItemData("resin");
-            RecipeOutcome spawnItem1 = new SpawnItem(
-                new Vec3(0.0, -1.0, 0.0),
-                0.95,
-                ctx.get().getDefaultInstance()
-            ).loadItemData("resin");
-            RecipeOutcome spawnItem2 = new SpawnItem(
-                new Vec3(0.0, -1.0, 0.0),
-                0.05,
-                ModBlocks.RESENTFUL_AMBER_BLOCK.asItem().getDefaultInstance()
             ).loadItemData("resin");
             AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .icon(ctx.get())
@@ -812,6 +798,26 @@ public class ModBlocks {
                     AnvilCraft.of(
                         "timewarp/" + BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath())
                 );
+
+            tag = new CompoundTag();
+            tag.putBoolean("is_monster", true);
+            HasItem.ModItemPredicate monster = HasItem.ModItemPredicate
+                .of(ModBlocks.RESIN_BLOCK)
+                .withCount(MinMaxBounds.Ints.atLeast(1))
+                .withNbt(tag);
+            RecipePredicate hasItemMonster = new HasItemIngredient(new Vec3(0.0, -1.0, 0.0), monster)
+                .hasTag("BlockEntityTag.entity")
+                .saveItemData("resin");
+            RecipeOutcome spawnItem1 = new SpawnItem(
+                new Vec3(0.0, -1.0, 0.0),
+                0.95,
+                ctx.get().getDefaultInstance()
+            ).loadItemData("resin");
+            RecipeOutcome spawnItem2 = new SpawnItem(
+                new Vec3(0.0, -1.0, 0.0),
+                0.05,
+                ModBlocks.RESENTFUL_AMBER_BLOCK.asItem().getDefaultInstance()
+            ).loadItemData("resin");
             AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .icon(ctx.get())
                 .hasBlock(
@@ -835,7 +841,19 @@ public class ModBlocks {
         })
         .build()
         .initialProperties(ModBlocks.AMBER_BLOCK)
-        .defaultLoot()
+        .loot((ctx, prov) -> {
+            LootTable.Builder builder = LootTable.lootTable()
+                .withPool(
+                    LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1.0f))
+                        .add(LootItem.lootTableItem(ModBlocks.MOB_AMBER_BLOCK))
+                        .apply(
+                            CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
+                                .copy("entity", "BlockEntityTag.entity")
+                        )
+                );
+            ctx.add(prov, builder);
+        })
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
@@ -846,7 +864,19 @@ public class ModBlocks {
         .item(HasMobBlockItem::new)
         .build()
         .initialProperties(ModBlocks.AMBER_BLOCK)
-        .defaultLoot()
+        .loot((ctx, prov) -> {
+            LootTable.Builder builder = LootTable.lootTable()
+                .withPool(
+                    LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1.0f))
+                        .add(LootItem.lootTableItem(ModBlocks.RESENTFUL_AMBER_BLOCK))
+                        .apply(
+                            CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
+                                .copy("entity", "BlockEntityTag.entity")
+                        )
+                );
+            ctx.add(prov, builder);
+        })
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
@@ -1648,27 +1678,21 @@ public class ModBlocks {
             .simpleItem()
             .blockstate((ctx, provider) -> {
                 provider.models().getBuilder("reinforced_concrete_" + color)
-                    .parent(new UncheckedModelFile("block/cube_all"))
+                    .parent(DangerUtil.genUncheckedModelFile("block/cube_all").get())
                     .texture("all", "block/reinforced_concrete_" + color);
                 provider.models().getBuilder("reinforced_concrete_top_" + color)
-                    .parent(new UncheckedModelFile("block/cube_column"))
+                    .parent(DangerUtil.genUncheckedModelFile("block/cube_column").get())
                     .texture("end", "block/reinforced_concrete_" + color)
                     .texture("side", "block/reinforced_concrete_" + color + "_top");
                 provider.models().getBuilder("reinforced_concrete_bottom_" + color)
-                    .parent(new UncheckedModelFile("block/cube_column"))
+                    .parent(DangerUtil.genUncheckedModelFile("block/cube_column").get())
                     .texture("end", "block/reinforced_concrete_" + color)
                     .texture("side", "block/reinforced_concrete_" + color + "_bottom");
                 provider.getVariantBuilder(ctx.get()).forAllStates(
                     blockState -> switch (blockState.getValue(ReinforcedConcreteBlock.HALF)) {
-                        case TOP -> new ConfiguredModel[]{
-                            new ConfiguredModel(
-                                new UncheckedModelFile(AnvilCraft.of("block/reinforced_concrete_top_" + color)))};
-                        case MID -> new ConfiguredModel[]{
-                            new ConfiguredModel(
-                                new UncheckedModelFile(AnvilCraft.of("block/reinforced_concrete_" + color)))};
-                        case BOTTOM -> new ConfiguredModel[]{
-                            new ConfiguredModel(
-                                new UncheckedModelFile(AnvilCraft.of("block/reinforced_concrete_bottom_" + color)))};
+                        case TOP -> DangerUtil.genConfiguredModel("block/reinforced_concrete_top_" + color).get();
+                        case MID -> DangerUtil.genConfiguredModel("block/reinforced_concrete_" + color).get();
+                        case BOTTOM -> DangerUtil.genConfiguredModel("block/reinforced_concrete_bottom_" + color).get();
                     }
                 );
             })

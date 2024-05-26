@@ -15,7 +15,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -92,8 +91,6 @@ public class SpawnItem implements RecipeOutcome, CanSetData {
     @Override
     public boolean process(@NotNull AnvilCraftingContainer container) {
         Level level = container.getLevel();
-        RandomSource random = level.getRandom();
-        if (random.nextDouble() > this.chance) return true;
         BlockPos pos = container.getPos();
         Vec3 vec3 = pos.getCenter().add(this.offset);
         ItemStack stack = this.result.copy();

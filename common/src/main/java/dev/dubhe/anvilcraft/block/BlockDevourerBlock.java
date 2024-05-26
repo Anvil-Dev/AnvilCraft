@@ -4,8 +4,8 @@ import static dev.dubhe.anvilcraft.api.entity.player.AnvilCraftBlockPlacer.anvil
 
 import dev.dubhe.anvilcraft.api.depository.IItemDepository;
 import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
-import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeableBlock;
+import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import java.util.List;
 import javax.annotation.Nonnull;
@@ -32,7 +32,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
-public class BlockDevourerBlock extends DirectionalBlock implements IHammerChangeableBlock, IHammerChangeable {
+public class BlockDevourerBlock extends DirectionalBlock implements IHammerChangeableBlock, IHammerRemovable {
 
     public static final VoxelShape NORTH_SHAPE = Block.box(0, 0, 8, 16, 16, 16);
     public static final VoxelShape SOUTH_SHAPE = Block.box(0, 0, 0, 16, 16, 8);

@@ -28,6 +28,9 @@ public class FilteredItemDepository extends ItemDepository {
     private NonNullList<ItemStack> filteredItems;
     private NonNullList<Boolean> disabled;
 
+    /**
+     *
+     */
     public FilteredItemDepository(boolean filterEnabled, List<ItemStack> filteredItems, List<Boolean> disabled) {
         super(filteredItems.size());
         this.filteredItems = NonNullList.create();
@@ -195,12 +198,18 @@ public class FilteredItemDepository extends ItemDepository {
         }
     }
 
+    /**
+     *
+     */
     public CompoundTag serializeFiltering() {
         return (CompoundTag) CODEC.encodeStart(NbtOps.INSTANCE, this)
                 .getOrThrow(false, e -> {
                 });
     }
 
+    /**
+     *
+     */
     public void deserializeFiltering(@NotNull CompoundTag tag) {
         FilteredItemDepository depository = CODEC.decode(NbtOps.INSTANCE, tag)
                 .getOrThrow(false, s -> {
@@ -208,7 +217,8 @@ public class FilteredItemDepository extends ItemDepository {
                 .getFirst();
         if (this.getSize() != depository.getSize()) throw new IllegalArgumentException("Depository size mismatch");
         this.filterEnabled = tag.getBoolean("filterEnabled");
-        this.filteredItems = depository.filteredItems;
+        int size = depository.filteredItems.size();
+        this.filteredItems = NonNullList.of(ItemStack.EMPTY, depository.filteredItems.toArray(new ItemStack[size]));
         this.disabled = depository.disabled;
     }
 

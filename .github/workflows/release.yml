@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: checkout
-        uses: actions/checkout@v3.1.0
+        uses: actions/checkout@v4
 
       - name: validate gradle wrapper
         uses: gradle/wrapper-validation-action@v1
@@ -26,21 +26,29 @@ jobs:
         if: ${{ runner.os != 'Windows' }}
         run: chmod +x ./gradlew
 
+      - name: Build with Gradle
+        uses: gradle/actions/setup-gradle@v3
+
       - name: Build
-        uses: gradle/gradle-build-action@v2.4.2
+        run: ./gradlew build
+
+      - name: Read Properties
+        id: 'properties'
+        uses: christian-draeger/read-properties@1.1.1
         with:
-          arguments: build
+          path: gradle.properties
+          properties: 'mod_id mod_name'
 
       - name: Get Version
         id: version
         run: |
-          MESSAGE=$(ls forge/build/libs/* | grep sources.jar -v | grep shadow.jar -v | grep slim.jar -v | awk -F 'anvilcraft-forge-|.jar' '{print $2}')
+          MESSAGE=$(ls forge/build/libs/* | grep sources.jar -v | grep shadow.jar -v | grep slim.jar -v | awk -F '${{ steps.properties.outputs.mod_id }}-forge-|.jar' '{print $2}')
           echo "version=$MESSAGE" >> $GITHUB_OUTPUT
 
       - name: capture build artifacts
         uses: actions/upload-artifact@v3.1.1
         with:
-          name: AnvilCraftMod ${{ steps.version.outputs.version }}
+          name: "${{ steps.properties.outputs.mod_name }} ${{ steps.version.outputs.version }}"
           path: |
             fabric/build/libs/anvilcraft-fabric-${{ steps.version.outputs.version }}.jar
             forge/build/libs/anvilcraft-forge-${{ steps.version.outputs.version }}.jar
@@ -60,41 +68,15 @@ jobs:
             fabric/build/libs/anvilcraft-fabric-${{ steps.version.outputs.version }}.jar
             forge/build/libs/anvilcraft-forge-${{ steps.version.outputs.version }}.jar
 
-      - name: publish fabric mc mod
-        uses: Kir-Antipov/mc-publish@v3.3
-        continue-on-error: true
-        with:
-          name: AnvilCraftMod v${{ steps.version.outputs.version }}
-          version: ${{ steps.version.outputs.version }}
-          game-versions: 1.20.1
-          version-type: release
-          java: 17
-          loaders: |
-            fabric
-            quilt
-          dependencies: fabric@0.83.0+1.20.1(required){modrinth:P7dR8mSH}{curseforge:306612}
-          fail-mode: skip
-          changelog: ${{ github.event.release.body }}
-
-          modrinth-id: vuISAWPc
-          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
-          modrinth-featured: true
-
-          curseforge-id: 986251
-          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
-
-          files: fabric/build/libs/anvilcraft-fabric-${{ steps.version.outputs.version }}.jar
-
       - name: publish forge mc mod
         uses: Kir-Antipov/mc-publish@v3.3
         continue-on-error: true
         with:
-          name: AnvilCraftMod v${{ steps.version.outputs.version }}
+          name: "${{ steps.properties.outputs.mod_name }} For Forge v${{ steps.version.outputs.version }}"
           version: ${{ steps.version.outputs.version }}
           game-versions: 1.20.1
           version-type: release
           java: 17
-          loaders: forge
           fail-mode: skip
           changelog: ${{ github.event.release.body }}
 
@@ -105,4 +87,30 @@ jobs:
           curseforge-id: 986251
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
 
-          files: forge/build/libs/anvilcraft-forge-${{ steps.version.outputs.version }}.jar
+          files: |
+            forge/build/libs/anvilcraft-forge-${{ steps.version.outputs.version }}.jar
+            forge/build/libs/anvilcraft-forge-${{ steps.version.outputs.version }}-sources.jar
+            
+
+      - name: publish fabric mc mod
+        uses: Kir-Antipov/mc-publish@v3.3
+        continue-on-error: true
+        with:
+          name: "${{ steps.properties.outputs.mod_name }} For Fabric v${{ steps.version.outputs.version }}"
+          version: ${{ steps.version.outputs.version }}
+          game-versions: 1.20.1
+          version-type: release
+          java: 17
+          fail-mode: skip
+          changelog: ${{ github.event.release.body }}
+
+          modrinth-id: vuISAWPc
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          modrinth-featured: true
+
+          curseforge-id: 986251
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+
+          files: |
+            fabric/build/libs/anvilcraft-fabric-${{ steps.version.outputs.version }}.jar
+            fabric/build/libs/anvilcraft-fabric-${{ steps.version.outputs.version }}-sources.jar

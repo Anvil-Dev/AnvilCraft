@@ -112,7 +112,7 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
             if (outcome instanceof CanSetData canSetData) {
                 canSetData.setData(this.data);
             }
-            outcome.process(container);
+            outcome.processWithChance(container);
         }
         return true;
     }

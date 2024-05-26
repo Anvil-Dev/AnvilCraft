@@ -58,7 +58,7 @@
         ]
       },
       "not_has_tag": [
-        "entity"
+        "BlockEntityTag.entity"
       ],
       "offset": [
         0.0,

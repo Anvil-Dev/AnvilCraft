@@ -7,7 +7,7 @@ import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.api.hammer.HammerManager;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
-import net.minecraft.client.Minecraft;
+import dev.dubhe.anvilcraft.network.RocketJumpPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -36,7 +36,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public class AnvilHammerItem extends Item implements Vanishable, Equipable, IEngineerGoggles {
-    private static final Minecraft mc = Minecraft.getInstance();
     private static long lastDropAnvilTime = 0;
     private final Multimap<Attribute, AttributeModifier> defaultModifiers;
 
@@ -122,16 +121,16 @@ public class AnvilHammerItem extends Item implements Vanishable, Equipable, IEng
     }
 
     private static boolean rocketJump(ServerPlayer serverPlayer, ServerLevel level, BlockPos blockPos) {
-        if (mc.player == null) return false;
+        if (serverPlayer == null) return false;
         ItemStack itemStack = serverPlayer.getInventory().offhand.get(0);
         if (!itemStack.is(Items.FIREWORK_ROCKET)) return false;
         if (!itemStack.hasTag()) return false;
         int i = itemStack.getOrCreateTag().getCompound("Fireworks").getByte("Flight");
-        if (mc.player.getRotationVector().x > 70) {
+        if (serverPlayer.getRotationVector().x > 70) {
             if (!serverPlayer.getAbilities().instabuild) itemStack.shrink(1);
             double power = i * 0.75 + 0.5;
             serverPlayer.setDeltaMovement(0, power, 0);
-            mc.player.setDeltaMovement(0, power, 0);
+            new RocketJumpPacket(power).send(serverPlayer);
             level.sendParticles(
                 ParticleTypes.FIREWORK,
                 serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(),
