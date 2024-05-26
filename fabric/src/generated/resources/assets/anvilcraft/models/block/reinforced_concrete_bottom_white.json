@@ -1,5 +1,5 @@
 {
-  "parent": "anvilcraft:block/cube_column",
+  "parent": "minecraft:block/cube_column",
   "textures": {
     "end": "anvilcraft:block/reinforced_concrete_white",
     "side": "anvilcraft:block/reinforced_concrete_white_bottom"
