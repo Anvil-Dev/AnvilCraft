@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.ActiveSilencerScreen;
 import lombok.Getter;
 import lombok.Setter;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ObjectSelectionList;
@@ -11,6 +12,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 public class SilencerSoundList extends ObjectSelectionList<SilencerSoundList.SoundEntry> {
@@ -21,6 +23,7 @@ public class SilencerSoundList extends ObjectSelectionList<SilencerSoundList.Sou
             AnvilCraft.of("textures/gui/container/machine/active_silencer_button_remove.png");
 
     private final ResourceLocation buttonTexture;
+    private final ActiveSilencerScreen parent;
     private final int listWidth;
 
     /**
@@ -38,6 +41,7 @@ public class SilencerSoundList extends ObjectSelectionList<SilencerSoundList.Sou
                              int bottom,
                              ResourceLocation texture) {
         super(minecraft, listWidth, parent.height, top, bottom, 20);
+        this.parent = parent;
         this.buttonTexture = texture;
         this.listWidth = listWidth;
         this.setRenderBackground(false);
@@ -107,6 +111,23 @@ public class SilencerSoundList extends ObjectSelectionList<SilencerSoundList.Sou
         return this.listWidth;
     }
 
+    @Override
+    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        super.render(guiGraphics, mouseX, mouseY, partialTick);
+        if (getHovered() != null) {
+            SoundEntry hovered = getHovered();
+            guiGraphics.renderComponentTooltip(
+                    Minecraft.getInstance().font,
+                    List.of(
+                            hovered.text.copy().withStyle(ChatFormatting.WHITE),
+                            Component.literal(hovered.sound.toString()).copy().withStyle(ChatFormatting.GRAY)
+                    ),
+                    mouseX,
+                    mouseY
+            );
+        }
+    }
+
     /**
      * 声音项
      */
@@ -131,7 +152,6 @@ public class SilencerSoundList extends ObjectSelectionList<SilencerSoundList.Sou
         public @NotNull Component getNarration() {
             return text;
         }
-
 
         @Override
         public void render(
