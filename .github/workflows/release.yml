@@ -8,6 +8,7 @@ jobs:
     permissions: write-all
     env:
       CI_BUILD: false
+      PR_BUILD: false
     runs-on: ubuntu-latest
     steps:
       - name: checkout
