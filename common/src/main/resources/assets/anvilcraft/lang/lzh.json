@@ -324,5 +324,19 @@
   "tooltip.anvilcraft.item.tempering_glass": "禦孳伏臨，可以手採之",
   "tooltip.anvilcraft.item.topaz": "蘊閃電之威",
   "tooltip.anvilcraft.item.transmission_pole": "構築電域，輸電之距捌塊也",
-  "tooltip.anvilcraft.jade.power_information": "電域：%d/%d MW"
+  "tooltip.anvilcraft.jade.power_information": "電域：%d/%d MW",
+  "block.anvilcraft.active_silencer": "抑械",
+  "block.anvilcraft.charger": "蓄械",
+  "block.anvilcraft.cut_heavy_iron_block": "割重铁塊",
+  "block.anvilcraft.cut_heavy_iron_slab": "割重鐵版",
+  "block.anvilcraft.cut_heavy_iron_stairs": "割重鐵階",
+  "block.anvilcraft.discharger": "釋械",
+  "block.anvilcraft.heavy_iron_beam": "重鐵梁",
+  "block.anvilcraft.heavy_iron_block": "重鐵塊",
+  "block.anvilcraft.heavy_iron_column": "重鐵柱",
+  "block.anvilcraft.heavy_iron_plate": "重鐵板",
+  "block.anvilcraft.polished_heavy_iron_block": "磨重鐵塊",
+  "block.anvilcraft.polished_heavy_iron_slab": "磨重鐵版",
+  "block.anvilcraft.polished_heavy_iron_stairs": "磨重鐵階",
+  "screen.anvilcraft.active_silencer.title": "抑械"
 }

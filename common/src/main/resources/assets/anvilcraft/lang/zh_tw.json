@@ -324,5 +324,19 @@
   "tooltip.anvilcraft.item.tempering_glass": "防 Creeper，可徒手采集",
   "tooltip.anvilcraft.item.topaz": "蘊含閃電的力量",
   "tooltip.anvilcraft.item.transmission_pole": "组建电网，传输距离为8个方块",
-  "tooltip.anvilcraft.jade.power_information": "電網：%d/%d MW"
+  "tooltip.anvilcraft.jade.power_information": "電網：%d/%d MW",
+  "block.anvilcraft.active_silencer": "主動消音器",
+  "block.anvilcraft.charger": "充電器",
+  "block.anvilcraft.cut_heavy_iron_block": "切製重質鐵方塊",
+  "block.anvilcraft.cut_heavy_iron_slab": "切製重質鐵方塊半磚",
+  "block.anvilcraft.cut_heavy_iron_stairs": "切製重質鐵方塊階梯",
+  "block.anvilcraft.discharger": "放電器",
+  "block.anvilcraft.heavy_iron_beam": "重質鐵梁",
+  "block.anvilcraft.heavy_iron_block": "重質鐵方塊",
+  "block.anvilcraft.heavy_iron_column": "重質鐵柱",
+  "block.anvilcraft.heavy_iron_plate": "重質鐵板",
+  "block.anvilcraft.polished_heavy_iron_block": "磨製重質鐵方塊",
+  "block.anvilcraft.polished_heavy_iron_slab": "磨製重質鐵方塊半磚",
+  "block.anvilcraft.polished_heavy_iron_stairs": "磨製重質鐵方塊階梯",
+  "screen.anvilcraft.active_silencer.title": "主動消音器"
 }
