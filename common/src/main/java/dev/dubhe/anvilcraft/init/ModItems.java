@@ -34,6 +34,7 @@ import dev.dubhe.anvilcraft.item.RoyalSwordItem;
 import dev.dubhe.anvilcraft.item.RoyalUpgradeTemplateItem;
 import dev.dubhe.anvilcraft.item.TopazItem;
 import dev.dubhe.anvilcraft.item.UtusanItem;
+import dev.dubhe.anvilcraft.item.LevitationPowderItem;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -1173,6 +1174,10 @@ public class ModItems {
 
     public static final ItemEntry<Item> LIME_POWDER = REGISTRATE
         .item("lime_powder", Item::new)
+        .register();
+
+    public static final ItemEntry<LevitationPowderItem> LEVITATION_POWDER = REGISTRATE
+        .item("levitation_powder", LevitationPowderItem::new)
         .register();
 
     public static final ItemEntry<DiskItem> DISK = REGISTRATE
