@@ -51,7 +51,7 @@ public class SuperHeatingRecipesLoader {
             new RecipeItem(ModBlocks.QUARTZ_SAND, 8),
             new RecipeItem(ModItems.ROYAL_STEEL_INGOT)
         );
-        superHeating(ModItems.WOOD_FIBER.get(), 4, new RecipeItem(Items.CHARCOAL));
+        superHeating(Items.CHARCOAL, new RecipeItem(ModItems.WOOD_FIBER.get(), 4));
         superHeating(1, ModItems.LIME_POWDER.get(), new RecipeItem(ModItems.CRAB_CLAW));
         superHeating(2, ModItems.LIME_POWDER.get(), new RecipeItem(ModItemTags.DEAD_TUBE));
         superHeating(3, ModItems.LIME_POWDER.get(), new RecipeItem(Items.NAUTILUS_SHELL));

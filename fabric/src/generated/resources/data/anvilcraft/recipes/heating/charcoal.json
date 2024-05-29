@@ -1,7 +1,7 @@
 {
   "type": "anvilcraft:anvil_processing",
   "icon": {
-    "item": "anvilcraft:wood_fiber"
+    "item": "minecraft:charcoal"
   },
   "outcomes": [
     {
@@ -13,8 +13,7 @@
         0.0
       ],
       "result": {
-        "count": 4,
-        "item": "anvilcraft:wood_fiber"
+        "item": "minecraft:charcoal"
       }
     }
   ],
@@ -52,10 +51,10 @@
       "type": "has_item_ingredient",
       "match_item": {
         "count": {
-          "min": 1
+          "min": 4
         },
         "items": [
-          "minecraft:charcoal"
+          "anvilcraft:wood_fiber"
         ]
       },
       "offset": [
