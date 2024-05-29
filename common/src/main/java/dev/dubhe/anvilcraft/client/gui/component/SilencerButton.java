@@ -46,6 +46,8 @@ public class SilencerButton extends Button {
 
     @Override
     public void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        ResourceLocation soundId = parent.getSoundIdAt(index, variant);
+        if (soundId == null) return;
         this.renderTexture(
                 guiGraphics,
                 texture,
@@ -62,8 +64,6 @@ public class SilencerButton extends Button {
         this.setMessage(parent.getSoundTextAt(index, variant));
         this.renderString(guiGraphics, Minecraft.getInstance().font, 16777215 | Mth.ceil(this.alpha * 255.0F) << 24);
         if (this.isHovered()) {
-            ResourceLocation soundId = parent.getSoundIdAt(index, variant);
-            if (soundId == null) return;
             guiGraphics.renderTooltip(
                     Minecraft.getInstance().font,
                     List.of(
