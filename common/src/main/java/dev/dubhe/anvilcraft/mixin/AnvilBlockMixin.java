@@ -92,6 +92,7 @@ abstract class AnvilBlockMixin extends FallingBlock {
                 if (level.isEmptyBlock(magnet) || state1.getBlock() instanceof LiquidBlock) continue;
                 else return;
             }
+            level.destroyBlock(magnet.below(), true);
             level.setBlockAndUpdate(magnet.below(), state);
             level.setBlockAndUpdate(anvil, Blocks.AIR.defaultBlockState());
             AnimateAscendingBlockEntity.animate(level, anvil, state, magnet.below());

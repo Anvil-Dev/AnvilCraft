@@ -371,9 +371,9 @@ AnvilCraft follows the [Contributor Covenant](https://www.contributor-covenant.o
       <a title="Money">💵</a>
     </td>
     <td align="center">
-      <a href="https://space.bilibili.com/19063467">
-        <img src="https://i0.hdslb.com/bfs/face/1a8f7009de193c7c9f3079cfb8854238dd7361e6.webp" width="100px" height="100px" alt=""/><br />
-        <sub><b>potato</b></sub>
+      <a href="https://space.bilibili.com/318916927">
+        <img src="https://i1.hdslb.com/bfs/face/63186ce13529b1690d2a59cc9cd10b549e7e2a6c.jpg" width="100px" height="100px" alt=""/><br />
+        <sub><b>Potato</b></sub>
       </a><br />
       <a title="Money">💵</a>
     </td>
