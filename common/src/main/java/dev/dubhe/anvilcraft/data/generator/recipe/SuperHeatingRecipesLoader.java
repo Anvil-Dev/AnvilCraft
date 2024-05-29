@@ -55,6 +55,9 @@ public class SuperHeatingRecipesLoader {
         superHeating(1, ModItems.LIME_POWDER.get(), new RecipeItem(ModItems.CRAB_CLAW));
         superHeating(2, ModItems.LIME_POWDER.get(), new RecipeItem(ModItemTags.DEAD_TUBE));
         superHeating(3, ModItems.LIME_POWDER.get(), new RecipeItem(Items.NAUTILUS_SHELL));
+        superHeating(4, ModItems.LIME_POWDER.get(), new RecipeItem(Items.POINTED_DRIPSTONE));
+        superHeating(5, ModItems.LIME_POWDER.get(), 4, new RecipeItem(Items.DRIPSTONE_BLOCK));
+        superHeating(6, ModItems.LIME_POWDER.get(), 4, new RecipeItem(Items.CALCITE));
     }
 
     private static void superHeating(Item out, int count, RecipeItem... items) {
@@ -99,12 +102,16 @@ public class SuperHeatingRecipesLoader {
     }
 
     private static void superHeating(int index, Item output, RecipeItem... items) {
+        superHeating(index, output, 1, items);
+    }
+
+    private static void superHeating(int index, Item output, int count, RecipeItem... items) {
         if (SuperHeatingRecipesLoader.provider == null) return;
         Builder builder = AnvilRecipe.Builder.create(RecipeCategory.MISC)
             .icon(output)
             .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(OVERLOAD, false))
             .hasBlock(Blocks.CAULDRON)
-            .spawnItem(new Vec3(0.0, -1.0, 0.0), output, 1);
+            .spawnItem(new Vec3(0.0, -1.0, 0.0), output, count);
         for (RecipeItem item : items) {
             if (
                 item.getItem() == null) builder = builder.hasItemIngredient(new Vec3(0.0, -1.0, 0.0),
