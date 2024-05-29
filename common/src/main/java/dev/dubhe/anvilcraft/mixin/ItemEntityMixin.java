@@ -46,6 +46,8 @@ abstract class ItemEntityMixin extends Entity {
         )
     )
     private @NotNull Vec3 slowDown(Vec3 instance, double dx, double dy, double dz) {
+        if (this.getItem().is(ModItems.LEVITATION_POWDER.get()))
+            dy *= -0.005;
         if (this.level().getBlockState(this.blockPosition()).is(ModBlocks.HOLLOW_MAGNET_BLOCK.get()))
             dy *= 0.2;
         return instance.add(dx, dy, dz);

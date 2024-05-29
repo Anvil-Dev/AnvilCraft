@@ -39,6 +39,18 @@
       "result": {
         "item": "anvilcraft:titanium_nugget"
       }
+    },
+    {
+      "type": "spawn_item",
+      "chance": 0.1,
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "result": {
+        "item": "anvilcraft:levitation_powder"
+      }
     }
   ],
   "predicates": [
