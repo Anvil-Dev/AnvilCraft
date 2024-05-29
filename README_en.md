@@ -236,8 +236,8 @@ AnvilCraft follows the [Contributor Covenant](https://www.contributor-covenant.o
       <a title="Money">💵</a>
     </td>
     <td align="center">
-      <a href="https://space.bilibili.com/">
-        <img src="" width="100px" height="100px" alt=""/><br />
+      <a href="https://space.bilibili.com/455720630">
+        <img src="https://i2.hdslb.com/bfs/face/3013acd8905e6fdbcb42584c145f1647fa4fc838.jpg@240w_240h_1c_1s_!web-avatar-space-header.avif" width="100px" height="100px" alt=""/><br />
         <sub><b>小白</b></sub>
       </a><br />
       <a title="Money">💵</a>
