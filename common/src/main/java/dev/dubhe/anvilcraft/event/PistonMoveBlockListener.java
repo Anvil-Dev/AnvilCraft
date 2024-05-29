@@ -33,7 +33,7 @@ public class PistonMoveBlockListener {
     public static void onPistonMoveBlocks(@NotNull Level level, @NotNull List<BlockPos> blocks) {
         for (BlockPos pos : blocks) {
             BlockState blockState = level.getBlockState(pos);
-            if (!blockState.is(ModBlocks.MAGNET_BLOCK.get())) continue;
+            if (!(blockState.getBlock() instanceof MagnetBlock)) continue;
             if (blockState.getValue(MagnetBlock.LIT)) continue;
             double n = getChargeNum(level, pos);
             if (n > 0) {
