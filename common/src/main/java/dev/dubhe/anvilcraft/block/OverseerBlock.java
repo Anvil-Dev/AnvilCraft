@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.api.IHasMultiBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.OverseerBlockEntity;
 import dev.dubhe.anvilcraft.block.state.Half;
@@ -29,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
-public class OverseerBlock extends BaseEntityBlock implements IHammerRemovable {
+public class OverseerBlock extends BaseEntityBlock implements IHammerRemovable, IHasMultiBlock {
 
     private static final VoxelShape OVERSEER_BASE = Shapes.or(
             Block.box(0, 0, 0, 16, 4, 16),
@@ -145,5 +146,15 @@ public class OverseerBlock extends BaseEntityBlock implements IHammerRemovable {
         if (state.getValue(HALF) != Half.BOTTOM) return null;
         return createTickerHelper(type, ModBlockEntities.OVERSEER.get(),
                 (level1, pos, state1, entity) -> entity.tick(level1, pos, state1));
+    }
+
+    @Override
+    public void onRemove(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state) {
+        OverseerBlock.destroyBlock(level, pos, state);
+    }
+
+    @Override
+    public void onPlace(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state) {
+
     }
 }
