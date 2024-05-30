@@ -1,20 +1,19 @@
 package dev.dubhe.anvilcraft.api.sound;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraft.client.resources.sounds.SoundInstance;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-@Environment(EnvType.CLIENT)
+
 public class SoundHelper {
     public static SoundHelper INSTANCE = new SoundHelper();
 
     private final List<SoundEventListener> eventListeners = new CopyOnWriteArrayList<>();
 
-    public boolean shouldPlay(SoundInstance instance) {
-        return eventListeners.stream().allMatch(it -> it.shouldPlay(instance));
+    public boolean shouldPlay(ResourceLocation sound, Vec3 pos) {
+        return eventListeners.stream().allMatch(it -> it.shouldPlay(sound, pos));
     }
 
     public void register(SoundEventListener eventListener) {

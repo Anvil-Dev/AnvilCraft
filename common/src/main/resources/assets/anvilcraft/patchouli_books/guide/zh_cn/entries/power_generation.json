@@ -11,7 +11,7 @@
 		{
             "type": "patchouli:crafting",
             "recipe":"anvilcraft:charge_collector",
-			"text": "$(item)集电器$()是发电设施的核心部件，发电功率上限为32MW。工作范围是以自己为中心5x5x5，集电器一个周期之内收到的电荷数量将成为它下个周期的发电功率（个→MW）。周期默认为2秒。"
+			"text": "$(item)集电器$()是发电设施的核心部件，发电功率上限为32KW。工作范围是以自己为中心5x5x5，集电器一个周期之内收到的电荷数量将成为它下个周期的发电功率（个→KW）。周期默认为2秒。"
         },
 		{
             "type": "patchouli:crafting",
