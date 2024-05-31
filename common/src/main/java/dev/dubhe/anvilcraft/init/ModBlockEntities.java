@@ -22,6 +22,7 @@ import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CorruptedBeaconRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HasMobBlockRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.LaseRenderer;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 
@@ -122,10 +123,12 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<RubyPrismBlockEntity> RUBY_PRISM = REGISTRATE
         .blockEntity("ruby_prism", RubyPrismBlockEntity::createBlockEntity)
         .validBlock(ModBlocks.RUBY_PRISM)
+        .renderer(() -> LaseRenderer::new)
         .register();
     public static final BlockEntityEntry<RubyLaserBlockEntity> RUBY_LASER = REGISTRATE
         .blockEntity("ruby_laser", RubyLaserBlockEntity::createBlockEntity)
         .validBlock(ModBlocks.RUBY_LASER)
+        .renderer(() -> LaseRenderer::new)
         .register();
 
     public static void register() {

@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "#c:glass_block",
+    "#minecraft:replaceable"
+  ]
+}

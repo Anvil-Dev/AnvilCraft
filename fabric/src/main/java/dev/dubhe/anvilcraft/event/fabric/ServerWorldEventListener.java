@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.event.fabric;
 import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.fabric.AnvilCraftBlockPlacerFakePlayer;
 import dev.dubhe.anvilcraft.api.entity.player.AnvilCraftBlockPlacer;
-import dev.dubhe.anvilcraft.api.laser.LaserBlockManager;
 import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
 import dev.dubhe.anvilcraft.client.renderer.PowerGridRenderer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
@@ -23,13 +22,11 @@ public class ServerWorldEventListener {
     private static void onload(MinecraftServer server, Level level) {
         if (level instanceof ServerLevel serverLevel)
             AnvilCraftBlockPlacer.anvilCraftBlockPlacer = new AnvilCraftBlockPlacerFakePlayer(serverLevel);
-        LaserBlockManager.registerLevelManager(level);
     }
 
     private static void onUnload(MinecraftServer server, Level level) {
         PowerGridRenderer.cleanAllGrid();
         ChargeCollectorManager.cleanMap();
         if (level instanceof ServerLevel serverLevel) LevelLoadManager.removeAll(serverLevel);
-        LaserBlockManager.unregisterAll();
     }
 }
