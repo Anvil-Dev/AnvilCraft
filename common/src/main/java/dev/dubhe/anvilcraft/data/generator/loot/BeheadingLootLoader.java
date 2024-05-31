@@ -29,6 +29,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class BeheadingLootLoader {
+    private static final EnchantmentPredicate BEHEADING_ANY =
+        new EnchantmentPredicate(ModEnchantments.BEHEADING.get(), MinMaxBounds.Ints.ANY);
     private static final EnchantmentPredicate BEHEADING_1 =
         new EnchantmentPredicate(ModEnchantments.BEHEADING.get(), MinMaxBounds.Ints.between(1, 1));
     private static final EnchantmentPredicate BEHEADING_2 =
@@ -101,41 +103,7 @@ public class BeheadingLootLoader {
                     LootContext.EntityTarget.KILLER,
                     EntityPredicate.Builder.entity()
                         .equipment(EntityEquipmentPredicate.Builder.equipment().mainhand(
-                            ItemPredicate.Builder.item().hasEnchantment(BEHEADING_1).build()
-                        ).build())
-                ))
-                .when(LootItemKilledByPlayerCondition.killedByPlayer())
-                .when(LootItemRandomChanceCondition.randomChance(0.5f))
-        )
-        .withPool(
-            LootPool.lootPool()
-                .setRolls(ConstantValue.exactly(1.0f))
-                .add(
-                    LootItem.lootTableItem(Items.PLAYER_HEAD)
-                        .apply(FillPlayerHead.fillPlayerHead(LootContext.EntityTarget.THIS))
-                )
-                .when(LootItemEntityPropertyCondition.hasProperties(
-                    LootContext.EntityTarget.KILLER,
-                    EntityPredicate.Builder.entity()
-                        .equipment(EntityEquipmentPredicate.Builder.equipment().mainhand(
-                            ItemPredicate.Builder.item().hasEnchantment(BEHEADING_2).build()
-                        ).build())
-                ))
-                .when(LootItemKilledByPlayerCondition.killedByPlayer())
-                .when(LootItemRandomChanceCondition.randomChance(0.8f))
-        )
-        .withPool(
-            LootPool.lootPool()
-                .setRolls(ConstantValue.exactly(1.0f))
-                .add(
-                    LootItem.lootTableItem(Items.PLAYER_HEAD)
-                        .apply(FillPlayerHead.fillPlayerHead(LootContext.EntityTarget.THIS))
-                )
-                .when(LootItemEntityPropertyCondition.hasProperties(
-                    LootContext.EntityTarget.KILLER,
-                    EntityPredicate.Builder.entity()
-                        .equipment(EntityEquipmentPredicate.Builder.equipment().mainhand(
-                            ItemPredicate.Builder.item().hasEnchantment(BEHEADING_3).build()
+                            ItemPredicate.Builder.item().hasEnchantment(BEHEADING_ANY).build()
                         ).build())
                 ))
                 .when(LootItemKilledByPlayerCondition.killedByPlayer())
@@ -151,35 +119,7 @@ public class BeheadingLootLoader {
                     LootContext.EntityTarget.KILLER,
                     EntityPredicate.Builder.entity()
                         .equipment(EntityEquipmentPredicate.Builder.equipment().mainhand(
-                            ItemPredicate.Builder.item().hasEnchantment(BEHEADING_1).build()
-                        ).build())
-                ))
-                .when(LootItemKilledByPlayerCondition.killedByPlayer())
-                .when(LootItemRandomChanceCondition.randomChance(0.5f))
-        )
-        .withPool(
-            LootPool.lootPool()
-                .setRolls(ConstantValue.exactly(1.0f))
-                .add(LootItem.lootTableItem(Items.DRAGON_HEAD))
-                .when(LootItemEntityPropertyCondition.hasProperties(
-                    LootContext.EntityTarget.KILLER,
-                    EntityPredicate.Builder.entity()
-                        .equipment(EntityEquipmentPredicate.Builder.equipment().mainhand(
-                            ItemPredicate.Builder.item().hasEnchantment(BEHEADING_2).build()
-                        ).build())
-                ))
-                .when(LootItemKilledByPlayerCondition.killedByPlayer())
-                .when(LootItemRandomChanceCondition.randomChance(0.8f))
-        )
-        .withPool(
-            LootPool.lootPool()
-                .setRolls(ConstantValue.exactly(1.0f))
-                .add(LootItem.lootTableItem(Items.DRAGON_HEAD))
-                .when(LootItemEntityPropertyCondition.hasProperties(
-                    LootContext.EntityTarget.KILLER,
-                    EntityPredicate.Builder.entity()
-                        .equipment(EntityEquipmentPredicate.Builder.equipment().mainhand(
-                            ItemPredicate.Builder.item().hasEnchantment(BEHEADING_3).build()
+                            ItemPredicate.Builder.item().hasEnchantment(BEHEADING_ANY).build()
                         ).build())
                 ))
                 .when(LootItemKilledByPlayerCondition.killedByPlayer())
