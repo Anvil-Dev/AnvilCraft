@@ -7,7 +7,6 @@ import dev.dubhe.anvilcraft.api.sound.SoundHelper;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.ActiveSilencerMenu;
 import lombok.Getter;
-import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -135,12 +134,11 @@ public class ActiveSilencerBlockEntity extends BlockEntity implements MenuProvid
     }
 
     @Override
-    public boolean shouldPlay(SoundInstance instance) {
-        boolean inRange = range.contains(new Vec3(instance.getX(), instance.getY(), instance.getZ()));
-        boolean inList = mutedSound.contains(instance.getLocation());
+    public boolean shouldPlay(ResourceLocation sound, Vec3 pos) {
+        boolean inRange = range.contains(pos);
+        boolean inList = mutedSound.contains(sound);
         return !inRange || !inList;
     }
-
 
     public void sync(List<ResourceLocation> sounds) {
         this.mutedSound.clear();

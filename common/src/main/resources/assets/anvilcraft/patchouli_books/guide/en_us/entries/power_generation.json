@@ -11,7 +11,7 @@
     {
       "type": "patchouli:crafting",
       "recipe": "anvilcraft:charge_collector",
-      "text": "The $(item)Charge Collector$() is the core component of the power generation facility, with a power upper limit of 32MW. The scope of work is 5x5x5 centered on itself. The number of charges received by the charge collector in one cycle will become its power generation in the next cycle (piece → MW). The cycle is 2 seconds by default."
+      "text": "The $(item)Charge Collector$() is the core component of the power generation facility, with a power upper limit of 32KW. The scope of work is 5x5x5 centered on itself. The number of charges received by the charge collector in one cycle will become its power generation in the next cycle (piece → KW). The cycle is 2 seconds by default."
     },
     {
       "type": "patchouli:crafting",
