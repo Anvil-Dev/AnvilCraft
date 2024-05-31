@@ -3,6 +3,8 @@ package dev.dubhe.anvilcraft.data.generator.recipe;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.data.recipe.transform.MobTransformRecipe;
 import dev.dubhe.anvilcraft.data.recipe.transform.NumericTagValuePredicate;
+import dev.dubhe.anvilcraft.data.recipe.transform.TagModification;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.EntityType;
 
 public class MobTransformRecipesLoader {
@@ -69,6 +71,16 @@ public class MobTransformRecipesLoader {
                                 .lhs("PlayerCreated")
                                 .rhs(0)
                 )
+                .tagModification(b -> {
+                    CompoundTag tag = new CompoundTag();
+                    CompoundTag cooldownMemoryTag = new CompoundTag();
+                    cooldownMemoryTag.put("value", new CompoundTag());
+                    cooldownMemoryTag.putLong("ttl", 1200L);
+                    tag.put("minecraft:dig_cooldown", cooldownMemoryTag);
+                    b.path("Brain.memories")
+                            .operation(TagModification.ModifyOperation.SET)
+                            .value(tag);
+                })
                 .accept(provider);
     }
 }

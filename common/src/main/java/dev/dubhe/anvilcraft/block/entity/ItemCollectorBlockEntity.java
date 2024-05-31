@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
+import dev.dubhe.anvilcraft.block.InductionLightBlock;
 import dev.dubhe.anvilcraft.block.ItemCollectorBlock;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.ItemCollectorMenu;
@@ -17,6 +18,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.util.Mth;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -84,7 +86,11 @@ public class ItemCollectorBlockEntity
 
     @Override
     public int getInputPower() {
-        return (int) (4 * rangeRadius.get() * (30.0 / cooldown.get()));
+        int power = Mth.floor(30.0 + (15.0 * rangeRadius.get() / cooldown.get()));
+        if (level == null) return power;
+        return getBlockState().getValue(ItemCollectorBlock.POWERED)
+                ? 0
+                : power;
     }
 
     @Override
@@ -184,7 +190,6 @@ public class ItemCollectorBlockEntity
 
     /**
      * 获取红石信号
-     *
      */
     public int getRedstoneSignal() {
         int i = 0;
