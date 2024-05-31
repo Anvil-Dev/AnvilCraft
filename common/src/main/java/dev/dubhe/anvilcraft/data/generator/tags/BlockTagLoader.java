@@ -90,10 +90,15 @@ public class BlockTagLoader {
             .add(Blocks.BASALT)
             .add(Blocks.BLACKSTONE)
             .add(Blocks.END_STONE);
-        provider.addTag(ModBlockTags.GLASS).setReplace(false)
+        provider.addTag(ModBlockTags.GLASS_BLOCKS).setReplace(false)
+            .add(ModBlocks.TEMPERING_GLASS.get());
+        provider.addTag(ModBlockTags.FORGE_GLASS_BLOCKS).setReplace(false)
             .add(ModBlocks.TEMPERING_GLASS.get());
         provider.addTag(ModBlockTags.LASE_CAN_PASS_THROUGH).setReplace(false)
-            .forceAddTag(ModBlockTags.GLASS)
+            .forceAddTag(ModBlockTags.GLASS_BLOCKS)
+            .forceAddTag(ModBlockTags.GLASS_PANES)
+            .forceAddTag(ModBlockTags.FORGE_GLASS_BLOCKS)
+            .forceAddTag(ModBlockTags.FORGE_GLASS_PANES)
             .forceAddTag(BlockTags.REPLACEABLE);
     }
 }

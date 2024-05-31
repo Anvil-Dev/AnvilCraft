@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.block.RubyPrismBlock;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -28,8 +29,14 @@ public class RubyPrismBlockEntity extends BaseLaserBlockEntity {
         return new RubyPrismBlockEntity(type, pos, blockState);
     }
 
-    public void tick() {
+    public void tick(@NotNull Level level) {
         if (isOverload) emitLaser(getDirection());
+        super.tick(level);
+    }
+
+    @Override
+    protected int getBasePower() {
+        return 0;
     }
 
     @Override
@@ -38,14 +45,15 @@ public class RubyPrismBlockEntity extends BaseLaserBlockEntity {
     }
 
     @Override
-    public void onCancelingIrradiation() {
+    public void onCancelingIrradiation(BaseLaserBlockEntity baseLaserBlockEntity) {
         isOverload = false;
-        super.onIrradiated();
+        super.onCancelingIrradiation(baseLaserBlockEntity);
     }
 
     @Override
-    public void onIrradiated() {
+    public void onIrradiated(BaseLaserBlockEntity baseLaserBlockEntity) {
         isOverload = true;
+        super.onIrradiated(baseLaserBlockEntity);
     }
 
     @Override

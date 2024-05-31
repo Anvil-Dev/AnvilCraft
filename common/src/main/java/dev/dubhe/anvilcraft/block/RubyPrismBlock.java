@@ -63,6 +63,6 @@ public class RubyPrismBlock extends BaseEntityBlock implements IHammerRemovable,
         @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type
     ) {
         return createTickerHelper(type, ModBlockEntities.RUBY_PRISM.get(),
-            (level1, pos, state1, entity) -> entity.tick());
+            (level1, pos, state1, entity) -> entity.tick(level1));
     }
 }
