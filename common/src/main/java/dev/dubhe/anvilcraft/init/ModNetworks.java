@@ -2,13 +2,16 @@ package dev.dubhe.anvilcraft.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.network.Network;
+import dev.dubhe.anvilcraft.network.ClientboundMutedSoundSyncPacket;
 import dev.dubhe.anvilcraft.network.HammerUsePack;
 import dev.dubhe.anvilcraft.network.MachineEnableFilterPack;
 import dev.dubhe.anvilcraft.network.MachineOutputDirectionPack;
 import dev.dubhe.anvilcraft.network.PowerGridRemovePack;
 import dev.dubhe.anvilcraft.network.PowerGridSyncPack;
 import dev.dubhe.anvilcraft.network.RocketJumpPacket;
+import dev.dubhe.anvilcraft.network.ServerboundAddMutedSoundPacket;
 import dev.dubhe.anvilcraft.network.ServerboundCyclingValueSyncPacket;
+import dev.dubhe.anvilcraft.network.ServerboundRemoveMutedSoundPacket;
 import dev.dubhe.anvilcraft.network.SliderInitPack;
 import dev.dubhe.anvilcraft.network.SliderUpdatePack;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
@@ -59,6 +62,21 @@ public class ModNetworks {
     public static final ResourceLocation ROCKET_JUMP = Network.register(
         AnvilCraft.of("rocket_jump"),
         RocketJumpPacket.class, RocketJumpPacket::new
+    );
+
+    public static final ResourceLocation MUTED_SOUND_SYNC = Network.register(
+            AnvilCraft.of("muted_sound_sync"),
+            ClientboundMutedSoundSyncPacket.class, ClientboundMutedSoundSyncPacket::new
+    );
+
+    public static final ResourceLocation MUTED_SOUND_ADD = Network.register(
+            AnvilCraft.of("muted_sound_add"),
+            ServerboundAddMutedSoundPacket.class, ServerboundAddMutedSoundPacket::new
+    );
+
+    public static final ResourceLocation MUTED_SOUND_REMOVE = Network.register(
+            AnvilCraft.of("muted_sound_remove"),
+            ServerboundRemoveMutedSoundPacket.class, ServerboundRemoveMutedSoundPacket::new
     );
 
     public static void register() {

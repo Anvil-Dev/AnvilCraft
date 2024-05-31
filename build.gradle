@@ -99,9 +99,13 @@ allprojects {
 
     // Formats the mod version to include the loader, Minecraft version, and build number (if present)
     String buildNumber
+    String buildType = 'build'
     if (System.getenv("CI_BUILD") == 'false') buildNumber = null
-    else buildNumber = System.getenv("GITHUB_RUN_NUMBER")
-    version = "${mod_version}" + (buildNumber != null ? "+build.${buildNumber}" : "")
+    else {
+        if (System.getenv("PR_BUILD") != 'false') buildType = 'pr'
+        buildNumber = System.getenv("GITHUB_RUN_NUMBER")
+    }
+    version = "${mod_version}" + (buildNumber != null ? "+${buildType}.${buildNumber}" : "")
 
     repositories {
         // Add repositories to retrieve artifacts from in here.

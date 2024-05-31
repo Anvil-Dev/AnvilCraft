@@ -62,7 +62,7 @@ public class FellingEnchantment extends ModEnchantment {
         if (player.isShiftKeyDown()) return;
         Map<Enchantment, Integer> enchantments = EnchantmentHelper.getEnchantments(tool);
         if (!enchantments.containsKey(ModEnchantments.FELLING.get())) return;
-        int max = (enchantments.get(ModEnchantments.FELLING.get()) * AnvilCraft.config.fellingBlockPerLevel) - 1;
+        int max = (enchantments.get(ModEnchantments.FELLING.get()) * AnvilCraft.config.fellingBlockPerLevel) + 1;
         FellingEnchantment.chainMine(level, player, pos, max, tool);
     }
 

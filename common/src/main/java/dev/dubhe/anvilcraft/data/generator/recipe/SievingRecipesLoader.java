@@ -28,7 +28,8 @@ public class SievingRecipesLoader {
         );
         sieving(provider, ModBlocks.END_DUST,
             Map.entry(Items.CHORUS_FLOWER, 0.005),
-            Map.entry(ModItems.TITANIUM_NUGGET, 0.1)
+            Map.entry(ModItems.TITANIUM_NUGGET, 0.1),
+            Map.entry(ModItems.LEVITATION_POWDER, 0.1)
         );
         sieving(provider, Items.SOUL_SAND,
             Map.entry(Items.NETHER_WART, 0.005)

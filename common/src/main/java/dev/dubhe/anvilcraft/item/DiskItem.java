@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.item;
 
-import dev.dubhe.anvilcraft.api.IDiskCloneable;
+import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;

@@ -115,10 +115,10 @@ public class AnvilEventListener {
         if (!state.hasBlockEntity()) return;
         int honeyLevel = state.getValue(BeehiveBlock.HONEY_LEVEL);
         if (honeyLevel < BeehiveBlock.MAX_HONEY_LEVELS) return;
-        level.setBlockAndUpdate(pos, state.setValue(BeehiveBlock.HONEY_LEVEL, 0));
         BlockPos potPos = pos.below();
         BlockState pot = level.getBlockState(potPos);
         if (pot.is(Blocks.CAULDRON)) {
+            level.setBlockAndUpdate(pos, state.setValue(BeehiveBlock.HONEY_LEVEL, 0));
             level.setBlockAndUpdate(
                     potPos,
                     ModBlocks.HONEY_CAULDRON.getDefaultState()
@@ -131,6 +131,7 @@ public class AnvilEventListener {
         } else {
             if (pot.is(ModBlocks.HONEY_CAULDRON.get())) {
                 int cauldronHoneyLevel = pot.getValue(LayeredCauldronBlock.LEVEL);
+                level.setBlockAndUpdate(pos, state.setValue(BeehiveBlock.HONEY_LEVEL, 0));
                 if (cauldronHoneyLevel < LayeredCauldronBlock.MAX_FILL_LEVEL) {
                     level.setBlockAndUpdate(
                             potPos,

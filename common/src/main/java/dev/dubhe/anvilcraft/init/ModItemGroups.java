@@ -97,6 +97,7 @@ public class ModItemGroups {
                 entries.accept(ModItems.SPONGE_GEMMULE.get().getDefaultInstance());
                 entries.accept(ModItems.NETHERITE_CRYSTAL_NUCLEUS.get().getDefaultInstance());
                 entries.accept(ModItems.LIME_POWDER.get().getDefaultInstance());
+                entries.accept(ModItems.LEVITATION_POWDER.get().getDefaultInstance());
                 entries.accept(ModItems.TOPAZ.get().getDefaultInstance());
                 entries.accept(ModItems.RUBY.get().getDefaultInstance());
                 entries.accept(ModItems.SAPPHIRE.get().getDefaultInstance());
@@ -141,6 +142,9 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.PIEZOELECTRIC_CRYSTAL.asStack());
                 entries.accept(ModBlocks.AUTO_CRAFTER.asStack());
                 entries.accept(ModBlocks.ITEM_COLLECTOR.asStack());
+                entries.accept(ModBlocks.CHARGER.asStack());
+                entries.accept(ModBlocks.DISCHARGER.asStack());
+                entries.accept(ModBlocks.ACTIVE_SILENCER.asStack());
                 entries.accept(ModBlocks.BLOCK_PLACER.asStack());
                 entries.accept(ModBlocks.BLOCK_DEVOURER.asStack());
                 entries.accept(ModBlocks.RUBY_LASER.asStack());
@@ -167,6 +171,16 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.CUT_ROYAL_STEEL_BLOCK.asStack());
                 entries.accept(ModBlocks.CUT_ROYAL_STEEL_SLAB.asStack());
                 entries.accept(ModBlocks.CUT_ROYAL_STEEL_STAIRS.asStack());
+                entries.accept(ModBlocks.HEAVY_IRON_BLOCK.asStack());
+                entries.accept(ModBlocks.POLISHED_HEAVY_IRON_BLOCK.asStack());
+                entries.accept(ModBlocks.POLISHED_HEAVY_IRON_SLAB.asStack());
+                entries.accept(ModBlocks.POLISHED_HEAVY_IRON_STAIRS.asStack());
+                entries.accept(ModBlocks.CUT_HEAVY_IRON_BLOCK.asStack());
+                entries.accept(ModBlocks.CUT_HEAVY_IRON_SLAB.asStack());
+                entries.accept(ModBlocks.CUT_HEAVY_IRON_STAIRS.asStack());
+                entries.accept(ModBlocks.HEAVY_IRON_PLATE.asStack());
+                entries.accept(ModBlocks.HEAVY_IRON_COLUMN.asStack());
+                entries.accept(ModBlocks.HEAVY_IRON_BEAM.asStack());
                 entries.accept(ModBlocks.CURSED_GOLD_BLOCK.asStack());
                 entries.accept(ModBlocks.ZINC_BLOCK.asStack());
                 entries.accept(ModBlocks.TIN_BLOCK.asStack());

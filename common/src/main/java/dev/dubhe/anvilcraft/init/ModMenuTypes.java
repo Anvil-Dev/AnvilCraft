@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.init;
 
 import com.tterrag.registrate.util.entry.MenuEntry;
 import dev.architectury.injectables.annotations.ExpectPlatform;
+import dev.dubhe.anvilcraft.client.gui.screen.inventory.ActiveSilencerScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.AutoCrafterScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.ChuteScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.ItemCollectorScreen;
@@ -9,6 +10,7 @@ import dev.dubhe.anvilcraft.client.gui.screen.inventory.RoyalAnvilScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.RoyalGrindstoneScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.RoyalSmithingScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.SliderScreen;
+import dev.dubhe.anvilcraft.inventory.ActiveSilencerMenu;
 import dev.dubhe.anvilcraft.inventory.AutoCrafterMenu;
 import dev.dubhe.anvilcraft.inventory.ChuteMenu;
 import dev.dubhe.anvilcraft.inventory.ItemCollectorMenu;
@@ -61,6 +63,10 @@ public class ModMenuTypes {
             .register();
     public static final MenuEntry<ItemCollectorMenu> ITEM_COLLECTOR = REGISTRATE
             .menu("item_collector", ItemCollectorMenu::new, () -> ItemCollectorScreen::new)
+            .register();
+
+    public static final MenuEntry<ActiveSilencerMenu> ACTIVE_SILENCER = REGISTRATE
+            .menu("active_silencer", ActiveSilencerMenu::new, () -> ActiveSilencerScreen::new)
             .register();
 
     public static void register() {
