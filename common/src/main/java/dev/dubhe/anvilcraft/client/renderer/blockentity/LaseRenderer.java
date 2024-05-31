@@ -2,25 +2,14 @@ package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.BaseLaserBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.HasMobBlockEntity;
-import dev.latvian.mods.kubejs.client.painter.screen.AtlasTextureObject;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.core.Direction.Axis;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Matrix3f;
-import org.joml.Matrix4f;
 
 public class LaseRenderer implements BlockEntityRenderer<BaseLaserBlockEntity> {
 
@@ -34,49 +23,37 @@ public class LaseRenderer implements BlockEntityRenderer<BaseLaserBlockEntity> {
         if (blockEntity.getLevel() == null) return;
         if (blockEntity.irradiateBlockPos == null) return;
         poseStack.pushPose();
-        VertexConsumer consumer = buffer.getBuffer(RenderType.beaconBeam(new ResourceLocation("textures/entity/beacon_beam.png"), true));
+        VertexConsumer consumer =
+            buffer.getBuffer(RenderType.beaconBeam(new ResourceLocation("textures/entity/beacon_beam.png"), true));
         float length =
             (float) blockEntity.irradiateBlockPos.getCenter().distanceTo(blockEntity.getBlockPos().getCenter());
         poseStack.translate(0.5f, 0.5f, 0.5);
         switch (blockEntity.getDirection()) {
-            case EAST -> {
-                renderBox(
-                    consumer, poseStack,
-                    0, -0.0625f, -0.0625f, length, 0.0625f, 0.0625f
-                );
-            }
-            case WEST -> {
-                renderBox(
-                    consumer, poseStack,
-                    -length, -0.0625f, -0.0625f, 0, 0.0625f, 0.0625f
-                );
-            }
-            case SOUTH -> {
-                renderBox(
-                    consumer, poseStack,
-                    -0.0625f, -0.0625f, 0, 0.0625f, 0.0625f, length
-                );
-            }
+            case EAST -> renderBox(
+                consumer, poseStack,
+                0, -0.0625f, -0.0625f, length, 0.0625f, 0.0625f
+            );
+            case WEST -> renderBox(
+                consumer, poseStack,
+                -length, -0.0625f, -0.0625f, 0, 0.0625f, 0.0625f
+            );
+            case SOUTH -> renderBox(
+                consumer, poseStack,
+                -0.0625f, -0.0625f, 0, 0.0625f, 0.0625f, length
+            );
 
-            case NORTH -> {
-                renderBox(
-                    consumer, poseStack,
-                    -0.0625f, -0.0625f, -length, 0.0625f, 0.0625f, 0
-                );
-            }
-            case UP -> {
-                renderBox(
-                    consumer, poseStack,
-                    -0.0625f, 0, -0.0625f, 0.0625f, length, 0.0625f
-                );
-            }
-
-            case DOWN -> {
-                renderBox(
-                    consumer, poseStack,
-                    -0.0625f, -length, -0.0625f, 0.0625f, 0, 0.0625f
-                );
-            }
+            case NORTH -> renderBox(
+                consumer, poseStack,
+                -0.0625f, -0.0625f, -length, 0.0625f, 0.0625f, 0
+            );
+            case UP -> renderBox(
+                consumer, poseStack,
+                -0.0625f, 0, -0.0625f, 0.0625f, length, 0.0625f
+            );
+            default -> renderBox(
+                consumer, poseStack,
+                -0.0625f, -length, -0.0625f, 0.0625f, 0, 0.0625f
+            );
         }
         poseStack.popPose();
     }

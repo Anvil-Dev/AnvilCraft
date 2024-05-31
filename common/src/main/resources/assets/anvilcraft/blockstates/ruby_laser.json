@@ -1,52 +1,108 @@
 {
   "variants": {
-    "axis=x,overload=false,switch=on": {
+    "facing=down,overload=false,switch=on": {
+      "model": "anvilcraft:block/ruby_laser",
+      "x": 180
+    },
+    "facing=east,overload=false,switch=on": {
       "model": "anvilcraft:block/ruby_laser",
       "x": 90,
       "y": 90
     },
-    "axis=y,overload=false,switch=on": {
+    "facing=north,overload=false,switch=on": {
+      "model": "anvilcraft:block/ruby_laser",
+      "x": 90
+    },
+    "facing=south,overload=false,switch=on": {
+      "model": "anvilcraft:block/ruby_laser",
+      "x": 90,
+      "y": 180
+    },
+    "facing=up,overload=false,switch=on": {
       "model": "anvilcraft:block/ruby_laser"
     },
-    "axis=z,overload=false,switch=on": {
+    "facing=west,overload=false,switch=on": {
       "model": "anvilcraft:block/ruby_laser",
-      "x": 90
-    },
-    "axis=x,overload=false,switch=off": {
-      "model": "anvilcraft:block/ruby_laser_off",
       "x": 90,
-      "y": 90
+      "y": 270
     },
-    "axis=y,overload=false,switch=off": {
-      "model": "anvilcraft:block/ruby_laser_off"
+    "facing=down,overload=true,switch=on": {
+      "model": "anvilcraft:block/ruby_laser_overload",
+      "x": 180
     },
-    "axis=z,overload=false,switch=off": {
-      "model": "anvilcraft:block/ruby_laser_off",
-      "x": 90
-    },
-    "axis=x,overload=true,switch=on": {
+    "facing=east,overload=true,switch=on": {
       "model": "anvilcraft:block/ruby_laser_overload",
       "x": 90,
       "y": 90
     },
-    "axis=y,overload=true,switch=on": {
+    "facing=north,overload=true,switch=on": {
+      "model": "anvilcraft:block/ruby_laser_overload",
+      "x": 90
+    },
+    "facing=south,overload=true,switch=on": {
+      "model": "anvilcraft:block/ruby_laser_overload",
+      "x": 90,
+      "y": 180
+    },
+    "facing=up,overload=true,switch=on": {
       "model": "anvilcraft:block/ruby_laser_overload"
     },
-    "axis=z,overload=true,switch=on": {
+    "facing=west,overload=true,switch=on": {
       "model": "anvilcraft:block/ruby_laser_overload",
-      "x": 90
+      "x": 90,
+      "y": 270
     },
-    "axis=x,overload=true,switch=off": {
+    "facing=down,overload=false,switch=off": {
+      "model": "anvilcraft:block/ruby_laser_off",
+      "x": 180
+    },
+    "facing=east,overload=false,switch=off": {
       "model": "anvilcraft:block/ruby_laser_off",
       "x": 90,
       "y": 90
     },
-    "axis=y,overload=true,switch=off": {
-      "model": "anvilcraft:block/ruby_laser_off"
-    },
-    "axis=z,overload=true,switch=off": {
+    "facing=north,overload=false,switch=off": {
       "model": "anvilcraft:block/ruby_laser_off",
       "x": 90
+    },
+    "facing=south,overload=false,switch=off": {
+      "model": "anvilcraft:block/ruby_laser_off",
+      "x": 90,
+      "y": 180
+    },
+    "facing=up,overload=false,switch=off": {
+      "model": "anvilcraft:block/ruby_laser_off"
+    },
+    "facing=west,overload=false,switch=off": {
+      "model": "anvilcraft:block/ruby_laser_off",
+      "x": 90,
+      "y": 270
+    },
+    "facing=down,overload=true,switch=off": {
+      "model": "anvilcraft:block/ruby_laser_off",
+      "x": 180
+    },
+    "facing=east,overload=true,switch=off": {
+      "model": "anvilcraft:block/ruby_laser_off",
+      "x": 90,
+      "y": 90
+    },
+    "facing=north,overload=true,switch=off": {
+      "model": "anvilcraft:block/ruby_laser_off",
+      "x": 90
+    },
+    "facing=south,overload=true,switch=off": {
+      "model": "anvilcraft:block/ruby_laser_off",
+      "x": 90,
+      "y": 180
+    },
+    "facing=up,overload=true,switch=off": {
+      "model": "anvilcraft:block/ruby_laser_off"
+    },
+    "facing=west,overload=true,switch=off": {
+      "model": "anvilcraft:block/ruby_laser_off",
+      "x": 90,
+      "y": 270
     }
   }
 }

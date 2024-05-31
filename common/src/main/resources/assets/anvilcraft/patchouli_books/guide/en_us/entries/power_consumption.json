@@ -11,17 +11,17 @@
     {
       "type": "patchouli:crafting",
       "recipe": "anvilcraft:heater",
-      "text": "The $(item)Heater$()'s power consumption is 8MW. It heats the block above and allows the anvil to perform smelting operations."
+      "text": "The $(item)Heater$()'s power consumption is 8KW. It heats the block above and allows the anvil to perform smelting operations."
     },
     {
       "type": "patchouli:crafting",
       "recipe": "anvilcraft:auto_crafter",
-      "text": "The $(item)Auto Crafter$()'s power consumption is 1MW. It is an enhanced version of the vanilla crafter, with filtering options. It works 64 times every 1 second when receiving a continuous redstone signal."
+      "text": "The $(item)Auto Crafter$()'s power consumption is 1KW. It is an enhanced version of the vanilla crafter, with filtering options. It works 64 times every 1 second when receiving a continuous redstone signal."
     },
     {
       "type": "patchouli:crafting",
       "recipe": "anvilcraft:power_converter_big",
-      "text": "The $(item)Power Converter$()'s power consumption is 1MW, 3MW or 9MW respectively accroding to the size. It can provide FE/RF/AE energy to the block it is attached to. Each MW of power produces 80FE/t, but there is a 10% loss (The power conversion efficiency and the loss can be adjusted in the configuration file)."
+      "text": "The $(item)Power Converter$()'s power consumption is 1KW, 3KW or 9KW respectively accroding to the size. It can provide FE/RF/AE energy to the block it is attached to. Each KW of power produces 80FE/t, but there is a 10% loss (The power conversion efficiency and the loss can be adjusted in the configuration file)."
     },
 		{
             "type": "patchouli:crafting",

@@ -203,6 +203,15 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.DEEPSLATE_CHIPS.asStack());
                 entries.accept(ModBlocks.BLACK_SAND.asStack());
                 entries.accept(ModBlocks.TEMPERING_GLASS.asStack());
+
+                entries.accept(ModBlocks.HEATED_TUNGSTEN.asStack());
+                entries.accept(ModBlocks.HEATED_NETHERITE.asStack());
+                entries.accept(ModBlocks.REDHOT_TUNGSTEN.asStack());
+                entries.accept(ModBlocks.REDHOT_NETHERITE.asStack());
+                entries.accept(ModBlocks.GLOWING_TUNGSTEN.asStack());
+                entries.accept(ModBlocks.GLOWING_NETHERITE.asStack());
+                entries.accept(ModBlocks.INCANDESCENT_TUNGSTEN.asStack());
+                entries.accept(ModBlocks.INCANDESCENT_NETHERITE.asStack());
                 // block
                 entries.accept(ModBlocks.REINFORCED_CONCRETE_WHITE.asStack());
                 entries.accept(ModBlocks.REINFORCED_CONCRETE_LIGHT_GRAY.asStack());

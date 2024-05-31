@@ -4,7 +4,6 @@ import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.fabric.AnvilCraftBlockPlacerFakePlayer;
 import dev.dubhe.anvilcraft.api.entity.player.AnvilCraftBlockPlacer;
 import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
-import dev.dubhe.anvilcraft.client.renderer.PowerGridRenderer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;

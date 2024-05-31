@@ -4,6 +4,7 @@ import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
+import dev.dubhe.anvilcraft.api.power.IPowerComponent.Switch;
 import dev.dubhe.anvilcraft.block.ActiveSilencerBlock;
 import dev.dubhe.anvilcraft.block.ArrowBlock;
 import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
@@ -18,11 +19,13 @@ import dev.dubhe.anvilcraft.block.CrabTrapBlock;
 import dev.dubhe.anvilcraft.block.CreativeGeneratorBlock;
 import dev.dubhe.anvilcraft.block.DischargerBlock;
 import dev.dubhe.anvilcraft.block.FerriteCoreMagnetBlock;
+import dev.dubhe.anvilcraft.block.GlowingMetalBlock;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.block.HeavyIronBeamBlock;
 import dev.dubhe.anvilcraft.block.HeavyIronPlateBlock;
 import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
 import dev.dubhe.anvilcraft.block.HoneyCauldronBlock;
+import dev.dubhe.anvilcraft.block.IncandescentMetalBlock;
 import dev.dubhe.anvilcraft.block.InductionLightBlock;
 import dev.dubhe.anvilcraft.block.ItemCollectorBlock;
 import dev.dubhe.anvilcraft.block.JewelCraftingTable;
@@ -36,6 +39,7 @@ import dev.dubhe.anvilcraft.block.PiezoelectricCrystalBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterBigBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterMiddleBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterSmallBlock;
+import dev.dubhe.anvilcraft.block.RedhotMetalBlock;
 import dev.dubhe.anvilcraft.block.ReinforcedConcreteBlock;
 import dev.dubhe.anvilcraft.block.RemoteTransmissionPoleBlock;
 import dev.dubhe.anvilcraft.block.ResentfulAmberBlock;
@@ -73,7 +77,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
-import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.data.recipes.packs.VanillaRecipeProvider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.BlockTags;
@@ -1836,6 +1839,77 @@ public class ModBlocks {
     public static final BlockEntry<WallBlock> REINFORCED_CONCRETE_YELLOW_WALL =
         registerReinforcedConcreteWallBlock(Color.YELLOW, REINFORCED_CONCRETE_YELLOW);
 
+    public static final BlockEntry<Block> HEATED_NETHERITE = REGISTRATE
+            .block("heated_netherite_block", Block::new)
+            .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .register();
+
+    public static final BlockEntry<Block> HEATED_TUNGSTEN = REGISTRATE
+            .block("heated_tungsten_block", Block::new)
+            .initialProperties(ModBlocks.TUNGSTEN_BLOCK)
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .register();
+
+    public static final BlockEntry<RedhotMetalBlock> REDHOT_NETHERITE = REGISTRATE
+            .block("redhot_netherite_block", RedhotMetalBlock::new)
+            .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+            .properties(p -> p.lightLevel(it -> 3))
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .register();
+
+    public static final BlockEntry<RedhotMetalBlock> REDHOT_TUNGSTEN = REGISTRATE
+            .block("redhot_tungsten_block", RedhotMetalBlock::new)
+            .initialProperties(ModBlocks.TUNGSTEN_BLOCK)
+            .properties(p -> p.lightLevel(it -> 3))
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .register();
+
+    public static final BlockEntry<GlowingMetalBlock> GLOWING_NETHERITE = REGISTRATE
+            .block("glowing_netherite_block", GlowingMetalBlock::new)
+            .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+            .properties(p -> p.lightLevel(it -> 7))
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .register();
+
+    public static final BlockEntry<GlowingMetalBlock> GLOWING_TUNGSTEN = REGISTRATE
+            .block("glowing_tungsten_block", GlowingMetalBlock::new)
+            .initialProperties(ModBlocks.TUNGSTEN_BLOCK)
+            .properties(p -> p.lightLevel(it -> 7))
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .register();
+
+    public static final BlockEntry<IncandescentMetalBlock> INCANDESCENT_NETHERITE = REGISTRATE
+            .block("incandescent_netherite_block", IncandescentMetalBlock::new)
+            .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+            .properties(p -> p.lightLevel(it -> 15))
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .register();
+
+    public static final BlockEntry<IncandescentMetalBlock> INCANDESCENT_TUNGSTEN = REGISTRATE
+            .block("incandescent_tungsten_block", IncandescentMetalBlock::new)
+            .initialProperties(ModBlocks.TUNGSTEN_BLOCK)
+            .properties(p -> p.lightLevel(it -> 15))
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .register();
+
+
     public static final BlockEntry<RubyPrismBlock> RUBY_PRISM = REGISTRATE
         .block("ruby_prism", RubyPrismBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
@@ -1849,6 +1923,11 @@ public class ModBlocks {
     public static final BlockEntry<RubyLaserBlock> RUBY_LASER = REGISTRATE
         .block("ruby_laser", RubyLaserBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.lightLevel(it -> {
+            if (it.getValue(RubyLaserBlock.SWITCH) == Switch.ON)
+                return 15;
+            else return 0;
+        }))
         .properties(BlockBehaviour.Properties::noOcclusion)
         .blockstate((ctx, provider) -> {
         })

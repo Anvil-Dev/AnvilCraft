@@ -1,10 +1,10 @@
 {
 	"parent": "anvilcraft:block/ruby_laser",
 	"textures": {
-		"0": "anvilcraft:block/ruby_laser_overload",
-		"1": "anvilcraft:block/ruby_laser_inner",
-		"2": "anvilcraft:block/ruby_laser_ruby",
-		"3": "anvilcraft:block/ruby_laser_top",
+		"side": "anvilcraft:block/ruby_laser_overload",
+		"inner": "anvilcraft:block/ruby_laser_inner",
+		"ruby": "anvilcraft:block/ruby_laser_ruby",
+		"top": "anvilcraft:block/ruby_laser_top",
 		"particle": "anvilcraft:block/ruby_laser_overload"
 	}
 }

@@ -7,9 +7,6 @@ import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.damagesource.DamageSources;
-import net.minecraft.world.damagesource.DamageType;
-import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -76,16 +73,22 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         return getBasePower() + irradiateSelfLaserBlockSet.stream().mapToInt(BaseLaserBlockEntity::getPower).sum();
     }
 
+    /**
+     * 发射激光
+     */
     public void emitLaser(Direction direction) {
         if (level == null) return;
         BlockPos tempIrradiateBlockPos = getIrradiateBlockPos(maxTransmissionDistance, direction, getBlockPos());
         if (!tempIrradiateBlockPos.equals(irradiateBlockPos)) {
             if (irradiateBlockPos != null
-                && level.getBlockEntity(irradiateBlockPos) instanceof BaseLaserBlockEntity lastIrradiatedLaserBlockEntity)
+                && level.getBlockEntity(irradiateBlockPos)
+                instanceof BaseLaserBlockEntity lastIrradiatedLaserBlockEntity)
                 lastIrradiatedLaserBlockEntity.onCancelingIrradiation(this);
-            if (level.getBlockEntity(tempIrradiateBlockPos) instanceof BaseLaserBlockEntity irradiatedLaserBlockEntity)
-                irradiatedLaserBlockEntity.onIrradiated(this);
         }
+        if (level.getBlockEntity(tempIrradiateBlockPos)
+            instanceof BaseLaserBlockEntity irradiatedLaserBlockEntity
+            && !irradiatedLaserBlockEntity.isInIrradiateSelfLaserBlockSet(this))
+            irradiatedLaserBlockEntity.onIrradiated(this);
         irradiateBlockPos = tempIrradiateBlockPos;
 
         if (!(level instanceof ServerLevel serverLevel)) return;
@@ -126,11 +129,23 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         }
     }
 
+    /**
+     * 检测光学原件是否在链接表中
+     */
+    public boolean isInIrradiateSelfLaserBlockSet(BaseLaserBlockEntity baseLaserBlockEntity) {
+        return irradiateSelfLaserBlockSet.contains(baseLaserBlockEntity)
+            || irradiateSelfLaserBlockSet.stream().anyMatch(baseLaserBlockEntity1 ->
+            baseLaserBlockEntity1.isInIrradiateSelfLaserBlockSet(baseLaserBlockEntity));
+    }
+
     public void onIrradiated(BaseLaserBlockEntity baseLaserBlockEntity) {
         irradiateSelfLaserBlockSet.add(baseLaserBlockEntity);
         irradiateBlockPos = null;
     }
 
+    /**
+     * 当方块被激光照射时调用
+     */
     public void onCancelingIrradiation(BaseLaserBlockEntity baseLaserBlockEntity) {
         irradiateSelfLaserBlockSet.remove(baseLaserBlockEntity);
         BlockPos tempIrradiateBlockPos = irradiateBlockPos;

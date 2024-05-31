@@ -1,14 +1,11 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.block.RubyPrismBlock;
-import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
 
 public class RubyPrismBlockEntity extends BaseLaserBlockEntity {
@@ -19,10 +16,6 @@ public class RubyPrismBlockEntity extends BaseLaserBlockEntity {
         super(type, pos, blockState);
     }
 
-    public RubyPrismBlockEntity(BlockPos pos, BlockState blockState) {
-        this(ModBlockEntities.OVERSEER.get(), pos, blockState);
-    }
-
     public static @NotNull RubyPrismBlockEntity createBlockEntity(
         BlockEntityType<?> type, BlockPos pos, BlockState blockState
     ) {
@@ -30,7 +23,7 @@ public class RubyPrismBlockEntity extends BaseLaserBlockEntity {
     }
 
     public void tick(@NotNull Level level) {
-        if (isOverload) emitLaser(getDirection());
+        if (isSwitch()) emitLaser(getDirection());
         super.tick(level);
     }
 
