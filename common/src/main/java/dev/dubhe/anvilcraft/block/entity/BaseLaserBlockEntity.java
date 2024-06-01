@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import static dev.dubhe.anvilcraft.api.entity.player.AnvilCraftBlockPlacer.anvilCraftBlockPlacer;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.network.LaserEmitPack;
 import java.util.HashMap;
@@ -53,6 +54,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
             || blockState.is(ModBlockTags.GLASS_PANES)
             || blockState.is(ModBlockTags.FORGE_GLASS_PANES)
             || blockState.is(BlockTags.REPLACEABLE)) return true;
+        if (!AnvilCraft.config.isLaserDoImpactChecking) return false;
         AABB laseBoundingBox = switch (direction.getAxis()) {
             case X -> Block.box(0, 7, 7, 16, 9, 9).bounds();
             case Y -> Block.box(7, 0, 7, 9, 16, 9).bounds();
