@@ -13,8 +13,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
+@Setter
 public class RubyLaserBlockEntity extends BaseLaserBlockEntity implements IPowerConsumer {
-    @Setter
     private PowerGrid grid;
 
     private RubyLaserBlockEntity(BlockEntityType<?> type,
@@ -30,6 +30,13 @@ public class RubyLaserBlockEntity extends BaseLaserBlockEntity implements IPower
 
     @Override
     public void tick(@NotNull Level level) {
+        if (getGrid() != null
+            && getBlockState().getValue(RubyLaserBlock.OVERLOAD) == getGrid().isWork())
+            level.setBlock(
+                getPos(),
+                getBlockState()
+                    .setValue(OVERLOAD, !getGrid().isWork()),
+                2);
         if (getBlockState().getValue(RubyLaserBlock.OVERLOAD)
             == getBlockState().getValue(RubyLaserBlock.SWITCH).equals(Switch.ON))
             level.setBlock(
@@ -38,6 +45,12 @@ public class RubyLaserBlockEntity extends BaseLaserBlockEntity implements IPower
                     .setValue(SWITCH, getBlockState().getValue(RubyLaserBlock.OVERLOAD) ? Switch.OFF : Switch.ON),
                 2);
         if (isSwitch()) emitLaser(getDirection());
+        else {
+            if (irradiateBlockPos != null
+                && level.getBlockEntity(irradiateBlockPos) instanceof BaseLaserBlockEntity irradiateBlockEntity)
+                irradiateBlockEntity.onCancelingIrradiation(irradiateBlockEntity);
+            irradiateBlockPos = null;
+        }
         super.tick(level);
     }
 
@@ -48,8 +61,6 @@ public class RubyLaserBlockEntity extends BaseLaserBlockEntity implements IPower
 
     @Override
     public void onIrradiated(BaseLaserBlockEntity baseLaserBlockEntity) {
-        if (level == null) return;
-        level.destroyBlock(getPos(), true);
     }
 
     @Override
