@@ -20,8 +20,15 @@ public class LaserEmitPack implements Packet {
         this.irradiateBlockPos = irradiateBlockPos;
     }
 
+    /**
+     * 激光照射网络包
+     */
     public LaserEmitPack(FriendlyByteBuf buf) {
         this.laserBlockPos = buf.readBlockPos();
+        if (buf.readBoolean()) {
+            this.irradiateBlockPos = null;
+            return;
+        }
         this.irradiateBlockPos = buf.readBlockPos();
     }
 
@@ -33,7 +40,9 @@ public class LaserEmitPack implements Packet {
     @Override
     public void encode(@NotNull FriendlyByteBuf buf) {
         buf.writeBlockPos(laserBlockPos);
-        buf.writeBlockPos(irradiateBlockPos);
+        buf.writeBoolean(irradiateBlockPos == null);
+        if (irradiateBlockPos != null)
+            buf.writeBlockPos(irradiateBlockPos);
     }
 
     @Override

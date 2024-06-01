@@ -60,7 +60,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
             case Y -> Block.box(7, 0, 7, 9, 16, 9).bounds();
             case Z -> Block.box(7, 7, 0, 9, 9, 16).bounds();
         };
-        return blockState.getShape(level, blockPos).toAabbs().stream().noneMatch(
+        return blockState.getCollisionShape(level, blockPos).toAabbs().stream().noneMatch(
             laseBoundingBox::intersects);
     }
 
@@ -97,7 +97,6 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
             && !isInIrradiateSelfLaserBlockSet(irradiatedLaserBlockEntity))
             irradiatedLaserBlockEntity.onIrradiated(this);
         irradiateBlockPos = tempIrradiateBlockPos;
-        new LaserEmitPack(getBlockPos(), irradiateBlockPos).broadcast();
 
         if (!(level instanceof ServerLevel serverLevel)) return;
         int power = getPower();
@@ -105,7 +104,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
             new AABB(getBlockPos().relative(direction).getCenter().add(-0.0625, -0.0625, -0.0625),
                 irradiateBlockPos.relative(direction.getOpposite()).getCenter().add(0.0625, 0.0625, 0.0625)
                 );
-        int hurt = Math.min(16, power);
+        int hurt = Math.max(4, power - 4);
         level.getEntities(EntityTypeTest.forClass(LivingEntity.class), trackBoundingBox, Entity::isAlive)
             .forEach(livingEntity -> livingEntity.hurt(level.damageSources().inFire(), hurt));
         BlockState irradiateBlock = level.getBlockState(irradiateBlockPos);
@@ -175,6 +174,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
     }
 
     public void tick(@NotNull Level level) {
+        new LaserEmitPack(getBlockPos(), irradiateBlockPos).broadcast();
         tickCount++;
     }
 

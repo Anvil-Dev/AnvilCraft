@@ -37,12 +37,11 @@ public class RubyLaserBlockEntity extends BaseLaserBlockEntity implements IPower
                 getBlockState()
                     .setValue(OVERLOAD, !getGrid().isWork()),
                 2);
-        if (getBlockState().getValue(RubyLaserBlock.OVERLOAD)
-            == getBlockState().getValue(RubyLaserBlock.SWITCH).equals(Switch.ON))
+        if (level.hasNeighborSignal(getBlockPos()) == (getBlockState().getValue(SWITCH) == Switch.ON))
             level.setBlock(
                 getPos(),
                 getBlockState()
-                    .setValue(SWITCH, getBlockState().getValue(RubyLaserBlock.OVERLOAD) ? Switch.OFF : Switch.ON),
+                    .setValue(SWITCH, level.hasNeighborSignal(getBlockPos()) ? Switch.OFF : Switch.ON),
                 2);
         if (isSwitch()) emitLaser(getDirection());
         else {
@@ -56,7 +55,8 @@ public class RubyLaserBlockEntity extends BaseLaserBlockEntity implements IPower
 
     @Override
     public boolean isSwitch() {
-        return getBlockState().getValue(RubyLaserBlock.SWITCH) == Switch.ON;
+        return getBlockState().getValue(RubyLaserBlock.SWITCH) == Switch.ON
+            && !getBlockState().getValue(RubyLaserBlock.OVERLOAD);
     }
 
     @Override
@@ -75,7 +75,7 @@ public class RubyLaserBlockEntity extends BaseLaserBlockEntity implements IPower
 
     @Override
     public int getInputPower() {
-        return 16;
+        return 8;
     }
 
     @Override
