@@ -109,7 +109,7 @@ public class LaseRenderer implements BlockEntityRenderer<BaseLaserBlockEntity> {
         @NotNull VertexConsumer consumer, @NotNull PoseStack poseStack, float x, float y, float z, float u, float v) {
         consumer
             .vertex(poseStack.last().pose(), x, y, z)
-            .color(0.85f, 0, 0, 1f)
+            .color(0.85f, 0, 0, 0.8f)
             .uv(u, v)
             .overlayCoords(OverlayTexture.NO_OVERLAY)
             .uv2(0xF000F0)

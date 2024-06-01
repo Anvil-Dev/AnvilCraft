@@ -9,7 +9,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 public class LaserEmitPack implements Packet {
@@ -41,9 +40,9 @@ public class LaserEmitPack implements Packet {
     @Environment(EnvType.CLIENT)
     public void handler() {
         Minecraft.getInstance().execute(() -> {
-            Level level = Minecraft.getInstance().level;
-            if (level != null
-                && level.getBlockEntity(laserBlockPos) instanceof BaseLaserBlockEntity baseLaserBlockEntity) {
+            if (Minecraft.getInstance().level != null
+                && Minecraft.getInstance().level.getBlockEntity(laserBlockPos)
+                instanceof BaseLaserBlockEntity baseLaserBlockEntity) {
                 baseLaserBlockEntity.irradiateBlockPos = irradiateBlockPos;
             }
         });
