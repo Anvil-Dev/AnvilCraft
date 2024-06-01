@@ -75,7 +75,7 @@ public class RubyLaserBlockEntity extends BaseLaserBlockEntity implements IPower
 
     @Override
     public int getInputPower() {
-        return 8;
+        return 16;
     }
 
     @Override

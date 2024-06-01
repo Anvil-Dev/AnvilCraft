@@ -1,7 +1,5 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import static dev.dubhe.anvilcraft.api.entity.player.AnvilCraftBlockPlacer.anvilCraftBlockPlacer;
-
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.network.LaserEmitPack;
@@ -73,7 +71,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
     }
 
     protected int getBasePower() {
-        return 1;
+        return 4;
     }
 
     protected int getPower() {
@@ -104,14 +102,14 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
             new AABB(getBlockPos().relative(direction).getCenter().add(-0.0625, -0.0625, -0.0625),
                 irradiateBlockPos.relative(direction.getOpposite()).getCenter().add(0.0625, 0.0625, 0.0625)
                 );
-        int hurt = Math.max(4, power - 4);
+        int hurt = Math.max(0, (power - 16) / 4);
         level.getEntities(EntityTypeTest.forClass(LivingEntity.class), trackBoundingBox, Entity::isAlive)
             .forEach(livingEntity -> livingEntity.hurt(level.damageSources().inFire(), hurt));
         BlockState irradiateBlock = level.getBlockState(irradiateBlockPos);
         List<ItemStack> drops = Block.getDrops(irradiateBlock, serverLevel, irradiateBlockPos,
             level.getBlockEntity(irradiateBlockPos));
-        if (power <= 16) {
-            if (levelToTimeMap.containsKey((power / 4)) && tickCount >= levelToTimeMap.get((power / 4)) * 20) {
+        if (power <= 64) {
+            if (levelToTimeMap.containsKey((power / 16)) && tickCount >= levelToTimeMap.get((power / 16)) * 20) {
                 tickCount = 0;
                 if (irradiateBlock.is(ModBlockTags.FORGE_ORES) || irradiateBlock.is(ModBlockTags.ORES)) {
                     Vec3 blockPos = getBlockPos().relative(direction.getOpposite()).getCenter();
@@ -132,7 +130,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
                 }
             }
 
-        } else {
+        } /* else {
             if (level.getBlockState(irradiateBlockPos).getBlock().defaultDestroyTime() >= 0
                 && !(level.getBlockEntity(irradiateBlockPos) instanceof BaseLaserBlockEntity)) {
                 level.getBlockState(irradiateBlockPos).getBlock()
@@ -143,7 +141,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
                         anvilCraftBlockPlacer.getPlayer());
                 level.destroyBlock(irradiateBlockPos, false);
             }
-        }
+        }*/
     }
 
     /**
