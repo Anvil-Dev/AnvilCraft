@@ -1,6 +1,9 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import static dev.dubhe.anvilcraft.api.entity.player.AnvilCraftBlockPlacer.anvilCraftBlockPlacer;
+
 import dev.dubhe.anvilcraft.init.ModBlockTags;
+import dev.dubhe.anvilcraft.network.LaserEmitPack;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -92,6 +95,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
             && !isInIrradiateSelfLaserBlockSet(irradiatedLaserBlockEntity))
             irradiatedLaserBlockEntity.onIrradiated(this);
         irradiateBlockPos = tempIrradiateBlockPos;
+        new LaserEmitPack(getBlockPos(), irradiateBlockPos).broadcast();
 
         if (!(level instanceof ServerLevel serverLevel)) return;
         int power = getPower();
@@ -120,14 +124,24 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
                     if (irradiateBlock.is(ModBlockTags.ORES_IN_GROUND_DEEPSLATE)
                         || irradiateBlock.is(ModBlockTags.FORGE_ORES_IN_GROUND_DEEPSLATE))
                         level.setBlockAndUpdate(irradiateBlockPos, Blocks.DEEPSLATE.defaultBlockState());
+                    else if (irradiateBlock.is(ModBlockTags.ORES_IN_GROUND_NETHERRACK)
+                        || irradiateBlock.is(ModBlockTags.FORGE_ORES_IN_GROUND_NETHERRACK))
+                        level.setBlockAndUpdate(irradiateBlockPos, Blocks.NETHERRACK.defaultBlockState());
                     else level.setBlockAndUpdate(irradiateBlockPos, Blocks.STONE.defaultBlockState());
                 }
             }
 
         } else {
             if (level.getBlockState(irradiateBlockPos).getBlock().defaultDestroyTime() >= 0
-                && !(level.getBlockEntity(irradiateBlockPos) instanceof BaseLaserBlockEntity))
+                && !(level.getBlockEntity(irradiateBlockPos) instanceof BaseLaserBlockEntity)) {
+                level.getBlockState(irradiateBlockPos).getBlock()
+                    .playerWillDestroy(
+                        level,
+                        irradiateBlockPos,
+                        level.getBlockState(irradiateBlockPos),
+                        anvilCraftBlockPlacer.getPlayer());
                 level.destroyBlock(irradiateBlockPos, false);
+            }
         }
     }
 

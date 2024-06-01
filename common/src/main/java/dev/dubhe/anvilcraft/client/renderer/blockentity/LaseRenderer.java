@@ -24,7 +24,7 @@ public class LaseRenderer implements BlockEntityRenderer<BaseLaserBlockEntity> {
         if (blockEntity.irradiateBlockPos == null) return;
         poseStack.pushPose();
         VertexConsumer consumer =
-            buffer.getBuffer(RenderType.beaconBeam(new ResourceLocation("textures/entity/beacon_beam.png"), true));
+            buffer.getBuffer(RenderType.beaconBeam(new ResourceLocation("textures/entity/beacon_beam.png"), false));
         float length =
             (float) blockEntity.irradiateBlockPos.getCenter().distanceTo(blockEntity.getBlockPos().getCenter());
         poseStack.translate(0.5f, 0.5f, 0.5);
@@ -77,10 +77,10 @@ public class LaseRenderer implements BlockEntityRenderer<BaseLaserBlockEntity> {
         @NotNull PoseStack poseStack,
         float minX, float maxX, float minY, float minZ, float maxY, float maxZ
     ) {
-        addVertex(consumer, poseStack, minX, maxY, minZ);
-        addVertex(consumer, poseStack, minX, maxY, maxZ);
-        addVertex(consumer, poseStack, maxX, minY, maxZ);
-        addVertex(consumer, poseStack, maxX, minY, minZ);
+        addVertex(consumer, poseStack, minX, maxY, minZ, 0.01f, 0.01f);
+        addVertex(consumer, poseStack, minX, maxY, maxZ, 0, 0.01f);
+        addVertex(consumer, poseStack, maxX, minY, maxZ, 0, 0);
+        addVertex(consumer, poseStack, maxX, minY, minZ, 0.01f, 0);
     }
 
     private static void renderQuadY(
@@ -88,10 +88,10 @@ public class LaseRenderer implements BlockEntityRenderer<BaseLaserBlockEntity> {
         @NotNull PoseStack poseStack,
         float minY, float maxY, float minX, float minZ, float maxX, float maxZ
     ) {
-        addVertex(consumer, poseStack, minX, minY, minZ);
-        addVertex(consumer, poseStack, minX, minY, maxZ);
-        addVertex(consumer, poseStack, maxX, maxY, maxZ);
-        addVertex(consumer, poseStack, maxX, maxY, minZ);
+        addVertex(consumer, poseStack, minX, minY, minZ, 0.01f, 0.01f);
+        addVertex(consumer, poseStack, minX, minY, maxZ, 0, 0.01f);
+        addVertex(consumer, poseStack, maxX, maxY, maxZ, 0, 0);
+        addVertex(consumer, poseStack, maxX, maxY, minZ, 0.01f, 0);
     }
 
     private static void renderQuadZ(
@@ -99,18 +99,18 @@ public class LaseRenderer implements BlockEntityRenderer<BaseLaserBlockEntity> {
         @NotNull PoseStack poseStack,
         float minZ, float maxZ, float minX, float minY, float maxX, float maxY
     ) {
-        addVertex(consumer, poseStack, minX, maxY, minZ);
-        addVertex(consumer, poseStack, maxX, maxY, minZ);
-        addVertex(consumer, poseStack, maxX, minY, maxZ);
-        addVertex(consumer, poseStack, minX, minY, maxZ);
+        addVertex(consumer, poseStack, minX, maxY, minZ, 0.01f, 0.01f);
+        addVertex(consumer, poseStack, maxX, maxY, minZ, 0, 0.01f);
+        addVertex(consumer, poseStack, maxX, minY, maxZ, 0, 0);
+        addVertex(consumer, poseStack, minX, minY, maxZ, 0.01f, 0);
     }
 
     private static void addVertex(
-        @NotNull VertexConsumer consumer, @NotNull PoseStack poseStack, float x, float y, float z) {
+        @NotNull VertexConsumer consumer, @NotNull PoseStack poseStack, float x, float y, float z, float u, float v) {
         consumer
             .vertex(poseStack.last().pose(), x, y, z)
-            .color(1f, 0, 0, 10f)
-            .uv(1, 1)
+            .color(0.85f, 0, 0, 1f)
+            .uv(u, v)
             .overlayCoords(OverlayTexture.NO_OVERLAY)
             .uv2(0xF000F0)
             .normal(1, 0, 0)
