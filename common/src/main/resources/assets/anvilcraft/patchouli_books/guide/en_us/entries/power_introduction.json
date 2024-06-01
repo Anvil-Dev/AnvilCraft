@@ -6,7 +6,7 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "The energy of this mod is power-based. If the power generated in the power grid is greater than or equal to the power consumed, all electrical appliances will work normally. Otherwise, it is overloaded and cannot work. The power grid is wireless in this mod, and the power supply range is provided by transmission poles, which connect generators and electrical appliances to the grid. The power unit is MW, which can be analogous to the actual megawatt, but there is no necessary connection."
+      "text": "The energy of this mod is power-based. If the power generated in the power grid is greater than or equal to the power consumed, all electrical appliances will work normally. Otherwise, it is overloaded and cannot work. The power grid is wireless in this mod, and the power supply range is provided by transmission poles, which connect generators and electrical appliances to the grid. The power unit is KW, which can be analogous to the actual kilowatt, but there is no necessary connection."
     },
     {
       "type": "patchouli:crafting",
