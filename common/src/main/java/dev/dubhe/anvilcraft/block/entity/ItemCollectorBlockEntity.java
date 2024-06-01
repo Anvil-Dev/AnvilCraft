@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
+import dev.dubhe.anvilcraft.api.tooltip.IHasAffectRange;
 import dev.dubhe.anvilcraft.block.InductionLightBlock;
 import dev.dubhe.anvilcraft.block.ItemCollectorBlock;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
@@ -32,6 +33,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,7 +43,7 @@ import java.util.List;
 @Getter
 public class ItemCollectorBlockEntity
         extends BlockEntity
-        implements MenuProvider, IFilterBlockEntity, IPowerConsumer, IDiskCloneable {
+        implements MenuProvider, IFilterBlockEntity, IPowerConsumer, IDiskCloneable, IHasAffectRange {
     @Setter
     private PowerGrid grid;
     private final WatchableCyclingValue<Integer> rangeRadius = new WatchableCyclingValue<>("rangeRadius",
@@ -59,7 +62,7 @@ public class ItemCollectorBlockEntity
     );
     private int cd = rangeRadius.get();
 
-    private final FilteredItemDepository depository = new FilteredItemDepository.Pollable(9) {
+    private final FilteredItemDepository depository = new FilteredItemDepository(9) {
         @Override
         public void onContentsChanged(int slot) {
             ItemCollectorBlockEntity.this.setChanged();
@@ -209,5 +212,15 @@ public class ItemCollectorBlockEntity
     @Override
     public void applyDiskData(CompoundTag data) {
         depository.deserializeFiltering(data.getCompound("Filtering"));
+    }
+
+    @Override
+    public AABB shape() {
+        return AABB.ofSize(
+                Vec3.atCenterOf(getBlockPos()),
+                rangeRadius.get() * 2.0 + 1,
+                rangeRadius.get() * 2.0 + 1,
+                rangeRadius.get() * 2.0 + 1
+        );
     }
 }
