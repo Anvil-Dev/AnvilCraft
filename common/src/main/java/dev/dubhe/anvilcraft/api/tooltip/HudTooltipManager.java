@@ -89,7 +89,7 @@ public class HudTooltipManager {
                 camZ,
                 BlockPos.ZERO,
                 shape,
-                entity.hashCode() & 0xff000000
+                0xffffffff
         );
     }
 
