@@ -11,6 +11,7 @@ import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.commands.data.EntityDataAccessor;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -33,6 +34,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 public class CorruptedBeaconBlockEntity extends BlockEntity {
     List<BeaconBeamSection> beamSections = Lists.newArrayList();
@@ -198,6 +200,11 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
             Entity entity = entityType.create(level);
             if (entity == null) continue;
             entity.moveTo(livingEntity.position());
+            CompoundTag compoundTag = entity.saveWithoutId(new CompoundTag());
+            recipe.get().accept(compoundTag);
+            UUID uuid = entity.getUUID();
+            entity.load(compoundTag);
+            entity.setUUID(uuid);
             livingEntity.remove(Entity.RemovalReason.DISCARDED);
             level.addFreshEntity(entity);
         }
