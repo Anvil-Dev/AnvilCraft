@@ -87,7 +87,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         }
         if (level.getBlockEntity(tempIrradiateBlockPos)
             instanceof BaseLaserBlockEntity irradiatedLaserBlockEntity
-            && !irradiatedLaserBlockEntity.isInIrradiateSelfLaserBlockSet(this))
+            && !isInIrradiateSelfLaserBlockSet(irradiatedLaserBlockEntity))
             irradiatedLaserBlockEntity.onIrradiated(this);
         irradiateBlockPos = tempIrradiateBlockPos;
 
@@ -133,18 +133,18 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
      * 检测光学原件是否在链接表中
      */
     public boolean isInIrradiateSelfLaserBlockSet(BaseLaserBlockEntity baseLaserBlockEntity) {
-        return irradiateSelfLaserBlockSet.contains(baseLaserBlockEntity)
+        return baseLaserBlockEntity == this
+            || irradiateSelfLaserBlockSet.contains(baseLaserBlockEntity)
             || irradiateSelfLaserBlockSet.stream().anyMatch(baseLaserBlockEntity1 ->
             baseLaserBlockEntity1.isInIrradiateSelfLaserBlockSet(baseLaserBlockEntity));
     }
 
     public void onIrradiated(BaseLaserBlockEntity baseLaserBlockEntity) {
         irradiateSelfLaserBlockSet.add(baseLaserBlockEntity);
-        irradiateBlockPos = null;
     }
 
     /**
-     * 当方块被激光照射时调用
+     * 当方块被取消激光照射时调用
      */
     public void onCancelingIrradiation(BaseLaserBlockEntity baseLaserBlockEntity) {
         irradiateSelfLaserBlockSet.remove(baseLaserBlockEntity);
@@ -153,7 +153,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         if (level == null) return;
         if (tempIrradiateBlockPos == null) return;
         if (!(level.getBlockEntity(tempIrradiateBlockPos) instanceof BaseLaserBlockEntity irradiateBlockEntity)) return;
-        irradiateBlockEntity.onCancelingIrradiation(baseLaserBlockEntity);
+        irradiateBlockEntity.onCancelingIrradiation(this);
     }
 
     public void tick(@NotNull Level level) {
