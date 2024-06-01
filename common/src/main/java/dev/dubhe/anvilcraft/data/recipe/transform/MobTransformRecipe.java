@@ -13,6 +13,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.commands.data.EntityDataAccessor;
@@ -25,6 +26,7 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.text.html.Option;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -42,7 +44,10 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
             TransformResult.CODEC.listOf().fieldOf("results").forGetter(o -> o.results),
             NumericTagValuePredicate.CODEC.listOf()
                     .optionalFieldOf("tagPredicates")
-                    .forGetter(o -> java.util.Optional.ofNullable(o.tagPredicates))
+                    .forGetter(o -> java.util.Optional.ofNullable(o.tagPredicates)),
+            TagModification.CODEC.listOf()
+                    .optionalFieldOf("tagModifications")
+                    .forGetter(o -> java.util.Optional.ofNullable(o.tagModifications))
     ).apply(ins, MobTransformRecipe::new));
 
     private final ResourceLocation id;
@@ -52,6 +57,8 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
     private List<TransformResult> results;
     @Getter
     private List<NumericTagValuePredicate> tagPredicates;
+    @Getter
+    private List<TagModification> tagModifications;
 
     /**
      * 生物转化配方
@@ -60,12 +67,14 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
             ResourceLocation id,
             ResourceLocation input,
             List<TransformResult> results,
-            Optional<List<NumericTagValuePredicate>> tagPredicates
+            Optional<List<NumericTagValuePredicate>> tagPredicates,
+            Optional<List<TagModification>> tagModifications
     ) {
         this.id = id;
         this.results = results;
         this.input = BuiltInRegistries.ENTITY_TYPE.get(input);
         this.tagPredicates = tagPredicates.orElseGet(ArrayList::new);
+        this.tagModifications = tagModifications.orElseGet(ArrayList::new);
     }
 
     public MobTransformRecipe(ResourceLocation id) {
@@ -80,6 +89,15 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
         return container.getEntity().getType() == input
                 && tagPredicates.stream()
                 .allMatch(it -> it.test(new EntityDataAccessor(container.getEntity()).getData()));
+    }
+
+    /**
+     * 修改生物nbt
+     */
+    public void accept(Tag tag) {
+        for (TagModification tagModification : tagModifications) {
+            tagModification.accept(tag);
+        }
     }
 
     @Override
@@ -190,6 +208,7 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
         private Advancement.Builder advancement = Advancement.Builder.recipeAdvancement();
         private RecipeCategory category = RecipeCategory.MISC;
         private List<NumericTagValuePredicate> tagPredicates;
+        private List<TagModification> tagModifications;
 
         Builder(ResourceLocation id) {
             this.id = id;
@@ -229,6 +248,19 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
         }
 
         /**
+         * 修改生物nbt
+         */
+        public Builder tagModification(@NotNull Consumer<TagModification.Builder> predicateBuilder) {
+            TagModification.Builder builder = TagModification.builder();
+            predicateBuilder.accept(builder);
+            if (tagModifications == null) {
+                tagModifications = new ArrayList<>();
+            }
+            tagModifications.add(builder.build());
+            return this;
+        }
+
+        /**
          * 构造
          */
         public MobTransformRecipe build() {
@@ -236,6 +268,7 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
             r.input = inputEntityType;
             r.results = results;
             r.tagPredicates = tagPredicates;
+            r.tagModifications = tagModifications;
             return r;
         }
 

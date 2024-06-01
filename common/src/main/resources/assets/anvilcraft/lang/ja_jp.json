@@ -175,7 +175,7 @@
   "text.autoconfig.anvilcraft.option.powerConverter.powerConverterCountdown": "電力変換器のクールダウン",
   "text.autoconfig.anvilcraft.option.powerConverter.powerConverterCountdown.@Tooltip": "電力変換器の動作間隔(単位:秒)",
   "text.autoconfig.anvilcraft.option.powerConverter.powerConverterEfficiency": "電力変換器の効率",
-  "text.autoconfig.anvilcraft.option.powerConverter.powerConverterEfficiency.@Tooltip": "電力変換器のエネルギー効率(1 MW => xx FE/t)",
+  "text.autoconfig.anvilcraft.option.powerConverter.powerConverterEfficiency.@Tooltip": "電力変換器のエネルギー効率(1 KW => xx FE/t)",
   "text.autoconfig.anvilcraft.option.powerConverter.powerConverterLoss": "電力変換器の損失",
   "text.autoconfig.anvilcraft.option.powerConverter.powerConverterLoss.@Tooltip": "電力変換器の電力損失",
   "text.autoconfig.anvilcraft.option.powerTransmitterRange": "送電柱の範囲",
@@ -199,7 +199,7 @@
   "tooltip.anvilcraft.grid_information.total_generated": "  総発電量:%d",
   "tooltip.anvilcraft.grid_information.utilization": "  電気エネルギー使用率:%s",
   "tooltip.anvilcraft.item.anvil_hammer": "ハンマー、金床、レンチ、ゴーグル、メイスです",
-  "tooltip.anvilcraft.item.auto_crafter": "1MWを消費",
+  "tooltip.anvilcraft.item.auto_crafter": "1KWを消費",
   "tooltip.anvilcraft.item.charge_collector": "発電料金の徴収",
   "tooltip.anvilcraft.item.crab_claw": "保持時のタッチ距離を長くする",
   "tooltip.anvilcraft.item.crab_trap": "水産物を捕まえるのを助けるために水に入れます",
@@ -230,5 +230,5 @@
   "tooltip.anvilcraft.item.tempering_glass": "クリーパープルーフ、コレクトに工具は不要",
   "tooltip.anvilcraft.item.topaz": "稲妻の力を封じ込める",
   "tooltip.anvilcraft.item.transmission_pole": "送電距離8の送電網を構築",
-  "tooltip.anvilcraft.jade.power_information": "電力網: %d/%d MW"
+  "tooltip.anvilcraft.jade.power_information": "電力網: %d/%d KW"
 }

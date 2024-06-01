@@ -1,15 +1,22 @@
 package dev.dubhe.anvilcraft.integration.kubejs.recipe;
 
+import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import dev.dubhe.anvilcraft.data.recipe.transform.MobTransformRecipe;
 import dev.dubhe.anvilcraft.data.recipe.transform.NumericTagValuePredicate;
+import dev.dubhe.anvilcraft.data.recipe.transform.TagModification;
 import dev.dubhe.anvilcraft.data.recipe.transform.TransformResult;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.components.AnvilCraftRecipeComponents;
 import dev.latvian.mods.kubejs.recipe.RecipeJS;
 import dev.latvian.mods.kubejs.recipe.RecipeKey;
 import dev.latvian.mods.kubejs.recipe.schema.RecipeSchema;
 import dev.latvian.mods.rhino.util.HideFromJS;
+import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import org.apache.commons.lang3.ArrayUtils;
+
+import java.util.function.Consumer;
 
 /**
  * 生物转换配方架构
@@ -67,6 +74,53 @@ public interface MobTransformRecipeSchema {
             save();
             return this;
         }
+
+        /**
+         *
+         */
+        public MobTransformRecipeJs modifyNbt(
+                String path,
+                String op,
+                String value
+        ) throws CommandSyntaxException {
+            if (getValue(TAG_MOD) == null) setValue(TAG_MOD, new TagModification[0]);
+            StringReader reader = new StringReader(value);
+            TagParser parser = new TagParser(reader);
+            setValue(TAG_MOD, ArrayUtils.add(getValue(TAG_MOD),
+                    new TagModification(
+                            path,
+                            TagModification.ModifyOperation.valueOf(op),
+                            -1,
+                            parser.readValue()
+                    )
+            ));
+            save();
+            return this;
+        }
+
+        /**
+         *
+         */
+        public MobTransformRecipeJs modifyNbt(
+                String path,
+                String op,
+                String value,
+                int index
+        ) throws CommandSyntaxException {
+            if (getValue(TAG_MOD) == null) setValue(TAG_MOD, new TagModification[0]);
+            StringReader reader = new StringReader(value);
+            TagParser parser = new TagParser(reader);
+            setValue(TAG_MOD, ArrayUtils.add(getValue(TAG_MOD),
+                    new TagModification(
+                            path,
+                            TagModification.ModifyOperation.valueOf(op),
+                            index,
+                            parser.readValue()
+                    )
+            ));
+            save();
+            return this;
+        }
     }
 
     RecipeKey<ResourceLocation> ID = AnvilCraftRecipeComponents.RESOURCE_LOCATION
@@ -79,7 +133,11 @@ public interface MobTransformRecipeSchema {
     RecipeKey<NumericTagValuePredicate[]> PREDICATES = AnvilCraftRecipeComponents.RECIPE_PREDICATES
             .asArray().key("tagPredicates").defaultOptional();
 
+    RecipeKey<TagModification[]> TAG_MOD = AnvilCraftRecipeComponents.RECIPE_TAG_MODIFY
+            .asArray().key("tagModification").defaultOptional();
+
     RecipeSchema SCHEMA = new RecipeSchema(
-            MobTransformRecipeJs.class, MobTransformRecipeJs::new, ID, INPUT, RESULTS, PREDICATES
+            MobTransformRecipeJs.class, MobTransformRecipeJs::new,
+            ID, INPUT, RESULTS, PREDICATES, TAG_MOD
     ).constructor((recipe, schemaType, keys, from) -> recipe.id(from.getValue(recipe, ID)), ID);
 }

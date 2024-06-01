@@ -51,13 +51,13 @@ public abstract class BeaconMenuMixin {
             if (!(level instanceof ServerLevel serverLevel)) return;
             if (this.anvilcraft$toCorrupted(level, pos)) {
                 serverLevel.setBlockAndUpdate(pos, ModBlocks.CORRUPTED_BEACON.getDefaultState());
+                MinecraftServer server = serverLevel.getServer();
+                GameRules.BooleanValue rule = server.getGameRules().getRule(GameRules.RULE_WEATHER_CYCLE);
+                if (!rule.get()) return;
+                serverLevel.setWeatherParameters(
+                        0, ServerLevel.THUNDER_DURATION.sample(serverLevel.getRandom()), true, true
+                );
             }
-            MinecraftServer server = serverLevel.getServer();
-            GameRules.BooleanValue rule = server.getGameRules().getRule(GameRules.RULE_WEATHER_CYCLE);
-            if (!rule.get()) return;
-            serverLevel.setWeatherParameters(
-                0, ServerLevel.THUNDER_DURATION.sample(serverLevel.getRandom()), true, true
-            );
         });
     }
 

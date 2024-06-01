@@ -8,6 +8,6 @@ public class JadeLang {
      */
     public static void init(RegistrateLangProvider provider) {
         provider.add("config.jade.plugin_anvilcraft.power_provider", "Anvil Craft Power");
-        provider.add("tooltip.anvilcraft.jade.power_information", "Power Grid: %d/%d MW");
+        provider.add("tooltip.anvilcraft.jade.power_information", "Power Grid: %d/%d KW");
     }
 }
