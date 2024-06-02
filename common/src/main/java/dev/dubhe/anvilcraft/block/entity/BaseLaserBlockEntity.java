@@ -108,7 +108,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         int hurt = Math.min(16, (lightPowerLevel - 16) / 4);
         if (hurt > 0) {
             level.getEntities(EntityTypeTest.forClass(LivingEntity.class), trackBoundingBox, Entity::isAlive)
-                .forEach(livingEntity -> livingEntity.hurt(level.damageSources().inFire(), hurt));
+                .forEach(livingEntity -> livingEntity.hurt(level.damageSources().generic(), hurt));
         }
         BlockState irradiateBlock = level.getBlockState(irradiateBlockPos);
         List<ItemStack> drops = Block.getDrops(irradiateBlock, serverLevel, irradiateBlockPos,
@@ -148,7 +148,8 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
                         itemStack
                     ));
                 });
-                if (irradiateBlock.is(Blocks.ANCIENT_DEBRIS)) return;
+                if (irradiateBlock.is(Blocks.ANCIENT_DEBRIS))
+                    level.setBlockAndUpdate(irradiateBlockPos, Blocks.AIR.defaultBlockState());
                 if (irradiateBlock.is(ModBlockTags.ORES_IN_GROUND_DEEPSLATE)
                     || irradiateBlock.is(ModBlockTags.FORGE_ORES_IN_GROUND_DEEPSLATE))
                     level.setBlockAndUpdate(irradiateBlockPos, Blocks.DEEPSLATE.defaultBlockState());
