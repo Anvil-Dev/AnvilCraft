@@ -149,8 +149,8 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
                     ));
                 });
                 if (irradiateBlock.is(Blocks.ANCIENT_DEBRIS))
-                    level.setBlockAndUpdate(irradiateBlockPos, Blocks.AIR.defaultBlockState());
-                if (irradiateBlock.is(ModBlockTags.ORES_IN_GROUND_DEEPSLATE)
+                    level.setBlockAndUpdate(irradiateBlockPos, Blocks.NETHERRACK.defaultBlockState());
+                else if (irradiateBlock.is(ModBlockTags.ORES_IN_GROUND_DEEPSLATE)
                     || irradiateBlock.is(ModBlockTags.FORGE_ORES_IN_GROUND_DEEPSLATE))
                     level.setBlockAndUpdate(irradiateBlockPos, Blocks.DEEPSLATE.defaultBlockState());
                 else if (irradiateBlock.is(ModBlockTags.ORES_IN_GROUND_NETHERRACK)
