@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.event.forge;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.chargecollector.ThermoManager;
 import dev.dubhe.anvilcraft.api.event.forge.DataPackReloadedEvent;
 import dev.dubhe.anvilcraft.api.event.server.ServerEndDataPackReloadEvent;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
@@ -42,6 +43,7 @@ public class ServerLifecycleEventListener {
     public static void onTick(@NotNull TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.START) return;
         PowerGrid.tickGrid();
+        ThermoManager.tick();
         RandomChuckTickLoadManager.tick();
     }
 
@@ -52,6 +54,7 @@ public class ServerLifecycleEventListener {
     public static void onServerStopped(@NotNull ServerStoppedEvent event) {
         PowerGrid.isServerClosing = false;
         PowerGrid.clear();
+        ThermoManager.clear();
     }
 
     /**

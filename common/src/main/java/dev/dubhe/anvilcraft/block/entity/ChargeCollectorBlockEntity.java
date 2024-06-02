@@ -15,8 +15,8 @@ import org.jetbrains.annotations.Nullable;
 public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerProducer {
 
     private static final double MAX_POWER_PER_INCOMING = 128;
+    private static final int COOLDOWN = 40;
 
-    private final int cooldown = 40;
     private int cooldownCount = 40;
     private double chargeNum = 0;
     private PowerGrid grid = null;
@@ -74,7 +74,7 @@ public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerPro
             this.cooldownCount -= 1;
             return;
         }
-        this.cooldownCount = this.cooldown;
+        this.cooldownCount = COOLDOWN;
         this.power = (int) Math.floor(this.chargeNum);
         this.chargeNum = 0;
     }

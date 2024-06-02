@@ -142,6 +142,7 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.PIEZOELECTRIC_CRYSTAL.asStack());
                 entries.accept(ModBlocks.AUTO_CRAFTER.asStack());
                 entries.accept(ModBlocks.ITEM_COLLECTOR.asStack());
+                entries.accept(ModBlocks.THERMOELECTRIC_CONVERTER.asStack());
                 entries.accept(ModBlocks.CHARGER.asStack());
                 entries.accept(ModBlocks.DISCHARGER.asStack());
                 entries.accept(ModBlocks.ACTIVE_SILENCER.asStack());
