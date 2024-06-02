@@ -98,6 +98,7 @@ import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.WallBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
@@ -1591,7 +1592,8 @@ public class ModBlocks {
 
     public static final BlockEntry<ObsidianCauldron> OBSIDIDAN_CAULDRON = REGISTRATE
             .block("obsidian_cauldron", ObsidianCauldron::new)
-            .initialProperties(() -> Blocks.CAULDRON)
+            .initialProperties(() -> Blocks.OBSIDIAN)
+            .properties(it -> it.pushReaction(PushReaction.BLOCK))
             .blockstate((ctx, provider) -> {
             })
             .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
