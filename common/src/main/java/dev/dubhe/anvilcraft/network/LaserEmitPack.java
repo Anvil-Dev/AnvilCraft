@@ -12,10 +12,15 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 public class LaserEmitPack implements Packet {
+    private final int lightPowerLevel;
     private final BlockPos laserBlockPos;
     private final BlockPos irradiateBlockPos;
 
-    public LaserEmitPack(BlockPos laserBlockPos, BlockPos irradiateBlockPos) {
+    /**
+     * 激光照射网络包
+     */
+    public LaserEmitPack(int lightPowerLevel, BlockPos laserBlockPos, BlockPos irradiateBlockPos) {
+        this.lightPowerLevel = lightPowerLevel;
         this.laserBlockPos = laserBlockPos;
         this.irradiateBlockPos = irradiateBlockPos;
     }
@@ -24,6 +29,7 @@ public class LaserEmitPack implements Packet {
      * 激光照射网络包
      */
     public LaserEmitPack(FriendlyByteBuf buf) {
+        this.lightPowerLevel = buf.readInt();
         this.laserBlockPos = buf.readBlockPos();
         if (buf.readBoolean()) {
             this.irradiateBlockPos = null;
@@ -39,6 +45,7 @@ public class LaserEmitPack implements Packet {
 
     @Override
     public void encode(@NotNull FriendlyByteBuf buf) {
+        buf.writeInt(lightPowerLevel);
         buf.writeBlockPos(laserBlockPos);
         buf.writeBoolean(irradiateBlockPos == null);
         if (irradiateBlockPos != null)
@@ -53,6 +60,7 @@ public class LaserEmitPack implements Packet {
                 && Minecraft.getInstance().level.getBlockEntity(laserBlockPos)
                 instanceof BaseLaserBlockEntity baseLaserBlockEntity) {
                 baseLaserBlockEntity.irradiateBlockPos = irradiateBlockPos;
+                baseLaserBlockEntity.lightPowerLevel = lightPowerLevel;
             }
         });
     }
