@@ -1920,23 +1920,22 @@ public class ModBlocks {
         })
         .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
             .pattern("ACA")
-            .pattern("BDB")
-            .pattern("ACA")
+            .pattern("CBC")
+            .pattern("AAA")
             .define('A', ModItems.ROYAL_STEEL_INGOT)
-            .define('B', ModBlocks.INDUCTION_LIGHT)
-            .define('C', ModItems.SILVER_INGOT)
-            .define('D', ModBlocks.RUBY_BLOCK)
+            .define('B', ModBlocks.RUBY_BLOCK)
+            .define('C', ModItems.RUBY)
             .unlockedBy(
-                AnvilCraftDatagen.hasItem(Items.COPPER_INGOT),
-                AnvilCraftDatagen.has(Items.COPPER_INGOT)
+                AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_INGOT),
+                AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT)
             )
             .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
-                AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
+                AnvilCraftDatagen.hasItem(ModBlocks.RUBY_BLOCK),
+                AnvilCraftDatagen.has(ModBlocks.RUBY_BLOCK)
             )
             .unlockedBy(
-                AnvilCraftDatagen.hasItem(Items.IRON_INGOT),
-                AnvilCraftDatagen.has(Items.IRON_INGOT)
+                AnvilCraftDatagen.hasItem(ModItems.RUBY),
+                AnvilCraftDatagen.has(ModItems.RUBY)
             )
             .save(provider)
         )
@@ -1954,22 +1953,26 @@ public class ModBlocks {
         }))
         .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
             .pattern("ACA")
-            .pattern("CBC")
-            .pattern("AAA")
+            .pattern("BDB")
+            .pattern("ACA")
             .define('A', ModItems.ROYAL_STEEL_INGOT)
-            .define('B', ModBlocks.RUBY_BLOCK)
-            .define('C', ModItems.RUBY)
+            .define('B', ModBlocks.INDUCTION_LIGHT)
+            .define('C', ModItems.SILVER_INGOT)
+            .define('D', ModBlocks.RUBY_BLOCK)
             .unlockedBy(
-                AnvilCraftDatagen.hasItem(Items.COPPER_INGOT),
-                AnvilCraftDatagen.has(Items.COPPER_INGOT)
+                AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_INGOT),
+                AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT)
             )
             .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
-                AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
+                AnvilCraftDatagen.hasItem(ModBlocks.INDUCTION_LIGHT),
+                AnvilCraftDatagen.has(ModBlocks.INDUCTION_LIGHT)
             )
             .unlockedBy(
-                AnvilCraftDatagen.hasItem(Items.IRON_INGOT),
-                AnvilCraftDatagen.has(Items.IRON_INGOT)
+                AnvilCraftDatagen.hasItem(ModItems.SILVER_INGOT),
+                AnvilCraftDatagen.has(ModItems.SILVER_INGOT))
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.RUBY_BLOCK),
+                AnvilCraftDatagen.has(ModBlocks.RUBY_BLOCK)
             )
             .save(provider)
         )

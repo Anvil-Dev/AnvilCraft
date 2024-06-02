@@ -28,7 +28,7 @@ public class RubyPrismBlockEntity extends BaseLaserBlockEntity {
     }
 
     @Override
-    protected int getBasePower() {
+    protected int getBaseLightLevel() {
         return 0;
     }
 

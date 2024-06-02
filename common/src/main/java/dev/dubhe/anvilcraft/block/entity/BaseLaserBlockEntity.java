@@ -73,12 +73,13 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         return  originPos.relative(direction, expectedLength);
     }
 
-    protected int getBasePower() {
-        return 4;
+    protected int getBaseLightLevel() {
+        return 1;
     }
 
-    protected int getPower() {
-        return getBasePower() + irradiateSelfLaserBlockSet.stream().mapToInt(BaseLaserBlockEntity::getPower).sum();
+    protected int getLightLevel() {
+        return getBaseLightLevel()
+            + irradiateSelfLaserBlockSet.stream().mapToInt(BaseLaserBlockEntity::getLightLevel).sum();
     }
 
     /**
@@ -100,12 +101,12 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         irradiateBlockPos = tempIrradiateBlockPos;
 
         if (!(level instanceof ServerLevel serverLevel)) return;
-        lightPowerLevel = getPower();
+        lightPowerLevel = getLightLevel();
         AABB trackBoundingBox =
             new AABB(getBlockPos().relative(direction).getCenter().add(-0.0625, -0.0625, -0.0625),
                 irradiateBlockPos.relative(direction.getOpposite()).getCenter().add(0.0625, 0.0625, 0.0625)
                 );
-        int hurt = Math.min(16, (lightPowerLevel - 16) / 4);
+        int hurt = Math.min(16, lightPowerLevel - 4);
         if (hurt > 0) {
             level.getEntities(EntityTypeTest.forClass(LivingEntity.class), trackBoundingBox, Entity::isAlive)
                 .forEach(livingEntity -> livingEntity.hurt(level.damageSources().generic(), hurt));
@@ -113,9 +114,8 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         BlockState irradiateBlock = level.getBlockState(irradiateBlockPos);
         List<ItemStack> drops = Block.getDrops(irradiateBlock, serverLevel, irradiateBlockPos,
             level.getBlockEntity(irradiateBlockPos));
-        int coldDown = Math.min(64, lightPowerLevel);
-        coldDown = levelToTimeMap.containsKey(coldDown / 16)
-            ? levelToTimeMap.get(coldDown / 16) * 20 : Integer.MAX_VALUE;
+        int coldDown = levelToTimeMap.containsKey(Math.min(16, lightPowerLevel))
+            ? levelToTimeMap.get(Math.min(16, lightPowerLevel)) * 20 : Integer.MAX_VALUE;
         if (tickCount >= coldDown) {
             tickCount = 0;
             if (irradiateBlock.is(ModBlockTags.FORGE_ORES) || irradiateBlock.is(ModBlockTags.ORES)) {
