@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.depository.IItemDepository;
+import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.network.LaserEmitPack;
 import java.util.HashMap;
@@ -37,6 +39,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
 
     protected HashSet<BaseLaserBlockEntity> irradiateSelfLaserBlockSet = new HashSet<>();
     public BlockPos irradiateBlockPos = null;
+    public int lightPowerLevel = 0;
 
     public BaseLaserBlockEntity(BlockEntityType<?> type,
         BlockPos pos, BlockState blockState) {
@@ -97,51 +100,76 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         irradiateBlockPos = tempIrradiateBlockPos;
 
         if (!(level instanceof ServerLevel serverLevel)) return;
-        int power = getPower();
+        lightPowerLevel = getPower();
         AABB trackBoundingBox =
             new AABB(getBlockPos().relative(direction).getCenter().add(-0.0625, -0.0625, -0.0625),
                 irradiateBlockPos.relative(direction.getOpposite()).getCenter().add(0.0625, 0.0625, 0.0625)
                 );
-        int hurt = Math.max(0, (power - 16) / 4);
-        level.getEntities(EntityTypeTest.forClass(LivingEntity.class), trackBoundingBox, Entity::isAlive)
-            .forEach(livingEntity -> livingEntity.hurt(level.damageSources().inFire(), hurt));
+        int hurt = Math.min(16, (lightPowerLevel - 16) / 4);
+        if (hurt > 0) {
+            level.getEntities(EntityTypeTest.forClass(LivingEntity.class), trackBoundingBox, Entity::isAlive)
+                .forEach(livingEntity -> livingEntity.hurt(level.damageSources().inFire(), hurt));
+        }
         BlockState irradiateBlock = level.getBlockState(irradiateBlockPos);
         List<ItemStack> drops = Block.getDrops(irradiateBlock, serverLevel, irradiateBlockPos,
             level.getBlockEntity(irradiateBlockPos));
-        if (power <= 64) {
-            if (levelToTimeMap.containsKey((power / 16)) && tickCount >= levelToTimeMap.get((power / 16)) * 20) {
-                tickCount = 0;
-                if (irradiateBlock.is(ModBlockTags.FORGE_ORES) || irradiateBlock.is(ModBlockTags.ORES)) {
-                    Vec3 blockPos = getBlockPos().relative(direction.getOpposite()).getCenter();
-                    drops.forEach(itemStack -> level.addFreshEntity(new ItemEntity(
+        int coldDown = Math.min(64, lightPowerLevel);
+        coldDown = levelToTimeMap.containsKey(coldDown / 16)
+            ? levelToTimeMap.get(coldDown / 16) * 20 : Integer.MAX_VALUE;
+        if (tickCount >= coldDown) {
+            tickCount = 0;
+            if (irradiateBlock.is(ModBlockTags.FORGE_ORES) || irradiateBlock.is(ModBlockTags.ORES)) {
+                Vec3 blockPos = getBlockPos().relative(direction.getOpposite()).getCenter();
+                IItemDepository depository = ItemDepositoryHelper.getItemDepository(
+                    getLevel(),
+                    getBlockPos().relative(this.getDirection().getOpposite()),
+                    this.getDirection()
+                );
+                drops.forEach(itemStack -> {
+                    if (depository != null) {
+                        ItemStack outItemStack = ItemDepositoryHelper.insertItem(depository,
+                            itemStack, true);
+                        if (outItemStack.isEmpty()) {
+                            ItemDepositoryHelper.insertItem(depository, itemStack, false);
+                        } else
+                            level.addFreshEntity(new ItemEntity(
+                                level,
+                                blockPos.x,
+                                blockPos.y,
+                                blockPos.z,
+                                outItemStack
+                            ));
+                    } else
+                        level.addFreshEntity(new ItemEntity(
                         level,
                         blockPos.x,
                         blockPos.y,
                         blockPos.z,
                         itemStack
-                        )));
-                    if (irradiateBlock.is(ModBlockTags.ORES_IN_GROUND_DEEPSLATE)
-                        || irradiateBlock.is(ModBlockTags.FORGE_ORES_IN_GROUND_DEEPSLATE))
-                        level.setBlockAndUpdate(irradiateBlockPos, Blocks.DEEPSLATE.defaultBlockState());
-                    else if (irradiateBlock.is(ModBlockTags.ORES_IN_GROUND_NETHERRACK)
-                        || irradiateBlock.is(ModBlockTags.FORGE_ORES_IN_GROUND_NETHERRACK))
-                        level.setBlockAndUpdate(irradiateBlockPos, Blocks.NETHERRACK.defaultBlockState());
-                    else level.setBlockAndUpdate(irradiateBlockPos, Blocks.STONE.defaultBlockState());
+                    ));
+                });
+                if (irradiateBlock.is(Blocks.ANCIENT_DEBRIS)) return;
+                if (irradiateBlock.is(ModBlockTags.ORES_IN_GROUND_DEEPSLATE)
+                    || irradiateBlock.is(ModBlockTags.FORGE_ORES_IN_GROUND_DEEPSLATE))
+                    level.setBlockAndUpdate(irradiateBlockPos, Blocks.DEEPSLATE.defaultBlockState());
+                else if (irradiateBlock.is(ModBlockTags.ORES_IN_GROUND_NETHERRACK)
+                    || irradiateBlock.is(ModBlockTags.FORGE_ORES_IN_GROUND_NETHERRACK))
+                    level.setBlockAndUpdate(irradiateBlockPos, Blocks.NETHERRACK.defaultBlockState());
+                else level.setBlockAndUpdate(irradiateBlockPos, Blocks.STONE.defaultBlockState());
+                /* else {
+                if (level.getBlockState(irradiateBlockPos).getBlock().defaultDestroyTime() >= 0
+                    && !(level.getBlockEntity(irradiateBlockPos) instanceof BaseLaserBlockEntity)) {
+                    level.getBlockState(irradiateBlockPos).getBlock()
+                        .playerWillDestroy(
+                            level,
+                            irradiateBlockPos,
+                            level.getBlockState(irradiateBlockPos),
+                            anvilCraftBlockPlacer.getPlayer());
+                    level.destroyBlock(irradiateBlockPos, false);
                 }
+            }*/
             }
-
-        } /* else {
-            if (level.getBlockState(irradiateBlockPos).getBlock().defaultDestroyTime() >= 0
-                && !(level.getBlockEntity(irradiateBlockPos) instanceof BaseLaserBlockEntity)) {
-                level.getBlockState(irradiateBlockPos).getBlock()
-                    .playerWillDestroy(
-                        level,
-                        irradiateBlockPos,
-                        level.getBlockState(irradiateBlockPos),
-                        anvilCraftBlockPlacer.getPlayer());
-                level.destroyBlock(irradiateBlockPos, false);
-            }
-        }*/
+        }
     }
 
     /**
@@ -172,7 +200,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
     }
 
     public void tick(@NotNull Level level) {
-        new LaserEmitPack(getBlockPos(), irradiateBlockPos).broadcast();
+        new LaserEmitPack(lightPowerLevel, getBlockPos(), irradiateBlockPos).broadcast();
         tickCount++;
     }
 

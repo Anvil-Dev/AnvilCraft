@@ -157,7 +157,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         for (int l = 0; l < 8; ++l) {
             SilencerButton button = new SilencerButton(leftPos + START_LEFT_X, buttonTop, l, "add", b -> {
                 if (b instanceof SilencerButton silencerButton) {
-                    onAllSoundButtonClick(silencerButton.getIndex() + this.leftScrollOff);
+                    onAllSoundButtonClick(silencerButton.getIndex());
                 }
             }, this);
             button.setWidth(112);
@@ -169,7 +169,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         for (int l = 0; l < 8; ++l) {
             SilencerButton button = new SilencerButton(leftPos + START_RIGHT_X, buttonTop, l, "remove", b -> {
                 if (b instanceof SilencerButton silencerButton) {
-                    onMutedSoundButtonClick(silencerButton.getIndex() + this.rightScrollOff);
+                    onMutedSoundButtonClick(silencerButton.getIndex());
                 }
             }, this);
             this.mutedSoundButtons[l] = this.addRenderableWidget(button);

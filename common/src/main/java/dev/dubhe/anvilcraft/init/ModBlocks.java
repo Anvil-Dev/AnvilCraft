@@ -1918,6 +1918,28 @@ public class ModBlocks {
         .properties(BlockBehaviour.Properties::noOcclusion)
         .blockstate((ctx, provider) -> {
         })
+        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern("ACA")
+            .pattern("BDB")
+            .pattern("ACA")
+            .define('A', ModItems.ROYAL_STEEL_INGOT)
+            .define('B', ModBlocks.INDUCTION_LIGHT)
+            .define('C', ModItems.SILVER_INGOT)
+            .define('D', ModBlocks.RUBY_BLOCK)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.COPPER_INGOT),
+                AnvilCraftDatagen.has(Items.COPPER_INGOT)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
+                AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.IRON_INGOT),
+                AnvilCraftDatagen.has(Items.IRON_INGOT)
+            )
+            .save(provider)
+        )
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
@@ -1930,6 +1952,27 @@ public class ModBlocks {
                 return 15;
             else return 0;
         }))
+        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern("ACA")
+            .pattern("CBC")
+            .pattern("AAA")
+            .define('A', ModItems.ROYAL_STEEL_INGOT)
+            .define('B', ModBlocks.RUBY_BLOCK)
+            .define('C', ModItems.RUBY)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.COPPER_INGOT),
+                AnvilCraftDatagen.has(Items.COPPER_INGOT)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
+                AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.IRON_INGOT),
+                AnvilCraftDatagen.has(Items.IRON_INGOT)
+            )
+            .save(provider)
+        )
         .properties(BlockBehaviour.Properties::noOcclusion)
         .blockstate((ctx, provider) -> {
         })
