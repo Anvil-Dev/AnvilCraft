@@ -20,6 +20,7 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItemLeaves;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.NotHasBlock;
 import dev.dubhe.anvilcraft.util.IItemStackUtil;
 import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.CriterionTriggerInstance;
@@ -67,6 +68,9 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
     private final List<RecipeOutcome> outcomes = new ArrayList<>();
     private final ItemStack icon;
     private final Map<String, CompoundTag> data = new HashMap<>();
+    @Setter
+    @Getter
+    private AnvilRecipeType anvilRecipeType = AnvilRecipeType.NULL;
 
     public AnvilRecipe(ResourceLocation id, ItemStack icon) {
         this.id = id;
@@ -159,6 +163,8 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
                 icon = IItemStackUtil.fromJson(serializedRecipe.get("icon"));
             }
             AnvilRecipe recipe = new AnvilRecipe(recipeId, icon);
+            recipe.setAnvilRecipeType(
+                AnvilRecipeType.valueOf(serializedRecipe.getAsJsonPrimitive("anvil_recipe_type").getAsString().toUpperCase()));
             JsonArray predicates = GsonHelper.getAsJsonArray(serializedRecipe, "predicates");
             for (JsonElement predicate : predicates) {
                 if (!predicate.isJsonObject()) {
@@ -179,6 +185,7 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
         @Override
         public @NotNull AnvilRecipe fromNetwork(@NotNull ResourceLocation recipeId, @NotNull FriendlyByteBuf buffer) {
             AnvilRecipe recipe = new AnvilRecipe(recipeId, buffer.readItem());
+            recipe.setAnvilRecipeType(AnvilRecipeType.valueOf(buffer.readUtf().toUpperCase()));
             int size;
             size = buffer.readVarInt();
             for (int i = 0; i < size; i++) {
@@ -194,6 +201,7 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
         @Override
         public void toNetwork(@NotNull FriendlyByteBuf buffer, @NotNull AnvilRecipe recipe) {
             buffer.writeItem(recipe.icon);
+            buffer.writeUtf(recipe.anvilRecipeType.toString());
             buffer.writeVarInt(recipe.predicates.size());
             for (RecipePredicate predicate : recipe.predicates) {
                 predicate.toNetwork(buffer);
@@ -215,6 +223,8 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
         private final Advancement.Builder advancement = Advancement.Builder.recipeAdvancement();
         @Nullable
         private String group = null;
+        @Getter
+        private AnvilRecipeType anvilRecipeType = AnvilRecipeType.NULL;
 
         private Builder(RecipeCategory category, ItemStack icon) {
             this.category = category;
@@ -236,6 +246,11 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
 
         public @NotNull Builder icon(@NotNull ItemLike icon) {
             this.icon = icon.asItem().getDefaultInstance();
+            return this;
+        }
+
+        public @NotNull Builder type(AnvilRecipeType type) {
+            this.anvilRecipeType = type;
             return this;
         }
 
@@ -722,11 +737,13 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
                     this.outcomes,
                     null == this.group ? "" : this.group,
                     this.advancement,
-                    recipeId.withPrefix("recipes/" + this.category.getFolderName() + "/")
+                    recipeId.withPrefix("recipes/" + this.category.getFolderName() + "/"),
+                    this.anvilRecipeType
                 )
             );
         }
 
+        @SuppressWarnings("LombokGetterMayBeUsed")
         static class Result implements FinishedRecipe {
             @Getter
             private final ResourceLocation id;
@@ -738,6 +755,8 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
             private final Advancement.Builder advancement;
             @Getter
             private final ResourceLocation advancementId;
+            @Getter
+            private final AnvilRecipeType anvilRecipeType;
 
             Result(
                 ResourceLocation id,
@@ -746,7 +765,8 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
                 NonNullList<RecipeOutcome> outcomes,
                 String group,
                 Advancement.Builder advancement,
-                ResourceLocation advancementId
+                ResourceLocation advancementId,
+                AnvilRecipeType anvilRecipeType
             ) {
                 this.id = id;
                 this.icon = icon;
@@ -755,6 +775,7 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
                 this.advancement = advancement;
                 this.group = group;
                 this.advancementId = advancementId;
+                this.anvilRecipeType = anvilRecipeType;
             }
 
             @Override
@@ -762,6 +783,7 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
                 if (!this.group.isEmpty()) {
                     json.addProperty("group", this.group);
                 }
+                json.addProperty("anvil_recipe_type", this.anvilRecipeType.toString());
                 json.add("icon", IItemStackUtil.toJson(this.icon));
                 JsonArray predicates = new JsonArray();
                 for (RecipePredicate predicate : this.predicates) {
@@ -789,7 +811,8 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
     }
 
     public enum Type implements RecipeType<AnvilRecipe> {
-        INSTANCE
+        INSTANCE,
+        STAMPING
     }
 
     /**

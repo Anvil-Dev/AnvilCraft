@@ -1,5 +1,6 @@
 {
   "type": "anvilcraft:anvil_processing",
+  "anvil_recipe_type": "null",
   "icon": {
     "item": "minecraft:emerald_block"
   },
@@ -54,11 +55,10 @@
           "min": 1
         },
         "items": [
-          "minecraft:emerald_block",
           "anvilcraft:sapphire_block",
-          "minecraft:emerald_block",
+          "anvilcraft:topaz_block",
           "anvilcraft:ruby_block",
-          "anvilcraft:topaz_block"
+          "minecraft:emerald_block"
         ]
       },
       "offset": [

@@ -47,6 +47,7 @@ public class HasItem implements RecipePredicate, HasData {
     @Getter
     private final String type = "has_item";
     protected final Vec3 offset;
+    @Getter
     protected final ModItemPredicate matchItem;
     protected String path = null;
     @Getter

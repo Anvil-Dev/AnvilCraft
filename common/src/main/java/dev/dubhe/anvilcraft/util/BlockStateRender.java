@@ -15,11 +15,10 @@ public class BlockStateRender {
     /**
      * 渲染方块状态
      */
-    public static void render(BlockState state, @NotNull GuiGraphics draw, int x, int y) {
+    public static void render(BlockState state, @NotNull GuiGraphics draw, int x, int y, float p) {
         PoseStack poseStack = draw.pose();
         poseStack.pushPose();
         poseStack.translate(x, y, 150.0f);
-        float p = 16.0f;
         poseStack.scale(p, p, p);
         poseStack.mulPoseMatrix(new Matrix4f().scaling(1.0f, -1.0f, 1.0f));
         ItemTransform transform = new ItemTransform(

@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe.Builder;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SelectOne;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SpawnItem;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -125,7 +126,8 @@ public class StampingRecipesLoader {
         if (StampingRecipesLoader.provider == null) return;
         Builder builder = AnvilRecipe.Builder.create(RecipeCategory.MISC)
             .hasBlock(ModBlocks.STAMPING_PLATFORM.get())
-            .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), enter);
+            .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), enter)
+            .type(AnvilRecipeType.STAMPING);
         SelectOne selectOne = new SelectOne();
         for (RecipeItem item : items) {
             if (item.isSelectOne()) {
@@ -149,7 +151,8 @@ public class StampingRecipesLoader {
         if (StampingRecipesLoader.provider == null) return;
         Builder builder = AnvilRecipe.Builder.create(RecipeCategory.MISC)
             .hasBlock(ModBlocks.STAMPING_PLATFORM.get())
-            .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), enter);
+            .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), enter)
+            .type(AnvilRecipeType.STAMPING);
         SelectOne selectOne = new SelectOne();
         for (RecipeItem item : items) {
             if (item.isSelectOne()) {
