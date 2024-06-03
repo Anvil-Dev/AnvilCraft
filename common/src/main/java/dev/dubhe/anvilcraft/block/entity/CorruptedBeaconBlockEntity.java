@@ -6,12 +6,16 @@ import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.data.recipe.transform.MobTransformContainer;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
+
 import java.util.Objects;
+
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.commands.data.EntityDataAccessor;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -19,7 +23,11 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BeaconBeamBlock;
@@ -107,9 +115,9 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
                         beaconBeamSection.increaseHeight();
                     } else {
                         beaconBeamSection = new BeaconBeamSection(new float[]{
-                            (beaconBeamSection.color[0] + fs[0]) / 2.0f,
-                            (beaconBeamSection.color[1] + fs[1]) / 2.0f,
-                            (beaconBeamSection.color[2] + fs[2]) / 2.0f
+                                (beaconBeamSection.color[0] + fs[0]) / 2.0f,
+                                (beaconBeamSection.color[1] + fs[1]) / 2.0f,
+                                (beaconBeamSection.color[2] + fs[2]) / 2.0f
                         });
                         blockEntity.checkingBeamSections.add(beaconBeamSection);
                     }
@@ -185,6 +193,42 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
         super.setRemoved();
     }
 
+    private static void tryTransformEntity(Entity livingEntity, BlockPos pos, ServerLevel level, RecipeManager manager) {
+        MobTransformContainer container = new MobTransformContainer(level, pos, livingEntity);
+        var recipe = manager.getRecipeFor(ModRecipeTypes.MOB_TRANSFORM_RECIPE, container, level);
+        if (recipe.isEmpty()) return;
+        var entityType = recipe.get().result(level.random);
+        CompoundTag tag = new CompoundTag();
+        tag.putString("id", BuiltInRegistries.ENTITY_TYPE.getKey(entityType).toString());
+        Entity entity = EntityType.loadEntityRecursive(tag, level, (e) -> {
+            e.moveTo(
+                    livingEntity.position().x,
+                    livingEntity.position().y,
+                    livingEntity.position().z,
+                    e.getYRot(),
+                    e.getXRot()
+            );
+            return e;
+        });
+        if (entity == null) return;
+        if (entity instanceof Mob mob) {
+            mob.finalizeSpawn(
+                    level,
+                    level.getCurrentDifficultyAt(entity.blockPosition()),
+                    MobSpawnType.NATURAL,
+                    null,
+                    null
+            );
+        }
+        CompoundTag compoundTag = entity.saveWithoutId(new CompoundTag());
+        recipe.get().accept(compoundTag);
+        UUID uuid = entity.getUUID();
+        entity.load(compoundTag);
+        entity.setUUID(uuid);
+        livingEntity.remove(Entity.RemovalReason.DISCARDED);
+        level.tryAddFreshEntityWithPassengers(entity);
+    }
+
     private static void affectEntities(@NotNull Level level, BlockPos pos) {
         if (level.isClientSide) return;
         AABB aabb = new AABB(pos).expandTowards(0.0, level.getHeight(), 0.0);
@@ -192,21 +236,8 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
         if (list.isEmpty()) return;
         RecipeManager manager = Objects.requireNonNull(level.getServer()).getRecipeManager();
         for (LivingEntity livingEntity : list) {
-            MobTransformContainer container = new MobTransformContainer(level, pos, livingEntity);
             livingEntity.addEffect(new MobEffectInstance(MobEffects.WITHER, 120, 0, true, true));
-            var recipe = manager.getRecipeFor(ModRecipeTypes.MOB_TRANSFORM_RECIPE, container, level);
-            if (recipe.isEmpty()) continue;
-            var entityType = recipe.get().result(level.random);
-            Entity entity = entityType.create(level);
-            if (entity == null) continue;
-            entity.moveTo(livingEntity.position());
-            CompoundTag compoundTag = entity.saveWithoutId(new CompoundTag());
-            recipe.get().accept(compoundTag);
-            UUID uuid = entity.getUUID();
-            entity.load(compoundTag);
-            entity.setUUID(uuid);
-            livingEntity.remove(Entity.RemovalReason.DISCARDED);
-            level.addFreshEntity(entity);
+            tryTransformEntity(livingEntity, pos, (ServerLevel) level, manager);
         }
     }
 
@@ -270,6 +301,6 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
     @SuppressWarnings("unused")
     public AABB getRenderBoundingBox() {
         return new AABB(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY,
-            Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
+                Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
     }
 }

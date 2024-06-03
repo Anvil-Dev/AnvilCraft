@@ -58,6 +58,20 @@ public class MobTransformRecipesLoader {
                 .result(EntityType.ZOMBIE_HORSE, 0.1)
                 .accept(provider);
 
+        MobTransformRecipe.builder("horse")
+                .input(EntityType.SKELETON)
+                .result(EntityType.STRAY, 0.8)
+                .result(EntityType.WITHER_SKELETON, 0.2)
+                .accept(provider);
+
+        MobTransformRecipe.builder("zombie")
+                .input(EntityType.ZOMBIE)
+                .result(EntityType.DROWNED, 0.45)
+                .result(EntityType.HUSK, 0.45)
+                .result(EntityType.GIANT, 0.1)
+                .option()
+                .accept(provider);
+
         MobTransformRecipe.builder("silverfish")
                 .input(EntityType.SILVERFISH)
                 .result(EntityType.ENDERMITE, 1)
@@ -82,5 +96,8 @@ public class MobTransformRecipesLoader {
                             .value(tag);
                 })
                 .accept(provider);
+
+
+
     }
 }

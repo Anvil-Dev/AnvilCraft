@@ -47,7 +47,10 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
                     .forGetter(o -> java.util.Optional.ofNullable(o.tagPredicates)),
             TagModification.CODEC.listOf()
                     .optionalFieldOf("tagModifications")
-                    .forGetter(o -> java.util.Optional.ofNullable(o.tagModifications))
+                    .forGetter(o -> java.util.Optional.ofNullable(o.tagModifications)),
+            TransformOptions.CODEC.listOf()
+                    .optionalFieldOf("transformOptions")
+                    .forGetter(o -> Optional.ofNullable(o.transformOptions))
     ).apply(ins, MobTransformRecipe::new));
 
     private final ResourceLocation id;
@@ -59,6 +62,8 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
     private List<NumericTagValuePredicate> tagPredicates;
     @Getter
     private List<TagModification> tagModifications;
+    @Getter
+    private List<TransformOptions> transformOptions;
 
     /**
      * 生物转化配方
@@ -68,13 +73,15 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
             ResourceLocation input,
             List<TransformResult> results,
             Optional<List<NumericTagValuePredicate>> tagPredicates,
-            Optional<List<TagModification>> tagModifications
+            Optional<List<TagModification>> tagModifications,
+            Optional<List<TransformOptions>> options
     ) {
         this.id = id;
         this.results = results;
         this.input = BuiltInRegistries.ENTITY_TYPE.get(input);
         this.tagPredicates = tagPredicates.orElseGet(ArrayList::new);
         this.tagModifications = tagModifications.orElseGet(ArrayList::new);
+        this.transformOptions = options.orElseGet(ArrayList::new);
     }
 
     public MobTransformRecipe(ResourceLocation id) {
