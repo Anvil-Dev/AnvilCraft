@@ -19,6 +19,7 @@ jobs:
       - gametest
     env:
       CI_BUILD: true
+      PR_BUILD: true
     steps:
       - name: checkout
         uses: actions/checkout@v4

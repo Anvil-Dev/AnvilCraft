@@ -6,6 +6,7 @@ import com.google.gson.JsonPrimitive;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipeOutcome;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipePredicate;
 import dev.dubhe.anvilcraft.data.recipe.transform.NumericTagValuePredicate;
+import dev.dubhe.anvilcraft.data.recipe.transform.TagModification;
 import dev.dubhe.anvilcraft.data.recipe.transform.TransformResult;
 import dev.latvian.mods.kubejs.recipe.RecipeJS;
 import dev.latvian.mods.kubejs.recipe.component.RecipeComponent;
@@ -69,7 +70,6 @@ public class AnvilCraftRecipeComponents {
 
         @Override
         public RecipeOutcome read(RecipeJS recipe, Object from) {
-            System.out.println(from);
             if (from instanceof JsonObject jsonObject) {
                 return RecipeOutcome.fromJson(jsonObject);
             }
@@ -172,6 +172,31 @@ public class AnvilCraftRecipeComponents {
         public NumericTagValuePredicate read(RecipeJS recipe, Object from) {
             if (from instanceof JsonObject jsonObject) {
                 return NumericTagValuePredicate.fromJson(jsonObject);
+            }
+            return null;
+        }
+    };
+
+    public static final RecipeComponent<TagModification> RECIPE_TAG_MODIFY = new RecipeComponent<>() {
+        @Override
+        public String componentType() {
+            return "recipe_predicates";
+        }
+
+        @Override
+        public Class<?> componentClass() {
+            return TagModification.class;
+        }
+
+        @Override
+        public JsonElement write(RecipeJS recipe, TagModification value) {
+            return value.toJson();
+        }
+
+        @Override
+        public TagModification read(RecipeJS recipe, Object from) {
+            if (from instanceof JsonObject jsonObject) {
+                return TagModification.fromJson(jsonObject);
             }
             return null;
         }

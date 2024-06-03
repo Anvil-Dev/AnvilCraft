@@ -20,6 +20,7 @@ import dev.dubhe.anvilcraft.item.CapacitorItem;
 import dev.dubhe.anvilcraft.item.CrabClawItem;
 import dev.dubhe.anvilcraft.item.CursedItem;
 import dev.dubhe.anvilcraft.item.DiskItem;
+import dev.dubhe.anvilcraft.item.EmptyCapacitorItem;
 import dev.dubhe.anvilcraft.item.GeodeItem;
 import dev.dubhe.anvilcraft.item.GuideBookItem;
 import dev.dubhe.anvilcraft.item.MagnetItem;
@@ -33,6 +34,7 @@ import dev.dubhe.anvilcraft.item.RoyalSwordItem;
 import dev.dubhe.anvilcraft.item.RoyalUpgradeTemplateItem;
 import dev.dubhe.anvilcraft.item.TopazItem;
 import dev.dubhe.anvilcraft.item.UtusanItem;
+import dev.dubhe.anvilcraft.item.LevitationPowderItem;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -496,8 +498,8 @@ public class ModItems {
                 .save(provider, RecipeBuilder.getDefaultRecipeId(ctx.get()).getPath() + "_forge");
         })
         .register();
-    public static final ItemEntry<CapacitorItem> CAPACITOR_EMPTY = REGISTRATE
-        .item("capacitor_empty", CapacitorItem::new)
+    public static final ItemEntry<EmptyCapacitorItem> CAPACITOR_EMPTY = REGISTRATE
+        .item("capacitor_empty", EmptyCapacitorItem::new)
         .tag(ModItemTags.CAPACITOR)
         .recipe((ctx, provider) -> ShapedTagRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get().getDefaultInstance())
             .pattern("ABA")
@@ -1172,6 +1174,10 @@ public class ModItems {
 
     public static final ItemEntry<Item> LIME_POWDER = REGISTRATE
         .item("lime_powder", Item::new)
+        .register();
+
+    public static final ItemEntry<LevitationPowderItem> LEVITATION_POWDER = REGISTRATE
+        .item("levitation_powder", LevitationPowderItem::new)
         .register();
 
     public static final ItemEntry<DiskItem> DISK = REGISTRATE

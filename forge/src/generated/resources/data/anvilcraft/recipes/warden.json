@@ -8,6 +8,13 @@
       "resultEntityType": "minecraft:warden"
     }
   ],
+  "tagModifications": [
+    {
+      "op": "SET",
+      "path": "Brain.memories",
+      "tag": "{\n    \"minecraft:dig_cooldown\": {\n        ttl: 1200L,\n        value: {}\n    }\n}"
+    }
+  ],
   "tagPredicates": [
     {
       "expected": 0,

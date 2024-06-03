@@ -24,7 +24,10 @@
       "match_block": {
         "blocks": [
           "anvilcraft:cement_cauldron"
-        ]
+        ],
+        "state": {
+          "color": "gray"
+        }
       },
       "offset": [
         0.0,

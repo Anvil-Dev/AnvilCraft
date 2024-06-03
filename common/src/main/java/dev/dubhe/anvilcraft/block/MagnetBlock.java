@@ -40,11 +40,11 @@ public class MagnetBlock extends Block {
     @Override
     @SuppressWarnings("deprecation")
     public void onPlace(
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull BlockState oldState,
-            boolean movedByPiston
+        @NotNull BlockState state,
+        @NotNull Level level,
+        @NotNull BlockPos pos,
+        @NotNull BlockState oldState,
+        boolean movedByPiston
     ) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
         this.attract(state, level, pos);
@@ -58,12 +58,12 @@ public class MagnetBlock extends Block {
     @Override
     @SuppressWarnings("deprecation")
     public void neighborChanged(
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull Block neighborBlock,
-            @NotNull BlockPos neighborPos,
-            boolean movedByPiston
+        @NotNull BlockState state,
+        @NotNull Level level,
+        @NotNull BlockPos pos,
+        @NotNull Block neighborBlock,
+        @NotNull BlockPos neighborPos,
+        boolean movedByPiston
     ) {
         if (level.isClientSide) {
             return;
@@ -91,6 +91,7 @@ public class MagnetBlock extends Block {
             BlockState state1 = level.getBlockState(currentPos);
 
             if (state1.is(BlockTags.ANVIL)) {
+                level.destroyBlock(magnetPos.below(), true);
                 level.setBlockAndUpdate(magnetPos.below(), state1);
                 level.setBlockAndUpdate(currentPos, Blocks.AIR.defaultBlockState());
 
@@ -98,12 +99,13 @@ public class MagnetBlock extends Block {
                 break;
             }
             List<FallingBlockEntity> entities = level.getEntitiesOfClass(
-                    FallingBlockEntity.class,
-                    new AABB(currentPos)
+                FallingBlockEntity.class,
+                new AABB(currentPos)
             );
             for (FallingBlockEntity entity : entities) {
                 BlockState state2 = entity.getBlockState();
                 if (state2.is(BlockTags.ANVIL)) {
+                    level.destroyBlock(magnetPos.below(), true);
                     level.setBlockAndUpdate(magnetPos.below(), state2);
                     entity.remove(Entity.RemovalReason.DISCARDED);
                     AnimateAscendingBlockEntity.animate(level, currentPos, state2, magnetPos.below());
@@ -121,11 +123,11 @@ public class MagnetBlock extends Block {
     @SuppressWarnings("deprecation")
     @Override
     public void onRemove(
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos magnetPos,
-            @NotNull BlockState newState,
-            boolean movedByPiston
+        @NotNull BlockState state,
+        @NotNull Level level,
+        @NotNull BlockPos magnetPos,
+        @NotNull BlockState newState,
+        boolean movedByPiston
     ) {
         super.onRemove(state, level, magnetPos, newState, movedByPiston);
         if (level.isClientSide()) return;
@@ -134,8 +136,8 @@ public class MagnetBlock extends Block {
         for (int i = 0; i < distance; i++) {
             currentPos = currentPos.below();
             List<AnimateAscendingBlockEntity> entities = level.getEntitiesOfClass(
-                    AnimateAscendingBlockEntity.class,
-                    new AABB(currentPos)
+                AnimateAscendingBlockEntity.class,
+                new AABB(currentPos)
             );
             for (AnimateAscendingBlockEntity entity : entities) {
                 entity.discard();
@@ -147,7 +149,7 @@ public class MagnetBlock extends Block {
     @Override
     @SuppressWarnings("deprecation")
     public void tick(
-            @NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random
+        @NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random
     ) {
         if (state.getValue(LIT) && !level.hasNeighborSignal(pos)) {
             level.setBlock(pos, state.cycle(LIT), 2);

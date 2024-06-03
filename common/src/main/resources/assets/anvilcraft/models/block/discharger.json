@@ -2,9 +2,9 @@
 	"credit": "Made by XeKr with Blockbench",
 	"parent": "minecraft:block/block",
 	"textures": {
-		"particle": "anvilcraft:block/charger",
-		"side": "anvilcraft:block/charger",
-		"bottom": "anvilcraft:block/charger_bottom"
+		"particle": "anvilcraft:block/discharger",
+		"side": "anvilcraft:block/discharger",
+		"bottom": "anvilcraft:block/discharger_bottom"
 	},
 	"elements": [
 		{

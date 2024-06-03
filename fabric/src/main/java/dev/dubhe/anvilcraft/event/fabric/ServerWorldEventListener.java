@@ -25,7 +25,6 @@ public class ServerWorldEventListener {
     }
 
     private static void onUnload(MinecraftServer server, Level level) {
-        PowerGridRenderer.cleanAllGrid();
         ChargeCollectorManager.cleanMap();
         if (level instanceof ServerLevel serverLevel) {
             LevelLoadManager.removeAll(serverLevel);

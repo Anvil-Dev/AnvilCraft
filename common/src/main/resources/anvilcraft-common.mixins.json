@@ -24,11 +24,13 @@
     "PistonStructureResolverMixin",
     "PlayerHitEntityMixin",
     "SolidBucketItemMixin",
+    "SoundEngineMixin",
     "accessor.BaseSpawnerAccessor",
     "accessor.FallingBlockEntityAccessor",
     "accessor.LootContextParamSetsAccessor"
   ],
   "client": [
+    "ClientLevelMixin",
     "ItemInHandRendererMixin",
     "LevelRendererMixin",
     "PowerGridInformationRenderMixin",

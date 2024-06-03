@@ -2,20 +2,26 @@ package dev.dubhe.anvilcraft.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.dubhe.anvilcraft.api.tooltip.HudTooltipManager;
 import dev.dubhe.anvilcraft.client.renderer.PowerGridRenderer;
 import dev.dubhe.anvilcraft.item.IEngineerGoggles;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderBuffers;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
@@ -34,20 +40,25 @@ abstract class LevelRendererMixin {
     @Final
     private RenderBuffers renderBuffers;
 
+    @Shadow
+    @Final
+    private Minecraft minecraft;
+
     @Inject(
-        method = "renderLevel",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/debug/DebugRenderer;render(Lcom/mojang/blaze3d/vertex/PoseStack;"
-                + "Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;DDD)V"
-        ),
-        locals = LocalCapture.CAPTURE_FAILEXCEPTION
+            method = "renderLevel",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/renderer/debug/DebugRenderer;"
+                            + "render(Lcom/mojang/blaze3d/vertex/PoseStack;"
+                            + "Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;DDD)V"
+            ),
+            locals = LocalCapture.CAPTURE_FAILEXCEPTION
     )
     private void renderLevel(
-        PoseStack poseStack, float partialTick, long finishNanoTime,
-        boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer,
-        LightTexture lightTexture, Matrix4f projectionMatrix, CallbackInfo ci,
-        @NotNull ProfilerFiller profilerFiller, @NotNull Vec3 vec3
+            PoseStack poseStack, float partialTick, long finishNanoTime,
+            boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer,
+            LightTexture lightTexture, Matrix4f projectionMatrix, CallbackInfo ci,
+            @NotNull ProfilerFiller profilerFiller, @NotNull Vec3 vec3
     ) {
         Entity entity = camera.getEntity();
         boolean bl = true;
@@ -65,5 +76,16 @@ abstract class LevelRendererMixin {
         double camZ = vec3.z();
         profilerFiller.popPush("grid");
         PowerGridRenderer.render(poseStack, vertexConsumer3, camX, camY, camZ);
+        HitResult hit = minecraft.hitResult;
+        if (hit == null || hit.getType() != HitResult.Type.BLOCK) {
+            return;
+        }
+        if (hit.getType() == HitResult.Type.BLOCK) {
+            BlockPos blockPos = ((BlockHitResult) hit).getBlockPos();
+            if (minecraft.level == null) return;
+            BlockEntity e = minecraft.level.getBlockEntity(blockPos);
+            if (e == null) return;
+            HudTooltipManager.INSTANCE.renderAffectRange(e, poseStack, vertexConsumer3, camX, camY, camZ);
+        }
     }
 }

@@ -1,10 +1,12 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.architectury.injectables.annotations.ExpectPlatform;
-import dev.dubhe.anvilcraft.api.IDiskCloneable;
+import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
+import dev.dubhe.anvilcraft.api.tooltip.IHasAffectRange;
+import dev.dubhe.anvilcraft.block.InductionLightBlock;
 import dev.dubhe.anvilcraft.block.ItemCollectorBlock;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.ItemCollectorMenu;
@@ -17,6 +19,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.util.Mth;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -30,6 +33,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,7 +43,7 @@ import java.util.List;
 @Getter
 public class ItemCollectorBlockEntity
         extends BlockEntity
-        implements MenuProvider, IFilterBlockEntity, IPowerConsumer, IDiskCloneable {
+        implements MenuProvider, IFilterBlockEntity, IPowerConsumer, IDiskCloneable, IHasAffectRange {
     @Setter
     private PowerGrid grid;
     private final WatchableCyclingValue<Integer> rangeRadius = new WatchableCyclingValue<>("rangeRadius",
@@ -57,7 +62,7 @@ public class ItemCollectorBlockEntity
     );
     private int cd = rangeRadius.get();
 
-    private final FilteredItemDepository depository = new FilteredItemDepository.Pollable(9) {
+    private final FilteredItemDepository depository = new FilteredItemDepository(9) {
         @Override
         public void onContentsChanged(int slot) {
             ItemCollectorBlockEntity.this.setChanged();
@@ -84,7 +89,11 @@ public class ItemCollectorBlockEntity
 
     @Override
     public int getInputPower() {
-        return (int) (4 * rangeRadius.get() * (30.0 / cooldown.get()));
+        int power = Mth.floor(30.0 + (15.0 * rangeRadius.get() / cooldown.get()));
+        if (level == null) return power;
+        return getBlockState().getValue(ItemCollectorBlock.POWERED)
+                ? 0
+                : power;
     }
 
     @Override
@@ -184,7 +193,6 @@ public class ItemCollectorBlockEntity
 
     /**
      * 获取红石信号
-     *
      */
     public int getRedstoneSignal() {
         int i = 0;
@@ -204,5 +212,15 @@ public class ItemCollectorBlockEntity
     @Override
     public void applyDiskData(CompoundTag data) {
         depository.deserializeFiltering(data.getCompound("Filtering"));
+    }
+
+    @Override
+    public AABB shape() {
+        return AABB.ofSize(
+                Vec3.atCenterOf(getBlockPos()),
+                rangeRadius.get() * 2.0 + 1,
+                rangeRadius.get() * 2.0 + 1,
+                rangeRadius.get() * 2.0 + 1
+        );
     }
 }
