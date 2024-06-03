@@ -33,6 +33,7 @@ import dev.dubhe.anvilcraft.block.LoadMonitorBlock;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
 import dev.dubhe.anvilcraft.block.MeltGemCauldron;
 import dev.dubhe.anvilcraft.block.MobAmberBlock;
+import dev.dubhe.anvilcraft.block.ObsidianCauldron;
 import dev.dubhe.anvilcraft.block.OverseerBlock;
 import dev.dubhe.anvilcraft.block.PiezoelectricCrystalBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterBigBlock;
@@ -48,6 +49,7 @@ import dev.dubhe.anvilcraft.block.RoyalGrindstone;
 import dev.dubhe.anvilcraft.block.RoyalSmithingTableBlock;
 import dev.dubhe.anvilcraft.block.SimpleChuteBlock;
 import dev.dubhe.anvilcraft.block.StampingPlatformBlock;
+import dev.dubhe.anvilcraft.block.ThermoelectricConverterBlock;
 import dev.dubhe.anvilcraft.block.TransmissionPoleBlock;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.block.state.Half;
@@ -74,7 +76,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
-import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.data.recipes.packs.VanillaRecipeProvider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.BlockTags;
@@ -97,6 +98,7 @@ import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.WallBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
@@ -1584,6 +1586,48 @@ public class ModBlocks {
                     ).unlockedBy(
                             AnvilCraftDatagen.hasItem(Items.SCULK_SENSOR),
                             AnvilCraftDatagen.has(Items.SCULK_SENSOR)
+                    )
+                    .save(provider))
+            .register();
+
+    public static final BlockEntry<ObsidianCauldron> OBSIDIDAN_CAULDRON = REGISTRATE
+            .block("obsidian_cauldron", ObsidianCauldron::new)
+            .initialProperties(() -> Blocks.OBSIDIAN)
+            .properties(it -> it.pushReaction(PushReaction.BLOCK))
+            .blockstate((ctx, provider) -> {
+            })
+            .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .register();
+
+    public static final BlockEntry<ThermoelectricConverterBlock> THERMOELECTRIC_CONVERTER = REGISTRATE
+            .block("thermoelectric_converter", ThermoelectricConverterBlock::new)
+            .simpleItem()
+            .initialProperties(() -> Blocks.IRON_BLOCK)
+            .properties(BlockBehaviour.Properties::noOcclusion)
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .blockstate((ctx, provider) -> {
+            })
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                    .pattern("ABA")
+                    .pattern("CDC")
+                    .pattern("ABA")
+                    .define('A', ModItems.ROYAL_STEEL_INGOT)
+                    .define('B', Items.COPPER_INGOT)
+                    .define('C', ModBlocks.SAPPHIRE_BLOCK)
+                    .define('D', Items.BLUE_ICE)
+                    .unlockedBy(
+                            AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_INGOT),
+                            AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT)
+                    ).unlockedBy(
+                            AnvilCraftDatagen.hasItem(Items.COPPER_INGOT),
+                            AnvilCraftDatagen.has(Items.COPPER_INGOT)
+                    ).unlockedBy(
+                            AnvilCraftDatagen.hasItem(ModBlocks.SAPPHIRE_BLOCK),
+                            AnvilCraftDatagen.has(ModBlocks.SAPPHIRE_BLOCK)
+                    ).unlockedBy(
+                            AnvilCraftDatagen.hasItem(Items.BLUE_ICE),
+                            AnvilCraftDatagen.has(Items.BLUE_ICE)
                     )
                     .save(provider))
             .register();

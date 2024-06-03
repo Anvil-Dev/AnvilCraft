@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.event.fabric;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.chargecollector.ThermoManager;
 import dev.dubhe.anvilcraft.api.event.server.ServerEndDataPackReloadEvent;
 import dev.dubhe.anvilcraft.api.event.server.ServerStartedEvent;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
@@ -36,6 +37,7 @@ public class ServerLifecycleEventListener {
 
     private static void startTick(MinecraftServer server) {
         PowerGrid.tickGrid();
+        ThermoManager.tick();
         RandomChuckTickLoadManager.tick();
     }
 
@@ -46,5 +48,6 @@ public class ServerLifecycleEventListener {
     private static void onServerStopped(MinecraftServer server) {
         PowerGrid.isServerClosing = false;
         PowerGrid.clear();
+        ThermoManager.clear();
     }
 }
