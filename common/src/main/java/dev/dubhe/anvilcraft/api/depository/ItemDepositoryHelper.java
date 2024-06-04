@@ -53,19 +53,47 @@ public class ItemDepositoryHelper {
             if (sourceStack.isEmpty() || !predicate.test(sourceStack)) {
                 continue;
             }
-            ItemStack remainder = insertItem(target, sourceStack, true);
-            int amountToInsert = sourceStack.getCount() - remainder.getCount();
-            if (amountToInsert > 0) {
-                sourceStack = source.extract(srcIndex, Math.min(maxAmount, amountToInsert), false);
-                int sourceStackCount = sourceStack.getCount();
-                remainder = insertItem(target, sourceStack, false);
-                hasDone = remainder.getCount() < sourceStackCount;
-                maxAmount -= Math.min(maxAmount, amountToInsert);
-                source.insert(srcIndex, remainder, false);
+            if (canInsert(sourceStack, target)) {
+                // 下面这一段代码对游戏卡顿极大
+                ItemStack remainder = insertItem(target, sourceStack, true);
+                int amountToInsert = sourceStack.getCount() - remainder.getCount();
+                if (amountToInsert > 0) {
+                    sourceStack = source.extract(srcIndex, Math.min(maxAmount, amountToInsert), false);
+                    int sourceStackCount = sourceStack.getCount();
+                    remainder = insertItem(target, sourceStack, false);
+                    hasDone = remainder.getCount() < sourceStackCount;
+                    maxAmount -= Math.min(maxAmount, amountToInsert);
+                    source.insert(srcIndex, remainder, false);
+                }
+                if (maxAmount <= 0) {
+                    return hasDone;
+                }
             }
-            if (maxAmount <= 0) return hasDone;
         }
         return hasDone;
+    }
+
+    /**
+     * 是否可以向容器中插入物品
+     *
+     * @param sourceStack 要插入的物品
+     * @param target 目标容器
+     * @return 是否可以插入物品
+     */
+    private static boolean canInsert(ItemStack sourceStack, IItemDepository target) {
+        for (int i = 0; i < target.getSlots(); i++) {
+            ItemStack targetStack = target.getStack(i);
+            if (targetStack.isEmpty()) {
+                return true;
+            }
+            if (targetStack.getCount() >= targetStack.getMaxStackSize()) {
+                continue;
+            }
+            if (ItemStack.isSameItemSameTags(sourceStack, targetStack)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
