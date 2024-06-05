@@ -4,6 +4,7 @@ import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.data.recipe.transform.MobTransformRecipe;
 import dev.dubhe.anvilcraft.data.recipe.transform.NumericTagValuePredicate;
 import dev.dubhe.anvilcraft.data.recipe.transform.TagModification;
+import dev.dubhe.anvilcraft.data.recipe.transform.TransformOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.EntityType;
 
@@ -58,7 +59,7 @@ public class MobTransformRecipesLoader {
                 .result(EntityType.ZOMBIE_HORSE, 0.1)
                 .accept(provider);
 
-        MobTransformRecipe.builder("horse")
+        MobTransformRecipe.builder("skeleton")
                 .input(EntityType.SKELETON)
                 .result(EntityType.STRAY, 0.8)
                 .result(EntityType.WITHER_SKELETON, 0.2)
@@ -69,7 +70,8 @@ public class MobTransformRecipesLoader {
                 .result(EntityType.DROWNED, 0.45)
                 .result(EntityType.HUSK, 0.45)
                 .result(EntityType.GIANT, 0.1)
-                .option()
+                .option(TransformOptions.KEEP_INVENTORY)
+                .option(TransformOptions.REPLACE_ANVIL)
                 .accept(provider);
 
         MobTransformRecipe.builder("silverfish")

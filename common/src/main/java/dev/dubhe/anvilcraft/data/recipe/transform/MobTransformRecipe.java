@@ -13,11 +13,13 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.commands.data.EntityDataAccessor;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
@@ -29,8 +31,11 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.text.html.Option;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import static net.minecraft.data.recipes.RecipeBuilder.ROOT_RECIPE_ADVANCEMENT;
@@ -81,7 +86,7 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
         this.input = BuiltInRegistries.ENTITY_TYPE.get(input);
         this.tagPredicates = tagPredicates.orElseGet(ArrayList::new);
         this.tagModifications = tagModifications.orElseGet(ArrayList::new);
-        this.transformOptions = options.orElseGet(ArrayList::new);
+        transformOptions = options.orElseGet(ArrayList::new);
     }
 
     public MobTransformRecipe(ResourceLocation id) {
@@ -99,12 +104,19 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
     }
 
     /**
-     * 修改生物nbt
+     * 对生物进行后处理
      */
-    public void accept(Tag tag) {
-        for (TagModification tagModification : tagModifications) {
-            tagModification.accept(tag);
+    public void postProcess(Entity oldEntity, Entity entity) {
+        for (TransformOptions option : transformOptions) {
+            option.accept(oldEntity, entity);
         }
+        CompoundTag compoundTag = entity.saveWithoutId(new CompoundTag());
+        for (TagModification tagModification : tagModifications) {
+            tagModification.accept(compoundTag);
+        }
+        UUID uuid = entity.getUUID();
+        entity.load(compoundTag);
+        entity.setUUID(uuid);
     }
 
     @Override
@@ -216,6 +228,7 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
         private RecipeCategory category = RecipeCategory.MISC;
         private List<NumericTagValuePredicate> tagPredicates;
         private List<TagModification> tagModifications;
+        private Set<TransformOptions> options;
 
         Builder(ResourceLocation id) {
             this.id = id;
@@ -268,6 +281,17 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
         }
 
         /**
+         * 生物转化额外选项
+         */
+        public Builder option(TransformOptions option) {
+            if (options == null) {
+                options = new HashSet<>();
+            }
+            options.add(option);
+            return this;
+        }
+
+        /**
          * 构造
          */
         public MobTransformRecipe build() {
@@ -276,6 +300,9 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
             r.results = results;
             r.tagPredicates = tagPredicates;
             r.tagModifications = tagModifications;
+            if (options != null) {
+                r.transformOptions = new ArrayList<>(options);
+            }
             return r;
         }
 
@@ -298,5 +325,7 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
         public void accept(Consumer<FinishedRecipe> provider) {
             provider.accept(finish());
         }
+
+
     }
 }

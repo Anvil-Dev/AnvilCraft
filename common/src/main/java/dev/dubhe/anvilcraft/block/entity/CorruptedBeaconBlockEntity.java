@@ -220,11 +220,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
                     null
             );
         }
-        CompoundTag compoundTag = entity.saveWithoutId(new CompoundTag());
-        recipe.get().accept(compoundTag);
-        UUID uuid = entity.getUUID();
-        entity.load(compoundTag);
-        entity.setUUID(uuid);
+        recipe.get().postProcess(livingEntity, entity);
         livingEntity.remove(Entity.RemovalReason.DISCARDED);
         level.tryAddFreshEntityWithPassengers(entity);
     }

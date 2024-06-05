@@ -1,0 +1,15 @@
+{
+  "type": "anvilcraft:mob_transform",
+  "id": "anvilcraft:skeleton",
+  "input": "minecraft:skeleton",
+  "results": [
+    {
+      "probability": 0.8,
+      "resultEntityType": "minecraft:stray"
+    },
+    {
+      "probability": 0.2,
+      "resultEntityType": "minecraft:wither_skeleton"
+    }
+  ]
+}
