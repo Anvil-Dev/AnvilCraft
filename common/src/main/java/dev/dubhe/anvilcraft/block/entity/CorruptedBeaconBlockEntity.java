@@ -115,9 +115,9 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
                         beaconBeamSection.increaseHeight();
                     } else {
                         beaconBeamSection = new BeaconBeamSection(new float[]{
-                                (beaconBeamSection.color[0] + fs[0]) / 2.0f,
-                                (beaconBeamSection.color[1] + fs[1]) / 2.0f,
-                                (beaconBeamSection.color[2] + fs[2]) / 2.0f
+                            (beaconBeamSection.color[0] + fs[0]) / 2.0f,
+                            (beaconBeamSection.color[1] + fs[1]) / 2.0f,
+                            (beaconBeamSection.color[2] + fs[2]) / 2.0f
                         });
                         blockEntity.checkingBeamSections.add(beaconBeamSection);
                     }
@@ -193,7 +193,12 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
         super.setRemoved();
     }
 
-    private static void tryTransformEntity(Entity livingEntity, BlockPos pos, ServerLevel level, RecipeManager manager) {
+    private static void tryTransformEntity(
+            Entity livingEntity,
+            BlockPos pos,
+            ServerLevel level,
+            RecipeManager manager
+    ) {
         MobTransformContainer container = new MobTransformContainer(level, pos, livingEntity);
         var recipe = manager.getRecipeFor(ModRecipeTypes.MOB_TRANSFORM_RECIPE, container, level);
         if (recipe.isEmpty()) return;
