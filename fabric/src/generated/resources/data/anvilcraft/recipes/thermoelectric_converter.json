@@ -6,19 +6,22 @@
       "item": "anvilcraft:royal_steel_ingot"
     },
     "B": {
-      "item": "anvilcraft:ruby_block"
+      "item": "minecraft:copper_ingot"
     },
     "C": {
-      "item": "anvilcraft:ruby"
+      "item": "anvilcraft:sapphire_block"
+    },
+    "D": {
+      "item": "minecraft:blue_ice"
     }
   },
   "pattern": [
-    "ACA",
-    "CBC",
-    "AAA"
+    "ABA",
+    "CDC",
+    "ABA"
   ],
   "result": {
-    "item": "anvilcraft:ruby_prism"
+    "item": "anvilcraft:thermoelectric_converter"
   },
   "show_notification": true
 }

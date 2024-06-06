@@ -6,16 +6,19 @@
       "item": "anvilcraft:royal_steel_ingot"
     },
     "B": {
-      "item": "anvilcraft:ruby_block"
+      "item": "anvilcraft:induction_light"
     },
     "C": {
-      "item": "anvilcraft:ruby"
+      "item": "anvilcraft:silver_ingot"
+    },
+    "D": {
+      "item": "anvilcraft:ruby_block"
     }
   },
   "pattern": [
     "ACA",
-    "CBC",
-    "AAA"
+    "BDB",
+    "ACA"
   ],
   "result": {
     "item": "anvilcraft:ruby_laser"

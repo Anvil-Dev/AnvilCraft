@@ -1,36 +1,36 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_copper_ingot": {
+    "has_royal_steel_ingot": {
       "conditions": {
         "items": [
           {
             "items": [
-              "minecraft:copper_ingot"
+              "anvilcraft:royal_steel_ingot"
             ]
           }
         ]
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_iron_ingot": {
+    "has_ruby": {
       "conditions": {
         "items": [
           {
             "items": [
-              "minecraft:iron_ingot"
+              "anvilcraft:ruby"
             ]
           }
         ]
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_magnetoelectric_core": {
+    "has_ruby_block": {
       "conditions": {
         "items": [
           {
             "items": [
-              "anvilcraft:magnetoelectric_core"
+              "anvilcraft:ruby_block"
             ]
           }
         ]
@@ -46,9 +46,9 @@
   },
   "requirements": [
     [
-      "has_copper_ingot",
-      "has_magnetoelectric_core",
-      "has_iron_ingot",
+      "has_royal_steel_ingot",
+      "has_ruby_block",
+      "has_ruby",
       "has_the_recipe"
     ]
   ],
