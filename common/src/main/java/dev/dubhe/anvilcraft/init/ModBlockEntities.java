@@ -21,6 +21,7 @@ import dev.dubhe.anvilcraft.block.entity.ResentfulAmberBlock;
 import dev.dubhe.anvilcraft.block.entity.RubyLaserBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RubyPrismBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.ThermoelectricConverterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CorruptedBeaconRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HasMobBlockRenderer;
@@ -143,6 +144,11 @@ public class ModBlockEntities {
         .validBlock(ModBlocks.RUBY_LASER)
         .renderer(() -> LaseRenderer::new)
         .register();
+
+    public static final BlockEntityEntry<ThermoelectricConverterBlockEntity> THERMOELECTRIC_CONVERTER = REGISTRATE
+            .blockEntity("thermoelectric_converter", ThermoelectricConverterBlockEntity::new)
+            .validBlocks(ModBlocks.THERMOELECTRIC_CONVERTER)
+            .register();
 
     public static void register() {
     }
