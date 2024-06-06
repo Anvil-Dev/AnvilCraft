@@ -1,0 +1,6 @@
+{
+	"parent": "minecraft:block/block",
+	"textures": {
+		"particle": "anvilcraft:block/giant_anvil_side"
+	}
+}
