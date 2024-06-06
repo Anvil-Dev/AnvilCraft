@@ -39,7 +39,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
 
     protected HashSet<BaseLaserBlockEntity> irradiateSelfLaserBlockSet = new HashSet<>();
     public BlockPos irradiateBlockPos = null;
-    public int lightPowerLevel = 0;
+    public int laserLevel = 0;
 
     public BaseLaserBlockEntity(BlockEntityType<?> type,
         BlockPos pos, BlockState blockState) {
@@ -73,13 +73,13 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         return  originPos.relative(direction, expectedLength);
     }
 
-    protected int getBaseLightLevel() {
+    protected int getBaseLaserLevel() {
         return 1;
     }
 
-    protected int getLightLevel() {
-        return getBaseLightLevel()
-            + irradiateSelfLaserBlockSet.stream().mapToInt(BaseLaserBlockEntity::getLightLevel).sum();
+    protected int getLaserLevel() {
+        return getBaseLaserLevel()
+            + irradiateSelfLaserBlockSet.stream().mapToInt(BaseLaserBlockEntity::getLaserLevel).sum();
     }
 
     /**
@@ -101,12 +101,12 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         irradiateBlockPos = tempIrradiateBlockPos;
 
         if (!(level instanceof ServerLevel serverLevel)) return;
-        lightPowerLevel = getLightLevel();
+        laserLevel = getLaserLevel();
         AABB trackBoundingBox =
             new AABB(getBlockPos().relative(direction).getCenter().add(-0.0625, -0.0625, -0.0625),
                 irradiateBlockPos.relative(direction.getOpposite()).getCenter().add(0.0625, 0.0625, 0.0625)
                 );
-        int hurt = Math.min(16, lightPowerLevel - 4);
+        int hurt = Math.min(16, laserLevel - 4);
         if (hurt > 0) {
             level.getEntities(EntityTypeTest.forClass(LivingEntity.class), trackBoundingBox, Entity::isAlive)
                 .forEach(livingEntity -> livingEntity.hurt(level.damageSources().generic(), hurt));
@@ -114,8 +114,8 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         BlockState irradiateBlock = level.getBlockState(irradiateBlockPos);
         List<ItemStack> drops = Block.getDrops(irradiateBlock, serverLevel, irradiateBlockPos,
             level.getBlockEntity(irradiateBlockPos));
-        int coldDown = levelToTimeMap.containsKey(Math.min(16, lightPowerLevel))
-            ? levelToTimeMap.get(Math.min(16, lightPowerLevel)) * 20 : Integer.MAX_VALUE;
+        int coldDown = levelToTimeMap.containsKey(Math.min(16, laserLevel))
+            ? levelToTimeMap.get(Math.min(16, laserLevel)) * 20 : Integer.MAX_VALUE;
         if (tickCount >= coldDown) {
             tickCount = 0;
             if (irradiateBlock.is(ModBlockTags.FORGE_ORES) || irradiateBlock.is(ModBlockTags.ORES)) {
@@ -201,7 +201,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
     }
 
     public void tick(@NotNull Level level) {
-        new LaserEmitPack(lightPowerLevel, getBlockPos(), irradiateBlockPos).broadcast();
+        new LaserEmitPack(laserLevel, getBlockPos(), irradiateBlockPos).broadcast();
         tickCount++;
     }
 

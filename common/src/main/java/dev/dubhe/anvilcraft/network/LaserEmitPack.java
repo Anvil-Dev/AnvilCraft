@@ -60,7 +60,7 @@ public class LaserEmitPack implements Packet {
                 && Minecraft.getInstance().level.getBlockEntity(laserBlockPos)
                 instanceof BaseLaserBlockEntity baseLaserBlockEntity) {
                 baseLaserBlockEntity.irradiateBlockPos = irradiateBlockPos;
-                baseLaserBlockEntity.lightPowerLevel = lightPowerLevel;
+                baseLaserBlockEntity.laserLevel = lightPowerLevel;
             }
         });
     }
