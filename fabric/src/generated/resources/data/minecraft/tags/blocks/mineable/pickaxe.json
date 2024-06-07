@@ -139,6 +139,8 @@
     "anvilcraft:glowing_netherite_block",
     "anvilcraft:glowing_tungsten_block",
     "anvilcraft:incandescent_netherite_block",
-    "anvilcraft:incandescent_tungsten_block"
+    "anvilcraft:incandescent_tungsten_block",
+    "anvilcraft:ruby_prism",
+    "anvilcraft:ruby_laser"
   ]
 }

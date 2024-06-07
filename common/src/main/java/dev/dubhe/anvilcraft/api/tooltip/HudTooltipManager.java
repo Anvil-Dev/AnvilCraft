@@ -33,6 +33,7 @@ public class HudTooltipManager {
     static {
         INSTANCE.registerTooltip(new PowerComponentTooltipProvider());
         INSTANCE.registerAffectRange(new AffectRangeProviderImpl());
+        INSTANCE.registerTooltip(new RubyPrismTooltipProvider());
     }
 
     private void registerAffectRange(AffectRangeProviderImpl affectRangeProvider) {

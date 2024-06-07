@@ -1,9 +1,31 @@
 package dev.dubhe.anvilcraft.init;
 
 import com.tterrag.registrate.util.entry.BlockEntityEntry;
-import dev.dubhe.anvilcraft.block.entity.*;
+import dev.dubhe.anvilcraft.block.entity.ActiveSilencerBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.AutoCrafterBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.ChargerBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CorruptedBeaconBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CreativeGeneratorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.InductionLightBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.LoadMonitorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.OverseerBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.PowerConverterBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.HeaterBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.MobAmberBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.RemoteTransmissionPoleBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.ResentfulAmberBlock;
+import dev.dubhe.anvilcraft.block.entity.RubyLaserBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.RubyPrismBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.ThermoelectricConverterBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CorruptedBeaconRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HasMobBlockRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.LaseRenderer;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 
@@ -111,6 +133,17 @@ public class ModBlockEntities {
             .blockEntity("active_silencer", ActiveSilencerBlockEntity::new)
             .validBlocks(ModBlocks.ACTIVE_SILENCER)
             .register();
+
+    public static final BlockEntityEntry<RubyPrismBlockEntity> RUBY_PRISM = REGISTRATE
+        .blockEntity("ruby_prism", RubyPrismBlockEntity::createBlockEntity)
+        .validBlock(ModBlocks.RUBY_PRISM)
+        .renderer(() -> LaseRenderer::new)
+        .register();
+    public static final BlockEntityEntry<RubyLaserBlockEntity> RUBY_LASER = REGISTRATE
+        .blockEntity("ruby_laser", RubyLaserBlockEntity::createBlockEntity)
+        .validBlock(ModBlocks.RUBY_LASER)
+        .renderer(() -> LaseRenderer::new)
+        .register();
 
     public static final BlockEntityEntry<ThermoelectricConverterBlockEntity> THERMOELECTRIC_CONVERTER = REGISTRATE
             .blockEntity("thermoelectric_converter", ThermoelectricConverterBlockEntity::new)
