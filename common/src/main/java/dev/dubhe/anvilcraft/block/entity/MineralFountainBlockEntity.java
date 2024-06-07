@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -12,7 +13,26 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
+
 public class MineralFountainBlockEntity extends BlockEntity {
+    private static final HashMap<ResourceLocation, HashMap<Block, Float>> CHANGE_MAP = new HashMap<>() {{
+            put(new ResourceLocation("overworld"), new HashMap<>() {{
+                    put(ModBlocks.VOID_STONE.get(), 0.01f);
+                    put(ModBlocks.EARTH_CORE_SHARD_ORE.get(), 0.01f);
+                }
+            });
+            put(new ResourceLocation("the_nether"), new HashMap<>() {{
+                    put(ModBlocks.VOID_STONE.get(), 0f);
+                    put(ModBlocks.EARTH_CORE_SHARD_ORE.get(), 0.2f);
+                }
+            });
+            put(new ResourceLocation("the_end"), new HashMap<>() {{
+                    put(ModBlocks.VOID_STONE.get(), 0.2f);
+                    put(ModBlocks.EARTH_CORE_SHARD_ORE.get(), 0f);
+                }
+            });
+        }};
     private int tickCount = 0;
 
     public MineralFountainBlockEntity(BlockPos pos, BlockState blockState) {
@@ -64,6 +84,15 @@ public class MineralFountainBlockEntity extends BlockEntity {
                 level.setBlockAndUpdate(getBlockPos().above(), ModBlocks.REDHOT_TUNGSTEN.getDefaultState());
             }
         } else if (aroundBlock.is(ModBlockTags.DEEPSLATE_METAL) && aboveBlock.is(Blocks.DEEPSLATE)) {
+            HashMap<Block, Float> changeMap = CHANGE_MAP.containsKey(level.dimension().location())
+                    ? CHANGE_MAP.get(level.dimension().location())
+                    : CHANGE_MAP.get(new ResourceLocation("overworld"));
+            for (Block block : changeMap.keySet()) {
+                if (level.getRandom().nextDouble() <= changeMap.get(block)) {
+                    level.setBlockAndUpdate(getBlockPos().above(), block.defaultBlockState());
+                    return;
+                }
+            }
             level.setBlockAndUpdate(getBlockPos().above(), aroundBlock);
         }
     }
