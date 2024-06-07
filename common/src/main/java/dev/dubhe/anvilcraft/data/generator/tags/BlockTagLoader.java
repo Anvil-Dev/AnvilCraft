@@ -90,5 +90,9 @@ public class BlockTagLoader {
             .add(Blocks.BASALT)
             .add(Blocks.BLACKSTONE)
             .add(Blocks.END_STONE);
+        provider.addTag(ModBlockTags.DEEPSLATE_METAL).setReplace(false)
+            .add(Blocks.DEEPSLATE_GOLD_ORE)
+            .add(Blocks.DEEPSLATE_IRON_ORE)
+            .add(Blocks.DEEPSLATE_COPPER_ORE);
     }
 }

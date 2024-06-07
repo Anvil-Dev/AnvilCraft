@@ -24,6 +24,7 @@ import dev.dubhe.anvilcraft.block.HeavyIronBeamBlock;
 import dev.dubhe.anvilcraft.block.HeavyIronPlateBlock;
 import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
 import dev.dubhe.anvilcraft.block.HoneyCauldronBlock;
+import dev.dubhe.anvilcraft.block.ImpactPileBlock;
 import dev.dubhe.anvilcraft.block.IncandescentMetalBlock;
 import dev.dubhe.anvilcraft.block.InductionLightBlock;
 import dev.dubhe.anvilcraft.block.ItemCollectorBlock;
@@ -32,6 +33,7 @@ import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
 import dev.dubhe.anvilcraft.block.LoadMonitorBlock;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
 import dev.dubhe.anvilcraft.block.MeltGemCauldron;
+import dev.dubhe.anvilcraft.block.MineralFountainBlock;
 import dev.dubhe.anvilcraft.block.MobAmberBlock;
 import dev.dubhe.anvilcraft.block.ObsidianCauldron;
 import dev.dubhe.anvilcraft.block.OverseerBlock;
@@ -1748,6 +1750,7 @@ public class ModBlocks {
             .initialProperties(() -> Blocks.IRON_BLOCK)
             .properties(BlockBehaviour.Properties::noOcclusion)
             .simpleItem()
+            .blockstate((ctx, prov) -> {})
             .defaultLoot()
             .tag(BlockTags.MINEABLE_WITH_PICKAXE)
             .register();
@@ -1950,6 +1953,23 @@ public class ModBlocks {
             .defaultLoot()
             .tag(BlockTags.MINEABLE_WITH_PICKAXE)
             .register();
+
+    public static final BlockEntry<MineralFountainBlock> MINERAL_FOUNTAIN = REGISTRATE
+        .block("mineral_fountain", MineralFountainBlock::new)
+        .initialProperties(() -> Blocks.BEDROCK)
+        .blockstate((context, provider) -> provider.simpleBlock(context.get(), DangerUtil.genConfiguredModel("block/mineral_fountain").get()))
+        .simpleItem()
+        .loot((tables, block) -> tables.dropOther(block, Items.AIR))
+        .register();
+
+    public static final BlockEntry<ImpactPileBlock> IMPACT_PILE = REGISTRATE
+        .block("impact_pile", ImpactPileBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .blockstate((context, provider) -> provider.simpleBlock(context.get(), DangerUtil.genConfiguredModel("block/impact_pile").get()))
+        .simpleItem()
+        .defaultLoot()
+        .register();
+
 
 
     private static @NotNull BlockEntry<ReinforcedConcreteBlock> registerReinforcedConcreteBlock(@NotNull Color color) {

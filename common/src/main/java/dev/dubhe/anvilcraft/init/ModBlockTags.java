@@ -17,6 +17,7 @@ public class ModBlockTags {
     public static final TagKey<Block> HAMMER_CHANGEABLE = bind("hammer_changeable");
     public static final TagKey<Block> OVERSEER_BASE = bind("overseer_base");
     public static final TagKey<Block> BLOCK_DEVOURER_PROBABILITY_DROPPING = bind("block_devourer_probability_dropping");
+    public static final TagKey<Block> DEEPSLATE_METAL = bindC("deepslate_metal");
 
     private static @NotNull TagKey<Block> bindC(String id) {
         return TagKey.create(Registries.BLOCK, new ResourceLocation("c", id));
