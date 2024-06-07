@@ -1,7 +1,27 @@
 package dev.dubhe.anvilcraft.init;
 
 import com.tterrag.registrate.util.entry.BlockEntityEntry;
-import dev.dubhe.anvilcraft.block.entity.*;
+import dev.dubhe.anvilcraft.block.entity.ActiveSilencerBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.AutoCrafterBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.ChargerBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CorruptedBeaconBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CreativeGeneratorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.GiantAnvilBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.HeaterBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.InductionLightBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.LoadMonitorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.MobAmberBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.OverseerBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.PowerConverterBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.RemoteTransmissionPoleBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.ResentfulAmberBlock;
+import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.ThermoelectricConverterBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CorruptedBeaconRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HasMobBlockRenderer;
 
