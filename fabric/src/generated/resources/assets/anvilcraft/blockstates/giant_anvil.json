@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "cube=center": {
+      "model": "anvilcraft:block/giant_anvil"
+    },
+    "cube=corner": {
+      "model": "anvilcraft:block/giant_anvil_part"
+    }
+  }
+}

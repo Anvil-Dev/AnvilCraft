@@ -19,6 +19,7 @@ import dev.dubhe.anvilcraft.block.CreativeGeneratorBlock;
 import dev.dubhe.anvilcraft.block.DischargerBlock;
 import dev.dubhe.anvilcraft.block.FerriteCoreMagnetBlock;
 import dev.dubhe.anvilcraft.block.GlowingMetalBlock;
+import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.block.HeavyIronBeamBlock;
 import dev.dubhe.anvilcraft.block.HeavyIronPlateBlock;
@@ -1701,6 +1702,19 @@ public class ModBlocks {
         .blockstate((ctx, provider) -> {
         })
         .simpleItem()
+        .register();
+
+    public static final BlockEntry<GiantAnvilBlock> GIANT_ANVIL = REGISTRATE
+        .block("giant_anvil", GiantAnvilBlock::new)
+        .simpleItem()
+        .initialProperties(() -> Blocks.ANVIL)
+        .defaultLoot()
+        .properties(p -> {
+            p = p.noOcclusion();
+            p = p.strength(4.0F).sound(SoundType.ANVIL);
+            return p;
+        })
+        .blockstate((ctx, provider) -> {})
         .register();
 
     public static final BlockEntry<CementCauldronBlock> CEMENT_CAULDRON = REGISTRATE

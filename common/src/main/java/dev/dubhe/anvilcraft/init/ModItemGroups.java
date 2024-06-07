@@ -149,6 +149,7 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.BLOCK_PLACER.asStack());
                 entries.accept(ModBlocks.BLOCK_DEVOURER.asStack());
                 entries.accept(ModBlocks.OVERSEER_BLOCK.asStack());
+                entries.accept(ModBlocks.GIANT_ANVIL.asStack());
                 entries.accept(ModBlocks.JEWEL_CRAFTING_TABLE.asStack());
                 entries.accept(ModBlocks.MAGNET_BLOCK.asStack());
                 entries.accept(ModBlocks.HOLLOW_MAGNET_BLOCK.asStack());
