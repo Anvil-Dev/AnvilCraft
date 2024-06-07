@@ -1183,29 +1183,120 @@ public class ModItems {
     public static final ItemEntry<DiskItem> DISK = REGISTRATE
             .item("disk", DiskItem::new)
             .properties(p -> p.stacksTo(1))
-            .recipe((ctx, provider) -> {
-                ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
-                        .pattern("ABA")
-                        .pattern("ACA")
-                        .pattern("AAA")
-                        .define('A', ModItems.HARDEND_RESIN)
-                        .define('B', Items.IRON_INGOT)
-                        .define('C', ModItems.MAGNET_INGOT)
-                        .unlockedBy(
-                                AnvilCraftDatagen.hasItem(ModItems.HARDEND_RESIN),
-                                RegistrateRecipeProvider.has(ModItems.HARDEND_RESIN)
-                        )
-                        .unlockedBy(
-                                AnvilCraftDatagen.hasItem(Items.IRON_INGOT),
-                                RegistrateRecipeProvider.has(Items.IRON_INGOT)
-                        )
-                        .unlockedBy(
-                                AnvilCraftDatagen.hasItem(ModItems.MAGNET_INGOT),
-                                RegistrateRecipeProvider.has(ModItems.MAGNET_INGOT)
-                        )
-                        .save(provider);
-            })
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
+                    .pattern("ABA")
+                    .pattern("ACA")
+                    .pattern("AAA")
+                    .define('A', ModItems.HARDEND_RESIN)
+                    .define('B', Items.IRON_INGOT)
+                    .define('C', ModItems.MAGNET_INGOT)
+                    .unlockedBy(
+                            AnvilCraftDatagen.hasItem(ModItems.HARDEND_RESIN),
+                            RegistrateRecipeProvider.has(ModItems.HARDEND_RESIN)
+                    )
+                    .unlockedBy(
+                            AnvilCraftDatagen.hasItem(Items.IRON_INGOT),
+                            RegistrateRecipeProvider.has(Items.IRON_INGOT)
+                    )
+                    .unlockedBy(
+                            AnvilCraftDatagen.hasItem(ModItems.MAGNET_INGOT),
+                            RegistrateRecipeProvider.has(ModItems.MAGNET_INGOT)
+                    )
+                    .save(provider))
             .register();
+
+    public static final ItemEntry<Item> RAW_ZINC = REGISTRATE
+        .item("raw_zinc", Item::new)        
+        .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+                .requires(ModBlocks.RAW_ZINC)
+                .unlockedBy(
+                        AnvilCraftDatagen.hasItem(ModBlocks.RAW_ZINC),
+                        AnvilCraftDatagen.has(ModBlocks.RAW_ZINC)
+                )
+                .save(provider))
+        .register();
+    public static final ItemEntry<Item> RAW_TIN = REGISTRATE
+        .item("raw_tin", Item::new)        
+        .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+                .requires(ModBlocks.RAW_TIN)
+                .unlockedBy(
+                        AnvilCraftDatagen.hasItem(ModBlocks.RAW_TIN),
+                        AnvilCraftDatagen.has(ModBlocks.RAW_TIN)
+                )
+                .save(provider))
+        .register();
+    public static final ItemEntry<Item> RAW_TITANIUM = REGISTRATE
+        .item("raw_titanium", Item::new)        
+        .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+                .requires(ModBlocks.RAW_TITANIUM)
+                .unlockedBy(
+                        AnvilCraftDatagen.hasItem(ModBlocks.RAW_TITANIUM),
+                        AnvilCraftDatagen.has(ModBlocks.RAW_TITANIUM)
+                )
+                .save(provider))
+        .register();
+    public static final ItemEntry<Item> RAW_TUNGSTEN = REGISTRATE
+        .item("raw_tungsten", Item::new)        
+        .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+                .requires(ModBlocks.RAW_TUNGSTEN)
+                .unlockedBy(
+                        AnvilCraftDatagen.hasItem(ModBlocks.RAW_TUNGSTEN),
+                        AnvilCraftDatagen.has(ModBlocks.RAW_TUNGSTEN)
+                )
+                .save(provider))
+        .register();
+    public static final ItemEntry<Item> RAW_LEAD = REGISTRATE
+        .item("raw_lead", Item::new)        
+        .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+                .requires(ModBlocks.RAW_LEAD)
+                .unlockedBy(
+                        AnvilCraftDatagen.hasItem(ModBlocks.RAW_LEAD),
+                        AnvilCraftDatagen.has(ModBlocks.RAW_LEAD)
+                )
+                .save(provider))
+        .register();
+    public static final ItemEntry<Item> RAW_SILVER = REGISTRATE
+        .item("raw_silver", Item::new)        
+        .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+                .requires(ModBlocks.RAW_SILVER)
+                .unlockedBy(
+                        AnvilCraftDatagen.hasItem(ModBlocks.RAW_SILVER),
+                        AnvilCraftDatagen.has(ModBlocks.RAW_SILVER)
+                )
+                .save(provider))
+        .register();
+    public static final ItemEntry<Item> RAW_URANIUM = REGISTRATE
+        .item("raw_uranium", Item::new)
+        .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+                .requires(ModBlocks.RAW_URANIUM)
+                .unlockedBy(
+                        AnvilCraftDatagen.hasItem(ModBlocks.RAW_URANIUM),
+                        AnvilCraftDatagen.has(ModBlocks.RAW_URANIUM)
+                )
+                .save(provider))
+        .register();
+    public static final ItemEntry<Item> VOID_MATTER = REGISTRATE
+        .item("void_matter", Item::new)
+        .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+                .requires(ModBlocks.VOID_MATTER_BLOCK)
+                .unlockedBy(
+                        AnvilCraftDatagen.hasItem(ModBlocks.VOID_MATTER_BLOCK),
+                        AnvilCraftDatagen.has(ModBlocks.VOID_MATTER_BLOCK)
+                )
+                .save(provider))
+        .register();
+    public static final ItemEntry<Item> EARTH_CORE_SHARD = REGISTRATE
+        .item("earth_core_shard", Item::new)
+        .initialProperties(() -> new  Item.Properties().fireResistant())
+        .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+                .requires(ModBlocks.EARTH_CORE_SHARD_BLOCK)
+                .unlockedBy(
+                        AnvilCraftDatagen.hasItem(ModBlocks.EARTH_CORE_SHARD_BLOCK),
+                        AnvilCraftDatagen.has(ModBlocks.EARTH_CORE_SHARD_BLOCK)
+                )
+                .save(provider))
+        .register();
+
 
     public static void register() {
     }
