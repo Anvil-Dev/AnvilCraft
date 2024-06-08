@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.block;
 
-import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;

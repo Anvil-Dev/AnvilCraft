@@ -148,6 +148,8 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.ACTIVE_SILENCER.asStack());
                 entries.accept(ModBlocks.BLOCK_PLACER.asStack());
                 entries.accept(ModBlocks.BLOCK_DEVOURER.asStack());
+                entries.accept(ModBlocks.RUBY_LASER.asStack());
+                entries.accept(ModBlocks.RUBY_PRISM.asStack());
                 entries.accept(ModBlocks.OVERSEER_BLOCK.asStack());
                 entries.accept(ModBlocks.JEWEL_CRAFTING_TABLE.asStack());
                 entries.accept(ModBlocks.MAGNET_BLOCK.asStack());

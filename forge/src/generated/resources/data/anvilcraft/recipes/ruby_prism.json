@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "anvilcraft:royal_steel_ingot"
+    },
+    "B": {
+      "item": "anvilcraft:ruby_block"
+    },
+    "C": {
+      "item": "anvilcraft:ruby"
+    }
+  },
+  "pattern": [
+    "ACA",
+    "CBC",
+    "AAA"
+  ],
+  "result": {
+    "item": "anvilcraft:ruby_prism"
+  },
+  "show_notification": true
+}

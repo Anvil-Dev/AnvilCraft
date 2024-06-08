@@ -134,6 +134,8 @@
   "block.anvilcraft.royal_smithing_table": "ǝןqɐ⟘ buıɥʇıɯS ןɐʎoᴚ",
   "block.anvilcraft.royal_steel_block": "ʞɔoןᗺ ןǝǝʇS ןɐʎoᴚ",
   "block.anvilcraft.ruby_block": "ʞɔoןᗺ ʎqnᴚ",
+  "block.anvilcraft.ruby_laser": "ɹǝsɐꞀ ʎqnᴚ",
+  "block.anvilcraft.ruby_prism": "ɯsıɹԀ ʎqnᴚ",
   "block.anvilcraft.sapphire_block": "ʞɔoןᗺ ǝɹıɥddɐS",
   "block.anvilcraft.silver_block": "ʞɔoןᗺ ɹǝʌןıS",
   "block.anvilcraft.simple_chute": "ǝʇnɥƆ ǝןdɯıS",
@@ -278,6 +280,7 @@
   "text.autoconfig.anvilcraft.option.geodeInterval.@Tooltip": "ǝpoǝb ǝɥʇ ɟo ןɐʌɹǝʇuı ɥɔɹɐǝs ǝɥ⟘",
   "text.autoconfig.anvilcraft.option.geodeRadius": "snıpɐᴚ ɥɔɹɐǝS ɯnɯıxɐW ǝpoǝ⅁",
   "text.autoconfig.anvilcraft.option.geodeRadius.@Tooltip": "ǝpoǝb ǝɥʇ ɟo snıpɐɹ ɥɔɹɐǝs ɯnɯıxɐɯ ǝɥ⟘",
+  "text.autoconfig.anvilcraft.option.isLaserDoImpactChecking": "buıʞɔǝɥƆ ʇɔɐdɯI oᗡ ɹǝsɐꞀ sI",
   "text.autoconfig.anvilcraft.option.lightningStrikeDepth": "ɥʇdǝᗡ ǝʞıɹʇS buıuʇɥbıꞀ",
   "text.autoconfig.anvilcraft.option.lightningStrikeDepth.@Tooltip": "ɥɔɐǝɹ uɐɔ ǝʞıɹʇs buıuʇɥbıן ɐ ɥʇdǝp ɯnɯıxɐW",
   "text.autoconfig.anvilcraft.option.lightningStrikeRadius": "snıpɐᴚ ǝʞıɹʇS buıuʇɥbıꞀ",
@@ -349,5 +352,6 @@
   "tooltip.anvilcraft.item.tempering_glass": "ʇɔǝןןoɔ uo pǝɹınbǝɹ sןooʇ oN 'ɟooɹd ɹǝdǝǝɹƆ",
   "tooltip.anvilcraft.item.topaz": "buıuʇɥbıן ɟo ɹǝʍod ǝɥʇ buıuıɐʇuoƆ",
   "tooltip.anvilcraft.item.transmission_pole": "8 ɟo ǝɔuɐʇsıp uoıssıɯsuɐɹʇ ɐ ɥʇıʍ pıɹb ɹǝʍod ɐ pןınᗺ",
-  "tooltip.anvilcraft.jade.power_information": "Mʞ %d/%d :pıɹ⅁ ɹǝʍoԀ"
+  "tooltip.anvilcraft.jade.power_information": "Mʞ %d/%d :pıɹ⅁ ɹǝʍoԀ",
+  "tooltip.anvilcraft.ruby_prism.power": "%d :ןǝʌǝן ʇɥbıꞀ"
 }

@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "#c:glass_blocks",
+    "#c:glass_panes",
+    "#forge:glass",
+    "#forge:glass_panes",
+    "#minecraft:replaceable"
+  ]
+}

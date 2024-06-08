@@ -108,6 +108,10 @@ public class AnvilCraftConfig implements ConfigData {
     @ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
     public PowerConverter powerConverter = new PowerConverter();
 
+
+    @ConfigEntry.Gui.Tooltip()
+    public boolean isLaserDoImpactChecking = true;
+
     public static class PowerConverter implements ConfigData {
         @Comment("The working interval of power converters")
         @ConfigEntry.Gui.Tooltip

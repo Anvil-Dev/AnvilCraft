@@ -1,15 +1,13 @@
 package dev.dubhe.anvilcraft.network;
 
 import dev.dubhe.anvilcraft.api.network.Packet;
-import dev.dubhe.anvilcraft.api.sound.SoundHelper;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.ActiveSilencerScreen;
 import dev.dubhe.anvilcraft.init.ModNetworks;
+import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
 
 public class ClientboundMutedSoundSyncPacket implements Packet {
     private final List<ResourceLocation> sounds;
