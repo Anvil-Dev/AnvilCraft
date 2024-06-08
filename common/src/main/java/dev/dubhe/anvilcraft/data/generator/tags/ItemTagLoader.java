@@ -16,17 +16,17 @@ public class ItemTagLoader {
      */
     public static void init(@NotNull RegistrateTagsProvider<Item> provider) {
         provider.addTag(ModItemTags.PLATES).setReplace(false)
-            .add(Items.HEAVY_WEIGHTED_PRESSURE_PLATE)
-            .add(Items.LIGHT_WEIGHTED_PRESSURE_PLATE);
+                .add(Items.HEAVY_WEIGHTED_PRESSURE_PLATE)
+                .add(Items.LIGHT_WEIGHTED_PRESSURE_PLATE);
         provider.addTag(ModItemTags.IRON_PLATES).setReplace(false)
-            .add(Items.HEAVY_WEIGHTED_PRESSURE_PLATE);
+                .add(Items.HEAVY_WEIGHTED_PRESSURE_PLATE);
         provider.addTag(ModItemTags.GOLD_PLATES).setReplace(false)
-            .add(Items.LIGHT_WEIGHTED_PRESSURE_PLATE);
+                .add(Items.LIGHT_WEIGHTED_PRESSURE_PLATE);
         provider.addTag(ModItemTags.ROYAL_STEEL_PICKAXE_BASE).setReplace(false)
-            .add(ModItems.AMETHYST_PICKAXE.get())
-            .add(Items.GOLDEN_PICKAXE)
-            .add(Items.IRON_PICKAXE)
-            .add(Items.DIAMOND_PICKAXE);
+                .add(ModItems.AMETHYST_PICKAXE.get())
+                .add(Items.GOLDEN_PICKAXE)
+                .add(Items.IRON_PICKAXE)
+                .add(Items.DIAMOND_PICKAXE);
         provider.addTag(ModItemTags.ROYAL_STEEL_AXE_BASE).setReplace(false)
                 .add(ModItems.AMETHYST_AXE.get())
                 .add(Items.GOLDEN_AXE)
@@ -48,10 +48,10 @@ public class ItemTagLoader {
                 .add(Items.IRON_SHOVEL)
                 .add(Items.DIAMOND_SHOVEL);
         provider.addTag(ModItemTags.GEMS).setReplace(false)
-            .add(Items.EMERALD)
-            .add(ModItems.RUBY.get())
-            .add(ModItems.SAPPHIRE.get())
-            .add(ModItems.TOPAZ.get());
+                .add(Items.EMERALD)
+                .add(ModItems.RUBY.get())
+                .add(ModItems.SAPPHIRE.get())
+                .add(ModItems.TOPAZ.get());
         provider.addTag(ModItemTags.GEMS).setReplace(false)
                 .add(Items.EMERALD)
                 .add(ModItems.RUBY.get())
@@ -73,5 +73,9 @@ public class ItemTagLoader {
                 .add(Items.DEAD_BUBBLE_CORAL_FAN)
                 .add(Items.DEAD_FIRE_CORAL_FAN)
                 .add(Items.DEAD_HORN_CORAL_FAN);
+        provider.addTag(ModItemTags.VOID_RESISTANT).setReplace(false)
+                .add(ModItems.VOID_MATTER.get())
+                .add(ModBlocks.VOID_MATTER_BLOCK.asItem())
+                .add(ModBlocks.VOID_STONE.asItem());
     }
 }
