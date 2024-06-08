@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.block.entity.forge;
 
 import dev.dubhe.anvilcraft.api.depository.forge.ItemDepositoryHelperImpl;
 import dev.dubhe.anvilcraft.block.entity.ChargerBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;

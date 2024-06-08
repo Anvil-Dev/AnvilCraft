@@ -61,6 +61,8 @@
     "anvilcraft:remote_transmission_pole",
     "anvilcraft:block_placer",
     "anvilcraft:active_silencer",
+    "anvilcraft:obsidian_cauldron",
+    "anvilcraft:thermoelectric_converter",
     "anvilcraft:block_devourer",
     "anvilcraft:overseer",
     "anvilcraft:cement_cauldron",
@@ -137,6 +139,8 @@
     "anvilcraft:glowing_netherite_block",
     "anvilcraft:glowing_tungsten_block",
     "anvilcraft:incandescent_netherite_block",
-    "anvilcraft:incandescent_tungsten_block"
+    "anvilcraft:incandescent_tungsten_block",
+    "anvilcraft:ruby_prism",
+    "anvilcraft:ruby_laser"
   ]
 }

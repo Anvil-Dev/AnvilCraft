@@ -1,11 +1,9 @@
 package dev.dubhe.anvilcraft.event;
 
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.SubscribeEvent;
 import dev.dubhe.anvilcraft.api.event.server.ServerStartedEvent;
 import dev.dubhe.anvilcraft.api.hammer.HammerManager;
 import dev.dubhe.anvilcraft.init.ModHammerInits;
-import dev.dubhe.anvilcraft.util.EnchantmentDisableUtil;
 import org.jetbrains.annotations.NotNull;
 
 public class ServerEventListener {

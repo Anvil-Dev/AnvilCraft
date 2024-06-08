@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.network.Network;
 import dev.dubhe.anvilcraft.network.ClientboundMutedSoundSyncPacket;
 import dev.dubhe.anvilcraft.network.HammerUsePack;
+import dev.dubhe.anvilcraft.network.LaserEmitPack;
 import dev.dubhe.anvilcraft.network.MachineEnableFilterPack;
 import dev.dubhe.anvilcraft.network.MachineOutputDirectionPack;
 import dev.dubhe.anvilcraft.network.PowerGridRemovePack;
@@ -75,8 +76,13 @@ public class ModNetworks {
     );
 
     public static final ResourceLocation MUTED_SOUND_REMOVE = Network.register(
-            AnvilCraft.of("muted_sound_remove"),
-            ServerboundRemoveMutedSoundPacket.class, ServerboundRemoveMutedSoundPacket::new
+        AnvilCraft.of("muted_sound_remove"),
+        ServerboundRemoveMutedSoundPacket.class, ServerboundRemoveMutedSoundPacket::new
+    );
+
+    public static final ResourceLocation LASER_EMIT = Network.register(
+        AnvilCraft.of("laser_emit"),
+        LaserEmitPack.class, LaserEmitPack::new
     );
 
     public static void register() {
