@@ -141,6 +141,24 @@
     "anvilcraft:incandescent_netherite_block",
     "anvilcraft:incandescent_tungsten_block",
     "anvilcraft:ruby_prism",
-    "anvilcraft:ruby_laser"
+    "anvilcraft:ruby_laser",
+    "anvilcraft:raw_zinc_block",
+    "anvilcraft:raw_tin_block",
+    "anvilcraft:raw_titanium_block",
+    "anvilcraft:raw_tungsten_block",
+    "anvilcraft:raw_lead_block",
+    "anvilcraft:raw_silver_block",
+    "anvilcraft:raw_uranium_block",
+    "anvilcraft:deepslate_zinc_ore",
+    "anvilcraft:deepslate_tin_ore",
+    "anvilcraft:deepslate_titanium_ore",
+    "anvilcraft:deepslate_tungsten_ore",
+    "anvilcraft:deepslate_lead_ore",
+    "anvilcraft:deepslate_silver_ore",
+    "anvilcraft:deepslate_uranium_ore",
+    "anvilcraft:void_stone",
+    "anvilcraft:void_matter_block",
+    "anvilcraft:earth_core_shard_ore",
+    "anvilcraft:earth_core_shard_block"
   ]
 }
