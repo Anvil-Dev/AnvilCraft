@@ -8,6 +8,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -56,6 +57,7 @@ public class MineralFountainBlockEntity extends BlockEntity {
         if (level == null) return;
         tickCount++;
         if (tickCount < 20) return;
+        tickCount = 0;
         BlockState aroundBlock = getAroundBlock();
         // 冷却检查
         if (aroundBlock.is(Blocks.BLUE_ICE)
@@ -101,8 +103,13 @@ public class MineralFountainBlockEntity extends BlockEntity {
     private BlockState getAroundBlock() {
         if (level == null) return Blocks.AIR.defaultBlockState();
         BlockState blockState = level.getBlockState(getBlockPos().south());
+        if (blockState.is(Blocks.LAVA) && blockState.getValue(LiquidBlock.LEVEL) > 0)
+            return Blocks.AIR.defaultBlockState();
         for (Direction direction : new Direction[]{Direction.NORTH, Direction.WEST, Direction.EAST}) {
-            if (!level.getBlockState(getBlockPos().relative(direction)).is(blockState.getBlock()))
+            BlockState checkBlockState = level.getBlockState(getBlockPos().relative(direction));
+            if (!checkBlockState.is(blockState.getBlock()))
+                return Blocks.AIR.defaultBlockState();
+            if (checkBlockState.is(Blocks.LAVA) && checkBlockState.getValue(LiquidBlock.LEVEL) > 0)
                 return Blocks.AIR.defaultBlockState();
         }
         return blockState;
