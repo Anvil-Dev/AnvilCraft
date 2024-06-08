@@ -38,7 +38,7 @@
           "min": 1
         },
         "items": [
-          "anvilcraft:raw_tin"
+          "anvilcraft:raw_tin_block"
         ]
       },
       "offset": [

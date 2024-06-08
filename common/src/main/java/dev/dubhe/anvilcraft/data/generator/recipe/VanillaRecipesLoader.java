@@ -224,5 +224,293 @@ public class VanillaRecipesLoader {
                         AnvilCraftDatagen.has(ModBlocks.DISCHARGER)
                 )
                 .save(provider, AnvilCraft.of("charger_from_discharger"));
+        
+        SimpleCookingRecipeBuilder
+                .smelting(
+                        Ingredient.of(ModItems.RAW_ZINC),
+                        RecipeCategory.MISC,
+                        ModItems.ZINC_INGOT,
+                        1,
+                        1000)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RAW_ZINC.get()),
+                        AnvilCraftDatagen.has(ModItems.RAW_ZINC))
+                .save(provider,  AnvilCraft.of("zinc_ingot_from_raw_zinc"));
+
+        SimpleCookingRecipeBuilder
+                .blasting(
+                        Ingredient.of(ModItems.RAW_ZINC),
+                        RecipeCategory.MISC,
+                        ModItems.ZINC_INGOT,
+                        1,
+                        500)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RAW_ZINC.get()),
+                        AnvilCraftDatagen.has(ModItems.RAW_ZINC))
+                .save(provider,  AnvilCraft.of("zinc_ingot_from_raw_zinc_blasting"));
+        SimpleCookingRecipeBuilder
+                .smelting(
+                        Ingredient.of(ModBlocks.DEEPSLATE_ZINC_ORE),
+                        RecipeCategory.MISC,
+                        ModItems.ZINC_INGOT,
+                        1,
+                        100)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.DEEPSLATE_ZINC_ORE),
+                        AnvilCraftDatagen.has(ModBlocks.DEEPSLATE_ZINC_ORE))
+                .save(provider,  AnvilCraft.of("zinc_ingot_from_deepslate_zinc_ore"));
+        SimpleCookingRecipeBuilder
+                .blasting(
+                        Ingredient.of(ModBlocks.DEEPSLATE_ZINC_ORE),
+                        RecipeCategory.MISC,
+                        ModItems.ZINC_INGOT,
+                        1,
+                        500)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.DEEPSLATE_ZINC_ORE),
+                                AnvilCraftDatagen.has(ModBlocks.DEEPSLATE_ZINC_ORE))
+                        .save(provider,  AnvilCraft.of("zinc_ingot_from_deepslate_zinc_ore_blasting"));
+        SimpleCookingRecipeBuilder
+                .smelting(
+                        Ingredient.of(ModItems.RAW_TIN),
+                        RecipeCategory.MISC,
+                        ModItems.TIN_INGOT,
+                        1,
+                        1000)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RAW_TIN.get()),
+                        AnvilCraftDatagen.has(ModItems.RAW_TIN))
+                .save(provider,  AnvilCraft.of("tin_ingot_from_raw_tin"));
+
+        SimpleCookingRecipeBuilder
+                .blasting(
+                        Ingredient.of(ModItems.RAW_TIN),
+                        RecipeCategory.MISC,
+                        ModItems.TIN_INGOT,
+                        1,
+                        500)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RAW_TIN.get()),
+                        AnvilCraftDatagen.has(ModItems.RAW_TIN))
+                .save(provider,  AnvilCraft.of("tin_ingot_from_raw_tin_blasting"));
+        SimpleCookingRecipeBuilder
+                .smelting(
+                        Ingredient.of(ModBlocks.DEEPSLATE_TIN_ORE),
+                        RecipeCategory.MISC,
+                        ModItems.TIN_INGOT,
+                        1,
+                        100)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.DEEPSLATE_TIN_ORE),
+                        AnvilCraftDatagen.has(ModBlocks.DEEPSLATE_TIN_ORE))
+                .save(provider,  AnvilCraft.of("tin_ingot_from_deepslate_tin_ore"));
+        SimpleCookingRecipeBuilder
+                .blasting(
+                        Ingredient.of(ModBlocks.DEEPSLATE_TIN_ORE),
+                        RecipeCategory.MISC,
+                        ModItems.TIN_INGOT,
+                        1,
+                        500)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.DEEPSLATE_TIN_ORE),
+                                AnvilCraftDatagen.has(ModBlocks.DEEPSLATE_TIN_ORE))
+                        .save(provider,  AnvilCraft.of("tin_ingot_from_deepslate_tin_ore_blasting"));
+        SimpleCookingRecipeBuilder
+                .smelting(
+                        Ingredient.of(ModItems.RAW_TITANIUM),
+                        RecipeCategory.MISC,
+                        ModItems.TITANIUM_INGOT,
+                        1,
+                        1000)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RAW_TITANIUM.get()),
+                        AnvilCraftDatagen.has(ModItems.RAW_TITANIUM))
+                .save(provider,  AnvilCraft.of("titanium_ingot_from_raw_titanium"));
+
+        SimpleCookingRecipeBuilder
+                .blasting(
+                        Ingredient.of(ModItems.RAW_TITANIUM),
+                        RecipeCategory.MISC,
+                        ModItems.TITANIUM_INGOT,
+                        1,
+                        500)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RAW_TITANIUM.get()),
+                        AnvilCraftDatagen.has(ModItems.RAW_TITANIUM))
+                .save(provider,  AnvilCraft.of("titanium_ingot_from_raw_titanium_blasting"));
+        SimpleCookingRecipeBuilder
+                .smelting(
+                        Ingredient.of(ModBlocks.DEEPSLATE_TITANIUM_ORE),
+                        RecipeCategory.MISC,
+                        ModItems.TITANIUM_INGOT,
+                        1,
+                        100)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.DEEPSLATE_TITANIUM_ORE),
+                        AnvilCraftDatagen.has(ModBlocks.DEEPSLATE_TITANIUM_ORE))
+                .save(provider,  AnvilCraft.of("titanium_ingot_from_deepslate_titanium_ore"));
+        SimpleCookingRecipeBuilder
+                .blasting(
+                        Ingredient.of(ModBlocks.DEEPSLATE_TITANIUM_ORE),
+                        RecipeCategory.MISC,
+                        ModItems.TITANIUM_INGOT,
+                        1,
+                        500)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.DEEPSLATE_TITANIUM_ORE),
+                                AnvilCraftDatagen.has(ModBlocks.DEEPSLATE_TITANIUM_ORE))
+                        .save(provider,  AnvilCraft.of("titanium_ingot_from_deepslate_titanium_ore_blasting"));
+        SimpleCookingRecipeBuilder
+                .smelting(
+                        Ingredient.of(ModItems.RAW_TUNGSTEN),
+                        RecipeCategory.MISC,
+                        ModItems.TUNGSTEN_INGOT,
+                        1,
+                        1000)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RAW_TUNGSTEN.get()),
+                        AnvilCraftDatagen.has(ModItems.RAW_TUNGSTEN))
+                .save(provider,  AnvilCraft.of("tungsten_ingot_from_raw_tungsten"));
+
+        SimpleCookingRecipeBuilder
+                .blasting(
+                        Ingredient.of(ModItems.RAW_TUNGSTEN),
+                        RecipeCategory.MISC,
+                        ModItems.TUNGSTEN_INGOT,
+                        1,
+                        500)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RAW_TUNGSTEN.get()),
+                        AnvilCraftDatagen.has(ModItems.RAW_TUNGSTEN))
+                .save(provider,  AnvilCraft.of("tungsten_ingot_from_raw_tungsten_blasting"));
+        SimpleCookingRecipeBuilder
+                .smelting(
+                        Ingredient.of(ModBlocks.DEEPSLATE_TUNGSTEN_ORE),
+                        RecipeCategory.MISC,
+                        ModItems.TUNGSTEN_INGOT,
+                        1,
+                        100)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.DEEPSLATE_TUNGSTEN_ORE),
+                        AnvilCraftDatagen.has(ModBlocks.DEEPSLATE_TUNGSTEN_ORE))
+                .save(provider,  AnvilCraft.of("tungsten_ingot_from_deepslate_tungsten_ore"));
+        SimpleCookingRecipeBuilder
+                .blasting(
+                        Ingredient.of(ModBlocks.DEEPSLATE_TUNGSTEN_ORE),
+                        RecipeCategory.MISC,
+                        ModItems.TUNGSTEN_INGOT,
+                        1,
+                        500)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.DEEPSLATE_TUNGSTEN_ORE),
+                                AnvilCraftDatagen.has(ModBlocks.DEEPSLATE_TUNGSTEN_ORE))
+                        .save(provider,  AnvilCraft.of("tungsten_ingot_from_deepslate_tungsten_ore_blasting"));
+        SimpleCookingRecipeBuilder
+                .smelting(
+                        Ingredient.of(ModItems.RAW_LEAD),
+                        RecipeCategory.MISC,
+                        ModItems.LEAD_INGOT,
+                        1,
+                        1000)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RAW_LEAD.get()),
+                        AnvilCraftDatagen.has(ModItems.RAW_LEAD))
+                .save(provider,  AnvilCraft.of("lead_ingot_from_raw_lead"));
+
+        SimpleCookingRecipeBuilder
+                .blasting(
+                        Ingredient.of(ModItems.RAW_LEAD),
+                        RecipeCategory.MISC,
+                        ModItems.LEAD_INGOT,
+                        1,
+                        500)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RAW_LEAD.get()),
+                        AnvilCraftDatagen.has(ModItems.RAW_LEAD))
+                .save(provider,  AnvilCraft.of("lead_ingot_from_raw_lead_blasting"));
+        SimpleCookingRecipeBuilder
+                .smelting(
+                        Ingredient.of(ModBlocks.DEEPSLATE_LEAD_ORE),
+                        RecipeCategory.MISC,
+                        ModItems.LEAD_INGOT,
+                        1,
+                        100)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.DEEPSLATE_LEAD_ORE),
+                        AnvilCraftDatagen.has(ModBlocks.DEEPSLATE_LEAD_ORE))
+                .save(provider,  AnvilCraft.of("lead_ingot_from_deepslate_lead_ore"));
+        SimpleCookingRecipeBuilder
+                .blasting(
+                        Ingredient.of(ModBlocks.DEEPSLATE_LEAD_ORE),
+                        RecipeCategory.MISC,
+                        ModItems.LEAD_INGOT,
+                        1,
+                        500)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.DEEPSLATE_LEAD_ORE),
+                                AnvilCraftDatagen.has(ModBlocks.DEEPSLATE_LEAD_ORE))
+                        .save(provider,  AnvilCraft.of("lead_ingot_from_deepslate_lead_ore_blasting"));
+        SimpleCookingRecipeBuilder
+                .smelting(
+                        Ingredient.of(ModItems.RAW_SILVER),
+                        RecipeCategory.MISC,
+                        ModItems.SILVER_INGOT,
+                        1,
+                        1000)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RAW_SILVER.get()),
+                        AnvilCraftDatagen.has(ModItems.RAW_SILVER))
+                .save(provider,  AnvilCraft.of("silver_ingot_from_raw_silver"));
+
+        SimpleCookingRecipeBuilder
+                .blasting(
+                        Ingredient.of(ModItems.RAW_SILVER),
+                        RecipeCategory.MISC,
+                        ModItems.SILVER_INGOT,
+                        1,
+                        500)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RAW_SILVER.get()),
+                        AnvilCraftDatagen.has(ModItems.RAW_SILVER))
+                .save(provider,  AnvilCraft.of("silver_ingot_from_raw_silver_blasting"));
+        SimpleCookingRecipeBuilder
+                .smelting(
+                        Ingredient.of(ModBlocks.DEEPSLATE_SILVER_ORE),
+                        RecipeCategory.MISC,
+                        ModItems.SILVER_INGOT,
+                        1,
+                        100)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.DEEPSLATE_SILVER_ORE),
+                        AnvilCraftDatagen.has(ModBlocks.DEEPSLATE_SILVER_ORE))
+                .save(provider,  AnvilCraft.of("silver_ingot_from_deepslate_silver_ore"));
+        SimpleCookingRecipeBuilder
+                .blasting(
+                        Ingredient.of(ModBlocks.DEEPSLATE_SILVER_ORE),
+                        RecipeCategory.MISC,
+                        ModItems.SILVER_INGOT,
+                        1,
+                        500)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.DEEPSLATE_SILVER_ORE),
+                                AnvilCraftDatagen.has(ModBlocks.DEEPSLATE_SILVER_ORE))
+                        .save(provider,  AnvilCraft.of("silver_ingot_from_deepslate_silver_ore_blasting"));
+        SimpleCookingRecipeBuilder
+                .smelting(
+                        Ingredient.of(ModItems.RAW_URANIUM),
+                        RecipeCategory.MISC,
+                        ModItems.URANIUM_INGOT,
+                        1,
+                        1000)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RAW_URANIUM.get()),
+                        AnvilCraftDatagen.has(ModItems.RAW_URANIUM))
+                .save(provider,  AnvilCraft.of("uranium_ingot_from_raw_uranium"));
+
+        SimpleCookingRecipeBuilder
+                .blasting(
+                        Ingredient.of(ModItems.RAW_URANIUM),
+                        RecipeCategory.MISC,
+                        ModItems.URANIUM_INGOT,
+                        1,
+                        500)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RAW_URANIUM.get()),
+                        AnvilCraftDatagen.has(ModItems.RAW_URANIUM))
+                .save(provider,  AnvilCraft.of("uranium_ingot_from_raw_uranium_blasting"));
+        SimpleCookingRecipeBuilder
+                .smelting(
+                        Ingredient.of(ModBlocks.DEEPSLATE_URANIUM_ORE),
+                        RecipeCategory.MISC,
+                        ModItems.URANIUM_INGOT,
+                        1,
+                        100)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.DEEPSLATE_URANIUM_ORE),
+                        AnvilCraftDatagen.has(ModBlocks.DEEPSLATE_URANIUM_ORE))
+                .save(provider,  AnvilCraft.of("uranium_ingot_from_deepslate_uranium_ore"));
+        SimpleCookingRecipeBuilder
+                .blasting(
+                        Ingredient.of(ModBlocks.DEEPSLATE_URANIUM_ORE),
+                        RecipeCategory.MISC,
+                        ModItems.URANIUM_INGOT,
+                        1,
+                        500)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.DEEPSLATE_URANIUM_ORE),
+                                AnvilCraftDatagen.has(ModBlocks.DEEPSLATE_URANIUM_ORE))
+                        .save(provider,  AnvilCraft.of("uranium_ingot_from_deepslate_uranium_ore_blasting"));
     }
 }
