@@ -810,4 +810,5 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
         RecipeOutcome.register("run_command", RunCommand::new, RunCommand::new);
         RecipeOutcome.register("select_one", SelectOne::new, SelectOne::new);
     }
+
 }

@@ -42,6 +42,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.BaseSpawner;
 import net.minecraft.world.level.Level;
@@ -99,6 +101,27 @@ public class AnvilEventListener {
         belowPos = belowPos.below();
         state = level.getBlockState(belowPos);
         if (state.is(Blocks.STONECUTTER)) brokeBlock(level, belowPos.above(), event);
+        AnvilCraftingContainer container = new AnvilCraftingContainer(level, pos, event.getEntity());
+        RecipeManager manager = server.getRecipeManager();
+        HashMap<Integer, Recipe<?>> recipeMap = new HashMap<>();
+        for (AnvilRecipe anvilRecipe : manager.getAllRecipesFor(ModRecipeTypes.ANVIL_RECIPE)) {
+            recipeMap.put(anvilRecipe.getPredicates().size(), anvilRecipe);
+        }
+        if (this.isHeating(level, pos)) ;
+        if (this.isSmoking(level, pos)) return;
+        if (this.isCompress(level, pos)) return;
+        if (this.isSmash(level, pos)) return;
+        /*
+        Optional<AnvilRecipe> optional = server
+                .getRecipeManager()
+                .getAllRecipesFor(ModRecipeTypes.ANVIL_RECIPE)
+                .stream()
+                .filter(recipe -> recipe.matches(container, level))
+                .max(Comparator.comparing(AnvilRecipe::getPredicatesSize));
+        if (optional.isPresent()) {
+            anvilProcess(optional.get(), container, event);
+            return;
+        }
         if (this.isHeating(level, pos) && this.craft(level, pos, this::heating, -1)) return;
         if (this.isSmoking(level, pos) && this.craft(level, pos, this::smoking, -1)) return;
         if (this.isCompress(level, pos) && this.craft(level, pos, this::compress, -1)) return;
@@ -107,7 +130,9 @@ public class AnvilEventListener {
         Optional<AnvilRecipe> optional = server
             .getRecipeManager()
             .getRecipeFor(ModRecipeTypes.ANVIL_RECIPE, container, level);
-        optional.ifPresent(anvilRecipe -> anvilProcess(anvilRecipe, container, event));
+        optional.ifPresent(anvilRecipe -> anvilProcess(anvilRecipe, container, event));*/
+
+
     }
 
     private void hitBeeNest(Level level, BlockState state, BlockPos pos) {

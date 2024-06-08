@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.api.event.SubscribeEvent;
+import dev.dubhe.anvilcraft.api.event.server.ServerEndDataPackReloadEvent;
 import dev.dubhe.anvilcraft.api.event.server.ServerStartedEvent;
 import dev.dubhe.anvilcraft.api.hammer.HammerManager;
 import dev.dubhe.anvilcraft.init.ModHammerInits;
@@ -17,4 +18,10 @@ public class ServerEventListener {
         ModHammerInits.init();
         HammerManager.register();
     }
+
+    @SubscribeEvent
+    public void onServerEndDataPackReload(@NotNull ServerEndDataPackReloadEvent event) {
+
+    }
+
 }
