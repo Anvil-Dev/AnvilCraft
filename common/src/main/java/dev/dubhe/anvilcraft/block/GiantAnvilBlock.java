@@ -410,11 +410,13 @@ public class GiantAnvilBlock extends AnvilBlock implements EntityBlock {
                 && pos.getY() >= level.getMinBuildHeight()
         ) {
             BlockState aboveBlockState = level.getBlockState(pos.above());
-            if (aboveBlockState.getValue(CUBE).equals(Cube.CENTER)) {
-                onRemove(level, pos.above());
-                level.setBlockAndUpdate(pos.above(), aboveBlockState);
-                FallingBlockEntity fallingBlockEntity = FallingBlockEntity.fall(level, pos.above(), aboveBlockState);
-                this.falling(fallingBlockEntity);
+            if (aboveBlockState.getBlock() instanceof GiantAnvilBlock) {
+                if (aboveBlockState.getValue(CUBE).equals(Cube.CENTER)) {
+                    onRemove(level, pos.above());
+                    level.setBlockAndUpdate(pos.above(), aboveBlockState);
+                    FallingBlockEntity fallingBlockEntity = FallingBlockEntity.fall(level, pos.above(), aboveBlockState);
+                    this.falling(fallingBlockEntity);
+                }
             }
         }
     }
