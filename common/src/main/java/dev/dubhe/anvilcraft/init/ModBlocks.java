@@ -1973,6 +1973,17 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .blockstate((context, provider) -> provider.simpleBlock(context.get(),
                 DangerUtil.genConfiguredModel("block/impact_pile").get()))
+        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
+                .pattern(" A ")
+                .pattern(" B ")
+                .pattern(" B ")
+                .define('A', Blocks.OBSIDIAN)
+                .define('B', Items.NETHERITE_INGOT)
+                .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.OBSIDIAN),
+                        AnvilCraftDatagen.has(Blocks.OBSIDIAN))
+                .unlockedBy(AnvilCraftDatagen.hasItem(Items.NETHERITE_INGOT),
+                        AnvilCraftDatagen.has(Items.NETHERITE_INGOT))
+                .save(provider))
         .simpleItem()
         .defaultLoot()
         .register();
