@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "cookingtime": 100,
+  "experience": 1.0,
+  "ingredient": {
+    "item": "anvilcraft:deepslate_uranium_ore"
+  },
+  "result": "anvilcraft:uranium_ingot"
+}

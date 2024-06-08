@@ -67,6 +67,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -99,15 +100,21 @@ public class AnvilEventListener {
         belowPos = belowPos.below();
         state = level.getBlockState(belowPos);
         if (state.is(Blocks.STONECUTTER)) brokeBlock(level, belowPos.above(), event);
+        AnvilCraftingContainer container = new AnvilCraftingContainer(level, pos, event.getEntity());
+        Optional<AnvilRecipe> optional = server
+                .getRecipeManager()
+                .getAllRecipesFor(ModRecipeTypes.ANVIL_RECIPE)
+                .stream()
+                .filter(recipe -> recipe.matches(container, level))
+                .max(Comparator.comparing(AnvilRecipe::getPredicatesSize));
+        if (optional.isPresent()) {
+            anvilProcess(optional.get(), container, event);
+            return;
+        }
         if (this.isHeating(level, pos) && this.craft(level, pos, this::heating, -1)) return;
         if (this.isSmoking(level, pos) && this.craft(level, pos, this::smoking, -1)) return;
         if (this.isCompress(level, pos) && this.craft(level, pos, this::compress, -1)) return;
         if (this.isSmash(level, pos) && this.craft(level, pos, this::smash, 0)) return;
-        AnvilCraftingContainer container = new AnvilCraftingContainer(level, pos, event.getEntity());
-        Optional<AnvilRecipe> optional = server
-            .getRecipeManager()
-            .getRecipeFor(ModRecipeTypes.ANVIL_RECIPE, container, level);
-        optional.ifPresent(anvilRecipe -> anvilProcess(anvilRecipe, container, event));
     }
 
     private void hitBeeNest(Level level, BlockState state, BlockPos pos) {
