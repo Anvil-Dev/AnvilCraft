@@ -22,6 +22,13 @@ public class ItemTagLoader {
             .add(Items.HEAVY_WEIGHTED_PRESSURE_PLATE);
         provider.addTag(ModItemTags.GOLD_PLATES).setReplace(false)
             .add(Items.LIGHT_WEIGHTED_PRESSURE_PLATE);
+        provider.addTag(ModItemTags.PLATES_FORGE).setReplace(false)
+            .add(Items.HEAVY_WEIGHTED_PRESSURE_PLATE)
+            .add(Items.LIGHT_WEIGHTED_PRESSURE_PLATE);
+        provider.addTag(ModItemTags.IRON_PLATES_FORGE).setReplace(false)
+            .add(Items.HEAVY_WEIGHTED_PRESSURE_PLATE);
+        provider.addTag(ModItemTags.GOLD_PLATES_FORGE).setReplace(false)
+            .add(Items.LIGHT_WEIGHTED_PRESSURE_PLATE);
         provider.addTag(ModItemTags.ROYAL_STEEL_PICKAXE_BASE).setReplace(false)
             .add(ModItems.AMETHYST_PICKAXE.get())
             .add(Items.GOLDEN_PICKAXE)

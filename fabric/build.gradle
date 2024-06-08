@@ -196,6 +196,13 @@ tasks.register('copyForgeData', Copy) {
     group 'loom'
     from project.file('src/generated/resources/data/c')
     into project.file('src/generated/resources/data/forge')
+
+    eachFile { fileCopyDetails ->
+        def targetFile = new File(project.file('src/generated/resources/data/forge'), fileCopyDetails.path)
+        if (targetFile.exists()) {
+            fileCopyDetails.exclude()
+        }
+    }
 }
 
 dataCopy.dependsOn(dataDelete)

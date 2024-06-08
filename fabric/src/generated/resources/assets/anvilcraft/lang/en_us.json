@@ -353,5 +353,5 @@
   "tooltip.anvilcraft.item.topaz": "Containing the power of lightning",
   "tooltip.anvilcraft.item.transmission_pole": "Build a power grid with a transmission distance of 8",
   "tooltip.anvilcraft.jade.power_information": "Power Grid: %d/%d KW",
-  "tooltip.anvilcraft.ruby_prism.power": "Light level: %d"
+  "tooltip.anvilcraft.ruby_prism.power": "Laser level: %d"
 }
