@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.api.heatable.HeatableBlockManager;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.init.ModBlocks;
@@ -81,11 +82,11 @@ public class MineralFountainBlockEntity extends BlockEntity {
         if (aroundBlock.is(Blocks.LAVA)) {
             if (aboveBlock.is(Blocks.AIR)) {
                 level.setBlockAndUpdate(getBlockPos().above(), Blocks.LAVA.defaultBlockState());
-            } else if (aboveBlock.is(Blocks.NETHERITE_BLOCK)) {
-                level.setBlockAndUpdate(getBlockPos().above(), ModBlocks.REDHOT_NETHERITE.getDefaultState());
-            } else if (aboveBlock.is(ModBlocks.TUNGSTEN_BLOCK.get())) {
-                level.setBlockAndUpdate(getBlockPos().above(), ModBlocks.REDHOT_TUNGSTEN.getDefaultState());
+                return;
             }
+            Block hotBlock = HeatableBlockManager.getHotBlock(aboveBlock.getBlock());
+            if (hotBlock == null) return;
+            level.setBlockAndUpdate(getBlockPos().above(), hotBlock.defaultBlockState());
         } else if (aroundBlock.is(ModBlockTags.DEEPSLATE_METAL) && aboveBlock.is(Blocks.DEEPSLATE)) {
             HashMap<Block, Float> changeMap = CHANGE_MAP.containsKey(level.dimension().location())
                     ? CHANGE_MAP.get(level.dimension().location())
