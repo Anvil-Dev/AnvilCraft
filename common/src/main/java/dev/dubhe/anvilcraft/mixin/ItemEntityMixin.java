@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.mixin;
 
 import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
+import dev.dubhe.anvilcraft.init.ModItemTags;
 import dev.dubhe.anvilcraft.init.ModItems;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -22,6 +23,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.UUID;
+
 @Mixin(ItemEntity.class)
 abstract class ItemEntityMixin extends Entity {
     @Shadow
@@ -33,6 +36,10 @@ abstract class ItemEntityMixin extends Entity {
 
     @Shadow
     public abstract void setItem(ItemStack stack);
+
+    @Shadow @javax.annotation.Nullable private UUID target;
+
+    @Shadow protected abstract void setUnderwaterMovement();
 
     public ItemEntityMixin(EntityType<?> entityType, Level level) {
         super(entityType, level);
@@ -70,5 +77,12 @@ abstract class ItemEntityMixin extends Entity {
         if (this.level().random.nextInt(100) <= 10) {
             this.setItem(new ItemStack(ModItems.MAGNET_INGOT));
         }
+    }
+
+    @Inject(method = "tick", at = @At(value = "HEAD"))
+    private void voidResistant(CallbackInfo ci) {
+        if (this.getServer() == null) return;
+        if (this.getItem().is(ModItemTags.VOID_RESISTANT) && this.getY() < this.level().getMinBuildHeight())
+                this.setDeltaMovement(0, 0.6f, 0);
     }
 }

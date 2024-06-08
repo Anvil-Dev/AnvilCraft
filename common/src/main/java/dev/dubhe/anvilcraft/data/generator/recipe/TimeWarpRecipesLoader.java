@@ -41,6 +41,13 @@ public class TimeWarpRecipesLoader {
         timeWarp(new RecipeItem(ModBlocks.END_DUST), new RecipeItem(Items.END_STONE));
         timeWarp(new RecipeItem(ModItems.LIME_POWDER, 8), new RecipeItem(Items.CALCITE));
         timeWarp(new RecipeItem(ModItems.NETHERITE_CRYSTAL_NUCLEUS), new RecipeItem(Items.ANCIENT_DEBRIS));
+        timeWarp(new RecipeItem(ModBlocks.ZINC_BLOCK), new RecipeItem(ModItems.RAW_ZINC, 3));
+        timeWarp(new RecipeItem(ModBlocks.TIN_BLOCK), new RecipeItem(ModItems.RAW_TIN, 3));
+        timeWarp(new RecipeItem(ModBlocks.TITANIUM_BLOCK), new RecipeItem(ModItems.RAW_TITANIUM, 3));
+        timeWarp(new RecipeItem(ModBlocks.TUNGSTEN_BLOCK), new RecipeItem(ModItems.RAW_TUNGSTEN, 3));
+        timeWarp(new RecipeItem(ModBlocks.LEAD_BLOCK), new RecipeItem(ModItems.RAW_LEAD, 3));
+        timeWarp(new RecipeItem(ModBlocks.SILVER_BLOCK), new RecipeItem(ModItems.RAW_SILVER, 3));
+        timeWarp(new RecipeItem(ModBlocks.URANIUM_BLOCK), new RecipeItem(ModItems.RAW_URANIUM, 3));
 
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
             .icon(Items.WITHER_ROSE)

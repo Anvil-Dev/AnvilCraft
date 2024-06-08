@@ -114,8 +114,8 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         BlockState irradiateBlock = level.getBlockState(irradiateBlockPos);
         List<ItemStack> drops = Block.getDrops(irradiateBlock, serverLevel, irradiateBlockPos,
             level.getBlockEntity(irradiateBlockPos));
-        int coldDown = levelToTimeMap.containsKey(Math.min(16, laserLevel))
-            ? levelToTimeMap.get(Math.min(16, laserLevel)) * 20 : Integer.MAX_VALUE;
+        int coldDown = levelToTimeMap.containsKey(Math.min(16, laserLevel) / 4)
+            ? levelToTimeMap.get(Math.min(16, laserLevel) / 4) * 20 : Integer.MAX_VALUE;
         if (tickCount >= coldDown) {
             tickCount = 0;
             if (irradiateBlock.is(ModBlockTags.FORGE_ORES) || irradiateBlock.is(ModBlockTags.ORES)) {

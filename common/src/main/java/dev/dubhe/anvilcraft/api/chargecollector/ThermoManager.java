@@ -75,7 +75,7 @@ public class ThermoManager {
         register(ThermoEntry.always(2, ModBlocks.URANIUM_BLOCK.get()));
 
         register(ThermoEntry.simple(4, Blocks.LAVA, Blocks.OBSIDIAN));
-        register(ThermoEntry.simple(4, Blocks.MAGMA_BLOCK, Blocks.NETHERITE_BLOCK));
+        register(ThermoEntry.simple(4, Blocks.MAGMA_BLOCK, Blocks.NETHERRACK));
         register(ThermoEntry.simple(4, Blocks.LAVA_CAULDRON, ModBlocks.OBSIDIDAN_CAULDRON.get()));
 
         register(ThermoEntry.predicate(4, CampfireBlock::isLitCampfire, t -> t.setValue(CampfireBlock.LIT, false)));
