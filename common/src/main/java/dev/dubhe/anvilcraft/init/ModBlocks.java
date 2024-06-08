@@ -4,6 +4,7 @@ import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
+import dev.dubhe.anvilcraft.api.power.IPowerComponent.Switch;
 import dev.dubhe.anvilcraft.block.ActiveSilencerBlock;
 import dev.dubhe.anvilcraft.block.ArrowBlock;
 import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
@@ -48,6 +49,8 @@ import dev.dubhe.anvilcraft.block.ResinBlock;
 import dev.dubhe.anvilcraft.block.RoyalAnvilBlock;
 import dev.dubhe.anvilcraft.block.RoyalGrindstone;
 import dev.dubhe.anvilcraft.block.RoyalSmithingTableBlock;
+import dev.dubhe.anvilcraft.block.RubyLaserBlock;
+import dev.dubhe.anvilcraft.block.RubyPrismBlock;
 import dev.dubhe.anvilcraft.block.SimpleChuteBlock;
 import dev.dubhe.anvilcraft.block.StampingPlatformBlock;
 import dev.dubhe.anvilcraft.block.ThermoelectricConverterBlock;
@@ -1761,6 +1764,8 @@ public class ModBlocks {
             .block("discharger", DischargerBlock::new)
             .initialProperties(() -> Blocks.IRON_BLOCK)
             .properties(BlockBehaviour.Properties::noOcclusion)
+            .blockstate((ctx, provider) -> {
+            })
             .simpleItem()
             .defaultLoot()
             .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -1965,6 +1970,77 @@ public class ModBlocks {
             .tag(BlockTags.MINEABLE_WITH_PICKAXE)
             .register();
 
+
+    public static final BlockEntry<RubyPrismBlock> RUBY_PRISM = REGISTRATE
+        .block("ruby_prism", RubyPrismBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(BlockBehaviour.Properties::noOcclusion)
+        .blockstate((ctx, provider) -> {
+        })
+        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern("ACA")
+            .pattern("CBC")
+            .pattern("AAA")
+            .define('A', ModItems.ROYAL_STEEL_INGOT)
+            .define('B', ModBlocks.RUBY_BLOCK)
+            .define('C', ModItems.RUBY)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_INGOT),
+                AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.RUBY_BLOCK),
+                AnvilCraftDatagen.has(ModBlocks.RUBY_BLOCK)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.RUBY),
+                AnvilCraftDatagen.has(ModItems.RUBY)
+            )
+            .save(provider)
+        )
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<RubyLaserBlock> RUBY_LASER = REGISTRATE
+        .block("ruby_laser", RubyLaserBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.lightLevel(it -> {
+            if (it.getValue(RubyLaserBlock.SWITCH) == Switch.ON)
+                return 15;
+            else return 0;
+        }))
+        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern("ACA")
+            .pattern("BDB")
+            .pattern("ACA")
+            .define('A', ModItems.ROYAL_STEEL_INGOT)
+            .define('B', ModBlocks.INDUCTION_LIGHT)
+            .define('C', ModItems.SILVER_INGOT)
+            .define('D', ModBlocks.RUBY_BLOCK)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_INGOT),
+                AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.INDUCTION_LIGHT),
+                AnvilCraftDatagen.has(ModBlocks.INDUCTION_LIGHT)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.SILVER_INGOT),
+                AnvilCraftDatagen.has(ModItems.SILVER_INGOT))
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.RUBY_BLOCK),
+                AnvilCraftDatagen.has(ModBlocks.RUBY_BLOCK)
+            )
+            .save(provider)
+        )
+        .properties(BlockBehaviour.Properties::noOcclusion)
+        .blockstate((ctx, provider) -> {
+        })
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
 
     private static @NotNull BlockEntry<ReinforcedConcreteBlock> registerReinforcedConcreteBlock(@NotNull Color color) {
         return REGISTRATE

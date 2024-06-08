@@ -135,6 +135,8 @@
   "block.anvilcraft.royal_smithing_table": "Royal Smithing Table",
   "block.anvilcraft.royal_steel_block": "Royal Steel Block",
   "block.anvilcraft.ruby_block": "Ruby Block",
+  "block.anvilcraft.ruby_laser": "Ruby Laser",
+  "block.anvilcraft.ruby_prism": "Ruby Prism",
   "block.anvilcraft.sapphire_block": "Sapphire Block",
   "block.anvilcraft.silver_block": "Silver Block",
   "block.anvilcraft.simple_chute": "Simple Chute",
@@ -279,6 +281,7 @@
   "text.autoconfig.anvilcraft.option.geodeInterval.@Tooltip": "The search interval of the geode",
   "text.autoconfig.anvilcraft.option.geodeRadius": "Geode Maximum Search Radius",
   "text.autoconfig.anvilcraft.option.geodeRadius.@Tooltip": "The maximum search radius of the geode",
+  "text.autoconfig.anvilcraft.option.isLaserDoImpactChecking": "Is Laser Do Impact Checking",
   "text.autoconfig.anvilcraft.option.lightningStrikeDepth": "Lightning Strike Depth",
   "text.autoconfig.anvilcraft.option.lightningStrikeDepth.@Tooltip": "Maximum depth a lightning strike can reach",
   "text.autoconfig.anvilcraft.option.lightningStrikeRadius": "Lightning Strike Radius",
@@ -350,5 +353,6 @@
   "tooltip.anvilcraft.item.tempering_glass": "Creeper proof, No tools required on collect",
   "tooltip.anvilcraft.item.topaz": "Containing the power of lightning",
   "tooltip.anvilcraft.item.transmission_pole": "Build a power grid with a transmission distance of 8",
-  "tooltip.anvilcraft.jade.power_information": "Power Grid: %d/%d KW"
+  "tooltip.anvilcraft.jade.power_information": "Power Grid: %d/%d KW",
+  "tooltip.anvilcraft.ruby_prism.power": "Light level: %d"
 }
