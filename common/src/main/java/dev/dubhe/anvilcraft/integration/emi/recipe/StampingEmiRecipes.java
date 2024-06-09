@@ -18,11 +18,11 @@ public class StampingEmiRecipes extends BaseItemEmiRecipe {
         super.addWidgets(widgets);
         widgets.addDrawable(93, 39, 0, 0, new BlockWidget(
                 new BlockState[]{ANVIL_BLOCK_STATE, ModBlocks.STAMPING_PLATFORM.getDefaultState()},
-                new Vec2[]{Vec2.ZERO, new Vec2(0, 2)}
+                new Vec2[]{new Vec2(0, 2), Vec2.ZERO}
         ));
         widgets.addDrawable(128, 39, 0, 0, new BlockWidget(
                 new BlockState[]{ANVIL_BLOCK_STATE, ModBlocks.STAMPING_PLATFORM.getDefaultState()},
-                new Vec2[]{Vec2.ZERO, new Vec2(0, 1)}
+                new Vec2[]{new Vec2(0, 1), Vec2.ZERO}
         ));
     }
 }

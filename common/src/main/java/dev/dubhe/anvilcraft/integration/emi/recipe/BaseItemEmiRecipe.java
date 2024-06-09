@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.integration.emi.recipe;
 
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.emi.emi.api.recipe.EmiRecipeCategory;
+import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.widget.WidgetHolder;
 
 public abstract class BaseItemEmiRecipe extends BaseEmiRecipe {
@@ -15,7 +16,7 @@ public abstract class BaseItemEmiRecipe extends BaseEmiRecipe {
         addBendArrow(widgets, 75, 34);
         addStraightArrow(widgets, 119, 34);
         addPlus(widgets, 154, 34);
-        addSimpleSlot(widgets, 11, 11);
-        addSimpleSlot(widgets, 169, 11);
+        addInputSlots(inputs, widgets);
+        addOutputs(outputs, widgets);
     }
 }
