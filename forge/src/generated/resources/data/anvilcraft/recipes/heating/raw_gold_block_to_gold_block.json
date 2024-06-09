@@ -1,11 +1,11 @@
 {
   "type": "anvilcraft:anvil_processing",
   "icon": {
-    "item": "minecraft:emerald_block"
+    "item": "minecraft:gold_block"
   },
   "outcomes": [
     {
-      "type": "set_block",
+      "type": "spawn_item",
       "chance": 1.0,
       "offset": [
         0.0,
@@ -13,7 +13,7 @@
         0.0
       ],
       "result": {
-        "block": "anvilcraft:melt_gem_cauldron"
+        "item": "minecraft:gold_block"
       }
     }
   ],
@@ -35,7 +35,7 @@
       ]
     },
     {
-      "type": "has_block_ingredient",
+      "type": "has_block",
       "match_block": {
         "blocks": [
           "minecraft:cauldron"
@@ -51,13 +51,10 @@
       "type": "has_item_ingredient",
       "match_item": {
         "count": {
-          "min": 1
+          "min": 2
         },
         "items": [
-          "minecraft:emerald_block",
-          "anvilcraft:ruby_block",
-          "anvilcraft:sapphire_block",
-          "anvilcraft:topaz_block"
+          "minecraft:raw_gold_block"
         ]
       },
       "offset": [

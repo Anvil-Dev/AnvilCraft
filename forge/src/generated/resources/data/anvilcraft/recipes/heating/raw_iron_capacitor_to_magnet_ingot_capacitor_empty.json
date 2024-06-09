@@ -1,11 +1,11 @@
 {
   "type": "anvilcraft:anvil_processing",
   "icon": {
-    "item": "minecraft:emerald_block"
+    "item": "anvilcraft:magnet_ingot"
   },
   "outcomes": [
     {
-      "type": "set_block",
+      "type": "spawn_item",
       "chance": 1.0,
       "offset": [
         0.0,
@@ -13,7 +13,19 @@
         0.0
       ],
       "result": {
-        "block": "anvilcraft:melt_gem_cauldron"
+        "item": "anvilcraft:magnet_ingot"
+      }
+    },
+    {
+      "type": "spawn_item",
+      "chance": 1.0,
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "result": {
+        "item": "anvilcraft:capacitor_empty"
       }
     }
   ],
@@ -35,7 +47,7 @@
       ]
     },
     {
-      "type": "has_block_ingredient",
+      "type": "has_block",
       "match_block": {
         "blocks": [
           "minecraft:cauldron"
@@ -54,10 +66,23 @@
           "min": 1
         },
         "items": [
-          "minecraft:emerald_block",
-          "anvilcraft:ruby_block",
-          "anvilcraft:sapphire_block",
-          "anvilcraft:topaz_block"
+          "minecraft:raw_iron"
+        ]
+      },
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ]
+    },
+    {
+      "type": "has_item_ingredient",
+      "match_item": {
+        "count": {
+          "min": 1
+        },
+        "items": [
+          "anvilcraft:capacitor"
         ]
       },
       "offset": [

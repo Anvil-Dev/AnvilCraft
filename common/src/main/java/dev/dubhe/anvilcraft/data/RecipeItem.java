@@ -46,7 +46,6 @@ public class RecipeItem {
         return new RecipeItem(item, null, 1, chance, isSelectOne);
     }
 
-
     public static RecipeItem of(TagKey<Item> itemTagKey, int count, double chance, boolean isSelectOne) {
         return new RecipeItem(null, itemTagKey, count, chance, isSelectOne);
     }
@@ -88,7 +87,7 @@ public class RecipeItem {
         return this.item == null
             ? this.itemTagKey == null
                 ? ""
-                : itemTagKey.location().getPath()
+                : itemTagKey.location().getNamespace() + "_" + itemTagKey.location().getPath()
             : BuiltInRegistries.ITEM
                 .getKey(this.item.asItem()).getPath();
     }

@@ -83,6 +83,10 @@ public class ModItemTags {
     public static final TagKey<Item> GEM_BLOCKS = bind("gem_blocks");
     public static final TagKey<Item> DEAD_TUBE = bind("dead_tube");
     public static final TagKey<Item> VOID_RESISTANT = bind("void_resistant");
+    public static final TagKey<Item> RAW_ORES = bindC("raw_ores");
+    public static final TagKey<Item> FORGE_RAW_ORES = bindC("raw_ores");
+    public static final TagKey<Item> ORES = bindC("ores");
+    public static final TagKey<Item> FORGE_ORES = bindC("ores");
 
 
     private static @NotNull TagKey<Item> bindC(String id) {

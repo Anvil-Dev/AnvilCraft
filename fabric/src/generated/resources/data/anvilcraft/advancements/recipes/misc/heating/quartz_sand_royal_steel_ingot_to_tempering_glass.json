@@ -1,0 +1,48 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_quartz_sand": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "anvilcraft:quartz_sand"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_royal_steel_ingot": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "anvilcraft:royal_steel_ingot"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:heating/quartz_sand_royal_steel_ingot_to_tempering_glass"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_quartz_sand",
+      "has_royal_steel_ingot",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:heating/quartz_sand_royal_steel_ingot_to_tempering_glass"
+    ]
+  },
+  "sends_telemetry_event": false
+}
