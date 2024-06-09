@@ -1158,8 +1158,8 @@ public class ModItems {
                 )
                 .save(provider);
             TimeWarpRecipesLoader.timeWarp(
-                new RecipeItem(ctx.get()),
-                new RecipeItem(Items.ANCIENT_DEBRIS)
+                RecipeItem.of(ctx.get()),
+                RecipeItem.of(Items.ANCIENT_DEBRIS)
             );
         })
         .register();

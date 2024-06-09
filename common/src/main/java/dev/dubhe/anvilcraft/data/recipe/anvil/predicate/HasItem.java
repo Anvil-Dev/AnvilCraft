@@ -214,6 +214,7 @@ public class HasItem implements RecipePredicate, HasData {
         private final Set<Item> items = new HashSet<>();
         @Nullable
         private CompoundTag nbt = null;
+        @Getter
         public MinMaxBounds.Ints count = null;
         private MinMaxBounds.Ints durability = null;
         private final Map<Enchantment, MinMaxBounds.Ints> enchantments = new HashMap<>();

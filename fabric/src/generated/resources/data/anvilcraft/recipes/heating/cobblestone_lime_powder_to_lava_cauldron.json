@@ -1,7 +1,8 @@
 {
   "type": "anvilcraft:anvil_processing",
+  "anvil_recipe_type": "null",
   "icon": {
-    "item": "minecraft:emerald_block"
+    "item": "minecraft:cauldron"
   },
   "outcomes": [
     {
@@ -13,7 +14,7 @@
         0.0
       ],
       "result": {
-        "block": "anvilcraft:melt_gem_cauldron"
+        "block": "minecraft:lava_cauldron"
       }
     }
   ],
@@ -35,7 +36,7 @@
       ]
     },
     {
-      "type": "has_block_ingredient",
+      "type": "has_block",
       "match_block": {
         "blocks": [
           "minecraft:cauldron"
@@ -51,13 +52,26 @@
       "type": "has_item_ingredient",
       "match_item": {
         "count": {
+          "min": 4
+        },
+        "items": [
+          "minecraft:cobblestone"
+        ]
+      },
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ]
+    },
+    {
+      "type": "has_item_ingredient",
+      "match_item": {
+        "count": {
           "min": 1
         },
         "items": [
-          "minecraft:emerald_block",
-          "anvilcraft:ruby_block",
-          "anvilcraft:topaz_block",
-          "anvilcraft:sapphire_block"
+          "anvilcraft:lime_powder"
         ]
       },
       "offset": [

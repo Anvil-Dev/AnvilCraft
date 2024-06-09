@@ -77,5 +77,42 @@ public class ItemTagLoader {
                 .add(ModItems.VOID_MATTER.get())
                 .add(ModBlocks.VOID_MATTER_BLOCK.asItem())
                 .add(ModBlocks.VOID_STONE.asItem());
+        provider.addTag(ModItemTags.ORES).setReplace(false)
+                .add(ModBlocks.DEEPSLATE_ZINC_ORE.asItem())
+                .add(ModBlocks.DEEPSLATE_TIN_ORE.asItem())
+                .add(ModBlocks.DEEPSLATE_TITANIUM_ORE.asItem())
+                .add(ModBlocks.DEEPSLATE_TUNGSTEN_ORE.asItem())
+                .add(ModBlocks.DEEPSLATE_LEAD_ORE.asItem())
+                .add(ModBlocks.DEEPSLATE_SILVER_ORE.asItem())
+                .add(ModBlocks.DEEPSLATE_URANIUM_ORE.asItem())
+                .add(ModBlocks.VOID_STONE.asItem())
+                .add(ModBlocks.EARTH_CORE_SHARD_ORE.asItem());
+        provider.addTag(ModItemTags.FORGE_ORES).setReplace(false)
+                .add(ModBlocks.DEEPSLATE_ZINC_ORE.asItem())
+                .add(ModBlocks.DEEPSLATE_TIN_ORE.asItem())
+                .add(ModBlocks.DEEPSLATE_TITANIUM_ORE.asItem())
+                .add(ModBlocks.DEEPSLATE_TUNGSTEN_ORE.asItem())
+                .add(ModBlocks.DEEPSLATE_LEAD_ORE.asItem())
+                .add(ModBlocks.DEEPSLATE_SILVER_ORE.asItem())
+                .add(ModBlocks.DEEPSLATE_URANIUM_ORE.asItem())
+                .add(ModBlocks.VOID_STONE.asItem())
+                .add(ModBlocks.EARTH_CORE_SHARD_ORE.asItem());
+        provider.addTag(ModItemTags.RAW_ORES).setReplace(false)
+                .add(ModItems.RAW_ZINC.get())
+                .add(ModItems.RAW_TIN.get())
+                .add(ModItems.RAW_TITANIUM.get())
+                .add(ModItems.RAW_TUNGSTEN.get())
+                .add(ModItems.RAW_LEAD.get())
+                .add(ModItems.RAW_SILVER.get())
+                .add(ModItems.RAW_URANIUM.get());
+        provider.addTag(ModItemTags.FORGE_RAW_ORES).setReplace(false)
+                .add(ModItems.RAW_ZINC.get())
+                .add(ModItems.RAW_TIN.get())
+                .add(ModItems.RAW_TITANIUM.get())
+                .add(ModItems.RAW_TUNGSTEN.get())
+                .add(ModItems.RAW_LEAD.get())
+                .add(ModItems.RAW_SILVER.get())
+                .add(ModItems.RAW_URANIUM.get());
+                
     }
 }
