@@ -112,6 +112,9 @@ public class AnvilCraftConfig implements ConfigData {
     @ConfigEntry.Gui.Tooltip()
     public boolean isLaserDoImpactChecking = true;
 
+    @ConfigEntry.Gui.Tooltip
+    public int inductionLightBlockRipeningCooldown = 80;
+
     public static class PowerConverter implements ConfigData {
         @Comment("The working interval of power converters")
         @ConfigEntry.Gui.Tooltip

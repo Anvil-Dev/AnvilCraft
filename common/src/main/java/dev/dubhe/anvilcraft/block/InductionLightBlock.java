@@ -127,17 +127,20 @@ public class InductionLightBlock extends BaseEntityBlock implements IHammerRemov
             @NotNull InteractionHand hand,
             @NotNull BlockHitResult hit
     ) {
-        return BlockPlaceAssist.tryPlace(
-                state,
-                level,
-                pos,
-                player,
-                hand,
-                hit,
-                ModBlocks.INDUCTION_LIGHT.asItem(),
-                AXIS,
-                ModBlocks.INDUCTION_LIGHT.getDefaultState()
-        );
+        InteractionResult tried =BlockPlaceAssist.tryPlace(
+            state,
+            level,
+            pos,
+            player,
+            hand,
+            hit,
+            ModBlocks.INDUCTION_LIGHT.asItem(),
+            AXIS,
+            ModBlocks.INDUCTION_LIGHT.getDefaultState());
+
+        tried.shouldAwardStats();
+
+        return tried;
     }
 
     @Nullable
