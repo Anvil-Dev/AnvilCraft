@@ -54,8 +54,8 @@
           "min": 1
         },
         "items": [
-          "minecraft:emerald_block",
           "anvilcraft:ruby_block",
+          "minecraft:emerald_block",
           "anvilcraft:sapphire_block",
           "anvilcraft:topaz_block"
         ]

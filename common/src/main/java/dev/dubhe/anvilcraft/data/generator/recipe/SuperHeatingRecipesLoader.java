@@ -49,9 +49,6 @@ public class SuperHeatingRecipesLoader {
                         RecipeItem.of(ModItems.LIME_POWDER)
                 },
                 Blocks.LAVA_CAULDRON);
-        superHeating(RecipeItem.of(Items.RAW_IRON_BLOCK, 2), RecipeItem.of(Items.IRON_BLOCK));
-        superHeating(RecipeItem.of(Items.RAW_GOLD_BLOCK, 2), RecipeItem.of(Items.GOLD_BLOCK));
-        superHeating(RecipeItem.of(Items.COPPER_BLOCK, 2), RecipeItem.of(Items.RAW_COPPER_BLOCK));
         superHeating(
                 new RecipeItem[] {
                         RecipeItem.of(Items.IRON_INGOT, 3),
