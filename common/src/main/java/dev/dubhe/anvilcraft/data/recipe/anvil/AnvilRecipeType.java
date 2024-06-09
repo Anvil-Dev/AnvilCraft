@@ -4,7 +4,8 @@ import java.util.Arrays;
 
 public enum AnvilRecipeType {
     NULL("null"),
-    STAMPING("stamping");
+    STAMPING("stamping"),
+    SIEVING("sieving");
 
     private final String type;
 

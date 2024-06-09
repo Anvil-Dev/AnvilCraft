@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
+import dev.dubhe.anvilcraft.integration.emi.recipe.SievingEmiRecipes;
 import dev.dubhe.anvilcraft.integration.emi.recipe.StampingEmiRecipes;
 import dev.dubhe.anvilcraft.integration.emi.stack.BlockStateEmiStack;
 import dev.emi.emi.api.EmiEntrypoint;
@@ -16,6 +17,7 @@ import java.util.List;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 
 @EmiEntrypoint
 public class AnvilCraftEmiPlugin implements EmiPlugin {
@@ -28,11 +30,13 @@ public class AnvilCraftEmiPlugin implements EmiPlugin {
         AnvilCraftEmiRecipeTypes.ALL.forEach((id, category) -> registry.addCategory(category));
 
         registry.addWorkstation(AnvilCraftEmiRecipeTypes.STAMPING, EmiStack.of(ModBlocks.STAMPING_PLATFORM.get()));
+        registry.addWorkstation(AnvilCraftEmiRecipeTypes.SIEVING, EmiStack.of(Blocks.SCAFFOLDING));
 
         RecipeManager manager = registry.getRecipeManager();
         for (AnvilRecipe anvilRecipe : manager.getAllRecipesFor(ModRecipeTypes.ANVIL_RECIPE)) {
             switch (anvilRecipe.getAnvilRecipeType()) {
                 case STAMPING -> registry.addRecipe(new StampingEmiRecipes(anvilRecipe));
+                case SIEVING -> registry.addRecipe(new SievingEmiRecipes(anvilRecipe));
             }
         }
     }

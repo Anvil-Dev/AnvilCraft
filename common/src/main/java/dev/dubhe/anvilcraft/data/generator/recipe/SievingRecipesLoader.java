@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.data.generator.recipe;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -76,9 +77,10 @@ public class SievingRecipesLoader {
         RegistrateRecipeProvider provider, ItemLike item, Map.Entry<ItemLike, Double> @NotNull ... items
     ) {
         AnvilRecipe.Builder builder = AnvilRecipe.Builder.create(RecipeCategory.MISC)
-            .hasBlock(Blocks.SCAFFOLDING)
-            .hasItemIngredient(item)
-            .spawnItem(new Vec3(0.0, -1.0, 0.0), 0.5, item);
+                .type(AnvilRecipeType.SIEVING)
+                .hasBlock(Blocks.SCAFFOLDING)
+                .hasItemIngredient(item)
+                .spawnItem(new Vec3(0.0, -1.0, 0.0), 0.5, item);
         for (Map.Entry<ItemLike, Double> entry : items) {
             builder.spawnItem(new Vec3(0.0, -1.0, 0.0), entry.getValue(), entry.getKey());
         }
