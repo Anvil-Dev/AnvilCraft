@@ -57,14 +57,13 @@ public class InductionLightBlockEntity extends BlockEntity implements IPowerCons
                         growable.performBonemeal(
                             (ServerLevel) level1,
                             level1.getRandom(), pos, state);
-                        done=true;
+                        done = true;
                     }
                 }
             }
         }
         if (done) {
-            this.cooldown=AnvilCraft.config.inductionLightBlockRipeningCooldown;
-            System.out.println("Successfully ripen.Reset counter.");
+            this.cooldown = AnvilCraft.config.inductionLightBlockRipeningCooldown;
         }
     }
 
