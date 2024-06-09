@@ -38,22 +38,22 @@ public class InductionLightBlockEntity extends BlockEntity implements IPowerCons
 
     public void tick(Level level1) {
         flushState(level1, getBlockPos());
-        this.cooldown=cooldown>0 ? cooldown-1 : 0;
-        if (this.cooldown > 0 ||
-            this.getBlockState().getValue(InductionLightBlock.POWERED) ||
-            this.getBlockState().getValue(InductionLightBlock.OVERLOAD)) {
+        this.cooldown = cooldown > 0 ? cooldown - 1 : 0;
+        if (this.cooldown > 0
+            || this.getBlockState().getValue(InductionLightBlock.POWERED)
+            || this.getBlockState().getValue(InductionLightBlock.OVERLOAD)) {
             return;
         }
         boolean done = false;
-        for (int i = -rangeSize/2; i <= rangeSize/2; i++) {
-            for (int j = -rangeSize/2; j <= rangeSize/2; j++) {
-                for (int k = -rangeSize/2; k <= rangeSize/2; k++) {
+        for (int i = -rangeSize / 2; i <= rangeSize / 2; i++) {
+            for (int j = -rangeSize / 2; j <= rangeSize / 2; j++) {
+                for (int k = -rangeSize / 2; k <= rangeSize / 2; k++) {
                     BlockPos pos = getPos().offset(i, j, k);
                     BlockState state = level1.getBlockState(pos);
-                    if(state.getBlock() instanceof BonemealableBlock growable &&
-                        !growable.getClass().equals(GrassBlock.class) &&
-                        !growable.getClass().equals(NyliumBlock.class)
-                    ){
+                    if(state.getBlock() instanceof BonemealableBlock growable
+                        && !growable.getClass().equals(GrassBlock.class)
+                        && !growable.getClass().equals(NyliumBlock.class)
+                    ) {
                         growable.performBonemeal(
                             (ServerLevel) level1,
                             level1.getRandom(), pos, state);
@@ -62,8 +62,8 @@ public class InductionLightBlockEntity extends BlockEntity implements IPowerCons
                 }
             }
         }
-        if(done){
-            this.cooldown= AnvilCraft.config.inductionLightBlockRipeningCooldown;
+        if (done) {
+            this.cooldown=AnvilCraft.config.inductionLightBlockRipeningCooldown;
             System.out.println("Successfully ripen.Reset counter.");
         }
     }
