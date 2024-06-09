@@ -4,6 +4,7 @@ import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
+import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.world.item.Item;
@@ -25,6 +26,13 @@ public class ItemInjectRecipesLoader {
         itemInject(Items.RAW_COPPER_BLOCK, 3, Blocks.DEEPSLATE, Blocks.DEEPSLATE_COPPER_ORE, provider);
         itemInject(Items.GOLD_INGOT, 2, Blocks.NETHERRACK, Blocks.NETHER_GOLD_ORE, provider);
         itemInject(Items.GOLD_INGOT, Blocks.BLACKSTONE, Blocks.GILDED_BLACKSTONE, provider);
+        itemInject(ModBlocks.RAW_ZINC.asItem(), Blocks.DEEPSLATE, ModBlocks.DEEPSLATE_ZINC_ORE.get(), provider);
+        itemInject(ModBlocks.RAW_TIN.asItem(), Blocks.DEEPSLATE, ModBlocks.DEEPSLATE_TIN_ORE.get(), provider);
+        itemInject(ModBlocks.RAW_TITANIUM.asItem(), Blocks.DEEPSLATE, ModBlocks.DEEPSLATE_TITANIUM_ORE.get(), provider);
+        itemInject(ModBlocks.RAW_TUNGSTEN.asItem(), Blocks.DEEPSLATE, ModBlocks.DEEPSLATE_TUNGSTEN_ORE.get(), provider);
+        itemInject(ModBlocks.RAW_LEAD.asItem(), Blocks.DEEPSLATE, ModBlocks.DEEPSLATE_LEAD_ORE.get(), provider);
+        itemInject(ModBlocks.RAW_SILVER.asItem(), Blocks.DEEPSLATE, ModBlocks.DEEPSLATE_SILVER_ORE.get(), provider);
+        itemInject(ModBlocks.RAW_URANIUM.asItem(), Blocks.DEEPSLATE, ModBlocks.DEEPSLATE_URANIUM_ORE.get(), provider);
     }
 
     /**

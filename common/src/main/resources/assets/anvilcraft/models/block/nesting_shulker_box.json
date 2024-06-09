@@ -1,0 +1,124 @@
+{
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/cube",
+	"render_type": "minecraft:cutout",
+	"textures": {
+		"0": "anvilcraft:block/nesting_shulker",
+		"2": "anvilcraft:block/nesting_shulker_inner_surface",
+		"3": "anvilcraft:block/nesting_shulker_inner",
+		"4": "anvilcraft:block/nesting_shulker_innertop",
+		"5": "anvilcraft:block/nesting_shulker_innerbottom",
+		"particle": "anvilcraft:block/nesting_shulker"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 0],
+			"to": [16, 16, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#0"},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#0"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#0"},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#0"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#0"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#0"}
+			}
+		},
+		{
+			"from": [3, 3, 3],
+			"to": [13, 13, 13],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [0, 0, 10, 10], "texture": "#3"},
+				"east": {"uv": [0, 0, 10, 10], "texture": "#3"},
+				"south": {"uv": [0, 0, 10, 10], "texture": "#3"},
+				"west": {"uv": [0, 0, 10, 10], "texture": "#3"},
+				"up": {"uv": [0, 0, 10, 10], "texture": "#4"},
+				"down": {"uv": [0, 0, 10, 10], "texture": "#5"}
+			}
+		},
+		{
+			"name": "cube inverted",
+			"from": [15, 16, 15],
+			"to": [1, 0, 1],
+			"shade": false,
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [1, 16, 15, 0], "texture": "#2"},
+				"east": {"uv": [1, 16, 15, 0], "texture": "#2"},
+				"south": {"uv": [1, 16, 15, 0], "texture": "#2"},
+				"west": {"uv": [1, 16, 15, 0], "texture": "#2"}
+			}
+		},
+		{
+			"name": "cube inverted",
+			"from": [16, 15, 15],
+			"to": [0, 1, 1],
+			"shade": false,
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [0, 15, 16, 1], "texture": "#2"},
+				"south": {"uv": [0, 15, 16, 1], "texture": "#2"},
+				"up": {"uv": [16, 1, 0, 15], "texture": "#2"},
+				"down": {"uv": [16, 1, 0, 15], "texture": "#2"}
+			}
+		},
+		{
+			"name": "cube inverted",
+			"from": [15, 15, 16],
+			"to": [1, 1, 0],
+			"shade": false,
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"east": {"uv": [0, 15, 16, 1], "texture": "#2"},
+				"west": {"uv": [0, 15, 16, 1], "texture": "#2"},
+				"up": {"uv": [15, 0, 1, 16], "texture": "#2"},
+				"down": {"uv": [15, 0, 1, 16], "texture": "#2"}
+			}
+		}
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [75, 45, 0],
+			"translation": [0, 2.5, 0],
+			"scale": [0.375, 0.375, 0.375]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [75, 45, 0],
+			"translation": [0, 2.5, 0],
+			"scale": [0.375, 0.375, 0.375]
+		},
+		"firstperson_righthand": {
+			"rotation": [0, 45, 0],
+			"scale": [0.4, 0.4, 0.4]
+		},
+		"firstperson_lefthand": {
+			"rotation": [0, 225, 0],
+			"scale": [0.4, 0.4, 0.4]
+		},
+		"ground": {
+			"translation": [0, 3, 0],
+			"scale": [0.25, 0.25, 0.25]
+		},
+		"gui": {
+			"rotation": [30, 225, 0],
+			"scale": [0.625, 0.625, 0.625]
+		},
+		"fixed": {
+			"rotation": [90, 0, 0],
+			"translation": [0, 0, -0.25],
+			"scale": [0.5, 0.5, 0.5]
+		}
+	},
+	"groups": [
+		0,
+		1,
+		{
+			"name": "group",
+			"origin": [8, 8, 8],
+			"color": 0,
+			"shade": false,
+			"children": [2, 3, 4]
+		}
+	]
+}

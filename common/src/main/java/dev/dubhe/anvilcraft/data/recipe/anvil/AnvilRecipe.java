@@ -77,6 +77,10 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
         this.icon = icon;
     }
 
+    public int getPredicatesSize() {
+        return predicates.size();
+    }
+
     @SuppressWarnings("UnusedReturnValue")
     public AnvilRecipe addPredicates(RecipePredicate... predicates) {
         this.predicates.addAll(Arrays.stream(predicates).toList());

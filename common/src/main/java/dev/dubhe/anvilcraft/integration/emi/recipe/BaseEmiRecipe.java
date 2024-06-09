@@ -25,6 +25,8 @@ import net.minecraft.world.level.block.state.BlockState;
 public abstract class BaseEmiRecipe implements EmiRecipe {
     public final ResourceLocation EMI_GUI_TEXTURES = AnvilCraft.of("textures/gui/container/emi/emi.png");
 
+    protected final BlockState ANVIL_BLOCK_STATE = Blocks.ANVIL.defaultBlockState().setValue(
+            AnvilBlock.FACING, Direction.WEST);
     protected EmiRecipeCategory category;
     protected final AnvilRecipe recipe;
     protected List<EmiIngredient> inputs = new ArrayList<>();
@@ -88,14 +90,5 @@ public abstract class BaseEmiRecipe implements EmiRecipe {
 
     protected void addPlus(WidgetHolder widgets, int x, int y) {
         widgets.addTexture(EMI_GUI_TEXTURES, x, y, 9, 9, 0, 19);
-    }
-
-    protected void addAnvil(WidgetHolder widgets, int x, int y, int offsetY) {
-        widgets.addDrawable(x, y, 0, 0, new BlockWidget(Blocks.ANVIL.defaultBlockState().setValue(
-            AnvilBlock.FACING, Direction.WEST), offsetY));
-    }
-
-    protected void addBlock(WidgetHolder widgets, int x, int y, int offsetY, BlockState blockState) {
-        widgets.addDrawable(x, y, 11, 11, new BlockWidget(blockState, offsetY));
     }
 }

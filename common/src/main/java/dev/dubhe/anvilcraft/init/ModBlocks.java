@@ -4,6 +4,7 @@ import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
+import dev.dubhe.anvilcraft.api.power.IPowerComponent.Switch;
 import dev.dubhe.anvilcraft.block.ActiveSilencerBlock;
 import dev.dubhe.anvilcraft.block.ArrowBlock;
 import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
@@ -24,6 +25,7 @@ import dev.dubhe.anvilcraft.block.HeavyIronBeamBlock;
 import dev.dubhe.anvilcraft.block.HeavyIronPlateBlock;
 import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
 import dev.dubhe.anvilcraft.block.HoneyCauldronBlock;
+import dev.dubhe.anvilcraft.block.ImpactPileBlock;
 import dev.dubhe.anvilcraft.block.IncandescentMetalBlock;
 import dev.dubhe.anvilcraft.block.InductionLightBlock;
 import dev.dubhe.anvilcraft.block.ItemCollectorBlock;
@@ -32,7 +34,9 @@ import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
 import dev.dubhe.anvilcraft.block.LoadMonitorBlock;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
 import dev.dubhe.anvilcraft.block.MeltGemCauldron;
+import dev.dubhe.anvilcraft.block.MineralFountainBlock;
 import dev.dubhe.anvilcraft.block.MobAmberBlock;
+import dev.dubhe.anvilcraft.block.ObsidianCauldron;
 import dev.dubhe.anvilcraft.block.OverseerBlock;
 import dev.dubhe.anvilcraft.block.PiezoelectricCrystalBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterBigBlock;
@@ -46,8 +50,11 @@ import dev.dubhe.anvilcraft.block.ResinBlock;
 import dev.dubhe.anvilcraft.block.RoyalAnvilBlock;
 import dev.dubhe.anvilcraft.block.RoyalGrindstone;
 import dev.dubhe.anvilcraft.block.RoyalSmithingTableBlock;
+import dev.dubhe.anvilcraft.block.RubyLaserBlock;
+import dev.dubhe.anvilcraft.block.RubyPrismBlock;
 import dev.dubhe.anvilcraft.block.SimpleChuteBlock;
 import dev.dubhe.anvilcraft.block.StampingPlatformBlock;
+import dev.dubhe.anvilcraft.block.ThermoelectricConverterBlock;
 import dev.dubhe.anvilcraft.block.TransmissionPoleBlock;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.block.state.Half;
@@ -74,7 +81,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
-import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.data.recipes.packs.VanillaRecipeProvider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.BlockTags;
@@ -97,6 +103,7 @@ import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.WallBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
@@ -1588,6 +1595,48 @@ public class ModBlocks {
                     .save(provider))
             .register();
 
+    public static final BlockEntry<ObsidianCauldron> OBSIDIDAN_CAULDRON = REGISTRATE
+            .block("obsidian_cauldron", ObsidianCauldron::new)
+            .initialProperties(() -> Blocks.OBSIDIAN)
+            .properties(it -> it.pushReaction(PushReaction.BLOCK))
+            .blockstate((ctx, provider) -> {
+            })
+            .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .register();
+
+    public static final BlockEntry<ThermoelectricConverterBlock> THERMOELECTRIC_CONVERTER = REGISTRATE
+            .block("thermoelectric_converter", ThermoelectricConverterBlock::new)
+            .simpleItem()
+            .initialProperties(() -> Blocks.IRON_BLOCK)
+            .properties(BlockBehaviour.Properties::noOcclusion)
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .blockstate((ctx, provider) -> {
+            })
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                    .pattern("ABA")
+                    .pattern("CDC")
+                    .pattern("ABA")
+                    .define('A', ModItems.ROYAL_STEEL_INGOT)
+                    .define('B', Items.COPPER_INGOT)
+                    .define('C', ModBlocks.SAPPHIRE_BLOCK)
+                    .define('D', Items.BLUE_ICE)
+                    .unlockedBy(
+                            AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_INGOT),
+                            AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT)
+                    ).unlockedBy(
+                            AnvilCraftDatagen.hasItem(Items.COPPER_INGOT),
+                            AnvilCraftDatagen.has(Items.COPPER_INGOT)
+                    ).unlockedBy(
+                            AnvilCraftDatagen.hasItem(ModBlocks.SAPPHIRE_BLOCK),
+                            AnvilCraftDatagen.has(ModBlocks.SAPPHIRE_BLOCK)
+                    ).unlockedBy(
+                            AnvilCraftDatagen.hasItem(Items.BLUE_ICE),
+                            AnvilCraftDatagen.has(Items.BLUE_ICE)
+                    )
+                    .save(provider))
+            .register();
+
     public static final BlockEntry<BlockDevourerBlock> BLOCK_DEVOURER = REGISTRATE
         .block("block_devourer", BlockDevourerBlock::new)
         .simpleItem()
@@ -1703,7 +1752,10 @@ public class ModBlocks {
             .block("discharger", DischargerBlock::new)
             .initialProperties(() -> Blocks.IRON_BLOCK)
             .properties(BlockBehaviour.Properties::noOcclusion)
+            .blockstate((ctx, provider) -> {
+            })
             .simpleItem()
+            .blockstate((ctx, prov) -> {})
             .defaultLoot()
             .tag(BlockTags.MINEABLE_WITH_PICKAXE)
             .register();
@@ -1907,6 +1959,349 @@ public class ModBlocks {
             .tag(BlockTags.MINEABLE_WITH_PICKAXE)
             .register();
 
+    public static final BlockEntry<MineralFountainBlock> MINERAL_FOUNTAIN = REGISTRATE
+        .block("mineral_fountain", MineralFountainBlock::new)
+        .initialProperties(() -> Blocks.BEDROCK)
+        .simpleItem()
+        .blockstate((context, provider) -> provider.simpleBlock(context.get(),
+                DangerUtil.genConfiguredModel("block/mineral_fountain").get()))
+        .loot((tables, block) -> tables.dropOther(block, Items.AIR))
+        .register();
+
+    public static final BlockEntry<ImpactPileBlock> IMPACT_PILE = REGISTRATE
+        .block("impact_pile", ImpactPileBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .blockstate((context, provider) -> provider.simpleBlock(context.get(),
+                DangerUtil.genConfiguredModel("block/impact_pile").get()))
+        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
+                .pattern(" A ")
+                .pattern(" B ")
+                .pattern(" B ")
+                .define('A', Blocks.OBSIDIAN)
+                .define('B', Items.NETHERITE_INGOT)
+                .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.OBSIDIAN),
+                        AnvilCraftDatagen.has(Blocks.OBSIDIAN))
+                .unlockedBy(AnvilCraftDatagen.hasItem(Items.NETHERITE_INGOT),
+                        AnvilCraftDatagen.has(Items.NETHERITE_INGOT))
+                .save(provider))
+        .simpleItem()
+        .defaultLoot()
+        .register();
+
+    public static final BlockEntry<RubyPrismBlock> RUBY_PRISM = REGISTRATE
+        .block("ruby_prism", RubyPrismBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(BlockBehaviour.Properties::noOcclusion)
+        .blockstate((ctx, provider) -> {
+        })
+        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern("ACA")
+            .pattern("CBC")
+            .pattern("AAA")
+            .define('A', ModItems.ROYAL_STEEL_INGOT)
+            .define('B', ModBlocks.RUBY_BLOCK)
+            .define('C', ModItems.RUBY)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_INGOT),
+                AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.RUBY_BLOCK),
+                AnvilCraftDatagen.has(ModBlocks.RUBY_BLOCK)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.RUBY),
+                AnvilCraftDatagen.has(ModItems.RUBY)
+            )
+            .save(provider)
+        )
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<RubyLaserBlock> RUBY_LASER = REGISTRATE
+        .block("ruby_laser", RubyLaserBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.lightLevel(it -> {
+            if (it.getValue(RubyLaserBlock.SWITCH) == Switch.ON)
+                return 15;
+            else return 0;
+        }))
+        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern("ACA")
+            .pattern("BDB")
+            .pattern("ACA")
+            .define('A', ModItems.ROYAL_STEEL_INGOT)
+            .define('B', ModBlocks.INDUCTION_LIGHT)
+            .define('C', ModItems.SILVER_INGOT)
+            .define('D', ModBlocks.RUBY_BLOCK)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_INGOT),
+                AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.INDUCTION_LIGHT),
+                AnvilCraftDatagen.has(ModBlocks.INDUCTION_LIGHT)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.SILVER_INGOT),
+                AnvilCraftDatagen.has(ModItems.SILVER_INGOT))
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.RUBY_BLOCK),
+                AnvilCraftDatagen.has(ModBlocks.RUBY_BLOCK)
+            )
+            .save(provider)
+        )
+        .properties(BlockBehaviour.Properties::noOcclusion)
+        .blockstate((ctx, provider) -> {
+        })
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+
+    public static final BlockEntry<Block> RAW_ZINC = REGISTRATE
+            .block("raw_zinc_block", Block::new)
+            .initialProperties(() -> Blocks.RAW_IRON_BLOCK)
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .define('A', ModItems.RAW_ZINC)
+                    .unlockedBy(
+                            AnvilCraftDatagen.hasItem(ModItems.RAW_ZINC),
+                            AnvilCraftDatagen.has(ModItems.RAW_ZINC)
+                    )
+                    .save(provider)
+            )
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .register();
+    public static final BlockEntry<Block> RAW_TIN = REGISTRATE
+            .block("raw_tin_block", Block::new)
+            .initialProperties(() -> Blocks.RAW_IRON_BLOCK)
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .define('A', ModItems.RAW_TIN)
+                    .unlockedBy(
+                            AnvilCraftDatagen.hasItem(ModItems.RAW_TIN),
+                            AnvilCraftDatagen.has(ModItems.RAW_TIN)
+                    )
+                    .save(provider)
+            )
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .register();
+    public static final BlockEntry<Block> RAW_TITANIUM = REGISTRATE
+            .block("raw_titanium_block", Block::new)
+            .initialProperties(() -> Blocks.RAW_IRON_BLOCK)
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .define('A', ModItems.RAW_TITANIUM)
+                    .unlockedBy(
+                            AnvilCraftDatagen.hasItem(ModItems.RAW_TITANIUM),
+                            AnvilCraftDatagen.has(ModItems.RAW_TITANIUM)
+                    )
+                    .save(provider)
+            )
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .register();
+    public static final BlockEntry<Block> RAW_TUNGSTEN = REGISTRATE
+            .block("raw_tungsten_block", Block::new)
+            .initialProperties(() -> Blocks.RAW_IRON_BLOCK)
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .define('A', ModItems.RAW_TUNGSTEN)
+                    .unlockedBy(
+                            AnvilCraftDatagen.hasItem(ModItems.RAW_TUNGSTEN),
+                            AnvilCraftDatagen.has(ModItems.RAW_TUNGSTEN)
+                    )
+                    .save(provider)
+            )
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .register();
+    public static final BlockEntry<Block> RAW_LEAD = REGISTRATE
+            .block("raw_lead_block", Block::new)
+            .initialProperties(() -> Blocks.RAW_IRON_BLOCK)
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .define('A', ModItems.RAW_LEAD)
+                    .unlockedBy(
+                            AnvilCraftDatagen.hasItem(ModItems.RAW_LEAD),
+                            AnvilCraftDatagen.has(ModItems.RAW_LEAD)
+                    )
+                    .save(provider)
+            )
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .register();
+    public static final BlockEntry<Block> RAW_SILVER = REGISTRATE
+            .block("raw_silver_block", Block::new)
+            .initialProperties(() -> Blocks.RAW_IRON_BLOCK)
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .define('A', ModItems.RAW_SILVER)
+                    .unlockedBy(
+                            AnvilCraftDatagen.hasItem(ModItems.RAW_SILVER),
+                            AnvilCraftDatagen.has(ModItems.RAW_SILVER)
+                    )
+                    .save(provider)
+            )
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .register();
+    public static final BlockEntry<Block> RAW_URANIUM = REGISTRATE
+            .block("raw_uranium_block", Block::new)
+            .initialProperties(() -> Blocks.RAW_IRON_BLOCK)
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .define('A', ModItems.RAW_URANIUM)
+                    .unlockedBy(
+                            AnvilCraftDatagen.hasItem(ModItems.RAW_URANIUM),
+                            AnvilCraftDatagen.has(ModItems.RAW_URANIUM)
+                    )
+                    .save(provider)
+            )
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .register();
+    public static final BlockEntry<Block> DEEPSLATE_ZINC_ORE = REGISTRATE
+            .block("deepslate_zinc_ore", Block::new)
+            .initialProperties(() -> Blocks.DEEPSLATE_IRON_ORE)
+            .simpleItem()
+            .loot((tables, block) -> tables.add(block, tables.createOreDrop(block, ModItems.RAW_ZINC.get())))
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .register();
+    public static final BlockEntry<Block> DEEPSLATE_TIN_ORE = REGISTRATE
+            .block("deepslate_tin_ore", Block::new)
+            .initialProperties(() -> Blocks.DEEPSLATE_IRON_ORE)
+            .simpleItem()
+            .loot((tables, block) -> tables.add(block, tables.createOreDrop(block, ModItems.RAW_TIN.get())))
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .register();
+    public static final BlockEntry<Block> DEEPSLATE_TITANIUM_ORE = REGISTRATE
+            .block("deepslate_titanium_ore", Block::new)
+            .initialProperties(() -> Blocks.DEEPSLATE_IRON_ORE)
+            .simpleItem()
+            .loot((tables, block) -> tables.add(block, tables.createOreDrop(block, ModItems.RAW_TITANIUM.get())))
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .register();
+    public static final BlockEntry<Block> DEEPSLATE_TUNGSTEN_ORE = REGISTRATE
+            .block("deepslate_tungsten_ore", Block::new)
+            .initialProperties(() -> Blocks.DEEPSLATE_IRON_ORE)
+            .simpleItem()
+            .loot((tables, block) -> tables.add(block, tables.createOreDrop(block, ModItems.RAW_TUNGSTEN.get())))
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .register();
+    public static final BlockEntry<Block> DEEPSLATE_LEAD_ORE = REGISTRATE
+            .block("deepslate_lead_ore", Block::new)
+            .initialProperties(() -> Blocks.DEEPSLATE_IRON_ORE)
+            .simpleItem()
+            .loot((tables, block) -> tables.add(block, tables.createOreDrop(block, ModItems.RAW_LEAD.get())))
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .register();
+    public static final BlockEntry<Block> DEEPSLATE_SILVER_ORE = REGISTRATE
+            .block("deepslate_silver_ore", Block::new)
+            .initialProperties(() -> Blocks.DEEPSLATE_IRON_ORE)
+            .simpleItem()
+            .loot((tables, block) -> tables.add(block, tables.createOreDrop(block, ModItems.RAW_SILVER.get())))
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .register();
+    public static final BlockEntry<Block> DEEPSLATE_URANIUM_ORE = REGISTRATE
+            .block("deepslate_uranium_ore", Block::new)
+            .initialProperties(() -> Blocks.DEEPSLATE_IRON_ORE)
+            .simpleItem()
+            .loot((tables, block) -> tables.add(block, tables.createOreDrop(block, ModItems.RAW_URANIUM.get())))
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .register();
+
+    public static final BlockEntry<Block> VOID_STONE = REGISTRATE
+            .block("void_stone", Block::new)
+            .initialProperties(() -> Blocks.DIAMOND_BLOCK)
+            .simpleItem()
+            .loot((tables, block) -> tables.add(block, tables.createOreDrop(block, ModItems.VOID_MATTER.get())))
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .tag(BlockTags.NEEDS_DIAMOND_TOOL)
+            .register();
+
+    public static final BlockEntry<Block> VOID_MATTER_BLOCK = REGISTRATE
+            .block("void_matter_block", Block::new)
+            .initialProperties(() -> Blocks.DIAMOND_BLOCK)
+            .properties(BlockBehaviour.Properties::noOcclusion)
+            .blockstate((context, provider) -> provider.simpleBlock(context.get(),
+                    DangerUtil.genConfiguredModel("block/void_matter_block").get()))
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .define('A', ModItems.VOID_MATTER)
+                    .unlockedBy(
+                            AnvilCraftDatagen.hasItem(ModItems.VOID_MATTER),
+                            AnvilCraftDatagen.has(ModItems.VOID_MATTER)
+                    )
+                    .save(provider)
+            )
+            .simpleItem()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .tag(BlockTags.NEEDS_DIAMOND_TOOL)
+            .register();
+    public static final BlockEntry<Block> EARTH_CORE_SHARD_ORE = REGISTRATE
+            .block("earth_core_shard_ore", Block::new)
+            .initialProperties(() -> Blocks.DIAMOND_BLOCK)
+            .properties(properties -> properties.explosionResistance(1200))
+            .simpleItem()
+            .item()
+            .initialProperties(() -> new  Item.Properties().fireResistant())
+            .build()
+            .loot((tables, block) -> tables.add(block, tables.createOreDrop(block, ModItems.EARTH_CORE_SHARD.get())))
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .tag(BlockTags.NEEDS_DIAMOND_TOOL)
+            .register();
+
+    public static final BlockEntry<Block> EARTH_CORE_SHARD_BLOCK = REGISTRATE
+            .block("earth_core_shard_block", Block::new)
+            .initialProperties(() -> Blocks.DIAMOND_BLOCK)
+            .properties(properties -> properties.explosionResistance(1200))
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .define('A', ModItems.EARTH_CORE_SHARD)
+                    .unlockedBy(
+                            AnvilCraftDatagen.hasItem(ModItems.EARTH_CORE_SHARD),
+                            AnvilCraftDatagen.has(ModItems.EARTH_CORE_SHARD)
+                    )
+                    .save(provider)
+            )
+            .item()
+            .initialProperties(() -> new  Item.Properties().fireResistant())
+            .build()
+            .defaultLoot()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .tag(BlockTags.NEEDS_DIAMOND_TOOL)
+            .register();
 
     private static @NotNull BlockEntry<ReinforcedConcreteBlock> registerReinforcedConcreteBlock(@NotNull Color color) {
         return REGISTRATE

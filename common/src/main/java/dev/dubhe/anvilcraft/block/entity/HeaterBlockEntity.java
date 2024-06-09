@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Getter
 public class HeaterBlockEntity extends BlockEntity implements IPowerConsumer {
-    private static final int POWER = 8;
+    private static final int POWER = 16;
     private PowerGrid grid = null;
 
     public HeaterBlockEntity(BlockPos pos, BlockState blockState) {
