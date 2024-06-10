@@ -10,19 +10,15 @@ public class RecipesHandler {
      * @param provider 提供器
      */
     public static void init(RegistrateRecipeProvider provider) {
-
         VanillaRecipesLoader.init(provider);
-
-        AnvilItemRecipesLoader.init(provider);
         BulgingAndCrystallizeRecipesLoader.init(provider);
         CompactionRecipesLoader.init(provider);
         CompressRecipesLoader.init(provider);
         CookingRecipesLoader.init(provider);
-        HeaterRecipesLoader.init(provider);
         ItemInjectRecipesLoader.init(provider);
-        SmashBlockRecipesLoader.init(provider);
+        BlockSmashRecipesLoader.init(provider);
         SievingRecipesLoader.init(provider);
-        SmashRecipesLoader.init(provider);
+        ItemSmashRecipesLoader.init(provider);
         SqueezeRecipesLoader.init(provider);
         StampingRecipesLoader.init(provider);
         TimeWarpRecipesLoader.init(provider);

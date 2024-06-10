@@ -28,12 +28,19 @@ public abstract class BaseEmiRecipe implements EmiRecipe {
     protected EmiRecipeCategory category;
     protected final AnvilRecipe recipe;
     protected List<EmiIngredient> inputs = new ArrayList<>();
+    protected ArrayList<EmiStack> blockOutputs =  new ArrayList<>();
     protected ArrayList<EmiStack> simpleOutputs =  new ArrayList<>();
     protected ArrayList<List<EmiStack>> selectOneItemList = new ArrayList<>();
     protected ResourceLocation id;
     protected int width;
     protected int height;
 
+    /**
+     * 基础EMI配方
+     *
+     * @param category 配方类型
+     * @param recipe {@link AnvilRecipe}配方
+     */
     public BaseEmiRecipe(EmiRecipeCategory category, AnvilRecipe recipe, int width, int height) {
         this.category = category;
         this.recipe = recipe;
@@ -55,17 +62,21 @@ public abstract class BaseEmiRecipe implements EmiRecipe {
     @Override
     public abstract void addWidgets(WidgetHolder widgets);
 
-    protected void addBendArrow(WidgetHolder widgets, int x, int y) {
-        widgets.addTexture(EMI_GUI_TEXTURES, x, y, 17, 9, 0, 29);
+    protected void addInputArrow(WidgetHolder widgets, int x, int y) {
+        widgets.addTexture(EMI_GUI_TEXTURES, x, y, 16, 8, 0, 31);
+    }
+
+    protected void addOutputArrow(WidgetHolder widgets, int x, int y) {
+        widgets.addTexture(EMI_GUI_TEXTURES, x, y, 16, 10, 0, 40);
     }
 
     protected void addStraightArrow(WidgetHolder widgets, int x, int y) {
-        widgets.addTexture(EMI_GUI_TEXTURES, x, y, 9, 9, 10, 19);
+        widgets.addTexture(EMI_GUI_TEXTURES, x, y, 12, 11, 0, 19);
     }
 
     protected void addChangeSlot(EmiIngredient ingredient, int x, int y, WidgetHolder widgets) {
-        widgets.addTexture(EMI_GUI_TEXTURES, x, y, 18, 18, 19, 0);
-        widgets.add(new SlotWidget(ingredient, x, y).recipeContext(this));
+        widgets.add(new SlotWidget(ingredient, x, y).recipeContext(this)
+                .customBackground(EMI_GUI_TEXTURES, 19, 0, 18, 18));
     }
 
     protected void addSelectOneSlot(List<EmiStack> emiStacks, int x, int y, WidgetHolder widgets) {
@@ -74,8 +85,8 @@ public abstract class BaseEmiRecipe implements EmiRecipe {
     }
 
     protected void addSimpleSlot(EmiIngredient ingredient, int x, int y, WidgetHolder widgets) {
-        widgets.addTexture(EMI_GUI_TEXTURES, x, y, 18, 18, 0, 0);
-        widgets.add(new SlotWidget(ingredient, x, y));
+        widgets.add(new SlotWidget(ingredient, x, y)
+                .customBackground(EMI_GUI_TEXTURES, 0, 0, 18, 18));
     }
 
     protected void addSlot(EmiIngredient ingredient, int x, int y, WidgetHolder widgets) {
@@ -86,12 +97,17 @@ public abstract class BaseEmiRecipe implements EmiRecipe {
         addSimpleSlot(ingredient, x, y, widgets);
     }
 
-    protected void addPlus(WidgetHolder widgets, int x, int y) {
-        widgets.addTexture(EMI_GUI_TEXTURES, x, y, 9, 9, 0, 19);
-    }
-
     @Override
     public List<EmiStack> getOutputs() {
+        ArrayList<EmiStack> list = new ArrayList<>(getItemOutputs());
+        list.addAll(blockOutputs);
+        return list;
+    }
+
+    /**
+     * 获取物品输出
+     */
+    public List<EmiStack> getItemOutputs() {
         ArrayList<EmiStack> list = new ArrayList<>();
         selectOneItemList.forEach(list::addAll);
         list.addAll(simpleOutputs);

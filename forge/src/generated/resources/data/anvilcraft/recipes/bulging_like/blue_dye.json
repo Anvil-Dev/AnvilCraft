@@ -1,6 +1,6 @@
 {
   "type": "anvilcraft:anvil_processing",
-  "anvil_recipe_type": "null",
+  "anvil_recipe_type": "fluid_handling",
   "icon": {
     "item": "minecraft:blue_dye"
   },

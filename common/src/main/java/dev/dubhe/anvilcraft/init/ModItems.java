@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.data.RecipeItem;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
-import dev.dubhe.anvilcraft.data.generator.recipe.BulgingAndCrystallizeRecipesLoader;
 import dev.dubhe.anvilcraft.data.generator.recipe.TimeWarpRecipesLoader;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.crafting.ShapedTagRecipeBuilder;
@@ -23,6 +22,7 @@ import dev.dubhe.anvilcraft.item.DiskItem;
 import dev.dubhe.anvilcraft.item.EmptyCapacitorItem;
 import dev.dubhe.anvilcraft.item.GeodeItem;
 import dev.dubhe.anvilcraft.item.GuideBookItem;
+import dev.dubhe.anvilcraft.item.LevitationPowderItem;
 import dev.dubhe.anvilcraft.item.MagnetItem;
 import dev.dubhe.anvilcraft.item.ModFoods;
 import dev.dubhe.anvilcraft.item.RoyalAnvilHammerItem;
@@ -34,7 +34,6 @@ import dev.dubhe.anvilcraft.item.RoyalSwordItem;
 import dev.dubhe.anvilcraft.item.RoyalUpgradeTemplateItem;
 import dev.dubhe.anvilcraft.item.TopazItem;
 import dev.dubhe.anvilcraft.item.UtusanItem;
-import dev.dubhe.anvilcraft.item.LevitationPowderItem;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -184,8 +183,6 @@ public class ModItems {
     public static final ItemEntry<Item> DOUGH = REGISTRATE
         .item("dough", Item::new)
         .tag(ModItemTags.DOUGH, ModItemTags.WHEAT_DOUGH)
-        .recipe((ctx, provider) ->
-            BulgingAndCrystallizeRecipesLoader.bulging(ModItems.FLOUR.get(), ModItems.DOUGH.get(), provider))
         .register();
     public static final ItemEntry<Item> CHOCOLATE = REGISTRATE
         .item("chocolate", properties -> new Item(properties.food(ModFoods.CHOCOLATE)))

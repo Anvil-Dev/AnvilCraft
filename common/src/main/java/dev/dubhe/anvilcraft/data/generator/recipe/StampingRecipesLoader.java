@@ -122,7 +122,13 @@ public class StampingRecipesLoader {
         stamping(item, RecipeItem.of(item1));
     }
 
-    private static void stamping(Item enter, RecipeItem... items) {
+    /**
+     * 冲印配方
+     *
+     * @param enter 输入物品tag
+     * @param items 输出物品数组
+     */
+    public static void stamping(Item enter, RecipeItem... items) {
         if (StampingRecipesLoader.provider == null) return;
         Builder builder = AnvilRecipe.Builder.create(RecipeCategory.MISC)
             .hasBlock(ModBlocks.STAMPING_PLATFORM.get())
@@ -147,7 +153,13 @@ public class StampingRecipesLoader {
                     .get(0).getItem().asItem()).getPath()));
     }
 
-    private static void stamping(TagKey<Item> enter, RecipeItem... items) {
+    /**
+     * 冲印配方
+     *
+     * @param enter 输入物品tag
+     * @param items 输出物品数组
+     */
+    public static void stamping(TagKey<Item> enter, RecipeItem... items) {
         if (StampingRecipesLoader.provider == null) return;
         Builder builder = AnvilRecipe.Builder.create(RecipeCategory.MISC)
             .hasBlock(ModBlocks.STAMPING_PLATFORM.get())
@@ -172,21 +184,16 @@ public class StampingRecipesLoader {
                     .get(0).getItem().asItem()).getPath()));
     }
 
-
     /**
      * 生成回收配方
      *
      * @param item  原料
      * @param item1 产物
      */
-    public static void reclaim(RegistrateRecipeProvider provider, Item item, Item item1) {
-        StampingRecipesLoader.provider = provider;
-        reclaim(item, item1);
-    }
-
-    private static void reclaim(Item item, Item item1) {
+    public static void reclaim(Item item, Item item1) {
         if (StampingRecipesLoader.provider == null) return;
         AnvilRecipe.Builder builder = AnvilRecipe.Builder.create(RecipeCategory.MISC)
+            .type(AnvilRecipeType.STAMPING)
             .hasBlock(ModBlocks.STAMPING_PLATFORM.get())
             .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), item)
             .unlockedBy(AnvilCraftDatagen.hasItem(item), AnvilCraftDatagen.has(item));
@@ -201,5 +208,10 @@ public class StampingRecipesLoader {
         builder.save(StampingRecipesLoader.provider,
             AnvilCraft.of("reclaim/" + BuiltInRegistries.ITEM.getKey(item).getPath()
                 + "_2_" + BuiltInRegistries.ITEM.getKey(item1).getPath()));
+    }
+
+    public static void reclaim(RegistrateRecipeProvider provider, Item item, Item item1) {
+        StampingRecipesLoader.provider = provider;
+        reclaim(item, item1);
     }
 }

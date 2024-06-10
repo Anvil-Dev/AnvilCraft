@@ -1,6 +1,6 @@
 {
   "type": "anvilcraft:anvil_processing",
-  "anvil_recipe_type": "null",
+  "anvil_recipe_type": "compress",
   "icon": {
     "item": "minecraft:bone_block"
   },

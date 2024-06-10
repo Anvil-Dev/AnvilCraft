@@ -4,6 +4,7 @@ import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -97,6 +98,7 @@ public class SqueezeRecipesLoader {
         @NotNull Block block, @NotNull Block block1, @NotNull Block block2, RegistrateRecipeProvider provider
     ) {
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
+            .type(AnvilRecipeType.SQUEEZE)
             .hasBlock(block)
             .hasBlock(Blocks.CAULDRON, new Vec3(0.0, -2.0, 0.0))
             .setBlock(block1)
@@ -105,6 +107,7 @@ public class SqueezeRecipesLoader {
             .save(provider, AnvilCraft.of("squeeze/" + BuiltInRegistries.BLOCK.getKey(block).getPath()
                 + "_" + BuiltInRegistries.BLOCK.getKey(block2).getPath() + "_1"));
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
+            .type(AnvilRecipeType.SQUEEZE)
             .hasBlock(block)
             .hasBlock(block2, new Vec3(0.0, -2.0, 0.0), Map.entry(LayeredCauldronBlock.LEVEL, 1))
             .setBlock(block1)
@@ -113,6 +116,7 @@ public class SqueezeRecipesLoader {
             .save(provider, AnvilCraft.of("squeeze/" + BuiltInRegistries.BLOCK.getKey(block).getPath()
                 + "_" + BuiltInRegistries.BLOCK.getKey(block2).getPath() + "_2"));
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
+            .type(AnvilRecipeType.SQUEEZE)
             .hasBlock(block)
             .hasBlock(block2, new Vec3(0.0, -2.0, 0.0), Map.entry(LayeredCauldronBlock.LEVEL, 2))
             .setBlock(block1)
