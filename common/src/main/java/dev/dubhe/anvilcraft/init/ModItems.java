@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.data.RecipeItem;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.generator.recipe.TimeWarpRecipesLoader;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;
 import dev.dubhe.anvilcraft.data.recipe.crafting.ShapedTagRecipeBuilder;
 import dev.dubhe.anvilcraft.item.AmethystAxeItem;
 import dev.dubhe.anvilcraft.item.AmethystHoeItem;
@@ -174,6 +175,7 @@ public class ModItems {
         .item("flour", Item::new)
         .tag(ModItemTags.FLOUR, ModItemTags.WHEAT_FLOUR)
         .recipe((ctx, provider) -> AnvilRecipe.Builder.create(RecipeCategory.MISC, ctx.get().getDefaultInstance())
+            .type(AnvilRecipeType.ITEM_SMASH)
             .hasBlock(ModBlocks.STAMPING_PLATFORM.get())
             .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), Items.WHEAT)
             .spawnItem(new Vec3(0.0, -0.75, 0.0), ctx.get())
@@ -592,6 +594,7 @@ public class ModItems {
                 .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_forge");
             AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .icon(Items.ANCIENT_DEBRIS)
+                .type(AnvilRecipeType.TIMEWARP)
                 .hasBlock(
                     ModBlocks.CORRUPTED_BEACON.get(),
                     new Vec3(0.0, -2.0, 0.0),
@@ -975,6 +978,7 @@ public class ModItems {
                 )
                 .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_forge");
             AnvilRecipe.Builder.create(RecipeCategory.MISC, ctx.get().getDefaultInstance())
+                .type(AnvilRecipeType.SUPER_HEATING)
                 .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(OVERLOAD, false))
                 .hasBlock(Blocks.CAULDRON)
                 .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 1, ModItemTags.TIN_INGOTS)
@@ -995,6 +999,7 @@ public class ModItems {
                     )
                 );
             AnvilRecipe.Builder.create(RecipeCategory.MISC, ctx.get().getDefaultInstance())
+                .type(AnvilRecipeType.SUPER_HEATING)
                 .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(OVERLOAD, false))
                 .hasBlock(Blocks.CAULDRON)
                 .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 1, ModItemTags.TIN_INGOTS_FORGE)
@@ -1068,6 +1073,7 @@ public class ModItems {
                 )
                 .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_forge");
             AnvilRecipe.Builder.create(RecipeCategory.MISC, ctx.get().getDefaultInstance())
+                .type(AnvilRecipeType.SUPER_HEATING)
                 .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(OVERLOAD, false))
                 .hasBlock(Blocks.CAULDRON)
                 .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 1, ModItemTags.ZINC_INGOTS)
@@ -1088,6 +1094,7 @@ public class ModItems {
                     )
                 );
             AnvilRecipe.Builder.create(RecipeCategory.MISC, ctx.get().getDefaultInstance())
+                .type(AnvilRecipeType.SUPER_HEATING)
                 .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(OVERLOAD, false))
                 .hasBlock(Blocks.CAULDRON)
                 .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 1, ModItemTags.ZINC_INGOTS_FORGE)

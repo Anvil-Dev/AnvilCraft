@@ -852,6 +852,7 @@ public class ModBlocks {
             HasItem hasItem = new HasItemIngredient(new Vec3(0.0, -1.0, 0.0), item).notHasTag("BlockEntityTag.entity");
             AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .icon(ctx.get())
+                .type(AnvilRecipeType.TIMEWARP)
                 .hasBlock(
                     ModBlocks.CORRUPTED_BEACON.get(),
                     new Vec3(0.0, -2.0, 0.0),
@@ -892,6 +893,7 @@ public class ModBlocks {
             ).loadItemData("resin");
             AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .icon(ctx.get())
+                .type(AnvilRecipeType.TIMEWARP)
                 .hasBlock(
                     ModBlocks.CORRUPTED_BEACON.get(),
                     new Vec3(0.0, -2.0, 0.0),
@@ -929,6 +931,7 @@ public class ModBlocks {
             ).loadItemData("resin");
             AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .icon(ctx.get())
+                .type(AnvilRecipeType.TIMEWARP)
                 .hasBlock(
                     ModBlocks.CORRUPTED_BEACON.get(),
                     new Vec3(0.0, -2.0, 0.0),
