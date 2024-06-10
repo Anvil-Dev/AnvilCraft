@@ -2,58 +2,62 @@ package dev.dubhe.anvilcraft.api.recipe;
 
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
+import lombok.Getter;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.BlastingRecipe;
+import net.minecraft.world.item.crafting.CampfireCookingRecipe;
+import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.SmeltingRecipe;
+import net.minecraft.world.item.crafting.SmokingRecipe;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 public class AnvilRecipeManager {
-    private static List<AnvilRecipe> ANVIL_RECIPE_SET = List.of();
+    @Getter
+    private static List<AnvilRecipe> anvilRecipeList = List.of();
 
     /**
      * 更新配方
      *
      * @param server 服务器实例
      */
-    public static void updateRecipes(MinecraftServer server) {
+    public static void updateRecipes(@NotNull MinecraftServer server) {
         RecipeManager manager = server.getRecipeManager();
         ArrayList<AnvilRecipe> anvilRecipes = new ArrayList<>(manager.getAllRecipesFor(ModRecipeTypes.ANVIL_RECIPE));
-        ArrayList<AnvilRecipe> smokingRecipes = new ArrayList<>();
-        ArrayList<AnvilRecipe> smeltingRecipes = new ArrayList<>();
-        manager.getAllRecipesFor(RecipeType.SMOKING).forEach(
-                smokingRecipe -> smokingRecipes.addAll(AnvilRecipe.of(smokingRecipe, server.registryAccess())));
-        manager.getAllRecipesFor(RecipeType.CAMPFIRE_COOKING).forEach(
-                campfireCookingRecipe ->
-                        anvilRecipes.addAll(AnvilRecipe.of(campfireCookingRecipe, server.registryAccess())));
-        manager.getAllRecipesFor(RecipeType.BLASTING).forEach(
-                blastingRecipe ->
-                        anvilRecipes.addAll(AnvilRecipe.of(blastingRecipe, server.registryAccess())));
-        manager.getAllRecipesFor(RecipeType.SMELTING).forEach(
-                smeltingRecipe -> {
-                    List<AnvilRecipe> anvilRecipe =
-                            AnvilRecipe.of(smeltingRecipe, server.registryAccess());
-                    if (!anvilRecipe.isEmpty()
-                            && smokingRecipes.stream().noneMatch((smokingRecipe) ->
-                            anvilRecipe.get(0).getResultItem(server.registryAccess())
-                                    .is(smokingRecipe.getResultItem(server.registryAccess()).getItem())))
-                        smeltingRecipes.addAll(anvilRecipe);
-                });
-        manager.getAllRecipesFor(RecipeType.CRAFTING).forEach(
-                craftingRecipe ->
-                        anvilRecipes.addAll(AnvilRecipe.of(craftingRecipe, server.registryAccess())));
-        anvilRecipes.addAll(smokingRecipes);
-        anvilRecipes.addAll(smeltingRecipes);
-
-        ANVIL_RECIPE_SET = anvilRecipes
-                .stream()
-                .sorted(Comparator.comparing(AnvilRecipe::getWeightCoefficient).reversed())
-                .toList();
-    }
-
-    public static List<AnvilRecipe> getAnvilRecipeList() {
-        return ANVIL_RECIPE_SET;
+        List<ItemStack> needFilter = new ArrayList<>();
+        for (CampfireCookingRecipe recipe : manager.getAllRecipesFor(RecipeType.CAMPFIRE_COOKING)) {
+            AnvilRecipe anvilRecipe = AnvilRecipe.of(recipe, server.registryAccess());
+            if (anvilRecipe != null) anvilRecipes.add(anvilRecipe);
+        }
+        for (SmokingRecipe recipe : manager.getAllRecipesFor(RecipeType.SMOKING)) {
+            needFilter.add(recipe.getResultItem(server.registryAccess()));
+            AnvilRecipe anvilRecipe = AnvilRecipe.of(recipe, server.registryAccess());
+            if (anvilRecipe != null) anvilRecipes.add(anvilRecipe);
+        }
+        for (BlastingRecipe recipe : manager.getAllRecipesFor(RecipeType.BLASTING)) {
+            needFilter.add(recipe.getResultItem(server.registryAccess()));
+            AnvilRecipe anvilRecipe = AnvilRecipe.of(recipe, server.registryAccess());
+            if (anvilRecipe != null) anvilRecipes.add(anvilRecipe);
+        }
+        for (SmeltingRecipe recipe : manager.getAllRecipesFor(RecipeType.SMELTING)) {
+            ItemStack item = recipe.getResultItem(server.registryAccess());
+            if (needFilter.stream().anyMatch(stack -> item.is(stack.getItem()))) continue;
+            AnvilRecipe anvilRecipe = AnvilRecipe.of(recipe, server.registryAccess());
+            if (anvilRecipe != null) anvilRecipes.add(anvilRecipe);
+        }
+        for (CraftingRecipe recipe : manager.getAllRecipesFor(RecipeType.CRAFTING)) {
+            AnvilRecipe anvilRecipe = AnvilRecipe.of(recipe, server.registryAccess());
+            if (anvilRecipe != null) anvilRecipes.add(anvilRecipe);
+        }
+        anvilRecipeList = Collections.synchronizedList(
+            anvilRecipes.stream().sorted(Comparator.comparing(AnvilRecipe::getWeightCoefficient).reversed()).toList()
+        );
     }
 }
