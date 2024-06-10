@@ -34,7 +34,9 @@ import java.util.Set;
 public class HasBlock implements RecipePredicate {
     @Getter
     private final String type = "has_block";
+    @Getter
     protected final Vec3 offset;
+    @Getter
     protected final ModBlockPredicate matchBlock;
 
     public HasBlock(Vec3 offset, ModBlockPredicate matchBlock) {

@@ -1,5 +1,6 @@
 {
   "type": "anvilcraft:anvil_processing",
+  "anvil_recipe_type": "bulging_like",
   "icon": {
     "item": "anvilcraft:reinforced_concrete_gray"
   },

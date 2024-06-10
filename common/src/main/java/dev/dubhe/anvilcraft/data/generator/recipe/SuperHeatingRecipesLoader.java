@@ -1,24 +1,25 @@
 package dev.dubhe.anvilcraft.data.generator.recipe;
 
-import static dev.dubhe.anvilcraft.api.power.IPowerComponent.OVERLOAD;
-
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.RecipeItem;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe.Builder;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItemTags;
 import dev.dubhe.anvilcraft.init.ModItems;
-
-import java.util.Arrays;
-import java.util.Map;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.Arrays;
+import java.util.Map;
+
+import static dev.dubhe.anvilcraft.api.power.IPowerComponent.OVERLOAD;
 
 public class SuperHeatingRecipesLoader {
     private static RegistrateRecipeProvider provider = null;
@@ -78,12 +79,23 @@ public class SuperHeatingRecipesLoader {
                 RecipeItem.of(ModItems.MAGNET_INGOT),
                 RecipeItem.of(ModItems.CAPACITOR_EMPTY)
         );
+        superHeating(
+                RecipeItem.of(ModItemTags.GEM_BLOCKS),
+                ModBlocks.MELT_GEM_CAULDRON.get()
+        );
     }
 
-    private static void superHeating(RecipeItem[] inputs, RecipeItem... outputs) {
+    /**
+     * 加热配方
+     *
+     * @param inputs 输入物品数组
+     * @param outputs 输出物品数组
+     */
+    public static void superHeating(RecipeItem[] inputs, RecipeItem... outputs) {
         if (SuperHeatingRecipesLoader.provider == null) return;
         StringBuilder path = new StringBuilder("heating/");
         Builder builder = Builder.create(RecipeCategory.MISC)
+                .type(AnvilRecipeType.SUPER_HEATING)
                 .icon(Arrays.stream(outputs).toList().get(0).getItem())
                 .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(OVERLOAD, false))
                 .hasBlock(Blocks.CAULDRON, new Vec3(0.0, -1.0, 0.0));
@@ -102,9 +114,15 @@ public class SuperHeatingRecipesLoader {
         builder.save(provider, AnvilCraft.of(path.toString()));
     }
 
-    private static void superHeating(RecipeItem[] inputs, Block output) {
+    /**
+     * 加热配方
+     *
+     * @param inputs 输入物品数组
+     * @param output 输出方块
+     */
+    public static void superHeating(RecipeItem[] inputs, Block output) {
         Builder builder = Builder.create(RecipeCategory.MISC)
-                .icon(output)
+                .type(AnvilRecipeType.SUPER_HEATING)
                 .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(OVERLOAD, false))
                 .hasBlock(Blocks.CAULDRON, new Vec3(0.0, -1.0, 0.0));
         StringBuilder path = new StringBuilder("heating/");
@@ -113,6 +131,12 @@ public class SuperHeatingRecipesLoader {
                     .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), input)
                     .unlockedBy(AnvilCraftDatagen.hasItem(input), AnvilCraftDatagen.has(input));
             path.append(input.getKey()).append("_");
+        }
+        for (RecipeItem input : inputs) {
+            if (input.getItem() != null) {
+                builder = builder.icon(input.getItem());
+                break;
+            }
         }
         path.append("to_").append(BuiltInRegistries.BLOCK.getKey(output).getPath());
         builder

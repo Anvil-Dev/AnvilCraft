@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.data.RecipeItem;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe.Builder;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
 import java.util.Map;
@@ -151,7 +152,7 @@ public class BulgingLikeRecipesLoader {
                 .setValue(CementCauldronBlock.COLOR, Color.YELLOW),
             RecipeItem.of(Items.YELLOW_DYE)
         );
-        concrete(
+        bulgingLike(
             new RecipeItem[] {
                 RecipeItem.of(Items.GRAVEL, 4),
                 RecipeItem.of(Items.SAND, 4)
@@ -172,7 +173,7 @@ public class BulgingLikeRecipesLoader {
                 .setValue(CementCauldronBlock.COLOR, Color.BLACK),
             RecipeItem.of(ModBlocks.REINFORCED_CONCRETE_BLACK, 16)
         );
-        concrete(
+        bulgingLike(
             new RecipeItem[] {
                 RecipeItem.of(Items.GRAVEL, 4),
                 RecipeItem.of(Items.SAND, 4)
@@ -193,7 +194,7 @@ public class BulgingLikeRecipesLoader {
                 .setValue(CementCauldronBlock.COLOR, Color.BLUE),
             RecipeItem.of(ModBlocks.REINFORCED_CONCRETE_BLUE, 16)
         );
-        concrete(
+        bulgingLike(
             new RecipeItem[] {
                 RecipeItem.of(Items.GRAVEL, 4),
                 RecipeItem.of(Items.SAND, 4)
@@ -214,7 +215,7 @@ public class BulgingLikeRecipesLoader {
                 .setValue(CementCauldronBlock.COLOR, Color.BROWN),
             RecipeItem.of(ModBlocks.REINFORCED_CONCRETE_BROWN, 16)
         );
-        concrete(
+        bulgingLike(
             new RecipeItem[] {
                 RecipeItem.of(Items.GRAVEL, 4),
                 RecipeItem.of(Items.SAND, 4)
@@ -235,7 +236,7 @@ public class BulgingLikeRecipesLoader {
                 .setValue(CementCauldronBlock.COLOR, Color.CYAN),
             RecipeItem.of(ModBlocks.REINFORCED_CONCRETE_CYAN, 16)
         );
-        concrete(
+        bulgingLike(
             new RecipeItem[] {
                 RecipeItem.of(Items.GRAVEL, 4),
                 RecipeItem.of(Items.SAND, 4)
@@ -256,7 +257,7 @@ public class BulgingLikeRecipesLoader {
                 .setValue(CementCauldronBlock.COLOR, Color.GRAY),
             RecipeItem.of(ModBlocks.REINFORCED_CONCRETE_GRAY, 16)
         );
-        concrete(
+        bulgingLike(
             new RecipeItem[] {
                 RecipeItem.of(Items.GRAVEL, 4),
                 RecipeItem.of(Items.SAND, 4)
@@ -277,7 +278,7 @@ public class BulgingLikeRecipesLoader {
                 .setValue(CementCauldronBlock.COLOR, Color.GREEN),
             RecipeItem.of(ModBlocks.REINFORCED_CONCRETE_GREEN, 16)
         );
-        concrete(
+        bulgingLike(
             new RecipeItem[] {
                 RecipeItem.of(Items.GRAVEL, 4),
                 RecipeItem.of(Items.SAND, 4)
@@ -298,7 +299,7 @@ public class BulgingLikeRecipesLoader {
                 .setValue(CementCauldronBlock.COLOR, Color.LIGHT_BLUE),
             RecipeItem.of(ModBlocks.REINFORCED_CONCRETE_LIGHT_BLUE, 16)
         );
-        concrete(
+        bulgingLike(
             new RecipeItem[] {
                 RecipeItem.of(Items.GRAVEL, 4),
                 RecipeItem.of(Items.SAND, 4)
@@ -319,7 +320,7 @@ public class BulgingLikeRecipesLoader {
                 .setValue(CementCauldronBlock.COLOR, Color.LIGHT_GRAY),
             RecipeItem.of(ModBlocks.REINFORCED_CONCRETE_LIGHT_GRAY, 16)
         );
-        concrete(
+        bulgingLike(
             new RecipeItem[] {
                 RecipeItem.of(Items.GRAVEL, 4),
                 RecipeItem.of(Items.SAND, 4)
@@ -340,7 +341,7 @@ public class BulgingLikeRecipesLoader {
                 .setValue(CementCauldronBlock.COLOR, Color.LIME),
             RecipeItem.of(ModBlocks.REINFORCED_CONCRETE_LIME, 16)
         );
-        concrete(
+        bulgingLike(
             new RecipeItem[] {
                 RecipeItem.of(Items.GRAVEL, 4),
                 RecipeItem.of(Items.SAND, 4)
@@ -361,7 +362,7 @@ public class BulgingLikeRecipesLoader {
                 .setValue(CementCauldronBlock.COLOR, Color.MAGENTA),
             RecipeItem.of(ModBlocks.REINFORCED_CONCRETE_MAGENTA, 16)
         );
-        concrete(
+        bulgingLike(
             new RecipeItem[] {
                 RecipeItem.of(Items.GRAVEL, 4),
                 RecipeItem.of(Items.SAND, 4)
@@ -382,7 +383,7 @@ public class BulgingLikeRecipesLoader {
                 .setValue(CementCauldronBlock.COLOR, Color.ORANGE),
             RecipeItem.of(ModBlocks.REINFORCED_CONCRETE_ORANGE, 16)
         );
-        concrete(
+        bulgingLike(
             new RecipeItem[] {
                 RecipeItem.of(Items.GRAVEL, 4),
                 RecipeItem.of(Items.SAND, 4)
@@ -403,7 +404,7 @@ public class BulgingLikeRecipesLoader {
                 .setValue(CementCauldronBlock.COLOR, Color.PINK),
             RecipeItem.of(ModBlocks.REINFORCED_CONCRETE_PINK, 16)
         );
-        concrete(
+        bulgingLike(
             new RecipeItem[] {
                 RecipeItem.of(Items.GRAVEL, 4),
                 RecipeItem.of(Items.SAND, 4)
@@ -424,7 +425,7 @@ public class BulgingLikeRecipesLoader {
                 .setValue(CementCauldronBlock.COLOR, Color.PURPLE),
             RecipeItem.of(ModBlocks.REINFORCED_CONCRETE_PURPLE, 16)
         );
-        concrete(
+        bulgingLike(
             new RecipeItem[] {
                 RecipeItem.of(Items.GRAVEL, 4),
                 RecipeItem.of(Items.SAND, 4)
@@ -445,7 +446,7 @@ public class BulgingLikeRecipesLoader {
                 .setValue(CementCauldronBlock.COLOR, Color.RED),
             RecipeItem.of(ModBlocks.REINFORCED_CONCRETE_RED, 16)
         );
-        concrete(
+        bulgingLike(
             new RecipeItem[] {
                 RecipeItem.of(Items.GRAVEL, 4),
                 RecipeItem.of(Items.SAND, 4)
@@ -466,7 +467,7 @@ public class BulgingLikeRecipesLoader {
                 .setValue(CementCauldronBlock.COLOR, Color.WHITE),
             RecipeItem.of(ModBlocks.REINFORCED_CONCRETE_WHITE, 16)
         );
-        concrete(
+        bulgingLike(
             new RecipeItem[] {
                 RecipeItem.of(Items.GRAVEL, 4),
                 RecipeItem.of(Items.SAND, 4)
@@ -489,7 +490,15 @@ public class BulgingLikeRecipesLoader {
         );
     }
 
-    private static void fluidHandling(
+    /**
+     * 流体处理
+     *
+     * @param inputCauldron 输入流体锅
+     * @param map 输入流体锅状态
+     * @param outputCauldron 输出流体锅
+     * @param inputs 输入物品
+     */
+    public static void fluidHandling(
         Block inputCauldron,
         Map.Entry<Property<?>, Comparable<?>> map,
         BlockState outputCauldron, RecipeItem... inputs) {
@@ -507,9 +516,17 @@ public class BulgingLikeRecipesLoader {
             .save(provider, AnvilCraft.of("bulging_like/" + inputs[0].getKey()));
     }
 
-    private static void fluidHandling(Block inputCauldron, BlockState outputCauldron, RecipeItem... inputs) {
+    /**
+     * 流体处理
+     *
+     * @param inputCauldron 输入流体锅
+     * @param outputCauldron 输出流体锅
+     * @param inputs 输入物品
+     */
+    public static void fluidHandling(Block inputCauldron, BlockState outputCauldron, RecipeItem... inputs) {
         if (BulgingLikeRecipesLoader.provider == null) return;
         Builder builder = AnvilRecipe.Builder.create(RecipeCategory.MISC)
+            .type(AnvilRecipeType.FLUID_HANDLING)
             .icon(inputs[0].getItem())
             .hasBlock(new Vec3(0.0, -1.0, 0.0), inputCauldron)
             .setBlock(new Vec3(0.0, -1.0, 0.0), outputCauldron);
@@ -522,9 +539,17 @@ public class BulgingLikeRecipesLoader {
             .save(provider, AnvilCraft.of("bulging_like/" + inputs[0].getKey()));
     }
 
-    private static void concrete(RecipeItem[] inputs, BlockState cauldron, RecipeItem... output) {
+    /**
+     * 类膨发配方
+     *
+     * @param inputs 输入物品
+     * @param cauldron 输入流体锅
+     * @param output 输出物品
+     */
+    public static void bulgingLike(RecipeItem[] inputs, BlockState cauldron, RecipeItem... output) {
         if (BulgingLikeRecipesLoader.provider == null) return;
         Builder builder = AnvilRecipe.Builder.create(RecipeCategory.MISC)
+            .type(AnvilRecipeType.BULGING_LIKE)
             .icon(output[0].getItem())
             .hasBlock(
                 cauldron.getBlock(),
@@ -549,6 +574,7 @@ public class BulgingLikeRecipesLoader {
     private static void reinforcedConcrete(RecipeItem[] inputs, BlockState cauldron, RecipeItem... output) {
         if (BulgingLikeRecipesLoader.provider == null) return;
         Builder builder = AnvilRecipe.Builder.create(RecipeCategory.MISC)
+            .type(AnvilRecipeType.BULGING_LIKE)
             .icon(output[0].getItem())
             .hasBlock(
                 cauldron.getBlock(),
