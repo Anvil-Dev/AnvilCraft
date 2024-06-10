@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.data.recipe.anvil.predicate;
 import com.google.common.base.Predicates;
 import com.google.gson.JsonObject;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
+import dev.dubhe.anvilcraft.mixin.IngredientValueAccessor;
 import lombok.Getter;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.core.BlockPos;
@@ -53,10 +54,10 @@ public class HasItemIngredient extends HasItem {
         ModItemPredicate item = ModItemPredicate.of().withCount(MinMaxBounds.Ints.atLeast(count));
         List<Item> items = new ArrayList<>();
         for (Ingredient.Value value : ingredient.values) {
-            if (value instanceof Ingredient.TagValue tagValue)
-                item.withTag(tagValue.tag);
-            if (value instanceof Ingredient.ItemValue itemValue)
-                items.add(itemValue.item.getItem());
+            if (value instanceof IngredientValueAccessor.Tag tagValue)
+                item.withTag(tagValue.getTag());
+            if (value instanceof IngredientValueAccessor.Item itemValue)
+                items.add(itemValue.getItem().getItem());
         }
         item.add(items.toArray(ItemLike[]::new));
         return new HasItemIngredient(offset, item);

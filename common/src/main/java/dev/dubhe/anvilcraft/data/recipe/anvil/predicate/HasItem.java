@@ -223,6 +223,25 @@ public class HasItem implements RecipePredicate, HasData {
         }
 
         /**
+         * 是否具有相同的物品/标签
+         */
+        @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+        public boolean sameItemsOrTag(ModItemPredicate predicate) {
+            if (this == predicate) return true;
+            if (
+                this.tag != null && predicate.tag != null
+                    && !this.tag.location().equals(predicate.tag.location())
+            ) {
+                return false;
+            }
+            if (this.items.size() != predicate.items.size()) return false;
+            for (Item item : items) {
+                if (!predicate.items.contains(item)) return false;
+            }
+            return true;
+        }
+
+        /**
          * ModItemPredicate
          */
         public static @NotNull ModItemPredicate of() {

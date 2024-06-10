@@ -59,8 +59,9 @@ import dev.dubhe.anvilcraft.block.TransmissionPoleBlock;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.block.state.Half;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
-import dev.dubhe.anvilcraft.data.generator.recipe.SmashBlockRecipesLoader;
+import dev.dubhe.anvilcraft.data.generator.recipe.BlockSmashRecipesLoader;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipeOutcome;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipePredicate;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SelectOne;
@@ -330,7 +331,8 @@ public class ModBlocks {
                 .unlockedBy("hasitem", RegistrateRecipeProvider.has(ModItems.ROYAL_STEEL_INGOT))
                 .save(provider);
             AnvilRecipe.Builder.create(RecipeCategory.MISC)
-                .icon(ModItems.ROYAL_STEEL_INGOT)
+                .icon(ctx.get())
+                .type(AnvilRecipeType.SUPER_HEATING)
                 .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0),
                     Map.entry(OVERLOAD, false))
                 .hasBlock(Blocks.CAULDRON)
@@ -850,6 +852,7 @@ public class ModBlocks {
             HasItem hasItem = new HasItemIngredient(new Vec3(0.0, -1.0, 0.0), item).notHasTag("BlockEntityTag.entity");
             AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .icon(ctx.get())
+                .type(AnvilRecipeType.TIMEWARP)
                 .hasBlock(
                     ModBlocks.CORRUPTED_BEACON.get(),
                     new Vec3(0.0, -2.0, 0.0),
@@ -890,6 +893,7 @@ public class ModBlocks {
             ).loadItemData("resin");
             AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .icon(ctx.get())
+                .type(AnvilRecipeType.TIMEWARP)
                 .hasBlock(
                     ModBlocks.CORRUPTED_BEACON.get(),
                     new Vec3(0.0, -2.0, 0.0),
@@ -927,6 +931,7 @@ public class ModBlocks {
             ).loadItemData("resin");
             AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .icon(ctx.get())
+                .type(AnvilRecipeType.TIMEWARP)
                 .hasBlock(
                     ModBlocks.CORRUPTED_BEACON.get(),
                     new Vec3(0.0, -2.0, 0.0),
@@ -1173,7 +1178,7 @@ public class ModBlocks {
         .block("nether_dust", FallingBlock::new)
         .simpleItem()
         .initialProperties(() -> Blocks.BLACK_CONCRETE_POWDER)
-        .recipe((ctx, provider) -> SmashBlockRecipesLoader.smash(Blocks.NETHERRACK, ctx.get(),
+        .recipe((ctx, provider) -> BlockSmashRecipesLoader.smash(Blocks.NETHERRACK, ctx.get(),
             provider))
         .tag(BlockTags.MINEABLE_WITH_SHOVEL)
         .register();
@@ -1183,7 +1188,7 @@ public class ModBlocks {
         .build()
         .initialProperties(() -> Blocks.BLACK_CONCRETE_POWDER)
         .recipe(
-            (ctx, provider) -> SmashBlockRecipesLoader.smash(Blocks.END_STONE, ctx.get(), provider))
+            (ctx, provider) -> BlockSmashRecipesLoader.smash(Blocks.END_STONE, ctx.get(), provider))
         .tag(BlockTags.MINEABLE_WITH_SHOVEL)
         .register();
     public static final BlockEntry<FallingBlock> DEEPSLATE_CHIPS = REGISTRATE

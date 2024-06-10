@@ -40,7 +40,7 @@ public class BlockStateEmiStack extends EmiStack {
 
     @Override
     public void render(@NotNull GuiGraphics draw, int x, int y, float delta, int flags) {
-        BlockStateRender.render(this.state, draw, x, y);
+        BlockStateRender.renderBlock(this.state, draw, x, y, 16);
     }
 
     @Override
