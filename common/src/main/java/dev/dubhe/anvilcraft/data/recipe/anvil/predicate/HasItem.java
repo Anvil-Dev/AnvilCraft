@@ -47,6 +47,7 @@ public class HasItem implements RecipePredicate, HasData {
     @Getter
     private final String type = "has_item";
     protected final Vec3 offset;
+    @Getter
     protected final ModItemPredicate matchItem;
     protected String path = null;
     @Getter
@@ -213,6 +214,7 @@ public class HasItem implements RecipePredicate, HasData {
         private final Set<Item> items = new HashSet<>();
         @Nullable
         private CompoundTag nbt = null;
+        @Getter
         public MinMaxBounds.Ints count = null;
         private MinMaxBounds.Ints durability = null;
         private final Map<Enchantment, MinMaxBounds.Ints> enchantments = new HashMap<>();

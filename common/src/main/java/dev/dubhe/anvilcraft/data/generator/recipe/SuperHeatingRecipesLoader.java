@@ -6,16 +6,15 @@ import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.RecipeItem;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
-import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe.Builder;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItemTags;
 import dev.dubhe.anvilcraft.init.ModItems;
+
+import java.util.Arrays;
 import java.util.Map;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -31,156 +30,101 @@ public class SuperHeatingRecipesLoader {
      */
     public static void init(RegistrateRecipeProvider provider) {
         SuperHeatingRecipesLoader.provider = provider;
-        superHeating(Items.DIAMOND, new RecipeItem(Items.COAL_BLOCK, 16));
-        superHeating(Items.COBBLESTONE, 4, Blocks.LAVA_CAULDRON, 1);
-        superHeating(ModItemTags.STONE, 4, Blocks.LAVA_CAULDRON, 2);
-        superHeating(ModItemTags.STONE_FORGE, 4, Blocks.LAVA_CAULDRON, 3);
-        superHeating(Items.IRON_BLOCK, 2, new RecipeItem(Items.RAW_IRON_BLOCK));
-        superHeating(Items.GOLD_BLOCK, 2, new RecipeItem(Items.RAW_GOLD_BLOCK));
-        superHeating(Items.COPPER_BLOCK, 2, new RecipeItem(Items.RAW_COPPER_BLOCK));
+        superHeating(RecipeItem.of(Items.COAL_BLOCK, 16), RecipeItem.of(Items.DIAMOND));
         superHeating(
-            ModItems.ROYAL_STEEL_INGOT.get(),
-            new RecipeItem(Items.IRON_INGOT, 3),
-            new RecipeItem(Items.DIAMOND),
-            new RecipeItem(Items.AMETHYST_SHARD),
-            new RecipeItem(ModItemTags.GEMS)
+                new RecipeItem[] {
+                        RecipeItem.of(Items.COBBLESTONE, 4),
+                        RecipeItem.of(ModItems.LIME_POWDER)
+                },
+                Blocks.LAVA_CAULDRON);
+        superHeating(
+                new RecipeItem[] {
+                        RecipeItem.of(ModItemTags.STONE, 4),
+                        RecipeItem.of(ModItems.LIME_POWDER)
+                },
+                Blocks.LAVA_CAULDRON);
+        superHeating(
+                new RecipeItem[] {
+                        RecipeItem.of(ModItemTags.STONE_FORGE, 4),
+                        RecipeItem.of(ModItems.LIME_POWDER)
+                },
+                Blocks.LAVA_CAULDRON);
+        superHeating(
+                new RecipeItem[] {
+                        RecipeItem.of(Items.IRON_INGOT, 3),
+                        RecipeItem.of(Items.DIAMOND),
+                        RecipeItem.of(Items.AMETHYST_SHARD),
+                        RecipeItem.of(ModItemTags.GEMS)},
+                RecipeItem.of(ModItems.ROYAL_STEEL_INGOT)
         );
         superHeating(
-            ModBlocks.TEMPERING_GLASS.asItem(),
-            8,
-            new RecipeItem(ModBlocks.QUARTZ_SAND, 8),
-            new RecipeItem(ModItems.ROYAL_STEEL_INGOT)
+                new RecipeItem[] {
+                        RecipeItem.of(ModBlocks.QUARTZ_SAND, 8),
+                        RecipeItem.of(ModItems.ROYAL_STEEL_INGOT)},
+                RecipeItem.of(ModBlocks.TEMPERING_GLASS, 8)
         );
-        superHeating(Items.CHARCOAL, new RecipeItem(ModItems.WOOD_FIBER.get(), 4));
-        superHeating(1, ModItems.LIME_POWDER.get(), new RecipeItem(ModItems.CRAB_CLAW));
-        superHeating(2, ModItems.LIME_POWDER.get(), new RecipeItem(ModItemTags.DEAD_TUBE));
-        superHeating(3, ModItems.LIME_POWDER.get(), new RecipeItem(Items.NAUTILUS_SHELL));
-        superHeating(4, ModItems.LIME_POWDER.get(), new RecipeItem(Items.POINTED_DRIPSTONE));
-        superHeating(5, ModItems.LIME_POWDER.get(), 4, new RecipeItem(Items.DRIPSTONE_BLOCK));
-        superHeating(6, ModItems.LIME_POWDER.get(), 4, new RecipeItem(Items.CALCITE));
+        superHeating(RecipeItem.of(ModItems.WOOD_FIBER, 4), RecipeItem.of(Items.CHARCOAL));
+        superHeating(RecipeItem.of(ModItems.CRAB_CLAW), RecipeItem.of(ModItems.LIME_POWDER));
+        superHeating(RecipeItem.of(ModItemTags.DEAD_TUBE), RecipeItem.of(ModItems.LIME_POWDER));
+        superHeating(RecipeItem.of(Items.NAUTILUS_SHELL), RecipeItem.of(ModItems.LIME_POWDER));
+        superHeating(RecipeItem.of(Items.POINTED_DRIPSTONE), RecipeItem.of(ModItems.LIME_POWDER));
+        superHeating(RecipeItem.of(Items.DRIPSTONE_BLOCK), RecipeItem.of(ModItems.LIME_POWDER, 4));
+        superHeating(RecipeItem.of(Items.CALCITE), RecipeItem.of(ModItems.LIME_POWDER, 4));
+        superHeating(
+                new RecipeItem[] {
+                        RecipeItem.of(Items.RAW_IRON),
+                        RecipeItem.of(ModItems.CAPACITOR)
+                },
+                RecipeItem.of(ModItems.MAGNET_INGOT),
+                RecipeItem.of(ModItems.CAPACITOR_EMPTY)
+        );
     }
 
-    private static void superHeating(Item out, int count, RecipeItem... items) {
+    private static void superHeating(RecipeItem[] inputs, RecipeItem... outputs) {
         if (SuperHeatingRecipesLoader.provider == null) return;
-        Builder builder = AnvilRecipe.Builder.create(RecipeCategory.MISC)
-            .icon(out)
-            .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(OVERLOAD, false))
-            .hasBlock(Blocks.CAULDRON)
-            .spawnItem(new Vec3(0.0, -1.0, 0.0), out, count);
-        for (RecipeItem item : items) {
+        StringBuilder path = new StringBuilder("heating/");
+        Builder builder = Builder.create(RecipeCategory.MISC)
+                .icon(Arrays.stream(outputs).toList().get(0).getItem())
+                .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(OVERLOAD, false))
+                .hasBlock(Blocks.CAULDRON, new Vec3(0.0, -1.0, 0.0));
+        for (RecipeItem input : inputs) {
             builder = builder
-                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), item.getCount(), item.getItem())
-                .unlockedBy(AnvilCraftDatagen.hasItem(item), AnvilCraftDatagen.has(item));
+                    .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), input)
+                    .unlockedBy(AnvilCraftDatagen.hasItem(input), AnvilCraftDatagen.has(input));
+            path.append(input.getKey()).append("_");
         }
-        builder
-            .save(provider, AnvilCraft.of("heating/" + BuiltInRegistries.ITEM
-                .getKey(out)
-                .getPath()));
-    }
-
-    private static void superHeating(Item output, RecipeItem... items) {
-        if (SuperHeatingRecipesLoader.provider == null) return;
-        Builder builder = AnvilRecipe.Builder.create(RecipeCategory.MISC)
-            .icon(output)
-            .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(OVERLOAD, false))
-            .hasBlock(Blocks.CAULDRON)
-            .spawnItem(new Vec3(0.0, -1.0, 0.0), output, 1);
-        for (RecipeItem item : items) {
-            if (
-                item.getItem() == null) builder = builder.hasItemIngredient(new Vec3(0.0, -1.0, 0.0),
-                item.getCount(),
-                item.getItemTagKey()
-            );
-            else builder = builder.hasItemIngredient(new Vec3(0.0, -1.0, 0.0), item.getCount(), item.getItem())
-
-                .unlockedBy(AnvilCraftDatagen.hasItem(item), AnvilCraftDatagen.has(item));
+        path.append("to_");
+        for (RecipeItem output : outputs) {
+            builder = builder.spawnItem(new Vec3(0.0, -1.0, 0.0), output);
+            path.append(output.getKey()).append("_");
         }
-        builder
-            .save(provider, AnvilCraft.of("heating/" + BuiltInRegistries.ITEM
-                .getKey(output)
-                .getPath()));
+        path.deleteCharAt(path.length() - 1);
+        builder.save(provider, AnvilCraft.of(path.toString()));
     }
 
-    private static void superHeating(int index, Item output, RecipeItem... items) {
-        superHeating(index, output, 1, items);
-    }
-
-    private static void superHeating(int index, Item output, int count, RecipeItem... items) {
-        if (SuperHeatingRecipesLoader.provider == null) return;
-        Builder builder = AnvilRecipe.Builder.create(RecipeCategory.MISC)
-            .icon(output)
-            .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(OVERLOAD, false))
-            .hasBlock(Blocks.CAULDRON)
-            .spawnItem(new Vec3(0.0, -1.0, 0.0), output, count);
-        for (RecipeItem item : items) {
-            if (
-                item.getItem() == null) builder = builder.hasItemIngredient(new Vec3(0.0, -1.0, 0.0),
-                item.getCount(),
-                item.getItemTagKey()
-            );
-            else builder = builder.hasItemIngredient(new Vec3(0.0, -1.0, 0.0), item.getCount(), item.getItem())
-
-                .unlockedBy(AnvilCraftDatagen.hasItem(item), AnvilCraftDatagen.has(item));
+    private static void superHeating(RecipeItem[] inputs, Block output) {
+        Builder builder = Builder.create(RecipeCategory.MISC)
+                .icon(output)
+                .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(OVERLOAD, false))
+                .hasBlock(Blocks.CAULDRON, new Vec3(0.0, -1.0, 0.0));
+        StringBuilder path = new StringBuilder("heating/");
+        for (RecipeItem input : inputs) {
+            builder = builder
+                    .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), input)
+                    .unlockedBy(AnvilCraftDatagen.hasItem(input), AnvilCraftDatagen.has(input));
+            path.append(input.getKey()).append("_");
         }
+        path.append("to_").append(BuiltInRegistries.BLOCK.getKey(output).getPath());
         builder
-            .save(provider, AnvilCraft.of("heating/" + BuiltInRegistries.ITEM
-                .getKey(output)
-                .getPath() + index));
+            .setBlock(output)
+            .save(provider, AnvilCraft.of(path.toString().toLowerCase()));
     }
 
-    private static void superHeating(Item enter, int count, Block output) {
-        AnvilRecipe.Builder.create(RecipeCategory.MISC)
-            .icon(output)
-            .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(OVERLOAD, false))
-            .hasBlock(Blocks.CAULDRON)
-            .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), count, enter)
-            .setBlock(output)
-            .unlockedBy(AnvilCraftDatagen.hasItem(enter), AnvilCraftDatagen.has(enter))
-            .save(
-                provider,
-                AnvilCraft.of("heating/" + BuiltInRegistries.BLOCK.getKey(output).getPath()) + "_1"
-            );
+    private static void superHeating(RecipeItem input, RecipeItem... outputs) {
+        superHeating(new RecipeItem[]{input}, outputs);
     }
 
-    private static void superHeating(Item enter, int count, Block output, int index) {
-        AnvilRecipe.Builder.create(RecipeCategory.MISC)
-            .icon(output)
-            .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(OVERLOAD, false))
-            .hasBlock(Blocks.CAULDRON)
-            .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), count, enter)
-            .setBlock(output)
-            .unlockedBy(AnvilCraftDatagen.hasItem(enter), AnvilCraftDatagen.has(enter))
-            .save(
-                provider,
-                AnvilCraft.of("heating/" + BuiltInRegistries.BLOCK.getKey(output).getPath()) + "_" + index
-            );
-    }
-
-    private static void superHeating(TagKey<Item> enter, int count, Block output) {
-        AnvilRecipe.Builder.create(RecipeCategory.MISC)
-            .icon(output)
-            .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(OVERLOAD, false))
-            .hasBlock(Blocks.CAULDRON)
-            .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), count, enter)
-            .setBlock(output)
-            .unlockedBy(AnvilCraftDatagen.hasItem(enter), AnvilCraftDatagen.has(enter))
-            .save(
-                provider,
-                AnvilCraft.of("heating/" + BuiltInRegistries.BLOCK.getKey(output).getPath()) + "_2"
-            );
-    }
-
-    private static void superHeating(TagKey<Item> enter, int count, Block output, int index) {
-        AnvilRecipe.Builder.create(RecipeCategory.MISC)
-            .icon(output)
-            .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0), Map.entry(OVERLOAD, false))
-            .hasBlock(Blocks.CAULDRON)
-            .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), count, enter)
-            .setBlock(output)
-            .unlockedBy(AnvilCraftDatagen.hasItem(enter), AnvilCraftDatagen.has(enter))
-            .save(
-                provider,
-                AnvilCraft.of("heating/" + BuiltInRegistries.BLOCK.getKey(output).getPath()) + "_" + index
-            );
+    private static void superHeating(RecipeItem input, Block output) {
+        superHeating(new RecipeItem[]{input}, output);
     }
 }
