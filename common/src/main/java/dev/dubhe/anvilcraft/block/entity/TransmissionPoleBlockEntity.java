@@ -4,7 +4,7 @@ import dev.dubhe.anvilcraft.api.power.IPowerTransmitter;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.TransmissionPoleBlock;
-import dev.dubhe.anvilcraft.block.state.Half;
+import dev.dubhe.anvilcraft.block.state.Vertical3PartHalf;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import lombok.Getter;
@@ -44,7 +44,8 @@ public class TransmissionPoleBlockEntity extends BlockEntity implements IPowerTr
     public @NotNull PowerComponentType getComponentType() {
         if (this.getLevel() == null) return PowerComponentType.INVALID;
         if (!this.getBlockState().is(ModBlocks.TRANSMISSION_POLE.get())) return PowerComponentType.INVALID;
-        if (this.getBlockState().getValue(TransmissionPoleBlock.HALF) != Half.TOP) return PowerComponentType.INVALID;
+        if (this.getBlockState().getValue(TransmissionPoleBlock.HALF) != Vertical3PartHalf.TOP)
+            return PowerComponentType.INVALID;
         return PowerComponentType.TRANSMITTER;
     }
 
@@ -62,7 +63,7 @@ public class TransmissionPoleBlockEntity extends BlockEntity implements IPowerTr
     public void tick(@NotNull Level level, @NotNull BlockPos pos) {
         BlockState state = level.getBlockState(pos);
         if (!state.is(ModBlocks.TRANSMISSION_POLE.get())) return;
-        if (state.getValue(TransmissionPoleBlock.HALF) != Half.TOP) return;
+        if (state.getValue(TransmissionPoleBlock.HALF) != Vertical3PartHalf.TOP) return;
         if (state.getValue(TransmissionPoleBlock.SWITCH) == Switch.OFF && this.getGrid() != null) {
             this.getGrid().remove(this);
         } else if (state.getValue(TransmissionPoleBlock.SWITCH) == Switch.ON && this.getGrid() == null) {

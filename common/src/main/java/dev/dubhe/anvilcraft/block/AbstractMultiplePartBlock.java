@@ -2,24 +2,52 @@ package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.block.state.MultiplePartBlockState;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
+import org.jetbrains.annotations.NotNull;
 
-public abstract class AbstractMultiplePartBlock extends Block {
+public abstract class AbstractMultiplePartBlock<P extends Enum<P>> extends Block {
     public AbstractMultiplePartBlock(Properties properties) {
         super(properties);
     }
 
-    protected abstract <P extends Enum<P>> Enum<P>[] getParts();
+    protected abstract Property<P> getPart();
+
+    protected abstract Enum<P>[] getParts();
 
     @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        super.onRemove(state, level, pos, newState, movedByPiston);
+    @SuppressWarnings("deprecation")
+    public @NotNull BlockState updateShape(
+        @NotNull BlockState state, @NotNull Direction direction, @NotNull BlockState neighborState,
+        @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockPos neighborPos
+    ) {
+        if (
+            !state.hasProperty(this.getPart())
+                || !(state.getValue(this.getPart()) instanceof MultiplePartBlockState state1)
+        ) {
+            return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
+        }
         for (Enum<?> part : getParts()) {
-            if (part instanceof MultiplePartBlockState state1) {
-                state1.getOffset();
+            if (part instanceof MultiplePartBlockState state2) {
+                Vec3i offset = state2.getOffset().subtract(state1.getOffset());
+                int distance = offset.getX() + offset.getY() + offset.getZ();
+                if (Math.abs(distance) != 1) continue;
+                BlockPos pos1 = pos.offset(offset);
+                BlockState blockState = level.getBlockState(pos1);
+                if (
+                    !blockState.is(this)
+                        || !blockState.hasProperty(this.getPart())
+                        || blockState.getValue(this.getPart()) != state2
+                ) {
+                    return Blocks.AIR.defaultBlockState();
+                }
             }
         }
+        return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
     }
 }
