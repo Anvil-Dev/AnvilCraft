@@ -42,7 +42,7 @@ public class ItemSmashRecipesLoader {
         smash(RecipeItem.of(Items.AMETHYST_BLOCK), RecipeItem.of(Items.AMETHYST_SHARD, 4));
         smash(RecipeItem.of(Items.HONEYCOMB_BLOCK), RecipeItem.of(Items.HONEYCOMB, 4));
         smash(new RecipeItem[] {
-                RecipeItem.of(Items.HONEY_BLOCK, 4),
+                RecipeItem.of(Items.HONEY_BLOCK, 1),
                 RecipeItem.of(Items.GLASS_BOTTLE, 4)
             },
                 RecipeItem.of(Items.HONEY_BOTTLE, 4)

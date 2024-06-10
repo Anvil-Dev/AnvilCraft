@@ -61,6 +61,7 @@ import dev.dubhe.anvilcraft.block.state.Half;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.generator.recipe.BlockSmashRecipesLoader;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipeOutcome;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipePredicate;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SelectOne;
@@ -330,7 +331,8 @@ public class ModBlocks {
                 .unlockedBy("hasitem", RegistrateRecipeProvider.has(ModItems.ROYAL_STEEL_INGOT))
                 .save(provider);
             AnvilRecipe.Builder.create(RecipeCategory.MISC)
-                .icon(ModItems.ROYAL_STEEL_INGOT)
+                .icon(ctx.get())
+                .type(AnvilRecipeType.SUPER_HEATING)
                 .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0),
                     Map.entry(OVERLOAD, false))
                 .hasBlock(Blocks.CAULDRON)

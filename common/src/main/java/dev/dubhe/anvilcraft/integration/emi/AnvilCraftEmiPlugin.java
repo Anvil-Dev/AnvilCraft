@@ -45,7 +45,7 @@ public class AnvilCraftEmiPlugin implements EmiPlugin {
         registry.addWorkstation(AnvilCraftEmiRecipeTypes.SQUEEZE, EmiStack.of(Blocks.ANVIL));
         registry.addWorkstation(AnvilCraftEmiRecipeTypes.SUPER_HEATING, EmiStack.of(ModBlocks.HEATER));
         registry.addWorkstation(AnvilCraftEmiRecipeTypes.TIMEWARP, EmiStack.of(ModBlocks.CORRUPTED_BEACON));
-        registry.addWorkstation(AnvilCraftEmiRecipeTypes.NULL, EmiStack.of(Blocks.ANVIL));
+        registry.addWorkstation(AnvilCraftEmiRecipeTypes.GENERIC, EmiStack.of(Blocks.ANVIL));
         AnvilRecipeManager.getAnvilRecipeList().stream()
                 .filter(anvilRecipe1 -> anvilRecipe1.getAnvilRecipeType() == AnvilRecipeType.SIEVING)
                 .forEach(anvilRecipe -> {
@@ -115,8 +115,8 @@ public class AnvilCraftEmiPlugin implements EmiPlugin {
                 .forEach(anvilRecipe ->
                         registry.addRecipe(new BaseItemEmiRecipe(AnvilCraftEmiRecipeTypes.TIMEWARP, anvilRecipe)));
         AnvilRecipeManager.getAnvilRecipeList().stream()
-                .filter(anvilRecipe1 -> anvilRecipe1.getAnvilRecipeType() == AnvilRecipeType.NULL)
+                .filter(anvilRecipe1 -> anvilRecipe1.getAnvilRecipeType() == AnvilRecipeType.GENERIC)
                 .forEach(anvilRecipe ->
-                        registry.addRecipe(new BaseItemEmiRecipe(AnvilCraftEmiRecipeTypes.NULL, anvilRecipe)));
+                        registry.addRecipe(new BaseItemEmiRecipe(AnvilCraftEmiRecipeTypes.GENERIC, anvilRecipe)));
     }
 }

@@ -87,7 +87,7 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
     private final Map<String, CompoundTag> data = new HashMap<>();
     @Setter
     @Getter
-    private AnvilRecipeType anvilRecipeType = AnvilRecipeType.NULL;
+    private AnvilRecipeType anvilRecipeType = AnvilRecipeType.GENERIC;
 
     public AnvilRecipe(ResourceLocation id, ItemStack icon) {
         this.id = id;
@@ -257,7 +257,7 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
         @Nullable
         private String group = null;
         @Getter
-        private AnvilRecipeType anvilRecipeType = AnvilRecipeType.NULL;
+        private AnvilRecipeType anvilRecipeType = AnvilRecipeType.GENERIC;
 
         private Builder(RecipeCategory category, ItemStack icon) {
             this.category = category;

@@ -5,10 +5,11 @@ import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.emi.emi.api.recipe.EmiRecipeCategory;
 import dev.emi.emi.api.render.EmiRenderable;
 import dev.emi.emi.api.stack.EmiStack;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Blocks;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class AnvilCraftEmiRecipeTypes {
 
@@ -31,7 +32,7 @@ public class AnvilCraftEmiRecipeTypes {
     public static final EmiRecipeCategory SQUEEZE = register("squeeze", EmiStack.of(Blocks.ANVIL));
     public static final EmiRecipeCategory SUPER_HEATING = register("super_heating", EmiStack.of(ModBlocks.HEATER));
     public static final EmiRecipeCategory TIMEWARP = register("timewarp", EmiStack.of(ModBlocks.CORRUPTED_BEACON));
-    public static final EmiRecipeCategory NULL = register("null", EmiStack.of(Blocks.ANVIL));
+    public static final EmiRecipeCategory GENERIC = register("generic", EmiStack.of(Blocks.ANVIL));
 
     private static EmiRecipeCategory register(String name, EmiRenderable icon) {
         ResourceLocation id = AnvilCraft.of(name);

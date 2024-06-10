@@ -41,7 +41,7 @@
       "type": "has_item_ingredient",
       "match_item": {
         "count": {
-          "min": 4
+          "min": 1
         },
         "items": [
           "minecraft:honey_block"
