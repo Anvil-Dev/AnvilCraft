@@ -30,10 +30,15 @@ public class AnvilHitBlockDevourerEventListener {
             int range = (int) event.getFallDistance() + 2;
             range = Math.min(range, 3);
             level.setBlock(pos, state.setValue(BlockDevourerBlock.TRIGGERED, true), 2);
-            devourerBlock.devourBlock(serverLevel, pos,
-                state.getValue(BlockDevourerBlock.FACING), range);
             if (state.getValue(BlockDevourerBlock.FACING) == Direction.DOWN
-                && level.getBlockState(pos.below()).getBlock().defaultDestroyTime() >= 0) {
+                    && level.isOutsideBuildHeight(pos.below())) {
+                level.scheduleTick(pos, devourerBlock, 4);
+                return;
+            }
+            devourerBlock.devourBlock(serverLevel, pos,
+                    state.getValue(BlockDevourerBlock.FACING), range);
+            if (state.getValue(BlockDevourerBlock.FACING) == Direction.DOWN
+                    && level.getBlockState(pos.below()).getBlock().defaultDestroyTime() >= 0) {
                 level.setBlock(pos, Blocks.AIR.defaultBlockState(), 2);
                 level.setBlock(pos.below(), state.setValue(BlockDevourerBlock.TRIGGERED, true), 2);
                 level.scheduleTick(pos.below(), devourerBlock, 4);

@@ -11,6 +11,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.monster.Giant;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
@@ -40,7 +41,9 @@ public enum TransformOptions implements StringRepresentable {
                         || itemStack.is(Items.CHIPPED_ANVIL)
                         || itemStack.is(Items.DAMAGED_ANVIL)) {
                         o.setItemInHand(value, ModBlocks.GIANT_ANVIL.asItem().getDefaultInstance());
-                        n.setItemInHand(value, ModBlocks.GIANT_ANVIL.asItem().getDefaultInstance());
+                        if (newEntity instanceof Giant) {
+                            n.setItemInHand(value, ModBlocks.GIANT_ANVIL.asItem().getDefaultInstance());
+                        }
                         if (n instanceof Mob mob) {
                             mob.setDropChance(
                                 value == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND,
