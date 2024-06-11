@@ -1,5 +1,6 @@
 {
   "type": "anvilcraft:anvil_processing",
+  "anvil_recipe_type": "block_smash",
   "icon": {
     "item": "anvilcraft:deepslate_chips"
   },

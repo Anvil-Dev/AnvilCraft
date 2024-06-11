@@ -15,6 +15,7 @@ import dev.dubhe.anvilcraft.block.entity.InductionLightBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LoadMonitorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.MobAmberBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.MineralFountainBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.OverseerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PowerConverterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RemoteTransmissionPoleBlockEntity;
@@ -149,6 +150,11 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<ThermoelectricConverterBlockEntity> THERMOELECTRIC_CONVERTER = REGISTRATE
             .blockEntity("thermoelectric_converter", ThermoelectricConverterBlockEntity::new)
             .validBlocks(ModBlocks.THERMOELECTRIC_CONVERTER)
+            .register();
+
+    public static final BlockEntityEntry<MineralFountainBlockEntity> MINERAL_FOUNTAIN = REGISTRATE
+            .blockEntity("mineral_fountain", MineralFountainBlockEntity::createBlockEntity)
+            .validBlocks(ModBlocks.MINERAL_FOUNTAIN)
             .register();
 
     public static final BlockEntityEntry<GiantAnvilBlockEntity> GIANT_ANVIL = REGISTRATE

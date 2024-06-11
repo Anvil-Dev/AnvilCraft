@@ -47,6 +47,7 @@ public class HasItem implements RecipePredicate, HasData {
     @Getter
     private final String type = "has_item";
     protected final Vec3 offset;
+    @Getter
     protected final ModItemPredicate matchItem;
     protected String path = null;
     @Getter
@@ -213,11 +214,31 @@ public class HasItem implements RecipePredicate, HasData {
         private final Set<Item> items = new HashSet<>();
         @Nullable
         private CompoundTag nbt = null;
+        @Getter
         public MinMaxBounds.Ints count = null;
         private MinMaxBounds.Ints durability = null;
         private final Map<Enchantment, MinMaxBounds.Ints> enchantments = new HashMap<>();
 
         private ModItemPredicate() {
+        }
+
+        /**
+         * 是否具有相同的物品/标签
+         */
+        @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+        public boolean sameItemsOrTag(ModItemPredicate predicate) {
+            if (this == predicate) return true;
+            if (
+                this.tag != null && predicate.tag != null
+                    && !this.tag.location().equals(predicate.tag.location())
+            ) {
+                return false;
+            }
+            if (this.items.size() != predicate.items.size()) return false;
+            for (Item item : items) {
+                if (!predicate.items.contains(item)) return false;
+            }
+            return true;
         }
 
         /**

@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
@@ -9,7 +10,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nonnull;
 
-public class HeavyIronPlateBlock extends Block {
+public class HeavyIronPlateBlock extends Block implements IHammerRemovable {
 
     public static final VoxelShape AABB = Block.box(0, 12, 0, 16, 16, 16);
 

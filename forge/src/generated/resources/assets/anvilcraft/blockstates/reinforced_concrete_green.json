@@ -3,7 +3,7 @@
     "half=bottom": {
       "model": "anvilcraft:block/reinforced_concrete_bottom_green"
     },
-    "half=mid": {
+    "half=single": {
       "model": "anvilcraft:block/reinforced_concrete_green"
     },
     "half=top": {

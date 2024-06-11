@@ -2,9 +2,9 @@ package dev.dubhe.anvilcraft.integration.kubejs.recipe;
 
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import dev.dubhe.anvilcraft.data.recipe.transform.MobTransformRecipe;
 import dev.dubhe.anvilcraft.data.recipe.transform.NumericTagValuePredicate;
 import dev.dubhe.anvilcraft.data.recipe.transform.TagModification;
+import dev.dubhe.anvilcraft.data.recipe.transform.TransformOptions;
 import dev.dubhe.anvilcraft.data.recipe.transform.TransformResult;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.components.AnvilCraftRecipeComponents;
 import dev.latvian.mods.kubejs.recipe.RecipeJS;
@@ -15,8 +15,6 @@ import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import org.apache.commons.lang3.ArrayUtils;
-
-import java.util.function.Consumer;
 
 /**
  * 生物转换配方架构
@@ -121,6 +119,18 @@ public interface MobTransformRecipeSchema {
             save();
             return this;
         }
+
+        /**
+         *
+         */
+        public MobTransformRecipeJs transformOptions(
+                String name
+        ) {
+            if (getValue(OPTIONS) == null) setValue(OPTIONS, new TransformOptions[0]);
+            setValue(OPTIONS, ArrayUtils.add(getValue(OPTIONS), TransformOptions.valueOf(name)));
+            save();
+            return this;
+        }
     }
 
     RecipeKey<ResourceLocation> ID = AnvilCraftRecipeComponents.RESOURCE_LOCATION
@@ -135,6 +145,9 @@ public interface MobTransformRecipeSchema {
 
     RecipeKey<TagModification[]> TAG_MOD = AnvilCraftRecipeComponents.RECIPE_TAG_MODIFY
             .asArray().key("tagModification").defaultOptional();
+
+    RecipeKey<TransformOptions[]> OPTIONS = AnvilCraftRecipeComponents.RECIPE_TRANSFORM_OPTIONS
+            .asArray().key("transformOptions").defaultOptional();
 
     RecipeSchema SCHEMA = new RecipeSchema(
             MobTransformRecipeJs.class, MobTransformRecipeJs::new,

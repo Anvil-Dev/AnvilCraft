@@ -3,17 +3,15 @@ package dev.dubhe.anvilcraft.block;
 import dev.dubhe.anvilcraft.api.IHasMultiBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.OverseerBlockEntity;
-import dev.dubhe.anvilcraft.block.state.Half;
-import dev.dubhe.anvilcraft.init.ModBlockEntities;
+import dev.dubhe.anvilcraft.block.state.Vertical3PartHalf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -22,6 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -30,15 +29,15 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
-public class OverseerBlock extends BaseEntityBlock implements IHammerRemovable, IHasMultiBlock {
-
+public class OverseerBlock extends AbstractMultiplePartBlock<Vertical3PartHalf>
+    implements IHammerRemovable, IHasMultiBlock, EntityBlock {
     private static final VoxelShape OVERSEER_BASE = Shapes.or(
-            Block.box(0, 0, 0, 16, 4, 16),
-            Block.box(2, 8, 2, 14, 16, 14)
+        Block.box(0, 0, 0, 16, 4, 16),
+        Block.box(2, 8, 2, 14, 16, 14)
     );
     private static final VoxelShape OVERSEER_MID = Block.box(2, 0, 2, 14, 16, 14);
     private static final VoxelShape OVERSEER_TOP = Block.box(2, 0, 2, 14, 16, 14);
-    public static final EnumProperty<Half> HALF = EnumProperty.create("half", Half.class);
+    public static final EnumProperty<Vertical3PartHalf> HALF = EnumProperty.create("half", Vertical3PartHalf.class);
     public static final IntegerProperty LEVEL = IntegerProperty.create("level", 0, 3);
 
     /**
@@ -47,19 +46,28 @@ public class OverseerBlock extends BaseEntityBlock implements IHammerRemovable, 
     public OverseerBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(
-                this.stateDefinition.any()
-                        .setValue(HALF, Half.BOTTOM)
-                        .setValue(LEVEL, 0)
+            this.stateDefinition.any()
+                .setValue(HALF, Vertical3PartHalf.BOTTOM)
+                .setValue(LEVEL, 0)
         );
     }
 
+    @Override
+    protected @NotNull Property<Vertical3PartHalf> getPart() {
+        return OverseerBlock.HALF;
+    }
+
+    @Override
+    protected Enum<Vertical3PartHalf>[] getParts() {
+        return Vertical3PartHalf.values();
+    }
 
     @Override
     @Nullable
     public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
         return this.defaultBlockState()
-                .setValue(HALF, Half.BOTTOM)
-                .setValue(LEVEL, 0);
+            .setValue(HALF, Vertical3PartHalf.BOTTOM)
+            .setValue(LEVEL, 0);
     }
 
     @Override
@@ -67,6 +75,7 @@ public class OverseerBlock extends BaseEntityBlock implements IHammerRemovable, 
         builder.add(HALF).add(LEVEL);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public @Nonnull RenderShape getRenderShape(@Nonnull BlockState state) {
         return RenderShape.MODEL;
@@ -75,8 +84,8 @@ public class OverseerBlock extends BaseEntityBlock implements IHammerRemovable, 
     @SuppressWarnings("deprecation")
     @Override
     public @NotNull VoxelShape getShape(
-            @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos,
-            @NotNull CollisionContext context
+        @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos,
+        @NotNull CollisionContext context
     ) {
         return switch (state.getValue(HALF)) {
             case TOP -> OVERSEER_TOP;
@@ -87,48 +96,13 @@ public class OverseerBlock extends BaseEntityBlock implements IHammerRemovable, 
 
     @Override
     public void setPlacedBy(
-            @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state,
-            LivingEntity placer, @NotNull ItemStack stack
+        @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state,
+        LivingEntity placer, @NotNull ItemStack stack
     ) {
         BlockPos above = pos.above();
-        level.setBlockAndUpdate(above, state.setValue(HALF, Half.MID).setValue(LEVEL, 1));
+        level.setBlockAndUpdate(above, state.setValue(HALF, Vertical3PartHalf.MID).setValue(LEVEL, 1));
         above = above.above();
-        level.setBlockAndUpdate(above, state.setValue(HALF, Half.TOP).setValue(LEVEL, 1));
-    }
-
-    @Override
-    public void playerWillDestroy(
-            @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player
-    ) {
-        if (level.isClientSide) {
-            return;
-        }
-        OverseerBlock.destroyBlock(level, pos, state);
-        super.playerWillDestroy(level, pos, state, player);
-    }
-
-    /**
-     * 破坏监督者方块
-     *
-     * @param level 破坏世界
-     * @param pos   监督者其中一个方块的位置
-     * @param state 监督者的方块状态
-     */
-    public static void destroyBlock(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state) {
-        switch (state.getValue(HALF)) {
-            case MID -> {
-                level.destroyBlock(pos.above(), false, null);
-                level.destroyBlock(pos.below(), false, null);
-            }
-            case TOP -> {
-                level.destroyBlock(pos.below(), false, null);
-                level.destroyBlock(pos.below(2), false, null);
-            }
-            default -> {
-                level.destroyBlock(pos.above(), false, null);
-                level.destroyBlock(pos.above(2), false, null);
-            }
-        }
+        level.setBlockAndUpdate(above, state.setValue(HALF, Vertical3PartHalf.TOP).setValue(LEVEL, 1));
     }
 
     @Nullable
@@ -140,21 +114,20 @@ public class OverseerBlock extends BaseEntityBlock implements IHammerRemovable, 
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-            @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type
+        @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type
     ) {
         if (level.isClientSide) return null;
-        if (state.getValue(HALF) != Half.BOTTOM) return null;
-        return createTickerHelper(type, ModBlockEntities.OVERSEER.get(),
-                (level1, pos, state1, entity) -> entity.tick(level1, pos, state1));
+        if (state.getValue(HALF) != Vertical3PartHalf.BOTTOM) return null;
+        return (level1, pos, state1, entity) -> {
+            if (entity instanceof OverseerBlockEntity be) be.tick(level1, pos, state1);
+        };
     }
 
     @Override
     public void onRemove(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state) {
-        OverseerBlock.destroyBlock(level, pos, state);
     }
 
     @Override
     public void onPlace(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state) {
-
     }
 }

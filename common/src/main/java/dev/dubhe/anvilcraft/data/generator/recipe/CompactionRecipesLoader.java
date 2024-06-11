@@ -4,6 +4,7 @@ import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -44,6 +45,7 @@ public class CompactionRecipesLoader {
         Block block, @NotNull Block block1, @NotNull Block block2, RegistrateRecipeProvider provider
     ) {
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
+            .type(AnvilRecipeType.COMPACTION)
             .hasBlockIngredient(block)
             .hasBlock(new Vec3(0.0, -2.0, 0.0), block1)
             .setBlock(new Vec3(0.0, -2.0, 0.0), block2)

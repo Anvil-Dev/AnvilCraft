@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.CorruptedBeaconBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import net.minecraft.core.BlockPos;
@@ -21,7 +22,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class CorruptedBeaconBlock extends BeaconBlock {
+public class CorruptedBeaconBlock extends BeaconBlock implements IHammerRemovable {
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
 
     public CorruptedBeaconBlock(Properties properties) {

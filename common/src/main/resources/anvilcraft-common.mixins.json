@@ -19,6 +19,8 @@
     "FallingBlockEntityMixin",
     "FlyingHitEntityMixin",
     "HoeItemMixin",
+    "IngredientValueAccessor$Item",
+    "IngredientValueAccessor$Tag",
     "ItemEntityMixin",
     "LivingEntityMixin",
     "PistonBaseBlockMixin",

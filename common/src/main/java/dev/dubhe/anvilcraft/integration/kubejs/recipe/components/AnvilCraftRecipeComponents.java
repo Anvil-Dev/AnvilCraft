@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.RecipeOutcome;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipePredicate;
 import dev.dubhe.anvilcraft.data.recipe.transform.NumericTagValuePredicate;
 import dev.dubhe.anvilcraft.data.recipe.transform.TagModification;
+import dev.dubhe.anvilcraft.data.recipe.transform.TransformOptions;
 import dev.dubhe.anvilcraft.data.recipe.transform.TransformResult;
 import dev.latvian.mods.kubejs.recipe.RecipeJS;
 import dev.latvian.mods.kubejs.recipe.component.RecipeComponent;
@@ -197,6 +198,30 @@ public class AnvilCraftRecipeComponents {
         public TagModification read(RecipeJS recipe, Object from) {
             if (from instanceof JsonObject jsonObject) {
                 return TagModification.fromJson(jsonObject);
+            }
+            return null;
+        }
+    };
+    public static final RecipeComponent<TransformOptions> RECIPE_TRANSFORM_OPTIONS = new RecipeComponent<>() {
+        @Override
+        public String componentType() {
+            return "recipe_predicates";
+        }
+
+        @Override
+        public Class<?> componentClass() {
+            return TagModification.class;
+        }
+
+        @Override
+        public JsonElement write(RecipeJS recipe, TransformOptions value) {
+            return value.toJson();
+        }
+
+        @Override
+        public TransformOptions read(RecipeJS recipe, Object from) {
+            if (from instanceof JsonObject jsonObject) {
+                return TransformOptions.fromJson(jsonObject);
             }
             return null;
         }
