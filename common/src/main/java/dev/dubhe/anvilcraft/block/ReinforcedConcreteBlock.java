@@ -12,7 +12,8 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import org.jetbrains.annotations.NotNull;
 
 public class ReinforcedConcreteBlock extends Block {
-    public static final EnumProperty<ReinforcedConcreteHalf> HALF = EnumProperty.create("half", ReinforcedConcreteHalf.class);
+    public static final EnumProperty<ReinforcedConcreteHalf> HALF = EnumProperty
+        .create("half", ReinforcedConcreteHalf.class);
 
     /**
      * @param properties 方块属性
