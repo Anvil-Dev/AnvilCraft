@@ -986,7 +986,7 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
             if (list.isEmpty()) return null;
             if (list.stream().anyMatch(i -> !i.getMatchItem().sameItemsOrTag(list.get(0).getMatchItem()))) return null;
             int size = shapedRecipe.getIngredients().size();
-            if (size != 4 && size != 9 || shapedRecipe.getWidth() != shapedRecipe.getHeight()) return null;
+            if ((size != 4 && size != 9) || shapedRecipe.getWidth() != shapedRecipe.getHeight()) return null;
             if (resultItem.is(Items.IRON_TRAPDOOR)) return null;
             anvilRecipe.setAnvilRecipeType(AnvilRecipeType.COMPRESS);
             anvilRecipe.addPredicates(

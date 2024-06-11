@@ -4,8 +4,8 @@ import com.google.common.collect.Lists;
 import dev.dubhe.anvilcraft.util.BlockStateRender;
 import dev.emi.emi.EmiPort;
 import dev.emi.emi.api.stack.EmiStack;
+import lombok.Getter;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -13,6 +13,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,12 +22,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Getter
 public class BlockStateEmiStack extends EmiStack {
-    private static final Minecraft MINECRAFT = Minecraft.getInstance();
-    private final BlockState state;
+    public static final BlockStateEmiStack EMPTY = BlockStateEmiStack.of(Blocks.AIR);
+    private final @NotNull BlockState state;
 
-    public BlockStateEmiStack(BlockState state) {
+    private BlockStateEmiStack(@NotNull BlockState state) {
         this.state = state;
+    }
+
+    public static @NotNull BlockStateEmiStack of(@NotNull BlockState state) {
+        return new BlockStateEmiStack(state);
+    }
+
+    public static @NotNull BlockStateEmiStack of(@NotNull Block block) {
+        return new BlockStateEmiStack(block.defaultBlockState());
     }
 
     @Override
@@ -40,7 +51,7 @@ public class BlockStateEmiStack extends EmiStack {
 
     @Override
     public void render(@NotNull GuiGraphics draw, int x, int y, float delta, int flags) {
-        BlockStateRender.renderBlock(this.state, draw, x, y, 16);
+        BlockStateRender.render(this.state, draw, x, y);
     }
 
     @Override
