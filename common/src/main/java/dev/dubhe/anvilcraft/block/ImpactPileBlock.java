@@ -40,6 +40,12 @@ public class ImpactPileBlock extends Block implements IHammerRemovable {
         return RenderShape.MODEL;
     }
 
+    /**
+     * 冲击
+     *
+     * @param level    世界
+     * @param blockPos 位置
+     */
     public void impact(Level level, BlockPos blockPos) {
         level.destroyBlock(blockPos, false);
         level.destroyBlock(blockPos.above(), false);
@@ -68,7 +74,7 @@ public class ImpactPileBlock extends Block implements IHammerRemovable {
             level.setBlockAndUpdate(pos.east(), Blocks.BEDROCK.defaultBlockState());
         }
         level.setBlockAndUpdate(
-                new BlockPos(blockPos.getX(),
+            new BlockPos(blockPos.getX(),
                 level.getMinBuildHeight() + 4, blockPos.getZ()), ModBlocks.MINERAL_FOUNTAIN.getDefaultState()
         );
     }
