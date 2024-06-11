@@ -20,7 +20,6 @@ import dev.dubhe.anvilcraft.block.CrabTrapBlock;
 import dev.dubhe.anvilcraft.block.CreativeGeneratorBlock;
 import dev.dubhe.anvilcraft.block.DischargerBlock;
 import dev.dubhe.anvilcraft.block.FerriteCoreMagnetBlock;
-import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.block.GlowingMetalBlock;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.block.HeavyIronBeamBlock;
@@ -38,6 +37,7 @@ import dev.dubhe.anvilcraft.block.MagnetBlock;
 import dev.dubhe.anvilcraft.block.MeltGemCauldron;
 import dev.dubhe.anvilcraft.block.MineralFountainBlock;
 import dev.dubhe.anvilcraft.block.MobAmberBlock;
+import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.block.ObsidianCauldron;
 import dev.dubhe.anvilcraft.block.OverseerBlock;
 import dev.dubhe.anvilcraft.block.PiezoelectricCrystalBlock;
@@ -1667,7 +1667,7 @@ public class ModBlocks {
         .block("giant_anvil", GiantAnvilBlock::new)
         .simpleItem()
         .initialProperties(() -> Blocks.ANVIL)
-        .loot((tables, block) -> tables.dropOther(block, ModBlocks.GIANT_ANVIL.asItem()))
+        .loot(AbstractMultiplePartBlock::loot)
         .properties(p -> {
             p = p.noOcclusion();
             p = p.strength(4.0F).sound(SoundType.ANVIL);

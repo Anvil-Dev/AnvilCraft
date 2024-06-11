@@ -1,13 +1,12 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
-import dev.dubhe.anvilcraft.block.entity.GiantAnvilBlockEntity;
-import dev.dubhe.anvilcraft.block.state.giantanvil.Cube;
-import dev.dubhe.anvilcraft.block.state.giantanvil.GiantAnvilStructure;
-import dev.dubhe.anvilcraft.init.ModBlockEntities;
+import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
+import dev.dubhe.anvilcraft.block.state.GiantAnvilCube;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -18,8 +17,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleMenuProvider;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -29,17 +26,16 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.Fallable;
-import net.minecraft.world.level.block.RenderShape;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -48,17 +44,13 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import java.util.ArrayList;
 import java.util.stream.Stream;
-import java.util.Map;
 
-public class GiantAnvilBlock extends AnvilBlock implements EntityBlock, Fallable, IHammerRemovable {
-    public static final EnumProperty<Cube> CUBE = EnumProperty.create("cube", Cube.class);
-    public static final EnumProperty<GiantAnvilStructure> STRUCTURE
-        = EnumProperty.create("structure", GiantAnvilStructure.class);
+public class GiantAnvilBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf>
+    implements Fallable, IHammerRemovable {
     private static final Component CONTAINER_TITLE = Component.translatable("container.repair");
-    protected static final VoxelShape TOP_SHAPE = Block.box(0, 0, 0, 16, 15, 16);
+    public static final EnumProperty<Cube3x3PartHalf> HALF = EnumProperty.create("half", Cube3x3PartHalf.class);
+    public static final EnumProperty<GiantAnvilCube> CUBE = EnumProperty.create("cube", GiantAnvilCube.class);
     protected static final VoxelShape BASE_ANGLE_NW = Stream.of(
         Block.box(9, 8, 9, 16, 13, 16),
         Block.box(12, 13, 12, 16, 16, 16),
@@ -127,32 +119,6 @@ public class GiantAnvilBlock extends AnvilBlock implements EntityBlock, Fallable
         Block.box(6, 9, 0, 16, 16, 16),
         Block.box(0, 12, 0, 6, 16, 16)
     ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
-    private static final Map<GiantAnvilStructure, Map<Direction, VoxelShape>> STRUCTURE_FACING_MAP = Map.of(
-        GiantAnvilStructure.BASE, Map.of(
-            Direction.NORTH, BASE_N,
-            Direction.SOUTH, BASE_S,
-            Direction.EAST, BASE_E,
-            Direction.WEST, BASE_W
-        ),
-        GiantAnvilStructure.BASE_ANGLE, Map.of(
-            Direction.NORTH, BASE_ANGLE_NE,
-            Direction.SOUTH, BASE_ANGLE_SW,
-            Direction.EAST, BASE_ANGLE_SE,
-            Direction.WEST, BASE_ANGLE_NW
-        ),
-        GiantAnvilStructure.MID_EDGE, Map.of(
-            Direction.NORTH, MID_EDGE_N,
-            Direction.SOUTH, MID_EDGE_S,
-            Direction.EAST, MID_EDGE_E,
-            Direction.WEST, MID_EDGE_W
-        ),
-        GiantAnvilStructure.MID_ANGLE, Map.of(
-            Direction.NORTH, MID_ANGLE_NE,
-            Direction.SOUTH, MID_ANGLE_SW,
-            Direction.EAST, MID_ANGLE_SE,
-            Direction.WEST, MID_ANGLE_NW
-        )
-    );
 
     /**
      * @param properties 属性
@@ -161,20 +127,188 @@ public class GiantAnvilBlock extends AnvilBlock implements EntityBlock, Fallable
         super(properties);
         this.registerDefaultState(
             this.stateDefinition.any()
-                .setValue(CUBE, Cube.CORNER)
-                .setValue(STRUCTURE, GiantAnvilStructure.BASE)
-                .setValue(FACING, Direction.NORTH)
+                .setValue(HALF, Cube3x3PartHalf.BOTTOM_CENTER)
+                .setValue(CUBE, GiantAnvilCube.CORNER)
         );
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public @NotNull VoxelShape getShape(
+        @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context
+    ) {
+        return switch (state.getValue(HALF)) {
+            case MID_E -> MID_EDGE_E;
+            case MID_W -> MID_EDGE_W;
+            case MID_N -> MID_EDGE_N;
+            case MID_S -> MID_EDGE_S;
+            case MID_EN -> MID_ANGLE_NE;
+            case MID_ES -> MID_ANGLE_SE;
+            case MID_WN -> MID_ANGLE_NW;
+            case MID_WS -> MID_ANGLE_SW;
+            case BOTTOM_E -> BASE_E;
+            case BOTTOM_W -> BASE_W;
+            case BOTTOM_N -> BASE_N;
+            case BOTTOM_S -> BASE_S;
+            case BOTTOM_EN -> BASE_ANGLE_NE;
+            case BOTTOM_ES -> BASE_ANGLE_SE;
+            case BOTTOM_WN -> BASE_ANGLE_NW;
+            case BOTTOM_WS -> BASE_ANGLE_SW;
+            default -> Block.box(0, 1, 0, 16, 16, 16);
+        };
+    }
+
+    @Override
+    public void setPlacedBy(
+        @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state,
+        @Nullable LivingEntity placer, @NotNull ItemStack stack
+    ) {
+        if (!state.hasProperty(HALF)) return;
+        for (Cube3x3PartHalf part : this.getParts()) {
+            if (part == Cube3x3PartHalf.BOTTOM_CENTER) continue;
+            BlockPos blockPos = pos.offset(part.getOffset());
+            BlockState newState = state
+                .setValue(HALF, part)
+                .setValue(CUBE, part == Cube3x3PartHalf.MID_CENTER ? GiantAnvilCube.CENTER : GiantAnvilCube.CORNER);
+            level.setBlockAndUpdate(blockPos, newState);
+        }
     }
 
     @Override
     protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(CUBE, FACING, STRUCTURE);
+        builder.add(HALF, CUBE);
     }
 
     @Nullable
     public static BlockState damage(BlockState state) {
         return state;
+    }
+
+    @Override
+    protected @NotNull Property<Cube3x3PartHalf> getPart() {
+        return GiantAnvilBlock.HALF;
+    }
+
+    @Override
+    protected Cube3x3PartHalf[] getParts() {
+        return Cube3x3PartHalf.values();
+    }
+
+    @Override
+    public void onLand(
+        @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state,
+        @NotNull BlockState replaceableState, @NotNull FallingBlockEntity fallingBlock
+    ) {
+        level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
+        if (!canPlace(level, pos)) {
+            ItemEntity itemEntity = new ItemEntity(
+                level, pos.getX(), pos.getY(), pos.getZ(), ModBlocks.GIANT_ANVIL.asStack()
+            );
+            itemEntity.setDefaultPickUpDelay();
+            level.addFreshEntity(itemEntity);
+            return;
+        }
+        for (Cube3x3PartHalf part : this.getParts()) {
+            BlockState newState = state
+                .setValue(HALF, part)
+                .setValue(CUBE, part == Cube3x3PartHalf.MID_CENTER ? GiantAnvilCube.CENTER : GiantAnvilCube.CORNER);
+            level.setBlockAndUpdate(pos.offset(part.getOffset()), newState);
+        }
+        level.playSound(null,
+            pos,
+            SoundEvents.ANVIL_LAND,
+            SoundSource.BLOCKS,
+            1f,
+            1f);
+    }
+
+    @Override
+    protected Vec3i getMainPartOffset() {
+        return new Vec3i(0, 1, 0);
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public void tick(
+        @NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random
+    ) {
+        if (state.getValue(HALF) != Cube3x3PartHalf.BOTTOM_CENTER) return;
+        for (Cube3x3PartHalf part : getParts()) {
+            if (part.getOffsetY() != 0) continue;
+            if (!FallingBlock.isFree(level.getBlockState(pos.offset(part.getOffset()).below()))) return;
+        }
+        BlockPos above = pos.above();
+        BlockState state1 = level.getBlockState(above);
+        if (
+            !state1.is(this)
+                || !state1.hasProperty(HALF)
+                || state1.getValue(HALF) != Cube3x3PartHalf.MID_CENTER
+        ) {
+            return;
+        }
+        FallingBlockEntity fallingBlockEntity = FallingBlockEntity.fall(level, above, state1);
+        this.falling(fallingBlockEntity);
+    }
+
+    protected void falling(@NotNull FallingBlockEntity entity) {
+        entity.setHurtsEntities(10.0F, 40);
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public void onPlace(
+        @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos,
+        @NotNull BlockState oldState, boolean movedByPiston
+    ) {
+        level.scheduleTick(pos, this, this.getDelayAfterPlace());
+    }
+
+    @Override
+    public @NotNull BlockState updateShape(
+        @NotNull BlockState state, @NotNull Direction direction, @NotNull BlockState neighborState,
+        @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockPos neighborPos
+    ) {
+        level.scheduleTick(pos, this, this.getDelayAfterPlace());
+        return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
+    }
+
+    protected int getDelayAfterPlace() {
+        return 2;
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public @NotNull InteractionResult use(
+        @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos,
+        @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult hit
+    ) {
+        if (level.isClientSide) {
+            return InteractionResult.SUCCESS;
+        } else {
+            player.openMenu(state.getMenuProvider(level, pos));
+            player.awardStat(Stats.INTERACT_WITH_ANVIL);
+            return InteractionResult.CONSUME;
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    @Nullable
+    public MenuProvider getMenuProvider(
+        @NotNull BlockState state,
+        @NotNull Level level,
+        @NotNull BlockPos pos
+    ) {
+        return new SimpleMenuProvider(
+            (syncId, inventory, player) -> new AnvilMenu(syncId, inventory, ContainerLevelAccess.create(level, pos)),
+            CONTAINER_TITLE
+        );
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public boolean canSurvive(@NotNull BlockState state, @NotNull LevelReader level, @NotNull BlockPos pos) {
+        return canPlace((Level) level, pos);
     }
 
     /**
@@ -192,250 +326,5 @@ public class GiantAnvilBlock extends AnvilBlock implements EntityBlock, Fallable
             }
         }
         return true;
-    }
-
-    private ArrayList<BlockPos> setBlockAndReturnBlockGroup(
-        @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state
-    ) {
-        ArrayList<BlockPos> blockGroups = new ArrayList<>();
-        int range = 1;
-        int blockCount = 0;
-        for (int y = 0; y <= range + 1; y++) {
-            for (int x = -range; x <= range; x++) {
-                for (int z = -range; z <= range; z++) {
-                    blockCount++;
-                    BlockPos currentPos = pos.offset(x, y, z);
-                    BlockState newState = state.setValue(CUBE, Cube.CORNER);
-                    if (blockCount <= 9) {
-                        if (blockCount % 2 == 0) {
-                            newState = newState.setValue(STRUCTURE, GiantAnvilStructure.BASE);
-                        } else {
-                            newState = newState.setValue(STRUCTURE, GiantAnvilStructure.BASE_ANGLE);
-                        }
-                    } else if (blockCount <= 18) {
-                        if (blockCount % 2 != 0) {
-                            newState = newState.setValue(STRUCTURE, GiantAnvilStructure.MID_EDGE);
-                        } else {
-                            newState = newState.setValue(STRUCTURE, GiantAnvilStructure.MID_ANGLE);
-                        }
-                    } else {
-                        newState = newState.setValue(STRUCTURE, GiantAnvilStructure.TOP);
-                    }
-                    Direction direction = getRelativeDirection(pos, currentPos);
-                    if (direction != null) {
-                        newState = newState.setValue(FACING, direction);
-                    }
-                    level.setBlockAndUpdate(currentPos, newState);
-                    blockGroups.add(currentPos);
-                }
-            }
-        }
-        BlockPos above = pos.above();
-        level.setBlockAndUpdate(
-            pos, state.setValue(CUBE, Cube.CORNER).setValue(STRUCTURE, GiantAnvilStructure.TOP)
-        );
-        level.setBlockAndUpdate(
-            above, state.setValue(CUBE, Cube.CENTER).setValue(STRUCTURE, GiantAnvilStructure.TOP)
-        );
-        return blockGroups;
-    }
-
-    @Override
-    public void setPlacedBy(
-        @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state,
-        LivingEntity placer, @NotNull ItemStack stack
-    ) {
-        if (placer instanceof Player) {
-            setGiantAnvil(level, pos, state);
-        }
-    }
-
-    /**
-     * @param pos1 基准方块坐标
-     * @param pos2 对比方块坐标
-     * @return 方向
-     */
-    public Direction getRelativeDirection(BlockPos pos1, BlockPos pos2) {
-        BlockPos relativePos = pos2.subtract(pos1);
-
-        if (relativePos.getX() > 0 && relativePos.getZ() > 0) return Direction.EAST;
-        if (relativePos.getX() > 0 && relativePos.getZ() < 0) return Direction.NORTH;
-        if (relativePos.getX() < 0 && relativePos.getZ() > 0) return Direction.SOUTH;
-        if (relativePos.getX() < 0 && relativePos.getZ() < 0) return Direction.WEST;
-        if (relativePos.getX() > 0) return Direction.EAST;
-        if (relativePos.getX() < 0) return Direction.WEST;
-        if (relativePos.getZ() > 0) return Direction.SOUTH;
-        if (relativePos.getZ() < 0) return Direction.NORTH;
-
-        return null;
-    }
-
-
-    @Override
-    protected void falling(FallingBlockEntity entity) {
-        entity.setHurtsEntities(10.0F, 40);
-    }
-
-    @Override
-    @SuppressWarnings("deprecation")
-    public boolean canSurvive(@NotNull BlockState state, @NotNull LevelReader level, @NotNull BlockPos pos) {
-        return canPlace((Level) level, pos);
-    }
-
-    @Override
-    @SuppressWarnings("deprecation")
-    public @Nonnull RenderShape getRenderShape(@Nonnull BlockState state) {
-        return RenderShape.MODEL;
-    }
-
-    @Override
-    public void playerWillDestroy(
-        @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player
-    ) {
-        if (level.isClientSide) return;
-        onRemove(level, pos);
-        if (state.getValue(CUBE) == Cube.CENTER) {
-            level.playSound(null,
-                pos,
-                SoundEvents.ANVIL_DESTROY,
-                SoundSource.BLOCKS,
-                1f,
-                1f);
-        }
-        super.playerWillDestroy(level, pos, state, player);
-    }
-
-    /**
-     * @param level 世界
-     * @param pos   方块坐标
-     */
-    public void onRemove(@NotNull Level level, @NotNull BlockPos pos) {
-        ArrayList<BlockPos> blockGroups = new ArrayList<>();
-        BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity instanceof GiantAnvilBlockEntity entity) {
-            blockGroups = entity.getBlockGroups();
-            entity.setBlockGroups(blockGroups);
-        }
-        for (BlockPos blockPos : blockGroups) {
-            level.destroyBlock(blockPos, false);
-        }
-        blockGroups.clear();
-    }
-
-    @Override
-    public @NotNull InteractionResult use(
-        @NotNull BlockState state, @NotNull Level level,
-        @NotNull BlockPos pos, @NotNull Player player,
-        @NotNull InteractionHand hand, @NotNull BlockHitResult hit
-    ) {
-        if (level.isClientSide) return InteractionResult.SUCCESS;
-        player.openMenu(state.getMenuProvider(level, pos));
-        player.awardStat(Stats.INTERACT_WITH_ANVIL);
-        return InteractionResult.CONSUME;
-    }
-
-    @Override
-    @Nullable
-    public MenuProvider getMenuProvider(
-        @NotNull BlockState state,
-        @NotNull Level level,
-        @NotNull BlockPos pos
-    ) {
-        return new SimpleMenuProvider(
-            (syncId, inventory, player) -> new AnvilMenu(syncId, inventory, ContainerLevelAccess.create(level, pos)),
-            CONTAINER_TITLE
-        );
-    }
-
-    @Override
-    public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
-        return new GiantAnvilBlockEntity(ModBlockEntities.GIANT_ANVIL.get(), pos, state);
-    }
-
-    @Override
-    public void onLand(
-        @NotNull Level level, @NotNull BlockPos pos,
-        @NotNull BlockState state, @NotNull BlockState replaceableState,
-        @NotNull FallingBlockEntity fallingBlock
-    ) {
-        level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
-        if (!canPlace(level, pos)) {
-            ItemEntity itemEntity = new ItemEntity(
-                level, pos.getX(), pos.getY(), pos.getZ(), ModBlocks.GIANT_ANVIL.asStack()
-            );
-            itemEntity.setDefaultPickUpDelay();
-            level.addFreshEntity(itemEntity);
-        } else {
-            setGiantAnvil(level, pos, state);
-            level.playSound(null,
-                pos,
-                SoundEvents.ANVIL_LAND,
-                SoundSource.BLOCKS,
-                1f,
-                1f);
-        }
-    }
-
-    private void setGiantAnvil(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state) {
-        ArrayList<BlockPos> blockGroups = setBlockAndReturnBlockGroup(level, pos, state);
-
-        BlockPos above = pos.above();
-        level.setBlockAndUpdate(
-            pos, state.setValue(CUBE, Cube.CORNER).setValue(STRUCTURE, GiantAnvilStructure.TOP)
-        );
-        level.setBlockAndUpdate(
-            above, state.setValue(CUBE, Cube.CENTER).setValue(STRUCTURE, GiantAnvilStructure.TOP)
-        );
-
-        for (BlockPos p : blockGroups) {
-            if (level.getBlockEntity(p) instanceof GiantAnvilBlockEntity entity) {
-                entity.setBlockGroups(blockGroups);
-            }
-        }
-    }
-
-    @Override
-    public void onBrokenAfterFall(
-        @NotNull Level level,
-        @NotNull BlockPos pos,
-        @NotNull FallingBlockEntity fallingBlock
-    ) {
-    }
-
-    @Override
-    public void tick(
-        @NotNull BlockState state, @NotNull ServerLevel level,
-        @NotNull BlockPos pos, @NotNull RandomSource random
-    ) {
-        if (
-            state.getValue(CUBE).equals(Cube.CORNER)
-                && isFree(level.getBlockState(pos.below()))
-                && pos.getY() >= level.getMinBuildHeight()
-        ) {
-            BlockState aboveBlockState = level.getBlockState(pos.above());
-            if (aboveBlockState.getBlock() instanceof GiantAnvilBlock) {
-                if (aboveBlockState.getValue(CUBE).equals(Cube.CENTER)) {
-                    onRemove(level, pos.above());
-                    level.setBlockAndUpdate(pos.above(), aboveBlockState);
-                    FallingBlockEntity fallingBlockEntity = FallingBlockEntity
-                        .fall(level, pos.above(), aboveBlockState);
-                    this.falling(fallingBlockEntity);
-                }
-            }
-        }
-    }
-
-    @Override
-    public @NotNull VoxelShape getShape(
-        @NotNull BlockState state, @NotNull BlockGetter level,
-        @NotNull BlockPos pos, @NotNull CollisionContext context
-    ) {
-        return STRUCTURE_FACING_MAP
-            .getOrDefault(state.getValue(STRUCTURE), Map.of())
-            .getOrDefault(state.getValue(FACING), TOP_SHAPE);
-    }
-
-    public @NotNull DamageSource getFallDamageSource(@NotNull Entity entity) {
-        return entity.damageSources().fallingBlock(entity);
     }
 }

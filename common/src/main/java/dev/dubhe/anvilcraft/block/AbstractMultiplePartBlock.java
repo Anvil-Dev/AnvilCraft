@@ -24,27 +24,27 @@ public abstract class AbstractMultiplePartBlock<P extends Enum<P> & MultiplePart
 
     protected abstract P[] getParts();
 
+    protected Vec3i getMainPartOffset() {
+        return new Vec3i(0, 0, 0);
+    }
+
     @Override
     @SuppressWarnings("deprecation")
     public @NotNull BlockState updateShape(
         @NotNull BlockState state, @NotNull Direction direction, @NotNull BlockState neighborState,
         @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockPos neighborPos
     ) {
-        MultiplePartBlockState<P> state1;
         if (!state.hasProperty(this.getPart())) {
             return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
         }
-        state1 = state.getValue(this.getPart());
+        MultiplePartBlockState<P> state1 = state.getValue(this.getPart());
         for (P part : getParts()) {
-            Vec3i offset = part.getOffset().subtract(state1.getOffset());
-            int distance = offset.getX() + offset.getY() + offset.getZ();
-            if (Math.abs(distance) != 1) continue;
-            BlockPos pos1 = pos.offset(offset);
-            BlockState blockState = level.getBlockState(pos1);
+            Vec3i offset = neighborPos.subtract(pos).offset(state1.getOffset()); // 更新来源偏移值
+            if (offset.distSqr(part.getOffset()) != 0) continue;
             if (
-                !blockState.is(this)
-                    || !blockState.hasProperty(this.getPart())
-                    || blockState.getValue(this.getPart()) != part
+                !neighborState.is(this)
+                    || !neighborState.hasProperty(this.getPart())
+                    || neighborState.getValue(this.getPart()) != part
             ) {
                 return Blocks.AIR.defaultBlockState();
             }
@@ -68,8 +68,8 @@ public abstract class AbstractMultiplePartBlock<P extends Enum<P> & MultiplePart
         if (!state.is(this)) return;
         if (!state.hasProperty(this.getPart())) return;
         P value = state.getValue(this.getPart());
-        if (value.getOffset().distSqr(new Vec3i(0, 0, 0)) == 0) return;
-        BlockPos mainPartPos = pos.subtract(value.getOffset());
+        if (value.getOffset().distSqr(this.getMainPartOffset()) == 0) return;
+        BlockPos mainPartPos = pos.subtract(value.getOffset()).offset(this.getMainPartOffset());
         BlockState mainPartState = level.getBlockState(mainPartPos);
         if (!mainPartState.is(this)) return;
         if (!mainPartState.hasProperty(this.getPart())) return;
@@ -90,7 +90,7 @@ public abstract class AbstractMultiplePartBlock<P extends Enum<P> & MultiplePart
         BlockLootSubProvider provider, @NotNull AbstractMultiplePartBlock<T> block
     ) {
         for (T part : block.getParts()) {
-            if (part.getOffset().distSqr(new Vec3i(0, 0, 0)) == 0) {
+            if (part.getOffset().distSqr(block.getMainPartOffset()) == 0) {
                 provider.add(block, provider.createSinglePropConditionTable(block, block.getPart(), part));
                 break;
             }

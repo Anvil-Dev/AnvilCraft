@@ -11,6 +11,15 @@
       "entries": [
         {
           "type": "minecraft:item",
+          "conditions": [
+            {
+              "block": "anvilcraft:giant_anvil",
+              "condition": "minecraft:block_state_property",
+              "properties": {
+                "half": "mid_center"
+              }
+            }
+          ],
           "name": "anvilcraft:giant_anvil"
         }
       ],

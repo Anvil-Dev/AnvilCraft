@@ -1,16 +1,15 @@
-package dev.dubhe.anvilcraft.block.state.giantanvil;
+package dev.dubhe.anvilcraft.block.state;
 
 import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.NotNull;
 
-public enum Cube implements StringRepresentable {
+public enum GiantAnvilCube implements StringRepresentable {
     CORNER("corner"),
-    CENTER("center")
-    ;
+    CENTER("center");
 
     private final String name;
 
-    Cube(String name) {
+    GiantAnvilCube(String name) {
         this.name = name;
     }
 
