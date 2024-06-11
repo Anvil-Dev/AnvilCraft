@@ -14,5 +14,6 @@ public class ItemTooltipLang {
         TooltipEventListener.NEED_TOOLTIP_ITEM.forEach(
             (item, s) -> provider.add(TooltipEventListener.getTranslationKey(item), s)
         );
+        provider.add("tooltip.anvilcraft.item.reinforced_concrete", "Creeper proof");
     }
 }
