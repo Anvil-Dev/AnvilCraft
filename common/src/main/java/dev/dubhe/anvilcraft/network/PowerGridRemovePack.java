@@ -43,6 +43,6 @@ public class PowerGridRemovePack implements Packet {
     @Override
     @Environment(EnvType.CLIENT)
     public void handler() {
-        Minecraft.getInstance().execute(() -> PowerGridRenderer.getGrids().remove(this.grid));
+        Minecraft.getInstance().execute(() -> PowerGridRenderer.getGridMap().remove(this.grid));
     }
 }

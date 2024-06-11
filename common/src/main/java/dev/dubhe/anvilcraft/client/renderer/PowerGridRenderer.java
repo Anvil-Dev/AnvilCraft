@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.client.renderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.dubhe.anvilcraft.api.power.SimplePowerGrid;
-import lombok.Getter;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
@@ -19,8 +18,11 @@ import java.util.Map;
 
 @Environment(EnvType.CLIENT)
 public class PowerGridRenderer {
-    @Getter
-    private static Map<Integer, SimplePowerGrid> grids = Collections.synchronizedMap(new HashMap<>());
+    private static final Map<Integer, SimplePowerGrid> GRID_MAP = Collections.synchronizedMap(new HashMap<>());
+
+    public static Map<Integer, SimplePowerGrid> getGridMap() {
+        return PowerGridRenderer.GRID_MAP;
+    }
 
     /**
      * 渲染
@@ -29,7 +31,7 @@ public class PowerGridRenderer {
         if (Minecraft.getInstance().level == null) return;
         RandomSource random = Minecraft.getInstance().level.random;
         String level = Minecraft.getInstance().level.dimension().location().toString();
-        for (SimplePowerGrid grid : PowerGridRenderer.grids.values()) {
+        for (SimplePowerGrid grid : PowerGridRenderer.GRID_MAP.values()) {
             if (!grid.getLevel().equals(level)) continue;
             random.setSeed(grid.getHash());
             PowerGridRenderer.renderOutline(
@@ -41,7 +43,7 @@ public class PowerGridRenderer {
     }
 
     public static void clearAllGrid() {
-        grids.clear();
+        GRID_MAP.clear();
     }
 
     @SuppressWarnings("SameParameterValue")

@@ -260,7 +260,9 @@ public class GiantAnvilBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf>
         @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos,
         @NotNull BlockState oldState, boolean movedByPiston
     ) {
-        level.scheduleTick(pos, this, this.getDelayAfterPlace());
+        if (state.hasProperty(HALF)) {
+            level.scheduleTick(pos.subtract(state.getValue(HALF).getOffset()), this, this.getDelayAfterPlace());
+        }
     }
 
     @Override
@@ -268,7 +270,9 @@ public class GiantAnvilBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf>
         @NotNull BlockState state, @NotNull Direction direction, @NotNull BlockState neighborState,
         @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockPos neighborPos
     ) {
-        level.scheduleTick(pos, this, this.getDelayAfterPlace());
+        if (state.hasProperty(HALF)) {
+            level.scheduleTick(pos.subtract(state.getValue(HALF).getOffset()), this, this.getDelayAfterPlace());
+        }
         return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
     }
 
