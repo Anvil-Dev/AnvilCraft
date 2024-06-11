@@ -50,6 +50,6 @@ public class PowerGridSyncPack implements Packet {
     @Override
     @Environment(EnvType.CLIENT)
     public void handler() {
-        Minecraft.getInstance().execute(() -> PowerGridRenderer.getGrids().put(this.grid.getHash(), this.grid));
+        Minecraft.getInstance().execute(() -> PowerGridRenderer.getGridMap().put(this.grid.getHash(), this.grid));
     }
 }
