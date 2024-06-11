@@ -325,7 +325,7 @@ public class GiantAnvilBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf>
             for (int y = 0; y <= range + 1; y++) {
                 for (int z = -range; z <= range; z++) {
                     BlockPos currentPos = pos.offset(x, y, z);
-                    if (!level.isEmptyBlock(currentPos)) return false;
+                    if (!level.isEmptyBlock(currentPos) || level.isOutsideBuildHeight(currentPos)) return false;
                 }
             }
         }

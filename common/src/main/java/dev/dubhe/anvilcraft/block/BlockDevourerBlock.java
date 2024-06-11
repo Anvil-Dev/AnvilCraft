@@ -129,6 +129,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements IHammerChang
      * @param devourerDirection 破坏方向
      * @param range             破坏半径(正方形)
      */
+    @SuppressWarnings("unreachable")
     public void devourBlock(ServerLevel level, BlockPos devourerPos, Direction devourerDirection, int range) {
         BlockPos outputPos = devourerPos.relative(devourerDirection.getOpposite());
         BlockPos devourCenterPos = devourerPos.relative(devourerDirection);
