@@ -87,6 +87,7 @@ public class ModItemTags {
     public static final TagKey<Item> FORGE_RAW_ORES = bindForge("raw_materials");
     public static final TagKey<Item> ORES = bindC("ores");
     public static final TagKey<Item> FORGE_ORES = bindForge("ores");
+    public static final TagKey<Item> REINFORCED_CONCRETE = bind("reinforced_concrete");
 
 
     private static @NotNull TagKey<Item> bindC(String id) {
