@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.event;
 
 import com.google.common.collect.Maps;
 import dev.dubhe.anvilcraft.init.ModBlocks;
+import dev.dubhe.anvilcraft.init.ModItemTags;
 import dev.dubhe.anvilcraft.init.ModItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -55,6 +56,20 @@ public class TooltipEventListener {
         map.put(ModBlocks.CUT_ROYAL_STEEL_SLAB.asItem(), "Creeper proof");
         map.put(ModBlocks.TEMPERING_GLASS.asItem(), "Creeper proof, No tools required on collect");
         map.put(ModBlocks.REMOTE_TRANSMISSION_POLE.asItem(), "Build a power grid with a transmission distance of 8");
+        map.put(ModBlocks.HEAVY_IRON_BLOCK.asItem(), "Explosion proof");
+        map.put(ModBlocks.POLISHED_HEAVY_IRON_BLOCK.asItem(), "Explosion proof");
+        map.put(ModBlocks.POLISHED_HEAVY_IRON_SLAB.asItem(), "Explosion proof");
+        map.put(ModBlocks.POLISHED_HEAVY_IRON_STAIRS.asItem(), "Explosion proof");
+        map.put(ModBlocks.CUT_HEAVY_IRON_BLOCK.asItem(), "Explosion proof");
+        map.put(ModBlocks.CUT_HEAVY_IRON_SLAB.asItem(), "Explosion proof");
+        map.put(ModBlocks.CUT_HEAVY_IRON_STAIRS.asItem(), "Explosion proof");
+        map.put(ModBlocks.HEAVY_IRON_PLATE.asItem(), "Explosion proof");
+        map.put(ModBlocks.HEAVY_IRON_COLUMN.asItem(), "Explosion proof");
+        map.put(ModBlocks.HEAVY_IRON_BEAM.asItem(), "Explosion proof");
+        map.put(ModBlocks.INDUCTION_LIGHT.asItem(), "Catalyze crop growth, consumes 1 KW");
+        map.put(ModBlocks.ITEM_COLLECTOR.asItem(),
+            "Adjust power consumption based on range and cooling"
+            + ", from 30KW to 150KW");
     }
 
     public static final Map<Item, String> NEED_TOOLTIP_ITEM = Collections.unmodifiableMap(map);
@@ -69,6 +84,13 @@ public class TooltipEventListener {
         Item item = stack.getItem();
         if (NEED_TOOLTIP_ITEM.containsKey(item)) {
             tooltip.add(1, getItemTooltip(item));
+        }
+        if (stack.is(ModItemTags.REINFORCED_CONCRETE)) {
+            ResourceLocation key = BuiltInRegistries.ITEM.getKey(item);
+            tooltip.add(1,
+                Component.translatable("tooltip.%s.item.reinforced_concrete".formatted(key.getNamespace()))
+                .withStyle(ChatFormatting.GRAY)
+            );
         }
     }
 

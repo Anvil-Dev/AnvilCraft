@@ -2244,7 +2244,9 @@ public class ModBlocks {
             .block("reinforced_concrete_" + color, ReinforcedConcreteBlock::new)
             .initialProperties(() -> Blocks.TERRACOTTA)
             .properties(properties -> properties.explosionResistance(15.0f))
-            .simpleItem()
+            .item()
+            .tag(ModItemTags.REINFORCED_CONCRETE)
+            .build()
             .blockstate((ctx, provider) -> {
                 provider.models().getBuilder("reinforced_concrete_" + color)
                     .parent(DangerUtil.genUncheckedModelFile("minecraft", "block/cube_all").get())
@@ -2278,7 +2280,9 @@ public class ModBlocks {
             .block("reinforced_concrete_" + color + "_slab", SlabBlock::new)
             .initialProperties(() -> Blocks.TERRACOTTA)
             .properties(properties -> properties.explosionResistance(15.0f))
-            .simpleItem()
+            .item()
+            .tag(ModItemTags.REINFORCED_CONCRETE)
+            .build()
             .blockstate((ctx, provider) -> provider.slabBlock(ctx.get(),
                 AnvilCraft.of("block/reinforced_concrete_" + color),
                 AnvilCraft.of("block/reinforced_concrete_" + color)))
@@ -2306,7 +2310,9 @@ public class ModBlocks {
                 new StairBlock(parent.getDefaultState(), properties))
             .initialProperties(() -> Blocks.TERRACOTTA)
             .properties(properties -> properties.explosionResistance(15.0f))
-            .simpleItem()
+            .item()
+            .tag(ModItemTags.REINFORCED_CONCRETE)
+            .build()
             .blockstate((ctx, provider) -> provider.stairsBlock(ctx.get(),
                 AnvilCraft.of("block/reinforced_concrete_" + color)))
             .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -2352,6 +2358,7 @@ public class ModBlocks {
                 "reinforced_concrete_" + color + "_wall",
                 AnvilCraft.of("block/reinforced_concrete_" + color + "_wall")
             ))
+            .tag(ModItemTags.REINFORCED_CONCRETE)
             .build()
             .register();
     }
