@@ -1,11 +1,10 @@
 package dev.dubhe.anvilcraft.block.state;
 
 import lombok.Getter;
-import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
-public enum Vertical3PartHalf implements StringRepresentable, MultiplePartBlockState {
+public enum Vertical3PartHalf implements MultiplePartBlockState<Vertical3PartHalf> {
     TOP("top", 0, 2, 0),
     MID("mid", 0, 1, 0),
     BOTTOM("bottom", 0, 0, 0);

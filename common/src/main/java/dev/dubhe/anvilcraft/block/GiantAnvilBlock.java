@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.GiantAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.state.giantanvil.Cube;
 import dev.dubhe.anvilcraft.block.state.giantanvil.GiantAnvilStructure;
@@ -17,6 +18,8 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -31,6 +34,7 @@ import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.Fallable;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -49,7 +53,7 @@ import java.util.ArrayList;
 import java.util.stream.Stream;
 import java.util.Map;
 
-public class GiantAnvilBlock extends AnvilBlock implements EntityBlock {
+public class GiantAnvilBlock extends AnvilBlock implements EntityBlock, Fallable, IHammerRemovable {
     public static final EnumProperty<Cube> CUBE = EnumProperty.create("cube", Cube.class);
     public static final EnumProperty<GiantAnvilStructure> STRUCTURE
         = EnumProperty.create("structure", GiantAnvilStructure.class);
@@ -175,7 +179,7 @@ public class GiantAnvilBlock extends AnvilBlock implements EntityBlock {
 
     /**
      * @param level 世界
-     * @param pos 方块坐标
+     * @param pos   方块坐标
      */
     public boolean canPlace(Level level, BlockPos pos) {
         int range = 1;
@@ -247,7 +251,6 @@ public class GiantAnvilBlock extends AnvilBlock implements EntityBlock {
     }
 
     /**
-     *
      * @param pos1 基准方块坐标
      * @param pos2 对比方块坐标
      * @return 方向
@@ -303,17 +306,16 @@ public class GiantAnvilBlock extends AnvilBlock implements EntityBlock {
     }
 
     /**
-     *
      * @param level 世界
      * @param pos   方块坐标
      */
     public void onRemove(@NotNull Level level, @NotNull BlockPos pos) {
         ArrayList<BlockPos> blockGroups = new ArrayList<>();
-        if (level.getBlockEntity(pos) instanceof GiantAnvilBlockEntity) {
-            blockGroups = ((GiantAnvilBlockEntity) level.getBlockEntity(pos)).getBlockGroups();
-            ((GiantAnvilBlockEntity) level.getBlockEntity(pos)).setBlockGroups(blockGroups);
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity instanceof GiantAnvilBlockEntity entity) {
+            blockGroups = entity.getBlockGroups();
+            entity.setBlockGroups(blockGroups);
         }
-
         for (BlockPos blockPos : blockGroups) {
             level.destroyBlock(blockPos, false);
         }
@@ -386,8 +388,8 @@ public class GiantAnvilBlock extends AnvilBlock implements EntityBlock {
         );
 
         for (BlockPos p : blockGroups) {
-            if (level.getBlockEntity(pos) instanceof GiantAnvilBlockEntity) {
-                ((GiantAnvilBlockEntity) level.getBlockEntity(p)).setBlockGroups(blockGroups);
+            if (level.getBlockEntity(p) instanceof GiantAnvilBlockEntity entity) {
+                entity.setBlockGroups(blockGroups);
             }
         }
     }
@@ -397,7 +399,8 @@ public class GiantAnvilBlock extends AnvilBlock implements EntityBlock {
         @NotNull Level level,
         @NotNull BlockPos pos,
         @NotNull FallingBlockEntity fallingBlock
-    ) {}
+    ) {
+    }
 
     @Override
     public void tick(
@@ -414,7 +417,8 @@ public class GiantAnvilBlock extends AnvilBlock implements EntityBlock {
                 if (aboveBlockState.getValue(CUBE).equals(Cube.CENTER)) {
                     onRemove(level, pos.above());
                     level.setBlockAndUpdate(pos.above(), aboveBlockState);
-                    FallingBlockEntity fallingBlockEntity = FallingBlockEntity.fall(level, pos.above(), aboveBlockState);
+                    FallingBlockEntity fallingBlockEntity = FallingBlockEntity
+                        .fall(level, pos.above(), aboveBlockState);
                     this.falling(fallingBlockEntity);
                 }
             }
@@ -429,5 +433,9 @@ public class GiantAnvilBlock extends AnvilBlock implements EntityBlock {
         return STRUCTURE_FACING_MAP
             .getOrDefault(state.getValue(STRUCTURE), Map.of())
             .getOrDefault(state.getValue(FACING), TOP_SHAPE);
+    }
+
+    public @NotNull DamageSource getFallDamageSource(@NotNull Entity entity) {
+        return entity.damageSources().fallingBlock(entity);
     }
 }
