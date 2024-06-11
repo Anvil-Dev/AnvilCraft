@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.entity.LoadMonitorBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
@@ -25,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.stream.Stream;
 
-public class LoadMonitorBlock extends BaseEntityBlock {
+public class LoadMonitorBlock extends BaseEntityBlock implements IHammerRemovable {
 
     public static final VoxelShape SHAPE = Stream.of(
         Block.box(3, 0, 3, 13, 4, 13),

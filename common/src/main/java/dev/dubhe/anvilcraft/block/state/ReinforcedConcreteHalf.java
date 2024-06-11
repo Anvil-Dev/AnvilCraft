@@ -3,15 +3,15 @@ package dev.dubhe.anvilcraft.block.state;
 import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.NotNull;
 
-public enum Half implements StringRepresentable {
+public enum ReinforcedConcreteHalf implements StringRepresentable {
+    SINGLE("single"),
     TOP("top"),
-    MID("mid"),
     BOTTOM("bottom");
 
 
     private final String name;
 
-    Half(String name) {
+    ReinforcedConcreteHalf(String name) {
         this.name = name;
     }
 

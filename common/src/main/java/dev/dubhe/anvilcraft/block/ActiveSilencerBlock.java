@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.ActiveSilencerBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModItems;
@@ -21,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
-public class ActiveSilencerBlock extends BaseEntityBlock {
+public class ActiveSilencerBlock extends BaseEntityBlock implements IHammerRemovable {
     public ActiveSilencerBlock(Properties properties) {
         super(properties);
     }

@@ -66,7 +66,7 @@ public class TransmissionPoleBlock extends AbstractMultiplePartBlock<Vertical3Pa
     }
 
     @Override
-    protected Property<Vertical3PartHalf> getPart() {
+    protected @NotNull Property<Vertical3PartHalf> getPart() {
         return TransmissionPoleBlock.HALF;
     }
 
@@ -121,26 +121,13 @@ public class TransmissionPoleBlock extends AbstractMultiplePartBlock<Vertical3Pa
         LivingEntity placer, @NotNull ItemStack stack
     ) {
         BlockPos above = pos.above();
-        level.setBlockAndUpdate(above, state.setValue(HALF, Vertical3PartHalf.MID).setValue(SWITCH, IPowerComponent.Switch.ON));
+        level.setBlockAndUpdate(
+            above,
+            state.setValue(HALF, Vertical3PartHalf.MID).setValue(SWITCH, IPowerComponent.Switch.ON)
+        );
         above = above.above();
         level.setBlockAndUpdate(above, state.setValue(HALF, Vertical3PartHalf.TOP));
     }
-
-//    @Override
-//    public void playerWillDestroy(
-//        @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player
-//    ) {
-//        if (level.isClientSide) return;
-//        onRemove(level, pos, state);
-//        level.playSound(null,
-//            pos,
-//            SoundEvents.BEACON_DEACTIVATE,
-//            SoundSource.BLOCKS,
-//            1f,
-//            1f);
-//        super.playerWillDestroy(level, pos, state, player);
-//    }
-
 
     @Nullable
     @Override
@@ -209,24 +196,6 @@ public class TransmissionPoleBlock extends AbstractMultiplePartBlock<Vertical3Pa
         }
     }
 
-//    @Override
-//    public void onRemove(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state) {
-//        switch (state.getValue(HALF)) {
-//            case MID -> {
-//                destroyOtherPart(level, pos.above());
-//                destroyOtherPart(level, pos.below());
-//            }
-//            case TOP -> {
-//                destroyOtherPart(level, pos.below());
-//                destroyOtherPart(level, pos.below(2));
-//            }
-//            default -> {
-//                destroyOtherPart(level, pos.above());
-//                destroyOtherPart(level, pos.above(2));
-//            }
-//        }
-//    }
-
     @Override
     public void onPlace(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state) {
 
@@ -236,8 +205,4 @@ public class TransmissionPoleBlock extends AbstractMultiplePartBlock<Vertical3Pa
     public void onRemove(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state) {
 
     }
-    //    private void destroyOtherPart(@NotNull Level level, BlockPos pos) {
-//        if (!level.getBlockState(pos).is(this)) return;
-//        level.destroyBlock(pos, false, null);
-//    }
 }

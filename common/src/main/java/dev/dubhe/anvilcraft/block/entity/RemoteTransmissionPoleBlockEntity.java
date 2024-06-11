@@ -5,7 +5,7 @@ import dev.dubhe.anvilcraft.api.power.IPowerTransmitter;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.RemoteTransmissionPoleBlock;
-import dev.dubhe.anvilcraft.block.state.Half;
+import dev.dubhe.anvilcraft.block.state.Vertical4PartHalf;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import lombok.Getter;
@@ -45,7 +45,7 @@ public class RemoteTransmissionPoleBlockEntity extends BlockEntity implements IP
     public @NotNull PowerComponentType getComponentType() {
         if (this.getLevel() == null) return PowerComponentType.INVALID;
         if (!this.getBlockState().is(ModBlocks.REMOTE_TRANSMISSION_POLE.get())) return PowerComponentType.INVALID;
-        if (this.getBlockState().getValue(RemoteTransmissionPoleBlock.HALF) != Half.TOP)
+        if (this.getBlockState().getValue(RemoteTransmissionPoleBlock.HALF) != Vertical4PartHalf.TOP)
             return PowerComponentType.INVALID;
         return PowerComponentType.TRANSMITTER;
     }
@@ -56,7 +56,6 @@ public class RemoteTransmissionPoleBlockEntity extends BlockEntity implements IP
     }
 
 
-
     /**
      * @param level 世界
      * @param pos   位置
@@ -64,7 +63,7 @@ public class RemoteTransmissionPoleBlockEntity extends BlockEntity implements IP
     public void tick(@NotNull Level level, @NotNull BlockPos pos) {
         BlockState state = level.getBlockState(pos);
         if (!state.is(ModBlocks.REMOTE_TRANSMISSION_POLE.get())) return;
-        if (state.getValue(RemoteTransmissionPoleBlock.HALF) != Half.TOP) return;
+        if (state.getValue(RemoteTransmissionPoleBlock.HALF) != Vertical4PartHalf.TOP) return;
         if (state.getValue(RemoteTransmissionPoleBlock.SWITCH) == Switch.OFF && this.getGrid() != null) {
             this.getGrid().remove(this);
         } else if (state.getValue(RemoteTransmissionPoleBlock.SWITCH) == Switch.ON && this.getGrid() == null) {
