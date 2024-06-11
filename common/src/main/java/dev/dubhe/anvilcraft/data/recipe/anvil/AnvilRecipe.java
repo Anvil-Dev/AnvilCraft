@@ -981,8 +981,9 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
         if (recipe instanceof ShapedRecipe shapedRecipe) {
             NonNullList<Ingredient> ingredients = shapedRecipe.getIngredients();
             List<HasItemIngredient> list = ingredients.stream()
-                .map(ingredient -> HasItemIngredient.of(new Vec3(0.0, -1.0, 0.0), ingredient))
+                .map(ingredient -> HasItemIngredient.of(new Vec3(0.0, -1.0, 0.0), ingredient, ingredients.size()))
                 .toList();
+            if (list.isEmpty()) return null;
             if (list.stream().anyMatch(i -> !i.getMatchItem().sameItemsOrTag(list.get(0).getMatchItem()))) return null;
             int size = shapedRecipe.getIngredients().size();
             if (size != 4 && size != 9 || shapedRecipe.getWidth() != shapedRecipe.getHeight()) return null;
@@ -993,9 +994,7 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
                     new Vec3(0, -1, 0),
                     new HasBlock.ModBlockPredicate().block(Blocks.CAULDRON))
             );
-            for (HasItemIngredient ingredient : list) {
-                anvilRecipe.addPredicates(ingredient);
-            }
+            anvilRecipe.addPredicates(list.get(0));
             return anvilRecipe;
         } else if (
             recipe instanceof ShapelessRecipe shapelessRecipe
@@ -1021,8 +1020,9 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
         ) {
             NonNullList<Ingredient> ingredients = shapelessRecipe.getIngredients();
             List<HasItemIngredient> list = ingredients.stream()
-                .map(ingredient -> HasItemIngredient.of(new Vec3(0.0, -1.0, 0.0), ingredient))
+                .map(ingredient -> HasItemIngredient.of(new Vec3(0.0, -1.0, 0.0), ingredient, ingredients.size()))
                 .toList();
+            if (list.isEmpty()) return null;
             if (list.stream().anyMatch(i -> !i.getMatchItem().sameItemsOrTag(list.get(0).getMatchItem()))) return null;
             anvilRecipe.setAnvilRecipeType(AnvilRecipeType.COMPRESS);
             anvilRecipe.addPredicates(
@@ -1030,9 +1030,7 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
                     new Vec3(0, -1, 0),
                     new HasBlock.ModBlockPredicate().block(Blocks.CAULDRON))
             );
-            for (HasItemIngredient ingredient : list) {
-                anvilRecipe.addPredicates(ingredient);
-            }
+            anvilRecipe.addPredicates(list.get(0));
             return anvilRecipe;
         }
         return null;

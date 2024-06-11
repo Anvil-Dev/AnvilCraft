@@ -4,13 +4,10 @@ import dev.dubhe.anvilcraft.api.IHasMultiBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.entity.RemoteTransmissionPoleBlockEntity;
-import dev.dubhe.anvilcraft.block.state.Half;
-import dev.dubhe.anvilcraft.init.ModBlockEntities;
+import dev.dubhe.anvilcraft.block.state.Vertical4PartHalf;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -18,8 +15,8 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -28,6 +25,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -36,8 +34,9 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
-public class RemoteTransmissionPoleBlock extends BaseEntityBlock implements IHammerRemovable, IHasMultiBlock {
-    public static final EnumProperty<Half> HALF = EnumProperty.create("half", Half.class);
+public class RemoteTransmissionPoleBlock extends AbstractMultiplePartBlock<Vertical4PartHalf>
+    implements IHammerRemovable, IHasMultiBlock, EntityBlock {
+    public static final EnumProperty<Vertical4PartHalf> HALF = EnumProperty.create("half", Vertical4PartHalf.class);
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
     public static final EnumProperty<IPowerComponent.Switch> SWITCH = IPowerComponent.SWITCH;
     public static final VoxelShape TRANSMISSION_POLE_TOP =
@@ -58,10 +57,20 @@ public class RemoteTransmissionPoleBlock extends BaseEntityBlock implements IHam
         super(properties);
         this.registerDefaultState(
             this.stateDefinition.any()
-                .setValue(HALF, Half.BOTTOM)
+                .setValue(HALF, Vertical4PartHalf.BOTTOM)
                 .setValue(OVERLOAD, true)
                 .setValue(SWITCH, IPowerComponent.Switch.ON)
         );
+    }
+
+    @Override
+    protected @NotNull Property<Vertical4PartHalf> getPart() {
+        return RemoteTransmissionPoleBlock.HALF;
+    }
+
+    @Override
+    protected Enum<Vertical4PartHalf>[] getParts() {
+        return Vertical4PartHalf.values();
     }
 
     @Override
@@ -74,7 +83,7 @@ public class RemoteTransmissionPoleBlock extends BaseEntityBlock implements IHam
                 ? IPowerComponent.Switch.OFF
                 : IPowerComponent.Switch.ON;
         return this.defaultBlockState()
-            .setValue(HALF, Half.BOTTOM)
+            .setValue(HALF, Vertical4PartHalf.BOTTOM)
             .setValue(OVERLOAD, true)
             .setValue(SWITCH, sw);
     }
@@ -84,6 +93,7 @@ public class RemoteTransmissionPoleBlock extends BaseEntityBlock implements IHam
         builder.add(HALF).add(OVERLOAD).add(SWITCH);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public @Nonnull RenderShape getRenderShape(@Nonnull BlockState state) {
         return RenderShape.MODEL;
@@ -94,9 +104,10 @@ public class RemoteTransmissionPoleBlock extends BaseEntityBlock implements IHam
     public @NotNull VoxelShape getShape(
         @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context
     ) {
-        if (state.getValue(HALF) == Half.BOTTOM) return TRANSMISSION_POLE_BASE;
-        if (state.getValue(HALF) == Half.MID) return TRANSMISSION_POLE_MID;
-        if (state.getValue(HALF) == Half.TOP) return TRANSMISSION_POLE_TOP;
+        if (state.getValue(HALF) == Vertical4PartHalf.BOTTOM) return TRANSMISSION_POLE_BASE;
+        if (state.getValue(HALF) == Vertical4PartHalf.MID_UPPER) return TRANSMISSION_POLE_MID;
+        if (state.getValue(HALF) == Vertical4PartHalf.MID_LOWER) return TRANSMISSION_POLE_MID;
+        if (state.getValue(HALF) == Vertical4PartHalf.TOP) return TRANSMISSION_POLE_TOP;
         return super.getShape(state, level, pos, context);
     }
 
@@ -106,11 +117,21 @@ public class RemoteTransmissionPoleBlock extends BaseEntityBlock implements IHam
         LivingEntity placer, @NotNull ItemStack stack
     ) {
         BlockPos above = pos.above();
-        level.setBlockAndUpdate(above, state.setValue(HALF, Half.MID).setValue(SWITCH, IPowerComponent.Switch.ON));
+        level.setBlockAndUpdate(
+            above,
+            state
+                .setValue(HALF, Vertical4PartHalf.MID_LOWER)
+                .setValue(SWITCH, IPowerComponent.Switch.ON)
+        );
         above = above.above();
-        level.setBlockAndUpdate(above, state.setValue(HALF, Half.MID).setValue(SWITCH, IPowerComponent.Switch.ON));
+        level.setBlockAndUpdate(
+            above,
+            state
+                .setValue(HALF, Vertical4PartHalf.MID_UPPER)
+                .setValue(SWITCH, IPowerComponent.Switch.ON)
+        );
         above = above.above();
-        level.setBlockAndUpdate(above, state.setValue(HALF, Half.TOP));
+        level.setBlockAndUpdate(above, state.setValue(HALF, Vertical4PartHalf.TOP));
     }
 
     @Override
@@ -134,8 +155,9 @@ public class RemoteTransmissionPoleBlock extends BaseEntityBlock implements IHam
         @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type
     ) {
         if (level.isClientSide) return null;
-        return createTickerHelper(type, ModBlockEntities.REMOTE_TRANSMISSION_POLE.get(),
-            (level1, pos, state1, entity) -> entity.tick(level1, pos));
+        return (level1, pos, state1, entity) -> {
+            if (entity instanceof RemoteTransmissionPoleBlockEntity be) be.tick(level1, pos);
+        };
     }
 
     @Override
@@ -151,11 +173,11 @@ public class RemoteTransmissionPoleBlock extends BaseEntityBlock implements IHam
         if (level.isClientSide) {
             return;
         }
-        if (state.getValue(HALF) != Half.BOTTOM) return;
+        if (state.getValue(HALF) != Vertical4PartHalf.BOTTOM) return;
         BlockPos topPos = pos.above(3);
         BlockState topState = level.getBlockState(topPos);
         if (!topState.is(ModBlocks.REMOTE_TRANSMISSION_POLE.get())) return;
-        if (topState.getValue(HALF) != Half.TOP) return;
+        if (topState.getValue(HALF) != Vertical4PartHalf.TOP) return;
         IPowerComponent.Switch sw = state.getValue(SWITCH);
         boolean bl = sw == IPowerComponent.Switch.ON;
         if (bl == level.hasNeighborSignal(pos)) {
@@ -181,7 +203,7 @@ public class RemoteTransmissionPoleBlock extends BaseEntityBlock implements IHam
                 BlockState state3 = level.getBlockState(pos.below(3));
                 return state1.is(this) && state2.is(this) && state3.is(this);
             }
-            case MID -> {
+            case MID_UPPER, MID_LOWER -> {
                 BlockState state2 = level.getBlockState(pos.below());
                 return state2.is(this);
             }
@@ -193,44 +215,9 @@ public class RemoteTransmissionPoleBlock extends BaseEntityBlock implements IHam
 
     @Override
     public void onRemove(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state) {
-        switch (state.getValue(HALF)) {
-            case MID -> {
-                if (level.getBlockState(pos.below()).hasProperty(HALF)
-                    && level.getBlockState(pos.below()).getValue(HALF) == Half.BOTTOM
-                ) {
-                    destroyOtherPart(level, pos.above(2));
-                } else destroyOtherPart(level, pos.below(2));
-                destroyOtherPart(level, pos.above());
-                destroyOtherPart(level, pos.below());
-            }
-            case TOP -> {
-                destroyOtherPart(level, pos.below());
-                destroyOtherPart(level, pos.below(2));
-                destroyOtherPart(level, pos.below(3));
-            }
-            default -> {
-                destroyOtherPart(level, pos.above());
-                destroyOtherPart(level, pos.above(2));
-                destroyOtherPart(level, pos.above(3));
-
-            }
-        }
-        level.playSound(null,
-            pos,
-            SoundEvents.BEACON_DEACTIVATE,
-            SoundSource.BLOCKS,
-            1f,
-            1f);
     }
 
     @Override
     public void onPlace(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state) {
-
     }
-
-    private void destroyOtherPart(@NotNull Level level, BlockPos pos) {
-        if (!level.getBlockState(pos).is(this)) return;
-        level.destroyBlock(pos, false, null);
-    }
-
 }
