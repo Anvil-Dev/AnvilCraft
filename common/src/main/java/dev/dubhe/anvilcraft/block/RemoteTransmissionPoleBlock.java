@@ -69,7 +69,7 @@ public class RemoteTransmissionPoleBlock extends AbstractMultiplePartBlock<Verti
     }
 
     @Override
-    protected Enum<Vertical4PartHalf>[] getParts() {
+    protected Vertical4PartHalf[] getParts() {
         return Vertical4PartHalf.values();
     }
 

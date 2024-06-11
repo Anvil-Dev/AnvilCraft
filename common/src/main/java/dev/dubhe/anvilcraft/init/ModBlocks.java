@@ -37,6 +37,7 @@ import dev.dubhe.anvilcraft.block.MagnetBlock;
 import dev.dubhe.anvilcraft.block.MeltGemCauldron;
 import dev.dubhe.anvilcraft.block.MineralFountainBlock;
 import dev.dubhe.anvilcraft.block.MobAmberBlock;
+import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.block.ObsidianCauldron;
 import dev.dubhe.anvilcraft.block.OverseerBlock;
 import dev.dubhe.anvilcraft.block.PiezoelectricCrystalBlock;
@@ -1660,6 +1661,20 @@ public class ModBlocks {
         .blockstate((ctx, provider) -> {
         })
         .simpleItem()
+        .register();
+
+    public static final BlockEntry<GiantAnvilBlock> GIANT_ANVIL = REGISTRATE
+        .block("giant_anvil", GiantAnvilBlock::new)
+        .simpleItem()
+        .initialProperties(() -> Blocks.ANVIL)
+        .loot(AbstractMultiplePartBlock::loot)
+        .properties(p -> {
+            p = p.noOcclusion();
+            p = p.strength(4.0F).sound(SoundType.ANVIL);
+            return p;
+        })
+        .blockstate((ctx, provider) -> {
+        })
         .register();
 
     public static final BlockEntry<CementCauldronBlock> CEMENT_CAULDRON = REGISTRATE

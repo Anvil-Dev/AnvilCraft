@@ -71,7 +71,7 @@ public class TransmissionPoleBlock extends AbstractMultiplePartBlock<Vertical3Pa
     }
 
     @Override
-    protected Enum<Vertical3PartHalf>[] getParts() {
+    protected Vertical3PartHalf[] getParts() {
         return Vertical3PartHalf.values();
     }
 

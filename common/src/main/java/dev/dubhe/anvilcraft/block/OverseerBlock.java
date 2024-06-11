@@ -58,7 +58,7 @@ public class OverseerBlock extends AbstractMultiplePartBlock<Vertical3PartHalf>
     }
 
     @Override
-    protected Enum<Vertical3PartHalf>[] getParts() {
+    protected Vertical3PartHalf[] getParts() {
         return Vertical3PartHalf.values();
     }
 
