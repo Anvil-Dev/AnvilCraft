@@ -1,28 +1,29 @@
 package dev.dubhe.anvilcraft.api.depository;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import lombok.Getter;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
+
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-
 
 @Getter
 @SuppressWarnings("unused")
 public class FilteredItemDepository extends ItemDepository {
 
-    public static final Codec<FilteredItemDepository> CODEC = RecordCodecBuilder.create(ins -> ins.group(
-            Codec.BOOL.fieldOf("filterEnabled").forGetter(o -> o.filterEnabled),
-            ItemStack.CODEC.listOf().fieldOf("filteredItems").forGetter(o -> o.filteredItems),
-            Codec.BOOL.listOf().fieldOf("disabled").forGetter(o -> o.disabled)
-    ).apply(ins, FilteredItemDepository::new));
+    public static final Codec<FilteredItemDepository> CODEC =
+            RecordCodecBuilder.create(ins -> ins.group(
+                            Codec.BOOL.fieldOf("filterEnabled").forGetter(o -> o.filterEnabled),
+                            ItemStack.CODEC.listOf().fieldOf("filteredItems").forGetter(o -> o.filteredItems),
+                            Codec.BOOL.listOf().fieldOf("disabled").forGetter(o -> o.disabled))
+                    .apply(ins, FilteredItemDepository::new));
 
     private boolean filterEnabled = false;
     private NonNullList<ItemStack> filteredItems;
@@ -31,7 +32,8 @@ public class FilteredItemDepository extends ItemDepository {
     /**
      *
      */
-    public FilteredItemDepository(boolean filterEnabled, List<ItemStack> filteredItems, List<Boolean> disabled) {
+    public FilteredItemDepository(
+            boolean filterEnabled, List<ItemStack> filteredItems, List<Boolean> disabled) {
         super(filteredItems.size());
         this.filteredItems = NonNullList.create();
         this.filteredItems.addAll(filteredItems);
@@ -96,7 +98,9 @@ public class FilteredItemDepository extends ItemDepository {
      */
     public boolean isSlotDisabled(int slot) {
         if (!this.filterEnabled) return this.disabled.get(slot);
-        else return this.disabled.get(slot) || (getStack(slot).isEmpty() && this.filteredItems.get(slot).isEmpty());
+        else
+            return this.disabled.get(slot)
+                    || (getStack(slot).isEmpty() && this.filteredItems.get(slot).isEmpty());
     }
 
     /**
@@ -202,23 +206,21 @@ public class FilteredItemDepository extends ItemDepository {
      *
      */
     public CompoundTag serializeFiltering() {
-        return (CompoundTag) CODEC.encodeStart(NbtOps.INSTANCE, this)
-                .getOrThrow(false, e -> {
-                });
+        return (CompoundTag) CODEC.encodeStart(NbtOps.INSTANCE, this).getOrThrow(false, e -> {});
     }
 
     /**
      *
      */
     public void deserializeFiltering(@NotNull CompoundTag tag) {
-        FilteredItemDepository depository = CODEC.decode(NbtOps.INSTANCE, tag)
-                .getOrThrow(false, s -> {
-                })
-                .getFirst();
-        if (this.getSize() != depository.getSize()) throw new IllegalArgumentException("Depository size mismatch");
+        FilteredItemDepository depository =
+                CODEC.decode(NbtOps.INSTANCE, tag).getOrThrow(false, s -> {}).getFirst();
+        if (this.getSize() != depository.getSize())
+            throw new IllegalArgumentException("Depository size mismatch");
         this.filterEnabled = tag.getBoolean("filterEnabled");
         int size = depository.filteredItems.size();
-        this.filteredItems = NonNullList.of(ItemStack.EMPTY, depository.filteredItems.toArray(new ItemStack[size]));
+        this.filteredItems =
+                NonNullList.of(ItemStack.EMPTY, depository.filteredItems.toArray(new ItemStack[size]));
         this.disabled = depository.disabled;
     }
 

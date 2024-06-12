@@ -10,9 +10,11 @@ import dev.dubhe.anvilcraft.api.world.load.LoadChuckData;
 import dev.dubhe.anvilcraft.block.OverseerBlock;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.OverseerBlockEntity;
+
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+
 import org.jetbrains.annotations.NotNull;
 
 @Mod.EventBusSubscriber(modid = AnvilCraft.MOD_ID)
@@ -29,15 +31,15 @@ public class ServerBlockEntityEventListener {
             ChargeCollectorManager.addChargeCollector(chargeCollector);
         }
         if (event.getEntity() instanceof OverseerBlockEntity overseerBlockEntity
-            && event.getLevel() instanceof ServerLevel serverLevel) {
-            LevelLoadManager.register(overseerBlockEntity.getBlockPos(),
-                LoadChuckData.creatLoadChuckData(
-                    overseerBlockEntity.getBlockState().getValue(OverseerBlock.LEVEL),
+                && event.getLevel() instanceof ServerLevel serverLevel) {
+            LevelLoadManager.register(
                     overseerBlockEntity.getBlockPos(),
-                    false,
-                    serverLevel
-                ),
-                (ServerLevel) event.getLevel());
+                    LoadChuckData.creatLoadChuckData(
+                            overseerBlockEntity.getBlockState().getValue(OverseerBlock.LEVEL),
+                            overseerBlockEntity.getBlockPos(),
+                            false,
+                            serverLevel),
+                    (ServerLevel) event.getLevel());
         }
     }
 
@@ -53,7 +55,8 @@ public class ServerBlockEntityEventListener {
             ChargeCollectorManager.removeChargeCollector(chargeCollector);
         }
         if (event.getEntity() instanceof OverseerBlockEntity overseerBlockEntity) {
-            LevelLoadManager.unregister(overseerBlockEntity.getBlockPos(), (ServerLevel) event.getLevel());
+            LevelLoadManager.unregister(
+                    overseerBlockEntity.getBlockPos(), (ServerLevel) event.getLevel());
         }
     }
 }

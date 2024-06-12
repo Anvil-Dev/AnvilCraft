@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.api.recipe;
 
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
-import lombok.Getter;
+
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.BlastingRecipe;
@@ -12,6 +12,8 @@ import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SmeltingRecipe;
 import net.minecraft.world.item.crafting.SmokingRecipe;
+
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -30,7 +32,8 @@ public class AnvilRecipeManager {
      */
     public static void updateRecipes(@NotNull MinecraftServer server) {
         RecipeManager manager = server.getRecipeManager();
-        ArrayList<AnvilRecipe> anvilRecipes = new ArrayList<>(manager.getAllRecipesFor(ModRecipeTypes.ANVIL_RECIPE));
+        ArrayList<AnvilRecipe> anvilRecipes =
+                new ArrayList<>(manager.getAllRecipesFor(ModRecipeTypes.ANVIL_RECIPE));
         List<ItemStack> needFilter = new ArrayList<>();
         for (CampfireCookingRecipe recipe : manager.getAllRecipesFor(RecipeType.CAMPFIRE_COOKING)) {
             AnvilRecipe anvilRecipe = AnvilRecipe.of(recipe, server.registryAccess());
@@ -56,8 +59,8 @@ public class AnvilRecipeManager {
             AnvilRecipe anvilRecipe = AnvilRecipe.of(recipe, server.registryAccess());
             if (anvilRecipe != null) anvilRecipes.add(anvilRecipe);
         }
-        anvilRecipeList = Collections.synchronizedList(
-            anvilRecipes.stream().sorted(Comparator.comparing(AnvilRecipe::getWeightCoefficient).reversed()).toList()
-        );
+        anvilRecipeList = Collections.synchronizedList(anvilRecipes.stream()
+                .sorted(Comparator.comparing(AnvilRecipe::getWeightCoefficient).reversed())
+                .toList());
     }
 }

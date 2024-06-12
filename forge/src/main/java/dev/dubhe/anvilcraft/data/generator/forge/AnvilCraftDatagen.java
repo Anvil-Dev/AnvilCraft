@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.data.generator.forge;
 
-
 import net.minecraft.data.DataGenerator;
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -11,6 +10,5 @@ public class AnvilCraftDatagen {
     @SubscribeEvent
     public static void gatherData(GatherDataEvent event) {
         DataGenerator generator = event.getGenerator();
-
     }
 }

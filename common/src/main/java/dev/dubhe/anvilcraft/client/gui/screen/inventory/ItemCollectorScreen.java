@@ -8,7 +8,7 @@ import dev.dubhe.anvilcraft.client.gui.component.TextWidget;
 import dev.dubhe.anvilcraft.inventory.IFilterMenu;
 import dev.dubhe.anvilcraft.inventory.ItemCollectorMenu;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
-import lombok.Getter;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -17,11 +17,14 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
+
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiFunction;
 
-public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMenu> implements IFilterScreen {
+public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMenu>
+        implements IFilterScreen {
     private static final ResourceLocation CONTAINER_LOCATION =
             AnvilCraft.of("textures/gui/container/machine/background/item_collector.png");
     BiFunction<Integer, Integer, EnableFilterButton> enableFilterButtonSupplier =
@@ -29,6 +32,7 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
 
     @Getter
     private EnableFilterButton enableFilterButton = null;
+
     private final ItemCollectorMenu menu;
 
     /**
@@ -45,57 +49,53 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
         super.init();
         this.enableFilterButton = enableFilterButtonSupplier.apply(this.leftPos, this.topPos);
         this.addRenderableWidget(this.enableFilterButton);
-        //range
+        // range
         this.addRenderableWidget(new TextWidget(
-                leftPos + 57, topPos + 24,
-                20, 8,
+                leftPos + 57,
+                topPos + 24,
+                20,
+                8,
                 minecraft.font,
-                () -> Component.literal(menu.getBlockEntity().getRangeRadius().get().toString())
-        ));
-        //cooldown
+                () -> Component.literal(menu.getBlockEntity().getRangeRadius().get().toString())));
+        // cooldown
         this.addRenderableWidget(new TextWidget(
-                leftPos + 57, topPos + 38,
-                20, 8,
+                leftPos + 57,
+                topPos + 38,
+                20,
+                8,
                 minecraft.font,
-                () -> Component.literal(menu.getBlockEntity().getCooldown().get().toString())
-        ));
-        //power cost
+                () -> Component.literal(menu.getBlockEntity().getCooldown().get().toString())));
+        // power cost
         this.addRenderableWidget(new TextWidget(
-                leftPos + 43, topPos + 51,
-                20, 8,
+                leftPos + 43,
+                topPos + 51,
+                20,
+                8,
                 minecraft.font,
-                () -> Component.literal(Integer.toString(menu.getBlockEntity().getInputPower()))
-        ));
-        //range - +
-        this.addRenderableWidget(new ItemCollectorButton(
-                leftPos + 43, topPos + 23,
-                "minus", (b) -> {
+                () -> Component.literal(Integer.toString(menu.getBlockEntity().getInputPower()))));
+        // range - +
+        this.addRenderableWidget(new ItemCollectorButton(leftPos + 43, topPos + 23, "minus", (b) -> {
             menu.getBlockEntity().getRangeRadius().previous();
             menu.getBlockEntity().getRangeRadius().notifyServer();
         }));
-        this.addRenderableWidget(new ItemCollectorButton(
-                leftPos + 81, topPos + 23,
-                "add", (b) -> {
+        this.addRenderableWidget(new ItemCollectorButton(leftPos + 81, topPos + 23, "add", (b) -> {
             menu.getBlockEntity().getRangeRadius().next();
             menu.getBlockEntity().getRangeRadius().notifyServer();
         }));
-        //cooldown - +
-        this.addRenderableWidget(new ItemCollectorButton(
-                leftPos + 43, topPos + 37,
-                "minus", (b) -> {
+        // cooldown - +
+        this.addRenderableWidget(new ItemCollectorButton(leftPos + 43, topPos + 37, "minus", (b) -> {
             menu.getBlockEntity().getCooldown().previous();
             menu.getBlockEntity().getCooldown().notifyServer();
         }));
-        this.addRenderableWidget(new ItemCollectorButton(
-                leftPos + 81, topPos + 37,
-                "add", (b) -> {
+        this.addRenderableWidget(new ItemCollectorButton(leftPos + 81, topPos + 37, "add", (b) -> {
             menu.getBlockEntity().getCooldown().next();
             menu.getBlockEntity().getCooldown().notifyServer();
         }));
     }
 
     @Override
-    protected void renderBg(@NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(
+            @NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         int i = (this.width - this.imageWidth) / 2;
         int j = (this.height - this.imageHeight) / 2;
         guiGraphics.blit(CONTAINER_LOCATION, i, j, 0, 0, this.imageWidth, this.imageHeight);
@@ -119,7 +119,8 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
         if (!((ItemDepositorySlot) this.hoveredSlot).isFilter()) return;
         if (!this.isFilterEnabled()) return;
         if (!this.isSlotDisabled(this.hoveredSlot.getContainerSlot())) return;
-        guiGraphics.renderTooltip(this.font, Component.translatable("screen.anvilcraft.slot.disable.tooltip"), x, y);
+        guiGraphics.renderTooltip(
+                this.font, Component.translatable("screen.anvilcraft.slot.disable.tooltip"), x, y);
     }
 
     @Override
@@ -133,7 +134,8 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
     }
 
     @Override
-    protected void slotClicked(@NotNull Slot slot, int slotId, int mouseButton, @NotNull ClickType type) {
+    protected void slotClicked(
+            @NotNull Slot slot, int slotId, int mouseButton, @NotNull ClickType type) {
         start:
         if (type == ClickType.PICKUP) {
             if (!this.menu.getCarried().isEmpty()) break start;

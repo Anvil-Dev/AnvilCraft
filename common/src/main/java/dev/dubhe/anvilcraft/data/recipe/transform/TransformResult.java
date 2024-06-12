@@ -1,26 +1,24 @@
 package dev.dubhe.anvilcraft.data.recipe.transform;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.JsonOps;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+
 public record TransformResult(EntityType<?> resultEntityType, double probability) {
 
-    public static final Codec<TransformResult> CODEC = RecordCodecBuilder.create(ins ->
-            ins.group(
+    public static final Codec<TransformResult> CODEC = RecordCodecBuilder.create(ins -> ins.group(
                     ResourceLocation.CODEC
                             .fieldOf("resultEntityType")
                             .forGetter(o -> BuiltInRegistries.ENTITY_TYPE.getKey(o.resultEntityType)),
-                    Codec.DOUBLE
-                            .fieldOf("probability")
-                            .forGetter(o -> o.probability)
-            ).apply(ins, TransformResult::new));
+                    Codec.DOUBLE.fieldOf("probability").forGetter(o -> o.probability))
+            .apply(ins, TransformResult::new));
 
     /**
      * 使用实体id初始化
@@ -29,10 +27,7 @@ public record TransformResult(EntityType<?> resultEntityType, double probability
      * @param p 转化概率
      */
     public TransformResult(ResourceLocation l, double p) {
-        this(
-                BuiltInRegistries.ENTITY_TYPE.get(l),
-                p
-        );
+        this(BuiltInRegistries.ENTITY_TYPE.get(l), p);
     }
 
     /**
@@ -42,9 +37,7 @@ public record TransformResult(EntityType<?> resultEntityType, double probability
      * @return 序列化结果
      */
     public static TransformResult fromJson(JsonObject jsonObject) {
-        return CODEC.parse(JsonOps.INSTANCE, jsonObject)
-                .getOrThrow(false, ignored -> {
-                });
+        return CODEC.parse(JsonOps.INSTANCE, jsonObject).getOrThrow(false, ignored -> {});
     }
 
     public JsonElement toJson() {

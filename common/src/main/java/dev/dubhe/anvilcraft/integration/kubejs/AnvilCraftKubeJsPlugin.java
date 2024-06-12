@@ -19,12 +19,14 @@ import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.AnvilCraftRecipeSchema;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.MobTransformRecipeSchema;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.builder.SelectOneBuilder;
+
+import net.minecraft.world.entity.EntityType;
+
 import dev.latvian.mods.kubejs.KubeJSPlugin;
 import dev.latvian.mods.kubejs.recipe.schema.RegisterRecipeSchemasEvent;
 import dev.latvian.mods.kubejs.script.BindingsEvent;
 import dev.latvian.mods.kubejs.script.ScriptType;
 import dev.latvian.mods.kubejs.util.ClassFilter;
-import net.minecraft.world.entity.EntityType;
 
 public class AnvilCraftKubeJsPlugin extends KubeJSPlugin {
 

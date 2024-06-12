@@ -8,6 +8,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,23 +22,24 @@ public interface IPowerComponent {
 
     Level getCurrentLevel();
 
-    default void gridTick() {
-    }
+    default void gridTick() {}
 
     /**
      * @return 元件位置
      */
-    @NotNull
-    BlockPos getPos();
+    @NotNull BlockPos getPos();
 
     /**
      * @return 覆盖范围
      */
     default VoxelShape getShape() {
         return Shapes.box(
-            -this.getRange(), -this.getRange(), -this.getRange(),
-            this.getRange() + 1, this.getRange() + 1, this.getRange() + 1
-        );
+                -this.getRange(),
+                -this.getRange(),
+                -this.getRange(),
+                this.getRange() + 1,
+                this.getRange() + 1,
+                this.getRange() + 1);
     }
 
     default int getRange() {
@@ -56,14 +58,12 @@ public interface IPowerComponent {
      *
      * @return 电网
      */
-    @Nullable
-    PowerGrid getGrid();
+    @Nullable PowerGrid getGrid();
 
     /**
      * @return 元件类型
      */
-    @NotNull
-    PowerComponentType getComponentType();
+    @NotNull PowerComponentType getComponentType();
 
     enum Switch implements StringRepresentable {
         ON("on"),

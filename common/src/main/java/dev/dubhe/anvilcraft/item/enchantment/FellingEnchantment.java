@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.item.enchantment;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModEnchantments;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
@@ -15,12 +16,14 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
 public class FellingEnchantment extends ModEnchantment {
-    public FellingEnchantment(Rarity rarity, EnchantmentCategory category, EquipmentSlot[] applicableSlots) {
+    public FellingEnchantment(
+            Rarity rarity, EnchantmentCategory category, EquipmentSlot[] applicableSlots) {
         super(rarity, category, applicableSlots);
     }
 
@@ -62,7 +65,9 @@ public class FellingEnchantment extends ModEnchantment {
         if (player.isShiftKeyDown()) return;
         Map<Enchantment, Integer> enchantments = EnchantmentHelper.getEnchantments(tool);
         if (!enchantments.containsKey(ModEnchantments.FELLING.get())) return;
-        int max = (enchantments.get(ModEnchantments.FELLING.get()) * AnvilCraft.config.fellingBlockPerLevel) + 1;
+        int max =
+                (enchantments.get(ModEnchantments.FELLING.get()) * AnvilCraft.config.fellingBlockPerLevel)
+                        + 1;
         FellingEnchantment.chainMine(level, player, pos, max, tool);
     }
 
@@ -73,20 +78,28 @@ public class FellingEnchantment extends ModEnchantment {
      * @param sourceBlock 源方块坐标
      * @param max         最大采集数量
      */
-    private static void chainMine(Level level, Player player, BlockPos sourceBlock, int max, ItemStack tool) {
-        BlockPos.breadthFirstTraversal(sourceBlock, Integer.MAX_VALUE, max, (blockPos, blockPosConsumer) -> {
-            for (Direction direction : Direction.values()) {
-                blockPosConsumer.accept(blockPos.relative(direction));
-            }
-        }, blockPos -> {
-            BlockState blockState = level.getBlockState(blockPos);
-            if (blockState.is(BlockTags.LOGS)) {
-                BlockEntity blockEntity = level.getBlockEntity(blockPos);
-                level.removeBlock(blockPos, false);
-                blockState.getBlock().playerDestroy(level, player, blockPos, blockState, blockEntity, tool);
-                return true;
-            }
-            return sourceBlock.equals(blockPos);
-        });
+    private static void chainMine(
+            Level level, Player player, BlockPos sourceBlock, int max, ItemStack tool) {
+        BlockPos.breadthFirstTraversal(
+                sourceBlock,
+                Integer.MAX_VALUE,
+                max,
+                (blockPos, blockPosConsumer) -> {
+                    for (Direction direction : Direction.values()) {
+                        blockPosConsumer.accept(blockPos.relative(direction));
+                    }
+                },
+                blockPos -> {
+                    BlockState blockState = level.getBlockState(blockPos);
+                    if (blockState.is(BlockTags.LOGS)) {
+                        BlockEntity blockEntity = level.getBlockEntity(blockPos);
+                        level.removeBlock(blockPos, false);
+                        blockState
+                                .getBlock()
+                                .playerDestroy(level, player, blockPos, blockState, blockEntity, tool);
+                        return true;
+                    }
+                    return sourceBlock.equals(blockPos);
+                });
     }
 }

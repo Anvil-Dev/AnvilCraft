@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.item.enchantment.Enchantments;
+
 import org.jetbrains.annotations.NotNull;
 
 public class AmethystShovelItem extends ShovelItem {

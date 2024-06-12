@@ -10,18 +10,18 @@ import net.minecraft.world.level.Level;
 import java.util.Arrays;
 
 public class AnvilEvent {
-    public static final Event<OnLand> ON_LAND = EventFactory.createArrayBacked(OnLand.class,
-        callbacks -> (level, pos, entity, fallDistance) -> {
-            boolean isAnvilDamage = false;
-            for (OnLand callback : callbacks) {
-                if (callback.onLand(level, pos, entity, fallDistance)) isAnvilDamage = true;
-            }
-            return isAnvilDamage;
-        });
-    public static Event<HurtEntity> HURT_ENTITY = EventFactory.createArrayBacked(HurtEntity.class,
-        callbacks -> (entity, pos, level, hurtedEntity, damage) ->
-            Arrays.stream(callbacks).forEach(hurtEntity -> hurtEntity.hurt(entity, pos, level, hurtedEntity, damage))
-    );
+    public static final Event<OnLand> ON_LAND = EventFactory.createArrayBacked(
+            OnLand.class, callbacks -> (level, pos, entity, fallDistance) -> {
+                boolean isAnvilDamage = false;
+                for (OnLand callback : callbacks) {
+                    if (callback.onLand(level, pos, entity, fallDistance)) isAnvilDamage = true;
+                }
+                return isAnvilDamage;
+            });
+    public static Event<HurtEntity> HURT_ENTITY = EventFactory.createArrayBacked(
+            HurtEntity.class,
+            callbacks -> (entity, pos, level, hurtedEntity, damage) -> Arrays.stream(callbacks)
+                    .forEach(hurtEntity -> hurtEntity.hurt(entity, pos, level, hurtedEntity, damage)));
 
     /**
      * 铁砧落地
@@ -36,6 +36,7 @@ public class AnvilEvent {
      */
     @FunctionalInterface
     public interface HurtEntity {
-        void hurt(FallingBlockEntity entity, BlockPos pos, Level level, Entity hurtedEntity, float damage);
+        void hurt(
+                FallingBlockEntity entity, BlockPos pos, Level level, Entity hurtedEntity, float damage);
     }
 }

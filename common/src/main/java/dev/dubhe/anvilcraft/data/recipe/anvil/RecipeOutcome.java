@@ -1,11 +1,12 @@
 package dev.dubhe.anvilcraft.data.recipe.anvil;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -21,10 +22,9 @@ public interface RecipeOutcome {
     Map<String, Function<FriendlyByteBuf, RecipeOutcome>> NETWORK_DECODER = new HashMap<>();
 
     static void register(
-        String id,
-        Function<JsonObject, RecipeOutcome> jsonDecoder,
-        Function<FriendlyByteBuf, RecipeOutcome> networkDecoder
-    ) {
+            String id,
+            Function<JsonObject, RecipeOutcome> jsonDecoder,
+            Function<FriendlyByteBuf, RecipeOutcome> networkDecoder) {
         RecipeOutcome.JSON_DECODER.put(id, jsonDecoder);
         RecipeOutcome.NETWORK_DECODER.put(id, networkDecoder);
     }

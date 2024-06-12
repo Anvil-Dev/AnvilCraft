@@ -1,9 +1,7 @@
 package dev.dubhe.anvilcraft.api.power;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.client.renderer.PowerGridRenderer;
-import lombok.Getter;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -12,6 +10,10 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -23,16 +25,16 @@ import java.util.Map;
 public class SimplePowerGrid {
 
     public static final Codec<SimplePowerGrid> CODEC = RecordCodecBuilder.create(ins -> ins.group(
-            Codec.INT.fieldOf("hash").forGetter(o -> o.hash),
-            Codec.STRING.fieldOf("level").forGetter(o -> o.level),
-            BlockPos.CODEC.fieldOf("pos").forGetter(o -> o.pos),
-            PowerComponentInfo.CODEC
-                    .listOf()
-                    .fieldOf("powerComponentInfoList")
-                    .forGetter(it -> it.powerComponentInfoList),
-            Codec.INT.fieldOf("generate").forGetter(o -> o.generate),
-            Codec.INT.fieldOf("consume").forGetter(o -> o.consume)
-    ).apply(ins, SimplePowerGrid::new));
+                    Codec.INT.fieldOf("hash").forGetter(o -> o.hash),
+                    Codec.STRING.fieldOf("level").forGetter(o -> o.level),
+                    BlockPos.CODEC.fieldOf("pos").forGetter(o -> o.pos),
+                    PowerComponentInfo.CODEC
+                            .listOf()
+                            .fieldOf("powerComponentInfoList")
+                            .forGetter(it -> it.powerComponentInfoList),
+                    Codec.INT.fieldOf("generate").forGetter(o -> o.generate),
+                    Codec.INT.fieldOf("consume").forGetter(o -> o.consume))
+            .apply(ins, SimplePowerGrid::new));
 
     private final int hash;
     private final String level;
@@ -41,7 +43,7 @@ public class SimplePowerGrid {
     private List<BlockPos> blocks = new ArrayList<>();
     private final List<PowerComponentInfo> powerComponentInfoList = new ArrayList<>();
     private int generate = 0; // 发电功率
-    private int consume = 0;  // 耗电功率
+    private int consume = 0; // 耗电功率
 
     private final Map<BlockPos, PowerComponentInfo> mappedPowerComponentInfo = new HashMap<>();
 
@@ -54,8 +56,7 @@ public class SimplePowerGrid {
             BlockPos pos,
             @NotNull List<PowerComponentInfo> powerComponentInfoList,
             int generate,
-            int consume
-    ) {
+            int consume) {
         this.pos = pos;
         this.level = level;
         this.hash = hash;
@@ -74,9 +75,7 @@ public class SimplePowerGrid {
     public void encode(@NotNull FriendlyByteBuf buf) {
         this.blocks = ranges.keySet().stream().toList();
         var tag1 = CODEC.encodeStart(NbtOps.INSTANCE, this);
-        Tag tag = CODEC.encodeStart(NbtOps.INSTANCE, this)
-                .getOrThrow(false, ignored -> {
-                });
+        Tag tag = CODEC.encodeStart(NbtOps.INSTANCE, this).getOrThrow(false, ignored -> {});
         CompoundTag data = new CompoundTag();
         data.put("data", tag);
         buf.writeNbt(data);
@@ -107,43 +106,15 @@ public class SimplePowerGrid {
         grid.storages.forEach(it -> infoMap.put(
                 it.getPos(),
                 new PowerComponentInfo(
-                        it.getPos(),
-                        0,
-                        0,
-                        it.getPowerAmount(),
-                        it.getCapacity(),
-                        it.getRange()
-                )));
+                        it.getPos(), 0, 0, it.getPowerAmount(), it.getCapacity(), it.getRange())));
         grid.producers.forEach(it -> infoMap.put(
                 it.getPos(),
-                new PowerComponentInfo(
-                        it.getPos(),
-                        0,
-                        it.getOutputPower(),
-                        0,
-                        0,
-                        it.getRange()
-                )));
+                new PowerComponentInfo(it.getPos(), 0, it.getOutputPower(), 0, 0, it.getRange())));
         grid.consumers.forEach(it -> infoMap.put(
                 it.getPos(),
-                new PowerComponentInfo(
-                        it.getPos(),
-                        it.getInputPower(),
-                        0,
-                        0,
-                        0,
-                        it.getRange()
-                )));
-        grid.transmitters.forEach(it -> infoMap.put(
-                it.getPos(),
-                new PowerComponentInfo(
-                        it.getPos(),
-                        0,
-                        0,
-                        0,
-                        0,
-                        it.getRange()
-                )));
+                new PowerComponentInfo(it.getPos(), it.getInputPower(), 0, 0, 0, it.getRange())));
+        grid.transmitters.forEach(it ->
+                infoMap.put(it.getPos(), new PowerComponentInfo(it.getPos(), 0, 0, 0, 0, it.getRange())));
         infoMap.values().forEach(it -> {
             this.ranges.put(it.pos(), it.range());
             this.powerComponentInfoList.add(it);
@@ -156,17 +127,20 @@ public class SimplePowerGrid {
      * @return 获取范围
      */
     public VoxelShape getShape() {
-        return this.ranges.entrySet().stream().map(entry -> Shapes
-                .box(
-                        -entry.getValue(), -entry.getValue(), -entry.getValue(),
-                        entry.getValue() + 1, entry.getValue() + 1, entry.getValue() + 1
-                )
-                .move(
-                        this.offset(entry.getKey()).getX(),
-                        this.offset(entry.getKey()).getY(),
-                        this.offset(entry.getKey()).getZ()
-                )
-        ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).orElse(Shapes.block());
+        return this.ranges.entrySet().stream()
+                .map(entry -> Shapes.box(
+                                -entry.getValue(),
+                                -entry.getValue(),
+                                -entry.getValue(),
+                                entry.getValue() + 1,
+                                entry.getValue() + 1,
+                                entry.getValue() + 1)
+                        .move(
+                                this.offset(entry.getKey()).getX(),
+                                this.offset(entry.getKey()).getY(),
+                                this.offset(entry.getKey()).getZ()))
+                .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
+                .orElse(Shapes.block());
     }
 
     private @NotNull BlockPos offset(@NotNull BlockPos pos) {
@@ -177,8 +151,7 @@ public class SimplePowerGrid {
      * 寻找电网
      */
     public static List<SimplePowerGrid> findPowerGrid(BlockPos pos) {
-        return PowerGridRenderer.getGridMap()
-                .values().stream()
+        return PowerGridRenderer.getGridMap().values().stream()
                 .filter(it -> it.blocks.stream().anyMatch(it1 -> it1.equals(pos)))
                 .toList();
     }

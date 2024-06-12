@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.api.network;
 
-import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.network.FriendlyByteBuf;
@@ -8,6 +7,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.chunk.LevelChunk;
+
+import dev.architectury.injectables.annotations.ExpectPlatform;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -32,8 +33,7 @@ public abstract class Network<T> {
      * @param server 服务端
      * @param player 发包的玩家
      */
-    public void handler(T data, MinecraftServer server, ServerPlayer player) {
-    }
+    public void handler(T data, MinecraftServer server, ServerPlayer player) {}
 
     /**
      * 客户端侧网络包处理器
@@ -41,8 +41,7 @@ public abstract class Network<T> {
      * @param data 数据
      */
     @Environment(EnvType.CLIENT)
-    public void handler(T data) {
-    }
+    public void handler(T data) {}
 
     /**
      * 编码器
@@ -108,8 +107,7 @@ public abstract class Network<T> {
 
     @ExpectPlatform
     public static <T extends Packet> @NotNull Network<T> create(
-        ResourceLocation type, Class<T> clazz, Function<FriendlyByteBuf, T> decoder
-    ) {
+            ResourceLocation type, Class<T> clazz, Function<FriendlyByteBuf, T> decoder) {
         throw new AssertionError();
     }
 
@@ -124,8 +122,7 @@ public abstract class Network<T> {
      */
     @SuppressWarnings("UnreachableCode")
     public static <T extends Packet> ResourceLocation register(
-        ResourceLocation type, Class<T> clazz, Function<FriendlyByteBuf, T> decoder
-    ) {
+            ResourceLocation type, Class<T> clazz, Function<FriendlyByteBuf, T> decoder) {
         Network<T> network = Network.create(type, clazz, decoder);
         Network.NETWORK_MAP.put(type, network);
         network.init(clazz);
@@ -157,7 +154,8 @@ public abstract class Network<T> {
     }
 
     @SuppressWarnings("unchecked")
-    protected static <T extends Packet> void broadcastPacketTrackingChunk(LevelChunk chunk, @NotNull T data) {
+    protected static <T extends Packet> void broadcastPacketTrackingChunk(
+            LevelChunk chunk, @NotNull T data) {
         Network<?> network = Network.NETWORK_MAP.get(data.getType());
         if (network != null) {
             ((Network<T>) network).broadcastTrackingChunk(chunk, data);

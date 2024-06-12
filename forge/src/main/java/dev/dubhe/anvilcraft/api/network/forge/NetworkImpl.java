@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.api.network.forge;
 
 import dev.dubhe.anvilcraft.api.network.Network;
 import dev.dubhe.anvilcraft.api.network.Packet;
+
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -12,6 +13,7 @@ import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
@@ -23,15 +25,12 @@ public abstract class NetworkImpl<T> extends Network<T> {
     @Override
     public void init(Class<T> type) {
         this.instance = NetworkRegistry.newSimpleChannel(
-            this.getType(),
-            () -> PROTOCOL_VERSION,
-            PROTOCOL_VERSION::equals,
-            PROTOCOL_VERSION::equals
-        );
+                this.getType(), () -> PROTOCOL_VERSION, PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals);
         this.instance.registerMessage(0, type, this::encode, this::decode, (data, ctx) -> {
             ctx.get().enqueueWork(() -> {
                 ServerPlayer sender = ctx.get().getSender();
-                if (sender == null) DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> this.handler(data));
+                if (sender == null)
+                    DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> this.handler(data));
                 else this.handler(data, sender.server, sender);
             });
             ctx.get().setPacketHandled(true);
@@ -72,8 +71,7 @@ public abstract class NetworkImpl<T> extends Network<T> {
      * @return 网络包类型
      */
     public static <M extends Packet> @NotNull Network<M> create(
-        ResourceLocation type, Class<M> clazz, Function<FriendlyByteBuf, M> decoder
-    ) {
+            ResourceLocation type, Class<M> clazz, Function<FriendlyByteBuf, M> decoder) {
         return new NetworkImpl<>() {
             @Override
             public ResourceLocation getType() {

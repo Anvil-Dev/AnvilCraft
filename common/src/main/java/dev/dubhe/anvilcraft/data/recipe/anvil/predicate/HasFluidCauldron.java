@@ -1,14 +1,9 @@
 package dev.dubhe.anvilcraft.data.recipe.anvil.predicate;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSyntaxException;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipePredicate;
 import dev.dubhe.anvilcraft.init.ModBlocks;
-import lombok.Getter;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
@@ -21,6 +16,13 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSyntaxException;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
@@ -37,7 +39,8 @@ public class HasFluidCauldron implements RecipePredicate {
         this.offset = offset;
         this.matchBlock = matchBlock;
         this.deplete = deplete;
-        if (!((this.matchBlock) instanceof LayeredCauldronBlock) && this.matchBlock != Blocks.LAVA_CAULDRON) {
+        if (!((this.matchBlock) instanceof LayeredCauldronBlock)
+                && this.matchBlock != Blocks.LAVA_CAULDRON) {
             throw new IllegalStateException("match block is not layered cauldron block");
         }
     }
@@ -54,13 +57,16 @@ public class HasFluidCauldron implements RecipePredicate {
             JsonElement element = array.get(i);
             if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isNumber()) {
                 vec3[i] = element.getAsDouble();
-            } else throw new JsonSyntaxException("Expected offset to be a Double, was " + GsonHelper.getType(element));
+            } else
+                throw new JsonSyntaxException(
+                        "Expected offset to be a Double, was " + GsonHelper.getType(element));
         }
         this.offset = new Vec3(vec3[0], vec3[1], vec3[2]);
         String block = GsonHelper.getAsString(serializedRecipe, "match_block");
         this.matchBlock = BuiltInRegistries.BLOCK.get(new ResourceLocation(block));
         this.deplete = GsonHelper.getAsInt(serializedRecipe, "deplete");
-        if (!((this.matchBlock) instanceof LayeredCauldronBlock) && this.matchBlock != Blocks.LAVA_CAULDRON) {
+        if (!((this.matchBlock) instanceof LayeredCauldronBlock)
+                && this.matchBlock != Blocks.LAVA_CAULDRON) {
             throw new IllegalStateException("match block is not layered cauldron block");
         }
     }
@@ -72,12 +78,10 @@ public class HasFluidCauldron implements RecipePredicate {
      */
     public HasFluidCauldron(@NotNull FriendlyByteBuf buffer) {
         this(
-            new Vec3(buffer.readVector3f()),
-            BuiltInRegistries.BLOCK.get(buffer.readResourceLocation()),
-            buffer.readInt()
-        );
+                new Vec3(buffer.readVector3f()),
+                BuiltInRegistries.BLOCK.get(buffer.readResourceLocation()),
+                buffer.readInt());
     }
-
 
     @Override
     public boolean matches(@NotNull AnvilCraftingContainer container) {
@@ -95,7 +99,8 @@ public class HasFluidCauldron implements RecipePredicate {
     private boolean lavaMatches(@NotNull Level level, @NotNull BlockPos pos) {
         BlockState state = level.getBlockState(pos);
         if (!state.is(Blocks.LAVA_CAULDRON) && !state.is(ModBlocks.LAVA_CAULDRON.get())) return false;
-        int cauldronLevel = state.is(Blocks.LAVA_CAULDRON) ? 3 : state.getValue(LayeredCauldronBlock.LEVEL);
+        int cauldronLevel =
+                state.is(Blocks.LAVA_CAULDRON) ? 3 : state.getValue(LayeredCauldronBlock.LEVEL);
         return cauldronLevel >= this.deplete;
     }
 
@@ -141,7 +146,8 @@ public class HasFluidCauldron implements RecipePredicate {
         JsonObject object = new JsonObject();
         object.addProperty("type", this.getType());
         object.add("offset", offset);
-        object.addProperty("match_block", BuiltInRegistries.BLOCK.getKey(this.matchBlock).toString());
+        object.addProperty(
+                "match_block", BuiltInRegistries.BLOCK.getKey(this.matchBlock).toString());
         object.addProperty("deplete", this.deplete);
         return object;
     }

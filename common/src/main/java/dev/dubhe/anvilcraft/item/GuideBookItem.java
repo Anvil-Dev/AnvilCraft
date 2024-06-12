@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.item;
 
 import dev.dubhe.anvilcraft.integration.patchouli.PatchouliUtil;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -18,17 +19,18 @@ public class GuideBookItem extends Item {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
+    public InteractionResultHolder<ItemStack> use(
+            Level level, Player player, InteractionHand usedHand) {
         if (player instanceof ServerPlayer serverPlayer) {
             try {
                 Class.forName("vazkii.patchouli.api.PatchouliAPI");
                 PatchouliUtil.openBook(serverPlayer);
-                return new InteractionResultHolder<>(InteractionResult.CONSUME, player.getItemInHand(usedHand));
+                return new InteractionResultHolder<>(
+                        InteractionResult.CONSUME, player.getItemInHand(usedHand));
             } catch (ClassNotFoundException ignore) {
                 serverPlayer.sendSystemMessage(
-                    Component.translatable("message.anvilcraft.need_patchouli_installed")
-                        .withStyle(ChatFormatting.RED)
-                );
+                        Component.translatable("message.anvilcraft.need_patchouli_installed")
+                                .withStyle(ChatFormatting.RED));
             }
         }
         return new InteractionResultHolder<>(InteractionResult.PASS, player.getItemInHand(usedHand));

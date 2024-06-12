@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.network.MachineEnableFilterPack;
 import dev.dubhe.anvilcraft.network.MachineOutputDirectionPack;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
 import dev.dubhe.anvilcraft.network.SlotFilterChangePack;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -39,10 +40,12 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class AutoCrafterBlock extends BaseEntityBlock implements IHammerChangeableBlock, IHammerRemovable {
+public class AutoCrafterBlock extends BaseEntityBlock
+        implements IHammerChangeableBlock, IHammerRemovable {
     public static final DirectionProperty FACING = DirectionalBlock.FACING;
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
@@ -52,12 +55,11 @@ public class AutoCrafterBlock extends BaseEntityBlock implements IHammerChangeab
      */
     public AutoCrafterBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(
-            this.stateDefinition.any()
+        this.registerDefaultState(this.stateDefinition
+                .any()
                 .setValue(LIT, false)
                 .setValue(OVERLOAD, true)
-                .setValue(FACING, Direction.NORTH)
-        );
+                .setValue(FACING, Direction.NORTH));
     }
 
     @Override
@@ -68,7 +70,8 @@ public class AutoCrafterBlock extends BaseEntityBlock implements IHammerChangeab
 
     @Override
     @SuppressWarnings("deprecation")
-    public int getAnalogOutputSignal(@NotNull BlockState blockState, @NotNull Level level, @NotNull BlockPos blockPos) {
+    public int getAnalogOutputSignal(
+            @NotNull BlockState blockState, @NotNull Level level, @NotNull BlockPos blockPos) {
         BlockEntity blockEntity = level.getBlockEntity(blockPos);
         if (blockEntity instanceof AutoCrafterBlockEntity crafterBlockEntity) {
             return crafterBlockEntity.getRedstoneSignal();
@@ -79,33 +82,27 @@ public class AutoCrafterBlock extends BaseEntityBlock implements IHammerChangeab
     @Override
     @SuppressWarnings({"deprecation", "UnreachableCode"})
     public @NotNull InteractionResult use(
-        @NotNull BlockState state,
-        @NotNull Level level,
-        @NotNull BlockPos pos,
-        @NotNull Player player,
-        @NotNull InteractionHand hand,
-        @NotNull BlockHitResult hit
-    ) {
+            @NotNull BlockState state,
+            @NotNull Level level,
+            @NotNull BlockPos pos,
+            @NotNull Player player,
+            @NotNull InteractionHand hand,
+            @NotNull BlockHitResult hit) {
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
         }
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof AutoCrafterBlockEntity entity) {
             if (player.getItemInHand(hand).is(ModItems.DISK.get())) {
-                return entity.useDisk(
-                        level,
-                        player,
-                        hand,
-                        player.getItemInHand(hand),
-                        hit
-                );
+                return entity.useDisk(level, player, hand, player.getItemInHand(hand), hit);
             }
             if (player instanceof ServerPlayer serverPlayer) {
                 ModMenuTypes.open(serverPlayer, entity, pos);
                 new MachineOutputDirectionPack(entity.getDirection()).send(serverPlayer);
                 new MachineEnableFilterPack(entity.isFilterEnabled()).send(serverPlayer);
                 for (int i = 0; i < entity.getFilteredItems().size(); i++) {
-                    new SlotDisableChangePack(i, entity.getDepository().getDisabled().get(i)).send(serverPlayer);
+                    new SlotDisableChangePack(i, entity.getDepository().getDisabled().get(i))
+                            .send(serverPlayer);
                     new SlotFilterChangePack(i, entity.getFilter(i)).send(serverPlayer);
                 }
             }
@@ -116,12 +113,11 @@ public class AutoCrafterBlock extends BaseEntityBlock implements IHammerChangeab
     @Override
     @SuppressWarnings("deprecation")
     public void onRemove(
-        @NotNull BlockState state,
-        @NotNull Level level,
-        @NotNull BlockPos pos,
-        @NotNull BlockState newState,
-        boolean movedByPiston
-    ) {
+            @NotNull BlockState state,
+            @NotNull Level level,
+            @NotNull BlockPos pos,
+            @NotNull BlockState newState,
+            boolean movedByPiston) {
         if (state.is(newState.getBlock())) return;
         if (level.getBlockEntity(pos) instanceof AutoCrafterBlockEntity entity) {
             Vec3 vec3 = entity.getBlockPos().getCenter();
@@ -134,25 +130,22 @@ public class AutoCrafterBlock extends BaseEntityBlock implements IHammerChangeab
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
-        return AutoCrafterBlockEntity.createBlockEntity(ModBlockEntities.AUTO_CRAFTER.get(), pos, state);
+        return AutoCrafterBlockEntity.createBlockEntity(
+                ModBlockEntities.AUTO_CRAFTER.get(), pos, state);
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-        @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type
-    ) {
+            @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type) {
         if (level.isClientSide) {
             return null;
         }
         return createTickerHelper(
-            type,
-            ModBlockEntities.AUTO_CRAFTER.get(),
-            (level1, blockPos, blockState, blockEntity) -> blockEntity.tick(level1, blockPos)
-        );
+                type,
+                ModBlockEntities.AUTO_CRAFTER.get(),
+                (level1, blockPos, blockState, blockEntity) -> blockEntity.tick(level1, blockPos));
     }
 
     @Override
@@ -161,29 +154,28 @@ public class AutoCrafterBlock extends BaseEntityBlock implements IHammerChangeab
     }
 
     @Override
-    @Nullable
-    public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
+    @Nullable public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
         return this.defaultBlockState()
-            .setValue(FACING, context.getNearestLookingDirection().getOpposite())
-            .setValue(LIT, context.getLevel().hasNeighborSignal(context.getClickedPos()))
-            .setValue(OVERLOAD, true);
+                .setValue(FACING, context.getNearestLookingDirection().getOpposite())
+                .setValue(LIT, context.getLevel().hasNeighborSignal(context.getClickedPos()))
+                .setValue(OVERLOAD, true);
     }
 
     @Override
-    protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(
+            @NotNull StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(LIT).add(OVERLOAD).add(FACING);
     }
 
     @Override
     @SuppressWarnings("deprecation")
     public void neighborChanged(
-        @NotNull BlockState state,
-        @NotNull Level level,
-        @NotNull BlockPos pos,
-        @NotNull Block neighborBlock,
-        @NotNull BlockPos neighborPos,
-        boolean movedByPiston
-    ) {
+            @NotNull BlockState state,
+            @NotNull Level level,
+            @NotNull BlockPos pos,
+            @NotNull Block neighborBlock,
+            @NotNull BlockPos neighborPos,
+            boolean movedByPiston) {
         if (level.isClientSide) {
             return;
         }
@@ -200,8 +192,10 @@ public class AutoCrafterBlock extends BaseEntityBlock implements IHammerChangeab
     @Override
     @SuppressWarnings("deprecation")
     public void tick(
-        @NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random
-    ) {
+            @NotNull BlockState state,
+            @NotNull ServerLevel level,
+            @NotNull BlockPos pos,
+            @NotNull RandomSource random) {
         if (state.getValue(LIT) && !level.hasNeighborSignal(pos)) {
             level.setBlock(pos, state.cycle(LIT), 2);
         }

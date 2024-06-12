@@ -5,16 +5,18 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.RecipeOutcome;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SelectOne;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SetBlock;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SpawnItem;
-import dev.emi.emi.api.stack.EmiIngredient;
-import dev.emi.emi.api.stack.EmiStack;
-import dev.emi.emi.screen.tooltip.EmiTooltip;
-import lombok.Getter;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+
+import dev.emi.emi.api.stack.EmiIngredient;
+import dev.emi.emi.api.stack.EmiStack;
+import dev.emi.emi.screen.tooltip.EmiTooltip;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,7 +42,8 @@ public class SelectOneEmiStack extends EmiStack {
                 this.stacks.add(EmiStack.of(item.getResult()).setChance((float) outcome.getChance()));
             }
             if (outcome instanceof SetBlock block) {
-                this.stacks.add(BlockStateEmiStack.of(block.getResult()).setChance((float) outcome.getChance()));
+                this.stacks.add(
+                        BlockStateEmiStack.of(block.getResult()).setChance((float) outcome.getChance()));
             }
         }
         for (EmiStack stack : this.stacks) {
@@ -59,7 +62,8 @@ public class SelectOneEmiStack extends EmiStack {
 
     private @Nullable EmiIngredient get() {
         if (MINECRAFT.level == null || this.stacks.isEmpty()) return null;
-        int index = (int) Math.floor((MINECRAFT.level.getGameTime() % (this.stacks.size() * 20)) / 20.0);
+        int index =
+                (int) Math.floor((MINECRAFT.level.getGameTime() % (this.stacks.size() * 20)) / 20.0);
         return this.stacks.get(index);
     }
 

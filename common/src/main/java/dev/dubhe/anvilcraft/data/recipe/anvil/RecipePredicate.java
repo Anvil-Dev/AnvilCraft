@@ -1,9 +1,10 @@
 package dev.dubhe.anvilcraft.data.recipe.anvil;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.GsonHelper;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -19,10 +20,9 @@ public interface RecipePredicate {
     Map<String, Function<FriendlyByteBuf, RecipePredicate>> NETWORK_DECODER = new HashMap<>();
 
     static void register(
-        String id, Function<JsonObject,
-        RecipePredicate> jsonDecoder,
-        Function<FriendlyByteBuf, RecipePredicate> networkDecoder
-    ) {
+            String id,
+            Function<JsonObject, RecipePredicate> jsonDecoder,
+            Function<FriendlyByteBuf, RecipePredicate> networkDecoder) {
         RecipePredicate.JSON_DECODER.put(id, jsonDecoder);
         RecipePredicate.NETWORK_DECODER.put(id, networkDecoder);
     }
@@ -63,6 +63,5 @@ public interface RecipePredicate {
 
     void toNetwork(FriendlyByteBuf buffer);
 
-    @NotNull
-    JsonElement toJson();
+    @NotNull JsonElement toJson();
 }

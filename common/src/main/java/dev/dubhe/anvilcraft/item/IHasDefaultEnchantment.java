@@ -23,20 +23,14 @@ public interface IHasDefaultEnchantment {
      */
     default List<Component> getDefaultEnchantmentsTooltip() {
         List<Component> list = new ArrayList<>();
-        list.add(
-            Component
-                .translatable("item.anvilcraft.default_enchantment.tooltip")
-                .withStyle(ChatFormatting.GRAY)
-        );
+        list.add(Component.translatable("item.anvilcraft.default_enchantment.tooltip")
+                .withStyle(ChatFormatting.GRAY));
         for (Map.Entry<Enchantment, Integer> entry : getDefaultEnchantments().entrySet()) {
             Enchantment enchantment = entry.getKey();
             Integer level = entry.getValue();
-            list.add(
-                Component
-                    .literal("- ")
+            list.add(Component.literal("- ")
                     .append(enchantment.getFullname(level))
-                    .withStyle(ChatFormatting.DARK_GRAY)
-            );
+                    .withStyle(ChatFormatting.DARK_GRAY));
         }
         return list;
     }

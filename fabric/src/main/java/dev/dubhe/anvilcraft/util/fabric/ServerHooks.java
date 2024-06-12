@@ -1,8 +1,9 @@
 package dev.dubhe.anvilcraft.util.fabric;
 
+import net.minecraft.server.MinecraftServer;
+
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.server.MinecraftServer;
 
 public class ServerHooks {
     @Setter

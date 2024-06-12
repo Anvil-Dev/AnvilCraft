@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.api.depository.fabric;
 
 import dev.dubhe.anvilcraft.api.depository.IItemDepository;
+
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
@@ -11,6 +12,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.vehicle.ContainerEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,17 +28,16 @@ public class ItemDepositoryHelperImpl {
      * @param direction 方向
      * @return 物品容器
      */
-    @Nullable
-    public static IItemDepository getItemDepository(@NotNull Level level, BlockPos pos, Direction direction) {
+    @Nullable public static IItemDepository getItemDepository(
+            @NotNull Level level, BlockPos pos, Direction direction) {
         Storage<ItemVariant> target = ItemStorage.SIDED.find(level, pos, direction);
         if (target == null) {
-            List<InventoryStorage> entities = level
-                .getEntitiesOfClass(Entity.class, new AABB(pos))
-                .stream()
-                .filter(entity -> entity instanceof ContainerEntity)
-                .map(entity -> (ContainerEntity) entity)
-                .map(container -> InventoryStorage.of(container, null))
-                .toList();
+            List<InventoryStorage> entities =
+                    level.getEntitiesOfClass(Entity.class, new AABB(pos)).stream()
+                            .filter(entity -> entity instanceof ContainerEntity)
+                            .map(entity -> (ContainerEntity) entity)
+                            .map(container -> InventoryStorage.of(container, null))
+                            .toList();
             if (!entities.isEmpty()) target = entities.get(level.getRandom().nextInt(0, entities.size()));
         }
         if (target == null) return null;

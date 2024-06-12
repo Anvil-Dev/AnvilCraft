@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.api.event.server.ServerStartedEvent;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.world.load.RandomChuckTickLoadManager;
 import dev.dubhe.anvilcraft.util.fabric.ServerHooks;
+
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.MinecraftServer;
@@ -18,7 +19,8 @@ public class ServerLifecycleEventListener {
      */
     public static void init() {
         ServerLifecycleEvents.SERVER_STARTED.register(ServerLifecycleEventListener::serverStarted);
-        ServerLifecycleEvents.END_DATA_PACK_RELOAD.register(ServerLifecycleEventListener::endDataPackReload);
+        ServerLifecycleEvents.END_DATA_PACK_RELOAD.register(
+                ServerLifecycleEventListener::endDataPackReload);
         ServerLifecycleEvents.SERVER_STOPPING.register(ServerLifecycleEventListener::onServerStopping);
         ServerLifecycleEvents.SERVER_STOPPED.register(ServerLifecycleEventListener::onServerStopped);
         ServerTickEvents.START_SERVER_TICK.register(ServerLifecycleEventListener::startTick);
@@ -30,8 +32,7 @@ public class ServerLifecycleEventListener {
     }
 
     private static void endDataPackReload(
-        MinecraftServer server, CloseableResourceManager resourceManager, boolean success
-    ) {
+            MinecraftServer server, CloseableResourceManager resourceManager, boolean success) {
         AnvilCraft.EVENT_BUS.post(new ServerEndDataPackReloadEvent(server, resourceManager));
     }
 

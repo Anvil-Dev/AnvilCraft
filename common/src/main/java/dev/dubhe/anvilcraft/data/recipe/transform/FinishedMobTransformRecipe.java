@@ -1,12 +1,13 @@
 package dev.dubhe.anvilcraft.data.recipe.transform;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.mojang.serialization.JsonOps;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeSerializer;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.mojang.serialization.JsonOps;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,10 +21,7 @@ public class FinishedMobTransformRecipe implements FinishedRecipe {
      * 生物转化配方
      */
     public FinishedMobTransformRecipe(
-            MobTransformRecipe recipe,
-            Advancement.Builder advancement,
-            ResourceLocation advancementId
-    ) {
+            MobTransformRecipe recipe, Advancement.Builder advancement, ResourceLocation advancementId) {
         this.recipe = recipe;
         this.advancement = advancement;
         this.advancementId = advancementId;
@@ -33,11 +31,8 @@ public class FinishedMobTransformRecipe implements FinishedRecipe {
     public void serializeRecipeData(@NotNull JsonObject json) {
         JsonElement jsonElement = MobTransformRecipe.CODEC
                 .encodeStart(JsonOps.INSTANCE, this.recipe)
-                .getOrThrow(false, ignored -> {
-                });
-        jsonElement.getAsJsonObject()
-                .asMap()
-                .forEach(json::add);
+                .getOrThrow(false, ignored -> {});
+        jsonElement.getAsJsonObject().asMap().forEach(json::add);
     }
 
     @Override
@@ -50,14 +45,12 @@ public class FinishedMobTransformRecipe implements FinishedRecipe {
         return MobTransformRecipe.Serializer.INSTANCE;
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public JsonObject serializeAdvancement() {
         return advancement.serializeToJson();
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public ResourceLocation getAdvancementId() {
         return advancementId;
     }

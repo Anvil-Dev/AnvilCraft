@@ -1,7 +1,5 @@
 package dev.dubhe.anvilcraft;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import dev.dubhe.anvilcraft.api.event.EventManager;
 import dev.dubhe.anvilcraft.api.registry.AnvilCraftRegistrate;
 import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
@@ -20,9 +18,13 @@ import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.ModNetworks;
 import dev.dubhe.anvilcraft.util.EnchantmentDisableUtil;
 import dev.dubhe.anvilcraft.util.Lazy;
+
+import net.minecraft.resources.ResourceLocation;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
-import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,11 +35,11 @@ public class AnvilCraft {
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
     public static final EventManager EVENT_BUS = new EventManager();
-    public static AnvilCraftConfig config = AutoConfig
-            .register(AnvilCraftConfig.class, JanksonConfigSerializer::new)
-            .getConfig();
+    public static AnvilCraftConfig config =
+            AutoConfig.register(AnvilCraftConfig.class, JanksonConfigSerializer::new).getConfig();
     // EnchantmentDisable
-    public static final Lazy<EnchantmentDisableUtil> enchantmentDisableUtil = new Lazy<>(EnchantmentDisableUtil::new);
+    public static final Lazy<EnchantmentDisableUtil> enchantmentDisableUtil =
+            new Lazy<>(EnchantmentDisableUtil::new);
 
     public static final AnvilCraftRegistrate REGISTRATE = AnvilCraftRegistrate.create(MOD_ID);
 

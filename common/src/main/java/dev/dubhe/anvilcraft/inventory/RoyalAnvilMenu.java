@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.inventory;
 
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.item.ICursed;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
@@ -19,6 +20,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -49,17 +51,20 @@ public class RoyalAnvilMenu extends AnvilMenu {
         }
         ItemStack outputItem = inputItem1.copy();
         ItemStack inputItem2 = this.inputSlots.getItem(1);
-        Map<Enchantment, Integer> applicableEnchantments = EnchantmentHelper.getEnchantments(outputItem);
+        Map<Enchantment, Integer> applicableEnchantments =
+                EnchantmentHelper.getEnchantments(outputItem);
         boolean textChanged = false;
         int totalCost = 0;
         int j = 0;
-        j += inputItem1.getBaseRepairCost() + (inputItem2.isEmpty() ? 0 : inputItem2.getBaseRepairCost());
+        j += inputItem1.getBaseRepairCost()
+                + (inputItem2.isEmpty() ? 0 : inputItem2.getBaseRepairCost());
         this.repairItemCountCost = 0;
         if (!inputItem2.isEmpty()) {
             boolean hasEnchantedBook = inputItem2.is(Items.ENCHANTED_BOOK)
                     && !EnchantedBookItem.getEnchantments(inputItem2).isEmpty();
             // 修理物品
-            if (outputItem.isDamageableItem() && outputItem.getItem().isValidRepairItem(inputItem1, inputItem2)) {
+            if (outputItem.isDamageableItem()
+                    && outputItem.getItem().isValidRepairItem(inputItem1, inputItem2)) {
                 int cost;
                 int l = Math.min(outputItem.getDamageValue(), outputItem.getMaxDamage() / 4);
                 if (l <= 0) {
@@ -86,18 +91,14 @@ public class RoyalAnvilMenu extends AnvilMenu {
                         if (outputItem != null && !outputItem.is(Items.AIR)) {
                             MutableComponent originalText = outputItem.getHoverName().copy();
                             outputItem.setHoverName(
-                                    originalText.setStyle(
-                                            originalText.getStyle().applyFormat(formatting)
-                                    )
-                            );
+                                    originalText.setStyle(originalText.getStyle().applyFormat(formatting)));
                             textChanged = true;
                         }
                     }
                 } else {
                     // 附魔物品
-                    if (!(hasEnchantedBook || outputItem.is(inputItem2.getItem())
-                            && outputItem.isDamageableItem())
-                    ) {
+                    if (!(hasEnchantedBook
+                            || outputItem.is(inputItem2.getItem()) && outputItem.isDamageableItem())) {
                         this.resultSlots.setItem(0, ItemStack.EMPTY);
                         this.cost.set(0);
                         return;
@@ -117,7 +118,8 @@ public class RoyalAnvilMenu extends AnvilMenu {
                         totalCost += 2;
                     }
                 }
-                Map<Enchantment, Integer> enchantmentsInInput2 = EnchantmentHelper.getEnchantments(inputItem2);
+                Map<Enchantment, Integer> enchantmentsInInput2 =
+                        EnchantmentHelper.getEnchantments(inputItem2);
                 boolean canApplyEnchantment = false;
                 boolean bl3 = false;
                 for (Enchantment enchantment : enchantmentsInInput2.keySet()) {
@@ -125,9 +127,7 @@ public class RoyalAnvilMenu extends AnvilMenu {
                     if (enchantment == null) continue;
                     int originalLevel = applicableEnchantments.getOrDefault(enchantment, 0);
                     level = enchantmentsInInput2.get(enchantment);
-                    level = originalLevel == level
-                            ? level + 1
-                            : Math.max(level, originalLevel);
+                    level = originalLevel == level ? level + 1 : Math.max(level, originalLevel);
                     boolean hasNoIncompatibleEnchantment = true;
                     for (Enchantment enchantment2 : applicableEnchantments.keySet()) {
                         if (enchantment2 == enchantment || enchantment.isCompatibleWith(enchantment2)) continue;
@@ -141,12 +141,13 @@ public class RoyalAnvilMenu extends AnvilMenu {
                     canApplyEnchantment = true;
                     if (level > enchantment.getMaxLevel()) level = enchantment.getMaxLevel();
                     applicableEnchantments.put(enchantment, level);
-                    int rarityCostFactor = switch (enchantment.getRarity()) {
-                        case COMMON -> 1;
-                        case UNCOMMON -> 2;
-                        case RARE -> 4;
-                        case VERY_RARE -> 8;
-                    };
+                    int rarityCostFactor =
+                            switch (enchantment.getRarity()) {
+                                case COMMON -> 1;
+                                case UNCOMMON -> 2;
+                                case RARE -> 4;
+                                case VERY_RARE -> 8;
+                            };
                     if (hasEnchantedBook) rarityCostFactor = Math.max(1, rarityCostFactor / 2);
                     totalCost += rarityCostFactor * level;
                 }
@@ -164,15 +165,10 @@ public class RoyalAnvilMenu extends AnvilMenu {
             totalCost += k;
             if (this.itemName == null || Util.isBlank(this.itemName)) {
                 outputItem.setHoverName(
-                        outputItem.getHoverName()
-                                .copy()
-                                .setStyle(outputItem.getHoverName().getStyle())
-                );
+                        outputItem.getHoverName().copy().setStyle(outputItem.getHoverName().getStyle()));
             } else {
                 outputItem.setHoverName(
-                        Component.literal(this.itemName)
-                                .setStyle(outputItem.getHoverName().getStyle())
-                );
+                        Component.literal(this.itemName).setStyle(outputItem.getHoverName().getStyle()));
             }
 
         } else {
@@ -186,12 +182,9 @@ public class RoyalAnvilMenu extends AnvilMenu {
                 k = 1;
                 totalCost += k;
                 outputItem.setHoverName(
-                        Component.literal(this.itemName)
-                                .setStyle(outputItem.getHoverName().getStyle())
-                );
+                        Component.literal(this.itemName).setStyle(outputItem.getHoverName().getStyle()));
             }
         }
-
 
         int count = inputItem1.getCount();
         this.cost.set(j + totalCost * (int) Math.pow(count, 2));

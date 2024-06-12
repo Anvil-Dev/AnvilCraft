@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.entity;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModEntities;
-import lombok.Getter;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -23,6 +23,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
@@ -31,25 +33,22 @@ public class AnimateAscendingBlockEntity extends Entity {
     private BlockState blockState;
 
     private static final EntityDataAccessor<BlockPos> DATA_START_POS = SynchedEntityData.defineId(
-            AnimateAscendingBlockEntity.class,
-            EntityDataSerializers.BLOCK_POS
-    );
+            AnimateAscendingBlockEntity.class, EntityDataSerializers.BLOCK_POS);
     private static final EntityDataAccessor<BlockPos> DATA_END_POS = SynchedEntityData.defineId(
-            AnimateAscendingBlockEntity.class,
-            EntityDataSerializers.BLOCK_POS
-    );
-
+            AnimateAscendingBlockEntity.class, EntityDataSerializers.BLOCK_POS);
 
     /**
      *
      */
-    public AnimateAscendingBlockEntity(EntityType<? extends AnimateAscendingBlockEntity> entityType, Level level) {
+    public AnimateAscendingBlockEntity(
+            EntityType<? extends AnimateAscendingBlockEntity> entityType, Level level) {
         super(entityType, level);
         this.blockState = Blocks.SAND.defaultBlockState();
         this.noPhysics = true;
     }
 
-    private AnimateAscendingBlockEntity(Level level, double x, double y, double z, BlockState state, BlockPos endPos) {
+    private AnimateAscendingBlockEntity(
+            Level level, double x, double y, double z, BlockState state, BlockPos endPos) {
         this(ModEntities.ASCENDING_BLOCK_ENTITY.get(), level);
         this.blockState = state;
         this.blocksBuilding = true;
@@ -100,27 +99,23 @@ public class AnimateAscendingBlockEntity extends Entity {
         BlockPos up = current.above();
         if (!this.level().getBlockState(up).isAir()
                 || current.getY() >= getEndPos().getY()
-                || eyePos.getY() >= getEndPos().getY()
-        ) {
+                || eyePos.getY() >= getEndPos().getY()) {
             this.discard();
         }
         this.setDeltaMovement(this.getDeltaMovement().scale(0.98));
     }
 
     @Override
-    protected void readAdditionalSaveData(@NotNull CompoundTag compound) {
-    }
+    protected void readAdditionalSaveData(@NotNull CompoundTag compound) {}
 
     @Override
-    protected void addAdditionalSaveData(@NotNull CompoundTag compound) {
-    }
+    protected void addAdditionalSaveData(@NotNull CompoundTag compound) {}
 
     /**
      * 动画
      */
     public static void animate(
-            Level level, @NotNull BlockPos startPos, @NotNull BlockState blockState, BlockPos endPos
-    ) {
+            Level level, @NotNull BlockPos startPos, @NotNull BlockState blockState, BlockPos endPos) {
         if (!AnvilCraft.config.displayAnvilAnimation) return;
         AnimateAscendingBlockEntity entity = new AnimateAscendingBlockEntity(
                 level,
@@ -130,11 +125,9 @@ public class AnimateAscendingBlockEntity extends Entity {
                 blockState.hasProperty(BlockStateProperties.WATERLOGGED)
                         ? blockState.setValue(BlockStateProperties.WATERLOGGED, false)
                         : blockState,
-                endPos
-        );
+                endPos);
         level.addFreshEntity(entity);
     }
-
 
     @Override
     public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {

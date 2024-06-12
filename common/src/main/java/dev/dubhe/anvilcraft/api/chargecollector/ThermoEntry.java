@@ -1,8 +1,9 @@
 package dev.dubhe.anvilcraft.api.chargecollector;
 
-import lombok.Getter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+
+import lombok.Getter;
 
 import java.util.function.Function;
 
@@ -21,8 +22,7 @@ public abstract class ThermoEntry {
     public static ThermoEntry predicate(
             int charge,
             java.util.function.Predicate<BlockState> predicate,
-            Function<BlockState, BlockState> transformer
-    ) {
+            Function<BlockState, BlockState> transformer) {
         return new Predicate(charge, predicate, transformer);
     }
 
@@ -45,8 +45,7 @@ public abstract class ThermoEntry {
         public Predicate(
                 int charge,
                 java.util.function.Predicate<BlockState> input,
-                Function<BlockState, BlockState> transformer
-        ) {
+                Function<BlockState, BlockState> transformer) {
             super(charge);
             this.input = input;
             this.transformer = transformer;

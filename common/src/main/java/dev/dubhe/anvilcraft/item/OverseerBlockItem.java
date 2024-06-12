@@ -7,6 +7,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+
 import org.jetbrains.annotations.NotNull;
 
 public class OverseerBlockItem extends BlockItem {
@@ -20,7 +21,7 @@ public class OverseerBlockItem extends BlockItem {
         Level level = context.getLevel();
         BlockPos blockPos = context.getClickedPos();
         return level.getBlockState(blockPos.above()).is(BlockTags.REPLACEABLE)
-            && level.getBlockState(blockPos.above(2)).is(BlockTags.REPLACEABLE)
-            && super.canPlace(context, state);
+                && level.getBlockState(blockPos.above(2)).is(BlockTags.REPLACEABLE)
+                && super.canPlace(context, state);
     }
 }

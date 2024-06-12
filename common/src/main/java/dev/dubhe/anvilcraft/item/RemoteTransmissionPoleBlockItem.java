@@ -10,6 +10,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+
 import org.jetbrains.annotations.NotNull;
 
 public class RemoteTransmissionPoleBlockItem extends BlockItem {
@@ -23,12 +24,8 @@ public class RemoteTransmissionPoleBlockItem extends BlockItem {
         Level level = context.getLevel();
         InteractionResult result = super.place(context);
         if (result == InteractionResult.SUCCESS || result == InteractionResult.CONSUME) {
-            level.playSound(null,
-                context.getClickedPos(),
-                SoundEvents.BEACON_ACTIVATE,
-                SoundSource.BLOCKS,
-                1f,
-                1f);
+            level.playSound(
+                    null, context.getClickedPos(), SoundEvents.BEACON_ACTIVATE, SoundSource.BLOCKS, 1f, 1f);
         }
         return result;
     }
@@ -38,7 +35,7 @@ public class RemoteTransmissionPoleBlockItem extends BlockItem {
         Level level = context.getLevel();
         BlockPos blockPos = context.getClickedPos();
         return level.getBlockState(blockPos.above()).is(BlockTags.REPLACEABLE)
-            && level.getBlockState(blockPos.above(2)).is(BlockTags.REPLACEABLE)
-            && level.getBlockState(blockPos.above(3)).is(BlockTags.REPLACEABLE);
+                && level.getBlockState(blockPos.above(2)).is(BlockTags.REPLACEABLE)
+                && level.getBlockState(blockPos.above(3)).is(BlockTags.REPLACEABLE);
     }
 }

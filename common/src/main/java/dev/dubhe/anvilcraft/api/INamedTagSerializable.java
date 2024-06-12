@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.api;
 
 import net.minecraft.nbt.CompoundTag;
+
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -10,8 +11,7 @@ public interface INamedTagSerializable {
     /**
      * 向NBT中序列化数据
      */
-    @NotNull
-    CompoundTag serializeNbt();
+    @NotNull CompoundTag serializeNbt();
 
     /**
      * 从NBT中反序列化数据

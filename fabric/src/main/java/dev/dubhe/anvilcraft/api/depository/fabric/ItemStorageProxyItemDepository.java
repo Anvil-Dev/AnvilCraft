@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.api.depository.fabric;
 
 import dev.dubhe.anvilcraft.api.depository.IItemDepository;
+
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.base.SingleItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
@@ -8,6 +9,7 @@ import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.world.item.ItemStack;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -48,8 +50,11 @@ public class ItemStorageProxyItemDepository implements IItemDepository {
 
     @Override
     public ItemStack insert(
-        int slot, @NotNull ItemStack stack, boolean simulate, boolean notifyChanges, boolean isServer
-    ) {
+            int slot,
+            @NotNull ItemStack stack,
+            boolean simulate,
+            boolean notifyChanges,
+            boolean isServer) {
         if (stack.isEmpty()) return ItemStack.EMPTY;
         ItemStack copied = stack.copy();
         Storage<ItemVariant> handler = this.storage;
@@ -60,8 +65,8 @@ public class ItemStorageProxyItemDepository implements IItemDepository {
         try (Transaction transaction = Transaction.openOuter()) {
             int filled;
             if (simulate) {
-                filled =
-                    (int) StorageUtil.simulateInsert(handler, ItemVariant.of(stack), stack.getCount(), transaction);
+                filled = (int) StorageUtil.simulateInsert(
+                        handler, ItemVariant.of(stack), stack.getCount(), transaction);
             } else {
                 filled = (int) handler.insert(ItemVariant.of(stack), stack.getCount(), transaction);
             }
@@ -80,8 +85,8 @@ public class ItemStorageProxyItemDepository implements IItemDepository {
         try (Transaction transaction = Transaction.openOuter()) {
             int extracted;
             if (simulate) {
-                extracted =
-                    (int) StorageUtil.simulateExtract(this.views.get(slot), ItemVariant.of(stack), amount, transaction);
+                extracted = (int) StorageUtil.simulateExtract(
+                        this.views.get(slot), ItemVariant.of(stack), amount, transaction);
             } else {
                 extracted = (int) this.views.get(slot).extract(ItemVariant.of(stack), amount, transaction);
             }
@@ -100,5 +105,4 @@ public class ItemStorageProxyItemDepository implements IItemDepository {
     public boolean isItemValid(int slot, ItemStack stack) {
         return slot < views.size();
     }
-
 }

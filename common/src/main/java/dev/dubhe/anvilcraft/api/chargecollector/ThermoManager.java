@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.api.chargecollector;
 
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlocks;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -51,9 +52,8 @@ public class ThermoManager {
      * 添加新的热方块
      */
     public void addThermoBlock(BlockPos blockPos, BlockState state) {
-        Optional<ThermoEntry> op = thermoEntries.stream()
-                .filter(it -> it.accepts(state) > 0)
-                .findFirst();
+        Optional<ThermoEntry> op =
+                thermoEntries.stream().filter(it -> it.accepts(state) > 0).findFirst();
         if (op.isPresent()) {
             thermoBlocks.removeIf(it -> state.is(it.block) && blockPos.equals(it.pos));
             thermoBlocks.add(new ThermoBlock(blockPos, state.getBlock(), op.get().ttl()));
@@ -62,15 +62,22 @@ public class ThermoManager {
 
     ThermoManager(Level level) {
         this.level = level;
-        register(ThermoEntry.simple(256, ModBlocks.INCANDESCENT_NETHERITE.get(), ModBlocks.GLOWING_NETHERITE.get()));
-        register(ThermoEntry.simple(64, ModBlocks.GLOWING_NETHERITE.get(), ModBlocks.REDHOT_NETHERITE.get()));
-        register(ThermoEntry.simple(16, ModBlocks.REDHOT_NETHERITE.get(), ModBlocks.HEATED_NETHERITE.get()));
+        register(ThermoEntry.simple(
+                256, ModBlocks.INCANDESCENT_NETHERITE.get(), ModBlocks.GLOWING_NETHERITE.get()));
+        register(ThermoEntry.simple(
+                64, ModBlocks.GLOWING_NETHERITE.get(), ModBlocks.REDHOT_NETHERITE.get()));
+        register(
+                ThermoEntry.simple(16, ModBlocks.REDHOT_NETHERITE.get(), ModBlocks.HEATED_NETHERITE.get()));
         register(ThermoEntry.simple(4, ModBlocks.HEATED_NETHERITE.get(), Blocks.NETHERITE_BLOCK));
 
-        register(ThermoEntry.simple(256, ModBlocks.INCANDESCENT_TUNGSTEN.get(), ModBlocks.GLOWING_TUNGSTEN.get()));
-        register(ThermoEntry.simple(64, ModBlocks.GLOWING_TUNGSTEN.get(), ModBlocks.REDHOT_TUNGSTEN.get()));
-        register(ThermoEntry.simple(16, ModBlocks.REDHOT_TUNGSTEN.get(), ModBlocks.HEATED_TUNGSTEN.get()));
-        register(ThermoEntry.simple(4, ModBlocks.HEATED_TUNGSTEN.get(), ModBlocks.TUNGSTEN_BLOCK.get()));
+        register(ThermoEntry.simple(
+                256, ModBlocks.INCANDESCENT_TUNGSTEN.get(), ModBlocks.GLOWING_TUNGSTEN.get()));
+        register(
+                ThermoEntry.simple(64, ModBlocks.GLOWING_TUNGSTEN.get(), ModBlocks.REDHOT_TUNGSTEN.get()));
+        register(
+                ThermoEntry.simple(16, ModBlocks.REDHOT_TUNGSTEN.get(), ModBlocks.HEATED_TUNGSTEN.get()));
+        register(
+                ThermoEntry.simple(4, ModBlocks.HEATED_TUNGSTEN.get(), ModBlocks.TUNGSTEN_BLOCK.get()));
 
         register(ThermoEntry.always(2, ModBlocks.URANIUM_BLOCK.get()));
 
@@ -78,9 +85,9 @@ public class ThermoManager {
         register(ThermoEntry.simple(4, Blocks.MAGMA_BLOCK, Blocks.NETHERRACK));
         register(ThermoEntry.simple(4, Blocks.LAVA_CAULDRON, ModBlocks.OBSIDIDAN_CAULDRON.get()));
 
-        register(ThermoEntry.predicate(4, CampfireBlock::isLitCampfire, t -> t.setValue(CampfireBlock.LIT, false)));
+        register(ThermoEntry.predicate(
+                4, CampfireBlock::isLitCampfire, t -> t.setValue(CampfireBlock.LIT, false)));
     }
-
 
     public static void tick() {
         instances.values().forEach(ThermoManager::tickThis);
@@ -92,9 +99,8 @@ public class ThermoManager {
         for (ThermoBlock block : thermoBlocks) {
             BlockPos blockPos = block.pos;
             BlockState state = this.level.getBlockState(blockPos);
-            Optional<ThermoEntry> optional = thermoEntries.stream()
-                    .filter(it -> it.accepts(state) > 0)
-                    .findFirst();
+            Optional<ThermoEntry> optional =
+                    thermoEntries.stream().filter(it -> it.accepts(state) > 0).findFirst();
             if (optional.isPresent()) {
                 ThermoEntry entry = optional.get();
                 if (block.ttl % 2 == 0) {
@@ -114,8 +120,8 @@ public class ThermoManager {
     }
 
     private void charge(int chargeNum, BlockPos blockPos) {
-        Collection<ChargeCollectorManager.Entry> chargeCollectorCollection = ChargeCollectorManager
-                .getNearestChargeCollect(blockPos);
+        Collection<ChargeCollectorManager.Entry> chargeCollectorCollection =
+                ChargeCollectorManager.getNearestChargeCollect(blockPos);
         double surplus = chargeNum;
         for (ChargeCollectorManager.Entry entry : chargeCollectorCollection) {
             ChargeCollectorBlockEntity chargeCollectorBlockEntity = entry.getBlockEntity();
@@ -142,7 +148,6 @@ public class ThermoManager {
             if (!(o instanceof ThermoBlock block1)) return false;
             return Objects.equals(pos, block1.pos) && Objects.equals(block, block1.block);
         }
-
 
         @Override
         public int hashCode() {

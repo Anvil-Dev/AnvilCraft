@@ -4,12 +4,14 @@ import dev.dubhe.anvilcraft.api.network.Packet;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.client.renderer.PowerGridRenderer;
 import dev.dubhe.anvilcraft.init.ModNetworks;
-import lombok.Getter;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 @Getter

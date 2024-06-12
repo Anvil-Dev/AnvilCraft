@@ -1,9 +1,10 @@
 package dev.dubhe.anvilcraft.util;
 
-import lombok.Getter;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.enchantment.Enchantment;
+
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,17 +15,12 @@ public class EnchantmentDisableUtil {
     @Getter
     private List<Enchantment> disableEnchantmentList = new ArrayList<>();
 
-    protected static final List<String> DEFAULT_DISABLE_ENCHANTMENTS
-        = Arrays.asList(
-            "anvilcraft:harvest",
-            "anvilcraft:beheading",
-            "anvilcraft:felling"
-        );
+    protected static final List<String> DEFAULT_DISABLE_ENCHANTMENTS =
+            Arrays.asList("anvilcraft:harvest", "anvilcraft:beheading", "anvilcraft:felling");
 
     public EnchantmentDisableUtil() {
         addAllDisableEnchantment(DEFAULT_DISABLE_ENCHANTMENTS);
     }
-
 
     /**
      * 添加在附魔台中禁用的附魔
@@ -45,7 +41,8 @@ public class EnchantmentDisableUtil {
      * @return Boolean
      */
     public boolean addDisableEnchantment(String enchantmentNamespace, String enchantmentPath) {
-        ResourceLocation enchantmentId = ResourceLocation.tryBuild(enchantmentNamespace, enchantmentPath);
+        ResourceLocation enchantmentId =
+                ResourceLocation.tryBuild(enchantmentNamespace, enchantmentPath);
         Enchantment enchantment = BuiltInRegistries.ENCHANTMENT.get(enchantmentId);
         return disableEnchantmentList.add(enchantment);
     }
@@ -65,5 +62,4 @@ public class EnchantmentDisableUtil {
         }
         return true;
     }
-
 }

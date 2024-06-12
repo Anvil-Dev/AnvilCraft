@@ -1,21 +1,22 @@
 package dev.dubhe.anvilcraft.api.depository;
 
-import dev.architectury.injectables.annotations.ExpectPlatform;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+
+import dev.architectury.injectables.annotations.ExpectPlatform;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
 import java.util.function.Predicate;
 
+import javax.annotation.Nonnull;
+
 public class ItemDepositoryHelper {
-    private ItemDepositoryHelper() {
-    }
+    private ItemDepositoryHelper() {}
 
     /**
      * 从指定位置获取物品存储
@@ -26,7 +27,8 @@ public class ItemDepositoryHelper {
      * @return 物品存储
      */
     @ExpectPlatform
-    public static @Nullable IItemDepository getItemDepository(Level level, BlockPos pos, Direction direction) {
+    public static @Nullable IItemDepository getItemDepository(
+            Level level, BlockPos pos, Direction direction) {
         throw new AssertionError();
     }
 
@@ -42,11 +44,10 @@ public class ItemDepositoryHelper {
      */
     @SuppressWarnings("DuplicatedCode")
     public static boolean exportToTarget(
-        @NotNull IItemDepository source,
-        int maxAmount,
-        Predicate<ItemStack> predicate,
-        IItemDepository target
-    ) {
+            @NotNull IItemDepository source,
+            int maxAmount,
+            Predicate<ItemStack> predicate,
+            IItemDepository target) {
         boolean hasDone = false;
         for (int srcIndex = 0; srcIndex < source.getSlots(); srcIndex++) {
             ItemStack sourceStack = source.extract(srcIndex, Integer.MAX_VALUE, true);
@@ -108,11 +109,10 @@ public class ItemDepositoryHelper {
      */
     @SuppressWarnings("DuplicatedCode")
     public static boolean importToTarget(
-        IItemDepository target,
-        int maxAmount,
-        Predicate<ItemStack> predicate,
-        @NotNull IItemDepository source
-    ) {
+            IItemDepository target,
+            int maxAmount,
+            Predicate<ItemStack> predicate,
+            @NotNull IItemDepository source) {
         boolean hasDone = false;
         for (int srcIndex = 0; srcIndex < source.getSlots(); srcIndex++) {
             ItemStack sourceStack = source.extract(srcIndex, Integer.MAX_VALUE, true);
@@ -141,7 +141,8 @@ public class ItemDepositoryHelper {
      * @param simulate   是否模拟
      * @return 未插入的物品
      */
-    public static ItemStack insertItem(IItemDepository depository, ItemStack stack, boolean simulate) {
+    public static ItemStack insertItem(
+            IItemDepository depository, ItemStack stack, boolean simulate) {
         if (depository == null || stack.isEmpty()) {
             return stack;
         }
@@ -182,7 +183,8 @@ public class ItemDepositoryHelper {
      * @param simulate   是否模拟
      * @return 未插入的物品
      */
-    public static ItemStack insertToEmpty(IItemDepository depository, ItemStack stack, boolean simulate) {
+    public static ItemStack insertToEmpty(
+            IItemDepository depository, ItemStack stack, boolean simulate) {
         if (depository == null || stack.isEmpty()) {
             return stack;
         }
@@ -205,14 +207,11 @@ public class ItemDepositoryHelper {
      * @return AB能否合并
      */
     public static boolean canItemStacksStackRelaxed(@Nonnull ItemStack a, @Nonnull ItemStack b) {
-        if (a.isEmpty() || b.isEmpty() || a.getItem() != b.getItem())
-            return false;
+        if (a.isEmpty() || b.isEmpty() || a.getItem() != b.getItem()) return false;
 
-        if (!a.isStackable())
-            return false;
+        if (!a.isStackable()) return false;
 
-        if (a.hasTag() != b.hasTag())
-            return false;
+        if (a.hasTag() != b.hasTag()) return false;
 
         return (!a.hasTag() || a.getOrCreateTag().equals(b.getTag()));
     }

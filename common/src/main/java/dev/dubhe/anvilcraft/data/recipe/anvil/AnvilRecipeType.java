@@ -32,7 +32,8 @@ public enum AnvilRecipeType {
      * 从name获取{@link AnvilRecipeType}
      */
     public static AnvilRecipeType of(String name) {
-        for (AnvilRecipeType type : AnvilRecipeType.values()) if (name.equals(type.toString())) return type;
+        for (AnvilRecipeType type : AnvilRecipeType.values())
+            if (name.equals(type.toString())) return type;
         return AnvilRecipeType.GENERIC;
     }
 }

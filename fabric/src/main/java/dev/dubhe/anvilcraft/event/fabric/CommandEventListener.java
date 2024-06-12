@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.event.fabric;
 
 import dev.dubhe.anvilcraft.init.ModCommands;
+
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 
 public class CommandEventListener {
@@ -9,7 +10,6 @@ public class CommandEventListener {
      */
     public static void init() {
         CommandRegistrationCallback.EVENT.register(
-            (dispatcher, registryAccess, environment) -> ModCommands.register(dispatcher)
-        );
+                (dispatcher, registryAccess, environment) -> ModCommands.register(dispatcher));
     }
 }

@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.event.forge.DataPackReloadedEvent;
 import dev.dubhe.anvilcraft.api.event.server.ServerEndDataPackReloadEvent;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.world.load.RandomChuckTickLoadManager;
+
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.resources.CloseableResourceManager;
 import net.minecraftforge.event.TickEvent;
@@ -14,6 +15,7 @@ import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+
 import org.jetbrains.annotations.NotNull;
 
 @Mod.EventBusSubscriber(modid = AnvilCraft.MOD_ID)
@@ -23,7 +25,8 @@ public class ServerLifecycleEventListener {
      */
     @SubscribeEvent
     public static void serverStarted(@NotNull ServerStartedEvent event) {
-        AnvilCraft.EVENT_BUS.post(new dev.dubhe.anvilcraft.api.event.server.ServerStartedEvent(event.getServer()));
+        AnvilCraft.EVENT_BUS.post(
+                new dev.dubhe.anvilcraft.api.event.server.ServerStartedEvent(event.getServer()));
     }
 
     /**

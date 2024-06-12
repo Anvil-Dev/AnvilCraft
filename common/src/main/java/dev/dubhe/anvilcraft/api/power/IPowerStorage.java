@@ -22,7 +22,6 @@ public interface IPowerStorage extends IPowerProducer, IPowerConsumer {
      */
     int extract(int power);
 
-
     /**
      * 获取已存储的电量
      *

@@ -1,15 +1,17 @@
 package dev.dubhe.anvilcraft.data.generator.recipe;
 
-import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;
 import dev.dubhe.anvilcraft.init.ModBlocks;
+
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+
+import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import org.jetbrains.annotations.NotNull;
 
 public class BlockSmashRecipesLoader {
@@ -46,10 +48,14 @@ public class BlockSmashRecipesLoader {
      */
     public static void smash(Block block, @NotNull Block block1, RegistrateRecipeProvider provider) {
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
-            .type(AnvilRecipeType.BLOCK_SMASH)
-            .hasBlock(block)
-            .setBlock(block1)
-            .unlockedBy(AnvilCraftDatagen.hasItem(block.asItem()), AnvilCraftDatagen.has(block.asItem()))
-            .save(provider, AnvilCraft.of("smash_block/" + BuiltInRegistries.BLOCK.getKey(block1).getPath()));
+                .type(AnvilRecipeType.BLOCK_SMASH)
+                .hasBlock(block)
+                .setBlock(block1)
+                .unlockedBy(
+                        AnvilCraftDatagen.hasItem(block.asItem()), AnvilCraftDatagen.has(block.asItem()))
+                .save(
+                        provider,
+                        AnvilCraft.of(
+                                "smash_block/" + BuiltInRegistries.BLOCK.getKey(block1).getPath()));
     }
 }

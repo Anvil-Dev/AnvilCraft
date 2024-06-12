@@ -1,12 +1,5 @@
 package dev.dubhe.anvilcraft.data.recipe.transform;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.mojang.brigadier.StringReader;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.JsonOps;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.commands.arguments.NbtPathArgument;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -14,6 +7,14 @@ import net.minecraft.nbt.SnbtPrinterTagVisitor;
 import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.util.StringRepresentable;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -24,16 +25,16 @@ import java.util.Optional;
  */
 public class TagModification {
     public static final Codec<TagModification> CODEC = RecordCodecBuilder.create(ins -> ins.group(
-            Codec.STRING.fieldOf("path").forGetter(o -> o.path),
-            ModifyOperation.CODEC.fieldOf("op").forGetter(o -> o.op),
-            Codec.INT.optionalFieldOf("index").forGetter(o ->
-                    o.index < 0 ? Optional.empty() : Optional.of(o.index)
-            ),
-            Codec.STRING.fieldOf("tag").forGetter(o -> {
-                SnbtPrinterTagVisitor visitor = new SnbtPrinterTagVisitor();
-                return visitor.visit(o.tag);
-            })
-    ).apply(ins, TagModification::new));
+                    Codec.STRING.fieldOf("path").forGetter(o -> o.path),
+                    ModifyOperation.CODEC.fieldOf("op").forGetter(o -> o.op),
+                    Codec.INT
+                            .optionalFieldOf("index")
+                            .forGetter(o -> o.index < 0 ? Optional.empty() : Optional.of(o.index)),
+                    Codec.STRING.fieldOf("tag").forGetter(o -> {
+                        SnbtPrinterTagVisitor visitor = new SnbtPrinterTagVisitor();
+                        return visitor.visit(o.tag);
+                    }))
+            .apply(ins, TagModification::new));
 
     /**
      * 初始化 TagModification
@@ -84,8 +85,7 @@ public class TagModification {
                 List<Tag> contract = nbtPath.get(input);
                 if (contract.size() >= 2)
                     throw new IllegalArgumentException(
-                            "TagModification does not allow multiple tag at path: " + path
-                    );
+                            "TagModification does not allow multiple tag at path: " + path);
                 if (contract.isEmpty()) return;
                 Tag value = contract.get(0);
                 op.accept(value, tag, 0, this.path.substring(index + 1));
@@ -101,8 +101,7 @@ public class TagModification {
             List<Tag> contract = nbtPath.get(tag);
             if (contract.size() >= 2)
                 throw new IllegalArgumentException(
-                        "TagModification does not allow multiple tag at path: " + path
-                );
+                        "TagModification does not allow multiple tag at path: " + path);
             if (contract.isEmpty()) return;
             Tag value = contract.get(0);
             op.accept(value, tag, index, path);
@@ -121,7 +120,8 @@ public class TagModification {
                     throw new RuntimeException("Expected CompoundTag, got " + inputSrc.getAsString());
                 }
             }
-        }, APPEND {
+        },
+        APPEND {
             @Override
             public void accept(Tag inputSrc, Tag tag, int index, String key) {
                 if (inputSrc instanceof ListTag listTag) {
@@ -130,7 +130,8 @@ public class TagModification {
                     throw new RuntimeException("Expected list, got " + inputSrc.getAsString());
                 }
             }
-        }, INSERT {
+        },
+        INSERT {
             @Override
             public void accept(Tag inputSrc, Tag tag, int index, String key) {
                 if (inputSrc instanceof ListTag listTag) {
@@ -139,18 +140,19 @@ public class TagModification {
                     throw new RuntimeException("Expected list, got " + inputSrc.getAsString());
                 }
             }
-        }, MERGE {
+        },
+        MERGE {
             @Override
             public void accept(Tag inputSrc, Tag tag, int index, String key) {
                 if (inputSrc instanceof ListTag listTag && tag instanceof ListTag tag2) {
                     listTag.addAll(tag2);
                 } else {
                     throw new RuntimeException(
-                            "Expected list, got " + inputSrc.getAsString() + ", " + tag.getAsString()
-                    );
+                            "Expected list, got " + inputSrc.getAsString() + ", " + tag.getAsString());
                 }
             }
-        }, PREPEND {
+        },
+        PREPEND {
             @Override
             public void accept(Tag inputSrc, Tag tag, int index, String key) {
                 if (inputSrc instanceof ListTag listTag) {
@@ -161,13 +163,13 @@ public class TagModification {
             }
         };
 
-        public static final Codec<ModifyOperation> CODEC = StringRepresentable.fromEnum(ModifyOperation::values);
+        public static final Codec<ModifyOperation> CODEC =
+                StringRepresentable.fromEnum(ModifyOperation::values);
 
         public abstract void accept(Tag inputSrc, Tag tag, int index, String key);
 
         @Override
-        @NotNull
-        public String getSerializedName() {
+        @NotNull public String getSerializedName() {
             return name();
         }
     }
@@ -176,18 +178,14 @@ public class TagModification {
      *
      */
     public static TagModification fromJson(JsonObject jsonObject) {
-        return CODEC.decode(JsonOps.INSTANCE, jsonObject)
-                .getOrThrow(false, s -> {
-                }).getFirst();
+        return CODEC.decode(JsonOps.INSTANCE, jsonObject).getOrThrow(false, s -> {}).getFirst();
     }
 
     /**
      *
      */
     public JsonElement toJson() {
-        return CODEC.encodeStart(JsonOps.INSTANCE, this)
-                .getOrThrow(false, s -> {
-                });
+        return CODEC.encodeStart(JsonOps.INSTANCE, this).getOrThrow(false, s -> {});
     }
 
     public static class Builder {
@@ -196,8 +194,7 @@ public class TagModification {
         private int index = -1;
         private Tag tag;
 
-        Builder() {
-        }
+        Builder() {}
 
         public Builder path(String tagKeyPath) {
             this.path = tagKeyPath;

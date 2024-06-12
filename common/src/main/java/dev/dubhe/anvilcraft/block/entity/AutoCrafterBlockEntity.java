@@ -1,19 +1,17 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import dev.architectury.injectables.annotations.ExpectPlatform;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.api.depository.IItemDepository;
 import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
+import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.AutoCrafterMenu;
-import lombok.Getter;
-import lombok.Setter;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -36,6 +34,10 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+
+import dev.architectury.injectables.annotations.ExpectPlatform;
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -48,13 +50,15 @@ import java.util.function.Predicate;
 
 @Getter
 @SuppressWarnings("NullableProblems")
-public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements
-    IFilterBlockEntity, IPowerConsumer, IDiskCloneable {
+public class AutoCrafterBlockEntity extends BaseMachineBlockEntity
+        implements IFilterBlockEntity, IPowerConsumer, IDiskCloneable {
     @Getter
     @Setter
     private PowerGrid grid;
+
     @Getter
     private final int inputPower = 1;
+
     private final Deque<AutoCrafterCache> cache = new ArrayDeque<>();
     private final FilteredItemDepository depository = new FilteredItemDepository.Pollable(9) {
         @Override
@@ -64,15 +68,14 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements
     };
     private int cooldown = AnvilCraft.config.autoCrafterCooldown;
 
-
-    protected AutoCrafterBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
+    protected AutoCrafterBlockEntity(
+            BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
 
     @ExpectPlatform
     public static AutoCrafterBlockEntity createBlockEntity(
-            BlockEntityType<?> type, BlockPos pos, BlockState blockState
-    ) {
+            BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         throw new AssertionError();
     }
 
@@ -110,10 +113,8 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements
         }
         if (!canCraft()) return;
         ItemStack result;
-        Optional<AutoCrafterCache> cacheOptional = cache
-                .stream()
-                .filter(recipe -> recipe.test(craftingContainer))
-                .findFirst();
+        Optional<AutoCrafterCache> cacheOptional =
+                cache.stream().filter(recipe -> recipe.test(craftingContainer)).findFirst();
         Optional<CraftingRecipe> optional;
         NonNullList<ItemStack> remaining;
         if (cacheOptional.isPresent()) {
@@ -121,8 +122,11 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements
             optional = crafterCache.getRecipe();
             remaining = crafterCache.getRemaining();
         } else {
-            optional = level.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, craftingContainer, level);
-            remaining = level.getRecipeManager().getRemainingItemsFor(RecipeType.CRAFTING, craftingContainer, level);
+            optional =
+                    level.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, craftingContainer, level);
+            remaining = level
+                    .getRecipeManager()
+                    .getRemainingItemsFor(RecipeType.CRAFTING, craftingContainer, level);
             AutoCrafterCache cache = new AutoCrafterCache(craftingContainer, optional, remaining);
             this.cache.push(cache);
             while (this.cache.size() >= 10) {
@@ -134,11 +138,13 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements
         if (!result.isItemEnabled(level.enabledFeatures())) return;
 
         int times;
-        Optional<ItemStack> minStack = depository.getStacks().stream().filter((s -> !s.isEmpty())).min((s1, s2) -> {
-            int a = s1.getCount();
-            int b = s2.getCount();
-            return Integer.compare(a, b);
-        });
+        Optional<ItemStack> minStack = depository.getStacks().stream()
+                .filter((s -> !s.isEmpty()))
+                .min((s1, s2) -> {
+                    int a = s1.getCount();
+                    int b = s2.getCount();
+                    return Integer.compare(a, b);
+                });
         if (minStack.isPresent()) {
             times = minStack.get().getCount();
         } else {
@@ -147,8 +153,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements
         result.setCount(result.getCount() * times);
         remaining.forEach(stack -> stack.setCount(stack.getCount() * times));
         IItemDepository itemDepository = ItemDepositoryHelper.getItemDepository(
-                level, getBlockPos().relative(getDirection()), getDirection().getOpposite()
-        );
+                level, getBlockPos().relative(getDirection()), getDirection().getOpposite());
         if (itemDepository != null) {
             // 尝试向容器插入物品
             ItemStack remained = ItemDepositoryHelper.insertItem(itemDepository, result, true);
@@ -232,9 +237,9 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements
         return strength;
     }
 
-    @Nullable
-    @Override
-    public AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
+    @Nullable @Override
+    public AbstractContainerMenu createMenu(
+            int i, @NotNull Inventory inventory, @NotNull Player player) {
         return new AutoCrafterMenu(ModMenuTypes.AUTO_CRAFTER.get(), i, inventory, this);
     }
 
@@ -266,8 +271,10 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     public static class AutoCrafterCache implements Predicate<Container> {
         private final Container container;
+
         @Getter
         private final Optional<CraftingRecipe> recipe;
+
         @Getter
         private final NonNullList<ItemStack> remaining;
 
@@ -279,8 +286,9 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements
          * @param remaining 返还物品
          */
         public AutoCrafterCache(
-                @NotNull Container container, Optional<CraftingRecipe> recipe, NonNullList<ItemStack> remaining
-        ) {
+                @NotNull Container container,
+                Optional<CraftingRecipe> recipe,
+                NonNullList<ItemStack> remaining) {
             this.container = new SimpleContainer(container.getContainerSize());
             for (int i = 0; i < container.getContainerSize(); i++) {
                 ItemStack item = container.getItem(i).copy();
@@ -295,7 +303,8 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements
         public boolean test(@NotNull Container container) {
             if (container.getContainerSize() != this.container.getContainerSize()) return false;
             for (int i = 0; i < this.container.getContainerSize(); i++) {
-                if (!ItemStack.isSameItemSameTags(container.getItem(i), this.container.getItem(i))) return false;
+                if (!ItemStack.isSameItemSameTags(container.getItem(i), this.container.getItem(i)))
+                    return false;
             }
             return true;
         }
@@ -307,10 +316,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements
         Level level = this.getLevel();
         if (level == null) return;
         ItemEntity itemEntity = new ItemEntity(
-                level, center.x, center.y, center.z,
-                stack,
-                0.25 * step.x, 0.25 * step.y, 0.25 * step.z
-        );
+                level, center.x, center.y, center.z, stack, 0.25 * step.x, 0.25 * step.y, 0.25 * step.z);
         itemEntity.setDefaultPickUpDelay();
         level.addFreshEntity(itemEntity);
     }
@@ -457,8 +463,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements
         }
 
         @Override
-        public void setItem(int slot, ItemStack stack) {
-        }
+        public void setItem(int slot, ItemStack stack) {}
 
         @Override
         public void setChanged() {
@@ -471,8 +476,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements
         }
 
         @Override
-        public void clearContent() {
-        }
+        public void clearContent() {}
 
         @Override
         public void fillStackedContents(StackedContents contents) {

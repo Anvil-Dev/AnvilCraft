@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.mixin;
 
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
+
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
@@ -12,6 +13,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -23,8 +25,7 @@ import java.util.List;
 @Mixin(ServerPlayer.class)
 public abstract class PlayerHitEntityMixin extends LivingEntity {
 
-    @Unique
-    private static final float DAMAGE_FACTOR = 40 / 1.7444f;
+    @Unique private static final float DAMAGE_FACTOR = 40 / 1.7444f;
 
     protected PlayerHitEntityMixin(EntityType<? extends LivingEntity> entityType, Level level) {
         super(entityType, level);
@@ -32,23 +33,15 @@ public abstract class PlayerHitEntityMixin extends LivingEntity {
 
     @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
     @SuppressWarnings("UnreachableCode")
-    private void onFlyingHitBlock(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+    private void onFlyingHitBlock(
+            DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         if (!((Object) this instanceof ServerPlayer)) return;
         if (!this.isFallFlying()) return;
         if (!(this.getItemBySlot(EquipmentSlot.HEAD).getItem() instanceof AnvilHammerItem)
-            && !this.getItemBySlot(EquipmentSlot.HEAD).is(ModItems.ROYAL_ANVIL_HAMMER.get())
-        ) return;
-        AABB headBlockBoundBox = AABB.ofSize(
-            this.getEyePosition(),
-            1,
-            1,
-            1
-        );
-        List<LivingEntity> entities = level().getEntitiesOfClass(
-            LivingEntity.class,
-            headBlockBoundBox,
-            it -> it != (Object) this
-        );
+                && !this.getItemBySlot(EquipmentSlot.HEAD).is(ModItems.ROYAL_ANVIL_HAMMER.get())) return;
+        AABB headBlockBoundBox = AABB.ofSize(this.getEyePosition(), 1, 1, 1);
+        List<LivingEntity> entities = level()
+                .getEntitiesOfClass(LivingEntity.class, headBlockBoundBox, it -> it != (Object) this);
         if (entities.isEmpty()) return;
         Vec3 movement = getDeltaMovement();
         float hurtAmount = (float) (movement.length() * DAMAGE_FACTOR);
@@ -71,16 +64,11 @@ public abstract class PlayerHitEntityMixin extends LivingEntity {
         }
     }
 
-    @Unique
-    private static void anvilCraft$damageItem(Player player, ItemStack itemStack) {
+    @Unique private static void anvilCraft$damageItem(Player player, ItemStack itemStack) {
         if (player.isCreative()) return;
 
         if (itemStack.isDamageableItem()) {
-            itemStack.hurtAndBreak(
-                1,
-                player,
-                e -> e.broadcastBreakEvent(EquipmentSlot.MAINHAND)
-            );
+            itemStack.hurtAndBreak(1, player, e -> e.broadcastBreakEvent(EquipmentSlot.MAINHAND));
         }
     }
 }

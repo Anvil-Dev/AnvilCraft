@@ -1,20 +1,14 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.data.recipe.transform.MobTransformContainer;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 
-import java.util.Objects;
-
-import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.server.commands.data.EntityDataAccessor;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -27,7 +21,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BeaconBeamBlock;
@@ -38,11 +31,15 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
+import java.util.Objects;
 
 public class CorruptedBeaconBlockEntity extends BlockEntity {
     List<BeaconBeamSection> beamSections = Lists.newArrayList();
@@ -51,8 +48,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
     private int lastCheckY;
 
     public static @NotNull CorruptedBeaconBlockEntity createBlockEntity(
-            BlockEntityType<?> type, BlockPos pos, BlockState blockState
-    ) {
+            BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         return new CorruptedBeaconBlockEntity(type, pos, blockState);
     }
 
@@ -74,8 +70,10 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
      */
     @SuppressWarnings("unused")
     public static void tick(
-            Level level, @NotNull BlockPos pos, BlockState state, @NotNull CorruptedBeaconBlockEntity blockEntity
-    ) {
+            Level level,
+            @NotNull BlockPos pos,
+            BlockState state,
+            @NotNull CorruptedBeaconBlockEntity blockEntity) {
         int m;
         BlockPos blockPos;
         int i = pos.getX();
@@ -114,7 +112,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
                     if (Arrays.equals(fs, beaconBeamSection.color)) {
                         beaconBeamSection.increaseHeight();
                     } else {
-                        beaconBeamSection = new BeaconBeamSection(new float[]{
+                        beaconBeamSection = new BeaconBeamSection(new float[] {
                             (beaconBeamSection.color[0] + fs[0]) / 2.0f,
                             (beaconBeamSection.color[1] + fs[1]) / 2.0f,
                             (beaconBeamSection.color[2] + fs[2]) / 2.0f
@@ -194,11 +192,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
     }
 
     private static void tryTransformEntity(
-            Entity livingEntity,
-            BlockPos pos,
-            ServerLevel level,
-            RecipeManager manager
-    ) {
+            Entity livingEntity, BlockPos pos, ServerLevel level, RecipeManager manager) {
         MobTransformContainer container = new MobTransformContainer(level, pos, livingEntity);
         var recipe = manager.getRecipeFor(ModRecipeTypes.MOB_TRANSFORM_RECIPE, container, level);
         if (recipe.isEmpty()) return;
@@ -211,8 +205,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
                     livingEntity.position().y,
                     livingEntity.position().z,
                     e.getYRot(),
-                    e.getXRot()
-            );
+                    e.getXRot());
             return e;
         });
         if (entity == null) return;
@@ -222,8 +215,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
                     level.getCurrentDifficultyAt(entity.blockPosition()),
                     MobSpawnType.NATURAL,
                     null,
-                    null
-            );
+                    null);
         }
         recipe.get().postProcess(livingEntity, entity);
         livingEntity.remove(Entity.RemovalReason.DISCARDED);
@@ -267,6 +259,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
 
     public static class BeaconBeamSection {
         final float[] color;
+
         @Getter
         private int height;
 
@@ -285,10 +278,10 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
          * @return 颜色
          */
         public float[] getColor() {
-            return new float[]{
-                    Math.max(0.0f, 1 - color[0] - 0.3f),
-                    Math.max(0.0f, 1 - color[1] - 0.3f),
-                    Math.max(0.0f, 1 - color[2] - 0.3f)
+            return new float[] {
+                Math.max(0.0f, 1 - color[0] - 0.3f),
+                Math.max(0.0f, 1 - color[1] - 0.3f),
+                Math.max(0.0f, 1 - color[2] - 0.3f)
             };
         }
     }
@@ -301,7 +294,12 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
      */
     @SuppressWarnings("unused")
     public AABB getRenderBoundingBox() {
-        return new AABB(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY,
-                Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
+        return new AABB(
+                Double.NEGATIVE_INFINITY,
+                Double.NEGATIVE_INFINITY,
+                Double.NEGATIVE_INFINITY,
+                Double.POSITIVE_INFINITY,
+                Double.POSITIVE_INFINITY,
+                Double.POSITIVE_INFINITY);
     }
 }

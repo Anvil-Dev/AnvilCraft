@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.mixin;
 
 import dev.dubhe.anvilcraft.api.tooltip.HudTooltipManager;
 import dev.dubhe.anvilcraft.item.IEngineerGoggles;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Gui;
@@ -11,6 +12,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -36,16 +38,17 @@ public abstract class PowerGridInformationRenderMixin {
 
     @Inject(
             method = "render",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/Gui;renderCrosshair(Lnet/minecraft/client/gui/GuiGraphics;)V",
-                    shift = At.Shift.AFTER
-            )
-    )
+            at =
+                    @At(
+                            value = "INVOKE",
+                            target =
+                                    "Lnet/minecraft/client/gui/Gui;renderCrosshair(Lnet/minecraft/client/gui/GuiGraphics;)V",
+                            shift = At.Shift.AFTER))
     void onHudRender(GuiGraphics guiGraphics, float partialTick, CallbackInfo ci) {
         if (minecraft.player == null || minecraft.isPaused()) return;
         if (minecraft.screen != null) return;
-        if (!(minecraft.player.getItemBySlot(EquipmentSlot.HEAD).getItem() instanceof IEngineerGoggles)) return;
+        if (!(minecraft.player.getItemBySlot(EquipmentSlot.HEAD).getItem() instanceof IEngineerGoggles))
+            return;
 
         HitResult hit = minecraft.hitResult;
         if (hit == null || hit.getType() != HitResult.Type.BLOCK) {
@@ -56,7 +59,8 @@ public abstract class PowerGridInformationRenderMixin {
             if (minecraft.level == null) return;
             BlockEntity e = minecraft.level.getBlockEntity(blockPos);
             if (e == null) return;
-            HudTooltipManager.INSTANCE.renderTooltip(guiGraphics, e, partialTick, screenWidth, screenHeight);
+            HudTooltipManager.INSTANCE.renderTooltip(
+                    guiGraphics, e, partialTick, screenWidth, screenHeight);
         }
     }
 }

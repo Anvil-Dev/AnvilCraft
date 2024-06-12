@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
+
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -25,28 +26,26 @@ abstract class DispenseItemEmptyBottleBehaviorMixin extends OptionalDispenseItem
     protected abstract ItemStack takeLiquid(BlockSource source, ItemStack empty, ItemStack filled);
 
     @Inject(
-        method = "execute(Lnet/minecraft/core/BlockSource;Lnet/minecraft/world/item/ItemStack;)"
-            + "Lnet/minecraft/world/item/ItemStack;",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/core/dispenser/OptionalDispenseItemBehavior;"
-                + "execute(Lnet/minecraft/core/BlockSource;Lnet/minecraft/world/item/ItemStack;)"
-                + "Lnet/minecraft/world/item/ItemStack;"
-        ),
-        cancellable = true
-    )
+            method = "execute(Lnet/minecraft/core/BlockSource;Lnet/minecraft/world/item/ItemStack;)"
+                    + "Lnet/minecraft/world/item/ItemStack;",
+            at =
+                    @At(
+                            value = "INVOKE",
+                            target = "Lnet/minecraft/core/dispenser/OptionalDispenseItemBehavior;"
+                                    + "execute(Lnet/minecraft/core/BlockSource;Lnet/minecraft/world/item/ItemStack;)"
+                                    + "Lnet/minecraft/world/item/ItemStack;"),
+            cancellable = true)
     public void takeLiquidFromCauldron(
-        @NotNull BlockSource source, ItemStack stack, CallbackInfoReturnable<ItemStack> cir
-    ) {
+            @NotNull BlockSource source, ItemStack stack, CallbackInfoReturnable<ItemStack> cir) {
         ServerLevel serverLevel = source.getLevel();
-        BlockPos blockPos = source.getPos().relative(source.getBlockState().getValue(DispenserBlock.FACING));
+        BlockPos blockPos =
+                source.getPos().relative(source.getBlockState().getValue(DispenserBlock.FACING));
         BlockState state = serverLevel.getBlockState(blockPos);
         if (state.is(Blocks.WATER_CAULDRON)) {
             this.setSuccess(true);
             LayeredCauldronBlock.lowerFillLevel(state, serverLevel, blockPos);
-            cir.setReturnValue(
-                this.takeLiquid(source, stack, PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.WATER))
-            );
+            cir.setReturnValue(this.takeLiquid(
+                    source, stack, PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.WATER)));
         }
     }
 }

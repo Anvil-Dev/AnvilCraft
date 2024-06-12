@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.event;
 import dev.dubhe.anvilcraft.api.event.SubscribeEvent;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.block.BlockDevourerBlock;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -10,6 +11,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+
 import org.jetbrains.annotations.NotNull;
 
 public class AnvilHitBlockDevourerEventListener {
@@ -26,7 +28,8 @@ public class AnvilHitBlockDevourerEventListener {
         BlockState state = level.getBlockState(pos);
         Block block = state.getBlock();
         if (!(level instanceof ServerLevel serverLevel)) return;
-        if (block instanceof BlockDevourerBlock devourerBlock && !state.getValue(BlockDevourerBlock.TRIGGERED)) {
+        if (block instanceof BlockDevourerBlock devourerBlock
+                && !state.getValue(BlockDevourerBlock.TRIGGERED)) {
             int range = (int) event.getFallDistance() + 2;
             range = Math.min(range, 3);
             level.setBlock(pos, state.setValue(BlockDevourerBlock.TRIGGERED, true), 2);
@@ -35,8 +38,7 @@ public class AnvilHitBlockDevourerEventListener {
                 level.scheduleTick(pos, devourerBlock, 4);
                 return;
             }
-            devourerBlock.devourBlock(serverLevel, pos,
-                    state.getValue(BlockDevourerBlock.FACING), range);
+            devourerBlock.devourBlock(serverLevel, pos, state.getValue(BlockDevourerBlock.FACING), range);
             if (state.getValue(BlockDevourerBlock.FACING) == Direction.DOWN
                     && level.getBlockState(pos.below()).getBlock().defaultDestroyTime() >= 0) {
                 level.setBlock(pos, Blocks.AIR.defaultBlockState(), 2);

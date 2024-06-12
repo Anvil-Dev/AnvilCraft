@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.api.network.fabric;
 import dev.dubhe.anvilcraft.api.network.Network;
 import dev.dubhe.anvilcraft.api.network.Packet;
 import dev.dubhe.anvilcraft.util.fabric.ServerHooks;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -14,6 +15,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.chunk.LevelChunk;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
@@ -23,11 +25,12 @@ public abstract class NetworkImpl<T> extends Network<T> {
     public void init(Class<T> type) {
         EnvType envType = FabricLoader.getInstance().getEnvironmentType();
         if (envType == EnvType.CLIENT) {
-            ClientPlayNetworking.registerGlobalReceiver(this.getType(), (client, handler, buf, sender) ->
-                this.handler(this.decode(buf)));
+            ClientPlayNetworking.registerGlobalReceiver(
+                    this.getType(), (client, handler, buf, sender) -> this.handler(this.decode(buf)));
         }
-        ServerPlayNetworking.registerGlobalReceiver(this.getType(), (server, player, handler, buf, sender) ->
-            this.handler(this.decode(buf), server, player));
+        ServerPlayNetworking.registerGlobalReceiver(
+                this.getType(),
+                (server, player, handler, buf, sender) -> this.handler(this.decode(buf), server, player));
     }
 
     @Override
@@ -49,7 +52,7 @@ public abstract class NetworkImpl<T> extends Network<T> {
         FriendlyByteBuf friendlyByteBuf = PacketByteBufs.create();
         this.encode(data, friendlyByteBuf);
         for (ServerPlayer player : ((ServerChunkCache) chunk.getLevel().getChunkSource())
-            .chunkMap.getPlayers(chunk.getPos(), false)) {
+                .chunkMap.getPlayers(chunk.getPos(), false)) {
             ServerPlayNetworking.getSender(player).sendPacket(this.getType(), friendlyByteBuf);
         }
     }
@@ -75,8 +78,7 @@ public abstract class NetworkImpl<T> extends Network<T> {
      * @return 网络包类型
      */
     public static <M extends Packet> @NotNull Network<M> create(
-        ResourceLocation type, Class<M> clazz, Function<FriendlyByteBuf, M> decoder
-    ) {
+            ResourceLocation type, Class<M> clazz, Function<FriendlyByteBuf, M> decoder) {
         return new NetworkImpl<>() {
             @Override
             public ResourceLocation getType() {

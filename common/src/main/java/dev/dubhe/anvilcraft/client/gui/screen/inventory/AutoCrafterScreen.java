@@ -6,24 +6,28 @@ import dev.dubhe.anvilcraft.client.gui.component.EnableFilterButton;
 import dev.dubhe.anvilcraft.inventory.AutoCrafterMenu;
 import dev.dubhe.anvilcraft.inventory.IFilterMenu;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
-import lombok.Getter;
+
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
+
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiFunction;
 
 public class AutoCrafterScreen extends BaseMachineScreen<AutoCrafterMenu> implements IFilterScreen {
     private static final ResourceLocation CONTAINER_LOCATION =
-        AnvilCraft.of("textures/gui/container/machine/background/auto_crafter.png");
-    BiFunction<Integer, Integer, EnableFilterButton> enableFilterButtonSupplier = this
-        .getEnableFilterButtonSupplier(116, 18);
+            AnvilCraft.of("textures/gui/container/machine/background/auto_crafter.png");
+    BiFunction<Integer, Integer, EnableFilterButton> enableFilterButtonSupplier =
+            this.getEnableFilterButtonSupplier(116, 18);
+
     @Getter
     private EnableFilterButton enableFilterButton = null;
+
     private final AutoCrafterMenu menu;
 
     public AutoCrafterScreen(AutoCrafterMenu menu, Inventory playerInventory, Component title) {
@@ -39,7 +43,8 @@ public class AutoCrafterScreen extends BaseMachineScreen<AutoCrafterMenu> implem
     }
 
     @Override
-    protected void renderBg(@NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(
+            @NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         int i = (this.width - this.imageWidth) / 2;
         int j = (this.height - this.imageHeight) / 2;
         guiGraphics.blit(CONTAINER_LOCATION, i, j, 0, 0, this.imageWidth, this.imageHeight);
@@ -63,7 +68,8 @@ public class AutoCrafterScreen extends BaseMachineScreen<AutoCrafterMenu> implem
         if (!((ItemDepositorySlot) this.hoveredSlot).isFilter()) return;
         if (!this.isFilterEnabled()) return;
         if (!this.isSlotDisabled(this.hoveredSlot.getContainerSlot())) return;
-        guiGraphics.renderTooltip(this.font, Component.translatable("screen.anvilcraft.slot.disable.tooltip"), x, y);
+        guiGraphics.renderTooltip(
+                this.font, Component.translatable("screen.anvilcraft.slot.disable.tooltip"), x, y);
     }
 
     @Override
@@ -77,7 +83,8 @@ public class AutoCrafterScreen extends BaseMachineScreen<AutoCrafterMenu> implem
     }
 
     @Override
-    protected void slotClicked(@NotNull Slot slot, int slotId, int mouseButton, @NotNull ClickType type) {
+    protected void slotClicked(
+            @NotNull Slot slot, int slotId, int mouseButton, @NotNull ClickType type) {
         start:
         if (type == ClickType.PICKUP) {
             if (!this.menu.getCarried().isEmpty()) break start;

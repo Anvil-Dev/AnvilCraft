@@ -1,5 +1,12 @@
 package dev.dubhe.anvilcraft.api.registry;
 
+import dev.dubhe.anvilcraft.util.IFormattingUtil;
+
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+
 import com.tterrag.registrate.Registrate;
 import com.tterrag.registrate.builders.Builder;
 import com.tterrag.registrate.builders.ItemBuilder;
@@ -9,11 +16,6 @@ import com.tterrag.registrate.util.entry.RegistryEntry;
 import com.tterrag.registrate.util.nullness.NonNullFunction;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
 import dev.architectury.injectables.annotations.ExpectPlatform;
-import dev.dubhe.anvilcraft.util.IFormattingUtil;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,8 +31,7 @@ public abstract class AnvilCraftRegistrate extends Registrate {
         super(modId);
     }
 
-    @NotNull
-    @ExpectPlatform
+    @NotNull @ExpectPlatform
     public static AnvilCraftRegistrate create(String modId) {
         throw new AssertionError();
     }
@@ -39,14 +40,14 @@ public abstract class AnvilCraftRegistrate extends Registrate {
 
     @Override
     public <T extends Item> @NotNull ItemBuilder<T, Registrate> item(
-        String name,
-        NonNullFunction<Item.Properties, T> factory
-    ) {
-        return super.item(name, factory).lang(IFormattingUtil.toEnglishName(name.replaceAll("/.", "_")));
+            String name, NonNullFunction<Item.Properties, T> factory) {
+        return super.item(name, factory)
+                .lang(IFormattingUtil.toEnglishName(name.replaceAll("/.", "_")));
     }
 
     private RegistryEntry<CreativeModeTab> currentTab;
-    private static final Map<RegistryEntry<?>, RegistryEntry<CreativeModeTab>> TAB_LOOKUP = new IdentityHashMap<>();
+    private static final Map<RegistryEntry<?>, RegistryEntry<CreativeModeTab>> TAB_LOOKUP =
+            new IdentityHashMap<>();
 
     public void creativeModeTab(@NotNull Supplier<RegistryEntry<CreativeModeTab>> currentTab) {
         this.currentTab = currentTab.get();
@@ -66,12 +67,11 @@ public abstract class AnvilCraftRegistrate extends Registrate {
 
     @Override
     protected <R, T extends R> @NotNull RegistryEntry<T> accept(
-        String name,
-        ResourceKey<? extends Registry<R>> type,
-        Builder<R, T, ?, ?> builder,
-        NonNullSupplier<? extends T> creator,
-        NonNullFunction<RegistryObject<T>, ? extends RegistryEntry<T>> entryFactory
-    ) {
+            String name,
+            ResourceKey<? extends Registry<R>> type,
+            Builder<R, T, ?, ?> builder,
+            NonNullSupplier<? extends T> creator,
+            NonNullFunction<RegistryObject<T>, ? extends RegistryEntry<T>> entryFactory) {
         RegistryEntry<T> entry = super.accept(name, type, builder, creator, entryFactory);
 
         if (this.currentTab != null) {
@@ -83,14 +83,12 @@ public abstract class AnvilCraftRegistrate extends Registrate {
 
     @Override
     public <P> @NotNull NoConfigBuilder<CreativeModeTab, CreativeModeTab, P> defaultCreativeTab(
-        P parent, String name, Consumer<CreativeModeTab.Builder> config
-    ) {
+            P parent, String name, Consumer<CreativeModeTab.Builder> config) {
         return createCreativeModeTab(parent, name, config);
     }
 
     protected <P> NoConfigBuilder<CreativeModeTab, CreativeModeTab, P> createCreativeModeTab(
-        P parent, String name, Consumer<CreativeModeTab.Builder> config
-    ) {
+            P parent, String name, Consumer<CreativeModeTab.Builder> config) {
         return super.defaultCreativeTab(parent, name, config);
     }
 }

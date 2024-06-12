@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.world.entity.Entity;
@@ -12,13 +13,12 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
+
 import org.jetbrains.annotations.NotNull;
 
 public class HoneyCauldronBlock extends LayeredCauldronBlock implements IHammerRemovable {
 
-    public HoneyCauldronBlock(
-            Properties properties
-    ) {
+    public HoneyCauldronBlock(Properties properties) {
         super(properties, p -> false, CauldronInteraction.EMPTY);
     }
 
@@ -27,23 +27,18 @@ public class HoneyCauldronBlock extends LayeredCauldronBlock implements IHammerR
             @NotNull BlockState state,
             @NotNull Level level,
             @NotNull BlockPos pos,
-            @NotNull Entity entity
-    ) {}
+            @NotNull Entity entity) {}
 
     @Override
     protected void handleEntityOnFireInside(
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos
-    ) {}
+            @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos) {}
 
     @Override
     public void handlePrecipitation(
             @NotNull BlockState state,
             @NotNull Level level,
             @NotNull BlockPos pos,
-            @NotNull Biome.Precipitation precipitation
-    ) {}
+            @NotNull Biome.Precipitation precipitation) {}
 
     @Override
     protected boolean canReceiveStalactiteDrip(@NotNull Fluid fluid) {
@@ -55,13 +50,11 @@ public class HoneyCauldronBlock extends LayeredCauldronBlock implements IHammerR
             @NotNull BlockState state,
             @NotNull Level level,
             @NotNull BlockPos pos,
-            @NotNull Fluid fluid
-    ) {}
+            @NotNull Fluid fluid) {}
 
     @Override
     public @NotNull ItemStack getCloneItemStack(
-        @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull BlockState state
-    ) {
+            @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull BlockState state) {
         return new ItemStack(Items.CAULDRON);
     }
 }

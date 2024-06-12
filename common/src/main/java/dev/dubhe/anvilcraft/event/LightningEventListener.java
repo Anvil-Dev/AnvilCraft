@@ -7,11 +7,14 @@ import dev.dubhe.anvilcraft.api.event.SubscribeEvent;
 import dev.dubhe.anvilcraft.api.event.entity.LightningStrikeEvent;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlocks;
-import java.util.Collection;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Collection;
 
 public class LightningEventListener {
     /**
@@ -33,11 +36,9 @@ public class LightningEventListener {
                 for (int y = 0; y < depth; y++) {
                     BlockPos offset = pos.offset(x, -y, z);
                     state = event.getLevel().getBlockState(offset);
-                    if (
-                        !state.is(Blocks.IRON_BLOCK)
+                    if (!state.is(Blocks.IRON_BLOCK)
                             && !state.is(ModBlocks.FERRITE_CORE_MAGNET_BLOCK.get())
-                            && !state.is(ModBlocks.MAGNET_BLOCK.get())
-                    ) continue;
+                            && !state.is(ModBlocks.MAGNET_BLOCK.get())) continue;
                     BlockState state1 = ModBlocks.HOLLOW_MAGNET_BLOCK.get().defaultBlockState();
                     event.getLevel().setBlockAndUpdate(offset, state1);
                 }
@@ -48,10 +49,10 @@ public class LightningEventListener {
     private void lightningCharge(BlockPos pos, BlockState state) {
         if (state.is(Blocks.COPPER_BLOCK) || state.is(Blocks.LIGHTNING_ROD)) {
             double unCharged = 32;
-            Collection<Entry> nearestChargeCollect =
-                ChargeCollectorManager.getNearestChargeCollect(pos);
+            Collection<Entry> nearestChargeCollect = ChargeCollectorManager.getNearestChargeCollect(pos);
             for (var floatChargeCollectorBlockEntityEntry : nearestChargeCollect) {
-                ChargeCollectorBlockEntity blockEntity = floatChargeCollectorBlockEntityEntry.getBlockEntity();
+                ChargeCollectorBlockEntity blockEntity =
+                        floatChargeCollectorBlockEntityEntry.getBlockEntity();
                 if (ChargeCollectorManager.canCollect(blockEntity, pos)) {
                     unCharged = blockEntity.incomingCharge(unCharged);
                     if (unCharged <= 0) break;

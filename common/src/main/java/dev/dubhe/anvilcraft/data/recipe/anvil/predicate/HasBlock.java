@@ -1,14 +1,9 @@
 package dev.dubhe.anvilcraft.data.recipe.anvil.predicate;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSyntaxException;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipePredicate;
-import lombok.Getter;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -22,6 +17,13 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.Vec3;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSyntaxException;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,8 +36,10 @@ import java.util.Set;
 public class HasBlock implements RecipePredicate {
     @Getter
     private final String type = "has_block";
+
     @Getter
     protected final Vec3 offset;
+
     @Getter
     protected final ModBlockPredicate matchBlock;
 
@@ -56,7 +60,9 @@ public class HasBlock implements RecipePredicate {
             JsonElement element = array.get(i);
             if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isNumber()) {
                 vec3[i] = element.getAsDouble();
-            } else throw new JsonSyntaxException("Expected offset to be a Double, was " + GsonHelper.getType(element));
+            } else
+                throw new JsonSyntaxException(
+                        "Expected offset to be a Double, was " + GsonHelper.getType(element));
         }
         this.offset = new Vec3(vec3[0], vec3[1], vec3[2]);
         if (!serializedRecipe.has("match_block")) throw new JsonSyntaxException("Missing match_block");
@@ -65,7 +71,8 @@ public class HasBlock implements RecipePredicate {
 
     public HasBlock(@NotNull FriendlyByteBuf buffer) {
         this.offset = new Vec3(buffer.readVector3f());
-        this.matchBlock = ModBlockPredicate.fromJson(AnvilCraft.GSON.fromJson(buffer.readUtf(), JsonElement.class));
+        this.matchBlock =
+                ModBlockPredicate.fromJson(AnvilCraft.GSON.fromJson(buffer.readUtf(), JsonElement.class));
     }
 
     @Override
@@ -147,21 +154,22 @@ public class HasBlock implements RecipePredicate {
             Set<Block> set = new HashSet<>();
             if (jsonArray != null) {
                 for (JsonElement jsonElement : jsonArray) {
-                    ResourceLocation resourceLocation = new ResourceLocation(
-                        GsonHelper.convertToString(jsonElement, "block")
-                    );
-                    set.add(
-                        BuiltInRegistries.BLOCK
+                    ResourceLocation resourceLocation =
+                            new ResourceLocation(GsonHelper.convertToString(jsonElement, "block"));
+                    set.add(BuiltInRegistries.BLOCK
                             .getOptional(resourceLocation)
-                            .orElseThrow(() -> new JsonSyntaxException("Unknown block id '" + resourceLocation + "'")));
+                            .orElseThrow(
+                                    () -> new JsonSyntaxException("Unknown block id '" + resourceLocation + "'")));
                 }
             }
             TagKey<Block> tag = null;
             if (jsonObject.has("tag")) {
-                ResourceLocation resourceLocation2 = new ResourceLocation(GsonHelper.getAsString(jsonObject, "tag"));
+                ResourceLocation resourceLocation2 =
+                        new ResourceLocation(GsonHelper.getAsString(jsonObject, "tag"));
                 tag = TagKey.create(Registries.BLOCK, resourceLocation2);
             }
-            ModBlockPredicate predicate = new ModBlockPredicate().block(set.toArray(Block[]::new)).block(tag);
+            ModBlockPredicate predicate =
+                    new ModBlockPredicate().block(set.toArray(Block[]::new)).block(tag);
             JsonElement stateJson = jsonObject.get("state");
             if (stateJson == null) return predicate;
             Map<String, Comparable<?>> properties = new HashMap<>();
@@ -171,7 +179,8 @@ public class HasBlock implements RecipePredicate {
                     String string = value.getAsString();
                     properties.put(entry.getKey(), string);
                 } else {
-                    throw new JsonSyntaxException("Expected state to be a string, was " + GsonHelper.getType(value));
+                    throw new JsonSyntaxException(
+                            "Expected state to be a string, was " + GsonHelper.getType(value));
                 }
             }
             properties.forEach(predicate::property);
@@ -217,8 +226,7 @@ public class HasBlock implements RecipePredicate {
         }
 
         public @NotNull <T extends Comparable<T>> ModBlockPredicate property(
-            @NotNull Property<T> key, @NotNull T value
-        ) {
+                @NotNull Property<T> key, @NotNull T value) {
             this.properties.put(key.getName(), value.toString());
             return this;
         }
@@ -228,11 +236,10 @@ public class HasBlock implements RecipePredicate {
          */
         @SafeVarargs
         public final @NotNull ModBlockPredicate property(
-            Map.Entry<Property<?>, Comparable<?>> @NotNull ... properties
-        ) {
-            Arrays.stream(properties).forEach(
-                entry -> this.properties.put(entry.getKey().getName(), entry.getValue().toString())
-            );
+                Map.Entry<Property<?>, Comparable<?>> @NotNull ... properties) {
+            Arrays.stream(properties)
+                    .forEach(entry ->
+                            this.properties.put(entry.getKey().getName(), entry.getValue().toString()));
             return this;
         }
 

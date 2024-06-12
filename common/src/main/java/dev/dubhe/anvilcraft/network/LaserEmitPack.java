@@ -3,12 +3,14 @@ package dev.dubhe.anvilcraft.network;
 import dev.dubhe.anvilcraft.api.network.Packet;
 import dev.dubhe.anvilcraft.block.entity.BaseLaserBlockEntity;
 import dev.dubhe.anvilcraft.init.ModNetworks;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+
 import org.jetbrains.annotations.NotNull;
 
 public class LaserEmitPack implements Packet {
@@ -48,8 +50,7 @@ public class LaserEmitPack implements Packet {
         buf.writeInt(lightPowerLevel);
         buf.writeBlockPos(laserBlockPos);
         buf.writeBoolean(irradiateBlockPos == null);
-        if (irradiateBlockPos != null)
-            buf.writeBlockPos(irradiateBlockPos);
+        if (irradiateBlockPos != null) buf.writeBlockPos(irradiateBlockPos);
     }
 
     @Override
@@ -57,8 +58,8 @@ public class LaserEmitPack implements Packet {
     public void handler() {
         Minecraft.getInstance().execute(() -> {
             if (Minecraft.getInstance().level != null
-                && Minecraft.getInstance().level.getBlockEntity(laserBlockPos)
-                instanceof BaseLaserBlockEntity baseLaserBlockEntity) {
+                    && Minecraft.getInstance().level.getBlockEntity(laserBlockPos)
+                            instanceof BaseLaserBlockEntity baseLaserBlockEntity) {
                 baseLaserBlockEntity.irradiateBlockPos = irradiateBlockPos;
                 baseLaserBlockEntity.laserLevel = lightPowerLevel;
             }

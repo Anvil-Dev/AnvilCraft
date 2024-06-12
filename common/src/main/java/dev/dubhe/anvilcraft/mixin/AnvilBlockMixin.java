@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
 import dev.dubhe.anvilcraft.entity.AnimateAscendingBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -15,6 +16,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
+
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -32,16 +34,13 @@ abstract class AnvilBlockMixin extends FallingBlock {
 
     @Override
     public void tick(
-        @NotNull BlockState state,
-        @NotNull ServerLevel level,
-        @NotNull BlockPos pos,
-        @NotNull RandomSource random
-    ) {
-        if (
-            anvilCraft$isAttracts(level.getBlockState(pos.above()))
+            @NotNull BlockState state,
+            @NotNull ServerLevel level,
+            @NotNull BlockPos pos,
+            @NotNull RandomSource random) {
+        if (anvilCraft$isAttracts(level.getBlockState(pos.above()))
                 || !FallingBlock.isFree(level.getBlockState(pos.below()))
-                || pos.getY() < level.getMinBuildHeight()
-        ) {
+                || pos.getY() < level.getMinBuildHeight()) {
             return;
         }
         FallingBlockEntity fallingBlockEntity = FallingBlockEntity.fall(level, pos, state);
@@ -51,37 +50,34 @@ abstract class AnvilBlockMixin extends FallingBlock {
     @Override
     @SuppressWarnings("deprecation")
     public void neighborChanged(
-        @NotNull BlockState state,
-        @NotNull Level level,
-        @NotNull BlockPos pos,
-        @NotNull Block neighborBlock,
-        @NotNull BlockPos neighborPos,
-        boolean movedByPiston
-    ) {
+            @NotNull BlockState state,
+            @NotNull Level level,
+            @NotNull BlockPos pos,
+            @NotNull Block neighborBlock,
+            @NotNull BlockPos neighborPos,
+            boolean movedByPiston) {
         super.neighborChanged(state, level, pos, neighborBlock, neighborPos, movedByPiston);
         this.anvilCraft$wasAttracted(state, level, pos);
     }
 
-    @Unique
-    private boolean anvilCraft$isAttracts(@NotNull BlockState state) {
+    @Unique private boolean anvilCraft$isAttracts(@NotNull BlockState state) {
         return state.is(ModBlockTags.MAGNET) && !state.getValue(LIT);
     }
 
     @Override
     public void onPlace(
-        @NotNull BlockState state,
-        @NotNull Level level,
-        @NotNull BlockPos pos,
-        @NotNull BlockState oldState,
-        boolean movedByPiston
-    ) {
+            @NotNull BlockState state,
+            @NotNull Level level,
+            @NotNull BlockPos pos,
+            @NotNull BlockState oldState,
+            boolean movedByPiston) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
         BlockState state1 = level.getBlockState(pos.above());
         if (!this.anvilCraft$isAttracts(state1)) this.anvilCraft$wasAttracted(state, level, pos);
     }
 
-    @Unique
-    private void anvilCraft$wasAttracted(BlockState state, @NotNull Level level, @NotNull BlockPos anvil) {
+    @Unique private void anvilCraft$wasAttracted(
+            BlockState state, @NotNull Level level, @NotNull BlockPos anvil) {
         BlockPos magnet = anvil;
         if (level.getBlockState(anvil.above()).is(ModBlockTags.MAGNET)) return;
         int distance = AnvilCraft.config.magnetAttractsDistance;

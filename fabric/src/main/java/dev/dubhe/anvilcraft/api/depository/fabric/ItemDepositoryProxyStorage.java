@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.api.depository.fabric;
 
 import dev.dubhe.anvilcraft.api.depository.IItemDepository;
+
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StoragePreconditions;
@@ -8,6 +9,7 @@ import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.fabricmc.fabric.api.transfer.v1.transaction.base.SnapshotParticipant;
 import net.minecraft.world.item.ItemStack;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -48,10 +50,11 @@ public class ItemDepositoryProxyStorage implements Storage<ItemVariant> {
             for (int i = 0; i < depository.getSlots(); i++) {
                 final int j = i;
                 ItemStack extracted = depository.extract(i, (int) left, true);
-                if (extracted.getCount() != maxAmount) transaction.addCloseCallback((tx, result) -> {
-                    if (result.wasAborted()) return;
-                    depository.extract(j, (int) left2, false);
-                });
+                if (extracted.getCount() != maxAmount)
+                    transaction.addCloseCallback((tx, result) -> {
+                        if (result.wasAborted()) return;
+                        depository.extract(j, (int) left2, false);
+                    });
                 if (resource.matches(extracted)) {
                     left -= extracted.getCount();
                     if (left == 0) break;
@@ -71,7 +74,8 @@ public class ItemDepositoryProxyStorage implements Storage<ItemVariant> {
         return views.iterator();
     }
 
-    private class ItemStorageView extends SnapshotParticipant<ItemStack> implements StorageView<ItemVariant> {
+    private class ItemStorageView extends SnapshotParticipant<ItemStack>
+            implements StorageView<ItemVariant> {
         private final int index;
 
         public ItemStorageView(int index) {

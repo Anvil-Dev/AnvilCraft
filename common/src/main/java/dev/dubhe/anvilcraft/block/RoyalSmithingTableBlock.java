@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.RoyalSmithingMenu;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -17,6 +18,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.SmithingTableBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+
 import org.jetbrains.annotations.NotNull;
 
 public class RoyalSmithingTableBlock extends SmithingTableBlock implements IHammerRemovable {
@@ -29,10 +31,12 @@ public class RoyalSmithingTableBlock extends SmithingTableBlock implements IHamm
     @SuppressWarnings("UnreachableCode")
     @Override
     public @NotNull InteractionResult use(
-        @NotNull BlockState state, @NotNull Level level,
-        @NotNull BlockPos pos, @NotNull Player player,
-        @NotNull InteractionHand hand, @NotNull BlockHitResult hit
-    ) {
+            @NotNull BlockState state,
+            @NotNull Level level,
+            @NotNull BlockPos pos,
+            @NotNull Player player,
+            @NotNull InteractionHand hand,
+            @NotNull BlockHitResult hit) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
         ModMenuTypes.open((ServerPlayer) player, state.getMenuProvider(level, pos));
         player.awardStat(Stats.INTERACT_WITH_SMITHING_TABLE);
@@ -40,8 +44,11 @@ public class RoyalSmithingTableBlock extends SmithingTableBlock implements IHamm
     }
 
     @Override
-    public MenuProvider getMenuProvider(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos) {
-        return new SimpleMenuProvider((i, inventory, player) ->
-            new RoyalSmithingMenu(i, inventory, ContainerLevelAccess.create(level, pos)), CONTAINER_TITLE);
+    public MenuProvider getMenuProvider(
+            @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos) {
+        return new SimpleMenuProvider(
+                (i, inventory, player) ->
+                        new RoyalSmithingMenu(i, inventory, ContainerLevelAccess.create(level, pos)),
+                CONTAINER_TITLE);
     }
 }

@@ -1,14 +1,11 @@
 package dev.dubhe.anvilcraft.block;
 
-import static dev.dubhe.anvilcraft.api.entity.player.AnvilCraftBlockPlacer.anvilCraftBlockPlacer;
-
 import dev.dubhe.anvilcraft.api.depository.IItemDepository;
 import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeableBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
-import java.util.List;
-import javax.annotation.Nonnull;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -30,9 +27,17 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
 import org.jetbrains.annotations.NotNull;
 
-public class BlockDevourerBlock extends DirectionalBlock implements IHammerChangeableBlock, IHammerRemovable {
+import java.util.List;
+
+import javax.annotation.Nonnull;
+
+import static dev.dubhe.anvilcraft.api.entity.player.AnvilCraftBlockPlacer.anvilCraftBlockPlacer;
+
+public class BlockDevourerBlock extends DirectionalBlock
+        implements IHammerChangeableBlock, IHammerRemovable {
 
     public static final VoxelShape NORTH_SHAPE = Block.box(0, 0, 8, 16, 16, 16);
     public static final VoxelShape SOUTH_SHAPE = Block.box(0, 0, 0, 16, 16, 8);
@@ -44,50 +49,45 @@ public class BlockDevourerBlock extends DirectionalBlock implements IHammerChang
     public static final BooleanProperty TRIGGERED = BlockStateProperties.TRIGGERED;
 
     /**
-    * @param properties 方块属性
-    */
+     * @param properties 方块属性
+     */
     public BlockDevourerBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(
-            this.stateDefinition.any()
-                .setValue(FACING, Direction.NORTH)
-                .setValue(TRIGGERED, false)
-        );
+                this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(TRIGGERED, false));
     }
 
     @Override
     protected void createBlockStateDefinition(
-        @NotNull StateDefinition.Builder<Block, BlockState> builder) {
+            @NotNull StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING).add(TRIGGERED);
     }
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return this.defaultBlockState().setValue(FACING, context.getNearestLookingDirection().getOpposite());
+        return this.defaultBlockState()
+                .setValue(FACING, context.getNearestLookingDirection().getOpposite());
     }
 
     @Override
     public void tick(
-        @NotNull BlockState state,
-        @NotNull ServerLevel level,
-        @NotNull BlockPos pos,
-        @NotNull RandomSource random
-    ) {
+            @NotNull BlockState state,
+            @NotNull ServerLevel level,
+            @NotNull BlockPos pos,
+            @NotNull RandomSource random) {
         super.tick(state, level, pos, random);
         if (!state.getValue(TRIGGERED)) return;
-        if (!level.hasNeighborSignal(pos))
-            level.setBlock(pos, state.setValue(TRIGGERED, false), 2);
+        if (!level.hasNeighborSignal(pos)) level.setBlock(pos, state.setValue(TRIGGERED, false), 2);
     }
 
     @Override
     public void neighborChanged(
-        @NotNull BlockState state,
-        @NotNull Level level,
-        @NotNull BlockPos pos,
-        @NotNull Block neighborBlock,
-        @NotNull BlockPos neighborPos,
-        boolean movedByPiston
-    ) {
+            @NotNull BlockState state,
+            @NotNull Level level,
+            @NotNull BlockPos pos,
+            @NotNull Block neighborBlock,
+            @NotNull BlockPos neighborPos,
+            boolean movedByPiston) {
         if (!(level instanceof ServerLevel serverLevel)) {
             return;
         }
@@ -109,8 +109,10 @@ public class BlockDevourerBlock extends DirectionalBlock implements IHammerChang
     @Override
     @SuppressWarnings("deprecation")
     public @NotNull VoxelShape getShape(
-        @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context
-    ) {
+            @NotNull BlockState state,
+            @NotNull BlockGetter level,
+            @NotNull BlockPos pos,
+            @NotNull CollisionContext context) {
         return switch (state.getValue(FACING)) {
             case DOWN -> DOWN_SHAPE;
             case UP -> UP_SHAPE;
@@ -130,89 +132,69 @@ public class BlockDevourerBlock extends DirectionalBlock implements IHammerChang
      * @param range             破坏半径(正方形)
      */
     @SuppressWarnings("unreachable")
-    public void devourBlock(ServerLevel level, BlockPos devourerPos, Direction devourerDirection, int range) {
+    public void devourBlock(
+            ServerLevel level, BlockPos devourerPos, Direction devourerDirection, int range) {
         BlockPos outputPos = devourerPos.relative(devourerDirection.getOpposite());
         BlockPos devourCenterPos = devourerPos.relative(devourerDirection);
         IItemDepository depository = ItemDepositoryHelper.getItemDepository(
-            level,
-            devourerPos.relative(devourerDirection.getOpposite()),
-            devourerDirection.getOpposite()
-        );
+                level,
+                devourerPos.relative(devourerDirection.getOpposite()),
+                devourerDirection.getOpposite());
         Vec3 center = outputPos.getCenter();
         AABB aabb = new AABB(center.add(-0.125, -0.125, -0.125), center.add(0.125, 0.125, 0.125));
         final List<BlockPos> devourBlockPosList;
         AABB devourBlockBoundingBox;
         switch (devourerDirection) {
             case DOWN, UP -> devourBlockBoundingBox = new AABB(
-                devourCenterPos
-                    .relative(Direction.NORTH, range)
-                    .relative(Direction.WEST, range),
-                devourCenterPos
-                    .relative(Direction.SOUTH, range)
-                    .relative(Direction.EAST, range));
+                    devourCenterPos.relative(Direction.NORTH, range).relative(Direction.WEST, range),
+                    devourCenterPos.relative(Direction.SOUTH, range).relative(Direction.EAST, range));
             case NORTH, SOUTH -> devourBlockBoundingBox = new AABB(
-                devourCenterPos
-                    .relative(Direction.UP, range)
-                    .relative(Direction.WEST, range),
-                devourCenterPos
-                    .relative(Direction.DOWN, range)
-                    .relative(Direction.EAST, range));
+                    devourCenterPos.relative(Direction.UP, range).relative(Direction.WEST, range),
+                    devourCenterPos.relative(Direction.DOWN, range).relative(Direction.EAST, range));
             case WEST, EAST -> devourBlockBoundingBox = new AABB(
-                devourCenterPos
-                    .relative(Direction.UP, range)
-                    .relative(Direction.NORTH, range),
-                devourCenterPos
-                    .relative(Direction.DOWN, range)
-                    .relative(Direction.SOUTH, range));
+                    devourCenterPos.relative(Direction.UP, range).relative(Direction.NORTH, range),
+                    devourCenterPos.relative(Direction.DOWN, range).relative(Direction.SOUTH, range));
             default -> devourBlockBoundingBox = new AABB(devourCenterPos);
         }
         boolean isDropOriginalPlace = depository == null && !level.noCollision(aabb);
         if (devourBlockBoundingBox == null) return;
         devourBlockPosList = BlockPos.betweenClosedStream(devourBlockBoundingBox)
-            .map(blockPos -> new BlockPos(blockPos.getX(), blockPos.getY(), blockPos.getZ())).map(BlockPos::new)
-            .toList();
+                .map(blockPos -> new BlockPos(blockPos.getX(), blockPos.getY(), blockPos.getZ()))
+                .map(BlockPos::new)
+                .toList();
         for (BlockPos devourBlockPos : devourBlockPosList) {
             BlockState devouBlockState = level.getBlockState(devourBlockPos);
             if (devouBlockState.isAir()) continue;
             if (devouBlockState.getBlock().defaultDestroyTime() < 0) continue;
             if (!isDropOriginalPlace) {
-                for (
-                    ItemStack itemStack :
-                    Block.getDrops(devouBlockState, level, devourBlockPos, level.getBlockEntity(devourBlockPos))
-                ) {
-                    if (
-                        devouBlockState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)
-                            && level.random.nextDouble() > 0.05
-                    ) break;
+                for (ItemStack itemStack : Block.getDrops(
+                        devouBlockState, level, devourBlockPos, level.getBlockEntity(devourBlockPos))) {
+                    if (devouBlockState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)
+                            && level.random.nextDouble() > 0.05) break;
                     if (depository != null) {
-                        ItemStack outItemStack = ItemDepositoryHelper.insertItem(depository,
-                            itemStack, true);
+                        ItemStack outItemStack = ItemDepositoryHelper.insertItem(depository, itemStack, true);
                         if (outItemStack.isEmpty()) {
                             ItemDepositoryHelper.insertItem(depository, itemStack, false);
                         }
                         isDropOriginalPlace = !outItemStack.isEmpty();
                     } else {
-                        ItemEntity itemEntity = new ItemEntity(
-                            level, center.x, center.y, center.z,
-                            itemStack,
-                            0, 0, 0);
+                        ItemEntity itemEntity =
+                                new ItemEntity(level, center.x, center.y, center.z, itemStack, 0, 0, 0);
                         itemEntity.setDefaultPickUpDelay();
                         level.addFreshEntity(itemEntity);
                     }
                 }
             }
-            devouBlockState.getBlock().playerWillDestroy(
-                level,
-                devourBlockPos,
-                devouBlockState,
-                anvilCraftBlockPlacer.getPlayer()
-            );
+            devouBlockState
+                    .getBlock()
+                    .playerWillDestroy(
+                            level, devourBlockPos, devouBlockState, anvilCraftBlockPlacer.getPlayer());
             level.destroyBlock(
-                devourBlockPos,
-                (isDropOriginalPlace
-                && (!devouBlockState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)
-                    || (level.random.nextDouble() <= 0.05
-                    && devouBlockState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)))));
+                    devourBlockPos,
+                    (isDropOriginalPlace
+                            && (!devouBlockState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)
+                                    || (level.random.nextDouble() <= 0.05
+                                            && devouBlockState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)))));
         }
     }
 }

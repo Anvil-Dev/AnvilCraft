@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.api.energy.fabric;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;

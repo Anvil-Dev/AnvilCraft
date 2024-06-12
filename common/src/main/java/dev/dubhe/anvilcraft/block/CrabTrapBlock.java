@@ -7,7 +7,7 @@ import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModLootContextParamSet;
 import dev.dubhe.anvilcraft.init.ModLootTables;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -42,16 +42,20 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.Nullable;
 
-public class CrabTrapBlock extends BaseEntityBlock implements SimpleWaterloggedBlock, IHammerRemovable {
+public class CrabTrapBlock extends BaseEntityBlock
+        implements SimpleWaterloggedBlock, IHammerRemovable {
 
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     public CrabTrapBlock(Properties properties) {
         super(properties);
-        registerDefaultState(getStateDefinition().any().setValue(FACING, Direction.NORTH).setValue(WATERLOGGED, false));
+        registerDefaultState(
+                getStateDefinition().any().setValue(FACING, Direction.NORTH).setValue(WATERLOGGED, false));
     }
 
     @Override
@@ -64,12 +68,13 @@ public class CrabTrapBlock extends BaseEntityBlock implements SimpleWaterloggedB
         return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return this.defaultBlockState()
-            .setValue(FACING, context.getHorizontalDirection().getOpposite())
-            .setValue(WATERLOGGED, context.getLevel().getFluidState(context.getClickedPos()).getType() == Fluids.WATER);
+                .setValue(FACING, context.getHorizontalDirection().getOpposite())
+                .setValue(
+                        WATERLOGGED,
+                        context.getLevel().getFluidState(context.getClickedPos()).getType() == Fluids.WATER);
     }
 
     @Override
@@ -108,8 +113,12 @@ public class CrabTrapBlock extends BaseEntityBlock implements SimpleWaterloggedB
 
     @Override
     public InteractionResult use(
-        BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit
-    ) {
+            BlockState state,
+            Level level,
+            BlockPos pos,
+            Player player,
+            InteractionHand hand,
+            BlockHitResult hit) {
         if (!level.isClientSide()) {
             CrabTrapBlockEntity blockEntity = (CrabTrapBlockEntity) level.getBlockEntity(pos);
             if (blockEntity != null) {
@@ -119,19 +128,18 @@ public class CrabTrapBlock extends BaseEntityBlock implements SimpleWaterloggedB
                     ItemStack stack = itemStacks.get(i);
                     if (stack.isEmpty()) continue;
                     Vec3 center = pos.relative(Direction.UP).getCenter();
-                    ItemEntity itemEntity = new ItemEntity(level, center.x(), center.y(), center.z(), stack, 0, 0.2, 0);
+                    ItemEntity itemEntity =
+                            new ItemEntity(level, center.x(), center.y(), center.z(), stack, 0, 0.2, 0);
                     itemEntity.setDefaultPickUpDelay();
                     level.addFreshEntity(itemEntity);
                     depository.extract(i, stack.getCount(), false);
                 }
             }
-
         }
         return InteractionResult.SUCCESS;
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return CrabTrapBlockEntity.createBlockEntity(ModBlockEntities.CRAB_TRAP.get(), pos, state);
     }
@@ -142,7 +150,8 @@ public class CrabTrapBlock extends BaseEntityBlock implements SimpleWaterloggedB
     }
 
     @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+    public void onRemove(
+            BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (state.is(newState.getBlock())) return;
         if (level.getBlockEntity(pos) instanceof CrabTrapBlockEntity entity) {
             Vec3 vec3 = entity.getBlockPos().getCenter();
@@ -155,11 +164,12 @@ public class CrabTrapBlock extends BaseEntityBlock implements SimpleWaterloggedB
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
-    private void tryInsertLoot(BlockState state, ServerLevel level, BlockPos pos, ResourceLocation loot) {
+    private void tryInsertLoot(
+            BlockState state, ServerLevel level, BlockPos pos, ResourceLocation loot) {
         if (state.hasBlockEntity()) {
             LootParams lootParams = new LootParams.Builder(level)
-                .withParameter(LootContextParams.ORIGIN, pos.getCenter())
-                .create(ModLootContextParamSet.CRAB_TRAP);
+                    .withParameter(LootContextParams.ORIGIN, pos.getCenter())
+                    .create(ModLootContextParamSet.CRAB_TRAP);
 
             LootTable lootTable = level.getServer().getLootData().getLootTable(loot);
             ObjectArrayList<ItemStack> items = lootTable.getRandomItems(lootParams);

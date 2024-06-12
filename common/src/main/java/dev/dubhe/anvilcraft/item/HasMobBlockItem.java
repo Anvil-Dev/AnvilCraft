@@ -20,6 +20,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,16 +34,17 @@ public class HasMobBlockItem extends BlockItem {
 
     @Override
     public void appendHoverText(
-        @NotNull ItemStack stack, @Nullable Level level,
-        @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag isAdvanced
-    ) {
+            @NotNull ItemStack stack,
+            @Nullable Level level,
+            @NotNull List<Component> tooltipComponents,
+            @NotNull TooltipFlag isAdvanced) {
         super.appendHoverText(stack, level, tooltipComponents, isAdvanced);
         if (!HasMobBlockItem.hasMob(stack)) return;
         Entity entity = HasMobBlockItem.getMobFromItem(level, stack);
         if (entity != null) {
-            tooltipComponents.add(
-                Component.literal("- ").append(entity.getDisplayName()).withStyle(ChatFormatting.DARK_GRAY)
-            );
+            tooltipComponents.add(Component.literal("- ")
+                    .append(entity.getDisplayName())
+                    .withStyle(ChatFormatting.DARK_GRAY));
         }
     }
 
@@ -73,8 +75,7 @@ public class HasMobBlockItem extends BlockItem {
      * 向物品中存入实体
      */
     public static void saveMobInItem(
-        @NotNull Level level, @NotNull Mob entity, @NotNull Player player, @NotNull ItemStack stack
-    ) {
+            @NotNull Level level, @NotNull Mob entity, @NotNull Player player, @NotNull ItemStack stack) {
         stack = stack.split(1);
         if (level.isClientSide()) {
             Item item = stack.getItem();
@@ -83,9 +84,12 @@ public class HasMobBlockItem extends BlockItem {
                 BlockState blockState = item1.getBlock().defaultBlockState();
                 SoundType soundType = blockState.getSoundType();
                 level.playSound(
-                    player, blockPos, item1.getPlaceSound(blockState), SoundSource.BLOCKS,
-                    (soundType.getVolume() + 1.0f) / 2.0f, soundType.getPitch() * 0.8f
-                );
+                        player,
+                        blockPos,
+                        item1.getPlaceSound(blockState),
+                        SoundSource.BLOCKS,
+                        (soundType.getVolume() + 1.0f) / 2.0f,
+                        soundType.getPitch() * 0.8f);
             }
             return;
         }

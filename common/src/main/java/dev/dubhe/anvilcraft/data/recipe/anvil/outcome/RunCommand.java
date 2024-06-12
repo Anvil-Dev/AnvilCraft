@@ -1,15 +1,9 @@
 package dev.dubhe.anvilcraft.data.recipe.anvil.outcome;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSyntaxException;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipeOutcome;
-import lombok.Getter;
+
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -20,6 +14,14 @@ import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSyntaxException;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
@@ -63,7 +65,8 @@ public class RunCommand implements RecipeOutcome {
                 if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isNumber()) {
                     vec3[i] = element.getAsDouble();
                 } else
-                    throw new JsonSyntaxException("Expected offset to be a Double, was " + GsonHelper.getType(element));
+                    throw new JsonSyntaxException(
+                            "Expected offset to be a Double, was " + GsonHelper.getType(element));
             }
         }
         this.offset = new Vec3(vec3[0], vec3[1], vec3[2]);
@@ -78,12 +81,18 @@ public class RunCommand implements RecipeOutcome {
         Level level = container.getLevel();
         if (!(level instanceof ServerLevel serverLevel)) return true;
         FallingBlockEntity entity = container.getEntity();
-        CommandSourceStack stack = new CommandSourceStack(entity, this.offset,
-            new Vec2(entity.getXRot(), entity.getYRot()),
-            serverLevel,
-            (level.getServer() instanceof DedicatedServer server) ? server.getProperties().functionPermissionLevel : 2,
-            "Anvil", Component.literal("Anvil"), serverLevel.getServer(), entity
-        );
+        CommandSourceStack stack = new CommandSourceStack(
+                entity,
+                this.offset,
+                new Vec2(entity.getXRot(), entity.getYRot()),
+                serverLevel,
+                (level.getServer() instanceof DedicatedServer server)
+                        ? server.getProperties().functionPermissionLevel
+                        : 2,
+                "Anvil",
+                Component.literal("Anvil"),
+                serverLevel.getServer(),
+                entity);
         try {
             serverLevel.getServer().getCommands().getDispatcher().execute(this.command, stack);
         } catch (CommandSyntaxException e) {

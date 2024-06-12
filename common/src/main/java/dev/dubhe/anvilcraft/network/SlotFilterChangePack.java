@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.api.network.Packet;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.IFilterScreen;
 import dev.dubhe.anvilcraft.init.ModNetworks;
 import dev.dubhe.anvilcraft.inventory.IFilterMenu;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
@@ -12,6 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
+
 import org.jetbrains.annotations.NotNull;
 
 public class SlotFilterChangePack implements Packet {

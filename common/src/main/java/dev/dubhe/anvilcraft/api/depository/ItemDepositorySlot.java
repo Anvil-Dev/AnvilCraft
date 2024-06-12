@@ -5,13 +5,13 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+
 import org.jetbrains.annotations.NotNull;
 
 public class ItemDepositorySlot extends Slot {
     private static final Container emptyContainer = new SimpleContainer(0);
     private final IItemDepository depository;
     private final int slot;
-
 
     /**
      * 物品容器槽位
@@ -49,9 +49,7 @@ public class ItemDepositorySlot extends Slot {
     }
 
     @Override
-    public void onQuickCraft(@NotNull ItemStack oldStack, @NotNull ItemStack newStack) {
-
-    }
+    public void onQuickCraft(@NotNull ItemStack oldStack, @NotNull ItemStack newStack) {}
 
     @Override
     public int getMaxStackSize() {

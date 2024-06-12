@@ -1,10 +1,7 @@
 package dev.dubhe.anvilcraft.integration.emi.stack;
 
-import com.google.common.collect.Lists;
 import dev.dubhe.anvilcraft.util.BlockStateRender;
-import dev.emi.emi.EmiPort;
-import dev.emi.emi.api.stack.EmiStack;
-import lombok.Getter;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
@@ -16,6 +13,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+
+import com.google.common.collect.Lists;
+import dev.emi.emi.EmiPort;
+import dev.emi.emi.api.stack.EmiStack;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -88,17 +90,19 @@ public class BlockStateEmiStack extends EmiStack {
         ChatFormatting color = state.getBlock().asItem().getDefaultInstance().getRarity().color;
         Component name = Component.translatable(state.getBlock().getDescriptionId());
         list.add(Component.empty().append(name).withStyle(color));
-        Component id = Component
-            .literal(BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString())
-            .withStyle(ChatFormatting.DARK_GRAY);
+        Component id = Component.literal(
+                        BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString())
+                .withStyle(ChatFormatting.DARK_GRAY);
         list.add(id);
         return list;
     }
 
     @Override
     public List<ClientTooltipComponent> getTooltip() {
-        return BlockStateEmiStack.getTooltipLines(this.state)
-            .stream().map(EmiPort::ordered).map(ClientTooltipComponent::create).collect(Collectors.toList());
+        return BlockStateEmiStack.getTooltipLines(this.state).stream()
+                .map(EmiPort::ordered)
+                .map(ClientTooltipComponent::create)
+                .collect(Collectors.toList());
     }
 
     @Override

@@ -6,8 +6,7 @@ import dev.dubhe.anvilcraft.event.forge.ClientEventListener;
 import dev.dubhe.anvilcraft.init.ModCommands;
 import dev.dubhe.anvilcraft.init.forge.ModRecipeTypesForge;
 import dev.dubhe.anvilcraft.init.forge.ModVillagers;
-import lombok.Getter;
-import me.shedaniel.autoconfig.AutoConfig;
+
 import net.minecraftforge.client.ConfigScreenHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
@@ -15,6 +14,9 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+
+import lombok.Getter;
+import me.shedaniel.autoconfig.AutoConfig;
 import org.jetbrains.annotations.NotNull;
 
 @Mod(AnvilCraft.MOD_ID)
@@ -34,12 +36,11 @@ public class AnvilCraftForge {
         } catch (NoSuchMethodError ignore) {
             AnvilCraft.LOGGER.debug("Server");
         }
-        ModLoadingContext.get().registerExtensionPoint(
-            ConfigScreenHandler.ConfigScreenFactory.class,
-            () -> new ConfigScreenHandler.ConfigScreenFactory(
-                (mc, screen) -> AutoConfig.getConfigScreen(AnvilCraftConfig.class, screen).get()
-            )
-        );
+        ModLoadingContext.get()
+                .registerExtensionPoint(
+                        ConfigScreenHandler.ConfigScreenFactory.class,
+                        () -> new ConfigScreenHandler.ConfigScreenFactory((mc, screen) ->
+                                AutoConfig.getConfigScreen(AnvilCraftConfig.class, screen).get()));
     }
 
     public static void registerCommand(@NotNull RegisterCommandsEvent event) {

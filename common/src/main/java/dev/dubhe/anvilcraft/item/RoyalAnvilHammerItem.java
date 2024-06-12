@@ -6,6 +6,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,11 +35,10 @@ public class RoyalAnvilHammerItem extends AnvilHammerItem implements IHasDefault
 
     @Override
     public void appendHoverText(
-        @NotNull ItemStack stack,
-        @Nullable Level level,
-        @NotNull List<Component> tooltipComponents,
-        @NotNull TooltipFlag isAdvanced
-    ) {
+            @NotNull ItemStack stack,
+            @Nullable Level level,
+            @NotNull List<Component> tooltipComponents,
+            @NotNull TooltipFlag isAdvanced) {
         super.appendHoverText(stack, level, tooltipComponents, isAdvanced);
         tooltipComponents.addAll(this.getDefaultEnchantmentsTooltip());
     }

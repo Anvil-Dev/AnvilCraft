@@ -4,7 +4,7 @@ import dev.dubhe.anvilcraft.api.depository.ItemDepositorySlot;
 import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlocks;
-import lombok.Getter;
+
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -16,12 +16,16 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class ItemCollectorMenu extends AbstractContainerMenu implements IFilterMenu, ContainerListener {
+public class ItemCollectorMenu extends AbstractContainerMenu
+        implements IFilterMenu, ContainerListener {
     @Getter
     private final ItemCollectorBlockEntity blockEntity;
+
     private final Level level;
 
     /**
@@ -31,8 +35,7 @@ public class ItemCollectorMenu extends AbstractContainerMenu implements IFilterM
             @Nullable MenuType<?> menuType,
             int containerId,
             Inventory inventory,
-            @NotNull BlockEntity machine
-    ) {
+            @NotNull BlockEntity machine) {
         super(menuType, containerId);
         ItemCollectorMenu.checkContainerSize(inventory, 9);
 
@@ -45,11 +48,7 @@ public class ItemCollectorMenu extends AbstractContainerMenu implements IFilterM
         for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < 3; ++j) {
                 this.addSlot(new ItemDepositorySlot(
-                        this.blockEntity.getDepository(),
-                        i * 3 + j,
-                        98 + j * 18,
-                        18 + i * 18
-                ));
+                        this.blockEntity.getDepository(), i * 3 + j, 98 + j * 18, 18 + i * 18));
             }
         }
 
@@ -58,9 +57,15 @@ public class ItemCollectorMenu extends AbstractContainerMenu implements IFilterM
     }
 
     public ItemCollectorMenu(
-            @Nullable MenuType<?> menuType, int containerId, Inventory inventory, @NotNull FriendlyByteBuf extraData
-    ) {
-        this(menuType, containerId, inventory, inventory.player.level().getBlockEntity(extraData.readBlockPos()));
+            @Nullable MenuType<?> menuType,
+            int containerId,
+            Inventory inventory,
+            @NotNull FriendlyByteBuf extraData) {
+        this(
+                menuType,
+                containerId,
+                inventory,
+                inventory.player.level().getBlockEntity(extraData.readBlockPos()));
     }
 
     private void addPlayerInventory(Inventory playerInventory) {
@@ -77,10 +82,7 @@ public class ItemCollectorMenu extends AbstractContainerMenu implements IFilterM
         }
     }
 
-    private void onChanged() {
-
-    }
-
+    private void onChanged() {}
 
     @Override
     public IFilterBlockEntity getFilterBlockEntity() {
@@ -93,37 +95,43 @@ public class ItemCollectorMenu extends AbstractContainerMenu implements IFilterM
         this.onChanged();
     }
 
-
     private static final int HOTBAR_SLOT_COUNT = 9;
     private static final int PLAYER_INVENTORY_ROW_COUNT = 3;
     private static final int PLAYER_INVENTORY_COLUMN_COUNT = 9;
-    private static final int PLAYER_INVENTORY_SLOT_COUNT = PLAYER_INVENTORY_COLUMN_COUNT * PLAYER_INVENTORY_ROW_COUNT;
+    private static final int PLAYER_INVENTORY_SLOT_COUNT =
+            PLAYER_INVENTORY_COLUMN_COUNT * PLAYER_INVENTORY_ROW_COUNT;
     private static final int VANILLA_SLOT_COUNT = HOTBAR_SLOT_COUNT + PLAYER_INVENTORY_SLOT_COUNT;
     private static final int VANILLA_FIRST_SLOT_INDEX = 0;
-    private static final int TE_INVENTORY_FIRST_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
+    private static final int TE_INVENTORY_FIRST_SLOT_INDEX =
+            VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
 
     // THIS YOU HAVE TO DEFINE!
-    private static final int TE_INVENTORY_SLOT_COUNT = 9;  // must be the number of slots you have!
+    private static final int TE_INVENTORY_SLOT_COUNT = 9; // must be the number of slots you have!
 
     @Override
     public @NotNull ItemStack quickMoveStack(@NotNull Player playerIn, int index) {
         Slot sourceSlot = slots.get(index);
         //noinspection ConstantValue
-        if (sourceSlot == null || !sourceSlot.hasItem()) return ItemStack.EMPTY;  //EMPTY_ITEM
+        if (sourceSlot == null || !sourceSlot.hasItem()) return ItemStack.EMPTY; // EMPTY_ITEM
         ItemStack sourceStack = sourceSlot.getItem();
         final ItemStack copyOfSourceStack = sourceStack.copy();
         // Check if the slot clicked is one of the vanilla container slots
         if (index < VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT) {
             // This is a vanilla container slot so merge the stack into the tile inventory
-            if (!moveItemStackTo(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX, TE_INVENTORY_FIRST_SLOT_INDEX
-                    + TE_INVENTORY_SLOT_COUNT, false)) {
-                return ItemStack.EMPTY;  // EMPTY_ITEM
+            if (!moveItemStackTo(
+                    sourceStack,
+                    TE_INVENTORY_FIRST_SLOT_INDEX,
+                    TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT,
+                    false)) {
+                return ItemStack.EMPTY; // EMPTY_ITEM
             }
         } else if (index < TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT) {
             // This is a TE slot so merge the stack into the players inventory
             if (!moveItemStackTo(
-                    sourceStack, VANILLA_FIRST_SLOT_INDEX, VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT, false
-            )) {
+                    sourceStack,
+                    VANILLA_FIRST_SLOT_INDEX,
+                    VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT,
+                    false)) {
                 return ItemStack.EMPTY;
             }
         } else {
@@ -142,21 +150,20 @@ public class ItemCollectorMenu extends AbstractContainerMenu implements IFilterM
     @Override
     public boolean stillValid(@NotNull Player player) {
         return stillValid(
-                ContainerLevelAccess.create(level, blockEntity.getBlockPos()), player, ModBlocks.ITEM_COLLECTOR.get()
-        );
+                ContainerLevelAccess.create(level, blockEntity.getBlockPos()),
+                player,
+                ModBlocks.ITEM_COLLECTOR.get());
     }
 
     @Override
     public void slotChanged(
-            @NotNull AbstractContainerMenu containerToSend, int dataSlotIndex, @NotNull ItemStack stack
-    ) {
+            @NotNull AbstractContainerMenu containerToSend, int dataSlotIndex, @NotNull ItemStack stack) {
         onChanged();
     }
 
     @Override
-    public void dataChanged(@NotNull AbstractContainerMenu containerMenu, int dataSlotIndex, int value) {
-
-    }
+    public void dataChanged(
+            @NotNull AbstractContainerMenu containerMenu, int dataSlotIndex, int value) {}
 
     @Override
     public void flush() {

@@ -1,17 +1,19 @@
 package dev.dubhe.anvilcraft.data.generator;
 
-import com.tterrag.registrate.providers.ProviderType;
-import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.data.RecipeItem;
 import dev.dubhe.anvilcraft.data.generator.lang.LangHandler;
 import dev.dubhe.anvilcraft.data.generator.loot.LootHandler;
 import dev.dubhe.anvilcraft.data.generator.recipe.RecipesHandler;
 import dev.dubhe.anvilcraft.data.generator.tags.TagsHandler;
+
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
+
+import com.tterrag.registrate.providers.ProviderType;
+import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import org.jetbrains.annotations.NotNull;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;

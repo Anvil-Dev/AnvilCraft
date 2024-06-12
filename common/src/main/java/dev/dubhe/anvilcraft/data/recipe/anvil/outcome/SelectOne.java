@@ -1,17 +1,19 @@
 package dev.dubhe.anvilcraft.data.recipe.anvil.outcome;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
 import dev.dubhe.anvilcraft.data.recipe.anvil.CanSetData;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipeOutcome;
-import lombok.Getter;
-import lombok.Setter;
+
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.RandomSource;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,6 +27,7 @@ public class SelectOne implements RecipeOutcome, CanSetData {
     private final String type = "select_one";
     private final double chance;
     private final List<RecipeOutcome> outcomes = new ArrayList<>();
+
     @Setter
     private Map<String, CompoundTag> data = new HashMap<>();
 
@@ -84,8 +87,7 @@ public class SelectOne implements RecipeOutcome, CanSetData {
     }
 
     private static @Nullable <T> T weightedRandomSelect(
-        @NotNull List<T> elements, @NotNull List<Double> weights, RandomSource random
-    ) {
+            @NotNull List<T> elements, @NotNull List<Double> weights, RandomSource random) {
         if (elements.size() != weights.size()) {
             throw new IllegalArgumentException("Elements and weights must be of the same size");
         }

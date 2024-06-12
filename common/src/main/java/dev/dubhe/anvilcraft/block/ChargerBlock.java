@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.block.entity.ChargerBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.util.StateListener;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -27,6 +28,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.Vec3;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,33 +44,25 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
      */
     public ChargerBlock(Properties properties) {
         super(properties);
-        registerDefaultState(getStateDefinition().any()
-                .setValue(POWERED, false)
-                .setValue(OVERLOAD, true)
-        );
+        registerDefaultState(
+                getStateDefinition().any().setValue(POWERED, false).setValue(OVERLOAD, true));
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
-        return defaultBlockState()
-                .setValue(POWERED, false)
-                .setValue(OVERLOAD, true);
+        return defaultBlockState().setValue(POWERED, false).setValue(OVERLOAD, true);
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-            @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type
-    ) {
+            @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type) {
         if (level.isClientSide) {
             return null;
         }
         return createTickerHelper(
                 type,
                 ModBlockEntities.CHARGER.get(),
-                (level1, blockPos, blockState, blockEntity) -> blockEntity.tick(level1, blockPos)
-        );
+                (level1, blockPos, blockState, blockEntity) -> blockEntity.tick(level1, blockPos));
     }
 
     @Override
@@ -79,16 +73,14 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
             @NotNull BlockPos pos,
             @NotNull Block neighborBlock,
             @NotNull BlockPos neighborPos,
-            boolean movedByPiston
-    ) {
+            boolean movedByPiston) {
         if (level.isClientSide) {
             return;
         }
         level.setBlock(pos, state.setValue(POWERED, level.hasNeighborSignal(pos)), 2);
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
         return ChargerBlockEntity.createBlockEntity(ModBlockEntities.CHARGER.get(), pos, state);
     }
@@ -110,8 +102,7 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
             @NotNull Level level,
             @NotNull BlockPos pos,
             @NotNull BlockState newState,
-            boolean movedByPiston
-    ) {
+            boolean movedByPiston) {
         if (state.is(newState.getBlock())) return;
         if (level.getBlockEntity(pos) instanceof ChargerBlockEntity entity) {
             Vec3 vec3 = entity.getBlockPos().getCenter();
@@ -127,15 +118,18 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
     @Override
     @SuppressWarnings("deprecation")
     public void tick(
-            @NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random
-    ) {
+            @NotNull BlockState state,
+            @NotNull ServerLevel level,
+            @NotNull BlockPos pos,
+            @NotNull RandomSource random) {
         if (state.getValue(POWERED) && !level.hasNeighborSignal(pos)) {
             level.setBlock(pos, state.cycle(POWERED), 2);
         }
     }
 
     @Override
-    public boolean change(Player player, BlockPos blockPos, @NotNull Level level, ItemStack anvilHammer) {
+    public boolean change(
+            Player player, BlockPos blockPos, @NotNull Level level, ItemStack anvilHammer) {
         level.setBlock(blockPos, ModBlocks.DISCHARGER.getDefaultState(), 2);
         if (level.getBlockEntity(blockPos) instanceof StateListener<?> listener) {
             StateListener<Boolean> thiz = (StateListener<Boolean>) listener;

@@ -1,7 +1,8 @@
 package dev.dubhe.anvilcraft.api.event.server;
 
-import lombok.Getter;
 import net.minecraft.server.MinecraftServer;
+
+import lombok.Getter;
 
 @Getter
 public class ServerEvent {

@@ -1,12 +1,14 @@
 package dev.dubhe.anvilcraft.data.generator.recipe;
 
-import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.data.recipe.transform.MobTransformRecipe;
 import dev.dubhe.anvilcraft.data.recipe.transform.NumericTagValuePredicate;
 import dev.dubhe.anvilcraft.data.recipe.transform.TagModification;
 import dev.dubhe.anvilcraft.data.recipe.transform.TransformOptions;
+
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.EntityType;
+
+import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 
 public class MobTransformRecipesLoader {
     /**
@@ -82,11 +84,9 @@ public class MobTransformRecipesLoader {
         MobTransformRecipe.builder("warden")
                 .input(EntityType.IRON_GOLEM)
                 .result(EntityType.WARDEN, 1)
-                .predicate(b ->
-                        b.compare(NumericTagValuePredicate.ValueFunction.EQUAL)
-                                .lhs("PlayerCreated")
-                                .rhs(0)
-                )
+                .predicate(b -> b.compare(NumericTagValuePredicate.ValueFunction.EQUAL)
+                        .lhs("PlayerCreated")
+                        .rhs(0))
                 .tagModification(b -> {
                     CompoundTag tag = new CompoundTag();
                     CompoundTag cooldownMemoryTag = new CompoundTag();
@@ -98,8 +98,5 @@ public class MobTransformRecipesLoader {
                             .value(tag);
                 })
                 .accept(provider);
-
-
-
     }
 }

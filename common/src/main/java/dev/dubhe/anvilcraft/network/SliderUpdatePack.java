@@ -3,10 +3,12 @@ package dev.dubhe.anvilcraft.network;
 import dev.dubhe.anvilcraft.api.network.Packet;
 import dev.dubhe.anvilcraft.init.ModNetworks;
 import dev.dubhe.anvilcraft.inventory.SliderMenu;
+
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+
 import org.jetbrains.annotations.NotNull;
 
 public class SliderUpdatePack implements Packet {

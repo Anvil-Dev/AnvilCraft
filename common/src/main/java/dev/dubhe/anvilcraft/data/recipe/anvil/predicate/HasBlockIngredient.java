@@ -1,13 +1,15 @@
 package dev.dubhe.anvilcraft.data.recipe.anvil.predicate;
 
-import com.google.gson.JsonObject;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
-import lombok.Getter;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
+
+import com.google.gson.JsonObject;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 @Getter

@@ -1,7 +1,5 @@
 package dev.dubhe.anvilcraft.data.recipe.anvil;
 
-import lombok.Getter;
-import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.item.FallingBlockEntity;
@@ -10,14 +8,17 @@ import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.inventory.StackedContentsCompatible;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
-public class AnvilCraftingContainer
-    implements Container, StackedContentsCompatible {
+public class AnvilCraftingContainer implements Container, StackedContentsCompatible {
     private final Level level;
     private final BlockPos pos;
     private final FallingBlockEntity entity;
+
     @Setter
     private boolean isAnvilDamage = false;
 
@@ -60,12 +61,10 @@ public class AnvilCraftingContainer
     }
 
     @Override
-    public void setItem(int slot, @NotNull ItemStack stack) {
-    }
+    public void setItem(int slot, @NotNull ItemStack stack) {}
 
     @Override
-    public void setChanged() {
-    }
+    public void setChanged() {}
 
     @Override
     public boolean stillValid(@NotNull Player player) {
@@ -73,10 +72,8 @@ public class AnvilCraftingContainer
     }
 
     @Override
-    public void clearContent() {
-    }
+    public void clearContent() {}
 
     @Override
-    public void fillStackedContents(@NotNull StackedContents contents) {
-    }
+    public void fillStackedContents(@NotNull StackedContents contents) {}
 }

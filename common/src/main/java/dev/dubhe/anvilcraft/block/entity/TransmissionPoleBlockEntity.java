@@ -7,13 +7,15 @@ import dev.dubhe.anvilcraft.block.TransmissionPoleBlock;
 import dev.dubhe.anvilcraft.block.state.Vertical3PartHalf;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
-import lombok.Getter;
-import lombok.Setter;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
@@ -26,12 +28,12 @@ public class TransmissionPoleBlockEntity extends BlockEntity implements IPowerTr
     }
 
     public static @NotNull TransmissionPoleBlockEntity createBlockEntity(
-        BlockEntityType<?> type, BlockPos pos, BlockState blockState
-    ) {
+            BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         return new TransmissionPoleBlockEntity(type, pos, blockState);
     }
 
-    private TransmissionPoleBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+    private TransmissionPoleBlockEntity(
+            BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
 
@@ -43,7 +45,8 @@ public class TransmissionPoleBlockEntity extends BlockEntity implements IPowerTr
     @Override
     public @NotNull PowerComponentType getComponentType() {
         if (this.getLevel() == null) return PowerComponentType.INVALID;
-        if (!this.getBlockState().is(ModBlocks.TRANSMISSION_POLE.get())) return PowerComponentType.INVALID;
+        if (!this.getBlockState().is(ModBlocks.TRANSMISSION_POLE.get()))
+            return PowerComponentType.INVALID;
         if (this.getBlockState().getValue(TransmissionPoleBlock.HALF) != Vertical3PartHalf.TOP)
             return PowerComponentType.INVALID;
         return PowerComponentType.TRANSMITTER;
@@ -53,8 +56,6 @@ public class TransmissionPoleBlockEntity extends BlockEntity implements IPowerTr
     public Level getCurrentLevel() {
         return this.getLevel();
     }
-
-
 
     /**
      * @param level 世界
@@ -66,7 +67,8 @@ public class TransmissionPoleBlockEntity extends BlockEntity implements IPowerTr
         if (state.getValue(TransmissionPoleBlock.HALF) != Vertical3PartHalf.TOP) return;
         if (state.getValue(TransmissionPoleBlock.SWITCH) == Switch.OFF && this.getGrid() != null) {
             this.getGrid().remove(this);
-        } else if (state.getValue(TransmissionPoleBlock.SWITCH) == Switch.ON && this.getGrid() == null) {
+        } else if (state.getValue(TransmissionPoleBlock.SWITCH) == Switch.ON
+                && this.getGrid() == null) {
             PowerGrid.addComponent(this);
         }
         this.flushState(level, pos);

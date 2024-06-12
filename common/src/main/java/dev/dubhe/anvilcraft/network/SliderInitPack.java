@@ -3,11 +3,13 @@ package dev.dubhe.anvilcraft.network;
 import dev.dubhe.anvilcraft.api.network.Packet;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.SliderScreen;
 import dev.dubhe.anvilcraft.init.ModNetworks;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+
 import org.jetbrains.annotations.NotNull;
 
 public class SliderInitPack implements Packet {

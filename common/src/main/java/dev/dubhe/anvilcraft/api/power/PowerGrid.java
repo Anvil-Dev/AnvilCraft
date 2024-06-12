@@ -3,13 +3,15 @@ package dev.dubhe.anvilcraft.api.power;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.network.PowerGridRemovePack;
 import dev.dubhe.anvilcraft.network.PowerGridSyncPack;
-import lombok.Getter;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -27,22 +29,30 @@ import java.util.Set;
 @SuppressWarnings("unused")
 public class PowerGrid {
     public static boolean isServerClosing = false;
-    public static final Map<Level, Set<PowerGrid>> GRID_MAP = Collections.synchronizedMap(new HashMap<>());
+    public static final Map<Level, Set<PowerGrid>> GRID_MAP =
+            Collections.synchronizedMap(new HashMap<>());
     public static final int GRID_TICK = 20;
+
     @Getter
     public boolean remove = false;
+
     @Getter
     private int generate = 0; // 发电功率
+
     @Getter
-    private int consume = 0;  // 耗电功率
+    private int consume = 0; // 耗电功率
+
     final Set<IPowerProducer> producers = Collections.synchronizedSet(new HashSet<>()); // 发电机
     final Set<IPowerConsumer> consumers = Collections.synchronizedSet(new HashSet<>()); // 用电器
-    final Set<IPowerStorage> storages = Collections.synchronizedSet(new HashSet<>());   // 储电
-    final Set<IPowerTransmitter> transmitters = Collections.synchronizedSet(new HashSet<>());    // 中继
+    final Set<IPowerStorage> storages = Collections.synchronizedSet(new HashSet<>()); // 储电
+    final Set<IPowerTransmitter> transmitters = Collections.synchronizedSet(new HashSet<>()); // 中继
+
     @Getter
     private VoxelShape shape = null;
+
     @Getter
     private BlockPos pos = null;
+
     @Getter
     private final Level level;
 
@@ -58,7 +68,10 @@ public class PowerGrid {
      * @return 获取电网中的元件数量
      */
     public int getComponentCount() {
-        return this.transmitters.size() + this.producers.size() + this.consumers.size() + this.storages.size();
+        return this.transmitters.size()
+                + this.producers.size()
+                + this.consumers.size()
+                + this.storages.size();
     }
 
     /**
@@ -194,11 +207,10 @@ public class PowerGrid {
         }
         BlockPos center = this.pos;
         BlockPos vec3 = component.getPos();
-        VoxelShape range = component.getShape().move(
-            vec3.getX() - center.getX(),
-            vec3.getY() - center.getY(),
-            vec3.getZ() - center.getZ()
-        );
+        VoxelShape range = component
+                .getShape()
+                .move(
+                        vec3.getX() - center.getX(), vec3.getY() - center.getY(), vec3.getZ() - center.getZ());
         this.shape = Shapes.join(this.shape, range, BooleanOp.OR);
     }
 
@@ -268,10 +280,9 @@ public class PowerGrid {
     public boolean isInRange(@NotNull IPowerComponent component) {
         BlockPos vec3 = component.getPos().subtract(this.getPos());
         VoxelShape range = Shapes.join(
-            this.shape,
-            component.getShape().move(vec3.getX(), vec3.getY(), vec3.getZ()),
-            BooleanOp.AND
-        );
+                this.shape,
+                component.getShape().move(vec3.getX(), vec3.getY(), vec3.getZ()),
+                BooleanOp.AND);
         return !range.isEmpty();
     }
 

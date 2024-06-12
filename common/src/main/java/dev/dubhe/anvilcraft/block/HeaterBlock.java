@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.entity.HeaterBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
@@ -25,16 +26,15 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
 public class HeaterBlock extends BaseEntityBlock implements IHammerRemovable {
-    public static final VoxelShape SHAPE = Shapes.or(
-        Block.box(0, 2, 0, 16, 16, 16),
-        Block.box(1, 0, 1, 15, 2, 15)
-    );
+    public static final VoxelShape SHAPE =
+            Shapes.or(Block.box(0, 2, 0, 16, 16, 16), Block.box(1, 0, 1, 15, 2, 15));
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
 
     /**
@@ -42,26 +42,22 @@ public class HeaterBlock extends BaseEntityBlock implements IHammerRemovable {
      */
     public HeaterBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(
-            this.stateDefinition.any()
-                .setValue(OVERLOAD, true)
-        );
+        this.registerDefaultState(this.stateDefinition.any().setValue(OVERLOAD, true));
     }
 
     @Override
-    @Nullable
-    public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
+    @Nullable public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
         return this.defaultBlockState().setValue(OVERLOAD, true);
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
         return new HeaterBlockEntity(pos, state);
     }
 
     @Override
-    protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(
+            @NotNull StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(OVERLOAD);
     }
 
@@ -70,27 +66,30 @@ public class HeaterBlock extends BaseEntityBlock implements IHammerRemovable {
         return RenderShape.MODEL;
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-        @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type
-    ) {
+            @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type) {
         if (level.isClientSide) return null;
-        return createTickerHelper(type, ModBlockEntities.HEATER.get(),
-            (level1, pos, state1, entity) -> entity.tick(level1, pos));
+        return createTickerHelper(
+                type,
+                ModBlockEntities.HEATER.get(),
+                (level1, pos, state1, entity) -> entity.tick(level1, pos));
     }
 
     @Override
-    public void stepOn(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Entity entity) {
-        if (
-            state.is(ModBlocks.HEATER.get())
+    public void stepOn(
+            @NotNull Level level,
+            @NotNull BlockPos pos,
+            @NotNull BlockState state,
+            @NotNull Entity entity) {
+        if (state.is(ModBlocks.HEATER.get())
                 && !state.getValue(OVERLOAD)
                 && !entity.isSteppingCarefully()
                 && entity instanceof LivingEntity living
-                && !EnchantmentHelper.hasFrostWalker(living)
-        ) {
+                && !EnchantmentHelper.hasFrostWalker(living)) {
             if (entity.hurt(level.damageSources().hotFloor(), 4.0F)) {
-                entity.playSound(SoundEvents.GENERIC_BURN, 0.4F, 2.0F + living.getRandom().nextFloat() * 0.4F);
+                entity.playSound(
+                        SoundEvents.GENERIC_BURN, 0.4F, 2.0F + living.getRandom().nextFloat() * 0.4F);
             }
         }
         super.stepOn(level, pos, state, entity);
@@ -99,8 +98,10 @@ public class HeaterBlock extends BaseEntityBlock implements IHammerRemovable {
     @Override
     @SuppressWarnings("deprecation")
     public @NotNull VoxelShape getShape(
-        @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context
-    ) {
+            @NotNull BlockState state,
+            @NotNull BlockGetter level,
+            @NotNull BlockPos pos,
+            @NotNull CollisionContext context) {
         return SHAPE;
     }
 }

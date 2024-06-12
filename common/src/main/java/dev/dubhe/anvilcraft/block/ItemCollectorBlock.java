@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.network.MachineEnableFilterPack;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
 import dev.dubhe.anvilcraft.network.SlotFilterChangePack;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -32,6 +33,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,10 +47,7 @@ public class ItemCollectorBlock extends BaseEntityBlock implements IHammerRemova
     public ItemCollectorBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(
-                this.stateDefinition.any()
-                        .setValue(POWERED, false)
-                        .setValue(OVERLOAD, true)
-        );
+                this.stateDefinition.any().setValue(POWERED, false).setValue(OVERLOAD, true));
     }
 
     @Override
@@ -57,10 +56,10 @@ public class ItemCollectorBlock extends BaseEntityBlock implements IHammerRemova
         return true;
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
-        return ItemCollectorBlockEntity.createBlockEntity(ModBlockEntities.ITEM_COLLECTOR.get(), pos, state);
+        return ItemCollectorBlockEntity.createBlockEntity(
+                ModBlockEntities.ITEM_COLLECTOR.get(), pos, state);
     }
 
     @Override
@@ -70,8 +69,7 @@ public class ItemCollectorBlock extends BaseEntityBlock implements IHammerRemova
             @NotNull Level level,
             @NotNull BlockPos pos,
             @NotNull BlockState newState,
-            boolean movedByPiston
-    ) {
+            boolean movedByPiston) {
         if (state.is(newState.getBlock())) return;
         if (level.getBlockEntity(pos) instanceof ItemCollectorBlockEntity entity) {
             Vec3 vec3 = entity.getBlockPos().getCenter();
@@ -84,31 +82,26 @@ public class ItemCollectorBlock extends BaseEntityBlock implements IHammerRemova
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-            @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type
-    ) {
+            @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type) {
         if (level.isClientSide) {
             return null;
         }
         return createTickerHelper(
                 type,
                 ModBlockEntities.ITEM_COLLECTOR.get(),
-                (level1, blockPos, blockState, blockEntity) -> blockEntity.tick(level1, blockPos)
-        );
+                (level1, blockPos, blockState, blockEntity) -> blockEntity.tick(level1, blockPos));
     }
 
     @Override
-    @Nullable
-    public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
-        return this.defaultBlockState()
-                .setValue(POWERED, false)
-                .setValue(OVERLOAD, true);
+    @Nullable public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
+        return this.defaultBlockState().setValue(POWERED, false).setValue(OVERLOAD, true);
     }
 
     @Override
-    protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(
+            @NotNull StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(POWERED).add(OVERLOAD);
     }
 
@@ -120,21 +113,14 @@ public class ItemCollectorBlock extends BaseEntityBlock implements IHammerRemova
             @NotNull BlockPos pos,
             @NotNull Player player,
             @NotNull InteractionHand hand,
-            @NotNull BlockHitResult hit
-    ) {
+            @NotNull BlockHitResult hit) {
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
         }
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof ItemCollectorBlockEntity eb) {
             if (player.getItemInHand(hand).is(ModItems.DISK.get())) {
-                return eb.useDisk(
-                        level,
-                        player,
-                        hand,
-                        player.getItemInHand(hand),
-                        hit
-                );
+                return eb.useDisk(level, player, hand, player.getItemInHand(hand), hit);
             }
             if (player instanceof ServerPlayer serverPlayer) {
                 ModMenuTypes.open(serverPlayer, eb, pos);
@@ -156,8 +142,7 @@ public class ItemCollectorBlock extends BaseEntityBlock implements IHammerRemova
             @NotNull BlockPos pos,
             @NotNull Block neighborBlock,
             @NotNull BlockPos neighborPos,
-            boolean movedByPiston
-    ) {
+            boolean movedByPiston) {
         if (level.isClientSide) {
             return;
         }
@@ -167,8 +152,10 @@ public class ItemCollectorBlock extends BaseEntityBlock implements IHammerRemova
     @Override
     @SuppressWarnings("deprecation")
     public void tick(
-            @NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random
-    ) {
+            @NotNull BlockState state,
+            @NotNull ServerLevel level,
+            @NotNull BlockPos pos,
+            @NotNull RandomSource random) {
         if (state.getValue(POWERED) && !level.hasNeighborSignal(pos)) {
             level.setBlock(pos, state.cycle(POWERED), 2);
         }
@@ -181,7 +168,8 @@ public class ItemCollectorBlock extends BaseEntityBlock implements IHammerRemova
 
     @Override
     @SuppressWarnings("deprecation")
-    public int getAnalogOutputSignal(@NotNull BlockState blockState, @NotNull Level level, @NotNull BlockPos blockPos) {
+    public int getAnalogOutputSignal(
+            @NotNull BlockState blockState, @NotNull Level level, @NotNull BlockPos blockPos) {
         BlockEntity blockEntity = level.getBlockEntity(blockPos);
         if (blockEntity instanceof ItemCollectorBlockEntity itemCollectorBlockEntity) {
             return itemCollectorBlockEntity.getRedstoneSignal();

@@ -5,10 +5,12 @@ import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.forge.AnvilCraftBlockPlacerFakePlayer;
 import dev.dubhe.anvilcraft.api.entity.player.AnvilCraftBlockPlacer;
 import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
+
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+
 import org.jetbrains.annotations.NotNull;
 
 @Mod.EventBusSubscriber(modid = AnvilCraft.MOD_ID)
@@ -21,7 +23,7 @@ public class LevelEventListener {
     public static void onLevelLoad(@NotNull LevelEvent.Load event) {
         if (event.getLevel() instanceof ServerLevel serverLevel)
             AnvilCraftBlockPlacer.anvilCraftBlockPlacer =
-                new AnvilCraftBlockPlacerFakePlayer(serverLevel);
+                    new AnvilCraftBlockPlacerFakePlayer(serverLevel);
     }
 
     /**

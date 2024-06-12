@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.item.enchantment;
 
 import dev.dubhe.anvilcraft.init.ModEnchantments;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
@@ -13,6 +14,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -21,7 +23,8 @@ import java.util.List;
 import java.util.Map;
 
 public class HarvestEnchantment extends ModEnchantment {
-    public HarvestEnchantment(Rarity rarity, EnchantmentCategory category, EquipmentSlot[] applicableSlots) {
+    public HarvestEnchantment(
+            Rarity rarity, EnchantmentCategory category, EquipmentSlot[] applicableSlots) {
         super(rarity, category, applicableSlots);
     }
 
@@ -56,7 +59,8 @@ public class HarvestEnchantment extends ModEnchantment {
     /**
      * 收割
      */
-    public static void harvest(@NotNull Player player, @NotNull Level level, BlockPos pos, ItemStack tool) {
+    public static void harvest(
+            @NotNull Player player, @NotNull Level level, BlockPos pos, ItemStack tool) {
         Map<Enchantment, Integer> enchantments = EnchantmentHelper.getEnchantments(tool);
         if (!enchantments.containsKey(ModEnchantments.HARVEST.get())) return;
         BlockState state0 = level.getBlockState(pos);

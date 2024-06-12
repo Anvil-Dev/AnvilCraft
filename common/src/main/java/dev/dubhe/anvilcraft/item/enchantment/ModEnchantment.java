@@ -40,7 +40,8 @@ public abstract class ModEnchantment extends Enchantment {
         }
     };
 
-    protected ModEnchantment(Rarity rarity, EnchantmentCategory category, EquipmentSlot[] applicableSlots) {
+    protected ModEnchantment(
+            Rarity rarity, EnchantmentCategory category, EquipmentSlot[] applicableSlots) {
         super(rarity, category, applicableSlots);
     }
 }

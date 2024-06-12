@@ -1,17 +1,10 @@
 package dev.dubhe.anvilcraft.data.recipe.anvil.predicate;
 
-import com.google.common.base.Predicates;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSyntaxException;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
 import dev.dubhe.anvilcraft.data.recipe.anvil.HasData;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipePredicate;
-import lombok.Getter;
+
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -33,6 +26,15 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+
+import com.google.common.base.Predicates;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSyntaxException;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,12 +48,17 @@ import java.util.Set;
 public class HasItem implements RecipePredicate, HasData {
     @Getter
     private final String type = "has_item";
+
     protected final Vec3 offset;
+
     @Getter
     protected final ModItemPredicate matchItem;
+
     protected String path = null;
+
     @Getter
     protected Map.Entry<String, CompoundTag> data = null;
+
     protected final List<String> hasTag = new ArrayList<>();
     protected final List<String> notHasTag = new ArrayList<>();
 
@@ -87,7 +94,9 @@ public class HasItem implements RecipePredicate, HasData {
             JsonElement element = array.get(i);
             if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isNumber()) {
                 vec3[i] = element.getAsDouble();
-            } else throw new JsonSyntaxException("Expected offset to be a Double, was " + GsonHelper.getType(element));
+            } else
+                throw new JsonSyntaxException(
+                        "Expected offset to be a Double, was " + GsonHelper.getType(element));
         }
         this.offset = new Vec3(vec3[0], vec3[1], vec3[2]);
         if (serializedRecipe.has("data_path")) {
@@ -121,7 +130,8 @@ public class HasItem implements RecipePredicate, HasData {
         for (int i = 0; i < read; i++) {
             this.notHasTag.add(buffer.readUtf());
         }
-        this.matchItem = ModItemPredicate.fromJson(AnvilCraft.GSON.fromJson(buffer.readUtf(), JsonElement.class));
+        this.matchItem =
+                ModItemPredicate.fromJson(AnvilCraft.GSON.fromJson(buffer.readUtf(), JsonElement.class));
     }
 
     @Override
@@ -130,7 +140,7 @@ public class HasItem implements RecipePredicate, HasData {
         BlockPos pos = container.getPos();
         AABB aabb = new AABB(pos).move(this.offset);
         List<ItemEntity> entities =
-            level.getEntities(EntityTypeTest.forClass(ItemEntity.class), aabb, Predicates.alwaysTrue());
+                level.getEntities(EntityTypeTest.forClass(ItemEntity.class), aabb, Predicates.alwaysTrue());
         entities:
         for (ItemEntity entity : entities) {
             ItemStack item = entity.getItem();
@@ -156,7 +166,8 @@ public class HasItem implements RecipePredicate, HasData {
                     }
                 }
                 if (this.path != null) {
-                    this.data = Map.entry(this.path, item.hasTag() ? item.getOrCreateTag() : new CompoundTag());
+                    this.data =
+                            Map.entry(this.path, item.hasTag() ? item.getOrCreateTag() : new CompoundTag());
                 }
                 return true;
             }
@@ -209,18 +220,19 @@ public class HasItem implements RecipePredicate, HasData {
     @Getter
     @SuppressWarnings({"UnusedReturnValue", "unused"})
     public static class ModItemPredicate {
-        @Nullable
-        private TagKey<Item> tag = null;
+        @Nullable private TagKey<Item> tag = null;
+
         private final Set<Item> items = new HashSet<>();
-        @Nullable
-        private CompoundTag nbt = null;
+
+        @Nullable private CompoundTag nbt = null;
+
         @Getter
         public MinMaxBounds.Ints count = null;
+
         private MinMaxBounds.Ints durability = null;
         private final Map<Enchantment, MinMaxBounds.Ints> enchantments = new HashMap<>();
 
-        private ModItemPredicate() {
-        }
+        private ModItemPredicate() {}
 
         /**
          * 是否具有相同的物品/标签
@@ -332,7 +344,8 @@ public class HasItem implements RecipePredicate, HasData {
         /**
          * ModItemPredicate
          */
-        public ModItemPredicate withEnchantments(MinMaxBounds.Ints levels, Enchantment @NotNull ... enchantments) {
+        public ModItemPredicate withEnchantments(
+                MinMaxBounds.Ints levels, Enchantment @NotNull ... enchantments) {
             for (Enchantment enchantment : enchantments) {
                 this.enchantments.put(enchantment, levels);
             }
@@ -349,17 +362,18 @@ public class HasItem implements RecipePredicate, HasData {
                 predicate.withCount(MinMaxBounds.Ints.fromJson(GsonHelper.getNonNull(object, "count")));
             }
             if (object.has("durability")) {
-                predicate.withDurability(MinMaxBounds.Ints.fromJson(GsonHelper.getNonNull(object, "durability")));
+                predicate.withDurability(
+                        MinMaxBounds.Ints.fromJson(GsonHelper.getNonNull(object, "durability")));
             }
             if (object.has("tag")) {
-                predicate.withTag(
-                    TagKey.create(Registries.ITEM, new ResourceLocation(GsonHelper.getAsString(object, "tag")))
-                );
+                predicate.withTag(TagKey.create(
+                        Registries.ITEM, new ResourceLocation(GsonHelper.getAsString(object, "tag"))));
             }
             if (object.has("enchantments")) {
                 JsonObject enchants = GsonHelper.getAsJsonObject(object, "enchantments");
                 for (Map.Entry<String, JsonElement> entry : enchants.entrySet()) {
-                    Enchantment enchantment = BuiltInRegistries.ENCHANTMENT.get(new ResourceLocation(entry.getKey()));
+                    Enchantment enchantment =
+                            BuiltInRegistries.ENCHANTMENT.get(new ResourceLocation(entry.getKey()));
                     if (enchantment == null) continue;
                     MinMaxBounds.Ints levels = MinMaxBounds.Ints.fromJson(entry.getValue());
                     predicate.withEnchantments(levels, enchantment);
@@ -416,7 +430,8 @@ public class HasItem implements RecipePredicate, HasData {
          * ModItemPredicate
          */
         public boolean matches(ItemStack item) {
-            boolean isItem = (this.tag != null && item.is(this.tag)) || this.items.stream().anyMatch(item::is);
+            boolean isItem =
+                    (this.tag != null && item.is(this.tag)) || this.items.stream().anyMatch(item::is);
             boolean sameNbt = true;
             if (this.nbt != null) {
                 if (!item.hasTag()) sameNbt = false;
@@ -438,19 +453,17 @@ public class HasItem implements RecipePredicate, HasData {
             boolean sameEnchant = true;
             for (Map.Entry<Enchantment, MinMaxBounds.Ints> entry : this.enchantments.entrySet()) {
                 Map<Enchantment, Integer> enchantments1 = EnchantmentHelper.getEnchantments(item);
-                if (
-                    !enchantments1.containsKey(entry.getKey())
-                        || !entry.getValue().matches(enchantments1.get(entry.getKey()))
-                ) {
+                if (!enchantments1.containsKey(entry.getKey())
+                        || !entry.getValue().matches(enchantments1.get(entry.getKey()))) {
                     sameEnchant = false;
                     break;
                 }
             }
             return isItem
-                && sameNbt
-                && (this.count == null || this.count.matches(item.getCount()))
-                && (this.durability == null || this.durability.matches(item.getDamageValue()))
-                && sameEnchant;
+                    && sameNbt
+                    && (this.count == null || this.count.matches(item.getCount()))
+                    && (this.durability == null || this.durability.matches(item.getDamageValue()))
+                    && sameEnchant;
         }
     }
 }

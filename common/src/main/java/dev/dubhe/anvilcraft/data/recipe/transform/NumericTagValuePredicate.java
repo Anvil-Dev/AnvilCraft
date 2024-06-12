@@ -1,5 +1,11 @@
 package dev.dubhe.anvilcraft.data.recipe.transform;
 
+import net.minecraft.commands.arguments.NbtPathArgument;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NumericTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.util.StringRepresentable;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.StringReader;
@@ -8,11 +14,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.Getter;
-import net.minecraft.commands.arguments.NbtPathArgument;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NumericTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -20,11 +21,12 @@ import java.util.function.BiFunction;
 
 @Getter
 public class NumericTagValuePredicate {
-    public static final Codec<NumericTagValuePredicate> CODEC = RecordCodecBuilder.create(ins -> ins.group(
-        Codec.STRING.fieldOf("tagKeyPath").forGetter(o -> o.tagKeyPath),
-        ValueFunction.CODEC.fieldOf("requirement").forGetter(o -> o.requirement),
-        Codec.LONG.fieldOf("expected").forGetter(it -> it.expected)
-    ).apply(ins, NumericTagValuePredicate::new));
+    public static final Codec<NumericTagValuePredicate> CODEC =
+            RecordCodecBuilder.create(ins -> ins.group(
+                            Codec.STRING.fieldOf("tagKeyPath").forGetter(o -> o.tagKeyPath),
+                            ValueFunction.CODEC.fieldOf("requirement").forGetter(o -> o.requirement),
+                            Codec.LONG.fieldOf("expected").forGetter(it -> it.expected))
+                    .apply(ins, NumericTagValuePredicate::new));
 
     private final String tagKeyPath;
     private final ValueFunction requirement;
@@ -43,22 +45,17 @@ public class NumericTagValuePredicate {
      *
      */
     public static NumericTagValuePredicate fromJson(JsonObject jsonObject) {
-        return CODEC.decode(JsonOps.INSTANCE, jsonObject)
-            .getOrThrow(false, s -> {
-            }).getFirst();
+        return CODEC.decode(JsonOps.INSTANCE, jsonObject).getOrThrow(false, s -> {}).getFirst();
     }
 
     /**
      *
      */
     public JsonElement toJson() {
-        return CODEC.encodeStart(JsonOps.INSTANCE, this)
-            .getOrThrow(false, s -> {
-            });
+        return CODEC.encodeStart(JsonOps.INSTANCE, this).getOrThrow(false, s -> {});
     }
 
     public enum ValueFunction implements StringRepresentable {
-
         EQUAL(Object::equals),
         NOT_EQUAL((a, b) -> !a.equals(b)),
         GREATER((a, b) -> a > b),
@@ -66,7 +63,8 @@ public class NumericTagValuePredicate {
         GREATER_OR_EQUAL((a, b) -> a >= b),
         LESS_OR_EQUAL((a, b) -> a <= b);
 
-        public static final Codec<ValueFunction> CODEC = StringRepresentable.fromEnum(ValueFunction::values);
+        public static final Codec<ValueFunction> CODEC =
+                StringRepresentable.fromEnum(ValueFunction::values);
         private final BiFunction<Long, Long, Boolean> fn;
 
         ValueFunction(BiFunction<Long, Long, Boolean> fn) {
@@ -78,8 +76,7 @@ public class NumericTagValuePredicate {
         }
 
         @Override
-        @NotNull
-        public String getSerializedName() {
+        @NotNull public String getSerializedName() {
             return name();
         }
     }
@@ -93,8 +90,7 @@ public class NumericTagValuePredicate {
         private ValueFunction requirement;
         private long expected;
 
-        Builder() {
-        }
+        Builder() {}
 
         public Builder path(String tagKeyPath) {
             this.tagKeyPath = tagKeyPath;
@@ -143,8 +139,7 @@ public class NumericTagValuePredicate {
             List<Tag> contract = path.get(tag);
             if (contract.size() >= 2)
                 throw new IllegalArgumentException(
-                    "TagValuePredicate does not allow multiple tag at path: " + tagKeyPath
-                );
+                        "TagValuePredicate does not allow multiple tag at path: " + tagKeyPath);
             if (contract.isEmpty()) return false;
             Tag value = contract.get(0);
             if (value instanceof NumericTag tag1) {

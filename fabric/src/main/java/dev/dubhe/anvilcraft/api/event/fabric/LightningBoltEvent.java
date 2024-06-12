@@ -10,12 +10,12 @@ import net.minecraft.world.level.Level;
  * 闪电事件
  */
 public class LightningBoltEvent {
-    public static final Event<LightningStrike> LIGHTNING_STRIKE = EventFactory.createArrayBacked(LightningStrike.class,
-        callbacks -> ((level, pos, entity) -> {
-            for (LightningStrike callback : callbacks) {
-                callback.strike(level, pos, entity);
-            }
-        }));
+    public static final Event<LightningStrike> LIGHTNING_STRIKE =
+            EventFactory.createArrayBacked(LightningStrike.class, callbacks -> ((level, pos, entity) -> {
+                for (LightningStrike callback : callbacks) {
+                    callback.strike(level, pos, entity);
+                }
+            }));
 
     /**
      * 雷击

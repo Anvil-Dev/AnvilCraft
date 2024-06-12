@@ -7,8 +7,7 @@ import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.SliderMenu;
-import lombok.Getter;
-import lombok.Setter;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -20,18 +19,22 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Getter
-public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerProducer, IPowerConsumer, MenuProvider {
+public class CreativeGeneratorBlockEntity extends BlockEntity
+        implements IPowerProducer, IPowerConsumer, MenuProvider {
     private PowerGrid grid = null;
+
     @Setter
     private int power = 16;
 
     public static @NotNull CreativeGeneratorBlockEntity createBlockEntity(
-        BlockEntityType<?> type, BlockPos pos, BlockState blockState
-    ) {
+            BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         return new CreativeGeneratorBlockEntity(type, pos, blockState);
     }
 
@@ -39,7 +42,8 @@ public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerP
         this(ModBlockEntities.CREATIVE_GENERATOR.get(), pos, blockState);
     }
 
-    private CreativeGeneratorBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+    private CreativeGeneratorBlockEntity(
+            BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
 
@@ -85,9 +89,9 @@ public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerP
         return ModBlocks.CREATIVE_GENERATOR.get().getName();
     }
 
-    @Nullable
-    @Override
-    public AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
+    @Nullable @Override
+    public AbstractContainerMenu createMenu(
+            int i, @NotNull Inventory inventory, @NotNull Player player) {
         return new SliderMenu(i, -8192, 8192, this::setPower);
     }
 

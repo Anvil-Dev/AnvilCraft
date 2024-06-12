@@ -24,10 +24,13 @@ public class PlaceInWaterBlockItem extends BlockItem {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
-        BlockHitResult blockHitResult = getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY);
+    public InteractionResultHolder<ItemStack> use(
+            Level level, Player player, InteractionHand usedHand) {
+        BlockHitResult blockHitResult =
+                getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY);
         BlockHitResult blockHitResult2 = blockHitResult.withPosition(blockHitResult.getBlockPos());
-        InteractionResult interactionResult = super.useOn(new UseOnContext(player, usedHand, blockHitResult2));
+        InteractionResult interactionResult =
+                super.useOn(new UseOnContext(player, usedHand, blockHitResult2));
         return new InteractionResultHolder<>(interactionResult, player.getItemInHand(usedHand));
     }
 }

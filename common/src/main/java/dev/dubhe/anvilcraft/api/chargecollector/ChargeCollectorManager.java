@@ -1,6 +1,12 @@
 package dev.dubhe.anvilcraft.api.chargecollector;
 
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
+
+import net.minecraft.core.BlockPos;
+
+import lombok.Getter;
+import org.joml.Vector3f;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -8,12 +14,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import lombok.Getter;
-import net.minecraft.core.BlockPos;
-import org.joml.Vector3f;
 
 public class ChargeCollectorManager {
-    private static final Map<BlockPos, ChargeCollectorBlockEntity> CHARGE_COLLECTOR_MAP = new HashMap<>();
+    private static final Map<BlockPos, ChargeCollectorBlockEntity> CHARGE_COLLECTOR_MAP =
+            new HashMap<>();
 
     /**
      * 添加新的集电器
@@ -36,12 +40,17 @@ public class ChargeCollectorManager {
         List<Entry> distanceList = new ArrayList<>();
         for (Map.Entry<BlockPos, ChargeCollectorBlockEntity> entry : CHARGE_COLLECTOR_MAP.entrySet()) {
             double distance = Vector3f.distance(
-                entry.getKey().getX(), entry.getKey().getY(), entry.getKey().getZ(),
-                blockPos.getX(), blockPos.getY(), blockPos.getZ());
+                    entry.getKey().getX(),
+                    entry.getKey().getY(),
+                    entry.getKey().getZ(),
+                    blockPos.getX(),
+                    blockPos.getY(),
+                    blockPos.getZ());
             distanceList.add(new Entry(distance, entry.getValue()));
         }
         return distanceList.stream()
-            .sorted(Comparator.comparing(Entry::getDistance)).collect(Collectors.toList());
+                .sorted(Comparator.comparing(Entry::getDistance))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -53,11 +62,11 @@ public class ChargeCollectorManager {
      */
     public static boolean canCollect(ChargeCollectorBlockEntity blockEntity, BlockPos blockPos) {
         return blockEntity.getPos().getX() - 2 <= blockPos.getX()
-            && blockEntity.getPos().getY() - 2 <= blockPos.getY()
-            && blockEntity.getPos().getZ() - 2 <= blockPos.getZ()
-            && blockEntity.getPos().getX() + 2 >= blockPos.getX()
-            && blockEntity.getPos().getY() + 2 >= blockPos.getY()
-            && blockEntity.getPos().getZ() + 2 >= blockPos.getZ();
+                && blockEntity.getPos().getY() - 2 <= blockPos.getY()
+                && blockEntity.getPos().getZ() - 2 <= blockPos.getZ()
+                && blockEntity.getPos().getX() + 2 >= blockPos.getX()
+                && blockEntity.getPos().getY() + 2 >= blockPos.getY()
+                && blockEntity.getPos().getZ() + 2 >= blockPos.getZ();
     }
 
     public static void cleanMap() {
@@ -73,6 +82,5 @@ public class ChargeCollectorManager {
             this.distance = distance;
             this.blockEntity = blockEntity;
         }
-
     }
 }

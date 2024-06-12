@@ -1,16 +1,15 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import dev.architectury.injectables.annotations.ExpectPlatform;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.api.depository.IItemDepository;
 import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
+import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.block.ChuteBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.ChuteMenu;
-import lombok.Getter;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -26,13 +25,17 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+
+import dev.architectury.injectables.annotations.ExpectPlatform;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 @Getter
-public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterBlockEntity, IDiskCloneable {
+public class ChuteBlockEntity extends BaseMachineBlockEntity
+        implements IFilterBlockEntity, IDiskCloneable {
     private int cooldown = 0;
     private final FilteredItemDepository depository = new FilteredItemDepository(9) {
         @Override
@@ -41,7 +44,8 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
         }
     };
 
-    protected ChuteBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
+    protected ChuteBlockEntity(
+            BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
 
@@ -65,7 +69,8 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
     }
 
     @ExpectPlatform
-    public static ChuteBlockEntity createBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+    public static ChuteBlockEntity createBlockEntity(
+            BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         throw new AssertionError();
     }
 
@@ -84,9 +89,9 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
         return Component.translatable("block.anvilcraft.chute");
     }
 
-    @Nullable
-    @Override
-    public AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
+    @Nullable @Override
+    public AbstractContainerMenu createMenu(
+            int i, @NotNull Inventory inventory, @NotNull Player player) {
         return new ChuteMenu(ModMenuTypes.CHUTE.get(), i, inventory, this);
     }
 
@@ -112,24 +117,22 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
         if (cooldown <= 0) {
             if (getBlockState().getValue(ChuteBlock.ENABLED)) {
                 IItemDepository depository = ItemDepositoryHelper.getItemDepository(
-                        getLevel(),
-                        getBlockPos().relative(Direction.UP),
-                        Direction.UP.getOpposite()
-                );
+                        getLevel(), getBlockPos().relative(Direction.UP), Direction.UP.getOpposite());
                 if (depository != null) {
                     // 尝试从上方容器输入
                     if (ItemDepositoryHelper.importToTarget(this.depository, 64, stack -> true, depository)) {
                         cooldown = AnvilCraft.config.chuteMaxCooldown;
                     }
                 } else {
-                    List<ItemEntity> itemEntities = getLevel().getEntitiesOfClass(
-                            ItemEntity.class, new AABB(getBlockPos().relative(Direction.UP)),
-                            itemEntity -> !itemEntity.getItem().isEmpty());
+                    List<ItemEntity> itemEntities = getLevel()
+                            .getEntitiesOfClass(
+                                    ItemEntity.class,
+                                    new AABB(getBlockPos().relative(Direction.UP)),
+                                    itemEntity -> !itemEntity.getItem().isEmpty());
                     int prevSize = itemEntities.size();
                     for (ItemEntity itemEntity : itemEntities) {
-                        ItemStack remaining = ItemDepositoryHelper.insertItem(
-                                this.depository, itemEntity.getItem(), true
-                        );
+                        ItemStack remaining =
+                                ItemDepositoryHelper.insertItem(this.depository, itemEntity.getItem(), true);
                         if (!remaining.isEmpty()) continue;
                         ItemDepositoryHelper.insertItem(this.depository, itemEntity.getItem(), false);
                         itemEntity.kill();
@@ -142,20 +145,22 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
                 depository = ItemDepositoryHelper.getItemDepository(
                         getLevel(),
                         getBlockPos().relative(this.getDirection()),
-                        this.getDirection().getOpposite()
-                );
+                        this.getDirection().getOpposite());
                 if (depository != null) {
                     // 尝试向朝向容器输出
                     if (!this.depository.isEmpty()) {
-                        if (ItemDepositoryHelper.exportToTarget(this.depository, 64, stack -> true, depository)) {
+                        if (ItemDepositoryHelper.exportToTarget(
+                                this.depository, 64, stack -> true, depository)) {
                             cooldown = AnvilCraft.config.chuteMaxCooldown;
                         }
                     }
                 } else {
                     Vec3 center = getBlockPos().relative(getDirection()).getCenter();
-                    List<ItemEntity> itemEntities = getLevel().getEntitiesOfClass(
-                        ItemEntity.class, new AABB(getBlockPos().relative(getDirection())),
-                        itemEntity -> !itemEntity.getItem().isEmpty());
+                    List<ItemEntity> itemEntities = getLevel()
+                            .getEntitiesOfClass(
+                                    ItemEntity.class,
+                                    new AABB(getBlockPos().relative(getDirection())),
+                                    itemEntity -> !itemEntity.getItem().isEmpty());
                     AABB aabb = new AABB(center.add(-0.125, -0.125, -0.125), center.add(0.125, 0.125, 0.125));
                     if (getLevel().noCollision(aabb)) {
                         for (int i = 0; i < this.depository.getSlots(); i++) {
@@ -169,15 +174,13 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
                                 }
                                 if (sameItemCount < stack.getItem().getMaxStackSize()) {
                                     ItemStack droppedItemStack = stack.copy();
-                                    int droppedItemCount = Math.min(stack.getCount(),
-                                        stack.getMaxStackSize() - sameItemCount);
+                                    int droppedItemCount =
+                                            Math.min(stack.getCount(), stack.getMaxStackSize() - sameItemCount);
                                     droppedItemStack.setCount(droppedItemCount);
                                     stack.setCount(stack.getCount() - droppedItemCount);
                                     if (stack.getCount() == 0) stack = ItemStack.EMPTY;
                                     ItemEntity itemEntity = new ItemEntity(
-                                        getLevel(), center.x, center.y, center.z,
-                                        droppedItemStack,
-                                        0, 0, 0);
+                                            getLevel(), center.x, center.y, center.z, droppedItemStack, 0, 0, 0);
                                     itemEntity.setDefaultPickUpDelay();
                                     getLevel().addFreshEntity(itemEntity);
                                     this.depository.setStack(i, stack);
@@ -230,4 +233,3 @@ public class ChuteBlockEntity extends BaseMachineBlockEntity implements IFilterB
         depository.deserializeFiltering(data.getCompound("Filtering"));
     }
 }
-

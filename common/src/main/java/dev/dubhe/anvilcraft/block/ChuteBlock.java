@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.network.MachineEnableFilterPack;
 import dev.dubhe.anvilcraft.network.MachineOutputDirectionPack;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
 import dev.dubhe.anvilcraft.network.SlotFilterChangePack;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -43,34 +44,45 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
 import java.util.stream.Stream;
 
-public class ChuteBlock extends BaseEntityBlock implements IHammerChangeableBlock, IHammerRemovable {
+import javax.annotation.Nonnull;
+
+public class ChuteBlock extends BaseEntityBlock
+        implements IHammerChangeableBlock, IHammerRemovable {
     public static final DirectionProperty FACING = BlockStateProperties.FACING_HOPPER;
     public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
 
-    public static final VoxelShape AABB = Shapes.join(Block.box(0, 12, 0, 16, 16, 16),
-            Block.box(2, 0, 2, 14, 12, 14), BooleanOp.OR);
-    public static final VoxelShape AABB_W = Stream.of(Block.box(2, 8, 2, 14, 12, 14),
+    public static final VoxelShape AABB =
+            Shapes.join(Block.box(0, 12, 0, 16, 16, 16), Block.box(2, 0, 2, 14, 12, 14), BooleanOp.OR);
+    public static final VoxelShape AABB_W = Stream.of(
+                    Block.box(2, 8, 2, 14, 12, 14),
                     Block.box(0, 4, 4, 12, 12, 12),
                     Block.box(0, 12, 0, 16, 16, 16))
-            .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
-    public static final VoxelShape AABB_E = Stream.of(Block.box(2, 8, 2, 14, 12, 14),
+            .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
+            .get();
+    public static final VoxelShape AABB_E = Stream.of(
+                    Block.box(2, 8, 2, 14, 12, 14),
                     Block.box(4, 4, 4, 16, 12, 12),
                     Block.box(0, 12, 0, 16, 16, 16))
-            .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
-    public static final VoxelShape AABB_S = Stream.of(Block.box(2, 8, 2, 14, 12, 14),
+            .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
+            .get();
+    public static final VoxelShape AABB_S = Stream.of(
+                    Block.box(2, 8, 2, 14, 12, 14),
                     Block.box(4, 4, 4, 12, 12, 16),
                     Block.box(0, 12, 0, 16, 16, 16))
-            .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
-    public static final VoxelShape AABB_N = Stream.of(Block.box(2, 8, 2, 14, 12, 14),
+            .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
+            .get();
+    public static final VoxelShape AABB_N = Stream.of(
+                    Block.box(2, 8, 2, 14, 12, 14),
                     Block.box(4, 4, 0, 12, 12, 12),
                     Block.box(0, 12, 0, 16, 16, 16))
-            .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+            .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
+            .get();
 
     /**
      * 溜槽方块
@@ -79,11 +91,10 @@ public class ChuteBlock extends BaseEntityBlock implements IHammerChangeableBloc
      */
     public ChuteBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(
-                this.stateDefinition.any()
-                        .setValue(FACING, Direction.DOWN)
-                        .setValue(ENABLED, Boolean.TRUE)
-        );
+        this.registerDefaultState(this.stateDefinition
+                .any()
+                .setValue(FACING, Direction.DOWN)
+                .setValue(ENABLED, Boolean.TRUE));
     }
 
     @Override
@@ -112,7 +123,8 @@ public class ChuteBlock extends BaseEntityBlock implements IHammerChangeableBloc
     }
 
     @Override
-    protected void createBlockStateDefinition(@Nonnull StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(
+            @Nonnull StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING, ENABLED);
     }
 
@@ -124,8 +136,7 @@ public class ChuteBlock extends BaseEntityBlock implements IHammerChangeableBloc
             @NotNull BlockPos pos,
             @NotNull Block neighborBlock,
             @NotNull BlockPos neighborPos,
-            boolean movedByPiston
-    ) {
+            boolean movedByPiston) {
         if (level.isClientSide) return;
         boolean bl = state.getValue(ENABLED);
         if (bl == level.hasNeighborSignal(pos)) {
@@ -137,7 +148,8 @@ public class ChuteBlock extends BaseEntityBlock implements IHammerChangeableBloc
         if (!blockState.is(ModBlocks.CHUTE.get())) return;
         if (hasChuteFacing(level, neighborPos)) {
             BlockState newState = ModBlocks.SIMPLE_CHUTE.getDefaultState();
-            newState = newState.setValue(SimpleChuteBlock.FACING, blockState.getValue(FACING))
+            newState = newState
+                    .setValue(SimpleChuteBlock.FACING, blockState.getValue(FACING))
                     .setValue(SimpleChuteBlock.ENABLED, blockState.getValue(ENABLED));
             BlockState upState = level.getBlockState(neighborPos.relative(Direction.UP));
             if (upState.is(ModBlocks.SIMPLE_CHUTE.get()) || upState.is(ModBlocks.CHUTE.get())) {
@@ -152,8 +164,10 @@ public class ChuteBlock extends BaseEntityBlock implements IHammerChangeableBloc
     @SuppressWarnings("deprecation")
     @Override
     public void tick(
-            @NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random
-    ) {
+            @NotNull BlockState state,
+            @NotNull ServerLevel level,
+            @NotNull BlockPos pos,
+            @NotNull RandomSource random) {
         if (!state.getValue(ENABLED) && !level.hasNeighborSignal(pos)) {
             level.setBlock(pos, state.cycle(ENABLED), 2);
         }
@@ -164,16 +178,15 @@ public class ChuteBlock extends BaseEntityBlock implements IHammerChangeableBloc
         return RenderShape.MODEL;
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-            @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type
-    ) {
+            @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type) {
         if (level.isClientSide()) {
             return null;
         }
         return createTickerHelper(
-                type, ModBlockEntities.CHUTE.get(),
+                type,
+                ModBlockEntities.CHUTE.get(),
                 ((level1, blockPos, blockState, blockEntity) -> blockEntity.tick()));
     }
 
@@ -183,8 +196,7 @@ public class ChuteBlock extends BaseEntityBlock implements IHammerChangeableBloc
             @Nonnull BlockState blockState,
             @Nonnull BlockGetter blockGetter,
             @Nonnull BlockPos blockPos,
-            @Nonnull CollisionContext collisionContext
-    ) {
+            @Nonnull CollisionContext collisionContext) {
         return switch (blockState.getValue(FACING)) {
             case NORTH -> AABB_N;
             case SOUTH -> AABB_S;
@@ -202,28 +214,22 @@ public class ChuteBlock extends BaseEntityBlock implements IHammerChangeableBloc
             @Nonnull BlockPos pos,
             @Nonnull Player player,
             @Nonnull InteractionHand hand,
-            @Nonnull BlockHitResult hit
-    ) {
+            @Nonnull BlockHitResult hit) {
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
         }
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof ChuteBlockEntity entity) {
             if (player.getItemInHand(hand).is(ModItems.DISK.get())) {
-                return entity.useDisk(
-                        level,
-                        player,
-                        hand,
-                        player.getItemInHand(hand),
-                        hit
-                );
+                return entity.useDisk(level, player, hand, player.getItemInHand(hand), hit);
             }
             if (player instanceof ServerPlayer serverPlayer) {
                 ModMenuTypes.open(serverPlayer, entity, pos);
                 new MachineOutputDirectionPack(entity.getDirection()).send(serverPlayer);
                 new MachineEnableFilterPack(entity.isFilterEnabled()).send(serverPlayer);
                 for (int i = 0; i < entity.getFilteredItems().size(); i++) {
-                    new SlotDisableChangePack(i, entity.getDepository().getDisabled().get(i)).send(serverPlayer);
+                    new SlotDisableChangePack(i, entity.getDepository().getDisabled().get(i))
+                            .send(serverPlayer);
                     new SlotFilterChangePack(i, entity.getFilter(i)).send(serverPlayer);
                 }
             }
@@ -238,8 +244,7 @@ public class ChuteBlock extends BaseEntityBlock implements IHammerChangeableBloc
             @NotNull Level level,
             @NotNull BlockPos pos,
             @NotNull BlockState newState,
-            boolean movedByPiston
-    ) {
+            boolean movedByPiston) {
         if (!state.is(newState.getBlock())) {
             if (level.getBlockEntity(pos) instanceof ChuteBlockEntity entity) {
                 Vec3 vec3 = entity.getBlockPos().getCenter();
@@ -281,8 +286,7 @@ public class ChuteBlock extends BaseEntityBlock implements IHammerChangeableBloc
             @NotNull Level level,
             @NotNull BlockPos pos,
             @NotNull BlockState oldState,
-            boolean movedByPiston
-    ) {
+            boolean movedByPiston) {
         BlockState facingState = level.getBlockState(pos.relative(state.getValue(FACING)));
         if (facingState.is(ModBlocks.CHUTE.get()) || facingState.is(ModBlocks.SIMPLE_CHUTE.get())) {
             if (facingState.getValue(FACING).getOpposite() == state.getValue(FACING)) {
@@ -293,10 +297,12 @@ public class ChuteBlock extends BaseEntityBlock implements IHammerChangeableBloc
             newState = newState
                     .setValue(SimpleChuteBlock.FACING, facingState.getValue(FACING))
                     .setValue(SimpleChuteBlock.ENABLED, facingState.getValue(ENABLED));
-            BlockState facingUpState = level.getBlockState(pos.relative(state.getValue(FACING)).relative(Direction.UP));
+            BlockState facingUpState =
+                    level.getBlockState(pos.relative(state.getValue(FACING)).relative(Direction.UP));
             if (state.getValue(FACING) == Direction.DOWN
                     || ((facingUpState.is(ModBlocks.SIMPLE_CHUTE.get())
-                    || facingUpState.is(ModBlocks.CHUTE.get())) && facingUpState.getValue(FACING) == Direction.DOWN)) {
+                                    || facingUpState.is(ModBlocks.CHUTE.get()))
+                            && facingUpState.getValue(FACING) == Direction.DOWN)) {
                 newState = newState.setValue(SimpleChuteBlock.TALL, true);
             } else {
                 newState = newState.setValue(SimpleChuteBlock.TALL, false);
@@ -314,7 +320,8 @@ public class ChuteBlock extends BaseEntityBlock implements IHammerChangeableBloc
 
     @Override
     @SuppressWarnings("deprecation")
-    public int getAnalogOutputSignal(@NotNull BlockState blockState, @NotNull Level level, @NotNull BlockPos blockPos) {
+    public int getAnalogOutputSignal(
+            @NotNull BlockState blockState, @NotNull Level level, @NotNull BlockPos blockPos) {
         BlockEntity blockEntity = level.getBlockEntity(blockPos);
         if (blockEntity instanceof ChuteBlockEntity chuteBlockEntity) {
             return chuteBlockEntity.getRedstoneSignal();

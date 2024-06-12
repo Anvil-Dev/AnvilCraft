@@ -1,9 +1,5 @@
 package dev.dubhe.anvilcraft.util;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
@@ -11,6 +7,11 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.ShapedRecipe;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -34,7 +35,8 @@ public interface IItemStackUtil {
         ItemStack stack = item.getDefaultInstance();
         stack.setCount(i);
         if (object.has("data")) {
-            if (!object.get("data").isJsonPrimitive()) throw new JsonSyntaxException("Expected item to be string");
+            if (!object.get("data").isJsonPrimitive())
+                throw new JsonSyntaxException("Expected item to be string");
             CompoundTag tag;
             try {
                 tag = TagParser.parseTag(object.get("data").getAsString());

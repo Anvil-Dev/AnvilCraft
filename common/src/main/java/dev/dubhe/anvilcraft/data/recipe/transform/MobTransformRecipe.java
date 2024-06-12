@@ -1,10 +1,5 @@
 package dev.dubhe.anvilcraft.data.recipe.transform;
 
-import com.google.gson.JsonObject;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.JsonOps;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import lombok.Getter;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.RequirementsStrategy;
@@ -14,7 +9,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.commands.data.EntityDataAccessor;
@@ -26,9 +20,14 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
+
+import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.text.html.Option;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -43,30 +42,39 @@ import static net.minecraft.data.recipes.RecipeBuilder.ROOT_RECIPE_ADVANCEMENT;
 public class MobTransformRecipe implements Recipe<MobTransformContainer> {
 
     public static final Codec<MobTransformRecipe> CODEC = RecordCodecBuilder.create(ins -> ins.group(
-            ResourceLocation.CODEC.fieldOf("id").forGetter(o -> o.id),
-            ResourceLocation.CODEC.fieldOf("input")
-                    .forGetter(o -> BuiltInRegistries.ENTITY_TYPE.getKey(o.input)),
-            TransformResult.CODEC.listOf().fieldOf("results").forGetter(o -> o.results),
-            NumericTagValuePredicate.CODEC.listOf()
-                    .optionalFieldOf("tagPredicates")
-                    .forGetter(o -> java.util.Optional.ofNullable(o.tagPredicates)),
-            TagModification.CODEC.listOf()
-                    .optionalFieldOf("tagModifications")
-                    .forGetter(o -> java.util.Optional.ofNullable(o.tagModifications)),
-            TransformOptions.CODEC.listOf()
-                    .optionalFieldOf("transformOptions")
-                    .forGetter(o -> Optional.ofNullable(o.transformOptions))
-    ).apply(ins, MobTransformRecipe::new));
+                    ResourceLocation.CODEC.fieldOf("id").forGetter(o -> o.id),
+                    ResourceLocation.CODEC
+                            .fieldOf("input")
+                            .forGetter(o -> BuiltInRegistries.ENTITY_TYPE.getKey(o.input)),
+                    TransformResult.CODEC.listOf().fieldOf("results").forGetter(o -> o.results),
+                    NumericTagValuePredicate.CODEC
+                            .listOf()
+                            .optionalFieldOf("tagPredicates")
+                            .forGetter(o -> java.util.Optional.ofNullable(o.tagPredicates)),
+                    TagModification.CODEC
+                            .listOf()
+                            .optionalFieldOf("tagModifications")
+                            .forGetter(o -> java.util.Optional.ofNullable(o.tagModifications)),
+                    TransformOptions.CODEC
+                            .listOf()
+                            .optionalFieldOf("transformOptions")
+                            .forGetter(o -> Optional.ofNullable(o.transformOptions)))
+            .apply(ins, MobTransformRecipe::new));
 
     private final ResourceLocation id;
+
     @Getter
     private EntityType<?> input;
+
     @Getter
     private List<TransformResult> results;
+
     @Getter
     private List<NumericTagValuePredicate> tagPredicates;
+
     @Getter
     private List<TagModification> tagModifications;
+
     @Getter
     private List<TransformOptions> transformOptions;
 
@@ -79,8 +87,7 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
             List<TransformResult> results,
             Optional<List<NumericTagValuePredicate>> tagPredicates,
             Optional<List<TagModification>> tagModifications,
-            Optional<List<TransformOptions>> options
-    ) {
+            Optional<List<TransformOptions>> options) {
         this.id = id;
         this.results = results;
         this.input = BuiltInRegistries.ENTITY_TYPE.get(input);
@@ -100,7 +107,7 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
         }
         return container.getEntity().getType() == input
                 && tagPredicates.stream()
-                .allMatch(it -> it.test(new EntityDataAccessor(container.getEntity()).getData()));
+                        .allMatch(it -> it.test(new EntityDataAccessor(container.getEntity()).getData()));
     }
 
     /**
@@ -121,9 +128,7 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
 
     @Override
     public @NotNull ItemStack assemble(
-            @NotNull MobTransformContainer container,
-            @NotNull RegistryAccess registryAccess
-    ) {
+            @NotNull MobTransformContainer container, @NotNull RegistryAccess registryAccess) {
         return ItemStack.EMPTY;
     }
 
@@ -188,17 +193,15 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
 
         @Override
         public @NotNull MobTransformRecipe fromJson(
-                @NotNull ResourceLocation recipeId,
-                @NotNull JsonObject serializedRecipe
-        ) {
+                @NotNull ResourceLocation recipeId, @NotNull JsonObject serializedRecipe) {
             return MobTransformRecipe.CODEC
                     .parse(JsonOps.INSTANCE, serializedRecipe)
-                    .getOrThrow(false, ignored -> {
-                    });
+                    .getOrThrow(false, ignored -> {});
         }
 
         @Override
-        public @NotNull MobTransformRecipe fromNetwork(@NotNull ResourceLocation recipeId, FriendlyByteBuf buffer) {
+        public @NotNull MobTransformRecipe fromNetwork(
+                @NotNull ResourceLocation recipeId, FriendlyByteBuf buffer) {
             MobTransformRecipe recipe = new MobTransformRecipe(recipeId);
             ResourceLocation inputMobTypeIdentifier = buffer.readResourceLocation();
             recipe.results = buffer.readList(TransformResult::fromByteBuf);
@@ -208,13 +211,11 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
 
         @Override
         public void toNetwork(FriendlyByteBuf buffer, MobTransformRecipe recipe) {
-            ResourceLocation inputMobTypeIdentifier =
-                    BuiltInRegistries.ENTITY_TYPE.getKey(recipe.input);
+            ResourceLocation inputMobTypeIdentifier = BuiltInRegistries.ENTITY_TYPE.getKey(recipe.input);
             buffer.writeResourceLocation(inputMobTypeIdentifier);
             buffer.writeCollection(recipe.results, TransformResult::intoByteBuf);
         }
     }
-
 
     public enum Type implements RecipeType<MobTransformRecipe> {
         INSTANCE
@@ -316,16 +317,11 @@ public class MobTransformRecipe implements Recipe<MobTransformContainer> {
                     .rewards(AdvancementRewards.Builder.recipe(id))
                     .requirements(RequirementsStrategy.OR);
             return new FinishedMobTransformRecipe(
-                    build(),
-                    advancement,
-                    id.withPrefix("recipes/" + this.category.getFolderName() + "/")
-            );
+                    build(), advancement, id.withPrefix("recipes/" + this.category.getFolderName() + "/"));
         }
 
         public void accept(Consumer<FinishedRecipe> provider) {
             provider.accept(finish());
         }
-
-
     }
 }

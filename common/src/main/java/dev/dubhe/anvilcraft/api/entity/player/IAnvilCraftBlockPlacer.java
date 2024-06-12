@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.api.entity.player;
 
 import dev.dubhe.anvilcraft.block.state.Orientation;
 import dev.dubhe.anvilcraft.mixin.BlockItemInvoker;
+
 import net.minecraft.commands.arguments.EntityAnchorArgument.Anchor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -31,8 +32,12 @@ public interface IAnvilCraftBlockPlacer {
      * @param blockItem 放置方块物品
      * @return 放置结果
      */
-    default InteractionResult placeBlock(Level level, BlockPos pos, Orientation orientation,
-                                         BlockItem blockItem, ItemStack itemStack) {
+    default InteractionResult placeBlock(
+            Level level,
+            BlockPos pos,
+            Orientation orientation,
+            BlockItem blockItem,
+            ItemStack itemStack) {
         Vec3 clickClickLocation = getPosFromOrientation(orientation);
         double x = clickClickLocation.x;
         double y = clickClickLocation.y;
@@ -40,14 +45,14 @@ public interface IAnvilCraftBlockPlacer {
         getPlayer().teleportTo(0.5, -1, 0.5);
         getPlayer().lookAt(Anchor.EYES, new Vec3(x, 1 - y, z));
         BlockHitResult blockHitResult = new BlockHitResult(
-            pos.getCenter().add(-0.5, -0.5, -0.5).add(x, 1 - y, z),
-            orientation.getDirection().getOpposite(),
-            pos,
-            false
-        );
-        BlockPlaceContext blockPlaceContext =
-            new BlockPlaceContext(level, getPlayer(), getPlayer().getUsedItemHand(), itemStack, blockHitResult);
-        BlockState blockState = ((BlockItemInvoker) blockItem).invokerGetPlacementState(blockPlaceContext);
+                pos.getCenter().add(-0.5, -0.5, -0.5).add(x, 1 - y, z),
+                orientation.getDirection().getOpposite(),
+                pos,
+                false);
+        BlockPlaceContext blockPlaceContext = new BlockPlaceContext(
+                level, getPlayer(), getPlayer().getUsedItemHand(), itemStack, blockHitResult);
+        BlockState blockState =
+                ((BlockItemInvoker) blockItem).invokerGetPlacementState(blockPlaceContext);
         if (blockState == null) {
             return InteractionResult.FAIL;
         }
@@ -57,11 +62,12 @@ public interface IAnvilCraftBlockPlacer {
         BlockItem.updateCustomBlockEntityTag(level, null, pos, itemStack);
         SoundType soundType = blockState.getSoundType();
         level.playSound(
-            getPlayer(),
-            pos,
-            blockItem.getPlaceSound(blockState),
-            SoundSource.BLOCKS, (soundType.getVolume() + 1.0f) / 2.0f,
-            soundType.getPitch() * 0.8f);
+                getPlayer(),
+                pos,
+                blockItem.getPlaceSound(blockState),
+                SoundSource.BLOCKS,
+                (soundType.getVolume() + 1.0f) / 2.0f,
+                soundType.getPitch() * 0.8f);
         return InteractionResult.SUCCESS;
     }
 

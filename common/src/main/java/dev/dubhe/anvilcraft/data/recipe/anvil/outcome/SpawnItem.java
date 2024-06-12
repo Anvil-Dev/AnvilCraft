@@ -1,16 +1,10 @@
 package dev.dubhe.anvilcraft.data.recipe.anvil.outcome;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSyntaxException;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
 import dev.dubhe.anvilcraft.data.recipe.anvil.CanSetData;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipeOutcome;
 import dev.dubhe.anvilcraft.util.IItemStackUtil;
-import lombok.Getter;
-import lombok.Setter;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -19,6 +13,14 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSyntaxException;
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -30,6 +32,7 @@ public class SpawnItem implements RecipeOutcome, CanSetData {
     private final double chance;
     private final ItemStack result;
     private String path = null;
+
     @Setter
     private Map<String, CompoundTag> data = null;
 
@@ -75,7 +78,8 @@ public class SpawnItem implements RecipeOutcome, CanSetData {
                 if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isNumber()) {
                     vec3[i] = element.getAsDouble();
                 } else
-                    throw new JsonSyntaxException("Expected offset to be a Double, was " + GsonHelper.getType(element));
+                    throw new JsonSyntaxException(
+                            "Expected offset to be a Double, was " + GsonHelper.getType(element));
             }
         }
         this.offset = new Vec3(vec3[0], vec3[1], vec3[2]);

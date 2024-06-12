@@ -1,10 +1,11 @@
 package dev.dubhe.anvilcraft.integration.emi.stack;
 
-import dev.emi.emi.api.stack.EmiIngredient;
-import dev.emi.emi.api.stack.EmiStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+
+import dev.emi.emi.api.stack.EmiIngredient;
+import dev.emi.emi.api.stack.EmiStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -21,11 +22,13 @@ public class ListBlockStateEmiIngredient implements EmiIngredient {
         this.chance = chance;
     }
 
-    public static @NotNull ListBlockStateEmiIngredient of(List<BlockStateEmiStack> blocks, long amount, float chance) {
+    public static @NotNull ListBlockStateEmiIngredient of(
+            List<BlockStateEmiStack> blocks, long amount, float chance) {
         return new ListBlockStateEmiIngredient(blocks, amount, chance);
     }
 
-    public static @NotNull ListBlockStateEmiIngredient of(List<BlockStateEmiStack> blocks, long amount) {
+    public static @NotNull ListBlockStateEmiIngredient of(
+            List<BlockStateEmiStack> blocks, long amount) {
         return ListBlockStateEmiIngredient.of(blocks, amount, 1.0f);
     }
 
@@ -67,7 +70,8 @@ public class ListBlockStateEmiIngredient implements EmiIngredient {
 
     public BlockStateEmiStack get() {
         if (MINECRAFT.level == null || this.blocks.isEmpty()) return BlockStateEmiStack.EMPTY;
-        return this.blocks.get((int) Math.floor((MINECRAFT.level.getGameTime() % (this.blocks.size() * 20)) / 20.0));
+        return this.blocks.get(
+                (int) Math.floor((MINECRAFT.level.getGameTime() % (this.blocks.size() * 20)) / 20.0));
     }
 
     @Override

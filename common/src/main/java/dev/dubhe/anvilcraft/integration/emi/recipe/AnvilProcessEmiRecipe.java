@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.integration.emi.recipe;
 
-import com.google.common.collect.ImmutableSet;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipeOutcome;
@@ -17,14 +16,7 @@ import dev.dubhe.anvilcraft.integration.emi.stack.BlockStateEmiStack;
 import dev.dubhe.anvilcraft.integration.emi.stack.ListBlockStateEmiIngredient;
 import dev.dubhe.anvilcraft.integration.emi.stack.SelectOneEmiStack;
 import dev.dubhe.anvilcraft.integration.emi.ui.BlockWidget;
-import dev.emi.emi.api.recipe.EmiRecipe;
-import dev.emi.emi.api.recipe.EmiRecipeCategory;
-import dev.emi.emi.api.stack.EmiIngredient;
-import dev.emi.emi.api.stack.EmiStack;
-import dev.emi.emi.api.stack.ListEmiIngredient;
-import dev.emi.emi.api.stack.TagEmiIngredient;
-import dev.emi.emi.api.widget.SlotWidget;
-import dev.emi.emi.api.widget.WidgetHolder;
+
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.NonNullList;
@@ -39,6 +31,16 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+
+import com.google.common.collect.ImmutableSet;
+import dev.emi.emi.api.recipe.EmiRecipe;
+import dev.emi.emi.api.recipe.EmiRecipeCategory;
+import dev.emi.emi.api.stack.EmiIngredient;
+import dev.emi.emi.api.stack.EmiStack;
+import dev.emi.emi.api.stack.ListEmiIngredient;
+import dev.emi.emi.api.stack.TagEmiIngredient;
+import dev.emi.emi.api.widget.SlotWidget;
+import dev.emi.emi.api.widget.WidgetHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,16 +53,18 @@ import java.util.Set;
 
 @SuppressWarnings("SameParameterValue")
 public class AnvilProcessEmiRecipe implements EmiRecipe {
-    public static final ResourceLocation EMI_GUI_TEXTURES = AnvilCraft.of("textures/gui/container/emi/emi.png");
-    protected static final BlockState ANVIL_BLOCK_STATE = Blocks.ANVIL
-        .defaultBlockState()
-        .setValue(AnvilBlock.FACING, Direction.WEST);
+    public static final ResourceLocation EMI_GUI_TEXTURES =
+            AnvilCraft.of("textures/gui/container/emi/emi.png");
+    protected static final BlockState ANVIL_BLOCK_STATE =
+            Blocks.ANVIL.defaultBlockState().setValue(AnvilBlock.FACING, Direction.WEST);
     protected final EmiRecipeCategory category;
     protected final AnvilRecipe recipe;
     protected final List<EmiIngredient> inputs = new ArrayList<>();
     protected final List<EmiStack> outputs = new ArrayList<>();
-    protected final NonNullList<BlockStateEmiStack> inputBlocks = NonNullList.withSize(2, BlockStateEmiStack.EMPTY);
-    protected final NonNullList<BlockStateEmiStack> outputBlocks = NonNullList.withSize(2, BlockStateEmiStack.EMPTY);
+    protected final NonNullList<BlockStateEmiStack> inputBlocks =
+            NonNullList.withSize(2, BlockStateEmiStack.EMPTY);
+    protected final NonNullList<BlockStateEmiStack> outputBlocks =
+            NonNullList.withSize(2, BlockStateEmiStack.EMPTY);
     protected ResourceLocation id;
     protected int width = 246;
     protected int height = 84;
@@ -73,8 +77,7 @@ public class AnvilProcessEmiRecipe implements EmiRecipe {
      */
     @SuppressWarnings({"UnstableApiUsage", "unchecked"})
     public <T extends Comparable<T>, V extends T> AnvilProcessEmiRecipe(
-        EmiRecipeCategory category, @NotNull AnvilRecipe recipe
-    ) {
+            EmiRecipeCategory category, @NotNull AnvilRecipe recipe) {
         this.category = category;
         this.recipe = recipe;
         for (RecipePredicate predicate : recipe.getPredicates()) {
@@ -96,26 +99,28 @@ public class AnvilProcessEmiRecipe implements EmiRecipe {
                 TagKey<Block> tag = matchBlock.getTag();
                 Map<String, String> properties = matchBlock.getProperties();
                 Set<Block> blockSet = matchBlock.getBlocks();
-                if (tag != null) blockSet.addAll(
-                    BuiltInRegistries.BLOCK.getOrCreateTag(tag).stream().map(Holder::value).toList()
-                );
+                if (tag != null)
+                    blockSet.addAll(BuiltInRegistries.BLOCK.getOrCreateTag(tag).stream()
+                            .map(Holder::value)
+                            .toList());
                 List<BlockStateEmiStack> blocks = blockSet.stream()
-                    .map(block1 -> {
-                        BlockState workBlockState = block1.defaultBlockState();
-                        ImmutableSet<Property<?>> keySet = workBlockState.getValues().keySet();
-                        for (Property<?> property : keySet) {
-                            if (!properties.containsKey(property.getName())) continue;
-                            String value = properties.get(property.getName());
-                            Optional<?> first = property.getAllValues()
-                                .map(Property.Value::value)
-                                .filter(v -> value.equals(v.toString()))
-                                .findFirst();
-                            if (first.isEmpty()) continue;
-                            workBlockState = workBlockState.setValue((Property<T>) property, (V) first.get());
-                        }
-                        return BlockStateEmiStack.of(workBlockState);
-                    })
-                    .toList();
+                        .map(block1 -> {
+                            BlockState workBlockState = block1.defaultBlockState();
+                            ImmutableSet<Property<?>> keySet = workBlockState.getValues().keySet();
+                            for (Property<?> property : keySet) {
+                                if (!properties.containsKey(property.getName())) continue;
+                                String value = properties.get(property.getName());
+                                Optional<?> first = property
+                                        .getAllValues()
+                                        .map(Property.Value::value)
+                                        .filter(v -> value.equals(v.toString()))
+                                        .findFirst();
+                                if (first.isEmpty()) continue;
+                                workBlockState = workBlockState.setValue((Property<T>) property, (V) first.get());
+                            }
+                            return BlockStateEmiStack.of(workBlockState);
+                        })
+                        .toList();
                 ListBlockStateEmiIngredient ingredient = ListBlockStateEmiIngredient.of(blocks);
                 if (block.getOffset().equals(new Vec3(0.0d, -1.0d, 0.0d))) {
                     this.inputBlocks.set(0, ingredient.get());
@@ -129,7 +134,8 @@ public class AnvilProcessEmiRecipe implements EmiRecipe {
                 }
                 this.inputs.add(ingredient);
             } else if (predicate instanceof HasFluidCauldron cauldron) {
-                BlockStateEmiStack ingredient = BlockStateEmiStack.of(cauldron.getMatchBlock().defaultBlockState());
+                BlockStateEmiStack ingredient =
+                        BlockStateEmiStack.of(cauldron.getMatchBlock().defaultBlockState());
                 if (cauldron.getOffset().equals(new Vec3(0.0d, -1.0d, 0.0d))) {
                     this.inputBlocks.set(0, ingredient);
                     this.outputBlocks.set(0, ingredient);
@@ -256,10 +262,7 @@ public class AnvilProcessEmiRecipe implements EmiRecipe {
         ArrayList<Vec2> vec2List = new ArrayList<>();
         final int modelNumber = length <= 4 ? 2 : 3;
         for (int index = 0; index < length; index++) {
-            vec2List.add(new Vec2(
-                20 * (index % modelNumber),
-                20 * (int) ((float) index / modelNumber)
-            ));
+            vec2List.add(new Vec2(20 * (index % modelNumber), 20 * (int) ((float) index / modelNumber)));
         }
         return vec2List;
     }
@@ -269,9 +272,8 @@ public class AnvilProcessEmiRecipe implements EmiRecipe {
         if (length == 1) return new Vec2(18, 18);
         final int modelNumber = length <= 4 ? 2 : 3;
         return new Vec2(
-            modelNumber * 20 + (modelNumber - 1) * 2,
-            (int) ((float) length / modelNumber) * 20 + ((int) ((float) length / modelNumber) - 1) * 2
-        );
+                modelNumber * 20 + (modelNumber - 1) * 2,
+                (int) ((float) length / modelNumber) * 20 + ((int) ((float) length / modelNumber) - 1) * 2);
     }
 
     protected void addSlot(@NotNull EmiIngredient ingredient, int x, int y, WidgetHolder widgets) {
@@ -286,19 +288,23 @@ public class AnvilProcessEmiRecipe implements EmiRecipe {
         this.addSimpleSlot(ingredient, x, y, widgets);
     }
 
-    protected void addSimpleSlot(EmiIngredient ingredient, int x, int y, @NotNull WidgetHolder widgets) {
+    protected void addSimpleSlot(
+            EmiIngredient ingredient, int x, int y, @NotNull WidgetHolder widgets) {
+        widgets.add(new SlotWidget(ingredient, x, y).customBackground(EMI_GUI_TEXTURES, 0, 0, 18, 18));
+    }
+
+    protected void addChanceSlot(
+            EmiIngredient ingredient, int x, int y, @NotNull WidgetHolder widgets) {
         widgets.add(new SlotWidget(ingredient, x, y)
-            .customBackground(EMI_GUI_TEXTURES, 0, 0, 18, 18));
+                .recipeContext(this)
+                .customBackground(EMI_GUI_TEXTURES, 19, 0, 18, 18));
     }
 
-    protected void addChanceSlot(EmiIngredient ingredient, int x, int y, @NotNull WidgetHolder widgets) {
-        widgets.add(new SlotWidget(ingredient, x, y).recipeContext(this)
-            .customBackground(EMI_GUI_TEXTURES, 19, 0, 18, 18));
-    }
-
-    protected void addSelectOneSlot(EmiIngredient ingredient, int x, int y, @NotNull WidgetHolder widgets) {
-        widgets.add(new SlotWidget(ingredient, x, y).recipeContext(this)
-            .customBackground(EMI_GUI_TEXTURES, 38, 0, 18, 18));
+    protected void addSelectOneSlot(
+            EmiIngredient ingredient, int x, int y, @NotNull WidgetHolder widgets) {
+        widgets.add(new SlotWidget(ingredient, x, y)
+                .recipeContext(this)
+                .customBackground(EMI_GUI_TEXTURES, 38, 0, 18, 18));
     }
 
     protected void addOutputs(WidgetHolder widgets) {

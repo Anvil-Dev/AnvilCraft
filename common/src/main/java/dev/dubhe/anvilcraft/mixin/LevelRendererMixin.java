@@ -1,10 +1,9 @@
 package dev.dubhe.anvilcraft.mixin;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.dubhe.anvilcraft.api.tooltip.HudTooltipManager;
 import dev.dubhe.anvilcraft.client.renderer.PowerGridRenderer;
 import dev.dubhe.anvilcraft.item.IEngineerGoggles;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Camera;
@@ -23,6 +22,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
@@ -46,20 +48,25 @@ abstract class LevelRendererMixin {
 
     @Inject(
             method = "renderLevel",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/renderer/debug/DebugRenderer;"
-                            + "render(Lcom/mojang/blaze3d/vertex/PoseStack;"
-                            + "Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;DDD)V"
-            ),
-            locals = LocalCapture.CAPTURE_FAILEXCEPTION
-    )
+            at =
+                    @At(
+                            value = "INVOKE",
+                            target = "Lnet/minecraft/client/renderer/debug/DebugRenderer;"
+                                    + "render(Lcom/mojang/blaze3d/vertex/PoseStack;"
+                                    + "Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;DDD)V"),
+            locals = LocalCapture.CAPTURE_FAILEXCEPTION)
     private void renderLevel(
-            PoseStack poseStack, float partialTick, long finishNanoTime,
-            boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer,
-            LightTexture lightTexture, Matrix4f projectionMatrix, CallbackInfo ci,
-            @NotNull ProfilerFiller profilerFiller, @NotNull Vec3 vec3
-    ) {
+            PoseStack poseStack,
+            float partialTick,
+            long finishNanoTime,
+            boolean renderBlockOutline,
+            Camera camera,
+            GameRenderer gameRenderer,
+            LightTexture lightTexture,
+            Matrix4f projectionMatrix,
+            CallbackInfo ci,
+            @NotNull ProfilerFiller profilerFiller,
+            @NotNull Vec3 vec3) {
         Entity entity = camera.getEntity();
         boolean bl = true;
         for (ItemStack slot : entity.getArmorSlots()) {

@@ -1,13 +1,15 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import dev.architectury.injectables.annotations.ExpectPlatform;
 import dev.dubhe.anvilcraft.api.depository.ItemDepository;
-import lombok.Getter;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+
+import dev.architectury.injectables.annotations.ExpectPlatform;
+import lombok.Getter;
 
 @Getter
 public class CrabTrapBlockEntity extends BlockEntity {
@@ -19,8 +21,7 @@ public class CrabTrapBlockEntity extends BlockEntity {
 
     @ExpectPlatform
     public static CrabTrapBlockEntity createBlockEntity(
-        BlockEntityType<?> type, BlockPos pos, BlockState blockState
-    ) {
+            BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         throw new AssertionError();
     }
 

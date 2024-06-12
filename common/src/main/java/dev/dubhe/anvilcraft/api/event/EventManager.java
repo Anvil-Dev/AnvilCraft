@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.api.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.InvocationTargetException;
@@ -32,7 +33,10 @@ public class EventManager {
     @SuppressWarnings("all")
     public <E> void post(@NotNull E event) {
         List<Consumer<?>> triggers = new ArrayList<>();
-        eventListener.entrySet().stream().filter((k) -> event.getClass().isAssignableFrom(k.getKey())).map(Map.Entry::getValue).forEach(triggers::addAll);
+        eventListener.entrySet().stream()
+                .filter((k) -> event.getClass().isAssignableFrom(k.getKey()))
+                .map(Map.Entry::getValue)
+                .forEach(triggers::addAll);
         for (Consumer<?> trigger : triggers) {
             ((Consumer<E>) trigger).accept(event);
         }

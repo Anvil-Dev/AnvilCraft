@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.data.generator.recipe;
 
-import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.data.RecipeItem;
@@ -9,6 +8,7 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
+
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.world.item.Items;
@@ -16,11 +16,13 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 
+import com.tterrag.registrate.providers.RegistrateRecipeProvider;
+
 import java.util.Map;
 
 public class TimeWarpRecipesLoader {
     public static RegistrateRecipeProvider provider = null;
-    
+
     /**
      * 初始化时移配方
      *
@@ -41,7 +43,8 @@ public class TimeWarpRecipesLoader {
         timeWarp(RecipeItem.of(ModBlocks.NETHER_DUST), RecipeItem.of(Items.SOUL_SOIL));
         timeWarp(RecipeItem.of(ModBlocks.END_DUST), RecipeItem.of(Items.END_STONE));
         timeWarp(RecipeItem.of(ModItems.LIME_POWDER, 8), RecipeItem.of(Items.CALCITE));
-        timeWarp(RecipeItem.of(ModItems.NETHERITE_CRYSTAL_NUCLEUS), RecipeItem.of(Items.ANCIENT_DEBRIS));
+        timeWarp(
+                RecipeItem.of(ModItems.NETHERITE_CRYSTAL_NUCLEUS), RecipeItem.of(Items.ANCIENT_DEBRIS));
         timeWarp(RecipeItem.of(ModBlocks.ZINC_BLOCK), RecipeItem.of(ModItems.RAW_ZINC, 3));
         timeWarp(RecipeItem.of(ModBlocks.TIN_BLOCK), RecipeItem.of(ModItems.RAW_TIN, 3));
         timeWarp(RecipeItem.of(ModBlocks.TITANIUM_BLOCK), RecipeItem.of(ModItems.RAW_TITANIUM, 3));
@@ -62,19 +65,20 @@ public class TimeWarpRecipesLoader {
     public static void timeWarp(RecipeItem item, RecipeItem item1) {
         if (TimeWarpRecipesLoader.provider == null) return;
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
-            .type(AnvilRecipeType.TIMEWARP)
-            .icon(item1.getItem().asItem())
-            .hasBlock(
-                ModBlocks.CORRUPTED_BEACON.get(),
-                new Vec3(0.0, -2.0, 0.0),
-                Map.entry(CorruptedBeaconBlock.LIT, true)
-            )
-            .hasBlock(Blocks.CAULDRON)
-            .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), item)
-            .spawnItem(new Vec3(0.0, -1.0, 0.0), item1)
-            .unlockedBy(AnvilCraftDatagen.hasItem(item), AnvilCraftDatagen.has(item))
-            .save(provider, AnvilCraft.of("timewarp/"
-                + BuiltInRegistries.ITEM.getKey(item1.getItem().asItem()).getPath()));
+                .type(AnvilRecipeType.TIMEWARP)
+                .icon(item1.getItem().asItem())
+                .hasBlock(
+                        ModBlocks.CORRUPTED_BEACON.get(),
+                        new Vec3(0.0, -2.0, 0.0),
+                        Map.entry(CorruptedBeaconBlock.LIT, true))
+                .hasBlock(Blocks.CAULDRON)
+                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), item)
+                .spawnItem(new Vec3(0.0, -1.0, 0.0), item1)
+                .unlockedBy(AnvilCraftDatagen.hasItem(item), AnvilCraftDatagen.has(item))
+                .save(
+                        provider,
+                        AnvilCraft.of("timewarp/"
+                                + BuiltInRegistries.ITEM.getKey(item1.getItem().asItem()).getPath()));
     }
 
     /**
@@ -83,18 +87,20 @@ public class TimeWarpRecipesLoader {
     public static void timeWarpWithWater(ItemLike item, ItemLike item1) {
         if (TimeWarpRecipesLoader.provider == null) return;
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
-            .type(AnvilRecipeType.TIMEWARP)
-            .icon(item1)
-            .hasBlock(
-                ModBlocks.CORRUPTED_BEACON.get(),
-                new Vec3(0.0, -2.0, 0.0),
-                Map.entry(CorruptedBeaconBlock.LIT, true)
-            )
-            .hasFluidCauldronFull(new Vec3(0.0, -1.0, 0.0), Blocks.WATER_CAULDRON)
-            .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), item)
-            .spawnItem(new Vec3(0.0, -1.0, 0.0), item1)
-            .unlockedBy(AnvilCraftDatagen.hasItem(item), AnvilCraftDatagen.has(item))
-            .save(provider, AnvilCraft.of("timewarp/" + BuiltInRegistries.ITEM.getKey(item1.asItem()).getPath()));
+                .type(AnvilRecipeType.TIMEWARP)
+                .icon(item1)
+                .hasBlock(
+                        ModBlocks.CORRUPTED_BEACON.get(),
+                        new Vec3(0.0, -2.0, 0.0),
+                        Map.entry(CorruptedBeaconBlock.LIT, true))
+                .hasFluidCauldronFull(new Vec3(0.0, -1.0, 0.0), Blocks.WATER_CAULDRON)
+                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), item)
+                .spawnItem(new Vec3(0.0, -1.0, 0.0), item1)
+                .unlockedBy(AnvilCraftDatagen.hasItem(item), AnvilCraftDatagen.has(item))
+                .save(
+                        provider,
+                        AnvilCraft.of(
+                                "timewarp/" + BuiltInRegistries.ITEM.getKey(item1.asItem()).getPath()));
     }
 
     /**
@@ -103,21 +109,20 @@ public class TimeWarpRecipesLoader {
     public static void timeWarpWithMeltGem(ItemLike item, ItemLike item1) {
         if (TimeWarpRecipesLoader.provider == null) return;
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
-            .type(AnvilRecipeType.TIMEWARP)
-            .icon(item1)
-            .hasBlock(
-                ModBlocks.CORRUPTED_BEACON.get(),
-                new Vec3(0.0, -2.0, 0.0),
-                Map.entry(CorruptedBeaconBlock.LIT, true)
-            )
-            .hasBlockIngredient(
-                new Vec3(0, -1, 0),
-                ModBlocks.MELT_GEM_CAULDRON.get()
-            )
-            .hasItemIngredient(new Vec3(0, -1, 0), item)
-            .spawnItem(new Vec3(0.0, -1.0, 0.0), item1)
-            .setBlock(new Vec3(0, -1, 0), Blocks.CAULDRON)
-            .unlockedBy(AnvilCraftDatagen.hasItem(item), AnvilCraftDatagen.has(item))
-            .save(provider, AnvilCraft.of("timewarp/" + BuiltInRegistries.ITEM.getKey(item1.asItem()).getPath()));
+                .type(AnvilRecipeType.TIMEWARP)
+                .icon(item1)
+                .hasBlock(
+                        ModBlocks.CORRUPTED_BEACON.get(),
+                        new Vec3(0.0, -2.0, 0.0),
+                        Map.entry(CorruptedBeaconBlock.LIT, true))
+                .hasBlockIngredient(new Vec3(0, -1, 0), ModBlocks.MELT_GEM_CAULDRON.get())
+                .hasItemIngredient(new Vec3(0, -1, 0), item)
+                .spawnItem(new Vec3(0.0, -1.0, 0.0), item1)
+                .setBlock(new Vec3(0, -1, 0), Blocks.CAULDRON)
+                .unlockedBy(AnvilCraftDatagen.hasItem(item), AnvilCraftDatagen.has(item))
+                .save(
+                        provider,
+                        AnvilCraft.of(
+                                "timewarp/" + BuiltInRegistries.ITEM.getKey(item1.asItem()).getPath()));
     }
 }

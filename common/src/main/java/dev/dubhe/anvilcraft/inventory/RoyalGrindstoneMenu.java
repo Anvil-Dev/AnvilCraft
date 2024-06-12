@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.inventory;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
+
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.Container;
@@ -18,6 +19,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
@@ -35,11 +37,13 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
     public int removeRepairCostNumber = 0;
     public int removeCurseNumber = 0;
 
-    public RoyalGrindstoneMenu(MenuType<RoyalGrindstoneMenu> type, int containerId, Inventory playerInventory) {
+    public RoyalGrindstoneMenu(
+            MenuType<RoyalGrindstoneMenu> type, int containerId, Inventory playerInventory) {
         this(type, containerId, playerInventory, ContainerLevelAccess.NULL);
     }
 
-    public RoyalGrindstoneMenu(int containerId, Inventory playerInventory, ContainerLevelAccess access) {
+    public RoyalGrindstoneMenu(
+            int containerId, Inventory playerInventory, ContainerLevelAccess access) {
         this(ModMenuTypes.ROYAL_GRINDSTONE.get(), containerId, playerInventory, access);
     }
 
@@ -52,8 +56,10 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
      * @param access          检查
      */
     public RoyalGrindstoneMenu(
-        MenuType<RoyalGrindstoneMenu> type, int containerId, Inventory playerInventory, ContainerLevelAccess access
-    ) {
+            MenuType<RoyalGrindstoneMenu> type,
+            int containerId,
+            Inventory playerInventory,
+            ContainerLevelAccess access) {
         super(type, containerId);
         this.repairToolSlots = new SimpleContainer(1) {
             public void setChanged() {
@@ -88,10 +94,14 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
             public void onTake(@NotNull Player player, @NotNull ItemStack stack) {
                 player.playSound(SoundEvents.GRINDSTONE_USE);
                 repairToolSlots.setItem(0, ItemStack.EMPTY);
-                repairMaterialSlots.setItem(0, new ItemStack(Items.GOLD_INGOT,
-                    repairMaterialSlots.getItem(0).getCount() - usedGold));
-                resultMaterialSlots.setItem(2, new ItemStack(ModItems.CURSED_GOLD_INGOT,
-                    usedGold + resultMaterialSlots.getItem(2).getCount()));
+                repairMaterialSlots.setItem(
+                        0,
+                        new ItemStack(Items.GOLD_INGOT, repairMaterialSlots.getItem(0).getCount() - usedGold));
+                resultMaterialSlots.setItem(
+                        2,
+                        new ItemStack(
+                                ModItems.CURSED_GOLD_INGOT,
+                                usedGold + resultMaterialSlots.getItem(2).getCount()));
             }
         });
         this.addSlot(new Slot(this.resultMaterialSlots, 2, 89, 47) {
@@ -116,9 +126,10 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
         ItemStack repairMaterial = repairMaterialSlots.getItem(0);
         if (repairTool.isEmpty() || repairMaterial.isEmpty()) return ItemStack.EMPTY;
         ItemStack result = repairTool.copy();
-        Map<Enchantment, Integer> curseMap = EnchantmentHelper.getEnchantments(result)
-            .entrySet().stream().filter((entry) -> entry.getKey().isCurse())
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        Map<Enchantment, Integer> curseMap =
+                EnchantmentHelper.getEnchantments(result).entrySet().stream()
+                        .filter((entry) -> entry.getKey().isCurse())
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         int curseNumber = curseMap.size();
         int repairCost = repairTool.getBaseRepairCost();
         int goldNumber = repairMaterial.getCount();
@@ -146,7 +157,8 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
             goldNumber -= needGold;
             removeCurseNumber += 1;
         }
-        if (result.is(Items.ENCHANTED_BOOK) && EnchantmentHelper.getEnchantments(result).isEmpty()) {
+        if (result.is(Items.ENCHANTED_BOOK)
+                && EnchantmentHelper.getEnchantments(result).isEmpty()) {
             result = new ItemStack(Items.BOOK, result.getCount());
         }
         this.usedGold = goldUsed;
@@ -154,7 +166,6 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
         this.removeCurseNumber = removeCurseNumber;
         return result;
     }
-
 
     @Override
     public @NotNull ItemStack quickMoveStack(@NotNull Player player, int index) {
@@ -176,7 +187,9 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
                 }
             } else {
                 ItemStack gold;
-                if (itemStack.isDamageableItem() || itemStack.is(Items.ENCHANTED_BOOK) || itemStack.isEnchanted()) {
+                if (itemStack.isDamageableItem()
+                        || itemStack.is(Items.ENCHANTED_BOOK)
+                        || itemStack.isEnchanted()) {
                     if (!this.getSlot(0).hasItem()) {
                         this.getSlot(0).setByPlayer(itemStack);
                         this.getSlot(index).setByPlayer(ItemStack.EMPTY);
@@ -187,10 +200,8 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
                     if (!this.getSlot(1).hasItem()) {
                         this.getSlot(1).setByPlayer(itemStack);
                         this.getSlot(index).setByPlayer(ItemStack.EMPTY);
-                    } else if (
-                        (gold = this.getSlot(1).getItem()).is(Items.GOLD_INGOT)
-                            && gold.getCount() < gold.getMaxStackSize()
-                    ) {
+                    } else if ((gold = this.getSlot(1).getItem()).is(Items.GOLD_INGOT)
+                            && gold.getCount() < gold.getMaxStackSize()) {
                         int canSet = gold.getMaxStackSize() - gold.getCount();
                         canSet = Math.min(itemStack.getCount(), canSet);
                         gold.grow(canSet);
@@ -205,7 +216,6 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
         }
         return ItemStack.EMPTY;
     }
-
 
     @Override
     public boolean stillValid(@NotNull Player player) {
@@ -234,7 +244,8 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
 
     protected void clearContainer(Player player, @NotNull Container container) {
         int i;
-        if (!player.isAlive() || player instanceof ServerPlayer && ((ServerPlayer) player).hasDisconnected()) {
+        if (!player.isAlive()
+                || player instanceof ServerPlayer && ((ServerPlayer) player).hasDisconnected()) {
             for (i = 0; i < container.getContainerSize(); ++i) {
                 player.drop(container.removeItemNoUpdate(i), false);
             }
@@ -246,7 +257,6 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
                     inventory.placeItemBackInInventory(container.removeItemNoUpdate(i));
                 }
             }
-
         }
     }
 }

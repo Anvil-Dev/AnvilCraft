@@ -1,18 +1,15 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import dev.architectury.injectables.annotations.ExpectPlatform;
-import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
+import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.tooltip.IHasAffectRange;
-import dev.dubhe.anvilcraft.block.InductionLightBlock;
 import dev.dubhe.anvilcraft.block.ItemCollectorBlock;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.ItemCollectorMenu;
 import dev.dubhe.anvilcraft.util.WatchableCyclingValue;
-import lombok.Getter;
-import lombok.Setter;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -33,33 +30,41 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
+
+import dev.architectury.injectables.annotations.ExpectPlatform;
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 @Getter
-public class ItemCollectorBlockEntity
-        extends BlockEntity
+public class ItemCollectorBlockEntity extends BlockEntity
         implements MenuProvider, IFilterBlockEntity, IPowerConsumer, IDiskCloneable, IHasAffectRange {
     @Setter
     private PowerGrid grid;
-    private final WatchableCyclingValue<Integer> rangeRadius = new WatchableCyclingValue<>("rangeRadius",
-            thiz -> {
 
+    private final WatchableCyclingValue<Integer> rangeRadius = new WatchableCyclingValue<>(
+            "rangeRadius",
+            thiz -> {
                 this.setChanged();
             },
-            1, 2, 4, 8
-    );
-    private final WatchableCyclingValue<Integer> cooldown = new WatchableCyclingValue<>("cooldown",
+            1,
+            2,
+            4,
+            8);
+    private final WatchableCyclingValue<Integer> cooldown = new WatchableCyclingValue<>(
+            "cooldown",
             thiz -> {
                 cd = thiz.get();
                 this.setChanged();
             },
-            1, 2, 5, 15, 60
-    );
+            1,
+            2,
+            5,
+            15,
+            60);
     private int cd = rangeRadius.get();
 
     private final FilteredItemDepository depository = new FilteredItemDepository(9) {
@@ -70,10 +75,7 @@ public class ItemCollectorBlockEntity
     };
 
     protected ItemCollectorBlockEntity(
-            BlockEntityType<? extends BlockEntity> type,
-            BlockPos pos,
-            BlockState blockState
-    ) {
+            BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
 
@@ -91,9 +93,7 @@ public class ItemCollectorBlockEntity
     public int getInputPower() {
         int power = Mth.floor(30.0 + (15.0 * rangeRadius.get() / cooldown.get()));
         if (level == null) return power;
-        return getBlockState().getValue(ItemCollectorBlock.POWERED)
-                ? 0
-                : power;
+        return getBlockState().getValue(ItemCollectorBlock.POWERED) ? 0 : power;
     }
 
     @Override
@@ -122,21 +122,19 @@ public class ItemCollectorBlockEntity
         tag.putInt("RangeRadius", rangeRadius.index());
     }
 
-    @Nullable
-    @Override
-    public AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
+    @Nullable @Override
+    public AbstractContainerMenu createMenu(
+            int i, @NotNull Inventory inventory, @NotNull Player player) {
         return new ItemCollectorMenu(ModMenuTypes.ITEM_COLLECTOR.get(), i, inventory, this);
     }
 
     @ExpectPlatform
     public static ItemCollectorBlockEntity createBlockEntity(
-            BlockEntityType<?> type, BlockPos pos, BlockState blockState
-    ) {
+            BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         throw new AssertionError();
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
     }
@@ -154,8 +152,8 @@ public class ItemCollectorBlockEntity
     public void gridTick() {
         if (level == null || level.isClientSide) return;
         BlockState state = level.getBlockState(getBlockPos());
-        if (state.hasProperty(ItemCollectorBlock.POWERED)
-                && state.getValue(ItemCollectorBlock.POWERED)) return;
+        if (state.hasProperty(ItemCollectorBlock.POWERED) && state.getValue(ItemCollectorBlock.POWERED))
+            return;
         if (cd - 1 != 0) {
             cd--;
             return;
@@ -164,8 +162,7 @@ public class ItemCollectorBlockEntity
                 Vec3.atCenterOf(getBlockPos()),
                 rangeRadius.get() * 2.0 + 1,
                 rangeRadius.get() * 2.0 + 1,
-                rangeRadius.get() * 2.0 + 1
-        );
+                rangeRadius.get() * 2.0 + 1);
         List<ItemEntity> itemEntities = level.getEntitiesOfClass(ItemEntity.class, box);
         for (ItemEntity itemEntity : itemEntities) {
             ItemStack itemStack = itemEntity.getItem();
@@ -220,7 +217,6 @@ public class ItemCollectorBlockEntity
                 Vec3.atCenterOf(getBlockPos()),
                 rangeRadius.get() * 2.0 + 1,
                 rangeRadius.get() * 2.0 + 1,
-                rangeRadius.get() * 2.0 + 1
-        );
+                rangeRadius.get() * 2.0 + 1);
     }
 }

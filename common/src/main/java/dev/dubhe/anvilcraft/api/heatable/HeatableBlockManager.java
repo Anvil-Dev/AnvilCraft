@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.api.heatable;
 
 import dev.dubhe.anvilcraft.block.RedhotMetalBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
+
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
@@ -9,7 +10,7 @@ import java.util.HashMap;
 
 public class HeatableBlockManager {
     private static final HashMap<Block, Block> heatableBlockMap = new HashMap<>();
-    
+
     public static void register(Block block, RedhotMetalBlock hotBlock) {
         heatableBlockMap.put(block, hotBlock);
     }

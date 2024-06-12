@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.block.state.Vertical3PartHalf;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.init.ModBlocks;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
@@ -14,6 +15,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -27,8 +29,7 @@ public class OverseerBlockEntity extends BlockEntity {
     }
 
     public static @NotNull OverseerBlockEntity createBlockEntity(
-        BlockEntityType<?> type, BlockPos pos, BlockState blockState
-    ) {
+            BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         return new OverseerBlockEntity(type, pos, blockState);
     }
 
@@ -56,15 +57,13 @@ public class OverseerBlockEntity extends BlockEntity {
             }
             this.lastWaterLoggerBlockNum = this.waterLoggerBlockNum;
             LevelLoadManager.register(
-                pos,
-                LoadChuckData.creatLoadChuckData(
-                    updatedState.getValue(OverseerBlock.LEVEL),
                     pos,
-                    (this.waterLoggerBlockNum >= 4),
-                    serverLevel
-                ),
-                serverLevel
-            );
+                    LoadChuckData.creatLoadChuckData(
+                            updatedState.getValue(OverseerBlock.LEVEL),
+                            pos,
+                            (this.waterLoggerBlockNum >= 4),
+                            serverLevel),
+                    serverLevel);
         }
     }
 
@@ -84,16 +83,16 @@ public class OverseerBlockEntity extends BlockEntity {
                 level.destroyBlock(pos, false);
                 return true;
             }
-            level.setBlockAndUpdate(pos.above(),
-                state
-                    .setValue(OverseerBlock.LEVEL, laminar)
-                    .setValue(OverseerBlock.HALF, Vertical3PartHalf.MID)
-            );
-            level.setBlockAndUpdate(pos.above(2),
-                state
-                    .setValue(OverseerBlock.LEVEL, laminar)
-                    .setValue(OverseerBlock.HALF, Vertical3PartHalf.TOP)
-            );
+            level.setBlockAndUpdate(
+                    pos.above(),
+                    state
+                            .setValue(OverseerBlock.LEVEL, laminar)
+                            .setValue(OverseerBlock.HALF, Vertical3PartHalf.MID));
+            level.setBlockAndUpdate(
+                    pos.above(2),
+                    state
+                            .setValue(OverseerBlock.LEVEL, laminar)
+                            .setValue(OverseerBlock.HALF, Vertical3PartHalf.TOP));
             for (int x = pos.getX() - 1; x <= pos.getX() + 1; x++) {
                 for (int z = pos.getZ() - 1; z <= pos.getZ() + 1; z++) {
                     BlockPos basePos = new BlockPos(x, pos.getY() - laminar - 1, z);
@@ -102,7 +101,7 @@ public class OverseerBlockEntity extends BlockEntity {
                         return false;
                     }
                     if (level.getBlockState(basePos).hasProperty(BlockStateProperties.WATERLOGGED)
-                        && level.getBlockState(basePos).getValue(BlockStateProperties.WATERLOGGED))
+                            && level.getBlockState(basePos).getValue(BlockStateProperties.WATERLOGGED))
                         waterLoggerBlockNum++;
                 }
             }

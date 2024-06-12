@@ -1,16 +1,10 @@
 package dev.dubhe.anvilcraft.data.recipe.anvil.outcome;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSyntaxException;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipeOutcome;
 import dev.dubhe.anvilcraft.util.IBlockStateUtil;
-import lombok.Getter;
+
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -22,6 +16,14 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.Vec3;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSyntaxException;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -52,7 +54,8 @@ public class SetBlock implements RecipeOutcome {
     public SetBlock(@NotNull FriendlyByteBuf buffer) {
         this.offset = new Vec3(buffer.readVector3f());
         this.chance = buffer.readDouble();
-        this.result = IBlockStateUtil.fromJson(AnvilCraft.GSON.fromJson(buffer.readUtf(), JsonElement.class));
+        this.result =
+                IBlockStateUtil.fromJson(AnvilCraft.GSON.fromJson(buffer.readUtf(), JsonElement.class));
     }
 
     /**
@@ -67,7 +70,8 @@ public class SetBlock implements RecipeOutcome {
                 if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isNumber()) {
                     vec3[i] = element.getAsDouble();
                 } else {
-                    throw new JsonSyntaxException("Expected offset to be a Double, was " + GsonHelper.getType(element));
+                    throw new JsonSyntaxException(
+                            "Expected offset to be a Double, was " + GsonHelper.getType(element));
                 }
             }
         }
@@ -82,7 +86,8 @@ public class SetBlock implements RecipeOutcome {
         JsonObject object = stateJson.getAsJsonObject();
         if (!object.has("block")) throw new JsonSyntaxException("The field block is missing");
         JsonElement blockElement = object.get("block");
-        if (!blockElement.isJsonPrimitive()) throw new JsonSyntaxException("Expected item to be string");
+        if (!blockElement.isJsonPrimitive())
+            throw new JsonSyntaxException("Expected item to be string");
         StringBuilder block = new StringBuilder(blockElement.getAsString());
         if (object.has("state")) {
             JsonObject state = GsonHelper.getAsJsonObject(object, "state");
@@ -133,7 +138,8 @@ public class SetBlock implements RecipeOutcome {
         object.add("offset", offset);
         object.addProperty("chance", this.chance);
         JsonObject block = new JsonObject();
-        block.addProperty("block", BuiltInRegistries.BLOCK.getKey(this.result.getBlock()).toString());
+        block.addProperty(
+                "block", BuiltInRegistries.BLOCK.getKey(this.result.getBlock()).toString());
         JsonObject state = new JsonObject();
         for (Map.Entry<Property<?>, Comparable<?>> entry : this.result.getValues().entrySet()) {
             state.addProperty(entry.getKey().getName(), entry.getValue().toString());

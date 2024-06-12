@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.data.recipe.transform;
 
-import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
@@ -8,6 +7,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
@@ -53,14 +54,10 @@ public class MobTransformContainer implements Container {
     }
 
     @Override
-    public void setItem(int slot, @NotNull ItemStack stack) {
-
-    }
+    public void setItem(int slot, @NotNull ItemStack stack) {}
 
     @Override
-    public void setChanged() {
-
-    }
+    public void setChanged() {}
 
     @Override
     public boolean stillValid(Player player) {
@@ -68,6 +65,5 @@ public class MobTransformContainer implements Container {
     }
 
     @Override
-    public void clearContent() {
-    }
+    public void clearContent() {}
 }

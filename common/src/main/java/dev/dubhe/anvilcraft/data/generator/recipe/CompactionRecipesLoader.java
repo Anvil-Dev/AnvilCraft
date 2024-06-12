@@ -1,11 +1,11 @@
 package dev.dubhe.anvilcraft.data.generator.recipe;
 
-import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
+
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.tags.BlockTags;
@@ -13,6 +13,8 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
+
+import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import org.jetbrains.annotations.NotNull;
 
 public class CompactionRecipesLoader {
@@ -42,25 +44,25 @@ public class CompactionRecipesLoader {
      * @param provider 提供器
      */
     public static void compaction(
-        Block block, @NotNull Block block1, @NotNull Block block2, RegistrateRecipeProvider provider
-    ) {
+            Block block,
+            @NotNull Block block1,
+            @NotNull Block block2,
+            RegistrateRecipeProvider provider) {
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
-            .type(AnvilRecipeType.COMPACTION)
-            .hasBlockIngredient(block)
-            .hasBlock(new Vec3(0.0, -2.0, 0.0), block1)
-            .setBlock(new Vec3(0.0, -2.0, 0.0), block2)
-            .unlockedBy(AnvilCraftDatagen.hasItem(block.asItem()), AnvilCraftDatagen.has(block.asItem()))
-            .save(
-                provider,
-                AnvilCraft.of(
-                    "smash_block/"
-                        + BuiltInRegistries.BLOCK.getKey(block).getPath()
-                        + "_and_"
-                        + BuiltInRegistries.BLOCK.getKey(block1).getPath()
-                        + "_2_"
-                        + BuiltInRegistries.BLOCK.getKey(block2).getPath()
-                )
-            );
+                .type(AnvilRecipeType.COMPACTION)
+                .hasBlockIngredient(block)
+                .hasBlock(new Vec3(0.0, -2.0, 0.0), block1)
+                .setBlock(new Vec3(0.0, -2.0, 0.0), block2)
+                .unlockedBy(
+                        AnvilCraftDatagen.hasItem(block.asItem()), AnvilCraftDatagen.has(block.asItem()))
+                .save(
+                        provider,
+                        AnvilCraft.of("smash_block/"
+                                + BuiltInRegistries.BLOCK.getKey(block).getPath()
+                                + "_and_"
+                                + BuiltInRegistries.BLOCK.getKey(block1).getPath()
+                                + "_2_"
+                                + BuiltInRegistries.BLOCK.getKey(block2).getPath()));
     }
 
     /**
@@ -72,23 +74,23 @@ public class CompactionRecipesLoader {
      * @param provider 提供器
      */
     public static void compaction(
-        TagKey<Block> block, @NotNull Block block1, @NotNull Block block2, RegistrateRecipeProvider provider
-    ) {
+            TagKey<Block> block,
+            @NotNull Block block1,
+            @NotNull Block block2,
+            RegistrateRecipeProvider provider) {
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
-            .hasBlockIngredient(block)
-            .hasBlock(new Vec3(0.0, -2.0, 0.0), block1)
-            .setBlock(new Vec3(0.0, -2.0, 0.0), block2)
-            .unlockedBy(AnvilCraftDatagen.hasItem(block1.asItem()), AnvilCraftDatagen.has(block1.asItem()))
-            .save(
-                provider,
-                AnvilCraft.of(
-                    "smash_block/"
-                        + block.location().getPath()
-                        + "_and_"
-                        + BuiltInRegistries.BLOCK.getKey(block1).getPath()
-                        + "_2_"
-                        + BuiltInRegistries.BLOCK.getKey(block2).getPath()
-                )
-            );
+                .hasBlockIngredient(block)
+                .hasBlock(new Vec3(0.0, -2.0, 0.0), block1)
+                .setBlock(new Vec3(0.0, -2.0, 0.0), block2)
+                .unlockedBy(
+                        AnvilCraftDatagen.hasItem(block1.asItem()), AnvilCraftDatagen.has(block1.asItem()))
+                .save(
+                        provider,
+                        AnvilCraft.of("smash_block/"
+                                + block.location().getPath()
+                                + "_and_"
+                                + BuiltInRegistries.BLOCK.getKey(block1).getPath()
+                                + "_2_"
+                                + BuiltInRegistries.BLOCK.getKey(block2).getPath()));
     }
 }

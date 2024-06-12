@@ -3,10 +3,12 @@ package dev.dubhe.anvilcraft.event;
 import dev.dubhe.anvilcraft.api.event.SubscribeEvent;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.block.BlockPlacerBlock;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+
 import org.jetbrains.annotations.NotNull;
 
 public class AnvilHitBlockPlacerEventListener {
@@ -26,7 +28,8 @@ public class AnvilHitBlockPlacerEventListener {
             int distance = (int) event.getFallDistance() + 2;
             distance = Math.min(distance, 5);
             level.setBlock(pos, state.setValue(BlockPlacerBlock.TRIGGERED, true), 2);
-            blockPlacerBlock.placeBlock(distance, level, pos, state.getValue(BlockPlacerBlock.ORIENTATION));
+            blockPlacerBlock.placeBlock(
+                    distance, level, pos, state.getValue(BlockPlacerBlock.ORIENTATION));
             level.scheduleTick(pos, blockPlacerBlock, 4);
         }
     }

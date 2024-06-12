@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SelectOne;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SetBlock;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SpawnExperience;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SpawnItem;
+
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -24,11 +25,9 @@ public class SelectOneBuilder {
         return this;
     }
 
-
     public SelectOneBuilder damageAnvil() {
         return damageAnvil(1.0);
     }
-
 
     /**
      * 添加铁砧伤害 outcome
@@ -41,22 +40,18 @@ public class SelectOneBuilder {
         return addOutcome(damageAnvil);
     }
 
-
     public SelectOneBuilder runCommand(String command) {
         return runCommand(command, 1.0);
     }
-
 
     public SelectOneBuilder runCommand(String command, double chance) {
         return runCommand(0, -1, 0, chance, command);
     }
 
-
     public SelectOneBuilder runCommand(
-        double offsetX, double offsetY, double offsetZ, double chance, String command) {
+            double offsetX, double offsetY, double offsetZ, double chance, String command) {
         return runCommand(new Vec3(offsetX, offsetY, offsetZ), chance, command);
     }
-
 
     /**
      * 添加运行命令 outcome
@@ -71,7 +66,6 @@ public class SelectOneBuilder {
         return addOutcome(runCommand);
     }
 
-
     public SelectOneBuilder setBlock(Block block) {
         return setBlock(block.defaultBlockState());
     }
@@ -80,14 +74,12 @@ public class SelectOneBuilder {
         return setBlock(1.0, block);
     }
 
-
     public SelectOneBuilder setBlock(double chance, BlockState state) {
         return setBlock(new Vec3(0, -1, 0), chance, state);
     }
 
-
     public SelectOneBuilder setBlock(
-        double offsetX, double offsetY, double offsetZ, double chance, BlockState state) {
+            double offsetX, double offsetY, double offsetZ, double chance, BlockState state) {
         return setBlock(new Vec3(offsetX, offsetY, offsetZ), chance, state);
     }
 
@@ -104,19 +96,16 @@ public class SelectOneBuilder {
         return addOutcome(setBlock);
     }
 
-
     public SelectOneBuilder spawnExperience(int experience) {
         return spawnExperience(1.0, experience);
     }
-
 
     public SelectOneBuilder spawnExperience(double chance, int experience) {
         return spawnExperience(0, -1, 0, chance, experience);
     }
 
-
     public SelectOneBuilder spawnExperience(
-        double offsetX, double offsetY, double offsetZ, double chance, int experience) {
+            double offsetX, double offsetY, double offsetZ, double chance, int experience) {
         return spawnExperience(new Vec3(offsetX, offsetY, offsetZ), chance, experience);
     }
 
@@ -133,19 +122,16 @@ public class SelectOneBuilder {
         return addOutcome(spawnExperience);
     }
 
-
     public SelectOneBuilder spawnItem(ItemStack result) {
         return spawnItem(1.0, result);
     }
-
 
     public SelectOneBuilder spawnItem(double chance, ItemStack result) {
         return spawnItem(new Vec3(0, -1, 0), chance, result);
     }
 
-
     public SelectOneBuilder spawnItem(
-        double offsetX, double offsetY, double offsetZ, double chance, ItemStack result) {
+            double offsetX, double offsetY, double offsetZ, double chance, ItemStack result) {
         return spawnItem(new Vec3(offsetX, offsetY, offsetZ), chance, result);
     }
 

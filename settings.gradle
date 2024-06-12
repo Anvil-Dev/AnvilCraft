@@ -52,6 +52,7 @@ dependencyResolutionManagement {
         def mixinextrasVersion = "0.3.2"
         def configurationVersion = "2.2.0"
         def clothConfigVersion = "11.1.118"
+        def spotlessVersion = "7.0.0.BETA1"
 
         fabric {
             def fabricLoader = version("fabricLoader", fabricLoaderVersion)
@@ -173,6 +174,9 @@ dependencyResolutionManagement {
 
             def architecturyLoom = version("architectury-loom", architecturyLoomVersion)
             plugin("architectury-loom", "dev.architectury.loom").versionRef(architecturyLoom)
+
+            def spotless = version("spotless", spotlessVersion)
+            plugin("spotless", "com.diffplug.spotless").versionRef(spotless)
         }
     }
 }

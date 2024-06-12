@@ -5,6 +5,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -17,10 +18,7 @@ public class CustomDataPersistentState extends SavedData {
 
     static CompoundTag getPlayerCustomData(LivingEntity player) {
         CustomDataPersistentState state = getServerState(player.level().getServer());
-        return state.playerCustomData.computeIfAbsent(
-                player.getUUID(),
-                it -> new CompoundTag()
-        );
+        return state.playerCustomData.computeIfAbsent(player.getUUID(), it -> new CompoundTag());
     }
 
     /**
@@ -31,8 +29,7 @@ public class CustomDataPersistentState extends SavedData {
         var state = dataStorage.computeIfAbsent(
                 CustomDataPersistentState::createFromCompoundTag,
                 CustomDataPersistentState::new,
-                "anvilcraft"
-        );
+                "anvilcraft");
         state.setDirty();
         return state;
     }

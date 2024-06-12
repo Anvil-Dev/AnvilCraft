@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import dev.architectury.injectables.annotations.ExpectPlatform;
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.api.item.IChargerChargeable;
 import dev.dubhe.anvilcraft.api.item.IChargerDischargeable;
@@ -12,8 +11,7 @@ import dev.dubhe.anvilcraft.block.ChargerBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.util.StateListener;
-import lombok.Getter;
-import lombok.Setter;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
@@ -22,14 +20,18 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+
+import dev.architectury.injectables.annotations.ExpectPlatform;
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
-public class ChargerBlockEntity
-        extends BlockEntity
+public class ChargerBlockEntity extends BlockEntity
         implements IPowerConsumer, IPowerProducer, IFilterBlockEntity, StateListener<Boolean> {
 
     @Setter
     private boolean isCharger;
+
     private boolean previousDischargeFailed = false;
     private int cd;
     private boolean locked = false;
@@ -43,19 +45,20 @@ public class ChargerBlockEntity
                 @NotNull ItemStack stack,
                 boolean simulate,
                 boolean notifyChanges,
-                boolean isServer
-        ) {
+                boolean isServer) {
             if (!locked && !previousDischargeFailed) {
                 ItemStack original = stack.copy();
                 original.shrink(1);
                 if (original.isEmpty()) {
-                    ItemStack left = super.insert(slot, stack.copyWithCount(1), simulate, notifyChanges, isServer);
+                    ItemStack left =
+                            super.insert(slot, stack.copyWithCount(1), simulate, notifyChanges, isServer);
                     if (left.isEmpty() && !simulate) {
                         locked = true;
                     }
                     return left;
                 } else {
-                    ItemStack left = super.insert(slot, stack.copyWithCount(1), simulate, notifyChanges, isServer);
+                    ItemStack left =
+                            super.insert(slot, stack.copyWithCount(1), simulate, notifyChanges, isServer);
                     if (left.isEmpty() && !simulate) {
                         locked = true;
                     }
@@ -81,11 +84,7 @@ public class ChargerBlockEntity
     @Setter
     private PowerGrid grid;
 
-    public ChargerBlockEntity(
-            BlockEntityType<?> type,
-            BlockPos pos,
-            BlockState blockState
-    ) {
+    public ChargerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
         isCharger = blockState.is(ModBlocks.CHARGER.get());
     }
@@ -124,7 +123,6 @@ public class ChargerBlockEntity
     public Level getCurrentLevel() {
         return getLevel();
     }
-
 
     @Override
     protected void saveAdditional(@NotNull CompoundTag tag) {
@@ -193,14 +191,12 @@ public class ChargerBlockEntity
 
     @ExpectPlatform
     public static @NotNull ChargerBlockEntity createBlockEntity(
-            BlockEntityType<?> type, BlockPos pos, BlockState blockState
-    ) {
+            BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         return null;
     }
 
     @ExpectPlatform
-    public static void onBlockEntityRegister(BlockEntityType<ChargerBlockEntity> type) {
-    }
+    public static void onBlockEntityRegister(BlockEntityType<ChargerBlockEntity> type) {}
 
     /**
      * 充放电器逻辑

@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.api.depository.forge;
 
 import dev.dubhe.anvilcraft.api.depository.IItemDepository;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
@@ -13,6 +14,7 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,8 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class ItemDepositoryHelperImpl {
-    private ItemDepositoryHelperImpl() {
-    }
+    private ItemDepositoryHelperImpl() {}
 
     /**
      * 获取物品容器
@@ -31,24 +32,24 @@ public class ItemDepositoryHelperImpl {
      * @param direction 方向
      * @return 物品容器
      */
-    @Nullable
-    public static IItemDepository getItemDepository(@NotNull Level level, BlockPos pos, Direction direction) {
+    @Nullable public static IItemDepository getItemDepository(
+            @NotNull Level level, BlockPos pos, Direction direction) {
         BlockEntity be = level.getBlockEntity(pos);
         if (be != null) {
             LazyOptional<IItemHandler> capability =
-                be.getCapability(ForgeCapabilities.ITEM_HANDLER, direction.getOpposite());
+                    be.getCapability(ForgeCapabilities.ITEM_HANDLER, direction.getOpposite());
             if (capability.isPresent() && capability.resolve().isPresent()) {
                 return toItemDepository(capability.resolve().get());
             }
         }
-        List<Optional<IItemHandler>> optionals = level
-            .getEntitiesOfClass(Entity.class, new AABB(pos))
-            .stream()
-            .filter(entity -> entity instanceof ContainerEntity)
-            .map(entity -> entity.getCapability(ForgeCapabilities.ITEM_HANDLER, direction.getOpposite()))
-            .filter(LazyOptional::isPresent)
-            .map(LazyOptional::resolve)
-            .toList();
+        List<Optional<IItemHandler>> optionals =
+                level.getEntitiesOfClass(Entity.class, new AABB(pos)).stream()
+                        .filter(entity -> entity instanceof ContainerEntity)
+                        .map(entity ->
+                                entity.getCapability(ForgeCapabilities.ITEM_HANDLER, direction.getOpposite()))
+                        .filter(LazyOptional::isPresent)
+                        .map(LazyOptional::resolve)
+                        .toList();
         if (optionals.isEmpty()) return null;
         Optional<IItemHandler> handler = optionals.get(level.getRandom().nextInt(0, optionals.size()));
         return handler.map(ItemDepositoryHelperImpl::toItemDepository).orElse(null);
@@ -79,8 +80,7 @@ public class ItemDepositoryHelperImpl {
 
             @Override
             public ItemStack insert(
-                int slot, ItemStack stack, boolean simulate, boolean notifyChanges, boolean isServer
-            ) {
+                    int slot, ItemStack stack, boolean simulate, boolean notifyChanges, boolean isServer) {
                 return handler.insertItem(slot, stack, simulate);
             }
 
@@ -139,5 +139,4 @@ public class ItemDepositoryHelperImpl {
             }
         };
     }
-
 }

@@ -4,12 +4,14 @@ import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
 import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager.Entry;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -37,9 +39,10 @@ public class PistonMoveBlockListener {
             double n = getChargeNum(level, pos);
             if (n > 0) {
                 Collection<Entry> nearestChargeCollect =
-                    ChargeCollectorManager.getNearestChargeCollect(pos);
+                        ChargeCollectorManager.getNearestChargeCollect(pos);
                 for (var floatChargeCollectorBlockEntityEntry : nearestChargeCollect) {
-                    ChargeCollectorBlockEntity blockEntity = floatChargeCollectorBlockEntityEntry.getBlockEntity();
+                    ChargeCollectorBlockEntity blockEntity =
+                            floatChargeCollectorBlockEntityEntry.getBlockEntity();
                     if (ChargeCollectorManager.canCollect(blockEntity, pos)) {
                         double unCharged = blockEntity.incomingCharge(n);
                         if (unCharged == 0) {

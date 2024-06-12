@@ -1,12 +1,13 @@
 package dev.dubhe.anvilcraft.api.event.forge;
 
-import lombok.Getter;
-import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.event.entity.EntityEvent;
+
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 public class AnvilEvent extends EntityEvent {
@@ -22,6 +23,7 @@ public class AnvilEvent extends EntityEvent {
         private final Level level;
         private final BlockPos pos;
         private final float fallDistance;
+
         @Setter
         private boolean isAnvilDamage = false;
 
@@ -57,7 +59,8 @@ public class AnvilEvent extends EntityEvent {
          * @param hurtedEntity 被伤害的实体
          * @param damage       伤害
          */
-        public HurtEntity(FallingBlockEntity entity, BlockPos pos, Level level, Entity hurtedEntity, float damage) {
+        public HurtEntity(
+                FallingBlockEntity entity, BlockPos pos, Level level, Entity hurtedEntity, float damage) {
             super(entity);
             this.pos = pos;
             this.level = level;

@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block.entity.forge;
 
 import dev.dubhe.anvilcraft.api.depository.forge.ItemDepositoryHelperImpl;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -10,31 +11,29 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ItemCollectorBlockEntityImpl extends ItemCollectorBlockEntity {
     public ItemCollectorBlockEntityImpl(
-        BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState
-    ) {
+            BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
 
     public static @NotNull ItemCollectorBlockEntity createBlockEntity(
-        BlockEntityType<?> type, BlockPos pos, BlockState blockState
-    ) {
+            BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         return new ItemCollectorBlockEntityImpl(type, pos, blockState);
     }
 
-    public static void onBlockEntityRegister(BlockEntityType<ItemCollectorBlockEntity> type) {
-    }
+    public static void onBlockEntityRegister(BlockEntityType<ItemCollectorBlockEntity> type) {}
 
     @Override
-    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
+    public @NotNull <T> LazyOptional<T> getCapability(
+            @NotNull Capability<T> cap, @Nullable Direction side) {
         if (cap == ForgeCapabilities.ITEM_HANDLER) {
-            return ForgeCapabilities.ITEM_HANDLER.orEmpty(cap, LazyOptional.of(() ->
-                ItemDepositoryHelperImpl.toItemHandler(getDepository())
-            ));
+            return ForgeCapabilities.ITEM_HANDLER.orEmpty(
+                    cap, LazyOptional.of(() -> ItemDepositoryHelperImpl.toItemHandler(getDepository())));
         }
         return super.getCapability(cap, side);
     }

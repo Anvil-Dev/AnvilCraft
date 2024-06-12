@@ -7,6 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.chunk.LevelChunk;
+
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -18,12 +19,10 @@ public interface Packet {
 
     void encode(@NotNull FriendlyByteBuf buf);
 
-    default void handler(@NotNull MinecraftServer server, ServerPlayer player) {
-    }
+    default void handler(@NotNull MinecraftServer server, ServerPlayer player) {}
 
     @Environment(EnvType.CLIENT)
-    default void handler() {
-    }
+    default void handler() {}
 
     default void send(ServerPlayer player) {
         Network.sendPacket(player, this);

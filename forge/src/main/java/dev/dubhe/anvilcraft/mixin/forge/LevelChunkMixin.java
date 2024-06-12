@@ -1,11 +1,13 @@
 package dev.dubhe.anvilcraft.mixin.forge;
 
 import dev.dubhe.anvilcraft.api.event.forge.BlockEntityEvent;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraftforge.common.MinecraftForge;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -24,42 +26,41 @@ abstract class LevelChunkMixin {
     public abstract Level getLevel();
 
     @Inject(
-        method = "setBlockEntity",
-        at = @At(
-            value = "INVOKE",
-            target = "Ljava/util/Map;put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;"
-        )
-    )
+            method = "setBlockEntity",
+            at =
+                    @At(
+                            value = "INVOKE",
+                            target =
+                                    "Ljava/util/Map;put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;"))
     private void onLoadBlockEntity(BlockEntity entity, CallbackInfo ci) {
         if (this.getLevel().isClientSide) return;
         MinecraftForge.EVENT_BUS.post(new BlockEntityEvent.ServerLoad(this.getLevel(), entity));
     }
 
     @Inject(
-        method = "setBlockEntity",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/level/block/entity/BlockEntity;setRemoved()V"
-        ),
-        locals = LocalCapture.CAPTURE_FAILEXCEPTION
-    )
-    private void onRemoveBlockEntity(BlockEntity entity, CallbackInfo ci, BlockPos blockPos, BlockEntity entity2) {
+            method = "setBlockEntity",
+            at =
+                    @At(
+                            value = "INVOKE",
+                            target = "Lnet/minecraft/world/level/block/entity/BlockEntity;setRemoved()V"),
+            locals = LocalCapture.CAPTURE_FAILEXCEPTION)
+    private void onRemoveBlockEntity(
+            BlockEntity entity, CallbackInfo ci, BlockPos blockPos, BlockEntity entity2) {
         if (this.getLevel().isClientSide) return;
         MinecraftForge.EVENT_BUS.post(new BlockEntityEvent.ServerUnload(this.getLevel(), entity2));
     }
 
     @Redirect(
-        method = "getBlockEntity("
-            + "Lnet/minecraft/core/BlockPos;"
-            + "Lnet/minecraft/world/level/chunk/LevelChunk$EntityCreationType;"
-            + ")"
-            + "Lnet/minecraft/world/level/block/entity/BlockEntity;",
-        at = @At(
-            value = "INVOKE",
-            target = "Ljava/util/Map;remove(Ljava/lang/Object;)Ljava/lang/Object;",
-            ordinal = 1
-        )
-    )
+            method = "getBlockEntity("
+                    + "Lnet/minecraft/core/BlockPos;"
+                    + "Lnet/minecraft/world/level/chunk/LevelChunk$EntityCreationType;"
+                    + ")"
+                    + "Lnet/minecraft/world/level/block/entity/BlockEntity;",
+            at =
+                    @At(
+                            value = "INVOKE",
+                            target = "Ljava/util/Map;remove(Ljava/lang/Object;)Ljava/lang/Object;",
+                            ordinal = 1))
     private <K, V> V onRemoveBlockEntity(@NotNull Map<K, V> map, K key) {
         @Nullable final V removed = map.remove(key);
         if (!this.getLevel().isClientSide && removed != null) {
@@ -71,13 +72,12 @@ abstract class LevelChunkMixin {
     }
 
     @Inject(
-        method = "removeBlockEntity",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/level/block/entity/BlockEntity;setRemoved()V"
-        ),
-        locals = LocalCapture.CAPTURE_FAILEXCEPTION
-    )
+            method = "removeBlockEntity",
+            at =
+                    @At(
+                            value = "INVOKE",
+                            target = "Lnet/minecraft/world/level/block/entity/BlockEntity;setRemoved()V"),
+            locals = LocalCapture.CAPTURE_FAILEXCEPTION)
     private void onRemoveBlockEntity(BlockPos pos, CallbackInfo ci, BlockEntity removed) {
         if (this.getLevel().isClientSide) return;
         if (removed != null) {

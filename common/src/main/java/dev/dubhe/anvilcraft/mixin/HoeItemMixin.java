@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import dev.dubhe.anvilcraft.item.enchantment.HarvestEnchantment;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -9,6 +10,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.CropBlock;
+
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -24,10 +26,8 @@ public class HoeItemMixin {
         if (level.isClientSide()) {
             return;
         }
-        if (
-            cir.getReturnValue() == InteractionResult.PASS
-                && level.getBlockState(pos).getBlock() instanceof CropBlock
-        ) {
+        if (cir.getReturnValue() == InteractionResult.PASS
+                && level.getBlockState(pos).getBlock() instanceof CropBlock) {
             Player player = context.getPlayer();
             if (player == null) return;
             ItemStack item = context.getItemInHand();

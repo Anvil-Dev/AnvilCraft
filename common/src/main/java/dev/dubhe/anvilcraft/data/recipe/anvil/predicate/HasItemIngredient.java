@@ -1,10 +1,8 @@
 package dev.dubhe.anvilcraft.data.recipe.anvil.predicate;
 
-import com.google.common.base.Predicates;
-import com.google.gson.JsonObject;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
 import dev.dubhe.anvilcraft.mixin.IngredientValueAccessor;
-import lombok.Getter;
+
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
@@ -17,6 +15,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+
+import com.google.common.base.Predicates;
+import com.google.gson.JsonObject;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -50,12 +52,12 @@ public class HasItemIngredient extends HasItem {
      * @param count      数量
      * @return 拥有物品原料
      */
-    public static @NotNull HasItemIngredient of(Vec3 offset, @NotNull Ingredient ingredient, int count) {
+    public static @NotNull HasItemIngredient of(
+            Vec3 offset, @NotNull Ingredient ingredient, int count) {
         ModItemPredicate item = ModItemPredicate.of().withCount(MinMaxBounds.Ints.atLeast(count));
         List<Item> items = new ArrayList<>();
         for (Ingredient.Value value : ingredient.values) {
-            if (value instanceof IngredientValueAccessor.Tag tagValue)
-                item.withTag(tagValue.getTag());
+            if (value instanceof IngredientValueAccessor.Tag tagValue) item.withTag(tagValue.getTag());
             if (value instanceof IngredientValueAccessor.Item itemValue)
                 items.add(itemValue.getItem().getItem());
         }
@@ -69,7 +71,7 @@ public class HasItemIngredient extends HasItem {
         BlockPos pos = container.getPos();
         AABB aabb = new AABB(pos).move(this.offset);
         List<ItemEntity> entities =
-            level.getEntities(EntityTypeTest.forClass(ItemEntity.class), aabb, Predicates.alwaysTrue());
+                level.getEntities(EntityTypeTest.forClass(ItemEntity.class), aabb, Predicates.alwaysTrue());
         for (ItemEntity entity : entities) {
             ItemStack item = entity.getItem();
             if (this.matchItem.matches(item)) {
@@ -78,7 +80,8 @@ public class HasItemIngredient extends HasItem {
                     assert item.getItem().getCraftingRemainingItem() != null;
                     ItemStack stack = new ItemStack(item.getItem().getCraftingRemainingItem(), count);
                     Vec3 vec3 = pos.getCenter().add(this.offset);
-                    ItemEntity itemEntity = new ItemEntity(level, vec3.x, vec3.y, vec3.z, stack, 0.0, 0.0, 0.0);
+                    ItemEntity itemEntity =
+                            new ItemEntity(level, vec3.x, vec3.y, vec3.z, stack, 0.0, 0.0, 0.0);
                     itemEntity.setDefaultPickUpDelay();
                     level.addFreshEntity(itemEntity);
                 }

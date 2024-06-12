@@ -1,8 +1,10 @@
 package dev.dubhe.anvilcraft.item;
 
 import dev.dubhe.anvilcraft.init.ModEnchantments;
+
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SwordItem;
+
 import org.jetbrains.annotations.NotNull;
 
 public class AmethystSwordItem extends SwordItem {

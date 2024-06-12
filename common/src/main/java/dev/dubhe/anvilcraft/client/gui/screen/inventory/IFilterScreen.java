@@ -1,15 +1,17 @@
 package dev.dubhe.anvilcraft.client.gui.screen.inventory;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.depository.ItemDepositorySlot;
 import dev.dubhe.anvilcraft.client.gui.component.EnableFilterButton;
 import dev.dubhe.anvilcraft.inventory.IFilterMenu;
 import dev.dubhe.anvilcraft.network.MachineEnableFilterPack;
+
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+
+import com.mojang.blaze3d.systems.RenderSystem;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiFunction;
@@ -18,7 +20,8 @@ import java.util.function.BiFunction;
  * 有过滤的 GUI
  */
 public interface IFilterScreen {
-    ResourceLocation DISABLED_SLOT = AnvilCraft.of("textures/gui/container/machine/disabled_slot.png");
+    ResourceLocation DISABLED_SLOT =
+            AnvilCraft.of("textures/gui/container/machine/disabled_slot.png");
 
     IFilterMenu getFilterMenu();
 
@@ -81,8 +84,7 @@ public interface IFilterScreen {
     /**
      * 刷新
      */
-    default void flush() {
-    }
+    default void flush() {}
 
     /**
      * 获取一个生成启用过滤按钮的生成器
@@ -91,13 +93,18 @@ public interface IFilterScreen {
      * @param y 按钮 Y 坐标
      * @return 生成启用过滤按钮的生成器
      */
-    default BiFunction<Integer, Integer, EnableFilterButton> getEnableFilterButtonSupplier(int x, int y) {
-        return (i, j) -> new EnableFilterButton(i + x, j + y, button -> {
-            if (button instanceof EnableFilterButton enableFilterButton) {
-                MachineEnableFilterPack packet = new MachineEnableFilterPack(enableFilterButton.next());
-                packet.send();
-            }
-        }, this::isFilterEnabled);
+    default BiFunction<Integer, Integer, EnableFilterButton> getEnableFilterButtonSupplier(
+            int x, int y) {
+        return (i, j) -> new EnableFilterButton(
+                i + x,
+                j + y,
+                button -> {
+                    if (button instanceof EnableFilterButton enableFilterButton) {
+                        MachineEnableFilterPack packet = new MachineEnableFilterPack(enableFilterButton.next());
+                        packet.send();
+                    }
+                },
+                this::isFilterEnabled);
     }
 
     /**
@@ -137,7 +144,8 @@ public interface IFilterScreen {
      * @param slot        槽位
      * @param stack       物品堆栈
      */
-    default void renderFilterItem(@NotNull GuiGraphics guiGraphics, @NotNull Slot slot, @NotNull ItemStack stack) {
+    default void renderFilterItem(
+            @NotNull GuiGraphics guiGraphics, @NotNull Slot slot, @NotNull ItemStack stack) {
         int i = slot.x;
         int j = slot.y;
         guiGraphics.renderFakeItem(stack, i, j);

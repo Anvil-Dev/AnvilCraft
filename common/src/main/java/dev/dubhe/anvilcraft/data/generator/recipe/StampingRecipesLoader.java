@@ -1,16 +1,16 @@
 package dev.dubhe.anvilcraft.data.generator.recipe;
 
-import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.RecipeItem;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe.Builder;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SelectOne;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SpawnItem;
-import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
+
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.tags.ItemTags;
@@ -22,6 +22,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TieredItem;
 import net.minecraft.world.phys.Vec3;
+
+import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 
 import java.util.Arrays;
 
@@ -42,35 +44,30 @@ public class StampingRecipesLoader {
         stamping(Items.MILK_BUCKET, RecipeItem.of(ModItems.CREAM.get(), 4));
         stamping(Items.SUGAR_CANE, RecipeItem.of(Items.PAPER), RecipeItem.of(Items.SUGAR, 0.25d));
         stamping(
-            Items.COCOA_BEANS,
-            RecipeItem.of(ModItems.COCOA_BUTTER),
-            RecipeItem.of(ModItems.COCOA_POWDER)
-        );
+                Items.COCOA_BEANS,
+                RecipeItem.of(ModItems.COCOA_BUTTER),
+                RecipeItem.of(ModItems.COCOA_POWDER));
         stamping(
-            Items.HEART_OF_THE_SEA,
-            RecipeItem.of(ModItems.SEA_HEART_SHELL_SHARD, 3),
-            RecipeItem.of(ModItems.SEA_HEART_SHELL_SHARD, 0.5d),
-            RecipeItem.of(ModItems.SEA_HEART_SHELL_SHARD, 0.5d),
-            RecipeItem.of(ModItems.SAPPHIRE));
+                Items.HEART_OF_THE_SEA,
+                RecipeItem.of(ModItems.SEA_HEART_SHELL_SHARD, 3),
+                RecipeItem.of(ModItems.SEA_HEART_SHELL_SHARD, 0.5d),
+                RecipeItem.of(ModItems.SEA_HEART_SHELL_SHARD, 0.5d),
+                RecipeItem.of(ModItems.SAPPHIRE));
         stamping(
-            ModItems.PRISMARINE_CLUSTER.get(),
-            RecipeItem.of(Items.PRISMARINE_CRYSTALS, 2),
-            RecipeItem.of(ModItems.PRISMARINE_BLADE, 0.15d),
-            RecipeItem.of(Items.PRISMARINE_CRYSTALS, 0.5d),
-            RecipeItem.of(Items.PRISMARINE_SHARD));
-        stamping(ModItems.GEODE.get(),
-            RecipeItem.of(Items.AMETHYST_SHARD, 8),
-            RecipeItem.of(ModItems.TOPAZ, 1, true),
-            RecipeItem.of(ModItems.SAPPHIRE, 1, true),
-            RecipeItem.of(ModItems.RUBY, 1, true)
-        );
+                ModItems.PRISMARINE_CLUSTER.get(),
+                RecipeItem.of(Items.PRISMARINE_CRYSTALS, 2),
+                RecipeItem.of(ModItems.PRISMARINE_BLADE, 0.15d),
+                RecipeItem.of(Items.PRISMARINE_CRYSTALS, 0.5d),
+                RecipeItem.of(Items.PRISMARINE_SHARD));
         stamping(
-            ItemTags.LOGS,
-            RecipeItem.of(ModItems.WOOD_FIBER, 1),
-            RecipeItem.of(ModItems.RESIN, 0.25d));
+                ModItems.GEODE.get(),
+                RecipeItem.of(Items.AMETHYST_SHARD, 8),
+                RecipeItem.of(ModItems.TOPAZ, 1, true),
+                RecipeItem.of(ModItems.SAPPHIRE, 1, true),
+                RecipeItem.of(ModItems.RUBY, 1, true));
         stamping(
-            Items.CHERRY_LEAVES,
-            RecipeItem.of(Items.PINK_PETALS));
+                ItemTags.LOGS, RecipeItem.of(ModItems.WOOD_FIBER, 1), RecipeItem.of(ModItems.RESIN, 0.25d));
+        stamping(Items.CHERRY_LEAVES, RecipeItem.of(Items.PINK_PETALS));
 
         reclaim(Items.CHAINMAIL_HELMET, Items.CHAIN);
         reclaim(Items.CHAINMAIL_CHESTPLATE, Items.CHAIN);
@@ -131,26 +128,26 @@ public class StampingRecipesLoader {
     public static void stamping(Item enter, RecipeItem... items) {
         if (StampingRecipesLoader.provider == null) return;
         Builder builder = AnvilRecipe.Builder.create(RecipeCategory.MISC)
-            .hasBlock(ModBlocks.STAMPING_PLATFORM.get())
-            .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), enter)
-            .type(AnvilRecipeType.STAMPING);
+                .hasBlock(ModBlocks.STAMPING_PLATFORM.get())
+                .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), enter)
+                .type(AnvilRecipeType.STAMPING);
         SelectOne selectOne = new SelectOne();
         for (RecipeItem item : items) {
             if (item.isSelectOne()) {
                 selectOne.add(new SpawnItem(
-                    new Vec3(0.0, -0.75, 0.0),
-                    item.getChance(),
-                    new ItemStack(item.getItem()))
-                );
+                        new Vec3(0.0, -0.75, 0.0), item.getChance(), new ItemStack(item.getItem())));
             } else builder = builder.spawnItem(new Vec3(0.0, -0.75, 0.0), item);
         }
         if (!selectOne.isEmpty()) builder = builder.addOutcomes(selectOne);
         builder
-            .unlockedBy(AnvilCraftDatagen.hasItem(enter), AnvilCraftDatagen.has(enter))
-            .save(StampingRecipesLoader.provider,
-                AnvilCraft.of("stamping/" + BuiltInRegistries.ITEM.getKey(enter).getPath()
-                    + "_2_" + BuiltInRegistries.ITEM.getKey(Arrays.stream(items).toList()
-                    .get(0).getItem().asItem()).getPath()));
+                .unlockedBy(AnvilCraftDatagen.hasItem(enter), AnvilCraftDatagen.has(enter))
+                .save(
+                        StampingRecipesLoader.provider,
+                        AnvilCraft.of("stamping/" + BuiltInRegistries.ITEM.getKey(enter).getPath()
+                                + "_2_"
+                                + BuiltInRegistries.ITEM
+                                        .getKey(Arrays.stream(items).toList().get(0).getItem().asItem())
+                                        .getPath()));
     }
 
     /**
@@ -162,26 +159,26 @@ public class StampingRecipesLoader {
     public static void stamping(TagKey<Item> enter, RecipeItem... items) {
         if (StampingRecipesLoader.provider == null) return;
         Builder builder = AnvilRecipe.Builder.create(RecipeCategory.MISC)
-            .hasBlock(ModBlocks.STAMPING_PLATFORM.get())
-            .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), enter)
-            .type(AnvilRecipeType.STAMPING);
+                .hasBlock(ModBlocks.STAMPING_PLATFORM.get())
+                .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), enter)
+                .type(AnvilRecipeType.STAMPING);
         SelectOne selectOne = new SelectOne();
         for (RecipeItem item : items) {
             if (item.isSelectOne()) {
                 selectOne.add(new SpawnItem(
-                    new Vec3(0.0, -0.75, 0.0),
-                    item.getChance(),
-                    new ItemStack(item.getItem()))
-                );
+                        new Vec3(0.0, -0.75, 0.0), item.getChance(), new ItemStack(item.getItem())));
             } else builder = builder.spawnItem(new Vec3(0.0, -0.75, 0.0), item);
         }
         if (!selectOne.isEmpty()) builder = builder.addOutcomes(selectOne);
         builder
-            .unlockedBy(AnvilCraftDatagen.hasItem(enter), AnvilCraftDatagen.has(enter))
-            .save(StampingRecipesLoader.provider,
-                AnvilCraft.of("stamping/" + enter.location().getPath()
-                    + "_2_" + BuiltInRegistries.ITEM.getKey(Arrays.stream(items).toList()
-                    .get(0).getItem().asItem()).getPath()));
+                .unlockedBy(AnvilCraftDatagen.hasItem(enter), AnvilCraftDatagen.has(enter))
+                .save(
+                        StampingRecipesLoader.provider,
+                        AnvilCraft.of("stamping/" + enter.location().getPath()
+                                + "_2_"
+                                + BuiltInRegistries.ITEM
+                                        .getKey(Arrays.stream(items).toList().get(0).getItem().asItem())
+                                        .getPath()));
     }
 
     /**
@@ -193,10 +190,10 @@ public class StampingRecipesLoader {
     public static void reclaim(Item item, Item item1) {
         if (StampingRecipesLoader.provider == null) return;
         AnvilRecipe.Builder builder = AnvilRecipe.Builder.create(RecipeCategory.MISC)
-            .type(AnvilRecipeType.STAMPING)
-            .hasBlock(ModBlocks.STAMPING_PLATFORM.get())
-            .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), item)
-            .unlockedBy(AnvilCraftDatagen.hasItem(item), AnvilCraftDatagen.has(item));
+                .type(AnvilRecipeType.STAMPING)
+                .hasBlock(ModBlocks.STAMPING_PLATFORM.get())
+                .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), item)
+                .unlockedBy(AnvilCraftDatagen.hasItem(item), AnvilCraftDatagen.has(item));
         if (item instanceof TieredItem) {
             builder.spawnItem(new Vec3(0.0, -0.75, 0.0), 0.5, item1);
         } else if (item instanceof ArmorItem || item instanceof HorseArmorItem) {
@@ -205,9 +202,10 @@ public class StampingRecipesLoader {
         } else {
             builder.spawnItem(new Vec3(0.0, -0.75, 0.0), item1);
         }
-        builder.save(StampingRecipesLoader.provider,
-            AnvilCraft.of("reclaim/" + BuiltInRegistries.ITEM.getKey(item).getPath()
-                + "_2_" + BuiltInRegistries.ITEM.getKey(item1).getPath()));
+        builder.save(
+                StampingRecipesLoader.provider,
+                AnvilCraft.of("reclaim/" + BuiltInRegistries.ITEM.getKey(item).getPath() + "_2_"
+                        + BuiltInRegistries.ITEM.getKey(item1).getPath()));
     }
 
     public static void reclaim(RegistrateRecipeProvider provider, Item item, Item item1) {

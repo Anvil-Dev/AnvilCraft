@@ -3,11 +3,13 @@ package dev.dubhe.anvilcraft.integration.emi;
 import dev.dubhe.anvilcraft.api.recipe.AnvilRecipeManager;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.integration.emi.recipe.AnvilProcessEmiRecipe;
+
+import net.minecraft.world.level.block.Blocks;
+
 import dev.emi.emi.api.EmiEntrypoint;
 import dev.emi.emi.api.EmiPlugin;
 import dev.emi.emi.api.EmiRegistry;
 import dev.emi.emi.api.stack.EmiStack;
-import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.NotNull;
 
 @EmiEntrypoint
@@ -16,7 +18,8 @@ public class AnvilCraftEmiPlugin implements EmiPlugin {
     public void register(@NotNull EmiRegistry registry) {
         AnvilRecipeCategory.ALL.forEach(registry::addCategory);
 
-        registry.addWorkstation(AnvilRecipeCategory.STAMPING, EmiStack.of(ModBlocks.STAMPING_PLATFORM.get()));
+        registry.addWorkstation(
+                AnvilRecipeCategory.STAMPING, EmiStack.of(ModBlocks.STAMPING_PLATFORM.get()));
         registry.addWorkstation(AnvilRecipeCategory.STAMPING, EmiStack.of(ModBlocks.ROYAL_ANVIL));
         registry.addWorkstation(AnvilRecipeCategory.STAMPING, EmiStack.of(Blocks.ANVIL));
         registry.addWorkstation(AnvilRecipeCategory.STAMPING, EmiStack.of(Blocks.CHIPPED_ANVIL));
@@ -46,7 +49,8 @@ public class AnvilCraftEmiPlugin implements EmiPlugin {
         registry.addWorkstation(AnvilRecipeCategory.FLUID_HANDLING, EmiStack.of(Blocks.CHIPPED_ANVIL));
         registry.addWorkstation(AnvilRecipeCategory.FLUID_HANDLING, EmiStack.of(Blocks.DAMAGED_ANVIL));
 
-        registry.addWorkstation(AnvilRecipeCategory.CRYSTALLIZE, EmiStack.of(Blocks.POWDER_SNOW_CAULDRON));
+        registry.addWorkstation(
+                AnvilRecipeCategory.CRYSTALLIZE, EmiStack.of(Blocks.POWDER_SNOW_CAULDRON));
         registry.addWorkstation(AnvilRecipeCategory.CRYSTALLIZE, EmiStack.of(ModBlocks.ROYAL_ANVIL));
         registry.addWorkstation(AnvilRecipeCategory.CRYSTALLIZE, EmiStack.of(Blocks.ANVIL));
         registry.addWorkstation(AnvilRecipeCategory.CRYSTALLIZE, EmiStack.of(Blocks.CHIPPED_ANVIL));
@@ -115,10 +119,8 @@ public class AnvilCraftEmiPlugin implements EmiPlugin {
         registry.addWorkstation(AnvilRecipeCategory.GENERIC, EmiStack.of(Blocks.CHIPPED_ANVIL));
         registry.addWorkstation(AnvilRecipeCategory.GENERIC, EmiStack.of(Blocks.DAMAGED_ANVIL));
 
-        AnvilRecipeManager.getAnvilRecipeList().forEach(
-            recipe -> registry.addRecipe(
-                new AnvilProcessEmiRecipe(AnvilRecipeCategory.getByType(recipe.getAnvilRecipeType()), recipe)
-            )
-        );
+        AnvilRecipeManager.getAnvilRecipeList()
+                .forEach(recipe -> registry.addRecipe(new AnvilProcessEmiRecipe(
+                        AnvilRecipeCategory.getByType(recipe.getAnvilRecipeType()), recipe)));
     }
 }

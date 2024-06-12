@@ -1,9 +1,10 @@
 package dev.dubhe.anvilcraft.item;
 
-import com.google.common.base.Suppliers;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.crafting.Ingredient;
+
+import com.google.common.base.Suppliers;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
@@ -19,8 +20,12 @@ public enum ModTiers implements Tier {
     private final Supplier<Ingredient> repairIngredient;
 
     ModTiers(
-        int level, int uses, float speed, float damage, int enchantmentValue, @NotNull Supplier<Ingredient> supplier
-    ) {
+            int level,
+            int uses,
+            float speed,
+            float damage,
+            int enchantmentValue,
+            @NotNull Supplier<Ingredient> supplier) {
         this.level = level;
         this.uses = uses;
         this.speed = speed;
