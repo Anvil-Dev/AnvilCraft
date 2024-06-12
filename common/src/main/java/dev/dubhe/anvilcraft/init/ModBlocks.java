@@ -1668,12 +1668,7 @@ public class ModBlocks {
         .simpleItem()
         .initialProperties(() -> Blocks.ANVIL)
         .loot(AbstractMultiplePartBlock::loot)
-        .properties(p -> {
-            p = p.noOcclusion();
-            p = p.strength(4.0F).sound(SoundType.ANVIL);
-            p = p.explosionResistance(1200);
-            return p;
-        })
+        .properties(p -> p.noOcclusion().strength(4.0F).sound(SoundType.ANVIL).explosionResistance(1200))
         .blockstate((ctx, provider) -> {
         })
         .register();
