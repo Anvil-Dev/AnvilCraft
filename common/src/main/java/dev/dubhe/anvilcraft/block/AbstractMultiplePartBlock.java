@@ -8,6 +8,7 @@ import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -31,8 +32,8 @@ public abstract class AbstractMultiplePartBlock<P extends Enum<P> & MultiplePart
     @Override
     @SuppressWarnings("deprecation")
     public @NotNull BlockState updateShape(
-        @NotNull BlockState state, @NotNull Direction direction, @NotNull BlockState neighborState,
-        @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockPos neighborPos
+            @NotNull BlockState state, @NotNull Direction direction, @NotNull BlockState neighborState,
+            @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockPos neighborPos
     ) {
         if (!state.hasProperty(this.getPart())) {
             return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
@@ -42,9 +43,9 @@ public abstract class AbstractMultiplePartBlock<P extends Enum<P> & MultiplePart
             Vec3i offset = neighborPos.subtract(pos).offset(state1.getOffset()); // 更新来源偏移值
             if (offset.distSqr(part.getOffset()) != 0) continue;
             if (
-                !neighborState.is(this)
-                    || !neighborState.hasProperty(this.getPart())
-                    || neighborState.getValue(this.getPart()) != part
+                    !neighborState.is(this)
+                            || !neighborState.hasProperty(this.getPart())
+                            || neighborState.getValue(this.getPart()) != part
             ) {
                 return Blocks.AIR.defaultBlockState();
             }
@@ -54,7 +55,7 @@ public abstract class AbstractMultiplePartBlock<P extends Enum<P> & MultiplePart
 
     @Override
     public void playerWillDestroy(
-        @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player
+            @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player
     ) {
         if (!level.isClientSide && player.isCreative()) {
             this.preventCreativeDropFromMainPart(level, pos, state, player);
@@ -63,7 +64,7 @@ public abstract class AbstractMultiplePartBlock<P extends Enum<P> & MultiplePart
     }
 
     private void preventCreativeDropFromMainPart(
-        @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player
+            @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player
     ) {
         if (!state.is(this)) return;
         if (!state.hasProperty(this.getPart())) return;
@@ -74,8 +75,8 @@ public abstract class AbstractMultiplePartBlock<P extends Enum<P> & MultiplePart
         if (!mainPartState.is(this)) return;
         if (!mainPartState.hasProperty(this.getPart())) return;
         BlockState blockState2 = mainPartState.getFluidState().is(Fluids.WATER)
-            ? Blocks.WATER.defaultBlockState()
-            : Blocks.AIR.defaultBlockState();
+                ? Blocks.WATER.defaultBlockState()
+                : Blocks.AIR.defaultBlockState();
         level.setBlock(mainPartPos, blockState2, 35);
         level.levelEvent(player, 2001, mainPartPos, Block.getId(mainPartState));
     }
@@ -87,7 +88,7 @@ public abstract class AbstractMultiplePartBlock<P extends Enum<P> & MultiplePart
      * @param block    方块
      */
     public static <T extends Enum<T> & MultiplePartBlockState<T>> void loot(
-        BlockLootSubProvider provider, @NotNull AbstractMultiplePartBlock<T> block
+            BlockLootSubProvider provider, @NotNull AbstractMultiplePartBlock<T> block
     ) {
         for (T part : block.getParts()) {
             if (part.getOffset().distSqr(block.getMainPartOffset()) == 0) {
@@ -95,5 +96,29 @@ public abstract class AbstractMultiplePartBlock<P extends Enum<P> & MultiplePart
                 break;
             }
         }
+    }
+
+    @Override
+    public final boolean canSurvive(@NotNull BlockState state, @NotNull LevelReader level, @NotNull BlockPos pos) {
+        return canPlace(state, level, pos) && hasEnoughSpace(pos, level);
+    }
+
+    public boolean canPlace(BlockState state, LevelReader level, BlockPos pos) {
+        return true;
+    }
+
+    /**
+     * 是否有足够的空间放下方块
+     */
+    public boolean hasEnoughSpace(BlockPos pos, LevelReader level) {
+        for (P part : getParts()) {
+            BlockPos pos1 = pos.offset(part.getOffset());
+            if (level.isOutsideBuildHeight(pos1)) return false;
+            BlockState state = level.getBlockState(pos1);
+            if (!state.isAir() && !state.canBeReplaced()) {
+                return false;
+            }
+        }
+        return true;
     }
 }

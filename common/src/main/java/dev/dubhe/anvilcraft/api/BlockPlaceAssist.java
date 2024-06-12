@@ -38,7 +38,7 @@ public class BlockPlaceAssist {
                 .map(Pair::getFirst)
                 .collect(Collectors.toList());
     }
-    
+
     /**
      *
      */
@@ -65,6 +65,7 @@ public class BlockPlaceAssist {
             )) {
                 int length = 0;
                 BlockPos blockPos = pos.relative(direction);
+
                 BlockState blockState = level.getBlockState(blockPos);
                 while (!blockState.isAir()
                         && blockState.is(newBlockState.getBlock())
@@ -74,6 +75,9 @@ public class BlockPlaceAssist {
                     ++length;
                     blockPos = blockPos.relative(direction);
                     blockState = level.getBlockState(blockPos);
+                }
+                if (level.isOutsideBuildHeight(blockPos)) {
+                    return InteractionResult.PASS;
                 }
                 if (blockState.canBeReplaced()) {
                     level.setBlockAndUpdate(
