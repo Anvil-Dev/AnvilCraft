@@ -175,14 +175,29 @@ public class AnvilProcessEmiRecipe implements EmiRecipe {
         return this.recipe.getId();
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     @Override
     public List<EmiIngredient> getInputs() {
-        return this.inputs;
+        List<EmiIngredient> in = new ArrayList<>();
+        in.addAll(this.inputs);
+        in.addAll(this.inputBlocks);
+        for (EmiIngredient input : this.inputs) {
+            if (input instanceof ListEmiIngredient ingredients) in.addAll(ingredients.getEmiStacks());
+        }
+        return in;
     }
 
     @Override
     public List<EmiStack> getOutputs() {
-        return this.outputs;
+        List<EmiStack> out = new ArrayList<>();
+        out.addAll(this.outputs);
+        out.addAll(this.outputBlocks);
+        for (EmiStack output : this.outputs) {
+            if (output instanceof SelectOneEmiStack stack) {
+                out.addAll(stack.getStacks());
+            }
+        }
+        return out;
     }
 
     @Override
@@ -227,13 +242,13 @@ public class AnvilProcessEmiRecipe implements EmiRecipe {
     }
 
     protected void addInputSlots(WidgetHolder widgets) {
-        List<Vec2> posLis = this.getSlotsPosList(inputs.size());
+        List<Vec2> posList = this.getSlotsPosList(inputs.size());
         Vec2 size = this.getSlotsComposeSize(inputs.size());
         int x = this.inputs.size() == 1 ? 40 : (int) ((26 - size.x / 2) + 10);
         int y = (int) ((26 - size.y / 2) + 15);
         Iterator<EmiIngredient> ingredientIterator = inputs.iterator();
-        for (Vec2 vec2 : posLis) {
-            addSlot(ingredientIterator.next(), (int) (x + vec2.x), (int) (y + vec2.y), widgets);
+        for (Vec2 vec2 : posList) {
+            this.addSlot(ingredientIterator.next(), (int) (x + vec2.x), (int) (y + vec2.y), widgets);
         }
     }
 
@@ -260,11 +275,15 @@ public class AnvilProcessEmiRecipe implements EmiRecipe {
     }
 
     protected void addSlot(@NotNull EmiIngredient ingredient, int x, int y, WidgetHolder widgets) {
-        if (ingredient.getChance() < 1) {
-            addChangeSlot(ingredient, x, y, widgets);
+        if (ingredient instanceof SelectOneEmiStack) {
+            this.addSelectOneSlot(ingredient, x, y, widgets);
             return;
         }
-        addSimpleSlot(ingredient, x, y, widgets);
+        if (ingredient.getChance() < 1) {
+            this.addChanceSlot(ingredient, x, y, widgets);
+            return;
+        }
+        this.addSimpleSlot(ingredient, x, y, widgets);
     }
 
     protected void addSimpleSlot(EmiIngredient ingredient, int x, int y, @NotNull WidgetHolder widgets) {
@@ -272,21 +291,26 @@ public class AnvilProcessEmiRecipe implements EmiRecipe {
             .customBackground(EMI_GUI_TEXTURES, 0, 0, 18, 18));
     }
 
-    protected void addChangeSlot(EmiIngredient ingredient, int x, int y, @NotNull WidgetHolder widgets) {
+    protected void addChanceSlot(EmiIngredient ingredient, int x, int y, @NotNull WidgetHolder widgets) {
         widgets.add(new SlotWidget(ingredient, x, y).recipeContext(this)
             .customBackground(EMI_GUI_TEXTURES, 19, 0, 18, 18));
     }
 
+    protected void addSelectOneSlot(EmiIngredient ingredient, int x, int y, @NotNull WidgetHolder widgets) {
+        widgets.add(new SlotWidget(ingredient, x, y).recipeContext(this)
+            .customBackground(EMI_GUI_TEXTURES, 38, 0, 18, 18));
+    }
+
     protected void addOutputs(WidgetHolder widgets) {
-        int outputSize = outputs.size();
-        List<Vec2> posLis = getSlotsPosList(outputSize);
-        Vec2 composeSize = getSlotsComposeSize(outputSize);
+        int outputSize = this.outputs.size();
+        List<Vec2> posList = this.getSlotsPosList(outputSize);
+        Vec2 composeSize = this.getSlotsComposeSize(outputSize);
         int x = outputSize == 1 ? 190 : (int) ((26 - composeSize.x / 2) + 190);
         int y = (int) ((26 - composeSize.y / 2) + 15);
         Iterator<EmiStack> emiStackIterator = outputs.iterator();
-        for (Vec2 vec2 : posLis) {
+        for (Vec2 vec2 : posList) {
             if (emiStackIterator.hasNext()) {
-                addSlot(emiStackIterator.next(), (int) (x + vec2.x), (int) (y + vec2.y), widgets);
+                this.addSlot(emiStackIterator.next(), (int) (x + vec2.x), (int) (y + vec2.y), widgets);
             }
         }
     }

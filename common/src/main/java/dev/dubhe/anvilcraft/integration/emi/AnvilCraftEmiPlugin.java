@@ -3,23 +3,17 @@ package dev.dubhe.anvilcraft.integration.emi;
 import dev.dubhe.anvilcraft.api.recipe.AnvilRecipeManager;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.integration.emi.recipe.AnvilProcessEmiRecipe;
-import dev.dubhe.anvilcraft.integration.emi.stack.BlockStateEmiStack;
 import dev.emi.emi.api.EmiEntrypoint;
 import dev.emi.emi.api.EmiPlugin;
 import dev.emi.emi.api.EmiRegistry;
 import dev.emi.emi.api.stack.EmiStack;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import org.jetbrains.annotations.NotNull;
 
 @EmiEntrypoint
 public class AnvilCraftEmiPlugin implements EmiPlugin {
     @Override
-    public void register(EmiRegistry registry) {
-        for (Block block : BuiltInRegistries.BLOCK) {
-            EmiStack stack = BlockStateEmiStack.of(block.defaultBlockState());
-            registry.addEmiStack(stack);
-        }
+    public void register(@NotNull EmiRegistry registry) {
         AnvilRecipeCategory.ALL.forEach(registry::addCategory);
 
         registry.addWorkstation(AnvilRecipeCategory.STAMPING, EmiStack.of(ModBlocks.STAMPING_PLATFORM.get()));
@@ -103,6 +97,7 @@ public class AnvilCraftEmiPlugin implements EmiPlugin {
         registry.addWorkstation(AnvilRecipeCategory.SQUEEZE, EmiStack.of(Blocks.CHIPPED_ANVIL));
         registry.addWorkstation(AnvilRecipeCategory.SQUEEZE, EmiStack.of(Blocks.DAMAGED_ANVIL));
 
+        registry.addWorkstation(AnvilRecipeCategory.SUPER_HEATING, EmiStack.of(Blocks.CAULDRON));
         registry.addWorkstation(AnvilRecipeCategory.SUPER_HEATING, EmiStack.of(ModBlocks.HEATER));
         registry.addWorkstation(AnvilRecipeCategory.SUPER_HEATING, EmiStack.of(ModBlocks.ROYAL_ANVIL));
         registry.addWorkstation(AnvilRecipeCategory.SUPER_HEATING, EmiStack.of(Blocks.ANVIL));
