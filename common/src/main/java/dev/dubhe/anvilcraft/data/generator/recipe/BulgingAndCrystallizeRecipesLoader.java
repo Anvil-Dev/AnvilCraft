@@ -32,7 +32,7 @@ public class BulgingAndCrystallizeRecipesLoader {
         bulging(Items.FIRE_CORAL, Items.FIRE_CORAL_BLOCK);
         bulging(Items.HORN_CORAL, Items.HORN_CORAL_BLOCK);
         bulging(Items.TUBE_CORAL, Items.TUBE_CORAL_BLOCK);
-        bulging(Items.WET_SPONGE, Items.WET_SPONGE, 1);
+        bulging(ModItems.SPONGE_GEMMULE, Items.WET_SPONGE, 1);
         bulging(ModItems.FLOUR, ModItems.DOUGH);
         crystallize(ModItems.SEA_HEART_SHELL_SHARD, ModItems.PRISMARINE_CLUSTER, 1);
     }

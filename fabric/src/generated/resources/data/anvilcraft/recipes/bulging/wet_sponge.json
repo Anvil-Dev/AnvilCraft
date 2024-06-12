@@ -36,7 +36,7 @@
           "min": 1
         },
         "items": [
-          "minecraft:wet_sponge"
+          "anvilcraft:sponge_gemmule"
         ]
       },
       "offset": [
