@@ -17,8 +17,6 @@ jobs:
     uses: ./.github/workflows/gametest.yml
   build:
     runs-on: ubuntu-latest
-    needs:
-      - gametest
     env:
       CI_BUILD: true
       PR_BUILD: false

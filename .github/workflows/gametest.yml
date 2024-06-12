@@ -24,5 +24,8 @@ jobs:
       - name: Build with Gradle
         uses: gradle/actions/setup-gradle@v3
 
-      - name: Run GameTest
+      - name: Run Fabric GameTest
         run: ./gradlew anvilcraft-fabric:runGameTestServer
+
+      - name: Run Forge GameTest
+        run: ./gradlew anvilcraft-forge:runGameTestServer
