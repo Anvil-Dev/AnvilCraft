@@ -4,12 +4,17 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.integration.emi.stack.BlockStateEmiStack;
 import dev.dubhe.anvilcraft.util.BlockStateRender;
 import dev.emi.emi.EmiPort;
+import dev.emi.emi.api.stack.EmiStack;
+import dev.emi.emi.api.stack.EmiStackInteraction;
 import dev.emi.emi.api.widget.Bounds;
 import dev.emi.emi.api.widget.DrawableWidget.DrawableWidgetConsumer;
 import dev.emi.emi.api.widget.Widget;
 import dev.emi.emi.api.widget.WidgetHolder;
+import dev.emi.emi.screen.EmiScreenManager;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,6 +41,20 @@ public class BlockWidget extends Widget implements DrawableWidgetConsumer {
     @Override
     public Bounds getBounds() {
         return new Bounds(this.offsetX, this.offsetY, 25, 25);
+    }
+
+    private EmiStack getStack() {
+        Item item = this.blockState.getBlock().asItem();
+        if (item != Items.AIR) return EmiStack.of(item);
+        return BlockStateEmiStack.of(this.blockState);
+    }
+
+    @Override
+    public boolean mouseClicked(int mouseX, int mouseY, int button) {
+        return EmiScreenManager.stackInteraction(
+            new EmiStackInteraction(this.getStack()),
+            bind -> bind.matchesMouse(button)
+        );
     }
 
     @Override

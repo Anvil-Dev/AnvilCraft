@@ -12,7 +12,9 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -66,6 +68,8 @@ public class BlockStateEmiStack extends EmiStack {
 
     @Override
     public Object getKey() {
+        Item item = this.state.getBlock().asItem();
+        if (item != Items.AIR) return item;
         return this.state.getBlock();
     }
 
