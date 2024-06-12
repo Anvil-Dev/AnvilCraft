@@ -175,14 +175,29 @@ public class AnvilProcessEmiRecipe implements EmiRecipe {
         return this.recipe.getId();
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     @Override
     public List<EmiIngredient> getInputs() {
-        return this.inputs;
+        List<EmiIngredient> in = new ArrayList<>();
+        in.addAll(this.inputs);
+        in.addAll(this.inputBlocks);
+        for (EmiIngredient input : this.inputs) {
+            if (input instanceof ListEmiIngredient ingredients) in.addAll(ingredients.getEmiStacks());
+        }
+        return in;
     }
 
     @Override
     public List<EmiStack> getOutputs() {
-        return this.outputs;
+        List<EmiStack> out = new ArrayList<>();
+        out.addAll(this.outputs);
+        out.addAll(this.outputBlocks);
+        for (EmiStack output : this.outputs) {
+            if (output instanceof SelectOneEmiStack stack) {
+                out.addAll(stack.getStacks());
+            }
+        }
+        return out;
     }
 
     @Override
