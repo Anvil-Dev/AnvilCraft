@@ -79,7 +79,11 @@ public class BlockStateEmiStack extends EmiStack {
         return BlockStateEmiStack.getTooltipLines(this.state);
     }
 
-    private static @NotNull List<Component> getTooltipLines(@NotNull BlockState state) {
+    /**
+     * @param state 方块状态
+     * @return 工具提示
+     */
+    public static @NotNull List<Component> getTooltipLines(@NotNull BlockState state) {
         ArrayList<Component> list = Lists.newArrayList();
         ChatFormatting color = state.getBlock().asItem().getDefaultInstance().getRarity().color;
         Component name = Component.translatable(state.getBlock().getDescriptionId());

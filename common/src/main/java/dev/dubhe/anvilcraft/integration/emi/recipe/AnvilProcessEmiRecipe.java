@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.integration.emi.recipe;
 
+import com.google.common.collect.ImmutableSet;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipeOutcome;
@@ -8,6 +9,7 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SelectOne;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SetBlock;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SpawnItem;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasBlock;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasBlockIngredient;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasFluidCauldron;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItem;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.NotHasBlock;
@@ -44,6 +46,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 @SuppressWarnings("SameParameterValue")
@@ -68,8 +71,10 @@ public class AnvilProcessEmiRecipe implements EmiRecipe {
      * @param category 配方类型
      * @param recipe   {@link AnvilRecipe}配方
      */
-    @SuppressWarnings({"UnstableApiUsage"})
-    public AnvilProcessEmiRecipe(EmiRecipeCategory category, @NotNull AnvilRecipe recipe) {
+    @SuppressWarnings({"UnstableApiUsage", "unchecked"})
+    public <T extends Comparable<T>, V extends T> AnvilProcessEmiRecipe(
+        EmiRecipeCategory category, @NotNull AnvilRecipe recipe
+    ) {
         this.category = category;
         this.recipe = recipe;
         for (RecipePredicate predicate : recipe.getPredicates()) {
@@ -86,6 +91,7 @@ public class AnvilProcessEmiRecipe implements EmiRecipe {
                 List<EmiStack> items = matchItem.getItems().stream().map(EmiStack::of).toList();
                 this.inputs.add(new ListEmiIngredient(items, count));
             } else if (predicate instanceof HasBlock block && !(block instanceof NotHasBlock)) {
+                boolean flag = block instanceof HasBlockIngredient;
                 HasBlock.ModBlockPredicate matchBlock = block.getMatchBlock();
                 TagKey<Block> tag = matchBlock.getTag();
                 Map<String, String> properties = matchBlock.getProperties();
@@ -96,15 +102,16 @@ public class AnvilProcessEmiRecipe implements EmiRecipe {
                 List<BlockStateEmiStack> blocks = blockSet.stream()
                     .map(block1 -> {
                         BlockState workBlockState = block1.defaultBlockState();
-                        for (BlockState blockState : block1.getStateDefinition().getPossibleStates()) {
-                            first:
-                            for (Map.Entry<String, String> entry : properties.entrySet()) {
-                                for (Map.Entry<Property<?>, Comparable<?>> entry1 : blockState.getValues().entrySet()) {
-                                    if (!entry1.getKey().getName().equals(entry.getKey())) continue;
-                                    if (!entry1.getValue().toString().equals(entry.getValue())) break first;
-                                }
-                            }
-                            workBlockState = blockState;
+                        ImmutableSet<Property<?>> keySet = workBlockState.getValues().keySet();
+                        for (Property<?> property : keySet) {
+                            if (!properties.containsKey(property.getName())) continue;
+                            String value = properties.get(property.getName());
+                            Optional<?> first = property.getAllValues()
+                                .map(Property.Value::value)
+                                .filter(v -> value.equals(v.toString()))
+                                .findFirst();
+                            if (first.isEmpty()) continue;
+                            workBlockState = workBlockState.setValue((Property<T>) property, (V) first.get());
                         }
                         return BlockStateEmiStack.of(workBlockState);
                     })
@@ -112,10 +119,12 @@ public class AnvilProcessEmiRecipe implements EmiRecipe {
                 ListBlockStateEmiIngredient ingredient = ListBlockStateEmiIngredient.of(blocks);
                 if (block.getOffset().equals(new Vec3(0.0d, -1.0d, 0.0d))) {
                     this.inputBlocks.set(0, ingredient.get());
+                    if (!flag) this.outputBlocks.set(0, ingredient.get());
                     continue;
                 }
                 if (block.getOffset().equals(new Vec3(0.0d, -2.0d, 0.0d))) {
                     this.inputBlocks.set(1, ingredient.get());
+                    if (!flag) this.outputBlocks.set(1, ingredient.get());
                     continue;
                 }
                 this.inputs.add(ingredient);
@@ -123,17 +132,16 @@ public class AnvilProcessEmiRecipe implements EmiRecipe {
                 BlockStateEmiStack ingredient = BlockStateEmiStack.of(cauldron.getMatchBlock().defaultBlockState());
                 if (cauldron.getOffset().equals(new Vec3(0.0d, -1.0d, 0.0d))) {
                     this.inputBlocks.set(0, ingredient);
+                    this.outputBlocks.set(0, ingredient);
                     continue;
                 }
                 if (cauldron.getOffset().equals(new Vec3(0.0d, -2.0d, 0.0d))) {
                     this.inputBlocks.set(1, ingredient);
+                    this.outputBlocks.set(0, ingredient);
                     continue;
                 }
                 this.inputs.add(ingredient);
             }
-        }
-        for (int i = 0; i < this.inputBlocks.size(); i++) {
-            if (outputBlocks.get(i).isEmpty()) this.outputBlocks.set(i, this.inputBlocks.get(i));
         }
         for (RecipeOutcome outcome : recipe.getOutcomes()) {
             if (outcome instanceof SpawnItem item) {
@@ -198,12 +206,12 @@ public class AnvilProcessEmiRecipe implements EmiRecipe {
             this.addOutputArrow(widgets, 163, 30);
             this.addOutputs(widgets);
         }
-        widgets.addDrawable(90, 25, 0, 0, new BlockWidget(ANVIL_BLOCK_STATE, 1));
-        widgets.addDrawable(90, 25, 0, 0, new BlockWidget(this.inputBlocks.get(0).getState(), -1));
-        widgets.addDrawable(90, 25, 0, 0, new BlockWidget(this.outputBlocks.get(1).getState(), -2));
-        widgets.addDrawable(135, 25, 0, 0, new BlockWidget(ANVIL_BLOCK_STATE, 0));
-        widgets.addDrawable(135, 25, 0, 0, new BlockWidget(this.outputBlocks.get(0).getState(), -1));
-        widgets.addDrawable(135, 25, 0, 0, new BlockWidget(this.outputBlocks.get(1).getState(), -2));
+        BlockWidget.of(widgets, ANVIL_BLOCK_STATE, 1, 90, 11);
+        BlockWidget.of(widgets, this.inputBlocks.get(0).getState(), -1, 90, 39);
+        BlockWidget.of(widgets, this.inputBlocks.get(1).getState(), -2, 90, 53);
+        BlockWidget.of(widgets, ANVIL_BLOCK_STATE, 0, 135, 25);
+        BlockWidget.of(widgets, this.outputBlocks.get(0).getState(), -1, 135, 39);
+        BlockWidget.of(widgets, this.outputBlocks.get(1).getState(), -2, 135, 53);
     }
 
     protected void addStraightArrow(@NotNull WidgetHolder widgets, int x, int y) {
