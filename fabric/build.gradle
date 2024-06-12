@@ -121,7 +121,7 @@ dependencies {
     modImplementation fabric.jade
 
     // KJS
-    modImplementation fabric.kubejs
+    modCompileOnly fabric.kubejs
 
     // Mixin Extras
     include(implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:${fabric.versions.mixinextras.get()}")))
