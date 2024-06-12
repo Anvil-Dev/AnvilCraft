@@ -1671,6 +1671,7 @@ public class ModBlocks {
         .properties(p -> {
             p = p.noOcclusion();
             p = p.strength(4.0F).sound(SoundType.ANVIL);
+            p = p.explosionResistance(1200);
             return p;
         })
         .blockstate((ctx, provider) -> {
