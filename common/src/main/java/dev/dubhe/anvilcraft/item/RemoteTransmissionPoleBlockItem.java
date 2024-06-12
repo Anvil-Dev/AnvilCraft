@@ -24,11 +24,11 @@ public class RemoteTransmissionPoleBlockItem extends BlockItem {
         InteractionResult result = super.place(context);
         if (result == InteractionResult.SUCCESS || result == InteractionResult.CONSUME) {
             level.playSound(null,
-                context.getClickedPos(),
-                SoundEvents.BEACON_ACTIVATE,
-                SoundSource.BLOCKS,
-                1f,
-                1f);
+                    context.getClickedPos(),
+                    SoundEvents.BEACON_ACTIVATE,
+                    SoundSource.BLOCKS,
+                    1f,
+                    1f);
         }
         return result;
     }
@@ -38,7 +38,8 @@ public class RemoteTransmissionPoleBlockItem extends BlockItem {
         Level level = context.getLevel();
         BlockPos blockPos = context.getClickedPos();
         return level.getBlockState(blockPos.above()).is(BlockTags.REPLACEABLE)
-            && level.getBlockState(blockPos.above(2)).is(BlockTags.REPLACEABLE)
-            && level.getBlockState(blockPos.above(3)).is(BlockTags.REPLACEABLE);
+                && level.getBlockState(blockPos.above(2)).is(BlockTags.REPLACEABLE)
+                && level.getBlockState(blockPos.above(3)).is(BlockTags.REPLACEABLE)
+                && super.canPlace(context, state);
     }
 }

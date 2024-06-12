@@ -38,7 +38,7 @@ public class BlockPlaceAssist {
                 .map(Pair::getFirst)
                 .collect(Collectors.toList());
     }
-    
+
     /**
      *
      */
@@ -65,6 +65,9 @@ public class BlockPlaceAssist {
             )) {
                 int length = 0;
                 BlockPos blockPos = pos.relative(direction);
+                if (level.isOutsideBuildHeight(pos)) {
+                    return InteractionResult.PASS;
+                }
                 BlockState blockState = level.getBlockState(blockPos);
                 while (!blockState.isAir()
                         && blockState.is(newBlockState.getBlock())

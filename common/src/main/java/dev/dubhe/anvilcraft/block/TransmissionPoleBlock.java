@@ -34,23 +34,23 @@ import org.jetbrains.annotations.Nullable;
 import javax.annotation.Nonnull;
 
 public class TransmissionPoleBlock extends AbstractMultiplePartBlock<Vertical3PartHalf>
-    implements IHammerRemovable, IHasMultiBlock, EntityBlock {
+        implements IHammerRemovable, IHasMultiBlock, EntityBlock {
     public static final EnumProperty<Vertical3PartHalf> HALF = EnumProperty.create("half", Vertical3PartHalf.class);
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
     public static final EnumProperty<IPowerComponent.Switch> SWITCH = IPowerComponent.SWITCH;
     public static final VoxelShape TRANSMISSION_POLE_TOP =
-        Shapes.or(
-            Block.box(3, 5, 3, 13, 16, 13),
-            Block.box(6, 0, 6, 10, 5, 10));
+            Shapes.or(
+                    Block.box(3, 5, 3, 13, 16, 13),
+                    Block.box(6, 0, 6, 10, 5, 10));
 
     public static final VoxelShape TRANSMISSION_POLE_MID =
-        Block.box(6, 0, 6, 10, 16, 10);
+            Block.box(6, 0, 6, 10, 16, 10);
 
     public static final VoxelShape TRANSMISSION_POLE_BASE =
-        Shapes.or(
-            Block.box(3, 4, 3, 13, 10, 13),
-            Block.box(0, 0, 0, 16, 4, 16),
-            Block.box(6, 10, 6, 10, 16, 10));
+            Shapes.or(
+                    Block.box(3, 4, 3, 13, 10, 13),
+                    Block.box(0, 0, 0, 16, 4, 16),
+                    Block.box(6, 10, 6, 10, 16, 10));
 
     /**
      * @param properties 属性
@@ -58,10 +58,10 @@ public class TransmissionPoleBlock extends AbstractMultiplePartBlock<Vertical3Pa
     public TransmissionPoleBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(
-            this.stateDefinition.any()
-                .setValue(HALF, Vertical3PartHalf.BOTTOM)
-                .setValue(OVERLOAD, true)
-                .setValue(SWITCH, IPowerComponent.Switch.ON)
+                this.stateDefinition.any()
+                        .setValue(HALF, Vertical3PartHalf.BOTTOM)
+                        .setValue(OVERLOAD, true)
+                        .setValue(SWITCH, IPowerComponent.Switch.ON)
         );
     }
 
@@ -81,13 +81,13 @@ public class TransmissionPoleBlock extends AbstractMultiplePartBlock<Vertical3Pa
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();
         IPowerComponent.Switch sw =
-            level.hasNeighborSignal(pos)
-                ? IPowerComponent.Switch.OFF
-                : IPowerComponent.Switch.ON;
+                level.hasNeighborSignal(pos)
+                        ? IPowerComponent.Switch.OFF
+                        : IPowerComponent.Switch.ON;
         return this.defaultBlockState()
-            .setValue(HALF, Vertical3PartHalf.BOTTOM)
-            .setValue(OVERLOAD, true)
-            .setValue(SWITCH, sw);
+                .setValue(HALF, Vertical3PartHalf.BOTTOM)
+                .setValue(OVERLOAD, true)
+                .setValue(SWITCH, sw);
     }
 
     @Override
@@ -104,10 +104,10 @@ public class TransmissionPoleBlock extends AbstractMultiplePartBlock<Vertical3Pa
     @SuppressWarnings("deprecation")
     @Override
     public @NotNull VoxelShape getShape(
-        @NotNull BlockState state,
-        @NotNull BlockGetter level,
-        @NotNull BlockPos pos,
-        @NotNull CollisionContext context
+            @NotNull BlockState state,
+            @NotNull BlockGetter level,
+            @NotNull BlockPos pos,
+            @NotNull CollisionContext context
     ) {
         if (state.getValue(HALF) == Vertical3PartHalf.BOTTOM) return TRANSMISSION_POLE_BASE;
         if (state.getValue(HALF) == Vertical3PartHalf.MID) return TRANSMISSION_POLE_MID;
@@ -117,13 +117,13 @@ public class TransmissionPoleBlock extends AbstractMultiplePartBlock<Vertical3Pa
 
     @Override
     public void setPlacedBy(
-        @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state,
-        LivingEntity placer, @NotNull ItemStack stack
+            @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state,
+            LivingEntity placer, @NotNull ItemStack stack
     ) {
         BlockPos above = pos.above();
         level.setBlockAndUpdate(
-            above,
-            state.setValue(HALF, Vertical3PartHalf.MID).setValue(SWITCH, IPowerComponent.Switch.ON)
+                above,
+                state.setValue(HALF, Vertical3PartHalf.MID).setValue(SWITCH, IPowerComponent.Switch.ON)
         );
         above = above.above();
         level.setBlockAndUpdate(above, state.setValue(HALF, Vertical3PartHalf.TOP));
@@ -138,7 +138,7 @@ public class TransmissionPoleBlock extends AbstractMultiplePartBlock<Vertical3Pa
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-        @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type
+            @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type
     ) {
         if (level.isClientSide) return null;
         return (level1, pos, state1, entity) -> {
@@ -149,12 +149,12 @@ public class TransmissionPoleBlock extends AbstractMultiplePartBlock<Vertical3Pa
     @Override
     @SuppressWarnings("deprecation")
     public void neighborChanged(
-        @NotNull BlockState state,
-        @NotNull Level level,
-        @NotNull BlockPos pos,
-        @NotNull Block neighborBlock,
-        @NotNull BlockPos neighborPos,
-        boolean movedByPiston
+            @NotNull BlockState state,
+            @NotNull Level level,
+            @NotNull BlockPos pos,
+            @NotNull Block neighborBlock,
+            @NotNull BlockPos neighborPos,
+            boolean movedByPiston
     ) {
         if (level.isClientSide) return;
         if (state.getValue(HALF) != Vertical3PartHalf.BOTTOM) return;
@@ -178,8 +178,7 @@ public class TransmissionPoleBlock extends AbstractMultiplePartBlock<Vertical3Pa
     }
 
     @Override
-    @SuppressWarnings("deprecation")
-    public boolean canSurvive(@NotNull BlockState state, @NotNull LevelReader level, @NotNull BlockPos pos) {
+    public boolean canPlace(@NotNull BlockState state, @NotNull LevelReader level, @NotNull BlockPos pos) {
         switch (state.getValue(HALF)) {
             case TOP -> {
                 BlockState state1 = level.getBlockState(pos.below());
@@ -191,7 +190,7 @@ public class TransmissionPoleBlock extends AbstractMultiplePartBlock<Vertical3Pa
                 return state2.is(this);
             }
             default -> {
-                return state.isFaceSturdy(level, pos.below(), Direction.UP);
+                return true;
             }
         }
     }

@@ -194,8 +194,7 @@ public class RemoteTransmissionPoleBlock extends AbstractMultiplePartBlock<Verti
     }
 
     @Override
-    @SuppressWarnings("deprecation")
-    public boolean canSurvive(@NotNull BlockState state, @NotNull LevelReader level, @NotNull BlockPos pos) {
+    public boolean canPlace(@NotNull BlockState state, @NotNull LevelReader level, @NotNull BlockPos pos) {
         switch (state.getValue(HALF)) {
             case TOP -> {
                 BlockState state1 = level.getBlockState(pos.below());
@@ -208,7 +207,7 @@ public class RemoteTransmissionPoleBlock extends AbstractMultiplePartBlock<Verti
                 return state2.is(this);
             }
             default -> {
-                return state.isFaceSturdy(level, pos.below(), Direction.UP);
+                return true;
             }
         }
     }
