@@ -103,6 +103,7 @@ public class AnvilCraftEmiPlugin implements EmiPlugin {
         registry.addWorkstation(AnvilRecipeCategory.SQUEEZE, EmiStack.of(Blocks.CHIPPED_ANVIL));
         registry.addWorkstation(AnvilRecipeCategory.SQUEEZE, EmiStack.of(Blocks.DAMAGED_ANVIL));
 
+        registry.addWorkstation(AnvilRecipeCategory.SUPER_HEATING, EmiStack.of(Blocks.CAULDRON));
         registry.addWorkstation(AnvilRecipeCategory.SUPER_HEATING, EmiStack.of(ModBlocks.HEATER));
         registry.addWorkstation(AnvilRecipeCategory.SUPER_HEATING, EmiStack.of(ModBlocks.ROYAL_ANVIL));
         registry.addWorkstation(AnvilRecipeCategory.SUPER_HEATING, EmiStack.of(Blocks.ANVIL));
