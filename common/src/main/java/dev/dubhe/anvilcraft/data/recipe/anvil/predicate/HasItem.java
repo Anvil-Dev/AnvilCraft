@@ -228,10 +228,9 @@ public class HasItem implements RecipePredicate, HasData {
         @SuppressWarnings("BooleanMethodIsAlwaysInverted")
         public boolean sameItemsOrTag(ModItemPredicate predicate) {
             if (this == predicate) return true;
-            if (
-                this.tag != null && predicate.tag != null
-                    && !this.tag.location().equals(predicate.tag.location())
-            ) {
+            if (this.tag == null && predicate.tag != null) return false;
+            if (this.tag != null && predicate.tag == null) return false;
+            if (this.tag != null && !this.tag.location().equals(predicate.tag.location())) {
                 return false;
             }
             if (this.items.size() != predicate.items.size()) return false;
