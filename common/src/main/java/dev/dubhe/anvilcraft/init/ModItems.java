@@ -175,7 +175,7 @@ public class ModItems {
         .item("flour", Item::new)
         .tag(ModItemTags.FLOUR, ModItemTags.WHEAT_FLOUR)
         .recipe((ctx, provider) -> AnvilRecipe.Builder.create(RecipeCategory.MISC, ctx.get().getDefaultInstance())
-            .type(AnvilRecipeType.ITEM_SMASH)
+            .type(AnvilRecipeType.STAMPING)
             .hasBlock(ModBlocks.STAMPING_PLATFORM.get())
             .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), Items.WHEAT)
             .spawnItem(new Vec3(0.0, -0.75, 0.0), ctx.get())
