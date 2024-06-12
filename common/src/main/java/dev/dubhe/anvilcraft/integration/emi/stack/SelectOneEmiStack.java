@@ -9,10 +9,12 @@ import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,11 +49,16 @@ public class SelectOneEmiStack extends EmiStack {
         return new SelectOneEmiStack(this.stacks);
     }
 
+    private @Nullable EmiIngredient get() {
+        if (MINECRAFT.level == null || this.stacks.isEmpty()) return null;
+        int index = (int) Math.floor((MINECRAFT.level.getGameTime() % (this.stacks.size() * 20)) / 20.0);
+        return this.stacks.get(index);
+    }
+
     @Override
     public void render(GuiGraphics draw, int x, int y, float delta, int flags) {
-        if (MINECRAFT.level == null || this.stacks.isEmpty()) return;
-        int index = (int) Math.floor((MINECRAFT.level.getGameTime() % (this.stacks.size() * 20)) / 20.0);
-        this.stacks.get(index).render(draw, x, y, delta, flags);
+        EmiIngredient ingredient = this.get();
+        if (ingredient != null) ingredient.render(draw, x, y, delta, flags);
     }
 
     @Override
@@ -65,6 +72,20 @@ public class SelectOneEmiStack extends EmiStack {
     }
 
     @Override
+    public float getChance() {
+        EmiIngredient ingredient = this.get();
+        if (ingredient != null) return ingredient.getChance();
+        return super.getChance();
+    }
+
+    @Override
+    public long getAmount() {
+        EmiIngredient ingredient = this.get();
+        if (ingredient != null) return ingredient.getAmount();
+        return super.getAmount();
+    }
+
+    @Override
     public Object getKey() {
         return "SelectOne$" + this.stacks.hashCode();
     }
@@ -72,6 +93,13 @@ public class SelectOneEmiStack extends EmiStack {
     @Override
     public ResourceLocation getId() {
         return AnvilCraft.of("select_one_" + this.stacks.hashCode());
+    }
+
+    @Override
+    public List<ClientTooltipComponent> getTooltip() {
+        EmiIngredient ingredient = this.get();
+        if (ingredient != null) return ingredient.getTooltip();
+        return List.of();
     }
 
     @Override
