@@ -51,6 +51,7 @@ public class SlotFilterChangePack implements Packet {
             if (!player.hasContainerOpen()) return;
             if (!(player.containerMenu instanceof IFilterMenu menu)) return;
             menu.setFilter(this.index, this.filter);
+            menu.flush();
             this.send(player);
         });
     }
@@ -60,7 +61,7 @@ public class SlotFilterChangePack implements Packet {
     public void handler() {
         Minecraft client = Minecraft.getInstance();
         client.execute(() -> {
-            if (!(client.screen instanceof IFilterScreen screen)) return;
+            if (!(client.screen instanceof IFilterScreen<?> screen)) return;
             screen.setFilter(this.index, this.filter);
         });
     }

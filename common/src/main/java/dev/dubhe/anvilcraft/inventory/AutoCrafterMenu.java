@@ -178,6 +178,11 @@ public class AutoCrafterMenu extends BaseMachineMenu implements IFilterMenu, Con
     }
 
     @Override
+    public int getFilterSlotIndex(@NotNull Slot slot) {
+        return slot.index - 36;
+    }
+
+    @Override
     public void setItem(int slotId, int stateId, @NotNull ItemStack stack) {
         super.setItem(slotId, stateId, stack);
         this.onChanged();

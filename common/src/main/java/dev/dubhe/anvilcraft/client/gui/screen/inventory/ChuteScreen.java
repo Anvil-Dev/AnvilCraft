@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.depository.ItemDepositorySlot;
 import dev.dubhe.anvilcraft.client.gui.component.EnableFilterButton;
 import dev.dubhe.anvilcraft.inventory.ChuteMenu;
-import dev.dubhe.anvilcraft.inventory.IFilterMenu;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
 import lombok.Getter;
 import net.minecraft.client.gui.GuiGraphics;
@@ -19,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiFunction;
 
-public class ChuteScreen extends BaseMachineScreen<ChuteMenu> implements IFilterScreen {
+public class ChuteScreen extends BaseMachineScreen<ChuteMenu> implements IFilterScreen<ChuteMenu> {
     private static final ResourceLocation CONTAINER_LOCATION =
         AnvilCraft.of("textures/gui/container/machine/background/chute.png");
 
@@ -72,7 +71,7 @@ public class ChuteScreen extends BaseMachineScreen<ChuteMenu> implements IFilter
     }
 
     @Override
-    public IFilterMenu getFilterMenu() {
+    public ChuteMenu getFilterMenu() {
         return menu;
     }
 
@@ -97,5 +96,15 @@ public class ChuteScreen extends BaseMachineScreen<ChuteMenu> implements IFilter
             new SlotDisableChangePack(slot1, !this.menu.isSlotDisabled(slot1)).send();
         }
         super.slotClicked(slot, slotId, mouseButton, type);
+    }
+
+    @Override
+    public int getOffsetX() {
+        return (this.width - this.imageWidth) / 2;
+    }
+
+    @Override
+    public int getOffsetY() {
+        return (this.height - this.imageHeight) / 2;
     }
 }

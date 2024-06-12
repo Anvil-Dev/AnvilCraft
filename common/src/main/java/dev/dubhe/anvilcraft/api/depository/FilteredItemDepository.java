@@ -19,9 +19,9 @@ import java.util.List;
 public class FilteredItemDepository extends ItemDepository {
 
     public static final Codec<FilteredItemDepository> CODEC = RecordCodecBuilder.create(ins -> ins.group(
-            Codec.BOOL.fieldOf("filterEnabled").forGetter(o -> o.filterEnabled),
-            ItemStack.CODEC.listOf().fieldOf("filteredItems").forGetter(o -> o.filteredItems),
-            Codec.BOOL.listOf().fieldOf("disabled").forGetter(o -> o.disabled)
+        Codec.BOOL.fieldOf("filterEnabled").forGetter(o -> o.filterEnabled),
+        ItemStack.CODEC.listOf().fieldOf("filteredItems").forGetter(o -> o.filteredItems),
+        Codec.BOOL.listOf().fieldOf("disabled").forGetter(o -> o.disabled)
     ).apply(ins, FilteredItemDepository::new));
 
     private boolean filterEnabled = false;
@@ -140,10 +140,12 @@ public class FilteredItemDepository extends ItemDepository {
      * @param slot  槽位
      * @param stack 过滤物品堆栈（不检查NBT）
      */
-    public void setFilter(int slot, @NotNull ItemStack stack) {
-        if (stack.isEmpty()) return;
+    public boolean setFilter(int slot, @NotNull ItemStack stack) {
+        if (slot < 0 || slot >= this.filteredItems.size()) return false;
+        if (stack.isEmpty()) return false;
         this.setSlotDisabled(slot, false);
         this.filteredItems.set(slot, new ItemStack(stack.getItem(), 1));
+        return true;
     }
 
     /**
@@ -203,8 +205,8 @@ public class FilteredItemDepository extends ItemDepository {
      */
     public CompoundTag serializeFiltering() {
         return (CompoundTag) CODEC.encodeStart(NbtOps.INSTANCE, this)
-                .getOrThrow(false, e -> {
-                });
+            .getOrThrow(false, e -> {
+            });
     }
 
     /**
@@ -212,9 +214,9 @@ public class FilteredItemDepository extends ItemDepository {
      */
     public void deserializeFiltering(@NotNull CompoundTag tag) {
         FilteredItemDepository depository = CODEC.decode(NbtOps.INSTANCE, tag)
-                .getOrThrow(false, s -> {
-                })
-                .getFirst();
+            .getOrThrow(false, s -> {
+            })
+            .getFirst();
         if (this.getSize() != depository.getSize()) throw new IllegalArgumentException("Depository size mismatch");
         this.filterEnabled = tag.getBoolean("filterEnabled");
         int size = depository.filteredItems.size();

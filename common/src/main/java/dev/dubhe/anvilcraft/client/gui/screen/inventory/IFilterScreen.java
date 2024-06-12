@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.inventory.IFilterMenu;
 import dev.dubhe.anvilcraft.network.MachineEnableFilterPack;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -17,10 +18,10 @@ import java.util.function.BiFunction;
 /**
  * 有过滤的 GUI
  */
-public interface IFilterScreen {
+public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> {
     ResourceLocation DISABLED_SLOT = AnvilCraft.of("textures/gui/container/machine/disabled_slot.png");
 
-    IFilterMenu getFilterMenu();
+    T getFilterMenu();
 
     /**
      * 获取是否开启过滤
@@ -65,8 +66,8 @@ public interface IFilterScreen {
      * @param slot   槽位
      * @param filter 过滤
      */
-    default void setFilter(int slot, ItemStack filter) {
-        this.getFilterMenu().setFilter(slot, filter);
+    default boolean setFilter(int slot, ItemStack filter) {
+        return this.getFilterMenu().setFilter(slot, filter);
     }
 
     /**
@@ -142,5 +143,13 @@ public interface IFilterScreen {
         int j = slot.y;
         guiGraphics.renderFakeItem(stack, i, j);
         guiGraphics.fill(i, j, i + 16, j + 16, 0x80ffaaaa);
+    }
+
+    default int getOffsetY() {
+        return 0;
+    }
+
+    default int getOffsetX() {
+        return 0;
     }
 }
