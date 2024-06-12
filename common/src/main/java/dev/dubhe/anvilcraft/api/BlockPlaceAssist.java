@@ -65,9 +65,7 @@ public class BlockPlaceAssist {
             )) {
                 int length = 0;
                 BlockPos blockPos = pos.relative(direction);
-                if (level.isOutsideBuildHeight(pos)) {
-                    return InteractionResult.PASS;
-                }
+
                 BlockState blockState = level.getBlockState(blockPos);
                 while (!blockState.isAir()
                         && blockState.is(newBlockState.getBlock())
@@ -77,6 +75,9 @@ public class BlockPlaceAssist {
                     ++length;
                     blockPos = blockPos.relative(direction);
                     blockState = level.getBlockState(blockPos);
+                }
+                if (level.isOutsideBuildHeight(blockPos)) {
+                    return InteractionResult.PASS;
                 }
                 if (blockState.canBeReplaced()) {
                     level.setBlockAndUpdate(
