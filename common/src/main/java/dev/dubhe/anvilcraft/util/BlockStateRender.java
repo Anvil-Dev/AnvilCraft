@@ -16,7 +16,7 @@ public class BlockStateRender {
      * 渲染方块状态
      */
 
-    public static void renderBlocks(
+    public static void renderBlock(
         BlockState state,
         int posY,
         @NotNull GuiGraphics draw,
@@ -41,7 +41,6 @@ public class BlockStateRender {
             0xF000F0,
             OverlayTexture.NO_OVERLAY
         );
-        poseStack.translate(0, -posY, 0);
         poseStack.popPose();
         draw.flush();
     }
