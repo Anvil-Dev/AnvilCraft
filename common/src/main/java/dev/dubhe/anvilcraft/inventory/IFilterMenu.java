@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.inventory;
 
 import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntity;
 import net.minecraft.core.NonNullList;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 /**
@@ -76,9 +77,11 @@ public interface IFilterMenu {
      * @param slot   槽位
      * @param filter 过滤
      */
-    default void setFilter(int slot, ItemStack filter) {
-        this.getFilterBlockEntity().setFilter(slot, filter);
+    default boolean setFilter(int slot, ItemStack filter) {
+        return this.getFilterBlockEntity().setFilter(slot, filter);
     }
+
+    int getFilterSlotIndex(Slot slot);
 
     /**
      * 刷新

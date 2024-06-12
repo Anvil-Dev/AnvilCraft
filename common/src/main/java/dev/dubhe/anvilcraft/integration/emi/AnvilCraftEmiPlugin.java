@@ -1,6 +1,9 @@
 package dev.dubhe.anvilcraft.integration.emi;
 
 import dev.dubhe.anvilcraft.api.recipe.AnvilRecipeManager;
+import dev.dubhe.anvilcraft.client.gui.screen.inventory.AutoCrafterScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.inventory.ChuteScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.inventory.ItemCollectorScreen;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.integration.emi.recipe.AnvilProcessEmiRecipe;
 import dev.emi.emi.api.EmiEntrypoint;
@@ -15,6 +18,10 @@ public class AnvilCraftEmiPlugin implements EmiPlugin {
     @Override
     public void register(@NotNull EmiRegistry registry) {
         AnvilRecipeCategory.ALL.forEach(registry::addCategory);
+
+        registry.addDragDropHandler(AutoCrafterScreen.class, new GhostIngredientHandler<>());
+        registry.addDragDropHandler(ChuteScreen.class, new GhostIngredientHandler<>());
+        registry.addDragDropHandler(ItemCollectorScreen.class, new GhostIngredientHandler<>());
 
         registry.addWorkstation(AnvilRecipeCategory.STAMPING, EmiStack.of(ModBlocks.STAMPING_PLATFORM.get()));
         registry.addWorkstation(AnvilRecipeCategory.STAMPING, EmiStack.of(ModBlocks.ROYAL_ANVIL));

@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.api.depository.ItemDepositorySlot;
 import dev.dubhe.anvilcraft.client.gui.component.EnableFilterButton;
 import dev.dubhe.anvilcraft.client.gui.component.ItemCollectorButton;
 import dev.dubhe.anvilcraft.client.gui.component.TextWidget;
-import dev.dubhe.anvilcraft.inventory.IFilterMenu;
 import dev.dubhe.anvilcraft.inventory.ItemCollectorMenu;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
 import lombok.Getter;
@@ -21,7 +20,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiFunction;
 
-public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMenu> implements IFilterScreen {
+public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMenu>
+    implements IFilterScreen<ItemCollectorMenu> {
     private static final ResourceLocation CONTAINER_LOCATION =
             AnvilCraft.of("textures/gui/container/machine/background/item_collector.png");
     BiFunction<Integer, Integer, EnableFilterButton> enableFilterButtonSupplier =
@@ -123,7 +123,7 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
     }
 
     @Override
-    public IFilterMenu getFilterMenu() {
+    public ItemCollectorMenu getFilterMenu() {
         return this.menu;
     }
 
@@ -147,5 +147,15 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
             new SlotDisableChangePack(slot1, !this.menu.isSlotDisabled(slot1)).send();
         }
         super.slotClicked(slot, slotId, mouseButton, type);
+    }
+
+    @Override
+    public int getOffsetX() {
+        return (this.width - this.imageWidth) / 2;
+    }
+
+    @Override
+    public int getOffsetY() {
+        return (this.height - this.imageHeight) / 2;
     }
 }
