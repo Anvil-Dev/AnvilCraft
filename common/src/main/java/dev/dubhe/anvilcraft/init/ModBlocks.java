@@ -2138,49 +2138,63 @@ public class ModBlocks {
     public static final BlockEntry<Block> DEEPSLATE_ZINC_ORE = REGISTRATE
         .block("deepslate_zinc_ore", Block::new)
         .initialProperties(() -> Blocks.DEEPSLATE_IRON_ORE)
-        .simpleItem()
+        .item()
+        .tag(ModItemTags.ORES, ModItemTags.ORES_FORGE, ModItemTags.ZINC_ORES, ModItemTags.ZINC_ORES_FORGE)
+        .build()
         .loot((tables, block) -> tables.add(block, tables.createOreDrop(block, ModItems.RAW_ZINC.get())))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
     public static final BlockEntry<Block> DEEPSLATE_TIN_ORE = REGISTRATE
         .block("deepslate_tin_ore", Block::new)
         .initialProperties(() -> Blocks.DEEPSLATE_IRON_ORE)
-        .simpleItem()
+        .item()
+        .tag(ModItemTags.ORES, ModItemTags.ORES_FORGE, ModItemTags.TIN_ORES, ModItemTags.TIN_ORES_FORGE)
+        .build()
         .loot((tables, block) -> tables.add(block, tables.createOreDrop(block, ModItems.RAW_TIN.get())))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
     public static final BlockEntry<Block> DEEPSLATE_TITANIUM_ORE = REGISTRATE
         .block("deepslate_titanium_ore", Block::new)
         .initialProperties(() -> Blocks.DEEPSLATE_IRON_ORE)
-        .simpleItem()
+        .item()
+        .tag(ModItemTags.ORES, ModItemTags.ORES_FORGE, ModItemTags.TITANIUM_ORES, ModItemTags.TITANIUM_ORES_FORGE)
+        .build()
         .loot((tables, block) -> tables.add(block, tables.createOreDrop(block, ModItems.RAW_TITANIUM.get())))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
     public static final BlockEntry<Block> DEEPSLATE_TUNGSTEN_ORE = REGISTRATE
         .block("deepslate_tungsten_ore", Block::new)
         .initialProperties(() -> Blocks.DEEPSLATE_IRON_ORE)
-        .simpleItem()
+        .item()
+        .tag(ModItemTags.ORES, ModItemTags.ORES_FORGE, ModItemTags.TUNGSTEN_ORES, ModItemTags.TUNGSTEN_ORES_FORGE)
+        .build()
         .loot((tables, block) -> tables.add(block, tables.createOreDrop(block, ModItems.RAW_TUNGSTEN.get())))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
     public static final BlockEntry<Block> DEEPSLATE_LEAD_ORE = REGISTRATE
         .block("deepslate_lead_ore", Block::new)
         .initialProperties(() -> Blocks.DEEPSLATE_IRON_ORE)
-        .simpleItem()
+        .item()
+        .tag(ModItemTags.ORES, ModItemTags.ORES_FORGE, ModItemTags.LEAD_ORES, ModItemTags.LEAD_ORES_FORGE)
+        .build()
         .loot((tables, block) -> tables.add(block, tables.createOreDrop(block, ModItems.RAW_LEAD.get())))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
     public static final BlockEntry<Block> DEEPSLATE_SILVER_ORE = REGISTRATE
         .block("deepslate_silver_ore", Block::new)
         .initialProperties(() -> Blocks.DEEPSLATE_IRON_ORE)
-        .simpleItem()
+        .item()
+        .tag(ModItemTags.ORES, ModItemTags.ORES_FORGE, ModItemTags.SILVER_ORES, ModItemTags.SILVER_ORES_FORGE)
+        .build()
         .loot((tables, block) -> tables.add(block, tables.createOreDrop(block, ModItems.RAW_SILVER.get())))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
     public static final BlockEntry<Block> DEEPSLATE_URANIUM_ORE = REGISTRATE
         .block("deepslate_uranium_ore", Block::new)
         .initialProperties(() -> Blocks.DEEPSLATE_IRON_ORE)
-        .simpleItem()
+        .item()
+        .tag(ModItemTags.ORES, ModItemTags.ORES_FORGE, ModItemTags.URANIUM_ORES, ModItemTags.URANIUM_ORES_FORGE)
+        .build()
         .loot((tables, block) -> tables.add(block, tables.createOreDrop(block, ModItems.RAW_URANIUM.get())))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
@@ -2188,7 +2202,9 @@ public class ModBlocks {
     public static final BlockEntry<Block> VOID_STONE = REGISTRATE
         .block("void_stone", Block::new)
         .initialProperties(() -> Blocks.DIAMOND_BLOCK)
-        .simpleItem()
+        .item()
+        .tag(ModItemTags.ORES, ModItemTags.ORES_FORGE, ModItemTags.VOID_RESISTANT)
+        .build()
         .loot((tables, block) -> tables.add(block, tables.createOreDrop(block, ModItems.VOID_MATTER.get())))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .tag(BlockTags.NEEDS_DIAMOND_TOOL)
@@ -2211,7 +2227,9 @@ public class ModBlocks {
             )
             .save(provider)
         )
-        .simpleItem()
+        .item()
+        .tag(ModItemTags.VOID_RESISTANT)
+        .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .tag(BlockTags.NEEDS_DIAMOND_TOOL)
         .register();
@@ -2219,7 +2237,9 @@ public class ModBlocks {
         .block("earth_core_shard_ore", Block::new)
         .initialProperties(() -> Blocks.DIAMOND_BLOCK)
         .properties(properties -> properties.explosionResistance(1200))
-        .simpleItem()
+        .item()
+        .tag(ModItemTags.ORES, ModItemTags.ORES_FORGE)
+        .build()
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
         .build()

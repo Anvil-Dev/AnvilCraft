@@ -19,27 +19,49 @@ public class ModItemTags {
     public static final TagKey<Item> IRON_PLATES = bindC("iron_plates");
     public static final TagKey<Item> STONE = bindC("stone");
     public static final TagKey<Item> GLASS = bindC("silica_glass");
-    public static final TagKey<Item> TUNGSTEN_NUGGETS = bindC("tungsten_nuggets");
+
     public static final TagKey<Item> TUNGSTEN_INGOTS = bindC("tungsten_ingots");
-    public static final TagKey<Item> TITANIUM_NUGGETS = bindC("titanium_nuggets");
     public static final TagKey<Item> TITANIUM_INGOTS = bindC("titanium_ingots");
-    public static final TagKey<Item> ZINC_NUGGETS = bindC("zinc_nuggets");
     public static final TagKey<Item> ZINC_INGOTS = bindC("zinc_ingots");
-    public static final TagKey<Item> TIN_NUGGETS = bindC("tin_nuggets");
     public static final TagKey<Item> TIN_INGOTS = bindC("tin_ingots");
-    public static final TagKey<Item> LEAD_NUGGETS = bindC("lead_nuggets");
     public static final TagKey<Item> LEAD_INGOTS = bindC("lead_ingots");
-    public static final TagKey<Item> SILVER_NUGGETS = bindC("silver_nuggets");
     public static final TagKey<Item> SILVER_INGOTS = bindC("silver_ingots");
-    public static final TagKey<Item> URANIUM_NUGGETS = bindC("uranium_nuggets");
     public static final TagKey<Item> URANIUM_INGOTS = bindC("uranium_ingots");
-    public static final TagKey<Item> COPPER_NUGGETS = bindC("copper_nuggets");
     public static final TagKey<Item> BRONZE_INGOTS = bindC("bronze_ingots");
-    public static final TagKey<Item> BRONZE_NUGGETS = bindC("bronze_nuggets");
     public static final TagKey<Item> BRASS_INGOTS = bindC("brass_ingots");
+
+    public static final TagKey<Item> TUNGSTEN_NUGGETS = bindC("tungsten_nuggets");
+    public static final TagKey<Item> TITANIUM_NUGGETS = bindC("titanium_nuggets");
+    public static final TagKey<Item> ZINC_NUGGETS = bindC("zinc_nuggets");
+    public static final TagKey<Item> TIN_NUGGETS = bindC("tin_nuggets");
+    public static final TagKey<Item> LEAD_NUGGETS = bindC("lead_nuggets");
+    public static final TagKey<Item> SILVER_NUGGETS = bindC("silver_nuggets");
+    public static final TagKey<Item> URANIUM_NUGGETS = bindC("uranium_nuggets");
+    public static final TagKey<Item> COPPER_NUGGETS = bindC("copper_nuggets");
+    public static final TagKey<Item> BRONZE_NUGGETS = bindC("bronze_nuggets");
     public static final TagKey<Item> BRASS_NUGGETS = bindC("brass_nuggets");
+
     public static final TagKey<Item> QUARTZ_BLOCKS = bindC("quartz_blocks");
     public static final TagKey<Item> AMETHYST_BLOCKS = bindC("amethyst_blocks");
+
+    public static final TagKey<Item> ORES = bindC("ores");
+    public static final TagKey<Item> ZINC_ORES = bindC("zinc_ores");
+    public static final TagKey<Item> TIN_ORES = bindC("tin_ores");
+    public static final TagKey<Item> TITANIUM_ORES = bindC("titanium_ores");
+    public static final TagKey<Item> TUNGSTEN_ORES = bindC("tungsten_ores");
+    public static final TagKey<Item> LEAD_ORES = bindC("lead_ores");
+    public static final TagKey<Item> SILVER_ORES = bindC("silver_ores");
+    public static final TagKey<Item> URANIUM_ORES = bindC("uranium_ores");
+
+    public static final TagKey<Item> RAW_ORES = bindC("raw_ores");
+    public static final TagKey<Item> RAW_ZINC = bindC("raw_zinc_ores");
+    public static final TagKey<Item> RAW_TIN = bindC("raw_tin_ores");
+    public static final TagKey<Item> RAW_TITANIUM = bindC("raw_titanium_ores");
+    public static final TagKey<Item> RAW_TUNGSTEN = bindC("raw_tungsten_ores");
+    public static final TagKey<Item> RAW_LEAD = bindC("raw_lead_ores");
+    public static final TagKey<Item> RAW_SILVER = bindC("raw_silver_ores");
+    public static final TagKey<Item> RAW_URANIUM = bindC("raw_uranium_ores");
+
 
     public static final TagKey<Item> FLOUR_FORGE = bindForge("flour");
     public static final TagKey<Item> WHEAT_FLOUR_FORGE = bindForge("flour/wheat");
@@ -50,27 +72,48 @@ public class ModItemTags {
     public static final TagKey<Item> IRON_PLATES_FORGE = bindForge("plates/iron");
     public static final TagKey<Item> STONE_FORGE = bindForge("stone");
     public static final TagKey<Item> GLASS_FORGE = bindForge("glass/silica");
-    public static final TagKey<Item> TUNGSTEN_NUGGETS_FORGE = bindForge("nuggets/tungsten");
+
     public static final TagKey<Item> TUNGSTEN_INGOTS_FORGE = bindForge("ingots/tungsten");
-    public static final TagKey<Item> TITANIUM_NUGGETS_FORGE = bindForge("nuggets/titanium");
     public static final TagKey<Item> TITANIUM_INGOTS_FORGE = bindForge("ingots/titanium");
-    public static final TagKey<Item> ZINC_NUGGETS_FORGE = bindForge("nuggets/zinc");
     public static final TagKey<Item> ZINC_INGOTS_FORGE = bindForge("ingots/zinc");
-    public static final TagKey<Item> TIN_NUGGETS_FORGE = bindForge("nuggets/tin");
     public static final TagKey<Item> TIN_INGOTS_FORGE = bindForge("ingots/tin");
-    public static final TagKey<Item> LEAD_NUGGETS_FORGE = bindForge("nuggets/lead");
     public static final TagKey<Item> LEAD_INGOTS_FORGE = bindForge("ingots/lead");
-    public static final TagKey<Item> SILVER_NUGGETS_FORGE = bindForge("nuggets/silver");
     public static final TagKey<Item> SILVER_INGOTS_FORGE = bindForge("ingots/silver");
-    public static final TagKey<Item> URANIUM_NUGGETS_FORGE = bindForge("nuggets/uranium");
     public static final TagKey<Item> URANIUM_INGOTS_FORGE = bindForge("ingots/uranium");
     public static final TagKey<Item> BRONZE_INGOTS_FORGE = bindForge("ingots/bronze");
-    public static final TagKey<Item> BRONZE_NUGGETS_FORGE = bindForge("nuggets/bronze");
     public static final TagKey<Item> BRASS_INGOTS_FORGE = bindForge("ingots/brass");
+
+    public static final TagKey<Item> TUNGSTEN_NUGGETS_FORGE = bindForge("nuggets/tungsten");
+    public static final TagKey<Item> TITANIUM_NUGGETS_FORGE = bindForge("nuggets/titanium");
+    public static final TagKey<Item> ZINC_NUGGETS_FORGE = bindForge("nuggets/zinc");
+    public static final TagKey<Item> TIN_NUGGETS_FORGE = bindForge("nuggets/tin");
+    public static final TagKey<Item> LEAD_NUGGETS_FORGE = bindForge("nuggets/lead");
+    public static final TagKey<Item> SILVER_NUGGETS_FORGE = bindForge("nuggets/silver");
+    public static final TagKey<Item> URANIUM_NUGGETS_FORGE = bindForge("nuggets/uranium");
+    public static final TagKey<Item> BRONZE_NUGGETS_FORGE = bindForge("nuggets/bronze");
     public static final TagKey<Item> BRASS_NUGGETS_FORGE = bindForge("nuggets/brass");
     public static final TagKey<Item> COPPER_NUGGETS_FORGE = bindForge("nuggets/copper");
+
     public static final TagKey<Item> QUARTZ_BLOCKS_FORGE = bindForge("storage_blocks/quartz");
     public static final TagKey<Item> AMETHYST_BLOCKS_FORGE = bindForge("storage_blocks/amethyst");
+
+    public static final TagKey<Item> ORES_FORGE = bindForge("ores");
+    public static final TagKey<Item> ZINC_ORES_FORGE = bindForge("ores/zinc");
+    public static final TagKey<Item> TIN_ORES_FORGE = bindForge("ores/tin");
+    public static final TagKey<Item> TITANIUM_ORES_FORGE = bindForge("ores/titanium");
+    public static final TagKey<Item> TUNGSTEN_ORES_FORGE = bindForge("ores/tungsten");
+    public static final TagKey<Item> LEAD_ORES_FORGE = bindForge("ores/lead");
+    public static final TagKey<Item> SILVER_ORES_FORGE = bindForge("ores/silver");
+    public static final TagKey<Item> URANIUM_ORES_FORGE = bindForge("ores/uranium");
+
+    public static final TagKey<Item> RAW_ORES_FORGE = bindForge("raw_materials");
+    public static final TagKey<Item> RAW_ZINC_FORGE = bindForge("raw_materials/zinc");
+    public static final TagKey<Item> RAW_TIN_FORGE = bindForge("raw_materials/tin");
+    public static final TagKey<Item> RAW_TITANIUM_FORGE = bindForge("raw_materials/titanium");
+    public static final TagKey<Item> RAW_TUNGSTEN_FORGE = bindForge("raw_materials/tungsten");
+    public static final TagKey<Item> RAW_LEAD_FORGE = bindForge("raw_materials/lead");
+    public static final TagKey<Item> RAW_SILVER_FORGE = bindForge("raw_materials/silver");
+    public static final TagKey<Item> RAW_URANIUM_FORGE = bindForge("raw_materials/uranium");
 
 
     public static final TagKey<Item> ROYAL_STEEL_PICKAXE_BASE = bind("royal_steel_pickaxe_base");
@@ -83,12 +126,7 @@ public class ModItemTags {
     public static final TagKey<Item> GEM_BLOCKS = bind("gem_blocks");
     public static final TagKey<Item> DEAD_TUBE = bind("dead_tube");
     public static final TagKey<Item> VOID_RESISTANT = bind("void_resistant");
-    public static final TagKey<Item> RAW_ORES = bindC("raw_ores");
-    public static final TagKey<Item> FORGE_RAW_ORES = bindForge("raw_materials");
-    public static final TagKey<Item> ORES = bindC("ores");
-    public static final TagKey<Item> FORGE_ORES = bindForge("ores");
     public static final TagKey<Item> REINFORCED_CONCRETE = bind("reinforced_concrete");
-
 
     private static @NotNull TagKey<Item> bindC(String id) {
         return TagKey.create(Registries.ITEM, new ResourceLocation("c", id));

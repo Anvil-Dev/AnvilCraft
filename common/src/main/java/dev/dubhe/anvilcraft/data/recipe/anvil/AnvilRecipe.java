@@ -912,9 +912,9 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
         ItemStack resultItem = recipe.getResultItem(registryAccess);
         for (ItemStack item : ingredient.getItems()) {
             if (item.is(ModItemTags.RAW_ORES)
-                || item.is(ModItemTags.FORGE_RAW_ORES)
+                || item.is(ModItemTags.RAW_ORES_FORGE)
                 || item.is(ModItemTags.ORES)
-                || item.is(ModItemTags.FORGE_ORES)) {
+                || item.is(ModItemTags.ORES_FORGE)) {
                 resultItem.setCount(recipe.getResultItem(registryAccess).getCount() * 2);
                 break;
             } else resultItem.setCount(recipe.getResultItem(registryAccess).getCount());
