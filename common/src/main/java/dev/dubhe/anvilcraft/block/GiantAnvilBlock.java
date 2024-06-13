@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.GiantAnvilCube;
+import dev.dubhe.anvilcraft.entity.FallingGiantAnvilEntity;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -27,7 +28,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Fallable;
@@ -203,9 +203,10 @@ public class GiantAnvilBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf>
             @NotNull BlockState replaceableState, @NotNull FallingBlockEntity fallingBlock
     ) {
         level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
-        if (!canPlace(state, level, pos)) {
+        BlockPos belowPos = pos.below();
+        if (!canPlace(state, level, belowPos)) {
             ItemEntity itemEntity = new ItemEntity(
-                    level, pos.getX(), pos.getY(), pos.getZ(), ModBlocks.GIANT_ANVIL.asStack()
+                    level, belowPos.getX(), belowPos.getY(), belowPos.getZ(), ModBlocks.GIANT_ANVIL.asStack()
             );
             itemEntity.setDefaultPickUpDelay();
             level.addFreshEntity(itemEntity);
@@ -215,10 +216,10 @@ public class GiantAnvilBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf>
             BlockState newState = state
                     .setValue(HALF, part)
                     .setValue(CUBE, part == Cube3x3PartHalf.MID_CENTER ? GiantAnvilCube.CENTER : GiantAnvilCube.CORNER);
-            level.setBlockAndUpdate(pos.offset(part.getOffset()), newState);
+            level.setBlockAndUpdate(belowPos.offset(part.getOffset()), newState);
         }
         level.playSound(null,
-                pos,
+                belowPos,
                 SoundEvents.ANVIL_LAND,
                 SoundSource.BLOCKS,
                 1f,
@@ -249,7 +250,7 @@ public class GiantAnvilBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf>
         ) {
             return;
         }
-        FallingBlockEntity fallingBlockEntity = FallingBlockEntity.fall(level, above, state1);
+        FallingBlockEntity fallingBlockEntity = FallingGiantAnvilEntity.fall(level, above, state1);
         this.falling(fallingBlockEntity);
     }
 
