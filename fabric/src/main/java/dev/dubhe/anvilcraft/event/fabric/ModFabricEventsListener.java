@@ -14,5 +14,6 @@ public class ModFabricEventsListener {
         PlayerEventListener.init();
         CommandEventListener.init();
         ServerWorldEventListener.init();
+        BlockRemovedEventListener.init();
     }
 }

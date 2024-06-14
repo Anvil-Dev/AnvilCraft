@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.api.tooltip;
+package dev.dubhe.anvilcraft.api.tooltip.providers;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * 头戴铁砧锤时显示的tooltip
  */
-public interface TooltipProvider {
+public interface BlockEntityTooltipProvider {
     boolean accepts(BlockEntity entity);
 
     List<Component> tooltip(BlockEntity e);

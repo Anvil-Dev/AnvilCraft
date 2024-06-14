@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.api.tooltip;
+package dev.dubhe.anvilcraft.api.tooltip.providers;
 
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.shapes.VoxelShape;

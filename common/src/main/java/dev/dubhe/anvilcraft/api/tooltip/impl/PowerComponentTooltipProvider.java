@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.api.tooltip;
+package dev.dubhe.anvilcraft.api.tooltip.impl;
 
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.api.power.PowerComponentInfo;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.SimplePowerGrid;
+import dev.dubhe.anvilcraft.api.tooltip.providers.BlockEntityTooltipProvider;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -13,15 +14,14 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class PowerComponentTooltipProvider implements TooltipProvider {
+public class PowerComponentTooltipProvider implements BlockEntityTooltipProvider {
 
 
-    PowerComponentTooltipProvider() {
+    public PowerComponentTooltipProvider() {
     }
 
     @Override
