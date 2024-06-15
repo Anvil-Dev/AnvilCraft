@@ -75,6 +75,7 @@ public class HeliostatsBlock extends BaseEntityBlock implements IHammerRemovable
     ) {
         if (state.hasBlockEntity()) {
             HeliostatsBlockEntity be = (HeliostatsBlockEntity) level.getBlockEntity(pos);
+            if (be == null) return;
             be.notifyRemoved();
         }
         super.onRemove(state, level, pos, newState, movedByPiston);

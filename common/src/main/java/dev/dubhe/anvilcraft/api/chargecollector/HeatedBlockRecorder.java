@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.api.chargecollector;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -98,7 +99,11 @@ public class HeatedBlockRecorder {
             record.put(pos, new AtomicInteger(0));
             return;
         }
-        record.get(pos).decrementAndGet();
+        AtomicInteger integer = record.get(pos);
+        integer.set(Mth.clamp(integer.intValue() - 1, 0, 0x7fffffff));
+        if (integer.intValue() <= 0){
+            record.remove(pos);
+        }
         irritateEntity.remove(entity);
     }
 
