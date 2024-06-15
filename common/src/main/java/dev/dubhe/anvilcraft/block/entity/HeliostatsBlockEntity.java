@@ -5,7 +5,9 @@ import dev.dubhe.anvilcraft.block.HeliostatsBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -13,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class HeliostatsBlockEntity extends BlockEntity {
     private BlockPos irritatePos;
+    private int oldBrightness = -1;
 
     public HeliostatsBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -25,7 +28,7 @@ public class HeliostatsBlockEntity extends BlockEntity {
         if (!validatePos(pos)) return false;
         irritatePos = pos;
         this.setChanged();
-        HeatedBlockRecorder.INSTANCE.addOrIncrease(irritatePos);
+        HeatedBlockRecorder.getInstance(getLevel()).addOrIncrease(irritatePos, this);
         return true;
     }
 
@@ -82,11 +85,20 @@ public class HeliostatsBlockEntity extends BlockEntity {
      *
      */
     public void tick(Level level, BlockPos pos) {
+        if (level.isClientSide) return;
         if (!validatePos(pos)) {
             if (irritatePos != null) {
-                HeatedBlockRecorder.INSTANCE.remove(irritatePos);
+                HeatedBlockRecorder.getInstance(level).remove(irritatePos, this);
                 irritatePos = null;
             }
+        }
+        if (irritatePos == null) return;
+        ServerLevel level1 = (ServerLevel) level;
+        int currentBrightness = level.getBrightness(LightLayer.SKY, pos.above());
+        if (!level1.isRainingAt(pos) && currentBrightness == 15) {
+            HeatedBlockRecorder.getInstance(getLevel()).addOrIncrease(irritatePos, this);
+        } else {
+            HeatedBlockRecorder.getInstance(getLevel()).remove(irritatePos, this);
         }
     }
 
@@ -95,7 +107,7 @@ public class HeliostatsBlockEntity extends BlockEntity {
      */
     public void notifyRemoved() {
         if (irritatePos != null) {
-            HeatedBlockRecorder.INSTANCE.remove(irritatePos);
+            HeatedBlockRecorder.getInstance(getLevel()).remove(irritatePos, this);
         }
     }
 }

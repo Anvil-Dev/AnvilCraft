@@ -10,6 +10,6 @@ import net.minecraftforge.fml.common.Mod;
 public class BlockRemovedEventListener {
     @SubscribeEvent
     void onBlockBreak(BlockEvent.BreakEvent breakEvent) {
-        HeatedBlockRecorder.INSTANCE.delete(breakEvent.getPos());
+        HeatedBlockRecorder.getInstance(breakEvent.getLevel()).delete(breakEvent.getPos());
     }
 }

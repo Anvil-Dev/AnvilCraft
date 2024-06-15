@@ -31,6 +31,6 @@ public class ClientLevelMixin {
             CallbackInfo ci
     ) {
         PowerGridRenderer.clearAllGrid();
-        HeatedBlockRecorder.INSTANCE.clear();
+        HeatedBlockRecorder.clear();
     }
 }

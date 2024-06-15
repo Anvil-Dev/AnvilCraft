@@ -63,12 +63,14 @@ public class ThermoManager {
 
     ThermoManager(Level level) {
         this.level = level;
-        register(ThermoEntry.simple(256, ModBlocks.INCANDESCENT_NETHERITE.get(), ModBlocks.GLOWING_NETHERITE.get(), true));
+        register(ThermoEntry.simple(
+                256, ModBlocks.INCANDESCENT_NETHERITE.get(), ModBlocks.GLOWING_NETHERITE.get(), true));
         register(ThermoEntry.simple(64, ModBlocks.GLOWING_NETHERITE.get(), ModBlocks.REDHOT_NETHERITE.get(), true));
         register(ThermoEntry.simple(16, ModBlocks.REDHOT_NETHERITE.get(), ModBlocks.HEATED_NETHERITE.get(), true));
         register(ThermoEntry.simple(4, ModBlocks.HEATED_NETHERITE.get(), Blocks.NETHERITE_BLOCK, true));
 
-        register(ThermoEntry.simple(256, ModBlocks.INCANDESCENT_TUNGSTEN.get(), ModBlocks.GLOWING_TUNGSTEN.get(), true));
+        register(ThermoEntry.simple(
+                256, ModBlocks.INCANDESCENT_TUNGSTEN.get(), ModBlocks.GLOWING_TUNGSTEN.get(), true));
         register(ThermoEntry.simple(64, ModBlocks.GLOWING_TUNGSTEN.get(), ModBlocks.REDHOT_TUNGSTEN.get(), true));
         register(ThermoEntry.simple(16, ModBlocks.REDHOT_TUNGSTEN.get(), ModBlocks.HEATED_TUNGSTEN.get(), true));
         register(ThermoEntry.simple(4, ModBlocks.HEATED_TUNGSTEN.get(), ModBlocks.TUNGSTEN_BLOCK.get(), true));
@@ -79,7 +81,12 @@ public class ThermoManager {
         register(ThermoEntry.simple(4, Blocks.MAGMA_BLOCK, Blocks.NETHERRACK, false));
         register(ThermoEntry.simple(4, Blocks.LAVA_CAULDRON, ModBlocks.OBSIDIDAN_CAULDRON.get(), false));
 
-        register(ThermoEntry.predicate(4, CampfireBlock::isLitCampfire, t -> t.setValue(CampfireBlock.LIT, false), false));
+        register(ThermoEntry.predicate(
+                4,
+                CampfireBlock::isLitCampfire,
+                t -> t.setValue(CampfireBlock.LIT, false),
+                false
+        ));
     }
 
 
@@ -102,7 +109,7 @@ public class ThermoManager {
                     charge(entry.accepts(state), blockPos);
                 }
                 if (entry.isCanIrritated()
-                        && !HeatedBlockRecorder.INSTANCE.requireLightLevel(blockPos, entry.getCharge() / 2)
+                        && !HeatedBlockRecorder.getInstance(level).requireLightLevel(blockPos, entry.getCharge() / 2)
                 ) {
                     if (block.ttl > 0) {
                         block.decrease();

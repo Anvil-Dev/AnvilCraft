@@ -9,7 +9,7 @@ public class BlockRemovedEventListener {
      */
     public static void init() {
         PlayerBlockBreakEvents.AFTER.register((world, player, pos, state, blockEntity) -> {
-            HeatedBlockRecorder.INSTANCE.delete(pos);
+            HeatedBlockRecorder.getInstance(world).delete(pos);
         });
     }
 }
