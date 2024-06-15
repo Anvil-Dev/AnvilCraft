@@ -145,6 +145,7 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.REMOTE_TRANSMISSION_POLE.asStack());
                 entries.accept(ModBlocks.INDUCTION_LIGHT.asStack());
                 entries.accept(ModBlocks.CHARGE_COLLECTOR.asStack());
+                entries.accept(ModBlocks.HELIOSTATS.asStack());
                 entries.accept(ModBlocks.LOAD_MONITOR.asStack());
                 entries.accept(ModBlocks.POWER_CONVERTER_SMALL.asStack());
                 entries.accept(ModBlocks.POWER_CONVERTER_MIDDLE.asStack());
