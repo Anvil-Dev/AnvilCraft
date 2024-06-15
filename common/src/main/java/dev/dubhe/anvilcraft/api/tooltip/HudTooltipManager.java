@@ -133,7 +133,7 @@ public class HudTooltipManager {
                 camZ,
                 BlockPos.ZERO,
                 shape,
-                0xffffffff
+                0xff00ffcc
         );
     }
 
