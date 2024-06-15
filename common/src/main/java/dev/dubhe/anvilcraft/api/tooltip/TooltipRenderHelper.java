@@ -19,6 +19,9 @@ import java.util.List;
 
 public class TooltipRenderHelper {
 
+    /**
+     * 渲染外框
+     */
     public static void renderOutline(
             PoseStack poseStack, VertexConsumer consumer,
             double camX, double camY, double camZ, @NotNull BlockPos pos, @NotNull VoxelShape shape,

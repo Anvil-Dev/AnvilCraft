@@ -15,7 +15,6 @@ import org.jetbrains.annotations.NotNull;
 
 public class HeliostatsBlockEntity extends BlockEntity {
     private BlockPos irritatePos;
-    private int oldBrightness = -1;
 
     public HeliostatsBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
