@@ -41,8 +41,15 @@ public class HeliostatsItem extends BlockItem {
                 && !stack.getOrCreateTag().getCompound("HeliostatsData").isEmpty();
     }
 
-    public static CompoundTag getData(ItemStack stack) {
-        return stack.getOrCreateTag().getCompound("HeliostatsData");
+    /**
+     * 获取存储的数据
+     */
+    public static BlockPos getData(ItemStack stack) {
+        CompoundTag ct = stack.getOrCreateTag().getCompound("HeliostatsData");
+        int x = ct.getInt("X");
+        int y = ct.getInt("Y");
+        int z = ct.getInt("Z");
+        return new BlockPos(x, y, z);
     }
 
     /**

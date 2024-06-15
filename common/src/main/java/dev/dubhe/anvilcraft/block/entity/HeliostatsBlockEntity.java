@@ -95,7 +95,9 @@ public class HeliostatsBlockEntity extends BlockEntity {
         if (irritatePos == null) return;
         ServerLevel level1 = (ServerLevel) level;
         int currentBrightness = level.getBrightness(LightLayer.SKY, pos.above());
-        if (!level1.isRainingAt(pos) && currentBrightness == 15) {
+        if (!(level1.isRainingAt(pos.above()) || level1.isThundering())
+                && currentBrightness == 15
+                && level.getDayTime() > 0 && level.getDayTime() <= 13000) {
             HeatedBlockRecorder.getInstance(getLevel()).addOrIncrease(irritatePos, this);
         } else {
             HeatedBlockRecorder.getInstance(getLevel()).remove(irritatePos, this);
