@@ -875,7 +875,7 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
         if (recipe.getIngredients().isEmpty()) return null;
         return new AnvilRecipe(
             AnvilCraft.of(recipe.getId().getPath() + "_translate_from_smelting_recipe"),
-            recipe.getResultItem(registryAccess)
+            recipe.getResultItem(registryAccess).copy()
         )
             .setAnvilRecipeType(AnvilRecipeType.SUPER_HEATING)
             .addPredicates(
@@ -885,7 +885,7 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
                 ),
                 new HasBlock(new Vec3(0, -1, 0), new HasBlock.ModBlockPredicate().block(Blocks.CAULDRON))
             )
-            .addOutcomes(new SpawnItem(new Vec3(0, -1, 0), 1, recipe.getResultItem(registryAccess)))
+            .addOutcomes(new SpawnItem(new Vec3(0, -1, 0), 1, recipe.getResultItem(registryAccess).copy()))
             .addPredicates(HasItemIngredient.of(new Vec3(0, -1, 0), recipe.getIngredients().get(0)));
     }
 
@@ -898,7 +898,7 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
         Ingredient ingredient = recipe.getIngredients().get(0);
         AnvilRecipe anvilRecipe = new AnvilRecipe(
             AnvilCraft.of(recipe.getId().getPath() + "_translate_from_blasting_recipe"),
-            recipe.getResultItem(registryAccess)
+            recipe.getResultItem(registryAccess).copy()
         )
             .setAnvilRecipeType(AnvilRecipeType.SUPER_HEATING)
             .addPredicates(
@@ -909,15 +909,15 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
                 new HasBlock(new Vec3(0, -1, 0), new HasBlock.ModBlockPredicate().block(Blocks.CAULDRON))
             )
             .addPredicates(HasItemIngredient.of(new Vec3(0, -1, 0), ingredient));
-        ItemStack resultItem = recipe.getResultItem(registryAccess);
+        ItemStack resultItem = recipe.getResultItem(registryAccess).copy();
         for (ItemStack item : ingredient.getItems()) {
             if (item.is(ModItemTags.RAW_ORES)
                 || item.is(ModItemTags.RAW_ORES_FORGE)
                 || item.is(ModItemTags.ORES)
                 || item.is(ModItemTags.ORES_FORGE)) {
-                resultItem.setCount(recipe.getResultItem(registryAccess).getCount() * 2);
+                resultItem.setCount(recipe.getResultItem(registryAccess).copy().getCount() * 2);
                 break;
-            } else resultItem.setCount(recipe.getResultItem(registryAccess).getCount());
+            } else resultItem.setCount(recipe.getResultItem(registryAccess).copy().getCount());
         }
         anvilRecipe.addOutcomes(new SpawnItem(new Vec3(0, -1, 0), 1, resultItem));
         return anvilRecipe;
@@ -930,7 +930,7 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
         if (recipe.getIngredients().isEmpty()) return null;
         return new AnvilRecipe(
             AnvilCraft.of(recipe.getId().getPath() + "_translate_from_smoking_recipe"),
-            recipe.getResultItem(registryAccess)
+            recipe.getResultItem(registryAccess).copy()
         )
             .setAnvilRecipeType(AnvilRecipeType.COOKING)
             .addPredicates(
@@ -940,7 +940,7 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
                 ),
                 new HasBlock(new Vec3(0, -1, 0), new HasBlock.ModBlockPredicate().block(Blocks.CAULDRON))
             )
-            .addOutcomes(new SpawnItem(new Vec3(0, -1, 0), 1, recipe.getResultItem(registryAccess)))
+            .addOutcomes(new SpawnItem(new Vec3(0, -1, 0), 1, recipe.getResultItem(registryAccess).copy()))
             .addPredicates(HasItemIngredient.of(new Vec3(0, -1, 0), recipe.getIngredients().get(0)));
     }
 
@@ -952,7 +952,7 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
         if (recipe.getIngredients().isEmpty()) return null;
         return new AnvilRecipe(
             AnvilCraft.of(recipe.getId().getPath() + "_translate_from_campfire_recipe"),
-            recipe.getResultItem(registryAccess)
+            recipe.getResultItem(registryAccess).copy()
         )
             .setAnvilRecipeType(AnvilRecipeType.COOKING)
             .addPredicates(
@@ -964,7 +964,7 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
                     new Vec3(0, -1, 0),
                     new HasBlock.ModBlockPredicate().block(Blocks.CAULDRON))
             )
-            .addOutcomes(new SpawnItem(new Vec3(0, -1, 0), 1, recipe.getResultItem(registryAccess)))
+            .addOutcomes(new SpawnItem(new Vec3(0, -1, 0), 1, recipe.getResultItem(registryAccess).copy()))
             .addPredicates(HasItemIngredient.of(new Vec3(0, -1, 0), recipe.getIngredients().get(0)));
     }
 
@@ -973,10 +973,10 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
      */
     public static @Nullable AnvilRecipe of(@NotNull CraftingRecipe recipe, RegistryAccess registryAccess) {
         if (recipe.getIngredients().isEmpty()) return null;
-        ItemStack resultItem = recipe.getResultItem(registryAccess);
+        ItemStack resultItem = recipe.getResultItem(registryAccess).copy();
         AnvilRecipe anvilRecipe = new AnvilRecipe(
             AnvilCraft.of(recipe.getId().getPath() + "_translate_from_crafting_recipe"),
-            recipe.getResultItem(registryAccess)
+            recipe.getResultItem(registryAccess).copy()
         ).addOutcomes(new SpawnItem(new Vec3(0.0, -1.0, 0.0), 1.0, resultItem));
         if (recipe instanceof ShapedRecipe shapedRecipe) {
             NonNullList<Ingredient> ingredients = shapedRecipe.getIngredients();
