@@ -7,7 +7,9 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -45,8 +47,19 @@ public abstract class PowerGridInformationRenderMixin {
     void onHudRender(GuiGraphics guiGraphics, float partialTick, CallbackInfo ci) {
         if (minecraft.player == null || minecraft.isPaused()) return;
         if (minecraft.screen != null) return;
+        ItemStack mainHandItem = minecraft.player.getItemInHand(InteractionHand.MAIN_HAND);
+        ItemStack offHandItem = minecraft.player.getItemInHand(InteractionHand.OFF_HAND);
+        ItemStack handItem = mainHandItem.isEmpty() ? offHandItem : mainHandItem;
+        if (!handItem.isEmpty()) {
+            HudTooltipManager.INSTANCE.renderHandItemHudTooltip(
+                    guiGraphics,
+                    handItem,
+                    partialTick,
+                    screenWidth,
+                    screenHeight
+            );
+        }
         if (!(minecraft.player.getItemBySlot(EquipmentSlot.HEAD).getItem() instanceof IEngineerGoggles)) return;
-
         HitResult hit = minecraft.hitResult;
         if (hit == null || hit.getType() != HitResult.Type.BLOCK) {
             return;

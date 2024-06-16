@@ -61,5 +61,9 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.ruby_prism.power", "Laser level: %d");
 
         provider.add("screen.anvilcraft.active_silencer.title", "Active Silencer");
+
+        provider.add("block.anvilcraft.heliostats.invalid_placement", "Invalid placement");
+        provider.add("block.anvilcraft.heliostats.placement_no_pos", "Irradiation position not set");
+        provider.add("item.anvilcraft.heliostats.pos_set", "Will irradiate %s");
     }
 }

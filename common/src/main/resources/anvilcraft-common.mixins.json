@@ -26,6 +26,7 @@
     "PistonBaseBlockMixin",
     "PistonStructureResolverMixin",
     "PlayerHitEntityMixin",
+    "ServerLevelMixin",
     "SolidBucketItemMixin",
     "SoundEngineMixin",
     "accessor.BaseSpawnerAccessor",

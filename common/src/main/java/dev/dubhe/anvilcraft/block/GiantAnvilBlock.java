@@ -1,5 +1,8 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
+import dev.dubhe.anvilcraft.api.event.entity.GiantAnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.GiantAnvilCube;
@@ -204,7 +207,7 @@ public class GiantAnvilBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf>
     ) {
         level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
         BlockPos belowPos = pos.below();
-        if (!canPlace(state, level, belowPos)) {
+        if (!canSurvive(state, level, belowPos)) {
             ItemEntity itemEntity = new ItemEntity(
                     level, belowPos.getX(), belowPos.getY(), belowPos.getZ(), ModBlocks.GIANT_ANVIL.asStack()
             );
@@ -218,12 +221,31 @@ public class GiantAnvilBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf>
                     .setValue(CUBE, part == Cube3x3PartHalf.MID_CENTER ? GiantAnvilCube.CENTER : GiantAnvilCube.CORNER);
             level.setBlockAndUpdate(belowPos.offset(part.getOffset()), newState);
         }
+        AnvilCraft.EVENT_BUS.post(new GiantAnvilFallOnLandEvent(
+                (FallingGiantAnvilEntity) fallingBlock,
+                pos,
+                level,
+                fallingBlock.fallDistance
+        ));
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dz = -1; dz <= 1; dz++) {
+                BlockPos pos1 = belowPos.offset(new Vec3i(dx, 0, dz));
+                AnvilCraft.EVENT_BUS.post(new AnvilFallOnLandEvent(
+                        level,
+                        pos1,
+                        fallingBlock,
+                        fallingBlock.fallDistance
+                ));
+            }
+        }
+
         level.playSound(null,
                 belowPos,
                 SoundEvents.ANVIL_LAND,
                 SoundSource.BLOCKS,
                 1f,
                 1f);
+
     }
 
     @Override

@@ -15,7 +15,6 @@ public class GiantAnvilBlockItem extends BlockItem {
     @Override
     public @NotNull InteractionResult useOn(@NotNull UseOnContext context) {
         InteractionResult result = super.useOn(context);
-        System.out.println("result = " + result);
         if (result == InteractionResult.FAIL) {
             return super.useOn(new UseOnContext(
                     context.getLevel(),

@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.api.chargecollector;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -55,30 +56,37 @@ public class ThermoManager {
                 .filter(it -> it.accepts(state) > 0)
                 .findFirst();
         if (op.isPresent()) {
-            thermoBlocks.removeIf(it -> state.is(it.block) && blockPos.equals(it.pos));
+            thermoBlocks.removeIf(it -> blockPos.equals(it.pos));
             thermoBlocks.add(new ThermoBlock(blockPos, state.getBlock(), op.get().ttl()));
         }
     }
 
     ThermoManager(Level level) {
         this.level = level;
-        register(ThermoEntry.simple(256, ModBlocks.INCANDESCENT_NETHERITE.get(), ModBlocks.GLOWING_NETHERITE.get()));
-        register(ThermoEntry.simple(64, ModBlocks.GLOWING_NETHERITE.get(), ModBlocks.REDHOT_NETHERITE.get()));
-        register(ThermoEntry.simple(16, ModBlocks.REDHOT_NETHERITE.get(), ModBlocks.HEATED_NETHERITE.get()));
-        register(ThermoEntry.simple(4, ModBlocks.HEATED_NETHERITE.get(), Blocks.NETHERITE_BLOCK));
+        register(ThermoEntry.simple(
+                256, ModBlocks.INCANDESCENT_NETHERITE.get(), ModBlocks.GLOWING_NETHERITE.get(), true));
+        register(ThermoEntry.simple(64, ModBlocks.GLOWING_NETHERITE.get(), ModBlocks.REDHOT_NETHERITE.get(), true));
+        register(ThermoEntry.simple(16, ModBlocks.REDHOT_NETHERITE.get(), ModBlocks.HEATED_NETHERITE.get(), true));
+        register(ThermoEntry.simple(4, ModBlocks.HEATED_NETHERITE.get(), Blocks.NETHERITE_BLOCK, true));
 
-        register(ThermoEntry.simple(256, ModBlocks.INCANDESCENT_TUNGSTEN.get(), ModBlocks.GLOWING_TUNGSTEN.get()));
-        register(ThermoEntry.simple(64, ModBlocks.GLOWING_TUNGSTEN.get(), ModBlocks.REDHOT_TUNGSTEN.get()));
-        register(ThermoEntry.simple(16, ModBlocks.REDHOT_TUNGSTEN.get(), ModBlocks.HEATED_TUNGSTEN.get()));
-        register(ThermoEntry.simple(4, ModBlocks.HEATED_TUNGSTEN.get(), ModBlocks.TUNGSTEN_BLOCK.get()));
+        register(ThermoEntry.simple(
+                256, ModBlocks.INCANDESCENT_TUNGSTEN.get(), ModBlocks.GLOWING_TUNGSTEN.get(), true));
+        register(ThermoEntry.simple(64, ModBlocks.GLOWING_TUNGSTEN.get(), ModBlocks.REDHOT_TUNGSTEN.get(), true));
+        register(ThermoEntry.simple(16, ModBlocks.REDHOT_TUNGSTEN.get(), ModBlocks.HEATED_TUNGSTEN.get(), true));
+        register(ThermoEntry.simple(4, ModBlocks.HEATED_TUNGSTEN.get(), ModBlocks.TUNGSTEN_BLOCK.get(), true));
 
-        register(ThermoEntry.always(2, ModBlocks.URANIUM_BLOCK.get()));
+        register(ThermoEntry.always(2, ModBlocks.URANIUM_BLOCK.get(), false));
 
-        register(ThermoEntry.simple(4, Blocks.LAVA, Blocks.OBSIDIAN));
-        register(ThermoEntry.simple(4, Blocks.MAGMA_BLOCK, Blocks.NETHERRACK));
-        register(ThermoEntry.simple(4, Blocks.LAVA_CAULDRON, ModBlocks.OBSIDIDAN_CAULDRON.get()));
+        register(ThermoEntry.simple(4, Blocks.LAVA, Blocks.OBSIDIAN, false));
+        register(ThermoEntry.simple(4, Blocks.MAGMA_BLOCK, Blocks.NETHERRACK, false));
+        register(ThermoEntry.simple(4, Blocks.LAVA_CAULDRON, ModBlocks.OBSIDIDAN_CAULDRON.get(), false));
 
-        register(ThermoEntry.predicate(4, CampfireBlock::isLitCampfire, t -> t.setValue(CampfireBlock.LIT, false)));
+        register(ThermoEntry.predicate(
+                4,
+                CampfireBlock::isLitCampfire,
+                t -> t.setValue(CampfireBlock.LIT, false),
+                false
+        ));
     }
 
 
@@ -100,12 +108,46 @@ public class ThermoManager {
                 if (block.ttl % 2 == 0) {
                     charge(entry.accepts(state), blockPos);
                 }
-                if (block.ttl > 0) {
-                    block.decrease();
+                if (entry.isCanIrritated()) {
+                    if (HeatedBlockRecorder.getInstance(level).requireLightLevel(blockPos, entry.getCharge() / 2)) {
+                        if (block.ttl % 2 == 0) {
+                            block.ttl = Mth.clamp(block.ttl - 1, 0, 2);
+                        } else {
+                            block.ttl = Mth.clamp(block.ttl + 1, 0, 2);
+                        }
+                    } else {
+                        if (block.ttl > 0) {
+                            block.decrease();
+                        } else {
+                            level.setBlockAndUpdate(blockPos, entry.transform(state));
+                            removal.add(block);
+                        }
+                    }
                 } else {
-                    level.setBlockAndUpdate(blockPos, entry.transform(state));
-                    removal.add(block);
+                    if (block.ttl > 0) {
+                        block.decrease();
+                    } else {
+                        level.setBlockAndUpdate(blockPos, entry.transform(state));
+                        removal.add(block);
+                    }
                 }
+                System.out.println("block.ttl = " + block.ttl);
+                System.out.println("block = " + block);
+//                if (entry.isCanIrritated()
+//                        && !HeatedBlockRecorder.getInstance(level).requireLightLevel(blockPos, entry.getCharge() / 2)
+//                ) {
+//                    if (block.ttl > 0) {
+//                        block.decrease();
+//                    } else {
+//                        level.setBlockAndUpdate(blockPos, entry.transform(state));
+//                        removal.add(block);
+//                    }
+//                } else {
+//                    if (!(entry instanceof ThermoEntry.Always)) {
+//
+//                    }
+//                    block.ttl = entry instanceof ThermoEntry.Always ? Mth.clamp(block.ttl + 1, 0, 2) : block.ttl;
+//                }
             } else {
                 removal.add(block);
             }
