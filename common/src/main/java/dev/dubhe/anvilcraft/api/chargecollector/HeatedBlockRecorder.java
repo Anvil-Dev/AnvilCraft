@@ -8,6 +8,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -107,8 +108,23 @@ public class HeatedBlockRecorder {
         irritateEntity.remove(entity);
     }
 
-    public void delete(BlockPos pos) {
-        record.remove(pos);
+    /**
+     * 方塊改變
+     */
+    public void onBlockStateChange(BlockPos pos, BlockState blockState, BlockState newState) {
+        if (record.containsKey(pos)) {
+            int level = record.get(pos).get();
+            List<Block> blocks = TRANSFORMS.entrySet().stream()
+                    .filter(it -> it.getValue().anyMatch(newState.getBlock()))
+                    .map(Map.Entry::getKey)
+                    .sorted(Comparator.comparingInt(Pair::right))
+                    .filter(it -> it.right() <= level)
+                    .map(Pair::left)
+                    .collect(Collectors.toCollection(ArrayList::new));
+            if (blocks.isEmpty()) return;
+            Block block = blocks.get(blocks.size() - 1);
+            this.level.setBlock(pos, block.defaultBlockState(), 3);
+        }
     }
 
     /**
