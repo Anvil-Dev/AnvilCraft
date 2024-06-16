@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.block.entity.CorruptedBeaconBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeGeneratorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeaterBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.HeliostatsBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.InductionLightBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LoadMonitorBlockEntity;
@@ -154,6 +155,11 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<MineralFountainBlockEntity> MINERAL_FOUNTAIN = REGISTRATE
             .blockEntity("mineral_fountain", MineralFountainBlockEntity::createBlockEntity)
             .validBlocks(ModBlocks.MINERAL_FOUNTAIN)
+            .register();
+
+    public static final BlockEntityEntry<HeliostatsBlockEntity> HELIOSTATS = REGISTRATE
+            .blockEntity("heliostats", HeliostatsBlockEntity::new)
+            .validBlocks(ModBlocks.HELIOSTATS)
             .register();
 
     public static void register() {

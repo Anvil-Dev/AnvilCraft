@@ -1,12 +1,18 @@
 package dev.dubhe.anvilcraft.api.world.load;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
 
 public class LevelLoadManager {
     private static final Map<BlockPos, LoadChuckData> LEVEL_LOAD_CHUCK_AREA_MAP = new HashMap<>();
+    private static final List<Runnable> lazyCalls = new ArrayList<>();
+    private static boolean serverStarted = false;
 
     /**
      * 注册区块区域
@@ -19,6 +25,19 @@ public class LevelLoadManager {
         if (LEVEL_LOAD_CHUCK_AREA_MAP.containsKey(centerPos)) unregister(centerPos, level);
         LEVEL_LOAD_CHUCK_AREA_MAP.put(centerPos, loadChuckData);
         loadChuckData.load(level);
+    }
+
+    static void lazy(Runnable runnable) {
+        if (serverStarted) {
+            runnable.run();
+        } else {
+            lazyCalls.add(runnable);
+        }
+    }
+
+    public static void notifyServerStarted() {
+        serverStarted = true;
+        lazyCalls.forEach(Runnable::run);
     }
 
     /**

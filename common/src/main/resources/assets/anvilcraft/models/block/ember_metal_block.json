@@ -2,16 +2,14 @@
 	"credit": "Made by XeKr with Blockbench",
 	"parent": "minecraft:block/block",
 	"textures": {
-		"0": "anvilcraft:block/negative_matter_block",
-		"1": "anvilcraft:block/negative_matter_block_outline",
-		"particle": "anvilcraft:block/negative_matter_block"
+		"0": "anvilcraft:block/ember_metal_block",
+		"1": "anvilcraft:block/ember_metal_block_outline",
+		"particle": "anvilcraft:block/ember_metal_block"
 	},
 	"elements": [
 		{
 			"from": [0.5, 0.5, 0.5],
 			"to": [15.5, 15.5, 15.5],
-			"shade": false,
-			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
 			"faces": {
 				"north": {"uv": [0, 0, 15, 15], "texture": "#0"},
 				"east": {"uv": [0, 0, 15, 15], "texture": "#0"},

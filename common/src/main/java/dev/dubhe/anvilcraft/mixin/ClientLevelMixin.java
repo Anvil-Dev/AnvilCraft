@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.mixin;
 
+import dev.dubhe.anvilcraft.api.chargecollector.HeatedBlockRecorder;
 import dev.dubhe.anvilcraft.client.renderer.PowerGridRenderer;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
@@ -30,5 +31,6 @@ public class ClientLevelMixin {
             CallbackInfo ci
     ) {
         PowerGridRenderer.clearAllGrid();
+        HeatedBlockRecorder.clear();
     }
 }

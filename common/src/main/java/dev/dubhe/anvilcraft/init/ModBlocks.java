@@ -24,6 +24,7 @@ import dev.dubhe.anvilcraft.block.GlowingMetalBlock;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.block.HeavyIronBeamBlock;
 import dev.dubhe.anvilcraft.block.HeavyIronPlateBlock;
+import dev.dubhe.anvilcraft.block.HeliostatsBlock;
 import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
 import dev.dubhe.anvilcraft.block.HoneyCauldronBlock;
 import dev.dubhe.anvilcraft.block.ImpactPileBlock;
@@ -73,7 +74,9 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItem;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItemIngredient;
 import dev.dubhe.anvilcraft.item.CursedBlockItem;
 import dev.dubhe.anvilcraft.item.EndDustBlockItem;
+import dev.dubhe.anvilcraft.item.GiantAnvilBlockItem;
 import dev.dubhe.anvilcraft.item.HasMobBlockItem;
+import dev.dubhe.anvilcraft.item.HeliostatsItem;
 import dev.dubhe.anvilcraft.item.OverseerBlockItem;
 import dev.dubhe.anvilcraft.item.PlaceInWaterBlockItem;
 import dev.dubhe.anvilcraft.item.RemoteTransmissionPoleBlockItem;
@@ -1664,14 +1667,17 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<GiantAnvilBlock> GIANT_ANVIL = REGISTRATE
-        .block("giant_anvil", GiantAnvilBlock::new)
-        .simpleItem()
-        .initialProperties(() -> Blocks.ANVIL)
-        .loot(AbstractMultiplePartBlock::loot)
-        .properties(p -> p.noOcclusion().strength(4.0F).sound(SoundType.ANVIL).explosionResistance(1200))
-        .blockstate((ctx, provider) -> {
-        })
-        .register();
+            .block("giant_anvil", GiantAnvilBlock::new)
+            .initialProperties(() -> Blocks.ANVIL)
+            .loot(AbstractMultiplePartBlock::loot)
+            .properties(p -> p.noOcclusion().strength(4.0F).sound(SoundType.ANVIL).explosionResistance(1200))
+            .item(GiantAnvilBlockItem::new)
+            .model((ctx, provider) -> {
+            })
+            .build()
+            .blockstate((ctx, provider) -> {
+            })
+            .register();
 
     public static final BlockEntry<CementCauldronBlock> CEMENT_CAULDRON = REGISTRATE
         .block("cement_cauldron", CementCauldronBlock::new)
@@ -2393,6 +2399,34 @@ public class ModBlocks {
             .build()
             .register();
     }
+
+    public static final BlockEntry<HeliostatsBlock> HELIOSTATS = REGISTRATE
+            .block("heliostats", HeliostatsBlock::new)
+            .initialProperties(() -> Blocks.GLASS)
+            .blockstate((ctx, prov) -> {
+            })
+            .defaultLoot()
+            .item(HeliostatsItem::new)
+            .model((a, b) -> {
+            })
+            .build()
+            .recipe((ctx, provider) -> {
+                ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 16)
+                        .pattern("AAA")
+                        .pattern(" B ")
+                        .pattern(" C ")
+                        .define('A', ModItems.SILVER_INGOT)
+                        .define('B', Items.SUNFLOWER)
+                        .define('C', Items.IRON_INGOT)
+                        .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.SILVER_INGOT),
+                                AnvilCraftDatagen.has(ModItems.SILVER_INGOT))
+                        .unlockedBy(AnvilCraftDatagen.hasItem(Items.SUNFLOWER),
+                                AnvilCraftDatagen.has(Items.SUNFLOWER))
+                        .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT),
+                                AnvilCraftDatagen.has(Items.IRON_INGOT))
+                        .save(provider);
+            })
+            .register();
 
     public static void register() {
     }

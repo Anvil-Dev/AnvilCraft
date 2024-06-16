@@ -1309,7 +1309,6 @@ public class ModItems {
             .save(provider))
         .register();
 
-
     public static void register() {
     }
 }

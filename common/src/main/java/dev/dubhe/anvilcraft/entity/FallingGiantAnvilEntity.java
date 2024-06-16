@@ -128,25 +128,23 @@ public class FallingGiantAnvilEntity extends FallingBlockEntity {
                     );
                     boolean isMovingPiston = false;
                     boolean canBeReplaced = true;
-                    boolean canSurvive = false;
+                    boolean canSurvive = this.blockState.canSurvive(this.level(), blockPos.below());
+                    boolean isFree = true;
                     for (int i = -1; i <= 1; i++) {
                         for (int j = -1; j <= 1; j++) {
-                            BlockPos offsetPos = this.blockPosition().offset(i, -1, j);
+                            BlockPos offsetPos = blockPos.offset(i, -1, j);
                             isMovingPiston = isMovingPiston
                                 || this.level().getBlockState(offsetPos).is(Blocks.MOVING_PISTON);
                             for (int k = -1; k <= 1; k++) {
                                 canBeReplaced = canBeReplaced
-                                    && this.level().getBlockState(this.blockPosition().offset(i, k, j))
+                                    && this.level().getBlockState(blockPos.offset(i, k, j))
                                     .canBeReplaced(placeContext);
                             }
-                            canSurvive = canSurvive || (
-                                this.blockState.canSurvive(this.level(), offsetPos.above())
-                                    && !FallingBlock.isFree(this.level().getBlockState(offsetPos.below()))
-                                );
+                            isFree = isFree && FallingBlock.isFree(this.level().getBlockState(offsetPos.below()));
                         }
                     }
                     if (!isMovingPiston) {
-                        if (canBeReplaced && canSurvive) {
+                        if (canBeReplaced && canSurvive && !isFree) {
                             if (this.blockState.hasProperty(BlockStateProperties.WATERLOGGED)
                                 &&
                                 this.level().getFluidState(blockPos).getType() == Fluids.WATER) {
