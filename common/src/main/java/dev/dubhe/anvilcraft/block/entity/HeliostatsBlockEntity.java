@@ -47,7 +47,7 @@ public class HeliostatsBlockEntity extends BlockEntity {
                 ) return false;
             }
             case NORTH -> { //-z
-                if (pos.getZ() < (blockPos.getZ() - 16) || pos.getZ() > blockPos.getX()
+                if (pos.getZ() < (blockPos.getZ() - 16) || pos.getZ() > blockPos.getZ()
                         || pos.getX() < (blockPos.getX() - 16) || pos.getX() > (blockPos.getX() + 16)
                 ) return false;
             }
