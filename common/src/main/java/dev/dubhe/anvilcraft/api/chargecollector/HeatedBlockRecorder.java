@@ -101,7 +101,7 @@ public class HeatedBlockRecorder {
         }
         AtomicInteger integer = record.get(pos);
         integer.set(Mth.clamp(integer.intValue() - 1, 0, 0x7fffffff));
-        if (integer.intValue() <= 0){
+        if (integer.intValue() <= 0) {
             record.remove(pos);
         }
         irritateEntity.remove(entity);

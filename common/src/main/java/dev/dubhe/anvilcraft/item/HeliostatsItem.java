@@ -108,7 +108,6 @@ public class HeliostatsItem extends BlockItem {
                         true
                 );
             }
-            deleteData(stack);
             return true;
         }
         return super.updateCustomBlockEntityTag(pos, level, player, stack, state);
