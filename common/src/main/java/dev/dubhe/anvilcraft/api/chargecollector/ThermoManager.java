@@ -56,7 +56,7 @@ public class ThermoManager {
                 .filter(it -> it.accepts(state) > 0)
                 .findFirst();
         if (op.isPresent()) {
-            thermoBlocks.removeIf(it -> state.is(it.block) && blockPos.equals(it.pos));
+            thermoBlocks.removeIf(it -> blockPos.equals(it.pos));
             thermoBlocks.add(new ThermoBlock(blockPos, state.getBlock(), op.get().ttl()));
         }
     }
@@ -108,18 +108,46 @@ public class ThermoManager {
                 if (block.ttl % 2 == 0) {
                     charge(entry.accepts(state), blockPos);
                 }
-                if (entry.isCanIrritated()
-                        && !HeatedBlockRecorder.getInstance(level).requireLightLevel(blockPos, entry.getCharge() / 2)
-                ) {
+                if (entry.isCanIrritated()) {
+                    if (HeatedBlockRecorder.getInstance(level).requireLightLevel(blockPos, entry.getCharge() / 2)) {
+                        if (block.ttl % 2 == 0) {
+                            block.ttl = Mth.clamp(block.ttl - 1, 0, 2);
+                        } else {
+                            block.ttl = Mth.clamp(block.ttl + 1, 0, 2);
+                        }
+                    } else {
+                        if (block.ttl > 0) {
+                            block.decrease();
+                        } else {
+                            level.setBlockAndUpdate(blockPos, entry.transform(state));
+                            removal.add(block);
+                        }
+                    }
+                } else {
                     if (block.ttl > 0) {
                         block.decrease();
                     } else {
                         level.setBlockAndUpdate(blockPos, entry.transform(state));
                         removal.add(block);
                     }
-                } else {
-                    block.ttl = entry instanceof ThermoEntry.Always ? Mth.clamp(block.ttl + 1, 0, 2) : block.ttl;
                 }
+                System.out.println("block.ttl = " + block.ttl);
+                System.out.println("block = " + block);
+//                if (entry.isCanIrritated()
+//                        && !HeatedBlockRecorder.getInstance(level).requireLightLevel(blockPos, entry.getCharge() / 2)
+//                ) {
+//                    if (block.ttl > 0) {
+//                        block.decrease();
+//                    } else {
+//                        level.setBlockAndUpdate(blockPos, entry.transform(state));
+//                        removal.add(block);
+//                    }
+//                } else {
+//                    if (!(entry instanceof ThermoEntry.Always)) {
+//
+//                    }
+//                    block.ttl = entry instanceof ThermoEntry.Always ? Mth.clamp(block.ttl + 1, 0, 2) : block.ttl;
+//                }
             } else {
                 removal.add(block);
             }
