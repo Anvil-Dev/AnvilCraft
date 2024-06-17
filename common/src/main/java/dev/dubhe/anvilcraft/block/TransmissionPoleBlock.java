@@ -7,13 +7,9 @@ import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.state.Vertical3PartHalf;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.RenderShape;
@@ -66,18 +62,18 @@ public class TransmissionPoleBlock extends AbstractMultiplePartBlock<Vertical3Pa
     }
 
     @Override
-    protected @NotNull Property<Vertical3PartHalf> getPart() {
+    public @NotNull Property<Vertical3PartHalf> getPart() {
         return TransmissionPoleBlock.HALF;
     }
 
     @Override
-    protected Vertical3PartHalf[] getParts() {
+    public Vertical3PartHalf[] getParts() {
         return Vertical3PartHalf.values();
     }
 
     @Override
     @Nullable
-    public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
+    public BlockState getPlacementState(@NotNull BlockPlaceContext context) {
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();
         IPowerComponent.Switch sw =
@@ -116,17 +112,8 @@ public class TransmissionPoleBlock extends AbstractMultiplePartBlock<Vertical3Pa
     }
 
     @Override
-    public void setPlacedBy(
-            @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state,
-            LivingEntity placer, @NotNull ItemStack stack
-    ) {
-        BlockPos above = pos.above();
-        level.setBlockAndUpdate(
-                above,
-                state.setValue(HALF, Vertical3PartHalf.MID).setValue(SWITCH, IPowerComponent.Switch.ON)
-        );
-        above = above.above();
-        level.setBlockAndUpdate(above, state.setValue(HALF, Vertical3PartHalf.TOP));
+    protected BlockState placedState(Vertical3PartHalf part, @NotNull BlockState state) {
+        return super.placedState(part, state).setValue(SWITCH, IPowerComponent.Switch.ON);
     }
 
     @Nullable
@@ -174,24 +161,6 @@ public class TransmissionPoleBlock extends AbstractMultiplePartBlock<Vertical3Pa
             }
             level.setBlockAndUpdate(pos, state);
             level.setBlockAndUpdate(topPos, topState);
-        }
-    }
-
-    @Override
-    public boolean canPlace(@NotNull BlockState state, @NotNull LevelReader level, @NotNull BlockPos pos) {
-        switch (state.getValue(HALF)) {
-            case TOP -> {
-                BlockState state1 = level.getBlockState(pos.below());
-                BlockState state2 = level.getBlockState(pos.below(2));
-                return state1.is(this) && state2.is(this);
-            }
-            case MID -> {
-                BlockState state2 = level.getBlockState(pos.below());
-                return state2.is(this);
-            }
-            default -> {
-                return true;
-            }
         }
     }
 
