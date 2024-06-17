@@ -20,6 +20,7 @@ import dev.dubhe.anvilcraft.block.CrabTrapBlock;
 import dev.dubhe.anvilcraft.block.CreativeGeneratorBlock;
 import dev.dubhe.anvilcraft.block.DischargerBlock;
 import dev.dubhe.anvilcraft.block.FerriteCoreMagnetBlock;
+import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.block.GlowingMetalBlock;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.block.HeavyIronBeamBlock;
@@ -38,7 +39,6 @@ import dev.dubhe.anvilcraft.block.MagnetBlock;
 import dev.dubhe.anvilcraft.block.MeltGemCauldron;
 import dev.dubhe.anvilcraft.block.MineralFountainBlock;
 import dev.dubhe.anvilcraft.block.MobAmberBlock;
-import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.block.ObsidianCauldron;
 import dev.dubhe.anvilcraft.block.OverseerBlock;
 import dev.dubhe.anvilcraft.block.PiezoelectricCrystalBlock;
@@ -60,6 +60,7 @@ import dev.dubhe.anvilcraft.block.StampingPlatformBlock;
 import dev.dubhe.anvilcraft.block.ThermoelectricConverterBlock;
 import dev.dubhe.anvilcraft.block.TransmissionPoleBlock;
 import dev.dubhe.anvilcraft.block.state.Color;
+import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.Vertical3PartHalf;
 import dev.dubhe.anvilcraft.block.state.Vertical4PartHalf;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
@@ -72,16 +73,13 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SelectOne;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SpawnItem;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItem;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItemIngredient;
+import dev.dubhe.anvilcraft.item.AbstractMultiplePartBlockItem;
 import dev.dubhe.anvilcraft.item.CursedBlockItem;
 import dev.dubhe.anvilcraft.item.EndDustBlockItem;
-import dev.dubhe.anvilcraft.item.GiantAnvilBlockItem;
 import dev.dubhe.anvilcraft.item.HasMobBlockItem;
 import dev.dubhe.anvilcraft.item.HeliostatsItem;
-import dev.dubhe.anvilcraft.item.OverseerBlockItem;
 import dev.dubhe.anvilcraft.item.PlaceInWaterBlockItem;
-import dev.dubhe.anvilcraft.item.RemoteTransmissionPoleBlockItem;
 import dev.dubhe.anvilcraft.item.ResinBlockItem;
-import dev.dubhe.anvilcraft.item.TransmissionPoleBlockItem;
 import dev.dubhe.anvilcraft.util.DangerUtil;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.core.BlockPos;
@@ -1039,7 +1037,7 @@ public class ModBlocks {
         )
         .blockstate((ctx, provider) -> {
         })
-        .item(TransmissionPoleBlockItem::new)
+        .item(AbstractMultiplePartBlockItem<Vertical3PartHalf>::new)
         .model((ctx, provider) -> {
         })
         .build()
@@ -1078,7 +1076,7 @@ public class ModBlocks {
         )
         .blockstate((ctx, provider) -> {
         })
-        .item(RemoteTransmissionPoleBlockItem::new)
+        .item(AbstractMultiplePartBlockItem<Vertical4PartHalf>::new)
         .model((ctx, provider) -> {
         })
         .build()
@@ -1633,7 +1631,7 @@ public class ModBlocks {
         .blockstate((ctx, provider) -> {
         })
         .loot(AbstractMultiplePartBlock::loot)
-        .item(OverseerBlockItem::new)
+        .item(AbstractMultiplePartBlockItem<Vertical3PartHalf>::new)
         .model((ctx, provider) -> {
         })
         .build()
@@ -1671,7 +1669,7 @@ public class ModBlocks {
             .initialProperties(() -> Blocks.ANVIL)
             .loot(AbstractMultiplePartBlock::loot)
             .properties(p -> p.noOcclusion().strength(4.0F).sound(SoundType.ANVIL).explosionResistance(1200))
-            .item(GiantAnvilBlockItem::new)
+            .item(AbstractMultiplePartBlockItem<Cube3x3PartHalf>::new)
             .model((ctx, provider) -> {
             })
             .build()
