@@ -2333,7 +2333,7 @@ public class ModBlocks {
                         AnvilCraftDatagen.has(parent))
                     .save(provider, AnvilCraft.of("craft/reinforced_concrete_" + color + "_slab"));
                 VanillaRecipeProvider.stonecutterResultFromBase(provider, RecipeCategory.BUILDING_BLOCKS,
-                    ctx.get(), parent);
+                    ctx.get(), parent, 2);
             })
             .register();
     }

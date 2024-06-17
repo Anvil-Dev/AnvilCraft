@@ -1,6 +1,6 @@
 {
   "type": "minecraft:stonecutting",
-  "count": 1,
+  "count": 2,
   "ingredient": {
     "item": "anvilcraft:reinforced_concrete_brown"
   },
