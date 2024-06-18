@@ -5,8 +5,6 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.OverseerBlockEntity;
 import dev.dubhe.anvilcraft.block.state.Vertical3PartHalf;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -53,18 +51,18 @@ public class OverseerBlock extends AbstractMultiplePartBlock<Vertical3PartHalf>
     }
 
     @Override
-    protected @NotNull Property<Vertical3PartHalf> getPart() {
+    public @NotNull Property<Vertical3PartHalf> getPart() {
         return OverseerBlock.HALF;
     }
 
     @Override
-    protected Vertical3PartHalf[] getParts() {
+    public Vertical3PartHalf[] getParts() {
         return Vertical3PartHalf.values();
     }
 
     @Override
     @Nullable
-    public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
+    public BlockState getPlacementState(@NotNull BlockPlaceContext context) {
         return this.defaultBlockState()
             .setValue(HALF, Vertical3PartHalf.BOTTOM)
             .setValue(LEVEL, 0);
@@ -95,14 +93,8 @@ public class OverseerBlock extends AbstractMultiplePartBlock<Vertical3PartHalf>
     }
 
     @Override
-    public void setPlacedBy(
-        @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state,
-        LivingEntity placer, @NotNull ItemStack stack
-    ) {
-        BlockPos above = pos.above();
-        level.setBlockAndUpdate(above, state.setValue(HALF, Vertical3PartHalf.MID).setValue(LEVEL, 1));
-        above = above.above();
-        level.setBlockAndUpdate(above, state.setValue(HALF, Vertical3PartHalf.TOP).setValue(LEVEL, 1));
+    protected BlockState placedState(Vertical3PartHalf part, @NotNull BlockState state) {
+        return super.placedState(part, state).setValue(LEVEL, 1);
     }
 
     @Nullable

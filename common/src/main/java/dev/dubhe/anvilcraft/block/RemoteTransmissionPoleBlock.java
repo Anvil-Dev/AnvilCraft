@@ -7,14 +7,10 @@ import dev.dubhe.anvilcraft.block.entity.RemoteTransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.state.Vertical4PartHalf;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.RenderShape;
@@ -64,18 +60,18 @@ public class RemoteTransmissionPoleBlock extends AbstractMultiplePartBlock<Verti
     }
 
     @Override
-    protected @NotNull Property<Vertical4PartHalf> getPart() {
+    public @NotNull Property<Vertical4PartHalf> getPart() {
         return RemoteTransmissionPoleBlock.HALF;
     }
 
     @Override
-    protected Vertical4PartHalf[] getParts() {
+    public Vertical4PartHalf[] getParts() {
         return Vertical4PartHalf.values();
     }
 
     @Override
     @Nullable
-    public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
+    public BlockState getPlacementState(@NotNull BlockPlaceContext context) {
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();
         IPowerComponent.Switch sw =
@@ -112,26 +108,8 @@ public class RemoteTransmissionPoleBlock extends AbstractMultiplePartBlock<Verti
     }
 
     @Override
-    public void setPlacedBy(
-        @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state,
-        LivingEntity placer, @NotNull ItemStack stack
-    ) {
-        BlockPos above = pos.above();
-        level.setBlockAndUpdate(
-            above,
-            state
-                .setValue(HALF, Vertical4PartHalf.MID_LOWER)
-                .setValue(SWITCH, IPowerComponent.Switch.ON)
-        );
-        above = above.above();
-        level.setBlockAndUpdate(
-            above,
-            state
-                .setValue(HALF, Vertical4PartHalf.MID_UPPER)
-                .setValue(SWITCH, IPowerComponent.Switch.ON)
-        );
-        above = above.above();
-        level.setBlockAndUpdate(above, state.setValue(HALF, Vertical4PartHalf.TOP));
+    protected BlockState placedState(Vertical4PartHalf part, @NotNull BlockState state) {
+        return super.placedState(part, state).setValue(SWITCH, IPowerComponent.Switch.ON);
     }
 
     @Override
@@ -190,25 +168,6 @@ public class RemoteTransmissionPoleBlock extends AbstractMultiplePartBlock<Verti
             }
             level.setBlockAndUpdate(pos, state);
             level.setBlockAndUpdate(topPos, topState);
-        }
-    }
-
-    @Override
-    public boolean canPlace(@NotNull BlockState state, @NotNull LevelReader level, @NotNull BlockPos pos) {
-        switch (state.getValue(HALF)) {
-            case TOP -> {
-                BlockState state1 = level.getBlockState(pos.below());
-                BlockState state2 = level.getBlockState(pos.below(2));
-                BlockState state3 = level.getBlockState(pos.below(3));
-                return state1.is(this) && state2.is(this) && state3.is(this);
-            }
-            case MID_UPPER, MID_LOWER -> {
-                BlockState state2 = level.getBlockState(pos.below());
-                return state2.is(this);
-            }
-            default -> {
-                return true;
-            }
         }
     }
 
