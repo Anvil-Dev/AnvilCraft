@@ -7,7 +7,6 @@ import java.util.Map;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.Level;
 
 public class LevelLoadManager {
     private static final Map<BlockPos, LoadChuckData> LEVEL_LOAD_CHUCK_AREA_MAP = new HashMap<>();
@@ -22,9 +21,13 @@ public class LevelLoadManager {
      * @param level         世界
      */
     public static void register(BlockPos centerPos, LoadChuckData loadChuckData, ServerLevel level) {
-        if (LEVEL_LOAD_CHUCK_AREA_MAP.containsKey(centerPos)) unregister(centerPos, level);
+        if (LEVEL_LOAD_CHUCK_AREA_MAP.containsKey(centerPos)) return;
         LEVEL_LOAD_CHUCK_AREA_MAP.put(centerPos, loadChuckData);
         loadChuckData.load(level);
+    }
+
+    public static boolean checkRegistered(BlockPos pos) {
+        return LEVEL_LOAD_CHUCK_AREA_MAP.containsKey(pos);
     }
 
     static void lazy(Runnable runnable) {

@@ -38,7 +38,7 @@ public class LoadChuckData {
      * @param isNeedRandomTick 是否需要随机刻加载
      * @return 强加载区块区域数据
      */
-    public static LoadChuckData creatLoadChuckData(
+    public static LoadChuckData createLoadChuckData(
             int level,
             BlockPos centerPos,
             boolean isNeedRandomTick,
