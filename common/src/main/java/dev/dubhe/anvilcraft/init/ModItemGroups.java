@@ -168,6 +168,7 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.HOLLOW_MAGNET_BLOCK.asStack());
                 entries.accept(ModBlocks.FERRITE_CORE_MAGNET_BLOCK.asStack());
                 entries.accept(ModBlocks.CRAB_TRAP.asStack());
+                entries.accept(ModBlocks.MENGER_SPONGE.asStack());
                 entries.accept(ModBlocks.CHUTE.asStack());
                 entries.accept(ModBlocks.MINERAL_FOUNTAIN.asStack());
             })
