@@ -222,7 +222,7 @@ public class ChargerBlockEntity
         if (cd == 0 && containsValidItem(depository.getStack(0))) {
             locked = true;
             cd = 7;
-            processItemTransform();
+            if (!isCharger) processItemTransform();
             return;
         }
         if (previousDischargeFailed) {
@@ -237,6 +237,7 @@ public class ChargerBlockEntity
                     cd--;
                     locked = true;
                 } else {
+                    processItemTransform();
                     cd = 0;
                     locked = false;
                 }
