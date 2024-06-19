@@ -33,6 +33,7 @@ import dev.dubhe.anvilcraft.item.RoyalPickaxeItem;
 import dev.dubhe.anvilcraft.item.RoyalShovelItem;
 import dev.dubhe.anvilcraft.item.RoyalSwordItem;
 import dev.dubhe.anvilcraft.item.RoyalUpgradeTemplateItem;
+import dev.dubhe.anvilcraft.item.SeedsPackItem;
 import dev.dubhe.anvilcraft.item.TopazItem;
 import dev.dubhe.anvilcraft.item.UtusanItem;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -1307,6 +1308,9 @@ public class ModItems {
                 AnvilCraftDatagen.has(ModBlocks.EARTH_CORE_SHARD_BLOCK)
             )
             .save(provider))
+        .register();
+    public static final ItemEntry<SeedsPackItem> SEEDS_PACK = REGISTRATE
+        .item("seeds_pack", SeedsPackItem::new)
         .register();
 
     public static void register() {

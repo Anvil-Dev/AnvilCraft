@@ -44,6 +44,7 @@ public class ModItemGroups {
                 entries.accept(ModItems.CREAMY_BREAD_ROLL.get().getDefaultInstance());
                 entries.accept(ModItems.BEEF_MUSHROOM_STEW.get().getDefaultInstance());
                 entries.accept(ModItems.UTUSAN.get().getDefaultInstance());
+                entries.accept(ModItems.SEEDS_PACK.get().getDefaultInstance());
                 entries.accept(ModItemGroups.createMaxLevelBook(ModEnchantments.FELLING));
                 entries.accept(ModItemGroups.createMaxLevelBook(ModEnchantments.HARVEST));
                 entries.accept(ModItemGroups.createMaxLevelBook(ModEnchantments.BEHEADING));

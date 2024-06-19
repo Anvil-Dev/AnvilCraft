@@ -80,5 +80,18 @@ public class ItemTagLoader {
             .add(Items.DEAD_BUBBLE_CORAL_FAN)
             .add(Items.DEAD_FIRE_CORAL_FAN)
             .add(Items.DEAD_HORN_CORAL_FAN);
+        provider.addTag(ModItemTags.SEEDS_PACK_CONTENT).setReplace(false)
+            .addOptionalTag(ModItemTags.SEEDS)
+            .addOptionalTag(ModItemTags.BERRIES)
+            .addOptionalTag(ModItemTags.VEGETABLES)
+            .addOptionalTag(ModItemTags.SEEDS_FORGE)
+            .addOptionalTag(ModItemTags.BERRIES_FORGE)
+            .addOptionalTag(ModItemTags.VEGETABLES_FORGE);
+        provider.addTag(ModItemTags.VEGETABLES).setReplace(false)
+            .add(Items.POTATO)
+            .add(Items.CARROT);
+        provider.addTag(ModItemTags.BERRIES).setReplace(false)
+            .add(Items.SWEET_BERRIES)
+            .add(Items.GLOW_BERRIES);
     }
 }

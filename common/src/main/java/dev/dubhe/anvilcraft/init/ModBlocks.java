@@ -1671,8 +1671,6 @@ public class ModBlocks {
             .loot(AbstractMultiplePartBlock::loot)
             .properties(p -> p.noOcclusion().strength(4.0F).sound(SoundType.ANVIL).explosionResistance(1200))
             .item(AbstractMultiplePartBlockItem<Cube3x3PartHalf>::new)
-            .model((ctx, provider) -> {
-            })
             .build()
             .blockstate((ctx, provider) -> {
             })

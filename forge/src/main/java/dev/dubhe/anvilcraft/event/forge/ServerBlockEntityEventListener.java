@@ -28,17 +28,6 @@ public class ServerBlockEntityEventListener {
         if (event.getEntity() instanceof ChargeCollectorBlockEntity chargeCollector) {
             ChargeCollectorManager.addChargeCollector(chargeCollector);
         }
-        if (event.getEntity() instanceof OverseerBlockEntity overseerBlockEntity
-            && event.getLevel() instanceof ServerLevel serverLevel) {
-            LevelLoadManager.register(overseerBlockEntity.getBlockPos(),
-                LoadChuckData.creatLoadChuckData(
-                    overseerBlockEntity.getBlockState().getValue(OverseerBlock.LEVEL),
-                    overseerBlockEntity.getBlockPos(),
-                    false,
-                    serverLevel
-                ),
-                (ServerLevel) event.getLevel());
-        }
     }
 
     /**

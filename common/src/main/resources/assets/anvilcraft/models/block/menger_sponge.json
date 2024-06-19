@@ -11,48 +11,51 @@
 		{
 			"from": [0, 0, 0],
 			"to": [16, 16, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
 			"faces": {
-				"north": {"uv": [0, 0, 16, 16], "texture": "#0", "cullface": "north"},
-				"east": {"uv": [0, 0, 16, 16], "texture": "#0", "cullface": "east"},
-				"south": {"uv": [0, 0, 16, 16], "texture": "#0", "cullface": "south"},
-				"west": {"uv": [0, 0, 16, 16], "texture": "#0", "cullface": "west"},
-				"up": {"uv": [0, 0, 16, 16], "texture": "#0", "cullface": "up"},
-				"down": {"uv": [0, 0, 16, 16], "texture": "#0", "cullface": "down"}
+				"north": {"uv": [0, 0, 13.5, 13.5], "texture": "#0", "cullface": "north"},
+				"east": {"uv": [0, 0, 13.5, 13.5], "texture": "#0", "cullface": "east"},
+				"south": {"uv": [0, 0, 13.5, 13.5], "texture": "#0", "cullface": "south"},
+				"west": {"uv": [0, 0, 13.5, 13.5], "texture": "#0", "cullface": "west"},
+				"up": {"uv": [0, 0, 13.5, 13.5], "texture": "#0", "cullface": "up"},
+				"down": {"uv": [0, 0, 13.5, 13.5], "texture": "#0", "cullface": "down"}
 			}
 		},
 		{
 			"name": "cube inverted",
-			"from": [16, 10, 10],
-			"to": [0, 6, 6],
+			"from": [10.675, 16, 10.675],
+			"to": [5.325, 0, 5.325],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
 			"faces": {
-				"north": {"uv": [16, 10, 0, 6], "texture": "#1"},
-				"south": {"uv": [16, 10, 0, 6], "texture": "#1"},
-				"up": {"uv": [16, 10, 0, 6], "texture": "#1"},
-				"down": {"uv": [16, 10, 0, 6], "texture": "#1"}
+				"north": {"uv": [9, 13.5, 4.5, 0], "texture": "#1", "cullface": "south"},
+				"east": {"uv": [9, 13.5, 4.5, 0], "texture": "#1", "cullface": "west"},
+				"south": {"uv": [9, 13.5, 4.5, 0], "texture": "#1", "cullface": "north"},
+				"west": {"uv": [9, 13.5, 4.5, 0], "texture": "#1", "cullface": "east"}
 			}
 		},
 		{
 			"name": "cube inverted",
-			"from": [10, 10, 16],
-			"to": [6, 6, 0],
+			"from": [16, 10.675, 10.675],
+			"to": [0, 5.325, 5.325],
+			"rotation": {"angle": 0, "axis": "z", "origin": [8, 8, 8]},
 			"faces": {
-				"east": {"uv": [16, 10, 0, 6], "texture": "#1"},
-				"west": {"uv": [16, 10, 0, 6], "texture": "#1"},
-				"up": {"uv": [10, 16, 6, 0], "texture": "#1"},
-				"down": {"uv": [10, 16, 6, 0], "texture": "#1"}
+				"north": {"uv": [4.5, 13.5, 9, 0], "rotation": 270, "texture": "#1", "cullface": "south"},
+				"south": {"uv": [9, 0, 4.5, 13.5], "rotation": 90, "texture": "#1", "cullface": "north"},
+				"up": {"uv": [9, 0, 4.5, 13.5], "rotation": 90, "texture": "#1", "cullface": "east"},
+				"down": {"uv": [9, 0, 4.5, 13.5], "rotation": 90, "texture": "#1", "cullface": "west"}
 			}
 		},
 		{
 			"name": "cube inverted",
-			"from": [10, 16, 10],
-			"to": [6, 0, 6],
+			"from": [10.675, 10.675, 16],
+			"to": [5.325, 5.325, 0],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
 			"faces": {
-				"north": {"uv": [10, 16, 6, 0], "texture": "#1"},
-				"east": {"uv": [10, 16, 6, 0], "texture": "#1"},
-				"south": {"uv": [10, 16, 6, 0], "texture": "#1"},
-				"west": {"uv": [10, 16, 6, 0], "texture": "#1"}
+				"east": {"uv": [9, 0, 4.5, 13.5], "rotation": 90, "texture": "#1", "cullface": "north"},
+				"west": {"uv": [4.5, 13.5, 9, 0], "rotation": 270, "texture": "#1", "cullface": "south"},
+				"up": {"uv": [9, 13.5, 4.5, 0], "texture": "#1", "cullface": "east"},
+				"down": {"uv": [4.5, 0, 9, 13.5], "rotation": 180, "texture": "#1", "cullface": "west"}
 			}
 		}
-	],
-	"display": {}
+	]
 }
