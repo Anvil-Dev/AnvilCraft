@@ -34,6 +34,7 @@ public class ChargerBlockEntity
     private int cd;
     private boolean locked = false;
     private boolean powered = false;
+    private boolean jumpOver = false;
 
     private final FilteredItemDepository depository = new FilteredItemDepository(1) {
 
@@ -219,7 +220,7 @@ public class ChargerBlockEntity
             previousDischargeFailed = false;
         }
         if (powered) return;
-        if (cd == 0 && containsValidItem(depository.getStack(0))) {
+        if (cd == 0 && containsValidItem(depository.getStack(0)) && !jumpOver) {
             locked = true;
             cd = 7;
             if (!isCharger) processItemTransform();
@@ -236,23 +237,25 @@ public class ChargerBlockEntity
                 if (cd > 0) {
                     cd--;
                     locked = true;
+                    jumpOver = true;
                 } else {
                     processItemTransform();
                     cd = 0;
                     locked = false;
+                    jumpOver = false;
                 }
             }
-            return;
-        }
-        if (cd > 0) {
-            cd--;
-            locked = true;
         } else {
-            if (!grid.isWork() && !previousDischargeFailed) {
-                previousDischargeFailed = true;
+            if (cd > 0) {
+                cd--;
+                locked = true;
+            } else {
+                if (!grid.isWork() && !previousDischargeFailed) {
+                    previousDischargeFailed = true;
+                }
+                cd = 0;
+                locked = false;
             }
-            cd = 0;
-            locked = false;
         }
     }
 }
