@@ -13,10 +13,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -69,11 +71,13 @@ public class HudTooltipManager {
         Font font = Minecraft.getInstance().font;
         BlockEntityTooltipProvider currentProvider = determineBlockEntityTooltipProvider(entity);
         if (currentProvider == null) return;
+        List<Component> tooltip = currentProvider.tooltip(entity);
+        if (tooltip == null || tooltip.isEmpty()) return;
         renderTooltipWithItemIcon(
                 guiGraphics,
                 font,
                 currentProvider.icon(entity),
-                currentProvider.tooltip(entity),
+                tooltip,
                 tooltipPosX,
                 tooltipPosY,
                 BACKGROUND_COLOR,

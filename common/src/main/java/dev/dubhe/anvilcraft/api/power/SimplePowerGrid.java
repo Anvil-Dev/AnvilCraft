@@ -16,8 +16,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 @Getter
 public class SimplePowerGrid {
@@ -43,8 +46,6 @@ public class SimplePowerGrid {
     private int generate = 0; // 发电功率
     private int consume = 0;  // 耗电功率
 
-    private final Map<BlockPos, PowerComponentInfo> mappedPowerComponentInfo = new HashMap<>();
-
     /**
      * 简单电网
      */
@@ -62,10 +63,7 @@ public class SimplePowerGrid {
         this.generate = generate;
         this.consume = consume;
         blocks.addAll(powerComponentInfoList.stream().map(PowerComponentInfo::pos).toList());
-        powerComponentInfoList.forEach(it -> {
-            mappedPowerComponentInfo.put(it.pos(), it);
-            ranges.put(it.pos(), it.range());
-        });
+        this.powerComponentInfoList.addAll(powerComponentInfoList);
     }
 
     /**
@@ -97,57 +95,92 @@ public class SimplePowerGrid {
     }
 
     /**
+     * 获得指定坐标的电网元件信息
+     */
+    public Optional<PowerComponentInfo> getInfoForPos(BlockPos pos) {
+        return powerComponentInfoList.stream()
+                .filter(it -> it.pos().equals(pos))
+                .findFirst();
+    }
+
+    /**
      * @param grid 电网
      */
     public SimplePowerGrid(@NotNull PowerGrid grid) {
         this.hash = grid.hashCode();
         this.level = grid.getLevel().dimension().location().toString();
         this.pos = grid.getPos();
-        Map<BlockPos, PowerComponentInfo> infoMap = new HashMap<>();
-        grid.storages.forEach(it -> infoMap.put(
-                it.getPos(),
-                new PowerComponentInfo(
-                        it.getPos(),
+        Set<IPowerComponent> powerComponents = new HashSet<>();
+        powerComponents.addAll(grid.storages);
+        powerComponents.addAll(grid.producers);
+        powerComponents.addAll(grid.consumers);
+        powerComponents.addAll(grid.transmitters);
+        for (IPowerComponent component : powerComponents) {
+            switch (component.getComponentType()) {
+                case STORAGE -> {
+                    IPowerStorage it = (IPowerStorage) component;
+                    powerComponentInfoList.add(new PowerComponentInfo(
+                            it.getPos(),
+                            0,
+                            0,
+                            it.getPowerAmount(),
+                            it.getCapacity(),
+                            it.getRange(),
+                            PowerComponentType.STORAGE
+                    ));
+                }
+                case CONSUMER -> {
+                    IPowerConsumer it = (IPowerConsumer) component;
+                    powerComponentInfoList.add(new PowerComponentInfo(
+                            it.getPos(),
+                            it.getInputPower(),
+                            0,
+                            0,
+                            0,
+                            it.getRange(),
+                            PowerComponentType.CONSUMER
+                    ));
+                }
+                case PRODUCER -> {
+                    IPowerProducer it = (IPowerProducer) component;
+                    powerComponentInfoList.add(new PowerComponentInfo(
+                            it.getPos(),
+                            0,
+                            it.getOutputPower(),
+                            0,
+                            0,
+                            it.getRange(),
+                            PowerComponentType.PRODUCER
+                    ));
+                }
+
+                case TRANSMITTER -> {
+                    IPowerTransmitter it = (IPowerTransmitter) component;
+                    powerComponentInfoList.add(new PowerComponentInfo(
+                            it.getPos(),
+                            0,
+                            0,
+                            0,
+                            0,
+                            it.getRange(),
+                            PowerComponentType.TRANSMITTER
+                    ));
+                }
+
+                default -> powerComponentInfoList.add(new PowerComponentInfo(
+                        component.getPos(),
                         0,
                         0,
-                        it.getPowerAmount(),
-                        it.getCapacity(),
-                        it.getRange()
-                )));
-        grid.producers.forEach(it -> infoMap.put(
-                it.getPos(),
-                new PowerComponentInfo(
-                        it.getPos(),
-                        0,
-                        it.getOutputPower(),
                         0,
                         0,
-                        it.getRange()
-                )));
-        grid.consumers.forEach(it -> infoMap.put(
-                it.getPos(),
-                new PowerComponentInfo(
-                        it.getPos(),
-                        it.getInputPower(),
-                        0,
-                        0,
-                        0,
-                        it.getRange()
-                )));
-        grid.transmitters.forEach(it -> infoMap.put(
-                it.getPos(),
-                new PowerComponentInfo(
-                        it.getPos(),
-                        0,
-                        0,
-                        0,
-                        0,
-                        it.getRange()
-                )));
-        infoMap.values().forEach(it -> {
-            this.ranges.put(it.pos(), it.range());
-            this.powerComponentInfoList.add(it);
-        });
+                        component.getRange(),
+                        PowerComponentType.INVALID
+                ));
+            }
+        }
+        for (PowerComponentInfo componentInfo : powerComponentInfoList) {
+            this.ranges.put(componentInfo.pos(), componentInfo.range());
+        }
         this.consume = grid.getConsume();
         this.generate = grid.getGenerate();
     }

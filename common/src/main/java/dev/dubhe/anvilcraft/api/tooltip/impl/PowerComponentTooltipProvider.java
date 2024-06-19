@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class PowerComponentTooltipProvider implements BlockEntityTooltipProvider {
 
@@ -32,18 +33,14 @@ public class PowerComponentTooltipProvider implements BlockEntityTooltipProvider
     @Override
     public List<Component> tooltip(BlockEntity e) {
         boolean overloaded = false;
-        IPowerComponent powerComponent;
         BlockPos pos;
-        BlockState state;
-        if (e instanceof IPowerComponent ipc) {
+        if (e instanceof IPowerComponent) {
             if (e.getBlockState().hasProperty(IPowerComponent.OVERLOAD)) {
                 overloaded = e.getBlockState()
                         .getValues()
                         .getOrDefault(IPowerComponent.OVERLOAD, true)
                         .equals(Boolean.TRUE);
             }
-            state = e.getBlockState();
-            powerComponent = ipc;
             pos = e.getBlockPos();
         } else {
             return List.of();
@@ -52,10 +49,12 @@ public class PowerComponentTooltipProvider implements BlockEntityTooltipProvider
         if (powerGrids.isEmpty()) return List.of();
         SimplePowerGrid grid = powerGrids.get(0);
         if (grid == null) return List.of();
-        final PowerComponentInfo componentInfo = grid.getMappedPowerComponentInfo().get(pos);
+        final Optional<PowerComponentInfo> optional = grid.getInfoForPos(pos);
+        if (optional.isEmpty()) return null;
+        PowerComponentInfo componentInfo = optional.get();
         overloaded |= grid.getConsume() > grid.getGenerate();
         final List<Component> lines = new ArrayList<>();
-        PowerComponentType type = powerComponent.getComponentType();
+        PowerComponentType type = componentInfo.type();
 
         if (overloaded) {
             for (int i = 1; i <= 3; i++) {
@@ -63,22 +62,20 @@ public class PowerComponentTooltipProvider implements BlockEntityTooltipProvider
             }
         }
         if (type == PowerComponentType.PRODUCER) {
-            IPowerProducer producer = (IPowerProducer) powerComponent;
             lines.add(Component.translatable("tooltip.anvilcraft.grid_information.producer_stats")
                     .setStyle(Style.EMPTY.applyFormat(ChatFormatting.BLUE))
             );
             lines.add(Component.translatable(
                     "tooltip.anvilcraft.grid_information.output_power",
-                    componentInfo == null ? producer.getOutputPower() : componentInfo.produces()
+                    componentInfo.produces()
             ).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
         } else if (type == PowerComponentType.CONSUMER) {
-            IPowerConsumer consumer = (IPowerConsumer) powerComponent;
             lines.add(Component.translatable("tooltip.anvilcraft.grid_information.consumer_stats")
                     .setStyle(Style.EMPTY.applyFormat(ChatFormatting.BLUE))
             );
             lines.add(Component.translatable(
                     "tooltip.anvilcraft.grid_information.input_power",
-                    componentInfo == null ? consumer.getInputPower() : componentInfo.consumes()
+                    componentInfo.consumes()
             ).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
         }
 
