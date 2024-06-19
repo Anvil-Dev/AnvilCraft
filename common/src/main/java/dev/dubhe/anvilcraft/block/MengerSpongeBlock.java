@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block;
 import dev.dubhe.anvilcraft.init.ModFluidTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -12,9 +13,23 @@ import net.minecraft.world.level.block.SpongeBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.stream.Stream;
+
 public class MengerSpongeBlock extends SpongeBlock {
+
+    private static final VoxelShape REDUCE_AABB = Stream.of(
+        Block.box(5.325, 0, 5.325, 10.675, 16, 10.675),
+        Block.box(0, 5.325, 5.325, 16, 10.675, 10.675),
+        Block.box(5.325, 5.325, 0, 10.675, 10.675, 16)
+    ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+
+    private static final VoxelShape AABB = Shapes.join(Shapes.block(), REDUCE_AABB, BooleanOp.NOT_SAME);
 
     private static final Direction[] ALL_DIRECTIONS = Direction.values();
     private BlockState state;
@@ -73,5 +88,23 @@ public class MengerSpongeBlock extends SpongeBlock {
                 }
             }
         }) > 1;
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public @NotNull VoxelShape getInteractionShape(
+        @NotNull BlockState state,
+        @NotNull BlockGetter level,
+        @NotNull BlockPos pos
+    ) {
+        return REDUCE_AABB;
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public @NotNull VoxelShape getShape(
+        @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context
+    ) {
+        return AABB;
     }
 }
