@@ -1,0 +1,55 @@
+{
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "block/block",
+	"textures": {
+		"0": "anvilcraft_skyland:block/stone_anvil_bottom",
+		"1": "anvilcraft_skyland:block/stone_anvil_side",
+		"2": "anvilcraft_skyland:block/stone_anvil_top",
+		"particle": "anvilcraft_skyland:block/stone_anvil_bottom"
+	},
+	"elements": [
+		{
+			"name": "Anvil base",
+			"from": [2, 0, 2],
+			"to": [14, 4, 14],
+			"faces": {
+				"north": {"uv": [2, 12, 14, 16], "texture": "#1"},
+				"east": {"uv": [2, 12, 14, 16], "texture": "#1"},
+				"south": {"uv": [2, 12, 14, 16], "texture": "#1"},
+				"west": {"uv": [2, 12, 14, 16], "texture": "#1"},
+				"up": {"uv": [2, 2, 14, 14], "rotation": 180, "texture": "#0"},
+				"down": {"uv": [2, 2, 14, 14], "rotation": 180, "texture": "#0", "cullface": "down"}
+			}
+		},
+		{
+			"name": "Wider section beneath top portion",
+			"from": [6, 4, 4],
+			"to": [10, 10, 12],
+			"faces": {
+				"north": {"uv": [6, 6, 10, 12], "texture": "#1"},
+				"east": {"uv": [4, 6, 12, 12], "texture": "#1"},
+				"south": {"uv": [6, 6, 10, 12], "texture": "#1"},
+				"west": {"uv": [4, 6, 12, 12], "texture": "#1"}
+			}
+		},
+		{
+			"name": "Anvil top",
+			"from": [3, 10, 0],
+			"to": [13, 16, 16],
+			"faces": {
+				"north": {"uv": [3, 0, 13, 6], "texture": "#1"},
+				"east": {"uv": [0, 0, 16, 6], "texture": "#1"},
+				"south": {"uv": [3, 0, 13, 6], "texture": "#1"},
+				"west": {"uv": [0, 0, 16, 6], "texture": "#1"},
+				"up": {"uv": [3, 0, 13, 16], "rotation": 180, "texture": "#2"},
+				"down": {"uv": [3, 0, 13, 16], "rotation": 180, "texture": "#2"}
+			}
+		}
+	],
+	"display": {
+		"fixed": {
+			"rotation": [0, 90, 0],
+			"scale": [0.5, 0.5, 0.5]
+		}
+	}
+}
