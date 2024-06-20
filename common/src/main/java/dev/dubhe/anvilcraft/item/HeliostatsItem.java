@@ -138,7 +138,7 @@ public class HeliostatsItem extends BlockItem {
     public @NotNull InteractionResult useOn(@NotNull UseOnContext context) {
         Level level = context.getLevel();
         if (level.isClientSide) return InteractionResult.PASS;
-        if (context.getPlayer().isShiftKeyDown()) {
+        if (context.getPlayer() != null && context.getPlayer().isShiftKeyDown()) {
             if (hasDataStored(context.getItemInHand())) {
                 deleteData(context.getItemInHand());
             }

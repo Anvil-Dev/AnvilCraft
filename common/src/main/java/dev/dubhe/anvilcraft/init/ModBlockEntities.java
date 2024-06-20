@@ -27,6 +27,7 @@ import dev.dubhe.anvilcraft.block.entity.ThermoelectricConverterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CorruptedBeaconRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HasMobBlockRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.HeliostatsRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LaseRenderer;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
@@ -160,6 +161,7 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<HeliostatsBlockEntity> HELIOSTATS = REGISTRATE
             .blockEntity("heliostats", HeliostatsBlockEntity::new)
             .validBlocks(ModBlocks.HELIOSTATS)
+            .renderer(() -> HeliostatsRenderer::new)
             .register();
 
     public static void register() {
