@@ -13,11 +13,14 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -40,14 +43,33 @@ import javax.annotation.Nonnull;
 
 public class InductionLightBlock extends BaseEntityBlock implements IHammerRemovable, SimpleWaterloggedBlock {
 
+
+
+    public record ColorType(String name){
+        public static final ColorType PRIMARY;
+        public static final ColorType PINK;
+        public static final ColorType YELLOW;
+        public static final ColorType DARK;
+
+        static {
+            PRIMARY = new ColorType("PRIMARY");
+            PINK = new ColorType("PINK");
+            YELLOW = new ColorType("YELLOW");
+            DARK = new ColorType("DARK");
+        }
+    }
+
     public static final VoxelShape SHAPE_X = Block.box(0, 6, 6, 16, 10, 10);
     public static final VoxelShape SHAPE_Y = Block.box(6, 0, 6, 10, 16, 10);
     public static final VoxelShape SHAPE_Z = Block.box(6, 6, 0, 10, 10, 16);
+
+
 
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
     public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.AXIS;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
+    public static ColorType COLOR = ColorType.PRIMARY;
 
     /**
      *
@@ -127,20 +149,29 @@ public class InductionLightBlock extends BaseEntityBlock implements IHammerRemov
             @NotNull InteractionHand hand,
             @NotNull BlockHitResult hit
     ) {
-        InteractionResult tried = BlockPlaceAssist.tryPlace(
-            state,
-            level,
-            pos,
-            player,
-            hand,
-            hit,
-            ModBlocks.INDUCTION_LIGHT.asItem(),
-            AXIS,
-            ModBlocks.INDUCTION_LIGHT.getDefaultState());
+        ItemStack itemInHand=player.getItemInHand(hand);
+        if(itemInHand.is(ModBlocks.INDUCTION_LIGHT.asItem())) {
+            InteractionResult tried = BlockPlaceAssist.tryPlace(
+                state,
+                level,
+                pos,
+                player,
+                hand,
+                hit,
+                ModBlocks.INDUCTION_LIGHT.asItem(),
+                AXIS,
+                ModBlocks.INDUCTION_LIGHT.getDefaultState());
 
-        tried.shouldAwardStats();
+            tried.shouldAwardStats();
 
-        return tried;
+            return tried;
+        } else if (itemInHand.is(Items.REDSTONE)) {
+            COLOR=ColorType.PINK;
+            return InteractionResult.SUCCESS;
+        } else if (itemInHand.is(Items.GLOWSTONE_DUST)) {
+            return InteractionResult.SUCCESS;
+        }
+        return InteractionResult.PASS;
     }
 
     @Nullable
@@ -183,4 +214,5 @@ public class InductionLightBlock extends BaseEntityBlock implements IHammerRemov
             level.setBlock(pos, state.cycle(POWERED), 2);
         }
     }
+
 }
