@@ -17,6 +17,6 @@ public class RegisterAdditionalEventListener {
     public static void registerModels(ModelEvent.RegisterAdditional event) {
         event.register(new ModelResourceLocation("anvilcraft", "crab_claw_holding_block", "inventory"));
         event.register(new ModelResourceLocation("anvilcraft", "crab_claw_holding_item", "inventory"));
-        event.register(new ModelResourceLocation("anvilcraft", "heliostats_head", "inventory"));
+        event.register(new ModelResourceLocation("anvilcraft", "heliostats_head", ""));
     }
 }
