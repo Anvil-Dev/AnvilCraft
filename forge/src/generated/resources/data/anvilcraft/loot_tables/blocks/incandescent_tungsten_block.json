@@ -11,7 +11,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "anvilcraft:incandescent_tungsten_block"
+          "name": "anvilcraft:tungsten_block"
         }
       ],
       "rolls": 1.0

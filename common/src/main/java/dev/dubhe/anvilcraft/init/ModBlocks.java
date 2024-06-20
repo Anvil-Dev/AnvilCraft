@@ -1860,6 +1860,7 @@ public class ModBlocks {
         .block("heated_netherite_block", Block::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
         .simpleItem()
+        .loot((tables, block) -> tables.dropOther(block, Items.NETHERITE_BLOCK))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
@@ -1867,6 +1868,7 @@ public class ModBlocks {
         .block("heated_tungsten_block", Block::new)
         .initialProperties(ModBlocks.TUNGSTEN_BLOCK)
         .simpleItem()
+        .loot((tables, block) -> tables.dropOther(block, ModBlocks.TUNGSTEN_BLOCK))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
@@ -1875,6 +1877,7 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
         .properties(p -> p.lightLevel(it -> 3))
         .simpleItem()
+        .loot((tables, block) -> tables.dropOther(block, Items.NETHERITE_BLOCK))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
@@ -1883,6 +1886,7 @@ public class ModBlocks {
         .initialProperties(ModBlocks.TUNGSTEN_BLOCK)
         .properties(p -> p.lightLevel(it -> 3))
         .simpleItem()
+        .loot((tables, block) -> tables.dropOther(block, ModBlocks.TUNGSTEN_BLOCK))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
@@ -1891,6 +1895,7 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
         .properties(p -> p.lightLevel(it -> 7))
         .simpleItem()
+        .loot((tables, block) -> tables.dropOther(block, Items.NETHERITE_BLOCK))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
@@ -1899,6 +1904,7 @@ public class ModBlocks {
         .initialProperties(ModBlocks.TUNGSTEN_BLOCK)
         .properties(p -> p.lightLevel(it -> 7))
         .simpleItem()
+        .loot((tables, block) -> tables.dropOther(block, ModBlocks.TUNGSTEN_BLOCK))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
@@ -1907,6 +1913,7 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
         .properties(p -> p.lightLevel(it -> 15))
         .simpleItem()
+        .loot((tables, block) -> tables.dropOther(block, Items.NETHERITE_BLOCK))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
@@ -1915,6 +1922,7 @@ public class ModBlocks {
         .initialProperties(ModBlocks.TUNGSTEN_BLOCK)
         .properties(p -> p.lightLevel(it -> 15))
         .simpleItem()
+        .loot((tables, block) -> tables.dropOther(block, ModBlocks.TUNGSTEN_BLOCK))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
