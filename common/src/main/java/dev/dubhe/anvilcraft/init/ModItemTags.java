@@ -62,6 +62,10 @@ public class ModItemTags {
     public static final TagKey<Item> RAW_SILVER = bindC("raw_silver_ores");
     public static final TagKey<Item> RAW_URANIUM = bindC("raw_uranium_ores");
 
+    public static final TagKey<Item> VEGETABLES = bindC("vegetables");
+    public static final TagKey<Item> SEEDS = bindC("seeds");
+    public static final TagKey<Item> BERRIES = bindC("berries");
+
 
     public static final TagKey<Item> FLOUR_FORGE = bindForge("flour");
     public static final TagKey<Item> WHEAT_FLOUR_FORGE = bindForge("flour/wheat");
@@ -115,6 +119,10 @@ public class ModItemTags {
     public static final TagKey<Item> RAW_SILVER_FORGE = bindForge("raw_materials/silver");
     public static final TagKey<Item> RAW_URANIUM_FORGE = bindForge("raw_materials/uranium");
 
+    public static final TagKey<Item> VEGETABLES_FORGE = bindForge("vegetables");
+    public static final TagKey<Item> SEEDS_FORGE = bindForge("seeds");
+    public static final TagKey<Item> BERRIES_FORGE = bindForge("berries");
+
 
     public static final TagKey<Item> ROYAL_STEEL_PICKAXE_BASE = bind("royal_steel_pickaxe_base");
     public static final TagKey<Item> ROYAL_STEEL_AXE_BASE = bind("royal_steel_axe_base");
@@ -127,6 +135,7 @@ public class ModItemTags {
     public static final TagKey<Item> DEAD_TUBE = bind("dead_tube");
     public static final TagKey<Item> VOID_RESISTANT = bind("void_resistant");
     public static final TagKey<Item> REINFORCED_CONCRETE = bind("reinforced_concrete");
+    public static final TagKey<Item> SEEDS_PACK_CONTENT = bind("seeds_pack_content");
 
     private static @NotNull TagKey<Item> bindC(String id) {
         return TagKey.create(Registries.ITEM, new ResourceLocation("c", id));
