@@ -60,7 +60,7 @@ public class BonemealManager {
                         && !growable.getClass().equals(NyliumBlock.class)
                         && !isInSet(set, new Tuple<>(pos1, level))
                         && growable.isValidBonemealTarget(level, pos1, state, false)
-                        && level.getBrightness(LightLayer.BLOCK,pos1) >= 10
+                        && level.getBrightness(LightLayer.BLOCK, pos1) >= 10
                     ) {
                         growable.performBonemeal(
                             (ServerLevel) level,
