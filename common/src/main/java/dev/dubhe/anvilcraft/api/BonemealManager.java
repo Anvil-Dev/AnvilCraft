@@ -45,18 +45,6 @@ public class BonemealManager {
         return false;
     }
 
-    private static boolean isInSet(Tuple<BlockPos, Level> item) {
-        for (Tuple<BlockPos, Level> cur : BonemealManager.lightBlocks) {
-            if (cur.getA().getX() == item.getA().getX()
-                && cur.getA().getY() == item.getA().getY()
-                && cur.getA().getZ() == item.getA().getZ()
-                && cur.getB().dimension() == item.getB().dimension()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private static HashSet<Tuple<BlockPos, Level>> doRipen(
         @NotNull Level level, @NotNull BlockPos pos, @NotNull HashSet<Tuple<BlockPos, Level>> set) {
         int rangeSize = AnvilCraft.config.inductionLightBlockRipeningRange;
@@ -120,8 +108,6 @@ public class BonemealManager {
      *
      */
     public static void addLightBlock(BlockPos pos, Level level) {
-        if (isInSet(new Tuple<>(pos, level))) {
-            lightBlocks.add(new Tuple<>(pos, level));
-        }
+        lightBlocks.add(new Tuple<>(pos, level));
     }
 }
