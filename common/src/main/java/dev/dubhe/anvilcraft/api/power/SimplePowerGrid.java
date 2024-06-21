@@ -15,10 +15,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -40,11 +38,10 @@ public class SimplePowerGrid {
     private final int hash;
     private final String level;
     private final BlockPos pos;
-    private final Map<BlockPos, Integer> ranges = new HashMap<>();
-    private List<BlockPos> blocks = new ArrayList<>();
+    private final List<BlockPos> blocks = new ArrayList<>();
     private final List<PowerComponentInfo> powerComponentInfoList = new ArrayList<>();
-    private int generate = 0; // 发电功率
-    private int consume = 0;  // 耗电功率
+    private final int generate; // 发电功率
+    private final int consume;  // 耗电功率
 
     /**
      * 简单电网
@@ -70,28 +67,12 @@ public class SimplePowerGrid {
      * @param buf 缓冲区
      */
     public void encode(@NotNull FriendlyByteBuf buf) {
-        this.blocks = ranges.keySet().stream().toList();
-        var tag1 = CODEC.encodeStart(NbtOps.INSTANCE, this);
         Tag tag = CODEC.encodeStart(NbtOps.INSTANCE, this)
                 .getOrThrow(false, ignored -> {
                 });
         CompoundTag data = new CompoundTag();
         data.put("data", tag);
         buf.writeNbt(data);
-    }
-
-    /**
-     * @param buf 缓冲区
-     */
-    @Deprecated
-    public SimplePowerGrid(@NotNull FriendlyByteBuf buf) {
-        this.hash = buf.readInt();
-        this.level = buf.readUtf();
-        this.pos = buf.readBlockPos();
-        int size = buf.readVarInt();
-        for (int i = 0; i < size; i++) {
-            this.ranges.put(buf.readBlockPos(), buf.readInt());
-        }
     }
 
     /**
@@ -177,9 +158,6 @@ public class SimplePowerGrid {
                         PowerComponentType.INVALID
                 ));
             }
-        }
-        for (PowerComponentInfo componentInfo : powerComponentInfoList) {
-            this.ranges.put(componentInfo.pos(), componentInfo.range());
         }
         this.consume = grid.getConsume();
         this.generate = grid.getGenerate();

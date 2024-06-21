@@ -1,9 +1,11 @@
-package dev.dubhe.anvilcraft.api.tooltip.forge;
+package dev.dubhe.anvilcraft.mixin.forge;
 
 import dev.dubhe.anvilcraft.api.tooltip.HudTooltipManager;
 import dev.dubhe.anvilcraft.item.IEngineerGoggles;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -12,12 +14,26 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
-import net.minecraftforge.client.gui.overlay.IGuiOverlay;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-public class AnvilCraftGuiOverlay implements IGuiOverlay {
-    @Override
-    public void render(ForgeGui forgeGui, GuiGraphics guiGraphics, float partialTick, int screenWidth, int screenHeight) {
-        Minecraft minecraft = Minecraft.getInstance();
+@Mixin(ForgeGui.class)
+public class ForgeGuiMixin extends Gui {
+    public ForgeGuiMixin(Minecraft minecraft, ItemRenderer itemRenderer) {
+        super(minecraft, itemRenderer);
+    }
+
+    @Inject(
+            method = "render",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderColor(FFFF)V",
+                    shift = At.Shift.AFTER
+            )
+    )
+    void onHudRender(GuiGraphics guiGraphics, float partialTick, CallbackInfo ci) {
         if (minecraft.player == null || minecraft.isPaused()) return;
         if (minecraft.screen != null) return;
         ItemStack mainHandItem = minecraft.player.getItemInHand(InteractionHand.MAIN_HAND);
@@ -45,4 +61,5 @@ public class AnvilCraftGuiOverlay implements IGuiOverlay {
             HudTooltipManager.INSTANCE.renderTooltip(guiGraphics, e, partialTick, screenWidth, screenHeight);
         }
     }
+
 }
