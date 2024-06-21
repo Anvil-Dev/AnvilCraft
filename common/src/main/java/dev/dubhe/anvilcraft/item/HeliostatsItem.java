@@ -101,7 +101,7 @@ public class HeliostatsItem extends BlockItem {
         BlockPos irritatePos = new BlockPos(x, y, z);
         BlockEntity entity = level.getBlockEntity(pos);
         if (entity instanceof HeliostatsBlockEntity e) {
-            if (!e.trySetIrritatePos(irritatePos) && player != null) {
+            if (!e.setIrritatePos(irritatePos) && player != null) {
                 player.displayClientMessage(
                         Component.translatable("block.anvilcraft.heliostats.invalid_placement")
                                 .withStyle(ChatFormatting.RED),

@@ -17,6 +17,7 @@ public class HeliostatsIrradiationPack implements Packet {
     private final Vector3f normalVector3f;
     private final Vector3f irritateVector3f;
     private final float irritateDistance;
+    private final HeliostatsBlockEntity.WorkResult workResult;
 
     /**
      * 定日镜照射网络包
@@ -25,12 +26,14 @@ public class HeliostatsIrradiationPack implements Packet {
             BlockPos blockPos,
             Vector3f normalVector3f,
             Vector3f irritateVector3f,
-            float irritateDistance
+            float irritateDistance,
+            HeliostatsBlockEntity.WorkResult workResult
     ) {
         this.blockPos = blockPos;
         this.normalVector3f = normalVector3f;
         this.irritateVector3f = irritateVector3f;
         this.irritateDistance = irritateDistance;
+        this.workResult = workResult;
     }
 
     /**
@@ -41,6 +44,8 @@ public class HeliostatsIrradiationPack implements Packet {
         this.normalVector3f = buf.readVector3f();
         this.irritateVector3f = buf.readVector3f();
         this.irritateDistance = buf.readFloat();
+        this.workResult = HeliostatsBlockEntity.WorkResult.valueOf(buf.readUtf());
+
     }
 
     @Override
@@ -54,6 +59,7 @@ public class HeliostatsIrradiationPack implements Packet {
         buf.writeVector3f(normalVector3f);
         buf.writeVector3f(irritateVector3f);
         buf.writeFloat(irritateDistance);
+        buf.writeUtf(workResult.name());
     }
 
     @Override
@@ -66,6 +72,7 @@ public class HeliostatsIrradiationPack implements Packet {
                 heliostatsBlockEntity.setNormalVector3f(normalVector3f);
                 heliostatsBlockEntity.setIrritateVector3f(irritateVector3f);
                 heliostatsBlockEntity.setIrritateDistance(irritateDistance);
+                heliostatsBlockEntity.setWorkResult(workResult);
             }
         });
     }
