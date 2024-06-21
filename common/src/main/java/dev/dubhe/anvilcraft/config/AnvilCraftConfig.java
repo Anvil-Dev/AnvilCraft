@@ -113,7 +113,7 @@ public class AnvilCraftConfig implements ConfigData {
     public boolean isLaserDoImpactChecking = true;
 
     @ConfigEntry.Gui.Tooltip
-    public int inductionLightBlockRipeningCooldown = 80;
+    public int inductionLightBlockRipeningCooldown = 400;
 
     @ConfigEntry.Gui.Tooltip
     @ConfigEntry.BoundedDiscrete(min = 0, max = 100)

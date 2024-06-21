@@ -8,6 +8,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.GrassBlock;
 import net.minecraft.world.level.block.NyliumBlock;
@@ -59,6 +60,7 @@ public class BonemealManager {
                         && !growable.getClass().equals(NyliumBlock.class)
                         && !isInSet(set, new Tuple<>(pos1, level))
                         && growable.isValidBonemealTarget(level, pos1, state, false)
+                        && level.getBrightness(LightLayer.BLOCK,pos1) >= 10
                     ) {
                         growable.performBonemeal(
                             (ServerLevel) level,
