@@ -4,31 +4,45 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.InductionLightBlock;
 import dev.dubhe.anvilcraft.block.state.LightColor;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.GrassBlock;
 import net.minecraft.world.level.block.NyliumBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 
 public class BonemealManager {
     private static int cooldown = 0;
-    private static final Set<Tuple<BlockPos, Level>> lightBlocks = Collections.synchronizedSet(new HashSet<>());
+    private static Set<Tuple<BlockPos, Level>> lightBlocks = Collections.synchronizedSet(new HashSet<>());
 
     private static boolean isLighting(@NotNull BlockState state) {
-        return state.getValue(InductionLightBlock.POWERED)
-            || state.getValue(InductionLightBlock.OVERLOAD);
+        return !(state.getValue(InductionLightBlock.POWERED)
+            || state.getValue(InductionLightBlock.OVERLOAD));
     }
 
     private static boolean canCropGrow(@NotNull BlockState state) {
         return state.getValue(InductionLightBlock.COLOR).equals(LightColor.PINK);
+    }
+
+    private static boolean isInSet(HashSet<Tuple<BlockPos, Level>> set, Tuple<BlockPos, Level> item) {
+        Iterator<Tuple<BlockPos, Level>> it = set.iterator();
+        while (it.hasNext()){
+            Tuple<BlockPos,Level> cur = it.next();
+            if( cur.getA().getX()==item.getA().getX()
+                && cur.getA().getY()==item.getA().getY()
+                && cur.getA().getZ()==item.getA().getZ()
+                && cur.getB().dimension()==item.getB().dimension()){
+                return true;
+            }
+        }
+        return false;
     }
 
     private static HashSet<Tuple<BlockPos, Level>> doRipen(
@@ -43,11 +57,13 @@ public class BonemealManager {
                     if (state.getBlock() instanceof BonemealableBlock growable
                         && !growable.getClass().equals(GrassBlock.class)
                         && !growable.getClass().equals(NyliumBlock.class)
-                        && !set.contains(new Tuple<>(pos1, level))
+                        && !isInSet(set,new Tuple<>(pos1, level))
+                        && growable.isValidBonemealTarget(level, pos1, state, false)
                     ) {
                         growable.performBonemeal(
                             (ServerLevel) level,
                             level.getRandom(), pos1, state);
+                        level.addParticle(ParticleTypes.HAPPY_VILLAGER,pos1.getX()+0.5,pos1.getY()+0.5,pos1.getZ()+0.5,0.0,0.0,0.0);
                         ripened.add(new Tuple<>(pos1, level));
                     }
                 }
@@ -61,26 +77,26 @@ public class BonemealManager {
      */
     public static void tick() {
         cooldown--;
+
         if (cooldown <= 0 && !lightBlocks.isEmpty()) {
             cooldown = AnvilCraft.config.inductionLightBlockRipeningCooldown;
             HashSet<Tuple<BlockPos, Level>> ripenedBlocks = new HashSet<>();
-            for (Tuple<BlockPos, Level> lightBlock : lightBlocks) {
+            Iterator<Tuple<BlockPos, Level>> it=lightBlocks.iterator();
+            while (it.hasNext()) {
+                Tuple<BlockPos, Level> lightBlock= (Tuple<BlockPos, Level>) it.next();
                 BlockState lightBlockState = lightBlock.getB().getBlockState(lightBlock.getA());
                 if (lightBlockState.getBlock() instanceof InductionLightBlock) {
                     if (isLighting(lightBlockState) && canCropGrow(lightBlockState)) {
                         HashSet<Tuple<BlockPos, Level>> newRipened =
                             doRipen(lightBlock.getB(), lightBlock.getA(), ripenedBlocks);
                         ripenedBlocks.addAll(newRipened);
-                    } else {
-                        lightBlocks.remove(lightBlock);
                     }
                 } else {
-                    lightBlocks.remove(lightBlock);
+                    it.remove();
                 }
             }
-            System.out.println(lightBlocks.size());
-            System.out.println(ripenedBlocks.size());
         }
+
     }
 
     /**
@@ -89,11 +105,6 @@ public class BonemealManager {
     public static void addLightBlock(BlockPos pos, Level level) {
         if (!lightBlocks.contains(new Tuple<>(pos, level))) {
             lightBlocks.add(new Tuple<>(pos, level));
-            System.out.println(pos + " at " + level + " size:" + lightBlocks.size());
         }
-    }
-
-    public static void removeLightBlock(BlockPos pos, Level level) {
-        lightBlocks.remove(new Tuple<>(pos, level));
     }
 }
