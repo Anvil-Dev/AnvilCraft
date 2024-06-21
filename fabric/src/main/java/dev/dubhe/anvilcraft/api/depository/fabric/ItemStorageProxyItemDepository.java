@@ -75,6 +75,19 @@ public class ItemStorageProxyItemDepository implements IItemDepository {
     }
 
     @Override
+    public ItemStack getStackNoClone(int slot) {
+        StorageView<ItemVariant> view = this.views.get(slot);
+        if (view instanceof SingleStackStorage singleStackStorage) {
+            try {
+                return ((ItemStack) METHOD_GET_STACK.invoke(singleStackStorage));
+            } catch (Throwable ignored) {
+                return view.getResource().toStack((int) view.getAmount());
+            }
+        }
+        return view.getResource().toStack((int) view.getAmount());
+    }
+
+    @Override
     public void setStack(int slot, ItemStack stack) {
         // TODO
     }
@@ -114,7 +127,11 @@ public class ItemStorageProxyItemDepository implements IItemDepository {
             int extracted;
             if (simulate) {
                 extracted =
-                        (int) StorageUtil.simulateExtract(this.views.get(slot), ItemVariant.of(stack), amount, transaction);
+                        (int) StorageUtil.simulateExtract(
+                                this.views.get(slot),
+                                ItemVariant.of(stack),
+                                amount, transaction
+                        );
             } else {
                 extracted = (int) this.views.get(slot).extract(ItemVariant.of(stack), amount, transaction);
             }

@@ -23,6 +23,17 @@ public interface IItemDepository {
     ItemStack getStack(int slot);
 
     /**
+     * 不拷贝地获取指定槽位中的物品堆
+     * 此方法仅用于插入物品检查 避免过多次拷贝
+     *
+     * @param slot 槽位
+     * @return 指定槽位中的物品堆栈
+     */
+    default ItemStack getStackNoClone(int slot) {
+        return getStack(slot);
+    }
+
+    /**
      * 向指定槽位放入物品堆栈
      *
      * @param slot  槽位
