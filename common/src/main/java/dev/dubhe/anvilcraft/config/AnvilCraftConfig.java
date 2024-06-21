@@ -115,6 +115,10 @@ public class AnvilCraftConfig implements ConfigData {
     @ConfigEntry.Gui.Tooltip
     public int inductionLightBlockRipeningCooldown = 80;
 
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(min = 0, max = 100)
+    public int inductionLightBlockRipeningRange = 5;
+
     public static class PowerConverter implements ConfigData {
         @Comment("The working interval of power converters")
         @ConfigEntry.Gui.Tooltip

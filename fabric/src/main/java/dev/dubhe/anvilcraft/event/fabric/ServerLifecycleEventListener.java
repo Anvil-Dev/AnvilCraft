@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.event.fabric;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.BonemealManager;
 import dev.dubhe.anvilcraft.api.chargecollector.ThermoManager;
 import dev.dubhe.anvilcraft.api.event.server.ServerEndDataPackReloadEvent;
 import dev.dubhe.anvilcraft.api.event.server.ServerStartedEvent;
@@ -38,6 +39,7 @@ public class ServerLifecycleEventListener {
     private static void startTick(MinecraftServer server) {
         PowerGrid.tickGrid();
         ThermoManager.tick();
+        BonemealManager.tick();
         RandomChuckTickLoadManager.tick();
     }
 
