@@ -17,7 +17,9 @@ import net.minecraft.client.renderer.RenderBuffers;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
@@ -61,6 +63,26 @@ abstract class LevelRendererMixin {
             @NotNull ProfilerFiller profilerFiller, @NotNull Vec3 vec3
     ) {
         Entity entity = camera.getEntity();
+        MultiBufferSource.BufferSource bufferSource = this.renderBuffers.bufferSource();
+        VertexConsumer vertexConsumer3 = bufferSource.getBuffer(RenderType.lines());
+        double camX = vec3.x();
+        double camY = vec3.y();
+        double camZ = vec3.z();
+        if (entity instanceof LivingEntity livingEntity) {
+            ItemStack mainHandItem = livingEntity.getItemInHand(InteractionHand.MAIN_HAND);
+            ItemStack offHandItem = livingEntity.getItemInHand(InteractionHand.OFF_HAND);
+            ItemStack handItem = mainHandItem.isEmpty() ? offHandItem : mainHandItem;
+            if (!handItem.isEmpty()) {
+                HudTooltipManager.INSTANCE.renderHandItemLevelTooltip(
+                        handItem,
+                        poseStack,
+                        vertexConsumer3,
+                        camX,
+                        camY,
+                        camZ
+                );
+            }
+        }
         boolean bl = true;
         for (ItemStack slot : entity.getArmorSlots()) {
             if (slot.getItem() instanceof IEngineerGoggles) {
@@ -69,11 +91,6 @@ abstract class LevelRendererMixin {
             }
         }
         if (bl) return;
-        MultiBufferSource.BufferSource bufferSource = this.renderBuffers.bufferSource();
-        VertexConsumer vertexConsumer3 = bufferSource.getBuffer(RenderType.lines());
-        double camX = vec3.x();
-        double camY = vec3.y();
-        double camZ = vec3.z();
         profilerFiller.popPush("grid");
         PowerGridRenderer.render(poseStack, vertexConsumer3, camX, camY, camZ);
         HitResult hit = minecraft.hitResult;

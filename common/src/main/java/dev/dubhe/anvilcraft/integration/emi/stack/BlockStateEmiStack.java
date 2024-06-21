@@ -4,15 +4,19 @@ import com.google.common.collect.Lists;
 import dev.dubhe.anvilcraft.util.BlockStateRender;
 import dev.emi.emi.EmiPort;
 import dev.emi.emi.api.stack.EmiStack;
+import lombok.Getter;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,12 +24,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Getter
 public class BlockStateEmiStack extends EmiStack {
-    private static final Minecraft MINECRAFT = Minecraft.getInstance();
-    private final BlockState state;
+    public static final BlockStateEmiStack EMPTY = BlockStateEmiStack.of(Blocks.AIR);
+    private final @NotNull BlockState state;
 
-    public BlockStateEmiStack(BlockState state) {
+    private BlockStateEmiStack(@NotNull BlockState state) {
         this.state = state;
+    }
+
+    public static @NotNull BlockStateEmiStack of(@NotNull BlockState state) {
+        return new BlockStateEmiStack(state);
+    }
+
+    public static @NotNull BlockStateEmiStack of(@NotNull Block block) {
+        return new BlockStateEmiStack(block.defaultBlockState());
     }
 
     @Override
@@ -55,6 +68,8 @@ public class BlockStateEmiStack extends EmiStack {
 
     @Override
     public Object getKey() {
+        Item item = this.state.getBlock().asItem();
+        if (item != Items.AIR) return item;
         return this.state.getBlock();
     }
 
@@ -68,7 +83,11 @@ public class BlockStateEmiStack extends EmiStack {
         return BlockStateEmiStack.getTooltipLines(this.state);
     }
 
-    private static @NotNull List<Component> getTooltipLines(@NotNull BlockState state) {
+    /**
+     * @param state 方块状态
+     * @return 工具提示
+     */
+    public static @NotNull List<Component> getTooltipLines(@NotNull BlockState state) {
         ArrayList<Component> list = Lists.newArrayList();
         ChatFormatting color = state.getBlock().asItem().getDefaultInstance().getRarity().color;
         Component name = Component.translatable(state.getBlock().getDescriptionId());

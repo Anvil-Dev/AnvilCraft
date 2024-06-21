@@ -1,5 +1,6 @@
 {
   "type": "anvilcraft:anvil_processing",
+  "anvil_recipe_type": "timewarp",
   "icon": {
     "item": "minecraft:raw_iron"
   },

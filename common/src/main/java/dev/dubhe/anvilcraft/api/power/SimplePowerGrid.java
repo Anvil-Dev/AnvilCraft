@@ -177,7 +177,7 @@ public class SimplePowerGrid {
      * 寻找电网
      */
     public static List<SimplePowerGrid> findPowerGrid(BlockPos pos) {
-        return PowerGridRenderer.getGrids()
+        return PowerGridRenderer.getGridMap()
                 .values().stream()
                 .filter(it -> it.blocks.stream().anyMatch(it1 -> it1.equals(pos)))
                 .toList();

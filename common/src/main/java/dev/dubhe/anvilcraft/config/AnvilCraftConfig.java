@@ -125,7 +125,7 @@ public class AnvilCraftConfig implements ConfigData {
         @ConfigEntry.BoundedDiscrete(min = 1, max = 60)
         public int powerConverterCountdown = 10;
 
-        @Comment("Energy efficiency of energy converters (1 KW => xx FE/t)")
+        @Comment("Energy efficiency of energy converters (1 kW => xx FE/t)")
         @ConfigEntry.Gui.Tooltip
         @ConfigEntry.BoundedDiscrete(min = 1, max = 1000)
         public int powerConverterEfficiency = 80;

@@ -1,8 +1,11 @@
 package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.api.event.SubscribeEvent;
+import dev.dubhe.anvilcraft.api.event.server.ServerEndDataPackReloadEvent;
 import dev.dubhe.anvilcraft.api.event.server.ServerStartedEvent;
 import dev.dubhe.anvilcraft.api.hammer.HammerManager;
+import dev.dubhe.anvilcraft.api.recipe.AnvilRecipeManager;
+import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
 import dev.dubhe.anvilcraft.init.ModHammerInits;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,5 +19,13 @@ public class ServerEventListener {
     public void onServerStarted(@NotNull ServerStartedEvent event) {
         ModHammerInits.init();
         HammerManager.register();
+        AnvilRecipeManager.updateRecipes(event.getServer());
+        LevelLoadManager.notifyServerStarted();
     }
+
+    @SubscribeEvent
+    public void onServerEndDataPackReload(@NotNull ServerEndDataPackReloadEvent event) {
+        AnvilRecipeManager.updateRecipes(event.getServer());
+    }
+
 }

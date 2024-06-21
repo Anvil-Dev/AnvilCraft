@@ -9,9 +9,11 @@ import java.util.function.Function;
 @Getter
 public abstract class ThermoEntry {
     private final int charge;
+    private final boolean canIrritated;
 
-    public ThermoEntry(int charge) {
+    public ThermoEntry(int charge, boolean canIrritated) {
         this.charge = charge;
+        this.canIrritated = canIrritated;
     }
 
     public int ttl() {
@@ -21,21 +23,22 @@ public abstract class ThermoEntry {
     public static ThermoEntry predicate(
             int charge,
             java.util.function.Predicate<BlockState> predicate,
-            Function<BlockState, BlockState> transformer
+            Function<BlockState, BlockState> transformer,
+            boolean canIrritated
     ) {
-        return new Predicate(charge, predicate, transformer);
+        return new Predicate(charge, predicate, transformer, canIrritated);
     }
 
     public abstract int accepts(BlockState state);
 
     public abstract BlockState transform(BlockState state);
 
-    public static ThermoEntry simple(int charge, Block input, Block output) {
-        return new Simple(charge, input, output);
+    public static ThermoEntry simple(int charge, Block input, Block output, boolean canIrritated) {
+        return new Simple(charge, input, output, canIrritated);
     }
 
-    public static ThermoEntry always(int charge, Block block) {
-        return new Always(charge, block);
+    public static ThermoEntry always(int charge, Block block, boolean canIrritated) {
+        return new Always(charge, block, canIrritated);
     }
 
     static class Predicate extends ThermoEntry {
@@ -45,9 +48,10 @@ public abstract class ThermoEntry {
         public Predicate(
                 int charge,
                 java.util.function.Predicate<BlockState> input,
-                Function<BlockState, BlockState> transformer
+                Function<BlockState, BlockState> transformer,
+                boolean canIrritated
         ) {
-            super(charge);
+            super(charge, canIrritated);
             this.input = input;
             this.transformer = transformer;
         }
@@ -71,8 +75,8 @@ public abstract class ThermoEntry {
         private final Block input;
         private final Block output;
 
-        public Simple(int charge, Block input, Block output) {
-            super(charge);
+        public Simple(int charge, Block input, Block output, boolean canIrritated) {
+            super(charge, canIrritated);
             this.input = input;
             this.output = output;
         }
@@ -92,8 +96,8 @@ public abstract class ThermoEntry {
 
         private final Block block;
 
-        public Always(int charge, Block input) {
-            super(charge);
+        public Always(int charge, Block input, boolean canIrritated) {
+            super(charge, canIrritated);
             this.block = input;
         }
 

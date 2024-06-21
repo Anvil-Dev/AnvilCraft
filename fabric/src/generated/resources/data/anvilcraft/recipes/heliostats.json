@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "anvilcraft:silver_ingot"
+    },
+    "B": {
+      "item": "minecraft:sunflower"
+    },
+    "C": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "pattern": [
+    "AAA",
+    " B ",
+    " C "
+  ],
+  "result": {
+    "count": 16,
+    "item": "anvilcraft:heliostats"
+  },
+  "show_notification": true
+}

@@ -45,6 +45,7 @@ public class SlotDisableChangePack implements Packet {
             if (!player.hasContainerOpen()) return;
             if (!(player.containerMenu instanceof IFilterMenu menu)) return;
             menu.setSlotDisabled(this.index, this.state);
+            menu.flush();
             this.send(player);
         });
     }
@@ -54,7 +55,7 @@ public class SlotDisableChangePack implements Packet {
     public void handler() {
         Minecraft client = Minecraft.getInstance();
         client.execute(() -> {
-            if (!(client.screen instanceof IFilterScreen screen)) return;
+            if (!(client.screen instanceof IFilterScreen<?> screen)) return;
             screen.setSlotDisabled(this.index, this.state);
         });
     }

@@ -1,8 +1,8 @@
 {
   "replace": false,
   "values": [
-    "anvilcraft:void_matter",
+    "anvilcraft:void_stone",
     "anvilcraft:void_matter_block",
-    "anvilcraft:void_stone"
+    "anvilcraft:void_matter"
   ]
 }

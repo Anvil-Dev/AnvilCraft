@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.data.RecipeItem;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -28,41 +29,27 @@ public class TimeWarpRecipesLoader {
     public static void init(RegistrateRecipeProvider provider) {
         TimeWarpRecipesLoader.provider = provider;
         timeWarpWithWater(ModItems.SEA_HEART_SHELL_SHARD, ModItems.SEA_HEART_SHELL);
-        timeWarp(new RecipeItem(ModItems.RESIN), new RecipeItem(ModItems.AMBER));
-        timeWarp(new RecipeItem(Items.OBSIDIAN), new RecipeItem(Items.CRYING_OBSIDIAN));
-        timeWarp(new RecipeItem(Items.CHARCOAL), new RecipeItem(Items.COAL));
-        timeWarp(new RecipeItem(Items.SAND), new RecipeItem(Items.DIRT));
-        timeWarp(new RecipeItem(Items.IRON_BLOCK), new RecipeItem(Items.RAW_IRON, 3));
-        timeWarp(new RecipeItem(Items.GOLD_BLOCK), new RecipeItem(Items.RAW_GOLD, 3));
-        timeWarp(new RecipeItem(Items.COPPER_BLOCK), new RecipeItem(Items.RAW_COPPER, 3));
-        timeWarp(new RecipeItem(ModItems.GEODE), new RecipeItem(Items.BUDDING_AMETHYST));
-        timeWarp(new RecipeItem(ModBlocks.CINERITE), new RecipeItem(Items.TUFF));
-        timeWarp(new RecipeItem(ModBlocks.NETHER_DUST), new RecipeItem(Items.SOUL_SOIL));
-        timeWarp(new RecipeItem(ModBlocks.END_DUST), new RecipeItem(Items.END_STONE));
-        timeWarp(new RecipeItem(ModItems.LIME_POWDER, 8), new RecipeItem(Items.CALCITE));
-        timeWarp(new RecipeItem(ModItems.NETHERITE_CRYSTAL_NUCLEUS), new RecipeItem(Items.ANCIENT_DEBRIS));
-        timeWarp(new RecipeItem(ModBlocks.ZINC_BLOCK), new RecipeItem(ModItems.RAW_ZINC, 3));
-        timeWarp(new RecipeItem(ModBlocks.TIN_BLOCK), new RecipeItem(ModItems.RAW_TIN, 3));
-        timeWarp(new RecipeItem(ModBlocks.TITANIUM_BLOCK), new RecipeItem(ModItems.RAW_TITANIUM, 3));
-        timeWarp(new RecipeItem(ModBlocks.TUNGSTEN_BLOCK), new RecipeItem(ModItems.RAW_TUNGSTEN, 3));
-        timeWarp(new RecipeItem(ModBlocks.LEAD_BLOCK), new RecipeItem(ModItems.RAW_LEAD, 3));
-        timeWarp(new RecipeItem(ModBlocks.SILVER_BLOCK), new RecipeItem(ModItems.RAW_SILVER, 3));
-        timeWarp(new RecipeItem(ModBlocks.URANIUM_BLOCK), new RecipeItem(ModItems.RAW_URANIUM, 3));
-
-        AnvilRecipe.Builder.create(RecipeCategory.MISC)
-            .icon(Items.WITHER_ROSE)
-            .hasBlock(
-                    ModBlocks.CORRUPTED_BEACON.get(),
-                    new Vec3(0.0, -2.0, 0.0),
-                    Map.entry(CorruptedBeaconBlock.LIT, true)
-            )
-            .hasBlock(Blocks.CAULDRON)
-            .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), Items.ROSE_BUSH)
-            .spawnItem(new Vec3(0.0, -1.0, 0.0), 0.2, Items.WITHER_ROSE)
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.ROSE_BUSH), AnvilCraftDatagen.has(Items.ROSE_BUSH))
-            .save(provider, AnvilCraft.of("timewarp/"
-                    + BuiltInRegistries.ITEM.getKey(Items.WITHER_ROSE).getPath()));
-
+        timeWarp(RecipeItem.of(ModItems.RESIN), RecipeItem.of(ModItems.AMBER));
+        timeWarp(RecipeItem.of(Items.OBSIDIAN), RecipeItem.of(Items.CRYING_OBSIDIAN));
+        timeWarp(RecipeItem.of(Items.CHARCOAL), RecipeItem.of(Items.COAL));
+        timeWarp(RecipeItem.of(Items.SAND), RecipeItem.of(Items.DIRT));
+        timeWarp(RecipeItem.of(Items.IRON_BLOCK), RecipeItem.of(Items.RAW_IRON, 3));
+        timeWarp(RecipeItem.of(Items.GOLD_BLOCK), RecipeItem.of(Items.RAW_GOLD, 3));
+        timeWarp(RecipeItem.of(Items.COPPER_BLOCK), RecipeItem.of(Items.RAW_COPPER, 3));
+        timeWarp(RecipeItem.of(ModItems.GEODE), RecipeItem.of(Items.BUDDING_AMETHYST));
+        timeWarp(RecipeItem.of(ModBlocks.CINERITE), RecipeItem.of(Items.TUFF));
+        timeWarp(RecipeItem.of(ModBlocks.NETHER_DUST), RecipeItem.of(Items.SOUL_SOIL));
+        timeWarp(RecipeItem.of(ModBlocks.END_DUST), RecipeItem.of(Items.END_STONE));
+        timeWarp(RecipeItem.of(ModItems.LIME_POWDER, 8), RecipeItem.of(Items.CALCITE));
+        timeWarp(RecipeItem.of(ModItems.NETHERITE_CRYSTAL_NUCLEUS), RecipeItem.of(Items.ANCIENT_DEBRIS));
+        timeWarp(RecipeItem.of(ModBlocks.ZINC_BLOCK), RecipeItem.of(ModItems.RAW_ZINC, 3));
+        timeWarp(RecipeItem.of(ModBlocks.TIN_BLOCK), RecipeItem.of(ModItems.RAW_TIN, 3));
+        timeWarp(RecipeItem.of(ModBlocks.TITANIUM_BLOCK), RecipeItem.of(ModItems.RAW_TITANIUM, 3));
+        timeWarp(RecipeItem.of(ModBlocks.TUNGSTEN_BLOCK), RecipeItem.of(ModItems.RAW_TUNGSTEN, 3));
+        timeWarp(RecipeItem.of(ModBlocks.LEAD_BLOCK), RecipeItem.of(ModItems.RAW_LEAD, 3));
+        timeWarp(RecipeItem.of(ModBlocks.SILVER_BLOCK), RecipeItem.of(ModItems.RAW_SILVER, 3));
+        timeWarp(RecipeItem.of(ModBlocks.URANIUM_BLOCK), RecipeItem.of(ModItems.RAW_URANIUM, 3));
+        timeWarp(RecipeItem.of(Items.ROSE_BUSH), RecipeItem.of(Items.WITHER_ROSE, 0.2f));
         timeWarpWithMeltGem(Items.EMERALD, Items.EMERALD_BLOCK);
         timeWarpWithMeltGem(ModItems.RUBY, ModBlocks.RUBY_BLOCK);
         timeWarpWithMeltGem(ModItems.TOPAZ, ModBlocks.TOPAZ_BLOCK);
@@ -75,6 +62,7 @@ public class TimeWarpRecipesLoader {
     public static void timeWarp(RecipeItem item, RecipeItem item1) {
         if (TimeWarpRecipesLoader.provider == null) return;
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
+            .type(AnvilRecipeType.TIMEWARP)
             .icon(item1.getItem().asItem())
             .hasBlock(
                 ModBlocks.CORRUPTED_BEACON.get(),
@@ -95,6 +83,7 @@ public class TimeWarpRecipesLoader {
     public static void timeWarpWithWater(ItemLike item, ItemLike item1) {
         if (TimeWarpRecipesLoader.provider == null) return;
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
+            .type(AnvilRecipeType.TIMEWARP)
             .icon(item1)
             .hasBlock(
                 ModBlocks.CORRUPTED_BEACON.get(),
@@ -114,6 +103,7 @@ public class TimeWarpRecipesLoader {
     public static void timeWarpWithMeltGem(ItemLike item, ItemLike item1) {
         if (TimeWarpRecipesLoader.provider == null) return;
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
+            .type(AnvilRecipeType.TIMEWARP)
             .icon(item1)
             .hasBlock(
                 ModBlocks.CORRUPTED_BEACON.get(),

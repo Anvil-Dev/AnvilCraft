@@ -14,214 +14,68 @@ public class RecipeItem {
     private final int count;
     private final boolean isSelectOne;
 
-    /**
-     * 配方物品
-     *
-     * @param item 配方物品
-     * @param chance 概率
-     * @param count 数量
-     * @param isSelectOne 是否属于多选一
-     */
-    public RecipeItem(double chance, ItemLike item, int count, boolean isSelectOne) {
+    private RecipeItem(ItemLike item, TagKey<Item> itemTagKey, int count, double chance, boolean isSelectOne) {
         this.item = item;
-        this.itemTagKey = null;
-        this.chance = chance;
+        this.itemTagKey = itemTagKey;
         this.count = count;
+        this.chance = chance;
         this.isSelectOne = isSelectOne;
     }
 
-    /**
-     * 配方物品
-     *
-     * @param chance 概率
-     * @param item 配方物品
-     * @param count 数量
-     */
-    public RecipeItem(double chance, ItemLike item, int count) {
-        this.item = item;
-        this.itemTagKey = null;
-        this.chance = chance;
-        this.count = count;
-        this.isSelectOne = false;
+    public static RecipeItem of(ItemLike item, int count, double chance, boolean isSelectOne) {
+        return new RecipeItem(item, null, count, chance, isSelectOne);
     }
 
-    /**
-     * 配方物品
-     *
-     * @param item 配方物品
-     */
-    public RecipeItem(ItemLike item) {
-        this.item = item;
-        this.itemTagKey = null;
-        this.chance = 1;
-        this.count = 1;
-        this.isSelectOne = false;
+    public static RecipeItem of(ItemLike item, int count, double chance) {
+        return new RecipeItem(item, null, count, chance, false);
     }
 
-    /**
-     * 配方物品
-     *
-     * @param item 配方物品
-     * @param count 数量
-     */
-    public RecipeItem(ItemLike item, int count) {
-        this.item = item;
-        this.itemTagKey = null;
-        this.chance = 1;
-        this.count = count;
-        this.isSelectOne = false;
+    public static RecipeItem of(ItemLike item, int count) {
+        return new RecipeItem(item, null, count, 1d, false);
     }
 
-    /**
-     * 配方物品
-     *
-     * @param chance 概率
-     * @param item 配方物品
-     */
-    public RecipeItem(double chance, ItemLike item) {
-        this.item = item;
-        this.itemTagKey = null;
-        this.chance = chance;
-        this.count = 1;
-        this.isSelectOne = false;
+    public static RecipeItem of(ItemLike item, double chance) {
+        return new RecipeItem(item, null, 1, chance, false);
     }
 
-    /**
-     * 配方物品
-     *
-     * @param item 配方物品
-     */
-    public RecipeItem(ItemLike item, boolean isSelectOne) {
-        this.item = item;
-        this.itemTagKey = null;
-        this.chance = 1;
-        this.count = 1;
-        this.isSelectOne = isSelectOne;
+    public static RecipeItem of(ItemLike item, int count, boolean isSelectOne) {
+        return new RecipeItem(item, null, count, 1d, isSelectOne);
     }
 
-    /**
-     * 配方物品
-     *
-     * @param item 配方物品
-     * @param count 数量
-     */
-    public RecipeItem(ItemLike item, int count, boolean isSelectOne) {
-        this.item = item;
-        this.itemTagKey = null;
-        this.chance = 1;
-        this.count = count;
-        this.isSelectOne = isSelectOne;
+    public static RecipeItem of(ItemLike item, double chance, boolean isSelectOne) {
+        return new RecipeItem(item, null, 1, chance, isSelectOne);
     }
 
-    /**
-     * 配方物品
-     *
-     * @param chance 概率
-     * @param item 配方物品
-     */
-    public RecipeItem(double chance, ItemLike item, boolean isSelectOne) {
-        this.item = item;
-        this.itemTagKey = null;
-        this.chance = chance;
-        this.count = 1;
-        this.isSelectOne = isSelectOne;
+    public static RecipeItem of(TagKey<Item> itemTagKey, int count, double chance, boolean isSelectOne) {
+        return new RecipeItem(null, itemTagKey, count, chance, isSelectOne);
     }
 
-    /**
-     * 配方物品
-     *
-     * @param chance 概率
-     * @param itemTagKey 配方物品标签
-     * @param count 数量
-     */
-    public RecipeItem(double chance, TagKey<Item> itemTagKey, int count) {
-        this.item = null;
-        this.itemTagKey = itemTagKey;
-        this.chance = chance;
-        this.count = count;
-        this.isSelectOne = false;
+    public static RecipeItem of(TagKey<Item> itemTagKey, int count, double chance) {
+        return new RecipeItem(null, itemTagKey, count, chance, false);
     }
 
-    /**
-     * 配方物品
-     *
-     * @param itemTagKey 配方物品标签
-     */
-    public RecipeItem(TagKey<Item> itemTagKey) {
-        this.item = null;
-        this.itemTagKey = itemTagKey;
-        this.chance = 1;
-        this.count = 1;
-        this.isSelectOne = false;
+    public static RecipeItem of(TagKey<Item> itemTagKey, int count) {
+        return new RecipeItem(null, itemTagKey, count, 1d, false);
     }
 
-    /**
-     * 配方物品
-     *
-     * @param itemTagKey 配方物品标签
-     * @param count 数量
-     */
-    public RecipeItem(TagKey<Item> itemTagKey, int count) {
-        this.item = null;
-        this.itemTagKey = itemTagKey;
-        this.chance = 1;
-        this.count = count;
-        this.isSelectOne = false;
+    public static RecipeItem of(TagKey<Item> itemTagKey, double chance) {
+        return new RecipeItem(null, itemTagKey, 1, chance, false);
     }
 
-    /**
-     * 配方物品
-     *
-     * @param chance 概率
-     * @param itemTagKey 配方物品标签
-     */
-    public RecipeItem(double chance, TagKey<Item> itemTagKey) {
-        this.item = null;
-        this.itemTagKey = itemTagKey;
-        this.chance = chance;
-        this.count = 1;
-        this.isSelectOne = false;
+    public static RecipeItem of(TagKey<Item> itemTagKey, int count, boolean isSelectOne) {
+        return new RecipeItem(null, itemTagKey, count, 1d, isSelectOne);
     }
 
-    /**
-     * 配方物品
-     *
-     * @param itemTagKey 配方物品标签
-     */
-    public RecipeItem(TagKey<Item> itemTagKey, boolean isSelectOne) {
-        this.item = null;
-        this.itemTagKey = itemTagKey;
-        this.chance = 1;
-        this.count = 1;
-        this.isSelectOne = isSelectOne;
+    public static RecipeItem of(TagKey<Item> itemTagKey, double chance, boolean isSelectOne) {
+        return new RecipeItem(null, itemTagKey, 1, chance, isSelectOne);
     }
 
-    /**
-     * 配方物品
-     *
-     * @param itemTagKey 配方物品标签
-     * @param count 数量
-     */
-    public RecipeItem(TagKey<Item> itemTagKey, int count, boolean isSelectOne) {
-        this.item = null;
-        this.itemTagKey = itemTagKey;
-        this.chance = 1;
-        this.count = count;
-        this.isSelectOne = isSelectOne;
+    public static RecipeItem of(ItemLike item) {
+        return new RecipeItem(item, null, 1, 1d, false);
     }
 
-    /**
-     * 配方物品
-     *
-     * @param chance 概率
-     * @param itemTagKey 配方物品标签
-     */
-    public RecipeItem(double chance, TagKey<Item> itemTagKey, boolean isSelectOne) {
-        this.item = null;
-        this.itemTagKey = itemTagKey;
-        this.chance = chance;
-        this.count = 1;
-        this.isSelectOne = isSelectOne;
+    public static RecipeItem of(TagKey<Item> itemTagKey) {
+        return new RecipeItem(null, itemTagKey, 1, 1d, false);
     }
 
     /**
@@ -233,7 +87,7 @@ public class RecipeItem {
         return this.item == null
             ? this.itemTagKey == null
                 ? ""
-                : itemTagKey.location().getPath()
+                : itemTagKey.location().getNamespace() + "_" + itemTagKey.location().getPath()
             : BuiltInRegistries.ITEM
                 .getKey(this.item.asItem()).getPath();
     }

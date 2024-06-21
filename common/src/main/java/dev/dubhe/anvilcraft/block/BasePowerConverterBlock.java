@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.entity.PowerConverterBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
@@ -27,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
-public abstract class BasePowerConverterBlock extends BaseEntityBlock {
+public abstract class BasePowerConverterBlock extends BaseEntityBlock implements IHammerRemovable {
     private final int inputPower;
 
     public static final DirectionProperty FACING = BlockStateProperties.FACING;

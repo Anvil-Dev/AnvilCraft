@@ -3,11 +3,12 @@ package dev.dubhe.anvilcraft.api.entity.fakeplayer.fabric;
 import com.mojang.authlib.GameProfile;
 import dev.dubhe.anvilcraft.api.entity.player.IAnvilCraftBlockPlacer;
 import dev.latvian.mods.kubejs.util.AttachedData;
-import java.util.UUID;
 import net.fabricmc.fabric.api.entity.FakePlayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+
+import java.util.UUID;
 
 public class AnvilCraftBlockPlacerFakePlayer extends FakePlayer implements IAnvilCraftBlockPlacer {
     static final UUID placerUUID = UUID.randomUUID();
@@ -23,7 +24,7 @@ public class AnvilCraftBlockPlacerFakePlayer extends FakePlayer implements IAnvi
         return this;
     }
 
-    @Override
+    // @Override
     public AttachedData<Player> kjs$getData() {
         return null;
     }

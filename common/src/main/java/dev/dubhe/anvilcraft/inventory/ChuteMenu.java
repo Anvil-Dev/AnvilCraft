@@ -134,4 +134,9 @@ public class ChuteMenu extends BaseMachineMenu implements IFilterMenu {
     public IFilterBlockEntity getFilterBlockEntity() {
         return blockEntity;
     }
+
+    @Override
+    public int getFilterSlotIndex(@NotNull Slot slot) {
+        return slot.index - 36;
+    }
 }

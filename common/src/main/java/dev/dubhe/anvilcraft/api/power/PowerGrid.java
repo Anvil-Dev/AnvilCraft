@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.api.power;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.chargecollector.ThermoManager;
 import dev.dubhe.anvilcraft.network.PowerGridRemovePack;
 import dev.dubhe.anvilcraft.network.PowerGridSyncPack;
 import lombok.Getter;
@@ -14,6 +13,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -27,7 +27,7 @@ import java.util.Set;
 @SuppressWarnings("unused")
 public class PowerGrid {
     public static boolean isServerClosing = false;
-    public static final Map<Level, Set<PowerGrid>> GRID_MAP = new HashMap<>();
+    public static final Map<Level, Set<PowerGrid>> GRID_MAP = Collections.synchronizedMap(new HashMap<>());
     public static final int GRID_TICK = 20;
     @Getter
     public boolean remove = false;
@@ -35,10 +35,10 @@ public class PowerGrid {
     private int generate = 0; // 发电功率
     @Getter
     private int consume = 0;  // 耗电功率
-    final Set<IPowerProducer> producers = new HashSet<>(); // 发电机
-    final Set<IPowerConsumer> consumers = new HashSet<>(); // 用电器
-    final Set<IPowerStorage> storages = new HashSet<>();   // 储电
-    final Set<IPowerTransmitter> transmitters = new HashSet<>();    // 中继
+    final Set<IPowerProducer> producers = Collections.synchronizedSet(new HashSet<>()); // 发电机
+    final Set<IPowerConsumer> consumers = Collections.synchronizedSet(new HashSet<>()); // 用电器
+    final Set<IPowerStorage> storages = Collections.synchronizedSet(new HashSet<>());   // 储电
+    final Set<IPowerTransmitter> transmitters = Collections.synchronizedSet(new HashSet<>());    // 中继
     @Getter
     private VoxelShape shape = null;
     @Getter
@@ -74,11 +74,13 @@ public class PowerGrid {
     public static void tickGrid() {
         for (Set<PowerGrid> grids : PowerGrid.GRID_MAP.values()) {
             Iterator<PowerGrid> iterator = grids.iterator();
+            Set<PowerGrid> remove = Collections.synchronizedSet(new HashSet<>());
             while (iterator.hasNext()) {
                 PowerGrid grid = iterator.next();
-                if (grid.isEmpty()) iterator.remove();
+                if (grid.isEmpty()) remove.add(grid);
                 grid.tick();
             }
+            grids.removeAll(remove);
         }
     }
 
@@ -98,7 +100,7 @@ public class PowerGrid {
             }
         } else {
             int need = this.consume - this.generate;
-            Set<IPowerStorage> storages = new HashSet<>();
+            Set<IPowerStorage> storages = Collections.synchronizedSet(new HashSet<>());
             for (IPowerStorage storage : this.storages) {
                 need -= storage.getOutputPower();
                 storages.add(storage);
@@ -117,7 +119,7 @@ public class PowerGrid {
     }
 
     private void gridTick() {
-        HashSet<IPowerComponent> components = new HashSet<>();
+        Set<IPowerComponent> components = Collections.synchronizedSet(new HashSet<>());
         components.addAll(this.transmitters);
         components.addAll(this.consumers);
         components.addAll(this.storages);
@@ -284,16 +286,18 @@ public class PowerGrid {
             PowerGrid grid = null;
             Set<PowerGrid> grids = PowerGrid.getGridSet(component.getCurrentLevel());
             Iterator<PowerGrid> iterator = grids.iterator();
+            Set<PowerGrid> remove = Collections.synchronizedSet(new HashSet<>());
             while (iterator.hasNext()) {
                 PowerGrid grid1 = iterator.next();
                 if (!grid1.isInRange(component)) continue;
                 if (grid == null) grid = grid1;
                 else {
                     grid.merge(grid1);
-                    iterator.remove();
+                    remove.add(grid1);
                     new PowerGridRemovePack(grid1).broadcast();
                 }
             }
+            grids.removeAll(remove);
             if (grid == null) grid = new PowerGrid(component.getCurrentLevel());
             grid.add(component);
             grids.add(grid);
@@ -322,5 +326,4 @@ public class PowerGrid {
     public static void clear() {
         PowerGrid.GRID_MAP.values().forEach(Collection::clear);
     }
-
 }

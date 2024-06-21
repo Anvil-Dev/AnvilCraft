@@ -175,4 +175,9 @@ public class ItemCollectorMenu extends AbstractContainerMenu implements IFilterM
             }
         }
     }
+
+    @Override
+    public int getFilterSlotIndex(@NotNull Slot slot) {
+        return slot.index - 36;
+    }
 }

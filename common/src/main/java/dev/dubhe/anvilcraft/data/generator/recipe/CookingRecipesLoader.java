@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.data.generator.recipe;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasBlock;
 import dev.dubhe.anvilcraft.init.ModItems;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -38,6 +39,7 @@ public class CookingRecipesLoader {
      */
     public static void cook(Item item, int count, Item item1, int count1, RegistrateRecipeProvider provider) {
         AnvilRecipe.Builder.create(RecipeCategory.FOOD)
+            .type(AnvilRecipeType.COOKING)
             .hasBlock(Blocks.CAULDRON)
             .hasBlock(new Vec3(0.0, -2.0, 0.0),
                 new HasBlock.ModBlockPredicate().block(BlockTags.CAMPFIRES).property(CampfireBlock.LIT, true)
@@ -59,6 +61,7 @@ public class CookingRecipesLoader {
      */
     public static void boil(Item item, int count, Item item1, int count1, RegistrateRecipeProvider provider) {
         AnvilRecipe.Builder.create(RecipeCategory.FOOD)
+            .type(AnvilRecipeType.BOIL)
             .hasFluidCauldron(new Vec3(0.0, -1.0, 0.0), Blocks.WATER_CAULDRON)
             .hasBlock(
                 new Vec3(0.0, -2.0, 0.0),
