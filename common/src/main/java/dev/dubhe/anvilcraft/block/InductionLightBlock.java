@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.entity.InductionLightBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
+import dev.dubhe.anvilcraft.init.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -165,6 +166,8 @@ public class InductionLightBlock extends BaseEntityBlock implements IHammerRemov
             level.setBlockAndUpdate(pos, state.setValue(COLOR, LightColor.PRIMARY));
             itemInHand.hurtAndBreak(1, player, item -> item.broadcastBreakEvent(hand));
             return InteractionResult.CONSUME_PARTIAL;
+        } else if (itemInHand.is(ModItems.VOID_MATTER.asItem())) {
+            level.setBlockAndUpdate(pos, state.setValue(COLOR, LightColor.DARK));
         }
         return InteractionResult.PASS;
     }
