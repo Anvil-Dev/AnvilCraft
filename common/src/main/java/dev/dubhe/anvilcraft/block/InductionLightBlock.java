@@ -1,11 +1,9 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.api.BlockPlaceAssist;
-import dev.dubhe.anvilcraft.api.BonemealManager;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.entity.InductionLightBlockEntity;
-import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.core.BlockPos;
@@ -78,7 +76,8 @@ public class InductionLightBlock extends BaseEntityBlock implements IHammerRemov
     }
 
     @Override
-    public VoxelShape getShape(
+    @SuppressWarnings("deprecation")
+    public @NotNull VoxelShape getShape(
             @NotNull BlockState state,
             @NotNull BlockGetter level,
             @NotNull BlockPos pos,
@@ -118,7 +117,8 @@ public class InductionLightBlock extends BaseEntityBlock implements IHammerRemov
     }
 
     @Override
-    public FluidState getFluidState(BlockState state) {
+    @SuppressWarnings("deprecation")
+    public @NotNull FluidState getFluidState(BlockState state) {
         return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
@@ -130,6 +130,7 @@ public class InductionLightBlock extends BaseEntityBlock implements IHammerRemov
 
 
     @Override
+    @SuppressWarnings("deprecation")
     public @NotNull InteractionResult use(
             @NotNull BlockState state,
             @NotNull Level level,
@@ -138,8 +139,8 @@ public class InductionLightBlock extends BaseEntityBlock implements IHammerRemov
             @NotNull InteractionHand hand,
             @NotNull BlockHitResult hit
     ) {
-        ItemStack itemInHand=player.getItemInHand(hand);
-        if(itemInHand.is(ModBlocks.INDUCTION_LIGHT.asItem())) {
+        ItemStack itemInHand = player.getItemInHand(hand);
+        if (itemInHand.is(ModBlocks.INDUCTION_LIGHT.asItem())) {
             InteractionResult tried = BlockPlaceAssist.tryPlace(
                 state,
                 level,
@@ -155,13 +156,13 @@ public class InductionLightBlock extends BaseEntityBlock implements IHammerRemov
 
             return tried;
         } else if (itemInHand.is(Items.REDSTONE)) {
-            level.setBlockAndUpdate(pos,state.setValue(COLOR, LightColor.PINK));
+            level.setBlockAndUpdate(pos, state.setValue(COLOR, LightColor.PINK));
             return InteractionResult.SUCCESS;
         } else if (itemInHand.is(Items.GLOWSTONE_DUST)) {
-            level.setBlockAndUpdate(pos,state.setValue(COLOR, LightColor.YELLOW));
+            level.setBlockAndUpdate(pos, state.setValue(COLOR, LightColor.YELLOW));
             return InteractionResult.SUCCESS;
         } else if (itemInHand.is(ItemTags.AXES)) {
-            level.setBlockAndUpdate(pos,state.setValue(COLOR, LightColor.PRIMARY));
+            level.setBlockAndUpdate(pos, state.setValue(COLOR, LightColor.PRIMARY));
             itemInHand.hurtAndBreak(1, player, item -> item.broadcastBreakEvent(hand));
             return InteractionResult.CONSUME_PARTIAL;
         }
