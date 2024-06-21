@@ -189,17 +189,15 @@ public class SimplePowerGrid {
      * @return 获取范围
      */
     public VoxelShape getShape() {
-        return this.ranges.entrySet().stream().map(entry -> Shapes
+        return this.powerComponentInfoList.stream().map(it -> Shapes
                 .box(
-                        -entry.getValue(), -entry.getValue(), -entry.getValue(),
-                        entry.getValue() + 1, entry.getValue() + 1, entry.getValue() + 1
-                )
-                .move(
-                        this.offset(entry.getKey()).getX(),
-                        this.offset(entry.getKey()).getY(),
-                        this.offset(entry.getKey()).getZ()
-                )
-        ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).orElse(Shapes.block());
+                        -it.range(), -it.range(), -it.range(),
+                        it.range() + 1, it.range() + 1, it.range() + 1
+                ).move(
+                        this.offset(it.pos()).getX(),
+                        this.offset(it.pos()).getY(),
+                        this.offset(it.pos()).getZ()
+                )).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).orElse(Shapes.block());
     }
 
     private @NotNull BlockPos offset(@NotNull BlockPos pos) {
