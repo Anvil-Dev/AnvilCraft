@@ -45,9 +45,8 @@ public class HeliostatsRenderer implements BlockEntityRenderer<HeliostatsBlockEn
             final TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS)
                     .apply(new ResourceLocation("block/white_concrete"));
             poseStack.mulPose(new Quaternionf().rotateTo(new Vector3f(0, 1, 0), blockEntity.getIrritateVector3f()));
-            VertexConsumer consumer = buffer.getBuffer(RenderType.translucent());
             renderBox(
-                    consumer, poseStack,
+                    buffer.getBuffer(RenderType.translucentNoCrumbling()), poseStack,
                     blockEntity.getIrritateDistance(), sprite);
             poseStack.mulPose(new Quaternionf().rotateTo(blockEntity.getIrritateVector3f(), new Vector3f(0, 1, 0)));
         }*/
@@ -64,10 +63,9 @@ public class HeliostatsRenderer implements BlockEntityRenderer<HeliostatsBlockEn
                     )
             ));
         }
-        VertexConsumer vertexConsumer = buffer.getBuffer(RenderType.solid());
         Minecraft.getInstance().getBlockRenderer().getModelRenderer().renderModel(
                 poseStack.last(),
-                vertexConsumer,
+                buffer.getBuffer(RenderType.solid()),
                 null,
                 Minecraft.getInstance().getModelManager().getModel(HELIOSTATS_HEAD),
                 0, 0, 0, packedLight, packedOverlay
@@ -82,22 +80,16 @@ public class HeliostatsRenderer implements BlockEntityRenderer<HeliostatsBlockEn
             float maxY, TextureAtlasSprite sprite
     ) {
         renderQuadX(consumer, poseStack,
-                (float) 0.0625, (float) 0.0625, (float) -0.0625, maxY, (float) 0.0625,
+                (float) 0.375, (float) 0.375, (float) -0.375, maxY, (float) 0.375,
                 sprite, Direction.EAST.getNormal());
         renderQuadX(consumer, poseStack,
-                (float) -0.0625, (float) -0.0625, (float) 0.0625, maxY, (float) -0.0625,
+                (float) -0.375, (float) -0.375, (float) 0.375, maxY, (float) -0.375,
                 sprite, Direction.WEST.getNormal());
-        renderQuadY(consumer, poseStack,
-                maxY, maxY, (float) -0.0625, (float) 0.0625,
-                sprite, Direction.DOWN.getNormal());
-        renderQuadY(consumer, poseStack,
-                (float) 0, (float) 0, (float) 0.0625, (float) -0.0625,
-                sprite, Direction.UP.getNormal());
         renderQuadZ(consumer, poseStack,
-                (float) 0.0625, (float) 0.0625, maxY, (float) 0,
+                (float) 0.375, (float) 0.375, maxY, (float) 0,
                 sprite, Direction.SOUTH.getNormal());
         renderQuadZ(consumer, poseStack,
-                (float) -0.0625, (float) -0.0625, (float) 0, maxY,
+                (float) -0.375, (float) -0.375, (float) 0, maxY,
                 sprite, Direction.NORTH.getNormal());
     }
 
@@ -117,10 +109,10 @@ public class HeliostatsRenderer implements BlockEntityRenderer<HeliostatsBlockEn
             @NotNull PoseStack poseStack,
             float minY, float maxY, float minX, float maxX, TextureAtlasSprite sprite, Vec3i normal
     ) {
-        addVertex(consumer, poseStack, minX, minY, (float) -0.0625, sprite.getU1(), sprite.getV1(), normal);
-        addVertex(consumer, poseStack, minX, minY, (float) 0.0625, sprite.getU0(), sprite.getV1(), normal);
-        addVertex(consumer, poseStack, maxX, maxY, (float) 0.0625, sprite.getU0(), sprite.getV0(), normal);
-        addVertex(consumer, poseStack, maxX, maxY, (float) -0.0625, sprite.getU1(), sprite.getV0(), normal);
+        addVertex(consumer, poseStack, minX, minY, (float) -0.375, sprite.getU1(), sprite.getV1(), normal);
+        addVertex(consumer, poseStack, minX, minY, (float) 0.375, sprite.getU0(), sprite.getV1(), normal);
+        addVertex(consumer, poseStack, maxX, maxY, (float) 0.375, sprite.getU0(), sprite.getV0(), normal);
+        addVertex(consumer, poseStack, maxX, maxY, (float) -0.375, sprite.getU1(), sprite.getV0(), normal);
     }
 
     private static void renderQuadZ(
@@ -128,10 +120,10 @@ public class HeliostatsRenderer implements BlockEntityRenderer<HeliostatsBlockEn
             @NotNull PoseStack poseStack,
             float minZ, float maxZ, float minY, float maxY, TextureAtlasSprite sprite, Vec3i normal
     ) {
-        addVertex(consumer, poseStack, (float) -0.0625, maxY, minZ, sprite.getU1(), sprite.getV1(), normal);
-        addVertex(consumer, poseStack, (float) 0.0625, maxY, minZ, sprite.getU0(), sprite.getV1(), normal);
-        addVertex(consumer, poseStack, (float) 0.0625, minY, maxZ, sprite.getU0(), sprite.getV0(), normal);
-        addVertex(consumer, poseStack, (float) -0.0625, minY, maxZ, sprite.getU1(), sprite.getV0(), normal);
+        addVertex(consumer, poseStack, (float) -0.375, maxY, minZ, sprite.getU1(), sprite.getV1(), normal);
+        addVertex(consumer, poseStack, (float) 0.375, maxY, minZ, sprite.getU0(), sprite.getV1(), normal);
+        addVertex(consumer, poseStack, (float) 0.375, minY, maxZ, sprite.getU0(), sprite.getV0(), normal);
+        addVertex(consumer, poseStack, (float) -0.375, minY, maxZ, sprite.getU1(), sprite.getV0(), normal);
     }
 
     private static void addVertex(
@@ -139,7 +131,7 @@ public class HeliostatsRenderer implements BlockEntityRenderer<HeliostatsBlockEn
             float x, float y, float z, float u, float v, Vec3i normal) {
         consumer
                 .vertex(poseStack.last().pose(), x, y, z)
-                .color(0.9726f, 0.92343f, 0.621093f, (float) 0.4)
+                .color(1f, 1f, 1f, (float) 0.1)
                 .uv(u, v)
                 .overlayCoords(OverlayTexture.NO_OVERLAY)
                 .uv2(0xF000F0)

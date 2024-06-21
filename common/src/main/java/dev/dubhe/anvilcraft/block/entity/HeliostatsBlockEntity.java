@@ -39,10 +39,15 @@ public class HeliostatsBlockEntity extends BlockEntity {
     }
 
     private Vec3 getSurfaceVec3(Vec3 vec31, Vec3 vec32) {
+        if (level == null) return vec31;
+        if (!level.getBlockState(irritatePos.north()).isAir()
+                && !level.getBlockState(irritatePos.south()).isAir()
+                && !level.getBlockState(irritatePos.east()).isAir()
+                && !level.getBlockState(irritatePos.west()).isAir()) return vec31.add(0, 0, 0);
         Vec2 vec2 = new Vec2((float) (vec32.z - vec31.z), (float) (vec32.x - vec31.x));
         if (vec2.x == 0) return vec31.add(vec2.y > 0 ? 0.49f : -0.49f, 0, 0);
         if (vec2.y == 0) return vec31.add(0, 0, vec2.x > 0 ? 0.49f : -0.49f);
-        float k = vec2.x / vec2.y;
+        float k = vec2.y / vec2.x;
         float x = vec2.x > 0 ? 0.49f : -0.49f;
         float y = vec2.y > 0 ? 0.49f : -0.49f;
         if (y / k < 0.5 && y / k > -0.5) return vec31.add(y, 0, y / k);
@@ -66,7 +71,6 @@ public class HeliostatsBlockEntity extends BlockEntity {
         if (getBlockPos().getCenter().distanceTo(irritatePos.getCenter()) > 16)
             return WorkResult.TOO_FAR.synchronize(this);
         if (level.isRainingAt(getBlockPos().above())
-                || level.isThundering()
                 || level.getBrightness(LightLayer.SKY, getBlockPos().above()) != 15)
             return WorkResult.NO_SUN.synchronize(this);
         Vec3 irritateVec3 = getSurfaceVec3(irritatePos.getCenter(), getBlockPos().getCenter());
