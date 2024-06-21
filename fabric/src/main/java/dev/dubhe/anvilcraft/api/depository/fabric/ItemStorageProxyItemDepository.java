@@ -1,22 +1,47 @@
 package dev.dubhe.anvilcraft.api.depository.fabric;
 
+import com.google.common.collect.Maps;
 import dev.dubhe.anvilcraft.api.depository.IItemDepository;
+import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectRBTreeMap;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.base.SingleItemStorage;
+import net.fabricmc.fabric.api.transfer.v1.item.base.SingleStackStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import net.minecraft.client.gui.components.tabs.Tab;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings("UnstableApiUsage")
 public class ItemStorageProxyItemDepository implements IItemDepository {
     private final Storage<ItemVariant> storage;
     private final List<StorageView<ItemVariant>> views;
+    private static final Method METHOD_GET_STACK;
+
+    static {
+        try {
+            Method method = SingleStackStorage.class.getDeclaredMethod("getStack");
+            method.setAccessible(true);
+            METHOD_GET_STACK = method;
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     /**
      * 物品存储代理
@@ -38,7 +63,15 @@ public class ItemStorageProxyItemDepository implements IItemDepository {
 
     @Override
     public ItemStack getStack(int slot) {
-        return this.views.get(slot).getResource().toStack((int) this.views.get(slot).getAmount());
+        StorageView<ItemVariant> view = this.views.get(slot);
+        if (view instanceof SingleStackStorage singleStackStorage) {
+            try {
+                return ((ItemStack) METHOD_GET_STACK.invoke(singleStackStorage)).copy();
+            } catch (Throwable ignored) {
+                return view.getResource().toStack((int) view.getAmount());
+            }
+        }
+        return view.getResource().toStack((int) view.getAmount());
     }
 
     @Override
@@ -48,7 +81,7 @@ public class ItemStorageProxyItemDepository implements IItemDepository {
 
     @Override
     public ItemStack insert(
-        int slot, @NotNull ItemStack stack, boolean simulate, boolean notifyChanges, boolean isServer
+            int slot, @NotNull ItemStack stack, boolean simulate, boolean notifyChanges, boolean isServer
     ) {
         if (stack.isEmpty()) return ItemStack.EMPTY;
         ItemStack copied = stack.copy();
@@ -61,7 +94,7 @@ public class ItemStorageProxyItemDepository implements IItemDepository {
             int filled;
             if (simulate) {
                 filled =
-                    (int) StorageUtil.simulateInsert(handler, ItemVariant.of(stack), stack.getCount(), transaction);
+                        (int) StorageUtil.simulateInsert(handler, ItemVariant.of(stack), stack.getCount(), transaction);
             } else {
                 filled = (int) handler.insert(ItemVariant.of(stack), stack.getCount(), transaction);
             }
@@ -81,7 +114,7 @@ public class ItemStorageProxyItemDepository implements IItemDepository {
             int extracted;
             if (simulate) {
                 extracted =
-                    (int) StorageUtil.simulateExtract(this.views.get(slot), ItemVariant.of(stack), amount, transaction);
+                        (int) StorageUtil.simulateExtract(this.views.get(slot), ItemVariant.of(stack), amount, transaction);
             } else {
                 extracted = (int) this.views.get(slot).extract(ItemVariant.of(stack), amount, transaction);
             }
