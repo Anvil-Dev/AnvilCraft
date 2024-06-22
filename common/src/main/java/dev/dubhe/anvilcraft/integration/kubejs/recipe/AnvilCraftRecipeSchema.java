@@ -21,6 +21,7 @@ import dev.latvian.mods.kubejs.item.OutputItem;
 import dev.latvian.mods.kubejs.recipe.RecipeJS;
 import dev.latvian.mods.kubejs.recipe.RecipeKey;
 import dev.latvian.mods.kubejs.recipe.component.ItemComponents;
+import dev.latvian.mods.kubejs.recipe.component.StringComponent;
 import dev.latvian.mods.kubejs.recipe.schema.RecipeSchema;
 import dev.latvian.mods.rhino.util.HideFromJS;
 import net.minecraft.advancements.critereon.MinMaxBounds;
@@ -550,6 +551,14 @@ public interface AnvilCraftRecipeSchema {
             setValue(ICON, outputItem);
             return this;
         }
+
+        /**
+         * KubeJS
+         */
+        public AnvilCraftRecipeJs type(String string) {
+            setValue(TYPE, string);
+            return this;
+        }
     }
 
     RecipeKey<ResourceLocation> ID =
@@ -561,6 +570,9 @@ public interface AnvilCraftRecipeSchema {
 
     RecipeKey<OutputItem> ICON =
         ItemComponents.OUTPUT.key("icon").optional(OutputItem.of(ModItems.ROYAL_STEEL_NUGGET));
+
+    RecipeKey<String> TYPE =
+            StringComponent.ANY.key("anvil_recipe_type");
 
     RecipeSchema SCHEMA = new RecipeSchema(
         AnvilCraftRecipeJs.class, AnvilCraftRecipeJs::new, OUTCOMES, PREDICATES, ICON

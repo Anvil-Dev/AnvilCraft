@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.block.CrabTrapBlock;
 import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.mixin.accessor.BaseSpawnerAccessor;
@@ -80,7 +81,9 @@ public class AnvilEventListener {
         if (state.is(Blocks.STONECUTTER)) brokeBlock(level, belowPos.above(), event);
         AnvilCraftingContainer container = new AnvilCraftingContainer(level, pos, event.getEntity());
         Optional<AnvilRecipe> optional = AnvilRecipeManager.getAnvilRecipeList().stream()
-                .filter(recipe -> recipe.matches(container, level)).findFirst();
+                .filter(recipe -> !recipe.getAnvilRecipeType().equals(AnvilRecipeType.MULTIBLOCK_CRAFTING)
+                        && recipe.matches(container, level))
+                .findFirst();
         optional.ifPresent(anvilRecipe -> anvilProcess(anvilRecipe, container, event));
     }
 

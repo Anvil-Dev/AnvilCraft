@@ -5,7 +5,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.data.RecipeItem;
+import dev.dubhe.anvilcraft.data.recipe.RecipeBlock;
+import dev.dubhe.anvilcraft.data.recipe.RecipeItem;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.DamageAnvil;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.RunCommand;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SelectOne;
@@ -547,6 +548,22 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
             return this.hasBlock(new Vec3(0.0, -1.0, 0.0), blockState);
         }
 
+        /**
+         * 拥有方块
+         *
+         * @param offset 偏移
+         * @param recipeBlock 配方方块
+         * @return 构造器
+         */
+        public @NotNull Builder hasBlock(Vec3 offset, RecipeBlock recipeBlock) {
+            return recipeBlock.isTag()
+                    ? this.hasBlock(offset, recipeBlock.getBlockTagKey())
+                    : recipeBlock.isHasStates()
+                        ? this.hasBlock(recipeBlock.getBlock(),
+                                    offset, recipeBlock.getStateEntries())
+                        : this.hasBlock(offset, recipeBlock.getBlock());
+        }
+
         public @NotNull Builder hasBlockIngredient(Vec3 offset, Block... blocks) {
             return this.addPredicates(new HasBlockIngredient(offset, new HasBlock.ModBlockPredicate().block(blocks)));
         }
@@ -642,6 +659,18 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
 
         public @NotNull Builder setBlock(@NotNull Block block) {
             return this.setBlock(block.defaultBlockState());
+        }
+
+        /**
+         * 放置方块
+         *
+         * @param offset 偏移值
+         * @param recipeBlock 配方方块
+         */
+        public Builder setBlock(Vec3 offset, RecipeBlock recipeBlock) {
+            return recipeBlock.isBlockStates()
+                    ? this.setBlock(offset, recipeBlock.getBlockState())
+                    : this.setBlock(offset, recipeBlock.getBlock());
         }
 
         public @NotNull Builder spawnItem(Vec3 offset, double chance, ItemStack item) {
