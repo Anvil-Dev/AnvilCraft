@@ -54,31 +54,55 @@ public class MultiblockCraftingRecipeLoader {
                 new HashMap<>() {{
                     put('A', RecipeBlock.of(ModBlocks.POLISHED_HEAVY_IRON_BLOCK.get()));
                     put('B', RecipeBlock.of(ModBlocks.HEAVY_IRON_BEAM.get(),
-                            Map.entry(HeavyIronBeamBlock.FACING, Direction.SOUTH)));
+                            Map.entry(HeavyIronBeamBlock.AXIS, Direction.Axis.Z)));
                     put('C', RecipeBlock.of(ModBlocks.HEAVY_IRON_BEAM.get(),
+                            Map.entry(HeavyIronBeamBlock.AXIS, Direction.Axis.X)));
+                    put('D', RecipeBlock.of(ModBlocks.HEAVY_IRON_COLUMN.get()));
+                    put('E', RecipeBlock.of(ModBlocks.HEAVY_IRON_PLATE.get()));
+                    put('F', RecipeBlock.of(ModBlocks.CUT_HEAVY_IRON_STAIRS.get(),
+                            Map.entry(HeavyIronBeamBlock.FACING, Direction.SOUTH)));
+                    put('G', RecipeBlock.of(ModBlocks.CUT_HEAVY_IRON_STAIRS.get(),
                             Map.entry(HeavyIronBeamBlock.FACING, Direction.NORTH)));
-                    put('D', RecipeBlock.of(ModBlocks.HEAVY_IRON_BEAM.get(),
+                    put('H', RecipeBlock.of(ModBlocks.CUT_HEAVY_IRON_STAIRS.get(),
                             Map.entry(HeavyIronBeamBlock.FACING, Direction.EAST)));
-                    put('E', RecipeBlock.of(ModBlocks.HEAVY_IRON_BEAM.get(),
+                    put('I', RecipeBlock.of(ModBlocks.CUT_HEAVY_IRON_STAIRS.get(),
                             Map.entry(HeavyIronBeamBlock.FACING, Direction.WEST)));
-                    put('F', RecipeBlock.of(ModBlocks.HEAVY_IRON_COLUMN.get()));
-                    put('G', RecipeBlock.of(ModBlocks.HEAVY_IRON_PLATE.get()));
-                    put('H', RecipeBlock.of(ModBlocks.CUT_HEAVY_IRON_BLOCK.get()));
+                    put('J', RecipeBlock.of(ModBlocks.CUT_HEAVY_IRON_SLAB.get()));
                 }},
                 new String[]{
                     "ABA",
-                    "EAD",
-                    "ACA",
+                    "CAC",
+                    "ABA",
 
-                    "FFF",
-                    "FGF",
-                    "FFF",
+                    "EEE",
+                    "EDE",
+                    "EEE",
 
-                    "DDD",
-                    "DHD",
-                    "DDD",
+                    "JGJ",
+                    "WDE",
+                    "JHJ",
                 },
                 RecipeResult.of(RecipeItem.of(ModBlocks.GIANT_ANVIL))
+        );
+        multiblockCrafting(
+                new HashMap<>() {{
+                    put('A', RecipeBlock.of(Blocks.SPONGE));
+                    put('B', RecipeBlock.of(ModBlocks.VOID_MATTER_BLOCK.get()));
+                }},
+                new String[]{
+                    "AAA",
+                    "A A",
+                    "AAA",
+
+                    "A A",
+                    " B ",
+                    "A A",
+
+                    "AAA",
+                    "A A",
+                    "AAA",
+                },
+                RecipeResult.of(RecipeItem.of(ModBlocks.STAMPING_PLATFORM))
         );
     }
 

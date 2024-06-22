@@ -1,16 +1,10 @@
 {
     "variants": {
-        "facing=east": {
+        "axis=x": {
             "model": "anvilcraft:block/heavy_iron_beam_x"
         },
-        "facing=north": {
+        "axis=Z": {
             "model": "anvilcraft:block/heavy_iron_beam_z"
-        },
-        "facing=south": {
-            "model": "anvilcraft:block/heavy_iron_beam_z"
-        },
-        "facing=west": {
-            "model": "anvilcraft:block/heavy_iron_beam_x"
         }
     }
 }
