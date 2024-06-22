@@ -11,78 +11,6 @@
       "offset": [
         -1.0,
         -2.0,
-        -1.0
-      ],
-      "result": {
-        "block": "minecraft:air"
-      }
-    },
-    {
-      "type": "set_block",
-      "chance": 1.0,
-      "offset": [
-        0.0,
-        -2.0,
-        -1.0
-      ],
-      "result": {
-        "block": "minecraft:air"
-      }
-    },
-    {
-      "type": "set_block",
-      "chance": 1.0,
-      "offset": [
-        1.0,
-        -2.0,
-        -1.0
-      ],
-      "result": {
-        "block": "minecraft:air"
-      }
-    },
-    {
-      "type": "set_block",
-      "chance": 1.0,
-      "offset": [
-        -1.0,
-        -2.0,
-        0.0
-      ],
-      "result": {
-        "block": "minecraft:air"
-      }
-    },
-    {
-      "type": "set_block",
-      "chance": 1.0,
-      "offset": [
-        0.0,
-        -2.0,
-        0.0
-      ],
-      "result": {
-        "block": "minecraft:air"
-      }
-    },
-    {
-      "type": "set_block",
-      "chance": 1.0,
-      "offset": [
-        1.0,
-        -2.0,
-        0.0
-      ],
-      "result": {
-        "block": "minecraft:air"
-      }
-    },
-    {
-      "type": "set_block",
-      "chance": 1.0,
-      "offset": [
-        -1.0,
-        -2.0,
         1.0
       ],
       "result": {
@@ -118,8 +46,8 @@
       "chance": 1.0,
       "offset": [
         -1.0,
-        -3.0,
-        -1.0
+        -2.0,
+        0.0
       ],
       "result": {
         "block": "minecraft:air"
@@ -130,8 +58,8 @@
       "chance": 1.0,
       "offset": [
         0.0,
-        -3.0,
-        -1.0
+        -2.0,
+        0.0
       ],
       "result": {
         "block": "minecraft:air"
@@ -142,8 +70,8 @@
       "chance": 1.0,
       "offset": [
         1.0,
-        -3.0,
-        -1.0
+        -2.0,
+        0.0
       ],
       "result": {
         "block": "minecraft:air"
@@ -154,8 +82,8 @@
       "chance": 1.0,
       "offset": [
         -1.0,
-        -3.0,
-        0.0
+        -2.0,
+        -1.0
       ],
       "result": {
         "block": "minecraft:air"
@@ -166,8 +94,8 @@
       "chance": 1.0,
       "offset": [
         0.0,
-        -3.0,
-        0.0
+        -2.0,
+        -1.0
       ],
       "result": {
         "block": "minecraft:air"
@@ -178,8 +106,8 @@
       "chance": 1.0,
       "offset": [
         1.0,
-        -3.0,
-        0.0
+        -2.0,
+        -1.0
       ],
       "result": {
         "block": "minecraft:air"
@@ -226,7 +154,43 @@
       "chance": 1.0,
       "offset": [
         -1.0,
-        -4.0,
+        -3.0,
+        0.0
+      ],
+      "result": {
+        "block": "minecraft:air"
+      }
+    },
+    {
+      "type": "set_block",
+      "chance": 1.0,
+      "offset": [
+        0.0,
+        -3.0,
+        0.0
+      ],
+      "result": {
+        "block": "minecraft:air"
+      }
+    },
+    {
+      "type": "set_block",
+      "chance": 1.0,
+      "offset": [
+        1.0,
+        -3.0,
+        0.0
+      ],
+      "result": {
+        "block": "minecraft:air"
+      }
+    },
+    {
+      "type": "set_block",
+      "chance": 1.0,
+      "offset": [
+        -1.0,
+        -3.0,
         -1.0
       ],
       "result": {
@@ -238,7 +202,7 @@
       "chance": 1.0,
       "offset": [
         0.0,
-        -4.0,
+        -3.0,
         -1.0
       ],
       "result": {
@@ -250,8 +214,44 @@
       "chance": 1.0,
       "offset": [
         1.0,
-        -4.0,
+        -3.0,
         -1.0
+      ],
+      "result": {
+        "block": "minecraft:air"
+      }
+    },
+    {
+      "type": "set_block",
+      "chance": 1.0,
+      "offset": [
+        -1.0,
+        -4.0,
+        1.0
+      ],
+      "result": {
+        "block": "minecraft:air"
+      }
+    },
+    {
+      "type": "set_block",
+      "chance": 1.0,
+      "offset": [
+        0.0,
+        -4.0,
+        1.0
+      ],
+      "result": {
+        "block": "minecraft:air"
+      }
+    },
+    {
+      "type": "set_block",
+      "chance": 1.0,
+      "offset": [
+        1.0,
+        -4.0,
+        1.0
       ],
       "result": {
         "block": "minecraft:air"
@@ -299,7 +299,7 @@
       "offset": [
         -1.0,
         -4.0,
-        1.0
+        -1.0
       ],
       "result": {
         "block": "minecraft:air"
@@ -311,7 +311,7 @@
       "offset": [
         0.0,
         -4.0,
-        1.0
+        -1.0
       ],
       "result": {
         "block": "minecraft:air"
@@ -323,7 +323,7 @@
       "offset": [
         1.0,
         -4.0,
-        1.0
+        -1.0
       ],
       "result": {
         "block": "minecraft:air"
@@ -470,7 +470,7 @@
       "offset": [
         -1.0,
         -2.0,
-        -1.0
+        1.0
       ]
     },
     {
@@ -483,7 +483,7 @@
       "offset": [
         0.0,
         -2.0,
-        -1.0
+        1.0
       ]
     },
     {
@@ -496,7 +496,7 @@
       "offset": [
         1.0,
         -2.0,
-        -1.0
+        1.0
       ]
     },
     {
@@ -548,7 +548,7 @@
       "offset": [
         -1.0,
         -2.0,
-        1.0
+        -1.0
       ]
     },
     {
@@ -561,7 +561,7 @@
       "offset": [
         0.0,
         -2.0,
-        1.0
+        -1.0
       ]
     },
     {
@@ -574,7 +574,7 @@
       "offset": [
         1.0,
         -2.0,
-        1.0
+        -1.0
       ]
     },
     {
@@ -587,7 +587,7 @@
       "offset": [
         -1.0,
         -3.0,
-        -1.0
+        1.0
       ]
     },
     {
@@ -600,7 +600,7 @@
       "offset": [
         0.0,
         -3.0,
-        -1.0
+        1.0
       ]
     },
     {
@@ -613,7 +613,7 @@
       "offset": [
         1.0,
         -3.0,
-        -1.0
+        1.0
       ]
     },
     {
@@ -665,7 +665,7 @@
       "offset": [
         -1.0,
         -3.0,
-        1.0
+        -1.0
       ]
     },
     {
@@ -678,7 +678,7 @@
       "offset": [
         0.0,
         -3.0,
-        1.0
+        -1.0
       ]
     },
     {
@@ -691,7 +691,7 @@
       "offset": [
         1.0,
         -3.0,
-        1.0
+        -1.0
       ]
     },
     {
@@ -704,7 +704,7 @@
       "offset": [
         -1.0,
         -4.0,
-        -1.0
+        1.0
       ]
     },
     {
@@ -717,7 +717,7 @@
       "offset": [
         0.0,
         -4.0,
-        -1.0
+        1.0
       ]
     },
     {
@@ -730,7 +730,7 @@
       "offset": [
         1.0,
         -4.0,
-        -1.0
+        1.0
       ]
     },
     {
@@ -782,7 +782,7 @@
       "offset": [
         -1.0,
         -4.0,
-        1.0
+        -1.0
       ]
     },
     {
@@ -795,7 +795,7 @@
       "offset": [
         0.0,
         -4.0,
-        1.0
+        -1.0
       ]
     },
     {
@@ -808,7 +808,7 @@
       "offset": [
         1.0,
         -4.0,
-        1.0
+        -1.0
       ]
     }
   ]

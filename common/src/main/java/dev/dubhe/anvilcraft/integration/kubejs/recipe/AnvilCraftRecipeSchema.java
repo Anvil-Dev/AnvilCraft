@@ -555,7 +555,7 @@ public interface AnvilCraftRecipeSchema {
         /**
          * KubeJS
          */
-        public AnvilCraftRecipeJs type(String string) {
+        public AnvilCraftRecipeJs anvilRecipeType(String string) {
             setValue(TYPE, string);
             return this;
         }

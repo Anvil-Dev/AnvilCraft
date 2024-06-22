@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:multiblock_crafting/stamping_platform_from_sponge_void_matter_block"
+        "recipe": "anvilcraft:multiblock_crafting/menger_sponge_from_sponge_void_matter_block"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -15,7 +15,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:multiblock_crafting/stamping_platform_from_sponge_void_matter_block"
+      "anvilcraft:multiblock_crafting/menger_sponge_from_sponge_void_matter_block"
     ]
   },
   "sends_telemetry_event": false

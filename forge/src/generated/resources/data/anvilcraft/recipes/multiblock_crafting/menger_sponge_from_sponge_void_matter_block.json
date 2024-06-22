@@ -2,7 +2,7 @@
   "type": "anvilcraft:anvil_processing",
   "anvil_recipe_type": "multiblock_crafting",
   "icon": {
-    "item": "anvilcraft:giant_anvil"
+    "item": "anvilcraft:menger_sponge"
   },
   "outcomes": [
     {
@@ -338,7 +338,7 @@
         0.0
       ],
       "result": {
-        "item": "anvilcraft:giant_anvil"
+        "item": "anvilcraft:menger_sponge"
       }
     }
   ],
@@ -464,7 +464,7 @@
       "type": "has_block",
       "match_block": {
         "blocks": [
-          "anvilcraft:polished_heavy_iron_block"
+          "minecraft:sponge"
         ]
       },
       "offset": [
@@ -477,7 +477,7 @@
       "type": "has_block",
       "match_block": {
         "blocks": [
-          "anvilcraft:polished_heavy_iron_block"
+          "minecraft:sponge"
         ]
       },
       "offset": [
@@ -490,7 +490,7 @@
       "type": "has_block",
       "match_block": {
         "blocks": [
-          "anvilcraft:polished_heavy_iron_block"
+          "minecraft:sponge"
         ]
       },
       "offset": [
@@ -503,7 +503,7 @@
       "type": "has_block",
       "match_block": {
         "blocks": [
-          "anvilcraft:polished_heavy_iron_block"
+          "minecraft:sponge"
         ]
       },
       "offset": [
@@ -516,7 +516,7 @@
       "type": "has_block",
       "match_block": {
         "blocks": [
-          "anvilcraft:polished_heavy_iron_block"
+          "minecraft:air"
         ]
       },
       "offset": [
@@ -529,7 +529,7 @@
       "type": "has_block",
       "match_block": {
         "blocks": [
-          "anvilcraft:polished_heavy_iron_block"
+          "minecraft:sponge"
         ]
       },
       "offset": [
@@ -542,7 +542,7 @@
       "type": "has_block",
       "match_block": {
         "blocks": [
-          "anvilcraft:polished_heavy_iron_block"
+          "minecraft:sponge"
         ]
       },
       "offset": [
@@ -555,7 +555,7 @@
       "type": "has_block",
       "match_block": {
         "blocks": [
-          "anvilcraft:polished_heavy_iron_block"
+          "minecraft:sponge"
         ]
       },
       "offset": [
@@ -568,7 +568,7 @@
       "type": "has_block",
       "match_block": {
         "blocks": [
-          "anvilcraft:polished_heavy_iron_block"
+          "minecraft:sponge"
         ]
       },
       "offset": [
@@ -581,7 +581,7 @@
       "type": "has_block",
       "match_block": {
         "blocks": [
-          "anvilcraft:heavy_iron_plate"
+          "minecraft:sponge"
         ]
       },
       "offset": [
@@ -594,7 +594,7 @@
       "type": "has_block",
       "match_block": {
         "blocks": [
-          "anvilcraft:heavy_iron_plate"
+          "minecraft:air"
         ]
       },
       "offset": [
@@ -607,7 +607,7 @@
       "type": "has_block",
       "match_block": {
         "blocks": [
-          "anvilcraft:heavy_iron_plate"
+          "minecraft:sponge"
         ]
       },
       "offset": [
@@ -620,7 +620,7 @@
       "type": "has_block",
       "match_block": {
         "blocks": [
-          "anvilcraft:heavy_iron_plate"
+          "minecraft:air"
         ]
       },
       "offset": [
@@ -633,7 +633,7 @@
       "type": "has_block",
       "match_block": {
         "blocks": [
-          "anvilcraft:heavy_iron_column"
+          "anvilcraft:void_matter_block"
         ]
       },
       "offset": [
@@ -646,7 +646,7 @@
       "type": "has_block",
       "match_block": {
         "blocks": [
-          "anvilcraft:heavy_iron_plate"
+          "minecraft:air"
         ]
       },
       "offset": [
@@ -659,7 +659,7 @@
       "type": "has_block",
       "match_block": {
         "blocks": [
-          "anvilcraft:heavy_iron_plate"
+          "minecraft:sponge"
         ]
       },
       "offset": [
@@ -672,7 +672,7 @@
       "type": "has_block",
       "match_block": {
         "blocks": [
-          "anvilcraft:heavy_iron_plate"
+          "minecraft:air"
         ]
       },
       "offset": [
@@ -685,7 +685,7 @@
       "type": "has_block",
       "match_block": {
         "blocks": [
-          "anvilcraft:heavy_iron_plate"
+          "minecraft:sponge"
         ]
       },
       "offset": [
@@ -698,7 +698,7 @@
       "type": "has_block",
       "match_block": {
         "blocks": [
-          "anvilcraft:cut_heavy_iron_block"
+          "minecraft:sponge"
         ]
       },
       "offset": [
@@ -711,7 +711,7 @@
       "type": "has_block",
       "match_block": {
         "blocks": [
-          "anvilcraft:cut_heavy_iron_block"
+          "minecraft:sponge"
         ]
       },
       "offset": [
@@ -724,7 +724,7 @@
       "type": "has_block",
       "match_block": {
         "blocks": [
-          "anvilcraft:cut_heavy_iron_block"
+          "minecraft:sponge"
         ]
       },
       "offset": [
@@ -737,7 +737,7 @@
       "type": "has_block",
       "match_block": {
         "blocks": [
-          "anvilcraft:cut_heavy_iron_block"
+          "minecraft:sponge"
         ]
       },
       "offset": [
@@ -750,7 +750,7 @@
       "type": "has_block",
       "match_block": {
         "blocks": [
-          "anvilcraft:cut_heavy_iron_block"
+          "minecraft:air"
         ]
       },
       "offset": [
@@ -763,7 +763,7 @@
       "type": "has_block",
       "match_block": {
         "blocks": [
-          "anvilcraft:cut_heavy_iron_block"
+          "minecraft:sponge"
         ]
       },
       "offset": [
@@ -776,7 +776,7 @@
       "type": "has_block",
       "match_block": {
         "blocks": [
-          "anvilcraft:cut_heavy_iron_block"
+          "minecraft:sponge"
         ]
       },
       "offset": [
@@ -789,7 +789,7 @@
       "type": "has_block",
       "match_block": {
         "blocks": [
-          "anvilcraft:cut_heavy_iron_block"
+          "minecraft:sponge"
         ]
       },
       "offset": [
@@ -802,7 +802,7 @@
       "type": "has_block",
       "match_block": {
         "blocks": [
-          "anvilcraft:cut_heavy_iron_block"
+          "minecraft:sponge"
         ]
       },
       "offset": [
