@@ -1,0 +1,36 @@
+{
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/block",
+	"textures": {
+		"particle": "anvilcraft:block/heliostats_front",
+		"front": "anvilcraft:block/heliostats_front",
+		"back": "anvilcraft:block/heliostats_back"
+	},
+	"elements": [
+		{
+			"from": [-7, 1, -7],
+			"to": [7, 2, 7],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 1, 0]},
+			"faces": {
+				"north": {"uv": [1, 1, 15, 2], "texture": "#back"},
+				"east": {"uv": [1, 1, 15, 2], "texture": "#back"},
+				"south": {"uv": [1, 1, 15, 2], "texture": "#back"},
+				"west": {"uv": [1, 1, 15, 2], "texture": "#back"},
+				"up": {"uv": [1, 1, 15, 15], "rotation": 180, "texture": "#front"},
+				"down": {"uv": [1, 1, 15, 15], "rotation": 180, "texture": "#back"}
+			}
+		},
+		{
+			"from": [-7, 0, -1],
+			"to": [7, 1, 1],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 1, 0]},
+			"faces": {
+				"north": {"uv": [1, 8, 15, 9], "texture": "#back"},
+				"east": {"uv": [11, 1, 13, 2], "texture": "#back"},
+				"south": {"uv": [1, 7, 15, 8], "texture": "#back"},
+				"west": {"uv": [3, 1, 5, 2], "texture": "#back"},
+				"down": {"uv": [1, 7, 15, 9], "texture": "#back"}
+			}
+		}
+	]
+}

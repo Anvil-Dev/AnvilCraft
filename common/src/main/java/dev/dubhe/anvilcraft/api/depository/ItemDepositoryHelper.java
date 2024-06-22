@@ -82,7 +82,7 @@ public class ItemDepositoryHelper {
      */
     private static boolean canInsert(ItemStack sourceStack, IItemDepository target) {
         for (int i = 0; i < target.getSlots(); i++) {
-            ItemStack targetStack = target.getStack(i);
+            ItemStack targetStack = target.getStackNoClone(i);
             if (targetStack.isEmpty()) {
                 return true;
             }
