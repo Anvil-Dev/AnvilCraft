@@ -82,7 +82,9 @@ dependencies {
     // Patchouli
     modImplementation fabric.patchouli
 
-    modCompileOnly("com.simibubi.create:create-fabric-${minecraft_version}:${create_fabric_version}")
+    modCompileOnly("com.simibubi.create:create-fabric-${minecraft_version}:${create_fabric_version}"){
+        exclude(group: "io.github.llamalad7")
+    }
 }
 
 publishing {
