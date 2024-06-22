@@ -337,6 +337,8 @@
   "text.autoconfig.anvilcraft.option.geodeInterval.@Tooltip": "The search interval of the geode",
   "text.autoconfig.anvilcraft.option.geodeRadius": "Geode Maximum Search Radius",
   "text.autoconfig.anvilcraft.option.geodeRadius.@Tooltip": "The maximum search radius of the geode",
+  "text.autoconfig.anvilcraft.option.inductionLightBlockRipeningCooldown": "Induction Light Block Ripening Cooldown",
+  "text.autoconfig.anvilcraft.option.inductionLightBlockRipeningRange": "Induction Light Block Ripening Range",
   "text.autoconfig.anvilcraft.option.isLaserDoImpactChecking": "Is Laser Do Impact Checking",
   "text.autoconfig.anvilcraft.option.lightningStrikeDepth": "Lightning Strike Depth",
   "text.autoconfig.anvilcraft.option.lightningStrikeDepth.@Tooltip": "Maximum depth a lightning strike can reach",
