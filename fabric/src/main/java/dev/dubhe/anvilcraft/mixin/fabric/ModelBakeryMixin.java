@@ -27,6 +27,7 @@ public abstract class ModelBakeryMixin {
         if (location.getNamespace().equals("anvilcraft") && location.getPath().equals("crab_claw")) {
             putUnbakedModel(new ModelResourceLocation("anvilcraft", "crab_claw_holding_block", "inventory"));
             putUnbakedModel(new ModelResourceLocation("anvilcraft", "crab_claw_holding_item", "inventory"));
+            putUnbakedModel(new ModelResourceLocation("anvilcraft", "heliostats_head", ""));
         }
     }
 

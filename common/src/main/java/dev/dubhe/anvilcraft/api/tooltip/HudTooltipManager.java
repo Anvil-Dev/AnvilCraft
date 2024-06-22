@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.dubhe.anvilcraft.api.tooltip.impl.AffectRangeProviderImpl;
 import dev.dubhe.anvilcraft.api.tooltip.impl.HeliostatsTooltip;
+import dev.dubhe.anvilcraft.api.tooltip.impl.HeliostatsTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.PowerComponentTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.RubyPrismTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.providers.AffectRangeProvider;
@@ -13,6 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -39,6 +41,7 @@ public class HudTooltipManager {
         INSTANCE.registerAffectRange(new AffectRangeProviderImpl());
         INSTANCE.registerBlockEntityTooltip(new RubyPrismTooltipProvider());
         INSTANCE.registerHandHeldItemTooltip(new HeliostatsTooltip());
+        INSTANCE.registerBlockEntityTooltip(new HeliostatsTooltipProvider());
     }
 
     private void registerAffectRange(AffectRangeProviderImpl affectRangeProvider) {
@@ -69,11 +72,13 @@ public class HudTooltipManager {
         Font font = Minecraft.getInstance().font;
         BlockEntityTooltipProvider currentProvider = determineBlockEntityTooltipProvider(entity);
         if (currentProvider == null) return;
+        List<Component> tooltip = currentProvider.tooltip(entity);
+        if (tooltip == null || tooltip.isEmpty()) return;
         renderTooltipWithItemIcon(
                 guiGraphics,
                 font,
                 currentProvider.icon(entity),
-                currentProvider.tooltip(entity),
+                tooltip,
                 tooltipPosX,
                 tooltipPosY,
                 BACKGROUND_COLOR,
