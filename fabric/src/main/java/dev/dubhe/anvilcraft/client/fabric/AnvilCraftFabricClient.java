@@ -28,6 +28,7 @@ public class AnvilCraftFabricClient implements ClientModInitializer {
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.RUBY_PRISM.get(), RenderType.translucent());
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.RUBY_LASER.get(), RenderType.translucent());
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.GIANT_ANVIL.get(), RenderType.solid());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.MENGER_SPONGE.get(), RenderType.cutout());
         WorldRenderEvents.AFTER_ENTITIES.register(context -> {
             if (IBlockHighlightUtil.SUBCHUNKS.isEmpty()) return;
             MultiBufferSource consumers = context.consumers();
