@@ -32,6 +32,9 @@ public class InductionLightBlockEntity extends BlockEntity implements IPowerCons
         return new InductionLightBlockEntity(type, pos, blockState);
     }
 
+    /**
+     *
+     */
     public void tick(Level level1) {
         flushState(level1, getBlockPos());
         if (!registered) {

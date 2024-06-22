@@ -15,10 +15,10 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
-public class LaseRenderer implements BlockEntityRenderer<BaseLaserBlockEntity> {
+public class LaserRenderer implements BlockEntityRenderer<BaseLaserBlockEntity> {
 
     @SuppressWarnings("unused")
-    public LaseRenderer(BlockEntityRendererProvider.Context context) {
+    public LaserRenderer(BlockEntityRendererProvider.Context context) {
     }
 
     @Override
@@ -34,7 +34,9 @@ public class LaseRenderer implements BlockEntityRenderer<BaseLaserBlockEntity> {
         VertexConsumer consumer =
                 buffer.getBuffer(RenderType.translucent());
         float length =
-                (float) (blockEntity.irradiateBlockPos.getCenter().distanceTo(blockEntity.getBlockPos().getCenter()) - 0.5);
+                (float) (blockEntity.irradiateBlockPos
+                        .getCenter()
+                        .distanceTo(blockEntity.getBlockPos().getCenter()) - 0.5);
         if (blockEntity instanceof RubyLaserBlockEntity) offest = 0.489f;
         poseStack.mulPose(blockEntity.getDirection().getRotation());
         renderBox(
