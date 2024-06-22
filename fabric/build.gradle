@@ -79,7 +79,6 @@ repositories {
     maven { url = "https://mvn.devos.one/snapshots/" }
     // Create Fabric, Porting Lib, Forge Tags, Milk Lib, Registrate Fabric
     //maven { url = "https://maven.cafeteria.dev/releases" } // Fake Player API
-    maven { url = "https://maven.jamieswhiteshirt.com/libs-release" } // Reach Entity Attributes
     maven { url = "https://jitpack.io/" } // Mixin Extras, Fabric ASM
     maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" }
     maven { url = "https://maven.saps.dev/minecraft" } // saps.dev Maven (KubeJS and Rhino)
@@ -87,6 +86,9 @@ repositories {
         url = "https://maven.jamieswhiteshirt.com/libs-release"
         content { includeGroup("com.jamieswhiteshirt") }
     }
+
+    maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" } // Forge Config API Port
+    maven { url = "https://maven.cafeteria.dev/releases" } // Fake Player API
 }
 
 dependencies {
@@ -139,6 +141,8 @@ dependencies {
 
     // Patchouli
     modImplementation fabric.patchouli
+
+    modImplementation("com.simibubi.create:create-fabric-${minecraft_version}:${create_fabric_version}")
 }
 
 

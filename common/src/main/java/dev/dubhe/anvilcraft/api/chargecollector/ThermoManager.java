@@ -9,6 +9,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -77,7 +79,6 @@ public class ThermoManager {
 
         register(ThermoEntry.always(2, ModBlocks.URANIUM_BLOCK.get(), false));
 
-        register(ThermoEntry.simple(4, Blocks.LAVA, Blocks.OBSIDIAN, false));
         register(ThermoEntry.simple(4, Blocks.MAGMA_BLOCK, Blocks.NETHERRACK, false));
         register(ThermoEntry.simple(4, Blocks.LAVA_CAULDRON, ModBlocks.OBSIDIDAN_CAULDRON.get(), false));
 
@@ -85,6 +86,13 @@ public class ThermoManager {
                 4,
                 CampfireBlock::isLitCampfire,
                 t -> t.setValue(CampfireBlock.LIT, false),
+                false
+        ));
+
+        register(ThermoEntry.predicate(
+                4,
+                (state) -> state.getFluidState().is(Fluids.LAVA),
+                it -> Blocks.OBSIDIAN.defaultBlockState(),
                 false
         ));
     }

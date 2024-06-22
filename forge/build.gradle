@@ -113,6 +113,12 @@ repositories {
         }
     }
     maven { url 'https://jitpack.io' } // Mixin Extras, Fabric ASM
+    maven { // Create Forge and Registrate Forge
+        url = "https://maven.tterrag.com/"
+        content {
+            includeGroup("com.simibubi.create")
+        }
+    }
 }
 
 dependencies {
@@ -154,6 +160,10 @@ dependencies {
 
     // Patchouli
     modImplementation forge.patchouli
+
+    //create
+    modImplementation("com.simibubi.create:create-${minecraft_version}:${create_forge_version}:slim") { transitive = false }
+    modImplementation("com.jozufozu.flywheel:flywheel-forge-${flywheel_forge_minecraft_version}:${flywheel_forge_version}")
 }
 
 processResources {

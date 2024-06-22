@@ -18,6 +18,7 @@ import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.init.ModLootContextParamSet;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.ModNetworks;
+import dev.dubhe.anvilcraft.integration.create.CreateIntegration;
 import dev.dubhe.anvilcraft.util.EnchantmentDisableUtil;
 import dev.dubhe.anvilcraft.util.Lazy;
 import me.shedaniel.autoconfig.AutoConfig;
@@ -61,6 +62,7 @@ public class AnvilCraft {
         AnvilRecipe.init();
         // datagen
         AnvilCraftDatagen.init();
+        CreateIntegration.applyIfPossible();
         // fabric 独有，请在此之前插入注册
         REGISTRATE.registerRegistrate();
     }
