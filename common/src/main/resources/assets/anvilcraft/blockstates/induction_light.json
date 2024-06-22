@@ -1,52 +1,194 @@
 {
   "variants": {
-    "powered=true,overload=true,axis=y": {
+    "color=primary,powered=true,overload=true,axis=y": {
       "model": "anvilcraft:block/induction_light_overload"
     },
-    "powered=true,overload=false,axis=y": {
+    "color=primary,powered=true,overload=false,axis=y": {
       "model": "anvilcraft:block/induction_light_off"
     },
-    "powered=false,overload=true,axis=y": {
+    "color=primary,powered=false,overload=true,axis=y": {
       "model": "anvilcraft:block/induction_light_overload"
     },
-    "powered=false,overload=false,axis=y": {
+    "color=primary,powered=false,overload=false,axis=y": {
       "model": "anvilcraft:block/induction_light"
     },
-
-    "powered=true,overload=true,axis=z": {
+    "color=primary,powered=true,overload=true,axis=z": {
       "model": "anvilcraft:block/induction_light_overload",
       "x": 270
     },
-    "powered=true,overload=false,axis=z": {
+    "color=primary,powered=true,overload=false,axis=z": {
       "model": "anvilcraft:block/induction_light_off",
       "x": 270
     },
-    "powered=false,overload=true,axis=z": {
+    "color=primary,powered=false,overload=true,axis=z": {
       "model": "anvilcraft:block/induction_light_overload",
       "x": 270
     },
-    "powered=false,overload=false,axis=z": {
+    "color=primary,powered=false,overload=false,axis=z": {
       "model": "anvilcraft:block/induction_light",
       "x": 270
     },
-
-    "powered=true,overload=true,axis=x": {
+    "color=primary,powered=true,overload=true,axis=x": {
       "model": "anvilcraft:block/induction_light_overload",
       "x": 270,
       "y": 90
     },
-    "powered=true,overload=false,axis=x": {
+    "color=primary,powered=true,overload=false,axis=x": {
       "model": "anvilcraft:block/induction_light_off",
       "x": 270,
       "y": 90
     },
-    "powered=false,overload=true,axis=x": {
+    "color=primary,powered=false,overload=true,axis=x": {
       "model": "anvilcraft:block/induction_light_overload",
       "x": 270,
       "y": 90
     },
-    "powered=false,overload=false,axis=x": {
+    "color=primary,powered=false,overload=false,axis=x": {
       "model": "anvilcraft:block/induction_light",
+      "x": 270,
+      "y": 90
+    },
+    "color=pink,powered=true,overload=true,axis=y": {
+      "model": "anvilcraft:block/induction_light_overload"
+    },
+    "color=pink,powered=true,overload=false,axis=y": {
+      "model": "anvilcraft:block/induction_light_pink_off"
+    },
+    "color=pink,powered=false,overload=true,axis=y": {
+      "model": "anvilcraft:block/induction_light_overload"
+    },
+    "color=pink,powered=false,overload=false,axis=y": {
+      "model": "anvilcraft:block/induction_light_pink"
+    },
+    "color=pink,powered=true,overload=true,axis=z": {
+      "model": "anvilcraft:block/induction_light_overload",
+      "x": 270
+    },
+    "color=pink,powered=true,overload=false,axis=z": {
+      "model": "anvilcraft:block/induction_light_pink_off",
+      "x": 270
+    },
+    "color=pink,powered=false,overload=true,axis=z": {
+      "model": "anvilcraft:block/induction_light_overload",
+      "x": 270
+    },
+    "color=pink,powered=false,overload=false,axis=z": {
+      "model": "anvilcraft:block/induction_light_pink",
+      "x": 270
+    },
+    "color=pink,powered=true,overload=true,axis=x": {
+      "model": "anvilcraft:block/induction_light_overload",
+      "x": 270,
+      "y": 90
+    },
+    "color=pink,powered=true,overload=false,axis=x": {
+      "model": "anvilcraft:block/induction_light_pink_off",
+      "x": 270,
+      "y": 90
+    },
+    "color=pink,powered=false,overload=true,axis=x": {
+      "model": "anvilcraft:block/induction_light_overload",
+      "x": 270,
+      "y": 90
+    },
+    "color=pink,powered=false,overload=false,axis=x": {
+      "model": "anvilcraft:block/induction_light_pink",
+      "x": 270,
+      "y": 90
+    },
+    "color=yellow,powered=true,overload=true,axis=y": {
+      "model": "anvilcraft:block/induction_light_overload"
+    },
+    "color=yellow,powered=true,overload=false,axis=y": {
+      "model": "anvilcraft:block/induction_light_yellow_off"
+    },
+    "color=yellow,powered=false,overload=true,axis=y": {
+      "model": "anvilcraft:block/induction_light_overload"
+    },
+    "color=yellow,powered=false,overload=false,axis=y": {
+      "model": "anvilcraft:block/induction_light_yellow"
+    },
+    "color=yellow,powered=true,overload=true,axis=z": {
+      "model": "anvilcraft:block/induction_light_overload",
+      "x": 270
+    },
+    "color=yellow,powered=true,overload=false,axis=z": {
+      "model": "anvilcraft:block/induction_light_yellow_off",
+      "x": 270
+    },
+    "color=yellow,powered=false,overload=true,axis=z": {
+      "model": "anvilcraft:block/induction_light_overload",
+      "x": 270
+    },
+    "color=yellow,powered=false,overload=false,axis=z": {
+      "model": "anvilcraft:block/induction_light_yellow",
+      "x": 270
+    },
+    "color=yellow,powered=true,overload=true,axis=x": {
+      "model": "anvilcraft:block/induction_light_overload",
+      "x": 270,
+      "y": 90
+    },
+    "color=yellow,powered=true,overload=false,axis=x": {
+      "model": "anvilcraft:block/induction_light_yellow_off",
+      "x": 270,
+      "y": 90
+    },
+    "color=yellow,powered=false,overload=true,axis=x": {
+      "model": "anvilcraft:block/induction_light_overload",
+      "x": 270,
+      "y": 90
+    },
+    "color=yellow,powered=false,overload=false,axis=x": {
+      "model": "anvilcraft:block/induction_light_yellow",
+      "x": 270,
+      "y": 90
+    },
+    "color=dark,powered=true,overload=true,axis=y": {
+      "model": "anvilcraft:block/induction_light_overload"
+    },
+    "color=dark,powered=true,overload=false,axis=y": {
+      "model": "anvilcraft:block/induction_light_dark_off"
+    },
+    "color=dark,powered=false,overload=true,axis=y": {
+      "model": "anvilcraft:block/induction_light_overload"
+    },
+    "color=dark,powered=false,overload=false,axis=y": {
+      "model": "anvilcraft:block/induction_light_dark"
+    },
+    "color=dark,powered=true,overload=true,axis=z": {
+      "model": "anvilcraft:block/induction_light_overload",
+      "x": 270
+    },
+    "color=dark,powered=true,overload=false,axis=z": {
+      "model": "anvilcraft:block/induction_light_dark_off",
+      "x": 270
+    },
+    "color=dark,powered=false,overload=true,axis=z": {
+      "model": "anvilcraft:block/induction_light_overload",
+      "x": 270
+    },
+    "color=dark,powered=false,overload=false,axis=z": {
+      "model": "anvilcraft:block/induction_light_dark",
+      "x": 270
+    },
+    "color=dark,powered=true,overload=true,axis=x": {
+      "model": "anvilcraft:block/induction_light_overload",
+      "x": 270,
+      "y": 90
+    },
+    "color=dark,powered=true,overload=false,axis=x": {
+      "model": "anvilcraft:block/induction_light_dark_off",
+      "x": 270,
+      "y": 90
+    },
+    "color=dark,powered=false,overload=true,axis=x": {
+      "model": "anvilcraft:block/induction_light_overload",
+      "x": 270,
+      "y": 90
+    },
+    "color=dark,powered=false,overload=false,axis=x": {
+      "model": "anvilcraft:block/induction_light_dark",
       "x": 270,
       "y": 90
     }
