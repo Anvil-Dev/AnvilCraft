@@ -29,81 +29,23 @@ public class LaseRenderer implements BlockEntityRenderer<BaseLaserBlockEntity> {
         final TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS)
             .apply(new ResourceLocation("block/white_concrete"));
         poseStack.pushPose();
-        VertexConsumer consumer =
-            buffer.getBuffer(RenderType.translucent());
-        float length =
-            (float) (blockEntity.irradiateBlockPos.getCenter().distanceTo(blockEntity.getBlockPos().getCenter()) - 0.5);
         poseStack.translate(0.5f, 0.5f, 0.5);
         float offest = 0;
+        VertexConsumer consumer =
+                buffer.getBuffer(RenderType.translucent());
+        float length =
+                (float) (blockEntity.irradiateBlockPos.getCenter().distanceTo(blockEntity.getBlockPos().getCenter()) - 0.5);
         if (blockEntity instanceof RubyLaserBlockEntity) offest = 0.489f;
-        switch (blockEntity.getDirection()) {
-            case EAST -> {
-                renderBox(
-                    consumer, poseStack,
-                    -offest, -0.0625f, -0.0625f, length, 0.0625f, 0.0625f, sprite);
-                renderBox(
-                    consumer, poseStack,
-                    length, -0.0625f, -0.0625f, length + 0.3f, 0.0625f, 0.0625f, 0.35f, sprite);
-                renderBox(
-                    consumer, poseStack,
-                    length + 0.3f, -0.0625f, -0.0625f, length + 0.57f, 0.0625f, 0.0625f, 0.15f, sprite);
-            }
-            case WEST -> {
-                renderBox(
-                    consumer, poseStack,
-                    -length, -0.0625f, -0.0625f, offest, 0.0625f, 0.0625f, sprite);
-                renderBox(
-                    consumer, poseStack,
-                    -length - 0.3f, -0.0625f, -0.0625f, -length, -0.0625f, -0.0625f, 0.35f, sprite);
-                renderBox(
-                    consumer, poseStack,
-                    -length - 0.57f, -0.0625f, -0.0625f, -length - 0.3f, 0.0625f, 0.0625f, 0.15f, sprite);
-            }
-            case SOUTH -> {
-                renderBox(
-                    consumer, poseStack,
-                    -0.0625f, -0.0625f, -offest, 0.0625f, 0.0625f, length, sprite);
-                renderBox(
-                    consumer, poseStack,
-                    -0.0625f, -0.0625f, length, 0.0625f, 0.0625f, length + 0.3f, 0.35f, sprite);
-                renderBox(
-                    consumer, poseStack,
-                    -0.0625f, -0.0625f, length + 0.3f, 0.0625f, 0.0625f, length + 0.57f, 0.15f, sprite);
-            }
-            case NORTH -> {
-                renderBox(
-                    consumer, poseStack,
-                    -0.0625f, -0.0625f, -length, 0.0625f, 0.0625f, offest, sprite);
-                renderBox(
-                    consumer, poseStack,
-                    -0.0625f, -0.0625f, -length - 0.3f, 0.0625f, 0.0625f, -length, 0.35f,  sprite);
-                renderBox(
-                    consumer, poseStack,
-                    -0.0625f, -0.0625f, -length - 0.57f, 0.0625f, 0.0625f, -length - 0.3f, 0.15f, sprite);
-            }
-            case UP -> {
-                renderBox(
-                    consumer, poseStack,
-                    -0.0625f, -offest, -0.0625f, 0.0625f, length, 0.0625f, sprite);
-                renderBox(
-                    consumer, poseStack,
-                    -0.0625f, length, -0.0625f, 0.0625f, length + 0.3f, 0.0625f, 0.35f, sprite);
-                renderBox(
-                    consumer, poseStack,
-                    -0.0625f, length + 0.3f, -0.0625f, 0.0625f, length + 0.57f, 0.0625f, 0.15f, sprite);
-            }
-            default -> {
-                renderBox(
-                    consumer, poseStack,
-                    -0.0625f, -length, -0.0625f, 0.0625f, offest, 0.0625f, sprite);
-                renderBox(
-                    consumer, poseStack,
-                    -0.0625f, -length - 0.3f, -0.0625f, 0.0625f, -length, 0.0625f, 0.35f, sprite);
-                renderBox(
-                    consumer, poseStack,
-                    -0.0625f, -length - 0.75f, -0.0625f, 0.0625f, -length - 0.3f, 0.0625f, 0.15f, sprite);
-            }
-        }
+        poseStack.mulPose(blockEntity.getDirection().getRotation());
+        renderBox(
+                consumer, poseStack,
+                -0.0625f, -offest, -0.0625f, 0.0625f, length, 0.0625f, sprite);
+        renderBox(
+                consumer, poseStack,
+                -0.0625f, length, -0.0625f, 0.0625f, length + 0.3f, 0.0625f, 0.35f, sprite);
+        renderBox(
+                consumer, poseStack,
+                -0.0625f, length + 0.3f, -0.0625f, 0.0625f, length + 0.57f, 0.0625f, 0.15f, sprite);
         poseStack.popPose();
     }
 

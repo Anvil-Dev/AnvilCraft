@@ -65,5 +65,12 @@ public class ScreenLang {
         provider.add("block.anvilcraft.heliostats.invalid_placement", "Invalid placement");
         provider.add("block.anvilcraft.heliostats.placement_no_pos", "Irradiation position not set");
         provider.add("item.anvilcraft.heliostats.pos_set", "Will irradiate %s");
+        provider.add("item.anvilcraft.heliostats.no_rotation_angle", "Will irradiate %s");
+        provider.add("tooltip.anvilcraft.heliostats.not_work", "Heliostats are not working");
+        provider.add("tooltip.anvilcraft.heliostats.no_sun", "  No sunlight");
+        provider.add("tooltip.anvilcraft.heliostats.obscured", "  The illumination path is obscured");
+        provider.add("tooltip.anvilcraft.heliostats.too_far", "  The illumination pos is too far");
+        provider.add("tooltip.anvilcraft.heliostats.unspecified_irradiation_block", "  Unspecified irradiation block");
+        provider.add("tooltip.anvilcraft.heliostats.unknown", "  Unknown reason");
     }
 }

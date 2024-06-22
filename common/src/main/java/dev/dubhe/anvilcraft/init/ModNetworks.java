@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.network.Network;
 import dev.dubhe.anvilcraft.network.ClientboundMutedSoundSyncPacket;
 import dev.dubhe.anvilcraft.network.HammerUsePack;
+import dev.dubhe.anvilcraft.network.HeliostatsIrradiationPack;
 import dev.dubhe.anvilcraft.network.LaserEmitPack;
 import dev.dubhe.anvilcraft.network.MachineEnableFilterPack;
 import dev.dubhe.anvilcraft.network.MachineOutputDirectionPack;
@@ -83,6 +84,11 @@ public class ModNetworks {
     public static final ResourceLocation LASER_EMIT = Network.register(
         AnvilCraft.of("laser_emit"),
         LaserEmitPack.class, LaserEmitPack::new
+    );
+
+    public static final ResourceLocation HELIOSTATS_IRRADIATION = Network.register(
+        AnvilCraft.of("heliostats_irradiation_pack"),
+        HeliostatsIrradiationPack.class, HeliostatsIrradiationPack::new
     );
 
     public static void register() {

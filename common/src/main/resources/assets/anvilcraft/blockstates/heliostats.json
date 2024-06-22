@@ -1,19 +1,7 @@
 {
   "variants": {
-    "facing=north": {
-      "model": "anvilcraft:block/heliostats"
-    },
-    "facing=south": {
-      "model": "anvilcraft:block/heliostats",
-      "y": 180
-    },
-    "facing=east": {
-      "model": "anvilcraft:block/heliostats",
-      "y": 90
-    },
-    "facing=west": {
-      "model": "anvilcraft:block/heliostats",
-      "y": 270
+    "": {
+      "model": "anvilcraft:block/heliostats_base"
     }
   }
 }
