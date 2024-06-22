@@ -12,7 +12,8 @@
     "MinecraftServerMixin",
     "PistonMovingBlockEntityMixin",
     "ZetaPistonCompatMixin",
-    "accessor.PistonStructorResolverAccessor"
+    "accessor.PistonStructorResolverAccessor",
+    "ForgeGuiMixin"
   ],
   "client": [
   ],

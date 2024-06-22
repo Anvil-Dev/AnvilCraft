@@ -10,7 +10,8 @@ public record PowerComponentInfo(
         int produces,
         int stores,
         int capacity,
-        int range
+        int range,
+        PowerComponentType type
 ) {
     public static final Codec<PowerComponentInfo> CODEC = RecordCodecBuilder.create(ins -> ins.group(
             BlockPos.CODEC.fieldOf("pos").forGetter(o -> o.pos),
@@ -18,6 +19,7 @@ public record PowerComponentInfo(
             Codec.INT.fieldOf("produces").forGetter(o -> o.produces),
             Codec.INT.fieldOf("stores").forGetter(o -> o.stores),
             Codec.INT.fieldOf("capacity").forGetter(o -> o.capacity),
-            Codec.INT.fieldOf("range").forGetter(o -> o.range)
+            Codec.INT.fieldOf("range").forGetter(o -> o.range),
+            PowerComponentType.CODEC.fieldOf("type").forGetter(o -> o.type)
     ).apply(ins, PowerComponentInfo::new));
 }

@@ -1,11 +1,11 @@
-package dev.dubhe.anvilcraft.mixin;
+package dev.dubhe.anvilcraft.mixin.forge;
 
 import dev.dubhe.anvilcraft.api.tooltip.HudTooltipManager;
 import dev.dubhe.anvilcraft.item.IEngineerGoggles;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -13,34 +13,23 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-import org.spongepowered.asm.mixin.Final;
+import net.minecraftforge.client.gui.overlay.ForgeGui;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(Gui.class)
-public abstract class PowerGridInformationRenderMixin {
-
-    @Shadow
-    public abstract Font getFont();
-
-    @Shadow
-    private int screenHeight;
-
-    @Shadow
-    private int screenWidth;
-
-    @Shadow
-    @Final
-    private Minecraft minecraft;
+@Mixin(ForgeGui.class)
+public class ForgeGuiMixin extends Gui {
+    public ForgeGuiMixin(Minecraft minecraft, ItemRenderer itemRenderer) {
+        super(minecraft, itemRenderer);
+    }
 
     @Inject(
             method = "render",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/Gui;renderCrosshair(Lnet/minecraft/client/gui/GuiGraphics;)V",
+                    target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderColor(FFFF)V",
                     shift = At.Shift.AFTER
             )
     )
@@ -72,4 +61,5 @@ public abstract class PowerGridInformationRenderMixin {
             HudTooltipManager.INSTANCE.renderTooltip(guiGraphics, e, partialTick, screenWidth, screenHeight);
         }
     }
+
 }

@@ -131,23 +131,6 @@ public class ThermoManager {
                         removal.add(block);
                     }
                 }
-                System.out.println("block.ttl = " + block.ttl);
-                System.out.println("block = " + block);
-//                if (entry.isCanIrritated()
-//                        && !HeatedBlockRecorder.getInstance(level).requireLightLevel(blockPos, entry.getCharge() / 2)
-//                ) {
-//                    if (block.ttl > 0) {
-//                        block.decrease();
-//                    } else {
-//                        level.setBlockAndUpdate(blockPos, entry.transform(state));
-//                        removal.add(block);
-//                    }
-//                } else {
-//                    if (!(entry instanceof ThermoEntry.Always)) {
-//
-//                    }
-//                    block.ttl = entry instanceof ThermoEntry.Always ? Mth.clamp(block.ttl + 1, 0, 2) : block.ttl;
-//                }
             } else {
                 removal.add(block);
             }

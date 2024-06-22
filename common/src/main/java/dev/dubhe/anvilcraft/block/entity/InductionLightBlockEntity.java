@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.api.BonemealManager;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.InductionLightBlock;
@@ -18,6 +19,9 @@ public class InductionLightBlockEntity extends BlockEntity implements IPowerCons
 
     private PowerGrid grid;
 
+    private int rangeSize = 5;
+    private boolean registered = false;
+
     public InductionLightBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
@@ -30,12 +34,18 @@ public class InductionLightBlockEntity extends BlockEntity implements IPowerCons
 
     public void tick(Level level1) {
         flushState(level1, getBlockPos());
+        if (!registered) {
+            registered = true;
+            BonemealManager.addLightBlock(getPos(), level);
+        }
     }
 
     @Override
     public int getInputPower() {
         if (level == null) return 1;
-        return getBlockState().getValue(InductionLightBlock.POWERED) ? 0 : 1;
+        return getBlockState()
+            .getValue(InductionLightBlock.POWERED)
+            ? 0 : getBlockState().getValue(InductionLightBlock.COLOR).dissipation;
     }
 
     @Override
