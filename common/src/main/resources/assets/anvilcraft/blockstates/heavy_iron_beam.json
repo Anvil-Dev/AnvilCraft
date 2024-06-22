@@ -3,7 +3,7 @@
         "axis=x": {
             "model": "anvilcraft:block/heavy_iron_beam_x"
         },
-        "axis=Z": {
+        "axis=z": {
             "model": "anvilcraft:block/heavy_iron_beam_z"
         }
     }
