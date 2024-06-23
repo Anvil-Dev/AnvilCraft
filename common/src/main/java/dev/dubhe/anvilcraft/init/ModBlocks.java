@@ -67,7 +67,6 @@ import dev.dubhe.anvilcraft.block.state.Vertical4PartHalf;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.generator.recipe.BlockSmashRecipesLoader;
 import dev.dubhe.anvilcraft.data.generator.recipe.StampingRecipesLoader;
-import dev.dubhe.anvilcraft.data.recipe.RecipeItem;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipeOutcome;
@@ -2515,7 +2514,7 @@ public class ModBlocks {
                                 "craft/" + id + "_from_"
                                     + location1.getPath().replace('/', '_')
                             ));
-                        StampingRecipesLoader.stamping(ingredient, RecipeItem.of(ctx.get()));
+                        StampingRecipesLoader.stamping(provider, ingredient, ctx.get().asItem());
                     }
                 }
             )
@@ -2572,7 +2571,7 @@ public class ModBlocks {
                                 "craft/" + id + "_from_"
                                     + ingredient.location().getPath().replace('/', '_')
                             ));
-                        StampingRecipesLoader.stamping(ingredient, RecipeItem.of(ctx.get()));
+                        StampingRecipesLoader.stamping(provider, ingredient, ctx.get().asItem());
                     }
                 }
             )
