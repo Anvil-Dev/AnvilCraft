@@ -61,7 +61,7 @@ public class CookingRecipesLoader {
      */
     public static void boil(Item item, int count, Item item1, int count1, RegistrateRecipeProvider provider) {
         AnvilRecipe.Builder.create(RecipeCategory.FOOD)
-            .type(AnvilRecipeType.BOIL)
+            .type(AnvilRecipeType.COOKING)
             .hasFluidCauldron(new Vec3(0.0, -1.0, 0.0), Blocks.WATER_CAULDRON)
             .hasBlock(
                 new Vec3(0.0, -2.0, 0.0),
