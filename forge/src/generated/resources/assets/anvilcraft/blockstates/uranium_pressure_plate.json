@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "powered=false": {
+      "model": "anvilcraft:block/uranium_pressure_plate"
+    },
+    "powered=true": {
+      "model": "anvilcraft:block/uranium_pressure_plate_down"
+    }
+  }
+}

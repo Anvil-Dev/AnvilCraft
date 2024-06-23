@@ -66,6 +66,8 @@ import dev.dubhe.anvilcraft.block.state.Vertical3PartHalf;
 import dev.dubhe.anvilcraft.block.state.Vertical4PartHalf;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.generator.recipe.BlockSmashRecipesLoader;
+import dev.dubhe.anvilcraft.data.generator.recipe.StampingRecipesLoader;
+import dev.dubhe.anvilcraft.data.recipe.RecipeItem;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipeOutcome;
@@ -89,8 +91,10 @@ import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.packs.VanillaRecipeProvider;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -103,12 +107,15 @@ import net.minecraft.world.level.block.GlassBlock;
 import net.minecraft.world.level.block.GravelBlock;
 import net.minecraft.world.level.block.HalfTransparentBlock;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
+import net.minecraft.world.level.block.PressurePlateBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.WallBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockSetType;
+import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -120,6 +127,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.function.Supplier;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 import static dev.dubhe.anvilcraft.api.power.IPowerComponent.OVERLOAD;
@@ -734,6 +742,52 @@ public class ModBlocks {
                 .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath() + "_forge");
         })
         .register();
+    public static final BlockEntry<? extends PressurePlateBlock> COPPER_PRESSURE_PLATE = registerPressurePlate(
+        "copper", () -> Blocks.COPPER_BLOCK,
+        ModItemTags.TUNGSTEN_INGOTS, ModItemTags.TUNGSTEN_INGOTS_FORGE
+    );
+    public static final BlockEntry<? extends PressurePlateBlock> EXPOSED_COPPER_PRESSURE_PLATE =
+        registerOtherCopperPressurePlate("exposed_", Blocks.EXPOSED_COPPER);
+    public static final BlockEntry<? extends PressurePlateBlock> WEATHERED_COPPER_PRESSURE_PLATE =
+        registerOtherCopperPressurePlate("weathered_", Blocks.WEATHERED_COPPER);
+    public static final BlockEntry<? extends PressurePlateBlock> OXIDIZED_COPPER_PRESSURE_PLATE =
+        registerOtherCopperPressurePlate("oxidized_", Blocks.OXIDIZED_COPPER);
+    public static final BlockEntry<? extends PressurePlateBlock> TUNGSTEN_PRESSURE_PLATE = registerPressurePlate(
+        "tungsten", TUNGSTEN_BLOCK,
+        ModItemTags.TUNGSTEN_INGOTS, ModItemTags.TUNGSTEN_INGOTS_FORGE
+    );
+    public static final BlockEntry<? extends PressurePlateBlock> TITANIUM_PRESSURE_PLATE = registerPressurePlate(
+        "titanium", TITANIUM_BLOCK,
+        ModItemTags.TITANIUM_INGOTS, ModItemTags.TITANIUM_INGOTS_FORGE
+    );
+    public static final BlockEntry<? extends PressurePlateBlock> ZINC_PRESSURE_PLATE = registerPressurePlate(
+        "zinc", ZINC_BLOCK,
+        ModItemTags.ZINC_INGOTS, ModItemTags.ZINC_INGOTS_FORGE
+    );
+    public static final BlockEntry<? extends PressurePlateBlock> TIN_PRESSURE_PLATE = registerPressurePlate(
+        "tin", TIN_BLOCK,
+        ModItemTags.TIN_INGOTS, ModItemTags.TIN_INGOTS_FORGE
+    );
+    public static final BlockEntry<? extends PressurePlateBlock> LEAD_PRESSURE_PLATE = registerPressurePlate(
+        "lead", LEAD_BLOCK,
+        ModItemTags.LEAD_INGOTS, ModItemTags.LEAD_INGOTS_FORGE
+    );
+    public static final BlockEntry<? extends PressurePlateBlock> SILVER_PRESSURE_PLATE = registerPressurePlate(
+        "silver", SILVER_BLOCK,
+        ModItemTags.SILVER_INGOTS, ModItemTags.SILVER_INGOTS_FORGE
+    );
+    public static final BlockEntry<? extends PressurePlateBlock> URANIUM_PRESSURE_PLATE = registerPressurePlate(
+        "uranium", URANIUM_BLOCK,
+        ModItemTags.URANIUM_INGOTS, ModItemTags.URANIUM_INGOTS_FORGE
+    );
+    public static final BlockEntry<? extends PressurePlateBlock> BRONZE_PRESSURE_PLATE = registerPressurePlate(
+        "bronze", BRONZE_BLOCK,
+        ModItemTags.BRONZE_INGOTS, ModItemTags.BRONZE_INGOTS_FORGE
+    );
+    public static final BlockEntry<? extends PressurePlateBlock> BRASS_PRESSURE_PLATE = registerPressurePlate(
+        "brass", BRASS_BLOCK,
+        ModItemTags.BRASS_INGOTS, ModItemTags.BRASS_INGOTS_FORGE
+    );
     public static final BlockEntry<? extends Block> TOPAZ_BLOCK = REGISTRATE
         .block("topaz_block", Block::new)
         .initialProperties(() -> Blocks.EMERALD_BLOCK)
@@ -1666,15 +1720,15 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<GiantAnvilBlock> GIANT_ANVIL = REGISTRATE
-            .block("giant_anvil", GiantAnvilBlock::new)
-            .initialProperties(() -> Blocks.ANVIL)
-            .loot(AbstractMultiplePartBlock::loot)
-            .properties(p -> p.noOcclusion().strength(4.0F).sound(SoundType.ANVIL).explosionResistance(1200))
-            .item(AbstractMultiplePartBlockItem<Cube3x3PartHalf>::new)
-            .build()
-            .blockstate((ctx, provider) -> {
-            })
-            .register();
+        .block("giant_anvil", GiantAnvilBlock::new)
+        .initialProperties(() -> Blocks.ANVIL)
+        .loot(AbstractMultiplePartBlock::loot)
+        .properties(p -> p.noOcclusion().strength(4.0F).sound(SoundType.ANVIL).explosionResistance(1200))
+        .item(AbstractMultiplePartBlockItem<Cube3x3PartHalf>::new)
+        .build()
+        .blockstate((ctx, provider) -> {
+        })
+        .register();
 
     public static final BlockEntry<CementCauldronBlock> CEMENT_CAULDRON = REGISTRATE
         .block("cement_cauldron", CementCauldronBlock::new)
@@ -2383,6 +2437,157 @@ public class ModBlocks {
             .register();
     }
 
+    private static @NotNull BlockEntry<? extends PressurePlateBlock> registerOtherCopperPressurePlate(
+        String prefix,
+        @NotNull Block block
+    ) {
+        ResourceLocation location = BuiltInRegistries.BLOCK.getKey(block);
+        String id = prefix + "copper" + "_pressure_plate";
+        return REGISTRATE
+            .block(
+                id,
+                (properties) -> new PressurePlateBlock(
+                    PressurePlateBlock.Sensitivity.EVERYTHING, properties, BlockSetType.IRON
+                )
+            )
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.HAMMER_REMOVABLE)
+            .initialProperties(() -> block)
+            .properties(
+                properties -> properties.forceSolidOn()
+                    .instrument(NoteBlockInstrument.BASS)
+                    .noCollission()
+                    .strength(0.5f)
+                    .pushReaction(PushReaction.DESTROY)
+            )
+            .blockstate((ctx, provider) -> provider.pressurePlateBlock(
+                ctx.get(),
+                new ResourceLocation(location.getNamespace(), "block/" + location.getPath())
+            ))
+            .item()
+            .tag(
+                ModItemTags.PLATES,
+                ModItemTags.bindC("copper" + "_plates"),
+                ModItemTags.PLATES_FORGE,
+                ModItemTags.bindForge("plates/" + "copper")
+            )
+            .build()
+            .register();
+    }
+
+    private static @NotNull BlockEntry<? extends PressurePlateBlock> registerPressurePlate(
+        String type,
+        @NotNull Supplier<? extends Block> block,
+        Item... ingredients
+    ) {
+        ResourceLocation location;
+        if (block instanceof BlockEntry<? extends Block> entry) location = entry.getId();
+        else location = BuiltInRegistries.BLOCK.getKey(block.get());
+        String id = type + "_pressure_plate";
+        return REGISTRATE
+            .block(
+                id,
+                (properties) -> new PressurePlateBlock(
+                    PressurePlateBlock.Sensitivity.EVERYTHING, properties, BlockSetType.IRON
+                )
+            )
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.HAMMER_REMOVABLE)
+            .initialProperties(block::get)
+            .properties(
+                properties -> properties.forceSolidOn()
+                    .instrument(NoteBlockInstrument.BASS)
+                    .noCollission()
+                    .strength(0.5f)
+                    .pushReaction(PushReaction.DESTROY)
+            )
+            .blockstate((ctx, provider) -> provider.pressurePlateBlock(
+                ctx.get(),
+                new ResourceLocation(location.getNamespace(), "block/" + location.getPath())
+            ))
+            .item()
+            .tag(
+                ModItemTags.PLATES,
+                ModItemTags.bindC(type + "_plates"),
+                ModItemTags.PLATES_FORGE,
+                ModItemTags.bindForge("plates/" + type)
+            )
+            .build()
+            .recipe(
+                (ctx, provider) -> {
+                    for (Item ingredient : ingredients) {
+                        ResourceLocation location1 = BuiltInRegistries.ITEM.getKey(ingredient);
+                        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 1)
+                            .pattern("AA")
+                            .define('A', ingredient)
+                            .unlockedBy(AnvilCraftDatagen.hasItem(ingredient),
+                                AnvilCraftDatagen.has(ingredient))
+                            .save(provider, AnvilCraft.of(
+                                "craft/" + id + "_from_"
+                                    + location1.getPath().replace('/', '_')
+                            ));
+                        StampingRecipesLoader.stamping(ingredient, RecipeItem.of(ctx.get()));
+                    }
+                }
+            )
+            .register();
+    }
+
+    @SafeVarargs
+    private static @NotNull BlockEntry<? extends PressurePlateBlock> registerPressurePlate(
+        String type,
+        @NotNull Supplier<? extends Block> block,
+        TagKey<Item>... ingredients
+    ) {
+        ResourceLocation location;
+        if (block instanceof BlockEntry<? extends Block> entry) location = entry.getId();
+        else location = BuiltInRegistries.BLOCK.getKey(block.get());
+        String id = type + "_pressure_plate";
+        return REGISTRATE
+            .block(
+                id,
+                (properties) -> new PressurePlateBlock(
+                    PressurePlateBlock.Sensitivity.EVERYTHING, properties, BlockSetType.IRON
+                )
+            )
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.HAMMER_REMOVABLE)
+            .initialProperties(block::get)
+            .properties(
+                properties -> properties.forceSolidOn()
+                    .instrument(NoteBlockInstrument.BASS)
+                    .noCollission()
+                    .strength(0.5f)
+                    .pushReaction(PushReaction.DESTROY)
+            )
+            .blockstate((ctx, provider) -> provider.pressurePlateBlock(
+                ctx.get(),
+                new ResourceLocation(location.getNamespace(), "block/" + location.getPath())
+            ))
+            .item()
+            .tag(
+                ModItemTags.PLATES,
+                ModItemTags.bindC(type + "_plates"),
+                ModItemTags.PLATES_FORGE,
+                ModItemTags.bindForge("plates/" + type)
+            )
+            .build()
+            .recipe(
+                (ctx, provider) -> {
+                    for (TagKey<Item> ingredient : ingredients) {
+                        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 1)
+                            .pattern("AA")
+                            .define('A', ingredient)
+                            .unlockedBy(AnvilCraftDatagen.hasItem(ingredient),
+                                AnvilCraftDatagen.has(ingredient))
+                            .save(provider, AnvilCraft.of(
+                                "craft/" + id + "_from_"
+                                    + ingredient.location().getPath().replace('/', '_')
+                            ));
+                        StampingRecipesLoader.stamping(ingredient, RecipeItem.of(ctx.get()));
+                    }
+                }
+            )
+            .register();
+    }
+
     private static @NotNull BlockEntry<WallBlock> registerReinforcedConcreteWallBlock(
         @NotNull Color color,
         BlockEntry<ReinforcedConcreteBlock> parent
@@ -2416,32 +2621,32 @@ public class ModBlocks {
     }
 
     public static final BlockEntry<HeliostatsBlock> HELIOSTATS = REGISTRATE
-            .block("heliostats", HeliostatsBlock::new)
-            .initialProperties(() -> Blocks.GLASS)
-            .blockstate((ctx, prov) -> {
-            })
-            .defaultLoot()
-            .item(HeliostatsItem::new)
-            .model((a, b) -> {
-            })
-            .build()
-            .recipe((ctx, provider) -> {
-                ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 16)
-                        .pattern("AAA")
-                        .pattern(" B ")
-                        .pattern(" C ")
-                        .define('A', ModItems.SILVER_INGOT)
-                        .define('B', Items.SUNFLOWER)
-                        .define('C', Items.IRON_INGOT)
-                        .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.SILVER_INGOT),
-                                AnvilCraftDatagen.has(ModItems.SILVER_INGOT))
-                        .unlockedBy(AnvilCraftDatagen.hasItem(Items.SUNFLOWER),
-                                AnvilCraftDatagen.has(Items.SUNFLOWER))
-                        .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT),
-                                AnvilCraftDatagen.has(Items.IRON_INGOT))
-                        .save(provider);
-            })
-            .register();
+        .block("heliostats", HeliostatsBlock::new)
+        .initialProperties(() -> Blocks.GLASS)
+        .blockstate((ctx, prov) -> {
+        })
+        .defaultLoot()
+        .item(HeliostatsItem::new)
+        .model((a, b) -> {
+        })
+        .build()
+        .recipe((ctx, provider) -> {
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 16)
+                .pattern("AAA")
+                .pattern(" B ")
+                .pattern(" C ")
+                .define('A', ModItems.SILVER_INGOT)
+                .define('B', Items.SUNFLOWER)
+                .define('C', Items.IRON_INGOT)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.SILVER_INGOT),
+                    AnvilCraftDatagen.has(ModItems.SILVER_INGOT))
+                .unlockedBy(AnvilCraftDatagen.hasItem(Items.SUNFLOWER),
+                    AnvilCraftDatagen.has(Items.SUNFLOWER))
+                .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT),
+                    AnvilCraftDatagen.has(Items.IRON_INGOT))
+                .save(provider);
+        })
+        .register();
 
     public static void register() {
     }
