@@ -49,7 +49,7 @@ public class AnvilRecipeCategory extends EmiRecipeCategory {
     );
     public static final EmiRecipeCategory COMPRESS = AnvilRecipeCategory.register(
         AnvilRecipeType.COMPRESS,
-        BlockStateEmiStack.of(Blocks.ANVIL)
+        BlockStateEmiStack.of(Blocks.CAULDRON)
     );
     public static final EmiRecipeCategory COOKING = AnvilRecipeCategory.register(
         AnvilRecipeType.COOKING,

@@ -123,6 +123,17 @@ public class StampingRecipesLoader {
     }
 
     /**
+     * 生成简单冲压配方
+     *
+     * @param item  原料
+     * @param item1 产物
+     */
+    public static void stamping(RegistrateRecipeProvider provider, TagKey<Item> item, Item item1) {
+        StampingRecipesLoader.provider = provider;
+        stamping(item, RecipeItem.of(item1));
+    }
+
+    /**
      * 冲印配方
      *
      * @param enter 输入物品tag

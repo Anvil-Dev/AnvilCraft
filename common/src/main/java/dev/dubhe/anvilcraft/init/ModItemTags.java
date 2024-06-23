@@ -15,10 +15,21 @@ public class ModItemTags {
     public static final TagKey<Item> WHEAT_DOUGH = bindC("dough/wheat");
     public static final TagKey<Item> FOODS = bindC("foods");
     public static final TagKey<Item> PLATES = bindC("plates");
-    public static final TagKey<Item> GOLD_PLATES = bindC("gold_plates");
-    public static final TagKey<Item> IRON_PLATES = bindC("iron_plates");
     public static final TagKey<Item> STONE = bindC("stone");
     public static final TagKey<Item> GLASS = bindC("silica_glass");
+
+    public static final TagKey<Item> GOLD_PLATES = bindC("gold_plates");
+    public static final TagKey<Item> IRON_PLATES = bindC("iron_plates");
+    public static final TagKey<Item> COPPER_PLATES = bindC("copper_plates");
+    public static final TagKey<Item> TUNGSTEN_PLATES = bindC("tungsten_plates");
+    public static final TagKey<Item> TITANIUM_PLATES = bindC("titanium_plates");
+    public static final TagKey<Item> ZINC_PLATES = bindC("zinc_plates");
+    public static final TagKey<Item> TIN_PLATES = bindC("tin_plates");
+    public static final TagKey<Item> LEAD_PLATES = bindC("lead_plates");
+    public static final TagKey<Item> SILVER_PLATES = bindC("silver_plates");
+    public static final TagKey<Item> URANIUM_PLATES = bindC("uranium_plates");
+    public static final TagKey<Item> BRONZE_PLATES = bindC("bronze_plates");
+    public static final TagKey<Item> BRASS_PLATES = bindC("brass_plates");
 
     public static final TagKey<Item> TUNGSTEN_INGOTS = bindC("tungsten_ingots");
     public static final TagKey<Item> TITANIUM_INGOTS = bindC("titanium_ingots");
@@ -72,10 +83,21 @@ public class ModItemTags {
     public static final TagKey<Item> DOUGH_FORGE = bindForge("dough");
     public static final TagKey<Item> WHEAT_DOUGH_FORGE = bindForge("dough/wheat");
     public static final TagKey<Item> PLATES_FORGE = bindForge("plates");
-    public static final TagKey<Item> GOLD_PLATES_FORGE = bindForge("plates/gold");
-    public static final TagKey<Item> IRON_PLATES_FORGE = bindForge("plates/iron");
     public static final TagKey<Item> STONE_FORGE = bindForge("stone");
     public static final TagKey<Item> GLASS_FORGE = bindForge("glass/silica");
+
+    public static final TagKey<Item> GOLD_PLATES_FORGE = bindForge("plates/gold");
+    public static final TagKey<Item> IRON_PLATES_FORGE = bindForge("plates/iron");
+    public static final TagKey<Item> COPPER_PLATES_FORGE = bindForge("plates/copper");
+    public static final TagKey<Item> TUNGSTEN_PLATES_FORGE = bindForge("plates/tungsten");
+    public static final TagKey<Item> TITANIUM_PLATES_FORGE = bindForge("plates/titanium");
+    public static final TagKey<Item> ZINC_PLATES_FORGE = bindForge("plates/zinc");
+    public static final TagKey<Item> TIN_PLATES_FORGE = bindForge("plates/tin");
+    public static final TagKey<Item> LEAD_PLATES_FORGE = bindForge("plates/lead");
+    public static final TagKey<Item> SILVER_PLATES_FORGE = bindForge("plates/silver");
+    public static final TagKey<Item> URANIUM_PLATES_FORGE = bindForge("plates/uranium");
+    public static final TagKey<Item> BRONZE_PLATES_FORGE = bindForge("plates/bronze");
+    public static final TagKey<Item> BRASS_PLATES_FORGE = bindForge("plates/brass");
 
     public static final TagKey<Item> TUNGSTEN_INGOTS_FORGE = bindForge("ingots/tungsten");
     public static final TagKey<Item> TITANIUM_INGOTS_FORGE = bindForge("ingots/titanium");
@@ -137,15 +159,15 @@ public class ModItemTags {
     public static final TagKey<Item> REINFORCED_CONCRETE = bind("reinforced_concrete");
     public static final TagKey<Item> SEEDS_PACK_CONTENT = bind("seeds_pack_content");
 
-    private static @NotNull TagKey<Item> bindC(String id) {
+    public static @NotNull TagKey<Item> bindC(String id) {
         return TagKey.create(Registries.ITEM, new ResourceLocation("c", id));
     }
 
-    private static @NotNull TagKey<Item> bindForge(String id) {
+    public static @NotNull TagKey<Item> bindForge(String id) {
         return TagKey.create(Registries.ITEM, new ResourceLocation("forge", id));
     }
 
-    private static @NotNull TagKey<Item> bind(String id) {
+    public static @NotNull TagKey<Item> bind(String id) {
         return TagKey.create(Registries.ITEM, AnvilCraft.of(id));
     }
 }
