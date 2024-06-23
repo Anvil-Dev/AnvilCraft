@@ -182,19 +182,12 @@ public class MultiblockCraftingRecipeLoader {
             for (int i = 0; i < map.length(); i++) {
                 char ch = map.charAt(i);
                 if (!mappingTable.containsKey(ch)) return;
-                builder = builder.hasBlock(new Vec3(
+                builder = builder.hasBlockIngredient(new Vec3(
                                 index % 3 - (int) ((double) (size - 1) / 2),
                                 (int) (-((double) index / 9) - 2),
                                 -((int) (((double) index % 9) / 3) - (int) ((double) (size - 1) / 2))
                         ),
                         mappingTable.get(ch)
-                );
-                builder = builder.setBlock(new Vec3(
-                                index % 3 - (int) ((double) (size - 1) / 2),
-                                (int) (-((double) index / 9) - 2),
-                                -((int) (((double) index % 9) / 3) - (int) ((double) (size - 1) / 2))
-                        ),
-                        Blocks.AIR
                 );
                 index++;
             }

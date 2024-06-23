@@ -551,17 +551,17 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
         /**
          * 拥有方块
          *
-         * @param offset 偏移
+         * @param offset      偏移
          * @param recipeBlock 配方方块
          * @return 构造器
          */
         public @NotNull Builder hasBlock(Vec3 offset, RecipeBlock recipeBlock) {
             return recipeBlock.isTag()
-                    ? this.hasBlock(offset, recipeBlock.getBlockTagKey())
-                    : recipeBlock.isHasStates()
-                        ? this.hasBlock(recipeBlock.getBlock(),
-                                    offset, recipeBlock.getStateEntries())
-                        : this.hasBlock(offset, recipeBlock.getBlock());
+                ? this.hasBlock(offset, recipeBlock.getBlockTagKey())
+                : recipeBlock.isHasStates()
+                ? this.hasBlock(recipeBlock.getBlock(),
+                offset, recipeBlock.getStateEntries())
+                : this.hasBlock(offset, recipeBlock.getBlock());
         }
 
         public @NotNull Builder hasBlockIngredient(Vec3 offset, Block... blocks) {
@@ -573,7 +573,7 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
         }
 
         /**
-         * 物品原料
+         * 方块原料
          */
         @SuppressWarnings("unchecked")
         public @NotNull <T extends Comparable<T>> Builder hasBlockIngredient(
@@ -586,6 +586,39 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
                 predicate.property(entry.getKey().getName(), entry.getValue().toString());
             }
             return this.addPredicates(new HasBlockIngredient(offset, predicate));
+        }
+
+        /**
+         * 拥有方块原料
+         *
+         * @param offset      偏移
+         * @param recipeBlock 配方方块
+         * @return 构造器
+         */
+        public @NotNull Builder hasBlockIngredient(Vec3 offset, @NotNull RecipeBlock recipeBlock) {
+            return recipeBlock.isTag()
+                ? this.hasBlockIngredient(offset, recipeBlock.getBlockTagKey())
+                : recipeBlock.isHasStates()
+                ? this.hasBlockIngredient(recipeBlock.getBlock(),
+                offset, recipeBlock.getStateEntries())
+                : this.hasBlockIngredient(offset, recipeBlock.getBlock());
+        }
+
+        /**
+         * 拥有方块
+         *
+         * @param block  方块
+         * @param offset 偏移
+         * @param states 状态
+         * @return 构造器
+         */
+        @SafeVarargs
+        public final @NotNull Builder hasBlockIngredient(
+            Block block, Vec3 offset, Map.Entry<Property<?>, Comparable<?>> @NotNull ... states
+        ) {
+            return this.addPredicates(new HasBlockIngredient(
+                offset, new HasBlock.ModBlockPredicate().block(block).property(states)
+            ));
         }
 
         public @NotNull Builder hasBlockIngredient(Block... blocks) {
@@ -664,13 +697,13 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
         /**
          * 放置方块
          *
-         * @param offset 偏移值
+         * @param offset      偏移值
          * @param recipeBlock 配方方块
          */
         public Builder setBlock(Vec3 offset, RecipeBlock recipeBlock) {
             return recipeBlock.isBlockStates()
-                    ? this.setBlock(offset, recipeBlock.getBlockState())
-                    : this.setBlock(offset, recipeBlock.getBlock());
+                ? this.setBlock(offset, recipeBlock.getBlockState())
+                : this.setBlock(offset, recipeBlock.getBlock());
         }
 
         public @NotNull Builder spawnItem(Vec3 offset, double chance, ItemStack item) {

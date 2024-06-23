@@ -6,330 +6,6 @@
   },
   "outcomes": [
     {
-      "type": "set_block",
-      "chance": 1.0,
-      "offset": [
-        -1.0,
-        -2.0,
-        1.0
-      ],
-      "result": {
-        "block": "minecraft:air"
-      }
-    },
-    {
-      "type": "set_block",
-      "chance": 1.0,
-      "offset": [
-        0.0,
-        -2.0,
-        1.0
-      ],
-      "result": {
-        "block": "minecraft:air"
-      }
-    },
-    {
-      "type": "set_block",
-      "chance": 1.0,
-      "offset": [
-        1.0,
-        -2.0,
-        1.0
-      ],
-      "result": {
-        "block": "minecraft:air"
-      }
-    },
-    {
-      "type": "set_block",
-      "chance": 1.0,
-      "offset": [
-        -1.0,
-        -2.0,
-        0.0
-      ],
-      "result": {
-        "block": "minecraft:air"
-      }
-    },
-    {
-      "type": "set_block",
-      "chance": 1.0,
-      "offset": [
-        0.0,
-        -2.0,
-        0.0
-      ],
-      "result": {
-        "block": "minecraft:air"
-      }
-    },
-    {
-      "type": "set_block",
-      "chance": 1.0,
-      "offset": [
-        1.0,
-        -2.0,
-        0.0
-      ],
-      "result": {
-        "block": "minecraft:air"
-      }
-    },
-    {
-      "type": "set_block",
-      "chance": 1.0,
-      "offset": [
-        -1.0,
-        -2.0,
-        -1.0
-      ],
-      "result": {
-        "block": "minecraft:air"
-      }
-    },
-    {
-      "type": "set_block",
-      "chance": 1.0,
-      "offset": [
-        0.0,
-        -2.0,
-        -1.0
-      ],
-      "result": {
-        "block": "minecraft:air"
-      }
-    },
-    {
-      "type": "set_block",
-      "chance": 1.0,
-      "offset": [
-        1.0,
-        -2.0,
-        -1.0
-      ],
-      "result": {
-        "block": "minecraft:air"
-      }
-    },
-    {
-      "type": "set_block",
-      "chance": 1.0,
-      "offset": [
-        -1.0,
-        -3.0,
-        1.0
-      ],
-      "result": {
-        "block": "minecraft:air"
-      }
-    },
-    {
-      "type": "set_block",
-      "chance": 1.0,
-      "offset": [
-        0.0,
-        -3.0,
-        1.0
-      ],
-      "result": {
-        "block": "minecraft:air"
-      }
-    },
-    {
-      "type": "set_block",
-      "chance": 1.0,
-      "offset": [
-        1.0,
-        -3.0,
-        1.0
-      ],
-      "result": {
-        "block": "minecraft:air"
-      }
-    },
-    {
-      "type": "set_block",
-      "chance": 1.0,
-      "offset": [
-        -1.0,
-        -3.0,
-        0.0
-      ],
-      "result": {
-        "block": "minecraft:air"
-      }
-    },
-    {
-      "type": "set_block",
-      "chance": 1.0,
-      "offset": [
-        0.0,
-        -3.0,
-        0.0
-      ],
-      "result": {
-        "block": "minecraft:air"
-      }
-    },
-    {
-      "type": "set_block",
-      "chance": 1.0,
-      "offset": [
-        1.0,
-        -3.0,
-        0.0
-      ],
-      "result": {
-        "block": "minecraft:air"
-      }
-    },
-    {
-      "type": "set_block",
-      "chance": 1.0,
-      "offset": [
-        -1.0,
-        -3.0,
-        -1.0
-      ],
-      "result": {
-        "block": "minecraft:air"
-      }
-    },
-    {
-      "type": "set_block",
-      "chance": 1.0,
-      "offset": [
-        0.0,
-        -3.0,
-        -1.0
-      ],
-      "result": {
-        "block": "minecraft:air"
-      }
-    },
-    {
-      "type": "set_block",
-      "chance": 1.0,
-      "offset": [
-        1.0,
-        -3.0,
-        -1.0
-      ],
-      "result": {
-        "block": "minecraft:air"
-      }
-    },
-    {
-      "type": "set_block",
-      "chance": 1.0,
-      "offset": [
-        -1.0,
-        -4.0,
-        1.0
-      ],
-      "result": {
-        "block": "minecraft:air"
-      }
-    },
-    {
-      "type": "set_block",
-      "chance": 1.0,
-      "offset": [
-        0.0,
-        -4.0,
-        1.0
-      ],
-      "result": {
-        "block": "minecraft:air"
-      }
-    },
-    {
-      "type": "set_block",
-      "chance": 1.0,
-      "offset": [
-        1.0,
-        -4.0,
-        1.0
-      ],
-      "result": {
-        "block": "minecraft:air"
-      }
-    },
-    {
-      "type": "set_block",
-      "chance": 1.0,
-      "offset": [
-        -1.0,
-        -4.0,
-        0.0
-      ],
-      "result": {
-        "block": "minecraft:air"
-      }
-    },
-    {
-      "type": "set_block",
-      "chance": 1.0,
-      "offset": [
-        0.0,
-        -4.0,
-        0.0
-      ],
-      "result": {
-        "block": "minecraft:air"
-      }
-    },
-    {
-      "type": "set_block",
-      "chance": 1.0,
-      "offset": [
-        1.0,
-        -4.0,
-        0.0
-      ],
-      "result": {
-        "block": "minecraft:air"
-      }
-    },
-    {
-      "type": "set_block",
-      "chance": 1.0,
-      "offset": [
-        -1.0,
-        -4.0,
-        -1.0
-      ],
-      "result": {
-        "block": "minecraft:air"
-      }
-    },
-    {
-      "type": "set_block",
-      "chance": 1.0,
-      "offset": [
-        0.0,
-        -4.0,
-        -1.0
-      ],
-      "result": {
-        "block": "minecraft:air"
-      }
-    },
-    {
-      "type": "set_block",
-      "chance": 1.0,
-      "offset": [
-        1.0,
-        -4.0,
-        -1.0
-      ],
-      "result": {
-        "block": "minecraft:air"
-      }
-    },
-    {
       "type": "spawn_item",
       "chance": 1.0,
       "offset": [
@@ -461,7 +137,7 @@
       ]
     },
     {
-      "type": "has_block",
+      "type": "has_block_ingredient",
       "match_block": {
         "blocks": [
           "minecraft:sponge"
@@ -474,7 +150,7 @@
       ]
     },
     {
-      "type": "has_block",
+      "type": "has_block_ingredient",
       "match_block": {
         "blocks": [
           "minecraft:sponge"
@@ -487,7 +163,7 @@
       ]
     },
     {
-      "type": "has_block",
+      "type": "has_block_ingredient",
       "match_block": {
         "blocks": [
           "minecraft:sponge"
@@ -500,7 +176,7 @@
       ]
     },
     {
-      "type": "has_block",
+      "type": "has_block_ingredient",
       "match_block": {
         "blocks": [
           "minecraft:sponge"
@@ -513,7 +189,7 @@
       ]
     },
     {
-      "type": "has_block",
+      "type": "has_block_ingredient",
       "match_block": {
         "blocks": [
           "minecraft:air"
@@ -526,7 +202,7 @@
       ]
     },
     {
-      "type": "has_block",
+      "type": "has_block_ingredient",
       "match_block": {
         "blocks": [
           "minecraft:sponge"
@@ -539,7 +215,7 @@
       ]
     },
     {
-      "type": "has_block",
+      "type": "has_block_ingredient",
       "match_block": {
         "blocks": [
           "minecraft:sponge"
@@ -552,7 +228,7 @@
       ]
     },
     {
-      "type": "has_block",
+      "type": "has_block_ingredient",
       "match_block": {
         "blocks": [
           "minecraft:sponge"
@@ -565,7 +241,7 @@
       ]
     },
     {
-      "type": "has_block",
+      "type": "has_block_ingredient",
       "match_block": {
         "blocks": [
           "minecraft:sponge"
@@ -578,7 +254,7 @@
       ]
     },
     {
-      "type": "has_block",
+      "type": "has_block_ingredient",
       "match_block": {
         "blocks": [
           "minecraft:sponge"
@@ -591,7 +267,7 @@
       ]
     },
     {
-      "type": "has_block",
+      "type": "has_block_ingredient",
       "match_block": {
         "blocks": [
           "minecraft:air"
@@ -604,7 +280,7 @@
       ]
     },
     {
-      "type": "has_block",
+      "type": "has_block_ingredient",
       "match_block": {
         "blocks": [
           "minecraft:sponge"
@@ -617,7 +293,7 @@
       ]
     },
     {
-      "type": "has_block",
+      "type": "has_block_ingredient",
       "match_block": {
         "blocks": [
           "minecraft:air"
@@ -630,7 +306,7 @@
       ]
     },
     {
-      "type": "has_block",
+      "type": "has_block_ingredient",
       "match_block": {
         "blocks": [
           "anvilcraft:void_matter_block"
@@ -643,7 +319,7 @@
       ]
     },
     {
-      "type": "has_block",
+      "type": "has_block_ingredient",
       "match_block": {
         "blocks": [
           "minecraft:air"
@@ -656,7 +332,7 @@
       ]
     },
     {
-      "type": "has_block",
+      "type": "has_block_ingredient",
       "match_block": {
         "blocks": [
           "minecraft:sponge"
@@ -669,7 +345,7 @@
       ]
     },
     {
-      "type": "has_block",
+      "type": "has_block_ingredient",
       "match_block": {
         "blocks": [
           "minecraft:air"
@@ -682,7 +358,7 @@
       ]
     },
     {
-      "type": "has_block",
+      "type": "has_block_ingredient",
       "match_block": {
         "blocks": [
           "minecraft:sponge"
@@ -695,7 +371,7 @@
       ]
     },
     {
-      "type": "has_block",
+      "type": "has_block_ingredient",
       "match_block": {
         "blocks": [
           "minecraft:sponge"
@@ -708,7 +384,7 @@
       ]
     },
     {
-      "type": "has_block",
+      "type": "has_block_ingredient",
       "match_block": {
         "blocks": [
           "minecraft:sponge"
@@ -721,7 +397,7 @@
       ]
     },
     {
-      "type": "has_block",
+      "type": "has_block_ingredient",
       "match_block": {
         "blocks": [
           "minecraft:sponge"
@@ -734,7 +410,7 @@
       ]
     },
     {
-      "type": "has_block",
+      "type": "has_block_ingredient",
       "match_block": {
         "blocks": [
           "minecraft:sponge"
@@ -747,7 +423,7 @@
       ]
     },
     {
-      "type": "has_block",
+      "type": "has_block_ingredient",
       "match_block": {
         "blocks": [
           "minecraft:air"
@@ -760,7 +436,7 @@
       ]
     },
     {
-      "type": "has_block",
+      "type": "has_block_ingredient",
       "match_block": {
         "blocks": [
           "minecraft:sponge"
@@ -773,7 +449,7 @@
       ]
     },
     {
-      "type": "has_block",
+      "type": "has_block_ingredient",
       "match_block": {
         "blocks": [
           "minecraft:sponge"
@@ -786,7 +462,7 @@
       ]
     },
     {
-      "type": "has_block",
+      "type": "has_block_ingredient",
       "match_block": {
         "blocks": [
           "minecraft:sponge"
@@ -799,7 +475,7 @@
       ]
     },
     {
-      "type": "has_block",
+      "type": "has_block_ingredient",
       "match_block": {
         "blocks": [
           "minecraft:sponge"
