@@ -3,7 +3,7 @@
   "category": "misc",
   "key": {
     "A": {
-      "tag": "forge:ingots/tungsten"
+      "item": "minecraft:copper_ingot"
     }
   },
   "pattern": [

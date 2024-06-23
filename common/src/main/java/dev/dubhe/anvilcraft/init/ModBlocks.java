@@ -743,8 +743,7 @@ public class ModBlocks {
         })
         .register();
     public static final BlockEntry<? extends PressurePlateBlock> COPPER_PRESSURE_PLATE = registerPressurePlate(
-        "copper", () -> Blocks.COPPER_BLOCK,
-        ModItemTags.TUNGSTEN_INGOTS, ModItemTags.TUNGSTEN_INGOTS_FORGE
+        "copper", () -> Blocks.COPPER_BLOCK, Items.COPPER_INGOT
     );
     public static final BlockEntry<? extends PressurePlateBlock> EXPOSED_COPPER_PRESSURE_PLATE =
         registerOtherCopperPressurePlate("exposed_", Blocks.EXPOSED_COPPER);
@@ -753,40 +752,31 @@ public class ModBlocks {
     public static final BlockEntry<? extends PressurePlateBlock> OXIDIZED_COPPER_PRESSURE_PLATE =
         registerOtherCopperPressurePlate("oxidized_", Blocks.OXIDIZED_COPPER);
     public static final BlockEntry<? extends PressurePlateBlock> TUNGSTEN_PRESSURE_PLATE = registerPressurePlate(
-        "tungsten", TUNGSTEN_BLOCK,
-        ModItemTags.TUNGSTEN_INGOTS, ModItemTags.TUNGSTEN_INGOTS_FORGE
+        "tungsten", TUNGSTEN_BLOCK, ModItemTags.TUNGSTEN_INGOTS, ModItemTags.TUNGSTEN_INGOTS_FORGE
     );
     public static final BlockEntry<? extends PressurePlateBlock> TITANIUM_PRESSURE_PLATE = registerPressurePlate(
-        "titanium", TITANIUM_BLOCK,
-        ModItemTags.TITANIUM_INGOTS, ModItemTags.TITANIUM_INGOTS_FORGE
+        "titanium", TITANIUM_BLOCK, ModItemTags.TITANIUM_INGOTS, ModItemTags.TITANIUM_INGOTS_FORGE
     );
     public static final BlockEntry<? extends PressurePlateBlock> ZINC_PRESSURE_PLATE = registerPressurePlate(
-        "zinc", ZINC_BLOCK,
-        ModItemTags.ZINC_INGOTS, ModItemTags.ZINC_INGOTS_FORGE
+        "zinc", ZINC_BLOCK, ModItemTags.ZINC_INGOTS, ModItemTags.ZINC_INGOTS_FORGE
     );
     public static final BlockEntry<? extends PressurePlateBlock> TIN_PRESSURE_PLATE = registerPressurePlate(
-        "tin", TIN_BLOCK,
-        ModItemTags.TIN_INGOTS, ModItemTags.TIN_INGOTS_FORGE
+        "tin", TIN_BLOCK, ModItemTags.TIN_INGOTS, ModItemTags.TIN_INGOTS_FORGE
     );
     public static final BlockEntry<? extends PressurePlateBlock> LEAD_PRESSURE_PLATE = registerPressurePlate(
-        "lead", LEAD_BLOCK,
-        ModItemTags.LEAD_INGOTS, ModItemTags.LEAD_INGOTS_FORGE
+        "lead", LEAD_BLOCK, ModItemTags.LEAD_INGOTS, ModItemTags.LEAD_INGOTS_FORGE
     );
     public static final BlockEntry<? extends PressurePlateBlock> SILVER_PRESSURE_PLATE = registerPressurePlate(
-        "silver", SILVER_BLOCK,
-        ModItemTags.SILVER_INGOTS, ModItemTags.SILVER_INGOTS_FORGE
+        "silver", SILVER_BLOCK, ModItemTags.SILVER_INGOTS, ModItemTags.SILVER_INGOTS_FORGE
     );
     public static final BlockEntry<? extends PressurePlateBlock> URANIUM_PRESSURE_PLATE = registerPressurePlate(
-        "uranium", URANIUM_BLOCK,
-        ModItemTags.URANIUM_INGOTS, ModItemTags.URANIUM_INGOTS_FORGE
+        "uranium", URANIUM_BLOCK, ModItemTags.URANIUM_INGOTS, ModItemTags.URANIUM_INGOTS_FORGE
     );
     public static final BlockEntry<? extends PressurePlateBlock> BRONZE_PRESSURE_PLATE = registerPressurePlate(
-        "bronze", BRONZE_BLOCK,
-        ModItemTags.BRONZE_INGOTS, ModItemTags.BRONZE_INGOTS_FORGE
+        "bronze", BRONZE_BLOCK, ModItemTags.BRONZE_INGOTS, ModItemTags.BRONZE_INGOTS_FORGE
     );
     public static final BlockEntry<? extends PressurePlateBlock> BRASS_PRESSURE_PLATE = registerPressurePlate(
-        "brass", BRASS_BLOCK,
-        ModItemTags.BRASS_INGOTS, ModItemTags.BRASS_INGOTS_FORGE
+        "brass", BRASS_BLOCK, ModItemTags.BRASS_INGOTS, ModItemTags.BRASS_INGOTS_FORGE
     );
     public static final BlockEntry<? extends Block> TOPAZ_BLOCK = REGISTRATE
         .block("topaz_block", Block::new)
@@ -2474,6 +2464,7 @@ public class ModBlocks {
             .register();
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static @NotNull BlockEntry<? extends PressurePlateBlock> registerPressurePlate(
         String type,
         @NotNull Supplier<? extends Block> block,

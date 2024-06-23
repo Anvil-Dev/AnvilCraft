@@ -1,11 +1,13 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_ingots/tungsten": {
+    "has_copper_ingot": {
       "conditions": {
         "items": [
           {
-            "tag": "forge:ingots/tungsten"
+            "items": [
+              "minecraft:copper_ingot"
+            ]
           }
         ]
       },
@@ -13,20 +15,20 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:craft/copper_pressure_plate_from_ingots_tungsten"
+        "recipe": "anvilcraft:craft/copper_pressure_plate_from_copper_ingot"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_ingots/tungsten",
+      "has_copper_ingot",
       "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:craft/copper_pressure_plate_from_ingots_tungsten"
+      "anvilcraft:craft/copper_pressure_plate_from_copper_ingot"
     ]
   },
   "sends_telemetry_event": false
