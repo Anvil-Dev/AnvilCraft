@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.api.recipe;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.event.recipe.RecipeReloadEvent;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import lombok.Getter;
@@ -22,6 +24,7 @@ import java.util.List;
 public class AnvilRecipeManager {
     @Getter
     private static List<AnvilRecipe> anvilRecipeList = List.of();
+    public static List<AnvilRecipe> externalRecipeList = new ArrayList<>();
 
     /**
      * 更新配方
@@ -31,6 +34,9 @@ public class AnvilRecipeManager {
     public static void updateRecipes(@NotNull MinecraftServer server) {
         RecipeManager manager = server.getRecipeManager();
         ArrayList<AnvilRecipe> anvilRecipes = new ArrayList<>(manager.getAllRecipesFor(ModRecipeTypes.ANVIL_RECIPE));
+        AnvilCraft.EVENT_BUS.post(new RecipeReloadEvent());
+        anvilRecipes.addAll(externalRecipeList);
+        externalRecipeList = new ArrayList<>();
         List<ItemStack> needFilter = new ArrayList<>();
         for (CampfireCookingRecipe recipe : manager.getAllRecipesFor(RecipeType.CAMPFIRE_COOKING)) {
             AnvilRecipe anvilRecipe = AnvilRecipe.of(recipe, server.registryAccess());
