@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.api.recipe.AnvilRecipeManager;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.AutoCrafterScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.ChuteScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.ItemCollectorScreen;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.integration.emi.recipe.AnvilProcessEmiRecipe;
 import dev.emi.emi.api.EmiEntrypoint;
@@ -115,10 +116,13 @@ public class AnvilCraftEmiPlugin implements EmiPlugin {
         registry.addWorkstation(AnvilRecipeCategory.GENERIC, EmiStack.of(Blocks.CHIPPED_ANVIL));
         registry.addWorkstation(AnvilRecipeCategory.GENERIC, EmiStack.of(Blocks.DAMAGED_ANVIL));
 
-        AnvilRecipeManager.getAnvilRecipeList().forEach(
-            recipe -> registry.addRecipe(
-                new AnvilProcessEmiRecipe(AnvilRecipeCategory.getByType(recipe.getAnvilRecipeType()), recipe)
-            )
-        );
+        AnvilRecipeManager.getAnvilRecipeList()
+            .stream()
+            .filter(recipe -> recipe.getAnvilRecipeType() != AnvilRecipeType.MULTIBLOCK_CRAFTING)
+            .forEach(
+                recipe -> registry.addRecipe(
+                    new AnvilProcessEmiRecipe(AnvilRecipeCategory.getByType(recipe.getAnvilRecipeType()), recipe)
+                )
+            );
     }
 }
