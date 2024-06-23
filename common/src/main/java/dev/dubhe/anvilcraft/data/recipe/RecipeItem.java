@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.data;
+package dev.dubhe.anvilcraft.data.recipe;
 
 import lombok.Getter;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -76,6 +76,15 @@ public class RecipeItem {
 
     public static RecipeItem of(TagKey<Item> itemTagKey) {
         return new RecipeItem(null, itemTagKey, 1, 1d, false);
+    }
+
+    /**
+     * 获取Icon物
+     */
+    public ItemLike getIcon() {
+        return this.item == null
+                ? BuiltInRegistries.ITEM.getTagOrEmpty(this.itemTagKey).iterator().next().value()
+                : this.item;
     }
 
     /**
