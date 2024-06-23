@@ -11,7 +11,6 @@ public enum AnvilRecipeType {
     COMPACTION("compaction"), // 压实
     COMPRESS("compress"), // 压缩
     COOKING("cooking"), // 煎炒
-    BOIL("boil"), // 炖煮
     ITEM_INJECT("item_inject"), // 物品注入
     BLOCK_SMASH("block_smash"), // 方块粉碎
     ITEM_SMASH("item_smash"), // 物品粉碎

@@ -76,13 +76,6 @@ public class AnvilCraftEmiPlugin implements EmiPlugin {
         registry.addWorkstation(AnvilRecipeCategory.COOKING, EmiStack.of(Blocks.CHIPPED_ANVIL));
         registry.addWorkstation(AnvilRecipeCategory.COOKING, EmiStack.of(Blocks.DAMAGED_ANVIL));
 
-        registry.addWorkstation(AnvilRecipeCategory.BOIL, EmiStack.of(Blocks.CAMPFIRE));
-        registry.addWorkstation(AnvilRecipeCategory.BOIL, EmiStack.of(Blocks.SOUL_CAMPFIRE));
-        registry.addWorkstation(AnvilRecipeCategory.BOIL, EmiStack.of(ModBlocks.ROYAL_ANVIL));
-        registry.addWorkstation(AnvilRecipeCategory.BOIL, EmiStack.of(Blocks.ANVIL));
-        registry.addWorkstation(AnvilRecipeCategory.BOIL, EmiStack.of(Blocks.CHIPPED_ANVIL));
-        registry.addWorkstation(AnvilRecipeCategory.BOIL, EmiStack.of(Blocks.DAMAGED_ANVIL));
-
         registry.addWorkstation(AnvilRecipeCategory.ITEM_INJECT, EmiStack.of(ModBlocks.ROYAL_ANVIL));
         registry.addWorkstation(AnvilRecipeCategory.ITEM_INJECT, EmiStack.of(Blocks.ANVIL));
         registry.addWorkstation(AnvilRecipeCategory.ITEM_INJECT, EmiStack.of(Blocks.CHIPPED_ANVIL));

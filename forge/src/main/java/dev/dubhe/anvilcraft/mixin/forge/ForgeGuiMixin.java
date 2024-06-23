@@ -19,19 +19,20 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(ForgeGui.class)
+@Mixin(value = ForgeGui.class, remap = false)
 public class ForgeGuiMixin extends Gui {
     public ForgeGuiMixin(Minecraft minecraft, ItemRenderer itemRenderer) {
         super(minecraft, itemRenderer);
     }
 
     @Inject(
-            method = "render",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderColor(FFFF)V",
-                    shift = At.Shift.AFTER
-            )
+        method = "render",
+        at = @At(
+            value = "INVOKE",
+            target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderColor(FFFF)V",
+            shift = At.Shift.AFTER
+        ),
+        remap = false
     )
     void onHudRender(GuiGraphics guiGraphics, float partialTick, CallbackInfo ci) {
         if (minecraft.player == null || minecraft.isPaused()) return;
@@ -41,11 +42,11 @@ public class ForgeGuiMixin extends Gui {
         ItemStack handItem = mainHandItem.isEmpty() ? offHandItem : mainHandItem;
         if (!handItem.isEmpty()) {
             HudTooltipManager.INSTANCE.renderHandItemHudTooltip(
-                    guiGraphics,
-                    handItem,
-                    partialTick,
-                    screenWidth,
-                    screenHeight
+                guiGraphics,
+                handItem,
+                partialTick,
+                screenWidth,
+                screenHeight
             );
         }
         if (!(minecraft.player.getItemBySlot(EquipmentSlot.HEAD).getItem() instanceof IEngineerGoggles)) return;
