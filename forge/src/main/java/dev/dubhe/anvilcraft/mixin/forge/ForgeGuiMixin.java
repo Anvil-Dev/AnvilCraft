@@ -32,7 +32,7 @@ public class ForgeGuiMixin extends Gui {
             target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderColor(FFFF)V",
             shift = At.Shift.AFTER
         ),
-        remap = false
+        remap = true
     )
     void onHudRender(GuiGraphics guiGraphics, float partialTick, CallbackInfo ci) {
         if (minecraft.player == null || minecraft.isPaused()) return;
