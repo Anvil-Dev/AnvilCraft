@@ -2,8 +2,6 @@ package dev.dubhe.anvilcraft.api.event.entity;
 
 import lombok.Getter;
 import lombok.Setter;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
@@ -41,7 +39,6 @@ public class PlayerEvent<T extends Player> extends EntityEvent<T> {
         }
     }
 
-    @Environment(EnvType.CLIENT)
     public static class ClientPlayerJoin extends PlayerEvent<LocalPlayer> {
         /**
          * 玩家加入事件
