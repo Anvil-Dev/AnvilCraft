@@ -51,7 +51,7 @@ public class PlayerEventListener {
                                         )
                                     )
                                 )
-                            ).withStyle(ChatFormatting.BLACK)
+                            ).withStyle(ChatFormatting.WHITE)
                         )
                     )
                 )
