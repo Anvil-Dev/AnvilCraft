@@ -29,7 +29,6 @@ public class LevelEventListener {
      */
     @SubscribeEvent
     public static void onLevelUnload(@NotNull LevelEvent.Unload event) {
-        ChargeCollectorManager.cleanMap();
         if (event.getLevel() instanceof ServerLevel serverLevel) {
             LevelLoadManager.removeAll(serverLevel);
         }
