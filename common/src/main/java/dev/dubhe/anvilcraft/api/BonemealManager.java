@@ -56,8 +56,8 @@ public class BonemealManager {
                     BlockPos pos1 = pos.offset(i, j, k);
                     BlockState state = level.getBlockState(pos1);
                     if (state.getBlock() instanceof BonemealableBlock growable
-                        && !growable.getClass().equals(GrassBlock.class)
-                        && !growable.getClass().equals(NyliumBlock.class)
+                        && !(growable instanceof GrassBlock)
+                        && !(growable instanceof NyliumBlock)
                         && !isInSet(set, new Tuple<>(pos1, level))
                         && growable.isValidBonemealTarget(level, pos1, state, false)
                         && level.getBrightness(LightLayer.BLOCK, pos1) >= 10
@@ -91,16 +91,19 @@ public class BonemealManager {
             Iterator<Tuple<BlockPos, Level>> it = lightBlocks.iterator();
             while (it.hasNext()) {
                 Tuple<BlockPos, Level> lightBlock = it.next();
-                BlockState lightBlockState = lightBlock.getB().getBlockState(lightBlock.getA());
-                if (lightBlockState.getBlock() instanceof InductionLightBlock) {
-                    if (isLighting(lightBlockState) && canCropGrow(lightBlockState)) {
-                        HashSet<Tuple<BlockPos, Level>> newRipened =
-                            doRipen(lightBlock.getB(), lightBlock.getA(), ripenedBlocks);
-                        ripenedBlocks.addAll(newRipened);
+                ServerLevel level = (ServerLevel) lightBlock.getB();
+                level.getServer().execute(() -> {
+                    BlockState lightBlockState = lightBlock.getB().getBlockState(lightBlock.getA());
+                    if (lightBlockState.getBlock() instanceof InductionLightBlock) {
+                        if (isLighting(lightBlockState) && canCropGrow(lightBlockState)) {
+                            HashSet<Tuple<BlockPos, Level>> newRipened =
+                                    doRipen(lightBlock.getB(), lightBlock.getA(), ripenedBlocks);
+                            ripenedBlocks.addAll(newRipened);
+                        }
+                    } else {
+                        it.remove();
                     }
-                } else {
-                    it.remove();
-                }
+                });
             }
         }
 
