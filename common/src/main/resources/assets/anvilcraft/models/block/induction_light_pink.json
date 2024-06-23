@@ -1,0 +1,8 @@
+{
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "anvilcraft:block/induction_light",
+	"textures": {
+		"0": "anvilcraft:block/induction_light_pink",
+		"particle": "anvilcraft:block/induction_light_pink"
+	}
+}
