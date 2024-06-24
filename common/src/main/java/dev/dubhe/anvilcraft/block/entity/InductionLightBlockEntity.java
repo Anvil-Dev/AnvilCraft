@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import dev.dubhe.anvilcraft.api.BonemealManager;
+import dev.dubhe.anvilcraft.api.RipeningManager;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.InductionLightBlock;
@@ -36,7 +36,7 @@ public class InductionLightBlockEntity extends BlockEntity implements IPowerCons
         flushState(level1, getBlockPos());
         if (!registered) {
             registered = true;
-            BonemealManager.addLightBlock(getPos(), level);
+            RipeningManager.addLightBlock(getBlockPos(), level);
         }
     }
 

@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.event.forge;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.BonemealManager;
+import dev.dubhe.anvilcraft.api.RipeningManager;
 import dev.dubhe.anvilcraft.api.chargecollector.ThermoManager;
 import dev.dubhe.anvilcraft.api.event.forge.DataPackReloadedEvent;
 import dev.dubhe.anvilcraft.api.event.server.ServerEndDataPackReloadEvent;
@@ -44,7 +44,7 @@ public class ServerLifecycleEventListener {
     public static void onTick(@NotNull TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.START) return;
         PowerGrid.tickGrid();
-        BonemealManager.tick();
+        RipeningManager.tickAll();
         ThermoManager.tick();
         RandomChuckTickLoadManager.tick();
     }
