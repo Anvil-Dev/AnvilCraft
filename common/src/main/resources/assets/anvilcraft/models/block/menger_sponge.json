@@ -4,7 +4,6 @@
 	"render_type": "minecraft:cutout",
 	"textures": {
 		"0": "anvilcraft:block/menger_sponge",
-		"1": "anvilcraft:block/menger_sponge_inner",
 		"particle": "anvilcraft:block/menger_sponge"
 	},
 	"elements": [
@@ -27,10 +26,10 @@
 			"to": [5.325, 0, 5.325],
 			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
 			"faces": {
-				"north": {"uv": [6, 9, 3, 0], "texture": "#1"},
-				"east": {"uv": [6, 9, 3, 0], "texture": "#1"},
-				"south": {"uv": [6, 9, 3, 0], "texture": "#1"},
-				"west": {"uv": [6, 9, 3, 0], "texture": "#1"}
+				"north": {"uv": [13, 16, 10, 7], "texture": "#0"},
+				"east": {"uv": [13, 16, 10, 7], "texture": "#0"},
+				"south": {"uv": [13, 16, 10, 7], "texture": "#0"},
+				"west": {"uv": [13, 16, 10, 7], "texture": "#0"}
 			}
 		},
 		{
@@ -39,10 +38,10 @@
 			"to": [0, 5.325, 5.325],
 			"rotation": {"angle": 0, "axis": "z", "origin": [8, 8, 8]},
 			"faces": {
-				"north": {"uv": [3, 9, 6, 0], "rotation": 270, "texture": "#1"},
-				"south": {"uv": [6, 0, 3, 9], "rotation": 90, "texture": "#1"},
-				"up": {"uv": [6, 0, 3, 9], "rotation": 90, "texture": "#1"},
-				"down": {"uv": [6, 0, 3, 9], "rotation": 90, "texture": "#1"}
+				"north": {"uv": [10, 16, 13, 7], "rotation": 270, "texture": "#0"},
+				"south": {"uv": [13, 7, 10, 16], "rotation": 90, "texture": "#0"},
+				"up": {"uv": [13, 7, 10, 16], "rotation": 90, "texture": "#0"},
+				"down": {"uv": [13, 7, 10, 16], "rotation": 90, "texture": "#0"}
 			}
 		},
 		{
@@ -51,10 +50,10 @@
 			"to": [5.325, 5.325, 0],
 			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
 			"faces": {
-				"east": {"uv": [6, 0, 3, 9], "rotation": 90, "texture": "#1"},
-				"west": {"uv": [3, 9, 6, 0], "rotation": 270, "texture": "#1"},
-				"up": {"uv": [6, 9, 3, 0], "texture": "#1"},
-				"down": {"uv": [3, 0, 6, 9], "rotation": 180, "texture": "#1"}
+				"east": {"uv": [13, 7, 10, 16], "rotation": 90, "texture": "#0"},
+				"west": {"uv": [10, 16, 13, 7], "rotation": 270, "texture": "#0"},
+				"up": {"uv": [13, 16, 10, 7], "texture": "#0"},
+				"down": {"uv": [10, 7, 13, 16], "rotation": 180, "texture": "#0"}
 			}
 		}
 	]

@@ -1,0 +1,101 @@
+{
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/stairs",
+	"render_type": "minecraft:cutout",
+	"textures": {
+		"0": "anvilcraft:block/cut_ember_metal_block",
+		"1": "anvilcraft:block/ember_metal_block_outline",
+		"2": "anvilcraft:block/cut_ember_metal_stairs",
+		"particle": "anvilcraft:block/cut_ember_metal_block"
+	},
+	"elements": [
+		{
+			"from": [0.5, 0.5, 0.5],
+			"to": [7.5, 7.5, 15.5],
+			"faces": {
+				"north": {"uv": [8, 8, 15, 15], "texture": "#0"},
+				"east": {"uv": [0, 8, 15, 15], "texture": "#0"},
+				"south": {"uv": [0, 8, 7, 15], "texture": "#0"},
+				"west": {"uv": [0, 8, 15, 15], "texture": "#0"},
+				"up": {"uv": [0, 0, 7, 15], "texture": "#0"},
+				"down": {"uv": [0, 0, 7, 15], "texture": "#0"}
+			}
+		},
+		{
+			"from": [8.5, 0.5, 0.5],
+			"to": [15.5, 7.5, 15.5],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 0, 0]},
+			"faces": {
+				"north": {"uv": [0, 8, 7, 15], "texture": "#0"},
+				"east": {"uv": [0, 8, 15, 15], "texture": "#0"},
+				"south": {"uv": [8, 8, 15, 15], "texture": "#0"},
+				"west": {"uv": [0, 8, 15, 15], "texture": "#0"},
+				"up": {"uv": [8, 0, 15, 15], "texture": "#0"},
+				"down": {"uv": [8, 0, 15, 15], "texture": "#0"}
+			}
+		},
+		{
+			"from": [8.5, 8.5, 0.5],
+			"to": [15.5, 15.5, 15.5],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 0]},
+			"faces": {
+				"north": {"uv": [0, 0, 7, 7], "texture": "#0"},
+				"east": {"uv": [0, 0, 15, 7], "texture": "#0"},
+				"south": {"uv": [8, 0, 15, 7], "texture": "#0"},
+				"west": {"uv": [0, 0, 15, 7], "texture": "#0"},
+				"up": {"uv": [8, 0, 15, 15], "texture": "#0"},
+				"down": {"uv": [8, 0, 15, 15], "texture": "#0"}
+			}
+		},
+		{
+			"name": "cube inverted",
+			"from": [15.5, 15.5, 8.5],
+			"to": [0.5, 0.5, 7.5],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [15, 15, 0, 0], "texture": "#2"},
+				"south": {"uv": [0, 15, 15, 0], "texture": "#2"}
+			}
+		},
+		{
+			"name": "cube_outline",
+			"from": [15.975, 15.975, 15.975],
+			"to": [8, 8, 0.025],
+			"shade": false,
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 0]},
+			"faces": {
+				"north": {"uv": [8, 8, 0, 0], "rotation": 180, "texture": "#1"},
+				"east": {"uv": [16, 8, 0, 0], "rotation": 180, "texture": "#1"},
+				"south": {"uv": [16, 8, 8, 0], "rotation": 180, "texture": "#1"},
+				"west": {"uv": [16, 8, 0, 0], "rotation": 180, "texture": "#1"},
+				"down": {"uv": [16, 16, 8, 0], "rotation": 180, "texture": "#1"}
+			}
+		},
+		{
+			"name": "cube_outline",
+			"from": [15.975, 8, 15.975],
+			"to": [8, 0.025, 0.025],
+			"shade": false,
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 0, 0]},
+			"faces": {
+				"north": {"uv": [0, 8, 8, 16], "rotation": 180, "texture": "#1"},
+				"south": {"uv": [8, 8, 16, 16], "rotation": 180, "texture": "#1"},
+				"west": {"uv": [0, 8, 16, 16], "rotation": 180, "texture": "#1"},
+				"up": {"uv": [8, 0, 16, 16], "rotation": 180, "texture": "#1"}
+			}
+		},
+		{
+			"name": "cube_outline",
+			"from": [8, 8, 15.975],
+			"to": [0.025, 0.025, 0.025],
+			"shade": false,
+			"faces": {
+				"north": {"uv": [16, 16, 8, 8], "rotation": 180, "texture": "#1"},
+				"east": {"uv": [16, 16, 0, 8], "rotation": 180, "texture": "#1"},
+				"south": {"uv": [8, 16, 0, 8], "rotation": 180, "texture": "#1"},
+				"up": {"uv": [8, 16, 0, 0], "rotation": 180, "texture": "#1"},
+				"down": {"uv": [8, 16, 0, 0], "rotation": 180, "texture": "#1"}
+			}
+		}
+	]
+}
