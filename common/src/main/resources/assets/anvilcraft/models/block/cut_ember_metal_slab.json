@@ -1,0 +1,58 @@
+{
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/slab",
+	"render_type": "minecraft:cutout",
+	"textures": {
+		"0": "anvilcraft:block/cut_ember_metal_block",
+		"1": "anvilcraft:block/ember_metal_block_outline",
+		"particle": "anvilcraft:block/cut_ember_metal_block"
+	},
+	"elements": [
+		{
+			"from": [0.5, 0.5, 0.5],
+			"to": [15.5, 7.5, 15.5],
+			"faces": {
+				"north": {"uv": [0, 8, 15, 15], "texture": "#0"},
+				"east": {"uv": [0, 8, 15, 15], "texture": "#0"},
+				"south": {"uv": [0, 8, 15, 15], "texture": "#0"},
+				"west": {"uv": [0, 8, 15, 15], "texture": "#0"},
+				"up": {"uv": [0, 0, 15, 15], "texture": "#0"},
+				"down": {"uv": [0, 0, 15, 15], "texture": "#0"}
+			}
+		},
+		{
+			"name": "cube inverted",
+			"from": [8.5, 7.5, 15.5],
+			"to": [7.5, 0.5, 0.5],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"east": {"uv": [0, 15, 15, 8], "texture": "#0"},
+				"west": {"uv": [0, 15, 15, 8], "texture": "#0"}
+			}
+		},
+		{
+			"name": "cube inverted",
+			"from": [15.5, 7.5, 8.5],
+			"to": [0.5, 0.5, 7.5],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [0, 15, 15, 8], "texture": "#0"},
+				"south": {"uv": [0, 15, 15, 8], "texture": "#0"}
+			}
+		},
+		{
+			"name": "cube_outline",
+			"from": [15.975, 8, 15.975],
+			"to": [0.025, 0.025, 0.025],
+			"shade": false,
+			"faces": {
+				"north": {"uv": [0, 8, 16, 16], "rotation": 180, "texture": "#1"},
+				"east": {"uv": [0, 8, 16, 16], "rotation": 180, "texture": "#1"},
+				"south": {"uv": [0, 8, 16, 16], "rotation": 180, "texture": "#1"},
+				"west": {"uv": [0, 8, 16, 16], "rotation": 180, "texture": "#1"},
+				"up": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#1"},
+				"down": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#1"}
+			}
+		}
+	]
+}
