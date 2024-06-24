@@ -24,6 +24,7 @@ public class SeedsPackItem extends Item {
         @NotNull Level level, @NotNull Player player, @NotNull InteractionHand usedHand
     ) {
         ItemStack stack = player.getItemInHand(usedHand);
+        if (level.isClientSide()) return InteractionResultHolder.consume(stack);
         RandomSource random = level.getRandom();
         List<Item> items = BuiltInRegistries.ITEM.getOrCreateTag(ModItemTags.SEEDS_PACK_CONTENT)
             .stream()
