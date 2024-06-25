@@ -2055,11 +2055,14 @@ public class ModBlocks {
                 AnvilCraftDatagen.has(ModBlocks.INDUCTION_LIGHT)
             )
             .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModItems.SILVER_INGOT),
-                AnvilCraftDatagen.has(ModItems.SILVER_INGOT))
+                AnvilCraftDatagen.hasItem(ModBlocks.SILVER_PRESSURE_PLATE),
+                AnvilCraftDatagen.has(ModBlocks.SILVER_PRESSURE_PLATE))
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.RUBY_BLOCK),
                 AnvilCraftDatagen.has(ModBlocks.RUBY_BLOCK)
+            ).unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.TINTED_GLASS),
+                AnvilCraftDatagen.has(Items.TINTED_GLASS)
             )
             .save(provider)
         )
@@ -2629,8 +2632,8 @@ public class ModBlocks {
                 .define('A', ModBlocks.SILVER_PRESSURE_PLATE)
                 .define('B', Items.SUNFLOWER)
                 .define('C', Items.IRON_INGOT)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.SILVER_INGOT),
-                    AnvilCraftDatagen.has(ModItems.SILVER_INGOT))
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.SILVER_PRESSURE_PLATE),
+                    AnvilCraftDatagen.has(ModBlocks.SILVER_PRESSURE_PLATE))
                 .unlockedBy(AnvilCraftDatagen.hasItem(Items.SUNFLOWER),
                     AnvilCraftDatagen.has(Items.SUNFLOWER))
                 .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT),

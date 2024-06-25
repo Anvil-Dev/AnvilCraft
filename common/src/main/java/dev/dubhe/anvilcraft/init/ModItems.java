@@ -508,9 +508,18 @@ public class ModItems {
             .define('A', Items.HEAVY_WEIGHTED_PRESSURE_PLATE)
             .define('B', ModBlocks.COPPER_PRESSURE_PLATE)
             .define('C', ModItems.RESIN)
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), RegistrateRecipeProvider.has(Items.IRON_INGOT))
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.COPPER_INGOT), RegistrateRecipeProvider.has(Items.COPPER_INGOT))
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.TERRACOTTA), RegistrateRecipeProvider.has(Items.TERRACOTTA))
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.HEAVY_WEIGHTED_PRESSURE_PLATE),
+                RegistrateRecipeProvider.has(Items.HEAVY_WEIGHTED_PRESSURE_PLATE)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.COPPER_PRESSURE_PLATE),
+                RegistrateRecipeProvider.has(ModBlocks.COPPER_PRESSURE_PLATE)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.RESIN),
+                RegistrateRecipeProvider.has(ModItems.RESIN)
+            )
             .save(provider))
         .register();
 
@@ -1152,8 +1161,8 @@ public class ModItems {
                 .define('A', ModBlocks.TUNGSTEN_PRESSURE_PLATE)
                 .define('B', Items.NETHERITE_SCRAP)
                 .unlockedBy(
-                    AnvilCraftDatagen.hasItem(ModItems.TUNGSTEN_NUGGET),
-                    RegistrateRecipeProvider.has(ModItems.TUNGSTEN_NUGGET)
+                    AnvilCraftDatagen.hasItem(ModBlocks.TUNGSTEN_PRESSURE_PLATE),
+                    RegistrateRecipeProvider.has(ModBlocks.TUNGSTEN_PRESSURE_PLATE)
                 )
                 .unlockedBy(
                     AnvilCraftDatagen.hasItem(Items.NETHERITE_SCRAP),
