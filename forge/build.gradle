@@ -161,12 +161,12 @@ dependencies {
     // Patchouli
     modImplementation forge.patchouli
 
-    //create
-    modImplementation("com.simibubi.create:create-${minecraft_version}:${create_forge_version}:slim") {
+    // Create
+    modCompileOnly("com.simibubi.create:create-${minecraft_version}:${create_forge_version}:slim") {
         exclude group: "io.github.llamalad7"
         transitive = false
     }
-    modImplementation("com.jozufozu.flywheel:flywheel-forge-${flywheel_forge_minecraft_version}:${flywheel_forge_version}")
+    modCompileOnly("com.jozufozu.flywheel:flywheel-forge-${flywheel_forge_minecraft_version}:${flywheel_forge_version}")
 }
 
 processResources {
