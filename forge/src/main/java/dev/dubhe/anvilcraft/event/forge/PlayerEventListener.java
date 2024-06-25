@@ -30,7 +30,7 @@ public class PlayerEventListener {
     }
 
     @SubscribeEvent
-    public static void itemTooltip(ItemTooltipEvent event) {
+    public static void itemTooltip(@NotNull ItemTooltipEvent event) {
         TooltipEventListener.addTooltip(event.getItemStack(), event.getToolTip());
     }
 }

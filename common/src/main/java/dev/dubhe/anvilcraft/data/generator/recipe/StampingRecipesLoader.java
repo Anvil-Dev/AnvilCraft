@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.data.generator.recipe;
 
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.data.RecipeItem;
+import dev.dubhe.anvilcraft.data.recipe.RecipeItem;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe.Builder;
@@ -118,6 +118,17 @@ public class StampingRecipesLoader {
      * @param item1 产物
      */
     public static void stamping(RegistrateRecipeProvider provider, Item item, Item item1) {
+        StampingRecipesLoader.provider = provider;
+        stamping(item, RecipeItem.of(item1));
+    }
+
+    /**
+     * 生成简单冲压配方
+     *
+     * @param item  原料
+     * @param item1 产物
+     */
+    public static void stamping(RegistrateRecipeProvider provider, TagKey<Item> item, Item item1) {
         StampingRecipesLoader.provider = provider;
         stamping(item, RecipeItem.of(item1));
     }

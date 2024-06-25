@@ -1,6 +1,9 @@
 package dev.dubhe.anvilcraft.api.event;
 
+import dev.architectury.platform.Platform;
+import dev.architectury.utils.Env;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.InvocationTargetException;
@@ -47,6 +50,8 @@ public class EventManager {
         for (Method method : object.getClass().getMethods()) {
             if (method.getParameterCount() != 1) continue;
             SubscribeEvent annotation = method.getAnnotation(SubscribeEvent.class);
+            Environment env = method.getAnnotation(Environment.class);
+            if (env != null && Env.fromPlatform(env.value()) != Platform.getEnvironment()) continue;
             if (null == annotation) continue;
             Class<?> event = method.getParameterTypes()[0];
             Consumer<?> trigger = (obj) -> {

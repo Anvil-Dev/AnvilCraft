@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "tag": "forge:ingots/uranium"
+    }
+  },
+  "pattern": [
+    "AA"
+  ],
+  "result": {
+    "item": "anvilcraft:uranium_pressure_plate"
+  },
+  "show_notification": true
+}

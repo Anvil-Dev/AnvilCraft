@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.integration.kubejs;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.DamageAnvil;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.RunCommand;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SelectOne;
@@ -16,6 +17,8 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItemIngredient;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.NotHasBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
+import dev.dubhe.anvilcraft.integration.kubejs.evnet.AnvilEvents;
+import dev.dubhe.anvilcraft.integration.kubejs.listner.RecipeReloadEventListener;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.AnvilCraftRecipeSchema;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.MobTransformRecipeSchema;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.builder.SelectOneBuilder;
@@ -31,6 +34,7 @@ public class AnvilCraftKubeJsPlugin extends KubeJSPlugin {
     @Override
     public void init() {
         AnvilRecipe.init();
+        AnvilCraft.EVENT_BUS.register(new RecipeReloadEventListener());
     }
 
     @Override
@@ -38,6 +42,12 @@ public class AnvilCraftKubeJsPlugin extends KubeJSPlugin {
         super.registerRecipeSchemas(event);
         event.register(AnvilCraft.of("anvil_processing"), AnvilCraftRecipeSchema.SCHEMA);
         event.register(AnvilCraft.of("mob_transform"), MobTransformRecipeSchema.SCHEMA);
+    }
+
+    @Override
+    public void registerEvents() {
+        super.registerEvents();
+        AnvilEvents.GROUP.register();
     }
 
     @Override
@@ -75,5 +85,9 @@ public class AnvilCraftKubeJsPlugin extends KubeJSPlugin {
 
         // builder
         event.add("SelectOneBuilder", SelectOneBuilder.class);
+
+        // recipe
+        event.add("AnvilRecipe", AnvilRecipe.class);
+        event.add("AnvilRecipeType", AnvilRecipeType.class);
     }
 }
