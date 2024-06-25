@@ -28,7 +28,6 @@
     "PlayerHitEntityMixin",
     "ServerLevelMixin",
     "SolidBucketItemMixin",
-    "SoundEngineMixin",
     "accessor.BaseSpawnerAccessor",
     "accessor.FallingBlockEntityAccessor",
     "accessor.LootContextParamSetsAccessor"
@@ -39,6 +38,7 @@
     "ItemInHandRendererMixin",
     "LevelRendererMixin",
     "TooltipRenderMixin",
+    "SoundEngineMixin",
     "accessor.ItemInHandRendererAccessor",
     "accessor.MinecraftAccessor"
   ],
