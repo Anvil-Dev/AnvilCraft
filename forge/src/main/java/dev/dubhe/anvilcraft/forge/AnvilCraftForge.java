@@ -70,7 +70,6 @@ public class AnvilCraftForge {
                                 .forEach(classes::add);
                         }
                         AnvilCraftCustomInfo.INTEGRATIONS.put(modid, classes);
-                        AnvilCraft.LOGGER.info("{}:{}", modid, classes);
                     }
                 }
             }
