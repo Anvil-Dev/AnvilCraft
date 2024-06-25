@@ -3,16 +3,14 @@
   "category": "equipment",
   "key": {
     "A": {
-      "item": "anvilcraft:tungsten_nugget"
+      "item": "anvilcraft:tungsten_pressure_plate"
     },
     "B": {
       "item": "minecraft:netherite_scrap"
     }
   },
   "pattern": [
-    " A ",
-    "ABA",
-    " A "
+    "ABA"
   ],
   "result": {
     "item": "anvilcraft:netherite_crystal_nucleus"

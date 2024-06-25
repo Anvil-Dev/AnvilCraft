@@ -502,11 +502,11 @@ public class ModItems {
         .item("capacitor_empty", EmptyCapacitorItem::new)
         .tag(ModItemTags.CAPACITOR)
         .recipe((ctx, provider) -> ShapedTagRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get().getDefaultInstance())
-            .pattern("ABA")
+            .pattern(" B ")
             .pattern("ACA")
-            .pattern("ABA")
-            .define('A', Items.IRON_INGOT)
-            .define('B', Items.COPPER_INGOT)
+            .pattern(" B ")
+            .define('A', Items.HEAVY_WEIGHTED_PRESSURE_PLATE)
+            .define('B', ModBlocks.COPPER_PRESSURE_PLATE)
             .define('C', ModItems.RESIN)
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), RegistrateRecipeProvider.has(Items.IRON_INGOT))
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.COPPER_INGOT), RegistrateRecipeProvider.has(Items.COPPER_INGOT))
@@ -1148,10 +1148,8 @@ public class ModItems {
         .item("netherite_crystal_nucleus", Item::new)
         .recipe((ctx, provider) -> {
             ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
-                .pattern(" A ")
                 .pattern("ABA")
-                .pattern(" A ")
-                .define('A', ModItems.TUNGSTEN_NUGGET)
+                .define('A', ModBlocks.TUNGSTEN_PRESSURE_PLATE)
                 .define('B', Items.NETHERITE_SCRAP)
                 .unlockedBy(
                     AnvilCraftDatagen.hasItem(ModItems.TUNGSTEN_NUGGET),

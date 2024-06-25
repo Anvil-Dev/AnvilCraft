@@ -3,7 +3,7 @@
   "category": "misc",
   "key": {
     "A": {
-      "item": "anvilcraft:silver_ingot"
+      "item": "anvilcraft:silver_pressure_plate"
     },
     "B": {
       "item": "minecraft:sunflower"
@@ -13,12 +13,12 @@
     }
   },
   "pattern": [
-    "AAA",
-    " B ",
-    " C "
+    "A",
+    "B",
+    "C"
   ],
   "result": {
-    "count": 16,
+    "count": 8,
     "item": "anvilcraft:heliostats"
   },
   "show_notification": true
