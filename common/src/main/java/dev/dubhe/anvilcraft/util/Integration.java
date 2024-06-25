@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.integration.create;
+package dev.dubhe.anvilcraft.util;
 
 /**
  * 集成

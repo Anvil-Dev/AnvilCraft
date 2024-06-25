@@ -52,6 +52,13 @@
     "mc-publish": {
       "loaders": ["fabric", "quilt"],
       "dependencies": "fabric@0.83.0+1.20.1(required){modrinth:P7dR8mSH}{curseforge:306612}"
+    },
+    "anvilcraft": {
+      "integrations": {
+        "create": [
+          "dev.dubhe.anvilcraft.integration.create.BoilerIntegration"
+        ]
+      }
     }
   }
 }
