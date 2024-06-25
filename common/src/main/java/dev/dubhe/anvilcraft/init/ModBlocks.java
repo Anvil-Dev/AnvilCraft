@@ -2038,13 +2038,14 @@ public class ModBlocks {
             else return 0;
         }))
         .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-            .pattern("ACA")
+            .pattern("AEA")
             .pattern("BDB")
             .pattern("ACA")
             .define('A', ModItems.ROYAL_STEEL_INGOT)
             .define('B', ModBlocks.INDUCTION_LIGHT)
-            .define('C', ModItems.SILVER_INGOT)
+            .define('C', ModBlocks.SILVER_PRESSURE_PLATE)
             .define('D', ModBlocks.RUBY_BLOCK)
+            .define('E', Items.TINTED_GLASS)
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_INGOT),
                 AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT)
@@ -2054,11 +2055,14 @@ public class ModBlocks {
                 AnvilCraftDatagen.has(ModBlocks.INDUCTION_LIGHT)
             )
             .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModItems.SILVER_INGOT),
-                AnvilCraftDatagen.has(ModItems.SILVER_INGOT))
+                AnvilCraftDatagen.hasItem(ModBlocks.SILVER_PRESSURE_PLATE),
+                AnvilCraftDatagen.has(ModBlocks.SILVER_PRESSURE_PLATE))
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.RUBY_BLOCK),
                 AnvilCraftDatagen.has(ModBlocks.RUBY_BLOCK)
+            ).unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.TINTED_GLASS),
+                AnvilCraftDatagen.has(Items.TINTED_GLASS)
             )
             .save(provider)
         )
@@ -2621,15 +2625,15 @@ public class ModBlocks {
         })
         .build()
         .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 16)
-                .pattern("AAA")
-                .pattern(" B ")
-                .pattern(" C ")
-                .define('A', ModItems.SILVER_INGOT)
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 8)
+                .pattern("A")
+                .pattern("B")
+                .pattern("C")
+                .define('A', ModBlocks.SILVER_PRESSURE_PLATE)
                 .define('B', Items.SUNFLOWER)
                 .define('C', Items.IRON_INGOT)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.SILVER_INGOT),
-                    AnvilCraftDatagen.has(ModItems.SILVER_INGOT))
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.SILVER_PRESSURE_PLATE),
+                    AnvilCraftDatagen.has(ModBlocks.SILVER_PRESSURE_PLATE))
                 .unlockedBy(AnvilCraftDatagen.hasItem(Items.SUNFLOWER),
                     AnvilCraftDatagen.has(Items.SUNFLOWER))
                 .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT),
