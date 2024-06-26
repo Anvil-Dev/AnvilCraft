@@ -9,14 +9,17 @@
       "item": "anvilcraft:induction_light"
     },
     "C": {
-      "item": "anvilcraft:silver_ingot"
+      "item": "anvilcraft:silver_pressure_plate"
     },
     "D": {
       "item": "anvilcraft:ruby_block"
+    },
+    "E": {
+      "item": "minecraft:tinted_glass"
     }
   },
   "pattern": [
-    "ACA",
+    "AEA",
     "BDB",
     "ACA"
   ],

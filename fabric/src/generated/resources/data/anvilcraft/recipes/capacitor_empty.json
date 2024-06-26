@@ -3,19 +3,19 @@
   "category": "equipment",
   "key": {
     "A": {
-      "item": "minecraft:iron_ingot"
+      "item": "minecraft:heavy_weighted_pressure_plate"
     },
     "B": {
-      "item": "minecraft:copper_ingot"
+      "item": "anvilcraft:copper_pressure_plate"
     },
     "C": {
       "item": "anvilcraft:resin"
     }
   },
   "pattern": [
-    "ABA",
+    " B ",
     "ACA",
-    "ABA"
+    " B "
   ],
   "result": {
     "item": "anvilcraft:capacitor_empty"

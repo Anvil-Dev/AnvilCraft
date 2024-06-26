@@ -140,11 +140,12 @@ public class ThermoManager {
 
     private void charge(int chargeNum, BlockPos blockPos) {
         Collection<ChargeCollectorManager.Entry> chargeCollectorCollection = ChargeCollectorManager
+                .getInstance(level)
                 .getNearestChargeCollect(blockPos);
         double surplus = chargeNum;
         for (ChargeCollectorManager.Entry entry : chargeCollectorCollection) {
             ChargeCollectorBlockEntity chargeCollectorBlockEntity = entry.getBlockEntity();
-            if (!ChargeCollectorManager.canCollect(chargeCollectorBlockEntity, blockPos)) return;
+            if (!ChargeCollectorManager.getInstance(level).canCollect(chargeCollectorBlockEntity, blockPos)) return;
             surplus = chargeCollectorBlockEntity.incomingCharge(surplus);
             if (surplus == 0) return;
         }
