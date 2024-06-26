@@ -19,21 +19,29 @@ public class AnvilCraftCustomInfo {
             if (Utils.isLoaded(modid)) {
                 AnvilCraft.LOGGER.info("{}'s integrations is loading...", modid);
                 List<String> classes = entry.getValue();
-                classes.forEach(AnvilCraftCustomInfo::apply);
-                AnvilCraft.LOGGER.info("{}'s integrations is loaded!", modid);
+                classes.forEach(it -> {
+                    if (!AnvilCraftCustomInfo.apply(it)) {
+                        AnvilCraft.LOGGER.info("{}'s integration ({}) load failed!", modid, it);
+                    } else {
+                        AnvilCraft.LOGGER.info("{}'s integration ({}) loaded!", modid, it);
+                    }
+                });
+
             }
         }
     }
 
-    private static void apply(String name) {
+    private static boolean apply(String name) {
         try {
             Class<?> clazz = Class.forName(name);
-            if (!clazz.isAssignableFrom(Integration.class)) return;
+            if (!Integration.class.isAssignableFrom(clazz)) return false;
             Class<? extends Integration> integrationClass = clazz.asSubclass(Integration.class);
             Integration integration = integrationClass.getDeclaredConstructor().newInstance();
             integration.apply();
+            return true;
         } catch (Exception ex) {
             AnvilCraft.LOGGER.error(ex.getMessage(), ex);
+            return false;
         }
     }
 }

@@ -30,15 +30,16 @@
     "SolidBucketItemMixin",
     "accessor.BaseSpawnerAccessor",
     "accessor.FallingBlockEntityAccessor",
-    "accessor.LootContextParamSetsAccessor"
+    "accessor.LootContextParamSetsAccessor",
+    "integration.create.BasinBlockEntityMixin"
   ],
   "client": [
     "ClientLevelMixin",
     "ClientPacketListenerMixin",
     "ItemInHandRendererMixin",
     "LevelRendererMixin",
-    "TooltipRenderMixin",
     "SoundEngineMixin",
+    "TooltipRenderMixin",
     "accessor.ItemInHandRendererAccessor",
     "accessor.MinecraftAccessor"
   ],

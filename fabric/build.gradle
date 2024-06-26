@@ -143,7 +143,7 @@ dependencies {
     modImplementation fabric.patchouli
 
     // Create
-    modCompileOnly("com.simibubi.create:create-fabric-${minecraft_version}:${create_fabric_version}"){
+    modImplementation("com.simibubi.create:create-fabric-${minecraft_version}:${create_fabric_version}"){
         exclude group: "io.github.llamalad7"
     }
 }
