@@ -172,6 +172,19 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.MENGER_SPONGE.asStack());
                 entries.accept(ModBlocks.CHUTE.asStack());
                 entries.accept(ModBlocks.MINERAL_FOUNTAIN.asStack());
+                entries.accept(ModBlocks.COPPER_PRESSURE_PLATE.asStack());
+                entries.accept(ModBlocks.EXPOSED_COPPER_PRESSURE_PLATE.asStack());
+                entries.accept(ModBlocks.WEATHERED_COPPER_PRESSURE_PLATE.asStack());
+                entries.accept(ModBlocks.OXIDIZED_COPPER_PRESSURE_PLATE.asStack());
+                entries.accept(ModBlocks.TUNGSTEN_PRESSURE_PLATE.asStack());
+                entries.accept(ModBlocks.TITANIUM_PRESSURE_PLATE.asStack());
+                entries.accept(ModBlocks.ZINC_PRESSURE_PLATE.asStack());
+                entries.accept(ModBlocks.TIN_PRESSURE_PLATE.asStack());
+                entries.accept(ModBlocks.LEAD_PRESSURE_PLATE.asStack());
+                entries.accept(ModBlocks.SILVER_PRESSURE_PLATE.asStack());
+                entries.accept(ModBlocks.URANIUM_PRESSURE_PLATE.asStack());
+                entries.accept(ModBlocks.BRONZE_PRESSURE_PLATE.asStack());
+                entries.accept(ModBlocks.BRASS_PRESSURE_PLATE.asStack());
             })
             .title(REGISTRATE.addLang("itemGroup",
                 AnvilCraft.of("functional_block"),

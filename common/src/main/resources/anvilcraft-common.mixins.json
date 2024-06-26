@@ -35,6 +35,7 @@
   ],
   "client": [
     "ClientLevelMixin",
+    "ClientPacketListenerMixin",
     "ItemInHandRendererMixin",
     "LevelRendererMixin",
     "TooltipRenderMixin",

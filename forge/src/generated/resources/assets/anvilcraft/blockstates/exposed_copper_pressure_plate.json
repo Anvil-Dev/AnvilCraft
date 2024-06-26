@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "powered=false": {
+      "model": "anvilcraft:block/exposed_copper_pressure_plate"
+    },
+    "powered=true": {
+      "model": "anvilcraft:block/exposed_copper_pressure_plate_down"
+    }
+  }
+}

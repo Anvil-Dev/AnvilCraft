@@ -11,13 +11,13 @@ public enum AnvilRecipeType {
     COMPACTION("compaction"), // 压实
     COMPRESS("compress"), // 压缩
     COOKING("cooking"), // 煎炒
-    BOIL("boil"), // 炖煮
     ITEM_INJECT("item_inject"), // 物品注入
     BLOCK_SMASH("block_smash"), // 方块粉碎
     ITEM_SMASH("item_smash"), // 物品粉碎
     SQUEEZE("squeeze"), // 挤压
     SUPER_HEATING("super_heating"), // 超级加热
-    TIMEWARP("timewarp"); // 时移
+    TIMEWARP("timewarp"), // 时移
+    MULTIBLOCK_CRAFTING("multiblock_crafting"); // 大铁砧多配方
     private final String type;
 
     AnvilRecipeType(String type) {
@@ -34,5 +34,9 @@ public enum AnvilRecipeType {
     public static AnvilRecipeType of(String name) {
         for (AnvilRecipeType type : AnvilRecipeType.values()) if (name.equals(type.toString())) return type;
         return AnvilRecipeType.GENERIC;
+    }
+
+    public boolean equals(AnvilRecipeType anvilRecipeType) {
+        return this.toString().equals(anvilRecipeType.toString());
     }
 }

@@ -7,10 +7,10 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -26,23 +26,23 @@ public class HeavyIronBeamBlock extends Block implements IHammerRemovable, IHamm
     public static final VoxelShape AABB_Z =
         Shapes.join(Block.box(0, 12, 0, 16, 16, 16), Block.box(4, 0, 0, 12, 12, 16), BooleanOp.OR);
 
-    public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
+    public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.AXIS;
 
     public HeavyIronBeamBlock(Properties properties) {
         super(properties);
-        registerDefaultState(getStateDefinition().any().setValue(FACING, Direction.NORTH));
+        registerDefaultState(getStateDefinition().any().setValue(AXIS, Direction.Axis.X));
     }
 
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return this.defaultBlockState()
-            .setValue(FACING, context.getHorizontalDirection().getOpposite());
+            .setValue(AXIS, context.getHorizontalDirection().getOpposite().getAxis());
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING);
+        builder.add(AXIS);
     }
 
     @SuppressWarnings("deprecation")
@@ -53,12 +53,10 @@ public class HeavyIronBeamBlock extends Block implements IHammerRemovable, IHamm
         @Nonnull BlockPos blockPos,
         @Nonnull CollisionContext collisionContext
     ) {
-        return switch (blockState.getValue(FACING)) {
-            case WEST:
-            case EAST:
+        return switch (blockState.getValue(AXIS)) {
+            case X:
                 yield AABB_X;
-            case NORTH:
-            case SOUTH:
+            case Z:
             default:
                 yield AABB_Z;
         };
