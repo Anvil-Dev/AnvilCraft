@@ -11,10 +11,13 @@ issueTrackerURL="https://github.com/Anvil-Dev/AnvilCraft/issues"
 authors="Gugle,XeKr"
 description="""${mod_description}\n\nContributors:\n${contributors}\n\nSupporters:\n${supporters}\n- and more...\n"""
 logoFile="pack.png" #optional
+#modproperties={ anvilcraft={ create=[ "dev.dubhe.anvilcraft.integration.create.BoilerIntegration" ] } }
 #credits="Thanks for this example mod goes to Java"
 
-[[dependencies.${mod_id}]]
+[modproperties.anvilcraft.anvilcraft.integrations]
+   create=["dev.dubhe.anvilcraft.integration.create.BoilerIntegration"]
 
+[[dependencies.${mod_id}]]
    modId="forge"
    mandatory=true #mandatory
    versionRange="[${forge_version},)" #mandatory

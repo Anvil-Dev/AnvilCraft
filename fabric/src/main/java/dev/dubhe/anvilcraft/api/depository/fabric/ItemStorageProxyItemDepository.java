@@ -16,6 +16,7 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.client.gui.components.tabs.Tab;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -68,10 +69,10 @@ public class ItemStorageProxyItemDepository implements IItemDepository {
             try {
                 return ((ItemStack) METHOD_GET_STACK.invoke(singleStackStorage)).copy();
             } catch (Throwable ignored) {
-                return view.getResource().toStack((int) view.getAmount());
+                return view.getResource().toStack(view.getAmount() > 0x7fffffff ? 0x7fffffff : (int) view.getAmount());
             }
         }
-        return view.getResource().toStack((int) view.getAmount());
+        return view.getResource().toStack(view.getAmount() > 0x7fffffff ? 0x7fffffff : (int) view.getAmount());
     }
 
     @Override

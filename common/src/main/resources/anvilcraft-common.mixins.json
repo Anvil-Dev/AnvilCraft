@@ -28,16 +28,17 @@
     "PlayerHitEntityMixin",
     "ServerLevelMixin",
     "SolidBucketItemMixin",
-    "SoundEngineMixin",
     "accessor.BaseSpawnerAccessor",
     "accessor.FallingBlockEntityAccessor",
-    "accessor.LootContextParamSetsAccessor"
+    "accessor.LootContextParamSetsAccessor",
+    "integration.create.BasinBlockEntityMixin"
   ],
   "client": [
     "ClientLevelMixin",
     "ClientPacketListenerMixin",
     "ItemInHandRendererMixin",
     "LevelRendererMixin",
+    "SoundEngineMixin",
     "TooltipRenderMixin",
     "accessor.ItemInHandRendererAccessor",
     "accessor.MinecraftAccessor"

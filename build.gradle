@@ -51,12 +51,10 @@ subprojects {
                 includeGroup("com.simibubi.create")
             }
         }
-        maven { // TOP-Fabric
-            url "https://maven.wispforest.io"
-        }
         maven { // Patchouli
             url "https://maven.blamejared.com"
         }
+        maven { url = "https://mvn.devos.one/snapshots/" }
     }
 
     dependencies {

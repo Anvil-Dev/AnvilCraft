@@ -49,7 +49,7 @@ dependencyResolutionManagement {
         def shadowVersion = "7.1.2"
         def architecturyPluginVersion = "3.4-SNAPSHOT"
         def architecturyLoomVersion = "1.6-SNAPSHOT"
-        def mixinextrasVersion = "0.3.2"
+        def mixinextrasVersion = "0.4.0-beta.2"
         def configurationVersion = "2.2.0"
         def clothConfigVersion = "11.1.118"
 

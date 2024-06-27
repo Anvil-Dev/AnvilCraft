@@ -35,7 +35,7 @@ public class PlayerEventListener {
      */
     @SubscribeEvent
     public void onPlayerJoin(@NotNull PlayerEvent.ClientPlayerJoin event) {
-        if (Utils.onlyJei()) {
+        if (Utils.isLoaded("jei") && !Utils.isLoaded("emi")) {
             LocalPlayer entity = event.getEntity();
             entity.sendSystemMessage(
                 Component.literal("[").withStyle(ChatFormatting.GREEN).append(

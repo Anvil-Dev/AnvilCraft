@@ -4,8 +4,10 @@ import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
 import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager.Entry;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
+
 import java.util.Collection;
 import javax.annotation.Nonnull;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -19,9 +21,9 @@ import org.jetbrains.annotations.NotNull;
 
 public class PiezoelectricCrystalBlock extends Block implements IHammerRemovable {
     public static VoxelShape SHAPE = Shapes.or(
-        Block.box(0, 14, 0, 16, 16, 16),
-        Block.box(2, 2, 2, 14, 14, 14),
-        Block.box(0, 0, 0, 16, 2, 16)
+            Block.box(0, 14, 0, 16, 16, 16),
+            Block.box(2, 2, 2, 14, 14, 14),
+            Block.box(0, 0, 0, 16, 2, 16)
     );
 
     public PiezoelectricCrystalBlock(Properties properties) {
@@ -37,7 +39,10 @@ public class PiezoelectricCrystalBlock extends Block implements IHammerRemovable
     @SuppressWarnings("deprecation")
     @Override
     public @NotNull VoxelShape getShape(
-        @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context
+            @NotNull BlockState state,
+            @NotNull BlockGetter level,
+            @NotNull BlockPos pos,
+            @NotNull CollisionContext context
     ) {
         return SHAPE;
     }
@@ -48,17 +53,18 @@ public class PiezoelectricCrystalBlock extends Block implements IHammerRemovable
     public void onHitByAnvil(float fallDistance, Level level, BlockPos blockPos) {
         int distance = (int) Math.min(3, fallDistance);
         int chargeNum = (int) Math.pow(2, distance);
-        this.charge(chargeNum, blockPos);
+        this.charge(chargeNum, level, blockPos);
         pressureConduction(level, blockPos, chargeNum / 2, 4);
     }
 
-    private void charge(int chargeNum, BlockPos blockPos) {
+    private void charge(int chargeNum, Level level, BlockPos blockPos) {
         Collection<Entry> chargeCollectorCollection = ChargeCollectorManager
-               .getNearestChargeCollect(blockPos);
+                .getInstance(level)
+                .getNearestChargeCollect(blockPos);
         double surplus = chargeNum;
         for (Entry entry : chargeCollectorCollection) {
             ChargeCollectorBlockEntity chargeCollectorBlockEntity = entry.getBlockEntity();
-            if (!ChargeCollectorManager.canCollect(chargeCollectorBlockEntity, blockPos)) return;
+            if (!ChargeCollectorManager.getInstance(level).canCollect(chargeCollectorBlockEntity, blockPos)) return;
             surplus = chargeCollectorBlockEntity.incomingCharge(surplus);
             if (surplus == 0) return;
         }
@@ -70,7 +76,7 @@ public class PiezoelectricCrystalBlock extends Block implements IHammerRemovable
         BlockPos pos = blockPos.below();
         if (level.getBlockState(pos).getBlock() instanceof PiezoelectricCrystalBlock block) {
             if (chargeNum == 0) return;
-            this.charge(chargeNum, blockPos);
+            this.charge(chargeNum, level, blockPos);
             block.pressureConduction(level, pos, chargeNum / 2, c);
         }
     }

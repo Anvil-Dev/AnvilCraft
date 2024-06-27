@@ -24,7 +24,6 @@ public class ServerWorldEventListener {
     }
 
     private static void onUnload(MinecraftServer server, Level level) {
-        ChargeCollectorManager.cleanMap();
         if (level instanceof ServerLevel serverLevel) LevelLoadManager.removeAll(serverLevel);
     }
 }

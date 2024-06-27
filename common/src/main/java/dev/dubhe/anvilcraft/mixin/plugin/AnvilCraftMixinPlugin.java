@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.mixin.plugin;
 
+import dev.dubhe.anvilcraft.util.Utils;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
@@ -10,11 +11,13 @@ import java.util.Set;
 public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
 
     private static boolean hasZetaPiston = false;
+    private static boolean hasCreate = false;
 
     @Override
     public void onLoad(String mixinPackage) {
         hasZetaPiston = AnvilCraftMixinPlugin.class.getClassLoader()
                 .getResource("org/violetmoon/zeta/piston/ZetaPistonStructureResolver.class") != null;
+        hasCreate = Utils.isLoaded("create");
     }
 
     @Override
@@ -25,6 +28,9 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
         if (mixinClassName.endsWith("PistonStructureResolverMixin")) return !hasZetaPiston;
+        if (mixinClassName.startsWith("dev.dubhe.anvilcraft.mixin.integration.create.")) {
+            return hasCreate;
+        }
         return true;
     }
 
