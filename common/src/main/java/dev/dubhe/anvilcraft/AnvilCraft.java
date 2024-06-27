@@ -55,7 +55,6 @@ public class AnvilCraft {
         ModMenuTypes.register();
         ModNetworks.register();
         ModDispenserBehavior.register();
-        ModLootContextParamSet.register();
         ModEnchantments.register();
 
         AnvilRecipe.init();
