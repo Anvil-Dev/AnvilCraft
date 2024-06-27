@@ -57,24 +57,28 @@ public class AnvilCraftForge {
                 for (UnmodifiableConfig.Entry entry1 : anvilConfig.entrySet()) {
                     if (!entry1.getKey().equals("integrations")) continue;
                     if (!(entry1.getValue() instanceof UnmodifiableConfig config)) return;
-                    for (UnmodifiableConfig.Entry entry2 : config.entrySet()) {
-                        String modid = entry2.getKey();
-                        Object value = entry2.getValue();
-                        List<String> classes = Collections.synchronizedList(new ArrayList<>());
-                        if (value instanceof String string) {
-                            classes.add(string);
-                        } else if (value instanceof List<?> list) {
-                            list.stream()
-                                .filter(i -> i instanceof String)
-                                .map(Object::toString)
-                                .forEach(classes::add);
-                        }
-                        AnvilCraftCustomInfo.INTEGRATIONS.put(modid, classes);
-                    }
+                    loadIntegrations(config);
                 }
             }
         }
         AnvilCraftCustomInfo.apply();
+    }
+
+    private static void loadIntegrations(@NotNull UnmodifiableConfig integrations) {
+        for (UnmodifiableConfig.Entry entry2 : integrations.entrySet()) {
+            String modid = entry2.getKey();
+            Object value = entry2.getValue();
+            List<String> classes = Collections.synchronizedList(new ArrayList<>());
+            if (value instanceof String string) {
+                classes.add(string);
+            } else if (value instanceof List<?> list) {
+                list.stream()
+                    .filter(i -> i instanceof String)
+                    .map(Object::toString)
+                    .forEach(classes::add);
+            }
+            AnvilCraftCustomInfo.INTEGRATIONS.put(modid, classes);
+        }
     }
 
     public static void registerCommand(@NotNull RegisterCommandsEvent event) {
