@@ -445,7 +445,7 @@
   "tooltip.anvilcraft.item.smooth_royal_steel_block": "防苦力怕",
   "tooltip.anvilcraft.item.tempering_glass": "防苦力怕，可徒手採集",
   "tooltip.anvilcraft.item.topaz": "蘊含閃電的力量",
-  "tooltip.anvilcraft.item.transmission_pole": "組建電網，傳輸距離為8個方塊",
+  "tooltip.anvilcraft.item.transmission_pole": "組建電網，傳輸距離為 8 個方塊",
   "tooltip.anvilcraft.jade.power_information": "電網：%d/%d kW",
   "tooltip.anvilcraft.only_jei": "檢測到您只安裝了 JEI，無法獲取完整的配方查詢。 我們建議安裝 %s 以獲得完整的遊戲體驗！",
   "tooltip.anvilcraft.ruby_prism.power": "雷射等級：%d"
