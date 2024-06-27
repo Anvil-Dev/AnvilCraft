@@ -41,6 +41,7 @@ public class AnvilCraftFabric implements ModInitializer {
                 }
             }
         }
+        AnvilCraftCustomInfo.apply();
     }
 
     private static void loadIntegrations(@NotNull CustomValue.CvObject integrations) {
@@ -58,6 +59,5 @@ public class AnvilCraftFabric implements ModInitializer {
             }
             AnvilCraftCustomInfo.INTEGRATIONS.put(modid, classes);
         }
-        AnvilCraftCustomInfo.apply();
     }
 }
