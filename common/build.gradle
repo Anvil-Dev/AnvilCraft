@@ -40,6 +40,9 @@ repositories {
     maven { // TOP
         url "https://maven.k-4u.nl"
     }
+    maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" } // Forge Config API Port
+    maven { url = "https://maven.cafeteria.dev/releases" } // Fake Player API
+
 }
 
 dependencies {
@@ -78,6 +81,10 @@ dependencies {
 
     // Patchouli
     modImplementation fabric.patchouli
+
+    modCompileOnly("com.simibubi.create:create-fabric-${minecraft_version}:${create_fabric_version}"){
+        exclude group: "io.github.llamalad7"
+    }
 }
 
 publishing {
