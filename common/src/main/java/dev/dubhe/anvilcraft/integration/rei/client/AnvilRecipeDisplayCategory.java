@@ -23,6 +23,7 @@ import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec2;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -65,7 +66,7 @@ public class AnvilRecipeDisplayCategory implements DisplayCategory<AnvilRecipeDi
     }
 
     @Override
-    public List<Widget> setupDisplay(AnvilRecipeDisplay display, Rectangle bounds) {
+    public List<Widget> setupDisplay(@NotNull AnvilRecipeDisplay display, @NotNull Rectangle bounds) {
         Point startPoint = new Point(bounds.getCenterX() - 133, bounds.getCenterY() - 42);
         List<Widget> widgets = Lists.newArrayList();
         widgets.add(Widgets.createRecipeBase(bounds));
