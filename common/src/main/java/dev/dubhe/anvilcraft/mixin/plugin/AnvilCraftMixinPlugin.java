@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.mixin.plugin;
 
 import org.jetbrains.annotations.NotNull;
-import dev.dubhe.anvilcraft.util.Utils;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
@@ -22,7 +21,7 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
     public void onLoad(String mixinPackage) {
         hasZetaPiston = AnvilCraftMixinPlugin.class.getClassLoader()
                 .getResource("org/violetmoon/zeta/piston/ZetaPistonStructureResolver.class") != null;
-        hasCreate = Utils.isLoaded("create");
+        hasCreate = this.isLoaded("com/simibubi/create/Create.class");
         hasZetaPiston = this.isLoaded("org/violetmoon/zeta/piston/ZetaPistonStructureResolver.class");
         hasReiScreen = this.isLoaded("me/shedaniel/rei/impl/client/gui/screen/DefaultDisplayViewingScreen.class");
     }
