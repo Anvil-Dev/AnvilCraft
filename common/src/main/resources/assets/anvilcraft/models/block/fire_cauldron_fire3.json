@@ -1,0 +1,30 @@
+{
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/campfire",
+	"textures": {
+		"0": "minecraft:block/campfire_fire",
+		"particle": "minecraft:block/campfire_fire"
+	},
+	"elements": [
+		{
+			"from": [8, 15, 0.8],
+			"to": [8, 31, 15.2],
+			"shade": false,
+			"rotation": {"angle": 45, "axis": "y", "origin": [8, 22, 8], "rescale": true},
+			"faces": {
+				"east": {"uv": [0, 0, 16, 16], "texture": "#0"},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#0"}
+			}
+		},
+		{
+			"from": [0.8, 15, 8],
+			"to": [15.2, 31, 8],
+			"shade": false,
+			"rotation": {"angle": 45, "axis": "y", "origin": [8, 22, 8], "rescale": true},
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#0"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#0"}
+			}
+		}
+	]
+}
