@@ -56,10 +56,10 @@ public class ItemStorageProxyItemDepository implements IItemDepository {
             try {
                 return ((ItemStack) METHOD_GET_STACK.invoke(singleStackStorage)).copy();
             } catch (Throwable ignored) {
-                return view.getResource().toStack((int) view.getAmount());
+                return view.getResource().toStack(view.getAmount() > 0x7fffffff ? 0x7fffffff : (int) view.getAmount());
             }
         }
-        return view.getResource().toStack((int) view.getAmount());
+        return view.getResource().toStack(view.getAmount() > 0x7fffffff ? 0x7fffffff : (int) view.getAmount());
     }
 
     @Override
