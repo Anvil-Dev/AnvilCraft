@@ -5,13 +5,12 @@ import dev.dubhe.anvilcraft.api.entity.fakeplayer.forge.AnvilCraftBlockPlacerFak
 import dev.dubhe.anvilcraft.api.entity.player.AnvilCraftBlockPlacer;
 import dev.dubhe.anvilcraft.api.recipe.AnvilRecipeManager;
 import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Objects;
 
 @Mod.EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class LevelEventListener {
@@ -24,7 +23,9 @@ public class LevelEventListener {
         if (event.getLevel() instanceof ServerLevel serverLevel)
             AnvilCraftBlockPlacer.anvilCraftBlockPlacer =
                 new AnvilCraftBlockPlacerFakePlayer(serverLevel);
-        AnvilRecipeManager.updateRecipes(Objects.requireNonNull(event.getLevel().getServer()));
+        if (event.getLevel() instanceof ClientLevel clientLevel) {
+            AnvilRecipeManager.updateRecipes(clientLevel.getRecipeManager(), clientLevel.registryAccess());
+        }
     }
 
     /**

@@ -21,7 +21,7 @@ public class ServerWorldEventListener {
     private static void onload(MinecraftServer server, Level level) {
         if (level instanceof ServerLevel serverLevel)
             AnvilCraftBlockPlacer.anvilCraftBlockPlacer = new AnvilCraftBlockPlacerFakePlayer(serverLevel);
-        AnvilRecipeManager.updateRecipes(server);
+        AnvilRecipeManager.updateRecipes(server.getRecipeManager(), server.registryAccess());
     }
 
     private static void onUnload(MinecraftServer server, Level level) {
