@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.event.recipe.RecipeReloadEvent;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.BlastingRecipe;
@@ -22,6 +23,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public class AnvilRecipeManager {
+    @Setter
     @Getter
     private static List<AnvilRecipe> anvilRecipeList = List.of();
     public static List<AnvilRecipe> externalRecipeList = new ArrayList<>();

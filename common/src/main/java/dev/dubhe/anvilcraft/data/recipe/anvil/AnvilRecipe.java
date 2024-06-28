@@ -76,16 +76,15 @@ import java.util.function.Consumer;
 
 import static dev.dubhe.anvilcraft.api.power.IPowerComponent.OVERLOAD;
 
+
+@Getter
 @SuppressWarnings("unused")
 public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
     private final ResourceLocation id;
-    @Getter
     private final List<RecipePredicate> predicates = new ArrayList<>();
-    @Getter
     private final List<RecipeOutcome> outcomes = new ArrayList<>();
     private final ItemStack icon;
     private final Map<String, CompoundTag> data = new HashMap<>();
-    @Getter
     private AnvilRecipeType anvilRecipeType = AnvilRecipeType.GENERIC;
 
     public AnvilRecipe(ResourceLocation id, ItemStack icon) {

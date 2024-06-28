@@ -2,12 +2,15 @@ package dev.dubhe.anvilcraft.event.forge;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.entity.PlayerEvent;
+import dev.dubhe.anvilcraft.api.recipe.AnvilRecipeManager;
 import dev.dubhe.anvilcraft.event.TooltipEventListener;
+import dev.dubhe.anvilcraft.network.ClientRecipeManagerSyncPack;
 import net.minecraft.world.InteractionResult;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
 
 
@@ -32,5 +35,13 @@ public class PlayerEventListener {
     @SubscribeEvent
     public static void itemTooltip(@NotNull ItemTooltipEvent event) {
         TooltipEventListener.addTooltip(event.getItemStack(), event.getToolTip());
+    }
+
+    @SubscribeEvent
+    public static void serverCustomPayloadEvent(
+            @NotNull NetworkEvent.LoginPayloadEvent event
+    ) {
+        new ClientRecipeManagerSyncPack(AnvilRecipeManager.getAnvilRecipeList())
+                .send(event.getSource().get().getSender());
     }
 }
