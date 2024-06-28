@@ -7,6 +7,8 @@ import dev.dubhe.anvilcraft.api.recipe.AnvilRecipeManager;
 import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -23,6 +25,14 @@ public class LevelEventListener {
         if (event.getLevel() instanceof ServerLevel serverLevel)
             AnvilCraftBlockPlacer.anvilCraftBlockPlacer =
                 new AnvilCraftBlockPlacerFakePlayer(serverLevel);
+    }
+
+    /**
+     * 客户端世界加载事件
+     */
+    @OnlyIn(Dist.CLIENT)
+    @SubscribeEvent
+    public static void onClientLevelLoad(@NotNull LevelEvent.Load event) {
         if (event.getLevel() instanceof ClientLevel clientLevel) {
             AnvilRecipeManager.updateRecipes(clientLevel.getRecipeManager(), clientLevel.registryAccess());
         }
