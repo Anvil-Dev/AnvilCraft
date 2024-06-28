@@ -9,10 +9,11 @@ import me.shedaniel.rei.api.client.registry.category.CategoryRegistry;
 import me.shedaniel.rei.api.client.registry.display.DisplayRegistry;
 import me.shedaniel.rei.api.common.util.EntryStacks;
 import net.minecraft.world.level.block.Blocks;
+import org.jetbrains.annotations.NotNull;
 
 public class AnvilCraftReiClientPlugin implements REIClientPlugin {
     @Override
-    public void registerCategories(CategoryRegistry registry) {
+    public void registerCategories(@NotNull CategoryRegistry registry) {
         registry.add(new AnvilRecipeDisplayCategory(AnvilCraftCategoryIdentifiers.STAMPING));
         registry.add(new AnvilRecipeDisplayCategory(AnvilCraftCategoryIdentifiers.SIEVING));
         registry.add(new AnvilRecipeDisplayCategory(AnvilCraftCategoryIdentifiers.BULGING));

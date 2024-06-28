@@ -59,8 +59,9 @@ public class BlockWidget extends WidgetWithBounds implements Renderer {
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
-    public void render(GuiGraphics graphics, Rectangle bounds, int mouseX, int mouseY, float delta) {
+    public void render(@NotNull GuiGraphics graphics, @NotNull Rectangle bounds, int mouseX, int mouseY, float delta) {
         PoseStack pose = graphics.pose();
         pose.pushPose();
         pose.translate(bounds.x, bounds.y, 0.0);
