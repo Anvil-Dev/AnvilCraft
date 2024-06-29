@@ -17,18 +17,6 @@
         "count": 16,
         "item": "anvilcraft:reinforced_concrete_purple"
       }
-    },
-    {
-      "type": "set_block",
-      "chance": 1.0,
-      "offset": [
-        0.0,
-        -1.0,
-        0.0
-      ],
-      "result": {
-        "block": "minecraft:cauldron"
-      }
     }
   ],
   "predicates": [
