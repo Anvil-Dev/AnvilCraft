@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.network;
 
-import dev.dubhe.anvilcraft.api.network.Packet;
+
+import dev.anvilcraft.lib.network.Packet;
 import dev.dubhe.anvilcraft.api.recipe.AnvilRecipeManager;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;

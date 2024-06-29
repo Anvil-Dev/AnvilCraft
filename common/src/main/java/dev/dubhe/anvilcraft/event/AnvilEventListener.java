@@ -1,9 +1,9 @@
 package dev.dubhe.anvilcraft.event;
 
+import dev.anvilcraft.lib.event.SubscribeEvent;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.IHasMultiBlock;
 import dev.dubhe.anvilcraft.api.depository.ItemDepository;
-import dev.dubhe.anvilcraft.api.event.SubscribeEvent;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilHurtEntityEvent;
 import dev.dubhe.anvilcraft.api.recipe.AnvilRecipeManager;

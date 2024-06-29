@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.init;
 
+import dev.anvilcraft.lib.network.Network;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.network.Network;
 import dev.dubhe.anvilcraft.network.ClientRecipeManagerSyncPack;
 import dev.dubhe.anvilcraft.network.ClientboundMutedSoundSyncPacket;
 import dev.dubhe.anvilcraft.network.HammerUsePack;

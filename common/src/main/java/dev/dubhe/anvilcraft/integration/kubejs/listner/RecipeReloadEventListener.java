@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.integration.kubejs.listner;
 
-import dev.dubhe.anvilcraft.api.event.SubscribeEvent;
+import dev.anvilcraft.lib.event.SubscribeEvent;
 import dev.dubhe.anvilcraft.api.event.recipe.RecipeReloadEvent;
 import dev.dubhe.anvilcraft.integration.kubejs.evnet.AnvilEvents;
 import dev.dubhe.anvilcraft.integration.kubejs.evnet.LoadAnvilCraftingRecipeEvent;

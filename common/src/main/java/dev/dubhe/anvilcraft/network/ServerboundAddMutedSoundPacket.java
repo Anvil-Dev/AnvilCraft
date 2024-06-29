@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.network;
 
-import dev.dubhe.anvilcraft.api.network.Packet;
+import dev.anvilcraft.lib.network.Packet;
 import dev.dubhe.anvilcraft.init.ModNetworks;
 import dev.dubhe.anvilcraft.inventory.ActiveSilencerMenu;
 import net.minecraft.network.FriendlyByteBuf;
