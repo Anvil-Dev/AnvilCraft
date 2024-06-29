@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
-import dev.dubhe.anvilcraft.block.InductionLightBlock;
 import dev.dubhe.anvilcraft.block.RubyLaserBlock;
 import lombok.Getter;
 import lombok.Setter;
