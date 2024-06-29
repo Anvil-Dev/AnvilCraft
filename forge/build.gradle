@@ -99,6 +99,7 @@ configurations {
 
 repositories {
     // mavens for Forge-exclusives
+    maven { url = "https://server.cjsah.net:1002/maven/" } // AnvilLib
     maven { url = "https://maven.shedaniel.me/" }
     maven { url = "https://maven.theillusivec4.top/" } // Curios
     maven { url = "https://maven.parchmentmc.org" } // Parchment mappings
@@ -131,6 +132,9 @@ dependencies {
     // Registrate
     modImplementation(include("com.tterrag.registrate:Registrate:${forge.versions.registrate.get()}"))
 
+    // AnvilLib
+    modImplementation(forge.anvilLib) { transitive = false }
+
     // JEI
     modCompileOnly(forge.jei.common.api) { transitive = false }
     modCompileOnly(forge.jei.forge.api) { transitive = false }
@@ -161,14 +165,14 @@ dependencies {
     include(forge.clothConfig)
 
     // Patchouli
-    modImplementation forge.patchouli
+    modImplementation(forge.patchouli)
 
     // Create
-    modCompileOnly("com.simibubi.create:create-${minecraft_version}:${create_forge_version}:slim") {
+    modCompileOnly(forge.flywheel)
+    modCompileOnly(forge.create) {
         exclude group: "io.github.llamalad7"
         transitive = false
     }
-    modCompileOnly("com.jozufozu.flywheel:flywheel-forge-${flywheel_forge_minecraft_version}:${flywheel_forge_version}")
 }
 
 processResources {

@@ -52,14 +52,15 @@
   "depends": {
     "fabricloader": ">=0.14.7",
     "fabric": "*",
-    "minecraft": ">=${minecraft_version}"
+    "minecraft": ">=${minecraft_version}",
+    "anvillib": ">=1.0.0"
   },
   "custom": {
     "mc-publish": {
       "loaders": ["fabric", "quilt"],
       "dependencies": "fabric@0.83.0+1.20.1(required){modrinth:P7dR8mSH}{curseforge:306612}"
     },
-    "anvilcraft": {
+    "anvillib": {
       "integrations": {
         "create": [
           "dev.dubhe.anvilcraft.integration.create.BoilerIntegration"

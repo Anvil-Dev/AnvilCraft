@@ -1,10 +1,10 @@
 package dev.dubhe.anvilcraft.integration.create;
 
 import com.simibubi.create.content.fluids.tank.BoilerHeaters;
+import dev.anvilcraft.lib.integration.Integration;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
-import dev.dubhe.anvilcraft.util.Integration;
 
 @SuppressWarnings("unused")
 public class BoilerIntegration implements Integration {
