@@ -8,7 +8,10 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipeOutcome;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipePredicate;
 import dev.dubhe.anvilcraft.init.ModNetworks;
+import dev.emi.emi.runtime.EmiReloadManager;
 import lombok.Getter;
+import me.shedaniel.rei.api.client.REIRuntime;
+import me.shedaniel.rei.api.common.registry.ReloadStage;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
@@ -22,6 +25,10 @@ import java.util.List;
 @Getter
 public class ClientRecipeManagerSyncPack implements Packet {
     private final List<AnvilRecipe> anvilRecipes;
+
+    private boolean isLoaded(String clazz) {
+        return ClientRecipeManagerSyncPack.class.getClassLoader().getResource(clazz) != null;
+    }
 
     /**
      * 电网同步
@@ -80,5 +87,11 @@ public class ClientRecipeManagerSyncPack implements Packet {
     @Environment(EnvType.CLIENT)
     public void handler() {
         Minecraft.getInstance().execute(() -> AnvilRecipeManager.setAnvilRecipeList(this.anvilRecipes));
+        if (this.isLoaded("me/shedaniel/rei/impl/client/gui/screen/DefaultDisplayViewingScreen.class")) {
+            REIRuntime.getInstance().startReload(ReloadStage.START);
+        }
+        if (this.isLoaded("dev/emi/emi/api/EmiPlugin.class")) {
+            EmiReloadManager.reload();
+        }
     }
 }

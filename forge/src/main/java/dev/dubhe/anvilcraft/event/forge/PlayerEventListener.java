@@ -5,12 +5,12 @@ import dev.dubhe.anvilcraft.api.event.entity.PlayerEvent;
 import dev.dubhe.anvilcraft.api.recipe.AnvilRecipeManager;
 import dev.dubhe.anvilcraft.event.TooltipEventListener;
 import dev.dubhe.anvilcraft.network.ClientRecipeManagerSyncPack;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
 
 
@@ -37,11 +37,15 @@ public class PlayerEventListener {
         TooltipEventListener.addTooltip(event.getItemStack(), event.getToolTip());
     }
 
+    /**
+     * 服务器玩家登陆事件
+     */
     @SubscribeEvent
-    public static void serverCustomPayloadEvent(
-            @NotNull NetworkEvent.LoginPayloadEvent event
+    public static void layerLoggedInEvent(
+            @NotNull net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent event
     ) {
-        new ClientRecipeManagerSyncPack(AnvilRecipeManager.getAnvilRecipeList())
-                .send(event.getSource().get().getSender());
+        if (event.getEntity() instanceof ServerPlayer serverPlayer)
+            new ClientRecipeManagerSyncPack(AnvilRecipeManager.getAnvilRecipeList())
+                    .send(serverPlayer);
     }
 }
