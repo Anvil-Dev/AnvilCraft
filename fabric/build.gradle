@@ -103,7 +103,7 @@ dependencies {
 
     // Development QOL
     modCompileOnly fabric.lazydfu
-    modImplementation fabric.modmenu
+    modCompileOnly fabric.modmenu
 
     // JEI
     modCompileOnlyApi(fabric.jei.common.api) { transitive = false }
@@ -111,13 +111,14 @@ dependencies {
     modCompileOnly(fabric.jei.fabric.impl) { transitive = false }
 
     // REI
+    modRuntimeOnly "dev.architectury:architectury-fabric:9.2.14"
     modCompileOnly(fabric.rei.plugin) { transitive = false }
     modCompileOnly(fabric.rei.api) { transitive = false }
-    modCompileOnly(fabric.rei.fabric) { transitive = false }
+    modRuntimeOnly(fabric.rei.fabric) { transitive = false }
 
     // EMI
     modCompileOnly("dev.emi:emi-fabric:${fabric.versions.emi.get()}:api")
-    modImplementation fabric.emi
+    modCompileOnly fabric.emi
 
     // Jade
     modImplementation fabric.jade
@@ -188,7 +189,7 @@ jar {
     archiveClassifier.set("dev")
 }
 
-tasks.register('dataDelete', Delete){
+tasks.register('dataDelete', Delete) {
     group 'loom'
     delete forge_project.files('src/generated')
 }

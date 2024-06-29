@@ -31,7 +31,7 @@ public class BlockWidget extends Widget implements DrawableWidgetConsumer {
     private int size = 25;
 
     /**
-     * REI
+     * EMI
      */
     public BlockWidget(BlockState blockState, int posY, int offsetX, int offsetY) {
         this.blockState = blockState;

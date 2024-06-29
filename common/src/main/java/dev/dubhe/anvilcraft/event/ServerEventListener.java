@@ -20,14 +20,14 @@ public class ServerEventListener {
     public void onServerStarted(@NotNull ServerStartedEvent event) {
         ModHammerInits.init();
         HammerManager.register();
-        AnvilRecipeManager.updateRecipes(event.getServer());
+        AnvilRecipeManager.updateRecipes(event.getServer().getRecipeManager(), event.getServer().registryAccess());
         LevelLoadManager.notifyServerStarted();
         ModLootContextParamSet.register();
     }
 
     @SubscribeEvent
     public void onServerEndDataPackReload(@NotNull ServerEndDataPackReloadEvent event) {
-        AnvilRecipeManager.updateRecipes(event.getServer());
+        AnvilRecipeManager.updateRecipes(event.getServer().getRecipeManager(), event.getServer().registryAccess());
     }
 
 }

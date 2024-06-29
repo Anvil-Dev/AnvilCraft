@@ -36,6 +36,7 @@
   "client": [
     "ClientLevelMixin",
     "ClientPacketListenerMixin",
+    "integration.rei.DefaultDisplayViewingScreenMixin",
     "ItemInHandRendererMixin",
     "LevelRendererMixin",
     "SoundEngineMixin",

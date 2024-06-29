@@ -37,6 +37,12 @@
     ],
     "jade": [
       "dev.dubhe.anvilcraft.integration.jade.AnvilCraftJadePlugin"
+    ],
+    "rei_client": [
+      "dev.dubhe.anvilcraft.integration.rei.client.AnvilCraftReiClientPlugin"
+    ],
+    "rei_common": [
+      "dev.dubhe.anvilcraft.integration.rei.AnvilCraftReiPlugin"
     ]
   },
   "mixins": [
