@@ -108,6 +108,7 @@ dependencies {
 
     // AnvilLib
     modImplementation(fabric.anvilLib) { transitive = false }
+    include(fabric.anvilLib)
 
     // JEI
     modCompileOnlyApi(fabric.jei.common.api) { transitive = false }
