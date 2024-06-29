@@ -134,6 +134,7 @@ dependencies {
 
     // AnvilLib
     modImplementation(forge.anvilLib) { transitive = false }
+    include(forge.anvilLib)
 
     // JEI
     modCompileOnly(forge.jei.common.api) { transitive = false }
