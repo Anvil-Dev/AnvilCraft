@@ -555,6 +555,7 @@ public class ModItems {
         .register();
     public static final ItemEntry<Item> TUNGSTEN_NUGGET = REGISTRATE
         .item("tungsten_nugget", Item::new)
+        .initialProperties(() -> new Item.Properties().fireResistant())
         .tag(ModItemTags.TUNGSTEN_NUGGETS, ModItemTags.TUNGSTEN_NUGGETS_FORGE)
         .recipe((ctx, provider) -> {
             ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
@@ -575,6 +576,7 @@ public class ModItems {
         .register();
     public static final ItemEntry<Item> TUNGSTEN_INGOT = REGISTRATE
         .item("tungsten_ingot", Item::new)
+        .initialProperties(() -> new Item.Properties().fireResistant())
         .tag(ModItemTags.TUNGSTEN_INGOTS, ModItemTags.TUNGSTEN_INGOTS_FORGE)
         .recipe((ctx, provider) -> {
             ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
@@ -1155,6 +1157,7 @@ public class ModItems {
 
     public static final ItemEntry<Item> NETHERITE_CRYSTAL_NUCLEUS = REGISTRATE
         .item("netherite_crystal_nucleus", Item::new)
+        .initialProperties(() -> new Item.Properties().fireResistant())
         .recipe((ctx, provider) -> {
             ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
                 .pattern("ABA")
@@ -1252,6 +1255,7 @@ public class ModItems {
         .register();
     public static final ItemEntry<Item> RAW_TUNGSTEN = REGISTRATE
         .item("raw_tungsten", Item::new)
+        .initialProperties(() -> new Item.Properties().fireResistant())
         .tag(ModItemTags.RAW_ORES, ModItemTags.RAW_ORES_FORGE, ModItemTags.RAW_TUNGSTEN, ModItemTags.RAW_TUNGSTEN_FORGE)
         .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModBlocks.RAW_TUNGSTEN)
