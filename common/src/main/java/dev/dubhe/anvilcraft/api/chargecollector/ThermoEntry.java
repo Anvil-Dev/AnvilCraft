@@ -37,7 +37,10 @@ public abstract class ThermoEntry {
         return new Simple(charge, input, output, canIrritated);
     }
 
-    public static ThermoEntry always(int charge, Block block, boolean canIrritated) {
+    /**
+     * not really forever
+     */
+    public static ThermoEntry forever(int charge, Block block, boolean canIrritated) {
         return new Always(charge, block, canIrritated);
     }
 
