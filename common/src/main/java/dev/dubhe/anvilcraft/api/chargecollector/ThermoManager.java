@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.api.chargecollector;
 
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlocks;
+import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
@@ -9,7 +10,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 
 import java.util.ArrayList;
@@ -51,6 +51,16 @@ public class ThermoManager {
     }
 
     /**
+     * 移除热方块
+     */
+    public void removeThermalBlock(BlockPos pos) {
+        List<ThermoBlock> b = thermoBlocks.stream()
+                .filter(it -> it.getPos().equals(pos))
+                .toList();
+        b.forEach(thermoBlocks::remove);
+    }
+
+    /**
      * 添加新的热方块
      */
     public void addThermoBlock(BlockPos blockPos, BlockState state) {
@@ -77,7 +87,7 @@ public class ThermoManager {
         register(ThermoEntry.simple(16, ModBlocks.REDHOT_TUNGSTEN.get(), ModBlocks.HEATED_TUNGSTEN.get(), true));
         register(ThermoEntry.simple(4, ModBlocks.HEATED_TUNGSTEN.get(), ModBlocks.TUNGSTEN_BLOCK.get(), true));
 
-        register(ThermoEntry.always(2, ModBlocks.URANIUM_BLOCK.get(), false));
+        register(ThermoEntry.forever(2, ModBlocks.URANIUM_BLOCK.get(), false));
 
         register(ThermoEntry.simple(4, Blocks.MAGMA_BLOCK, Blocks.NETHERRACK, false));
         register(ThermoEntry.simple(4, Blocks.LAVA_CAULDRON, ModBlocks.OBSIDIDAN_CAULDRON.get(), false));
@@ -160,6 +170,7 @@ public class ThermoManager {
     }
 
     private static class ThermoBlock {
+        @Getter
         private final BlockPos pos;
         private final Block block;
         private int ttl;
