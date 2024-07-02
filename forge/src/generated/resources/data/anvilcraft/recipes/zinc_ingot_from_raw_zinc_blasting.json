@@ -1,7 +1,7 @@
 {
   "type": "minecraft:blasting",
   "category": "misc",
-  "cookingtime": 500,
+  "cookingtime": 100,
   "experience": 1.0,
   "ingredient": {
     "item": "anvilcraft:raw_zinc"
