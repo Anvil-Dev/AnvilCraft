@@ -73,14 +73,7 @@ public class PowerGrid {
      */
     public static void tickGrid() {
         for (Set<PowerGrid> grids : PowerGrid.GRID_MAP.values()) {
-            Iterator<PowerGrid> iterator = grids.iterator();
-            Set<PowerGrid> remove = Collections.synchronizedSet(new HashSet<>());
-            while (iterator.hasNext()) {
-                PowerGrid grid = iterator.next();
-                if (grid.isEmpty()) remove.add(grid);
-                grid.tick();
-            }
-            grids.removeAll(remove);
+            grids.stream().filter(PowerGrid::isEmpty).forEach(grids::remove);
         }
     }
 
