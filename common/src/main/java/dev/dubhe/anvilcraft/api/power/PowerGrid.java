@@ -73,7 +73,14 @@ public class PowerGrid {
      */
     public static void tickGrid() {
         for (Set<PowerGrid> grids : PowerGrid.GRID_MAP.values()) {
-            grids.stream().filter(PowerGrid::isEmpty).forEach(grids::remove);
+            Iterator<PowerGrid> iterator = grids.iterator();
+            Set<PowerGrid> remove = Collections.synchronizedSet(new HashSet<>());
+            while (iterator.hasNext()) {
+                PowerGrid grid = iterator.next();
+                if (grid.isEmpty() || grid.isRemove()) remove.add(grid);
+                grid.tick();
+            }
+            grids.removeAll(remove);
         }
     }
 
@@ -232,7 +239,6 @@ public class PowerGrid {
         for (IPowerComponent component : components) {
             set.remove(component);
         }
-        PowerGrid.getGridSet(this.level).remove(this);
         new PowerGridRemovePack(this).broadcast();
         PowerGrid.addComponent(set.toArray(IPowerComponent[]::new));
     }
@@ -282,7 +288,7 @@ public class PowerGrid {
             Set<PowerGrid> remove = Collections.synchronizedSet(new HashSet<>());
             while (iterator.hasNext()) {
                 PowerGrid grid1 = iterator.next();
-                if (!grid1.isInRange(component)) continue;
+                if (grid1.isRemove() || !grid1.isInRange(component)) continue;
                 if (grid == null) grid = grid1;
                 else {
                     grid.merge(grid1);
