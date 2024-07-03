@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.block.state.Orientation;
 import dev.dubhe.anvilcraft.mixin.BlockItemInvoker;
 import net.minecraft.commands.arguments.EntityAnchorArgument.Anchor;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
@@ -34,6 +35,9 @@ public interface IAnvilCraftBlockPlacer {
      */
     default InteractionResult placeBlock(Level level, BlockPos pos, Orientation orientation,
                                          BlockItem blockItem, ItemStack itemStack) {
+        if (AnvilCraftBlockPlacer.BLOCK_PLACER_BLACKLIST
+                .contains(BuiltInRegistries.BLOCK.getKey(blockItem.getBlock()).toString()))
+            return InteractionResult.FAIL;
         if (level instanceof ServerLevel serverLevel)
             getPlayer().setServerLevel(serverLevel);
         getPlayer().moveTo(
@@ -57,7 +61,8 @@ public interface IAnvilCraftBlockPlacer {
         if (blockState == null) {
             return InteractionResult.FAIL;
         }
-        if (!blockItem.canPlace(blockPlaceContext, blockState)) return InteractionResult.FAIL;
+        if (!blockItem.canPlace(blockPlaceContext, blockState) || !blockState.canSurvive(level, pos))
+            return InteractionResult.FAIL;
         level.setBlockAndUpdate(pos, blockState);
         blockItem.getBlock().setPlacedBy(level, pos, blockState, getPlayer(), itemStack);
         // 使放置的方块实体有NBT

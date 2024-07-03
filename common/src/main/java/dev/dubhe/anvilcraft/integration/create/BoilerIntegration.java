@@ -1,8 +1,10 @@
 package dev.dubhe.anvilcraft.integration.create;
 
+import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.fluids.tank.BoilerHeaters;
 import dev.anvilcraft.lib.integration.Integration;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.entity.player.AnvilCraftBlockPlacer;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 
@@ -23,5 +25,6 @@ public class BoilerIntegration implements Integration {
             }
             return null;
         }));
+        AnvilCraftBlockPlacer.BLOCK_PLACER_BLACKLIST.add(AllBlocks.BELT.getId().toString());
     }
 }
