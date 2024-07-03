@@ -16,10 +16,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * 电网
@@ -27,7 +27,7 @@ import java.util.Set;
 @SuppressWarnings("unused")
 public class PowerGrid {
     public static boolean isServerClosing = false;
-    public static final Map<Level, Set<PowerGrid>> GRID_MAP = Collections.synchronizedMap(new HashMap<>());
+    private static final Map<Level, Set<PowerGrid>> GRID_MAP = Collections.synchronizedMap(new HashMap<>());
     public static final int GRID_TICK = 20;
     @Getter
     public boolean remove = false;
@@ -73,13 +73,11 @@ public class PowerGrid {
      */
     public static void tickGrid() {
         for (Set<PowerGrid> grids : PowerGrid.GRID_MAP.values()) {
-            Iterator<PowerGrid> iterator = grids.iterator();
             Set<PowerGrid> remove = Collections.synchronizedSet(new HashSet<>());
-            while (iterator.hasNext()) {
-                PowerGrid grid = iterator.next();
-                if (grid.isEmpty()) remove.add(grid);
-                grid.tick();
-            }
+            grids.forEach(powerGrid -> {
+                if (powerGrid.isEmpty() || powerGrid.isRemove()) remove.add(powerGrid);
+                powerGrid.tick();
+            });
             grids.removeAll(remove);
         }
     }
@@ -239,7 +237,6 @@ public class PowerGrid {
         for (IPowerComponent component : components) {
             set.remove(component);
         }
-        PowerGrid.getGridSet(this.level).remove(this);
         new PowerGridRemovePack(this).broadcast();
         PowerGrid.addComponent(set.toArray(IPowerComponent[]::new));
     }
@@ -281,27 +278,27 @@ public class PowerGrid {
      * @param components 元件
      */
     public static void addComponent(IPowerComponent @NotNull ... components) {
+
         for (IPowerComponent component : components) {
             if (component.getComponentType() == PowerComponentType.INVALID) continue;
-            PowerGrid grid = null;
+            final PowerGrid[] grid = {null};
             Set<PowerGrid> grids = PowerGrid.getGridSet(component.getCurrentLevel());
-            Iterator<PowerGrid> iterator = grids.iterator();
             Set<PowerGrid> remove = Collections.synchronizedSet(new HashSet<>());
-            while (iterator.hasNext()) {
-                PowerGrid grid1 = iterator.next();
-                if (!grid1.isInRange(component)) continue;
-                if (grid == null) grid = grid1;
+            grids.forEach(powerGrid -> {
+                if (powerGrid.isRemove() || !powerGrid.isInRange(component)) return;
+                if (grid[0] == null) grid[0] = powerGrid;
                 else {
-                    grid.merge(grid1);
-                    remove.add(grid1);
-                    new PowerGridRemovePack(grid1).broadcast();
+                    grid[0].merge(powerGrid);
+                    remove.add(powerGrid);
+                    new PowerGridRemovePack(powerGrid).broadcast();
                 }
-            }
+            });
             grids.removeAll(remove);
-            if (grid == null) grid = new PowerGrid(component.getCurrentLevel());
-            grid.add(component);
-            grids.add(grid);
+            if (grid[0] == null) grid[0] = new PowerGrid(component.getCurrentLevel());
+            grid[0].add(component);
+            grids.add(grid[0]);
         }
+
     }
 
     /**
@@ -314,7 +311,7 @@ public class PowerGrid {
         if (PowerGrid.GRID_MAP.containsKey(level)) {
             return PowerGrid.GRID_MAP.get(level);
         } else {
-            Set<PowerGrid> grids = new HashSet<>();
+            Set<PowerGrid> grids = new CopyOnWriteArraySet<>();
             PowerGrid.GRID_MAP.put(level, grids);
             return grids;
         }
