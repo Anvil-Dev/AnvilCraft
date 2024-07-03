@@ -18,7 +18,7 @@ import org.joml.Vector3f;
 public class ChargeCollectorManager {
     private final Map<BlockPos, ChargeCollectorBlockEntity> chargeCollectors = new HashMap<>();
     private static final Map<Level, ChargeCollectorManager> INSTANCES = new HashMap<>();
-
+    @Getter
     private final Level level;
 
     public ChargeCollectorManager(Level level) {
@@ -81,7 +81,7 @@ public class ChargeCollectorManager {
     }
 
     @Getter
-    public class Entry {
+    public static class Entry {
         public final double distance;
         public final ChargeCollectorBlockEntity blockEntity;
 
