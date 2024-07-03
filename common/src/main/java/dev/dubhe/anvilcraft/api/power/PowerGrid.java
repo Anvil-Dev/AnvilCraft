@@ -77,7 +77,7 @@ public class PowerGrid {
             grids.forEach(powerGrid -> {
                 if (powerGrid.isEmpty() || powerGrid.isRemove()) remove.add(powerGrid);
                 powerGrid.tick();
-            });
+            })；
             grids.removeAll(remove);
         }
     }
