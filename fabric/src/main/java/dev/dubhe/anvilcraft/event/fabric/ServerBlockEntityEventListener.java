@@ -34,7 +34,6 @@ public class ServerBlockEntityEventListener {
         }
         if (entity instanceof OverseerBlockEntity overseerBlockEntity) {
             LevelLoadManager.unregister(overseerBlockEntity.getBlockPos(), level);
-            return;
         }
     }
 }
