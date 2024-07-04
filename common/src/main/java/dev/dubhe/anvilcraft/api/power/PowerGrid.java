@@ -19,7 +19,6 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * 电网
@@ -311,7 +310,7 @@ public class PowerGrid {
         if (PowerGrid.GRID_MAP.containsKey(level)) {
             return PowerGrid.GRID_MAP.get(level);
         } else {
-            Set<PowerGrid> grids = new CopyOnWriteArraySet<>();
+            Set<PowerGrid> grids = Collections.synchronizedSet(new HashSet<>());
             PowerGrid.GRID_MAP.put(level, grids);
             return grids;
         }
