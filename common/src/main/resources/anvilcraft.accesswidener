@@ -27,3 +27,4 @@ accessible method net/minecraft/world/level/block/Blocks never (Lnet/minecraft/w
 accessible method net/minecraft/util/SortedArraySet findIndex (Ljava/lang/Object;)I
 accessible method net/minecraft/util/SortedArraySet getInternal (I)Ljava/lang/Object;
 accessible field net/minecraft/world/entity/item/FallingBlockEntity blockState Lnet/minecraft/world/level/block/state/BlockState;
+accessible method net/minecraft/world/item/BlockItem canPlace (Lnet/minecraft/world/item/context/BlockPlaceContext;Lnet/minecraft/world/level/block/state/BlockState;)Z
