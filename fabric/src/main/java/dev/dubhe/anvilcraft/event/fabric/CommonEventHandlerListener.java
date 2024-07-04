@@ -7,7 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 
 public class CommonEventHandlerListener {
-    public static void inti() {
+    public static void clientInti() {
         ClientPlayConnectionEvents.DISCONNECT.register(CommonEventHandlerListener::onClientPlayerDisconnect);
     }
 
