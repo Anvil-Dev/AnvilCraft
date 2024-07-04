@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.chargecollector.HeatedBlockRecorder;
-import dev.dubhe.anvilcraft.api.entity.player.AnvilCraftBlockPlacer;
 import dev.dubhe.anvilcraft.network.HeliostatsIrradiationPack;
 import lombok.Getter;
 import lombok.Setter;
@@ -82,7 +81,8 @@ public class HeliostatsBlockEntity extends BlockEntity {
                 irritateVec3,
                 ClipContext.Block.OUTLINE,
                 ClipContext.Fluid.NONE,
-                AnvilCraftBlockPlacer.anvilCraftBlockPlacer.getPlayer())
+                null
+                )
         );
         if (!blockHitResult.getBlockPos().equals(irritatePos))
             return WorkResult.OBSCURED;
