@@ -8,8 +8,7 @@
     "FallingBlockEntityMixin",
     "LightningBoltMixin",
     "PistonMovingBlockEntityMixin",
-    "ShapedRecipeMixin",
-    "ClipContextMixin"
+    "ShapedRecipeMixin"
   ],
   "client": [
     "ModelBakeryMixin"

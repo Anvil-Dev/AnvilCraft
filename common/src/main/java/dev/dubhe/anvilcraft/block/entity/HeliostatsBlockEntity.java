@@ -2,9 +2,11 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.chargecollector.HeatedBlockRecorder;
+import dev.dubhe.anvilcraft.api.entity.player.AnvilCraftBlockPlacer;
 import dev.dubhe.anvilcraft.network.HeliostatsIrradiationPack;
 import lombok.Getter;
 import lombok.Setter;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.ClipContext;
@@ -17,6 +19,8 @@ import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
+
+import java.util.Objects;
 
 public class HeliostatsBlockEntity extends BlockEntity {
     @Getter
@@ -69,6 +73,8 @@ public class HeliostatsBlockEntity extends BlockEntity {
     private WorkResult validatePos(BlockPos irritatePos) {
         normalVector3f = new Vector3f();
         if (level == null) return WorkResult.UNKNOWN;
+        if (level.isClientSide && Minecraft.getInstance().player == null)
+            return WorkResult.UNKNOWN;
         if (irritatePos == null) return WorkResult.UNSPECIFIED_IRRADIATION_BLOCK;
         if (getBlockPos().getCenter().distanceTo(irritatePos.getCenter()) > 16)
             return WorkResult.TOO_FAR;
@@ -81,7 +87,9 @@ public class HeliostatsBlockEntity extends BlockEntity {
                 irritateVec3,
                 ClipContext.Block.OUTLINE,
                 ClipContext.Fluid.NONE,
-                null
+                level.isClientSide
+                        ? Objects.requireNonNull(Minecraft.getInstance().player)
+                        : AnvilCraftBlockPlacer.anvilCraftBlockPlacer.getPlayer()
                 )
         );
         if (!blockHitResult.getBlockPos().equals(irritatePos))
