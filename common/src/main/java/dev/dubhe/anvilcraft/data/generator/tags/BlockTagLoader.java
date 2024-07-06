@@ -151,5 +151,7 @@ public class BlockTagLoader {
                 .add(ModBlocks.DEEPSLATE_URANIUM_ORE.get())
                 .add(ModBlocks.VOID_STONE.get())
                 .add(ModBlocks.EARTH_CORE_SHARD_ORE.get());
+        provider.addTag(ModBlockTags.END_PORTAL_UNABLE_CHANGE).setReplace(false)
+                .add(ModBlocks.END_DUST.get());
     }
 }

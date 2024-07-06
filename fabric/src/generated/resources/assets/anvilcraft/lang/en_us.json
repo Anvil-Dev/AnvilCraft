@@ -381,8 +381,6 @@
   "text.autoconfig.anvilcraft.option.redstoneEmpRadius.@Tooltip": "Redstone EMP distance generated per block dropped by the anvil",
   "text.autoconfig.anvilcraft.option.remotePowerTransmitterRange": "Range of Power Transmitter",
   "text.autoconfig.anvilcraft.option.remotePowerTransmitterRange.@Tooltip": "The power transmitter can identify the range of the power transmitter",
-  "text.autoconfig.anvilcraft.option.sandDupingFix": "Sand Duping Fix",
-  "text.autoconfig.anvilcraft.option.sandDupingFix.@Tooltip": "Disable sand and other gravity block duping using end portal",
   "text.autoconfig.anvilcraft.title": "AnvilCraft Config",
   "tooltip.anvilcraft.grid_information.consumer_stats": "Power Consumer Stats:",
   "tooltip.anvilcraft.grid_information.input_power": "  Power Consumption: %d",
