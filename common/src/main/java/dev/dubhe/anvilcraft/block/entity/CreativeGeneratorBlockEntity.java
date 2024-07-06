@@ -2,8 +2,11 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
+import dev.dubhe.anvilcraft.api.power.PowerComponentInfo;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
+import dev.dubhe.anvilcraft.api.power.SimplePowerGrid;
+import dev.dubhe.anvilcraft.client.renderer.PowerGridRenderer;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.SliderMenu;
@@ -23,14 +26,17 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 @Getter
 public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerProducer, IPowerConsumer, MenuProvider {
     private PowerGrid grid = null;
     @Setter
     private int power = 16;
+    private int time = 0;
 
     public static @NotNull CreativeGeneratorBlockEntity createBlockEntity(
-        BlockEntityType<?> type, BlockPos pos, BlockState blockState
+            BlockEntityType<?> type, BlockPos pos, BlockState blockState
     ) {
         return new CreativeGeneratorBlockEntity(type, pos, blockState);
     }
@@ -91,8 +97,38 @@ public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerP
         return new SliderMenu(i, -8192, 8192, this::setPower);
     }
 
+    public void tick() {
+        time++;
+    }
+
     @Override
     public Level getCurrentLevel() {
         return super.getLevel();
+    }
+
+    @Override
+    public int getRange() {
+        return 2;
+    }
+
+    /**
+     * 实际电量
+     */
+    public int getServerPower() {
+        Optional<SimplePowerGrid> s = SimplePowerGrid.findPowerGrid(getPos())
+                .stream()
+                .findAny();
+        if (s.isPresent()) {
+            if (s.get().getConsume() > s.get().getGenerate()) {
+                return 0;
+            }
+            Optional<PowerComponentInfo> info = s.get().getInfoForPos(getBlockPos());
+            return info.map(powerComponentInfo -> powerComponentInfo.type() == PowerComponentType.PRODUCER
+                            ? powerComponentInfo.produces()
+                            : powerComponentInfo.consumes())
+                    .orElse(1);
+        } else {
+            return Math.abs(this.power);
+        }
     }
 }

@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.event.forge;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeGeneratorRenderer;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelEvent;
@@ -18,5 +19,6 @@ public class RegisterAdditionalEventListener {
         event.register(new ModelResourceLocation("anvilcraft", "crab_claw_holding_block", "inventory"));
         event.register(new ModelResourceLocation("anvilcraft", "crab_claw_holding_item", "inventory"));
         event.register(new ModelResourceLocation("anvilcraft", "heliostats_head", ""));
+        event.register(new ModelResourceLocation("anvilcraft", "creative_generator_cube", ""));
     }
 }
