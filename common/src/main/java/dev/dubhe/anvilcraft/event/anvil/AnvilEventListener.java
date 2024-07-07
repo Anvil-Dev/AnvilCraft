@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.event;
+package dev.dubhe.anvilcraft.event.anvil;
 
 import dev.anvilcraft.lib.event.SubscribeEvent;
 import dev.dubhe.anvilcraft.AnvilCraft;
@@ -373,6 +373,7 @@ public class AnvilEventListener {
      *
      * @param event 铁砧伤害实体事件
      */
+    @SuppressWarnings("unused")
     @SubscribeEvent
     public void onAnvilHurtEntity(@NotNull AnvilHurtEntityEvent event) {
         Entity hurtedEntity = event.getHurtedEntity();

@@ -10,9 +10,9 @@ public class ModFabricEventsListener {
         LootTableEventListener.init();
         LightningEventListener.init();
         AnvilEntityEventListener.init();
-        ServerBlockEntityEventListener.init();
         PlayerEventListener.init();
         CommandEventListener.init();
         ServerWorldEventListener.init();
+        CommonEventHandlerListener.serverInit();
     }
 }

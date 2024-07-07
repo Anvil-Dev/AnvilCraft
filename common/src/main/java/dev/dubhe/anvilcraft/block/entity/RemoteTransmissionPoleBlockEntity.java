@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 
 @Getter
 @Setter
-public class RemoteTransmissionPoleBlockEntity extends BlockEntity implements IPowerTransmitter {
+public class RemoteTransmissionPoleBlockEntity extends AbstractTransmissionPoleBlockEntity {
     private PowerGrid grid;
 
     public RemoteTransmissionPoleBlockEntity(BlockPos pos, BlockState blockState) {

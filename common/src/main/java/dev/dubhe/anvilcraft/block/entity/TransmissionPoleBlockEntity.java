@@ -18,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
 
 @Getter
 @Setter
-public class TransmissionPoleBlockEntity extends BlockEntity implements IPowerTransmitter {
+public class TransmissionPoleBlockEntity extends AbstractTransmissionPoleBlockEntity {
     private PowerGrid grid;
 
     public TransmissionPoleBlockEntity(BlockPos pos, BlockState blockState) {
