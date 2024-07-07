@@ -12,12 +12,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 
 public class CommonEventHandlerListener {
-    /**
-     * EVENT
-     */
     public static void serverInit() {
         ServerBlockEntityEvents.BLOCK_ENTITY_LOAD.register(CommonEventHandlerListener::onServerBlockEntityLoad);
         ServerBlockEntityEvents.BLOCK_ENTITY_UNLOAD.register(CommonEventHandlerListener::onServerBlockEntityUnload);
+    }
+    
+    public static void clientInit() {
         ClientPlayConnectionEvents.DISCONNECT.register(CommonEventHandlerListener::onClientPlayerDisconnect);
     }
 
