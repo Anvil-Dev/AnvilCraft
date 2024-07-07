@@ -1,0 +1,38 @@
+{
+  "credit": "Made by XeKr with Blockbench",
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "anvilcraft:block/creative_generator_side",
+    "base": "anvilcraft:block/creative_generator_side",
+    "top": "anvilcraft:block/creative_generator_top",
+    "bottom": "anvilcraft:block/creative_generator_bottom",
+    "head": "anvilcraft:block/creative_generator_head"
+  },
+  "elements": [
+    {
+      "from": [0, 0, 0],
+      "to": [16, 4, 16],
+      "faces": {
+        "north": {"uv": [0, 12, 16, 16], "texture": "#base", "cullface": "north"},
+        "east": {"uv": [0, 12, 16, 16], "texture": "#base", "cullface": "east"},
+        "south": {"uv": [0, 12, 16, 16], "texture": "#base", "cullface": "south"},
+        "west": {"uv": [0, 12, 16, 16], "texture": "#base", "cullface": "west"},
+        "up": {"uv": [0, 0, 16, 16], "texture": "#top"},
+        "down": {"uv": [0, 0, 16, 16], "texture": "#bottom", "cullface": "down"}
+      }
+    },
+    {
+      "from": [3, 6, 3],
+      "to": [13, 16, 13],
+      "rotation": {"angle": 0, "axis": "y", "origin": [8, 11, 8]},
+      "faces": {
+        "north": {"uv": [3, 3, 13, 13], "texture": "#head"},
+        "east": {"uv": [3, 3, 13, 13], "texture": "#head"},
+        "south": {"uv": [3, 3, 13, 13], "texture": "#head"},
+        "west": {"uv": [3, 3, 13, 13], "texture": "#head"},
+        "up": {"uv": [3, 3, 13, 13], "texture": "#head"},
+        "down": {"uv": [3, 3, 13, 13], "texture": "#head"}
+      }
+    }
+  ]
+}
