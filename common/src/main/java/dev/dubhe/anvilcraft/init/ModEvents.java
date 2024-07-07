@@ -7,7 +7,8 @@ import dev.dubhe.anvilcraft.event.AnvilHitBlockPlacerEventListener;
 import dev.dubhe.anvilcraft.event.AnvilHitImpactPileEventListener;
 import dev.dubhe.anvilcraft.event.AnvilHitPiezoelectricCrystalBlockEventListener;
 import dev.dubhe.anvilcraft.event.AnvilHurtVillagerEventListener;
-import dev.dubhe.anvilcraft.event.GiantAnvilMultiblockCraftingEventListener;
+import dev.dubhe.anvilcraft.event.giantanvil.GiantAnvilLandingEventListener;
+import dev.dubhe.anvilcraft.event.giantanvil.GiantAnvilMultiblockCraftingEventListener;
 import dev.dubhe.anvilcraft.event.LightningEventListener;
 import dev.dubhe.anvilcraft.event.PlayerEventListener;
 import dev.dubhe.anvilcraft.event.ServerEventListener;
@@ -27,5 +28,6 @@ public class ModEvents {
         AnvilCraft.EVENT_BUS.register(new AnvilHitBlockDevourerEventListener());
         AnvilCraft.EVENT_BUS.register(new AnvilHitImpactPileEventListener());
         AnvilCraft.EVENT_BUS.register(new GiantAnvilMultiblockCraftingEventListener());
+        AnvilCraft.EVENT_BUS.register(new GiantAnvilLandingEventListener());
     }
 }

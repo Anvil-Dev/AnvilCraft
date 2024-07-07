@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.event;
+package dev.dubhe.anvilcraft.event.giantanvil;
 
 import dev.anvilcraft.lib.event.SubscribeEvent;
 import dev.dubhe.anvilcraft.AnvilCraft;
