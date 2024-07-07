@@ -28,6 +28,7 @@ public abstract class ModelBakeryMixin {
             putUnbakedModel(new ModelResourceLocation("anvilcraft", "crab_claw_holding_block", "inventory"));
             putUnbakedModel(new ModelResourceLocation("anvilcraft", "crab_claw_holding_item", "inventory"));
             putUnbakedModel(new ModelResourceLocation("anvilcraft", "heliostats_head", ""));
+            putUnbakedModel(new ModelResourceLocation("anvilcraft", "creative_generator_cube", ""));
         }
     }
 
