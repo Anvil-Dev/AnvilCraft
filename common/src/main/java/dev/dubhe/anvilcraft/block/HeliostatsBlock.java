@@ -56,13 +56,10 @@ public class HeliostatsBlock extends BaseEntityBlock implements IHammerRemovable
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
             @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type
     ) {
-        if (level.isClientSide) {
-            return null;
-        }
         return createTickerHelper(
                 type,
                 ModBlockEntities.HELIOSTATS.get(),
-                (level1, blockPos, blockState, blockEntity) -> blockEntity.tick(level1)
+                (level1, blockPos, blockState, blockEntity) -> blockEntity.tick()
         );
     }
 
