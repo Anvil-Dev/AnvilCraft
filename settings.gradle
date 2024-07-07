@@ -3,55 +3,58 @@ pluginManagement {
         maven { url "https://maven.fabricmc.net/" }
         maven { url "https://maven.architectury.dev/" }
         maven { url "https://maven.minecraftforge.net/" }
+        maven { url "https://maven.shedaniel.me/" }
         gradlePluginPortal()
     }
 }
+
+// Minecraft Version
+def minecraftVersion = "${minecraft_version}"
 
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
     }
     versionCatalogs {
-        // Minecraft Version
-        def minecraftVersion = "${minecraft_version}"
+
+        // Libs
+        def quiltMappingsVersion = "${quilt_mappings_version}"  // https://lambdaurora.dev/tools/import_quilt.html
+        def parchmentVersion = "${parchment_version}" // https://parchmentmc.org/docs/getting-started
+        def shadowVersion = "${shadow_version}"
+        def architecturyPluginVersion = "${architectury_plugin_version}"
+        def architecturyLoomVersion = "${architectury_loom_version}"
+        def mixinextrasVersion = "${mixinextras_version}"
+        def configurationVersion = "${configuration_version}"
+        def clothConfigVersion = "${cloth_config_version}"
 
         // Mod Dependencies Versions
         // Common
-        def jeiVersion = "15.3.0.4"
-        def reiVersion = "12.0.648"
-        def emiVersion = "1.1.4+1.20.1"
-        def kjsVersion = "2001.6.3-build.37"
+        def jeiVersion = "${jei_version}"
+        def reiVersion = "${rei_version}"
+        def emiVersion = "${emi_version}"
+        def kjsVersion = "${kjs_version}"
+        def anvilLibVersion = "${anvil_lib_version}"
 
         // Fabric
-        def fabricLoaderVersion = "0.15.7" // https://fabricmc.net/develop/
-        def fabricApiVersion = "0.92.0" // https://fabricmc.net/develop/
-        def createVersion = "0.5.1-f-build.1335"
-        def lazyDfuVersion = "0.1.3"
-        def modMenuVersion = "7.1.0"
-        def jadeFabricVersion = "11.8.0"
-        def registrateFabricVersion = "1.4.5-MC1.20.1"
-        def reachEntityAttributesVersion = "2.4.0"
-        def teamRebornEnergyVersion = "2.3.0"
-        def patchouliFabricVersion = "1.20.1-84-FABRIC"
+        def fabricLoaderVersion = "${fabric_loader_version}" // https://fabricmc.net/develop/
+        def fabricApiVersion = "${fabric_api_version}" // https://fabricmc.net/develop/
+        def lazyDfuFabricVersion = "${lazy_dfu_fabric_version}"
+        def modMenuFabricVersion = "${mod_menu_fabric_version}"
+        def jadeFabricVersion = "${jade_fabric_version}"
+        def registrateFabricVersion = "${registrate_fabric_version}"
+        def reachEntityAttributesVersion = "${reach_entity_attributes_version}"
+        def teamRebornEnergyVersion = "${team_reborn_energy_version}"
+        def patchouliFabricVersion = "${patchouli_fabric_version}"
+        def createFabricVersion = "${create_fabric_version}"
 
 
         // Forge
-        def forgeVersion = "47.2.0"
-        def registrateForgeVersion = "MC1.20-1.3.3"
-        def createForgeVersion = "0.5.1.f-27"
-        def flywheelForgeVersion = "0.6.10-10"
-        def jadeForgeVersion = "11.8.0"
-        def patchouliForgeVersion = "1.20.1-84-FORGE"
-
-        // Libs
-        def quiltMappingsVersion = "23"  // https://lambdaurora.dev/tools/import_quilt.html
-        def parchmentVersion = "2023.09.03" // https://parchmentmc.org/docs/getting-started
-        def shadowVersion = "7.1.2"
-        def architecturyPluginVersion = "3.4-SNAPSHOT"
-        def architecturyLoomVersion = "1.6-SNAPSHOT"
-        def mixinextrasVersion = "0.3.2"
-        def configurationVersion = "2.2.0"
-        def clothConfigVersion = "11.1.118"
+        def forgeVersion = "${forge_version}"
+        def registrateForgeVersion = "${registrate_forge_version}"
+        def jadeForgeVersion = "${jade_forge_version}"
+        def patchouliForgeVersion = "${patchouli_forge_version}"
+        def flywheelForgeVersion = "${flywheel_forge_version}"
+        def createForgeVersion = "${create_forge_version}"
 
         fabric {
             def fabricLoader = version("fabricLoader", fabricLoaderVersion)
@@ -63,14 +66,17 @@ dependencyResolutionManagement {
             def registrate = version("registrate", registrateFabricVersion)
             library("registrate", "com.tterrag.registrate_fabric", "Registrate").versionRef(registrate)
 
-            def createFabric = version("create-fabric", "${createVersion}+mc${minecraftVersion}")
+            def createFabric = version("create-fabric", "${createFabricVersion}+mc${minecraftVersion}")
             library("createFabric", "com.simibubi.create", "create-fabric-${minecraftVersion}").versionRef(createFabric)
 
-            def lazyDfu = version("lazydfu", lazyDfuVersion)
+            def lazyDfu = version("lazydfu", lazyDfuFabricVersion)
             library("lazydfu", "maven.modrinth", "lazydfu").versionRef(lazyDfu)
 
-            def modMenu = version("modmenu", modMenuVersion)
+            def modMenu = version("modmenu", modMenuFabricVersion)
             library("modmenu", "com.terraformersmc", "modmenu").versionRef(modMenu)
+
+            def anvilLib = version("anvilLib", anvilLibVersion)
+            library("anvilLib", "dev.anvilcraft.lib", "anvillib-fabric-${minecraftVersion}").versionRef(anvilLib)
 
             def jei = version("jei", jeiVersion)
             library("jei-common-api", "mezz.jei", "jei-${minecraftVersion}-common-api").versionRef(jei)
@@ -110,6 +116,9 @@ dependencyResolutionManagement {
 
             def patchouli = version("patchouli", patchouliFabricVersion)
             library("patchouli", "vazkii.patchouli", "Patchouli").versionRef(patchouli)
+
+            def create = version("create", createFabricVersion)
+            library("create", "com.simibubi.create", "create-fabric-${minecraftVersion}").versionRef(create)
         }
 
         forge {
@@ -120,11 +129,8 @@ dependencyResolutionManagement {
             def registrate = version("registrate", registrateForgeVersion)
             library("registrate", "com.tterrag.registrate", "Registrate").versionRef(registrate)
 
-            def createForge = version("createForge", createForgeVersion)
-            library("createForge", "com.simibubi.create", "create-${minecraftVersion}").versionRef(createForge)
-
-            def flywheel = version("flywheel", flywheelForgeVersion)
-            library("flywheel", "com.jozufozu.flywheel", "flywheel-forge-${minecraftVersion}").versionRef(flywheel)
+            def anvilLib = version("anvilLib", anvilLibVersion)
+            library("anvilLib", "dev.anvilcraft.lib", "anvillib-forge-${minecraftVersion}").versionRef(anvilLib)
 
             def jei = version("jei", jeiVersion)
             library("jei-common-api", "mezz.jei", "jei-${minecraftVersion}-common-api").versionRef(jei)
@@ -156,6 +162,12 @@ dependencyResolutionManagement {
 
             def patchouli = version("patchouli", patchouliForgeVersion)
             library("patchouli", "vazkii.patchouli", "Patchouli").versionRef(patchouli)
+
+            def create = version("create", createForgeVersion)
+            library("create", "com.simibubi.create", "create-${minecraftVersion}").versionRef(create)
+
+            def flywheel = version("flywheel", flywheelForgeVersion)
+            library("flywheel", "com.jozufozu.flywheel", "flywheel-forge-${minecraftVersion}").versionRef(flywheel)
         }
 
         libs {

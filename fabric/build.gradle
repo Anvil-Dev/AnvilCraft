@@ -76,10 +76,10 @@ configurations {
 
 repositories {
     // mavens for Fabric-exclusives
+    maven { url = "https://server.cjsah.net:1002/maven/" } // AnvilLib
     maven { url = "https://mvn.devos.one/snapshots/" }
     // Create Fabric, Porting Lib, Forge Tags, Milk Lib, Registrate Fabric
     //maven { url = "https://maven.cafeteria.dev/releases" } // Fake Player API
-    maven { url = "https://maven.jamieswhiteshirt.com/libs-release" } // Reach Entity Attributes
     maven { url = "https://jitpack.io/" } // Mixin Extras, Fabric ASM
     maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" }
     maven { url = "https://maven.saps.dev/minecraft" } // saps.dev Maven (KubeJS and Rhino)
@@ -87,11 +87,14 @@ repositories {
         url = "https://maven.jamieswhiteshirt.com/libs-release"
         content { includeGroup("com.jamieswhiteshirt") }
     }
+
+    maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" } // Forge Config API Port
+    maven { url = "https://maven.cafeteria.dev/releases" } // Fake Player API
 }
 
 dependencies {
-    modImplementation fabric.fabricLoader
-    modImplementation fabric.fabricApi
+    modImplementation(fabric.fabricLoader)
+    modImplementation(fabric.fabricApi)
 
     common(project(path: ":${mod_id}-common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":${mod_id}-common", configuration: "transformProductionFabric")) { transitive false }
@@ -100,8 +103,12 @@ dependencies {
     modImplementation(include("com.tterrag.registrate_fabric:Registrate:${fabric.versions.registrate.get()}"))
 
     // Development QOL
-    modCompileOnly fabric.lazydfu
-    modImplementation fabric.modmenu
+    modCompileOnly(fabric.lazydfu)
+    modImplementation(fabric.modmenu)
+
+    // AnvilLib
+    modImplementation(fabric.anvilLib) { transitive = false }
+    include(fabric.anvilLib)
 
     // JEI
     modCompileOnlyApi(fabric.jei.common.api) { transitive = false }
@@ -109,19 +116,20 @@ dependencies {
     modCompileOnly(fabric.jei.fabric.impl) { transitive = false }
 
     // REI
+    modRuntimeOnly "dev.architectury:architectury-fabric:9.2.14"
     modCompileOnly(fabric.rei.plugin) { transitive = false }
     modCompileOnly(fabric.rei.api) { transitive = false }
-    modCompileOnly(fabric.rei.fabric) { transitive = false }
+    modRuntimeOnly(fabric.rei.fabric) { transitive = false }
 
     // EMI
     modCompileOnly("dev.emi:emi-fabric:${fabric.versions.emi.get()}:api")
-    modImplementation fabric.emi
+    modCompileOnly(fabric.emi)
 
     // Jade
-    modImplementation fabric.jade
+    modImplementation(fabric.jade)
 
     // KJS
-    modCompileOnly fabric.kubejs
+    modCompileOnly(fabric.kubejs)
 
     // Mixin Extras
     include(implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:${fabric.versions.mixinextras.get()}")))
@@ -138,7 +146,10 @@ dependencies {
     modImplementation(fabric.teamRebornEnergy)
 
     // Patchouli
-    modImplementation fabric.patchouli
+    modImplementation(fabric.patchouli)
+
+    // Create
+    modCompileOnly(fabric.create) { exclude group: "io.github.llamalad7" }
 }
 
 
@@ -181,7 +192,7 @@ jar {
     archiveClassifier.set("dev")
 }
 
-tasks.register('dataDelete', Delete){
+tasks.register('dataDelete', Delete) {
     group 'loom'
     delete forge_project.files('src/generated')
 }

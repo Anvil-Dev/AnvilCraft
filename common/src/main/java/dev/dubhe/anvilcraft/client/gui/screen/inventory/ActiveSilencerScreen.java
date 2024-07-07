@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencerMenu> {
 
@@ -54,16 +55,48 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
 
     private void onSearchTextChange(String text) {
         leftScrollOff = 0;
+        filteredSounds.clear();
         if (text == null || text.isEmpty()) {
             this.filterText = "";
+            filteredSounds.addAll(allSounds);
+            filteredSounds.removeAll(mutedSounds);
+            return;
         } else {
             this.filterText = text;
         }
-        filteredSounds.clear();
-        allSounds.stream()
-                .filter(it -> it.right().getString().contains(filterText))
-                .filter(it -> mutedSounds.stream().noneMatch(it1 -> it1.left().equals(it.first())))
-                .forEach(filteredSounds::add);
+
+        if (text.startsWith("#")) {
+            String search = text.replaceFirst("#", "");
+            allSounds.stream()
+                    .filter(it -> it.left().toString().contains(search))
+                    .filter(it -> mutedSounds.stream().noneMatch(it1 -> it1.left().equals(it.first())))
+                    .forEach(filteredSounds::add);
+        } else {
+            if (text.startsWith("~")) {
+                try {
+                    Pattern search = Pattern.compile(text.replaceFirst("~", ""));
+                    allSounds.stream()
+                            .filter(it -> search.matcher(it.left().toString()).matches())
+                            .filter(it -> mutedSounds.stream().noneMatch(it1 -> it1.left().equals(it.first())))
+                            .forEach(filteredSounds::add);
+                } catch (Exception ignored) {
+                    // intentionally empty
+                }
+            }
+            allSounds.stream()
+                    .filter(it -> it.right().getString().contains(filterText))
+                    .filter(it -> mutedSounds.stream().noneMatch(it1 -> it1.left().equals(it.first())))
+                    .forEach(filteredSounds::add);
+        }
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (this.minecraft.options.keyInventory.matches(keyCode, scanCode)) {
+            return this.getFocused() != null && this.getFocused().keyPressed(keyCode, scanCode, modifiers);
+        } else {
+            return super.keyPressed(keyCode, scanCode, modifiers);
+        }
     }
 
     private void refreshSoundList() {

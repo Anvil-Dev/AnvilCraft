@@ -10,7 +10,7 @@
     "XeKr"
   ],
   "contact": {
-    "homepage": "https://anc.dubhe.dev/",
+    "homepage": "https://www.anvilcraft.dev/",
     "sources": "https://github.com/Anvil-Dev/AnvilCraft",
     "issues": "https://github.com/Anvil-Dev/AnvilCraft/issues"
   },
@@ -37,6 +37,12 @@
     ],
     "jade": [
       "dev.dubhe.anvilcraft.integration.jade.AnvilCraftJadePlugin"
+    ],
+    "rei_client": [
+      "dev.dubhe.anvilcraft.integration.rei.client.AnvilCraftReiClientPlugin"
+    ],
+    "rei_common": [
+      "dev.dubhe.anvilcraft.integration.rei.AnvilCraftReiPlugin"
     ]
   },
   "mixins": [
@@ -46,12 +52,20 @@
   "depends": {
     "fabricloader": ">=0.14.7",
     "fabric": "*",
-    "minecraft": ">=${minecraft_version}"
+    "minecraft": ">=${minecraft_version}",
+    "anvillib": ">=1.0.0"
   },
   "custom": {
     "mc-publish": {
       "loaders": ["fabric", "quilt"],
       "dependencies": "fabric@0.83.0+1.20.1(required){modrinth:P7dR8mSH}{curseforge:306612}"
+    },
+    "anvillib": {
+      "integrations": {
+        "create": [
+          "dev.dubhe.anvilcraft.integration.create.BoilerIntegration"
+        ]
+      }
     }
   }
 }

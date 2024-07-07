@@ -4,6 +4,8 @@ import dev.dubhe.anvilcraft.block.state.Orientation;
 import dev.dubhe.anvilcraft.mixin.BlockItemInvoker;
 import net.minecraft.commands.arguments.EntityAnchorArgument.Anchor;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
@@ -33,12 +35,20 @@ public interface IAnvilCraftBlockPlacer {
      */
     default InteractionResult placeBlock(Level level, BlockPos pos, Orientation orientation,
                                          BlockItem blockItem, ItemStack itemStack) {
+        if (AnvilCraftBlockPlacer.BLOCK_PLACER_BLACKLIST
+                .contains(BuiltInRegistries.BLOCK.getKey(blockItem.getBlock()).toString()))
+            return InteractionResult.FAIL;
+        if (level instanceof ServerLevel serverLevel)
+            getPlayer().setServerLevel(serverLevel);
+        getPlayer().moveTo(
+                pos.relative(orientation.getDirection().getOpposite()).getX(),
+                pos.relative(orientation.getDirection().getOpposite()).getY() - 1,
+                pos.relative(orientation.getDirection().getOpposite()).getZ());
+        getPlayer().lookAt(Anchor.EYES, new Vec3(pos.getX(), pos.getY(), pos.getZ()));
         Vec3 clickClickLocation = getPosFromOrientation(orientation);
         double x = clickClickLocation.x;
         double y = clickClickLocation.y;
         double z = clickClickLocation.z;
-        getPlayer().teleportTo(0.5, -1, 0.5);
-        getPlayer().lookAt(Anchor.EYES, new Vec3(x, 1 - y, z));
         BlockHitResult blockHitResult = new BlockHitResult(
             pos.getCenter().add(-0.5, -0.5, -0.5).add(x, 1 - y, z),
             orientation.getDirection().getOpposite(),
@@ -51,6 +61,8 @@ public interface IAnvilCraftBlockPlacer {
         if (blockState == null) {
             return InteractionResult.FAIL;
         }
+        if (!blockItem.canPlace(blockPlaceContext, blockState) || !blockState.canSurvive(level, pos))
+            return InteractionResult.FAIL;
         level.setBlockAndUpdate(pos, blockState);
         blockItem.getBlock().setPlacedBy(level, pos, blockState, getPlayer(), itemStack);
         // 使放置的方块实体有NBT

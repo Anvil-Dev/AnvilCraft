@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.network;
 
-import dev.dubhe.anvilcraft.api.network.Packet;
+import dev.anvilcraft.lib.network.Packet;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.client.renderer.PowerGridRenderer;
 import dev.dubhe.anvilcraft.init.ModNetworks;

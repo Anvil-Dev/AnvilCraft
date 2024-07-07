@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.event;
 
-import dev.dubhe.anvilcraft.api.event.SubscribeEvent;
+import dev.anvilcraft.lib.event.SubscribeEvent;
 import dev.dubhe.anvilcraft.api.event.entity.PlayerEvent;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.item.ResinBlockItem;
@@ -35,7 +35,7 @@ public class PlayerEventListener {
      */
     @SubscribeEvent
     public void onPlayerJoin(@NotNull PlayerEvent.ClientPlayerJoin event) {
-        if (Utils.onlyJei()) {
+        if (Utils.isLoaded("jei") && !Utils.isLoaded("emi")) {
             LocalPlayer entity = event.getEntity();
             entity.sendSystemMessage(
                 Component.literal("[").withStyle(ChatFormatting.GREEN).append(

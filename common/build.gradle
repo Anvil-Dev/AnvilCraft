@@ -27,7 +27,9 @@ configurations {
 }
 
 repositories {
-    maven { url = "https://mvn.devos.one/snapshots/" } // Create Fabric, Porting Lib, Forge Tags, Milk Lib, Registrate Fabric
+    maven { url = "https://server.cjsah.net:1002/maven/" } // AnvilLib
+    maven { url = "https://mvn.devos.one/snapshots/" }
+    // Create Fabric, Porting Lib, Forge Tags, Milk Lib, Registrate Fabric
     maven { url = "https://maven.jamieswhiteshirt.com/libs-release" } // Reach Entity Attributes
     maven { url = "https://jitpack.io/" } // Mixin Extras, Fabric ASM
     maven {
@@ -40,44 +42,53 @@ repositories {
     maven { // TOP
         url "https://maven.k-4u.nl"
     }
+    maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" } // Forge Config API Port
+    maven { url = "https://maven.cafeteria.dev/releases" } // Fake Player API
+
 }
 
 dependencies {
     // We depend on fabric loader here to use the fabric @Environment annotations and get the mixin dependencies
     // Do NOT use other classes from fabric loader
-    modImplementation fabric.fabricLoader
-    modCompileOnly fabric.fabricApi
+    modImplementation(fabric.fabricLoader)
+    modCompileOnly(fabric.fabricApi)
 
-    modCompileOnly fabric.registrate
+    modCompileOnly(fabric.registrate)
+
+    // AnvilLib
+    modImplementation(fabric.anvilLib) { transitive = false }
 
     // JEI
-    modCompileOnly fabric.jei.common.api
-    modCompileOnly fabric.jei.fabric.api
-    modCompileOnly fabric.jei.fabric.impl
+    modCompileOnly(fabric.jei.common.api)
+    modCompileOnly(fabric.jei.fabric.api)
+    modCompileOnly(fabric.jei.fabric.impl)
 
     // REI
-    modCompileOnly fabric.rei.plugin
-    modCompileOnly fabric.rei.api
-    modCompileOnly fabric.rei.fabric
+    modCompileOnly(fabric.rei.plugin)
+    modCompileOnly(fabric.rei.api)
+    modCompileOnly(fabric.rei.fabric)
 
     // EMI
     modCompileOnly("dev.emi:emi-fabric:${fabric.versions.emi.get()}:api")
-    modCompileOnly fabric.emi
+    modCompileOnly(fabric.emi)
 
     // Jade
-    modCompileOnly fabric.jade
+    modCompileOnly(fabric.jade)
 
     // KJS
-    modCompileOnly fabric.kubejs
+    modCompileOnly(fabric.kubejs)
 
     // Mixin Extras
     implementation(annotationProcessor("io.github.llamalad7:mixinextras-common:${fabric.versions.mixinextras.get()}"))
 
     // cloth config api
-    modCompileOnly fabric.clothConfig
+    modCompileOnly(fabric.clothConfig)
 
     // Patchouli
-    modImplementation fabric.patchouli
+    modImplementation(fabric.patchouli)
+
+    // Create
+    modCompileOnly(fabric.create) { exclude group: "io.github.llamalad7" }
 }
 
 publishing {

@@ -434,6 +434,7 @@
   "tooltip.anvilcraft.item.power_converter_big": "Convert power into FE, consumes 9 kW",
   "tooltip.anvilcraft.item.power_converter_middle": "Convert power into FE, consumes 3 kW",
   "tooltip.anvilcraft.item.power_converter_small": "Convert power into FE, consumes 1 kW",
+  "tooltip.anvilcraft.item.recipe.processing.chance": "%1$s%% Chance",
   "tooltip.anvilcraft.item.reinforced_concrete": "Creeper proof",
   "tooltip.anvilcraft.item.remote_transmission_pole": "Build a power grid with a transmission distance of 8",
   "tooltip.anvilcraft.item.resin_block": "Use to capture friendly or weak hostile creatures LivingEntity",

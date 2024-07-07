@@ -17,6 +17,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
+
 public class ThermoelectricConverterBlock extends BaseEntityBlock implements IHammerRemovable {
     public static final Direction[] DIRECTIONS = {Direction.SOUTH, Direction.NORTH, Direction.EAST, Direction.WEST};
 
@@ -38,6 +40,7 @@ public class ThermoelectricConverterBlock extends BaseEntityBlock implements IHa
             @NotNull BlockPos neighborPos,
             boolean movedByPiston
     ) {
+        ThermoManager.getInstance(level).removeThermalBlock(neighborPos);
         ThermoManager.getInstance(level).addThermoBlock(neighborPos, level.getBlockState(neighborPos));
     }
 
@@ -45,6 +48,18 @@ public class ThermoelectricConverterBlock extends BaseEntityBlock implements IHa
     @Override
     public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
         return new ThermoelectricConverterBlockEntity(ModBlockEntities.THERMOELECTRIC_CONVERTER.get(), pos, state);
+    }
+
+
+    @Override
+    public void onRemove(
+            @NotNull BlockState state,
+            @NotNull Level level,
+            @NotNull BlockPos pos,
+            @NotNull BlockState newState,
+            boolean movedByPiston
+    ) {
+        Arrays.stream(DIRECTIONS).map(pos::relative).forEach(ThermoManager.getInstance(level)::removeThermalBlock);
     }
 
     @Nullable

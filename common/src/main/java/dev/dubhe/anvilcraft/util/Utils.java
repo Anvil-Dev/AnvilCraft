@@ -7,10 +7,10 @@ public abstract class Utils {
     }
 
     /**
-     * @return 是否只加载了 JEI
+     * @return 模组是否加载
      */
     @ExpectPlatform
-    public static boolean onlyJei() {
+    public static boolean isLoaded(String modid) {
         throw new AssertionError();
     }
 }

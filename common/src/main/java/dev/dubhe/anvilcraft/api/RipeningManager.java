@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.api;
 
-import com.mojang.logging.LogUtils;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.InductionLightBlock;
 import dev.dubhe.anvilcraft.block.state.LightColor;
@@ -16,7 +15,6 @@ import net.minecraft.world.level.block.GrassBlock;
 import net.minecraft.world.level.block.NyliumBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
 
 import java.util.Collections;
 import java.util.HashMap;

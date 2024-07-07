@@ -30,7 +30,8 @@ public class ForgeGuiMixin extends Gui {
         at = @At(
             value = "INVOKE",
             target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderColor(FFFF)V",
-            shift = At.Shift.AFTER
+            shift = At.Shift.AFTER,
+            remap = false
         ),
         remap = true
     )

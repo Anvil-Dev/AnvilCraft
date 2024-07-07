@@ -19,7 +19,7 @@ public class DoubleBlockIcon implements EmiRenderable {
     }
 
     /**
-     * REI
+     * EMI
      */
     public static @NotNull DoubleBlockIcon of(@Nullable BlockState state1, @Nullable BlockState state2) {
         return new DoubleBlockIcon(

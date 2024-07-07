@@ -5,11 +5,13 @@ import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import net.fabricmc.fabric.api.transfer.v1.storage.base.SidedStorageBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.vehicle.ContainerEntity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,19 +30,32 @@ public class ItemDepositoryHelperImpl {
      */
     @Nullable
     public static IItemDepository getItemDepository(@NotNull Level level, BlockPos pos, Direction direction) {
-        Storage<ItemVariant> target = ItemStorage.SIDED.find(level, pos, direction);
+        Storage<ItemVariant> target = getItemStorage(level, pos, direction);
         if (target == null) {
             List<InventoryStorage> entities = level
-                .getEntitiesOfClass(Entity.class, new AABB(pos))
-                .stream()
-                .filter(entity -> entity instanceof ContainerEntity)
-                .map(entity -> (ContainerEntity) entity)
-                .map(container -> InventoryStorage.of(container, null))
-                .toList();
+                    .getEntitiesOfClass(Entity.class, new AABB(pos))
+                    .stream()
+                    .filter(entity -> entity instanceof ContainerEntity)
+                    .map(entity -> (ContainerEntity) entity)
+                    .map(container -> InventoryStorage.of(container, null))
+                    .toList();
             if (!entities.isEmpty()) target = entities.get(level.getRandom().nextInt(0, entities.size()));
         }
         if (target == null) return null;
         return toItemDepository(target);
+    }
+
+    @Nullable
+    private static Storage<ItemVariant> getItemStorage(Level level, BlockPos pos, Direction direction) {
+        Storage<ItemVariant> target = ItemStorage.SIDED.find(level, pos, direction);
+        if (target == null) {
+            BlockEntity be = level.getBlockEntity(pos);
+            if (be == null) return null;
+            if (be instanceof SidedStorageBlockEntity sidedStorageBlockEntity) {
+                return sidedStorageBlockEntity.getItemStorage(direction);
+            }
+        }
+        return target;
     }
 
     /**

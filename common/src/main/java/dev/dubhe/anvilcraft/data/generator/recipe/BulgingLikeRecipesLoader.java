@@ -591,7 +591,6 @@ public class BulgingLikeRecipesLoader {
                 .spawnItem(new Vec3(0.0, -1.0, 0.0), item);
         }
         builder
-            .setBlock(Blocks.CAULDRON)
             .save(provider, AnvilCraft.of("bulging_like/"
                 + inputs[0].getKey() + "_to_"
                 + output[0].getKey()));

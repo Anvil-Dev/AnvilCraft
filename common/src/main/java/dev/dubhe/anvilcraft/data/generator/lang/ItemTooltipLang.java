@@ -15,5 +15,6 @@ public class ItemTooltipLang {
             (item, s) -> provider.add(TooltipEventListener.getTranslationKey(item), s)
         );
         provider.add("tooltip.anvilcraft.item.reinforced_concrete", "Creeper proof");
+        provider.add("tooltip.anvilcraft.item.recipe.processing.chance", "%1$s%% Chance");
     }
 }
