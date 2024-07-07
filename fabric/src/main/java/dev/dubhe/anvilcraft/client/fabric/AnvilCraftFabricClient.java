@@ -38,6 +38,6 @@ public class AnvilCraftFabricClient implements ClientModInitializer {
         });
 
         ItemTooltipCallback.EVENT.register((stack, context, lines) -> TooltipEventListener.addTooltip(stack, lines));
-        CommonEventHandlerListener.clientInti();
+        CommonEventHandlerListener.clientInit();
     }
 }
