@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.mixin;
 
+import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
@@ -37,7 +38,10 @@ abstract class EndPortalBlockMixin {
             ResourceKey<?> resourceKey,
             ServerLevel serverLevel
     ) {
-        if (entity instanceof FallingBlockEntity fallingBlockEntity) {
+        if (
+                entity instanceof FallingBlockEntity fallingBlockEntity
+                        && !fallingBlockEntity.blockState.is(ModBlockTags.END_PORTAL_UNABLE_CHANGE)
+        ) {
             fallingBlockEntity.blockState = ModBlocks.END_DUST.getDefaultState();
             fallingBlockEntity.changeDimension(serverLevel);
             ci.cancel();
