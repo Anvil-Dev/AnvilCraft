@@ -438,6 +438,7 @@ public class ModBlocks {
             AnvilCraft.of("block/polished_heavy_iron_block"),
             AnvilCraft.of("block/polished_heavy_iron_block")))
         .simpleItem()
+        .loot((tables, block) -> tables.add(block, tables::createSlabItemTable))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
     public static final BlockEntry<? extends Block> POLISHED_HEAVY_IRON_STAIRS = REGISTRATE
@@ -462,6 +463,7 @@ public class ModBlocks {
             AnvilCraft.of("block/cut_heavy_iron_block"),
             AnvilCraft.of("block/cut_heavy_iron_block")))
         .simpleItem()
+        .loot((tables, block) -> tables.add(block, tables::createSlabItemTable))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
     public static final BlockEntry<? extends Block> CUT_HEAVY_IRON_STAIRS = REGISTRATE
