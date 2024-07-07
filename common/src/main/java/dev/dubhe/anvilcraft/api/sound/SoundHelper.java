@@ -23,4 +23,8 @@ public class SoundHelper {
     public void unregister(SoundEventListener eventListener) {
         eventListeners.remove(eventListener);
     }
+
+    public void clear() {
+        eventListeners.clear();
+    }
 }
