@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.client.fabric;
 
 import dev.dubhe.anvilcraft.event.TooltipEventListener;
+import dev.dubhe.anvilcraft.event.fabric.CommonEventHandlerListener;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.util.IBlockHighlightUtil;
 import net.fabricmc.api.ClientModInitializer;
@@ -37,5 +38,6 @@ public class AnvilCraftFabricClient implements ClientModInitializer {
         });
 
         ItemTooltipCallback.EVENT.register((stack, context, lines) -> TooltipEventListener.addTooltip(stack, lines));
+        CommonEventHandlerListener.clientInit();
     }
 }
