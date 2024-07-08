@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.mixin.plugin;
 
 import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.MethodNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
@@ -43,7 +44,6 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public void acceptTargets(Set<String> myTargets, Set<String> otherTargets) {
-
     }
 
     @Override
@@ -53,10 +53,15 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public void preApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
-
     }
 
     @Override
     public void postApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
+        if (!targetClassName.contains("dev.dubhe.anvilcraft.integration.emi.DoubleBlockIcon")) return;
+        for (MethodNode methodNode : targetClass.methods) {
+            if (methodNode.name.equals("method_25394")) {
+                methodNode.name = "render";
+            }
+        }
     }
 }
