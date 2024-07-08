@@ -16,7 +16,7 @@ interface ShockBehaviorDefinition {
         return 1000;
     }
 
-    void acceptRanges(List<BlockPos> blockStates, Level level);
+    void acceptRanges(List<BlockPos> blockPosList, Level level);
 
     abstract class Simple<T> implements ShockBehaviorDefinition {
         private final int[] dt = {-1, 1};
@@ -44,8 +44,8 @@ interface ShockBehaviorDefinition {
         protected abstract boolean blockMatches(BlockState state);
 
         @Override
-        public void acceptRanges(List<BlockPos> blockStates, Level level) {
-            rangeAcceptor.accept(blockStates, level);
+        public void acceptRanges(List<BlockPos> blockPosList, Level level) {
+            rangeAcceptor.accept(blockPosList, level);
         }
     }
 
@@ -88,8 +88,8 @@ interface ShockBehaviorDefinition {
         }
 
         @Override
-        public void acceptRanges(List<BlockPos> blockStates, Level level) {
-            rangeAcceptor.accept(blockStates, level);
+        public void acceptRanges(List<BlockPos> blockPosList, Level level) {
+            rangeAcceptor.accept(blockPosList, level);
         }
 
         @Override
