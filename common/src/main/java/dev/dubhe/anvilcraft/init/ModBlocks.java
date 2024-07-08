@@ -1020,7 +1020,10 @@ public class ModBlocks {
         .properties(BlockBehaviour.Properties::noOcclusion)
         .blockstate((ctx, provider) -> {
         })
-        .simpleItem()
+        .item()
+        .model((ctx, provider) -> {
+        })
+        .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
     public static final BlockEntry<? extends Block> HEATER = REGISTRATE
