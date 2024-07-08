@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.event.SubscribeEvent;
 import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
 import dev.dubhe.anvilcraft.api.chargecollector.HeatedBlockRecorder;
 import dev.dubhe.anvilcraft.api.event.server.block.ServerBlockEntityLoadEvent;
+import dev.dubhe.anvilcraft.api.event.server.block.ServerBlockEntityUnloadEvent;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
@@ -32,7 +33,7 @@ public class ServerBlockEntityEventListener {
      */
     @SuppressWarnings("unused")
     @SubscribeEvent
-    public void onUnload(ServerBlockEntityLoadEvent event) {
+    public void onUnload(ServerBlockEntityUnloadEvent event) {
         if (event.getBlockEntity() instanceof IPowerComponent component) {
             PowerGrid.removeComponent(component);
         }
