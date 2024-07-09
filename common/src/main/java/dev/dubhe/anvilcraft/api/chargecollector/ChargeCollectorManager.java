@@ -16,8 +16,8 @@ import net.minecraft.world.level.Level;
 import org.joml.Vector3f;
 
 public class ChargeCollectorManager {
-    private final Map<BlockPos, ChargeCollectorBlockEntity> chargeCollectors = new HashMap<>();
     private static final Map<Level, ChargeCollectorManager> INSTANCES = new HashMap<>();
+    private final Map<BlockPos, ChargeCollectorBlockEntity> chargeCollectors = new HashMap<>();
     @Getter
     private final Level level;
 
@@ -89,6 +89,5 @@ public class ChargeCollectorManager {
             this.distance = distance;
             this.blockEntity = blockEntity;
         }
-
     }
 }
