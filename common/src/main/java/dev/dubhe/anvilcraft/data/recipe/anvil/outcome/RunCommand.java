@@ -7,7 +7,7 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContext;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipeOutcome;
 import lombok.Getter;
 import net.minecraft.commands.CommandSourceStack;
@@ -74,10 +74,10 @@ public class RunCommand implements RecipeOutcome {
     }
 
     @Override
-    public boolean process(@NotNull AnvilCraftingContainer container) {
-        Level level = container.getLevel();
+    public boolean process(@NotNull AnvilCraftingContext context) {
+        Level level = context.getLevel();
         if (!(level instanceof ServerLevel serverLevel)) return true;
-        FallingBlockEntity entity = container.getEntity();
+        FallingBlockEntity entity = context.getEntity();
         CommandSourceStack stack = new CommandSourceStack(entity, this.offset,
             new Vec2(entity.getXRot(), entity.getYRot()),
             serverLevel,

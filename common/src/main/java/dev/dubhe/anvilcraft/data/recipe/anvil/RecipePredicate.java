@@ -29,9 +29,9 @@ public interface RecipePredicate {
 
     String getType();
 
-    boolean matches(AnvilCraftingContainer container);
+    boolean matches(AnvilCraftingContext context);
 
-    boolean process(AnvilCraftingContainer container);
+    boolean process(AnvilCraftingContext context);
 
     /**
      * 从 json 中读取
