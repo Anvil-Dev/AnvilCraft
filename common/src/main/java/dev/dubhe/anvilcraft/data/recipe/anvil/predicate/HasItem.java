@@ -8,7 +8,7 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContext;
 import dev.dubhe.anvilcraft.data.recipe.anvil.HasData;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipePredicate;
 import lombok.Getter;
@@ -125,9 +125,9 @@ public class HasItem implements RecipePredicate, HasData {
     }
 
     @Override
-    public boolean matches(@NotNull AnvilCraftingContainer container) {
-        Level level = container.getLevel();
-        BlockPos pos = container.getPos();
+    public boolean matches(@NotNull AnvilCraftingContext context) {
+        Level level = context.getLevel();
+        BlockPos pos = context.getPos();
         AABB aabb = new AABB(pos).move(this.offset);
         List<ItemEntity> entities =
             level.getEntities(EntityTypeTest.forClass(ItemEntity.class), aabb, Predicates.alwaysTrue());
@@ -165,7 +165,7 @@ public class HasItem implements RecipePredicate, HasData {
     }
 
     @Override
-    public boolean process(AnvilCraftingContainer container) {
+    public boolean process(AnvilCraftingContext context) {
         return true;
     }
 

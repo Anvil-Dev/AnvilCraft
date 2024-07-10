@@ -1,0 +1,40 @@
+{
+  "variants": {
+    "type=single": {
+      "model": "anvilcraft:block/crystal_crafting_table"
+    },
+    "type=center": {
+      "model": "anvilcraft:block/crystal_crafting_table_center"
+    },
+    "type=side_n": {
+      "model": "anvilcraft:block/crystal_crafting_table_side"
+    },
+    "type=side_e": {
+      "model": "anvilcraft:block/crystal_crafting_table_side",
+      "y": 90
+    },
+    "type=side_s": {
+      "model": "anvilcraft:block/crystal_crafting_table_side",
+      "y": 180
+    },
+    "type=side_w": {
+      "model": "anvilcraft:block/crystal_crafting_table_side",
+      "y": 270
+    },
+    "type=corner_nw": {
+      "model": "anvilcraft:block/crystal_crafting_table_corner"
+    },
+    "type=corner_ne": {
+      "model": "anvilcraft:block/crystal_crafting_table_corner",
+      "y": 90
+    },
+    "type=corner_se": {
+      "model": "anvilcraft:block/crystal_crafting_table_corner",
+      "y": 180
+    },
+    "type=corner_sw": {
+      "model": "anvilcraft:block/crystal_crafting_table_corner",
+      "y": 270
+    }
+  }
+}
