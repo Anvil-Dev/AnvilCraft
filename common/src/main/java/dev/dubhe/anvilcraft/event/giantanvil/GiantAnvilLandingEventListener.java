@@ -11,12 +11,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CropBlock;
@@ -58,10 +59,12 @@ public class GiantAnvilLandingEventListener {
                     LootParams.Builder builder = new LootParams.Builder((ServerLevel) level)
                             .withParameter(LootContextParams.ORIGIN, pos.getCenter());
                     if (state.is(BlockTags.SNOW)) {
+                        builder.withOptionalParameter(LootContextParams.BLOCK_ENTITY, null);
+                        builder.withParameter(LootContextParams.THIS_ENTITY, new PrimedTnt(EntityType.TNT, level));
                         builder.withParameter(LootContextParams.TOOL, Items.DIAMOND_SHOVEL.getDefaultInstance());
+                        builder.withParameter(LootContextParams.EXPLOSION_RADIUS, 4f);
                     }
                     for (ItemStack drop : state.getDrops(builder)) {
-                        System.out.println("drop = " + drop);
                         ItemEntity itemEntity = new ItemEntity(
                                 level,
                                 pos.getX() + 0.5,
