@@ -31,7 +31,7 @@ public abstract class DefaultDisplayViewingScreenMixin extends AbstractDisplayVi
 
     /**
      * @reason 我们需要重定向修改原guiWidth的函数以实现修改rei获取ui宽度的代码, 以适配较宽的配方,
-     * 如果未来rei恢复了原逻辑, 我们会弃用改mixin. 此mixin作者有尝试使用MixinExtras修改局部变量, 但是并未成功.
+     *     如果未来rei恢复了原逻辑, 我们会弃用改mixin. 此mixin作者有尝试使用MixinExtras修改局部变量, 但是并未成功.
      */
     @Redirect(
         method = "init",
