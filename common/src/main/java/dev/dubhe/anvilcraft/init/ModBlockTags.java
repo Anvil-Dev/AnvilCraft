@@ -24,17 +24,38 @@ public class ModBlockTags {
     public static final TagKey<Block> ORES = bindC("ores");
     public static final TagKey<Block> ORES_IN_GROUND_NETHERRACK = bindC("ores_in_ground/netherrack");
     public static final TagKey<Block> ORES_IN_GROUND_DEEPSLATE = bindC("ores_in_ground/deepslate");
-    public static final TagKey<Block> FORGE_GLASS_BLOCKS = bingForge("glass");
-    public static final TagKey<Block> FORGE_GLASS_PANES = bingForge("glass_panes");
-    public static final TagKey<Block> FORGE_ORES = bingForge("ores");
-    public static final TagKey<Block> FORGE_ORES_IN_GROUND_NETHERRACK = bingForge("ores_in_ground/netherrack");
-    public static final TagKey<Block> FORGE_ORES_IN_GROUND_DEEPSLATE = bingForge("ores_in_ground/deepslate");
+    public static final TagKey<Block> FORGE_GLASS_BLOCKS = bindForge("glass");
+    public static final TagKey<Block> FORGE_GLASS_PANES = bindForge("glass_panes");
+    public static final TagKey<Block> FORGE_ORES = bindForge("ores");
+    public static final TagKey<Block> FORGE_ORES_IN_GROUND_NETHERRACK = bindForge("ores_in_ground/netherrack");
+    public static final TagKey<Block> FORGE_ORES_IN_GROUND_DEEPSLATE = bindForge("ores_in_ground/deepslate");
+
+    // 矿物块tag
+    public static final TagKey<Block> TUNGSTEN_BLOCKS = bindC("tungsten_blocks");
+    public static final TagKey<Block> TITANIUM_BLOCKS = bindC("titanium_blocks");
+    public static final TagKey<Block> ZINC_BLOCKS = bindC("zinc_blocks");
+    public static final TagKey<Block> TIN_BLOCKS = bindC("tin_blocks");
+    public static final TagKey<Block> LEAD_BLOCKS = bindC("lead_blocks");
+    public static final TagKey<Block> SILVER_BLOCKS = bindC("silver_blocks");
+    public static final TagKey<Block> URANIUM_BLOCKS = bindC("uranium_blocks");
+    public static final TagKey<Block> BRONZE_BLOCKS = bindC("bronze_blocks");
+    public static final TagKey<Block> BRASS_BLOCKS = bindC("brass_blocks");
+
+    public static final TagKey<Block> FORGE_TUNGSTEN_BLOCKS = bindForge("storage_blocks/tungsten_blocks");
+    public static final TagKey<Block> FORGE_TITANIUM_BLOCKS = bindForge("storage_blocks/titanium_blocks");
+    public static final TagKey<Block> FORGE_ZINC_BLOCKS = bindForge("storage_blocks/zinc_blocks");
+    public static final TagKey<Block> FORGE_TIN_BLOCKS = bindForge("storage_blocks/tin_blocks");
+    public static final TagKey<Block> FORGE_LEAD_BLOCKS = bindForge("storage_blocks/lead_blocks");
+    public static final TagKey<Block> FORGE_SILVER_BLOCKS = bindForge("storage_blocks/silver_blocks");
+    public static final TagKey<Block> FORGE_URANIUM_BLOCKS = bindForge("storage_blocks/uranium_blocks");
+    public static final TagKey<Block> FORGE_BRONZE_BLOCKS = bindForge("storage_blocks/bronze_blocks");
+    public static final TagKey<Block> FORGE_BRASS_BLOCKS = bindForge("storage_blocks/brass_blocks");
 
     private static @NotNull TagKey<Block> bindC(String id) {
         return TagKey.create(Registries.BLOCK, new ResourceLocation("c", id));
     }
 
-    private static @NotNull TagKey<Block> bingForge(String id) {
+    private static @NotNull TagKey<Block> bindForge(String id) {
         return TagKey.create(Registries.BLOCK, new ResourceLocation("forge", id));
     }
 

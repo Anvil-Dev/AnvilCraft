@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.event;
+package dev.dubhe.anvilcraft.event.server;
 
 import dev.anvilcraft.lib.event.SubscribeEvent;
 import dev.dubhe.anvilcraft.api.event.server.ServerEndDataPackReloadEvent;
@@ -16,6 +16,7 @@ public class ServerEventListener {
      *
      * @param event 事件
      */
+    @SuppressWarnings("unused")
     @SubscribeEvent
     public void onServerStarted(@NotNull ServerStartedEvent event) {
         ModHammerInits.init();
@@ -25,6 +26,7 @@ public class ServerEventListener {
         ModLootContextParamSet.register();
     }
 
+    @SuppressWarnings("unused")
     @SubscribeEvent
     public void onServerEndDataPackReload(@NotNull ServerEndDataPackReloadEvent event) {
         AnvilRecipeManager.updateRecipes(event.getServer().getRecipeManager(), event.getServer().registryAccess());

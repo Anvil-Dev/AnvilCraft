@@ -11,7 +11,9 @@ import dev.dubhe.anvilcraft.event.giantanvil.GiantAnvilLandingEventListener;
 import dev.dubhe.anvilcraft.event.giantanvil.GiantAnvilMultiblockCraftingEventListener;
 import dev.dubhe.anvilcraft.event.LightningEventListener;
 import dev.dubhe.anvilcraft.event.PlayerEventListener;
-import dev.dubhe.anvilcraft.event.ServerEventListener;
+import dev.dubhe.anvilcraft.event.ServerBlockEntityEventListener;
+import dev.dubhe.anvilcraft.event.client.ClientPlayerDisconnectEventListener;
+import dev.dubhe.anvilcraft.event.server.ServerEventListener;
 
 public class ModEvents {
     /**
@@ -29,5 +31,7 @@ public class ModEvents {
         AnvilCraft.EVENT_BUS.register(new AnvilHitImpactPileEventListener());
         AnvilCraft.EVENT_BUS.register(new GiantAnvilMultiblockCraftingEventListener());
         AnvilCraft.EVENT_BUS.register(new GiantAnvilLandingEventListener());
+        AnvilCraft.EVENT_BUS.register(new ServerBlockEntityEventListener());
+        AnvilCraft.EVENT_BUS.register(new ClientPlayerDisconnectEventListener());
     }
 }

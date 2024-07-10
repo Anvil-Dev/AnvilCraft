@@ -9,31 +9,23 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Vector3f;
 
 public class HeliostatsIrradiationPack implements Packet {
     private final BlockPos blockPos;
-    private final Vector3f normalVector3f;
-    private final Vector3f irritateVector3f;
-    private final float irritateDistance;
-    private final HeliostatsBlockEntity.WorkResult workResult;
+    private final BlockPos irritatePos;
 
     /**
      * 定日镜照射网络包
      */
     public HeliostatsIrradiationPack(
             BlockPos blockPos,
-            Vector3f normalVector3f,
-            Vector3f irritateVector3f,
-            float irritateDistance,
-            HeliostatsBlockEntity.WorkResult workResult
+            BlockPos irritatePos
     ) {
         this.blockPos = blockPos;
-        this.normalVector3f = normalVector3f;
-        this.irritateVector3f = irritateVector3f;
-        this.irritateDistance = irritateDistance;
-        this.workResult = workResult;
+        this.irritatePos = irritatePos;
     }
 
     /**
@@ -41,11 +33,7 @@ public class HeliostatsIrradiationPack implements Packet {
      */
     public HeliostatsIrradiationPack(FriendlyByteBuf buf) {
         this.blockPos = buf.readBlockPos();
-        this.normalVector3f = buf.readVector3f();
-        this.irritateVector3f = buf.readVector3f();
-        this.irritateDistance = buf.readFloat();
-        this.workResult = HeliostatsBlockEntity.WorkResult.valueOf(buf.readUtf());
-
+        this.irritatePos = buf.readNullable(FriendlyByteBuf::readBlockPos);
     }
 
     @Override
@@ -56,10 +44,7 @@ public class HeliostatsIrradiationPack implements Packet {
     @Override
     public void encode(@NotNull FriendlyByteBuf buf) {
         buf.writeBlockPos(blockPos);
-        buf.writeVector3f(normalVector3f);
-        buf.writeVector3f(irritateVector3f);
-        buf.writeFloat(irritateDistance);
-        buf.writeUtf(workResult.name());
+        buf.writeNullable(irritatePos, FriendlyByteBuf::writeBlockPos);
     }
 
     @Override
@@ -69,10 +54,16 @@ public class HeliostatsIrradiationPack implements Packet {
             if (Minecraft.getInstance().level != null
                 && Minecraft.getInstance().level.getBlockEntity(blockPos)
                 instanceof HeliostatsBlockEntity heliostatsBlockEntity) {
-                heliostatsBlockEntity.setNormalVector3f(normalVector3f);
-                heliostatsBlockEntity.setIrritateVector3f(irritateVector3f);
-                heliostatsBlockEntity.setIrritateDistance(irritateDistance);
-                heliostatsBlockEntity.setWorkResult(workResult);
+                heliostatsBlockEntity.setIrritatePos(irritatePos);
+            }
+        });
+    }
+
+    @Override
+    public void handler(@NotNull MinecraftServer server, ServerPlayer player) {
+        server.execute(() -> {
+            if (player.level().getBlockEntity(blockPos) instanceof HeliostatsBlockEntity heliostatsBlockEntity) {
+                new HeliostatsIrradiationPack(blockPos, heliostatsBlockEntity.getIrritatePos()).send(player);
             }
         });
     }

@@ -4,8 +4,6 @@ accessible class net/minecraft/server/MinecraftServer$ReloadableResources
 accessible class net/minecraft/world/item/crafting/Ingredient$Value
 accessible class net/minecraft/world/item/crafting/Ingredient$TagValue
 accessible class net/minecraft/world/inventory/BeaconMenu$PaymentSlot
-extendable method net/minecraft/client/gui/screens/inventory/AbstractContainerScreen renderSlot (Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/world/inventory/Slot;)V
-accessible method net/minecraft/server/MinecraftServer$ReloadableResources resourceManager ()Lnet/minecraft/server/packs/resources/CloseableResourceManager;
 accessible field net/minecraft/world/item/crafting/RecipeManager recipes Ljava/util/Map;
 accessible field net/minecraft/world/item/crafting/Ingredient values [Lnet/minecraft/world/item/crafting/Ingredient$Value;
 accessible field net/minecraft/world/item/crafting/Ingredient$TagValue tag Lnet/minecraft/tags/TagKey;
@@ -21,10 +19,12 @@ accessible field net/minecraft/client/renderer/RenderStateShard NO_CULL Lnet/min
 accessible field net/minecraft/client/renderer/RenderStateShard NO_DEPTH_TEST Lnet/minecraft/client/renderer/RenderStateShard$DepthTestStateShard;
 accessible field net/minecraft/client/renderer/RenderStateShard VIEW_OFFSET_Z_LAYERING Lnet/minecraft/client/renderer/RenderStateShard$LayeringStateShard;
 accessible field net/minecraft/server/level/ChunkMap updatingChunkMap Lit/unimi/dsi/fastutil/longs/Long2ObjectLinkedOpenHashMap;
+accessible field net/minecraft/world/entity/item/FallingBlockEntity blockState Lnet/minecraft/world/level/block/state/BlockState;
+extendable method net/minecraft/client/gui/screens/inventory/AbstractContainerScreen renderSlot (Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/world/inventory/Slot;)V
+accessible method net/minecraft/server/MinecraftServer$ReloadableResources resourceManager ()Lnet/minecraft/server/packs/resources/CloseableResourceManager;
 accessible method net/minecraft/world/item/BlockItem getPlaceSound (Lnet/minecraft/world/level/block/state/BlockState;)Lnet/minecraft/sounds/SoundEvent;
 accessible method net/minecraft/world/level/block/Blocks never (Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/EntityType;)Ljava/lang/Boolean;
 accessible method net/minecraft/world/level/block/Blocks never (Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;)Z
 accessible method net/minecraft/util/SortedArraySet findIndex (Ljava/lang/Object;)I
 accessible method net/minecraft/util/SortedArraySet getInternal (I)Ljava/lang/Object;
-accessible field net/minecraft/world/entity/item/FallingBlockEntity blockState Lnet/minecraft/world/level/block/state/BlockState;
 accessible method net/minecraft/world/item/BlockItem canPlace (Lnet/minecraft/world/item/context/BlockPlaceContext;Lnet/minecraft/world/level/block/state/BlockState;)Z
