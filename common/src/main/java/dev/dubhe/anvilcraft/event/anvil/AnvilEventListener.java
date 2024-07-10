@@ -9,7 +9,7 @@ import dev.dubhe.anvilcraft.api.event.entity.AnvilHurtEntityEvent;
 import dev.dubhe.anvilcraft.api.recipe.AnvilRecipeManager;
 import dev.dubhe.anvilcraft.block.CrabTrapBlock;
 import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
-import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContext;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
@@ -79,12 +79,12 @@ public class AnvilEventListener {
         belowPos = belowPos.below();
         state = level.getBlockState(belowPos);
         if (state.is(Blocks.STONECUTTER)) brokeBlock(level, belowPos.above(), event);
-        AnvilCraftingContainer container = new AnvilCraftingContainer(level, pos, event.getEntity());
+        AnvilCraftingContext context = new AnvilCraftingContext(level, pos, event.getEntity());
         Optional<AnvilRecipe> optional = AnvilRecipeManager.getAnvilRecipeList().stream()
                 .filter(recipe -> !recipe.getAnvilRecipeType().equals(AnvilRecipeType.MULTIBLOCK_CRAFTING)
-                        && recipe.matches(container, level))
+                        && recipe.matches(context, level))
                 .findFirst();
-        optional.ifPresent(anvilRecipe -> anvilProcess(anvilRecipe, container, event));
+        optional.ifPresent(anvilRecipe -> anvilProcess(anvilRecipe, context, event));
     }
 
     private void hitBeeNest(Level level, BlockState state, BlockPos pos) {
@@ -280,13 +280,14 @@ public class AnvilEventListener {
         }
     }
 
-    private void anvilProcess(AnvilRecipe recipe, AnvilCraftingContainer container, AnvilFallOnLandEvent event) {
+    private void anvilProcess(AnvilRecipe recipe, AnvilCraftingContext context, AnvilFallOnLandEvent event) {
         int counts = 0;
         while (counts < AnvilCraft.config.anvilEfficiency) {
-            if (!recipe.craft(container)) break;
+            if (!recipe.craft(context)) break;
             counts++;
         }
-        if (container.isAnvilDamage()) event.setAnvilDamage(true);
+        if (context.isAnvilDamage()) event.setAnvilDamage(true);
+        context.spawnItemEntity();
     }
 
     private void brokeBlock(@NotNull Level level, BlockPos pos, AnvilFallOnLandEvent event) {

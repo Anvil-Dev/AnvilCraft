@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.data.recipe.anvil.outcome;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContext;
 import dev.dubhe.anvilcraft.data.recipe.anvil.CanSetData;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipeOutcome;
 import lombok.Getter;
@@ -70,15 +70,15 @@ public class SelectOne implements RecipeOutcome, CanSetData {
     }
 
     @Override
-    public boolean process(@NotNull AnvilCraftingContainer container) {
-        RandomSource random = container.getLevel().random;
+    public boolean process(@NotNull AnvilCraftingContext context) {
+        RandomSource random = context.getLevel().random;
         List<Double> weights = this.outcomes.stream().map(RecipeOutcome::getChance).toList();
         RecipeOutcome outcome = SelectOne.weightedRandomSelect(this.outcomes, weights, random);
         if (outcome != null) {
             if (outcome instanceof CanSetData canSetData) {
                 canSetData.setData(this.data);
             }
-            outcome.process(container);
+            outcome.process(context);
         }
         return true;
     }

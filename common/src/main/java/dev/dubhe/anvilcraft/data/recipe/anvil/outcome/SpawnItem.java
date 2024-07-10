@@ -5,19 +5,16 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
-import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContext;
 import dev.dubhe.anvilcraft.data.recipe.anvil.CanSetData;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipeOutcome;
 import dev.dubhe.anvilcraft.util.IItemStackUtil;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
@@ -89,16 +86,12 @@ public class SpawnItem implements RecipeOutcome, CanSetData {
     }
 
     @Override
-    public boolean process(@NotNull AnvilCraftingContainer container) {
-        Level level = container.getLevel();
-        BlockPos pos = container.getPos();
-        Vec3 vec3 = pos.getCenter().add(this.offset);
+    public boolean process(@NotNull AnvilCraftingContext context) {
         ItemStack stack = this.result.copy();
         if (this.path != null && this.data != null && this.data.containsKey(this.path)) {
             stack.setTag(this.data.get(this.path));
         }
-        ItemEntity entity = new ItemEntity(level, vec3.x, vec3.y, vec3.z, stack, 0.0d, 0.0d, 0.0d);
-        return level.addFreshEntity(entity);
+        return context.addOutputsItem(this.offset, stack);
     }
 
     @Override

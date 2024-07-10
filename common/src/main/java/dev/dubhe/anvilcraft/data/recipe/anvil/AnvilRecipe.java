@@ -79,7 +79,7 @@ import static dev.dubhe.anvilcraft.api.power.IPowerComponent.OVERLOAD;
 
 @Getter
 @SuppressWarnings("unused")
-public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
+public class AnvilRecipe implements Recipe<AnvilCraftingContext> {
     private final ResourceLocation id;
     private final List<RecipePredicate> predicates = new ArrayList<>();
     private final List<RecipeOutcome> outcomes = new ArrayList<>();
@@ -124,9 +124,9 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
     }
 
     @Override
-    public boolean matches(@NotNull AnvilCraftingContainer container, @NotNull Level level) {
+    public boolean matches(@NotNull AnvilCraftingContext context, @NotNull Level level) {
         for (RecipePredicate predicate : this.predicates) {
-            if (!predicate.matches(container)) return false;
+            if (!predicate.matches(context)) return false;
         }
         return true;
     }
@@ -134,13 +134,13 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
     /**
      * 合成
      *
-     * @param container 容器
+     * @param context 容器
      * @return 是否合成成功
      */
-    public boolean craft(@NotNull AnvilCraftingContainer container) {
-        if (!this.matches(container, container.getLevel())) return false;
+    public boolean craft(@NotNull AnvilCraftingContext context) {
+        if (!this.matches(context, context.getLevel())) return false;
         for (RecipePredicate predicate : this.predicates) {
-            predicate.process(container);
+            predicate.process(context);
             if (predicate instanceof HasData hasData) {
                 Map.Entry<String, CompoundTag> entry = hasData.getData();
                 if (entry != null) this.data.put(entry.getKey(), entry.getValue());
@@ -150,14 +150,14 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
             if (outcome instanceof CanSetData canSetData) {
                 canSetData.setData(this.data);
             }
-            outcome.processWithChance(container);
+            outcome.processWithChance(context);
         }
         return true;
     }
 
     @Override
     public @NotNull ItemStack assemble(
-        @NotNull AnvilCraftingContainer container, @NotNull RegistryAccess registryAccess
+        @NotNull AnvilCraftingContext context, @NotNull RegistryAccess registryAccess
     ) {
         return ItemStack.EMPTY;
     }

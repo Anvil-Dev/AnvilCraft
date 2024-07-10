@@ -5,7 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
-import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContext;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipePredicate;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import lombok.Getter;
@@ -80,11 +80,11 @@ public class HasFluidCauldron implements RecipePredicate {
 
 
     @Override
-    public boolean matches(@NotNull AnvilCraftingContainer container) {
-        BlockPos containerPos = container.getPos();
+    public boolean matches(@NotNull AnvilCraftingContext context) {
+        BlockPos containerPos = context.getPos();
         Vec3 vec3 = containerPos.getCenter().add(this.offset);
         BlockPos pos = BlockPos.containing(vec3.x, vec3.y, vec3.z);
-        Level containerLevel = container.getLevel();
+        Level containerLevel = context.getLevel();
         if (this.matchBlock == Blocks.LAVA_CAULDRON) return lavaMatches(containerLevel, pos);
         if (!(containerLevel instanceof ServerLevel level)) return false;
         BlockState state = level.getBlockState(pos);
@@ -100,11 +100,11 @@ public class HasFluidCauldron implements RecipePredicate {
     }
 
     @Override
-    public boolean process(@NotNull AnvilCraftingContainer container) {
-        BlockPos containerPos = container.getPos();
+    public boolean process(@NotNull AnvilCraftingContext context) {
+        BlockPos containerPos = context.getPos();
         Vec3 vec3 = containerPos.getCenter().add(this.offset);
         BlockPos pos = BlockPos.containing(vec3.x, vec3.y, vec3.z);
-        Level level = container.getLevel();
+        Level level = context.getLevel();
         if (this.matchBlock == Blocks.LAVA_CAULDRON) return lavaProcess(level, pos);
         BlockState state = level.getBlockState(pos);
         if (!state.is(this.matchBlock)) return false;
