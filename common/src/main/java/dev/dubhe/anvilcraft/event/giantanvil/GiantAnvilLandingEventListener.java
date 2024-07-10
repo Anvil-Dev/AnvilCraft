@@ -194,6 +194,7 @@ public class GiantAnvilLandingEventListener {
                         if (optional.isPresent()) {
                             AnvilRecipe recipe = optional.get();
                             recipe.craft(container);
+                            level.destroyBlock(pos, true);
                         }
                     }
                 })
