@@ -120,7 +120,8 @@ public class AnvilCraftingContext
         for (Map.Entry<Vec3, ItemStack> entry : this.outputs) {
             ItemStack stack = entry.getValue();
             if (stack.isEmpty()) continue;
-            Vec3 pos = entry.getKey().add(this.pos.getX(), this.pos.getY(), this.pos.getZ());
+            Vec3 center = this.pos.getCenter();
+            Vec3 pos = entry.getKey().add(center.x(), center.y(), center.z());
             ItemEntity entity = new ItemEntity(this.level, pos.x(), pos.y(), pos.z(), stack, 0.0, 0.0, 0.0);
             this.level.addFreshEntity(entity);
         }
