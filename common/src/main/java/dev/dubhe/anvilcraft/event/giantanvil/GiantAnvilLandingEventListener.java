@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.TickTask;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.EntityType;
@@ -185,7 +186,8 @@ public class GiantAnvilLandingEventListener {
         behaviorDefs.add(new ShockBehaviorDefinition.SimpleBlock(Blocks.ANVIL,
                 (blockPosList, level) -> {
                     for (BlockPos pos : blockPosList) {
-                        AnvilCraftingContext container = new AnvilCraftingContext(level, pos, null);
+                        BlockPos pos1 = pos.mutable();
+                        AnvilCraftingContext container = new AnvilCraftingContext(level, pos1, null);
                         Optional<AnvilRecipe> optional = AnvilRecipeManager.getAnvilRecipeList().stream()
                                 .filter(recipe ->
                                         recipe.getAnvilRecipeType() == AnvilRecipeType.BLOCK_SMASH
@@ -194,7 +196,7 @@ public class GiantAnvilLandingEventListener {
                         if (optional.isPresent()) {
                             AnvilRecipe recipe = optional.get();
                             recipe.craft(container);
-                            level.destroyBlock(pos, true);
+                            level.destroyBlock(pos.below(), true);
                         }
                     }
                 })
