@@ -6,7 +6,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
-import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContext;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipePredicate;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
@@ -106,9 +106,9 @@ public class HasItemLeaves implements RecipePredicate {
     }
 
     @Override
-    public boolean matches(@NotNull AnvilCraftingContainer container) {
-        Level level = container.getLevel();
-        BlockPos pos = container.getPos();
+    public boolean matches(@NotNull AnvilCraftingContext context) {
+        Level level = context.getLevel();
+        BlockPos pos = context.getPos();
         AABB aabb = new AABB(pos).move(this.inputOffset);
         List<ItemEntity> entities =
             level.getEntities(EntityTypeTest.forClass(ItemEntity.class), aabb, Predicates.alwaysTrue());
@@ -130,16 +130,16 @@ public class HasItemLeaves implements RecipePredicate {
     }
 
     @Override
-    public boolean process(AnvilCraftingContainer container) {
+    public boolean process(AnvilCraftingContext context) {
         ItemStack item = this.inputItemEntity.getItem();
         item.shrink(1);
         this.inputItemEntity.setItem(item.copy());
-        return spawnResult(container);
+        return spawnResult(context);
     }
 
-    private boolean spawnResult(AnvilCraftingContainer container) {
-        Level level = container.getLevel();
-        BlockPos pos = container.getPos();
+    private boolean spawnResult(AnvilCraftingContext context) {
+        Level level = context.getLevel();
+        BlockPos pos = context.getPos();
         Vec3 vec3 = pos.getCenter().add(this.outputOffset);
         RandomSource random = level.getRandom();
         boolean b = true;

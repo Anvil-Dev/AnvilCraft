@@ -31,7 +31,7 @@ public interface RecipeOutcome {
 
     String getType();
 
-    boolean process(AnvilCraftingContainer container);
+    boolean process(AnvilCraftingContext context);
 
     /**
      * 从 Json 读取
@@ -72,10 +72,10 @@ public interface RecipeOutcome {
     /**
      *
      */
-    default boolean processWithChance(@NotNull AnvilCraftingContainer container) {
-        Level level = container.getLevel();
+    default boolean processWithChance(@NotNull AnvilCraftingContext context) {
+        Level level = context.getLevel();
         RandomSource random = level.getRandom();
         if (random.nextDouble() > this.getChance()) return true;
-        return this.process(container);
+        return this.process(context);
     }
 }

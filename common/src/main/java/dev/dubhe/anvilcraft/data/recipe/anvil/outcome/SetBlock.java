@@ -7,7 +7,7 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContext;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipeOutcome;
 import dev.dubhe.anvilcraft.util.IBlockStateUtil;
 import lombok.Getter;
@@ -107,9 +107,9 @@ public class SetBlock implements RecipeOutcome {
     }
 
     @Override
-    public boolean process(@NotNull AnvilCraftingContainer container) {
-        Level level = container.getLevel();
-        BlockPos pos = container.getPos();
+    public boolean process(@NotNull AnvilCraftingContext context) {
+        Level level = context.getLevel();
+        BlockPos pos = context.getPos();
         Vec3 vec3 = pos.getCenter().add(this.offset);
         BlockPos blockPos = BlockPos.containing(vec3.x, vec3.y, vec3.z);
         return level.setBlockAndUpdate(blockPos, this.result);

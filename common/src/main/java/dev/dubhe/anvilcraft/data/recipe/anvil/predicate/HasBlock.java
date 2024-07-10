@@ -6,7 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContext;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipePredicate;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
@@ -69,17 +69,17 @@ public class HasBlock implements RecipePredicate {
     }
 
     @Override
-    public boolean matches(@NotNull AnvilCraftingContainer container) {
-        Level level = container.getLevel();
+    public boolean matches(@NotNull AnvilCraftingContext context) {
+        Level level = context.getLevel();
         if (!(level instanceof ServerLevel level1)) return false;
-        BlockPos pos = container.getPos();
+        BlockPos pos = context.getPos();
         Vec3 vec3 = pos.getCenter().add(this.offset);
         BlockPos blockPos = BlockPos.containing(vec3.x, vec3.y, vec3.z);
         return this.matchBlock.matches(level1, blockPos);
     }
 
     @Override
-    public boolean process(AnvilCraftingContainer container) {
+    public boolean process(AnvilCraftingContext context) {
         return true;
     }
 

@@ -5,7 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
-import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContext;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipeOutcome;
 import lombok.Getter;
 import net.minecraft.network.FriendlyByteBuf;
@@ -67,8 +67,8 @@ public class SpawnExperience implements RecipeOutcome {
     }
 
     @Override
-    public boolean process(@NotNull AnvilCraftingContainer container) {
-        Level level = container.getLevel();
+    public boolean process(@NotNull AnvilCraftingContext context) {
+        Level level = context.getLevel();
         ExperienceOrb entity = new ExperienceOrb(level, this.offset.x, this.offset.y, this.offset.z, this.experience);
         return level.addFreshEntity(entity);
     }

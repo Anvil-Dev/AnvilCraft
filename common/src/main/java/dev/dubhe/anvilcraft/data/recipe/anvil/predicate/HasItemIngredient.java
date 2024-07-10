@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.data.recipe.anvil.predicate;
 
 import com.google.common.base.Predicates;
 import com.google.gson.JsonObject;
-import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContext;
 import dev.dubhe.anvilcraft.mixin.IngredientValueAccessor;
 import lombok.Getter;
 import net.minecraft.advancements.critereon.MinMaxBounds;
@@ -64,9 +64,9 @@ public class HasItemIngredient extends HasItem {
     }
 
     @Override
-    public boolean process(@NotNull AnvilCraftingContainer container) {
-        Level level = container.getLevel();
-        BlockPos pos = container.getPos();
+    public boolean process(@NotNull AnvilCraftingContext context) {
+        Level level = context.getLevel();
+        BlockPos pos = context.getPos();
         AABB aabb = new AABB(pos).move(this.offset);
         List<ItemEntity> entities =
             level.getEntities(EntityTypeTest.forClass(ItemEntity.class), aabb, Predicates.alwaysTrue());
