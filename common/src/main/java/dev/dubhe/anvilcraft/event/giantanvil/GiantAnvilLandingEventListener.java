@@ -9,15 +9,20 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -30,6 +35,13 @@ public class GiantAnvilLandingEventListener {
     private static final List<ShockBehaviorDefinition> behaviorDefs = new ArrayList<>();
     public static final Direction[] HORIZONTAL_DIRECTIONS =
             new Direction[]{Direction.SOUTH, Direction.WEST, Direction.EAST, Direction.NORTH};
+    public static final Direction[] VERTICAL_DIRECTIONS =
+            new Direction[]{Direction.UP, Direction.DOWN};
+    public static final Direction[][] CORNER_DIRECTIONS =
+            new Direction[][]{
+                    {Direction.EAST, Direction.NORTH}, {Direction.EAST, Direction.SOUTH},
+                    {Direction.WEST, Direction.NORTH}, {Direction.WEST, Direction.SOUTH},
+            };
 
     static {
         behaviorDefs.add(new ShockBehaviorDefinition.MatchAll((blockPosList, level) -> {
@@ -43,7 +55,24 @@ public class GiantAnvilLandingEventListener {
                         || state.is(BlockTags.SNOW)
                         || state.is(BlockTags.ICE)
                 ) {
-                    level.destroyBlock(pos, true);
+                    LootParams.Builder builder = new LootParams.Builder((ServerLevel) level)
+                            .withParameter(LootContextParams.ORIGIN, pos.getCenter());
+                    if (state.is(BlockTags.SNOW)) {
+                        builder.withParameter(LootContextParams.TOOL, Items.DIAMOND_SHOVEL.getDefaultInstance());
+                    }
+                    for (ItemStack drop : state.getDrops(builder)) {
+                        System.out.println("drop = " + drop);
+                        ItemEntity itemEntity = new ItemEntity(
+                                level,
+                                pos.getX() + 0.5,
+                                pos.getY() + 0.5,
+                                pos.getZ() + 0.5,
+                                drop
+                        );
+                        level.addFreshEntity(itemEntity);
+                        state.spawnAfterBreak((ServerLevel) level, pos, ItemStack.EMPTY, true);
+                    }
+                    level.destroyBlock(pos, false);
                 }
                 if (state.is(BlockTags.LOGS)) {
                     removeLeaves(pos, level, false);
@@ -99,10 +128,37 @@ public class GiantAnvilLandingEventListener {
                                         for (Direction direction : Direction.values()) {
                                             blockPosConsumer.accept(blockPos.relative(direction));
                                         }
+                                        for (Direction horizontal : HORIZONTAL_DIRECTIONS) {
+                                            for (Direction vertical : VERTICAL_DIRECTIONS) {
+                                                blockPosConsumer.accept(blockPos
+                                                        .relative(horizontal)
+                                                        .relative(vertical)
+                                                );
+                                            }
+                                        }
+                                        for (Direction[] corner : CORNER_DIRECTIONS) {
+                                            BlockPos pos1 = blockPos;
+                                            for (Direction direction : corner) {
+                                                pos1 = pos1.relative(direction);
+                                            }
+                                            for (Direction verticalDirection : VERTICAL_DIRECTIONS) {
+                                                pos1 = pos1.relative(verticalDirection);
+                                                blockPosConsumer.accept(pos1);
+                                            }
+                                        }
+
                                     }, blockPos -> {
                                         if (blockPos.getY() < pos.getY()) return false;
                                         BlockState blockState = level.getBlockState(blockPos);
-                                        if (blockState.is(BlockTags.LOGS) || blockState.is(BlockTags.LEAVES)) {
+                                        if (blockState.is(BlockTags.LOGS)
+                                                || blockState.is(BlockTags.LEAVES)
+                                                || blockState.is(Blocks.MANGROVE_ROOTS)
+                                                || blockState.is(Blocks.MUSHROOM_STEM)
+                                                || blockState.is(Blocks.BROWN_MUSHROOM_BLOCK)
+                                                || blockState.is(Blocks.RED_MUSHROOM_BLOCK)
+                                                || blockState.is(BlockTags.WART_BLOCKS)
+                                                || blockState.is(Blocks.SHROOMLIGHT)
+                                        ) {
                                             level.destroyBlock(blockPos, true);
                                             return true;
                                         }
@@ -158,10 +214,30 @@ public class GiantAnvilLandingEventListener {
                 }, blockPos -> {
                     if (blockPos.getY() < pos.getY()) return false;
                     BlockState blockState = level.getBlockState(blockPos);
-                    if (blockState.is(BlockTags.LOGS) || blockState.is(BlockTags.LEAVES)) {
-                        if (blockState.is(BlockTags.LEAVES)) {
+                    if (
+                            blockState.is(BlockTags.LOGS)
+                                    || blockState.is(BlockTags.LEAVES)
+                                    || blockState.is(Blocks.MUSHROOM_STEM)
+                                    || blockState.is(Blocks.BROWN_MUSHROOM_BLOCK)
+                                    || blockState.is(Blocks.RED_MUSHROOM_BLOCK)
+                                    || blockState.is(BlockTags.WART_BLOCKS)
+                    ) {
+                        if (!blockState.is(BlockTags.LOGS)) {
                             if (!silkTouch) {
-                                level.destroyBlock(blockPos, true);
+                                LootParams.Builder builder = (new LootParams.Builder((ServerLevel) level))
+                                        .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos))
+                                        .withParameter(LootContextParams.TOOL, ItemStack.EMPTY);
+                                for (ItemStack drop : blockState.getDrops(builder)) {
+                                    ItemEntity itemEntity = new ItemEntity(
+                                            level,
+                                            pos.getX() + 0.5,
+                                            pos.getY() + 0.5,
+                                            pos.getZ() + 0.5,
+                                            drop
+                                    );
+                                    level.addFreshEntity(itemEntity);
+                                }
+                                level.destroyBlock(blockPos, false);
                             } else {
                                 level.destroyBlock(blockPos, false);
                                 ItemEntity itemEntity = new ItemEntity(
