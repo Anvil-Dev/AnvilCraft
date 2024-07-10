@@ -20,11 +20,13 @@ import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CaveVines;
 import net.minecraft.world.level.block.CaveVinesBlock;
 import net.minecraft.world.level.block.ChorusPlantBlock;
 import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.NetherWartBlock;
 import net.minecraft.world.level.block.StemGrownBlock;
 import net.minecraft.world.level.block.SweetBerryBushBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -126,6 +128,7 @@ public class GiantAnvilLandingEventListener {
                         ) {
                             level.destroyBlock(pos, true);
                         }
+                        processChorus(pos, state, level);
                         if (isFellingApplicableBlock(state)) {
                             if (state.getBlock() instanceof ChorusPlantBlock) {
                                 level.destroyBlock(pos, true);
@@ -171,35 +174,11 @@ public class GiantAnvilLandingEventListener {
                             level.destroyBlock(pos, true);
                             level.setBlockAndUpdate(pos, state.setValue(CaveVines.BERRIES, false));
                         }
-                        if (state.getBlock() instanceof ChorusPlantBlock) {
-                            BlockPos.breadthFirstTraversal(
-                                    pos,
-                                    Integer.MAX_VALUE,
-                                    1024,
-                                    GiantAnvilLandingEventListener::acceptDirections,
-                                    blockPos -> {
-                                        if (blockPos.getY() < pos.getY()) return false;
-                                        BlockState blockState = level.getBlockState(blockPos);
-                                        if (blockState.is(Blocks.CHORUS_PLANT)) {
-                                            level.destroyBlock(blockPos, true);
-                                            return true;
-                                        }
-                                        if (blockState.is(Blocks.CHORUS_FLOWER)) {
-                                            level.destroyBlock(blockPos, false);
-                                            ItemEntity itemEntity = new ItemEntity(
-                                                    level,
-                                                    blockPos.getX() + 0.5,
-                                                    blockPos.getY() + 0.5,
-                                                    blockPos.getZ() + 0.5,
-                                                    blockState.getBlock().asItem().getDefaultInstance()
-                                            );
-                                            level.addFreshEntity(itemEntity);
-                                            return true;
-                                        }
-                                        return false;
-                                    }
-                            );
+                        if (state.getBlock() instanceof NetherWartBlock) {
+                            level.destroyBlock(pos, true);
+                            level.setBlockAndUpdate(pos, state.setValue(NetherWartBlock.AGE, 0));
                         }
+                        processChorus(pos, state, level);
                     }
                 })
         );
@@ -219,6 +198,38 @@ public class GiantAnvilLandingEventListener {
                     }
                 })
         );
+    }
+
+    private static void processChorus(BlockPos pos, BlockState state, Level level) {
+        if (state.getBlock() instanceof ChorusPlantBlock) {
+            BlockPos.breadthFirstTraversal(
+                    pos,
+                    Integer.MAX_VALUE,
+                    1024,
+                    GiantAnvilLandingEventListener::acceptDirections,
+                    blockPos -> {
+                        if (blockPos.getY() < pos.getY()) return false;
+                        BlockState blockState = level.getBlockState(blockPos);
+                        if (blockState.is(Blocks.CHORUS_PLANT)) {
+                            level.destroyBlock(blockPos, true);
+                            return true;
+                        }
+                        if (blockState.is(Blocks.CHORUS_FLOWER)) {
+                            level.destroyBlock(blockPos, false);
+                            ItemEntity itemEntity = new ItemEntity(
+                                    level,
+                                    blockPos.getX() + 0.5,
+                                    blockPos.getY() + 0.5,
+                                    blockPos.getZ() + 0.5,
+                                    blockState.getBlock().asItem().getDefaultInstance()
+                            );
+                            level.addFreshEntity(itemEntity);
+                            return true;
+                        }
+                        return false;
+                    }
+            );
+        }
     }
 
     private static void acceptDirections(BlockPos blockPos, Consumer<BlockPos> blockPosConsumer) {
