@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.event.giantanvil;
 import dev.anvilcraft.lib.event.SubscribeEvent;
 import dev.dubhe.anvilcraft.api.event.entity.GiantAnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.api.recipe.AnvilRecipeManager;
-import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContext;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;
 import dev.dubhe.anvilcraft.init.ModBlocks;
@@ -189,7 +189,7 @@ public class GiantAnvilLandingEventListener {
         behaviorDefs.add(new ShockBehaviorDefinition.SimpleBlock(Blocks.ANVIL,
                 (blockPosList, level) -> {
                     for (BlockPos pos : blockPosList) {
-                        AnvilCraftingContainer container = new AnvilCraftingContainer(level, pos, null);
+                        AnvilCraftingContext container = new AnvilCraftingContext(level, pos, null);
                         Optional<AnvilRecipe> optional = AnvilRecipeManager.getAnvilRecipeList().stream()
                                 .filter(recipe ->
                                         recipe.getAnvilRecipeType() == AnvilRecipeType.BLOCK_SMASH
