@@ -17,7 +17,6 @@ public class AnvilCraftFabric implements ModInitializer {
         ModRecipeTypesFabric.register();
         ModFabricEventsListener.init();
         // System.out debug init (only fabric)
-        System.setOut(new SystemOutToLog4jDebug("STDOUT", System.out));
-        System.setErr(new SystemOutToLog4jDebug("STDERR", System.err));
+        SystemOutToLog4jDebug.redirectStdoutToLog4j();
     }
 }
