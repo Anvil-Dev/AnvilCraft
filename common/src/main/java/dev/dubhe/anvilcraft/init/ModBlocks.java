@@ -2541,6 +2541,7 @@ public class ModBlocks {
     public static final BlockEntry<EmberAnvilBlock> EMBER_ANVIL = REGISTRATE
             .block("ember_anvil", EmberAnvilBlock::new)
             .initialProperties(() -> Blocks.ANVIL)
+            .properties(BlockBehaviour.Properties::noOcclusion)
             .blockstate((ctx, provider) -> {
             })
             .simpleItem()
@@ -2549,6 +2550,7 @@ public class ModBlocks {
     public static final BlockEntry<EmberGrindstone> EMBER_GRINDSTONE = REGISTRATE
             .block("ember_grindstone", EmberGrindstone::new)
             .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+            .properties(BlockBehaviour.Properties::noOcclusion)
             .blockstate((ctx, provider) -> {
             })
             .simpleItem()
@@ -2557,6 +2559,7 @@ public class ModBlocks {
     public static final BlockEntry<EmberSmithingTableBlock> EMBER_SMITHING_TABLE = REGISTRATE
             .block("ember_smithing_table", EmberSmithingTableBlock::new)
             .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+            .properties(BlockBehaviour.Properties::noOcclusion)
             .blockstate((ctx, provider) -> {
             })
             .simpleItem()
