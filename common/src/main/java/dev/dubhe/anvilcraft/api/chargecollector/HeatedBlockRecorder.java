@@ -38,6 +38,11 @@ public class HeatedBlockRecorder {
                 ModBlocks.INCANDESCENT_NETHERITE.get()
         ));
 
+        BlockFamily emberMetalFamily = new BlockFamily(List.of(
+                ModBlocks.EMBER_METAL_BLOCK.get(),
+                ModBlocks.CUT_EMBER_METAL_BLOCK.get()
+        ));
+
         TRANSFORMS.put(Pair.of(ModBlocks.HEATED_TUNGSTEN.get(), 2), tungstenFamily);
         TRANSFORMS.put(Pair.of(ModBlocks.REDHOT_TUNGSTEN.get(), 8), tungstenFamily);
         TRANSFORMS.put(Pair.of(ModBlocks.GLOWING_TUNGSTEN.get(), 32), tungstenFamily);
@@ -47,6 +52,9 @@ public class HeatedBlockRecorder {
         TRANSFORMS.put(Pair.of(ModBlocks.REDHOT_NETHERITE.get(), 8), netheriteFamily);
         TRANSFORMS.put(Pair.of(ModBlocks.GLOWING_NETHERITE.get(), 32), netheriteFamily);
         TRANSFORMS.put(Pair.of(ModBlocks.INCANDESCENT_NETHERITE.get(), 128), netheriteFamily);
+
+        TRANSFORMS.put(Pair.of(ModBlocks.EMBER_METAL_BLOCK.get(), 8), emberMetalFamily);
+        TRANSFORMS.put(Pair.of(ModBlocks.CUT_EMBER_METAL_BLOCK.get(), 2), emberMetalFamily);
     }
 
     private final LevelAccessor level;
@@ -111,6 +119,7 @@ public class HeatedBlockRecorder {
     /**
      * 方塊改變
      */
+    @SuppressWarnings("unused")
     public void onBlockStateChange(BlockPos pos, BlockState blockState, BlockState newState) {
         if (record.containsKey(pos)) {
             int level = record.get(pos).get();

@@ -157,7 +157,7 @@ public class MultiblockCraftingRecipeLoader {
         AnvilRecipe.Builder builder = AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .type(AnvilRecipeType.MULTIBLOCK_CRAFTING);
         if (Arrays.stream(recipeResults).findFirst().isPresent())
-            builder = builder.icon(Arrays.stream(recipeResults).findFirst().get().getIcon());
+            builder = builder.icon(Arrays.stream(recipeResults).findFirst().get().icon());
         for (int x = -(size - 1) / 2; x <= (size - 1) / 2; x++) {
             for (int z = -(size - 1) / 2; z <= (size - 1) / 2; z++) {
                 builder = builder.hasBlock(new Vec3(x, -1, z), Blocks.CRAFTING_TABLE);
@@ -194,9 +194,9 @@ public class MultiblockCraftingRecipeLoader {
         }
         for (RecipeResult recipeResult : recipeResults) {
             if (recipeResult.isItem()) {
-                builder = builder.spawnItem(recipeResult.getOffset().add(0, -3, 0), recipeResult.getRecipeItem());
+                builder = builder.spawnItem(recipeResult.offset().add(0, -3, 0), recipeResult.recipeItem());
             } else {
-                builder = builder.setBlock(recipeResult.getOffset().add(0, -3, 0), recipeResult.getRecipeBlock());
+                builder = builder.setBlock(recipeResult.offset().add(0, -3, 0), recipeResult.recipeBlock());
             }
         }
         builder.save(provider, AnvilCraft.of(path.substring(0, path.length() - 1)));

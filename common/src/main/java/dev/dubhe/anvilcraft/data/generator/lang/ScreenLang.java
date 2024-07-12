@@ -72,5 +72,23 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.heliostats.too_far", "  The illumination pos is too far");
         provider.add("tooltip.anvilcraft.heliostats.unspecified_irradiation_block", "  Unspecified irradiation block");
         provider.add("tooltip.anvilcraft.heliostats.unknown", "  Unknown reason");
+
+        provider.add("screen.anvilcraft.ember_metal_upgrade_smithing_template",
+                "Ember Metal Upgrade Smithing Template");
+        provider.add(
+                "screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template"
+                        + ".additions_slot_description",
+                "Put the Ember Metal Ingot or Ember Metal Block"
+        );
+        provider.add(
+                "screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template"
+                        + ".applies_to",
+                "Royal Steel Anvil Hammer, Netherite Tools, Royal Steel Tools, Royal Steel WorkStations"
+        );
+        provider.add(
+                "screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template"
+                        + ".base_slot_description",
+                "Put "
+        );
     }
 }

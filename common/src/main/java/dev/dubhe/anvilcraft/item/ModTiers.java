@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.item;
 
 import com.google.common.base.Suppliers;
+import dev.dubhe.anvilcraft.init.ModItems;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -9,8 +10,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Supplier;
 
 public enum ModTiers implements Tier {
-    AMETHYST(1, 751, 4.0f, 1.0f, 10, () -> Ingredient.of(Items.AMETHYST_SHARD));
-
+    AMETHYST(1, 751, 4.0f, 1.0f, 10, () -> Ingredient.of(Items.AMETHYST_SHARD)),
+    EMBER_METAL(5, 2031, 10.0f, 1.0f, 22, () -> Ingredient.of(ModItems.EMBER_METAL_INGOT));
     private final int level;
     private final int uses;
     private final float speed;

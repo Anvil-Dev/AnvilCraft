@@ -5,6 +5,10 @@
     "anvilcraft:smooth_royal_steel_block",
     "anvilcraft:cut_royal_steel_block",
     "anvilcraft:cut_royal_steel_slab",
-    "anvilcraft:cut_royal_steel_stairs"
+    "anvilcraft:cut_royal_steel_stairs",
+    "anvilcraft:ember_metal_block",
+    "anvilcraft:cut_ember_metal_block",
+    "anvilcraft:cut_ember_metal_slab",
+    "anvilcraft:cut_ember_metal_stairs"
   ]
 }
