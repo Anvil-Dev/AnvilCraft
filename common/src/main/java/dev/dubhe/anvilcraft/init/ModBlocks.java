@@ -2412,7 +2412,7 @@ public class ModBlocks {
     public static final BlockEntry<EmberMetalBlock> EMBER_METAL_BLOCK = REGISTRATE
             .block("ember_metal_block", properties -> new EmberMetalBlock(properties, 0.5d))
             .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-            .tag(ModBlockTags.OVERSEER_BASE)
+            .tag(BlockTags.BEACON_BASE_BLOCKS)
             .tag(BlockTags.MINEABLE_WITH_PICKAXE)
             .tag(BlockTags.WITHER_IMMUNE)
             .tag(BlockTags.DRAGON_IMMUNE)
@@ -2437,7 +2437,6 @@ public class ModBlocks {
 
     public static final BlockEntry<EmberMetalBlock> CUT_EMBER_METAL_BLOCK = REGISTRATE
             .block("cut_ember_metal_block", properties -> new EmberMetalBlock(properties, 0.1d))
-            .tag(ModBlockTags.OVERSEER_BASE)
             .tag(BlockTags.MINEABLE_WITH_PICKAXE)
             .tag(BlockTags.WITHER_IMMUNE)
             .tag(BlockTags.DRAGON_IMMUNE)
@@ -2464,7 +2463,6 @@ public class ModBlocks {
 
     public static final BlockEntry<EmberMetalSlabBlock> CUT_EMBER_METAL_SLAB = REGISTRATE
             .block("cut_ember_metal_slab", EmberMetalSlabBlock::new)
-            .tag(ModBlockTags.OVERSEER_BASE)
             .tag(BlockTags.MINEABLE_WITH_PICKAXE)
             .tag(BlockTags.WITHER_IMMUNE)
             .tag(BlockTags.DRAGON_IMMUNE)
@@ -2493,7 +2491,6 @@ public class ModBlocks {
     public static final BlockEntry<EmberMetalStairBlock> CUT_EMBER_METAL_STAIRS = REGISTRATE
             .block("cut_ember_metal_stairs", (properties) ->
                     new EmberMetalStairBlock(ModBlocks.CUT_EMBER_METAL_BLOCK.getDefaultState(), properties))
-            .tag(ModBlockTags.OVERSEER_BASE)
             .tag(BlockTags.MINEABLE_WITH_PICKAXE)
             .tag(BlockTags.WITHER_IMMUNE)
             .tag(BlockTags.DRAGON_IMMUNE)

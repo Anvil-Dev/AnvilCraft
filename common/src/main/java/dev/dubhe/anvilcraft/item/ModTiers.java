@@ -11,7 +11,7 @@ import java.util.function.Supplier;
 
 public enum ModTiers implements Tier {
     AMETHYST(1, 751, 4.0f, 1.0f, 10, () -> Ingredient.of(Items.AMETHYST_SHARD)),
-    EMBER_METAL(5, 2031, 10.0f, 1.0f, 22, () -> Ingredient.of(ModItems.EMBER_METAL_INGOT));
+    EMBER_METAL(5, 0, 10.0f, 1.0f, 22, () -> Ingredient.of(ModItems.EMBER_METAL_INGOT));
     private final int level;
     private final int uses;
     private final float speed;
