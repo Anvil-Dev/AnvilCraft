@@ -257,7 +257,7 @@ public class TimeWarpRecipesLoader {
                 )
                 .hasFluidCauldron(new Vec3(0.0, -1.0, 0.0), ModBlocks.FIRE_CAULDRON.get(), 1)
                 .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), recipeItem)
-                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 1, ModItems.NETHERITE_CRYSTAL_NUCLEUS)
+                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 1, ModItems.EARTH_CORE_SHARD)
                 .spawnItem(new Vec3(0.0, -1.0, 0.0), ModItems.EMBER_METAL_NUGGET, 9)
                 .unlockedBy(AnvilCraftDatagen.hasItem(recipeItem), AnvilCraftDatagen.has(recipeItem))
                 .save(provider, AnvilCraft.of("timewarp/"
@@ -274,7 +274,7 @@ public class TimeWarpRecipesLoader {
                 )
                 .hasFluidCauldron(new Vec3(0.0, -1.0, 0.0), ModBlocks.FIRE_CAULDRON.get(), 1)
                 .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), recipeItem)
-                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 2, ModItems.NETHERITE_CRYSTAL_NUCLEUS)
+                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 2, ModItems.EARTH_CORE_SHARD)
                 .spawnItem(new Vec3(0.0, -1.0, 0.0), ModItems.EMBER_METAL_NUGGET, 12)
                 .unlockedBy(AnvilCraftDatagen.hasItem(recipeItem), AnvilCraftDatagen.has(recipeItem))
                 .save(provider, AnvilCraft.of("timewarp/"
@@ -291,7 +291,7 @@ public class TimeWarpRecipesLoader {
                 )
                 .hasFluidCauldron(new Vec3(0.0, -1.0, 0.0), ModBlocks.FIRE_CAULDRON.get(), 1)
                 .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), recipeItem)
-                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 3, ModItems.NETHERITE_CRYSTAL_NUCLEUS)
+                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 3, ModItems.EARTH_CORE_SHARD)
                 .spawnItem(new Vec3(0.0, -1.0, 0.0), ModItems.EMBER_METAL_NUGGET, 15)
                 .unlockedBy(AnvilCraftDatagen.hasItem(recipeItem), AnvilCraftDatagen.has(recipeItem))
                 .save(provider, AnvilCraft.of("timewarp/"
