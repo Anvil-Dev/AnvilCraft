@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.block;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
@@ -36,10 +35,5 @@ public class EmberMetalBlock extends Block implements EmberBlock {
         if (random.nextDouble() <= waterAbsorptionChance) {
             tryAbsorbWater(level, pos);
         }
-    }
-
-    @Override
-    public boolean skipRendering(@NotNull BlockState state, BlockState adjacentState, @NotNull Direction direction) {
-        return adjacentState.getBlock() instanceof EmberBlock;
     }
 }

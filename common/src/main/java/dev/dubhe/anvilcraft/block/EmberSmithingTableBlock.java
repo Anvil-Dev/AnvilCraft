@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.inventory.EmberSmithingMenu;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -68,13 +67,5 @@ public class EmberSmithingTableBlock extends SmithingTableBlock implements IHamm
         if (random.nextDouble() <= 0.5) {
             tryAbsorbWater(level, pos);
         }
-    }
-
-    @Override
-    public boolean skipRendering(@NotNull BlockState state, BlockState adjacentState, @NotNull Direction direction) {
-        if (adjacentState.getBlock() instanceof EmberBlock) {
-            return true;
-        }
-        return super.skipRendering(state, adjacentState, direction);
     }
 }

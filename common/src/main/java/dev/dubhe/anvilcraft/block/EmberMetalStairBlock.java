@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.block;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -38,13 +37,5 @@ public class EmberMetalStairBlock extends StairBlock implements EmberBlock {
             level.playSound(null, pos, SoundEvents.LAVA_EXTINGUISH, SoundSource.BLOCKS, 1f, 1f);
             level.setBlock(pos, state.setValue(SlabBlock.WATERLOGGED, false), 2);
         }
-    }
-
-    @Override
-    public boolean skipRendering(@NotNull BlockState state, BlockState adjacentState, @NotNull Direction direction) {
-        if (adjacentState.getBlock() instanceof EmberBlock) {
-            return true;
-        }
-        return super.skipRendering(state, adjacentState, direction);
     }
 }
