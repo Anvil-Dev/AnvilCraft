@@ -103,4 +103,12 @@ public class EmberAnvilBlock extends AnvilBlock implements IHammerRemovable, Emb
             tryAbsorbWater(level, pos);
         }
     }
+
+    @Override
+    public boolean skipRendering(@NotNull BlockState state, BlockState adjacentState, @NotNull Direction direction) {
+        if (adjacentState.getBlock() instanceof EmberBlock) {
+            return true;
+        }
+        return super.skipRendering(state, adjacentState, direction);
+    }
 }

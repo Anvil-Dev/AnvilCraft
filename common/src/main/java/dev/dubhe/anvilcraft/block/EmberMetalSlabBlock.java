@@ -1,6 +1,9 @@
 package dev.dubhe.anvilcraft.block;
 
+import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -9,7 +12,10 @@ import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
-public class EmberMetalSlabBlock extends SlabBlock {
+public class EmberMetalSlabBlock extends SlabBlock implements EmberBlock {
+    @Getter
+    @Setter
+    private BlockState checkBlockState;
     public EmberMetalSlabBlock(Properties properties) {
         super(properties);
     }
@@ -30,5 +36,13 @@ public class EmberMetalSlabBlock extends SlabBlock {
             level.playSound(null, pos, SoundEvents.LAVA_EXTINGUISH, SoundSource.BLOCKS, 1f, 1f);
             level.setBlock(pos, state.setValue(SlabBlock.WATERLOGGED, false), 2);
         }
+    }
+
+    @Override
+    public boolean skipRendering(@NotNull BlockState state, BlockState adjacentState, @NotNull Direction direction) {
+        if (adjacentState.getBlock() instanceof EmberBlock) {
+            return true;
+        }
+        return super.skipRendering(state, adjacentState, direction);
     }
 }
