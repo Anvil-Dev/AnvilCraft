@@ -2542,6 +2542,8 @@ public class ModBlocks {
     public static final BlockEntry<EmberAnvilBlock> EMBER_ANVIL = REGISTRATE
             .block("ember_anvil", EmberAnvilBlock::new)
             .initialProperties(() -> Blocks.ANVIL)
+            .tag(BlockTags.WITHER_IMMUNE)
+            .tag(BlockTags.DRAGON_IMMUNE)
             .properties(properties -> properties.lightLevel(state -> 9))
             .properties(BlockBehaviour.Properties::noOcclusion)
             .blockstate((ctx, provider) -> {
@@ -2551,6 +2553,8 @@ public class ModBlocks {
             .register();
     public static final BlockEntry<EmberGrindstone> EMBER_GRINDSTONE = REGISTRATE
             .block("ember_grindstone", EmberGrindstone::new)
+            .tag(BlockTags.WITHER_IMMUNE)
+            .tag(BlockTags.DRAGON_IMMUNE)
             .properties(properties -> properties.lightLevel(state -> 9))
             .initialProperties(() -> Blocks.NETHERITE_BLOCK)
             .properties(BlockBehaviour.Properties::noOcclusion)
@@ -2561,6 +2565,8 @@ public class ModBlocks {
             .register();
     public static final BlockEntry<EmberSmithingTableBlock> EMBER_SMITHING_TABLE = REGISTRATE
             .block("ember_smithing_table", EmberSmithingTableBlock::new)
+            .tag(BlockTags.WITHER_IMMUNE)
+            .tag(BlockTags.DRAGON_IMMUNE)
             .properties(properties -> properties.lightLevel(state -> 9))
             .initialProperties(() -> Blocks.NETHERITE_BLOCK)
             .properties(BlockBehaviour.Properties::noOcclusion)
