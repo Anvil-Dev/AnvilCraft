@@ -40,9 +40,6 @@ public class EmberMetalBlock extends Block implements EmberBlock {
 
     @Override
     public boolean skipRendering(@NotNull BlockState state, BlockState adjacentState, @NotNull Direction direction) {
-        if (adjacentState.getBlock() instanceof EmberBlock) {
-            return true;
-        }
-        return super.skipRendering(state, adjacentState, direction);
+        return adjacentState.getBlock() instanceof EmberBlock;
     }
 }
