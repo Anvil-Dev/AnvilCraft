@@ -1,0 +1,27 @@
+{
+  "type": "anvilcraft:multiblock_crafting",
+  "id": "anvilcraft:giant_anvil_1",
+  "key": {
+    "A": "anvilcraft:polished_heavy_iron_block",
+    "B": "anvilcraft:heavy_iron_column",
+    "C": "anvilcraft:heavy_iron_plate",
+    "D": "anvilcraft:cut_heavy_iron_block"
+  },
+  "layers": [
+    [
+      "AAA",
+      "AAA",
+      "AAA"
+    ],
+    [
+      "CCC",
+      "CBC",
+      "CCC"
+    ],
+    [
+      "DDD",
+      "DDD",
+      "DDD"
+    ]
+  ]
+}
