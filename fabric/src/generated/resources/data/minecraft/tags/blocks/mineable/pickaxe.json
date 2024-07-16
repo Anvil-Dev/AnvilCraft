@@ -172,6 +172,9 @@
     "anvilcraft:void_stone",
     "anvilcraft:void_matter_block",
     "anvilcraft:earth_core_shard_ore",
-    "anvilcraft:earth_core_shard_block"
+    "anvilcraft:earth_core_shard_block",
+    "anvilcraft:nesting_shulker_box",
+    "anvilcraft:over_nesting_shulker_box",
+    "anvilcraft:supercritical_nesting_shulker_box"
   ]
 }

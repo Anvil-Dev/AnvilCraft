@@ -172,6 +172,7 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.MENGER_SPONGE.asStack());
                 entries.accept(ModBlocks.CHUTE.asStack());
                 entries.accept(ModBlocks.MINERAL_FOUNTAIN.asStack());
+                entries.accept(ModBlocks.SPACE_OVERCOMPRESSOR.asStack());
                 entries.accept(ModBlocks.COPPER_PRESSURE_PLATE.asStack());
                 entries.accept(ModBlocks.EXPOSED_COPPER_PRESSURE_PLATE.asStack());
                 entries.accept(ModBlocks.WEATHERED_COPPER_PRESSURE_PLATE.asStack());
@@ -261,6 +262,11 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.GLOWING_NETHERITE.asStack());
                 entries.accept(ModBlocks.INCANDESCENT_TUNGSTEN.asStack());
                 entries.accept(ModBlocks.INCANDESCENT_NETHERITE.asStack());
+
+                entries.accept(ModBlocks.NESTING_SHULKER_BOX.asStack());
+                entries.accept(ModBlocks.OVER_NESTING_SHULKER_BOX.asStack());
+                entries.accept(ModBlocks.SUPERCRITICAL_NESTING_SHULKER_BOX.asStack());
+
                 // block
                 entries.accept(ModBlocks.REINFORCED_CONCRETE_WHITE.asStack());
                 entries.accept(ModBlocks.REINFORCED_CONCRETE_LIGHT_GRAY.asStack());
