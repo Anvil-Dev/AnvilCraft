@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.data.recipe.anvil.predicate;
+package dev.dubhe.anvilcraft.data.recipe.anvil.predicate.item;
 
 import com.google.common.base.Predicates;
 import com.google.gson.JsonArray;

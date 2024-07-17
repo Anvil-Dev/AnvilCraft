@@ -3,16 +3,25 @@ package dev.dubhe.anvilcraft.data.generator.recipe;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.HeavyIronBeamBlock;
-import dev.dubhe.anvilcraft.data.recipe.multiblock.MultiblockCraftingRecipe;
+import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.multiblock.HasMultiBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.level.block.state.properties.SlabType;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class MultiblockCraftingHandler {
 
@@ -22,7 +31,7 @@ public class MultiblockCraftingHandler {
      * @param provider 提供器
      */
     public static void init(RegistrateRecipeProvider provider) {
-        MultiblockCraftingRecipe.builder(AnvilCraft.of("giant_anvil_1"))
+        HasMultiBlock giantAnvil1 = HasMultiBlock.builder()
                 .layer(
                         "AAA",
                         "AAA",
@@ -42,9 +51,10 @@ public class MultiblockCraftingHandler {
                 .define('B', ModBlocks.HEAVY_IRON_COLUMN.get())
                 .define('C', ModBlocks.HEAVY_IRON_PLATE.get())
                 .define('D', ModBlocks.CUT_HEAVY_IRON_BLOCK.get())
-                .thenAccept(provider);
+                .build();
 
-        MultiblockCraftingRecipe.builder(AnvilCraft.of("giant_anvil_2"))
+        multiblock(giantAnvil1, ModBlocks.GIANT_ANVIL.asStack(), provider);
+        HasMultiBlock giantAnvil2 = HasMultiBlock.builder()
                 .layer(
                         "ABA",
                         "CAC",
@@ -65,14 +75,22 @@ public class MultiblockCraftingHandler {
                 .define('C', ModBlocks.HEAVY_IRON_BEAM.get(), Map.entry(HeavyIronBeamBlock.AXIS, Direction.Axis.X))
                 .define('D', ModBlocks.HEAVY_IRON_COLUMN.get())
                 .define('E', ModBlocks.HEAVY_IRON_PLATE.get())
-                .define('F', ModBlocks.CUT_HEAVY_IRON_STAIRS.get(), Map.entry(StairBlock.FACING, Direction.SOUTH), Map.entry(StairBlock.HALF, Half.BOTTOM))
-                .define('G', ModBlocks.CUT_HEAVY_IRON_STAIRS.get(), Map.entry(StairBlock.FACING, Direction.NORTH), Map.entry(StairBlock.HALF, Half.BOTTOM))
-                .define('H', ModBlocks.CUT_HEAVY_IRON_STAIRS.get(), Map.entry(StairBlock.FACING, Direction.EAST), Map.entry(StairBlock.HALF, Half.BOTTOM))
-                .define('I', ModBlocks.CUT_HEAVY_IRON_STAIRS.get(), Map.entry(StairBlock.FACING, Direction.WEST), Map.entry(StairBlock.HALF, Half.BOTTOM))
+                .define('F', ModBlocks.CUT_HEAVY_IRON_STAIRS.get(),
+                        Map.entry(StairBlock.FACING, Direction.SOUTH),
+                        Map.entry(StairBlock.HALF, Half.BOTTOM))
+                .define('G', ModBlocks.CUT_HEAVY_IRON_STAIRS.get(),
+                        Map.entry(StairBlock.FACING, Direction.NORTH),
+                        Map.entry(StairBlock.HALF, Half.BOTTOM))
+                .define('H', ModBlocks.CUT_HEAVY_IRON_STAIRS.get(),
+                        Map.entry(StairBlock.FACING, Direction.EAST),
+                        Map.entry(StairBlock.HALF, Half.BOTTOM))
+                .define('I', ModBlocks.CUT_HEAVY_IRON_STAIRS.get(),
+                        Map.entry(StairBlock.FACING, Direction.WEST),
+                        Map.entry(StairBlock.HALF, Half.BOTTOM))
                 .define('J', ModBlocks.CUT_HEAVY_IRON_SLAB.get(), Map.entry(SlabBlock.TYPE, SlabType.BOTTOM))
-                .thenAccept(provider);
+                .build();
 
-        MultiblockCraftingRecipe.builder(AnvilCraft.of("menger_sponge"))
+        HasMultiBlock mengerSponge = HasMultiBlock.builder()
                 .layer(
                         "AAA",
                         "A A",
@@ -91,6 +109,22 @@ public class MultiblockCraftingHandler {
                 .define('A', Blocks.SPONGE)
                 .define('B', ModBlocks.VOID_MATTER_BLOCK.get())
                 .define(' ', Blocks.AIR)
-                .thenAccept(provider);
+                .build();
+    }
+
+    private static void multiblock(HasMultiBlock pred, ItemStack output, Consumer<FinishedRecipe> cons) {
+        AnvilRecipe.Builder.create(RecipeCategory.MISC)
+                .type(AnvilRecipeType.MULTIBLOCK_CRAFTING)
+                .icon(output)
+                .addPredicates(pred)
+                .spawnItem(new Vec3(0.0, -1.0, 0.0), output)
+                .unlockedBy(
+                        AnvilCraftDatagen.hasItem(ModBlocks.GIANT_ANVIL),
+                        AnvilCraftDatagen.has(ModBlocks.GIANT_ANVIL)
+                )
+                .save(cons, AnvilCraft.of("multiblock_crafting/"
+                        + BuiltInRegistries.ITEM.getKey(output.getItem()).getPath()
+                ));
+
     }
 }

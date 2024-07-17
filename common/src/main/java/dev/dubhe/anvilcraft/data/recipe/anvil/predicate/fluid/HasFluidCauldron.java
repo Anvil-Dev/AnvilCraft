@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.data.recipe.anvil.predicate;
+package dev.dubhe.anvilcraft.data.recipe.anvil.predicate.fluid;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;

@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.data.recipe.multiblock;
+package dev.dubhe.anvilcraft.data.recipe.anvil.predicate.multiblock;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -18,8 +18,6 @@ import java.util.function.Predicate;
 
 @Getter
 public class BlockStatePredicate implements Predicate<BlockState> {
-
-
     public static final Codec<BlockStatePredicate> CODEC = RecordCodecBuilder.create(ins -> ins.group(
             ResourceLocation.CODEC.fieldOf("isBlock").forGetter(o -> o.isBlock),
             Codec.unboundedMap(Codec.STRING, Codec.STRING)

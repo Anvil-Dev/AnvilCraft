@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.data.recipe.multiblock;
+package dev.dubhe.anvilcraft.data.recipe.anvil.predicate.multiblock;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 public class CraftingLayer {
 
@@ -29,15 +28,15 @@ public class CraftingLayer {
     }
 
     /**
-     * 将方块pattern重映射
+     * 将方块pattern映射
      */
-    public <T, V> List<List<T>> map(Map<Character, V> map, Function<V, T> remapper) {
-        List<List<V>> parResult = new ArrayList<>();
+    public <T> List<List<T>> map(Map<Character, T> map) {
+        List<List<T>> parResult = new ArrayList<>();
         for (String p : pattern) {
-            List<V> l = new ArrayList<>();
+            List<T> l = new ArrayList<>();
             for (char c : p.toCharArray()) {
-                V obj = map.get(c);
-                if (obj == null)throw new RuntimeException(
+                T obj = map.get(c);
+                if (obj == null) throw new RuntimeException(
                         "found no matching for pattern %c, candidates are: %s".formatted(
                                 c,
                                 Arrays.deepToString(map.keySet().toArray())
@@ -46,15 +45,7 @@ public class CraftingLayer {
             }
             parResult.add(l);
         }
-        List<List<T>> result = new ArrayList<>();
-        for (List<V> vs : parResult) {
-            List<T> ts = new ArrayList<>();
-            for (V v : vs) {
-                ts.add(remapper.apply(v));
-            }
-            result.add(ts);
-        }
-        return result;
+        return parResult;
     }
 
 

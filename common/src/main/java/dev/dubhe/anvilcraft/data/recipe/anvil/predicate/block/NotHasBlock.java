@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.data.recipe.anvil.predicate;
+package dev.dubhe.anvilcraft.data.recipe.anvil.predicate.block;
 
 import com.google.gson.JsonObject;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContext;

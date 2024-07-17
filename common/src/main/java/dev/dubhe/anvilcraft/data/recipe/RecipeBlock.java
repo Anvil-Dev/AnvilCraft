@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.block.HasBlock;
 import lombok.Getter;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.TagKey;
@@ -54,7 +55,7 @@ public class RecipeBlock {
     }
 
     /**
-     * 判断是否有状态检测, 一般用于{@link dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasBlock hasBlock}
+     * 判断是否有状态检测, 一般用于{@link HasBlock hasBlock}
      */
     public boolean isHasStates() {
         return this.stateEntries != null;

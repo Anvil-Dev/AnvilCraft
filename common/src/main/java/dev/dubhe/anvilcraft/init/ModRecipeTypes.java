@@ -1,9 +1,6 @@
 package dev.dubhe.anvilcraft.init;
 
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
-import dev.dubhe.anvilcraft.data.recipe.multiblock.MultiblockCraftingRecipe;
-import dev.dubhe.anvilcraft.data.recipe.multiblock.MultiblockCraftingRecipeSerializer;
-import dev.dubhe.anvilcraft.data.recipe.multiblock.MultiblockCraftingRecipeType;
 import dev.dubhe.anvilcraft.data.recipe.transform.MobTransformRecipe;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -26,13 +23,6 @@ public class ModRecipeTypes {
                     "mob_transform",
                     MobTransformRecipe.Serializer.INSTANCE,
                     MobTransformRecipe.Type.INSTANCE
-            );
-
-    public static final RecipeType<MultiblockCraftingRecipe> MULTIBLOCK_CRAFTING =
-            registerRecipeType(
-                    "multiblock_crafting",
-                    MultiblockCraftingRecipeSerializer.INSTANCE,
-                    MultiblockCraftingRecipeType.INSTANCE
             );
 
     @SuppressWarnings("SameParameterValue")

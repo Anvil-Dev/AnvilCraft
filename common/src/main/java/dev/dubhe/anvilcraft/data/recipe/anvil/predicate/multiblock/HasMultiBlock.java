@@ -1,27 +1,21 @@
-package dev.dubhe.anvilcraft.data.recipe.multiblock;
+package dev.dubhe.anvilcraft.data.recipe.anvil.predicate.multiblock;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.PrimitiveCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.dubhe.anvilcraft.data.recipe.transform.MobTransformContainer;
-import net.minecraft.advancements.Advancement;
-import net.minecraft.advancements.AdvancementRewards;
-import net.minecraft.advancements.RequirementsStrategy;
-import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
-import net.minecraft.core.RegistryAccess;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContext;
+import dev.dubhe.anvilcraft.data.recipe.anvil.RecipePredicate;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.data.recipes.FinishedRecipe;
-import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.Property;
 import org.jetbrains.annotations.NotNull;
@@ -30,11 +24,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
-import static net.minecraft.data.recipes.RecipeBuilder.ROOT_RECIPE_ADVANCEMENT;
-
-public class MultiblockCraftingRecipe implements Recipe<MobTransformContainer> {
+public class HasMultiBlock implements RecipePredicate {
 
     public static final PrimitiveCodec<Character> CHAR = new PrimitiveCodec<>() {
         @Override
@@ -53,8 +44,8 @@ public class MultiblockCraftingRecipe implements Recipe<MobTransformContainer> {
         }
     };
 
-    public static final Codec<MultiblockCraftingRecipe> CODEC = RecordCodecBuilder.create(ins -> ins.group(
-            ResourceLocation.CODEC.fieldOf("id").forGetter(o -> o.id),
+    public static final Codec<HasMultiBlock> CODEC = RecordCodecBuilder.create(ins -> ins.group(
+            Codec.STRING.fieldOf("type").forGetter(HasMultiBlock::getType),
             CraftingLayer.CODEC.listOf().fieldOf("layers").forGetter(o -> o.layers),
             Codec.unboundedMap(
                     CHAR,
@@ -75,21 +66,19 @@ public class MultiblockCraftingRecipe implements Recipe<MobTransformContainer> {
                 });
                 return map;
             })
-    ).apply(ins, MultiblockCraftingRecipe::new));
+    ).apply(ins, HasMultiBlock::new));
 
     private final List<CraftingLayer> layers;
     private final Map<Character, BlockStatePredicate> blockDef;
-    private final ResourceLocation id;
 
-    MultiblockCraftingRecipe(
-            ResourceLocation rl,
+    HasMultiBlock(
+            String type,
             List<CraftingLayer> layers,
             Map<Character, Either<ResourceLocation, BlockStatePredicate>> blockDef
     ) {
         if (layers.size() != 3) throw new IllegalArgumentException(
-                "MultiblockCraftingRecipe has and can only have 3 elements."
+                "HasMultiBlock has and can only have 3 elements."
         );
-        this.id = rl;
         this.layers = layers;
         this.blockDef = new HashMap<>();
         blockDef.forEach((character, either) -> {
@@ -98,57 +87,61 @@ public class MultiblockCraftingRecipe implements Recipe<MobTransformContainer> {
         });
     }
 
+    /**
+     * json反序列化
+     */
+    public static HasMultiBlock decodeFromJson(JsonElement jsElem) {
+        if (jsElem instanceof JsonObject) {
+            return HasMultiBlockSerializer.fromJson((JsonObject) jsElem);
+        } else {
+            throw new IllegalArgumentException("Not a json object: " + jsElem);
+        }
+    }
+
+    public static HasMultiBlock decodeFromNetworkBuf(FriendlyByteBuf buf) {
+        return HasMultiBlockSerializer.fromNetwork(buf);
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
     @Override
-    public boolean matches(@NotNull MobTransformContainer container, @NotNull Level level) {
+    public String getType() {
+        return "has_multi_block";
+    }
+
+    @Override
+    public boolean matches(AnvilCraftingContext context) {
+        BlockPos topCenterPos = context.getPos();
+        System.out.println("topCenterPos = " + topCenterPos);
         return false;
     }
 
     @Override
-    public @NotNull ItemStack assemble(
-            @NotNull MobTransformContainer container,
-            @NotNull RegistryAccess registryAccess
-    ) {
-        return ItemStack.EMPTY;
-    }
-
-    @Override
-    public boolean canCraftInDimensions(int width, int height) {
+    public boolean process(AnvilCraftingContext context) {
         return true;
     }
 
     @Override
-    public @NotNull ItemStack getResultItem(@NotNull RegistryAccess registryAccess) {
-        return ItemStack.EMPTY;
+    public void toNetwork(FriendlyByteBuf buffer) {
+        buffer.writeUtf(this.getType());
+        HasMultiBlockSerializer.toNetwork(buffer, this);
     }
 
     @Override
-    public @NotNull ResourceLocation getId() {
-        return id;
-    }
-
-    @Override
-    public @NotNull RecipeSerializer<?> getSerializer() {
-        return MultiblockCraftingRecipeSerializer.INSTANCE;
-    }
-
-    @Override
-    public @NotNull RecipeType<?> getType() {
-        return MultiblockCraftingRecipeType.INSTANCE;
-    }
-
-    public static Builder builder(ResourceLocation id) {
-        return new Builder(id);
+    public @NotNull JsonElement toJson() {
+        return HasMultiBlock.CODEC
+                .encodeStart(JsonOps.INSTANCE, this)
+                .getOrThrow(false, ignored -> {
+                });
     }
 
     public static class Builder {
         private final List<CraftingLayer> layers = new ArrayList<>();
         private final Map<Character, Either<ResourceLocation, BlockStatePredicate>> blockDef = new HashMap<>();
-        private final ResourceLocation id;
-        private final Advancement.Builder advancement = Advancement.Builder.recipeAdvancement();
-        private final RecipeCategory category = RecipeCategory.MISC;
 
-        Builder(ResourceLocation id) {
-            this.id = id;
+        Builder() {
         }
 
         public Builder layer(String... args) {
@@ -172,28 +165,8 @@ public class MultiblockCraftingRecipe implements Recipe<MobTransformContainer> {
             return this;
         }
 
-        public MultiblockCraftingRecipe build() {
-            return new MultiblockCraftingRecipe(id, layers, blockDef);
-        }
-
-        /**
-         * 完成
-         */
-        public FinishedMultiblockCraftingRecipe finish() {
-            this.advancement
-                    .parent(ROOT_RECIPE_ADVANCEMENT)
-                    .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id))
-                    .rewards(AdvancementRewards.Builder.recipe(id))
-                    .requirements(RequirementsStrategy.OR);
-            return new FinishedMultiblockCraftingRecipe(
-                    build(),
-                    advancement,
-                    id.withPrefix("recipes/" + this.category.getFolderName() + "/")
-            );
-        }
-
-        public void thenAccept(Consumer<FinishedRecipe> provider) {
-            provider.accept(finish());
+        public HasMultiBlock build() {
+            return new HasMultiBlock("has_multi_block",layers, blockDef);
         }
     }
 

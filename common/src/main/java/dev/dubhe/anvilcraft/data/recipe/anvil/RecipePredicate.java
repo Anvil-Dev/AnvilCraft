@@ -19,8 +19,8 @@ public interface RecipePredicate {
     Map<String, Function<FriendlyByteBuf, RecipePredicate>> NETWORK_DECODER = new HashMap<>();
 
     static void register(
-        String id, Function<JsonObject,
-        RecipePredicate> jsonDecoder,
+        String id,
+        Function<JsonObject, RecipePredicate> jsonDecoder,
         Function<FriendlyByteBuf, RecipePredicate> networkDecoder
     ) {
         RecipePredicate.JSON_DECODER.put(id, jsonDecoder);

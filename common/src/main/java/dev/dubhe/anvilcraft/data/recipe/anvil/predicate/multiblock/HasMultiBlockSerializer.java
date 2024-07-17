@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.data.recipe.multiblock;
+package dev.dubhe.anvilcraft.data.recipe.anvil.predicate.multiblock;
 
 import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;
@@ -10,34 +10,30 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import org.jetbrains.annotations.NotNull;
 
-public enum MultiblockCraftingRecipeSerializer implements RecipeSerializer<MultiblockCraftingRecipe> {
+public enum HasMultiBlockSerializer {
     INSTANCE;
 
-    @Override
-    public @NotNull MultiblockCraftingRecipe fromJson(
-            @NotNull ResourceLocation recipeId,
+
+    static @NotNull HasMultiBlock fromJson(
             @NotNull JsonObject serializedRecipe
     ) {
-        return MultiblockCraftingRecipe.CODEC
+        return HasMultiBlock.CODEC
                 .parse(JsonOps.INSTANCE, serializedRecipe)
                 .getOrThrow(false, ignored -> {
                 });
     }
 
-    @Override
-    public @NotNull MultiblockCraftingRecipe fromNetwork(@NotNull ResourceLocation recipeId, FriendlyByteBuf buffer) {
+    static @NotNull HasMultiBlock fromNetwork(FriendlyByteBuf buffer) {
         CompoundTag tag = buffer.readNbt();
         Tag recipe = tag.get("Recipe");
-        MultiblockCraftingRecipe result = MultiblockCraftingRecipe.CODEC.decode(NbtOps.INSTANCE, recipe)
+        return HasMultiBlock.CODEC.decode(NbtOps.INSTANCE, recipe)
                 .getOrThrow(false, (s) -> {
                 }).getFirst();
-        return result;
     }
 
-    @Override
-    public void toNetwork(FriendlyByteBuf buffer, MultiblockCraftingRecipe recipe) {
+    static void toNetwork(FriendlyByteBuf buffer, HasMultiBlock recipe) {
         CompoundTag tag = new CompoundTag();
-        var result = MultiblockCraftingRecipe.CODEC.encodeStart(NbtOps.INSTANCE, recipe);
+        var result = HasMultiBlock.CODEC.encodeStart(NbtOps.INSTANCE, recipe);
         Tag tag1 = result.getOrThrow(false, (e) -> {
         });
         tag.put("Recipe", tag1);
