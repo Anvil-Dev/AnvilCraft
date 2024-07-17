@@ -16,7 +16,9 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import org.jetbrains.annotations.NotNull;
 
@@ -113,13 +115,45 @@ public class HasMultiBlock implements RecipePredicate {
 
     @Override
     public boolean matches(AnvilCraftingContext context) {
-        BlockPos topCenterPos = context.getPos();
+        BlockPos topCenterPos = context.getPos().below(2);
+        Level level = context.getLevel();
         System.out.println("topCenterPos = " + topCenterPos);
-        return false;
+        int dy = 0;
+        for (CraftingLayer layer : layers) {
+            List<List<BlockStatePredicate>> pred = layer.map(blockDef);
+            int dx = -1;
+            for (List<BlockStatePredicate> x : pred) {
+                int dz = -1;
+                for (BlockStatePredicate z : x) {
+                    BlockPos pos = topCenterPos.offset(dx, dy, dz);
+                    System.out.println("expect " + z + " at " + pos);
+                    BlockState state = level.getBlockState(pos);
+                    System.out.println("got " + state);
+                    if (!z.test(state)) {
+                        return false;
+                    }
+                    dz++;
+                }
+                dx++;
+            }
+            dy--;
+        }
+        return true;
     }
 
     @Override
     public boolean process(AnvilCraftingContext context) {
+        for (int dy = 0; dy >= -2; dy--) {
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dz = -1; dz <= 1; dz++) {
+                    context.getLevel().destroyBlock(
+                            context.getPos().below(2)
+                                    .offset(dx, dy, dz),
+                            false
+                    );
+                }
+            }
+        }
         return true;
     }
 
@@ -166,7 +200,7 @@ public class HasMultiBlock implements RecipePredicate {
         }
 
         public HasMultiBlock build() {
-            return new HasMultiBlock("has_multi_block",layers, blockDef);
+            return new HasMultiBlock("has_multi_block", layers, blockDef);
         }
     }
 

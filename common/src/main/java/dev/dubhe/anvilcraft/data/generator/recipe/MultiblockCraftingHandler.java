@@ -4,6 +4,7 @@ import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.HeavyIronBeamBlock;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
+import dev.dubhe.anvilcraft.data.recipe.RecipeItem;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.multiblock.HasMultiBlock;
@@ -12,7 +13,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeCategory;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
@@ -53,7 +54,7 @@ public class MultiblockCraftingHandler {
                 .define('D', ModBlocks.CUT_HEAVY_IRON_BLOCK.get())
                 .build();
 
-        multiblock(giantAnvil1, ModBlocks.GIANT_ANVIL.asStack(), provider);
+        multiblock(giantAnvil1, ModBlocks.GIANT_ANVIL.asItem(), "1", provider);
         HasMultiBlock giantAnvil2 = HasMultiBlock.builder()
                 .layer(
                         "ABA",
@@ -90,6 +91,7 @@ public class MultiblockCraftingHandler {
                 .define('J', ModBlocks.CUT_HEAVY_IRON_SLAB.get(), Map.entry(SlabBlock.TYPE, SlabType.BOTTOM))
                 .build();
 
+        multiblock(giantAnvil2, ModBlocks.GIANT_ANVIL.asItem(), "2", provider);
         HasMultiBlock mengerSponge = HasMultiBlock.builder()
                 .layer(
                         "AAA",
@@ -110,20 +112,21 @@ public class MultiblockCraftingHandler {
                 .define('B', ModBlocks.VOID_MATTER_BLOCK.get())
                 .define(' ', Blocks.AIR)
                 .build();
+        multiblock(mengerSponge, ModBlocks.MENGER_SPONGE.asItem(), "", provider);
     }
 
-    private static void multiblock(HasMultiBlock pred, ItemStack output, Consumer<FinishedRecipe> cons) {
+    private static void multiblock(HasMultiBlock pred, Item output, String postfix, Consumer<FinishedRecipe> cons) {
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .type(AnvilRecipeType.MULTIBLOCK_CRAFTING)
                 .icon(output)
                 .addPredicates(pred)
-                .spawnItem(new Vec3(0.0, -1.0, 0.0), output)
+                .spawnItem(new Vec3(0.0, -2.0, 0.0), RecipeItem.of(output))
                 .unlockedBy(
                         AnvilCraftDatagen.hasItem(ModBlocks.GIANT_ANVIL),
                         AnvilCraftDatagen.has(ModBlocks.GIANT_ANVIL)
                 )
                 .save(cons, AnvilCraft.of("multiblock_crafting/"
-                        + BuiltInRegistries.ITEM.getKey(output.getItem()).getPath()
+                        + BuiltInRegistries.ITEM.getKey(output).getPath() + postfix
                 ));
 
     }

@@ -24,19 +24,20 @@ public class GiantAnvilMultiblockCraftingEventListener {
     public void onLand(@NotNull GiantAnvilFallOnLandEvent event) {
         Level level = event.getLevel();
         BlockPos pos = event.getPos().below();
-        AnvilCraftingContext container = new AnvilCraftingContext(level, pos, event.getEntity());
+        AnvilCraftingContext context = new AnvilCraftingContext(level, pos, event.getEntity());
         Optional<AnvilRecipe> optional = AnvilRecipeManager.getAnvilRecipeList().stream()
                 .filter(recipe -> recipe.getAnvilRecipeType().equals(AnvilRecipeType.MULTIBLOCK_CRAFTING)
-                && recipe.matches(container, level))
+                && recipe.matches(context, level))
                 .findFirst();
-        optional.ifPresent(anvilRecipe -> anvilProcess(anvilRecipe, container));
+        optional.ifPresent(anvilRecipe -> anvilProcess(anvilRecipe, context));
     }
 
-    private void anvilProcess(AnvilRecipe recipe, AnvilCraftingContext container) {
+    private void anvilProcess(AnvilRecipe recipe, AnvilCraftingContext context) {
         int counts = 0;
         while (counts < AnvilCraft.config.anvilEfficiency) {
-            if (!recipe.craft(container)) break;
+            if (!recipe.craft(context)) break;
             counts++;
         }
+        context.spawnItemEntity();
     }
 }

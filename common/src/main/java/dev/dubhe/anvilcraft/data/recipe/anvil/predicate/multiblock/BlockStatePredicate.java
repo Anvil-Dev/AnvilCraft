@@ -60,17 +60,24 @@ public class BlockStatePredicate implements Predicate<BlockState> {
     public boolean test(BlockState state) {
         Block block = BuiltInRegistries.BLOCK.get(isBlock);
         AtomicBoolean matches = new AtomicBoolean(true);
-        state.getValues().forEach((property, comparable) -> {
-            String name = property.getName();
-            if (statePredicate.containsKey(name)) {
-                String value = statePredicate.get(name);
-                if (comparable instanceof StringRepresentable representable) {
-                    matches.set(representable.getSerializedName().equals(value));
-                } else {
-                    matches.set(false);
+        if (statePredicate != null) {
+            state.getValues().forEach((property, comparable) -> {
+                String name = property.getName();
+                if (statePredicate.containsKey(name)) {
+                    String value = statePredicate.get(name);
+                    if (comparable instanceof StringRepresentable representable) {
+                        matches.set(representable.getSerializedName().equals(value));
+                    } else {
+                        matches.set(false);
+                    }
                 }
-            }
-        });
+            });
+        }
         return state.is(block) && matches.get();
+    }
+
+    @Override
+    public String toString() {
+        return "BlockStatePredicate{" + "isBlock=" + isBlock + ", statePredicate=" + statePredicate + '}';
     }
 }
