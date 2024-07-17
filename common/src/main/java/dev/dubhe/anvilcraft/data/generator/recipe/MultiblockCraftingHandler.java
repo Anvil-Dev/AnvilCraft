@@ -57,9 +57,9 @@ public class MultiblockCraftingHandler {
         multiblock(giantAnvil1, ModBlocks.GIANT_ANVIL.asItem(), "1", provider);
         HasMultiBlock giantAnvil2 = HasMultiBlock.builder()
                 .layer(
-                        "ABA",
-                        "CAC",
-                        "ABA"
+                        "ACA",
+                        "BAB",
+                        "ACA"
                 )
                 .layer(
                         "EEE",
