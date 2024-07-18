@@ -87,6 +87,7 @@ public class SuperHeatingRecipesLoader {
             new RecipeItem[]{RecipeItem.of(ModItemTags.GEM_BLOCKS)},
             ModBlocks.MELT_GEM_CAULDRON.get()
         );
+        superHeating(RecipeItem.of(ModBlocks.END_DUST), RecipeItem.of(Items.END_STONE));
     }
 
     /**
