@@ -1,0 +1,35 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_giant_anvil": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "anvilcraft:giant_anvil"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:multiblock_crafting/giant_anvil1"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_giant_anvil",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:multiblock_crafting/giant_anvil1"
+    ]
+  },
+  "sends_telemetry_event": false
+}
