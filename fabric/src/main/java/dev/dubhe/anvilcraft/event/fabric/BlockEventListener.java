@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.event.fabric;
 
+import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
+import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import dev.dubhe.anvilcraft.network.HammerUsePack;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
@@ -10,6 +12,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,10 +39,14 @@ public class BlockEventListener {
         @NotNull Player player, @NotNull Level level, InteractionHand hand, BlockHitResult hitResult
     ) {
         if (player.getItemInHand(hand).getItem() instanceof AnvilHammerItem) {
-            if (level.isClientSide()) {
-                new HammerUsePack(hitResult.getBlockPos(), hand).send();
+            BlockPos pos = hitResult.getBlockPos();
+            BlockState state = level.getBlockState(pos);
+            if (state.getBlock() instanceof IHammerRemovable || state.getBlock() instanceof IHammerChangeable) {
+                if (level.isClientSide()) {
+                    new HammerUsePack(hitResult.getBlockPos(), hand).send();
+                }
+                return InteractionResult.SUCCESS;
             }
-            return InteractionResult.SUCCESS;
         }
         return InteractionResult.PASS;
     }

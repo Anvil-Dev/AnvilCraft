@@ -1,25 +1,14 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
-import lombok.Getter;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
 
-@Getter
-public class RecipeResult {
-    private final RecipeBlock recipeBlock;
-    private final RecipeItem recipeItem;
-    private final Vec3 offset;
-    private final ItemLike icon;
-
+public record RecipeResult(RecipeBlock recipeBlock, RecipeItem recipeItem, Vec3 offset, ItemLike icon) {
     /**
      * 配方结果
      */
-    public RecipeResult(RecipeBlock recipeBlock, RecipeItem recipeItem, Vec3 offset, ItemLike icon) {
-        this.recipeBlock = recipeBlock;
-        this.recipeItem = recipeItem;
-        this.offset = offset;
-        this.icon = icon;
+    public RecipeResult {
     }
 
     public static RecipeResult of(RecipeBlock recipeBlock, ItemLike icon) {
@@ -59,7 +48,7 @@ public class RecipeResult {
     }
 
     /**
-     *  获取key
+     * 获取key
      *
      * @return key
      */

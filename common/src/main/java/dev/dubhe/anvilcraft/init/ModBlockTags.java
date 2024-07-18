@@ -19,6 +19,7 @@ public class ModBlockTags {
     public static final TagKey<Block> BLOCK_DEVOURER_PROBABILITY_DROPPING = bind("block_devourer_probability_dropping");
     public static final TagKey<Block> DEEPSLATE_METAL = bindC("deepslate_metal");
     public static final TagKey<Block> LASE_CAN_PASS_THROUGH = bind("lase_can_pass_though");
+    public static final TagKey<Block> END_PORTAL_UNABLE_CHANGE = bind("end_portal_unable_change");
     public static final TagKey<Block> GLASS_BLOCKS = bindC("glass_blocks");
     public static final TagKey<Block> GLASS_PANES = bindC("glass_panes");
     public static final TagKey<Block> ORES = bindC("ores");

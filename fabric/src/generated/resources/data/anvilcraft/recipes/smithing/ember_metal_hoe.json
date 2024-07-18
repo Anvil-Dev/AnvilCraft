@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": {
+    "item": "anvilcraft:ember_metal_ingot"
+  },
+  "base": {
+    "item": "anvilcraft:royal_steel_hoe"
+  },
+  "result": {
+    "item": "anvilcraft:ember_metal_hoe"
+  },
+  "template": {
+    "item": "anvilcraft:ember_metal_upgrade_smithing_template"
+  }
+}
