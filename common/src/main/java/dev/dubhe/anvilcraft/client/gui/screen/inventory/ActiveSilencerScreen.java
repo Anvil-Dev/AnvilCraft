@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.inventory.ActiveSilencerMenu;
 import dev.dubhe.anvilcraft.network.ServerboundAddMutedSoundPacket;
 import dev.dubhe.anvilcraft.network.ServerboundRemoveMutedSoundPacket;
 import it.unimi.dsi.fastutil.Pair;
+import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
@@ -40,12 +41,16 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     private static final int SCROLL_BAR_WIDTH = 5;
     private static final int SCROLLER_HEIGHT = 9;
 
+    public static final int SOUND_FILTERED = 0;
+    public static final int SOUND_MUTED = 1;
+
     private final ActiveSilencerMenu menu;
     private final SilencerButton[] allSoundButtons = new SilencerButton[8];
     private final SilencerButton[] mutedSoundButtons = new SilencerButton[8];
     private EditBox editBox;
     private int leftScrollOff;
     private int rightScrollOff;
+    @Getter
     private String filterText = "";
     private boolean isDraggingLeft;
     private boolean isDraggingRight;
@@ -100,11 +105,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     }
 
     private void refreshSoundList() {
-        filteredSounds.clear();
-        allSounds.stream()
-                .filter(it -> it.right().getString().contains(filterText))
-                .filter(it -> mutedSounds.stream().noneMatch(it1 -> it1.left().equals(it.first())))
-                .forEach(filteredSounds::add);
+        onSearchTextChange(filterText);
     }
 
     private void onAllSoundButtonClick(int selectedIndex) {
@@ -143,9 +144,9 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     /**
      * 获取屏幕上某一项的声音字幕
      */
-    public Component getSoundTextAt(int index, String variant) {
+    public Component getSoundTextAt(int index, int variant) {
         int actualIndex = index;
-        if (variant.equals("add")) {
+        if (variant == SOUND_FILTERED) {
             actualIndex += leftScrollOff;
             if (filteredSounds.isEmpty() || actualIndex >= filteredSounds.size()) return Component.empty();
             return filteredSounds.get(actualIndex).right();
@@ -159,9 +160,9 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     /**
      * 获取屏幕上某一项的声音id
      */
-    public ResourceLocation getSoundIdAt(int index, String variant) {
+    public ResourceLocation getSoundIdAt(int index, int variant) {
         int actualIndex = index;
-        if (variant.equals("add")) {
+        if (variant == SOUND_FILTERED) {
             actualIndex += leftScrollOff;
             if (filteredSounds.isEmpty() || actualIndex >= filteredSounds.size()) return null;
             return filteredSounds.get(actualIndex).left();
@@ -188,11 +189,11 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
 
         int buttonTop = topPos + 35;
         for (int l = 0; l < 8; ++l) {
-            SilencerButton button = new SilencerButton(leftPos + START_LEFT_X, buttonTop, l, "add", b -> {
+            SilencerButton button = new SilencerButton(leftPos + START_LEFT_X, buttonTop, l, SOUND_FILTERED, b -> {
                 if (b instanceof SilencerButton silencerButton) {
                     onAllSoundButtonClick(silencerButton.getIndex());
                 }
-            }, this);
+            }, this, "add");
             button.setWidth(112);
             this.allSoundButtons[l] = this.addRenderableWidget(button);
             buttonTop += 15;
@@ -200,11 +201,11 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
 
         buttonTop = topPos + 35;
         for (int l = 0; l < 8; ++l) {
-            SilencerButton button = new SilencerButton(leftPos + START_RIGHT_X, buttonTop, l, "remove", b -> {
+            SilencerButton button = new SilencerButton(leftPos + START_RIGHT_X, buttonTop, l, SOUND_MUTED, b -> {
                 if (b instanceof SilencerButton silencerButton) {
                     onMutedSoundButtonClick(silencerButton.getIndex());
                 }
-            }, this);
+            }, this, "remove");
             this.mutedSoundButtons[l] = this.addRenderableWidget(button);
             buttonTop += 15;
         }
