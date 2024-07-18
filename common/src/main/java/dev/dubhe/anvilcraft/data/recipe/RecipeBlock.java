@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
+import com.tterrag.registrate.util.entry.BlockEntry;
 import lombok.Getter;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.TagKey;
@@ -15,6 +16,7 @@ public class RecipeBlock {
     private final TagKey<Block> blockTagKey;
     private final Map.Entry<Property<?>, Comparable<?>>[] stateEntries;
     private final BlockState blockState;
+    private String key = "";
 
     /**
      * 配方方块
@@ -53,6 +55,11 @@ public class RecipeBlock {
         return new RecipeBlock(null, null, null, blockState);
     }
 
+    public static RecipeBlock of(BlockEntry<Block> blockBlockEntry) {
+        return new RecipeBlock(blockBlockEntry.get(), null, null, null)
+                        .setKey(blockBlockEntry.getId().getPath());
+    }
+
     /**
      * 判断是否有状态检测, 一般用于{@link dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasBlock hasBlock}
      */
@@ -71,6 +78,11 @@ public class RecipeBlock {
         return this.blockTagKey != null;
     }
 
+    public RecipeBlock setKey(String key) {
+        this.key = key;
+        return this;
+    }
+
     /**
      *  获取key
      *
@@ -79,9 +91,10 @@ public class RecipeBlock {
     public String getKey() {
         return this.block == null
                 ? this.blockTagKey == null
-                ? ""
-                : blockTagKey.location().getNamespace() + "_" + blockTagKey.location().getPath()
-                : BuiltInRegistries.BLOCK
-                .getKey(this.block).getPath();
+                    ? ""
+                    : blockTagKey.location().getNamespace() + "_" + blockTagKey.location().getPath()
+                : key.isEmpty()
+                    ? BuiltInRegistries.BLOCK.getKey(this.block).getPath()
+                    : key;
     }
 }
