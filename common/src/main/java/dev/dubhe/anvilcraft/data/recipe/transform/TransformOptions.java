@@ -40,9 +40,8 @@ public enum TransformOptions implements StringRepresentable {
                     if (itemStack.is(Items.ANVIL)
                         || itemStack.is(Items.CHIPPED_ANVIL)
                         || itemStack.is(Items.DAMAGED_ANVIL)) {
-                        o.setItemInHand(value, ModBlocks.GIANT_ANVIL.asItem().getDefaultInstance());
                         if (newEntity instanceof Giant) {
-                            n.setItemInHand(value, ModBlocks.GIANT_ANVIL.asItem().getDefaultInstance());
+                            o.setItemInHand(value, ModBlocks.GIANT_ANVIL.asItem().getDefaultInstance());
                         }
                         if (n instanceof Mob mob) {
                             mob.setDropChance(
