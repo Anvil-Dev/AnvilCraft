@@ -18,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Map;
 
-public class HasItemIngredientWithNoNbt extends HasItemIngredient{
+public class HasItemIngredientWithNoNbt extends HasItemIngredient {
     public ModItemWithNoNbtPredicate matchItemReal;
     @Getter
     public final String type = "has_item_ingredient_no_nbt";
@@ -39,7 +39,7 @@ public class HasItemIngredientWithNoNbt extends HasItemIngredient{
     }
 
     @Override
-    public boolean matches(@NotNull AnvilCraftingContext context){
+    public boolean matches(@NotNull AnvilCraftingContext context) {
         Level level = context.getLevel();
         BlockPos pos = context.getPos();
         AABB aabb = new AABB(pos).move(this.offset);
@@ -78,6 +78,9 @@ public class HasItemIngredientWithNoNbt extends HasItemIngredient{
         return false;
     }
 
+    /**
+     * 处理时消耗对应的物品，如果成功则返回true
+     */
     public boolean process(@NotNull AnvilCraftingContext context) {
         Level level = context.getLevel();
         BlockPos pos = context.getPos();

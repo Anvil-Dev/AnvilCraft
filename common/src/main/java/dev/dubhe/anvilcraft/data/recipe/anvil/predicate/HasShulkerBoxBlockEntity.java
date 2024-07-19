@@ -1,6 +1,10 @@
 package dev.dubhe.anvilcraft.data.recipe.anvil.predicate;
 
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSyntaxException;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContext;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipePredicate;
@@ -39,8 +43,20 @@ public class HasShulkerBoxBlockEntity implements RecipePredicate {
     public static final String HAS_ITEM_COUNT = "HAS_ITEM_COUNT";
     public static final String IS_EMPTY = "IS_EMPTY";
 
-
-    public HasShulkerBoxBlockEntity(Vec3 offset, HasBlock.ModBlockPredicate matchBlock, String inventoryCheck, HasItem.ModItemPredicate matchItem) {
+    /**
+     * matchBlock: 匹配何种方块
+     * inventoryCheck: 是否进行以及进行何种物品栏检测，只有
+     *   NO_INVENTORY_CHECK
+     *   HAS_ITEM_COUNT
+     *   IS_EMPTY
+     * 是会被读取的值，inventoryCheck为其他值时会默认成无物品栏检测
+     * matchItem:
+     * 在HAS_ITEM_COUNT类型的物品栏检测时，匹配何种/多少物品，其他情况可以不填
+     */
+    public HasShulkerBoxBlockEntity(Vec3 offset,
+        HasBlock.ModBlockPredicate matchBlock,
+        String inventoryCheck,
+        HasItem.ModItemPredicate matchItem) {
         this.offset = offset;
         this.matchBlock = matchBlock;
         this.inventoryCheck = inventoryCheck;
@@ -50,9 +66,9 @@ public class HasShulkerBoxBlockEntity implements RecipePredicate {
     /**
      * 拥有方块和潜影盒方块实体
      * 可以追加检测方块实体的物品栏
-     * @param serializedRecipe 序列化配方
+     * serializedRecipe: 序列化配方
      */
-    public HasShulkerBoxBlockEntity(JsonObject serializedRecipe) {
+    public HasShulkerBoxBlockEntity(JsonObject serializedRecipe) throws JsonSyntaxException {
         JsonArray array = GsonHelper.getAsJsonArray(serializedRecipe, "offset");
         double[] vec3 = {0.0d, 0.0d, 0.0d};
         for (int i = 0; i < array.size() && i < 3; i++) {
@@ -64,24 +80,25 @@ public class HasShulkerBoxBlockEntity implements RecipePredicate {
         this.offset = new Vec3(vec3[0], vec3[1], vec3[2]);
         if (!serializedRecipe.has("match_block")) throw new JsonSyntaxException("Missing match_block");
         this.matchBlock = HasBlock.ModBlockPredicate.fromJson(serializedRecipe.get("match_block"));
-        if (!serializedRecipe.has("inventory_check")) {
-            this.inventoryCheck = NO_INVENTORY_CHECK;
-        }
+        if (!serializedRecipe.has("inventory_check")) this.inventoryCheck = NO_INVENTORY_CHECK;
         else this.inventoryCheck = serializedRecipe.get("inventory_check").getAsString();
-        if (serializedRecipe.has("inventory_check")){
-            if (!serializedRecipe.has("match_item")){
+        if (serializedRecipe.has("inventory_check"))
+            if (!serializedRecipe.has("match_item"))
                 throw new JsonSyntaxException("Missing match_item");
-            }
             else this.matchItem = HasItem.ModItemPredicate.fromJson(serializedRecipe.get("match_item"));
-        }
         else this.matchItem = HasItem.ModItemPredicate.of();
     }
 
+    /**
+     * 从buffer构建配方判据的构造函数
+     */
     public HasShulkerBoxBlockEntity(@NotNull FriendlyByteBuf buffer) {
         this.offset = new Vec3(buffer.readVector3f());
-        this.matchBlock = HasBlock.ModBlockPredicate.fromJson(AnvilCraft.GSON.fromJson(buffer.readUtf(), JsonElement.class));
+        this.matchBlock = HasBlock.ModBlockPredicate
+                .fromJson(AnvilCraft.GSON.fromJson(buffer.readUtf(), JsonElement.class));
         this.inventoryCheck = buffer.readUtf();
-        this.matchItem = HasItem.ModItemPredicate.fromJson(AnvilCraft.GSON.fromJson(buffer.readUtf(), JsonElement.class));
+        this.matchItem = HasItem.ModItemPredicate
+                .fromJson(AnvilCraft.GSON.fromJson(buffer.readUtf(), JsonElement.class));
     }
 
     @Override
@@ -91,32 +108,33 @@ public class HasShulkerBoxBlockEntity implements RecipePredicate {
         BlockPos pos = context.getPos();
         Vec3 vec3 = pos.getCenter().add(this.offset);
         BlockPos blockPos = BlockPos.containing(vec3.x, vec3.y, vec3.z);
-        if(! this.matchBlock.matches(level1, blockPos)) return false;
+        if (! this.matchBlock.matches(level1, blockPos)) return false;
         //below checks block entity
         BlockEntity blockEntity = null;
         //blockEntity = level1.getBlockEntity(blockPos);
         blockEntity = FindBlockEntity(level1, blockPos);
-        if(blockEntity==null) return false;
+        if (blockEntity == null) return false;
         //this predicate only deals with shulker boxes
         if (!(blockEntity instanceof ShulkerBoxBlockEntity shulkerBlockEntity)) return false;
         switch (this.inventoryCheck) {
-            case NO_INVENTORY_CHECK -> {
-                return true;
-            }
             //below checks inventory
-            case IS_EMPTY -> {
+            case "IS_EMPTY" -> {
                 return shulkerBlockEntity.isEmpty();
             }
-            case HAS_ITEM_COUNT -> {
+            case "HAS_ITEM_COUNT" -> {
                 int x = 0;
                 for (Item i : this.matchItem.getItems()) {
                     x += shulkerBlockEntity.countItem(i);
                 }
                 return this.matchItem.count.matches(x);
             }
+            //default or NO_INVENTORY_CHECK
+            //if check inventory mode is unknown, taken as no inventory check
+            default -> {
+                return true;
+            }
         }
-        //if check inventory mode is unknown, taken as no inventory check
-        return true;
+
     }
 
     @Override
@@ -151,10 +169,10 @@ public class HasShulkerBoxBlockEntity implements RecipePredicate {
         return object;
     }
 
-    private @Nullable BlockEntity FindBlockEntity(@NotNull ServerLevel level, @NotNull BlockPos pos){
+    private @Nullable BlockEntity FindBlockEntity(@NotNull ServerLevel level, @NotNull BlockPos pos) {
         LevelChunk chunk = level.getChunkAt(pos);
-        for (Map.Entry<BlockPos, BlockEntity> entry: chunk.getBlockEntities().entrySet()){
-            if(entry.getKey().equals(pos)) return entry.getValue();
+        for (Map.Entry<BlockPos, BlockEntity> entry : chunk.getBlockEntities().entrySet()) {
+            if (entry.getKey().equals(pos)) return entry.getValue();
         }
         return null;
     }

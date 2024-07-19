@@ -30,16 +30,24 @@ public class ModItemWithNoNbtPredicate {
     public ModItemWithNoNbtPredicate() {
     }
 
-    public ModItemWithNoNbtPredicate(HasItem.ModItemPredicate itemPredicate){
+    /**
+     * 通过普通的物品判据的数据构建无NBT的物品判据
+     * itemPredicate: 输入的物品判据
+     */
+    public ModItemWithNoNbtPredicate(HasItem.ModItemPredicate itemPredicate) {
         this.tag = itemPredicate.getTag();
         this.items.addAll(itemPredicate.getItems());
         this.count = itemPredicate.getCount();
         this.durability = itemPredicate.getDurability();
     }
 
-    public HasItem.ModItemPredicate TurnIntoModItemPredicate(){
+    /**
+     *
+     * @return 将此无NBT物品判据转化为物品判据的形式
+     */
+    public HasItem.ModItemPredicate TurnIntoModItemPredicate() {
         HasItem.ModItemPredicate predicate = HasItem.ModItemPredicate.of(this.tag);
-        for (Item i: this.items) predicate.add(i);
+        for (Item i : this.items) predicate.add(i);
         predicate.withCount(this.count);
         predicate.withDurability(durability);
         return predicate;
@@ -67,6 +75,11 @@ public class ModItemWithNoNbtPredicate {
         return new ModItemWithNoNbtPredicate();
     }
 
+    /**
+     *
+     * @param items 所需判定匹配的物品
+     * @return 通过输入构建出的判据
+     */
     public static @NotNull ModItemWithNoNbtPredicate of(ItemLike @NotNull ... items) {
         ModItemWithNoNbtPredicate predicate = new ModItemWithNoNbtPredicate();
         for (ItemLike item : items) {
@@ -75,12 +88,22 @@ public class ModItemWithNoNbtPredicate {
         return predicate;
     }
 
+    /**
+     *
+     * @param tag 所可以接受的物品标签
+     * @return 通过输入构建出的判据
+     */
     public static @NotNull ModItemWithNoNbtPredicate of(TagKey<Item> tag) {
         ModItemWithNoNbtPredicate predicate = new ModItemWithNoNbtPredicate();
         predicate.tag = tag;
         return predicate;
     }
 
+    /**
+     *
+     * @param items 所需添加判定匹配的物品
+     * @return 添加物品后的此对象本身
+     */
     public @NotNull ModItemWithNoNbtPredicate with(ItemLike @NotNull ... items) {
         for (ItemLike item : items) {
             this.items.add(item.asItem());
@@ -88,11 +111,21 @@ public class ModItemWithNoNbtPredicate {
         return this;
     }
 
+    /**
+     *
+     * @param tag 所可以添加的物品标签
+     * @return 添加标签后的此对象本身
+     */
     public @NotNull ModItemWithNoNbtPredicate withTag(TagKey<Item> tag) {
         this.tag = tag;
         return this;
     }
 
+    /**
+     *
+     * @param items 所需添加判定匹配的物品
+     * @return 添加物品后的此对象本身
+     */
     public ModItemWithNoNbtPredicate add(ItemLike @NotNull ... items) {
         for (ItemLike item : items) {
             this.items.add(item.asItem());
@@ -105,11 +138,21 @@ public class ModItemWithNoNbtPredicate {
         return this;
     }
 
+    /**
+     *
+     * @param durability 所需匹配的物品耐久度
+     * @return 添加物品耐久度后的此对象本身
+     */
     public ModItemWithNoNbtPredicate withDurability(MinMaxBounds.Ints durability) {
         this.durability = durability;
         return this;
     }
 
+    /**
+     *
+     * @param matchItem 从Json获取的物品匹配判据数据
+     * @return 从Json构建出的无NBT物品判据
+     */
     public static @NotNull ModItemWithNoNbtPredicate fromJson(JsonElement matchItem) {
         JsonObject object = GsonHelper.convertToJsonObject(matchItem, "match_item");
         ModItemWithNoNbtPredicate predicate = ModItemWithNoNbtPredicate.of();

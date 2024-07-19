@@ -17,7 +17,7 @@ import org.jetbrains.annotations.NotNull;
 public class OverNestingShulkerBoxBlock extends Block {
 
     private static final int soundDelay = 8;
-    private int soundSetID = 0;
+    private int soundSetId = 0;
     private Player lastInteractionPlayer = null;
     private boolean canBeInteracted = true;
 
@@ -27,11 +27,16 @@ public class OverNestingShulkerBoxBlock extends Block {
 
     @SuppressWarnings("deprecation")
     @Override
-    public @NotNull InteractionResult use(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult hit) {
+    public @NotNull InteractionResult use(@NotNull BlockState state,
+                                          @NotNull Level level,
+                                          @NotNull BlockPos pos,
+                                          @NotNull Player player,
+                                          @NotNull InteractionHand hand,
+                                          @NotNull BlockHitResult hit) {
         if (level.isClientSide && canBeInteracted) {
             level.playSound(player, pos, SoundEvents.SHULKER_BOX_OPEN, SoundSource.BLOCKS, 0.8F, 1.0F);
             lastInteractionPlayer = player;
-            soundSetID = 0;
+            soundSetId = 0;
             canBeInteracted = false;
         }
         level.scheduleTick(pos, this, soundDelay);
@@ -40,23 +45,29 @@ public class OverNestingShulkerBoxBlock extends Block {
 
     @SuppressWarnings("deprecation")
     @Override
-    public void tick(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random) {
+    public void tick(@NotNull BlockState state,
+                     @NotNull ServerLevel level,
+                     @NotNull BlockPos pos,
+                     @NotNull RandomSource random) {
         //super.tick(state, level, pos, random);
-        switch (soundSetID) {
+        switch (soundSetId) {
             case 0:
-                level.playSound(lastInteractionPlayer, pos, SoundEvents.SHULKER_BOX_OPEN, SoundSource.BLOCKS, 0.8F, 0.95F);
-                level.playSound(lastInteractionPlayer, pos, SoundEvents.SHULKER_BOX_CLOSE, SoundSource.BLOCKS, 0.8F, 0.95F);
+                level.playSound(lastInteractionPlayer, pos, SoundEvents.SHULKER_BOX_OPEN,
+                        SoundSource.BLOCKS, 0.8F, 0.95F);
+                level.playSound(lastInteractionPlayer, pos, SoundEvents.SHULKER_BOX_CLOSE,
+                        SoundSource.BLOCKS, 0.8F, 0.95F);
                 level.scheduleTick(pos, this, soundDelay);
-                soundSetID = 1;
+                soundSetId = 1;
                 break;
             case 1:
-                level.playSound(lastInteractionPlayer, pos, SoundEvents.SHULKER_BOX_CLOSE, SoundSource.BLOCKS, 0.8F, 1.0F);
+                level.playSound(lastInteractionPlayer, pos, SoundEvents.SHULKER_BOX_CLOSE,
+                        SoundSource.BLOCKS, 0.8F, 1.0F);
                 level.scheduleTick(pos, this, 2 * soundDelay);
-                soundSetID = 2;
+                soundSetId = 2;
                 break;
             case 2:
                 canBeInteracted = true;
-                soundSetID = 0;
+                soundSetId = 0;
                 break;
             default:
                 break;

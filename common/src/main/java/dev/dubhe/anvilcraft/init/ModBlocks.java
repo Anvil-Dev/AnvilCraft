@@ -5,8 +5,66 @@ import com.tterrag.registrate.util.entry.BlockEntry;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent.Switch;
-import dev.dubhe.anvilcraft.block.*;
+import dev.dubhe.anvilcraft.block.AbstractMultiplePartBlock;
+import dev.dubhe.anvilcraft.block.ActiveSilencerBlock;
+import dev.dubhe.anvilcraft.block.ArrowBlock;
+import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
+import dev.dubhe.anvilcraft.block.BlockDevourerBlock;
+import dev.dubhe.anvilcraft.block.BlockPlacerBlock;
+import dev.dubhe.anvilcraft.block.CementCauldronBlock;
+import dev.dubhe.anvilcraft.block.ChargeCollectorBlock;
+import dev.dubhe.anvilcraft.block.ChargerBlock;
+import dev.dubhe.anvilcraft.block.ChuteBlock;
+import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
+import dev.dubhe.anvilcraft.block.CrabTrapBlock;
+import dev.dubhe.anvilcraft.block.CreativeGeneratorBlock;
+import dev.dubhe.anvilcraft.block.DischargerBlock;
+import dev.dubhe.anvilcraft.block.FerriteCoreMagnetBlock;
+import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
+import dev.dubhe.anvilcraft.block.GlowingMetalBlock;
+import dev.dubhe.anvilcraft.block.HeaterBlock;
+import dev.dubhe.anvilcraft.block.HeavyIronBeamBlock;
+import dev.dubhe.anvilcraft.block.HeavyIronPlateBlock;
+import dev.dubhe.anvilcraft.block.HeliostatsBlock;
+import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
+import dev.dubhe.anvilcraft.block.HoneyCauldronBlock;
+import dev.dubhe.anvilcraft.block.ImpactPileBlock;
+import dev.dubhe.anvilcraft.block.IncandescentMetalBlock;
+import dev.dubhe.anvilcraft.block.InductionLightBlock;
+import dev.dubhe.anvilcraft.block.ItemCollectorBlock;
+import dev.dubhe.anvilcraft.block.JewelCraftingTable;
 import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
+import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
+import dev.dubhe.anvilcraft.block.LoadMonitorBlock;
+import dev.dubhe.anvilcraft.block.MagnetBlock;
+import dev.dubhe.anvilcraft.block.MeltGemCauldron;
+import dev.dubhe.anvilcraft.block.MengerSpongeBlock;
+import dev.dubhe.anvilcraft.block.MineralFountainBlock;
+import dev.dubhe.anvilcraft.block.MobAmberBlock;
+import dev.dubhe.anvilcraft.block.NestingShulkerBoxBlock;
+import dev.dubhe.anvilcraft.block.ObsidianCauldron;
+import dev.dubhe.anvilcraft.block.OverNestingShulkerBoxBlock;
+import dev.dubhe.anvilcraft.block.OverseerBlock;
+import dev.dubhe.anvilcraft.block.PiezoelectricCrystalBlock;
+import dev.dubhe.anvilcraft.block.PowerConverterBigBlock;
+import dev.dubhe.anvilcraft.block.PowerConverterMiddleBlock;
+import dev.dubhe.anvilcraft.block.PowerConverterSmallBlock;
+import dev.dubhe.anvilcraft.block.RedhotMetalBlock;
+import dev.dubhe.anvilcraft.block.ReinforcedConcreteBlock;
+import dev.dubhe.anvilcraft.block.RemoteTransmissionPoleBlock;
+import dev.dubhe.anvilcraft.block.ResentfulAmberBlock;
+import dev.dubhe.anvilcraft.block.ResinBlock;
+import dev.dubhe.anvilcraft.block.RoyalAnvilBlock;
+import dev.dubhe.anvilcraft.block.RoyalGrindstone;
+import dev.dubhe.anvilcraft.block.RoyalSmithingTableBlock;
+import dev.dubhe.anvilcraft.block.RubyLaserBlock;
+import dev.dubhe.anvilcraft.block.RubyPrismBlock;
+import dev.dubhe.anvilcraft.block.SimpleChuteBlock;
+import dev.dubhe.anvilcraft.block.SpaceOvercompressorBlock;
+import dev.dubhe.anvilcraft.block.StampingPlatformBlock;
+import dev.dubhe.anvilcraft.block.SupercriticalNestingShulkerBoxBlock;
+import dev.dubhe.anvilcraft.block.ThermoelectricConverterBlock;
+import dev.dubhe.anvilcraft.block.TransmissionPoleBlock;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.Vertical3PartHalf;
@@ -20,7 +78,12 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.RecipeOutcome;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipePredicate;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SelectOne;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SpawnItem;
-import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.*;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasBlock;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItem;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItemIngredient;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItemIngredientWithNoNbt;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasShulkerBoxBlockEntity;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.ModItemWithNoNbtPredicate;
 import dev.dubhe.anvilcraft.item.AbstractMultiplePartBlockItem;
 import dev.dubhe.anvilcraft.item.CursedBlockItem;
 import dev.dubhe.anvilcraft.item.EndDustBlockItem;
@@ -35,7 +98,8 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.packs.VanillaRecipeProvider;
-import net.minecraft.nbt.*;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
@@ -45,7 +109,18 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.FallingBlock;
+import net.minecraft.world.level.block.GlassBlock;
+import net.minecraft.world.level.block.GravelBlock;
+import net.minecraft.world.level.block.HalfTransparentBlock;
+import net.minecraft.world.level.block.LayeredCauldronBlock;
+import net.minecraft.world.level.block.PressurePlateBlock;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.block.WallBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
@@ -2626,14 +2701,14 @@ public class ModBlocks {
         .model((ctx, provider) -> provider.blockItem(ctx))
         .build()
         .recipe((ctx, provider) -> {
-            CompoundTag shulkerBoxItemInventoryNBT = new CompoundTag();
             CompoundTag innerTag1 = new CompoundTag();
             innerTag1.put("Items", new ListTag());
             CompoundTag innerTag2 = new CompoundTag();
             innerTag2.putString("id", "minecraft:shulker_box");
             innerTag1.merge(innerTag2);
+            CompoundTag shulkerBoxItemInventoryNbt = new CompoundTag();
             //targeted nbt: "BlockEntityTag:{Items:[],id:\"minecraft:shulker_box\"}"
-            shulkerBoxItemInventoryNBT.put("BlockEntityTag", innerTag1);
+            shulkerBoxItemInventoryNbt.put("BlockEntityTag", innerTag1);
             AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .type(AnvilRecipeType.ITEM_INJECT)
                 .hasBlock(new Vec3(0.0, -1.0, 0.0), Blocks.SHULKER_BOX)
@@ -2647,10 +2722,11 @@ public class ModBlocks {
                 .addPredicates(new HasItemIngredient(Vec3.ZERO, HasItem.ModItemPredicate
                     .of(Items.SHULKER_BOX)
                     .withCount(MinMaxBounds.Ints.atLeast(1))
-                    .withNbt(shulkerBoxItemInventoryNBT)
+                    .withNbt(shulkerBoxItemInventoryNbt)
                 ))
                 .setBlock(new Vec3(0.0, -1.0, 0.0), ctx.get())
-                .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.SHULKER_BOX.asItem()), AnvilCraftDatagen.has(Blocks.SHULKER_BOX.asItem()))
+                .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.SHULKER_BOX.asItem()),
+                        AnvilCraftDatagen.has(Blocks.SHULKER_BOX.asItem()))
                 .save(provider, AnvilCraft.of("item_inject/nesting_shulker_box"));
             AnvilRecipe.Builder.create(RecipeCategory.MISC)
                 .type(AnvilRecipeType.ITEM_INJECT)
@@ -2668,7 +2744,8 @@ public class ModBlocks {
                     .withCount(MinMaxBounds.Ints.atLeast(1))
                 ))
                 .setBlock(new Vec3(0.0, -1.0, 0.0), ctx.get())
-                .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.SHULKER_BOX.asItem()), AnvilCraftDatagen.has(Blocks.SHULKER_BOX.asItem()))
+                .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.SHULKER_BOX.asItem()),
+                        AnvilCraftDatagen.has(Blocks.SHULKER_BOX.asItem()))
                 .save(provider, AnvilCraft.of("item_inject/nesting_shulker_box_with_no_nbt"));
         })
         .register();
@@ -2694,7 +2771,8 @@ public class ModBlocks {
                         ))
                         .hasItemIngredient(Vec3.ZERO, ModBlocks.NESTING_SHULKER_BOX.asItem())
                         .setBlock(new Vec3(0.0, -1.0, 0.0), ctx.get())
-                        .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.NESTING_SHULKER_BOX.asItem()), AnvilCraftDatagen.has(Blocks.SHULKER_BOX.asItem()))
+                        .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.NESTING_SHULKER_BOX.asItem()),
+                                AnvilCraftDatagen.has(Blocks.SHULKER_BOX.asItem()))
                         .save(provider, AnvilCraft.of("item_inject/over_nesting_shulker_box"));
             })
             .register();
@@ -2720,7 +2798,8 @@ public class ModBlocks {
                         ))
                         .hasItemIngredient(Vec3.ZERO, ModBlocks.OVER_NESTING_SHULKER_BOX.asItem())
                         .setBlock(new Vec3(0.0, -1.0, 0.0), ctx.get())
-                        .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.OVER_NESTING_SHULKER_BOX.asItem()), AnvilCraftDatagen.has(Blocks.SHULKER_BOX.asItem()))
+                        .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.OVER_NESTING_SHULKER_BOX.asItem()),
+                                AnvilCraftDatagen.has(Blocks.SHULKER_BOX.asItem()))
                         .save(provider, AnvilCraft.of("item_inject/supercritical_nesting_shulker_box"));
             })
             .register();
