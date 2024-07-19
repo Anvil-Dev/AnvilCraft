@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
+import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.tags.BlockTags;
@@ -31,6 +32,19 @@ public class CompactionRecipesLoader {
         compaction(Blocks.NETHER_WART_BLOCK, Blocks.NETHERRACK, Blocks.CRIMSON_NYLIUM, provider);
         compaction(Blocks.WARPED_WART_BLOCK, Blocks.NETHERRACK, Blocks.WARPED_NYLIUM, provider);
         compaction(Blocks.BASALT, Blocks.BASALT, Blocks.BLACKSTONE, provider);
+        compaction(ModBlocks.CREAM_BLOCK.get(), ModBlocks.CAKE_BASE_BLOCK.get(), ModBlocks.CAKE_BLOCK.get(), provider);
+        compaction(
+            ModBlocks.BERRY_CREAM_BLOCK.get(),
+            ModBlocks.CAKE_BASE_BLOCK.get(),
+            ModBlocks.BERRY_CAKE_BLOCK.get(),
+            provider
+        );
+        compaction(
+            ModBlocks.CHOCOLATE_CREAM_BLOCK.get(),
+            ModBlocks.CAKE_BASE_BLOCK.get(),
+            ModBlocks.CHOCOLATE_CAKE_BLOCK.get(),
+            provider
+        );
     }
 
     /**

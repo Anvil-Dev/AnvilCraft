@@ -277,6 +277,15 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.GLOWING_NETHERITE.asStack());
                 entries.accept(ModBlocks.INCANDESCENT_TUNGSTEN.asStack());
                 entries.accept(ModBlocks.INCANDESCENT_NETHERITE.asStack());
+
+                entries.accept(ModBlocks.CAKE_BASE_BLOCK.asStack());
+                entries.accept(ModBlocks.CREAM_BLOCK.asStack());
+                entries.accept(ModBlocks.BERRY_CREAM_BLOCK.asStack());
+                entries.accept(ModBlocks.CHOCOLATE_CREAM_BLOCK.asStack());
+                entries.accept(ModBlocks.CAKE_BLOCK.asStack());
+                entries.accept(ModBlocks.BERRY_CAKE_BLOCK.asStack());
+                entries.accept(ModBlocks.CHOCOLATE_CAKE_BLOCK.asStack());
+
                 // block
                 entries.accept(ModBlocks.REINFORCED_CONCRETE_WHITE.asStack());
                 entries.accept(ModBlocks.REINFORCED_CONCRETE_LIGHT_GRAY.asStack());

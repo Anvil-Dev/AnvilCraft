@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.block.HasBlock;
+import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -26,6 +27,21 @@ public class CookingRecipesLoader {
         boil(ModItems.RESIN.get(), 1, Items.SLIME_BALL, 1, provider);
         cook(ModItems.UTUSAN_RAW.get(), 1, ModItems.UTUSAN.get(), 1, provider);
         cook(ModItems.RESIN.get(), 1, ModItems.HARDEND_RESIN.get(), 1, provider);
+
+        AnvilRecipe.Builder.create(RecipeCategory.FOOD)
+            .type(AnvilRecipeType.COOKING)
+            .hasBlock(Blocks.CAULDRON)
+            .hasBlock(new Vec3(0.0, -2.0, 0.0),
+                new HasBlock.ModBlockPredicate().block(BlockTags.CAMPFIRES).property(CampfireBlock.LIT, true)
+            )
+            .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), ModItems.DOUGH)
+            .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), Items.EGG)
+            .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), Items.SUGAR)
+            .spawnItem(new Vec3(0.0, -1.0, 0.0), ModBlocks.CAKE_BASE_BLOCK)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.DOUGH), AnvilCraftDatagen.has(ModItems.DOUGH))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.EGG), AnvilCraftDatagen.has(Items.EGG))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.SUGAR), AnvilCraftDatagen.has(Items.SUGAR))
+            .save(provider, "cook/cake_base_block");
     }
 
     /**
