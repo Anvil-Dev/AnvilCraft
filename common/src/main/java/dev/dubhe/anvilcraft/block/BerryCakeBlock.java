@@ -7,12 +7,12 @@ public class BerryCakeBlock extends AbstractCakeBlock {
     }
 
     @Override
-    public int getFoodLevel(){
+    public int getFoodLevel() {
         return 14;
     }
 
     @Override
-    public float getSaturationLevel(){
+    public float getSaturationLevel() {
         return 0.6F;
     }
 }

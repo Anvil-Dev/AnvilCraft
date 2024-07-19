@@ -7,12 +7,12 @@ public class ChocolateCreamBlock extends AbstractCakeBlock {
     }
 
     @Override
-    public int getFoodLevel(){
+    public int getFoodLevel() {
         return 12;
     }
 
     @Override
-    public float getSaturationLevel(){
+    public float getSaturationLevel() {
         return 0.4F;
     }
 }

@@ -66,11 +66,11 @@ public class AbstractCakeBlock extends Block {
         }
     }
 
-    public int getFoodLevel(){
+    public int getFoodLevel() {
         return 0;
     }
 
-    public float getSaturationLevel(){
+    public float getSaturationLevel() {
         return 0;
     }
 }
