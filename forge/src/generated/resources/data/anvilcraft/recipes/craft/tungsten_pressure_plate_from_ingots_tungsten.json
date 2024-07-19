@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "tag": "forge:ingots/tungsten"
+    }
+  },
+  "pattern": [
+    "AA"
+  ],
+  "result": {
+    "item": "anvilcraft:tungsten_pressure_plate"
+  },
+  "show_notification": true
+}

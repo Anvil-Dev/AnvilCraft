@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.client.fabric;
 
 import dev.dubhe.anvilcraft.event.TooltipEventListener;
+import dev.dubhe.anvilcraft.event.fabric.CommonEventHandlerListener;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.util.IBlockHighlightUtil;
 import net.fabricmc.api.ClientModInitializer;
@@ -28,6 +29,15 @@ public class AnvilCraftFabricClient implements ClientModInitializer {
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.RUBY_PRISM.get(), RenderType.translucent());
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.RUBY_LASER.get(), RenderType.translucent());
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.GIANT_ANVIL.get(), RenderType.solid());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.MENGER_SPONGE.get(), RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.EMBER_METAL_BLOCK.get(), RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.CUT_EMBER_METAL_BLOCK.get(), RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.CUT_EMBER_METAL_SLAB.get(), RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.CUT_EMBER_METAL_STAIRS.get(), RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.FIRE_CAULDRON.get(), RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.EMBER_ANVIL.get(), RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.EMBER_GRINDSTONE.get(), RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.EMBER_SMITHING_TABLE.get(), RenderType.cutout());
         WorldRenderEvents.AFTER_ENTITIES.register(context -> {
             if (IBlockHighlightUtil.SUBCHUNKS.isEmpty()) return;
             MultiBufferSource consumers = context.consumers();
@@ -36,5 +46,6 @@ public class AnvilCraftFabricClient implements ClientModInitializer {
         });
 
         ItemTooltipCallback.EVENT.register((stack, context, lines) -> TooltipEventListener.addTooltip(stack, lines));
+        CommonEventHandlerListener.clientInit();
     }
 }

@@ -24,14 +24,16 @@ public class SeedsPackItem extends Item {
         @NotNull Level level, @NotNull Player player, @NotNull InteractionHand usedHand
     ) {
         ItemStack stack = player.getItemInHand(usedHand);
-        RandomSource random = level.getRandom();
         List<Item> items = BuiltInRegistries.ITEM.getOrCreateTag(ModItemTags.SEEDS_PACK_CONTENT)
             .stream()
             .filter(Holder::isBound)
             .map(Holder::value)
             .toList();
         if (items.isEmpty()) return InteractionResultHolder.fail(stack);
-        player.getInventory().placeItemBackInInventory(new ItemStack(items.get(random.nextInt(items.size()))));
+        if (!level.isClientSide()) {
+            RandomSource random = level.getRandom();
+            player.getInventory().placeItemBackInInventory(new ItemStack(items.get(random.nextInt(items.size()))));
+        }
         stack.shrink(1);
         return InteractionResultHolder.consume(stack);
     }

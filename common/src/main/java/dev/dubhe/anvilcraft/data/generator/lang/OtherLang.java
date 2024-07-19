@@ -9,6 +9,11 @@ public class OtherLang {
      */
     public static void init(@NotNull RegistrateLangProvider provider) {
         provider.add(
+            "modmenu.nameTranslation.anvilcraft",
+            "AnvilCraft"
+        );
+
+        provider.add(
             "item.anvilcraft.default_enchantment.tooltip",
             "Has default enchantments:"
         );
@@ -34,8 +39,14 @@ public class OtherLang {
         );
 
         provider.add(
-                "item.anvilcraft.disk.stored_from",
-                "Stored from: %s"
+            "item.anvilcraft.disk.stored_from",
+            "Stored from: %s"
+        );
+
+        provider.add(
+            "tooltip.anvilcraft.only_jei",
+            "We have detected that you have only installed JEI and will not be able to obtain a complete recipe query. "
+                + "We recommend installing %s for a complete gaming experience!"
         );
     }
 }

@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import dev.dubhe.anvilcraft.api.event.EventManager;
+import dev.anvilcraft.lib.event.EventManager;
 import dev.dubhe.anvilcraft.api.registry.AnvilCraftRegistrate;
 import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
@@ -15,7 +15,6 @@ import dev.dubhe.anvilcraft.init.ModEntities;
 import dev.dubhe.anvilcraft.init.ModEvents;
 import dev.dubhe.anvilcraft.init.ModItemGroups;
 import dev.dubhe.anvilcraft.init.ModItems;
-import dev.dubhe.anvilcraft.init.ModLootContextParamSet;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.ModNetworks;
 import dev.dubhe.anvilcraft.util.EnchantmentDisableUtil;
@@ -55,7 +54,6 @@ public class AnvilCraft {
         ModMenuTypes.register();
         ModNetworks.register();
         ModDispenserBehavior.register();
-        ModLootContextParamSet.register();
         ModEnchantments.register();
 
         AnvilRecipe.init();

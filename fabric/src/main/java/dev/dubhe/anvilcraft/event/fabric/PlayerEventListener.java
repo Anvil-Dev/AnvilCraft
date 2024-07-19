@@ -2,7 +2,12 @@ package dev.dubhe.anvilcraft.event.fabric;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.entity.PlayerEvent;
+import dev.dubhe.anvilcraft.api.recipe.AnvilRecipeManager;
+import dev.dubhe.anvilcraft.network.ClientRecipeManagerSyncPack;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -17,6 +22,7 @@ public class PlayerEventListener {
      */
     public static void init() {
         UseEntityCallback.EVENT.register(PlayerEventListener::useEntity);
+        ServerPlayConnectionEvents.INIT.register(PlayerEventListener::serverPlayConnectionEvent);
     }
 
     private static InteractionResult useEntity(
@@ -27,5 +33,11 @@ public class PlayerEventListener {
         );
         AnvilCraft.EVENT_BUS.post(playerEvent);
         return playerEvent.getResult();
+    }
+
+    private static void serverPlayConnectionEvent(
+            ServerGamePacketListenerImpl handler, MinecraftServer server
+    ) {
+        new ClientRecipeManagerSyncPack(AnvilRecipeManager.getAnvilRecipeList()).send(handler.player);
     }
 }

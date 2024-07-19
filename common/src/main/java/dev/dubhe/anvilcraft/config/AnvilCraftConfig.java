@@ -101,10 +101,6 @@ public class AnvilCraftConfig implements ConfigData {
     @ConfigEntry.BoundedDiscrete(max = 60, min = 1)
     public int loadMonitor = 10;
 
-    @Comment("Disable sand and other gravity block duping using end portal")
-    @ConfigEntry.Gui.Tooltip
-    public boolean sandDupingFix = true;
-
     @ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
     public PowerConverter powerConverter = new PowerConverter();
 
@@ -118,6 +114,12 @@ public class AnvilCraftConfig implements ConfigData {
     @ConfigEntry.Gui.Tooltip
     @ConfigEntry.BoundedDiscrete(min = 0, max = 100)
     public int inductionLightBlockRipeningRange = 5;
+
+    @Comment("The number of ticks between heliostat detections")
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(max = 20, min = 1)
+    @SerializedName("Heliostats detection interval")
+    public int heliostatsDetectionInterval = 4;
 
     public static class PowerConverter implements ConfigData {
         @Comment("The working interval of power converters")

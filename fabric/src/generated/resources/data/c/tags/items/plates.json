@@ -1,6 +1,19 @@
 {
   "replace": false,
   "values": [
+    "anvilcraft:copper_pressure_plate",
+    "anvilcraft:exposed_copper_pressure_plate",
+    "anvilcraft:weathered_copper_pressure_plate",
+    "anvilcraft:oxidized_copper_pressure_plate",
+    "anvilcraft:tungsten_pressure_plate",
+    "anvilcraft:titanium_pressure_plate",
+    "anvilcraft:zinc_pressure_plate",
+    "anvilcraft:tin_pressure_plate",
+    "anvilcraft:lead_pressure_plate",
+    "anvilcraft:silver_pressure_plate",
+    "anvilcraft:uranium_pressure_plate",
+    "anvilcraft:bronze_pressure_plate",
+    "anvilcraft:brass_pressure_plate",
     "minecraft:heavy_weighted_pressure_plate",
     "minecraft:light_weighted_pressure_plate"
   ]

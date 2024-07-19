@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": {
+    "item": "anvilcraft:ember_metal_block"
+  },
+  "base": {
+    "item": "anvilcraft:royal_grindstone"
+  },
+  "result": {
+    "item": "anvilcraft:ember_grindstone"
+  },
+  "template": {
+    "item": "anvilcraft:ember_metal_upgrade_smithing_template"
+  }
+}

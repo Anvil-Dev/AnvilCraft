@@ -17,7 +17,7 @@
     }
   ],
   "transformOptions": [
-    "keepInventory",
-    "replaceAnvil"
+    "replaceAnvil",
+    "keepInventory"
   ]
 }

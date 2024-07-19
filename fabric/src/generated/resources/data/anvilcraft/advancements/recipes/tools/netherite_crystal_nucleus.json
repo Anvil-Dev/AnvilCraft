@@ -19,12 +19,12 @@
       },
       "trigger": "minecraft:recipe_unlocked"
     },
-    "has_tungsten_nugget": {
+    "has_tungsten_pressure_plate": {
       "conditions": {
         "items": [
           {
             "items": [
-              "anvilcraft:tungsten_nugget"
+              "anvilcraft:tungsten_pressure_plate"
             ]
           }
         ]
@@ -34,7 +34,7 @@
   },
   "requirements": [
     [
-      "has_tungsten_nugget",
+      "has_tungsten_pressure_plate",
       "has_netherite_scrap",
       "has_the_recipe"
     ]

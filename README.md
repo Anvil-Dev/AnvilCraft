@@ -149,6 +149,13 @@
   </tr>
   <tr>
     <td align="center">
+      <a href="https://github.com/EvanHsieh0415">
+        <img src="https://avatars.githubusercontent.com/u/74277414?v=100&s=100" width="100px" height="100px" alt=""/><br />
+        <sub><b>芒果凍布丁</b></sub>
+      </a><br />
+      <a title="Translate">🌏</a><br />
+    </td>
+    <td align="center">
       <a href="https://github.com/moelobster">
         <img src="https://avatars.githubusercontent.com/u/161181492?v=100&s=100" width="100px" height="100px" alt=""/><br />
         <sub><b>弭忧萌虾</b></sub>
@@ -277,6 +284,13 @@
       <a title="Money">💵</a>
     </td>
     <td align="center">
+      <a href="https://space.bilibili.com/517815942">
+        <img src="https://i0.hdslb.com/bfs/face/1ce77f0acbaecc5aca1020e9780f399e4c82423e.jpg" width="100px" height="100px" alt=""/><br />
+        <sub><b>四叶草</b></sub>
+      </a><br />
+      <a title="Money">💵</a>
+    </td>
+    <td align="center">
       <a href="https://space.bilibili.com/484142219">
         <img src="https://i2.hdslb.com/bfs/face/d198e6e711865ae8ba9234b1eafcb05bc1df332b.jpg" width="100px" height="100px" alt=""/><br />
         <sub><b>秋水AuU_</b></sub>
@@ -295,13 +309,6 @@
       <a href="https://space.bilibili.com/438681761">
         <img src="https://i2.hdslb.com/bfs/face/ef45deee5b9f09529ff57702ecd64502b2ba60df.jpg" width="100px" height="100px" alt=""/><br />
         <sub><b>進取科工</b></sub>
-      </a><br />
-      <a title="Money">💵</a>
-    </td>
-    <td align="center">
-      <a href="https://space.bilibili.com/517815942">
-        <img src="https://i0.hdslb.com/bfs/face/1ce77f0acbaecc5aca1020e9780f399e4c82423e.jpg" width="100px" height="100px" alt=""/><br />
-        <sub><b>四叶草</b></sub>
       </a><br />
       <a title="Money">💵</a>
     </td>

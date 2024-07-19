@@ -16,10 +16,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 电网
@@ -27,7 +28,7 @@ import java.util.Set;
 @SuppressWarnings("unused")
 public class PowerGrid {
     public static boolean isServerClosing = false;
-    public static final Map<Level, Set<PowerGrid>> GRID_MAP = Collections.synchronizedMap(new HashMap<>());
+    private static final PowerGridData GRID_DATA = new PowerGridData();
     public static final int GRID_TICK = 20;
     @Getter
     public boolean remove = false;
@@ -72,16 +73,7 @@ public class PowerGrid {
      * 总电力刻
      */
     public static void tickGrid() {
-        for (Set<PowerGrid> grids : PowerGrid.GRID_MAP.values()) {
-            Iterator<PowerGrid> iterator = grids.iterator();
-            Set<PowerGrid> remove = Collections.synchronizedSet(new HashSet<>());
-            while (iterator.hasNext()) {
-                PowerGrid grid = iterator.next();
-                if (grid.isEmpty()) remove.add(grid);
-                grid.tick();
-            }
-            grids.removeAll(remove);
-        }
+        GRID_DATA.tick();
     }
 
     /**
@@ -239,7 +231,6 @@ public class PowerGrid {
         for (IPowerComponent component : components) {
             set.remove(component);
         }
-        PowerGrid.getGridSet(this.level).remove(this);
         new PowerGridRemovePack(this).broadcast();
         PowerGrid.addComponent(set.toArray(IPowerComponent[]::new));
     }
@@ -282,41 +273,7 @@ public class PowerGrid {
      */
     public static void addComponent(IPowerComponent @NotNull ... components) {
         for (IPowerComponent component : components) {
-            if (component.getComponentType() == PowerComponentType.INVALID) continue;
-            PowerGrid grid = null;
-            Set<PowerGrid> grids = PowerGrid.getGridSet(component.getCurrentLevel());
-            Iterator<PowerGrid> iterator = grids.iterator();
-            Set<PowerGrid> remove = Collections.synchronizedSet(new HashSet<>());
-            while (iterator.hasNext()) {
-                PowerGrid grid1 = iterator.next();
-                if (!grid1.isInRange(component)) continue;
-                if (grid == null) grid = grid1;
-                else {
-                    grid.merge(grid1);
-                    remove.add(grid1);
-                    new PowerGridRemovePack(grid1).broadcast();
-                }
-            }
-            grids.removeAll(remove);
-            if (grid == null) grid = new PowerGrid(component.getCurrentLevel());
-            grid.add(component);
-            grids.add(grid);
-        }
-    }
-
-    /**
-     * 获取指定世界的电网集合
-     *
-     * @param level 世界
-     * @return 电网集合
-     */
-    public static Set<PowerGrid> getGridSet(Level level) {
-        if (PowerGrid.GRID_MAP.containsKey(level)) {
-            return PowerGrid.GRID_MAP.get(level);
-        } else {
-            Set<PowerGrid> grids = new HashSet<>();
-            PowerGrid.GRID_MAP.put(level, grids);
-            return grids;
+            GRID_DATA.addComponent(component);
         }
     }
 
@@ -324,6 +281,81 @@ public class PowerGrid {
      * 清空电网
      */
     public static void clear() {
-        PowerGrid.GRID_MAP.values().forEach(Collection::clear);
+        PowerGrid.GRID_DATA.clear();
+    }
+
+    private static class PowerGridData {
+        private final Map<Level, Set<PowerGrid>> gridMap = Collections.synchronizedMap(new HashMap<>());
+        private final LinkedBlockingQueue<Map.Entry<Level, IPowerComponent>> addQueue = new LinkedBlockingQueue<>();
+
+        public PowerGridData() {
+        }
+
+        public synchronized void addComponent(@NotNull IPowerComponent component) {
+            try {
+                addQueue.offer(Map.entry(component.getCurrentLevel(), component), 500, TimeUnit.MICROSECONDS);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        public synchronized void remove(PowerGrid powerGrid) {
+            powerGrid.remove = true;
+        }
+
+        public synchronized void removeAll(Collection<PowerGrid> powerGrids) {
+            powerGrids.forEach(this::remove);
+        }
+
+        public void clear() {
+            gridMap.clear();
+        }
+
+        public synchronized void tick() {
+            for (int i = 0; i < addQueue.size(); i++) {
+                try {
+                    Map.Entry<Level, IPowerComponent> entry = addQueue.poll(500, TimeUnit.MICROSECONDS);
+                    if (entry == null) continue;
+                    IPowerComponent component = entry.getValue();
+                    if (component.getComponentType() == PowerComponentType.INVALID) continue;
+                    final PowerGrid[] grid = {null};
+                    Set<PowerGrid> grids = getGridSet(entry.getKey());
+                    Set<PowerGrid> remove = Collections.synchronizedSet(new HashSet<>());
+                    grids.forEach(powerGrid -> {
+                        if (powerGrid.isRemove() || !powerGrid.isInRange(component)) return;
+                        if (grid[0] == null) grid[0] = powerGrid;
+                        else {
+                            grid[0].merge(powerGrid);
+                            remove.add(powerGrid);
+                            new PowerGridRemovePack(powerGrid).broadcast();
+                        }
+                    });
+                    grids.removeAll(remove);
+                    if (grid[0] == null) grid[0] = new PowerGrid(component.getCurrentLevel());
+                    grid[0].add(component);
+                    grids.add(grid[0]);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            for (Set<PowerGrid> grids : gridMap.values()) {
+                Set<PowerGrid> remove = Collections.synchronizedSet(new HashSet<>());
+                grids.forEach(powerGrid -> {
+                    if (powerGrid.isEmpty() || powerGrid.isRemove()) remove.add(powerGrid);
+                    powerGrid.tick();
+                });
+                grids.removeAll(remove);
+            }
+        }
+
+        private Set<PowerGrid> getGridSet(Level level) {
+            if (gridMap.containsKey(level)) {
+                return gridMap.get(level);
+            } else {
+                Set<PowerGrid> grids = Collections.synchronizedSet(new HashSet<>());
+                gridMap.put(level, grids);
+                return grids;
+            }
+        }
     }
 }

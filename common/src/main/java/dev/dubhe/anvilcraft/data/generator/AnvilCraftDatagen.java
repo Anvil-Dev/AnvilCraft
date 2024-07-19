@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.data.generator;
 
 import com.tterrag.registrate.providers.ProviderType;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
-import dev.dubhe.anvilcraft.data.RecipeItem;
+import dev.dubhe.anvilcraft.data.recipe.RecipeItem;
 import dev.dubhe.anvilcraft.data.generator.advancement.AdvancementHandler;
 import dev.dubhe.anvilcraft.data.generator.lang.LangHandler;
 import dev.dubhe.anvilcraft.data.generator.loot.LootHandler;
@@ -24,6 +24,7 @@ public class AnvilCraftDatagen {
     public static void init() {
         REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, TagsHandler::initItem);
         REGISTRATE.addDataGenerator(ProviderType.BLOCK_TAGS, TagsHandler::initBlock);
+        REGISTRATE.addDataGenerator(ProviderType.FLUID_TAGS, TagsHandler::initFluid);
         REGISTRATE.addDataGenerator(ProviderType.LANG, LangHandler::init);
         REGISTRATE.addDataGenerator(ProviderType.RECIPE, RecipesHandler::init);
         REGISTRATE.addDataGenerator(ProviderType.LOOT, LootHandler::init);

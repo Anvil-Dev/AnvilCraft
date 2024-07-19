@@ -1,7 +1,8 @@
 package dev.dubhe.anvilcraft.init;
 
+import dev.anvilcraft.lib.network.Network;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.network.Network;
+import dev.dubhe.anvilcraft.network.ClientRecipeManagerSyncPack;
 import dev.dubhe.anvilcraft.network.ClientboundMutedSoundSyncPacket;
 import dev.dubhe.anvilcraft.network.HammerUsePack;
 import dev.dubhe.anvilcraft.network.HeliostatsIrradiationPack;
@@ -89,6 +90,11 @@ public class ModNetworks {
     public static final ResourceLocation HELIOSTATS_IRRADIATION = Network.register(
         AnvilCraft.of("heliostats_irradiation_pack"),
         HeliostatsIrradiationPack.class, HeliostatsIrradiationPack::new
+    );
+
+    public static final ResourceLocation CLIENT_RECIPE_MANAGER_SYNC = Network.register(
+        AnvilCraft.of("client_recipe_manager_sync"),
+        ClientRecipeManagerSyncPack.class, ClientRecipeManagerSyncPack::new
     );
 
     public static void register() {

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "tag": "c:lead_ingots"
+    }
+  },
+  "pattern": [
+    "AA"
+  ],
+  "result": {
+    "item": "anvilcraft:lead_pressure_plate"
+  },
+  "show_notification": true
+}

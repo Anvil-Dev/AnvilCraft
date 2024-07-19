@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.data.recipe.anvil.outcome;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContainer;
+import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContext;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipeOutcome;
 import lombok.Getter;
 import net.minecraft.network.FriendlyByteBuf;
@@ -39,8 +39,8 @@ public class DamageAnvil implements RecipeOutcome {
     }
 
     @Override
-    public boolean process(@NotNull AnvilCraftingContainer container) {
-        container.setAnvilDamage(true);
+    public boolean process(@NotNull AnvilCraftingContext context) {
+        context.setAnvilDamage(true);
         return true;
     }
 

@@ -1,0 +1,22 @@
+{
+	"credit": "Made with Blockbench",
+	"parent": "minecraft:block/block",
+	"textures": {
+		"head": "anvilcraft:block/creative_generator_head"
+	},
+	"elements": [
+		{
+			"from": [-5, -5, -5],
+			"to": [5, 5, 5],
+			"faces": {
+				"north": {"uv": [3, 3, 13, 13], "texture": "#head"},
+				"east": {"uv": [3, 3, 13, 13], "texture": "#head"},
+				"south": {"uv": [3, 3, 13, 13], "texture": "#head"},
+				"west": {"uv": [3, 3, 13, 13], "texture": "#head"},
+				"up": {"uv": [3, 3, 13, 13], "texture": "#head"},
+				"down": {"uv": [3, 3, 13, 13], "texture": "#head"}
+			}
+		}
+	],
+	"display": {}
+}

@@ -37,12 +37,12 @@
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_silver_ingot": {
+    "has_silver_pressure_plate": {
       "conditions": {
         "items": [
           {
             "items": [
-              "anvilcraft:silver_ingot"
+              "anvilcraft:silver_pressure_plate"
             ]
           }
         ]
@@ -54,14 +54,27 @@
         "recipe": "anvilcraft:ruby_laser"
       },
       "trigger": "minecraft:recipe_unlocked"
+    },
+    "has_tinted_glass": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "minecraft:tinted_glass"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
     }
   },
   "requirements": [
     [
       "has_royal_steel_ingot",
       "has_induction_light",
-      "has_silver_ingot",
+      "has_silver_pressure_plate",
       "has_ruby_block",
+      "has_tinted_glass",
       "has_the_recipe"
     ]
   ],

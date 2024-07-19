@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.data.generator.recipe;
 
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.data.RecipeItem;
+import dev.dubhe.anvilcraft.data.recipe.RecipeItem;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe.Builder;
@@ -21,6 +21,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TieredItem;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Arrays;
@@ -71,6 +72,11 @@ public class StampingRecipesLoader {
         stamping(
             Items.CHERRY_LEAVES,
             RecipeItem.of(Items.PINK_PETALS));
+        stamping(new RecipeItem[]{
+                RecipeItem.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
+                RecipeItem.of(ModItems.EMBER_METAL_INGOT)},
+                RecipeItem.of(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE)
+        );
 
         reclaim(Items.CHAINMAIL_HELMET, Items.CHAIN);
         reclaim(Items.CHAINMAIL_CHESTPLATE, Items.CHAIN);
@@ -123,17 +129,30 @@ public class StampingRecipesLoader {
     }
 
     /**
+     * 生成简单冲压配方
+     *
+     * @param item  原料
+     * @param item1 产物
+     */
+    public static void stamping(RegistrateRecipeProvider provider, TagKey<Item> item, Item item1) {
+        StampingRecipesLoader.provider = provider;
+        stamping(item, RecipeItem.of(item1));
+    }
+
+    /**
      * 冲印配方
      *
-     * @param enter 输入物品tag
+     * @param enters 输入物品tag
      * @param items 输出物品数组
      */
-    public static void stamping(Item enter, RecipeItem... items) {
+    public static void stamping(RecipeItem[] enters, RecipeItem... items) {
         if (StampingRecipesLoader.provider == null) return;
         Builder builder = AnvilRecipe.Builder.create(RecipeCategory.MISC)
             .hasBlock(ModBlocks.STAMPING_PLATFORM.get())
-            .hasItemIngredient(new Vec3(0.0, -0.75, 0.0), enter)
             .type(AnvilRecipeType.STAMPING);
+        for (RecipeItem enter : enters) {
+            builder = builder.hasItemIngredient(new Vec3(0.0, -0.75, 0.0), enter);
+        }
         SelectOne selectOne = new SelectOne();
         for (RecipeItem item : items) {
             if (item.isSelectOne()) {
@@ -146,12 +165,17 @@ public class StampingRecipesLoader {
         }
         if (!selectOne.isEmpty()) builder = builder.addOutcomes(selectOne);
         builder
-            .unlockedBy(AnvilCraftDatagen.hasItem(enter), AnvilCraftDatagen.has(enter))
+            .unlockedBy(AnvilCraftDatagen.hasItem(enters[0]), AnvilCraftDatagen.has(enters[0]))
             .save(StampingRecipesLoader.provider,
-                AnvilCraft.of("stamping/" + BuiltInRegistries.ITEM.getKey(enter).getPath()
+                AnvilCraft.of("stamping/" + enters[0].getKey()
                     + "_2_" + BuiltInRegistries.ITEM.getKey(Arrays.stream(items).toList()
                     .get(0).getItem().asItem()).getPath()));
     }
+
+    public static void stamping(ItemLike enter, RecipeItem... items) {
+        stamping(new RecipeItem[]{RecipeItem.of(enter)}, items);
+    }
+    
 
     /**
      * 冲印配方

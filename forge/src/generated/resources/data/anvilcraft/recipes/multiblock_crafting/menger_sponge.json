@@ -1,0 +1,48 @@
+{
+  "type": "anvilcraft:anvil_processing",
+  "anvil_recipe_type": "multiblock_crafting",
+  "icon": {
+    "item": "anvilcraft:menger_sponge"
+  },
+  "outcomes": [
+    {
+      "type": "spawn_item",
+      "chance": 1.0,
+      "offset": [
+        0.0,
+        -2.0,
+        0.0
+      ],
+      "result": {
+        "item": "anvilcraft:menger_sponge"
+      }
+    }
+  ],
+  "predicates": [
+    {
+      "type": "has_multi_block",
+      "key": {
+        " ": "minecraft:air",
+        "A": "minecraft:sponge",
+        "B": "anvilcraft:void_matter_block"
+      },
+      "layers": [
+        [
+          "AAA",
+          "A A",
+          "AAA"
+        ],
+        [
+          "A A",
+          " B ",
+          "A A"
+        ],
+        [
+          "AAA",
+          "A A",
+          "AAA"
+        ]
+      ]
+    }
+  ]
+}

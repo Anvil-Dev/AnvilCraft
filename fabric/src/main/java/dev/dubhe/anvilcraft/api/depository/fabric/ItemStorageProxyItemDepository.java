@@ -1,11 +1,6 @@
 package dev.dubhe.anvilcraft.api.depository.fabric;
 
-import com.google.common.collect.Maps;
 import dev.dubhe.anvilcraft.api.depository.IItemDepository;
-import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectRBTreeMap;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.base.SingleItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.base.SingleStackStorage;
@@ -13,19 +8,12 @@ import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
-import net.minecraft.client.gui.components.tabs.Tab;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @SuppressWarnings("UnstableApiUsage")
 public class ItemStorageProxyItemDepository implements IItemDepository {
@@ -68,10 +56,10 @@ public class ItemStorageProxyItemDepository implements IItemDepository {
             try {
                 return ((ItemStack) METHOD_GET_STACK.invoke(singleStackStorage)).copy();
             } catch (Throwable ignored) {
-                return view.getResource().toStack((int) view.getAmount());
+                return view.getResource().toStack(view.getAmount() > 0x7fffffff ? 0x7fffffff : (int) view.getAmount());
             }
         }
-        return view.getResource().toStack((int) view.getAmount());
+        return view.getResource().toStack(view.getAmount() > 0x7fffffff ? 0x7fffffff : (int) view.getAmount());
     }
 
     @Override

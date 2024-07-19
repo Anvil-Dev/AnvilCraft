@@ -9,14 +9,16 @@
     "AnvilMenuMixin",
     "BeaconMenuMixin",
     "BlockItemInvoker",
+    "BlockMixin",
     "ClientboundUpdateRecipesPacketMixin",
     "DiggerItemMixin",
     "DispenseItemEmptyBottleBehaviorMixin",
     "DispenseItemEmptyBucketBehaviorMixin",
     "DispenseItemWaterBottleBehaviorMixin",
+    "DoubleBlockIconMixin",
     "EnchantmentHelperMixin",
+    "EndPortalBlockMixin",
     "ExplosionMixin",
-    "FallingBlockEntityMixin",
     "FlyingHitEntityMixin",
     "HoeItemMixin",
     "IngredientValueAccessor$Item",
@@ -28,18 +30,21 @@
     "PlayerHitEntityMixin",
     "ServerLevelMixin",
     "SolidBucketItemMixin",
-    "SoundEngineMixin",
     "accessor.BaseSpawnerAccessor",
     "accessor.FallingBlockEntityAccessor",
-    "accessor.LootContextParamSetsAccessor"
+    "accessor.LootContextParamSetsAccessor",
+    "integration.create.BasinBlockEntityMixin"
   ],
   "client": [
     "ClientLevelMixin",
+    "ClientPacketListenerMixin",
     "ItemInHandRendererMixin",
     "LevelRendererMixin",
+    "SoundEngineMixin",
     "TooltipRenderMixin",
     "accessor.ItemInHandRendererAccessor",
-    "accessor.MinecraftAccessor"
+    "accessor.MinecraftAccessor",
+    "integration.rei.DefaultDisplayViewingScreenMixin"
   ],
   "plugin": "dev.dubhe.anvilcraft.mixin.plugin.AnvilCraftMixinPlugin",
   "injectors": {

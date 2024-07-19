@@ -44,7 +44,7 @@ loom {
         convertAccessWideners = true
         extraAccessWideners.add loom.accessWidenerPath.get().asFile.name
 
-        dataGen{
+        dataGen {
             mod(mod_id)
         }
     }
@@ -99,6 +99,8 @@ configurations {
 
 repositories {
     // mavens for Forge-exclusives
+    maven { url = "https://server.cjsah.net:1002/maven/" } // AnvilLib
+    maven { url = "https://maven.shedaniel.me/" }
     maven { url = "https://maven.theillusivec4.top/" } // Curios
     maven { url = "https://maven.parchmentmc.org" } // Parchment mappings
     maven { url = "https://maven.quiltmc.org/repository/release" } // Quilt Mappings
@@ -113,6 +115,12 @@ repositories {
         }
     }
     maven { url 'https://jitpack.io' } // Mixin Extras, Fabric ASM
+    maven { // Create Forge and Registrate Forge
+        url = "https://maven.tterrag.com/"
+        content {
+            includeGroup("com.simibubi.create")
+        }
+    }
 }
 
 dependencies {
@@ -124,19 +132,24 @@ dependencies {
     // Registrate
     modImplementation(include("com.tterrag.registrate:Registrate:${forge.versions.registrate.get()}"))
 
+    // AnvilLib
+    modImplementation(forge.anvilLib) { transitive = false }
+    include(forge.anvilLib)
+
     // JEI
     modCompileOnly(forge.jei.common.api) { transitive = false }
     modCompileOnly(forge.jei.forge.api) { transitive = false }
     modCompileOnly(forge.jei.forge.impl) { transitive = false }
 
     // REI
+    modRuntimeOnly "dev.architectury:architectury-forge:9.2.14"
     modCompileOnly(forge.rei.plugin) { transitive = false }
     modCompileOnly(forge.rei.api) { transitive = false }
-    modCompileOnly(forge.rei.forge) { transitive = false }
+    modRuntimeOnly(forge.rei.forge) { transitive = false }
 
     // EMI
     modCompileOnly("dev.emi:emi-forge:${fabric.versions.emi.get()}:api")
-    modImplementation forge.emi
+    modCompileOnly forge.emi
 
     // Jade
     modImplementation(forge.jade)
@@ -153,7 +166,14 @@ dependencies {
     include(forge.clothConfig)
 
     // Patchouli
-    modImplementation forge.patchouli
+    modImplementation(forge.patchouli)
+
+    // Create
+    modCompileOnly(forge.flywheel)
+    modCompileOnly(forge.create) {
+        exclude group: "io.github.llamalad7"
+        transitive = false
+    }
 }
 
 processResources {

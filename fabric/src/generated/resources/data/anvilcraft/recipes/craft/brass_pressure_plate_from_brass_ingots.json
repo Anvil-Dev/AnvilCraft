@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "tag": "c:brass_ingots"
+    }
+  },
+  "pattern": [
+    "AA"
+  ],
+  "result": {
+    "item": "anvilcraft:brass_pressure_plate"
+  },
+  "show_notification": true
+}

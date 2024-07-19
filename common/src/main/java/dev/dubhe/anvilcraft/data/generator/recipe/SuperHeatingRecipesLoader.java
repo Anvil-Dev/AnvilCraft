@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.data.generator.recipe;
 
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.data.RecipeItem;
+import dev.dubhe.anvilcraft.data.recipe.RecipeItem;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe.Builder;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;
@@ -87,6 +87,7 @@ public class SuperHeatingRecipesLoader {
             new RecipeItem[]{RecipeItem.of(ModItemTags.GEM_BLOCKS)},
             ModBlocks.MELT_GEM_CAULDRON.get()
         );
+        superHeating(RecipeItem.of(ModBlocks.END_DUST), RecipeItem.of(Items.END_STONE));
     }
 
     /**

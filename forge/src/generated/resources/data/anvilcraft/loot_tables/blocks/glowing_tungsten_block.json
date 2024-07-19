@@ -11,7 +11,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "anvilcraft:tungsten_block"
+          "name": "anvilcraft:heated_tungsten_block"
         }
       ],
       "rolls": 1.0

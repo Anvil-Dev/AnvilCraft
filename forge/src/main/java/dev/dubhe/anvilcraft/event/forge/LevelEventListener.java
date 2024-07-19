@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.event.forge;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.forge.AnvilCraftBlockPlacerFakePlayer;
 import dev.dubhe.anvilcraft.api.entity.player.AnvilCraftBlockPlacer;
 import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
@@ -29,7 +28,6 @@ public class LevelEventListener {
      */
     @SubscribeEvent
     public static void onLevelUnload(@NotNull LevelEvent.Unload event) {
-        ChargeCollectorManager.cleanMap();
         if (event.getLevel() instanceof ServerLevel serverLevel) {
             LevelLoadManager.removeAll(serverLevel);
         }
