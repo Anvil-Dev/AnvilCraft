@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "anvilcraft:block/cut_royal_steel_pillar_top",
+    "side": "anvilcraft:block/cut_royal_steel_pillar"
+  }
+}
