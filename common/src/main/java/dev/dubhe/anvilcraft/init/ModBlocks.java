@@ -19,6 +19,7 @@ import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.block.CrabTrapBlock;
 import dev.dubhe.anvilcraft.block.CreativeGeneratorBlock;
 import dev.dubhe.anvilcraft.block.DischargerBlock;
+import dev.dubhe.anvilcraft.block.EndDustBlock;
 import dev.dubhe.anvilcraft.block.EmberAnvilBlock;
 import dev.dubhe.anvilcraft.block.EmberMetalBlock;
 import dev.dubhe.anvilcraft.block.EmberGrindstone;
@@ -1243,8 +1244,8 @@ public class ModBlocks {
             provider))
         .tag(BlockTags.MINEABLE_WITH_SHOVEL)
         .register();
-    public static final BlockEntry<Block> END_DUST = REGISTRATE
-        .block("end_dust", Block::new)
+    public static final BlockEntry<EndDustBlock> END_DUST = REGISTRATE
+        .block("end_dust", EndDustBlock::new)
         .item(EndDustBlockItem::new)
         .build()
         .initialProperties(() -> Blocks.BLACK_CONCRETE_POWDER)
