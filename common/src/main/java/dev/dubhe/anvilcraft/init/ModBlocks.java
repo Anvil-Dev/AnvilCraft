@@ -9,14 +9,21 @@ import dev.dubhe.anvilcraft.block.AbstractMultiplePartBlock;
 import dev.dubhe.anvilcraft.block.ActiveSilencerBlock;
 import dev.dubhe.anvilcraft.block.ArrowBlock;
 import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
+import dev.dubhe.anvilcraft.block.BerryCakeBlock;
+import dev.dubhe.anvilcraft.block.BerryCreamBlock;
 import dev.dubhe.anvilcraft.block.BlockDevourerBlock;
 import dev.dubhe.anvilcraft.block.BlockPlacerBlock;
+import dev.dubhe.anvilcraft.block.CakeBaseBlock;
+import dev.dubhe.anvilcraft.block.CakeBlock;
 import dev.dubhe.anvilcraft.block.CementCauldronBlock;
 import dev.dubhe.anvilcraft.block.ChargeCollectorBlock;
 import dev.dubhe.anvilcraft.block.ChargerBlock;
+import dev.dubhe.anvilcraft.block.ChocolateCakeBlock;
+import dev.dubhe.anvilcraft.block.ChocolateCreamBlock;
 import dev.dubhe.anvilcraft.block.ChuteBlock;
 import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.block.CrabTrapBlock;
+import dev.dubhe.anvilcraft.block.CreamBlock;
 import dev.dubhe.anvilcraft.block.CreativeGeneratorBlock;
 import dev.dubhe.anvilcraft.block.DischargerBlock;
 import dev.dubhe.anvilcraft.block.EmberAnvilBlock;
@@ -1793,6 +1800,61 @@ public class ModBlocks {
         .blockstate((ctx, prov) -> {
         })
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<CakeBaseBlock> CAKE_BASE_BLOCK = REGISTRATE
+        .block("cake_base_block", CakeBaseBlock::new)
+        .initialProperties(() -> Blocks.CAKE)
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_SHOVEL)
+        .register();
+
+    public static final BlockEntry<CreamBlock> CREAM_BLOCK = REGISTRATE
+        .block("cream_block", CreamBlock::new)
+        .initialProperties(() -> Blocks.CAKE)
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_SHOVEL)
+        .register();
+
+    public static final BlockEntry<BerryCreamBlock> BERRY_CREAM_BLOCK = REGISTRATE
+        .block("berry_cream_block", BerryCreamBlock::new)
+        .initialProperties(() -> Blocks.CAKE)
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_SHOVEL)
+        .register();
+
+    public static final BlockEntry<ChocolateCreamBlock> CHOCOLATE_CREAM_BLOCK = REGISTRATE
+        .block("chocolate_cream_block", ChocolateCreamBlock::new)
+        .initialProperties(() -> Blocks.CAKE)
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_SHOVEL)
+        .register();
+
+    public static final BlockEntry<CakeBlock> CAKE_BLOCK = REGISTRATE
+        .block("cake_block", CakeBlock::new)
+        .initialProperties(() -> Blocks.CAKE)
+        .blockstate((context, provider) -> provider.simpleBlock(context.get(),
+            DangerUtil.genConfiguredModel("block/cake_block").get()))
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_SHOVEL)
+        .register();
+
+    public static final BlockEntry<BerryCakeBlock> BERRY_CAKE_BLOCK = REGISTRATE
+        .block("berry_cake_block", BerryCakeBlock::new)
+        .initialProperties(() -> Blocks.CAKE)
+        .blockstate((context, provider) -> provider.simpleBlock(context.get(),
+            DangerUtil.genConfiguredModel("block/berry_cake_block").get()))
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_SHOVEL)
+        .register();
+
+    public static final BlockEntry<ChocolateCakeBlock> CHOCOLATE_CAKE_BLOCK = REGISTRATE
+        .block("chocolate_cake_block", ChocolateCakeBlock::new)
+        .initialProperties(() -> Blocks.CAKE)
+        .blockstate((context, provider) -> provider.simpleBlock(context.get(),
+            DangerUtil.genConfiguredModel("block/chocolate_cake_block").get()))
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_SHOVEL)
         .register();
 
     public static final BlockEntry<ReinforcedConcreteBlock> REINFORCED_CONCRETE_BLACK =
