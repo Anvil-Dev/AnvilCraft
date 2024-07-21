@@ -163,6 +163,7 @@ public class ModItemTags {
     public static final TagKey<Item> FIRE_STARTER = bind("fire_starter");
     public static final TagKey<Item> UNBROKEN_FIRE_STARTER = bind("unbroken_fire_starter");
     public static final TagKey<Item> NETHERITE_BLOCK = bind("netherite_block");
+    public static final TagKey<Item> EXPLOSION_PROOF = bind("explosion_proof");
 
     public static @NotNull TagKey<Item> bindC(String id) {
         return TagKey.create(Registries.ITEM, new ResourceLocation("c", id));

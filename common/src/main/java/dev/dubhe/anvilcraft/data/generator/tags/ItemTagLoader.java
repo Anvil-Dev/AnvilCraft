@@ -119,5 +119,9 @@ public class ItemTagLoader {
                 .add(ModBlocks.GLOWING_NETHERITE.asItem())
                 .add(ModBlocks.HEATED_NETHERITE.asItem())
                 .add(ModBlocks.INCANDESCENT_NETHERITE.asItem());
+        provider.addTag(ModItemTags.EXPLOSION_PROOF).setReplace(false)
+                .add(ModBlocks.EARTH_CORE_SHARD_BLOCK.asItem())
+                .add(ModBlocks.EARTH_CORE_SHARD_ORE.asItem())
+                .add(ModItems.EARTH_CORE_SHARD.get());
     }
 }
