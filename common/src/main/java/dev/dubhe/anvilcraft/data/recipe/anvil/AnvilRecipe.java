@@ -18,8 +18,10 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.block.HasBlockIngredient
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.fluid.HasFluidCauldron;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.item.HasItem;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.item.HasItemIngredient;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.item.HasItemIngredientWithNoNbt;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.item.HasItemLeaves;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.block.NotHasBlock;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.block.HasShulkerBoxBlockEntity;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.multiblock.HasMultiBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItemTags;
@@ -923,6 +925,10 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContext> {
         RecipePredicate.register("has_block_ingredient", HasBlockIngredient::new, HasBlockIngredient::new);
         RecipePredicate.register("has_fluid_cauldron", HasFluidCauldron::new, HasFluidCauldron::new);
         RecipePredicate.register("has_multi_block", HasMultiBlock::decodeFromJson, HasMultiBlock::decodeFromNetworkBuf);
+        RecipePredicate.register("has_shulker_box_block_entity",
+                HasShulkerBoxBlockEntity::new, HasShulkerBoxBlockEntity::new);
+        RecipePredicate.register("has_item_ingredient_no_nbt",
+                HasItemIngredientWithNoNbt::new, HasItemIngredientWithNoNbt::new);
         RecipeOutcome.register("damage_anvil", DamageAnvil::new, DamageAnvil::new);
         RecipeOutcome.register("set_block", SetBlock::new, SetBlock::new);
         RecipeOutcome.register("spawn_item", SpawnItem::new, SpawnItem::new);

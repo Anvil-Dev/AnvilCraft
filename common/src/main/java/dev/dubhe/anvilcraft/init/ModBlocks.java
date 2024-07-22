@@ -49,14 +49,17 @@ import dev.dubhe.anvilcraft.block.InductionLightBlock;
 import dev.dubhe.anvilcraft.block.ItemCollectorBlock;
 import dev.dubhe.anvilcraft.block.JewelCraftingTable;
 import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
+import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
 import dev.dubhe.anvilcraft.block.LoadMonitorBlock;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
 import dev.dubhe.anvilcraft.block.MeltGemCauldron;
 import dev.dubhe.anvilcraft.block.MengerSpongeBlock;
 import dev.dubhe.anvilcraft.block.MineralFountainBlock;
 import dev.dubhe.anvilcraft.block.MobAmberBlock;
+import dev.dubhe.anvilcraft.block.NestingShulkerBoxBlock;
 import dev.dubhe.anvilcraft.block.ObsidianCauldron;
 import dev.dubhe.anvilcraft.block.OilCauldronBlock;
+import dev.dubhe.anvilcraft.block.OverNestingShulkerBoxBlock;
 import dev.dubhe.anvilcraft.block.OverseerBlock;
 import dev.dubhe.anvilcraft.block.PiezoelectricCrystalBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterBigBlock;
@@ -73,7 +76,9 @@ import dev.dubhe.anvilcraft.block.RoyalSmithingTableBlock;
 import dev.dubhe.anvilcraft.block.RubyLaserBlock;
 import dev.dubhe.anvilcraft.block.RubyPrismBlock;
 import dev.dubhe.anvilcraft.block.SimpleChuteBlock;
+import dev.dubhe.anvilcraft.block.SpaceOvercompressorBlock;
 import dev.dubhe.anvilcraft.block.StampingPlatformBlock;
+import dev.dubhe.anvilcraft.block.SupercriticalNestingShulkerBoxBlock;
 import dev.dubhe.anvilcraft.block.ThermoelectricConverterBlock;
 import dev.dubhe.anvilcraft.block.TransmissionPoleBlock;
 import dev.dubhe.anvilcraft.block.state.Color;
@@ -91,6 +96,10 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SelectOne;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SpawnItem;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.item.HasItem;
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.item.HasItemIngredient;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.item.HasItemIngredientWithNoNbt;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.item.ModItemWithNoNbtPredicate;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.block.HasBlock;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.block.HasShulkerBoxBlockEntity;
 import dev.dubhe.anvilcraft.item.AbstractMultiplePartBlockItem;
 import dev.dubhe.anvilcraft.item.CursedBlockItem;
 import dev.dubhe.anvilcraft.item.EndDustBlockItem;
@@ -106,6 +115,7 @@ import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.packs.VanillaRecipeProvider;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
@@ -2917,6 +2927,131 @@ public class ModBlocks {
             .build()
             .register();
     }
+
+    public static final BlockEntry<NestingShulkerBoxBlock> NESTING_SHULKER_BOX = REGISTRATE
+        .block("nesting_shulker_box", NestingShulkerBoxBlock::new)
+        .initialProperties(() -> Blocks.SHULKER_BOX)
+        .blockstate((ctx, provider) -> {
+        })
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .item()
+        .properties(properties -> properties.stacksTo(16))
+        .model((ctx, provider) -> provider.blockItem(ctx))
+        .build()
+        .recipe((ctx, provider) -> {
+            CompoundTag innerTag1 = new CompoundTag();
+            innerTag1.put("Items", new ListTag());
+            CompoundTag innerTag2 = new CompoundTag();
+            innerTag2.putString("id", "minecraft:shulker_box");
+            innerTag1.merge(innerTag2);
+            CompoundTag shulkerBoxItemInventoryNbt = new CompoundTag();
+            //targeted nbt: "BlockEntityTag:{Items:[],id:\"minecraft:shulker_box\"}"
+            shulkerBoxItemInventoryNbt.put("BlockEntityTag", innerTag1);
+            AnvilRecipe.Builder.create(RecipeCategory.MISC)
+                .type(AnvilRecipeType.ITEM_INJECT)
+                .hasBlock(new Vec3(0.0, -1.0, 0.0), Blocks.SHULKER_BOX)
+                .addPredicates(new HasShulkerBoxBlockEntity(
+                    new Vec3(0.0, -1.0, 0.0),
+                    new HasBlock.ModBlockPredicate().block(Blocks.SHULKER_BOX),
+                    HasShulkerBoxBlockEntity.IS_EMPTY,
+                    HasItem.ModItemPredicate.of()
+                ))
+                //.hasItemIngredient(Vec3.ZERO, Items.SHULKER_BOX)
+                .addPredicates(new HasItemIngredient(Vec3.ZERO, HasItem.ModItemPredicate
+                    .of(Items.SHULKER_BOX)
+                    .withCount(MinMaxBounds.Ints.atLeast(1))
+                    .withNbt(shulkerBoxItemInventoryNbt)
+                ))
+                .setBlock(new Vec3(0.0, -1.0, 0.0), ctx.get())
+                .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.SHULKER_BOX.asItem()),
+                        AnvilCraftDatagen.has(Blocks.SHULKER_BOX.asItem()))
+                .save(provider, AnvilCraft.of("item_inject/nesting_shulker_box"));
+            AnvilRecipe.Builder.create(RecipeCategory.MISC)
+                .type(AnvilRecipeType.ITEM_INJECT)
+                .hasBlock(new Vec3(0.0, -1.0, 0.0), Blocks.SHULKER_BOX)
+                .addPredicates(new HasShulkerBoxBlockEntity(
+                    new Vec3(0.0, -1.0, 0.0),
+                    new HasBlock.ModBlockPredicate().block(Blocks.SHULKER_BOX),
+                    HasShulkerBoxBlockEntity.IS_EMPTY,
+                    HasItem.ModItemPredicate.of()
+                ))
+                //.hasItemIngredient(Vec3.ZERO, Items.SHULKER_BOX)
+                .addPredicates(new HasItemIngredientWithNoNbt(
+                    Vec3.ZERO,
+                    ModItemWithNoNbtPredicate.of(Items.SHULKER_BOX)
+                    .withCount(MinMaxBounds.Ints.atLeast(1))
+                ))
+                .setBlock(new Vec3(0.0, -1.0, 0.0), ctx.get())
+                .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.SHULKER_BOX.asItem()),
+                        AnvilCraftDatagen.has(Blocks.SHULKER_BOX.asItem()))
+                .save(provider, AnvilCraft.of("item_inject/nesting_shulker_box_with_no_nbt"));
+        })
+        .register();
+    public static final BlockEntry<OverNestingShulkerBoxBlock> OVER_NESTING_SHULKER_BOX = REGISTRATE
+            .block("over_nesting_shulker_box", OverNestingShulkerBoxBlock::new)
+            .initialProperties(() -> Blocks.SHULKER_BOX)
+            .blockstate((ctx, provider) -> {
+            })
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .item()
+            .properties(properties -> properties.stacksTo(16))
+            .model((ctx, provider) -> provider.blockItem(ctx))
+            .build()
+            .recipe((ctx, provider) -> {
+                AnvilRecipe.Builder.create(RecipeCategory.MISC)
+                        .type(AnvilRecipeType.ITEM_INJECT)
+                        .hasBlock(new Vec3(0.0, -1.0, 0.0), Blocks.SHULKER_BOX)
+                        .addPredicates(new HasShulkerBoxBlockEntity(
+                                new Vec3(0.0, -1.0, 0.0),
+                                new HasBlock.ModBlockPredicate().block(Blocks.SHULKER_BOX),
+                                HasShulkerBoxBlockEntity.IS_EMPTY,
+                                HasItem.ModItemPredicate.of()
+                        ))
+                        .hasItemIngredient(Vec3.ZERO, ModBlocks.NESTING_SHULKER_BOX.asItem())
+                        .setBlock(new Vec3(0.0, -1.0, 0.0), ctx.get())
+                        .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.NESTING_SHULKER_BOX.asItem()),
+                                AnvilCraftDatagen.has(Blocks.SHULKER_BOX.asItem()))
+                        .save(provider, AnvilCraft.of("item_inject/over_nesting_shulker_box"));
+            })
+            .register();
+    public static final BlockEntry<SupercriticalNestingShulkerBoxBlock> SUPERCRITICAL_NESTING_SHULKER_BOX = REGISTRATE
+            .block("supercritical_nesting_shulker_box", SupercriticalNestingShulkerBoxBlock::new)
+            .initialProperties(() -> Blocks.SHULKER_BOX)
+            .blockstate((ctx, provider) -> {
+            })
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .item()
+            .properties(properties -> properties.stacksTo(16))
+            .model((ctx, provider) -> provider.blockItem(ctx))
+            .build()
+            .recipe((ctx, provider) -> {
+                AnvilRecipe.Builder.create(RecipeCategory.MISC)
+                        .type(AnvilRecipeType.ITEM_INJECT)
+                        .hasBlock(new Vec3(0.0, -1.0, 0.0), Blocks.SHULKER_BOX)
+                        .addPredicates(new HasShulkerBoxBlockEntity(
+                                new Vec3(0.0, -1.0, 0.0),
+                                new HasBlock.ModBlockPredicate().block(Blocks.SHULKER_BOX),
+                                HasShulkerBoxBlockEntity.IS_EMPTY,
+                                HasItem.ModItemPredicate.of()
+                        ))
+                        .hasItemIngredient(Vec3.ZERO, ModBlocks.OVER_NESTING_SHULKER_BOX.asItem())
+                        .setBlock(new Vec3(0.0, -1.0, 0.0), ctx.get())
+                        .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.OVER_NESTING_SHULKER_BOX.asItem()),
+                                AnvilCraftDatagen.has(Blocks.SHULKER_BOX.asItem()))
+                        .save(provider, AnvilCraft.of("item_inject/supercritical_nesting_shulker_box"));
+            })
+            .register();
+    public static final BlockEntry<SpaceOvercompressorBlock> SPACE_OVERCOMPRESSOR = REGISTRATE
+            .block("space_overcompressor", SpaceOvercompressorBlock::new)
+            //.initialProperties(() -> Blocks.SHULKER_BOX)
+            .blockstate((ctx, provider) -> {
+            })
+            //.tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .item()
+            .properties(properties -> properties.stacksTo(16))
+            .model((ctx, provider) -> provider.blockItem(ctx))
+            .build()
+            .register();
 
     public static void register() {
     }

@@ -30,6 +30,10 @@ public class AnvilCraftFabricClient implements ClientModInitializer {
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.RUBY_LASER.get(), RenderType.translucent());
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.GIANT_ANVIL.get(), RenderType.solid());
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.MENGER_SPONGE.get(), RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.NESTING_SHULKER_BOX.get(), RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.OVER_NESTING_SHULKER_BOX.get(), RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.SUPERCRITICAL_NESTING_SHULKER_BOX.get(), RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.SPACE_OVERCOMPRESSOR.get(), RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.EMBER_METAL_BLOCK.get(), RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.CUT_EMBER_METAL_BLOCK.get(), RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.CUT_EMBER_METAL_SLAB.get(), RenderType.cutout());

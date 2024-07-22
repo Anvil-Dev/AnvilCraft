@@ -78,6 +78,22 @@ public class StampingRecipesLoader {
                 RecipeItem.of(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE)
         );
 
+        stamping(
+            ModBlocks.NESTING_SHULKER_BOX.asItem(),
+            RecipeItem.of(Items.SHULKER_BOX),
+            RecipeItem.of(Items.SHULKER_BOX));
+        stamping(
+                ModBlocks.OVER_NESTING_SHULKER_BOX.asItem(),
+                RecipeItem.of(Items.SHULKER_BOX),
+                RecipeItem.of(Items.SHULKER_BOX),
+                RecipeItem.of(Items.SHULKER_BOX));
+        stamping(
+                ModBlocks.SUPERCRITICAL_NESTING_SHULKER_BOX.asItem(),
+                RecipeItem.of(Items.SHULKER_BOX),
+                RecipeItem.of(Items.SHULKER_BOX),
+                RecipeItem.of(Items.SHULKER_BOX),
+                RecipeItem.of(Items.SHULKER_BOX));
+
         reclaim(Items.CHAINMAIL_HELMET, Items.CHAIN);
         reclaim(Items.CHAINMAIL_CHESTPLATE, Items.CHAIN);
         reclaim(Items.CHAINMAIL_LEGGINGS, Items.CHAIN);

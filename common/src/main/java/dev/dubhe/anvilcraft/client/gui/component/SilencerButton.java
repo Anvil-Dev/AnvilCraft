@@ -51,7 +51,8 @@ public class SilencerButton extends Button {
         this.height = 15;
         this.width = 112;
         this.index = index;
-        texture = AnvilCraft.of("textures/gui/container/machine/active_silencer_button_%s.png".formatted(textureVariant));
+        texture = AnvilCraft
+                .of("textures/gui/container/machine/active_silencer_button_%s.png".formatted(textureVariant));
         this.parent = parent;
         this.variant = variant;
     }
