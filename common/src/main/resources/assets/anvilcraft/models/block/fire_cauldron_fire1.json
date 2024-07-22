@@ -1,6 +1,7 @@
 {
 	"credit": "Made by XeKr with Blockbench",
 	"parent": "minecraft:block/campfire",
+	"render_type": "minecraft:cutout",
 	"textures": {
 		"0": "minecraft:block/campfire_fire",
 		"particle": "minecraft:block/campfire_fire"

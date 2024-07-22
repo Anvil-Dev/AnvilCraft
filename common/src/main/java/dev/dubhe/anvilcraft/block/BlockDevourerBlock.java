@@ -14,6 +14,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -63,7 +64,15 @@ public class BlockDevourerBlock extends DirectionalBlock implements IHammerChang
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return this.defaultBlockState().setValue(FACING, context.getNearestLookingDirection().getOpposite());
+        Player player = context.getPlayer();
+        if (player == null) {
+            return this.defaultBlockState().setValue(FACING, context.getNearestLookingDirection().getOpposite());
+        }
+        if (player.isShiftKeyDown()) {
+            return this.defaultBlockState().setValue(FACING, context.getNearestLookingDirection().getOpposite());
+        } else {
+            return this.defaultBlockState().setValue(FACING, context.getNearestLookingDirection());
+        }
     }
 
     @Override

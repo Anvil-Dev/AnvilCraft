@@ -66,6 +66,7 @@ public class GiantAnvilLandingEventListener {
                 ) {
                     LootParams.Builder builder = new LootParams.Builder((ServerLevel) level)
                             .withParameter(LootContextParams.ORIGIN, pos.getCenter());
+                    builder.withParameter(LootContextParams.TOOL, ItemStack.EMPTY);
                     if (state.is(BlockTags.SNOW)) {
                         builder.withOptionalParameter(LootContextParams.BLOCK_ENTITY, null);
                         builder.withParameter(LootContextParams.THIS_ENTITY, new PrimedTnt(EntityType.TNT, level));

@@ -5,6 +5,8 @@ import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItemTags;
 import dev.dubhe.anvilcraft.init.ModItems;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -22,6 +24,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.UUID;
 
@@ -84,5 +87,16 @@ abstract class ItemEntityMixin extends Entity {
         if (this.getServer() == null) return;
         if (this.getItem().is(ModItemTags.VOID_RESISTANT) && this.getY() < this.level().getMinBuildHeight())
                 this.setDeltaMovement(0, 0.6f, 0);
+    }
+
+    @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
+    private void explosionProof(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+        if (
+            !this.getItem().isEmpty()
+                    && this.getItem().is(ModItemTags.EXPLOSION_PROOF)
+                    && source.is(DamageTypeTags.IS_EXPLOSION)
+        ) {
+            cir.setReturnValue(false);
+        }
     }
 }

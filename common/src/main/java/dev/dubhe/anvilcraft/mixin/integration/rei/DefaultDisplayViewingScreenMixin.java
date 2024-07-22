@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("UnstableApiUsage")
-@Mixin(value = DefaultDisplayViewingScreen.class, remap = false)
+@Mixin(value = DefaultDisplayViewingScreen.class)
 public abstract class DefaultDisplayViewingScreenMixin extends AbstractDisplayViewingScreen {
     protected DefaultDisplayViewingScreenMixin(
         Map<DisplayCategory<?>, List<DisplaySpec>> categoryMap, @Nullable CategoryIdentifier<?> category
@@ -26,7 +26,7 @@ public abstract class DefaultDisplayViewingScreenMixin extends AbstractDisplayVi
         super(categoryMap, category);
     }
 
-    @Shadow
+    @Shadow(remap = false)
     public abstract List<DisplaySpec> getCurrentDisplayed();
 
     /**
@@ -49,8 +49,7 @@ public abstract class DefaultDisplayViewingScreenMixin extends AbstractDisplayVi
                 target = "Lme/shedaniel/rei/impl/client/gui/widget/TabContainerWidget;initTabsSize(I)V",
                 remap = false
             )
-        ),
-        remap = false
+        )
     )
     private int init(int a, int b) {
         int maxWidthDisplay = CollectionUtils.<DisplaySpec, Integer>mapAndMax(

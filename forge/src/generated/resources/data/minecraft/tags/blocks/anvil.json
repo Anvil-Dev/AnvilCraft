@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "anvilcraft:royal_anvil"
+    "anvilcraft:royal_anvil",
+    "anvilcraft:ember_anvil"
   ]
 }

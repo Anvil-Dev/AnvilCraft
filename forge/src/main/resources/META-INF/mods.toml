@@ -9,7 +9,16 @@ displayName = "${mod_name}"
 displayURL = "https://www.anvilcraft.dev/"
 issueTrackerURL = "https://github.com/Anvil-Dev/AnvilCraft/issues"
 authors = "Gugle,XeKr"
-description = """${mod_description}\n\nContributors:\n${contributors}\n\nSupporters:\n${supporters}\n- and more...\n"""
+description = '''
+${mod_description}
+
+Contributors:
+${contributors}
+
+Supporters:
+${supporters}
+- and more...
+'''
 logoFile = "pack.png" #optional
 #credits="Thanks for this example mod goes to Java"
 

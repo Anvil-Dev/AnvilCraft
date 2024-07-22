@@ -9,17 +9,32 @@ import dev.dubhe.anvilcraft.block.AbstractMultiplePartBlock;
 import dev.dubhe.anvilcraft.block.ActiveSilencerBlock;
 import dev.dubhe.anvilcraft.block.ArrowBlock;
 import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
+import dev.dubhe.anvilcraft.block.BerryCakeBlock;
+import dev.dubhe.anvilcraft.block.BerryCreamBlock;
 import dev.dubhe.anvilcraft.block.BlockDevourerBlock;
 import dev.dubhe.anvilcraft.block.BlockPlacerBlock;
+import dev.dubhe.anvilcraft.block.CakeBaseBlock;
+import dev.dubhe.anvilcraft.block.CakeBlock;
 import dev.dubhe.anvilcraft.block.CementCauldronBlock;
 import dev.dubhe.anvilcraft.block.ChargeCollectorBlock;
 import dev.dubhe.anvilcraft.block.ChargerBlock;
+import dev.dubhe.anvilcraft.block.ChocolateCakeBlock;
+import dev.dubhe.anvilcraft.block.ChocolateCreamBlock;
 import dev.dubhe.anvilcraft.block.ChuteBlock;
 import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.block.CrabTrapBlock;
+import dev.dubhe.anvilcraft.block.CreamBlock;
 import dev.dubhe.anvilcraft.block.CreativeGeneratorBlock;
 import dev.dubhe.anvilcraft.block.DischargerBlock;
+import dev.dubhe.anvilcraft.block.EndDustBlock;
+import dev.dubhe.anvilcraft.block.EmberAnvilBlock;
+import dev.dubhe.anvilcraft.block.EmberMetalBlock;
+import dev.dubhe.anvilcraft.block.EmberGrindstone;
+import dev.dubhe.anvilcraft.block.EmberMetalSlabBlock;
+import dev.dubhe.anvilcraft.block.EmberMetalStairBlock;
+import dev.dubhe.anvilcraft.block.EmberSmithingTableBlock;
 import dev.dubhe.anvilcraft.block.FerriteCoreMagnetBlock;
+import dev.dubhe.anvilcraft.block.FireCauldronBlock;
 import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.block.GlowingMetalBlock;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
@@ -43,6 +58,7 @@ import dev.dubhe.anvilcraft.block.MineralFountainBlock;
 import dev.dubhe.anvilcraft.block.MobAmberBlock;
 import dev.dubhe.anvilcraft.block.NestingShulkerBoxBlock;
 import dev.dubhe.anvilcraft.block.ObsidianCauldron;
+import dev.dubhe.anvilcraft.block.OilCauldronBlock;
 import dev.dubhe.anvilcraft.block.OverNestingShulkerBoxBlock;
 import dev.dubhe.anvilcraft.block.OverseerBlock;
 import dev.dubhe.anvilcraft.block.PiezoelectricCrystalBlock;
@@ -78,12 +94,12 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.RecipeOutcome;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipePredicate;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SelectOne;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SpawnItem;
-import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasBlock;
-import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItem;
-import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItemIngredient;
-import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItemIngredientWithNoNbt;
-import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasShulkerBoxBlockEntity;
-import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.ModItemWithNoNbtPredicate;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.item.HasItem;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.item.HasItemIngredient;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.item.HasItemIngredientWithNoNbt;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.item.ModItemWithNoNbtPredicate;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.block.HasBlock;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.block.HasShulkerBoxBlockEntity;
 import dev.dubhe.anvilcraft.item.AbstractMultiplePartBlockItem;
 import dev.dubhe.anvilcraft.item.CursedBlockItem;
 import dev.dubhe.anvilcraft.item.EndDustBlockItem;
@@ -1245,8 +1261,8 @@ public class ModBlocks {
             provider))
         .tag(BlockTags.MINEABLE_WITH_SHOVEL)
         .register();
-    public static final BlockEntry<Block> END_DUST = REGISTRATE
-        .block("end_dust", Block::new)
+    public static final BlockEntry<EndDustBlock> END_DUST = REGISTRATE
+        .block("end_dust", EndDustBlock::new)
         .item(EndDustBlockItem::new)
         .build()
         .initialProperties(() -> Blocks.BLACK_CONCRETE_POWDER)
@@ -1795,6 +1811,61 @@ public class ModBlocks {
         .blockstate((ctx, prov) -> {
         })
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<CakeBaseBlock> CAKE_BASE_BLOCK = REGISTRATE
+        .block("cake_base_block", CakeBaseBlock::new)
+        .initialProperties(() -> Blocks.CAKE)
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_SHOVEL)
+        .register();
+
+    public static final BlockEntry<CreamBlock> CREAM_BLOCK = REGISTRATE
+        .block("cream_block", CreamBlock::new)
+        .initialProperties(() -> Blocks.CAKE)
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_SHOVEL)
+        .register();
+
+    public static final BlockEntry<BerryCreamBlock> BERRY_CREAM_BLOCK = REGISTRATE
+        .block("berry_cream_block", BerryCreamBlock::new)
+        .initialProperties(() -> Blocks.CAKE)
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_SHOVEL)
+        .register();
+
+    public static final BlockEntry<ChocolateCreamBlock> CHOCOLATE_CREAM_BLOCK = REGISTRATE
+        .block("chocolate_cream_block", ChocolateCreamBlock::new)
+        .initialProperties(() -> Blocks.CAKE)
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_SHOVEL)
+        .register();
+
+    public static final BlockEntry<CakeBlock> CAKE_BLOCK = REGISTRATE
+        .block("cake_block", CakeBlock::new)
+        .initialProperties(() -> Blocks.CAKE)
+        .blockstate((context, provider) -> provider.simpleBlock(context.get(),
+            DangerUtil.genConfiguredModel("block/cake_block").get()))
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_SHOVEL)
+        .register();
+
+    public static final BlockEntry<BerryCakeBlock> BERRY_CAKE_BLOCK = REGISTRATE
+        .block("berry_cake_block", BerryCakeBlock::new)
+        .initialProperties(() -> Blocks.CAKE)
+        .blockstate((context, provider) -> provider.simpleBlock(context.get(),
+            DangerUtil.genConfiguredModel("block/berry_cake_block").get()))
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_SHOVEL)
+        .register();
+
+    public static final BlockEntry<ChocolateCakeBlock> CHOCOLATE_CAKE_BLOCK = REGISTRATE
+        .block("chocolate_cake_block", ChocolateCakeBlock::new)
+        .initialProperties(() -> Blocks.CAKE)
+        .blockstate((context, provider) -> provider.simpleBlock(context.get(),
+            DangerUtil.genConfiguredModel("block/chocolate_cake_block").get()))
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_SHOVEL)
         .register();
 
     public static final BlockEntry<ReinforcedConcreteBlock> REINFORCED_CONCRETE_BLACK =
@@ -2384,6 +2455,200 @@ public class ModBlocks {
         .simpleItem()
         .register();
 
+
+    public static final BlockEntry<HeliostatsBlock> HELIOSTATS = REGISTRATE
+            .block("heliostats", HeliostatsBlock::new)
+            .initialProperties(() -> Blocks.GLASS)
+            .blockstate((ctx, prov) -> {
+            })
+            .defaultLoot()
+            .item(HeliostatsItem::new)
+            .model((a, b) -> {
+            })
+            .build()
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 8)
+                    .pattern("A")
+                    .pattern("B")
+                    .pattern("C")
+                    .define('A', ModBlocks.SILVER_PRESSURE_PLATE)
+                    .define('B', Items.SUNFLOWER)
+                    .define('C', Items.IRON_INGOT)
+                    .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.SILVER_PRESSURE_PLATE),
+                            AnvilCraftDatagen.has(ModBlocks.SILVER_PRESSURE_PLATE))
+                    .unlockedBy(AnvilCraftDatagen.hasItem(Items.SUNFLOWER),
+                            AnvilCraftDatagen.has(Items.SUNFLOWER))
+                    .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT),
+                            AnvilCraftDatagen.has(Items.IRON_INGOT))
+                    .save(provider))
+            .register();
+
+    public static final BlockEntry<EmberMetalBlock> EMBER_METAL_BLOCK = REGISTRATE
+            .block("ember_metal_block", properties -> new EmberMetalBlock(properties, 0.5d))
+            .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+            .tag(BlockTags.BEACON_BASE_BLOCKS)
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .tag(BlockTags.WITHER_IMMUNE)
+            .tag(BlockTags.DRAGON_IMMUNE)
+            .properties(properties -> properties.lightLevel(state -> 9))
+            .properties(BlockBehaviour.Properties::noOcclusion)
+            .blockstate((context, provider) -> provider.simpleBlock(context.get(),
+                    DangerUtil.genConfiguredModel("block/ember_metal_block").get()))
+            .item()
+            .initialProperties(() -> new Item.Properties().fireResistant())
+            .build()
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .pattern("AAA")
+                    .define('A', ModItems.EMBER_METAL_INGOT)
+                    .unlockedBy(
+                            AnvilCraftDatagen.hasItem(ModItems.EMBER_METAL_INGOT),
+                            RegistrateRecipeProvider.has(ModItems.EMBER_METAL_INGOT))
+                    .save(provider))
+            .defaultLoot()
+            .register();
+
+
+    public static final BlockEntry<EmberMetalBlock> CUT_EMBER_METAL_BLOCK = REGISTRATE
+            .block("cut_ember_metal_block", properties -> new EmberMetalBlock(properties, 0.1d))
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .tag(BlockTags.WITHER_IMMUNE)
+            .tag(BlockTags.DRAGON_IMMUNE)
+            .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+            .properties(properties -> properties.lightLevel(state -> 9))
+            .properties(BlockBehaviour.Properties::noOcclusion)
+            .blockstate((context, provider) -> provider.simpleBlock(context.get(),
+                    DangerUtil.genConfiguredModel("block/cut_ember_metal_block").get()))
+            .item()
+            .initialProperties(() -> new Item.Properties().fireResistant())
+            .build()
+            .recipe((ctx, provider) -> {
+                ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 4)
+                        .pattern("AA")
+                        .pattern("AA")
+                        .define('A', ModBlocks.EMBER_METAL_BLOCK)
+                        .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.EMBER_METAL_BLOCK.asItem()),
+                                AnvilCraftDatagen.has(ModBlocks.EMBER_METAL_BLOCK))
+                        .save(provider, AnvilCraft.of("craft/cut_ember_metal_block"));
+                VanillaRecipeProvider.stonecutterResultFromBase(provider, RecipeCategory.BUILDING_BLOCKS,
+                        ctx.get(), ModBlocks.EMBER_METAL_BLOCK, 4);
+            })
+            .defaultLoot()
+            .register();
+
+    public static final BlockEntry<EmberMetalSlabBlock> CUT_EMBER_METAL_SLAB = REGISTRATE
+            .block("cut_ember_metal_slab", EmberMetalSlabBlock::new)
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .tag(BlockTags.WITHER_IMMUNE)
+            .tag(BlockTags.DRAGON_IMMUNE)
+            .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+            .properties(properties -> properties.lightLevel(state -> 9))
+            .properties(BlockBehaviour.Properties::noOcclusion)
+            .blockstate((ctx, provider) -> {
+            })
+            .item()
+            .initialProperties(() -> new Item.Properties().fireResistant())
+            .build()
+            .loot((tables, block) -> tables.add(block, tables::createSlabItemTable))
+            .recipe((ctx, provider) -> {
+                ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 6)
+                        .pattern("AAA")
+                        .define('A', ModBlocks.CUT_EMBER_METAL_BLOCK)
+                        .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CUT_EMBER_METAL_BLOCK.asItem()),
+                                AnvilCraftDatagen.has(ModBlocks.CUT_EMBER_METAL_BLOCK))
+                        .save(provider, AnvilCraft.of("craft/cut_ember_metal_slab"));
+                VanillaRecipeProvider.stonecutterResultFromBase(provider, RecipeCategory.BUILDING_BLOCKS,
+                        ctx.get(), ModBlocks.CUT_EMBER_METAL_BLOCK, 2);
+                VanillaRecipeProvider.stonecutterResultFromBase(provider, RecipeCategory.BUILDING_BLOCKS,
+                        ctx.get(), ModBlocks.EMBER_METAL_BLOCK, 8);
+            })
+            .register();
+
+    public static final BlockEntry<EmberMetalStairBlock> CUT_EMBER_METAL_STAIRS = REGISTRATE
+            .block("cut_ember_metal_stairs", (properties) ->
+                    new EmberMetalStairBlock(ModBlocks.CUT_EMBER_METAL_BLOCK.getDefaultState(), properties))
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .tag(BlockTags.WITHER_IMMUNE)
+            .tag(BlockTags.DRAGON_IMMUNE)
+            .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+            .properties(properties -> properties.lightLevel(state -> 9))
+            .properties(BlockBehaviour.Properties::noOcclusion)
+            .blockstate((ctx, provider) -> {
+            })
+            .item()
+            .initialProperties(() -> new Item.Properties().fireResistant())
+            .build()
+            .recipe((ctx, provider) -> {
+                ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 4)
+                        .pattern("A  ")
+                        .pattern("AA ")
+                        .pattern("AAA")
+                        .define('A', ModBlocks.CUT_EMBER_METAL_BLOCK)
+                        .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CUT_EMBER_METAL_BLOCK.asItem()),
+                                AnvilCraftDatagen.has(ModBlocks.CUT_EMBER_METAL_BLOCK))
+                        .save(provider, AnvilCraft.of("craft/cut_ember_metal_stairs"));
+                VanillaRecipeProvider.stonecutterResultFromBase(provider, RecipeCategory.BUILDING_BLOCKS,
+                        ctx.get(), ModBlocks.CUT_EMBER_METAL_BLOCK, 1);
+                VanillaRecipeProvider.stonecutterResultFromBase(provider, RecipeCategory.BUILDING_BLOCKS,
+                        ctx.get(), ModBlocks.EMBER_METAL_BLOCK, 4);
+            })
+            .register();
+
+    public static final BlockEntry<OilCauldronBlock> OIL_CAULDRON = REGISTRATE
+            .block("oil_cauldron", OilCauldronBlock::new)
+            .initialProperties(() -> Blocks.CAULDRON)
+            .blockstate((ctx, provider) -> {
+            })
+            .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .register();
+
+    public static final BlockEntry<FireCauldronBlock> FIRE_CAULDRON = REGISTRATE
+            .block("fire_cauldron", FireCauldronBlock::new)
+            .initialProperties(() -> Blocks.CAULDRON)
+            .properties(properties -> properties.lightLevel(state -> 15))
+            .blockstate((ctx, provider) -> {
+            })
+            .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .register();
+    public static final BlockEntry<EmberAnvilBlock> EMBER_ANVIL = REGISTRATE
+            .block("ember_anvil", EmberAnvilBlock::new)
+            .initialProperties(() -> Blocks.ANVIL)
+            .tag(BlockTags.WITHER_IMMUNE)
+            .tag(BlockTags.DRAGON_IMMUNE)
+            .properties(properties -> properties.lightLevel(state -> 9))
+            .properties(BlockBehaviour.Properties::noOcclusion)
+            .blockstate((ctx, provider) -> {
+            })
+            .simpleItem()
+            .tag(BlockTags.ANVIL, ModBlockTags.CANT_BROKEN_ANVIL, BlockTags.MINEABLE_WITH_PICKAXE)
+            .register();
+    public static final BlockEntry<EmberGrindstone> EMBER_GRINDSTONE = REGISTRATE
+            .block("ember_grindstone", EmberGrindstone::new)
+            .tag(BlockTags.WITHER_IMMUNE)
+            .tag(BlockTags.DRAGON_IMMUNE)
+            .properties(properties -> properties.lightLevel(state -> 9))
+            .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+            .properties(BlockBehaviour.Properties::noOcclusion)
+            .blockstate((ctx, provider) -> {
+            })
+            .simpleItem()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .register();
+    public static final BlockEntry<EmberSmithingTableBlock> EMBER_SMITHING_TABLE = REGISTRATE
+            .block("ember_smithing_table", EmberSmithingTableBlock::new)
+            .tag(BlockTags.WITHER_IMMUNE)
+            .tag(BlockTags.DRAGON_IMMUNE)
+            .properties(properties -> properties.lightLevel(state -> 9))
+            .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+            .properties(BlockBehaviour.Properties::noOcclusion)
+            .blockstate((ctx, provider) -> {
+            })
+            .simpleItem()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .register();
+
     private static @NotNull BlockEntry<ReinforcedConcreteBlock> registerReinforcedConcreteBlock(@NotNull Color color) {
         return REGISTRATE
             .block("reinforced_concrete_" + color, ReinforcedConcreteBlock::new)
@@ -2415,7 +2680,6 @@ public class ModBlocks {
             .tag(BlockTags.MINEABLE_WITH_PICKAXE)
             .register();
     }
-
 
     private static @NotNull BlockEntry<SlabBlock> registerReinforcedConcreteSlabBlock(
         @NotNull Color color,
@@ -2663,32 +2927,6 @@ public class ModBlocks {
             .build()
             .register();
     }
-
-    public static final BlockEntry<HeliostatsBlock> HELIOSTATS = REGISTRATE
-        .block("heliostats", HeliostatsBlock::new)
-        .initialProperties(() -> Blocks.GLASS)
-        .blockstate((ctx, prov) -> {
-        })
-        .defaultLoot()
-        .item(HeliostatsItem::new)
-        .model((a, b) -> {
-        })
-        .build()
-        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 8)
-            .pattern("A")
-            .pattern("B")
-            .pattern("C")
-            .define('A', ModBlocks.SILVER_PRESSURE_PLATE)
-            .define('B', Items.SUNFLOWER)
-            .define('C', Items.IRON_INGOT)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.SILVER_PRESSURE_PLATE),
-                AnvilCraftDatagen.has(ModBlocks.SILVER_PRESSURE_PLATE))
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.SUNFLOWER),
-                AnvilCraftDatagen.has(Items.SUNFLOWER))
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT),
-                AnvilCraftDatagen.has(Items.IRON_INGOT))
-            .save(provider))
-        .register();
 
     public static final BlockEntry<NestingShulkerBoxBlock> NESTING_SHULKER_BOX = REGISTRATE
         .block("nesting_shulker_box", NestingShulkerBoxBlock::new)

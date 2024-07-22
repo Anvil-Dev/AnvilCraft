@@ -26,6 +26,6 @@ public class RecipesHandler {
         SmithingRecipesLoader.init(provider);
         MobTransformRecipesLoader.init(provider);
         BulgingLikeRecipesLoader.init(provider);
-        MultiblockCraftingRecipeLoader.init(provider);
+        MultiblockCraftingHandler.init(provider);
     }
 }

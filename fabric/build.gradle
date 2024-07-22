@@ -79,7 +79,7 @@ repositories {
     maven { url = "https://server.cjsah.net:1002/maven/" } // AnvilLib
     maven { url = "https://mvn.devos.one/snapshots/" }
     // Create Fabric, Porting Lib, Forge Tags, Milk Lib, Registrate Fabric
-    //maven { url = "https://maven.cafeteria.dev/releases" } // Fake Player API
+    // maven { url = "https://maven.cafeteria.dev/releases" } // Fake Player API
     maven { url = "https://jitpack.io/" } // Mixin Extras, Fabric ASM
     maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" }
     maven { url = "https://maven.saps.dev/minecraft" } // saps.dev Maven (KubeJS and Rhino)

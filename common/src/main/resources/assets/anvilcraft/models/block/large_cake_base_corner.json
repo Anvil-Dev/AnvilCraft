@@ -1,0 +1,77 @@
+{
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/cube",
+	"render_type": "minecraft:translucent",
+	"texture_size": [64, 64],
+	"textures": {
+		"0": "anvilcraft:block/large_cake",
+		"1": "anvilcraft:block/large_cake_bottom",
+		"2": "anvilcraft:block/large_cake_top",
+		"particle": "anvilcraft:block/cake_block"
+	},
+	"elements": [
+		{
+			"from": [0, 6, 0],
+			"to": [16, 16, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [4, 12, 0, 14.5], "texture": "#0"},
+				"east": {"uv": [12, 12, 16, 14.5], "texture": "#0"},
+				"south": {"uv": [16, 12, 12, 14.5], "texture": "#0"},
+				"west": {"uv": [0, 12, 4, 14.5], "texture": "#0"},
+				"up": {"uv": [0, 12, 4, 16], "rotation": 90, "texture": "#2"},
+				"down": {"uv": [0, 4, 4, 8], "texture": "#2"}
+			}
+		},
+		{
+			"from": [1, 0, 1],
+			"to": [16, 6, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [4, 14.5, 0.25, 16], "texture": "#0"},
+				"east": {"uv": [12, 14.5, 15.75, 16], "texture": "#0"},
+				"south": {"uv": [15.75, 14.5, 12, 16], "texture": "#0"},
+				"west": {"uv": [0.25, 14.5, 4, 16], "texture": "#0"},
+				"down": {"uv": [0.25, 12, 4, 15.75], "texture": "#1"}
+			}
+		}
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [75, 45, 0],
+			"translation": [0, 2.5, 0],
+			"scale": [0.2, 0.2, 0.2]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [75, 45, 0],
+			"translation": [0, 2.5, 0],
+			"scale": [0.2, 0.2, 0.2]
+		},
+		"firstperson_righthand": {
+			"rotation": [0, 225, 0],
+			"translation": [3.75, 0, 0],
+			"scale": [0.2, 0.2, 0.2]
+		},
+		"firstperson_lefthand": {
+			"rotation": [0, 225, 0],
+			"translation": [3.75, 0, 0],
+			"scale": [0.2, 0.2, 0.2]
+		},
+		"ground": {
+			"translation": [0, 4, 0],
+			"scale": [0.2, 0.2, 0.2]
+		},
+		"gui": {
+			"rotation": [30, 225, 0],
+			"translation": [0, -0.5, 0],
+			"scale": [0.25, 0.25, 0.25]
+		},
+		"head": {
+			"translation": [0, 1, 0],
+			"scale": [0.6, 0.6, 0.6]
+		},
+		"fixed": {
+			"scale": [0.66, 0.66, 0.66]
+		}
+	}
+}

@@ -13,15 +13,16 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SelectOne;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SetBlock;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SpawnExperience;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SpawnItem;
-import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasBlock;
-import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasBlockIngredient;
-import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasFluidCauldron;
-import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItem;
-import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItemIngredient;
-import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItemIngredientWithNoNbt;
-import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItemLeaves;
-import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasShulkerBoxBlockEntity;
-import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.NotHasBlock;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.block.HasBlock;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.block.HasBlockIngredient;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.fluid.HasFluidCauldron;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.item.HasItem;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.item.HasItemIngredient;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.item.HasItemIngredientWithNoNbt;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.item.HasItemLeaves;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.block.NotHasBlock;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.block.HasShulkerBoxBlockEntity;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.multiblock.HasMultiBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItemTags;
 import dev.dubhe.anvilcraft.util.IItemStackUtil;
@@ -923,6 +924,7 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContext> {
         RecipePredicate.register("not_has_block", NotHasBlock::new, NotHasBlock::new);
         RecipePredicate.register("has_block_ingredient", HasBlockIngredient::new, HasBlockIngredient::new);
         RecipePredicate.register("has_fluid_cauldron", HasFluidCauldron::new, HasFluidCauldron::new);
+        RecipePredicate.register("has_multi_block", HasMultiBlock::decodeFromJson, HasMultiBlock::decodeFromNetworkBuf);
         RecipePredicate.register("has_shulker_box_block_entity",
                 HasShulkerBoxBlockEntity::new, HasShulkerBoxBlockEntity::new);
         RecipePredicate.register("has_item_ingredient_no_nbt",

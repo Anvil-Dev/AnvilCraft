@@ -101,10 +101,6 @@ public class AnvilCraftConfig implements ConfigData {
     @ConfigEntry.BoundedDiscrete(max = 60, min = 1)
     public int loadMonitor = 10;
 
-    @Comment("Disable sand and other gravity block duping using end portal")
-    @ConfigEntry.Gui.Tooltip
-    public boolean sandDupingFix = true;
-
     @ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
     public PowerConverter powerConverter = new PowerConverter();
 
