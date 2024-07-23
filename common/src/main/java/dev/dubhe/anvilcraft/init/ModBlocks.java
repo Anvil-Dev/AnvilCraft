@@ -48,7 +48,7 @@ import dev.dubhe.anvilcraft.block.IncandescentMetalBlock;
 import dev.dubhe.anvilcraft.block.InductionLightBlock;
 import dev.dubhe.anvilcraft.block.ItemCollectorBlock;
 import dev.dubhe.anvilcraft.block.JewelCraftingTable;
-import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
+import dev.dubhe.anvilcraft.block.LargeCakeBlock;
 import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
 import dev.dubhe.anvilcraft.block.LoadMonitorBlock;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
@@ -1866,6 +1866,22 @@ public class ModBlocks {
             DangerUtil.genConfiguredModel("block/chocolate_cake_block").get()))
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_SHOVEL)
+        .register();
+
+    public static final BlockEntry<LargeCakeBlock> LARGE_CAKE = REGISTRATE
+        .block("large_cake", LargeCakeBlock::new)
+        .initialProperties(() -> Blocks.CAKE)
+        .properties(BlockBehaviour.Properties::noOcclusion
+        )
+        .blockstate((context, provider) -> {
+        })
+        .loot((ctx, prov) -> {
+            LootTable.Builder builder = LootTable.lootTable()
+                .setRandomSequence(new ResourceLocation("blocks/large_cake"));
+            ctx.add(prov, builder);
+        })
+        .item(AbstractMultiplePartBlockItem<Cube3x3PartHalf>::new)
+        .build()
         .register();
 
     public static final BlockEntry<ReinforcedConcreteBlock> REINFORCED_CONCRETE_BLACK =
