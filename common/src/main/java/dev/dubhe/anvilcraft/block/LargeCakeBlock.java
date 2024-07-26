@@ -67,6 +67,21 @@ public class LargeCakeBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf> {
         return true;
     }
 
+    @SuppressWarnings("deprecation")
+    @Override
+    public void onPlace(
+        @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos,
+        @NotNull BlockState oldState, boolean movedByPiston
+    ) {
+        if (state.getValue(HALF) != Cube3x3PartHalf.BOTTOM_CENTER) return;
+        for (Cube3x3PartHalf part : this.getParts()) {
+            if (part == Cube3x3PartHalf.BOTTOM_CENTER) continue;
+            BlockState newState = state
+                .setValue(HALF, part);
+            level.setBlockAndUpdate(pos.offset(part.getOffset()), newState);
+        }
+    }
+
     @Override
     public @NotNull BlockState updateShape(
         @NotNull BlockState state, @NotNull Direction direction, @NotNull BlockState neighborState,
