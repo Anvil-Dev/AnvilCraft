@@ -49,7 +49,6 @@ import dev.dubhe.anvilcraft.block.InductionLightBlock;
 import dev.dubhe.anvilcraft.block.ItemCollectorBlock;
 import dev.dubhe.anvilcraft.block.JewelCraftingTable;
 import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
-import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
 import dev.dubhe.anvilcraft.block.LoadMonitorBlock;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
 import dev.dubhe.anvilcraft.block.MeltGemCauldron;
@@ -133,6 +132,7 @@ import net.minecraft.world.level.block.GravelBlock;
 import net.minecraft.world.level.block.HalfTransparentBlock;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.PressurePlateBlock;
+import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.StairBlock;
@@ -408,6 +408,17 @@ public class ModBlocks {
             .save(provider, AnvilCraft.of("craft/cut_royal_steel_block"))
         )
         .register();
+    public static final BlockEntry<? extends Block> CUT_ROYAL_STEEL_PILLAR = REGISTRATE
+        .block("cut_royal_steel_pillar", RotatedPillarBlock::new)
+        .tag(ModBlockTags.OVERSEER_BASE)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(properties -> properties.explosionResistance(15.0F))
+        .blockstate((ctx, provider) -> {
+
+        })
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
     public static final BlockEntry<? extends Block> CUT_ROYAL_STEEL_SLAB = REGISTRATE
         .block("cut_royal_steel_slab", SlabBlock::new)
         .tag(ModBlockTags.OVERSEER_BASE)
@@ -448,6 +459,9 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> HEAVY_IRON_BLOCK = REGISTRATE
         .block("heavy_iron_block", Block::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(properties -> properties.noOcclusion())
+        .blockstate((context, provider) -> provider.simpleBlock(context.get(),
+            DangerUtil.genConfiguredModel("block/heavy_iron_block").get()))
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
@@ -1227,6 +1241,26 @@ public class ModBlocks {
             provider.models().cubeAll(ctx.getName(), provider.modLoc("block/" + ctx.getName()))
                 .renderType("translucent");
         })
+        .simpleItem()
+        .register();
+    public static final BlockEntry<? extends Block> EMBER_GLASS = REGISTRATE
+        .block("ember_glass", GlassBlock::new)
+        .initialProperties(() -> Blocks.GLASS)
+        .properties(properties -> properties
+            .explosionResistance(1200)
+            .noOcclusion()
+            .isValidSpawn(ModBlocks::never)
+            .isRedstoneConductor(ModBlocks::never)
+            .isSuffocating(ModBlocks::never)
+            .isViewBlocking(ModBlocks::never)
+        )
+        .blockstate((ctx, provider) -> {
+            provider.simpleBlock(ctx.get());
+            provider.models().cubeAll(ctx.getName(), provider.modLoc("block/" + ctx.getName()))
+                .renderType("translucent");
+        })
+        .tag(BlockTags.WITHER_IMMUNE)
+        .tag(BlockTags.DRAGON_IMMUNE)
         .simpleItem()
         .register();
     public static final BlockEntry<JewelCraftingTable> JEWEL_CRAFTING_TABLE = REGISTRATE
@@ -2535,6 +2569,28 @@ public class ModBlocks {
             })
             .defaultLoot()
             .register();
+
+    public static final BlockEntry<? extends Block> CUT_EMBER_METAL_PILLAR = REGISTRATE
+        .block("cut_ember_metal_pillar", RotatedPillarBlock::new)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .tag(BlockTags.WITHER_IMMUNE)
+        .tag(BlockTags.DRAGON_IMMUNE)
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(properties -> properties.lightLevel(state -> 9))
+        .properties(BlockBehaviour.Properties::noOcclusion)
+        .blockstate((ctx, provider) -> {
+        })
+        .item()
+        .initialProperties(() -> new Item.Properties().fireResistant())
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .recipe((ctx, provider) -> {
+            VanillaRecipeProvider.stonecutterResultFromBase(provider, RecipeCategory.BUILDING_BLOCKS,
+                ModBlocks.CUT_EMBER_METAL_PILLAR, ModBlocks.CUT_EMBER_METAL_BLOCK);
+            VanillaRecipeProvider.stonecutterResultFromBase(provider, RecipeCategory.BUILDING_BLOCKS,
+                 ModBlocks.CUT_EMBER_METAL_PILLAR, ModBlocks.EMBER_METAL_BLOCK, 4);
+        })
+        .register();
 
     public static final BlockEntry<EmberMetalSlabBlock> CUT_EMBER_METAL_SLAB = REGISTRATE
             .block("cut_ember_metal_slab", EmberMetalSlabBlock::new)
