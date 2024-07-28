@@ -1,8 +1,10 @@
 {
   "replace": false,
   "values": [
+    "anvilcraft:ember_glass",
     "anvilcraft:ember_metal_block",
     "anvilcraft:cut_ember_metal_block",
+    "anvilcraft:cut_ember_metal_pillar",
     "anvilcraft:cut_ember_metal_slab",
     "anvilcraft:cut_ember_metal_stairs",
     "anvilcraft:ember_anvil",

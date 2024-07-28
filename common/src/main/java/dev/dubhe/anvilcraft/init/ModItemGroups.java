@@ -213,10 +213,12 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.ROYAL_STEEL_BLOCK.asStack());
                 entries.accept(ModBlocks.SMOOTH_ROYAL_STEEL_BLOCK.asStack());
                 entries.accept(ModBlocks.CUT_ROYAL_STEEL_BLOCK.asStack());
+                entries.accept(ModBlocks.CUT_ROYAL_STEEL_PILLAR.asStack());
                 entries.accept(ModBlocks.CUT_ROYAL_STEEL_SLAB.asStack());
                 entries.accept(ModBlocks.CUT_ROYAL_STEEL_STAIRS.asStack());
                 entries.accept(ModBlocks.EMBER_METAL_BLOCK.asStack());
                 entries.accept(ModBlocks.CUT_EMBER_METAL_BLOCK.asStack());
+                entries.accept(ModBlocks.CUT_EMBER_METAL_PILLAR.asStack());
                 entries.accept(ModBlocks.CUT_EMBER_METAL_SLAB.asStack());
                 entries.accept(ModBlocks.CUT_EMBER_METAL_STAIRS.asStack());
                 entries.accept(ModBlocks.HEAVY_IRON_BLOCK.asStack());
@@ -269,6 +271,7 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.DEEPSLATE_CHIPS.asStack());
                 entries.accept(ModBlocks.BLACK_SAND.asStack());
                 entries.accept(ModBlocks.TEMPERING_GLASS.asStack());
+                entries.accept(ModBlocks.EMBER_GLASS.asStack());
 
                 entries.accept(ModBlocks.HEATED_TUNGSTEN.asStack());
                 entries.accept(ModBlocks.HEATED_NETHERITE.asStack());
