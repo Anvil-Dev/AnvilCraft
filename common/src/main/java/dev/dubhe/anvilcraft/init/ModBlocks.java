@@ -26,6 +26,7 @@ import dev.dubhe.anvilcraft.block.CrabTrapBlock;
 import dev.dubhe.anvilcraft.block.CreamBlock;
 import dev.dubhe.anvilcraft.block.CreativeGeneratorBlock;
 import dev.dubhe.anvilcraft.block.DischargerBlock;
+import dev.dubhe.anvilcraft.block.EmberMetalPillarBlock;
 import dev.dubhe.anvilcraft.block.EndDustBlock;
 import dev.dubhe.anvilcraft.block.EmberAnvilBlock;
 import dev.dubhe.anvilcraft.block.EmberMetalBlock;
@@ -2588,7 +2589,7 @@ public class ModBlocks {
             .register();
 
     public static final BlockEntry<? extends Block> CUT_EMBER_METAL_PILLAR = REGISTRATE
-        .block("cut_ember_metal_pillar", RotatedPillarBlock::new)
+        .block("cut_ember_metal_pillar", EmberMetalPillarBlock::new)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .tag(BlockTags.WITHER_IMMUNE)
         .tag(BlockTags.DRAGON_IMMUNE)
