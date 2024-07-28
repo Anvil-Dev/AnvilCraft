@@ -42,6 +42,7 @@ public class AnvilCraftFabricClient implements ClientModInitializer {
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.EMBER_ANVIL.get(), RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.EMBER_GRINDSTONE.get(), RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.EMBER_SMITHING_TABLE.get(), RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.LARGE_CAKE.get(), RenderType.cutout());
         WorldRenderEvents.AFTER_ENTITIES.register(context -> {
             if (IBlockHighlightUtil.SUBCHUNKS.isEmpty()) return;
             MultiBufferSource consumers = context.consumers();

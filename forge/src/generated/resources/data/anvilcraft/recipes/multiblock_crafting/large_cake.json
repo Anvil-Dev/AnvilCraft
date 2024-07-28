@@ -1,0 +1,52 @@
+{
+  "type": "anvilcraft:anvil_processing",
+  "anvil_recipe_type": "multiblock_crafting",
+  "icon": {
+    "item": "anvilcraft:large_cake"
+  },
+  "outcomes": [
+    {
+      "type": "set_block",
+      "chance": 1.0,
+      "offset": [
+        0.0,
+        -4.0,
+        0.0
+      ],
+      "result": {
+        "block": "anvilcraft:large_cake",
+        "state": {
+          "half": "bottom_center"
+        }
+      }
+    }
+  ],
+  "predicates": [
+    {
+      "type": "has_multi_block",
+      "key": {
+        " ": "minecraft:air",
+        "A": "anvilcraft:cake_block",
+        "B": "anvilcraft:berry_cake_block",
+        "C": "anvilcraft:chocolate_cake_block"
+      },
+      "layers": [
+        [
+          "   ",
+          " C ",
+          "   "
+        ],
+        [
+          " B ",
+          "BBB",
+          " B "
+        ],
+        [
+          "AAA",
+          "AAA",
+          "AAA"
+        ]
+      ]
+    }
+  ]
+}
