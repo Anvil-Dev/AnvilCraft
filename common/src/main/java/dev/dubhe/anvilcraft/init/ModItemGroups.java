@@ -289,6 +289,7 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.CAKE_BLOCK.asStack());
                 entries.accept(ModBlocks.BERRY_CAKE_BLOCK.asStack());
                 entries.accept(ModBlocks.CHOCOLATE_CAKE_BLOCK.asStack());
+                entries.accept(ModBlocks.LARGE_CAKE.asStack());
 
                 entries.accept(ModBlocks.NESTING_SHULKER_BOX.asStack());
                 entries.accept(ModBlocks.OVER_NESTING_SHULKER_BOX.asStack());

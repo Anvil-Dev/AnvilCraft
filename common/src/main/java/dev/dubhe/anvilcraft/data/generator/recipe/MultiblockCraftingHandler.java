@@ -113,6 +113,38 @@ public class MultiblockCraftingHandler {
                 .define(' ', Blocks.AIR)
                 .build();
         multiblock(mengerSponge, ModBlocks.MENGER_SPONGE.asItem(), "", provider);
+        HasMultiBlock largeCake = HasMultiBlock.builder()
+            .layer(
+                "   ",
+                " C ",
+                "   "
+            )
+            .layer(
+                " B ",
+                        "BBB",
+                " B "
+            ).layer(
+                "AAA",
+                "AAA",
+                "AAA"
+            )
+            .define('A', ModBlocks.CAKE_BLOCK.get())
+            .define('B', ModBlocks.BERRY_CAKE_BLOCK.get())
+            .define('C', ModBlocks.CHOCOLATE_CAKE_BLOCK.get())
+            .define(' ', Blocks.AIR)
+            .build();
+        AnvilRecipe.Builder.create(RecipeCategory.MISC)
+            .type(AnvilRecipeType.MULTIBLOCK_CRAFTING)
+            .icon(ModBlocks.LARGE_CAKE.asItem())
+            .addPredicates(largeCake)
+            .setBlock(new Vec3(0.0, -4.0, 0.0), ModBlocks.LARGE_CAKE.get())
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.GIANT_ANVIL),
+                AnvilCraftDatagen.has(ModBlocks.GIANT_ANVIL)
+            )
+            .save(provider, AnvilCraft.of("multiblock_crafting/"
+                + BuiltInRegistries.ITEM.getKey(ModBlocks.LARGE_CAKE.asItem()).getPath()
+            ));
     }
 
     private static void multiblock(HasMultiBlock pred, Item output, String postfix, Consumer<FinishedRecipe> cons) {
