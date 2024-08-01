@@ -1,0 +1,75 @@
+{
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/cube",
+	"render_type": "minecraft:cutout",
+	"textures": {
+		"0": "anvilcraft:block/sliding_rail",
+		"1": "anvilcraft:block/sliding_rail_bottom",
+		"2": "anvilcraft:block/sliding_rail_side",
+		"3": "anvilcraft:block/sliding_rail_top",
+		"particle": "anvilcraft:block/sliding_rail"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 0],
+			"to": [16, 6, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, -1, 8]},
+			"faces": {
+				"north": {"uv": [0, 10, 16, 16], "texture": "#0"},
+				"east": {"uv": [0, 10, 16, 16], "texture": "#2"},
+				"south": {"uv": [0, 10, 16, 16], "texture": "#0"},
+				"west": {"uv": [0, 10, 16, 16], "texture": "#2"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#3"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#1"}
+			}
+		},
+		{
+			"from": [11, 12, 0],
+			"to": [16, 16, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 7, 8]},
+			"faces": {
+				"north": {"uv": [0, 0, 5, 4], "texture": "#0"},
+				"east": {"uv": [0, 0, 16, 4], "texture": "#2"},
+				"south": {"uv": [11, 0, 16, 4], "texture": "#0"},
+				"west": {"uv": [0, 0, 16, 4], "texture": "#2"},
+				"up": {"uv": [9, 0, 14, 16], "texture": "#3"},
+				"down": {"uv": [11, 0, 16, 16], "texture": "#3"}
+			}
+		},
+		{
+			"from": [0, 12, 0],
+			"to": [5, 16, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 7, 8]},
+			"faces": {
+				"north": {"uv": [11, 0, 16, 4], "texture": "#0"},
+				"east": {"uv": [0, 0, 16, 4], "texture": "#2"},
+				"south": {"uv": [0, 0, 5, 4], "texture": "#0"},
+				"west": {"uv": [0, 0, 16, 4], "texture": "#2"},
+				"up": {"uv": [2, 0, 7, 16], "texture": "#3"},
+				"down": {"uv": [0, 0, 5, 16], "texture": "#3"}
+			}
+		},
+		{
+			"from": [11, 6, 0],
+			"to": [14, 12, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 3, 8]},
+			"faces": {
+				"north": {"uv": [2, 4, 5, 10], "texture": "#0"},
+				"east": {"uv": [0, 4, 16, 10], "texture": "#2"},
+				"south": {"uv": [11, 4, 14, 10], "texture": "#0"},
+				"west": {"uv": [0, 4, 16, 10], "texture": "#2"}
+			}
+		},
+		{
+			"from": [2, 6, 0],
+			"to": [5, 12, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 3, 8]},
+			"faces": {
+				"north": {"uv": [11, 4, 14, 10], "texture": "#0"},
+				"east": {"uv": [0, 4, 16, 10], "texture": "#2"},
+				"south": {"uv": [2, 4, 5, 10], "texture": "#0"},
+				"west": {"uv": [0, 4, 16, 10], "texture": "#2"}
+			}
+		}
+	]
+}
