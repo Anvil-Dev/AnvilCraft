@@ -46,5 +46,12 @@ versionRange = "[1.0.0,)"
 ordering = "NONE"
 side = "BOTH"
 
+[[dependencies.${ mod_id }]]
+modId = "cloth_config"
+mandatory = true
+versionRange = "[11.0.0,)"
+ordering = "NONE"
+side = "BOTH"
+
 [mc-publish]
 loaders = ["forge"]

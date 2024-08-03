@@ -53,6 +53,8 @@
     "fabricloader": ">=0.14.7",
     "fabric": "*",
     "minecraft": ">=${minecraft_version}",
+    "cloth-config": ">=11.0.0",
+    "reach-entity-attributes": ">=2.4.0",
     "anvillib": ">=1.0.0"
   },
   "custom": {
