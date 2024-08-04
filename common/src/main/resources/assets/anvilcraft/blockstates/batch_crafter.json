@@ -1,0 +1,46 @@
+{
+  "variants": {
+    "facing=down,overload=false": {
+      "model": "anvilcraft:block/batch_crafter_down"
+    },
+    "facing=east,overload=false": {
+      "model": "anvilcraft:block/batch_crafter",
+      "y": 90
+    },
+    "facing=north,overload=false": {
+      "model": "anvilcraft:block/batch_crafter"
+    },
+    "facing=south,overload=false": {
+      "model": "anvilcraft:block/batch_crafter",
+      "y": 180
+    },
+    "facing=up,overload=false": {
+      "model": "anvilcraft:block/batch_crafter_up"
+    },
+    "facing=west,overload=false": {
+      "model": "anvilcraft:block/batch_crafter",
+      "y": 270
+    },
+    "facing=down,overload=true": {
+      "model": "anvilcraft:block/batch_crafter_down_overload"
+    },
+    "facing=east,overload=true": {
+      "model": "anvilcraft:block/batch_crafter_overload",
+      "y": 90
+    },
+    "facing=north,overload=true": {
+      "model": "anvilcraft:block/batch_crafter_overload"
+    },
+    "facing=south,overload=true": {
+      "model": "anvilcraft:block/batch_crafter_overload",
+      "y": 180
+    },
+    "facing=up,overload=true": {
+      "model": "anvilcraft:block/batch_crafter_up_overload"
+    },
+    "facing=west,overload=true": {
+      "model": "anvilcraft:block/batch_crafter_overload",
+      "y": 270
+    }
+  }
+}
