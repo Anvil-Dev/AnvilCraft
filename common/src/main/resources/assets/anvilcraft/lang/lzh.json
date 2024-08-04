@@ -477,6 +477,15 @@
   "tooltip.anvilcraft.item.topaz": "蘊雷霆之威",
   "tooltip.anvilcraft.item.transmission_pole": "構築電域，輸電之距捌塊也",
   "tooltip.anvilcraft.jade.power_information": "電域：%d / %d kW",
-  "tooltip.anvilcraft.only_jei": "聞君獨裝 JEI，未得全譜詢之便。 薦君安裝 %s，以得娛戲之全趣！",
-  "tooltip.anvilcraft.ruby_prism.power": "光品位：%d"
+  "tooltip.anvilcraft.only_jei": "聞君獨裝 JEI，未得全譜詢之便。 薦君裝以 %s，以得娛戲之全趣！",
+  "tooltip.anvilcraft.ruby_prism.power": "光品位：%d",
+  "block.anvilcraft.cut_ember_metal_pillar": "割餘燼金屬柱",
+  "block.anvilcraft.cut_royal_steel_pillar": "割皇家鋼柱",
+  "block.anvilcraft.ember_glass": "餘燼琉璃",
+  "block.anvilcraft.large_cake": "碩洋糕",
+  "block.anvilcraft.nesting_shulker_box": "嵌套贆櫝",
+  "block.anvilcraft.over_nesting_shulker_box": "過嵌套贆櫝",
+  "block.anvilcraft.space_overcompressor": "空間超壓器",
+  "block.anvilcraft.supercritical_nesting_shulker_box": "超臨界嵌套贆櫝",
+  "entity.anvilcraft.floating_block": "泛塊"
 }
