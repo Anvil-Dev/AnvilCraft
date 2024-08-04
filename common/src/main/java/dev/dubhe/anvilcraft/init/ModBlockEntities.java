@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.init;
 
 import com.tterrag.registrate.util.entry.BlockEntityEntry;
 import dev.dubhe.anvilcraft.block.entity.ActiveSilencerBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.AutoCrafterBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.BatchCrafterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChargerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
@@ -34,9 +34,9 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.LaserRenderer;
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 
 public class ModBlockEntities {
-    public static final BlockEntityEntry<AutoCrafterBlockEntity> AUTO_CRAFTER = REGISTRATE
-        .blockEntity("auto_crafter", AutoCrafterBlockEntity::createBlockEntity)
-        .onRegister(AutoCrafterBlockEntity::onBlockEntityRegister)
+    public static final BlockEntityEntry<BatchCrafterBlockEntity> AUTO_CRAFTER = REGISTRATE
+        .blockEntity("batch_crafter", BatchCrafterBlockEntity::createBlockEntity)
+        .onRegister(BatchCrafterBlockEntity::onBlockEntityRegister)
         .validBlock(ModBlocks.AUTO_CRAFTER)
         .register();
 

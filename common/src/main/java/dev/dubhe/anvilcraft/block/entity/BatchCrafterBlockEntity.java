@@ -8,7 +8,7 @@ import dev.dubhe.anvilcraft.api.depository.IItemDepository;
 import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
-import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
+import dev.dubhe.anvilcraft.block.BatchCrafterBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.AutoCrafterMenu;
@@ -48,8 +48,9 @@ import java.util.function.Predicate;
 
 @Getter
 @SuppressWarnings("NullableProblems")
-public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements
-    IFilterBlockEntity, IPowerConsumer, IDiskCloneable {
+public class BatchCrafterBlockEntity
+        extends BaseMachineBlockEntity
+        implements IFilterBlockEntity, IPowerConsumer, IDiskCloneable {
     @Getter
     @Setter
     private PowerGrid grid;
@@ -62,22 +63,24 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements
             setChanged();
         }
     };
-    private int cooldown = AnvilCraft.config.autoCrafterCooldown;
+    private int cooldown = AnvilCraft.config.batchCrafterCooldown;
+    @Getter
+    private ItemStack resultItemStack = null;
+    private boolean poweredBefore = false;
 
-
-    protected AutoCrafterBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
+    protected BatchCrafterBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
 
     @ExpectPlatform
-    public static AutoCrafterBlockEntity createBlockEntity(
+    public static BatchCrafterBlockEntity createBlockEntity(
             BlockEntityType<?> type, BlockPos pos, BlockState blockState
     ) {
         throw new AssertionError();
     }
 
     @ExpectPlatform
-    public static void onBlockEntityRegister(BlockEntityType<AutoCrafterBlockEntity> type) {
+    public static void onBlockEntityRegister(BlockEntityType<BatchCrafterBlockEntity> type) {
         throw new AssertionError();
     }
 
@@ -88,7 +91,11 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements
     public void tick(@NotNull Level level, BlockPos pos) {
         this.flushState(level, pos);
         BlockState state = level.getBlockState(pos);
-        if (state.getValue(AutoCrafterBlock.LIT)) craft(level);
+        boolean powered = state.getValue(BatchCrafterBlock.POWERED);
+        if (powered && !poweredBefore) {
+            craft(level);
+        }
+        poweredBefore = powered;
         level.updateNeighbourForOutputSignal(pos, state.getBlock());
     }
 
@@ -173,7 +180,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements
         for (int i = 0; i < depository.getSlots(); i++) {
             depository.extract(i, times, false);
         }
-        cooldown = AnvilCraft.config.autoCrafterCooldown;
+        cooldown = AnvilCraft.config.batchCrafterCooldown;
         level.updateNeighborsAt(getBlockPos(), ModBlocks.AUTO_CRAFTER.get());
     }
 
@@ -195,7 +202,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements
     public Direction getDirection() {
         if (this.level == null) return Direction.UP;
         BlockState state = this.level.getBlockState(this.getBlockPos());
-        if (state.is(ModBlocks.AUTO_CRAFTER.get())) return state.getValue(AutoCrafterBlock.FACING);
+        if (state.is(ModBlocks.AUTO_CRAFTER.get())) return state.getValue(BatchCrafterBlock.FACING);
         return Direction.UP;
     }
 
@@ -206,7 +213,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements
         if (null == level) return;
         BlockState state = level.getBlockState(pos);
         if (!state.is(ModBlocks.AUTO_CRAFTER.get())) return;
-        level.setBlockAndUpdate(pos, state.setValue(AutoCrafterBlock.FACING, direction));
+        level.setBlockAndUpdate(pos, state.setValue(BatchCrafterBlock.FACING, direction));
     }
 
     /**
@@ -240,7 +247,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements
 
     @Override
     public Component getDisplayName() {
-        return Component.translatable("block.anvilcraft.auto_crafter");
+        return Component.translatable("block.anvilcraft.batch_crafter");
     }
 
     @Override
@@ -365,7 +372,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements
         @Override
         public ItemStack removeItem(int slot, int amount) {
             ItemStack stack = depository.extract(slot, amount, false, true);
-            AutoCrafterBlockEntity.this.setChanged();
+            BatchCrafterBlockEntity.this.setChanged();
             return stack;
         }
 
@@ -381,7 +388,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements
 
         @Override
         public void setChanged() {
-            AutoCrafterBlockEntity.this.setChanged();
+            BatchCrafterBlockEntity.this.setChanged();
         }
 
         @Override
@@ -462,7 +469,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements
 
         @Override
         public void setChanged() {
-            AutoCrafterBlockEntity.this.setChanged();
+            BatchCrafterBlockEntity.this.setChanged();
         }
 
         @Override
@@ -482,4 +489,8 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements
             }
         }
     };
+
+    public void updateResult(ItemStack resultItemStack) {
+        this.resultItemStack = resultItemStack;
+    }
 }

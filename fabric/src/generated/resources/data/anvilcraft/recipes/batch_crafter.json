@@ -24,7 +24,7 @@
     "AEA"
   ],
   "result": {
-    "item": "anvilcraft:auto_crafter"
+    "item": "anvilcraft:batch_crafter"
   },
   "show_notification": true
 }

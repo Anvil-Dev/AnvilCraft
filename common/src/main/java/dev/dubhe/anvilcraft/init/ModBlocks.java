@@ -8,7 +8,7 @@ import dev.dubhe.anvilcraft.api.power.IPowerComponent.Switch;
 import dev.dubhe.anvilcraft.block.AbstractMultiplePartBlock;
 import dev.dubhe.anvilcraft.block.ActiveSilencerBlock;
 import dev.dubhe.anvilcraft.block.ArrowBlock;
-import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
+import dev.dubhe.anvilcraft.block.BatchCrafterBlock;
 import dev.dubhe.anvilcraft.block.BerryCakeBlock;
 import dev.dubhe.anvilcraft.block.BerryCreamBlock;
 import dev.dubhe.anvilcraft.block.BlockDevourerBlock;
@@ -293,7 +293,7 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.MINEABLE_WITH_AXE)
         .register();
     public static final BlockEntry<? extends Block> AUTO_CRAFTER = REGISTRATE
-        .block("auto_crafter", AutoCrafterBlock::new)
+        .block("batch_crafter", BatchCrafterBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .blockstate((ctx, provider) -> {
         })

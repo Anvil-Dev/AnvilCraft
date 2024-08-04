@@ -1,7 +1,7 @@
 {
   "block.anvilcraft.amber_block": "Bloque de ámbar",
   "block.anvilcraft.arrow": "Flecha",
-  "block.anvilcraft.auto_crafter": "Artesano automático",
+  "block.anvilcraft.batch_crafter": "Artesano automático",
   "block.anvilcraft.block_placer": "Block Placer",
   "block.anvilcraft.charge_collector": "Colector de corriente",
   "block.anvilcraft.chute": "Vertedor",
@@ -200,7 +200,7 @@
   "tooltip.anvilcraft.grid_information.total_generated": "  Generación total: %d",
   "tooltip.anvilcraft.grid_information.utilization": "  Utilización de energía: %s",
   "tooltip.anvilcraft.item.anvil_hammer": "Es un martillo, un yunque, una llave inglesa, unas gafas y una maza",
-  "tooltip.anvilcraft.item.auto_crafter": "consume 1 KW",
+  "tooltip.anvilcraft.item.batch_crafter": "consume 1 KW",
   "tooltip.anvilcraft.item.charge_collector": "Cobro de cargos para generar energía",
   "tooltip.anvilcraft.item.crab_claw": "Aumentar la distancia de contacto al mantener presionado",
   "tooltip.anvilcraft.item.crab_trap": "Colocarlo en el agua para ayudarte a atrapar productos acuáticos",

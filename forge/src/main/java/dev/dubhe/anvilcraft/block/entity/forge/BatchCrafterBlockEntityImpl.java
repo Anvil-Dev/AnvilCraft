@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity.forge;
 
 import dev.dubhe.anvilcraft.api.depository.forge.ItemDepositoryHelperImpl;
-import dev.dubhe.anvilcraft.block.entity.AutoCrafterBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.BatchCrafterBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -13,20 +13,20 @@ import net.minecraftforge.common.util.LazyOptional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class AutoCrafterBlockEntityImpl extends AutoCrafterBlockEntity {
-    public AutoCrafterBlockEntityImpl(
+public class BatchCrafterBlockEntityImpl extends BatchCrafterBlockEntity {
+    public BatchCrafterBlockEntityImpl(
         BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState
     ) {
         super(type, pos, blockState);
     }
 
-    public static @NotNull AutoCrafterBlockEntity createBlockEntity(
+    public static @NotNull BatchCrafterBlockEntity createBlockEntity(
         BlockEntityType<?> type, BlockPos pos, BlockState blockState
     ) {
-        return new AutoCrafterBlockEntityImpl(type, pos, blockState);
+        return new BatchCrafterBlockEntityImpl(type, pos, blockState);
     }
 
-    public static void onBlockEntityRegister(BlockEntityType<AutoCrafterBlockEntity> type) {
+    public static void onBlockEntityRegister(BlockEntityType<BatchCrafterBlockEntity> type) {
     }
 
     @Override

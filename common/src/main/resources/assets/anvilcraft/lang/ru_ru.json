@@ -1,7 +1,7 @@
 {
   "block.anvilcraft.amber_block": "Янтарный блок",
   "block.anvilcraft.arrow": "Стрела",
-  "block.anvilcraft.auto_crafter": "Автоматический синтезатор",
+  "block.anvilcraft.batch_crafter": "Автоматический синтезатор",
   "block.anvilcraft.block_placer": "Блок Россыпь",
   "block.anvilcraft.charge_collector": "Сборщик заряда",
   "block.anvilcraft.chute": "желоб",
@@ -200,7 +200,7 @@
   "tooltip.anvilcraft.grid_information.total_generated": "  Общая генерация: %d",
   "tooltip.anvilcraft.grid_information.utilization": "  Использование энергии: %s",
   "tooltip.anvilcraft.item.anvil_hammer": "Это молот, наковальня, гаечный ключ, очки и булава",
-  "tooltip.anvilcraft.item.auto_crafter": "Потребляет 1 МВт",
+  "tooltip.anvilcraft.item.batch_crafter": "Потребляет 1 МВт",
   "tooltip.anvilcraft.item.charge_collector": "Сбор зарядов для выработки электроэнергии",
   "tooltip.anvilcraft.item.crab_claw": "Увеличение расстояния касания при удержании",
   "tooltip.anvilcraft.item.crab_trap": "Помещение его в воду, чтобы помочь вам поймать водные продукты",

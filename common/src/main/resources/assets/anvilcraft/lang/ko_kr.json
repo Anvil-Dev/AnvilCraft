@@ -1,7 +1,7 @@
 {
   "block.anvilcraft.amber_block": "호박색 블록",
   "block.anvilcraft.arrow": "화살",
-  "block.anvilcraft.auto_crafter": "자동 합성기",
+  "block.anvilcraft.batch_crafter": "자동 합성기",
   "block.anvilcraft.block_placer": "블록 플레이서",
   "block.anvilcraft.charge_collector": "전하 수집가",
   "block.anvilcraft.chute": "슈트",
@@ -200,7 +200,7 @@
   "tooltip.anvilcraft.grid_information.total_generated": "  총 생성: %d",
   "tooltip.anvilcraft.grid_information.utilization": "  전력 사용률: %s",
   "tooltip.anvilcraft.item.anvil_hammer": "망치, 모루, 렌치, 고글, 철퇴입니다",
-  "tooltip.anvilcraft.item.auto_crafter": "1KW 소비",
+  "tooltip.anvilcraft.item.batch_crafter": "1KW 소비",
   "tooltip.anvilcraft.item.charge_collector": "전력 생산을 위한 전하 수집",
   "tooltip.anvilcraft.item.crab_claw": "누르고 있을 때 터치 거리 늘리기",
   "tooltip.anvilcraft.item.crab_trap": "수산물을 잡을 수 있도록 물에 넣기",

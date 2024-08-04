@@ -15,7 +15,7 @@
     },
     {
       "type": "patchouli:crafting",
-      "recipe": "anvilcraft:auto_crafter",
+      "recipe": "anvilcraft:batch_crafter",
       "text": "The $(item)Auto Crafter$()'s power consumption is 1KW. It is an enhanced version of the vanilla crafter, with filtering options. It works 64 times every 1 second when receiving a continuous redstone signal."
     },
     {

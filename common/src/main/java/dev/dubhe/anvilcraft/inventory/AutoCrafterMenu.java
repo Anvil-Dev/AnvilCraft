@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.inventory;
 
 import dev.dubhe.anvilcraft.api.depository.ItemDepositorySlot;
-import dev.dubhe.anvilcraft.block.entity.AutoCrafterBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.BatchCrafterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.component.ReadOnlySlot;
@@ -28,7 +28,7 @@ import java.util.Optional;
 
 @Getter
 public class AutoCrafterMenu extends BaseMachineMenu implements IFilterMenu, ContainerListener {
-    public final AutoCrafterBlockEntity blockEntity;
+    public final BatchCrafterBlockEntity blockEntity;
     private final Slot resultSlot;
     private final Level level;
 
@@ -50,7 +50,7 @@ public class AutoCrafterMenu extends BaseMachineMenu implements IFilterMenu, Con
         super(menuType, containerId, blockEntity);
         AutoCrafterMenu.checkContainerSize(inventory, 9);
 
-        this.blockEntity = (AutoCrafterBlockEntity) blockEntity;
+        this.blockEntity = (BatchCrafterBlockEntity) blockEntity;
         this.level = inventory.player.level();
 
         this.addPlayerInventory(inventory);
@@ -195,8 +195,10 @@ public class AutoCrafterMenu extends BaseMachineMenu implements IFilterMenu, Con
             .getRecipeFor(RecipeType.CRAFTING, blockEntity.getDummyCraftingContainer(), level);
         if (recipe.isPresent()) {
             ItemStack resultItem = recipe.get().getResultItem(level.registryAccess());
+            blockEntity.updateResult(resultItem);
             this.resultSlot.set(resultItem);
         } else {
+            blockEntity.updateResult(ItemStack.EMPTY);
             this.resultSlot.set(ItemStack.EMPTY);
         }
     }

@@ -11,11 +11,11 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "anvilcraft:auto_crafter"
+          "name": "anvilcraft:batch_crafter"
         }
       ],
       "rolls": 1.0
     }
   ],
-  "random_sequence": "anvilcraft:blocks/auto_crafter"
+  "random_sequence": "anvilcraft:blocks/batch_crafter"
 }
