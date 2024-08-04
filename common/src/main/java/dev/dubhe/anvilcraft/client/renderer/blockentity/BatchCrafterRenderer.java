@@ -74,7 +74,7 @@ public class BatchCrafterRenderer implements BlockEntityRenderer<BatchCrafterBlo
         }
         blockRenderDispatcher.getModelRenderer().renderModel(
                 poseStack.last(),
-                buffer.getBuffer(RenderType.translucent()),
+                buffer.getBuffer(RenderType.cutout()),
                 state,
                 blockModel,
                 0,
