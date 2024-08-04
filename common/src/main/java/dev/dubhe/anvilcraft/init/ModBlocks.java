@@ -143,6 +143,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -292,9 +293,10 @@ public class ModBlocks {
         .loot((tables, block) -> tables.dropOther(block, ModBlocks.CHUTE))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.MINEABLE_WITH_AXE)
         .register();
-    public static final BlockEntry<? extends Block> AUTO_CRAFTER = REGISTRATE
+    public static final BlockEntry<? extends Block> BATCH_CRAFTER = REGISTRATE
         .block("batch_crafter", BatchCrafterBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
+            .properties(it -> it.noOcclusion())
         .blockstate((ctx, provider) -> {
         })
         .simpleItem()

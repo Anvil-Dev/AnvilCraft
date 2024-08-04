@@ -48,7 +48,7 @@ public class TooltipEventListener {
             + "when pushed and pulled by the piston, causes adjacent copper blocks to generate charges");
         map.put(ModBlocks.FERRITE_CORE_MAGNET_BLOCK.asItem(), "Attracting the anvil below, "
             + "when pushed and pulled by the piston, causes adjacent copper blocks to generate charges");
-        map.put(ModBlocks.AUTO_CRAFTER.asItem(), "consumes 1 kW");
+        map.put(ModBlocks.BATCH_CRAFTER.asItem(), "consumes 1 kW");
         map.put(ModBlocks.ROYAL_STEEL_BLOCK.asItem(), "Creeper proof");
         map.put(ModBlocks.SMOOTH_ROYAL_STEEL_BLOCK.asItem(), "Creeper proof");
         map.put(ModBlocks.CUT_ROYAL_STEEL_BLOCK.asItem(), "Creeper proof");

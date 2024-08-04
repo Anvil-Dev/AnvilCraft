@@ -168,7 +168,7 @@ public class AutoCrafterMenu extends BaseMachineMenu implements IFilterMenu, Con
     @Override
     public boolean stillValid(@NotNull Player player) {
         return stillValid(
-            ContainerLevelAccess.create(level, blockEntity.getBlockPos()), player, ModBlocks.AUTO_CRAFTER.get()
+            ContainerLevelAccess.create(level, blockEntity.getBlockPos()), player, ModBlocks.BATCH_CRAFTER.get()
         );
     }
 
@@ -195,10 +195,8 @@ public class AutoCrafterMenu extends BaseMachineMenu implements IFilterMenu, Con
             .getRecipeFor(RecipeType.CRAFTING, blockEntity.getDummyCraftingContainer(), level);
         if (recipe.isPresent()) {
             ItemStack resultItem = recipe.get().getResultItem(level.registryAccess());
-            blockEntity.updateResult(resultItem);
             this.resultSlot.set(resultItem);
         } else {
-            blockEntity.updateResult(ItemStack.EMPTY);
             this.resultSlot.set(ItemStack.EMPTY);
         }
     }

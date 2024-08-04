@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.network.Network;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.network.ClientRecipeManagerSyncPack;
 import dev.dubhe.anvilcraft.network.ClientboundMutedSoundSyncPacket;
+import dev.dubhe.anvilcraft.network.ClientboundUpdateDisplayItemPacket;
 import dev.dubhe.anvilcraft.network.HammerUsePack;
 import dev.dubhe.anvilcraft.network.HeliostatsIrradiationPack;
 import dev.dubhe.anvilcraft.network.LaserEmitPack;
@@ -95,6 +96,11 @@ public class ModNetworks {
     public static final ResourceLocation CLIENT_RECIPE_MANAGER_SYNC = Network.register(
         AnvilCraft.of("client_recipe_manager_sync"),
         ClientRecipeManagerSyncPack.class, ClientRecipeManagerSyncPack::new
+    );
+
+    public static final ResourceLocation CLIENT_UPDATE_DISPLAY_ITEM = Network.register(
+            AnvilCraft.of("client_update_display_item"),
+            ClientboundUpdateDisplayItemPacket.class, ClientboundUpdateDisplayItemPacket::new
     );
 
     public static void register() {

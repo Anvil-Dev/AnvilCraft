@@ -25,6 +25,7 @@ import dev.dubhe.anvilcraft.block.entity.RubyPrismBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ThermoelectricConverterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.BatchCrafterRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CorruptedBeaconRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeGeneratorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HasMobBlockRenderer;
@@ -34,10 +35,11 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.LaserRenderer;
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 
 public class ModBlockEntities {
-    public static final BlockEntityEntry<BatchCrafterBlockEntity> AUTO_CRAFTER = REGISTRATE
+    public static final BlockEntityEntry<BatchCrafterBlockEntity> BATCH_CRAFTER = REGISTRATE
         .blockEntity("batch_crafter", BatchCrafterBlockEntity::createBlockEntity)
         .onRegister(BatchCrafterBlockEntity::onBlockEntityRegister)
-        .validBlock(ModBlocks.AUTO_CRAFTER)
+        .renderer(() -> BatchCrafterRenderer::new)
+        .validBlock(ModBlocks.BATCH_CRAFTER)
         .register();
 
     public static final BlockEntityEntry<ItemCollectorBlockEntity> ITEM_COLLECTOR = REGISTRATE

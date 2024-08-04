@@ -22,6 +22,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
@@ -39,6 +40,9 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -134,10 +138,40 @@ public class BatchCrafterBlock extends BaseEntityBlock implements IHammerChangea
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
+    @Override
+    public boolean useShapeForLightOcclusion(@NotNull BlockState state) {
+        return true;
+    }
+
+    public VoxelShape getVisualShape(
+            @NotNull BlockState state,
+            @NotNull BlockGetter level,
+            @NotNull BlockPos pos,
+            @NotNull CollisionContext context
+    ) {
+        return Shapes.empty();
+    }
+
+    public float getShadeBrightness(
+            @NotNull BlockState state,
+            @NotNull BlockGetter level,
+            @NotNull BlockPos pos
+    ) {
+        return 1.0F;
+    }
+
+    public boolean propagatesSkylightDown(
+            @NotNull BlockState state,
+            @NotNull BlockGetter level,
+            @NotNull BlockPos pos
+    ) {
+        return false;
+    }
+
     @Nullable
     @Override
     public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
-        return BatchCrafterBlockEntity.createBlockEntity(ModBlockEntities.AUTO_CRAFTER.get(), pos, state);
+        return BatchCrafterBlockEntity.createBlockEntity(ModBlockEntities.BATCH_CRAFTER.get(), pos, state);
     }
 
     @Nullable
@@ -150,14 +184,14 @@ public class BatchCrafterBlock extends BaseEntityBlock implements IHammerChangea
         }
         return createTickerHelper(
             type,
-            ModBlockEntities.AUTO_CRAFTER.get(),
+            ModBlockEntities.BATCH_CRAFTER.get(),
             (level1, blockPos, blockState, blockEntity) -> blockEntity.tick(level1, blockPos)
         );
     }
 
     @Override
     public @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
-        return RenderShape.MODEL;
+        return RenderShape.INVISIBLE;
     }
 
     @Override
