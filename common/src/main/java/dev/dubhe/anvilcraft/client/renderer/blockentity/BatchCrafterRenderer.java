@@ -12,7 +12,6 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -91,9 +90,8 @@ public class BatchCrafterRenderer implements BlockEntityRenderer<BatchCrafterBlo
         poseStack.pushPose();
         final boolean isGui3d = bakedModel.isGui3d();
         final int renderAmount = this.getRenderAmount(itemStack);
-        float elevate = Mth.sin((blockEntity.getLevel().getGameTime() + partialTick) / 10.0F) * 0.1F + 0.1F;
         float transformedGroundScaleY = bakedModel.getTransforms().getTransform(ItemDisplayContext.GROUND).scale.y();
-        poseStack.translate(0.5F, elevate + 0.6F * transformedGroundScaleY, 0.5F);
+        poseStack.translate(0.5F, 0.5F * transformedGroundScaleY + 0.1f, 0.5F);
         float rotation = (blockEntity.getLevel().getGameTime() + partialTick) * 2f;
         poseStack.scale(0.8f, 0.8f, 0.8f);
         poseStack.mulPose(Axis.YP.rotationDegrees(rotation));
