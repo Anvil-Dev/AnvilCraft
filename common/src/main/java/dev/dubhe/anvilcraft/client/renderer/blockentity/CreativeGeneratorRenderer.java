@@ -16,7 +16,6 @@ import org.jetbrains.annotations.NotNull;
 public class CreativeGeneratorRenderer implements BlockEntityRenderer<CreativeGeneratorBlockEntity> {
     public static final ModelResourceLocation MODEL =
             new ModelResourceLocation("anvilcraft", "creative_generator_cube", "");
-    private static final float SIN_45 = (float) Math.sin(0.7853981633974483);
 
 
     /**

@@ -9,7 +9,16 @@ displayName = "${mod_name}"
 displayURL = "https://www.anvilcraft.dev/"
 issueTrackerURL = "https://github.com/Anvil-Dev/AnvilCraft/issues"
 authors = "Gugle,XeKr"
-description = """${mod_description}\n\nContributors:\n${contributors}\n\nSupporters:\n${supporters}\n- and more...\n"""
+description = '''
+${mod_description}
+
+Contributors:
+${contributors}
+
+Supporters:
+${supporters}
+- and more...
+'''
 logoFile = "pack.png" #optional
 #credits="Thanks for this example mod goes to Java"
 
@@ -34,6 +43,13 @@ side = "BOTH"
 modId = "anvillib"
 mandatory = true
 versionRange = "[1.0.0,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.${ mod_id }]]
+modId = "cloth_config"
+mandatory = true
+versionRange = "[11.0.0,)"
 ordering = "NONE"
 side = "BOTH"
 

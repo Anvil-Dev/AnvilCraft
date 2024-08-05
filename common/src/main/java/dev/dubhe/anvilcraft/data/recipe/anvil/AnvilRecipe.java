@@ -13,13 +13,16 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SelectOne;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SetBlock;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SpawnExperience;
 import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SpawnItem;
-import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasBlock;
-import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasBlockIngredient;
-import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasFluidCauldron;
-import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItem;
-import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItemIngredient;
-import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.HasItemLeaves;
-import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.NotHasBlock;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.block.HasBlock;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.block.HasBlockIngredient;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.fluid.HasFluidCauldron;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.item.HasItem;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.item.HasItemIngredient;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.item.HasItemIngredientWithNoNbt;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.item.HasItemLeaves;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.block.NotHasBlock;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.block.HasShulkerBoxBlockEntity;
+import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.multiblock.HasMultiBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItemTags;
 import dev.dubhe.anvilcraft.util.IItemStackUtil;
@@ -79,7 +82,7 @@ import static dev.dubhe.anvilcraft.api.power.IPowerComponent.OVERLOAD;
 
 @Getter
 @SuppressWarnings("unused")
-public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
+public class AnvilRecipe implements Recipe<AnvilCraftingContext> {
     private final ResourceLocation id;
     private final List<RecipePredicate> predicates = new ArrayList<>();
     private final List<RecipeOutcome> outcomes = new ArrayList<>();
@@ -124,9 +127,9 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
     }
 
     @Override
-    public boolean matches(@NotNull AnvilCraftingContainer container, @NotNull Level level) {
+    public boolean matches(@NotNull AnvilCraftingContext context, @NotNull Level level) {
         for (RecipePredicate predicate : this.predicates) {
-            if (!predicate.matches(container)) return false;
+            if (!predicate.matches(context)) return false;
         }
         return true;
     }
@@ -134,13 +137,13 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
     /**
      * 合成
      *
-     * @param container 容器
+     * @param context 容器
      * @return 是否合成成功
      */
-    public boolean craft(@NotNull AnvilCraftingContainer container) {
-        if (!this.matches(container, container.getLevel())) return false;
+    public boolean craft(@NotNull AnvilCraftingContext context) {
+        if (!this.matches(context, context.getLevel())) return false;
         for (RecipePredicate predicate : this.predicates) {
-            predicate.process(container);
+            predicate.process(context);
             if (predicate instanceof HasData hasData) {
                 Map.Entry<String, CompoundTag> entry = hasData.getData();
                 if (entry != null) this.data.put(entry.getKey(), entry.getValue());
@@ -150,14 +153,14 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
             if (outcome instanceof CanSetData canSetData) {
                 canSetData.setData(this.data);
             }
-            outcome.processWithChance(container);
+            outcome.processWithChance(context);
         }
         return true;
     }
 
     @Override
     public @NotNull ItemStack assemble(
-        @NotNull AnvilCraftingContainer container, @NotNull RegistryAccess registryAccess
+        @NotNull AnvilCraftingContext context, @NotNull RegistryAccess registryAccess
     ) {
         return ItemStack.EMPTY;
     }
@@ -921,6 +924,11 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContainer> {
         RecipePredicate.register("not_has_block", NotHasBlock::new, NotHasBlock::new);
         RecipePredicate.register("has_block_ingredient", HasBlockIngredient::new, HasBlockIngredient::new);
         RecipePredicate.register("has_fluid_cauldron", HasFluidCauldron::new, HasFluidCauldron::new);
+        RecipePredicate.register("has_multi_block", HasMultiBlock::decodeFromJson, HasMultiBlock::decodeFromNetworkBuf);
+        RecipePredicate.register("has_shulker_box_block_entity",
+                HasShulkerBoxBlockEntity::new, HasShulkerBoxBlockEntity::new);
+        RecipePredicate.register("has_item_ingredient_no_nbt",
+                HasItemIngredientWithNoNbt::new, HasItemIngredientWithNoNbt::new);
         RecipeOutcome.register("damage_anvil", DamageAnvil::new, DamageAnvil::new);
         RecipeOutcome.register("set_block", SetBlock::new, SetBlock::new);
         RecipeOutcome.register("spawn_item", SpawnItem::new, SpawnItem::new);

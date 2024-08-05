@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "anvilcraft:block/cut_ember_metal_slab"
+    },
+    "type=double": {
+      "model": "anvilcraft:block/cut_ember_metal_block"
+    },
+    "type=top": {
+      "model": "anvilcraft:block/cut_ember_metal_slab_top"
+    }
+  }
+}

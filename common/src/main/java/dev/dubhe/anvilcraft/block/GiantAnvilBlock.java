@@ -188,10 +188,16 @@ public class GiantAnvilBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf>
         return Cube3x3PartHalf.values();
     }
 
-    @Override
+    /**
+     * 落地
+     */
     public void onLand(
-        @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state,
-        @NotNull BlockState replaceableState, @NotNull FallingBlockEntity fallingBlock
+        @NotNull Level level,
+        @NotNull BlockPos pos,
+        @NotNull BlockState state,
+        @NotNull BlockState replaceableState,
+        @NotNull FallingBlockEntity fallingBlock,
+        float fallDistance
     ) {
         level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
         BlockPos belowPos = pos.below();
@@ -213,7 +219,7 @@ public class GiantAnvilBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf>
             (FallingGiantAnvilEntity) fallingBlock,
             pos,
             level,
-            fallingBlock.fallDistance
+            fallDistance
         ));
         for (int dx = -1; dx <= 1; dx++) {
             for (int dz = -1; dz <= 1; dz++) {
@@ -260,7 +266,17 @@ public class GiantAnvilBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf>
         ) {
             return;
         }
-        FallingBlockEntity fallingBlockEntity = FallingGiantAnvilEntity.fall(level, above, state1);
+
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dy = 0; dy <= 2; dy++) {
+                for (int dz = -1; dz <= 1; dz++) {
+                    BlockPos bp = pos.offset(dx, dy, dz);
+                    BlockState blockState = level.getBlockState(bp);
+                    level.setBlock(bp, blockState.getFluidState().createLegacyBlock(), 3, 0);
+                }
+            }
+        }
+        FallingBlockEntity fallingBlockEntity = FallingGiantAnvilEntity.fall(level, above, state1, false);
         this.falling(fallingBlockEntity);
     }
 

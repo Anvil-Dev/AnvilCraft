@@ -19,8 +19,8 @@ public interface RecipePredicate {
     Map<String, Function<FriendlyByteBuf, RecipePredicate>> NETWORK_DECODER = new HashMap<>();
 
     static void register(
-        String id, Function<JsonObject,
-        RecipePredicate> jsonDecoder,
+        String id,
+        Function<JsonObject, RecipePredicate> jsonDecoder,
         Function<FriendlyByteBuf, RecipePredicate> networkDecoder
     ) {
         RecipePredicate.JSON_DECODER.put(id, jsonDecoder);
@@ -29,9 +29,9 @@ public interface RecipePredicate {
 
     String getType();
 
-    boolean matches(AnvilCraftingContainer container);
+    boolean matches(AnvilCraftingContext context);
 
-    boolean process(AnvilCraftingContainer container);
+    boolean process(AnvilCraftingContext context);
 
     /**
      * 从 json 中读取

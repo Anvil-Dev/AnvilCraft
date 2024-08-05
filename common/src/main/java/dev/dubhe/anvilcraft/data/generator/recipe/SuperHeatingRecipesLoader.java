@@ -67,6 +67,12 @@ public class SuperHeatingRecipesLoader {
                 RecipeItem.of(ModItems.ROYAL_STEEL_INGOT)},
             RecipeItem.of(ModBlocks.TEMPERING_GLASS, 8)
         );
+        superHeating(
+            new RecipeItem[]{
+                RecipeItem.of(ModBlocks.QUARTZ_SAND, 8),
+                RecipeItem.of(ModItems.EMBER_METAL_INGOT)},
+            RecipeItem.of(ModBlocks.EMBER_GLASS, 8)
+        );
         superHeating(RecipeItem.of(ModItems.WOOD_FIBER, 4), RecipeItem.of(Items.CHARCOAL));
         superHeating(RecipeItem.of(ModItems.CRAB_CLAW), RecipeItem.of(ModItems.LIME_POWDER));
         superHeating(RecipeItem.of(ModItemTags.DEAD_TUBE), RecipeItem.of(ModItems.LIME_POWDER));
@@ -87,6 +93,7 @@ public class SuperHeatingRecipesLoader {
             new RecipeItem[]{RecipeItem.of(ModItemTags.GEM_BLOCKS)},
             ModBlocks.MELT_GEM_CAULDRON.get()
         );
+        superHeating(RecipeItem.of(ModBlocks.END_DUST), RecipeItem.of(Items.END_STONE));
     }
 
     /**

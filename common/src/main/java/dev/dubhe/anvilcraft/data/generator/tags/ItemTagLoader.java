@@ -93,5 +93,35 @@ public class ItemTagLoader {
         provider.addTag(ModItemTags.BERRIES).setReplace(false)
             .add(Items.SWEET_BERRIES)
             .add(Items.GLOW_BERRIES);
+        provider.addTag(ModItemTags.WRENCHES).setReplace(false)
+            .add(ModItems.ANVIL_HAMMER.get())
+            .add(ModItems.ROYAL_ANVIL_HAMMER.get());
+        provider.addTag(ModItemTags.WRENCH_FORGE).setReplace(false)
+                .add(ModItems.ANVIL_HAMMER.get())
+                .add(ModItems.ROYAL_ANVIL_HAMMER.get());
+        provider.addTag(ModItemTags.FIRE_STARTER).setReplace(false)
+                .add(Items.TORCH)
+                .add(Items.SOUL_TORCH)
+                .add(Items.CAMPFIRE)
+                .add(Items.SOUL_CAMPFIRE)
+                .add(Items.BLAZE_POWDER);
+        provider.addTag(ModItemTags.UNBROKEN_FIRE_STARTER).setReplace(false)
+                .add(ModBlocks.REDHOT_NETHERITE.asItem())
+                .add(ModBlocks.GLOWING_NETHERITE.asItem())
+                .add(ModBlocks.HEATED_NETHERITE.asItem())
+                .add(ModBlocks.INCANDESCENT_NETHERITE.asItem())
+                .add(ModBlocks.REDHOT_TUNGSTEN.asItem())
+                .add(ModBlocks.GLOWING_TUNGSTEN.asItem())
+                .add(ModBlocks.HEATED_TUNGSTEN.asItem())
+                .add(ModBlocks.INCANDESCENT_TUNGSTEN.asItem());
+        provider.addTag(ModItemTags.NETHERITE_BLOCK).setReplace(false)
+                .add(ModBlocks.REDHOT_NETHERITE.asItem())
+                .add(ModBlocks.GLOWING_NETHERITE.asItem())
+                .add(ModBlocks.HEATED_NETHERITE.asItem())
+                .add(ModBlocks.INCANDESCENT_NETHERITE.asItem());
+        provider.addTag(ModItemTags.EXPLOSION_PROOF).setReplace(false)
+                .add(ModBlocks.EARTH_CORE_SHARD_BLOCK.asItem())
+                .add(ModBlocks.EARTH_CORE_SHARD_ORE.asItem())
+                .add(ModItems.EARTH_CORE_SHARD.get());
     }
 }

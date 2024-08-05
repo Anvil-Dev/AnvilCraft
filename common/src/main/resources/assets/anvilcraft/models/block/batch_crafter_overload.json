@@ -1,0 +1,11 @@
+{
+	"parent": "anvilcraft:block/batch_crafter",
+	"render_type": "minecraft:cutout",
+	"textures": {
+		"top": "anvilcraft:block/batch_crafter_top",
+		"particle": "anvilcraft:block/batch_crafter_inner_overload",
+		"inner": "anvilcraft:block/batch_crafter_inner_overload",
+		"front": "anvilcraft:block/batch_crafter_front_overload",
+		"side": "anvilcraft:block/batch_crafter_side_overload"
+	}
+}

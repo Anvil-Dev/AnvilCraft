@@ -1,0 +1,103 @@
+{
+  "variants": {
+    "half=bottom_center": {
+      "model": "anvilcraft:block/large_cake_base_center"
+    },
+    "half=bottom_w": {
+      "model": "anvilcraft:block/large_cake_base_side"
+    },
+    "half=bottom_n": {
+      "model": "anvilcraft:block/large_cake_base_side",
+      "y": 90
+    },
+    "half=bottom_e": {
+      "model": "anvilcraft:block/large_cake_base_side",
+      "y": 180
+    },
+    "half=bottom_s": {
+      "model": "anvilcraft:block/large_cake_base_side",
+      "y": 270
+    },
+    "half=bottom_wn": {
+      "model": "anvilcraft:block/large_cake_base_corner"
+    },
+    "half=bottom_en": {
+      "model": "anvilcraft:block/large_cake_base_corner",
+      "y": 90
+    },
+    "half=bottom_es": {
+      "model": "anvilcraft:block/large_cake_base_corner",
+      "y": 180
+    },
+    "half=bottom_ws": {
+      "model": "anvilcraft:block/large_cake_base_corner",
+      "y": 270
+    },
+    "half=mid_center": {
+      "model": "anvilcraft:block/large_cake_mid_center"
+    },
+    "half=mid_w": {
+      "model": "anvilcraft:block/large_cake_mid_side"
+    },
+    "half=mid_n": {
+      "model": "anvilcraft:block/large_cake_mid_side",
+      "y": 90
+    },
+    "half=mid_e": {
+      "model": "anvilcraft:block/large_cake_mid_side",
+      "y": 180
+    },
+    "half=mid_s": {
+      "model": "anvilcraft:block/large_cake_mid_side",
+      "y": 270
+    },
+    "half=mid_wn": {
+      "model": "anvilcraft:block/large_cake_mid_corner"
+    },
+    "half=mid_en": {
+      "model": "anvilcraft:block/large_cake_mid_corner",
+      "y": 90
+    },
+    "half=mid_es": {
+      "model": "anvilcraft:block/large_cake_mid_corner",
+      "y": 180
+    },
+    "half=mid_ws": {
+      "model": "anvilcraft:block/large_cake_mid_corner",
+      "y": 270
+    },
+    "half=top_center": {
+      "model": "anvilcraft:block/large_cake_top_center"
+    },
+    "half=top_w": {
+      "model": "anvilcraft:block/large_cake_top_side"
+    },
+    "half=top_n": {
+      "model": "anvilcraft:block/large_cake_top_side",
+      "y": 90
+    },
+    "half=top_e": {
+      "model": "anvilcraft:block/large_cake_top_side",
+      "y": 180
+    },
+    "half=top_s": {
+      "model": "anvilcraft:block/large_cake_top_side",
+      "y": 270
+    },
+    "half=top_wn": {
+      "model": "anvilcraft:block/large_cake_top_corner"
+    },
+    "half=top_en": {
+      "model": "anvilcraft:block/large_cake_top_corner",
+      "y": 90
+    },
+    "half=top_es": {
+      "model": "anvilcraft:block/large_cake_top_corner",
+      "y": 180
+    },
+    "half=top_ws": {
+      "model": "anvilcraft:block/large_cake_top_corner",
+      "y": 270
+    }
+  }
+}

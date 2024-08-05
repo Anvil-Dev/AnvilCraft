@@ -2,8 +2,8 @@ package dev.dubhe.anvilcraft.item.enchantment;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModEnchantments;
+import dev.dubhe.anvilcraft.util.BreadthFirstTraversalPos;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
@@ -75,8 +75,8 @@ public class FellingEnchantment extends ModEnchantment {
      */
     private static void chainMine(Level level, Player player, BlockPos sourceBlock, int max, ItemStack tool) {
         BlockPos.breadthFirstTraversal(sourceBlock, Integer.MAX_VALUE, max, (blockPos, blockPosConsumer) -> {
-            for (Direction direction : Direction.values()) {
-                blockPosConsumer.accept(blockPos.relative(direction));
+            for (BreadthFirstTraversalPos pos : BreadthFirstTraversalPos.values()) {
+                blockPosConsumer.accept(blockPos.offset(pos.getOffset()));
             }
         }, blockPos -> {
             BlockState blockState = level.getBlockState(blockPos);

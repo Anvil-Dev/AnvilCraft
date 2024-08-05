@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("UnstableApiUsage")
-@Mixin(DefaultDisplayViewingScreen.class)
+@Mixin(value = DefaultDisplayViewingScreen.class)
 public abstract class DefaultDisplayViewingScreenMixin extends AbstractDisplayViewingScreen {
     protected DefaultDisplayViewingScreenMixin(
         Map<DisplayCategory<?>, List<DisplaySpec>> categoryMap, @Nullable CategoryIdentifier<?> category
@@ -26,12 +26,12 @@ public abstract class DefaultDisplayViewingScreenMixin extends AbstractDisplayVi
         super(categoryMap, category);
     }
 
-    @Shadow
+    @Shadow(remap = false)
     public abstract List<DisplaySpec> getCurrentDisplayed();
 
     /**
      * @reason 我们需要重定向修改原guiWidth的函数以实现修改rei获取ui宽度的代码, 以适配较宽的配方,
-     *      如果未来rei恢复了原逻辑, 我们会弃用改mixin. 此mixin作者有尝试使用MixinExtras修改局部变量, 但是并未成功.
+     *     如果未来rei恢复了原逻辑, 我们会弃用改mixin. 此mixin作者有尝试使用MixinExtras修改局部变量, 但是并未成功.
      */
     @Redirect(
         method = "init",
@@ -40,9 +40,15 @@ public abstract class DefaultDisplayViewingScreenMixin extends AbstractDisplayVi
             target = "Ljava/lang/Math;max(II)I"
         ),
         slice = @Slice(
-                from = @At(value = "INVOKE", target = "Ljava/util/List;clear()V"),
-                to = @At(value = "INVOKE", target = "Lme/shedaniel/rei/impl/client/gui/widget/TabContainerWidget;"
-                        + "initTabsSize(I)V")
+            from = @At(
+                value = "INVOKE",
+                target = "Ljava/util/List;clear()V"
+            ),
+            to = @At(
+                value = "INVOKE",
+                target = "Lme/shedaniel/rei/impl/client/gui/widget/TabContainerWidget;initTabsSize(I)V",
+                remap = false
+            )
         )
     )
     private int init(int a, int b) {
@@ -51,6 +57,6 @@ public abstract class DefaultDisplayViewingScreenMixin extends AbstractDisplayVi
             display -> this.getCurrentCategory().getDisplayWidth(display.provideInternalDisplay()),
             Comparator.naturalOrder()
         ).orElse(150);
-        return  Math.max(maxWidthDisplay + 10 + 14 + 14, 190);
+        return Math.max(maxWidthDisplay + 10 + 14 + 14, 190);
     }
 }

@@ -76,6 +76,7 @@ public class ModItemTags {
     public static final TagKey<Item> VEGETABLES = bindC("vegetables");
     public static final TagKey<Item> SEEDS = bindC("seeds");
     public static final TagKey<Item> BERRIES = bindC("berries");
+    public static final TagKey<Item> WRENCHES = bindC("wrenches");
 
 
     public static final TagKey<Item> FLOUR_FORGE = bindForge("flour");
@@ -144,6 +145,7 @@ public class ModItemTags {
     public static final TagKey<Item> VEGETABLES_FORGE = bindForge("vegetables");
     public static final TagKey<Item> SEEDS_FORGE = bindForge("seeds");
     public static final TagKey<Item> BERRIES_FORGE = bindForge("berries");
+    public static final TagKey<Item> WRENCH_FORGE = bindForge("tools/wrench");
 
 
     public static final TagKey<Item> ROYAL_STEEL_PICKAXE_BASE = bind("royal_steel_pickaxe_base");
@@ -158,6 +160,10 @@ public class ModItemTags {
     public static final TagKey<Item> VOID_RESISTANT = bind("void_resistant");
     public static final TagKey<Item> REINFORCED_CONCRETE = bind("reinforced_concrete");
     public static final TagKey<Item> SEEDS_PACK_CONTENT = bind("seeds_pack_content");
+    public static final TagKey<Item> FIRE_STARTER = bind("fire_starter");
+    public static final TagKey<Item> UNBROKEN_FIRE_STARTER = bind("unbroken_fire_starter");
+    public static final TagKey<Item> NETHERITE_BLOCK = bind("netherite_block");
+    public static final TagKey<Item> EXPLOSION_PROOF = bind("explosion_proof");
 
     public static @NotNull TagKey<Item> bindC(String id) {
         return TagKey.create(Registries.ITEM, new ResourceLocation("c", id));

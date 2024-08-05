@@ -10,7 +10,6 @@ import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
-import net.minecraft.data.recipes.SmithingTransformRecipeBuilder;
 import net.minecraft.data.recipes.packs.VanillaRecipeProvider;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -112,6 +111,10 @@ public class VanillaRecipesLoader {
         VanillaRecipeProvider.stonecutterResultFromBase(provider, RecipeCategory.BUILDING_BLOCKS,
             ModBlocks.CUT_ROYAL_STEEL_STAIRS, ModBlocks.CUT_ROYAL_STEEL_BLOCK);
         VanillaRecipeProvider.stonecutterResultFromBase(provider, RecipeCategory.BUILDING_BLOCKS,
+            ModBlocks.CUT_ROYAL_STEEL_PILLAR, ModBlocks.CUT_ROYAL_STEEL_BLOCK);
+        VanillaRecipeProvider.stonecutterResultFromBase(provider, RecipeCategory.BUILDING_BLOCKS,
+            ModBlocks.CUT_ROYAL_STEEL_PILLAR, ModBlocks.ROYAL_STEEL_BLOCK, 4);
+        VanillaRecipeProvider.stonecutterResultFromBase(provider, RecipeCategory.BUILDING_BLOCKS,
             ModBlocks.CUT_ROYAL_STEEL_SLAB, ModBlocks.CUT_ROYAL_STEEL_BLOCK, 2);
         VanillaRecipeProvider.stonecutterResultFromBase(provider, RecipeCategory.BUILDING_BLOCKS,
             ModBlocks.CUT_ROYAL_STEEL_BLOCK, ModBlocks.ROYAL_STEEL_BLOCK, 4);
@@ -150,63 +153,6 @@ public class VanillaRecipesLoader {
             ModBlocks.HEAVY_IRON_COLUMN, ModBlocks.HEAVY_IRON_BLOCK, 4);
         VanillaRecipeProvider.stonecutterResultFromBase(provider, RecipeCategory.BUILDING_BLOCKS,
             ModBlocks.HEAVY_IRON_BEAM, ModBlocks.HEAVY_IRON_BLOCK, 4);
-
-
-        SmithingTransformRecipeBuilder.smithing(Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
-                Ingredient.of(ModItemTags.ROYAL_STEEL_PICKAXE_BASE), Ingredient.of(ModItems.ROYAL_STEEL_INGOT.get()),
-                RecipeCategory.TOOLS, ModItems.ROYAL_STEEL_PICKAXE.get())
-            .unlocks(AnvilCraftDatagen.hasItem(ModItems.AMETHYST_PICKAXE.asItem()),
-                AnvilCraftDatagen.has(ModItems.AMETHYST_PICKAXE))
-            .save(provider, AnvilCraft.of("smithing/royal_steel_pickaxe"));
-        SmithingTransformRecipeBuilder.smithing(Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
-                Ingredient.of(ModItemTags.ROYAL_STEEL_AXE_BASE), Ingredient.of(ModItems.ROYAL_STEEL_INGOT.get()),
-                RecipeCategory.TOOLS, ModItems.ROYAL_STEEL_AXE.get())
-            .unlocks(AnvilCraftDatagen.hasItem(ModItems.AMETHYST_AXE.asItem()),
-                AnvilCraftDatagen.has(ModItems.AMETHYST_AXE))
-            .save(provider, AnvilCraft.of("smithing/royal_steel_axe"));
-        SmithingTransformRecipeBuilder.smithing(Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
-                Ingredient.of(ModItemTags.ROYAL_STEEL_HOE_BASE), Ingredient.of(ModItems.ROYAL_STEEL_INGOT.get()),
-                RecipeCategory.TOOLS, ModItems.ROYAL_STEEL_HOE.get())
-            .unlocks(AnvilCraftDatagen.hasItem(ModItems.AMETHYST_HOE.asItem()),
-                AnvilCraftDatagen.has(ModItems.AMETHYST_HOE))
-            .save(provider, AnvilCraft.of("smithing/royal_steel_hoe"));
-        SmithingTransformRecipeBuilder.smithing(Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
-                Ingredient.of(ModItemTags.ROYAL_STEEL_SHOVEL_BASE), Ingredient.of(ModItems.ROYAL_STEEL_INGOT.get()),
-                RecipeCategory.TOOLS, ModItems.ROYAL_STEEL_SHOVEL.get())
-            .unlocks(AnvilCraftDatagen.hasItem(ModItems.AMETHYST_SHOVEL.asItem()),
-                AnvilCraftDatagen.has(ModItems.AMETHYST_SHOVEL))
-            .save(provider, AnvilCraft.of("smithing/royal_steel_shovel"));
-        SmithingTransformRecipeBuilder.smithing(Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
-                Ingredient.of(ModItemTags.ROYAL_STEEL_SWORD_BASE), Ingredient.of(ModItems.ROYAL_STEEL_INGOT.get()),
-                RecipeCategory.TOOLS, ModItems.ROYAL_STEEL_SWORD.get())
-            .unlocks(AnvilCraftDatagen.hasItem(ModItems.AMETHYST_SWORD.asItem()),
-                AnvilCraftDatagen.has(ModItems.AMETHYST_SWORD))
-            .save(provider, AnvilCraft.of("smithing/royal_steel_sword"));
-        SmithingTransformRecipeBuilder.smithing(
-                Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE), Ingredient.of(Items.GRINDSTONE),
-                Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK), RecipeCategory.TOOLS, ModBlocks.ROYAL_GRINDSTONE.asItem()
-            )
-            .unlocks(AnvilCraftDatagen.hasItem(ModBlocks.ROYAL_STEEL_BLOCK.asItem()),
-                AnvilCraftDatagen.has(ModBlocks.ROYAL_STEEL_BLOCK))
-            .unlocks(AnvilCraftDatagen.hasItem(Items.GRINDSTONE), AnvilCraftDatagen.has(Items.GRINDSTONE))
-            .save(provider, AnvilCraft.of("smithing/royal_grindstone"));
-        SmithingTransformRecipeBuilder.smithing(
-                Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE), Ingredient.of(Items.ANVIL),
-                Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK), RecipeCategory.TOOLS, ModBlocks.ROYAL_ANVIL.asItem()
-            )
-            .unlocks(AnvilCraftDatagen.hasItem(ModBlocks.ROYAL_STEEL_BLOCK.asItem()),
-                AnvilCraftDatagen.has(ModBlocks.ROYAL_STEEL_BLOCK))
-            .unlocks(AnvilCraftDatagen.hasItem(Items.ANVIL), AnvilCraftDatagen.has(Items.ANVIL))
-            .save(provider, AnvilCraft.of("smithing/royal_anvil"));
-        SmithingTransformRecipeBuilder.smithing(
-                Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE), Ingredient.of(Items.SMITHING_TABLE),
-                Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK), RecipeCategory.TOOLS,
-                ModBlocks.ROYAL_SMITHING_TABLE.asItem()
-            )
-            .unlocks(AnvilCraftDatagen.hasItem(ModBlocks.ROYAL_STEEL_BLOCK.asItem()),
-                AnvilCraftDatagen.has(ModBlocks.ROYAL_STEEL_BLOCK))
-            .unlocks(AnvilCraftDatagen.hasItem(Items.SMITHING_TABLE), AnvilCraftDatagen.has(Items.SMITHING_TABLE))
-            .save(provider, AnvilCraft.of("smithing/royal_smithing_table"));
 
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModBlocks.DISCHARGER)
             .requires(ModBlocks.CHARGER, 1)
