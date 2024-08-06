@@ -42,6 +42,7 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class CrabTrapBlock extends BaseEntityBlock implements SimpleWaterloggedBlock, IHammerRemovable {
@@ -55,12 +56,12 @@ public class CrabTrapBlock extends BaseEntityBlock implements SimpleWaterloggedB
     }
 
     @Override
-    public BlockState rotate(BlockState state, Rotation rotation) {
+    public @NotNull BlockState rotate(BlockState state, Rotation rotation) {
         return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
 
     @Override
-    public BlockState mirror(BlockState state, Mirror mirror) {
+    public @NotNull BlockState mirror(BlockState state, Mirror mirror) {
         return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }
 
@@ -79,7 +80,7 @@ public class CrabTrapBlock extends BaseEntityBlock implements SimpleWaterloggedB
     }
 
     @Override
-    public FluidState getFluidState(BlockState state) {
+    public @NotNull FluidState getFluidState(BlockState state) {
         return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
@@ -89,7 +90,12 @@ public class CrabTrapBlock extends BaseEntityBlock implements SimpleWaterloggedB
     }
 
     @Override
-    public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+    public void randomTick(
+            @NotNull BlockState state,
+            @NotNull ServerLevel level,
+            @NotNull BlockPos pos,
+            @NotNull RandomSource random
+    ) {
         int times = 0;
         for (Direction face : Direction.values()) {
             if (level.getFluidState(pos.relative(face)).is(Fluids.WATER)) times++;
@@ -107,8 +113,13 @@ public class CrabTrapBlock extends BaseEntityBlock implements SimpleWaterloggedB
     }
 
     @Override
-    public InteractionResult use(
-        BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit
+    public @NotNull InteractionResult use(
+            @NotNull BlockState state,
+            Level level,
+            @NotNull BlockPos pos,
+            @NotNull Player player,
+            @NotNull InteractionHand hand,
+            @NotNull BlockHitResult hit
     ) {
         if (!level.isClientSide()) {
             CrabTrapBlockEntity blockEntity = (CrabTrapBlockEntity) level.getBlockEntity(pos);
@@ -132,17 +143,25 @@ public class CrabTrapBlock extends BaseEntityBlock implements SimpleWaterloggedB
 
     @Nullable
     @Override
-    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+    public BlockEntity newBlockEntity(
+            @NotNull BlockPos pos,
+            @NotNull BlockState state) {
         return CrabTrapBlockEntity.createBlockEntity(ModBlockEntities.CRAB_TRAP.get(), pos, state);
     }
 
     @Override
-    public RenderShape getRenderShape(BlockState state) {
+    public @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
         return RenderShape.MODEL;
     }
 
     @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+    public void onRemove(
+            BlockState state,
+            @NotNull Level level,
+            @NotNull BlockPos pos,
+            BlockState newState,
+            boolean movedByPiston
+    ) {
         if (state.is(newState.getBlock())) return;
         if (level.getBlockEntity(pos) instanceof CrabTrapBlockEntity entity) {
             Vec3 vec3 = entity.getBlockPos().getCenter();
@@ -166,7 +185,9 @@ public class CrabTrapBlock extends BaseEntityBlock implements SimpleWaterloggedB
             if (items.isEmpty()) return;
             CrabTrapBlockEntity blockEntity = (CrabTrapBlockEntity) level.getBlockEntity(pos);
             for (ItemStack item : items) {
-                ItemDepositoryHelper.insertItem(blockEntity.getDepository(), item, false);
+                if (blockEntity != null) {
+                    ItemDepositoryHelper.insertItem(blockEntity.getDepository(), item, false);
+                }
             }
         }
     }
