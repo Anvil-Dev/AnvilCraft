@@ -7,6 +7,7 @@ String getConfig(String key) {
 }
 
 def mod_id = getConfig("mod_id")
+def root_project = project.getParent()
 def common_project = project(":${mod_id}-common")
 def forge_project = project(":${mod_id}-forge")
 def version = getConfig("version")
@@ -189,6 +190,8 @@ remapJar {
 }
 
 jar {
+    from root_project.file("LICENSE")
+    from root_project.file("ASSETS_LICENSE")
     archiveClassifier.set("dev")
 }
 
