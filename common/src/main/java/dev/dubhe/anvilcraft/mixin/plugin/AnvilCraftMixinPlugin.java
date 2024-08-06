@@ -22,7 +22,6 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
     public void onLoad(String mixinPackage) {
         hasZetaPiston = AnvilCraftMixinPlugin.class.getClassLoader()
                 .getResource("org/violetmoon/zeta/piston/ZetaPistonStructureResolver.class") != null;
-        hasCreate = this.isLoaded("com/simibubi/create/Create.class");
         hasZetaPiston = this.isLoaded("org/violetmoon/zeta/piston/ZetaPistonStructureResolver.class");
         hasReiScreen = this.isLoaded("me/shedaniel/rei/impl/client/gui/screen/DefaultDisplayViewingScreen.class");
     }
