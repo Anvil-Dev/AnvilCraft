@@ -35,7 +35,7 @@ public class GiantAnvilMultiblockCraftingEventListener {
     private void anvilProcess(AnvilRecipe recipe, AnvilCraftingContext context) {
         int counts = 0;
         while (counts < AnvilCraft.config.anvilEfficiency) {
-            if (!recipe.craft(context.copy())) break;
+            if (!recipe.craft(context.clearData())) break;
             counts++;
         }
         context.spawnItemEntity();

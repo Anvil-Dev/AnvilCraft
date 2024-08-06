@@ -23,7 +23,6 @@ import java.util.Set;
  */
 public class AnvilCraftingContext
     implements Container, StackedContentsCompatible {
-    private final AnvilCraftingContext parent;
     @Getter
     private final Level level;
     @Getter
@@ -43,22 +42,6 @@ public class AnvilCraftingContext
      * @param entity 铁砧实体
      */
     public AnvilCraftingContext(Level level, BlockPos pos, FallingBlockEntity entity) {
-        this.parent = null;
-        this.level = level;
-        this.pos = pos;
-        this.entity = entity;
-    }
-
-    /**
-     * 初始化 AnvilCraftingContext
-     *
-     * @param parent 父节点
-     * @param level  世界
-     * @param pos    位置
-     * @param entity 铁砧实体
-     */
-    private AnvilCraftingContext(AnvilCraftingContext parent, Level level, BlockPos pos, FallingBlockEntity entity) {
-        this.parent = parent;
         this.level = level;
         this.pos = pos;
         this.entity = entity;
@@ -118,7 +101,6 @@ public class AnvilCraftingContext
      * @return 添加是否成功
      */
     public boolean addOutputsItem(Vec3 pos, ItemStack stack) {
-        if (parent != null) parent.addOutputsItem(pos, stack);
         stack = stack.copy();
         for (Map.Entry<Vec3, ItemStack> entry : this.outputs) {
             if (stack.isEmpty()) continue;
@@ -134,8 +116,12 @@ public class AnvilCraftingContext
         return this.outputs.add(Map.entry(pos, stack));
     }
 
+    /**
+     * 设置是否强制铁砧损坏
+     *
+     * @param anvilDamage true 表示强制铁砧损坏，false 表示不强制铁砧损坏
+     */
     public void setAnvilDamage(boolean anvilDamage) {
-        if (parent != null) parent.setAnvilDamage(anvilDamage);
         isAnvilDamage = anvilDamage;
     }
 
@@ -153,16 +139,43 @@ public class AnvilCraftingContext
         }
     }
 
+    /**
+     * 向数据集合中添加键值对
+     *
+     * @param key 键，用于唯一标识数据项
+     * @param value 值，可以是任意类型的数据
+     * @param <T> 泛型参数，表示值的类型
+     */
     public <T> void addData(String key, T value) {
         this.data.put(key, value);
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> T getData(String key, Class<T> typeOfT) {
-        return (T) this.data.get(key);
-    }
 
-    public AnvilCraftingContext copy() {
-        return new AnvilCraftingContext(this, this.level, this.pos, this.entity);
+    /**
+     * 根据键和类型从数据映射中获取数据
+     * <p>
+     * 此方法用于从存储对象的映射中安全地检索特定类型的数据
+     * <p>
+     * 如果键不存在，或者存储的值不是指定的类型，则返回 null
+     *
+     * @param key 要检索的数据项的键
+     * @param typeOfT 要检索的数据项的类型
+     * @return <T> 如果找到键且其值匹配指定类型，则返回该值；否则返回 null
+     */
+    public <T> T getData(String key, Class<T> typeOfT) {
+        // 从映射中获取与键关联的对象
+        Object o = this.data.get(key);
+        // 如果对象不存在，则直接返回null
+        if (o == null) return null;
+        // 检查对象是否是请求的类型，如果不是，则返回null
+        if (!typeOfT.isInstance(o)) return null;
+        // 类型检查通过，安全地将对象转换为请求的类型并返回
+        //noinspection unchecked
+        return (T) o;
+    }
+    
+    public AnvilCraftingContext clearData() {
+        this.data.clear();
+        return this;
     }
 }
