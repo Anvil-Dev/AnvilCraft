@@ -27,12 +27,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 @Getter
-public class AutoCrafterMenu extends BaseMachineMenu implements IFilterMenu, ContainerListener {
+public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, ContainerListener {
     public final BatchCrafterBlockEntity blockEntity;
     private final Slot resultSlot;
     private final Level level;
 
-    public AutoCrafterMenu(
+    public BatchCrafterMenu(
         @Nullable MenuType<?> menuType, int containerId, Inventory inventory, @NotNull FriendlyByteBuf extraData
     ) {
         this(menuType, containerId, inventory, inventory.player.level().getBlockEntity(extraData.readBlockPos()));
@@ -46,9 +46,9 @@ public class AutoCrafterMenu extends BaseMachineMenu implements IFilterMenu, Con
      * @param inventory   背包
      * @param blockEntity 方块实体
      */
-    public AutoCrafterMenu(MenuType<?> menuType, int containerId, Inventory inventory, BlockEntity blockEntity) {
+    public BatchCrafterMenu(MenuType<?> menuType, int containerId, Inventory inventory, BlockEntity blockEntity) {
         super(menuType, containerId, blockEntity);
-        AutoCrafterMenu.checkContainerSize(inventory, 9);
+        BatchCrafterMenu.checkContainerSize(inventory, 9);
 
         this.blockEntity = (BatchCrafterBlockEntity) blockEntity;
         this.level = inventory.player.level();
@@ -138,7 +138,7 @@ public class AutoCrafterMenu extends BaseMachineMenu implements IFilterMenu, Con
     // 移动物品到可用槽位
     private boolean moveItemToActiveSlot(ItemStack stack) {
         int count = stack.getCount();
-        for (int index = AutoCrafterMenu.TE_INVENTORY_FIRST_SLOT_INDEX; index < 45; index++) {
+        for (int index = BatchCrafterMenu.TE_INVENTORY_FIRST_SLOT_INDEX; index < 45; index++) {
             // 只有对应槽位可以放入物品时才向槽位里快速移动物品
             if (canPlace(stack, index)) {
                 moveItemStackTo(stack, index, index + 1, false);

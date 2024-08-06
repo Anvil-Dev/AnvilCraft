@@ -14,7 +14,7 @@ import dev.dubhe.anvilcraft.client.gui.screen.inventory.RoyalGrindstoneScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.RoyalSmithingScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.SliderScreen;
 import dev.dubhe.anvilcraft.inventory.ActiveSilencerMenu;
-import dev.dubhe.anvilcraft.inventory.AutoCrafterMenu;
+import dev.dubhe.anvilcraft.inventory.BatchCrafterMenu;
 import dev.dubhe.anvilcraft.inventory.ChuteMenu;
 import dev.dubhe.anvilcraft.inventory.EmberAnvilMenu;
 import dev.dubhe.anvilcraft.inventory.EmberGrindstoneMenu;
@@ -32,8 +32,8 @@ import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 
 public class ModMenuTypes {
     @SuppressWarnings("DataFlowIssue")
-    public static final MenuEntry<AutoCrafterMenu> AUTO_CRAFTER = REGISTRATE
-            .menu("auto_crafter", AutoCrafterMenu::new, () -> AutoCrafterScreen::new)
+    public static final MenuEntry<BatchCrafterMenu> AUTO_CRAFTER = REGISTRATE
+            .menu("batch_crafter", BatchCrafterMenu::new, () -> AutoCrafterScreen::new)
             .register();
     @SuppressWarnings("DataFlowIssue")
     public static final MenuEntry<ChuteMenu> CHUTE = REGISTRATE

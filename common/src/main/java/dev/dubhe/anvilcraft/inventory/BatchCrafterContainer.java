@@ -10,10 +10,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class AutoCrafterContainer implements CraftingContainer {
+public class BatchCrafterContainer implements CraftingContainer {
     protected final NonNullList<ItemStack> items;
 
-    public AutoCrafterContainer(NonNullList<ItemStack> items) {
+    public BatchCrafterContainer(NonNullList<ItemStack> items) {
         this.items = items;
     }
 

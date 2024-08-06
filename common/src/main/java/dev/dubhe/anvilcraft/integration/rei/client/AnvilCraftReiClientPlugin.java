@@ -8,6 +8,7 @@ import me.shedaniel.rei.api.client.plugins.REIClientPlugin;
 import me.shedaniel.rei.api.client.registry.category.CategoryRegistry;
 import me.shedaniel.rei.api.client.registry.display.DisplayRegistry;
 import me.shedaniel.rei.api.client.registry.screen.ScreenRegistry;
+import me.shedaniel.rei.api.client.registry.transfer.TransferHandlerRegistry;
 import me.shedaniel.rei.api.common.util.EntryStacks;
 import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.NotNull;
@@ -140,5 +141,10 @@ public class AnvilCraftReiClientPlugin implements REIClientPlugin {
                         registry.add(AnvilRecipeDisplay.of(
                                 AnvilCraftCategoryIdentifiers.get(recipe.getAnvilRecipeType()),
                                 recipe)));
+    }
+
+    @Override
+    public void registerTransferHandlers(TransferHandlerRegistry registry) {
+        registry.register(new BatchCrafterTransferHandler());
     }
 }

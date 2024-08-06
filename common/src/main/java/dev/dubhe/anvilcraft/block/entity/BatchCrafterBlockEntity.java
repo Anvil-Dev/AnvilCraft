@@ -12,7 +12,7 @@ import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.BatchCrafterBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
-import dev.dubhe.anvilcraft.inventory.AutoCrafterMenu;
+import dev.dubhe.anvilcraft.inventory.BatchCrafterMenu;
 import dev.dubhe.anvilcraft.network.ClientboundUpdateDisplayItemPacket;
 import lombok.Getter;
 import lombok.Setter;
@@ -48,7 +48,6 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
 import java.util.ArrayDeque;
-import java.util.Comparator;
 import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
@@ -82,7 +81,6 @@ public class BatchCrafterBlockEntity
                 if (!level.isClientSide) {
                     new ClientboundUpdateDisplayItemPacket(displayItemStack, getPos()).broadcast();
                 }
-                System.out.println("resultItemStack = " + displayItemStack);
             }
             setChanged();
         }
@@ -290,7 +288,7 @@ public class BatchCrafterBlockEntity
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
-        return new AutoCrafterMenu(ModMenuTypes.AUTO_CRAFTER.get(), i, inventory, this);
+        return new BatchCrafterMenu(ModMenuTypes.AUTO_CRAFTER.get(), i, inventory, this);
     }
 
     @Override
