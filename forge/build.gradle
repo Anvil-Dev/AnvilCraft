@@ -206,14 +206,18 @@ shadowJar {
 }
 
 remapJar {
+    from(root_project.file("LICENSE")) {
+        rename { "${it}_${mod_id}" }
+    }
+    from(root_project.file("ASSETS_LICENSE")) {
+        rename { "${it}_${mod_id}" }
+    }
     inputFile.set(shadowJar.archiveFile)
     dependsOn shadowJar
     archiveClassifier.set(null)
 }
 
 jar {
-    from root_project.file("LICENSE")
-    from root_project.file("ASSETS_LICENSE")
     archiveClassifier.set("dev")
 }
 
