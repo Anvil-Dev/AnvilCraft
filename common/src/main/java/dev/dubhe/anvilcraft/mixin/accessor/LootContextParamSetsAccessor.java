@@ -6,6 +6,9 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
+import org.spongepowered.asm.mixin.gen.Invoker;
+
+import java.util.function.Consumer;
 
 /**
  * 访问器
@@ -14,6 +17,11 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 public interface LootContextParamSetsAccessor {
     @Accessor("REGISTRY")
     static BiMap<ResourceLocation, LootContextParamSet> getRegistry() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Invoker("register")
+    static LootContextParamSet register(String registryName, Consumer<LootContextParamSet.Builder> builderConsumer) {
         throw new UnsupportedOperationException();
     }
 }

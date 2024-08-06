@@ -31,3 +31,4 @@ accessible field net/minecraft/world/entity/item/FallingBlockEntity blockState L
 accessible field net/minecraft/world/entity/item/FallingBlockEntity cancelDrop Z
 accessible method net/minecraft/world/entity/Entity collide (Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/Vec3;
 accessible method net/minecraft/world/item/BlockItem canPlace (Lnet/minecraft/world/item/context/BlockPlaceContext;Lnet/minecraft/world/level/block/state/BlockState;)Z
+accessible field net/minecraft/world/phys/BlockHitResult miss Z

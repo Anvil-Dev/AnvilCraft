@@ -283,7 +283,7 @@ public class AnvilEventListener {
     private void anvilProcess(AnvilRecipe recipe, AnvilCraftingContext context, AnvilFallOnLandEvent event) {
         int counts = 0;
         while (counts < AnvilCraft.config.anvilEfficiency) {
-            if (!recipe.craft(context)) break;
+            if (!recipe.craft(context.clearData())) break;
             counts++;
         }
         if (context.isAnvilDamage()) event.setAnvilDamage(true);
