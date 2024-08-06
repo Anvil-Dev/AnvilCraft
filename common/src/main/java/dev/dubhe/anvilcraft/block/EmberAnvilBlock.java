@@ -84,7 +84,7 @@ public class EmberAnvilBlock extends AnvilBlock implements IHammerRemovable, Emb
 
     @Override
     protected void falling(@NotNull FallingBlockEntity entity) {
-        entity.setHurtsEntities(2.0f, 80);
+        entity.setHurtsEntities(2.0f, 120);
     }
 
     @Override
