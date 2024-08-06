@@ -186,15 +186,15 @@ public class GiantAnvilLandingEventListener {
                 (blockPosList, level) -> {
                     for (BlockPos pos : blockPosList) {
                         BlockPos pos1 = pos.mutable();
-                        AnvilCraftingContext container = new AnvilCraftingContext(level, pos1, null);
+                        AnvilCraftingContext context = new AnvilCraftingContext(level, pos1, null);
                         Optional<AnvilRecipe> optional = AnvilRecipeManager.getAnvilRecipeList().stream()
                                 .filter(recipe ->
                                         recipe.getAnvilRecipeType() == AnvilRecipeType.BLOCK_SMASH
-                                                && recipe.matches(container, level)
+                                                && recipe.matches(context, level)
                                 ).findFirst();
                         if (optional.isPresent()) {
                             AnvilRecipe recipe = optional.get();
-                            recipe.craft(container);
+                            recipe.craft(context.clearData());
                             level.destroyBlock(pos.below(), true);
                         }
                     }

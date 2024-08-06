@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.data.recipe.anvil;
 
 import lombok.Getter;
-import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.item.FallingBlockEntity;
@@ -14,6 +13,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -21,18 +21,21 @@ import java.util.Set;
 /**
  * 铁砧合成上下文
  */
-@Getter
 public class AnvilCraftingContext
     implements Container, StackedContentsCompatible {
+    @Getter
     private final Level level;
+    @Getter
     private final BlockPos pos;
+    @Getter
     private final FallingBlockEntity entity;
-    @Setter
+    @Getter
     private boolean isAnvilDamage = false;
     private final Set<Map.Entry<Vec3, ItemStack>> outputs = new HashSet<>();
+    private final Map<String, Object> data = new HashMap<>();
 
     /**
-     * 初始化 AnvilCraftingContainer
+     * 初始化 AnvilCraftingContext
      *
      * @param level  世界
      * @param pos    位置
@@ -114,6 +117,15 @@ public class AnvilCraftingContext
     }
 
     /**
+     * 设置是否强制铁砧损坏
+     *
+     * @param anvilDamage true 表示强制铁砧损坏，false 表示不强制铁砧损坏
+     */
+    public void setAnvilDamage(boolean anvilDamage) {
+        isAnvilDamage = anvilDamage;
+    }
+
+    /**
      * 向世界中输出物品实体
      */
     public void spawnItemEntity() {
@@ -125,5 +137,45 @@ public class AnvilCraftingContext
             ItemEntity entity = new ItemEntity(this.level, pos.x(), pos.y(), pos.z(), stack, 0.0, 0.0, 0.0);
             this.level.addFreshEntity(entity);
         }
+    }
+
+    /**
+     * 向数据集合中添加键值对
+     *
+     * @param key 键，用于唯一标识数据项
+     * @param value 值，可以是任意类型的数据
+     * @param <T> 泛型参数，表示值的类型
+     */
+    public <T> void addData(String key, T value) {
+        this.data.put(key, value);
+    }
+
+
+    /**
+     * 根据键和类型从数据映射中获取数据
+     * <p>
+     * 此方法用于从存储对象的映射中安全地检索特定类型的数据
+     * <p>
+     * 如果键不存在，或者存储的值不是指定的类型，则返回 null
+     *
+     * @param key 要检索的数据项的键
+     * @param typeOfT 要检索的数据项的类型
+     * @return <T> 如果找到键且其值匹配指定类型，则返回该值；否则返回 null
+     */
+    public <T> T getData(String key, Class<T> typeOfT) {
+        // 从映射中获取与键关联的对象
+        Object o = this.data.get(key);
+        // 如果对象不存在，则直接返回null
+        if (o == null) return null;
+        // 检查对象是否是请求的类型，如果不是，则返回null
+        if (!typeOfT.isInstance(o)) return null;
+        // 类型检查通过，安全地将对象转换为请求的类型并返回
+        //noinspection unchecked
+        return (T) o;
+    }
+    
+    public AnvilCraftingContext clearData() {
+        this.data.clear();
+        return this;
     }
 }

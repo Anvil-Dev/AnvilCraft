@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.data.generator.loot;
 
 import com.tterrag.registrate.providers.loot.RegistrateLootTableProvider;
 import dev.dubhe.anvilcraft.init.ModItems;
-import dev.dubhe.anvilcraft.init.ModLootContextParamSet;
 import dev.dubhe.anvilcraft.init.ModLootTables;
 import net.minecraft.advancements.critereon.LocationPredicate;
 import net.minecraft.world.item.Items;
@@ -10,6 +9,7 @@ import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.predicates.LocationCheck;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
@@ -96,7 +96,7 @@ public class CrabTrapLootLoader {
      * @param provider 提供器
      */
     public static void init(RegistrateLootTableProvider provider) {
-        provider.addLootAction(ModLootContextParamSet.CRAB_TRAP, (bi) -> {
+        provider.addLootAction(LootContextParamSets.CHEST, (bi) -> {
             bi.accept(ModLootTables.CRAB_TRAP_COMMON, COMMON);
             bi.accept(ModLootTables.CRAB_TRAP_RIVER, RIVER);
             bi.accept(ModLootTables.CRAB_TRAP_OCEAN, OCEAN);
