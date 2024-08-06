@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
-import dev.dubhe.anvilcraft.init.ModLootContextParamSet;
 import dev.dubhe.anvilcraft.init.ModLootTables;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.BlockPos;
@@ -39,6 +38,7 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -159,7 +159,7 @@ public class CrabTrapBlock extends BaseEntityBlock implements SimpleWaterloggedB
         if (state.hasBlockEntity()) {
             LootParams lootParams = new LootParams.Builder(level)
                 .withParameter(LootContextParams.ORIGIN, pos.getCenter())
-                .create(ModLootContextParamSet.CRAB_TRAP);
+                .create(LootContextParamSets.CHEST);
 
             LootTable lootTable = level.getServer().getLootData().getLootTable(loot);
             ObjectArrayList<ItemStack> items = lootTable.getRandomItems(lootParams);
