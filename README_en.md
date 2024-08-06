@@ -21,6 +21,11 @@
 * Pressing: Press two squares into one
 * Block Break: Breaks blocks on the Stone Cutter
 
+## License
+
+* Code unless otherwise stated default to our [LICENSE file(LGPL-3.0)](./LICENSE) here
+* Non-Code assets (Located here) go by our [ASSET_LICENSE file(CC-BY-NC-ND 4.0)](./ASSETS_LICENSE) here
+
 ## Usage
 
 Download the corresponding version of AnvilCraftMod and place it in the `mods` folder to start the game.
@@ -34,10 +39,6 @@ Download the corresponding version of AnvilCraftMod and place it in the `mods` f
 We welcome you to join us! Create an [Issue](https://github.com/Anvil-Dev/AnvilCraft/issues/new/choose) or create a Pull Request.
 
 AnvilCraft follows the [Contributor Covenant](https://www.contributor-covenant.org/version/2/1/code_of_conduct/) Code of Conduct.
-
-## License
-
-[LGPL](https://github.com/Anvil-Dev/AnvilCraft/blob/releases/1.20.1/LICENSE) © Gugle
 
 ## Contact us:
 
