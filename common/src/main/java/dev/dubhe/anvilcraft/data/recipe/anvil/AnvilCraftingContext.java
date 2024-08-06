@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.data.recipe.anvil;
 
 import lombok.Getter;
-import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.item.FallingBlockEntity;
@@ -14,6 +13,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -21,24 +21,44 @@ import java.util.Set;
 /**
  * 铁砧合成上下文
  */
-@Getter
 public class AnvilCraftingContext
     implements Container, StackedContentsCompatible {
+    private final AnvilCraftingContext parent;
+    @Getter
     private final Level level;
+    @Getter
     private final BlockPos pos;
+    @Getter
     private final FallingBlockEntity entity;
-    @Setter
+    @Getter
     private boolean isAnvilDamage = false;
     private final Set<Map.Entry<Vec3, ItemStack>> outputs = new HashSet<>();
+    private final Map<String, Object> data = new HashMap<>();
 
     /**
-     * 初始化 AnvilCraftingContainer
+     * 初始化 AnvilCraftingContext
      *
      * @param level  世界
      * @param pos    位置
      * @param entity 铁砧实体
      */
     public AnvilCraftingContext(Level level, BlockPos pos, FallingBlockEntity entity) {
+        this.parent = null;
+        this.level = level;
+        this.pos = pos;
+        this.entity = entity;
+    }
+
+    /**
+     * 初始化 AnvilCraftingContext
+     *
+     * @param parent 父节点
+     * @param level  世界
+     * @param pos    位置
+     * @param entity 铁砧实体
+     */
+    private AnvilCraftingContext(AnvilCraftingContext parent, Level level, BlockPos pos, FallingBlockEntity entity) {
+        this.parent = parent;
         this.level = level;
         this.pos = pos;
         this.entity = entity;
@@ -98,6 +118,7 @@ public class AnvilCraftingContext
      * @return 添加是否成功
      */
     public boolean addOutputsItem(Vec3 pos, ItemStack stack) {
+        if (parent != null) parent.addOutputsItem(pos, stack);
         stack = stack.copy();
         for (Map.Entry<Vec3, ItemStack> entry : this.outputs) {
             if (stack.isEmpty()) continue;
@@ -113,6 +134,11 @@ public class AnvilCraftingContext
         return this.outputs.add(Map.entry(pos, stack));
     }
 
+    public void setAnvilDamage(boolean anvilDamage) {
+        if (parent != null) parent.setAnvilDamage(anvilDamage);
+        isAnvilDamage = anvilDamage;
+    }
+
     /**
      * 向世界中输出物品实体
      */
@@ -125,5 +151,18 @@ public class AnvilCraftingContext
             ItemEntity entity = new ItemEntity(this.level, pos.x(), pos.y(), pos.z(), stack, 0.0, 0.0, 0.0);
             this.level.addFreshEntity(entity);
         }
+    }
+
+    public <T> void addData(String key, T value) {
+        this.data.put(key, value);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getData(String key, Class<T> typeOfT) {
+        return (T) this.data.get(key);
+    }
+
+    public AnvilCraftingContext copy() {
+        return new AnvilCraftingContext(this, this.level, this.pos, this.entity);
     }
 }
