@@ -142,9 +142,4 @@ public class AnvilCraftReiClientPlugin implements REIClientPlugin {
                                 AnvilCraftCategoryIdentifiers.get(recipe.getAnvilRecipeType()),
                                 recipe)));
     }
-
-    @Override
-    public void registerTransferHandlers(TransferHandlerRegistry registry) {
-        registry.register(new BatchCrafterTransferHandler());
-    }
 }
