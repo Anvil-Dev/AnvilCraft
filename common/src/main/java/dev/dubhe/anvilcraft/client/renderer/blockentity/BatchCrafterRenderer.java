@@ -91,9 +91,8 @@ public class BatchCrafterRenderer implements BlockEntityRenderer<BatchCrafterBlo
         final boolean isGui3d = bakedModel.isGui3d();
         final int renderAmount = this.getRenderAmount(itemStack);
         float transformedGroundScaleY = bakedModel.getTransforms().getTransform(ItemDisplayContext.GROUND).scale.y();
-        poseStack.translate(0.5F, 0.5F * transformedGroundScaleY + 0.1f, 0.5F);
+        poseStack.translate(0.5F, 0.5F * transformedGroundScaleY + 0.15f, 0.5F);
         float rotation = (blockEntity.getLevel().getGameTime() + partialTick) * 2f;
-        poseStack.scale(0.8f, 0.8f, 0.8f);
         poseStack.mulPose(Axis.YP.rotationDegrees(rotation));
         float groundScaleX = bakedModel.getTransforms().ground.scale.x();
         float groundScaleY = bakedModel.getTransforms().ground.scale.y();

@@ -225,14 +225,7 @@ public class BatchCrafterBlock extends BaseEntityBlock implements IHammerChangea
         if (level.isClientSide) {
             return;
         }
-        boolean bl = state.getValue(POWERED);
-        if (bl != level.hasNeighborSignal(pos)) {
-            if (bl) {
-                level.scheduleTick(pos, this, 4);
-            } else {
-                level.setBlock(pos, state.cycle(POWERED), 2);
-            }
-        }
+        level.setBlock(pos, state.setValue(POWERED, level.hasNeighborSignal(pos)), 2);
     }
 
     @Override

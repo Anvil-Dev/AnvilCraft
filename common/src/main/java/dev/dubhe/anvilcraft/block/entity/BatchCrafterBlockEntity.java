@@ -141,6 +141,7 @@ public class BatchCrafterBlockEntity
     private void craft(@NotNull Level level) {
         if (craftingContainer.isEmpty()) return;
         if (!canCraft()) return;
+        System.out.println("lastTimeCrafted = " + lastTimeCrafted);
         if (lastTimeCrafted > (level.getGameTime() + AnvilCraft.config.batchCrafterCooldown))
             return;
         lastTimeCrafted = level.getGameTime();
