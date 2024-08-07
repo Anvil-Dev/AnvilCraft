@@ -20,6 +20,11 @@
 * 压合：将两个方块压成一个
 * 方块破坏：破坏切石机上的方块
 
+## 使用许可
+
+* 除非另有说明，否则代码默认许可为 [LICENSE 文件(LGPL-3.0)](./LICENSE)
+* 除非另有说明，否则非代码资产默认许可为 [ASSET_LICENSE 文件(CC-BY-NC-ND 4.0)](./ASSETS_LICENSE)
+
 ## 使用方法
 
 下载对应版本 `mod` 放入 `mods` 文件夹，启动游戏即可。
@@ -33,10 +38,6 @@
 非常欢迎你的加入！提一个 [Issue](https://github.com/Anvil-Dev/AnvilCraft/issues/new/choose) 或者提交一个 Pull Request。
 
 铁砧工艺遵循 [Contributor Covenant](https://www.contributor-covenant.org/zh-cn/version/2/1/code_of_conduct/) 行为规范。
-
-## 使用许可
-
-[LGPL](https://github.com/Anvil-Dev/AnvilCraft/blob/releases/1.20.1/LICENSE) © Gugle
 
 ## 联系我们：
 
