@@ -49,7 +49,7 @@ public class EmberAnvilMenu extends AnvilMenu {
         }
         ItemStack outputItem = inputItem1.copy();
         ItemStack inputItem2 = this.inputSlots.getItem(1);
-        Map<Enchantment, Integer> applicableEnchantments = EnchantmentHelper.getEnchantments(outputItem);
+        Map<Enchantment, Integer> enchantmentsInInput1 = EnchantmentHelper.getEnchantments(outputItem);
         boolean textChanged = false;
         int totalCost = 0;
         int j = 0;
@@ -75,6 +75,7 @@ public class EmberAnvilMenu extends AnvilMenu {
                 }
                 this.repairItemCountCost = cost;
             } else {
+                // 附魔物品
                 if (inputItem2.is(Items.NAME_TAG)) {
                     Component name = inputItem2.getHoverName();
                     String fmt = name.getString();
@@ -94,7 +95,6 @@ public class EmberAnvilMenu extends AnvilMenu {
                         }
                     }
                 } else {
-                    // 附魔物品
                     if (!(hasEnchantedBook || outputItem.is(inputItem2.getItem())
                             && outputItem.isDamageableItem())
                     ) {
@@ -119,28 +119,20 @@ public class EmberAnvilMenu extends AnvilMenu {
                 }
                 Map<Enchantment, Integer> enchantmentsInInput2 = EnchantmentHelper.getEnchantments(inputItem2);
                 boolean canApplyEnchantment = false;
-                boolean bl3 = false;
                 for (Enchantment enchantment : enchantmentsInInput2.keySet()) {
                     int level;
                     if (enchantment == null) continue;
-                    int originalLevel = applicableEnchantments.getOrDefault(enchantment, 0);
-                    level = enchantmentsInInput2.get(enchantment);
-                    level = originalLevel == level
-                            ? level + 1
-                            : Math.max(level, originalLevel);
-                    boolean hasNoIncompatibleEnchantment = true;
-                    for (Enchantment enchantment2 : applicableEnchantments.keySet()) {
-                        if (enchantment2 == enchantment || enchantment.isCompatibleWith(enchantment2)) continue;
-                        hasNoIncompatibleEnchantment = false;
+                    level = Math.max(
+                            enchantmentsInInput2.get(enchantment),
+                            enchantmentsInInput1.getOrDefault(enchantment, 0)
+                    );
+                    for (Enchantment enchantment2 : enchantmentsInInput1.keySet()) {
+                        if (enchantment2 == enchantment) continue;
                         ++totalCost;
-                    }
-                    if (!hasNoIncompatibleEnchantment) {
-                        bl3 = true;
-                        continue;
                     }
                     canApplyEnchantment = true;
                     if (level > enchantment.getMaxLevel()) level = enchantment.getMaxLevel();
-                    applicableEnchantments.put(enchantment, level);
+                    enchantmentsInInput1.put(enchantment, level);
                     int rarityCostFactor = switch (enchantment.getRarity()) {
                         case COMMON -> 1;
                         case UNCOMMON -> 2;
@@ -150,7 +142,7 @@ public class EmberAnvilMenu extends AnvilMenu {
                     if (hasEnchantedBook) rarityCostFactor = Math.max(1, rarityCostFactor / 2);
                     totalCost += rarityCostFactor * level;
                 }
-                if (bl3 && !canApplyEnchantment) {
+                if (!canApplyEnchantment) {
                     this.resultSlots.setItem(0, ItemStack.EMPTY);
                     this.cost.set(0);
                     return;
@@ -205,7 +197,7 @@ public class EmberAnvilMenu extends AnvilMenu {
                 t = AnvilMenu.calculateIncreasedRepairCost(t);
             }
             outputItem.setRepairCost(t);
-            EnchantmentHelper.setEnchantments(applicableEnchantments, outputItem);
+            EnchantmentHelper.setEnchantments(enchantmentsInInput1, outputItem);
         }
         this.resultSlots.setItem(0, outputItem);
         this.broadcastChanges();
