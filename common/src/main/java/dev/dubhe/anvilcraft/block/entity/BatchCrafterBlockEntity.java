@@ -151,15 +151,15 @@ public class BatchCrafterBlockEntity
                 .filter(recipe -> recipe.test(craftingContainer))
                 .findFirst();
         Optional<CraftingRecipe> optional;
-        NonNullList<ItemStack> remaining;
+        NonNullList<ItemStack> craftRemaining;
         if (cacheOptional.isPresent()) {
             AutoCrafterCache crafterCache = cacheOptional.get();
             optional = crafterCache.getRecipe();
-            remaining = crafterCache.getRemaining();
+            craftRemaining = crafterCache.getRemaining();
         } else {
             optional = level.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, craftingContainer, level);
-            remaining = level.getRecipeManager().getRemainingItemsFor(RecipeType.CRAFTING, craftingContainer, level);
-            AutoCrafterCache cache = new AutoCrafterCache(craftingContainer, optional, remaining);
+            craftRemaining = level.getRecipeManager().getRemainingItemsFor(RecipeType.CRAFTING, craftingContainer, level);
+            AutoCrafterCache cache = new AutoCrafterCache(craftingContainer, optional, craftRemaining);
             this.cache.push(cache);
             while (this.cache.size() >= 10) {
                 this.cache.pop();
@@ -184,7 +184,7 @@ public class BatchCrafterBlockEntity
             return;
         }
         result.setCount(result.getCount() * times);
-        remaining.forEach(stack -> stack.setCount(stack.getCount() * times));
+        craftRemaining.forEach(stack -> stack.setCount(stack.getCount() * times));
         IItemDepository itemDepository = ItemDepositoryHelper.getItemDepository(
                 level, getBlockPos().relative(getDirection()), getDirection().getOpposite()
         );
@@ -194,7 +194,7 @@ public class BatchCrafterBlockEntity
             if (!remained.isEmpty()) return;
             remained = ItemDepositoryHelper.insertItem(itemDepository, result, false);
             spawnItemEntity(remained);
-            for (ItemStack stack : remaining) {
+            for (ItemStack stack : craftRemaining) {
                 remained = ItemDepositoryHelper.insertItem(itemDepository, stack, false);
                 spawnItemEntity(remained);
             }
@@ -205,7 +205,7 @@ public class BatchCrafterBlockEntity
             if (!getLevel().noCollision(aabb)) return;
 
             spawnItemEntity(result);
-            for (ItemStack stack : remaining) {
+            for (ItemStack stack : craftRemaining) {
                 spawnItemEntity(stack);
             }
         }
