@@ -17,6 +17,7 @@ import dev.dubhe.anvilcraft.init.ModItemGroups;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.ModNetworks;
+import dev.dubhe.anvilcraft.init.ModResourcePacks;
 import dev.dubhe.anvilcraft.util.EnchantmentDisableUtil;
 import dev.dubhe.anvilcraft.util.Lazy;
 import me.shedaniel.autoconfig.AutoConfig;
@@ -55,6 +56,7 @@ public class AnvilCraft {
         ModNetworks.register();
         ModDispenserBehavior.register();
         ModEnchantments.register();
+        ModResourcePacks.register();
 
         AnvilRecipe.init();
         // datagen

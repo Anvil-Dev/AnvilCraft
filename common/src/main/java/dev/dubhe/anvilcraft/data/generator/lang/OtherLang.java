@@ -48,5 +48,10 @@ public class OtherLang {
             "We have detected that you have only installed JEI and will not be able to obtain a complete recipe query. "
                 + "We recommend installing %s for a complete gaming experience!"
         );
+
+        provider.add(
+            "pack.anvilcraft.transparent_cauldron.description",
+            "Transparent Cauldron"
+        );
     }
 }
