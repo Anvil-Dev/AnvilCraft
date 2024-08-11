@@ -131,7 +131,6 @@ public class EmberAnvilMenu extends AnvilMenu {
                         ++totalCost;
                     }
                     canApplyEnchantment = true;
-                    if (level > enchantment.getMaxLevel()) level = enchantment.getMaxLevel();
                     enchantmentsInInput1.put(enchantment, level);
                     int rarityCostFactor = switch (enchantment.getRarity()) {
                         case COMMON -> 1;
@@ -142,7 +141,7 @@ public class EmberAnvilMenu extends AnvilMenu {
                     if (hasEnchantedBook) rarityCostFactor = Math.max(1, rarityCostFactor / 2);
                     totalCost += rarityCostFactor * level;
                 }
-                if (!canApplyEnchantment) {
+                if (!enchantmentsInInput2.isEmpty() && !canApplyEnchantment) {
                     this.resultSlots.setItem(0, ItemStack.EMPTY);
                     this.cost.set(0);
                     return;
