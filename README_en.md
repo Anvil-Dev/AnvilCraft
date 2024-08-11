@@ -151,6 +151,14 @@ AnvilCraft follows the [Contributor Covenant](https://www.contributor-covenant.o
   </tr>
   <tr>
     <td align="center">
+      <a href="https://github.com/CgAu3">
+        <img src="https://avatars.githubusercontent.com/u/52217193?v=4v=100&s=100" width="100px" height="100px" alt=""/><br />
+        <sub><b>Abslb</b></sub>
+      </a><br />
+      <a title="Code">💻</a><br />
+      <a href="https://space.bilibili.com/3546626188643186">3546626188643186</a>
+    </td>
+    <td align="center">
       <a href="https://github.com/EvanHsieh0415">
         <img src="https://avatars.githubusercontent.com/u/74277414?v=100&s=100" width="100px" height="100px" alt=""/><br />
         <sub><b>芒果凍布丁</b></sub>
@@ -300,6 +308,13 @@ AnvilCraft follows the [Contributor Covenant](https://www.contributor-covenant.o
       <a title="Money">💵</a>
     </td>
     <td align="center">
+      <a href="https://space.bilibili.com/171364263">
+        <img src="https://i0.hdslb.com/bfs/face/b98dfb846fa92e84a97f38324f955cf0e0cb62ca.jpg" width="100px" height="100px" alt=""/><br />
+        <sub><b>伊普西隆</b></sub>
+      </a><br />
+      <a title="Money">💵</a>
+    </td>
+    <td align="center">
       <a href="https://space.bilibili.com/484142219">
         <img src="https://i2.hdslb.com/bfs/face/d198e6e711865ae8ba9234b1eafcb05bc1df332b.jpg" width="100px" height="100px" alt=""/><br />
         <sub><b>秋水AuU_</b></sub>
@@ -314,6 +329,8 @@ AnvilCraft follows the [Contributor Covenant](https://www.contributor-covenant.o
       <a title="Find Bug">🐛</a>
       <a title="Money">💵</a>
     </td>
+  </tr>
+  <tr>
     <td align="center">
       <a href="https://space.bilibili.com/438681761">
         <img src="https://i2.hdslb.com/bfs/face/ef45deee5b9f09529ff57702ecd64502b2ba60df.jpg" width="100px" height="100px" alt=""/><br />
@@ -321,8 +338,6 @@ AnvilCraft follows the [Contributor Covenant](https://www.contributor-covenant.o
       </a><br />
       <a title="Money">💵</a>
     </td>
-  </tr>
-  <tr>
     <td align="center">
       <a href="https://space.bilibili.com/416982097">
         <img src="https://i1.hdslb.com/bfs/face/ac6d4bddc5b2ca79ab12d6df263f6eecdd955843.jpg" width="100px" height="100px" alt=""/><br />
@@ -358,6 +373,8 @@ AnvilCraft follows the [Contributor Covenant](https://www.contributor-covenant.o
       </a><br />
       <a title="Money">💵</a>
     </td>
+  </tr>
+  <tr>
     <td align="center">
       <a href="https://space.bilibili.com/1015986446">
         <img src="https://i2.hdslb.com/bfs/face/f7d90f3a0e09991725e6d56a236c7d2e8229b570.jpg" width="100px" height="100px" alt=""/><br />
@@ -367,8 +384,6 @@ AnvilCraft follows the [Contributor Covenant](https://www.contributor-covenant.o
       <a title="Find Bug">🐛</a>
       <a title="Money">💵</a>
     </td>
-  </tr>
-  <tr>
     <td align="center">
       <a href="https://space.bilibili.com/88168221">
         <img src="https://i0.hdslb.com/bfs/face/bf107d8fa848d4df7c5d7550c771e87428de6d21.jpg" width="100px" height="100px" alt=""/><br />
@@ -405,6 +420,8 @@ AnvilCraft follows the [Contributor Covenant](https://www.contributor-covenant.o
       </a><br />
       <a title="Money">💵</a>
     </td>
+  </tr>
+  <tr>
     <td align="center">
       <a href="https://space.bilibili.com/7245116">
         <img src="https://i2.hdslb.com/bfs/face/cbc73836619e78cc7b5e422265ae79b5ff78cf49.webp" width="100px" height="100px" alt=""/><br />
@@ -412,8 +429,6 @@ AnvilCraft follows the [Contributor Covenant](https://www.contributor-covenant.o
       </a><br />
       <a title="Money">💵</a>
     </td>
-  </tr>
-  <tr>
     <td align="center">
       <a href="https://space.bilibili.com/19063467">
         <img src="https://i0.hdslb.com/bfs/face/1a8f7009de193c7c9f3079cfb8854238dd7361e6.webp" width="100px" height="100px" alt=""/><br />
