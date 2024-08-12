@@ -153,10 +153,10 @@
 			"from": [2, 4, 2],
 			"to": [14, 9, 14],
 			"faces": {
-				"north": {"uv": [2, 7, 14, 12], "texture": "#content"},
-				"east": {"uv": [2, 7, 14, 12], "texture": "#content"},
-				"south": {"uv": [2, 7, 14, 12], "texture": "#content"},
-				"west": {"uv": [2, 7, 14, 12], "texture": "#content"},
+				"north": {"uv": [2, 7, 14, 12], "texture": "#content", "tintindex": 0},
+				"east": {"uv": [2, 7, 14, 12], "texture": "#content", "tintindex": 0},
+				"south": {"uv": [2, 7, 14, 12], "texture": "#content", "tintindex": 0},
+				"west": {"uv": [2, 7, 14, 12], "texture": "#content", "tintindex": 0},
 				"up": {"uv": [2, 2, 14, 14], "texture": "#content", "tintindex": 0}
 			}
 		}
