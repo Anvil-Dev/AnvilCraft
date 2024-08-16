@@ -1,9 +1,10 @@
 {
   "replace": false,
   "values": [
+    "anvilcraft:auto_crafter",
     "anvilcraft:chute",
     "anvilcraft:simple_chute",
-    "anvilcraft:auto_crafter",
+    "anvilcraft:batch_crafter",
     "anvilcraft:crab_trap"
   ]
 }

@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.integration.emi;
 
 import dev.dubhe.anvilcraft.api.recipe.AnvilRecipeManager;
-import dev.dubhe.anvilcraft.client.gui.screen.inventory.AutoCrafterScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.inventory.BatchCrafterScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.ChuteScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.ItemCollectorScreen;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;
@@ -20,7 +20,7 @@ public class AnvilCraftEmiPlugin implements EmiPlugin {
     public void register(@NotNull EmiRegistry registry) {
         AnvilRecipeCategory.ALL.forEach(registry::addCategory);
 
-        registry.addDragDropHandler(AutoCrafterScreen.class, new GhostIngredientHandler<>());
+        registry.addDragDropHandler(BatchCrafterScreen.class, new GhostIngredientHandler<>());
         registry.addDragDropHandler(ChuteScreen.class, new GhostIngredientHandler<>());
         registry.addDragDropHandler(ItemCollectorScreen.class, new GhostIngredientHandler<>());
 

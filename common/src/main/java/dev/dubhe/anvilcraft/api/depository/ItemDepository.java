@@ -33,6 +33,7 @@ public class ItemDepository implements IItemDepository, INamedTagSerializable {
     @Override
     public void setStack(int slot, ItemStack stack) {
         this.stacks.set(slot, stack);
+        onContentsChanged(slot);
     }
 
     @Override
