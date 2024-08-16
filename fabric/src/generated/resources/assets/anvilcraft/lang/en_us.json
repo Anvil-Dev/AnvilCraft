@@ -347,6 +347,7 @@
   "itemGroup.anvilcraft.tools": "AnvilCraft: Utilities",
   "message.anvilcraft.need_patchouli_installed": "Patchouli needs to be installed",
   "modmenu.nameTranslation.anvilcraft": "AnvilCraft",
+  "pack.anvilcraft.transparent_cauldron.description": "Transparent Cauldron",
   "patchouli.anvilcraft.landing_text": "Welcome to AnvilCraft",
   "screen.anvilcraft.active_silencer.title": "Active Silencer",
   "screen.anvilcraft.button.direction": "Output Direction: %s",
