@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
+    "anvilcraft:auto_crafter",
     "anvilcraft:chute",
     "anvilcraft:simple_chute",
     "anvilcraft:batch_crafter",

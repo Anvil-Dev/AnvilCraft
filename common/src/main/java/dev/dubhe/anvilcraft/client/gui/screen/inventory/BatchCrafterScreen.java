@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.client.gui.screen.inventory;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.depository.ItemDepositorySlot;
 import dev.dubhe.anvilcraft.client.gui.component.EnableFilterButton;
-import dev.dubhe.anvilcraft.inventory.AutoCrafterMenu;
+import dev.dubhe.anvilcraft.inventory.BatchCrafterMenu;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
 import lombok.Getter;
 import net.minecraft.client.gui.GuiGraphics;
@@ -16,16 +16,16 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiFunction;
 
-public class AutoCrafterScreen extends BaseMachineScreen<AutoCrafterMenu> implements IFilterScreen<AutoCrafterMenu> {
+public class BatchCrafterScreen extends BaseMachineScreen<BatchCrafterMenu> implements IFilterScreen<BatchCrafterMenu> {
     private static final ResourceLocation CONTAINER_LOCATION =
         AnvilCraft.of("textures/gui/container/machine/background/auto_crafter.png");
     BiFunction<Integer, Integer, EnableFilterButton> enableFilterButtonSupplier = this
         .getEnableFilterButtonSupplier(116, 18);
     @Getter
     private EnableFilterButton enableFilterButton = null;
-    private final AutoCrafterMenu menu;
+    private final BatchCrafterMenu menu;
 
-    public AutoCrafterScreen(AutoCrafterMenu menu, Inventory playerInventory, Component title) {
+    public BatchCrafterScreen(BatchCrafterMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.menu = menu;
     }
@@ -66,7 +66,7 @@ public class AutoCrafterScreen extends BaseMachineScreen<AutoCrafterMenu> implem
     }
 
     @Override
-    public AutoCrafterMenu getFilterMenu() {
+    public BatchCrafterMenu getFilterMenu() {
         return this.menu;
     }
 

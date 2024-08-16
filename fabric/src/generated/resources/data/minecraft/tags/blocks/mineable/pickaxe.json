@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
+    "anvilcraft:auto_crafter",
     "anvilcraft:stamping_platform",
     "anvilcraft:corrupted_beacon",
     "anvilcraft:royal_anvil",

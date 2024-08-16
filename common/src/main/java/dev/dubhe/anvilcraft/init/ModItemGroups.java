@@ -164,6 +164,7 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.POWER_CONVERTER_MIDDLE.asStack());
                 entries.accept(ModBlocks.POWER_CONVERTER_BIG.asStack());
                 entries.accept(ModBlocks.PIEZOELECTRIC_CRYSTAL.asStack());
+                entries.accept(ModBlocks.AUTO_CRAFTER.asStack());
                 entries.accept(ModBlocks.BATCH_CRAFTER.asStack());
                 entries.accept(ModBlocks.ITEM_COLLECTOR.asStack());
                 entries.accept(ModBlocks.THERMOELECTRIC_CONVERTER.asStack());

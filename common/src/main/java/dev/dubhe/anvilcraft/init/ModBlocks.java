@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.api.power.IPowerComponent.Switch;
 import dev.dubhe.anvilcraft.block.AbstractMultiplePartBlock;
 import dev.dubhe.anvilcraft.block.ActiveSilencerBlock;
 import dev.dubhe.anvilcraft.block.ArrowBlock;
+import dev.dubhe.anvilcraft.block.AutoCrafterBlock;
 import dev.dubhe.anvilcraft.block.BatchCrafterBlock;
 import dev.dubhe.anvilcraft.block.BerryCakeBlock;
 import dev.dubhe.anvilcraft.block.BerryCreamBlock;
@@ -114,6 +115,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.data.recipes.packs.VanillaRecipeProvider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -163,6 +165,15 @@ import static dev.dubhe.anvilcraft.api.power.IPowerComponent.SWITCH;
 
 @SuppressWarnings("unused")
 public class ModBlocks {
+    public static final BlockEntry<? extends Block> AUTO_CRAFTER = REGISTRATE
+            .block("auto_crafter", AutoCrafterBlock::new)
+            .initialProperties(() -> Blocks.IRON_BLOCK)
+            .blockstate((ctx, provider) -> {
+            })
+            .simpleItem()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.MINEABLE_WITH_AXE)
+            .register();
+
     public static final BlockEntry<? extends Block> STAMPING_PLATFORM = REGISTRATE
         .block("stamping_platform", StampingPlatformBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
@@ -301,32 +312,40 @@ public class ModBlocks {
         })
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.MINEABLE_WITH_AXE)
-        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
-            .pattern("ABA")
-            .pattern("ADC")
-            .pattern("AEA")
-            .define('A', Items.IRON_INGOT)
-            .define('B', Items.CRAFTING_TABLE)
-            .define('C', Items.DROPPER)
-            .define('D', ModItems.MAGNETOELECTRIC_CORE)
-            .define('E', ModItems.CIRCUIT_BOARD)
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT),
-                AnvilCraftDatagen.has(Items.IRON_INGOT))
-            .unlockedBy(
-                AnvilCraftDatagen.hasItem(Items.CRAFTING_TABLE),
-                AnvilCraftDatagen.has(Items.CRAFTING_TABLE)
-            )
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.DROPPER),
-                AnvilCraftDatagen.has(Items.DROPPER))
-            .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
-                AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
-            )
-            .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModItems.CIRCUIT_BOARD),
-                AnvilCraftDatagen.has(ModItems.CIRCUIT_BOARD)
-            )
-            .save(provider)
+            .recipe((ctx, provider) -> {
+                ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
+                        .pattern("ABA")
+                        .pattern("ADC")
+                        .pattern("AEA")
+                        .define('A', Items.IRON_INGOT)
+                        .define('B', Items.CRAFTING_TABLE)
+                        .define('C', Items.DROPPER)
+                        .define('D', ModItems.MAGNETOELECTRIC_CORE)
+                        .define('E', ModItems.CIRCUIT_BOARD)
+                        .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT),
+                                AnvilCraftDatagen.has(Items.IRON_INGOT))
+                        .unlockedBy(
+                                AnvilCraftDatagen.hasItem(Items.CRAFTING_TABLE),
+                                AnvilCraftDatagen.has(Items.CRAFTING_TABLE)
+                        )
+                        .unlockedBy(AnvilCraftDatagen.hasItem(Items.DROPPER),
+                                AnvilCraftDatagen.has(Items.DROPPER))
+                        .unlockedBy(
+                                AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
+                                AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
+                        )
+                        .unlockedBy(
+                                AnvilCraftDatagen.hasItem(ModItems.CIRCUIT_BOARD),
+                                AnvilCraftDatagen.has(ModItems.CIRCUIT_BOARD)
+                        )
+                        .save(provider);
+                ShapelessRecipeBuilder.shapeless(RecipeCategory.TOOLS, ctx.get())
+                        .requires(AUTO_CRAFTER)
+                        .unlockedBy(
+                                AnvilCraftDatagen.hasItem(AUTO_CRAFTER),
+                                AnvilCraftDatagen.has(AUTO_CRAFTER)
+                        ).save(provider, AnvilCraft.of("batch_crafter_convert"));
+                }
         )
         .register();
     public static final BlockEntry<? extends Block> ROYAL_GRINDSTONE = REGISTRATE
