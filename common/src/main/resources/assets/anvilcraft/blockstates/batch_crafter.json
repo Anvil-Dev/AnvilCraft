@@ -15,7 +15,7 @@
       "y": 180
     },
     "facing=up,overload=false": {
-      "model": "anvilcraft:block/batch_crafter_up"
+      "model": "anvilcraft:block/batch_crafter_top"
     },
     "facing=west,overload=false": {
       "model": "anvilcraft:block/batch_crafter",
@@ -36,7 +36,7 @@
       "y": 180
     },
     "facing=up,overload=true": {
-      "model": "anvilcraft:block/batch_crafter_up_overload"
+      "model": "anvilcraft:block/batch_crafter_top_overload"
     },
     "facing=west,overload=true": {
       "model": "anvilcraft:block/batch_crafter_overload",

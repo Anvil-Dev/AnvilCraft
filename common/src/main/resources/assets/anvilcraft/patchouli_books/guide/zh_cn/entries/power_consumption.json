@@ -15,7 +15,7 @@
         },
 		{
             "type": "patchouli:crafting",
-            "recipe":"anvilcraft:auto_crafter",
+            "recipe":"anvilcraft:batch_crafter",
 			"text": "$(item)自动合成器$()耗电功率为1KW，是原版合成器的加强版，可以设置过滤，有持续的红石信号就每1秒合成64下。"
         },
 		{

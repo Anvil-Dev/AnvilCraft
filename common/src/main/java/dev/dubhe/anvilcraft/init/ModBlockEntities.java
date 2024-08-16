@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.init;
 import com.tterrag.registrate.util.entry.BlockEntityEntry;
 import dev.dubhe.anvilcraft.block.entity.ActiveSilencerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.AutoCrafterBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.BatchCrafterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChargerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
@@ -25,6 +26,7 @@ import dev.dubhe.anvilcraft.block.entity.RubyPrismBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ThermoelectricConverterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.BatchCrafterRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CorruptedBeaconRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeGeneratorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HasMobBlockRenderer;
@@ -34,11 +36,18 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.LaserRenderer;
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 
 public class ModBlockEntities {
-    public static final BlockEntityEntry<AutoCrafterBlockEntity> AUTO_CRAFTER = REGISTRATE
-        .blockEntity("auto_crafter", AutoCrafterBlockEntity::createBlockEntity)
-        .onRegister(AutoCrafterBlockEntity::onBlockEntityRegister)
-        .validBlock(ModBlocks.AUTO_CRAFTER)
+    public static final BlockEntityEntry<BatchCrafterBlockEntity> BATCH_CRAFTER = REGISTRATE
+        .blockEntity("batch_crafter", BatchCrafterBlockEntity::createBlockEntity)
+        .onRegister(BatchCrafterBlockEntity::onBlockEntityRegister)
+        .renderer(() -> BatchCrafterRenderer::new)
+        .validBlock(ModBlocks.BATCH_CRAFTER)
         .register();
+
+    public static final BlockEntityEntry<AutoCrafterBlockEntity> AUTO_CRAFTER = REGISTRATE
+            .blockEntity("auto_crafter", AutoCrafterBlockEntity::createBlockEntity)
+            .onRegister(AutoCrafterBlockEntity::onBlockEntityRegister)
+            .validBlock(ModBlocks.AUTO_CRAFTER)
+            .register();
 
     public static final BlockEntityEntry<ItemCollectorBlockEntity> ITEM_COLLECTOR = REGISTRATE
             .blockEntity("item_collector", ItemCollectorBlockEntity::createBlockEntity)

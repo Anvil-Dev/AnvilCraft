@@ -63,7 +63,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:auto_crafter"
+        "recipe": "anvilcraft:batch_crafter"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -80,7 +80,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:auto_crafter"
+      "anvilcraft:batch_crafter"
     ]
   },
   "sends_telemetry_event": false

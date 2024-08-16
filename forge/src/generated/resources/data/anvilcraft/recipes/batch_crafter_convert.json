@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    {
+      "item": "anvilcraft:auto_crafter"
+    }
+  ],
+  "result": {
+    "item": "anvilcraft:batch_crafter"
+  }
+}

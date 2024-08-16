@@ -157,7 +157,7 @@ public class ItemDepositoryHelper {
             if (slotStack.isEmpty()) {
                 emptySlots.add(i);
             }
-            if (canItemStacksStackRelaxed(stack, slotStack)) {
+            if (canItemStackMerge(stack, slotStack)) {
                 stack = depository.insert(i, stack, simulate);
                 if (stack.isEmpty()) {
                     return ItemStack.EMPTY;
@@ -204,7 +204,7 @@ public class ItemDepositoryHelper {
      * @param b 物品堆栈 B
      * @return AB能否合并
      */
-    public static boolean canItemStacksStackRelaxed(@Nonnull ItemStack a, @Nonnull ItemStack b) {
+    public static boolean canItemStackMerge(@Nonnull ItemStack a, @Nonnull ItemStack b) {
         if (a.isEmpty() || b.isEmpty() || a.getItem() != b.getItem())
             return false;
 
