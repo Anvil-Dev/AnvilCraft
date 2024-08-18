@@ -54,6 +54,7 @@ import dev.dubhe.anvilcraft.block.LargeCakeBlock;
 import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
 import dev.dubhe.anvilcraft.block.LoadMonitorBlock;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
+import dev.dubhe.anvilcraft.block.MagneticChuteBlock;
 import dev.dubhe.anvilcraft.block.MeltGemCauldron;
 import dev.dubhe.anvilcraft.block.MengerSpongeBlock;
 import dev.dubhe.anvilcraft.block.MineralFountainBlock;
@@ -2742,6 +2743,28 @@ public class ModBlocks {
             })
             .simpleItem()
             .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .register();
+    public static final BlockEntry<MagneticChuteBlock> MAGNETIC_CHUTE = REGISTRATE
+            .block("magnetic_chute", MagneticChuteBlock::new)
+            .initialProperties(ModBlocks.CHUTE)
+            .properties(BlockBehaviour.Properties::noOcclusion)
+            .blockstate((ctx, provider) -> {
+            })
+            .item(BlockItem::new)
+            .build()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.MINEABLE_WITH_AXE)
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
+                    .pattern(" A ")
+                    .pattern("ABA")
+                    .pattern("A A")
+                    .define('A', ModItems.MAGNET_INGOT)
+                    .define('B', Items.DROPPER)
+                    .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.MAGNET_INGOT),
+                            AnvilCraftDatagen.has(ModItems.MAGNET_INGOT))
+                    .unlockedBy(AnvilCraftDatagen.hasItem(Items.DROPPER),
+                            AnvilCraftDatagen.has(Items.DROPPER))
+                    .save(provider)
+            )
             .register();
 
     private static @NotNull BlockEntry<ReinforcedConcreteBlock> registerReinforcedConcreteBlock(@NotNull Color color) {

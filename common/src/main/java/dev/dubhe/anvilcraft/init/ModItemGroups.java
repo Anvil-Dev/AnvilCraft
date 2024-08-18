@@ -184,6 +184,7 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.CRAB_TRAP.asStack());
                 entries.accept(ModBlocks.MENGER_SPONGE.asStack());
                 entries.accept(ModBlocks.CHUTE.asStack());
+                entries.accept(ModBlocks.MAGNETIC_CHUTE.asStack());
                 entries.accept(ModBlocks.MINERAL_FOUNTAIN.asStack());
                 entries.accept(ModBlocks.SPACE_OVERCOMPRESSOR.asStack());
                 entries.accept(ModBlocks.COPPER_PRESSURE_PLATE.asStack());
