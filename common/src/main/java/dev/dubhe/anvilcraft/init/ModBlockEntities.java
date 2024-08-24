@@ -15,6 +15,7 @@ import dev.dubhe.anvilcraft.block.entity.HeliostatsBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.InductionLightBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LoadMonitorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.MagneticChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.MineralFountainBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.MobAmberBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.OverseerBlockEntity;
@@ -32,6 +33,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeGeneratorRendere
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HasMobBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeliostatsRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LaserRenderer;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 
@@ -60,6 +62,12 @@ public class ModBlockEntities {
         .onRegister(ChuteBlockEntity::onBlockEntityRegister)
         .validBlock(ModBlocks.CHUTE)
         .register();
+
+    public static final BlockEntityEntry<MagneticChuteBlockEntity> MAGNETIC_CHUTE = REGISTRATE
+            .blockEntity("magnetic_chute", MagneticChuteBlockEntity::createBlockEntity)
+            .onRegister(MagneticChuteBlockEntity::onBlockEntityRegister)
+            .validBlock(ModBlocks.MAGNETIC_CHUTE)
+            .register();
 
     public static final BlockEntityEntry<SimpleChuteBlockEntity> SIMPLE_CHUTE = REGISTRATE
         .blockEntity("simple_chute", SimpleChuteBlockEntity::createBlockEntity)

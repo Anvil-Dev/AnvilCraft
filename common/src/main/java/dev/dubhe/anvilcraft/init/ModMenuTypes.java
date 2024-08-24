@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.client.gui.screen.inventory.EmberAnvilScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.EmberGrindstoneScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.EmberSmithingScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.ItemCollectorScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.inventory.MagneticChuteScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.RoyalAnvilScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.RoyalGrindstoneScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.RoyalSmithingScreen;
@@ -22,6 +23,7 @@ import dev.dubhe.anvilcraft.inventory.EmberAnvilMenu;
 import dev.dubhe.anvilcraft.inventory.EmberGrindstoneMenu;
 import dev.dubhe.anvilcraft.inventory.EmberSmithingMenu;
 import dev.dubhe.anvilcraft.inventory.ItemCollectorMenu;
+import dev.dubhe.anvilcraft.inventory.MagneticChuteMenu;
 import dev.dubhe.anvilcraft.inventory.RoyalAnvilMenu;
 import dev.dubhe.anvilcraft.inventory.RoyalGrindstoneMenu;
 import dev.dubhe.anvilcraft.inventory.RoyalSmithingMenu;
@@ -43,9 +45,15 @@ public class ModMenuTypes {
     public static final MenuEntry<BatchCrafterMenu> BATCH_CRAFTER = REGISTRATE
             .menu("batch_crafter", BatchCrafterMenu::new, () -> BatchCrafterScreen::new)
             .register();
+
     @SuppressWarnings("DataFlowIssue")
     public static final MenuEntry<ChuteMenu> CHUTE = REGISTRATE
             .menu("chute", ChuteMenu::new, () -> ChuteScreen::new)
+            .register();
+
+    @SuppressWarnings("DataFlowIssue")
+    public static final MenuEntry<MagneticChuteMenu> MAGNETIC_CHUTE = REGISTRATE
+            .menu("magnetic_chute", MagneticChuteMenu::new, () -> MagneticChuteScreen::new)
             .register();
     public static final MenuEntry<RoyalGrindstoneMenu> ROYAL_GRINDSTONE = REGISTRATE
             .menu(

@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.inventory;
 
 
-import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.MagneticChuteBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import lombok.Getter;
 import net.minecraft.network.FriendlyByteBuf;
@@ -13,8 +13,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Getter
-public class ChuteMenu extends BaseChuteMenu<ChuteBlockEntity> {
-    public ChuteMenu(
+public class MagneticChuteMenu extends BaseChuteMenu<MagneticChuteBlockEntity> {
+    public MagneticChuteMenu(
             @Nullable MenuType<?> menuType,
             int containerId,
             Inventory inventory,
@@ -23,7 +23,7 @@ public class ChuteMenu extends BaseChuteMenu<ChuteBlockEntity> {
         super(menuType, containerId, inventory, extraData);
     }
 
-    public ChuteMenu(
+    public MagneticChuteMenu(
             MenuType<?> menuType,
             int containerId,
             Inventory inventory,
@@ -34,6 +34,6 @@ public class ChuteMenu extends BaseChuteMenu<ChuteBlockEntity> {
 
     @Override
     protected Block getBlock() {
-        return ModBlocks.CHUTE.get();
+        return ModBlocks.MAGNETIC_CHUTE.get();
     }
 }

@@ -1,0 +1,30 @@
+{
+    "variants": {
+        "facing=down": {
+            "model": "anvilcraft:block/magnetic_chute",
+            "x": 180
+        },
+        "facing=east": {
+            "model": "anvilcraft:block/magnetic_chute",
+            "x": 90,
+            "y": 90
+        },
+        "facing=north": {
+            "model": "anvilcraft:block/magnetic_chute",
+            "x": 90
+        },
+        "facing=south": {
+            "model": "anvilcraft:block/magnetic_chute",
+            "x": 90,
+            "y": 180
+        },
+        "facing=up": {
+            "model": "anvilcraft:block/magnetic_chute"
+        },
+        "facing=west": {
+            "model": "anvilcraft:block/magnetic_chute",
+            "x": 90,
+            "y": 270
+        }
+    }
+}

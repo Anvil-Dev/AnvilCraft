@@ -49,6 +49,8 @@ import org.jetbrains.annotations.Nullable;
 import javax.annotation.Nonnull;
 import java.util.stream.Stream;
 
+import static dev.dubhe.anvilcraft.block.MagneticChuteBlock.isFacingDownChute;
+
 public class ChuteBlock extends BaseEntityBlock implements IHammerChangeableBlock, IHammerRemovable {
     public static final DirectionProperty FACING = BlockStateProperties.FACING_HOPPER;
     public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
@@ -142,6 +144,11 @@ public class ChuteBlock extends BaseEntityBlock implements IHammerChangeableBloc
             BlockState upState = level.getBlockState(neighborPos.relative(Direction.UP));
             if (upState.is(ModBlocks.SIMPLE_CHUTE.get()) || upState.is(ModBlocks.CHUTE.get())) {
                 if (upState.getValue(FACING) == Direction.DOWN) {
+                    newState = newState.setValue(SimpleChuteBlock.TALL, true);
+                }
+            }
+            if (upState.is(ModBlocks.MAGNETIC_CHUTE.get())) {
+                if (upState.getValue(MagneticChuteBlock.FACING) == Direction.DOWN) {
                     newState = newState.setValue(SimpleChuteBlock.TALL, true);
                 }
             }
@@ -293,15 +300,27 @@ public class ChuteBlock extends BaseEntityBlock implements IHammerChangeableBloc
             newState = newState
                     .setValue(SimpleChuteBlock.FACING, facingState.getValue(FACING))
                     .setValue(SimpleChuteBlock.ENABLED, facingState.getValue(ENABLED));
-            BlockState facingUpState = level.getBlockState(pos.relative(state.getValue(FACING)).relative(Direction.UP));
-            if (state.getValue(FACING) == Direction.DOWN
-                    || ((facingUpState.is(ModBlocks.SIMPLE_CHUTE.get())
-                    || facingUpState.is(ModBlocks.CHUTE.get())) && facingUpState.getValue(FACING) == Direction.DOWN)) {
+            if (facingState.hasProperty(SimpleChuteBlock.TALL))
+                newState = newState.setValue(SimpleChuteBlock.TALL, facingState.getValue(SimpleChuteBlock.TALL));
+            BlockState facingUpState = level.getBlockState(
+                    pos.relative(state.getValue(FACING))
+                            .relative(Direction.UP)
+            );
+            if (state.getValue(FACING) == Direction.DOWN || isFacingDownChute(facingUpState)) {
                 newState = newState.setValue(SimpleChuteBlock.TALL, true);
             } else {
                 newState = newState.setValue(SimpleChuteBlock.TALL, false);
             }
             level.setBlockAndUpdate(pos.relative(state.getValue(FACING)), newState);
+        }
+        BlockState upState = level.getBlockState(pos.relative(Direction.UP));
+        if (upState.is(ModBlocks.MAGNETIC_CHUTE.get())) {
+            BlockState newState = ModBlocks.SIMPLE_CHUTE.getDefaultState();
+            newState = newState
+                    .setValue(SimpleChuteBlock.FACING, state.getValue(FACING))
+                    .setValue(SimpleChuteBlock.ENABLED, state.getValue(ENABLED))
+                    .setValue(SimpleChuteBlock.TALL, true);
+            level.setBlockAndUpdate(pos, newState);
         }
         super.onPlace(state, level, pos, oldState, movedByPiston);
     }
@@ -333,12 +352,24 @@ public class ChuteBlock extends BaseEntityBlock implements IHammerChangeableBloc
         for (Direction face : Direction.values()) {
             if (face == Direction.DOWN) continue;
             BlockState facingState = level.getBlockState(pos.relative(face));
-            if (facingState.is(ModBlocks.SIMPLE_CHUTE.get()) || facingState.is(ModBlocks.CHUTE.get())) {
+            if (facingState.is(ModBlocks.SIMPLE_CHUTE.get())
+                    || facingState.is(ModBlocks.CHUTE.get())
+                    || facingState.is(ModBlocks.MAGNETIC_CHUTE.get())
+            ) {
+                if (facingState.is(ModBlocks.MAGNETIC_CHUTE.get())
+                        && facingState.getValue(MagneticChuteBlock.FACING) == face.getOpposite()
+                ) {
+                    return true;
+                }
                 if (facingState.getValue(FACING) == face.getOpposite()) {
                     return true;
                 }
             }
         }
         return false;
+    }
+
+    public static boolean isMagneticChute(Level level, BlockPos pos) {
+        return level.getBlockState(pos).is(ModBlocks.MAGNETIC_CHUTE.get());
     }
 }
