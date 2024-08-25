@@ -1,6 +1,7 @@
 {
 	"credit": "Made by XeKr with Blockbench",
 	"parent": "minecraft:block/block",
+	"render_type": "minecraft:translucent",
 	"textures": {
 		"particle": "anvilcraft:block/spectral_anvil",
 		"body": "anvilcraft:block/spectral_anvil",

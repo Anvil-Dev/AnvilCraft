@@ -1,7 +1,6 @@
 {
 	"credit": "Made by XeKr with Blockbench",
 	"parent": "minecraft:block/cube",
-	"render_type": "minecraft:translucent",
 	"texture_size": [64, 64],
 	"textures": {
 		"0": "anvilcraft:block/large_cake",
