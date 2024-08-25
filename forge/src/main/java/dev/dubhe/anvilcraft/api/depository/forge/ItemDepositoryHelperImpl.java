@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.api.depository.forge;
 
 import dev.dubhe.anvilcraft.api.depository.IItemDepository;
+import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
@@ -33,6 +34,8 @@ public class ItemDepositoryHelperImpl {
      */
     @Nullable
     public static IItemDepository getItemDepository(@NotNull Level level, BlockPos pos, Direction direction) {
+        IItemDepository depository = ItemDepositoryHelper.getItemDepositoryFromHolder(level, pos);
+        if (depository != null) return depository;
         BlockEntity be = level.getBlockEntity(pos);
         if (be != null) {
             LazyOptional<IItemHandler> capability =

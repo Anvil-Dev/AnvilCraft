@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,21 +32,31 @@ public class ItemDepositoryHelper {
     }
 
     /**
+     * 尝试从 {@link DepositoryHolder} 获得物品存储
+     */
+    @ApiStatus.Internal
+    public static @Nullable IItemDepository getItemDepositoryFromHolder(Level level, BlockPos pos) {
+        if (level.getBlockEntity(pos) instanceof DepositoryHolder holder) {
+            return holder.getDepository();
+        }
+        return null;
+    }
+
+    /**
      * 向指定位置导出物品
      *
      * @param source    物品源
      * @param maxAmount 导出的最大数量
      * @param predicate 能够导出的物品
      * @param target    目标
-     *
      * @return 是否导出了物品
      */
     @SuppressWarnings("DuplicatedCode")
     public static boolean exportToTarget(
-        @NotNull IItemDepository source,
-        int maxAmount,
-        Predicate<ItemStack> predicate,
-        IItemDepository target
+            @NotNull IItemDepository source,
+            int maxAmount,
+            Predicate<ItemStack> predicate,
+            IItemDepository target
     ) {
         boolean hasDone = false;
         for (int srcIndex = 0; srcIndex < source.getSlots(); srcIndex++) {
@@ -77,7 +88,7 @@ public class ItemDepositoryHelper {
      * 是否可以向容器中插入物品
      *
      * @param sourceStack 要插入的物品
-     * @param target 目标容器
+     * @param target      目标容器
      * @return 是否可以插入物品
      */
     private static boolean canInsert(ItemStack sourceStack, IItemDepository target) {
@@ -103,15 +114,14 @@ public class ItemDepositoryHelper {
      * @param maxAmount 导入的最大数量
      * @param predicate 能够导入的物品
      * @param source    物品源
-     *
      * @return 是否导入了物品
      */
     @SuppressWarnings("DuplicatedCode")
     public static boolean importToTarget(
-        IItemDepository target,
-        int maxAmount,
-        Predicate<ItemStack> predicate,
-        @NotNull IItemDepository source
+            IItemDepository target,
+            int maxAmount,
+            Predicate<ItemStack> predicate,
+            @NotNull IItemDepository source
     ) {
         boolean hasDone = false;
         for (int srcIndex = 0; srcIndex < source.getSlots(); srcIndex++) {
