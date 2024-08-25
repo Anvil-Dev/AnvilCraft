@@ -4,10 +4,8 @@ package dev.dubhe.anvilcraft.client.gui.screen.inventory;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.depository.ItemDepositorySlot;
 import dev.dubhe.anvilcraft.block.entity.BaseChuteBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
 import dev.dubhe.anvilcraft.client.gui.component.EnableFilterButton;
 import dev.dubhe.anvilcraft.inventory.BaseChuteMenu;
-import dev.dubhe.anvilcraft.inventory.ChuteMenu;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
 import lombok.Getter;
 import net.minecraft.client.gui.GuiGraphics;
@@ -17,7 +15,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiFunction;
@@ -32,8 +29,8 @@ public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends 
             AnvilCraft.of("textures/gui/container/machine/background/chute.png");
 
 
-    BiFunction<Integer, Integer, EnableFilterButton> enableFilterButtonSupplier = this
-            .getEnableFilterButtonSupplier(134, 36);
+    BiFunction<Integer, Integer, EnableFilterButton> enableFilterButtonSupplier =
+            this.getEnableFilterButtonSupplier(134, 36);
     @Getter
     private EnableFilterButton enableFilterButton = null;
     private final M menu;

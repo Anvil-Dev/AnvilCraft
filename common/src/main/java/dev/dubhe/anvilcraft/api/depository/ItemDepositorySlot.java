@@ -41,6 +41,7 @@ public class ItemDepositorySlot extends Slot {
     @Override
     public void set(@NotNull ItemStack stack) {
         depository.setStack(slot, stack);
+        this.setChanged();
     }
 
     @Override

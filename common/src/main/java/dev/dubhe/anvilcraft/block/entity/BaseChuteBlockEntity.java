@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.api.depository.IItemDepository;
 import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
-import dev.dubhe.anvilcraft.block.ChuteBlock;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -20,7 +19,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -35,6 +33,13 @@ public abstract class BaseChuteBlockEntity
         implements IFilterBlockEntity, IDiskCloneable {
     private int cooldown = 0;
     private final FilteredItemDepository depository = new FilteredItemDepository(9) {
+        @Override
+        public void setStack(int slot, ItemStack stack) {
+            super.setStack(slot, stack);
+            System.out.println("stack = " + stack);
+            new Exception().printStackTrace();
+        }
+
         @Override
         public void onContentsChanged(int slot) {
             setChanged();
@@ -73,7 +78,7 @@ public abstract class BaseChuteBlockEntity
         if (null == level) return;
         BlockState state = level.getBlockState(pos);
         if (!validateBlockState(state)) return;
-        level.setBlockAndUpdate(pos, state.setValue(ChuteBlock.FACING, direction));
+        level.setBlockAndUpdate(pos, state.setValue(getFacingProperty(), direction));
     }
 
     @Override
