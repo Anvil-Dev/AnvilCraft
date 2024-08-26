@@ -2,11 +2,9 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
-import dev.dubhe.anvilcraft.block.ChuteBlock;
 import dev.dubhe.anvilcraft.block.MagneticChuteBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
-import dev.dubhe.anvilcraft.inventory.ChuteMenu;
 import dev.dubhe.anvilcraft.inventory.MagneticChuteMenu;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
@@ -22,14 +20,7 @@ import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@Getter
 public class MagneticChuteBlockEntity extends BaseChuteBlockEntity {
-    private final FilteredItemDepository depository = new FilteredItemDepository(9) {
-        @Override
-        public void onContentsChanged(int slot) {
-            setChanged();
-        }
-    };
 
     protected MagneticChuteBlockEntity(
             BlockEntityType<? extends BlockEntity> type,

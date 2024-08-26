@@ -203,7 +203,7 @@ public class MagneticChuteBlock extends BaseEntityBlock implements IHammerChange
 
     @Override
     public BlockState getStateForPlacement(@Nonnull BlockPlaceContext context) {
-        Direction direction = context.getClickedFace().getOpposite();
+        Direction direction = context.getClickedFace();
         if (context.getPlayer() != null && !context.getPlayer().isShiftKeyDown()) {
             direction = direction.getOpposite();
         }

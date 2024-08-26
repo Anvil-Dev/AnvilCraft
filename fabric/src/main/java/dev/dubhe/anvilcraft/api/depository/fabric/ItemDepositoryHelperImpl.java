@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.api.depository.fabric;
 
 import dev.dubhe.anvilcraft.api.depository.IItemDepository;
+import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
@@ -30,6 +31,8 @@ public class ItemDepositoryHelperImpl {
      */
     @Nullable
     public static IItemDepository getItemDepository(@NotNull Level level, BlockPos pos, Direction direction) {
+        IItemDepository depository = ItemDepositoryHelper.getItemDepositoryFromHolder(level, pos);
+        if (depository != null) return depository;
         Storage<ItemVariant> target = getItemStorage(level, pos, direction);
         if (target == null) {
             List<InventoryStorage> entities = level
