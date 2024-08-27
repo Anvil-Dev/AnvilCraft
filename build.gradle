@@ -55,6 +55,13 @@ subprojects {
             url "https://maven.blamejared.com"
         }
         maven { url = "https://mvn.devos.one/snapshots/" }
+        maven {
+            url "https://maven2.bai.lol"
+            content {
+                includeGroup "lol.bai"
+                includeGroup "mcp.mobius.waila"
+            }
+        }//WTHIT
     }
 
     dependencies {

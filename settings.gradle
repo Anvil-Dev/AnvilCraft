@@ -41,6 +41,8 @@ dependencyResolutionManagement {
         def lazyDfuFabricVersion = "${lazy_dfu_fabric_version}"
         def modMenuFabricVersion = "${mod_menu_fabric_version}"
         def jadeFabricVersion = "${jade_fabric_version}"
+        def wthitFabricVersion = "${wthit_fabric_version}"
+        def badpacketsFabricVersion = "${badpackets_fabric_version}"
         def registrateFabricVersion = "${registrate_fabric_version}"
         def reachEntityAttributesVersion = "${reach_entity_attributes_version}"
         def teamRebornEnergyVersion = "${team_reborn_energy_version}"
@@ -52,6 +54,8 @@ dependencyResolutionManagement {
         def forgeVersion = "${forge_version}"
         def registrateForgeVersion = "${registrate_forge_version}"
         def jadeForgeVersion = "${jade_forge_version}"
+        def wthitForgeVersion = "${wthit_forge_version}"
+        def badpacketsForgeVersion = "${badpackets_forge_version}"
         def patchouliForgeVersion = "${patchouli_forge_version}"
         def flywheelForgeVersion = "${flywheel_forge_version}"
         def createForgeVersion = "${create_forge_version}"
@@ -94,6 +98,13 @@ dependencyResolutionManagement {
 
             def jade = version("jade", jadeFabricVersion)
             library("jade", "maven.modrinth", "jade").versionRef(jade)
+
+            def wthit = version("wthit", wthitFabricVersion)
+            library("wthit", "mcp.mobius.waila", "wthit").versionRef(wthit)
+            library("wthit-api", "mcp.mobius.waila", "wthit-api").versionRef(wthit)
+
+            def badpackets = version("badpackets", badpacketsFabricVersion)
+            library("badpackets","lol.bai", "badpackets").versionRef(badpackets)
 
             def kubejs = version("kubejs", kjsVersion)
             library("kubejs", "dev.latvian.mods", "kubejs-fabric").versionRef(kubejs)
@@ -147,6 +158,13 @@ dependencyResolutionManagement {
 
             def jade = version("jade", jadeForgeVersion)
             library("jade", "maven.modrinth", "jade").versionRef(jade)
+
+            def wthit = version("wthit", wthitForgeVersion)
+            library("wthit", "mcp.mobius.waila", "wthit").versionRef(wthit)
+            library("wthit-api", "mcp.mobius.waila", "wthit-api").versionRef(wthit)
+
+            def badpackets = version("badpackets", badpacketsForgeVersion)
+            library("badpackets","lol.bai", "badpackets").versionRef(badpackets)
 
             def kubejs = version("kubejs", kjsVersion)
             library("kubejs", "dev.latvian.mods", "kubejs-forge").versionRef(kubejs)

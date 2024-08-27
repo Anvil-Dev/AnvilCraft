@@ -129,6 +129,11 @@ dependencies {
     // Jade
     modImplementation(fabric.jade)
 
+    // WTHIT
+    modCompileOnly(fabric.wthit.api)
+    modRuntimeOnly (fabric.wthit)
+    modRuntimeOnly (fabric.badpackets)
+
     // KJS
     modCompileOnly(fabric.kubejs)
 

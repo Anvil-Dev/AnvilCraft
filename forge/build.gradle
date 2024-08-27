@@ -155,6 +155,11 @@ dependencies {
     // Jade
     modImplementation(forge.jade)
 
+    //WTHIT
+    modCompileOnly(forge.wthit.api)
+    modRuntimeOnly (forge.wthit)
+    modRuntimeOnly (forge.badpackets)
+
     // KJS
     modCompileOnly forge.kubejs
     modCompileOnly "org.violetmoon.zeta:Zeta:1.0-15.72"
