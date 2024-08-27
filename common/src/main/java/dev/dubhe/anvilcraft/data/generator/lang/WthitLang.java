@@ -3,6 +3,11 @@ package dev.dubhe.anvilcraft.data.generator.lang;
 import com.tterrag.registrate.providers.RegistrateLangProvider;
 
 public class WthitLang {
+    /**
+     * WTHIT 配置文件本地化
+     *
+     * @param provider 提供器
+     */
     public static void init(RegistrateLangProvider provider) {
         provider.add("config.waila.plugin_anvilcraft", "Anvil Craft");
         provider.add("config.waila.plugin_anvilcraft.power_provider", "Anvil Craft Power");
