@@ -34,13 +34,6 @@ public abstract class BaseChuteBlockEntity
     private int cooldown = 0;
     private final FilteredItemDepository depository = new FilteredItemDepository(9) {
         @Override
-        public void setStack(int slot, ItemStack stack) {
-            super.setStack(slot, stack);
-            System.out.println("stack = " + stack);
-            new Exception().printStackTrace();
-        }
-
-        @Override
         public void onContentsChanged(int slot) {
             setChanged();
         }
