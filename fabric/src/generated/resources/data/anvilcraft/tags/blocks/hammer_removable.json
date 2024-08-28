@@ -58,6 +58,16 @@
     "minecraft:campfire",
     "minecraft:anvil",
     "minecraft:chipped_anvil",
-    "minecraft:damaged_anvil"
+    "minecraft:damaged_anvil",
+    "anvilcraft:heavy_iron_block",
+    "anvilcraft:heavy_iron_beam",
+    "anvilcraft:heavy_iron_column",
+    "anvilcraft:heavy_iron_plate",
+    "anvilcraft:cut_heavy_iron_block",
+    "anvilcraft:cut_heavy_iron_slab",
+    "anvilcraft:cut_heavy_iron_stairs",
+    "anvilcraft:polished_heavy_iron_block",
+    "anvilcraft:polished_heavy_iron_slab",
+    "anvilcraft:polished_heavy_iron_stairs"
   ]
 }

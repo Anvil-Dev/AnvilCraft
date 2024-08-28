@@ -73,7 +73,19 @@ public class BlockTagLoader {
                 .add(Blocks.CAMPFIRE)
                 .add(Blocks.ANVIL)
                 .add(Blocks.CHIPPED_ANVIL)
-                .add(Blocks.DAMAGED_ANVIL);
+                .add(Blocks.DAMAGED_ANVIL)
+                .add(ModBlocks.HEAVY_IRON_BLOCK.get())
+                .add(ModBlocks.HEAVY_IRON_BEAM.get())
+                .add(ModBlocks.HEAVY_IRON_COLUMN.get())
+                .add(ModBlocks.HEAVY_IRON_PLATE.get())
+                .add(ModBlocks.CUT_HEAVY_IRON_BLOCK.get())
+                .add(ModBlocks.CUT_HEAVY_IRON_SLAB.get())
+                .add(ModBlocks.CUT_HEAVY_IRON_STAIRS.get())
+                .add(ModBlocks.POLISHED_HEAVY_IRON_BLOCK.get())
+                .add(ModBlocks.POLISHED_HEAVY_IRON_SLAB.get())
+                .add(ModBlocks.POLISHED_HEAVY_IRON_STAIRS.get());
+
+
         provider.addTag(ModBlockTags.UNDER_CAULDRON).setReplace(false)
                 .forceAddTag(BlockTags.CAMPFIRES)
                 .add(Blocks.MAGMA_BLOCK)
