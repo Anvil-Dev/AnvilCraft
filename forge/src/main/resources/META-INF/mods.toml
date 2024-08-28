@@ -53,12 +53,5 @@ versionRange = "[11.0.0,)"
 ordering = "NONE"
 side = "BOTH"
 
-[[dependencies.${ mod_id }]]
-modId = "wthit"
-type="incompatible"
-versionRange="(, 8.15.0)"
-ordering = "NONE"
-side = "BOTH"
-
 [mc-publish]
 loaders = ["forge"]
