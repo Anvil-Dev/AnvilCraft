@@ -13,6 +13,7 @@ public class LangHandler {
         ConfigScreenLang.init(provider);
         ItemTooltipLang.init(provider);
         JadeLang.init(provider);
+        WthitLang.init(provider);
         OtherLang.init(provider);
         PatchouliLang.init(provider);
         ScreenLang.init(provider);

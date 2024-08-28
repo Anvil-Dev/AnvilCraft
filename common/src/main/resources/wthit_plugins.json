@@ -1,0 +1,10 @@
+{
+  "anvilcraft:plugin": {
+    "entrypoints": {
+      "common": "dev.dubhe.anvilcraft.integration.wthit.AnvilCraftWthitCommonPlugin",
+      "client": "dev.dubhe.anvilcraft.integration.wthit.AnvilCraftWthitClientPlugin"
+    },
+    "side": "*",
+    "required": []
+  }
+}

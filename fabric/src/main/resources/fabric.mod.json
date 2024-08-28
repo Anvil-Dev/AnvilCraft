@@ -57,6 +57,9 @@
     "reach-entity-attributes": ">=2.4.0",
     "anvillib": ">=1.0.0"
   },
+  "breaks": {
+    "wthit": "<8.15.0"
+  },
   "custom": {
     "mc-publish": {
       "loaders": ["fabric", "quilt"],
