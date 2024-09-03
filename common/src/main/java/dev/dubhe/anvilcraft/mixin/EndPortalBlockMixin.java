@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.Level;
@@ -38,11 +39,14 @@ abstract class EndPortalBlockMixin {
             ResourceKey<?> resourceKey,
             ServerLevel serverLevel
     ) {
-        if (
-                entity instanceof FallingBlockEntity fallingBlockEntity
-                        && !fallingBlockEntity.blockState.is(ModBlockTags.END_PORTAL_UNABLE_CHANGE)
+        if (entity instanceof FallingBlockEntity fallingBlockEntity
+                && !fallingBlockEntity.blockState.is(ModBlockTags.END_PORTAL_UNABLE_CHANGE)
         ) {
-            fallingBlockEntity.blockState = ModBlocks.END_DUST.getDefaultState();
+            if (fallingBlockEntity.blockState.is(BlockTags.ANVIL)) {
+                fallingBlockEntity.blockState = ModBlocks.SPECTRAL_ANVIL.getDefaultState();
+            } else {
+                fallingBlockEntity.blockState = ModBlocks.END_DUST.getDefaultState();
+            }
             fallingBlockEntity.changeDimension(serverLevel);
             ci.cancel();
         }

@@ -80,6 +80,7 @@ import dev.dubhe.anvilcraft.block.RubyLaserBlock;
 import dev.dubhe.anvilcraft.block.RubyPrismBlock;
 import dev.dubhe.anvilcraft.block.SimpleChuteBlock;
 import dev.dubhe.anvilcraft.block.SpaceOvercompressorBlock;
+import dev.dubhe.anvilcraft.block.SpectralAnvilBlock;
 import dev.dubhe.anvilcraft.block.StampingPlatformBlock;
 import dev.dubhe.anvilcraft.block.SupercriticalNestingShulkerBoxBlock;
 import dev.dubhe.anvilcraft.block.ThermoelectricConverterBlock;
@@ -223,6 +224,20 @@ public class ModBlocks {
         .simpleItem()
         .tag(BlockTags.ANVIL, ModBlockTags.CANT_BROKEN_ANVIL, BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
+    public static final BlockEntry<? extends SpectralAnvilBlock> SPECTRAL_ANVIL = REGISTRATE
+            .block("spectral_anvil", SpectralAnvilBlock::new)
+            .initialProperties(() -> Blocks.GLASS)
+            .properties(p -> p.mapColor(MapColor.METAL)
+                    .requiresCorrectToolForDrops()
+                    .strength(5.0F, 1200.0F)
+                    .sound(SoundType.ANVIL)
+                    .pushReaction(PushReaction.BLOCK)
+            )
+            .blockstate((ctx, provider) -> {
+            })
+            .simpleItem()
+            .tag(BlockTags.ANVIL, ModBlockTags.CANT_BROKEN_ANVIL, BlockTags.MINEABLE_WITH_PICKAXE)
+            .register();
     public static final BlockEntry<? extends Block> MAGNET_BLOCK = REGISTRATE
         .block("magnet_block", MagnetBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
