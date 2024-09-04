@@ -12,9 +12,9 @@ import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
+@Setter
+@Getter
 public class EmberMetalStairBlock extends StairBlock implements EmberBlock {
-    @Getter
-    @Setter
     private BlockState checkBlockState;
 
     public EmberMetalStairBlock(BlockState baseState, Properties properties) {
@@ -25,6 +25,8 @@ public class EmberMetalStairBlock extends StairBlock implements EmberBlock {
     public boolean isRandomlyTicking(@NotNull BlockState state) {
         return state.getValue(SlabBlock.WATERLOGGED);
     }
+
+
 
     @Override
     public void randomTick(

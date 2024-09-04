@@ -35,120 +35,120 @@ public class BulgingLikeRecipesLoader {
         fluidHandling(
             Blocks.WATER_CAULDRON,
             Map.entry(LayeredCauldronBlock.LEVEL, 3),
-            ModBlocks.CEMENT_CAULDRON.getDefaultState(),
+            ModBlocks.CEMENT_CAULDRON.get().defaultBlockState(),
             RecipeItem.of(ModItems.LIME_POWDER, 4),
             RecipeItem.of(ModBlocks.CINERITE, 4)
         );
         
         fluidHandling(
-            ModBlocks.CEMENT_CAULDRON.getDefaultState().getBlock(),
+            ModBlocks.CEMENT_CAULDRON.get().defaultBlockState().getBlock(),
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.BLACK),
             RecipeItem.of(Items.BLACK_DYE)
         );
         fluidHandling(
-            ModBlocks.CEMENT_CAULDRON.getDefaultState().getBlock(),
+            ModBlocks.CEMENT_CAULDRON.get().defaultBlockState().getBlock(),
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.BLUE),
             RecipeItem.of(Items.BLUE_DYE)
         );
         fluidHandling(
-            ModBlocks.CEMENT_CAULDRON.getDefaultState().getBlock(),
+            ModBlocks.CEMENT_CAULDRON.get().defaultBlockState().getBlock(),
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.BROWN),
             RecipeItem.of(Items.BROWN_DYE)
         );
         fluidHandling(
-            ModBlocks.CEMENT_CAULDRON.getDefaultState().getBlock(),
+            ModBlocks.CEMENT_CAULDRON.get().defaultBlockState().getBlock(),
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.CYAN),
             RecipeItem.of(Items.CYAN_DYE)
         );
         fluidHandling(
-            ModBlocks.CEMENT_CAULDRON.getDefaultState().getBlock(),
+            ModBlocks.CEMENT_CAULDRON.get().defaultBlockState().getBlock(),
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.GRAY),
             RecipeItem.of(Items.GRAY_DYE)
         );
         fluidHandling(
-            ModBlocks.CEMENT_CAULDRON.getDefaultState().getBlock(),
+            ModBlocks.CEMENT_CAULDRON.get().defaultBlockState().getBlock(),
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.GREEN),
             RecipeItem.of(Items.GREEN_DYE)
         );
         fluidHandling(
-            ModBlocks.CEMENT_CAULDRON.getDefaultState().getBlock(),
+            ModBlocks.CEMENT_CAULDRON.get().defaultBlockState().getBlock(),
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.LIGHT_BLUE),
             RecipeItem.of(Items.LIGHT_BLUE_DYE)
         );
         fluidHandling(
-            ModBlocks.CEMENT_CAULDRON.getDefaultState().getBlock(),
+            ModBlocks.CEMENT_CAULDRON.get().defaultBlockState().getBlock(),
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.LIGHT_GRAY),
             RecipeItem.of(Items.LIGHT_GRAY_DYE)
         );
         fluidHandling(
-            ModBlocks.CEMENT_CAULDRON.getDefaultState().getBlock(),
+            ModBlocks.CEMENT_CAULDRON.get().defaultBlockState().getBlock(),
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.LIME),
             RecipeItem.of(Items.LIME_DYE)
         );
         fluidHandling(
-            ModBlocks.CEMENT_CAULDRON.getDefaultState().getBlock(),
+            ModBlocks.CEMENT_CAULDRON.get().defaultBlockState().getBlock(),
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.MAGENTA),
             RecipeItem.of(Items.MAGENTA_DYE)
         );
         fluidHandling(
-            ModBlocks.CEMENT_CAULDRON.getDefaultState().getBlock(),
+            ModBlocks.CEMENT_CAULDRON.get().defaultBlockState().getBlock(),
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.ORANGE),
             RecipeItem.of(Items.ORANGE_DYE)
         );
         fluidHandling(
-            ModBlocks.CEMENT_CAULDRON.getDefaultState().getBlock(),
+            ModBlocks.CEMENT_CAULDRON.get().defaultBlockState().getBlock(),
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.PINK),
             RecipeItem.of(Items.PINK_DYE)
         );
         fluidHandling(
-            ModBlocks.CEMENT_CAULDRON.getDefaultState().getBlock(),
+            ModBlocks.CEMENT_CAULDRON.get().defaultBlockState().getBlock(),
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.PURPLE),
             RecipeItem.of(Items.PURPLE_DYE)
         );
         fluidHandling(
-            ModBlocks.CEMENT_CAULDRON.getDefaultState().getBlock(),
+            ModBlocks.CEMENT_CAULDRON.get().defaultBlockState().getBlock(),
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.RED),
             RecipeItem.of(Items.RED_DYE)
         );
         fluidHandling(
-            ModBlocks.CEMENT_CAULDRON.getDefaultState().getBlock(),
+            ModBlocks.CEMENT_CAULDRON.get().defaultBlockState().getBlock(),
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.WHITE),
             RecipeItem.of(Items.WHITE_DYE)
         );
         fluidHandling(
-            ModBlocks.CEMENT_CAULDRON.getDefaultState().getBlock(),
+            ModBlocks.CEMENT_CAULDRON.get().defaultBlockState().getBlock(),
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.YELLOW),
             RecipeItem.of(Items.YELLOW_DYE)
         );
@@ -158,7 +158,7 @@ public class BulgingLikeRecipesLoader {
                 RecipeItem.of(Items.SAND, 4)
             },
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.BLACK),
             RecipeItem.of(Items.BLACK_CONCRETE, 16)
         );
@@ -169,7 +169,7 @@ public class BulgingLikeRecipesLoader {
                 RecipeItem.of(Items.IRON_BARS, 8)
             },
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.BLACK),
             RecipeItem.of(ModBlocks.REINFORCED_CONCRETE_BLACK, 16)
         );
@@ -179,7 +179,7 @@ public class BulgingLikeRecipesLoader {
                 RecipeItem.of(Items.SAND, 4)
             },
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.BLUE),
             RecipeItem.of(Items.BLUE_CONCRETE, 16)
         );
@@ -190,7 +190,7 @@ public class BulgingLikeRecipesLoader {
                 RecipeItem.of(Items.IRON_BARS, 8)
             },
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.BLUE),
             RecipeItem.of(ModBlocks.REINFORCED_CONCRETE_BLUE, 16)
         );
@@ -200,7 +200,7 @@ public class BulgingLikeRecipesLoader {
                 RecipeItem.of(Items.SAND, 4)
             },
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.BROWN),
             RecipeItem.of(Items.BROWN_CONCRETE, 16)
         );
@@ -211,7 +211,7 @@ public class BulgingLikeRecipesLoader {
                 RecipeItem.of(Items.IRON_BARS, 8)
             },
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.BROWN),
             RecipeItem.of(ModBlocks.REINFORCED_CONCRETE_BROWN, 16)
         );
@@ -221,7 +221,7 @@ public class BulgingLikeRecipesLoader {
                 RecipeItem.of(Items.SAND, 4)
             },
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.CYAN),
             RecipeItem.of(Items.CYAN_CONCRETE, 16)
         );
@@ -232,7 +232,7 @@ public class BulgingLikeRecipesLoader {
                 RecipeItem.of(Items.IRON_BARS, 8)
             },
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.CYAN),
             RecipeItem.of(ModBlocks.REINFORCED_CONCRETE_CYAN, 16)
         );
@@ -242,7 +242,7 @@ public class BulgingLikeRecipesLoader {
                 RecipeItem.of(Items.SAND, 4)
             },
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.GRAY),
             RecipeItem.of(Items.GRAY_CONCRETE, 16)
         );
@@ -253,7 +253,7 @@ public class BulgingLikeRecipesLoader {
                 RecipeItem.of(Items.IRON_BARS, 8)
             },
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.GRAY),
             RecipeItem.of(ModBlocks.REINFORCED_CONCRETE_GRAY, 16)
         );
@@ -263,7 +263,7 @@ public class BulgingLikeRecipesLoader {
                 RecipeItem.of(Items.SAND, 4)
             },
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.GREEN),
             RecipeItem.of(Items.GREEN_CONCRETE, 16)
         );
@@ -274,7 +274,7 @@ public class BulgingLikeRecipesLoader {
                 RecipeItem.of(Items.IRON_BARS, 8)
             },
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.GREEN),
             RecipeItem.of(ModBlocks.REINFORCED_CONCRETE_GREEN, 16)
         );
@@ -284,7 +284,7 @@ public class BulgingLikeRecipesLoader {
                 RecipeItem.of(Items.SAND, 4)
             },
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.LIGHT_BLUE),
             RecipeItem.of(Items.LIGHT_BLUE_CONCRETE, 16)
         );
@@ -295,7 +295,7 @@ public class BulgingLikeRecipesLoader {
                 RecipeItem.of(Items.IRON_BARS, 8)
             },
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.LIGHT_BLUE),
             RecipeItem.of(ModBlocks.REINFORCED_CONCRETE_LIGHT_BLUE, 16)
         );
@@ -305,7 +305,7 @@ public class BulgingLikeRecipesLoader {
                 RecipeItem.of(Items.SAND, 4)
             },
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.LIGHT_GRAY),
             RecipeItem.of(Items.LIGHT_GRAY_CONCRETE, 16)
         );
@@ -316,7 +316,7 @@ public class BulgingLikeRecipesLoader {
                 RecipeItem.of(Items.IRON_BARS, 8)
             },
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.LIGHT_GRAY),
             RecipeItem.of(ModBlocks.REINFORCED_CONCRETE_LIGHT_GRAY, 16)
         );
@@ -326,7 +326,7 @@ public class BulgingLikeRecipesLoader {
                 RecipeItem.of(Items.SAND, 4)
             },
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.LIME),
             RecipeItem.of(Items.LIME_CONCRETE, 16)
         );
@@ -337,7 +337,7 @@ public class BulgingLikeRecipesLoader {
                 RecipeItem.of(Items.IRON_BARS, 8)
             },
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.LIME),
             RecipeItem.of(ModBlocks.REINFORCED_CONCRETE_LIME, 16)
         );
@@ -347,7 +347,7 @@ public class BulgingLikeRecipesLoader {
                 RecipeItem.of(Items.SAND, 4)
             },
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.MAGENTA),
             RecipeItem.of(Items.MAGENTA_CONCRETE, 16)
         );
@@ -358,7 +358,7 @@ public class BulgingLikeRecipesLoader {
                 RecipeItem.of(Items.IRON_BARS, 8)
             },
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.MAGENTA),
             RecipeItem.of(ModBlocks.REINFORCED_CONCRETE_MAGENTA, 16)
         );
@@ -368,7 +368,7 @@ public class BulgingLikeRecipesLoader {
                 RecipeItem.of(Items.SAND, 4)
             },
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.ORANGE),
             RecipeItem.of(Items.ORANGE_CONCRETE, 16)
         );
@@ -379,7 +379,7 @@ public class BulgingLikeRecipesLoader {
                 RecipeItem.of(Items.IRON_BARS, 8)
             },
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.ORANGE),
             RecipeItem.of(ModBlocks.REINFORCED_CONCRETE_ORANGE, 16)
         );
@@ -389,7 +389,7 @@ public class BulgingLikeRecipesLoader {
                 RecipeItem.of(Items.SAND, 4)
             },
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.PINK),
             RecipeItem.of(Items.PINK_CONCRETE, 16)
         );
@@ -400,7 +400,7 @@ public class BulgingLikeRecipesLoader {
                 RecipeItem.of(Items.IRON_BARS, 8)
             },
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.PINK),
             RecipeItem.of(ModBlocks.REINFORCED_CONCRETE_PINK, 16)
         );
@@ -410,7 +410,7 @@ public class BulgingLikeRecipesLoader {
                 RecipeItem.of(Items.SAND, 4)
             },
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.PURPLE),
             RecipeItem.of(Items.PURPLE_CONCRETE, 16)
         );
@@ -421,7 +421,7 @@ public class BulgingLikeRecipesLoader {
                 RecipeItem.of(Items.IRON_BARS, 8)
             },
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.PURPLE),
             RecipeItem.of(ModBlocks.REINFORCED_CONCRETE_PURPLE, 16)
         );
@@ -431,7 +431,7 @@ public class BulgingLikeRecipesLoader {
                 RecipeItem.of(Items.SAND, 4)
             },
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.RED),
             RecipeItem.of(Items.RED_CONCRETE, 16)
         );
@@ -442,7 +442,7 @@ public class BulgingLikeRecipesLoader {
                 RecipeItem.of(Items.IRON_BARS, 8)
             },
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.RED),
             RecipeItem.of(ModBlocks.REINFORCED_CONCRETE_RED, 16)
         );
@@ -452,7 +452,7 @@ public class BulgingLikeRecipesLoader {
                 RecipeItem.of(Items.SAND, 4)
             },
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.WHITE),
             RecipeItem.of(Items.WHITE_CONCRETE, 16)
         );
@@ -463,7 +463,7 @@ public class BulgingLikeRecipesLoader {
                 RecipeItem.of(Items.IRON_BARS, 8)
             },
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.WHITE),
             RecipeItem.of(ModBlocks.REINFORCED_CONCRETE_WHITE, 16)
         );
@@ -473,7 +473,7 @@ public class BulgingLikeRecipesLoader {
                 RecipeItem.of(Items.SAND, 4)
             },
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.YELLOW),
             RecipeItem.of(Items.YELLOW_CONCRETE, 16)
         );
@@ -484,7 +484,7 @@ public class BulgingLikeRecipesLoader {
                 RecipeItem.of(Items.IRON_BARS, 8)
             },
             ModBlocks.CEMENT_CAULDRON
-                .getDefaultState()
+                .get().defaultBlockState()
                 .setValue(CementCauldronBlock.COLOR, Color.YELLOW),
             RecipeItem.of(ModBlocks.REINFORCED_CONCRETE_YELLOW, 16)
         );

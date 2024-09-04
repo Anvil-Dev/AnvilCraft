@@ -15,20 +15,20 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import org.jetbrains.annotations.NotNull;
 
-import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
+import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATOR;
 
 public class AnvilCraftDatagen {
     /**
      * 初始化生成器
      */
     public static void init() {
-        REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, TagsHandler::initItem);
-        REGISTRATE.addDataGenerator(ProviderType.BLOCK_TAGS, TagsHandler::initBlock);
-        REGISTRATE.addDataGenerator(ProviderType.FLUID_TAGS, TagsHandler::initFluid);
-        REGISTRATE.addDataGenerator(ProviderType.LANG, LangHandler::init);
-        REGISTRATE.addDataGenerator(ProviderType.RECIPE, RecipesHandler::init);
-        REGISTRATE.addDataGenerator(ProviderType.LOOT, LootHandler::init);
-        REGISTRATE.addDataGenerator(ProviderType.ADVANCEMENT, AdvancementHandler::init);
+        REGISTRATOR.addDataGenerator(ProviderType.ITEM_TAGS, TagsHandler::initItem);
+        REGISTRATOR.addDataGenerator(ProviderType.BLOCK_TAGS, TagsHandler::initBlock);
+        REGISTRATOR.addDataGenerator(ProviderType.FLUID_TAGS, TagsHandler::initFluid);
+        REGISTRATOR.addDataGenerator(ProviderType.LANG, LangHandler::init);
+        REGISTRATOR.addDataGenerator(ProviderType.RECIPE, RecipesHandler::init);
+        REGISTRATOR.addDataGenerator(ProviderType.LOOT, LootHandler::init);
+        REGISTRATOR.addDataGenerator(ProviderType.ADVANCEMENT, AdvancementHandler::init);
     }
 
     public static @NotNull InventoryChangeTrigger.TriggerInstance has(ItemLike itemLike) {

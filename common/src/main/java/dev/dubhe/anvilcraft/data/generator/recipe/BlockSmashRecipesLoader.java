@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.data.generator.recipe;
 
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
+import dev.anvilcraft.lib.data.provider.RegistratorRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
@@ -18,7 +19,7 @@ public class BlockSmashRecipesLoader {
      *
      * @param provider 提供器
      */
-    public static void init(RegistrateRecipeProvider provider) {
+    public static void init(RegistratorRecipeProvider provider) {
         smash(Blocks.COBBLESTONE, Blocks.GRAVEL, provider);
         smash(Blocks.GRAVEL, Blocks.SAND, provider);
         smash(Blocks.POLISHED_GRANITE, Blocks.GRANITE, provider);
@@ -44,7 +45,7 @@ public class BlockSmashRecipesLoader {
      * @param block1   产物
      * @param provider 提供器
      */
-    public static void smash(Block block, @NotNull Block block1, RegistrateRecipeProvider provider) {
+    public static void smash(Block block, @NotNull Block block1, RegistratorRecipeProvider provider) {
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
             .type(AnvilRecipeType.BLOCK_SMASH)
             .hasBlock(block)

@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dev.anvilcraft.lib.event.EventManager;
+import dev.anvilcraft.lib.registrator.Registrator;
 import dev.dubhe.anvilcraft.api.registry.AnvilCraftRegistrate;
 import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
@@ -39,7 +40,7 @@ public class AnvilCraft {
     // EnchantmentDisable
     public static final Lazy<EnchantmentDisableUtil> enchantmentDisableUtil = new Lazy<>(EnchantmentDisableUtil::new);
 
-    public static final AnvilCraftRegistrate REGISTRATE = AnvilCraftRegistrate.create(MOD_ID);
+    public static final Registrator REGISTRATOR = Registrator.create(MOD_ID);
 
     /**
      * 初始化函数
@@ -62,7 +63,7 @@ public class AnvilCraft {
         // datagen
         AnvilCraftDatagen.init();
         // fabric 独有，请在此之前插入注册
-        REGISTRATE.registerRegistrate();
+        REGISTRATOR.init();
     }
 
     public static @NotNull ResourceLocation of(String path) {

@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.init;
 
-import com.tterrag.registrate.util.entry.RegistryEntry;
+import dev.anvilcraft.lib.registrator.entry.RegistryEntry;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.EnchantedBookItem;
@@ -10,12 +10,12 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import org.jetbrains.annotations.NotNull;
 
-import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
+import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATOR;
 
 @SuppressWarnings("unused")
 public class ModItemGroups {
-    public static final RegistryEntry<CreativeModeTab> ANVILCRAFT_TOOL = REGISTRATE
-        .defaultCreativeTab("tools", builder -> builder
+    public static final RegistryEntry<CreativeModeTab> ANVILCRAFT_TOOL = REGISTRATOR
+        .tab("tools", builder -> builder
             .icon(ModItems.MAGNET::asStack)
             .displayItems((ctx, entries) -> {
                 entries.accept(ModItems.GUIDE_BOOK.get().getDefaultInstance());
@@ -56,14 +56,14 @@ public class ModItemGroups {
                 entries.accept(ModItemGroups.createMaxLevelBook(ModEnchantments.HARVEST));
                 entries.accept(ModItemGroups.createMaxLevelBook(ModEnchantments.BEHEADING));
             })
-            .title(REGISTRATE.addLang("itemGroup", AnvilCraft.of("tools"), "AnvilCraft: Utilities"))
+            .title(REGISTRATOR.addLang("itemGroup", AnvilCraft.of("tools"), "AnvilCraft: Utilities"))
             .build()
         )
         .register();
 
 
-    public static final RegistryEntry<CreativeModeTab> ANVILCRAFT_INGREDIENTS = REGISTRATE
-        .defaultCreativeTab("ingredients", builder -> builder
+    public static final RegistryEntry<CreativeModeTab> ANVILCRAFT_INGREDIENTS = REGISTRATOR
+        .tab("ingredients", builder -> builder
             .icon(ModItems.MAGNET_INGOT::asStack)
             .displayItems((ctx, entries) -> {
                 entries.accept(ModItems.CREAM.get().getDefaultInstance());
@@ -126,13 +126,13 @@ public class ModItemGroups {
                 entries.accept(ModItems.WOOD_FIBER.get().getDefaultInstance());
                 entries.accept(ModItems.CIRCUIT_BOARD.get().getDefaultInstance());
             })
-            .title(REGISTRATE.addLang("itemGroup", AnvilCraft.of("ingredients"), "AnvilCraft: Ingredients"))
+            .title(REGISTRATOR.component("itemGroup", AnvilCraft.of("ingredients"), "AnvilCraft: Ingredients"))
             .build()
         )
         .register();
 
-    public static final RegistryEntry<CreativeModeTab> ANVILCRAFT_FUNCTION_BLOCK = REGISTRATE
-        .defaultCreativeTab("functional_block", builder -> builder
+    public static final RegistryEntry<CreativeModeTab> ANVILCRAFT_FUNCTION_BLOCK = REGISTRATOR
+        .tab("functional_block", builder -> builder
             .icon(ModBlocks.MAGNET_BLOCK::asStack)
             .displayItems((ctx, entries) -> {
                 entries.accept(Items.IRON_TRAPDOOR.getDefaultInstance());
@@ -202,15 +202,15 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.BRONZE_PRESSURE_PLATE.asStack());
                 entries.accept(ModBlocks.BRASS_PRESSURE_PLATE.asStack());
             })
-            .title(REGISTRATE.addLang("itemGroup",
+            .title(REGISTRATOR.component("itemGroup",
                 AnvilCraft.of("functional_block"),
                 "AnvilCraft: Functional Block"))
             .build()
         )
         .register();
 
-    public static final RegistryEntry<CreativeModeTab> ANVILCRAFT_BUILD_BLOCK = REGISTRATE
-        .defaultCreativeTab("building_block", builder -> builder
+    public static final RegistryEntry<CreativeModeTab> ANVILCRAFT_BUILD_BLOCK = REGISTRATOR
+        .tab("building_block", builder -> builder
             .icon(ModBlocks.REINFORCED_CONCRETE_BLACK::asStack)
             .displayItems((ctx, entries) -> {
                 entries.accept(ModBlocks.ROYAL_STEEL_BLOCK.asStack());
@@ -367,10 +367,12 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.REINFORCED_CONCRETE_MAGENTA_WALL.asStack());
                 entries.accept(ModBlocks.REINFORCED_CONCRETE_PINK_WALL.asStack());
             })
-            .title(REGISTRATE.addLang("itemGroup",
-                AnvilCraft.of("building_block"),
-                "AnvilCraft: Building Block"))
-            .build()
+            .title(REGISTRATOR.component(
+                    "itemGroup",
+                    AnvilCraft.of("building_block"),
+                    "AnvilCraft: Building Block"
+                )
+            ).build()
         )
         .register();
 
