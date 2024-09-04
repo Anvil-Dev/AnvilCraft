@@ -94,7 +94,6 @@ public class RipeningManager {
      */
     private void tick() {
         cooldown--;
-
         if (cooldown <= 0 && !lightBlocks.isEmpty()) {
             MinecraftServer server = level.getServer();
             if (server == null) return;
