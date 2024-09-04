@@ -82,7 +82,7 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
             this.setDeltaMovement(this.getDeltaMovement().add(0.0, -0.04, 0.0));
         }
         this.move(MoverType.SELF, this.getDeltaMovement());
-        fallDistance += (float) this.getDeltaMovement().y;
+        fallDistance -= (float) this.getDeltaMovement().y;
         if (this.level().isClientSide) return;
         BlockPos current = this.blockPosition();
         BlockPos below = current.below();
