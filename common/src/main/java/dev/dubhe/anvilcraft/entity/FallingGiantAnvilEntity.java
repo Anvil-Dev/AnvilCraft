@@ -94,10 +94,10 @@ public class FallingGiantAnvilEntity extends FallingBlockEntity {
             }
             if (!this.level().isClientSide) {
                 BlockPos blockPos = this.blockPosition();
-                boolean bl = this.blockState.getBlock() instanceof ConcretePowderBlock;
-                boolean bl2 = bl && this.level().getFluidState(blockPos).is(FluidTags.WATER);
+                boolean isConcrete = this.blockState.getBlock() instanceof ConcretePowderBlock;
+                boolean shouldHandleWater = isConcrete && this.level().getFluidState(blockPos).is(FluidTags.WATER);
                 double d = this.getDeltaMovement().lengthSqr();
-                if (bl && d > 1.0) {
+                if (isConcrete && d > 1.0) {
                     BlockHitResult blockHitResult = this.level().clip(new ClipContext(
                             new Vec3(this.xo, this.yo, this.zo),
                             this.position(),
@@ -110,11 +110,11 @@ public class FallingGiantAnvilEntity extends FallingBlockEntity {
                                     && this.level().getFluidState(blockHitResult.getBlockPos()).is(FluidTags.WATER)
                     ) {
                         blockPos = blockHitResult.getBlockPos();
-                        bl2 = true;
+                        shouldHandleWater = true;
                     }
                 }
                 Block block = this.blockState.getBlock();
-                if (!this.onGround() && !bl2) {
+                if (!this.onGround() && !shouldHandleWater) {
                     if (!this.level().isClientSide && (this.time > 100
                             && (blockPos.getY() <= this.level().getMinBuildHeight()
                             || blockPos.getY() > this.level().getMaxBuildHeight())

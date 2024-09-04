@@ -146,6 +146,7 @@ public class ModItemGroups {
                 entries.accept(Items.ANVIL.getDefaultInstance());
                 entries.accept(Items.CHIPPED_ANVIL.getDefaultInstance());
                 entries.accept(Items.DAMAGED_ANVIL.getDefaultInstance());
+                entries.accept(ModBlocks.SPECTRAL_ANVIL.asStack());
                 entries.accept(ModBlocks.ROYAL_ANVIL.asStack());
                 entries.accept(ModBlocks.ROYAL_GRINDSTONE.asStack());
                 entries.accept(ModBlocks.ROYAL_SMITHING_TABLE.asStack());

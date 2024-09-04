@@ -38,6 +38,7 @@
   "client": [
     "ClientLevelMixin",
     "ClientPacketListenerMixin",
+    "ItemBlockRenderTypesMixin",
     "ItemInHandRendererMixin",
     "LevelRendererMixin",
     "SoundEngineMixin",
