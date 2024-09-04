@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block;
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeableBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.block.entity.BaseChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.MagneticChuteBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
@@ -136,7 +137,7 @@ public class MagneticChuteBlock extends BaseEntityBlock implements IHammerChange
             boolean movedByPiston
     ) {
         if (!state.is(newState.getBlock())) {
-            if (level.getBlockEntity(pos) instanceof ChuteBlockEntity entity) {
+            if (level.getBlockEntity(pos) instanceof BaseChuteBlockEntity entity) {
                 Vec3 vec3 = entity.getBlockPos().getCenter();
                 FilteredItemDepository depository = entity.getDepository();
                 for (int slot = 0; slot < depository.getSlots(); slot++) {
