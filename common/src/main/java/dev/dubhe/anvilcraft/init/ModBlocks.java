@@ -329,41 +329,39 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.MINEABLE_WITH_AXE)
         .blockItem()
         .recipe((ctx, provider) -> {
-                ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
-                    .pattern("ABA")
-                    .pattern("ADC")
-                    .pattern("AEA")
-                    .define('A', Items.IRON_INGOT)
-                    .define('B', Items.CRAFTING_TABLE)
-                    .define('C', Items.DROPPER)
-                    .define('D', ModItems.MAGNETOELECTRIC_CORE)
-                    .define('E', ModItems.CIRCUIT_BOARD)
-                    .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT),
-                        AnvilCraftDatagen.has(Items.IRON_INGOT))
-                    .unlockedBy(
-                        AnvilCraftDatagen.hasItem(Items.CRAFTING_TABLE),
-                        AnvilCraftDatagen.has(Items.CRAFTING_TABLE)
-                    )
-                    .unlockedBy(AnvilCraftDatagen.hasItem(Items.DROPPER),
-                        AnvilCraftDatagen.has(Items.DROPPER))
-                    .unlockedBy(
-                        AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
-                        AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
-                    )
-                    .unlockedBy(
-                        AnvilCraftDatagen.hasItem(ModItems.CIRCUIT_BOARD),
-                        AnvilCraftDatagen.has(ModItems.CIRCUIT_BOARD)
-                    )
-                    .save(provider);
-                ShapelessRecipeBuilder.shapeless(RecipeCategory.TOOLS, ctx.get())
-                    .requires(AUTO_CRAFTER)
-                    .unlockedBy(
-                        AnvilCraftDatagen.hasItem(AUTO_CRAFTER),
-                        AnvilCraftDatagen.has(AUTO_CRAFTER)
-                    ).save(provider, AnvilCraft.of("batch_crafter_convert"));
-            }
-        )
-        .builder()
+            ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
+                .pattern("ABA")
+                .pattern("ADC")
+                .pattern("AEA")
+                .define('A', Items.IRON_INGOT)
+                .define('B', Items.CRAFTING_TABLE)
+                .define('C', Items.DROPPER)
+                .define('D', ModItems.MAGNETOELECTRIC_CORE)
+                .define('E', ModItems.CIRCUIT_BOARD)
+                .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT),
+                    AnvilCraftDatagen.has(Items.IRON_INGOT))
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(Items.CRAFTING_TABLE),
+                    AnvilCraftDatagen.has(Items.CRAFTING_TABLE)
+                )
+                .unlockedBy(AnvilCraftDatagen.hasItem(Items.DROPPER),
+                    AnvilCraftDatagen.has(Items.DROPPER))
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
+                    AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
+                )
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItems.CIRCUIT_BOARD),
+                    AnvilCraftDatagen.has(ModItems.CIRCUIT_BOARD)
+                )
+                .save(provider);
+            ShapelessRecipeBuilder.shapeless(RecipeCategory.TOOLS, ctx.get())
+                .requires(AUTO_CRAFTER)
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(AUTO_CRAFTER),
+                    AnvilCraftDatagen.has(AUTO_CRAFTER)
+                ).save(provider, AnvilCraft.of("batch_crafter_convert"));
+        }).builder()
         .register();
     public static final BlockEntry<? extends Block> ROYAL_GRINDSTONE = REGISTRATOR
         .block("royal_grindstone", RoyalGrindstone::new)
@@ -501,7 +499,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> HEAVY_IRON_BLOCK = REGISTRATOR
         .block("heavy_iron_block", Block::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .properties(properties -> properties.noOcclusion())
+        .properties(BlockBehaviour.Properties::noOcclusion)
         .state((ctx, provider) -> provider.simpleBlock(ctx.get(),
             AnvilCraft.of("block/heavy_iron_block")))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -691,7 +689,7 @@ public class ModBlocks {
         .block("tungsten_block", Block::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .blockItem()
-        .properties(p -> p.fireResistant())
+        .properties(Item.Properties::fireResistant)
         .recipe((ctx, provider) -> {
             ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                 .pattern("AAA")
@@ -1188,7 +1186,7 @@ public class ModBlocks {
         )
         .state((ctx, provider) -> {
         })
-        .item((a, b) -> new AbstractMultiplePartBlockItem<Vertical3PartHalf>(
+        .item((a, b) -> new AbstractMultiplePartBlockItem<>(
             (AbstractMultiplePartBlock<Vertical3PartHalf>) a,
             b
         )).model((ctx, provider) -> {
@@ -1229,7 +1227,7 @@ public class ModBlocks {
         )
         .state((ctx, provider) -> {
         })
-        .item((a, b) -> new AbstractMultiplePartBlockItem<Vertical4PartHalf>(
+        .item((a, b) -> new AbstractMultiplePartBlockItem<>(
             (AbstractMultiplePartBlock<Vertical4PartHalf>) a,
             b
         )).model((ctx, provider) -> {
@@ -1805,7 +1803,7 @@ public class ModBlocks {
         .state((ctx, provider) -> {
         })
         .loot(AbstractMultiplePartBlock::loot)
-        .item((a, b) -> new AbstractMultiplePartBlockItem<Vertical3PartHalf>(
+        .item((a, b) -> new AbstractMultiplePartBlockItem<>(
             (AbstractMultiplePartBlock<Vertical3PartHalf>) a,
             b
         ))
@@ -1846,7 +1844,7 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.ANVIL)
         .loot(AbstractMultiplePartBlock::loot)
         .properties(p -> p.noOcclusion().strength(4.0F).sound(SoundType.ANVIL).explosionResistance(1200))
-        .item((a, b) -> new AbstractMultiplePartBlockItem<Cube3x3PartHalf>(
+        .item((a, b) -> new AbstractMultiplePartBlockItem<>(
             (AbstractMultiplePartBlock<Cube3x3PartHalf>) a,
             b
         ))
@@ -1975,7 +1973,7 @@ public class ModBlocks {
                 .setRandomSequence(new ResourceLocation("blocks/large_cake"));
             ctx.add(prov, builder);
         })
-        .item((a, b) -> new AbstractMultiplePartBlockItem<Cube3x3PartHalf>(
+        .item((a, b) -> new AbstractMultiplePartBlockItem<>(
             (AbstractMultiplePartBlock<Cube3x3PartHalf>) a,
             b
         ))
@@ -2951,14 +2949,12 @@ public class ModBlocks {
         if (block instanceof BlockEntry<? extends Block> entry) location = entry.getId();
         else location = BuiltInRegistries.BLOCK.getKey(block.get());
         String id = type + "_pressure_plate";
-        return REGISTRATOR
-            .block(
+        return REGISTRATOR.block(
                 id,
                 (properties) -> new PressurePlateBlock(
                     PressurePlateBlock.Sensitivity.EVERYTHING, properties, BlockSetType.IRON
                 )
-            )
-            .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.HAMMER_REMOVABLE)
+            ).tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.HAMMER_REMOVABLE)
             .initialProperties(block::get)
             .properties(
                 properties -> properties.forceSolidOn()
@@ -2966,36 +2962,31 @@ public class ModBlocks {
                     .noCollission()
                     .strength(0.5f)
                     .pushReaction(PushReaction.DESTROY)
-            )
-            .state((ctx, provider) -> provider.pressurePlateBlock(
+            ).state((ctx, provider) -> provider.pressurePlateBlock(
                 ctx.get(),
                 new ResourceLocation(location.getNamespace(), "block/" + location.getPath())
-            ))
-            .blockItem()
+            )).blockItem()
             .tag(
                 ModItemTags.PLATES,
                 ModItemTags.bindC(type + "_plates"),
                 ModItemTags.PLATES_FORGE,
                 ModItemTags.bindForge("plates/" + type)
-            )
-            .builder()
+            ).builder()
             .recipe((ctx, provider) -> {
-                    for (Item ingredient : ingredients) {
-                        ResourceLocation location1 = BuiltInRegistries.ITEM.getKey(ingredient);
-                        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 1)
-                            .pattern("AA")
-                            .define('A', ingredient)
-                            .unlockedBy(AnvilCraftDatagen.hasItem(ingredient),
-                                AnvilCraftDatagen.has(ingredient))
-                            .save(provider, AnvilCraft.of(
-                                "craft/" + id + "_from_"
-                                    + location1.getPath().replace('/', '_')
-                            ));
-                        StampingRecipesLoader.stamping(provider, ingredient, ctx.get().asItem());
-                    }
+                for (Item ingredient : ingredients) {
+                    ResourceLocation location1 = BuiltInRegistries.ITEM.getKey(ingredient);
+                    ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 1)
+                        .pattern("AA")
+                        .define('A', ingredient)
+                        .unlockedBy(AnvilCraftDatagen.hasItem(ingredient),
+                            AnvilCraftDatagen.has(ingredient))
+                        .save(provider, AnvilCraft.of(
+                            "craft/" + id + "_from_"
+                                + location1.getPath().replace('/', '_')
+                        ));
+                    StampingRecipesLoader.stamping(provider, ingredient, ctx.get().asItem());
                 }
-            )
-            .register();
+            }).register();
     }
 
     @SafeVarargs
@@ -3038,21 +3029,19 @@ public class ModBlocks {
                 }
             }).builder()
             .recipe((ctx, provider) -> {
-                    for (TagKey<Item> ingredient : ingredients) {
-                        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 1)
-                            .pattern("AA")
-                            .define('A', ingredient)
-                            .unlockedBy(AnvilCraftDatagen.hasItem(ingredient),
-                                AnvilCraftDatagen.has(ingredient))
-                            .save(provider, AnvilCraft.of(
-                                "craft/" + id + "_from_"
-                                    + ingredient.location().getPath().replace('/', '_')
-                            ));
-                        StampingRecipesLoader.stamping(provider, ingredient, ctx.get().asItem());
-                    }
+                for (TagKey<Item> ingredient : ingredients) {
+                    ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 1)
+                        .pattern("AA")
+                        .define('A', ingredient)
+                        .unlockedBy(AnvilCraftDatagen.hasItem(ingredient),
+                            AnvilCraftDatagen.has(ingredient))
+                        .save(provider, AnvilCraft.of(
+                            "craft/" + id + "_from_"
+                                + ingredient.location().getPath().replace('/', '_')
+                        ));
+                    StampingRecipesLoader.stamping(provider, ingredient, ctx.get().asItem());
                 }
-            )
-            .register();
+            }).register();
     }
 
     private static @NotNull BlockEntry<WallBlock> registerReinforcedConcreteWallBlock(
@@ -3156,23 +3145,21 @@ public class ModBlocks {
         .properties(properties -> properties.stacksTo(16))
         .model((ctx, provider) -> provider.simple(ctx))
         .builder()
-        .recipe((ctx, provider) -> {
-            AnvilRecipe.Builder.create(RecipeCategory.MISC)
-                .type(AnvilRecipeType.ITEM_INJECT)
-                .hasBlock(new Vec3(0.0, -1.0, 0.0), Blocks.SHULKER_BOX)
-                .addPredicates(new HasShulkerBoxBlockEntity(
-                    new Vec3(0.0, -1.0, 0.0),
-                    new HasBlock.ModBlockPredicate().block(Blocks.SHULKER_BOX),
-                    HasShulkerBoxBlockEntity.IS_EMPTY,
-                    HasItem.ModItemPredicate.of()
-                ))
-                .hasItemIngredient(Vec3.ZERO, ModBlocks.NESTING_SHULKER_BOX.asItem())
-                .setBlock(new Vec3(0.0, -1.0, 0.0), ctx.get().getBlock())
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.NESTING_SHULKER_BOX.asItem()),
-                    AnvilCraftDatagen.has(Blocks.SHULKER_BOX.asItem()))
-                .save(provider, AnvilCraft.of("item_inject/over_nesting_shulker_box"));
-        })
-        .register();
+        .recipe((ctx, provider) -> AnvilRecipe.Builder.create(RecipeCategory.MISC)
+            .type(AnvilRecipeType.ITEM_INJECT)
+            .hasBlock(new Vec3(0.0, -1.0, 0.0), Blocks.SHULKER_BOX)
+            .addPredicates(new HasShulkerBoxBlockEntity(
+                new Vec3(0.0, -1.0, 0.0),
+                new HasBlock.ModBlockPredicate().block(Blocks.SHULKER_BOX),
+                HasShulkerBoxBlockEntity.IS_EMPTY,
+                HasItem.ModItemPredicate.of()
+            ))
+            .hasItemIngredient(Vec3.ZERO, ModBlocks.NESTING_SHULKER_BOX.asItem())
+            .setBlock(new Vec3(0.0, -1.0, 0.0), ctx.get().getBlock())
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.NESTING_SHULKER_BOX.asItem()),
+                AnvilCraftDatagen.has(Blocks.SHULKER_BOX.asItem()))
+            .save(provider, AnvilCraft.of("item_inject/over_nesting_shulker_box"))
+        ).register();
     public static final BlockEntry<SupercriticalNestingShulkerBoxBlock> SUPERCRITICAL_NESTING_SHULKER_BOX = REGISTRATOR
         .block("supercritical_nesting_shulker_box", SupercriticalNestingShulkerBoxBlock::new)
         .initialProperties(() -> Blocks.SHULKER_BOX)
@@ -3183,29 +3170,27 @@ public class ModBlocks {
         .properties(properties -> properties.stacksTo(16))
         .model((ctx, provider) -> provider.blockItem(ctx))
         .builder()
-        .recipe((ctx, provider) -> {
-            AnvilRecipe.Builder.create(RecipeCategory.MISC)
-                .type(AnvilRecipeType.ITEM_INJECT)
-                .hasBlock(new Vec3(0.0, -1.0, 0.0), Blocks.SHULKER_BOX)
-                .addPredicates(new HasShulkerBoxBlockEntity(
-                    new Vec3(0.0, -1.0, 0.0),
-                    new HasBlock.ModBlockPredicate().block(Blocks.SHULKER_BOX),
-                    HasShulkerBoxBlockEntity.IS_EMPTY,
-                    HasItem.ModItemPredicate.of()
-                ))
-                .hasItemIngredient(Vec3.ZERO, ModBlocks.OVER_NESTING_SHULKER_BOX.asItem())
-                .setBlock(new Vec3(0.0, -1.0, 0.0), ctx.get().getBlock())
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.OVER_NESTING_SHULKER_BOX.asItem()),
-                    AnvilCraftDatagen.has(Blocks.SHULKER_BOX.asItem()))
-                .save(provider, AnvilCraft.of("item_inject/supercritical_nesting_shulker_box"));
-        })
-        .register();
+        .recipe((ctx, provider) -> AnvilRecipe.Builder.create(RecipeCategory.MISC)
+            .type(AnvilRecipeType.ITEM_INJECT)
+            .hasBlock(new Vec3(0.0, -1.0, 0.0), Blocks.SHULKER_BOX)
+            .addPredicates(new HasShulkerBoxBlockEntity(
+                new Vec3(0.0, -1.0, 0.0),
+                new HasBlock.ModBlockPredicate().block(Blocks.SHULKER_BOX),
+                HasShulkerBoxBlockEntity.IS_EMPTY,
+                HasItem.ModItemPredicate.of()
+            ))
+            .hasItemIngredient(Vec3.ZERO, ModBlocks.OVER_NESTING_SHULKER_BOX.asItem())
+            .setBlock(new Vec3(0.0, -1.0, 0.0), ctx.get().getBlock())
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.OVER_NESTING_SHULKER_BOX.asItem()),
+                AnvilCraftDatagen.has(Blocks.SHULKER_BOX.asItem()))
+            .save(provider, AnvilCraft.of("item_inject/supercritical_nesting_shulker_box"))
+        ).register();
     public static final BlockEntry<SpaceOvercompressorBlock> SPACE_OVERCOMPRESSOR = REGISTRATOR
         .block("space_overcompressor", SpaceOvercompressorBlock::new)
-        //.initialProperties(() -> Blocks.SHULKER_BOX)
+        .initialProperties(() -> Blocks.SHULKER_BOX)
         .state((ctx, provider) -> {
         })
-        //.tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockItem()
         .properties(properties -> properties.stacksTo(16))
         .model((ctx, provider) -> provider.blockItem(ctx))
