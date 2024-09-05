@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.data.generator.recipe;
 
-import com.tterrag.registrate.providers.RegistrateRecipeProvider;
+import dev.anvilcraft.lib.data.provider.RegistratorRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
@@ -24,14 +24,14 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Map;
 
 public class TimeWarpRecipesLoader {
-    public static RegistrateRecipeProvider provider = null;
+    public static RegistratorRecipeProvider provider = null;
     
     /**
      * 初始化时移配方
      *
      * @param provider 提供器
      */
-    public static void init(RegistrateRecipeProvider provider) {
+    public static void init(RegistratorRecipeProvider provider) {
         TimeWarpRecipesLoader.provider = provider;
         timeWarpWithWater(ModItems.SEA_HEART_SHELL_SHARD, ModItems.SEA_HEART_SHELL);
         timeWarpWithMeltGem(Items.EMERALD, Items.EMERALD_BLOCK);

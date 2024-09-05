@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.data.generator.recipe;
 
-import com.tterrag.registrate.providers.RegistrateRecipeProvider;
+import dev.anvilcraft.lib.data.provider.RegistratorRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
@@ -14,14 +14,14 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 
 public class BulgingAndCrystallizeRecipesLoader {
-    private static RegistrateRecipeProvider provider = null;
+    private static RegistratorRecipeProvider provider = null;
 
     /**
      * 初始化膨发和晶化配方
      *
      * @param provider 提供器
      */
-    public static void init(RegistrateRecipeProvider provider) {
+    public static void init(RegistratorRecipeProvider provider) {
         BulgingAndCrystallizeRecipesLoader.provider = provider;
         bulging(Items.DIRT, Items.CLAY);
         bulging(Items.CRIMSON_FUNGUS, Items.NETHER_WART_BLOCK);

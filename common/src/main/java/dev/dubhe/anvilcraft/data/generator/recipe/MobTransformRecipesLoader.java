@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.data.generator.recipe;
 
-import com.tterrag.registrate.providers.RegistrateRecipeProvider;
+import dev.anvilcraft.lib.data.provider.RegistratorRecipeProvider;
 import dev.dubhe.anvilcraft.data.recipe.transform.MobTransformRecipe;
 import dev.dubhe.anvilcraft.data.recipe.transform.NumericTagValuePredicate;
 import dev.dubhe.anvilcraft.data.recipe.transform.TagModification;
@@ -14,7 +14,7 @@ public class MobTransformRecipesLoader {
      *
      * @param provider 提供器
      */
-    public static void init(RegistrateRecipeProvider provider) {
+    public static void init(RegistratorRecipeProvider provider) {
 
         MobTransformRecipe.builder("cow")
                 .input(EntityType.COW)

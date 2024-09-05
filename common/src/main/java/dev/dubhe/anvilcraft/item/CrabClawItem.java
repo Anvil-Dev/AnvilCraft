@@ -41,8 +41,8 @@ public class CrabClawItem extends Item {
         if (!(entity instanceof Player player)) return;
         if (entity.level().isClientSide) return;
         CompoundTag customData = EntityHelper.getCustomData(entity);
-        boolean inOffHand = ModItems.CRAB_CLAW.isIn(player.getOffhandItem());
-        boolean inMainHand = ModItems.CRAB_CLAW.isIn(player.getMainHandItem());
+        boolean inOffHand = ModItems.CRAB_CLAW.contains(player.getOffhandItem());
+        boolean inMainHand = ModItems.CRAB_CLAW.contains(player.getMainHandItem());
         boolean holdingDualCrabClaw = inOffHand && inMainHand;
         boolean holdingCrabClaw = inOffHand || inMainHand;
         boolean wasHoldingCrabClaw = customData.contains(CRAB_CLAW_MARKER);

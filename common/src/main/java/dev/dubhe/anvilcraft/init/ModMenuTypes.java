@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.init;
 
-import com.tterrag.registrate.util.entry.MenuEntry;
+import dev.anvilcraft.lib.registrator.entry.RegistryEntry;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.ActiveSilencerScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.AutoCrafterScreen;
@@ -31,86 +31,87 @@ import dev.dubhe.anvilcraft.inventory.SliderMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.inventory.MenuType;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATOR;
 
 public class ModMenuTypes {
 
     @SuppressWarnings("DataFlowIssue")
-    public static final MenuEntry<AutoCrafterMenu> AUTO_CRAFTER = REGISTRATOR
-            .menu("auto_crafter", AutoCrafterMenu::new, () -> AutoCrafterScreen::new)
-            .register();
+    public static final RegistryEntry<MenuType<AutoCrafterMenu>> AUTO_CRAFTER = REGISTRATOR
+        .menu("auto_crafter", AutoCrafterMenu::new, AutoCrafterScreen::new)
+        .register();
 
     @SuppressWarnings("DataFlowIssue")
-    public static final MenuEntry<BatchCrafterMenu> BATCH_CRAFTER = REGISTRATOR
-            .menu("batch_crafter", BatchCrafterMenu::new, () -> BatchCrafterScreen::new)
-            .register();
+    public static final RegistryEntry<MenuType<BatchCrafterMenu>> BATCH_CRAFTER = REGISTRATOR
+        .menu("batch_crafter", BatchCrafterMenu::new, BatchCrafterScreen::new)
+        .register();
 
     @SuppressWarnings("DataFlowIssue")
-    public static final MenuEntry<ChuteMenu> CHUTE = REGISTRATOR
-            .menu("chute", ChuteMenu::new, () -> ChuteScreen::new)
-            .register();
+    public static final RegistryEntry<MenuType<ChuteMenu>> CHUTE = REGISTRATOR
+        .menu("chute", ChuteMenu::new, ChuteScreen::new)
+        .register();
 
     @SuppressWarnings("DataFlowIssue")
-    public static final MenuEntry<MagneticChuteMenu> MAGNETIC_CHUTE = REGISTRATOR
-            .menu("magnetic_chute", MagneticChuteMenu::new, () -> MagneticChuteScreen::new)
-            .register();
-    public static final MenuEntry<RoyalGrindstoneMenu> ROYAL_GRINDSTONE = REGISTRATOR
-            .menu(
-                    "royal_grindstone",
-                    (type, id, inv) -> new RoyalGrindstoneMenu(type, id, inv),
-                    () -> RoyalGrindstoneScreen::new
-            )
-            .register();
-    public static final MenuEntry<RoyalAnvilMenu> ROYAL_ANVIL = REGISTRATOR
-            .menu(
-                    "royal_anvil",
-                    (type, id, inv) -> new RoyalAnvilMenu(id, inv),
-                    () -> RoyalAnvilScreen::new
-            )
-            .register();
-    public static final MenuEntry<RoyalSmithingMenu> ROYAL_SMITHING = REGISTRATOR
-            .menu(
-                    "royal_smithing_table",
-                    (type, id, inv) -> new RoyalSmithingMenu(type, id, inv),
-                    () -> RoyalSmithingScreen::new
-            )
-            .register();
-    public static final MenuEntry<SliderMenu> SLIDER = REGISTRATOR
-            .menu(
-                    "slider",
-                    (menuType, containerId, inventory) -> new SliderMenu(menuType, containerId),
-                    () -> SliderScreen::new
-            )
-            .register();
-    public static final MenuEntry<ItemCollectorMenu> ITEM_COLLECTOR = REGISTRATOR
-            .menu("item_collector", ItemCollectorMenu::new, () -> ItemCollectorScreen::new)
-            .register();
+    public static final RegistryEntry<MenuType<MagneticChuteMenu>> MAGNETIC_CHUTE = REGISTRATOR
+        .menu("magnetic_chute", MagneticChuteMenu::new, MagneticChuteScreen::new)
+        .register();
+    public static final RegistryEntry<MenuType<RoyalGrindstoneMenu>> ROYAL_GRINDSTONE = REGISTRATOR
+        .menu(
+            "royal_grindstone",
+            (type, id, inv) -> new RoyalGrindstoneMenu(type, id, inv),
+            RoyalGrindstoneScreen::new
+        )
+        .register();
+    public static final RegistryEntry<MenuType<RoyalAnvilMenu>> ROYAL_ANVIL = REGISTRATOR
+        .menu(
+            "royal_anvil",
+            (type, id, inv) -> new RoyalAnvilMenu(id, inv),
+            RoyalAnvilScreen::new
+        )
+        .register();
+    public static final RegistryEntry<MenuType<RoyalSmithingMenu>> ROYAL_SMITHING = REGISTRATOR
+        .menu(
+            "royal_smithing_table",
+            (type, id, inv) -> new RoyalSmithingMenu(type, id, inv),
+            RoyalSmithingScreen::new
+        )
+        .register();
+    public static final RegistryEntry<MenuType<SliderMenu>> SLIDER = REGISTRATOR
+        .menu(
+            "slider",
+            (menuType, containerId, inventory) -> new SliderMenu(menuType, containerId),
+            SliderScreen::new
+        )
+        .register();
+    public static final RegistryEntry<MenuType<ItemCollectorMenu>> ITEM_COLLECTOR = REGISTRATOR
+        .menu("item_collector", ItemCollectorMenu::new, ItemCollectorScreen::new)
+        .register();
 
-    public static final MenuEntry<ActiveSilencerMenu> ACTIVE_SILENCER = REGISTRATOR
-            .menu("active_silencer", ActiveSilencerMenu::new, () -> ActiveSilencerScreen::new)
-            .register();
-    public static final MenuEntry<EmberAnvilMenu> EMBER_ANVIL = REGISTRATOR
-            .menu(
-                    "ember_anvil",
-                    (type, id, inv) -> new EmberAnvilMenu(id, inv),
-                    () -> EmberAnvilScreen::new
-            )
-            .register();
-    public static final MenuEntry<EmberGrindstoneMenu> EMBER_GRINDSTONE = REGISTRATOR
-            .menu(
-                    "ember_grindstone",
-                    (type, id, inv) -> new EmberGrindstoneMenu(type, id, inv),
-                    () -> EmberGrindstoneScreen::new
-            )
-            .register();
-    public static final MenuEntry<EmberSmithingMenu> EMBER_SMITHING = REGISTRATOR
-            .menu(
-                    "ember_smithing_table",
-                    (type, id, inv) -> new EmberSmithingMenu(type, id, inv),
-                    () -> EmberSmithingScreen::new
-            )
-            .register();
+    public static final RegistryEntry<MenuType<ActiveSilencerMenu>> ACTIVE_SILENCER = REGISTRATOR
+        .menu("active_silencer", ActiveSilencerMenu::new, ActiveSilencerScreen::new)
+        .register();
+    public static final RegistryEntry<MenuType<EmberAnvilMenu>> EMBER_ANVIL = REGISTRATOR
+        .menu(
+            "ember_anvil",
+            (type, id, inv) -> new EmberAnvilMenu(id, inv),
+            EmberAnvilScreen::new
+        )
+        .register();
+    public static final RegistryEntry<MenuType<EmberGrindstoneMenu>> EMBER_GRINDSTONE = REGISTRATOR
+        .menu(
+            "ember_grindstone",
+            (type, id, inv) -> new EmberGrindstoneMenu(type, id, inv),
+            EmberGrindstoneScreen::new
+        )
+        .register();
+    public static final RegistryEntry<MenuType<EmberSmithingMenu>> EMBER_SMITHING = REGISTRATOR
+        .menu(
+            "ember_smithing_table",
+            (type, id, inv) -> new EmberSmithingMenu(type, id, inv),
+            EmberSmithingScreen::new
+        )
+        .register();
 
     public static void register() {
     }

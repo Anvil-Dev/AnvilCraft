@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.data.generator.lang;
 
 import com.google.gson.annotations.SerializedName;
 import com.tterrag.registrate.providers.RegistrateLangProvider;
+import dev.anvilcraft.lib.data.provider.LanguageProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
 import dev.dubhe.anvilcraft.util.IFormattingUtil;
@@ -22,7 +23,7 @@ public class ConfigScreenLang {
      *
      * @param provider 提供器
      */
-    public static void init(@NotNull RegistrateLangProvider provider) {
+    public static void init(@NotNull LanguageProvider provider) {
         provider.add("text.autoconfig.anvilcraft.title", "AnvilCraft Config");
         readConfigClass(AnvilCraftConfig.class, provider, null);
     }
@@ -30,7 +31,7 @@ public class ConfigScreenLang {
 
     @SuppressWarnings("SameParameterValue")
     private static void readConfigClass(
-        @NotNull Class<?> configClass, RegistrateLangProvider provider, @Nullable String parent
+        @NotNull Class<?> configClass, LanguageProvider provider, @Nullable String parent
     ) {
         for (Field field : configClass.getDeclaredFields()) {
             String fieldName = field.getName();

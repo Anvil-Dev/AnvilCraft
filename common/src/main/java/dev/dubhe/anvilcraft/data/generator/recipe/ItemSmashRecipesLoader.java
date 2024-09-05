@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.data.generator.recipe;
 
-import com.tterrag.registrate.providers.RegistrateRecipeProvider;
+import dev.anvilcraft.lib.data.provider.RegistratorRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.recipe.RecipeItem;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
@@ -19,14 +19,14 @@ import java.util.Arrays;
 import java.util.Map;
 
 public class ItemSmashRecipesLoader {
-    private static RegistrateRecipeProvider provider = null;
+    private static RegistratorRecipeProvider provider = null;
 
     /**
      * 初始化粉碎配方
      *
      * @param provider 提供器
      */
-    public static void init(RegistrateRecipeProvider provider) {
+    public static void init(RegistratorRecipeProvider provider) {
         ItemSmashRecipesLoader.provider = provider;
         smash(RecipeItem.of(Items.WET_SPONGE), RecipeItem.of(ModItems.SPONGE_GEMMULE, 4));
         smash(RecipeItem.of(ModBlocks.HOLLOW_MAGNET_BLOCK), RecipeItem.of(ModItems.MAGNET_INGOT, 8));

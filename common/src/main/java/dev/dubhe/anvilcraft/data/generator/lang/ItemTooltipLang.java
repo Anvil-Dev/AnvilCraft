@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.data.generator.lang;
 
-import com.tterrag.registrate.providers.RegistrateLangProvider;
+import dev.anvilcraft.lib.data.provider.LanguageProvider;
 import dev.dubhe.anvilcraft.event.TooltipEventListener;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,7 +10,7 @@ public class ItemTooltipLang {
      *
      * @param provider 提供器
      */
-    public static void init(@NotNull RegistrateLangProvider provider) {
+    public static void init(@NotNull LanguageProvider provider) {
         TooltipEventListener.NEED_TOOLTIP_ITEM.forEach(
             (item, s) -> provider.add(TooltipEventListener.getTranslationKey(item), s)
         );

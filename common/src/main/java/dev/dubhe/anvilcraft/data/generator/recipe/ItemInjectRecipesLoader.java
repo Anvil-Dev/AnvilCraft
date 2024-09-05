@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.data.generator.recipe;
 
-import com.tterrag.registrate.providers.RegistrateRecipeProvider;
+import dev.anvilcraft.lib.data.provider.RegistratorRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.recipe.RecipeItem;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
@@ -17,14 +17,14 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 public class ItemInjectRecipesLoader {
-    private static RegistrateRecipeProvider provider = null;
+    private static RegistratorRecipeProvider provider = null;
 
     /**
      * 初始化物品注入配方
      *
      * @param provider 提供器
      */
-    public static void init(RegistrateRecipeProvider provider) {
+    public static void init(RegistratorRecipeProvider provider) {
         ItemInjectRecipesLoader.provider = provider;
         itemInject(Items.RAW_GOLD_BLOCK, Blocks.DEEPSLATE, Blocks.DEEPSLATE_GOLD_ORE);
         itemInject(Items.RAW_IRON_BLOCK, Blocks.DEEPSLATE, Blocks.DEEPSLATE_IRON_ORE);

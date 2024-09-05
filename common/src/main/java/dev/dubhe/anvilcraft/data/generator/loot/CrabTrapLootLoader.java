@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.data.generator.loot;
 
-import com.tterrag.registrate.providers.loot.RegistrateLootTableProvider;
+import dev.anvilcraft.lib.data.provider.RegistratorLootTableProvider;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.init.ModLootTables;
 import net.minecraft.advancements.critereon.LocationPredicate;
@@ -95,7 +95,7 @@ public class CrabTrapLootLoader {
      *
      * @param provider 提供器
      */
-    public static void init(RegistrateLootTableProvider provider) {
+    public static void init(RegistratorLootTableProvider provider) {
         provider.addLootAction(LootContextParamSets.CHEST, (bi) -> {
             bi.accept(ModLootTables.CRAB_TRAP_COMMON, COMMON);
             bi.accept(ModLootTables.CRAB_TRAP_RIVER, RIVER);

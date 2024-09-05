@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.data.generator.recipe;
 
-import com.tterrag.registrate.providers.RegistrateRecipeProvider;
+import dev.anvilcraft.lib.data.provider.RegistratorRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.recipe.RecipeItem;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
@@ -27,14 +27,14 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Arrays;
 
 public class StampingRecipesLoader {
-    private static RegistrateRecipeProvider provider = null;
+    private static RegistratorRecipeProvider provider = null;
 
     /**
      * 初始化配方
      *
      * @param provider 配方提供器
      */
-    public static void init(RegistrateRecipeProvider provider) {
+    public static void init(RegistratorRecipeProvider provider) {
         StampingRecipesLoader.provider = provider;
         stamping(Items.IRON_INGOT, RecipeItem.of(Items.HEAVY_WEIGHTED_PRESSURE_PLATE));
         stamping(Items.GOLD_INGOT, RecipeItem.of(Items.LIGHT_WEIGHTED_PRESSURE_PLATE));
@@ -139,7 +139,7 @@ public class StampingRecipesLoader {
      * @param item  原料
      * @param item1 产物
      */
-    public static void stamping(RegistrateRecipeProvider provider, Item item, Item item1) {
+    public static void stamping(RegistratorRecipeProvider provider, Item item, Item item1) {
         StampingRecipesLoader.provider = provider;
         stamping(item, RecipeItem.of(item1));
     }
@@ -150,7 +150,7 @@ public class StampingRecipesLoader {
      * @param item  原料
      * @param item1 产物
      */
-    public static void stamping(RegistrateRecipeProvider provider, TagKey<Item> item, Item item1) {
+    public static void stamping(RegistratorRecipeProvider provider, TagKey<Item> item, Item item1) {
         StampingRecipesLoader.provider = provider;
         stamping(item, RecipeItem.of(item1));
     }
@@ -250,7 +250,7 @@ public class StampingRecipesLoader {
                 + "_2_" + BuiltInRegistries.ITEM.getKey(item1).getPath()));
     }
 
-    public static void reclaim(RegistrateRecipeProvider provider, Item item, Item item1) {
+    public static void reclaim(RegistratorRecipeProvider provider, Item item, Item item1) {
         StampingRecipesLoader.provider = provider;
         reclaim(item, item1);
     }

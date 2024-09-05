@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.data.generator.loot;
 
-import com.tterrag.registrate.providers.loot.RegistrateLootTableProvider;
+import dev.anvilcraft.lib.data.provider.RegistratorLootTableProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModItems;
 import net.minecraft.world.level.storage.loot.LootPool;
@@ -21,7 +21,7 @@ public class AdvancementLootLoader {
     /**
      * @param provider 提供器
      */
-    public static void init(@NotNull RegistrateLootTableProvider provider) {
+    public static void init(@NotNull RegistratorLootTableProvider provider) {
         provider.addLootAction(LootContextParamSets.ENTITY, (bi) -> {
             bi.accept(AnvilCraft.of("advancement/root"), ROOT);
         });

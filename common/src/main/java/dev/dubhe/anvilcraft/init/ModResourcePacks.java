@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.init;
 
-import dev.anvilcraft.lib.registrar.ResourcePacksHelper;
+import dev.anvilcraft.lib.registrator.ResourcePacksHelper;
 import dev.dubhe.anvilcraft.AnvilCraft;
 
 public class ModResourcePacks {

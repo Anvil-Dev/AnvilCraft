@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.data.generator;
 
-import com.tterrag.registrate.providers.ProviderType;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
+import dev.anvilcraft.lib.data.DataProviderType;
 import dev.dubhe.anvilcraft.data.recipe.RecipeItem;
 import dev.dubhe.anvilcraft.data.generator.advancement.AdvancementHandler;
 import dev.dubhe.anvilcraft.data.generator.lang.LangHandler;
@@ -22,13 +22,13 @@ public class AnvilCraftDatagen {
      * 初始化生成器
      */
     public static void init() {
-        REGISTRATOR.addDataGenerator(ProviderType.ITEM_TAGS, TagsHandler::initItem);
-        REGISTRATOR.addDataGenerator(ProviderType.BLOCK_TAGS, TagsHandler::initBlock);
-        REGISTRATOR.addDataGenerator(ProviderType.FLUID_TAGS, TagsHandler::initFluid);
-        REGISTRATOR.addDataGenerator(ProviderType.LANG, LangHandler::init);
-        REGISTRATOR.addDataGenerator(ProviderType.RECIPE, RecipesHandler::init);
-        REGISTRATOR.addDataGenerator(ProviderType.LOOT, LootHandler::init);
-        REGISTRATOR.addDataGenerator(ProviderType.ADVANCEMENT, AdvancementHandler::init);
+        REGISTRATOR.data(DataProviderType.ITEM_TAG, TagsHandler::initItem);
+        REGISTRATOR.data(DataProviderType.BLOCK_TAG, TagsHandler::initBlock);
+        REGISTRATOR.data(DataProviderType.FLUID_TAG, TagsHandler::initFluid);
+        REGISTRATOR.data(DataProviderType.LANG, LangHandler::init);
+        REGISTRATOR.data(DataProviderType.RECIPE, RecipesHandler::init);
+        REGISTRATOR.data(DataProviderType.LOOT_TABLE, LootHandler::init);
+        //REGISTRATOR.data(DataProviderType.ADVANCEMENT, AdvancementHandler::init);
     }
 
     public static @NotNull InventoryChangeTrigger.TriggerInstance has(ItemLike itemLike) {

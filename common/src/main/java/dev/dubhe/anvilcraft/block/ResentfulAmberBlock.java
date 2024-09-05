@@ -15,6 +15,6 @@ public class ResentfulAmberBlock extends MobAmberBlock {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
-        return ModBlockEntities.RESENTFUL_AMBER_BLOCK.create(pos, state);
+        return ModBlockEntities.RESENTFUL_AMBER_BLOCK.get().create(pos, state);
     }
 }

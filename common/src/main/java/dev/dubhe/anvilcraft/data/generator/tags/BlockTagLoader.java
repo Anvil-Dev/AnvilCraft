@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.data.generator.tags;
 
-import com.tterrag.registrate.providers.RegistrateTagsProvider;
+import dev.anvilcraft.lib.data.provider.RegistratorTagsProvider;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.tags.BlockTags;
@@ -14,21 +14,21 @@ public class BlockTagLoader {
      *
      * @param provider 提供器
      */
-    public static void init(@NotNull RegistrateTagsProvider<Block> provider) {
-        provider.addTag(ModBlockTags.REDSTONE_TORCH).setReplace(false)
+    public static void init(@NotNull RegistratorTagsProvider<Block> provider) {
+        provider.create(ModBlockTags.REDSTONE_TORCH).setReplace(false)
                 .add(Blocks.REDSTONE_WALL_TORCH)
                 .add(Blocks.REDSTONE_TORCH);
-        provider.addTag(ModBlockTags.MUSHROOM_BLOCK).setReplace(false)
+        provider.create(ModBlockTags.MUSHROOM_BLOCK).setReplace(false)
                 .add(Blocks.BROWN_MUSHROOM_BLOCK)
                 .add(Blocks.RED_MUSHROOM_BLOCK)
                 .add(Blocks.MUSHROOM_STEM);
-        provider.addTag(ModBlockTags.HAMMER_CHANGEABLE).setReplace(false)
+        provider.create(ModBlockTags.HAMMER_CHANGEABLE).setReplace(false)
                 .add(Blocks.OBSERVER)
                 .add(Blocks.HOPPER)
                 .add(Blocks.DROPPER)
                 .add(Blocks.DISPENSER)
                 .add(Blocks.LIGHTNING_ROD);
-        provider.addTag(ModBlockTags.HAMMER_REMOVABLE).setReplace(false)
+        provider.create(ModBlockTags.HAMMER_REMOVABLE).setReplace(false)
                 .add(Blocks.BELL)
                 .add(Blocks.REDSTONE_LAMP)
                 .add(Blocks.IRON_DOOR)
@@ -86,12 +86,12 @@ public class BlockTagLoader {
                 .add(ModBlocks.POLISHED_HEAVY_IRON_STAIRS.get());
 
 
-        provider.addTag(ModBlockTags.UNDER_CAULDRON).setReplace(false)
-                .forceAddTag(BlockTags.CAMPFIRES)
+        provider.create(ModBlockTags.UNDER_CAULDRON).setReplace(false)
+                .addTag(BlockTags.CAMPFIRES)
                 .add(Blocks.MAGMA_BLOCK)
                 .add(ModBlocks.HEATER.get())
                 .add(ModBlocks.CORRUPTED_BEACON.get());
-        provider.addTag(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING).setReplace(false)
+        provider.create(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING).setReplace(false)
                 .add(Blocks.STONE)
                 .add(Blocks.DEEPSLATE)
                 .add(Blocks.ANDESITE)
@@ -102,17 +102,17 @@ public class BlockTagLoader {
                 .add(Blocks.BASALT)
                 .add(Blocks.BLACKSTONE)
                 .add(Blocks.END_STONE);
-        provider.addTag(ModBlockTags.GLASS_BLOCKS).setReplace(false)
+        provider.create(ModBlockTags.GLASS_BLOCKS).setReplace(false)
                 .add(ModBlocks.TEMPERING_GLASS.get());
-        provider.addTag(ModBlockTags.FORGE_GLASS_BLOCKS).setReplace(false)
+        provider.create(ModBlockTags.FORGE_GLASS_BLOCKS).setReplace(false)
                 .add(ModBlocks.TEMPERING_GLASS.get());
-        provider.addTag(ModBlockTags.LASE_CAN_PASS_THROUGH).setReplace(false)
-                .forceAddTag(ModBlockTags.GLASS_BLOCKS)
-                .forceAddTag(ModBlockTags.GLASS_PANES)
-                .forceAddTag(ModBlockTags.FORGE_GLASS_BLOCKS)
-                .forceAddTag(ModBlockTags.FORGE_GLASS_PANES)
-                .forceAddTag(BlockTags.REPLACEABLE);
-        provider.addTag(ModBlockTags.DEEPSLATE_METAL).setReplace(false)
+        provider.create(ModBlockTags.LASE_CAN_PASS_THROUGH).setReplace(false)
+                .addTag(ModBlockTags.GLASS_BLOCKS)
+                .addTag(ModBlockTags.GLASS_PANES)
+                .addTag(ModBlockTags.FORGE_GLASS_BLOCKS)
+                .addTag(ModBlockTags.FORGE_GLASS_PANES)
+                .addTag(BlockTags.REPLACEABLE);
+        provider.create(ModBlockTags.DEEPSLATE_METAL).setReplace(false)
                 .add(Blocks.DEEPSLATE_GOLD_ORE)
                 .add(Blocks.DEEPSLATE_IRON_ORE)
                 .add(Blocks.DEEPSLATE_COPPER_ORE)
@@ -123,7 +123,7 @@ public class BlockTagLoader {
                 .add(ModBlocks.DEEPSLATE_LEAD_ORE.get())
                 .add(ModBlocks.DEEPSLATE_SILVER_ORE.get())
                 .add(ModBlocks.DEEPSLATE_URANIUM_ORE.get());
-        provider.addTag(ModBlockTags.ORES).setReplace(false)
+        provider.create(ModBlockTags.ORES).setReplace(false)
                 .add(ModBlocks.DEEPSLATE_ZINC_ORE.get())
                 .add(ModBlocks.DEEPSLATE_TIN_ORE.get())
                 .add(ModBlocks.DEEPSLATE_TITANIUM_ORE.get())
@@ -133,7 +133,7 @@ public class BlockTagLoader {
                 .add(ModBlocks.DEEPSLATE_URANIUM_ORE.get())
                 .add(ModBlocks.VOID_STONE.get())
                 .add(ModBlocks.EARTH_CORE_SHARD_ORE.get());
-        provider.addTag(ModBlockTags.FORGE_ORES).setReplace(false)
+        provider.create(ModBlockTags.FORGE_ORES).setReplace(false)
                 .add(ModBlocks.DEEPSLATE_ZINC_ORE.get())
                 .add(ModBlocks.DEEPSLATE_TIN_ORE.get())
                 .add(ModBlocks.DEEPSLATE_TITANIUM_ORE.get())
@@ -143,7 +143,7 @@ public class BlockTagLoader {
                 .add(ModBlocks.DEEPSLATE_URANIUM_ORE.get())
                 .add(ModBlocks.VOID_STONE.get())
                 .add(ModBlocks.EARTH_CORE_SHARD_ORE.get());
-        provider.addTag(ModBlockTags.ORES_IN_GROUND_DEEPSLATE).setReplace(false)
+        provider.create(ModBlockTags.ORES_IN_GROUND_DEEPSLATE).setReplace(false)
                 .add(ModBlocks.DEEPSLATE_ZINC_ORE.get())
                 .add(ModBlocks.DEEPSLATE_TIN_ORE.get())
                 .add(ModBlocks.DEEPSLATE_TITANIUM_ORE.get())
@@ -153,7 +153,7 @@ public class BlockTagLoader {
                 .add(ModBlocks.DEEPSLATE_URANIUM_ORE.get())
                 .add(ModBlocks.VOID_STONE.get())
                 .add(ModBlocks.EARTH_CORE_SHARD_ORE.get());
-        provider.addTag(ModBlockTags.FORGE_ORES_IN_GROUND_DEEPSLATE).setReplace(false)
+        provider.create(ModBlockTags.FORGE_ORES_IN_GROUND_DEEPSLATE).setReplace(false)
                 .add(ModBlocks.DEEPSLATE_ZINC_ORE.get())
                 .add(ModBlocks.DEEPSLATE_TIN_ORE.get())
                 .add(ModBlocks.DEEPSLATE_TITANIUM_ORE.get())
@@ -163,7 +163,7 @@ public class BlockTagLoader {
                 .add(ModBlocks.DEEPSLATE_URANIUM_ORE.get())
                 .add(ModBlocks.VOID_STONE.get())
                 .add(ModBlocks.EARTH_CORE_SHARD_ORE.get());
-        provider.addTag(ModBlockTags.END_PORTAL_UNABLE_CHANGE).setReplace(false)
+        provider.create(ModBlockTags.END_PORTAL_UNABLE_CHANGE).setReplace(false)
                 .add(Blocks.DRAGON_EGG);
     }
 }

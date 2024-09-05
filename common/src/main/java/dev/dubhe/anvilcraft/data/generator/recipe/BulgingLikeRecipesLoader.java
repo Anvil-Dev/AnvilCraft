@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.data.generator.recipe;
 
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
+import dev.anvilcraft.lib.data.provider.RegistratorRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.CementCauldronBlock;
 import dev.dubhe.anvilcraft.block.state.Color;
@@ -22,14 +23,14 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.Vec3;
 
 public class BulgingLikeRecipesLoader {
-    private static RegistrateRecipeProvider provider = null;
+    private static RegistratorRecipeProvider provider = null;
 
     /**
      * 初始化类膨发提供器
      *
      * @param provider 配方提供器
      */
-    public static void init(RegistrateRecipeProvider provider) {
+    public static void init(RegistratorRecipeProvider provider) {
         BulgingLikeRecipesLoader.provider = provider;
         // 混凝土液体系列配方
         fluidHandling(

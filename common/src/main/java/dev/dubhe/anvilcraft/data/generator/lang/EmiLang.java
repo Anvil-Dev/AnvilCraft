@@ -1,12 +1,12 @@
 package dev.dubhe.anvilcraft.data.generator.lang;
 
-import com.tterrag.registrate.providers.RegistrateLangProvider;
+import dev.anvilcraft.lib.data.provider.LanguageProvider;
 
 public class EmiLang {
     /**
      * @param provider 提供器
      */
-    public static void init(RegistrateLangProvider provider) {
+    public static void init(LanguageProvider provider) {
         provider.add("emi.category.anvilcraft.stamping", "Stamping");
         provider.add("emi.category.anvilcraft.sieving", "Sieving");
         provider.add("emi.category.anvilcraft.bulging", "Bulging");

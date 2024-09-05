@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.data.generator.lang;
 
-import com.tterrag.registrate.providers.RegistrateLangProvider;
+import dev.anvilcraft.lib.data.provider.LanguageProvider;
 
 public class ScreenLang {
     /**
@@ -8,7 +8,7 @@ public class ScreenLang {
      *
      * @param provider 提供器
      */
-    public static void init(RegistrateLangProvider provider) {
+    public static void init(LanguageProvider provider) {
         provider.add("screen.anvilcraft.button.direction", "Output Direction: %s");
         provider.add("screen.anvilcraft.button.direction.down", "Down");
         provider.add("screen.anvilcraft.button.direction.east", "East");

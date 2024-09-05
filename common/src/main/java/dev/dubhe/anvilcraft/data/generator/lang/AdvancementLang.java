@@ -1,13 +1,13 @@
 package dev.dubhe.anvilcraft.data.generator.lang;
 
-import com.tterrag.registrate.providers.RegistrateLangProvider;
+import dev.anvilcraft.lib.data.provider.LanguageProvider;
 import org.jetbrains.annotations.NotNull;
 
 public class AdvancementLang {
     /**
      * @param provider 提供器
      */
-    public static void init(@NotNull RegistrateLangProvider provider) {
+    public static void init(@NotNull LanguageProvider provider) {
         provider.add(
             "advancements.anvilcraft.root.title",
             "Welcome to AnvilCraft"

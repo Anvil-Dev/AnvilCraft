@@ -13,6 +13,6 @@ public class CapacitorItem extends Item implements IChargerDischargeable {
 
     @Override
     public ItemStack discharge(ItemStack input) {
-        return ModItems.CAPACITOR_EMPTY.asStack(1);
+        return ModItems.CAPACITOR_EMPTY.asItemStack(1);
     }
 }

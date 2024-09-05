@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.data.generator.recipe;
 
-import com.tterrag.registrate.providers.RegistrateRecipeProvider;
+import dev.anvilcraft.lib.data.provider.RegistratorRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.recipe.RecipeItem;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
@@ -25,14 +25,14 @@ import static dev.dubhe.anvilcraft.api.power.IPowerComponent.OVERLOAD;
 
 @SuppressWarnings("unused")
 public class SuperHeatingRecipesLoader {
-    private static RegistrateRecipeProvider provider = null;
+    private static RegistratorRecipeProvider provider = null;
 
     /**
      * 初始化配方
      *
      * @param provider 配方提供器
      */
-    public static void init(RegistrateRecipeProvider provider) {
+    public static void init(RegistratorRecipeProvider provider) {
         SuperHeatingRecipesLoader.provider = provider;
         superHeating(RecipeItem.of(Items.COAL_BLOCK, 16), RecipeItem.of(Items.DIAMOND));
         superHeating(

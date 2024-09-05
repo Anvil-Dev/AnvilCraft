@@ -16,7 +16,7 @@ import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATOR;
 public class ModItemGroups {
     public static final RegistryEntry<CreativeModeTab> ANVILCRAFT_TOOL = REGISTRATOR
         .tab("tools", builder -> builder
-            .icon(ModItems.MAGNET::asStack)
+            .icon(ModItems.MAGNET::asItemStack)
             .displayItems((ctx, entries) -> {
                 entries.accept(ModItems.GUIDE_BOOK.get().getDefaultInstance());
                 entries.accept(ModItems.MAGNET.get().getDefaultInstance());
@@ -42,7 +42,7 @@ public class ModItemGroups {
                 entries.accept(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE.get().getDefaultInstance());
                 entries.accept(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE.get().getDefaultInstance());
                 entries.accept(ModItems.DISK.get().getDefaultInstance());
-                entries.accept(ModItems.CRAB_CLAW.asStack());
+                entries.accept(ModItems.CRAB_CLAW.asItemStack());
                 entries.accept(ModItems.CAPACITOR.get().getDefaultInstance());
                 entries.accept(ModItems.CAPACITOR_EMPTY.get().getDefaultInstance());
                 entries.accept(ModItems.CHOCOLATE.get().getDefaultInstance());
@@ -56,7 +56,7 @@ public class ModItemGroups {
                 entries.accept(ModItemGroups.createMaxLevelBook(ModEnchantments.HARVEST));
                 entries.accept(ModItemGroups.createMaxLevelBook(ModEnchantments.BEHEADING));
             })
-            .title(REGISTRATOR.addLang("itemGroup", AnvilCraft.of("tools"), "AnvilCraft: Utilities"))
+            .title(REGISTRATOR.component("itemGroup", AnvilCraft.of("tools"), "AnvilCraft: Utilities"))
             .build()
         )
         .register();
@@ -64,7 +64,7 @@ public class ModItemGroups {
 
     public static final RegistryEntry<CreativeModeTab> ANVILCRAFT_INGREDIENTS = REGISTRATOR
         .tab("ingredients", builder -> builder
-            .icon(ModItems.MAGNET_INGOT::asStack)
+            .icon(ModItems.MAGNET_INGOT::asItemStack)
             .displayItems((ctx, entries) -> {
                 entries.accept(ModItems.CREAM.get().getDefaultInstance());
                 entries.accept(ModItems.FLOUR.get().getDefaultInstance());

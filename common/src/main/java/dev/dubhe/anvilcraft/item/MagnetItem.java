@@ -38,6 +38,6 @@ public class MagnetItem extends Item implements IChargerChargeable {
 
     @Override
     public ItemStack charge(ItemStack input) {
-        return ModItems.MAGNET.asStack(1);
+        return ModItems.MAGNET.asItemStack(1);
     }
 }

@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.data.generator.recipe;
 
-import com.tterrag.registrate.providers.RegistrateRecipeProvider;
+import dev.anvilcraft.lib.data.provider.RegistratorRecipeProvider;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;
@@ -22,7 +22,7 @@ public class CookingRecipesLoader {
      *
      * @param provider 提供器
      */
-    public static void init(RegistrateRecipeProvider provider) {
+    public static void init(RegistratorRecipeProvider provider) {
         boil(ModItems.BEEF_MUSHROOM_STEW_RAW.get(), 1, ModItems.BEEF_MUSHROOM_STEW.get(), 1, provider);
         boil(ModItems.RESIN.get(), 1, Items.SLIME_BALL, 1, provider);
         cook(ModItems.UTUSAN_RAW.get(), 1, ModItems.UTUSAN.get(), 1, provider);
@@ -53,7 +53,7 @@ public class CookingRecipesLoader {
      * @param count1   数量
      * @param provider 提供器
      */
-    public static void cook(Item item, int count, Item item1, int count1, RegistrateRecipeProvider provider) {
+    public static void cook(Item item, int count, Item item1, int count1, RegistratorRecipeProvider provider) {
         AnvilRecipe.Builder.create(RecipeCategory.FOOD)
             .type(AnvilRecipeType.COOKING)
             .hasBlock(Blocks.CAULDRON)
@@ -75,7 +75,7 @@ public class CookingRecipesLoader {
      * @param count1   数量
      * @param provider 提供器
      */
-    public static void boil(Item item, int count, Item item1, int count1, RegistrateRecipeProvider provider) {
+    public static void boil(Item item, int count, Item item1, int count1, RegistratorRecipeProvider provider) {
         AnvilRecipe.Builder.create(RecipeCategory.FOOD)
             .type(AnvilRecipeType.COOKING)
             .hasFluidCauldron(new Vec3(0.0, -1.0, 0.0), Blocks.WATER_CAULDRON)

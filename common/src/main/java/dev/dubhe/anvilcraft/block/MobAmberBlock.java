@@ -15,6 +15,6 @@ public class MobAmberBlock extends HasMobBlock {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
-        return ModBlockEntities.MOB_AMBER_BLOCK.create(pos, state);
+        return ModBlockEntities.MOB_AMBER_BLOCK.get().create(pos, state);
     }
 }

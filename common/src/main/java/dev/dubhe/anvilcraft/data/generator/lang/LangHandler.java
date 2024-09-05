@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.data.generator.lang;
 
-import com.tterrag.registrate.providers.RegistrateLangProvider;
+import dev.anvilcraft.lib.data.provider.LanguageProvider;
 
 public class LangHandler {
     /**
@@ -8,7 +8,7 @@ public class LangHandler {
      *
      * @param provider 提供器
      */
-    public static void init(RegistrateLangProvider provider) {
+    public static void init(LanguageProvider provider) {
         AdvancementLang.init(provider);
         ConfigScreenLang.init(provider);
         ItemTooltipLang.init(provider);

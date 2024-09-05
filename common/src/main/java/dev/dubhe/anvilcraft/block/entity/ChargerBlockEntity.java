@@ -107,7 +107,7 @@ public class ChargerBlockEntity
                 return;
             }
             if (stack.is(Items.IRON_INGOT.asItem())) {
-                depository.setStack(0, ModItems.MAGNET_INGOT.asStack(1));
+                depository.setStack(0, ModItems.MAGNET_INGOT.asItemStack(1));
             }
         } else {
             if (stack.getItem() instanceof IChargerDischargeable dischargeable) {

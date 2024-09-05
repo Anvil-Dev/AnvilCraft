@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.data.generator.tags;
 
-import com.tterrag.registrate.providers.RegistrateTagsProvider;
+import dev.anvilcraft.lib.data.provider.RegistratorTagsProvider;
 import dev.dubhe.anvilcraft.init.ModFluidTags;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
@@ -12,8 +12,8 @@ public class FluidTagLoader {
      *
      * @param provider 提供器
      */
-    public static void init(@NotNull RegistrateTagsProvider<Fluid> provider) {
-        provider.addTag(ModFluidTags.MENGER_SPONGE_CAN_ABSORB).setReplace(false)
+    public static void init(@NotNull RegistratorTagsProvider<Fluid> provider) {
+        provider.create(ModFluidTags.MENGER_SPONGE_CAN_ABSORB).setReplace(false)
             .add(Fluids.WATER)
             .add(Fluids.FLOWING_WATER)
             .add(Fluids.LAVA)

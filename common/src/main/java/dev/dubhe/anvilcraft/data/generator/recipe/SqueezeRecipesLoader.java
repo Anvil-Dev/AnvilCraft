@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.data.generator.recipe;
 
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
+import dev.anvilcraft.lib.data.provider.RegistratorRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
@@ -25,7 +26,7 @@ public class SqueezeRecipesLoader {
      *
      * @param provider 提供器
      */
-    public static void init(RegistrateRecipeProvider provider) {
+    public static void init(RegistratorRecipeProvider provider) {
         squeeze(Blocks.MAGMA_BLOCK, Blocks.NETHERRACK, ModBlocks.LAVA_CAULDRON.get(), provider);
         squeeze(Blocks.WET_SPONGE, Blocks.SPONGE, Blocks.WATER_CAULDRON, provider);
         squeeze(Blocks.MOSS_BLOCK, Blocks.MOSS_CARPET, Blocks.WATER_CAULDRON, provider);
@@ -72,7 +73,7 @@ public class SqueezeRecipesLoader {
      * @param block    方块
      * @param provider 提供器
      */
-    public static void waxed(@NotNull Block block, RegistrateRecipeProvider provider) {
+    public static void waxed(@NotNull Block block, RegistratorRecipeProvider provider) {
         Optional<BlockState> waxed = HoneycombItem.getWaxed(block.defaultBlockState());
         if (waxed.isPresent()) {
             BlockState state = waxed.get();
@@ -95,7 +96,7 @@ public class SqueezeRecipesLoader {
      * @param provider 提供器
      */
     public static void squeeze(
-        @NotNull Block block, @NotNull Block block1, @NotNull Block block2, RegistrateRecipeProvider provider
+        @NotNull Block block, @NotNull Block block1, @NotNull Block block2, RegistratorRecipeProvider provider
     ) {
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
             .type(AnvilRecipeType.SQUEEZE)

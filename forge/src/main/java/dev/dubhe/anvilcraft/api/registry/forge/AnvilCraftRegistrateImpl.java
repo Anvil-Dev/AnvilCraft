@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.api.registry.forge;
 import com.tterrag.registrate.builders.NoConfigBuilder;
 import com.tterrag.registrate.providers.RegistrateLangProvider;
 import com.tterrag.registrate.util.entry.ItemEntry;
-import dev.dubhe.anvilcraft.api.registry.AnvilCraftRegistrate;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -41,7 +40,7 @@ public class AnvilCraftRegistrateImpl extends AnvilCraftRegistrate {
                         .stream()
                         .findFirst()
                         .map(ItemEntry::cast)
-                        .map(ItemEntry::asStack)
+                        .map(ItemEntry::asItemStack)
                         .orElse(new ItemStack(Items.AIR))
                 )
                 .title(this.addLang("itemGroup", tab.location(), RegistrateLangProvider.toEnglishName(name)));

@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.data.generator.recipe;
 
-import com.tterrag.registrate.providers.RegistrateRecipeProvider;
+import dev.anvilcraft.lib.data.provider.RegistratorRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.init.ModBlocks;
@@ -21,7 +21,7 @@ public class VanillaRecipesLoader {
      *
      * @param provider 提供器
      */
-    public static void init(RegistrateRecipeProvider provider) {
+    public static void init(RegistratorRecipeProvider provider) {
         ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, Items.CHIPPED_ANVIL)
             .pattern("AAB")
             .pattern(" B ")
@@ -79,7 +79,7 @@ public class VanillaRecipesLoader {
             .save(provider);
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, Items.IRON_BLOCK, 9)
             .requires(ModBlocks.HEAVY_IRON_BLOCK)
-            .unlockedBy("hasitem", RegistrateRecipeProvider.has(ModBlocks.HEAVY_IRON_BLOCK))
+            .unlockedBy("hasitem", RegistratorRecipeProvider.has(ModBlocks.HEAVY_IRON_BLOCK))
             .save(provider);
 
         SimpleCookingRecipeBuilder.campfireCooking(Ingredient.of(ModItemTags.DOUGH), RecipeCategory.FOOD,

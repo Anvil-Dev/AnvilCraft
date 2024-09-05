@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.data.generator.recipe;
 
-import com.tterrag.registrate.providers.RegistrateRecipeProvider;
+import dev.anvilcraft.lib.data.provider.RegistratorRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
@@ -22,7 +22,7 @@ public class CompactionRecipesLoader {
      *
      * @param provider 提供器
      */
-    public static void init(RegistrateRecipeProvider provider) {
+    public static void init(RegistratorRecipeProvider provider) {
         compaction(Blocks.STONE, Blocks.STONE, Blocks.DEEPSLATE, provider);
         compaction(Blocks.ICE, Blocks.ICE, Blocks.PACKED_ICE, provider);
         compaction(Blocks.PACKED_ICE, Blocks.PACKED_ICE, Blocks.BLUE_ICE, provider);
@@ -56,7 +56,7 @@ public class CompactionRecipesLoader {
      * @param provider 提供器
      */
     public static void compaction(
-        Block block, @NotNull Block block1, @NotNull Block block2, RegistrateRecipeProvider provider
+        Block block, @NotNull Block block1, @NotNull Block block2, RegistratorRecipeProvider provider
     ) {
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
             .type(AnvilRecipeType.COMPACTION)
@@ -86,7 +86,7 @@ public class CompactionRecipesLoader {
      * @param provider 提供器
      */
     public static void compaction(
-        TagKey<Block> block, @NotNull Block block1, @NotNull Block block2, RegistrateRecipeProvider provider
+        TagKey<Block> block, @NotNull Block block1, @NotNull Block block2, RegistratorRecipeProvider provider
     ) {
         AnvilRecipe.Builder.create(RecipeCategory.MISC)
             .hasBlockIngredient(block)

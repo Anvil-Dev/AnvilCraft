@@ -13,7 +13,7 @@ public class EmptyCapacitorItem extends Item implements IChargerChargeable {
 
     @Override
     public ItemStack charge(ItemStack input) {
-        return ModItems.CAPACITOR.asStack(1);
+        return ModItems.CAPACITOR.asItemStack(1);
     }
 
 }

@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.data.generator.recipe;
 
-import com.tterrag.registrate.providers.RegistrateRecipeProvider;
+import dev.anvilcraft.lib.data.provider.RegistratorRecipeProvider;
 
 public class RecipesHandler {
 
@@ -9,7 +9,7 @@ public class RecipesHandler {
      *
      * @param provider 提供器
      */
-    public static void init(RegistrateRecipeProvider provider) {
+    public static void init(RegistratorRecipeProvider provider) {
         VanillaRecipesLoader.init(provider);
         BulgingAndCrystallizeRecipesLoader.init(provider);
         CompactionRecipesLoader.init(provider);
