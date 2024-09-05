@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dev.anvilcraft.lib.event.EventManager;
 import dev.anvilcraft.lib.registrator.Registrator;
+import dev.anvilcraft.lib.util.Side;
+import dev.anvilcraft.lib.util.SideExecutor;
 import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
@@ -52,7 +54,7 @@ public class AnvilCraft {
         ModItems.register();
         ModItemGroups.register();
         ModBlockEntities.register();
-        ModMenuTypes.register();
+        SideExecutor.execute(Side.CLIENT, () -> ModMenuTypes::register);
         ModNetworks.register();
         ModDispenserBehavior.register();
         ModEnchantments.register();
