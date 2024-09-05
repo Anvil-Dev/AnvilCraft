@@ -28,7 +28,7 @@ public class AnvilCraftDatagen {
         REGISTRATOR.data(DataProviderType.LANG, LangHandler::init);
         REGISTRATOR.data(DataProviderType.RECIPE, RecipesHandler::init);
         REGISTRATOR.data(DataProviderType.LOOT_TABLE, LootHandler::init);
-        //REGISTRATOR.data(DataProviderType.ADVANCEMENT, AdvancementHandler::init);
+        REGISTRATOR.data(DataProviderType.ADVANCEMENT, AdvancementHandler::init);
     }
 
     public static @NotNull InventoryChangeTrigger.TriggerInstance has(ItemLike itemLike) {

@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.data.generator.advancement;
 
-import com.tterrag.registrate.providers.RegistrateAdvancementProvider;
+import dev.anvilcraft.lib.data.provider.AdvancementProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
@@ -16,7 +16,7 @@ public class AnvilCraftAdvancement {
     /**
      * @param provider 提供器
      */
-    public static void init(@NotNull RegistrateAdvancementProvider provider) {
+    public static void init(@NotNull AdvancementProvider provider) {
         Advancement root = Advancement.Builder.advancement()
             .display(
                 ModBlocks.ROYAL_ANVIL,

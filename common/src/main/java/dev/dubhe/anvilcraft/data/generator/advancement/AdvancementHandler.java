@@ -1,9 +1,9 @@
 package dev.dubhe.anvilcraft.data.generator.advancement;
 
-import com.tterrag.registrate.providers.RegistrateAdvancementProvider;
+import dev.anvilcraft.lib.data.provider.AdvancementProvider;
 
 public class AdvancementHandler {
-    public static void init(RegistrateAdvancementProvider provider) {
+    public static void init(AdvancementProvider provider) {
         AnvilCraftAdvancement.init(provider);
     }
 }
