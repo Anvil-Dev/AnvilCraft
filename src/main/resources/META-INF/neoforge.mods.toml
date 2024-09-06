@@ -38,9 +38,6 @@ ${supporters}
 - and more...
 '''
 
-[modproperties.anvilcraft.anvillib.integrations]
-create = ["dev.dubhe.anvilcraft.integration.create.BoilerIntegration"]
-
 # The [[mixins]] block allows you to declare your mixin config to FML so that it gets loaded.
 [[mixins]]
 config="${mod_id}.mixins.json"

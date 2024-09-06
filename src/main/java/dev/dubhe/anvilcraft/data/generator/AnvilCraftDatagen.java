@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.data.generator.lang.LangHandler;
 import dev.dubhe.anvilcraft.data.generator.loot.LootHandler;
 import dev.dubhe.anvilcraft.data.generator.recipe.RecipesHandler;
 import dev.dubhe.anvilcraft.data.generator.tags.TagsHandler;
+import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.TagKey;
@@ -31,18 +32,18 @@ public class AnvilCraftDatagen {
         REGISTRATE.addDataGenerator(ProviderType.ADVANCEMENT, AdvancementHandler::init);
     }
 
-    public static @NotNull InventoryChangeTrigger.TriggerInstance has(ItemLike itemLike) {
+    public static @NotNull Criterion<InventoryChangeTrigger.TriggerInstance> has(ItemLike itemLike) {
         return RegistrateRecipeProvider.has(itemLike);
     }
 
-    public static @NotNull InventoryChangeTrigger.TriggerInstance has(TagKey<Item> tag) {
+    public static @NotNull Criterion<InventoryChangeTrigger.TriggerInstance> has(TagKey<Item> tag) {
         return RegistrateRecipeProvider.has(tag);
     }
 
     /**
      * @param item 物品
      */
-    public static @NotNull InventoryChangeTrigger.TriggerInstance has(RecipeItem item) {
+    public static @NotNull Criterion<InventoryChangeTrigger.TriggerInstance> has(RecipeItem item) {
         if (item.getItem() == null) {
             return has(item.getItemTagKey());
         } else {

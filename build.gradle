@@ -20,6 +20,24 @@ group = mod_group_id
 
 repositories {
     mavenLocal()
+    mavenCentral()
+    maven { url = "https://server.cjsah.net:1002/maven/" }
+    maven { url = "https://api.modrinth.com/maven" } // LazyDFU, Jade
+    maven { url = "https://maven.shedaniel.me/" } // Cloth Config, REI
+    maven {
+        name = "Jared's maven"
+        url = "https://maven.blamejared.com/"
+    }
+    maven {
+        url = "https://dvs1.progwml6.com/files/maven/"
+    }
+    maven { url = "https://maven.ithundxr.dev/snapshots" } // Registrate Fork
+    maven { url = "https://mvn.devos.one/snapshots/" }
+    maven {
+        name 'Configuration'
+        url 'https://repsy.io/mvn/toma/public/'
+    }
+
 }
 
 base {
@@ -28,7 +46,7 @@ base {
 
 // Mojang ships Java 21 to end users starting in 1.20.5, so mods should target Java 21.
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
-
+jarJar.enable()
 minecraft.accessTransformers.file rootProject.file('src/main/resources/META-INF/accesstransformer.cfg')
 //minecraft.accessTransformers.entry public net.minecraft.client.Minecraft textureManager # textureManager
 
@@ -90,35 +108,19 @@ configurations {
 }
 
 dependencies {
-    // Specify the version of Minecraft to use.
-    // Depending on the plugin applied there are several options. We will assume you applied the userdev plugin as shown above.
-    // The group for userdev is net.neoforged, the module name is neoforge, and the version is the same as the neoforge version.
-    // You can however also use the vanilla plugin (net.neoforged.gradle.vanilla) to use a version of Minecraft without the neoforge loader.
-    // And its provides the option to then use net.minecraft as the group, and one of; client, server or joined as the module name, plus the game version as version.
-    // For all intends and purposes: You can treat this dependency as if it is a normal library you would use.
     implementation "net.neoforged:neoforge:${neo_version}"
+    compileOnly "mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"
+    compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"
+    localRuntime "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
 
-    // Example optional mod dependency with JEI
-    // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
-    // compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
-    // compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${jei_version}"
-    // We add the full version to localRuntime, not runtimeOnly, so that we do not publish a dependency on it
-    // localRuntime "mezz.jei:jei-${mc_version}-neoforge:${jei_version}"
+    compileOnly "maven.modrinth:jade:$jade_version"
+    compileOnly "me.shedaniel.cloth:cloth-config-neoforge:$cloth_config_version"
+    compileOnly 'org.projectlombok:lombok:1.18.34'
+    compileOnly "com.tterrag.registrate:Registrate:$registrate_version"
+    annotationProcessor 'org.projectlombok:lombok:1.18.34'
 
-    // Example mod dependency using a mod jar from ./libs with a flat dir repository
-    // This maps to ./libs/coolmod-${mc_version}-${coolmod_version}.jar
-    // The group id is ignored when searching -- in this case, it is "blank"
-    // implementation "blank:coolmod-${mc_version}:${coolmod_version}"
-
-    // Example mod dependency using a file as dependency
-    // implementation files("libs/coolmod-${mc_version}-${coolmod_version}.jar")
-
-    // Example project dependency using a sister or child project:
-    // implementation project(":myproject")
-
-    // For more info:
-    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
-    // http://www.gradle.org/docs/current/userguide/dependency_management.html
+    jarJar(group: "dev.toma.configuration", name: "configuration-$minecraft_version", version: "${configuration_version}-neoforge")
+    jarJar(group: "com.tterrag.registrate", name: "Registrate", version: registrate_version)
 }
 
 def contributors = getConfig("contributors")

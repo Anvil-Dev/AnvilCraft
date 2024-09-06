@@ -3,35 +3,39 @@ package dev.dubhe.anvilcraft.init.forge;
 import com.google.common.collect.ImmutableSet;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModBlocks;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.entity.npc.VillagerProfession;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class ModVillagers {
 
     public static final DeferredRegister<PoiType> POI_TYPES = DeferredRegister.create(
-        ForgeRegistries.POI_TYPES, AnvilCraft.MOD_ID
+        Registries.POINT_OF_INTEREST_TYPE, AnvilCraft.MOD_ID
     );
 
     public static final DeferredRegister<VillagerProfession> VILLAGER_PROFESSIONS = DeferredRegister.create(
-        ForgeRegistries.VILLAGER_PROFESSIONS, AnvilCraft.MOD_ID
+        Registries.VILLAGER_PROFESSION, AnvilCraft.MOD_ID
     );
 
-    public static final RegistryObject<PoiType> JEWELER_POI = POI_TYPES.register(
+    public static final DeferredHolder<PoiType, PoiType> JEWELER_POI = POI_TYPES.register(
         "jeweler_poi", () -> new PoiType(
             ImmutableSet.copyOf(ModBlocks.JEWEL_CRAFTING_TABLE.get().getStateDefinition().getPossibleStates()),
             1, 1
         )
     );
 
-    public static final RegistryObject<VillagerProfession> JEWELER = VILLAGER_PROFESSIONS.register(
+    public static final DeferredHolder<VillagerProfession, VillagerProfession> JEWELER = VILLAGER_PROFESSIONS.register(
         "jeweler", () -> new VillagerProfession(
-            "jeweler", entry -> entry.get() == JEWELER_POI.get(), entry -> entry.get() == JEWELER_POI.get(),
-            ImmutableSet.of(), ImmutableSet.of(), SoundEvents.VILLAGER_WORK_TOOLSMITH
+            "jeweler",
+            entry -> entry.value() == JEWELER_POI.get(),
+            entry -> entry.value() == JEWELER_POI.get(),
+            ImmutableSet.of(),
+            ImmutableSet.of(),
+            SoundEvents.VILLAGER_WORK_TOOLSMITH
         )
     );
 
