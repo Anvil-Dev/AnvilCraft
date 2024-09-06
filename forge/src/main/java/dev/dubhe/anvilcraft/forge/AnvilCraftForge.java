@@ -26,7 +26,8 @@ public class AnvilCraftForge {
     public AnvilCraftForge() {
         AnvilCraft.init();
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
-        ModVillagers.register(bus);
+        //bus.addListener(((RegistratorImpl) AnvilCraft.REGISTRATOR)::register);
+        bus.addListener(ModVillagers::registerVillagers);
         bus.addListener(ModRecipeTypesForge::register);
         MinecraftForge.EVENT_BUS.addListener(AnvilCraftForge::registerCommand);
         try {
