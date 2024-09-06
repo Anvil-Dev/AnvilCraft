@@ -1,8 +1,0 @@
-{
-  "type": "minecraft:stonecutting",
-  "count": 1,
-  "ingredient": {
-    "item": "anvilcraft:reinforced_concrete_purple"
-  },
-  "result": "anvilcraft:reinforced_concrete_purple_stair"
-}

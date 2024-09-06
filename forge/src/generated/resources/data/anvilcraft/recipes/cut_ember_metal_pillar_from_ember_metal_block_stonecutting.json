@@ -1,8 +1,0 @@
-{
-  "type": "minecraft:stonecutting",
-  "count": 4,
-  "ingredient": {
-    "item": "anvilcraft:ember_metal_block"
-  },
-  "result": "anvilcraft:cut_ember_metal_pillar"
-}

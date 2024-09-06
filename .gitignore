@@ -120,3 +120,5 @@ run/
 !gradle-wrapper.jar
 /forge/src/main/resources/resoucepacks/
 /fabric/src/main/resources/resoucepacks/
+
+runs/

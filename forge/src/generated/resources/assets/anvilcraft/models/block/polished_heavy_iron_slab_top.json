@@ -1,8 +1,0 @@
-{
-  "parent": "minecraft:block/slab_top",
-  "textures": {
-    "bottom": "anvilcraft:block/polished_heavy_iron_block",
-    "side": "anvilcraft:block/polished_heavy_iron_block",
-    "top": "anvilcraft:block/polished_heavy_iron_block"
-  }
-}

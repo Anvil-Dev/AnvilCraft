@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:block/cube_all",
-  "textures": {
-    "all": "anvilcraft:block/smooth_royal_steel_block"
-  }
-}

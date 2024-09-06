@@ -1,8 +1,0 @@
-{
-  "type": "minecraft:stonecutting",
-  "count": 8,
-  "ingredient": {
-    "item": "anvilcraft:heavy_iron_block"
-  },
-  "result": "anvilcraft:heavy_iron_plate"
-}

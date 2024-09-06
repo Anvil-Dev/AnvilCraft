@@ -1,8 +1,0 @@
-{
-  "parent": "minecraft:block/stairs",
-  "textures": {
-    "bottom": "anvilcraft:block/reinforced_concrete_yellow",
-    "side": "anvilcraft:block/reinforced_concrete_yellow",
-    "top": "anvilcraft:block/reinforced_concrete_yellow"
-  }
-}

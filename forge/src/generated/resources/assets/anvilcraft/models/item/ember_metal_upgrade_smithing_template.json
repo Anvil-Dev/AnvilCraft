@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "anvilcraft:item/ember_metal_upgrade_smithing_template"
-  }
-}
