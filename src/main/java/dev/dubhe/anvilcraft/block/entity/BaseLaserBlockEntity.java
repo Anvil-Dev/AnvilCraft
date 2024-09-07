@@ -5,9 +5,6 @@ import dev.dubhe.anvilcraft.api.depository.IItemDepository;
 import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.network.LaserEmitPack;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -25,7 +22,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 
 public abstract class BaseLaserBlockEntity extends BlockEntity {
     private final HashMap<Integer, Integer> levelToTimeMap = new HashMap<>() {{
@@ -201,7 +203,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
     }
 
     public void tick(@NotNull Level level) {
-        new LaserEmitPack(laserLevel, getBlockPos(), irradiateBlockPos).broadcast();
+        PacketDistributor.sendToAllPlayers(new LaserEmitPack(laserLevel, getBlockPos(), irradiateBlockPos));
         tickCount++;
     }
 

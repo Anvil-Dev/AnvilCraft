@@ -32,6 +32,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -143,7 +144,7 @@ public class AnvilHammerItem extends Item implements Vanishable, Equipable, IEng
             if (!serverPlayer.getAbilities().instabuild) itemStack.shrink(1);
             double power = i * 0.75 + 0.5;
             serverPlayer.setDeltaMovement(0, power, 0);
-            new RocketJumpPacket(power).send(serverPlayer);
+            PacketDistributor.sendToPlayer(serverPlayer, new RocketJumpPacket(power));
             level.sendParticles(
                     ParticleTypes.FIREWORK,
                     serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(),

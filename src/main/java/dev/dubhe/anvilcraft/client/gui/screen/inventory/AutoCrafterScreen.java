@@ -12,6 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiFunction;
@@ -84,10 +85,10 @@ public class AutoCrafterScreen extends BaseMachineScreen<AutoCrafterMenu> implem
             if (!slot.getItem().isEmpty()) break start;
             int slot1 = slot.getContainerSlot();
             if (this.menu.isFilterEnabled()) {
-                if (!this.menu.isSlotDisabled(slot1)) new SlotDisableChangePack(slot1, false).send();
+                if (!this.menu.isSlotDisabled(slot1)) PacketDistributor.sendToServer(new SlotDisableChangePack(slot1, false));
                 break start;
             }
-            new SlotDisableChangePack(slot1, !this.menu.isSlotDisabled(slot1)).send();
+            PacketDistributor.sendToServer(new SlotDisableChangePack(slot1, !this.menu.isSlotDisabled(slot1)));
         }
         super.slotClicked(slot, slotId, mouseButton, type);
     }

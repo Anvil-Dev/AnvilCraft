@@ -11,6 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiFunction;
@@ -96,7 +97,7 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> {
         return (i, j) -> new EnableFilterButton(i + x, j + y, button -> {
             if (button instanceof EnableFilterButton enableFilterButton) {
                 MachineEnableFilterPack packet = new MachineEnableFilterPack(enableFilterButton.next());
-                packet.send();
+                PacketDistributor.sendToServer(packet);
             }
         }, this::isFilterEnabled);
     }

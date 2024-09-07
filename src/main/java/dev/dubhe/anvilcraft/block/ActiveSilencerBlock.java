@@ -5,7 +5,7 @@ import dev.dubhe.anvilcraft.block.entity.ActiveSilencerBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
-import dev.dubhe.anvilcraft.network.ClientboundMutedSoundSyncPacket;
+import dev.dubhe.anvilcraft.network.MutedSoundSyncPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -59,7 +60,7 @@ public class ActiveSilencerBlock extends BaseEntityBlock implements IHammerRemov
                     );
                 }
                 ModMenuTypes.open(serverPlayer, eb, pos);
-                new ClientboundMutedSoundSyncPacket(new ArrayList<>(eb.getMutedSound())).send(serverPlayer);
+                PacketDistributor.sendToPlayer(serverPlayer, new MutedSoundSyncPacket(new ArrayList<>(eb.getMutedSound())));
             }
         }
         return InteractionResult.SUCCESS;

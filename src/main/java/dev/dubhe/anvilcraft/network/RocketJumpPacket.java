@@ -1,37 +1,35 @@
 package dev.dubhe.anvilcraft.network;
 
-import dev.anvilcraft.lib.network.Packet;
-import dev.dubhe.anvilcraft.init.ModNetworks;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
+import dev.dubhe.anvilcraft.AnvilCraft;
+import lombok.Getter;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadHandler;
 
-public class RocketJumpPacket implements Packet {
+@Getter
+public class RocketJumpPacket implements CustomPacketPayload {
+    public static final Type<RocketJumpPacket> TYPE = new Type<>(AnvilCraft.of("rocket_jump"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, RocketJumpPacket> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.DOUBLE, RocketJumpPacket::getPower, RocketJumpPacket::new
+    );
+    public static final IPayloadHandler<RocketJumpPacket> HANDLER = RocketJumpPacket::clientHandler;
     private final double power;
 
     public RocketJumpPacket(double power) {
         this.power = power;
     }
 
-    public RocketJumpPacket(@NotNull FriendlyByteBuf buf) {
-        this.power = buf.readDouble();
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 
-    @Override
-    public ResourceLocation getType() {
-        return ModNetworks.ROCKET_JUMP;
-    }
-
-    @Override
-    public void encode(@NotNull FriendlyByteBuf buf) {
-        buf.writeDouble(this.power);
-    }
-
-    @Override
-    public void handler() {
-        Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.player == null) return;
-        minecraft.execute(() -> minecraft.player.setDeltaMovement(0, this.power, 0));
+    public static void clientHandler(RocketJumpPacket data, IPayloadContext context) {
+        LocalPlayer player = (LocalPlayer) context.player();
+        context.enqueueWork(() -> player.setDeltaMovement(0, data.power, 0));
     }
 }

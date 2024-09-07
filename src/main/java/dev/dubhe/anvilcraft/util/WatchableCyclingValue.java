@@ -1,7 +1,8 @@
 package dev.dubhe.anvilcraft.util;
 
-import dev.dubhe.anvilcraft.network.ServerboundCyclingValueSyncPacket;
+import dev.dubhe.anvilcraft.network.CyclingValueSyncPacket;
 import lombok.Getter;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.function.Consumer;
 
@@ -77,6 +78,6 @@ public class WatchableCyclingValue<T> {
     }
 
     public void notifyServer() {
-        new ServerboundCyclingValueSyncPacket(index, name).send();
+        PacketDistributor.sendToServer(new CyclingValueSyncPacket(index, name));
     }
 }

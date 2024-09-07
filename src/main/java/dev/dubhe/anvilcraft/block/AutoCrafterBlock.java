@@ -39,6 +39,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -102,11 +103,11 @@ public class AutoCrafterBlock extends BaseEntityBlock implements IHammerChangeab
             }
             if (player instanceof ServerPlayer serverPlayer) {
                 ModMenuTypes.open(serverPlayer, entity, pos);
-                new MachineOutputDirectionPack(entity.getDirection()).send(serverPlayer);
-                new MachineEnableFilterPack(entity.isFilterEnabled()).send(serverPlayer);
+                PacketDistributor.sendToPlayer(serverPlayer, new MachineOutputDirectionPack(entity.getDirection()));
+                PacketDistributor.sendToPlayer(serverPlayer, new MachineEnableFilterPack(entity.isFilterEnabled()));
                 for (int i = 0; i < entity.getFilteredItems().size(); i++) {
-                    new SlotDisableChangePack(i, entity.getDepository().getDisabled().get(i)).send(serverPlayer);
-                    new SlotFilterChangePack(i, entity.getFilter(i)).send(serverPlayer);
+                    PacketDistributor.sendToPlayer(serverPlayer, new SlotDisableChangePack(i, entity.getDepository().getDisabled().get(i)));
+                    PacketDistributor.sendToPlayer(serverPlayer, new SlotFilterChangePack(i, entity.getFilter(i)));
                 }
             }
         }

@@ -11,6 +11,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -54,7 +55,7 @@ public abstract class BaseMachineScreen<T extends AbstractContainerMenu> extends
             if (button instanceof OutputDirectionButton button1) {
                 Arrays.stream(skip).forEach(button1::skip);
                 MachineOutputDirectionPack packet = new MachineOutputDirectionPack(button1.next());
-                packet.send();
+                PacketDistributor.sendToServer(packet);
             }
         }, Direction.DOWN);
     }
