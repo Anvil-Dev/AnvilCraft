@@ -6,11 +6,13 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import lombok.Getter;
 import lombok.Setter;
+import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.BlastingRecipe;
 import net.minecraft.world.item.crafting.CampfireCookingRecipe;
 import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SmeltingRecipe;
@@ -32,12 +34,13 @@ public class AnvilRecipeManager {
      * 更新配方
      */
     public static void updateRecipes(@NotNull RecipeManager manager, @NotNull RegistryAccess registryAccess) {
-        ArrayList<AnvilRecipe> anvilRecipes = new ArrayList<>(manager.getAllRecipesFor(ModRecipeTypes.ANVIL_RECIPE));
+        ArrayList<RecipeHolder<AnvilRecipe>> anvilRecipes =
+            new ArrayList<>(manager.getAllRecipesFor(ModRecipeTypes.ANVIL_RECIPE));
         AnvilCraft.EVENT_BUS.post(new RecipeReloadEvent());
         anvilRecipes.addAll(externalRecipeList);
         externalRecipeList = new ArrayList<>();
         List<ItemStack> needFilter = new ArrayList<>();
-        for (CampfireCookingRecipe recipe : manager.getAllRecipesFor(RecipeType.CAMPFIRE_COOKING)) {
+        for (RecipeHolder<CampfireCookingRecipe> recipe : manager.getAllRecipesFor(RecipeType.CAMPFIRE_COOKING)) {
             AnvilRecipe anvilRecipe = AnvilRecipe.of(recipe, registryAccess);
             if (anvilRecipe != null) anvilRecipes.add(anvilRecipe);
         }

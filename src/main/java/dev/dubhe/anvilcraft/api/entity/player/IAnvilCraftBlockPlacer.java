@@ -27,23 +27,28 @@ public interface IAnvilCraftBlockPlacer {
     /**
      * 放置方块
      *
-     * @param level 放置世界
-     * @param pos 放置位置
+     * @param level       放置世界
+     * @param pos         放置位置
      * @param orientation 放置方向
-     * @param blockItem 放置方块物品
+     * @param blockItem   放置方块物品
      * @return 放置结果
      */
-    default InteractionResult placeBlock(Level level, BlockPos pos, Orientation orientation,
-                                         BlockItem blockItem, ItemStack itemStack) {
+    default InteractionResult placeBlock(
+        Level level,
+        BlockPos pos,
+        Orientation orientation,
+        BlockItem blockItem,
+        ItemStack itemStack
+    ) {
         if (AnvilCraftBlockPlacer.BLOCK_PLACER_BLACKLIST
-                .contains(BuiltInRegistries.BLOCK.getKey(blockItem.getBlock()).toString()))
+            .contains(BuiltInRegistries.BLOCK.getKey(blockItem.getBlock()).toString()))
             return InteractionResult.FAIL;
         if (level instanceof ServerLevel serverLevel)
             getPlayer().setServerLevel(serverLevel);
         getPlayer().moveTo(
-                pos.relative(orientation.getDirection().getOpposite()).getX(),
-                pos.relative(orientation.getDirection().getOpposite()).getY() - 1,
-                pos.relative(orientation.getDirection().getOpposite()).getZ());
+            pos.relative(orientation.getDirection().getOpposite()).getX(),
+            pos.relative(orientation.getDirection().getOpposite()).getY() - 1,
+            pos.relative(orientation.getDirection().getOpposite()).getZ());
         getPlayer().lookAt(Anchor.EYES, new Vec3(pos.getX(), pos.getY(), pos.getZ()));
         Vec3 clickClickLocation = getPosFromOrientation(orientation);
         double x = clickClickLocation.x;
@@ -67,11 +72,11 @@ public interface IAnvilCraftBlockPlacer {
         blockItem.getBlock().setPlacedBy(level, pos, blockState, getPlayer(), itemStack);
         // 使放置的方块实体有NBT
         BlockItem.updateCustomBlockEntityTag(level, null, pos, itemStack);
-        SoundType soundType = blockState.getSoundType();
+        SoundType soundType = blockState.getSoundType(level, pos, getPlayer());
         level.playSound(
             getPlayer(),
             pos,
-            blockItem.getPlaceSound(blockState),
+            soundType.getPlaceSound(),
             SoundSource.BLOCKS, (soundType.getVolume() + 1.0f) / 2.0f,
             soundType.getPitch() * 0.8f);
         return InteractionResult.SUCCESS;

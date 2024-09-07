@@ -72,7 +72,7 @@ public class RipeningManager {
                     if (state.getBlock() instanceof BonemealableBlock growable
                             && !(growable instanceof GrassBlock)
                             && !(growable instanceof NyliumBlock)
-                            && growable.isValidBonemealTarget(level, pos1, state, false)
+                            && growable.isValidBonemealTarget(level, pos1, state)
                             && level.getBrightness(LightLayer.BLOCK, pos1) >= 10
                     ) {
                         growable.performBonemeal((ServerLevel) level, level.getRandom(), pos1, state);

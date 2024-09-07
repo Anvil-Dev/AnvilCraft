@@ -5,12 +5,12 @@ import dev.dubhe.anvilcraft.api.entity.fakeplayer.forge.AnvilCraftBlockPlacerFak
 import dev.dubhe.anvilcraft.api.entity.player.AnvilCraftBlockPlacer;
 import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraftforge.event.level.LevelEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.level.LevelEvent;
 import org.jetbrains.annotations.NotNull;
 
-@Mod.EventBusSubscriber(modid = AnvilCraft.MOD_ID)
+@EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class LevelEventListener {
 
     /**

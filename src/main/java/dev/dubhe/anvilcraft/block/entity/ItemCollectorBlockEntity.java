@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.architectury.injectables.annotations.ExpectPlatform;
+import dev.dubhe.anvilcraft.api.depository.DepositoryHolder;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
@@ -40,7 +41,7 @@ import java.util.List;
 @Getter
 public class ItemCollectorBlockEntity
         extends BlockEntity
-        implements MenuProvider, IFilterBlockEntity, IPowerConsumer, IDiskCloneable, IHasAffectRange {
+        implements MenuProvider, IFilterBlockEntity, IPowerConsumer, IDiskCloneable, IHasAffectRange, DepositoryHolder {
     @Setter
     private PowerGrid grid;
     private final WatchableCyclingValue<Integer> rangeRadius = new WatchableCyclingValue<>("rangeRadius",
@@ -66,10 +67,10 @@ public class ItemCollectorBlockEntity
         }
     };
 
-    protected ItemCollectorBlockEntity(
-            BlockEntityType<? extends BlockEntity> type,
-            BlockPos pos,
-            BlockState blockState
+    public ItemCollectorBlockEntity(
+        BlockEntityType<? extends BlockEntity> type,
+        BlockPos pos,
+        BlockState blockState
     ) {
         super(type, pos, blockState);
     }
@@ -125,13 +126,6 @@ public class ItemCollectorBlockEntity
         return new ItemCollectorMenu(ModMenuTypes.ITEM_COLLECTOR.get(), i, inventory, this);
     }
 
-    @ExpectPlatform
-    public static ItemCollectorBlockEntity createBlockEntity(
-            BlockEntityType<?> type, BlockPos pos, BlockState blockState
-    ) {
-        throw new AssertionError();
-    }
-
     @Nullable
     @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
@@ -177,11 +171,6 @@ public class ItemCollectorBlockEntity
             }
         }
         cd = cooldown.get();
-    }
-
-    @ExpectPlatform
-    public static void onBlockEntityRegister(BlockEntityType<ItemCollectorBlockEntity> type) {
-        throw new AssertionError();
     }
 
     public void tick(Level level, BlockPos blockPos) {

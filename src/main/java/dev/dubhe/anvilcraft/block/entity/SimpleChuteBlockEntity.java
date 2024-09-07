@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import dev.architectury.injectables.annotations.ExpectPlatform;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.depository.IItemDepository;
 import dev.dubhe.anvilcraft.api.depository.ItemDepository;
@@ -31,20 +30,8 @@ public class SimpleChuteBlockEntity extends BlockEntity {
         }
     };
 
-    protected SimpleChuteBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+    public SimpleChuteBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
-    }
-
-    @ExpectPlatform
-    public static SimpleChuteBlockEntity createBlockEntity(
-        BlockEntityType<?> type, BlockPos pos, BlockState blockState
-    ) {
-        throw new AssertionError();
-    }
-
-    @ExpectPlatform
-    public static void onBlockEntityRegister(BlockEntityType<SimpleChuteBlockEntity> type) {
-        throw new AssertionError();
     }
 
     @Override

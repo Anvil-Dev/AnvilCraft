@@ -11,12 +11,12 @@ import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
-import net.minecraftforge.event.LootTableLoadEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.LootTableLoadEvent;
 import org.jetbrains.annotations.NotNull;
 
-@Mod.EventBusSubscriber(modid = AnvilCraft.MOD_ID)
+@EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class LootTableEventListener {
     /**
      * 战利品表加载事件侦听器
@@ -27,21 +27,21 @@ public class LootTableEventListener {
     public static void lootTable(@NotNull LootTableLoadEvent event) {
         ResourceLocation id = event.getName();
         LootTable table = event.getTable();
-        if (Blocks.BUDDING_AMETHYST.getLootTable().equals(id)) {
+        if (Blocks.BUDDING_AMETHYST.getLootTable().location().equals(id)) {
             table.addPool(new LootPool.Builder()
                 .add(LootItem.lootTableItem(ModItems.GEODE))
                 .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1)))
                 .build()
             );
         }
-        if (BuiltInLootTables.SPAWN_BONUS_CHEST.equals(id)) {
+        if (BuiltInLootTables.SPAWN_BONUS_CHEST.location().equals(id)) {
             table.addPool(new LootPool.Builder()
                 .add(LootItem.lootTableItem(ModItems.GEODE))
                 .apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 6)))
                 .build()
             );
         }
-        if (BuiltInLootTables.VILLAGE_WEAPONSMITH.equals(id)) {
+        if (BuiltInLootTables.VILLAGE_WEAPONSMITH.location().equals(id)) {
             table.addPool(LootPool.lootPool()
                 .setRolls(ConstantValue.exactly(1))
                 .add(LootItem.lootTableItem(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE)

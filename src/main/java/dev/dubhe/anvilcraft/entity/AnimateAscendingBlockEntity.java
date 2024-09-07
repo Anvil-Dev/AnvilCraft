@@ -11,6 +11,7 @@ import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerEntity;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
@@ -62,12 +63,6 @@ public class AnimateAscendingBlockEntity extends Entity {
         this.setEndPos(endPos);
     }
 
-    @Override
-    protected void defineSynchedData() {
-        this.entityData.define(DATA_START_POS, BlockPos.ZERO);
-        this.entityData.define(DATA_END_POS, BlockPos.ZERO);
-    }
-
     public void setStartPos(BlockPos startPos) {
         this.entityData.set(DATA_START_POS, startPos);
     }
@@ -82,6 +77,12 @@ public class AnimateAscendingBlockEntity extends Entity {
 
     public BlockPos getEndPos() {
         return this.entityData.get(DATA_END_POS);
+    }
+
+    @Override
+    protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
+        builder.define(DATA_START_POS, BlockPos.ZERO)
+            .define(DATA_END_POS, BlockPos.ZERO);
     }
 
     @Override
@@ -135,12 +136,6 @@ public class AnimateAscendingBlockEntity extends Entity {
         level.addFreshEntity(entity);
     }
 
-
-    @Override
-    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return new ClientboundAddEntityPacket(this, Block.getId(this.getBlockState()));
-    }
-
     @Override
     public void recreateFromPacket(@NotNull ClientboundAddEntityPacket packet) {
         super.recreateFromPacket(packet);
@@ -151,11 +146,6 @@ public class AnimateAscendingBlockEntity extends Entity {
         double f = packet.getZ();
         this.setPos(d, e, f);
         this.setStartPos(this.blockPosition());
-    }
-
-    @Override
-    protected @NotNull AABB getBoundingBoxForPose(@NotNull Pose pose) {
-        return getDimensions(pose).makeBoundingBox(position());
     }
 
     @Override

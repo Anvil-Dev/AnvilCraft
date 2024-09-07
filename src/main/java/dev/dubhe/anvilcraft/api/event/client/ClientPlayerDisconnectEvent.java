@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.api.event.client;
 
-public class ClientPlayerDisconnectEvent {
+import net.neoforged.bus.api.Event;
+
+public class ClientPlayerDisconnectEvent extends Event {
     public ClientPlayerDisconnectEvent() {
     }
 }

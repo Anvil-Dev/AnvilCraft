@@ -13,16 +13,16 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-public class HammerUsePack implements Packet {
+public class ServerboundHammerUsePack implements Packet {
     private final BlockPos pos;
     private final InteractionHand hand;
 
-    public HammerUsePack(BlockPos pos, InteractionHand hand) {
+    public ServerboundHammerUsePack(BlockPos pos, InteractionHand hand) {
         this.pos = pos;
         this.hand = hand;
     }
 
-    public HammerUsePack(@NotNull FriendlyByteBuf buf) {
+    public ServerboundHammerUsePack(@NotNull FriendlyByteBuf buf) {
         this.pos = buf.readBlockPos();
         this.hand = buf.readEnum(InteractionHand.class);
     }

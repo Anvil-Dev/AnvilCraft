@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import dev.anvilcraft.lib.event.EventManager;
+import dev.anvilcraft.lib.event.SubscribeEvent;
 import dev.dubhe.anvilcraft.api.registry.AnvilCraftRegistrate;
 import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
@@ -23,6 +23,8 @@ import dev.dubhe.anvilcraft.util.Lazy;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.bus.api.BusBuilder;
+import net.neoforged.bus.api.IEventBus;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,10 +34,22 @@ public class AnvilCraft {
     public static final String MOD_NAME = "AnvilCraft";
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
-    public static final EventManager EVENT_BUS = new EventManager();
+    public static final IEventBus EVENT_BUS = BusBuilder.builder()
+        .checkTypesOnDispatch()
+        .markerType(SubscribeEvent.class)
+        .setExceptionHandler((bus, event, listeners, index, throwable) -> LOGGER.error(
+            "An exception was thrown from {} while dispatching event {} on {}",
+            listeners[index],
+            event,
+            bus,
+            throwable
+        ))
+        .build();
+
     public static AnvilCraftConfig config = AutoConfig
-            .register(AnvilCraftConfig.class, JanksonConfigSerializer::new)
-            .getConfig();
+        .register(AnvilCraftConfig.class, JanksonConfigSerializer::new)
+        .getConfig();
+    public static IEventBus MOD_EVENT_BUS;
     // EnchantmentDisable
     public static final Lazy<EnchantmentDisableUtil> enchantmentDisableUtil = new Lazy<>(EnchantmentDisableUtil::new);
 
@@ -44,7 +58,8 @@ public class AnvilCraft {
     /**
      * 初始化函数
      */
-    public static void init() {
+    public static void init(IEventBus bus) {
+        MOD_EVENT_BUS = bus;
         // common
         ModEvents.register();
         ModBlocks.register();
@@ -62,7 +77,8 @@ public class AnvilCraft {
         // datagen
         AnvilCraftDatagen.init();
         // fabric 独有，请在此之前插入注册
-        REGISTRATE.registerRegistrate();
+        // 现在没有了
+        REGISTRATE.registerRegistrate(bus);
     }
 
     public static @NotNull ResourceLocation of(String path) {

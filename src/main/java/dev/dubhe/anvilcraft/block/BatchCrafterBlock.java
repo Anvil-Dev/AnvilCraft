@@ -171,7 +171,7 @@ public class BatchCrafterBlock extends BaseEntityBlock implements IHammerChangea
     @Nullable
     @Override
     public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
-        return BatchCrafterBlockEntity.createBlockEntity(ModBlockEntities.BATCH_CRAFTER.get(), pos, state);
+        return new BatchCrafterBlockEntity(ModBlockEntities.BATCH_CRAFTER.get(), pos, state);
     }
 
     @Nullable

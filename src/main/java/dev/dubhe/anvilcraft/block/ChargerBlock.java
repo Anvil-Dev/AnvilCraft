@@ -90,7 +90,7 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
     @Nullable
     @Override
     public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
-        return ChargerBlockEntity.createBlockEntity(ModBlockEntities.CHARGER.get(), pos, state);
+        return new ChargerBlockEntity(ModBlockEntities.CHARGER.get(), pos, state);
     }
 
     @Override

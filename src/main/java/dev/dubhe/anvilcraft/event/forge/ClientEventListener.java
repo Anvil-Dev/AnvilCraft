@@ -4,10 +4,10 @@ package dev.dubhe.anvilcraft.event.forge;
 import dev.dubhe.anvilcraft.util.IBlockHighlightUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.common.MinecraftForge;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.common.NeoForge;
 import org.jetbrains.annotations.NotNull;
 
 public class ClientEventListener {
@@ -16,7 +16,7 @@ public class ClientEventListener {
      */
     @OnlyIn(Dist.CLIENT)
     public ClientEventListener() {
-        MinecraftForge.EVENT_BUS.addListener(this::blockHighlight);
+        NeoForge.EVENT_BUS.addListener(this::blockHighlight);
     }
 
     @OnlyIn(Dist.CLIENT)

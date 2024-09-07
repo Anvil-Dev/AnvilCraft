@@ -6,14 +6,13 @@ import dev.dubhe.anvilcraft.api.event.server.block.ServerBlockEntityLoadEvent;
 import dev.dubhe.anvilcraft.api.event.server.block.ServerBlockEntityUnloadEvent;
 import net.minecraft.server.level.ServerLevel;
 import dev.dubhe.anvilcraft.api.event.client.ClientPlayerDisconnectEvent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import org.jetbrains.annotations.NotNull;
 
-@Mod.EventBusSubscriber(modid = AnvilCraft.MOD_ID)
+@EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class CommonEventHandlerListener {
     /**
      * @param event 服务端方块实体加载事件

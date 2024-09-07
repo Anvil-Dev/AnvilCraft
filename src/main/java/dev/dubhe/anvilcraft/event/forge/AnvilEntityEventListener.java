@@ -4,11 +4,11 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilHurtEntityEvent;
 import dev.dubhe.anvilcraft.api.event.forge.AnvilEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import org.jetbrains.annotations.NotNull;
 
-@Mod.EventBusSubscriber(modid = AnvilCraft.MOD_ID)
+@EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class AnvilEntityEventListener {
     /**
      * @param e 铁砧落地事件

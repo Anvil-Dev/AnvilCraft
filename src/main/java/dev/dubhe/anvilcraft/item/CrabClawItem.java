@@ -1,9 +1,11 @@
 package dev.dubhe.anvilcraft.item;
 
 import com.google.common.collect.Multimap;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.entity.EntityHelper;
 import dev.dubhe.anvilcraft.api.entity.attribute.EntityReachAttribute;
 import dev.dubhe.anvilcraft.init.ModItems;
+import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -18,16 +20,15 @@ public class CrabClawItem extends Item {
 
     public static final AttributeModifier rangeAttributeModifier =
         new AttributeModifier(
-            UUID.fromString("ea7bed72-603d-4990-87b6-24abe91ea523"),
-            "RangeModifier",
+            AnvilCraft.of("range_modifier"),
             3,
-            AttributeModifier.Operation.ADDITION
+            AttributeModifier.Operation.ADD_VALUE
         );
 
     public static final String CRAB_CLAW_MARKER = "crabClaw";
     public static final String DUAL_CRAB_CLAW_MARKER = "dualCrabClaw";
 
-    private static final Supplier<Multimap<Attribute, AttributeModifier>> rangeModifier
+    private static final Supplier<Multimap<Holder<Attribute>, AttributeModifier>> rangeModifier
         = EntityReachAttribute.getRangeModifierSupplier(rangeAttributeModifier);
 
     public CrabClawItem(Properties properties) {

@@ -125,7 +125,7 @@ public class MagneticChuteBlock extends BaseEntityBlock implements IHammerChange
 
     @Override
     public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) {
-        return MagneticChuteBlockEntity.createBlockEntity(ModBlockEntities.MAGNETIC_CHUTE.get(), pos, state);
+        return new MagneticChuteBlockEntity(ModBlockEntities.MAGNETIC_CHUTE.get(), pos, state);
     }
 
     @Override

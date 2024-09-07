@@ -4,7 +4,7 @@ import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.event.entity.EntityEvent;
+import net.neoforged.neoforge.event.entity.EntityEvent;
 
 @Getter
 public class LightningBoltStrikeEvent extends EntityEvent {

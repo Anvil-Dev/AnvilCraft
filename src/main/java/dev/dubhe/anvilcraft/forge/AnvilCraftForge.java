@@ -23,7 +23,7 @@ public class AnvilCraftForge {
      * Forge 侧初始化
      */
     public AnvilCraftForge(IEventBus modEventBus, ModContainer container) {
-        AnvilCraft.init();
+        AnvilCraft.init(modEventBus);
         ModVillagers.register(modEventBus);
         modEventBus.addListener(ModRecipeTypesForge::register);
         NeoForge.EVENT_BUS.addListener(AnvilCraftForge::registerCommand);

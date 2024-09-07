@@ -1,23 +1,24 @@
 package dev.dubhe.anvilcraft.api.entity.attribute;
 
+import com.google.common.base.Suppliers;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
-import dev.architectury.injectables.annotations.ExpectPlatform;
+import net.minecraft.core.Holder;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 
 import java.util.function.Supplier;
 
 public class EntityReachAttribute {
 
-    @ExpectPlatform
-    public static Supplier<Multimap<Attribute, AttributeModifier>> getRangeModifierSupplier(
-            AttributeModifier modifier
+    public static Supplier<Multimap<Holder<Attribute>, AttributeModifier>> getRangeModifierSupplier(
+        AttributeModifier modifier
     ) {
-        return null;
+        return Suppliers.memoize(() -> ImmutableMultimap.of(Attributes.BLOCK_INTERACTION_RANGE, modifier));
     }
 
-    @ExpectPlatform
     public static Attribute getReachAttribute() {
-        return null;
+        return Attributes.BLOCK_INTERACTION_RANGE.value();
     }
 }

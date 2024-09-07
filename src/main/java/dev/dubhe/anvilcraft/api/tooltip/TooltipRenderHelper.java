@@ -23,8 +23,13 @@ public class TooltipRenderHelper {
      * 渲染外框
      */
     public static void renderOutline(
-            PoseStack poseStack, VertexConsumer consumer,
-            double camX, double camY, double camZ, @NotNull BlockPos pos, @NotNull VoxelShape shape,
+            PoseStack poseStack,
+            VertexConsumer consumer,
+            double camX,
+            double camY,
+            double camZ,
+            @NotNull BlockPos pos,
+            @NotNull VoxelShape shape,
             int color
     ) {
         renderShape(
@@ -35,8 +40,13 @@ public class TooltipRenderHelper {
     }
 
     private static void renderShape(
-            @NotNull PoseStack poseStack, VertexConsumer consumer, @NotNull VoxelShape shape,
-            double x, double y, double z, int color
+            @NotNull PoseStack poseStack,
+            VertexConsumer consumer,
+            @NotNull VoxelShape shape,
+            double x,
+            double y,
+            double z,
+            int color
     ) {
         PoseStack.Pose pose = poseStack.last();
         shape.forAllEdges((minX, minY, minZ, maxX, maxY, maxZ) -> {
@@ -44,14 +54,13 @@ public class TooltipRenderHelper {
             float l = (float) (maxY - minY);
             float m = (float) (maxZ - minZ);
             float n = Mth.sqrt(k * k + l * l + m * m);
-            consumer.vertex(pose.pose(), (float) (minX + x), (float) (minY + y), (float) (minZ + z))
-                    .color(color)
-                    .normal(pose.normal(), k /= n, l /= n, m /= n)
-                    .endVertex();
-            consumer.vertex(pose.pose(), (float) (maxX + x), (float) (maxY + y), (float) (maxZ + z))
-                    .color(color)
-                    .normal(pose.normal(), k, l, m)
-                    .endVertex();
+            consumer.addVertex(pose.pose(), (float) (minX + x), (float) (minY + y), (float) (minZ + z))
+                    .setColor(color)
+                    .setNormal(pose.copy(), k /= n, l /= n, m /= n);
+
+            consumer.addVertex(pose.pose(), (float) (maxX + x), (float) (maxY + y), (float) (maxZ + z))
+                    .setColor(color)
+                    .setNormal(pose.copy(), k, l, m);
         });
     }
 

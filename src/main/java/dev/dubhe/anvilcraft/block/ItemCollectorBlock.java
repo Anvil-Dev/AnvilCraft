@@ -60,7 +60,7 @@ public class ItemCollectorBlock extends BaseEntityBlock implements IHammerRemova
     @Nullable
     @Override
     public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
-        return ItemCollectorBlockEntity.createBlockEntity(ModBlockEntities.ITEM_COLLECTOR.get(), pos, state);
+        return new ItemCollectorBlockEntity(ModBlockEntities.ITEM_COLLECTOR.get(), pos, state);
     }
 
     @Override

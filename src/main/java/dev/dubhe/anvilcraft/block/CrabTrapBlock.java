@@ -146,7 +146,7 @@ public class CrabTrapBlock extends BaseEntityBlock implements SimpleWaterloggedB
     public BlockEntity newBlockEntity(
             @NotNull BlockPos pos,
             @NotNull BlockState state) {
-        return CrabTrapBlockEntity.createBlockEntity(ModBlockEntities.CRAB_TRAP.get(), pos, state);
+        return new CrabTrapBlockEntity(ModBlockEntities.CRAB_TRAP.get(), pos, state);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.architectury.injectables.annotations.ExpectPlatform;
+import dev.dubhe.anvilcraft.api.depository.DepositoryHolder;
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.api.item.IChargerChargeable;
 import dev.dubhe.anvilcraft.api.item.IChargerDischargeable;
@@ -26,7 +27,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class ChargerBlockEntity
         extends BlockEntity
-        implements IPowerConsumer, IPowerProducer, IFilterBlockEntity, StateListener<Boolean> {
+        implements IPowerConsumer, IPowerProducer, IFilterBlockEntity, StateListener<Boolean>, DepositoryHolder {
 
     @Setter
     private boolean isCharger;
@@ -36,6 +37,7 @@ public class ChargerBlockEntity
     private boolean powered = false;
     private boolean jumpOver = false;
 
+    @Getter
     private final FilteredItemDepository depository = new FilteredItemDepository(1) {
 
         @Override
@@ -190,17 +192,6 @@ public class ChargerBlockEntity
         }
         locked = false;
         cd = 0;
-    }
-
-    @ExpectPlatform
-    public static @NotNull ChargerBlockEntity createBlockEntity(
-            BlockEntityType<?> type, BlockPos pos, BlockState blockState
-    ) {
-        return null;
-    }
-
-    @ExpectPlatform
-    public static void onBlockEntityRegister(BlockEntityType<ChargerBlockEntity> type) {
     }
 
     /**

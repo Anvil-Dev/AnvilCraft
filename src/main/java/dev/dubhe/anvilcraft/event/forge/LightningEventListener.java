@@ -3,11 +3,11 @@ package dev.dubhe.anvilcraft.event.forge;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.entity.LightningStrikeEvent;
 import dev.dubhe.anvilcraft.api.event.forge.LightningBoltStrikeEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import org.jetbrains.annotations.NotNull;
 
-@Mod.EventBusSubscriber(modid = AnvilCraft.MOD_ID)
+@EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class LightningEventListener {
     /**
      * @param event 雷击事件

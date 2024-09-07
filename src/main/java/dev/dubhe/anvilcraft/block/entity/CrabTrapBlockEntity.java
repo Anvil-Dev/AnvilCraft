@@ -18,18 +18,6 @@ public class CrabTrapBlockEntity extends BlockEntity implements DepositoryHolder
 
     private final ItemDepository depository = new ItemDepository(9);
 
-    @ExpectPlatform
-    public static CrabTrapBlockEntity createBlockEntity(
-        BlockEntityType<?> type, BlockPos pos, BlockState blockState
-    ) {
-        throw new AssertionError();
-    }
-
-    @ExpectPlatform
-    public static void onBlockEntityRegister(BlockEntityType<CrabTrapBlockEntity> type) {
-        throw new AssertionError();
-    }
-
     @Override
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);

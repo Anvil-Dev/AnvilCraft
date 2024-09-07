@@ -2,15 +2,15 @@ package dev.dubhe.anvilcraft.event.forge;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
-import dev.dubhe.anvilcraft.network.HammerUsePack;
+import dev.dubhe.anvilcraft.network.ServerboundHammerUsePack;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import org.jetbrains.annotations.NotNull;
 
-@Mod.EventBusSubscriber(modid = AnvilCraft.MOD_ID)
+@EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class BlockEventListener {
     /**
      * 侦听左键方块事件
@@ -36,7 +36,7 @@ public class BlockEventListener {
         if (event.getEntity().getItemInHand(hand).getItem() instanceof AnvilHammerItem) {
             if (event.getLevel().isClientSide()) {
                 if (AnvilHammerItem.ableToUseAnvilHammer(event.getLevel(), event.getPos(), event.getEntity())) {
-                    new HammerUsePack(event.getPos(), hand).send();
+                    new ServerboundHammerUsePack(event.getPos(), hand).send();
                 }
             }
             event.setCancellationResult(InteractionResult.SUCCESS);

@@ -102,8 +102,8 @@ public class AnvilRecipe implements Recipe<AnvilCraftingContext> {
         int weight = (predicates.size() * 10000);
         for (RecipePredicate recipePredicate : predicates) {
             if (recipePredicate instanceof HasItem hasItem) {
-                if (hasItem.getMatchItem().getCount().getMin() != null)
-                    weight += hasItem.getMatchItem().getCount().getMin();
+                if (hasItem.getMatchItem().getCount().min().isPresent())
+                    weight += hasItem.getMatchItem().getCount().min().get();
             }
         }
         return weight;

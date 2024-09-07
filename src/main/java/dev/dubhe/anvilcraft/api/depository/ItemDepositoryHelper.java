@@ -1,17 +1,25 @@
 package dev.dubhe.anvilcraft.api.depository;
 
-import dev.architectury.injectables.annotations.ExpectPlatform;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.vehicle.ContainerEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.AABB;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 public class ItemDepositoryHelper {
@@ -26,9 +34,26 @@ public class ItemDepositoryHelper {
      * @param direction 输入方向
      * @return 物品存储
      */
-    @ExpectPlatform
     public static @Nullable IItemDepository getItemDepository(Level level, BlockPos pos, Direction direction) {
-        throw new AssertionError();
+        IItemDepository depository = ItemDepositoryHelper.getItemDepositoryFromHolder(level, pos);
+        if (depository != null) return depository;
+        BlockEntity be = level.getBlockEntity(pos);
+        if (be != null) {
+            IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, direction.getOpposite());
+            if (handler != null) {
+                return toItemDepository(handler);
+            }
+        }
+        List<IItemHandler> itemHandlers = level
+            .getEntitiesOfClass(Entity.class, new AABB(pos))
+            .stream()
+            .filter(entity -> entity instanceof ContainerEntity)
+            .map(entity -> entity.getCapability(Capabilities.ItemHandler.ENTITY, null))
+            .filter(Objects::nonNull)
+            .toList();
+        if (itemHandlers.isEmpty()) return null;
+        IItemHandler handler = itemHandlers.get(level.getRandom().nextInt(0, itemHandlers.size()));
+        return toItemDepository(handler);
     }
 
     /**
@@ -53,10 +78,10 @@ public class ItemDepositoryHelper {
      */
     @SuppressWarnings("DuplicatedCode")
     public static boolean exportToTarget(
-            @NotNull IItemDepository source,
-            int maxAmount,
-            Predicate<ItemStack> predicate,
-            IItemDepository target
+        @NotNull IItemDepository source,
+        int maxAmount,
+        Predicate<ItemStack> predicate,
+        IItemDepository target
     ) {
         boolean hasDone = false;
         for (int srcIndex = 0; srcIndex < source.getSlots(); srcIndex++) {
@@ -100,7 +125,7 @@ public class ItemDepositoryHelper {
             if (targetStack.getCount() >= targetStack.getMaxStackSize()) {
                 continue;
             }
-            if (ItemStack.isSameItemSameTags(sourceStack, targetStack)) {
+            if (ItemStack.isSameItemSameComponents(sourceStack, targetStack)) {
                 return true;
             }
         }
@@ -118,10 +143,10 @@ public class ItemDepositoryHelper {
      */
     @SuppressWarnings("DuplicatedCode")
     public static boolean importToTarget(
-            IItemDepository target,
-            int maxAmount,
-            Predicate<ItemStack> predicate,
-            @NotNull IItemDepository source
+        IItemDepository target,
+        int maxAmount,
+        Predicate<ItemStack> predicate,
+        @NotNull IItemDepository source
     ) {
         boolean hasDone = false;
         for (int srcIndex = 0; srcIndex < source.getSlots(); srcIndex++) {
@@ -221,10 +246,10 @@ public class ItemDepositoryHelper {
         if (!a.isStackable())
             return false;
 
-        if (a.hasTag() != b.hasTag())
+        if (a.getComponents().isEmpty() != b.getComponents().isEmpty())
             return false;
 
-        return (!a.hasTag() || a.getOrCreateTag().equals(b.getTag()));
+        return (!a.getComponents().isEmpty() || a.getComponents().equals(b.getComponents()));
     }
 
     /**
@@ -242,5 +267,91 @@ public class ItemDepositoryHelper {
             copy.setCount(size);
             return copy;
         }
+    }
+
+    /**
+     * 将 {@link IItemHandler} 转换为 {@link IItemDepository}
+     *
+     * @param handler 要转换的 ItemHandler
+     * @return 转换为的 ItemDepository
+     */
+    public static @NotNull IItemDepository toItemDepository(IItemHandler handler) {
+        return new IItemDepository() {
+            @Override
+            public int getSlots() {
+                return handler.getSlots();
+            }
+
+            @Override
+            public ItemStack getStack(int slot) {
+                return handler.getStackInSlot(slot);
+            }
+
+            @Override
+            public void setStack(int slot, ItemStack stack) {
+                ((IItemHandlerModifiable) handler).setStackInSlot(slot, stack);
+            }
+
+            @Override
+            public ItemStack insert(
+                int slot, ItemStack stack, boolean simulate, boolean notifyChanges, boolean isServer
+            ) {
+                return handler.insertItem(slot, stack, simulate);
+            }
+
+            @Override
+            public ItemStack extract(int slot, int amount, boolean simulate, boolean notifyChanges) {
+                return handler.extractItem(slot, amount, simulate);
+            }
+
+            @Override
+            public int getSlotLimit(int slot) {
+                return handler.getSlotLimit(slot);
+            }
+
+            @Override
+            public boolean isItemValid(int slot, ItemStack stack) {
+                return handler.isItemValid(slot, stack);
+            }
+        };
+    }
+
+    /**
+     * @param depository 物品容器
+     * @return 物品容器
+     */
+    public static @NotNull IItemHandler toItemHandler(IItemDepository depository) {
+        return new IItemHandler() {
+
+            @Override
+            public int getSlots() {
+                return depository.getSlots();
+            }
+
+            @Override
+            public @NotNull ItemStack getStackInSlot(int i) {
+                return depository.getStack(i);
+            }
+
+            @Override
+            public @NotNull ItemStack insertItem(int i, @NotNull ItemStack arg, boolean bl) {
+                return depository.insert(i, arg, bl);
+            }
+
+            @Override
+            public @NotNull ItemStack extractItem(int i, int j, boolean bl) {
+                return depository.extract(i, j, bl);
+            }
+
+            @Override
+            public int getSlotLimit(int i) {
+                return depository.getSlotLimit(i);
+            }
+
+            @Override
+            public boolean isItemValid(int i, @NotNull ItemStack arg) {
+                return depository.isItemValid(i, arg);
+            }
+        };
     }
 }

@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import dev.architectury.injectables.annotations.ExpectPlatform;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.IHasDisplayItem;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
@@ -92,25 +91,13 @@ public class BatchCrafterBlockEntity
     @Getter
     private final int id;
 
-    protected BatchCrafterBlockEntity(
-            BlockEntityType<? extends BlockEntity> type,
-            BlockPos pos,
-            BlockState blockState
+    public BatchCrafterBlockEntity(
+        BlockEntityType<? extends BlockEntity> type,
+        BlockPos pos,
+        BlockState blockState
     ) {
         super(type, pos, blockState);
         id = COUNTER.incrementAndGet();
-    }
-
-    @ExpectPlatform
-    public static BatchCrafterBlockEntity createBlockEntity(
-            BlockEntityType<?> type, BlockPos pos, BlockState blockState
-    ) {
-        throw new AssertionError();
-    }
-
-    @ExpectPlatform
-    public static void onBlockEntityRegister(BlockEntityType<BatchCrafterBlockEntity> type) {
-        throw new AssertionError();
     }
 
     /**

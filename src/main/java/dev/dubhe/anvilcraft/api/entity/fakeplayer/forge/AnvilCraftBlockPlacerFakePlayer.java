@@ -5,7 +5,7 @@ import dev.dubhe.anvilcraft.api.entity.player.IAnvilCraftBlockPlacer;
 import java.util.UUID;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.common.util.FakePlayerFactory;
+import net.neoforged.neoforge.common.util.FakePlayerFactory;
 
 public class AnvilCraftBlockPlacerFakePlayer implements IAnvilCraftBlockPlacer {
     static final UUID placerUUID = UUID.randomUUID();

@@ -7,14 +7,14 @@ import dev.dubhe.anvilcraft.event.TooltipEventListener;
 import dev.dubhe.anvilcraft.network.ClientRecipeManagerSyncPack;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
-import net.minecraftforge.event.entity.player.ItemTooltipEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import org.jetbrains.annotations.NotNull;
 
 
-@Mod.EventBusSubscriber(modid = AnvilCraft.MOD_ID)
+@EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class PlayerEventListener {
     /**
      * @param event 玩家交互实体事件
@@ -42,7 +42,7 @@ public class PlayerEventListener {
      */
     @SubscribeEvent
     public static void layerLoggedInEvent(
-            @NotNull net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent event
+            @NotNull net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent event
     ) {
         if (event.getEntity() instanceof ServerPlayer serverPlayer)
             new ClientRecipeManagerSyncPack(AnvilRecipeManager.getAnvilRecipeList())
