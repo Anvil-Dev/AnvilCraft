@@ -5,11 +5,13 @@ import dev.dubhe.anvilcraft.network.PowerGridRemovePack;
 import dev.dubhe.anvilcraft.network.PowerGridSyncPack;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -52,7 +54,7 @@ public class PowerGrid {
     }
 
     public void update() {
-        new PowerGridSyncPack(this).broadcast(this.level.getChunkAt(this.getPos()));
+        PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, this.level.getChunkAt(this.getPos()).getPos(), new PowerGridSyncPack(this));
     }
 
     /**
@@ -231,7 +233,7 @@ public class PowerGrid {
         for (IPowerComponent component : components) {
             set.remove(component);
         }
-        new PowerGridRemovePack(this).broadcast();
+        PacketDistributor.sendToAllPlayers(new PowerGridRemovePack(this));
         PowerGrid.addComponent(set.toArray(IPowerComponent[]::new));
     }
 
@@ -327,7 +329,7 @@ public class PowerGrid {
                         else {
                             grid[0].merge(powerGrid);
                             remove.add(powerGrid);
-                            new PowerGridRemovePack(powerGrid).broadcast();
+                            PacketDistributor.sendToAllPlayers(new PowerGridRemovePack(powerGrid));
                         }
                     });
                     grids.removeAll(remove);

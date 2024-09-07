@@ -32,6 +32,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -138,10 +139,10 @@ public class ItemCollectorBlock extends BaseEntityBlock implements IHammerRemova
             }
             if (player instanceof ServerPlayer serverPlayer) {
                 ModMenuTypes.open(serverPlayer, eb, pos);
-                new MachineEnableFilterPack(eb.isFilterEnabled()).send(serverPlayer);
+                PacketDistributor.sendToPlayer(serverPlayer, new MachineEnableFilterPack(eb.isFilterEnabled()));
                 for (int i = 0; i < eb.getFilteredItems().size(); i++) {
-                    new SlotDisableChangePack(i, eb.getDepository().getDisabled().get(i)).send(serverPlayer);
-                    new SlotFilterChangePack(i, eb.getFilter(i)).send(serverPlayer);
+                    PacketDistributor.sendToPlayer(serverPlayer, new SlotDisableChangePack(i, eb.getDepository().getDisabled().get(i)));
+                    PacketDistributor.sendToPlayer(serverPlayer, new SlotFilterChangePack(i, eb.getFilter(i)));
                 }
             }
         }

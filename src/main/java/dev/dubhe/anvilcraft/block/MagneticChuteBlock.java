@@ -43,6 +43,7 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -281,11 +282,11 @@ public class MagneticChuteBlock extends BaseEntityBlock implements IHammerChange
             }
             if (player instanceof ServerPlayer serverPlayer) {
                 ModMenuTypes.open(serverPlayer, entity, pos);
-                new MachineOutputDirectionPack(entity.getDirection()).send(serverPlayer);
-                new MachineEnableFilterPack(entity.isFilterEnabled()).send(serverPlayer);
+                PacketDistributor.sendToPlayer(serverPlayer, new MachineOutputDirectionPack(entity.getDirection()));
+                PacketDistributor.sendToPlayer(serverPlayer, new MachineEnableFilterPack(entity.isFilterEnabled()));
                 for (int i = 0; i < entity.getFilteredItems().size(); i++) {
-                    new SlotDisableChangePack(i, entity.getDepository().getDisabled().get(i)).send(serverPlayer);
-                    new SlotFilterChangePack(i, entity.getFilter(i)).send(serverPlayer);
+                    PacketDistributor.sendToPlayer(serverPlayer, new SlotDisableChangePack(i, entity.getDepository().getDisabled().get(i)));
+                    PacketDistributor.sendToPlayer(serverPlayer, new SlotFilterChangePack(i, entity.getFilter(i)));
                 }
             }
         }

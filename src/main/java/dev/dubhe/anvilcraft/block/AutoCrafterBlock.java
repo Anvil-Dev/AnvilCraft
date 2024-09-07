@@ -4,7 +4,7 @@ import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeableBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
-import dev.dubhe.anvilcraft.block.entity.BatchCrafterBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.AutoCrafterBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
@@ -22,7 +22,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
@@ -40,26 +39,23 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class BatchCrafterBlock extends BaseEntityBlock implements IHammerChangeableBlock, IHammerRemovable {
+public class AutoCrafterBlock extends BaseEntityBlock implements IHammerChangeableBlock, IHammerRemovable {
     public static final DirectionProperty FACING = DirectionalBlock.FACING;
-    public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
+    public static final BooleanProperty LIT = BlockStateProperties.LIT;
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
 
     /**
      * @param properties 方块属性
      */
-    public BatchCrafterBlock(Properties properties) {
+    public AutoCrafterBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(
             this.stateDefinition.any()
-                .setValue(POWERED, false)
+                .setValue(LIT, false)
                 .setValue(OVERLOAD, true)
                 .setValue(FACING, Direction.NORTH)
         );
@@ -75,7 +71,7 @@ public class BatchCrafterBlock extends BaseEntityBlock implements IHammerChangea
     @SuppressWarnings("deprecation")
     public int getAnalogOutputSignal(@NotNull BlockState blockState, @NotNull Level level, @NotNull BlockPos blockPos) {
         BlockEntity blockEntity = level.getBlockEntity(blockPos);
-        if (blockEntity instanceof BatchCrafterBlockEntity crafterBlockEntity) {
+        if (blockEntity instanceof AutoCrafterBlockEntity crafterBlockEntity) {
             return crafterBlockEntity.getRedstoneSignal();
         }
         return 0;
@@ -95,7 +91,7 @@ public class BatchCrafterBlock extends BaseEntityBlock implements IHammerChangea
             return InteractionResult.SUCCESS;
         }
         BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity instanceof BatchCrafterBlockEntity entity) {
+        if (blockEntity instanceof AutoCrafterBlockEntity entity) {
             if (player.getItemInHand(hand).is(ModItems.DISK.get())) {
                 return entity.useDisk(
                         level,
@@ -128,7 +124,7 @@ public class BatchCrafterBlock extends BaseEntityBlock implements IHammerChangea
         boolean movedByPiston
     ) {
         if (state.is(newState.getBlock())) return;
-        if (level.getBlockEntity(pos) instanceof BatchCrafterBlockEntity entity) {
+        if (level.getBlockEntity(pos) instanceof AutoCrafterBlockEntity entity) {
             Vec3 vec3 = entity.getBlockPos().getCenter();
             FilteredItemDepository depository = entity.getDepository();
             for (int slot = 0; slot < depository.getSlots(); slot++) {
@@ -139,40 +135,10 @@ public class BatchCrafterBlock extends BaseEntityBlock implements IHammerChangea
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
-    @Override
-    public boolean useShapeForLightOcclusion(@NotNull BlockState state) {
-        return true;
-    }
-
-    public VoxelShape getVisualShape(
-            @NotNull BlockState state,
-            @NotNull BlockGetter level,
-            @NotNull BlockPos pos,
-            @NotNull CollisionContext context
-    ) {
-        return Shapes.empty();
-    }
-
-    public float getShadeBrightness(
-            @NotNull BlockState state,
-            @NotNull BlockGetter level,
-            @NotNull BlockPos pos
-    ) {
-        return 1.0F;
-    }
-
-    public boolean propagatesSkylightDown(
-            @NotNull BlockState state,
-            @NotNull BlockGetter level,
-            @NotNull BlockPos pos
-    ) {
-        return false;
-    }
-
     @Nullable
     @Override
     public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
-        return new BatchCrafterBlockEntity(ModBlockEntities.BATCH_CRAFTER.get(), pos, state);
+        return AutoCrafterBlockEntity.createBlockEntity(ModBlockEntities.AUTO_CRAFTER.get(), pos, state);
     }
 
     @Nullable
@@ -185,32 +151,28 @@ public class BatchCrafterBlock extends BaseEntityBlock implements IHammerChangea
         }
         return createTickerHelper(
             type,
-            ModBlockEntities.BATCH_CRAFTER.get(),
+            ModBlockEntities.AUTO_CRAFTER.get(),
             (level1, blockPos, blockState, blockEntity) -> blockEntity.tick(level1, blockPos)
         );
     }
 
     @Override
     public @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
-        return RenderShape.INVISIBLE;
+        return RenderShape.MODEL;
     }
 
     @Override
     @Nullable
     public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
-        Direction dir = context.getNearestLookingDirection().getOpposite();
-        if (context.getPlayer() != null && context.getPlayer().isShiftKeyDown()) {
-            dir = dir.getOpposite();
-        }
         return this.defaultBlockState()
-            .setValue(FACING, dir)
-            .setValue(POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()))
+            .setValue(FACING, context.getNearestLookingDirection().getOpposite())
+            .setValue(LIT, context.getLevel().hasNeighborSignal(context.getClickedPos()))
             .setValue(OVERLOAD, true);
     }
 
     @Override
     protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(POWERED).add(OVERLOAD).add(FACING);
+        builder.add(LIT).add(OVERLOAD).add(FACING);
     }
 
     @Override
@@ -226,7 +188,14 @@ public class BatchCrafterBlock extends BaseEntityBlock implements IHammerChangea
         if (level.isClientSide) {
             return;
         }
-        level.setBlock(pos, state.setValue(POWERED, level.hasNeighborSignal(pos)), 2);
+        boolean bl = state.getValue(LIT);
+        if (bl != level.hasNeighborSignal(pos)) {
+            if (bl) {
+                level.scheduleTick(pos, this, 4);
+            } else {
+                level.setBlock(pos, state.cycle(LIT), 2);
+            }
+        }
     }
 
     @Override
@@ -234,8 +203,8 @@ public class BatchCrafterBlock extends BaseEntityBlock implements IHammerChangea
     public void tick(
         @NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random
     ) {
-        if (state.getValue(POWERED) && !level.hasNeighborSignal(pos)) {
-            level.setBlock(pos, state.cycle(POWERED), 2);
+        if (state.getValue(LIT) && !level.hasNeighborSignal(pos)) {
+            level.setBlock(pos, state.cycle(LIT), 2);
         }
     }
 

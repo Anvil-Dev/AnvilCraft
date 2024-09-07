@@ -23,6 +23,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -50,7 +51,7 @@ public class CreativeGeneratorBlock extends BaseEntityBlock implements IHammerRe
                 && player instanceof ServerPlayer serverPlayer
         ) {
             ModMenuTypes.open(serverPlayer, entity, pos);
-            new SliderInitPack(entity.getPower(), -8192, 8192).send(serverPlayer);
+            PacketDistributor.sendToPlayer(serverPlayer, new SliderInitPack(entity.getPower(), -8192, 8192));
         }
         return InteractionResult.SUCCESS;
     }

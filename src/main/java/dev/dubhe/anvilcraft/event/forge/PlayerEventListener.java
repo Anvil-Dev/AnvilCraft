@@ -8,13 +8,13 @@ import dev.dubhe.anvilcraft.network.ClientRecipeManagerSyncPack;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 
-@EventBusSubscriber(modid = AnvilCraft.MOD_ID)
+@Mod.EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class PlayerEventListener {
     /**
      * @param event 玩家交互实体事件
@@ -42,10 +42,9 @@ public class PlayerEventListener {
      */
     @SubscribeEvent
     public static void layerLoggedInEvent(
-            @NotNull net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent event
+            @NotNull net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent event
     ) {
         if (event.getEntity() instanceof ServerPlayer serverPlayer)
-            new ClientRecipeManagerSyncPack(AnvilRecipeManager.getAnvilRecipeList())
-                    .send(serverPlayer);
+            PacketDistributor.sendToPlayer(serverPlayer, new ClientRecipeManagerSyncPack(AnvilRecipeManager.getAnvilRecipeList()));
     }
 }

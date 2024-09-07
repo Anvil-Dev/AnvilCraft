@@ -11,6 +11,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
@@ -122,7 +123,7 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
     }
 
     private void update(int value) {
-        new SliderUpdatePack(value).send();
+        PacketDistributor.sendToServer(new SliderUpdatePack(value));
         this.value.setValue("" + value);
     }
 }

@@ -1,16 +1,27 @@
 package dev.dubhe.anvilcraft.network;
 
-import dev.anvilcraft.lib.network.Packet;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.SliderScreen;
-import dev.dubhe.anvilcraft.init.ModNetworks;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import lombok.Getter;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadHandler;
 
-public class SliderInitPack implements Packet {
+@Getter
+public class SliderInitPack implements CustomPacketPayload {
+    public static final Type<SliderInitPack> TYPE = new Type<>(AnvilCraft.of("slider_init"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, SliderInitPack> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.INT, SliderInitPack::getValue,
+            ByteBufCodecs.INT, SliderInitPack::getMin,
+            ByteBufCodecs.INT, SliderInitPack::getMax,
+            SliderInitPack::new
+    );
+    public static final IPayloadHandler<SliderInitPack> HANDLER = SliderInitPack::clientHandler;
+
     private final int value;
     private final int min;
     private final int max;
@@ -26,36 +37,18 @@ public class SliderInitPack implements Packet {
         this.max = max;
     }
 
-    /**
-     * @param buf 缓冲区
-     */
-    public SliderInitPack(@NotNull FriendlyByteBuf buf) {
-        this.value = buf.readInt();
-        this.min = buf.readInt();
-        this.max = buf.readInt();
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 
-    @Override
-    public ResourceLocation getType() {
-        return ModNetworks.SLIDER_INIT;
-    }
-
-    @Override
-    public void encode(@NotNull FriendlyByteBuf buf) {
-        buf.writeInt(this.value);
-        buf.writeInt(this.min);
-        buf.writeInt(this.max);
-    }
-
-    @Override
-    @Environment(EnvType.CLIENT)
-    public void handler() {
+    public static void clientHandler(SliderInitPack data, IPayloadContext context) {
         Minecraft client = Minecraft.getInstance();
-        client.execute(() -> {
+        context.enqueueWork(() -> {
             if (!(client.screen instanceof SliderScreen screen)) return;
-            screen.setMin(this.min);
-            screen.setMax(this.max);
-            screen.setValue(this.value);
+            screen.setMin(data.min);
+            screen.setMax(data.max);
+            screen.setValue(data.value);
         });
     }
 }

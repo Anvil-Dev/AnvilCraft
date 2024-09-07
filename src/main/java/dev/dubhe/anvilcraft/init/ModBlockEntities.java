@@ -1,11 +1,8 @@
 package dev.dubhe.anvilcraft.init;
 
-import com.google.common.collect.ImmutableList;
 import com.tterrag.registrate.util.entry.BlockEntityEntry;
-import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.depository.DepositoryHolder;
-import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
 import dev.dubhe.anvilcraft.block.entity.ActiveSilencerBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.AutoCrafterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.BatchCrafterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChargerBlockEntity;
@@ -36,28 +33,28 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeGeneratorRendere
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HasMobBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeliostatsRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LaserRenderer;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-
-import java.util.List;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 
 public class ModBlockEntities {
-
     public static final BlockEntityEntry<BatchCrafterBlockEntity> BATCH_CRAFTER = REGISTRATE
-        .blockEntity("batch_crafter", BatchCrafterBlockEntity::new)
+        .blockEntity("batch_crafter", BatchCrafterBlockEntity::createBlockEntity)
+        .onRegister(BatchCrafterBlockEntity::onBlockEntityRegister)
         .renderer(() -> BatchCrafterRenderer::new)
         .validBlock(ModBlocks.BATCH_CRAFTER)
         .register();
 
+    public static final BlockEntityEntry<AutoCrafterBlockEntity> AUTO_CRAFTER = REGISTRATE
+            .blockEntity("auto_crafter", AutoCrafterBlockEntity::createBlockEntity)
+            .onRegister(AutoCrafterBlockEntity::onBlockEntityRegister)
+            .validBlock(ModBlocks.AUTO_CRAFTER)
+            .register();
+
     public static final BlockEntityEntry<ItemCollectorBlockEntity> ITEM_COLLECTOR = REGISTRATE
-        .blockEntity("item_collector", ItemCollectorBlockEntity::new)
-        .validBlock(ModBlocks.ITEM_COLLECTOR)
-        .register();
+            .blockEntity("item_collector", ItemCollectorBlockEntity::createBlockEntity)
+            .onRegister(ItemCollectorBlockEntity::onBlockEntityRegister)
+            .validBlock(ModBlocks.ITEM_COLLECTOR)
+            .register();
 
     public static final BlockEntityEntry<ChuteBlockEntity> CHUTE = REGISTRATE
         .blockEntity("chute", ChuteBlockEntity::createBlockEntity)
@@ -66,17 +63,20 @@ public class ModBlockEntities {
         .register();
 
     public static final BlockEntityEntry<MagneticChuteBlockEntity> MAGNETIC_CHUTE = REGISTRATE
-        .blockEntity("magnetic_chute", MagneticChuteBlockEntity::new)
-        .validBlock(ModBlocks.MAGNETIC_CHUTE)
-        .register();
+            .blockEntity("magnetic_chute", MagneticChuteBlockEntity::createBlockEntity)
+            .onRegister(MagneticChuteBlockEntity::onBlockEntityRegister)
+            .validBlock(ModBlocks.MAGNETIC_CHUTE)
+            .register();
 
     public static final BlockEntityEntry<SimpleChuteBlockEntity> SIMPLE_CHUTE = REGISTRATE
-        .blockEntity("simple_chute", SimpleChuteBlockEntity::new)
+        .blockEntity("simple_chute", SimpleChuteBlockEntity::createBlockEntity)
+        .onRegister(SimpleChuteBlockEntity::onBlockEntityRegister)
         .validBlock(ModBlocks.SIMPLE_CHUTE)
         .register();
 
     public static final BlockEntityEntry<CrabTrapBlockEntity> CRAB_TRAP = REGISTRATE
-        .blockEntity("crab_trap", CrabTrapBlockEntity::new)
+        .blockEntity("crab_trap", CrabTrapBlockEntity::createBlockEntity)
+        .onRegister(CrabTrapBlockEntity::onBlockEntityRegister)
         .validBlock(ModBlocks.CRAB_TRAP)
         .register();
 
@@ -135,9 +135,9 @@ public class ModBlockEntities {
         .register();
 
     public static final BlockEntityEntry<InductionLightBlockEntity> INDUCTION_LIGHT = REGISTRATE
-        .blockEntity("induction_light", InductionLightBlockEntity::new)
-        .validBlock(ModBlocks.INDUCTION_LIGHT)
-        .register();
+            .blockEntity("induction_light", InductionLightBlockEntity::new)
+            .validBlock(ModBlocks.INDUCTION_LIGHT)
+            .register();
 
     public static final BlockEntityEntry<OverseerBlockEntity> OVERSEER = REGISTRATE
         .blockEntity("overseer", OverseerBlockEntity::createBlockEntity)
@@ -145,14 +145,15 @@ public class ModBlockEntities {
         .register();
 
     public static final BlockEntityEntry<ChargerBlockEntity> CHARGER = REGISTRATE
-        .blockEntity("charger", ChargerBlockEntity::new)
-        .validBlocks(ModBlocks.CHARGER, ModBlocks.DISCHARGER)
-        .register();
+            .blockEntity("charger", ChargerBlockEntity::new)
+            .validBlocks(ModBlocks.CHARGER, ModBlocks.DISCHARGER)
+            .onRegister(ChargerBlockEntity::onBlockEntityRegister)
+            .register();
 
     public static final BlockEntityEntry<ActiveSilencerBlockEntity> ACTIVE_SILENCER = REGISTRATE
-        .blockEntity("active_silencer", ActiveSilencerBlockEntity::new)
-        .validBlocks(ModBlocks.ACTIVE_SILENCER)
-        .register();
+            .blockEntity("active_silencer", ActiveSilencerBlockEntity::new)
+            .validBlocks(ModBlocks.ACTIVE_SILENCER)
+            .register();
 
     public static final BlockEntityEntry<RubyPrismBlockEntity> RUBY_PRISM = REGISTRATE
         .blockEntity("ruby_prism", RubyPrismBlockEntity::createBlockEntity)
@@ -166,51 +167,21 @@ public class ModBlockEntities {
         .register();
 
     public static final BlockEntityEntry<ThermoelectricConverterBlockEntity> THERMOELECTRIC_CONVERTER = REGISTRATE
-        .blockEntity("thermoelectric_converter", ThermoelectricConverterBlockEntity::new)
-        .validBlocks(ModBlocks.THERMOELECTRIC_CONVERTER)
-        .register();
+            .blockEntity("thermoelectric_converter", ThermoelectricConverterBlockEntity::new)
+            .validBlocks(ModBlocks.THERMOELECTRIC_CONVERTER)
+            .register();
 
     public static final BlockEntityEntry<MineralFountainBlockEntity> MINERAL_FOUNTAIN = REGISTRATE
-        .blockEntity("mineral_fountain", MineralFountainBlockEntity::createBlockEntity)
-        .validBlocks(ModBlocks.MINERAL_FOUNTAIN)
-        .register();
+            .blockEntity("mineral_fountain", MineralFountainBlockEntity::createBlockEntity)
+            .validBlocks(ModBlocks.MINERAL_FOUNTAIN)
+            .register();
 
     public static final BlockEntityEntry<HeliostatsBlockEntity> HELIOSTATS = REGISTRATE
-        .blockEntity("heliostats", HeliostatsBlockEntity::new)
-        .validBlocks(ModBlocks.HELIOSTATS)
-        .renderer(() -> HeliostatsRenderer::new)
-        .register();
+            .blockEntity("heliostats", HeliostatsBlockEntity::new)
+            .validBlocks(ModBlocks.HELIOSTATS)
+            .renderer(() -> HeliostatsRenderer::new)
+            .register();
 
-    private static final List<BlockEntityType<? extends BlockEntity>> BLOCK_ENTITY_DEPOSITORY_HOLDER =
-        ImmutableList.of(
-            BATCH_CRAFTER.get(),
-            CHARGER.get(),
-            CHUTE.get(),
-            SIMPLE_CHUTE.get(),
-            CRAB_TRAP.get(),
-            ITEM_COLLECTOR.get(),
-            MAGNETIC_CHUTE.get()
-        );
-
-    /**
-     * 注册
-     */
     public static void register() {
-        IEventBus eventBus = AnvilCraft.MOD_EVENT_BUS;
-        eventBus.addListener(RegisterCapabilitiesEvent.class, e -> {
-            BLOCK_ENTITY_DEPOSITORY_HOLDER.forEach(type -> {
-                e.registerBlockEntity(
-                    Capabilities.ItemHandler.BLOCK,
-                    type,
-                    (be, side) -> {
-                        if (be instanceof DepositoryHolder holder) {
-                            return ItemDepositoryHelper.toItemHandler(holder.getDepository());
-                        }
-                        return null;
-                    }
-                );
-            });
-
-        });
     }
 }

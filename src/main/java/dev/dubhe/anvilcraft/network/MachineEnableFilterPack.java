@@ -1,67 +1,69 @@
 package dev.dubhe.anvilcraft.network;
 
-import dev.anvilcraft.lib.network.Packet;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.IFilterScreen;
-import dev.dubhe.anvilcraft.init.ModNetworks;
 import dev.dubhe.anvilcraft.inventory.IFilterMenu;
 import lombok.Getter;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadHandler;
 
 @Getter
-public class MachineEnableFilterPack implements Packet {
+public class MachineEnableFilterPack implements CustomPacketPayload {
+    public static final Type<MachineEnableFilterPack> TYPE = new Type<>(AnvilCraft.of("machine_record_material"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, MachineEnableFilterPack> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.BOOL, MachineEnableFilterPack::isFilterEnabled, MachineEnableFilterPack::new
+    );
+    public static final IPayloadHandler<MachineEnableFilterPack> HANDLER = new DirectionalPayloadHandler<>(
+            MachineEnableFilterPack::clientHandler,
+            MachineEnableFilterPack::serverHandler
+    );
+
     private final boolean filterEnabled;
 
     public MachineEnableFilterPack(boolean filterEnabled) {
         this.filterEnabled = filterEnabled;
     }
 
-    public MachineEnableFilterPack(@NotNull FriendlyByteBuf buf) {
-        this(buf.readBoolean());
-    }
 
     @Override
-    public ResourceLocation getType() {
-        return ModNetworks.MATERIAL_PACKET;
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 
-    @Override
-    public void encode(@NotNull FriendlyByteBuf buf) {
-        buf.writeBoolean(this.isFilterEnabled());
-    }
 
-    @Override
-    public void handler(@NotNull MinecraftServer server, ServerPlayer player) {
-        server.execute(() -> {
+    public static void serverHandler(MachineEnableFilterPack data, IPayloadContext context) {
+        ServerPlayer player = (ServerPlayer) context.player();
+        context.enqueueWork(() -> {
             if (!player.hasContainerOpen()) return;
             if (!(player.containerMenu instanceof IFilterMenu menu)) return;
-            menu.setFilterEnabled(this.isFilterEnabled());
+            menu.setFilterEnabled(data.isFilterEnabled());
             menu.flush();
-            if (!this.isFilterEnabled() && menu.getFilterBlockEntity() != null) {
+            if (!data.isFilterEnabled() && menu.getFilterBlockEntity() != null) {
                 for (int i = 0; i < menu.getFilteredItems().size(); i++) {
                     ItemStack stack = menu.getFilteredItems().get(i);
                     if (stack.isEmpty()) continue;
-                    new SlotFilterChangePack(i, stack).send(player);
+                    SlotFilterChangePack pack = new SlotFilterChangePack(i, stack);
+                    PacketDistributor.sendToPlayer(player, pack);
                 }
             }
-            this.send(player);
+            PacketDistributor.sendToPlayer(player, data);
         });
     }
 
-    @Override
-    @Environment(EnvType.CLIENT)
-    public void handler() {
+    public static void clientHandler(MachineEnableFilterPack data, IPayloadContext context) {
         Minecraft client = Minecraft.getInstance();
-        client.execute(() -> {
+        context.enqueueWork(() -> {
             if (client.screen instanceof IFilterScreen<?> screen) {
-                screen.setFilterEnabled(this.isFilterEnabled());
+                screen.setFilterEnabled(data.isFilterEnabled());
                 screen.flush();
             }
         });

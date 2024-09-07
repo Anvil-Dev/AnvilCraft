@@ -11,6 +11,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 public class GhostIngredientHandler<T extends Screen & IFilterScreen<?>> implements DraggableStackVisitor<T> {
@@ -34,7 +35,7 @@ public class GhostIngredientHandler<T extends Screen & IFilterScreen<?>> impleme
                     Rect2i rect2i = new Rect2i(screen.getOffsetX() + slot.x, screen.getOffsetY() + slot.y, 16, 16);
                     if (rect2i.contains(x, y)) {
                         if (screen.setFilter(screen.getFilterMenu().getFilterSlotIndex(slot), item)) {
-                            new SlotFilterChangePack(screen.getFilterMenu().getFilterSlotIndex(slot), item).send();
+                            PacketDistributor.sendToServer(new SlotFilterChangePack(screen.getFilterMenu().getFilterSlotIndex(slot), item));
                             return DraggedAcceptorResult.CONSUMED;
                         }
                     }
