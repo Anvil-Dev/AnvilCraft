@@ -1,8 +1,10 @@
 package dev.dubhe.anvilcraft.block;
 
+import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeableBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
@@ -52,7 +54,7 @@ import java.util.stream.Stream;
 
 import static dev.dubhe.anvilcraft.block.MagneticChuteBlock.isFacingDownChute;
 
-public class ChuteBlock extends BaseEntityBlock implements IHammerChangeableBlock, IHammerRemovable {
+public class ChuteBlock extends BetterBaseEntityBlock implements IHammerChangeableBlock, IHammerRemovable {
     public static final DirectionProperty FACING = BlockStateProperties.FACING_HOPPER;
     public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
 
@@ -87,6 +89,11 @@ public class ChuteBlock extends BaseEntityBlock implements IHammerChangeableBloc
                         .setValue(FACING, Direction.DOWN)
                         .setValue(ENABLED, Boolean.TRUE)
         );
+    }
+
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return simpleCodec(ChuteBlock::new);
     }
 
     @Override

@@ -30,13 +30,11 @@ public class PiezoelectricCrystalBlock extends Block implements IHammerRemovable
         super(properties);
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public @Nonnull RenderShape getRenderShape(@Nonnull BlockState state) {
         return RenderShape.MODEL;
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public @NotNull VoxelShape getShape(
             @NotNull BlockState state,

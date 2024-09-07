@@ -92,12 +92,10 @@ public class TransmissionPoleBlock extends AbstractMultiplePartBlock<Vertical3Pa
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public @Nonnull RenderShape getRenderShape(@Nonnull BlockState state) {
         return RenderShape.MODEL;
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public @NotNull VoxelShape getShape(
             @NotNull BlockState state,
@@ -112,7 +110,7 @@ public class TransmissionPoleBlock extends AbstractMultiplePartBlock<Vertical3Pa
     }
 
     @Override
-    protected BlockState placedState(Vertical3PartHalf part, @NotNull BlockState state) {
+    protected @NotNull BlockState placedState(@NotNull Vertical3PartHalf part, @NotNull BlockState state) {
         return super.placedState(part, state).setValue(SWITCH, IPowerComponent.Switch.ON);
     }
 

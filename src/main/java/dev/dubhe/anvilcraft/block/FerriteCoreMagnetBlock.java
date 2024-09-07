@@ -14,7 +14,6 @@ public class FerriteCoreMagnetBlock extends MagnetBlock {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public void randomTick(
         @NotNull BlockState blockState,
         @NotNull ServerLevel serverLevel,

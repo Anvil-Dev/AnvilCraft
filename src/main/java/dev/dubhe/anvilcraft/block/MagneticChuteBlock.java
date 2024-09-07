@@ -1,10 +1,11 @@
 package dev.dubhe.anvilcraft.block;
 
+import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeableBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.BaseChuteBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.MagneticChuteBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
@@ -52,7 +53,7 @@ import javax.annotation.Nonnull;
 import static dev.dubhe.anvilcraft.block.ChuteBlock.ENABLED;
 import static dev.dubhe.anvilcraft.block.ChuteBlock.hasChuteFacing;
 
-public class MagneticChuteBlock extends BaseEntityBlock implements IHammerChangeableBlock, IHammerRemovable {
+public class MagneticChuteBlock extends BetterBaseEntityBlock implements IHammerChangeableBlock, IHammerRemovable {
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
@@ -100,6 +101,11 @@ public class MagneticChuteBlock extends BaseEntityBlock implements IHammerChange
                         .setValue(FACING, Direction.DOWN)
                         .setValue(POWERED, false)
         );
+    }
+
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return simpleCodec(MagneticChuteBlock::new);
     }
 
     @Override

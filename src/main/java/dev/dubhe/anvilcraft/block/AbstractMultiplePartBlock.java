@@ -1,10 +1,15 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.block.state.MultiplePartBlockState;
+import dev.dubhe.anvilcraft.util.Utils;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.data.loot.BlockLootSubProvider;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -17,9 +22,14 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public abstract class AbstractMultiplePartBlock<P extends Enum<P> & MultiplePartBlockState<P>> extends Block {
     public AbstractMultiplePartBlock(Properties properties) {
         super(properties);
@@ -76,13 +86,13 @@ public abstract class AbstractMultiplePartBlock<P extends Enum<P> & MultiplePart
     }
 
     @Override
-    public void playerWillDestroy(
+    public @NotNull BlockState playerWillDestroy(
         @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player
     ) {
         if (!level.isClientSide && player.isCreative()) {
             this.preventCreativeDropFromMainPart(level, pos, state, player);
         }
-        super.playerWillDestroy(level, pos, state, player);
+        return super.playerWillDestroy(level, pos, state, player);
     }
 
     private void preventCreativeDropFromMainPart(
@@ -114,7 +124,15 @@ public abstract class AbstractMultiplePartBlock<P extends Enum<P> & MultiplePart
     ) {
         for (T part : block.getParts()) {
             if (part.getOffset().distSqr(block.getMainPartOffset()) == 0) {
-                provider.add(block, provider.createSinglePropConditionTable(block, block.getPart(), part));
+
+                provider.add(
+                    block,
+                    provider.createSinglePropConditionTable(
+                        block,
+                        block.getPart(),
+                        part
+                    )
+                );
                 break;
             }
         }
@@ -145,5 +163,54 @@ public abstract class AbstractMultiplePartBlock<P extends Enum<P> & MultiplePart
             }
         }
         return true;
+    }
+
+    @Override
+    protected ItemInteractionResult useItemOn(
+        ItemStack pStack,
+        BlockState pState,
+        Level pLevel,
+        BlockPos pPos,
+        Player pPlayer,
+        InteractionHand pHand,
+        BlockHitResult pHitResult
+    ) {
+        return Utils.interactionResultConverter().apply(this.use(
+            pState,
+            pLevel,
+            pPos,
+            pPlayer,
+            pHand,
+            pHitResult
+        ));
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(
+        BlockState pState,
+        Level pLevel,
+        BlockPos pPos,
+        Player pPlayer,
+        BlockHitResult pHitResult
+    ) {
+        return this.use(
+            pState,
+            pLevel,
+            pPos,
+            pPlayer,
+            InteractionHand.MAIN_HAND,
+            pHitResult
+        );
+    }
+
+    public InteractionResult use(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        InteractionHand hand,
+        BlockHitResult hit
+    ) {
+        return InteractionResult.PASS;
     }
 }

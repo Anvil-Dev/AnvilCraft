@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeableBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
@@ -76,6 +77,11 @@ public class RubyLaserBlock extends BaseEntityBlock implements IHammerRemovable,
                 .setValue(FACING, Direction.DOWN)
                 .setValue(OVERLOAD, false)
                 .setValue(SWITCH, Switch.OFF));
+    }
+
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return simpleCodec(RubyLaserBlock::new);
     }
 
     @Override

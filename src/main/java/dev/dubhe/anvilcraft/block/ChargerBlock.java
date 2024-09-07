@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
@@ -46,6 +47,11 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
                 .setValue(POWERED, false)
                 .setValue(OVERLOAD, true)
         );
+    }
+
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return simpleCodec(ChargerBlock::new);
     }
 
     @Nullable

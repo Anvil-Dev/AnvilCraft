@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.chargecollector.ThermoManager;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.ThermoelectricConverterBlockEntity;
@@ -24,6 +25,11 @@ public class ThermoelectricConverterBlock extends BaseEntityBlock implements IHa
 
     public ThermoelectricConverterBlock(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    protected @NotNull MapCodec<? extends BaseEntityBlock> codec() {
+        return simpleCodec(ThermoelectricConverterBlock::new);
     }
 
     @Override

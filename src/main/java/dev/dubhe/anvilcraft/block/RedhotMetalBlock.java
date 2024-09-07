@@ -2,7 +2,9 @@ package dev.dubhe.anvilcraft.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
@@ -26,9 +28,11 @@ public class RedhotMetalBlock extends Block {
     @Override
     public void stepOn(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Entity entity) {
         if (!entity.isSteppingCarefully()
-                && entity instanceof LivingEntity living
-                && !EnchantmentHelper.hasFrostWalker(living)
-        ) {
+            && entity instanceof LivingEntity living
+            && !EnchantmentHelper.hasTag(
+            living.getItemBySlot(EquipmentSlot.FEET),
+            EnchantmentTags.PREVENTS_ICE_MELTING
+        )) {
             if (entity.hurt(level.damageSources().hotFloor(), steppingHarmAmount)) {
                 entity.playSound(SoundEvents.GENERIC_BURN, 0.4F, 2.0F + living.getRandom().nextFloat() * 0.4F);
             }

@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeableBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.RubyPrismBlockEntity;
@@ -68,6 +69,11 @@ public class RubyPrismBlock extends BaseEntityBlock implements IHammerRemovable,
         this.registerDefaultState(
             this.stateDefinition.any()
                 .setValue(FACING, Direction.DOWN));
+    }
+
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return simpleCodec(RubyPrismBlock::new);
     }
 
     @Override

@@ -1,15 +1,19 @@
 package dev.dubhe.anvilcraft.block;
 
+import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.BlockPlaceAssist;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
+import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.InductionLightBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
+import dev.dubhe.anvilcraft.util.Utils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
@@ -43,7 +47,7 @@ import dev.dubhe.anvilcraft.block.state.LightColor;
 
 import javax.annotation.Nonnull;
 
-public class InductionLightBlock extends BaseEntityBlock implements IHammerRemovable, SimpleWaterloggedBlock {
+public class InductionLightBlock extends BetterBaseEntityBlock implements IHammerRemovable, SimpleWaterloggedBlock {
 
     public static final VoxelShape SHAPE_X = Block.box(0, 6, 6, 16, 10, 10);
     public static final VoxelShape SHAPE_Y = Block.box(6, 0, 6, 10, 16, 10);
@@ -69,6 +73,11 @@ public class InductionLightBlock extends BaseEntityBlock implements IHammerRemov
                 .setValue(WATERLOGGED, false)
                 .setValue(COLOR, LightColor.PRIMARY)
         );
+    }
+
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return simpleCodec(InductionLightBlock::new);
     }
 
     @Override
@@ -142,7 +151,7 @@ public class InductionLightBlock extends BaseEntityBlock implements IHammerRemov
     ) {
         ItemStack itemInHand = player.getItemInHand(hand);
         if (itemInHand.is(ModBlocks.INDUCTION_LIGHT.asItem())) {
-            InteractionResult tried = BlockPlaceAssist.tryPlace(
+            return BlockPlaceAssist.tryPlace(
                 state,
                 level,
                 pos,
@@ -151,11 +160,8 @@ public class InductionLightBlock extends BaseEntityBlock implements IHammerRemov
                 hit,
                 ModBlocks.INDUCTION_LIGHT.asItem(),
                 AXIS,
-                ModBlocks.INDUCTION_LIGHT.getDefaultState());
-
-            tried.shouldAwardStats();
-
-            return tried;
+                ModBlocks.INDUCTION_LIGHT.getDefaultState()
+            );
         } else if (itemInHand.is(Items.REDSTONE)) {
             level.setBlockAndUpdate(pos, state.setValue(COLOR, LightColor.PINK));
             return InteractionResult.SUCCESS;
@@ -164,7 +170,9 @@ public class InductionLightBlock extends BaseEntityBlock implements IHammerRemov
             return InteractionResult.SUCCESS;
         } else if (itemInHand.is(ItemTags.AXES)) {
             level.setBlockAndUpdate(pos, state.setValue(COLOR, LightColor.PRIMARY));
-            itemInHand.hurtAndBreak(1, player, item -> item.broadcastBreakEvent(hand));
+            itemInHand.hurtAndBreak(1, (ServerLevel) level, (ServerPlayer) player, item -> {
+                player.onEquippedItemBroken(item, Utils.convertToSlot(hand));
+            });
             return InteractionResult.CONSUME_PARTIAL;
         } else if (itemInHand.is(ModItems.VOID_MATTER.asItem())) {
             level.setBlockAndUpdate(pos, state.setValue(COLOR, LightColor.DARK));

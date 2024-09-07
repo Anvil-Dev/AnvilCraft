@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.init;
 
 import com.tterrag.registrate.util.entry.BlockEntityEntry;
 import dev.dubhe.anvilcraft.block.entity.ActiveSilencerBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.AutoCrafterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.BatchCrafterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChargerBlockEntity;
@@ -38,21 +37,13 @@ import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 
 public class ModBlockEntities {
     public static final BlockEntityEntry<BatchCrafterBlockEntity> BATCH_CRAFTER = REGISTRATE
-        .blockEntity("batch_crafter", BatchCrafterBlockEntity::createBlockEntity)
-        .onRegister(BatchCrafterBlockEntity::onBlockEntityRegister)
+        .blockEntity("batch_crafter", BatchCrafterBlockEntity::new)
         .renderer(() -> BatchCrafterRenderer::new)
         .validBlock(ModBlocks.BATCH_CRAFTER)
         .register();
 
-    public static final BlockEntityEntry<AutoCrafterBlockEntity> AUTO_CRAFTER = REGISTRATE
-            .blockEntity("auto_crafter", AutoCrafterBlockEntity::createBlockEntity)
-            .onRegister(AutoCrafterBlockEntity::onBlockEntityRegister)
-            .validBlock(ModBlocks.AUTO_CRAFTER)
-            .register();
-
     public static final BlockEntityEntry<ItemCollectorBlockEntity> ITEM_COLLECTOR = REGISTRATE
-            .blockEntity("item_collector", ItemCollectorBlockEntity::createBlockEntity)
-            .onRegister(ItemCollectorBlockEntity::onBlockEntityRegister)
+            .blockEntity("item_collector", ItemCollectorBlockEntity::new)
             .validBlock(ModBlocks.ITEM_COLLECTOR)
             .register();
 
@@ -63,20 +54,17 @@ public class ModBlockEntities {
         .register();
 
     public static final BlockEntityEntry<MagneticChuteBlockEntity> MAGNETIC_CHUTE = REGISTRATE
-            .blockEntity("magnetic_chute", MagneticChuteBlockEntity::createBlockEntity)
-            .onRegister(MagneticChuteBlockEntity::onBlockEntityRegister)
+            .blockEntity("magnetic_chute", MagneticChuteBlockEntity::new)
             .validBlock(ModBlocks.MAGNETIC_CHUTE)
             .register();
 
     public static final BlockEntityEntry<SimpleChuteBlockEntity> SIMPLE_CHUTE = REGISTRATE
-        .blockEntity("simple_chute", SimpleChuteBlockEntity::createBlockEntity)
-        .onRegister(SimpleChuteBlockEntity::onBlockEntityRegister)
+        .blockEntity("simple_chute", SimpleChuteBlockEntity::new)
         .validBlock(ModBlocks.SIMPLE_CHUTE)
         .register();
 
     public static final BlockEntityEntry<CrabTrapBlockEntity> CRAB_TRAP = REGISTRATE
-        .blockEntity("crab_trap", CrabTrapBlockEntity::createBlockEntity)
-        .onRegister(CrabTrapBlockEntity::onBlockEntityRegister)
+        .blockEntity("crab_trap", CrabTrapBlockEntity::new)
         .validBlock(ModBlocks.CRAB_TRAP)
         .register();
 
@@ -147,7 +135,6 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<ChargerBlockEntity> CHARGER = REGISTRATE
             .blockEntity("charger", ChargerBlockEntity::new)
             .validBlocks(ModBlocks.CHARGER, ModBlocks.DISCHARGER)
-            .onRegister(ChargerBlockEntity::onBlockEntityRegister)
             .register();
 
     public static final BlockEntityEntry<ActiveSilencerBlockEntity> ACTIVE_SILENCER = REGISTRATE

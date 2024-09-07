@@ -113,12 +113,13 @@ public class RemoteTransmissionPoleBlock extends AbstractMultiplePartBlock<Verti
     }
 
     @Override
-    public void playerWillDestroy(
+    public @NotNull BlockState playerWillDestroy(
         @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player
     ) {
-        if (level.isClientSide) return;
+        if (level.isClientSide) return state;
         onRemove(level, pos, state);
         super.playerWillDestroy(level, pos, state, player);
+        return state;
     }
 
     @Nullable

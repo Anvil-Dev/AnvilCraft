@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.block;
 
+import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.CreativeGeneratorBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
@@ -21,7 +23,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
@@ -29,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
-public class CreativeGeneratorBlock extends BaseEntityBlock implements IHammerRemovable {
+public class CreativeGeneratorBlock extends BetterBaseEntityBlock implements IHammerRemovable {
     public static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 4, 16);
 
     public CreativeGeneratorBlock(Properties properties) {
@@ -37,7 +38,12 @@ public class CreativeGeneratorBlock extends BaseEntityBlock implements IHammerRe
     }
 
     @Override
-    @SuppressWarnings({"deprecation", "UnreachableCode"})
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return simpleCodec(CreativeGeneratorBlock::new);
+    }
+
+    @Override
+    @SuppressWarnings({"UnreachableCode"})
     public @NotNull InteractionResult use(
         @NotNull BlockState state, @NotNull Level level,
         @NotNull BlockPos pos, @NotNull Player player,

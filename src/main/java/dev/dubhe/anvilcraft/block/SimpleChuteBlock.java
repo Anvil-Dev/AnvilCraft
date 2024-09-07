@@ -81,6 +81,11 @@ public class SimpleChuteBlock extends BaseEntityBlock implements
             .setValue(TALL, false));
     }
 
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return simpleCodec(SimpleChuteBlock::new);
+    }
+
     @Nullable
     @Override
     public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {

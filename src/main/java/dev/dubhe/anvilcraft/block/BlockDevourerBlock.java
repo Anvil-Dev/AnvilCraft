@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block;
 
 import static dev.dubhe.anvilcraft.api.entity.player.AnvilCraftBlockPlacer.anvilCraftBlockPlacer;
 
+import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.depository.IItemDepository;
 import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeableBlock;
@@ -9,6 +10,8 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import java.util.List;
 import javax.annotation.Nonnull;
+
+import dev.dubhe.anvilcraft.util.AABBUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -54,6 +57,11 @@ public class BlockDevourerBlock extends DirectionalBlock implements IHammerChang
                 .setValue(FACING, Direction.NORTH)
                 .setValue(TRIGGERED, false)
         );
+    }
+
+    @Override
+    protected MapCodec<? extends DirectionalBlock> codec() {
+        return simpleCodec(BlockDevourerBlock::new);
     }
 
     @Override
@@ -152,21 +160,21 @@ public class BlockDevourerBlock extends DirectionalBlock implements IHammerChang
         final List<BlockPos> devourBlockPosList;
         AABB devourBlockBoundingBox;
         switch (devourerDirection) {
-            case DOWN, UP -> devourBlockBoundingBox = new AABB(
+            case DOWN, UP -> devourBlockBoundingBox = AABBUtil.create(
                 devourCenterPos
                     .relative(Direction.NORTH, range)
                     .relative(Direction.WEST, range),
                 devourCenterPos
                     .relative(Direction.SOUTH, range)
                     .relative(Direction.EAST, range));
-            case NORTH, SOUTH -> devourBlockBoundingBox = new AABB(
+            case NORTH, SOUTH -> devourBlockBoundingBox = AABBUtil.create(
                 devourCenterPos
                     .relative(Direction.UP, range)
                     .relative(Direction.WEST, range),
                 devourCenterPos
                     .relative(Direction.DOWN, range)
                     .relative(Direction.EAST, range));
-            case WEST, EAST -> devourBlockBoundingBox = new AABB(
+            case WEST, EAST -> devourBlockBoundingBox = AABBUtil.create(
                 devourCenterPos
                     .relative(Direction.UP, range)
                     .relative(Direction.NORTH, range),
@@ -176,7 +184,6 @@ public class BlockDevourerBlock extends DirectionalBlock implements IHammerChang
             default -> devourBlockBoundingBox = new AABB(devourCenterPos);
         }
         boolean isDropOriginalPlace = depository == null && !level.noCollision(aabb);
-        if (devourBlockBoundingBox == null) return;
         devourBlockPosList = BlockPos.betweenClosedStream(devourBlockBoundingBox)
             .map(blockPos -> new BlockPos(blockPos.getX(), blockPos.getY(), blockPos.getZ())).map(BlockPos::new)
             .toList();

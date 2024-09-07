@@ -51,7 +51,7 @@ public interface EmberBlock {
                 } else {
                     Block block = blockState.getBlock();
                     if (block instanceof BucketPickup bucketPickup) {
-                        if (!bucketPickup.pickupBlock(level, checkedPos, blockState).isEmpty()) {
+                        if (!bucketPickup.pickupBlock(null, level, checkedPos, blockState).isEmpty()) {
                             setCheckBlockState(blockState);
                             return true;
                         }
@@ -61,9 +61,9 @@ public interface EmberBlock {
                         level.setBlock(checkedPos, Blocks.AIR.defaultBlockState(), 3);
                     } else {
                         if (!blockState.is(Blocks.KELP)
-                                && !blockState.is(Blocks.KELP_PLANT)
-                                && !blockState.is(Blocks.SEAGRASS)
-                                && !blockState.is(Blocks.TALL_SEAGRASS)) {
+                            && !blockState.is(Blocks.KELP_PLANT)
+                            && !blockState.is(Blocks.SEAGRASS)
+                            && !blockState.is(Blocks.TALL_SEAGRASS)) {
                             return false;
                         }
 

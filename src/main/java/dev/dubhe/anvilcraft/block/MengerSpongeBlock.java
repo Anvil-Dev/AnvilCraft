@@ -63,7 +63,7 @@ public class MengerSpongeBlock extends SpongeBlock {
                 } else {
                     Block block = blockState.getBlock();
                     if (block instanceof BucketPickup bucketPickup) {
-                        if (!bucketPickup.pickupBlock(level, checkedPos, blockState).isEmpty()) {
+                        if (!bucketPickup.pickupBlock(null, level, checkedPos, blockState).isEmpty()) {
                             this.state = blockState;
                             return true;
                         }

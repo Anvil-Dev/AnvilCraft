@@ -178,11 +178,10 @@ public class LargeCakeBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf> {
     }
 
     @Override
-    public Cube3x3PartHalf[] getParts() {
+    public Cube3x3PartHalf @NotNull [] getParts() {
         return Cube3x3PartHalf.values();
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public float getShadeBrightness(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos) {
         return 1.0F;
@@ -197,7 +196,6 @@ public class LargeCakeBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf> {
         return true;
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void onPlace(
         @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos,
@@ -221,7 +219,7 @@ public class LargeCakeBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf> {
     }
 
     @Override
-    public void playerWillDestroy(
+    public @NotNull BlockState playerWillDestroy(
         @NotNull Level level,
         @NotNull BlockPos pos,
         @NotNull BlockState state,
@@ -233,6 +231,7 @@ public class LargeCakeBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf> {
         }
 
         level.gameEvent(GameEvent.BLOCK_DESTROY, pos, GameEvent.Context.of(player, state));
+        return state;
     }
 
     @SuppressWarnings("deprecation")
@@ -241,7 +240,6 @@ public class LargeCakeBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf> {
         return level.getBlockState(pos.below()).isSolid();
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public @NotNull InteractionResult use(
         @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos,

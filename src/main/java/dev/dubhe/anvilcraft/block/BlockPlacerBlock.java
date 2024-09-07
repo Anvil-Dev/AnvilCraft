@@ -170,7 +170,6 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public @NotNull VoxelShape getShape(
             @NotNull BlockState state, @NotNull BlockGetter level,
             @NotNull BlockPos pos, @NotNull CollisionContext context
@@ -198,24 +197,24 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
         Direction horizontalDirection = context.getHorizontalDirection();
         if (context.getNearestLookingDirection() == Direction.UP) {
             switch (horizontalDirection) {
-                default -> orientation = Orientation.UP_NORTH;
                 case SOUTH -> orientation = Orientation.UP_SOUTH;
                 case WEST -> orientation = Orientation.UP_WEST;
                 case EAST -> orientation = Orientation.UP_EAST;
+                default -> orientation = Orientation.UP_NORTH;
             }
         } else if (context.getNearestLookingDirection() == Direction.DOWN) {
             switch (horizontalDirection) {
-                default -> orientation = Orientation.DOWN_NORTH;
                 case SOUTH -> orientation = Orientation.DOWN_SOUTH;
                 case WEST -> orientation = Orientation.DOWN_WEST;
                 case EAST -> orientation = Orientation.DOWN_EAST;
+                default -> orientation = Orientation.DOWN_NORTH;
             }
         } else {
             switch (horizontalDirection) {
-                default -> orientation = Orientation.NORTH_UP;
                 case SOUTH -> orientation = Orientation.SOUTH_UP;
                 case WEST -> orientation = Orientation.WEST_UP;
                 case EAST -> orientation = Orientation.EAST_UP;
+                default -> orientation = Orientation.NORTH_UP;
             }
         }
         if (context.getPlayer() != null && context.getPlayer().isShiftKeyDown()) {

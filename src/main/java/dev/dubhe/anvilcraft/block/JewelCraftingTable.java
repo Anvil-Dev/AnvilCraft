@@ -63,19 +63,6 @@ public class JewelCraftingTable extends Block implements IHammerRemovable {
     }
 
     @Override
-    public @NotNull InteractionResult use(
-        @NotNull BlockState state,
-        @NotNull Level level,
-        @NotNull BlockPos pos,
-        @NotNull Player player,
-        @NotNull InteractionHand hand,
-        @NotNull BlockHitResult hit
-    ) {
-        return super.use(state, level, pos, player, hand, hit);
-        // TODO: GUI
-    }
-
-    @Override
     public @NotNull VoxelShape getShape(
         @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context
     ) {

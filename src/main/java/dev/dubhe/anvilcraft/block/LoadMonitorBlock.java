@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.entity.LoadMonitorBlockEntity;
@@ -44,6 +45,11 @@ public class LoadMonitorBlock extends BaseEntityBlock implements IHammerRemovabl
         registerDefaultState(this.defaultBlockState()
             .setValue(OVERLOAD, true)
             .setValue(LOAD, 10));
+    }
+
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return simpleCodec(LoadMonitorBlock::new);
     }
 
     @Override

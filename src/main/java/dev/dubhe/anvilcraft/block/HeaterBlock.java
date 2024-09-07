@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.entity.HeaterBlockEntity;
@@ -7,10 +8,13 @@ import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -46,6 +50,11 @@ public class HeaterBlock extends BaseEntityBlock implements IHammerRemovable {
             this.stateDefinition.any()
                 .setValue(OVERLOAD, true)
         );
+    }
+
+    @Override
+    protected @NotNull MapCodec<? extends BaseEntityBlock> codec() {
+        return simpleCodec(HeaterBlock::new);
     }
 
     @Override
@@ -87,7 +96,10 @@ public class HeaterBlock extends BaseEntityBlock implements IHammerRemovable {
                 && !state.getValue(OVERLOAD)
                 && !entity.isSteppingCarefully()
                 && entity instanceof LivingEntity living
-                && !EnchantmentHelper.hasFrostWalker(living)
+                && !EnchantmentHelper.hasTag(
+                    living.getItemBySlot(EquipmentSlot.FEET),
+                EnchantmentTags.PREVENTS_ICE_MELTING
+            )
         ) {
             if (entity.hurt(level.damageSources().hotFloor(), 4.0F)) {
                 entity.playSound(SoundEvents.GENERIC_BURN, 0.4F, 2.0F + living.getRandom().nextFloat() * 0.4F);

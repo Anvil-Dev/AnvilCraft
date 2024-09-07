@@ -18,7 +18,6 @@ public class EndDustBlock extends Block {
         super(properties);
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void onPlace(
         @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos,
@@ -27,7 +26,6 @@ public class EndDustBlock extends Block {
         level.scheduleTick(pos, this, this.getDelayAfterPlace());
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void tick(
         @NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random
@@ -37,7 +35,6 @@ public class EndDustBlock extends Block {
         FloatingBlockEntity._float(level, pos, state);
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void neighborChanged(
         @NotNull BlockState state,

@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.HeliostatsBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
@@ -28,6 +29,11 @@ public class HeliostatsBlock extends BaseEntityBlock implements IHammerRemovable
 
     public HeliostatsBlock(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return simpleCodec(HeliostatsBlock::new);
     }
 
     @Override

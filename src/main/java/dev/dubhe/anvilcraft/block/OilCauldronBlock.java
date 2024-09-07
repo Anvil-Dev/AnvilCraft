@@ -3,10 +3,13 @@ package dev.dubhe.anvilcraft.block;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItemTags;
+import dev.dubhe.anvilcraft.util.Utils;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -16,14 +19,19 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class OilCauldronBlock extends LayeredCauldronBlock implements IHammerRemovable {
     public OilCauldronBlock(Properties properties) {
-        super(properties, p -> false, CauldronInteraction.EMPTY);
+        super(Biome.Precipitation.NONE, CauldronInteraction.EMPTY, properties);
     }
 
     @Override
@@ -65,6 +73,42 @@ public class OilCauldronBlock extends LayeredCauldronBlock implements IHammerRem
     }
 
     @Override
+    protected ItemInteractionResult useItemOn(
+        ItemStack pStack,
+        BlockState pState,
+        Level pLevel,
+        BlockPos pPos,
+        Player pPlayer,
+        InteractionHand pHand,
+        BlockHitResult pHitResult
+    ) {
+        return Utils.interactionResultConverter().apply(this.use(
+            pState,
+            pLevel,
+            pPos,
+            pPlayer,
+            pHand,
+            pHitResult
+        ));
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(
+        BlockState pState,
+        Level pLevel,
+        BlockPos pPos,
+        Player pPlayer,
+        BlockHitResult pHitResult
+    ) {
+        return this.use(
+            pState,
+            pLevel,
+            pPos,
+            pPlayer,
+            InteractionHand.MAIN_HAND,
+            pHitResult
+        );
+    }
     public @NotNull InteractionResult use(
             @NotNull BlockState state,
             @NotNull Level level,
@@ -82,7 +126,7 @@ public class OilCauldronBlock extends LayeredCauldronBlock implements IHammerRem
                             level.getBlockState(pos).getValue(LayeredCauldronBlock.LEVEL)
                     )
             );
-            itemStack.hurtAndBreak(2, player, e -> e.broadcastBreakEvent(EquipmentSlot.MAINHAND));
+            itemStack.hurtAndBreak(2, player, Utils.convertToSlot(hand));
             return InteractionResult.SUCCESS;
         }
         if (itemStack.is(Items.FIRE_CHARGE)) {
@@ -96,13 +140,6 @@ public class OilCauldronBlock extends LayeredCauldronBlock implements IHammerRem
             itemStack.setCount(0);
             return InteractionResult.SUCCESS;
         }
-        return super.use(state, level, pos, player, hand, hit);
-    }
-
-    @Override
-    public @NotNull ItemStack getCloneItemStack(
-        @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull BlockState state
-    ) {
-        return new ItemStack(Items.CAULDRON);
+        return InteractionResult.PASS;
     }
 }
