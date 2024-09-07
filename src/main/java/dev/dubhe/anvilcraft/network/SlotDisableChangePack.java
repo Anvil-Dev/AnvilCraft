@@ -1,21 +1,33 @@
 package dev.dubhe.anvilcraft.network;
 
-import dev.anvilcraft.lib.network.Packet;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.IFilterScreen;
-import dev.dubhe.anvilcraft.init.ModNetworks;
 import dev.dubhe.anvilcraft.inventory.IFilterMenu;
 import lombok.Getter;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.NotNull;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadHandler;
 
 @Getter
-public class SlotDisableChangePack implements Packet {
+public class SlotDisableChangePack implements CustomPacketPayload {
+    public static final Type<SlotDisableChangePack> TYPE = new Type<>(AnvilCraft.of("slot_disable_change"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, SlotDisableChangePack> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.INT, SlotDisableChangePack::getIndex,
+            ByteBufCodecs.BOOL, SlotDisableChangePack::isState,
+            SlotDisableChangePack::new
+    );
+    public static final IPayloadHandler<SlotDisableChangePack> HANDLER = new DirectionalPayloadHandler<>(
+            SlotDisableChangePack::clientHandler,
+            SlotDisableChangePack::serverHandler
+    );
+
     private final int index;
     private final boolean state;
 
@@ -24,39 +36,29 @@ public class SlotDisableChangePack implements Packet {
         this.state = state;
     }
 
-    public SlotDisableChangePack(@NotNull FriendlyByteBuf buf) {
-        this(buf.readInt(), buf.readBoolean());
-    }
 
     @Override
-    public void encode(@NotNull FriendlyByteBuf buf) {
-        buf.writeInt(index);
-        buf.writeBoolean(this.isState());
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 
-    @Override
-    public ResourceLocation getType() {
-        return ModNetworks.SLOT_DISABLE_CHANGE_PACKET;
-    }
-
-    @Override
-    public void handler(@NotNull MinecraftServer server, ServerPlayer player) {
-        server.execute(() -> {
+    public static void serverHandler(SlotDisableChangePack data, IPayloadContext context) {
+        ServerPlayer player = (ServerPlayer) context.player();
+        context.enqueueWork(() -> {
             if (!player.hasContainerOpen()) return;
             if (!(player.containerMenu instanceof IFilterMenu menu)) return;
-            menu.setSlotDisabled(this.index, this.state);
+            menu.setSlotDisabled(data.index, data.state);
             menu.flush();
-            this.send(player);
+            PacketDistributor.sendToPlayer(player, data);
         });
     }
 
-    @Override
-    @Environment(EnvType.CLIENT)
-    public void handler() {
+
+    public static void clientHandler(SlotDisableChangePack data, IPayloadContext context) {
         Minecraft client = Minecraft.getInstance();
-        client.execute(() -> {
+        context.enqueueWork(() -> {
             if (!(client.screen instanceof IFilterScreen<?> screen)) return;
-            screen.setSlotDisabled(this.index, this.state);
+            screen.setSlotDisabled(data.index, data.state);
         });
     }
 }

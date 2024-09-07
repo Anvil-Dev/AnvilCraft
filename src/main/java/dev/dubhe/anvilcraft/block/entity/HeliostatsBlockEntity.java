@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 
@@ -132,7 +133,7 @@ public class HeliostatsBlockEntity extends BlockEntity {
         if (level == null) return;
         if (level.getGameTime() % (AnvilCraft.config.heliostatsDetectionInterval + 1) != 0) return;
         if (irritatePos == null && level.isClientSide)
-             new HeliostatsIrradiationPack(getBlockPos(), irritatePos).send();
+            PacketDistributor.sendToServer(new HeliostatsIrradiationPack(getBlockPos(), irritatePos));
         workResult = validatePos(irritatePos);
         if (workResult.isWork()) {
             HeatedBlockRecorder.getInstance(getLevel()).addOrIncrease(irritatePos, this);

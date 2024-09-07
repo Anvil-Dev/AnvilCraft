@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
 import dev.dubhe.anvilcraft.event.forge.ClientEventListener;
 import dev.dubhe.anvilcraft.init.ModCommands;
+import dev.dubhe.anvilcraft.init.ModNetworks;
 import dev.dubhe.anvilcraft.init.forge.ModRecipeTypesForge;
 import dev.dubhe.anvilcraft.init.forge.ModVillagers;
 import lombok.Getter;
@@ -12,8 +13,11 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.jetbrains.annotations.NotNull;
 
 @Mod(AnvilCraft.MOD_ID)
@@ -33,14 +37,17 @@ public class AnvilCraftForge {
             AnvilCraft.LOGGER.debug("Server");
         }
         ModLoadingContext.get().registerExtensionPoint(
-            ConfigScreenHandler.ConfigScreenFactory.class,
-            () -> new ConfigScreenHandler.ConfigScreenFactory(
-                (mc, screen) -> AutoConfig.getConfigScreen(AnvilCraftConfig.class, screen).get()
-            )
+            IConfigScreenFactory.class,
+                () -> ((c, screen) -> AutoConfig.getConfigScreen(AnvilCraftConfig.class, screen).get())
         );
     }
 
     public static void registerCommand(@NotNull RegisterCommandsEvent event) {
         ModCommands.register(event.getDispatcher());
+    }
+
+    public static void registerPayload(RegisterPayloadHandlersEvent event) {
+        PayloadRegistrar registrar = event.registrar("1");
+        ModNetworks.init(registrar);
     }
 }

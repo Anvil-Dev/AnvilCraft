@@ -13,7 +13,7 @@ import dev.dubhe.anvilcraft.block.BatchCrafterBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.BatchCrafterMenu;
-import dev.dubhe.anvilcraft.network.ClientboundUpdateDisplayItemPacket;
+import dev.dubhe.anvilcraft.network.UpdateDisplayItemPacket;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
@@ -43,6 +43,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -79,7 +80,7 @@ public class BatchCrafterBlockEntity
                         .map(craftingRecipe -> craftingRecipe.getResultItem(level.registryAccess()))
                         .orElse(ItemStack.EMPTY);
                 if (!level.isClientSide) {
-                    new ClientboundUpdateDisplayItemPacket(displayItemStack, getPos()).broadcast();
+                    PacketDistributor.sendToAllPlayers(new UpdateDisplayItemPacket(displayItemStack, getPos()));
                 }
             }
             setChanged();
@@ -174,7 +175,7 @@ public class BatchCrafterBlockEntity
         result = optional.get().assemble(craftingContainer, level.registryAccess());
         displayItemStack = result.copy();
         if (!level.isClientSide) {
-            new ClientboundUpdateDisplayItemPacket(displayItemStack, getPos()).broadcast();
+            PacketDistributor.sendToAllPlayers((new UpdateDisplayItemPacket(displayItemStack, getPos())));
         }
         if (!result.isItemEnabled(level.enabledFeatures())) return;
         int times;

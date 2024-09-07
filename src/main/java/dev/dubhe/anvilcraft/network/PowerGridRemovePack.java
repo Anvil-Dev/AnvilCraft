@@ -1,48 +1,45 @@
 package dev.dubhe.anvilcraft.network;
 
-import dev.anvilcraft.lib.network.Packet;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.client.renderer.PowerGridRenderer;
-import dev.dubhe.anvilcraft.init.ModNetworks;
 import lombok.Getter;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadHandler;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
-public class PowerGridRemovePack implements Packet {
+public class PowerGridRemovePack implements CustomPacketPayload {
+    public static final Type<PowerGridRemovePack> TYPE = new Type<>(AnvilCraft.of("power_grid_remove"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, PowerGridRemovePack> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.INT, PowerGridRemovePack::getGrid, PowerGridRemovePack::new
+    );
+    public static final IPayloadHandler<PowerGridRemovePack> HANDLER = PowerGridRemovePack::clientHandler;
+
     private final int grid;
 
     /**
      * 电网移除
      */
     public PowerGridRemovePack(@NotNull PowerGrid grid) {
-        this.grid = grid.hashCode();
+        this(grid.hashCode());
     }
 
-    /**
-     * @param buf 缓冲区
-     */
-    public PowerGridRemovePack(@NotNull FriendlyByteBuf buf) {
-        this.grid = buf.readInt();
+    public PowerGridRemovePack(int grid) {
+        this.grid = grid;
     }
 
     @Override
-    public ResourceLocation getType() {
-        return ModNetworks.POWER_GRID_REMOVE;
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 
-    @Override
-    public void encode(@NotNull FriendlyByteBuf buf) {
-        buf.writeInt(this.grid);
-    }
 
-    @Override
-    @Environment(EnvType.CLIENT)
-    public void handler() {
-        Minecraft.getInstance().execute(() -> PowerGridRenderer.getGridMap().remove(this.grid));
+    public static void clientHandler(PowerGridRemovePack data, IPayloadContext context) {
+        context.enqueueWork(() -> PowerGridRenderer.getGridMap().remove(data.grid));
     }
 }

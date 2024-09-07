@@ -1,42 +1,45 @@
 package dev.dubhe.anvilcraft.network;
 
-import dev.anvilcraft.lib.network.Packet;
-import dev.dubhe.anvilcraft.init.ModNetworks;
-import dev.dubhe.anvilcraft.inventory.SliderMenu;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.NotNull;
 
-public class SliderUpdatePack implements Packet {
+import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.inventory.SliderMenu;
+import lombok.Getter;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadHandler;
+
+@Getter
+public class SliderUpdatePack implements CustomPacketPayload {
+    public static final Type<SliderUpdatePack> TYPE = new Type<>(AnvilCraft.of("slider_update"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, SliderUpdatePack> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.INT, SliderUpdatePack::getValue, SliderUpdatePack::new
+    );
+    public static final IPayloadHandler<SliderUpdatePack> HANDLER = SliderUpdatePack::serverHandler;
+
     private final int value;
 
     public SliderUpdatePack(int value) {
         this.value = value;
     }
 
-    public SliderUpdatePack(@NotNull FriendlyByteBuf buf) {
-        this.value = buf.readInt();
-    }
 
     @Override
-    public ResourceLocation getType() {
-        return ModNetworks.SLIDER_UPDATE;
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 
-    @Override
-    public void encode(@NotNull FriendlyByteBuf buf) {
-        buf.writeInt(this.value);
-    }
 
-    @Override
-    public void handler(@NotNull MinecraftServer server, ServerPlayer player) {
-        server.execute(() -> {
+    public static void serverHandler(SliderUpdatePack data, IPayloadContext context) {
+        ServerPlayer player = (ServerPlayer) context.player();
+        context.enqueueWork(() -> {
             if (!player.hasContainerOpen()) return;
             if (!(player.containerMenu instanceof SliderMenu menu)) return;
             SliderMenu.Update update = menu.getUpdate();
-            if (update != null) update.update(value);
+            if (update != null) update.update(data.value);
         });
     }
 }

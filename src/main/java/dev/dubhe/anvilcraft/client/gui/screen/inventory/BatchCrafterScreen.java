@@ -12,15 +12,16 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiFunction;
 
 public class BatchCrafterScreen extends BaseMachineScreen<BatchCrafterMenu> implements IFilterScreen<BatchCrafterMenu> {
     private static final ResourceLocation CONTAINER_LOCATION =
-        AnvilCraft.of("textures/gui/container/machine/background/auto_crafter.png");
+            AnvilCraft.of("textures/gui/container/machine/background/auto_crafter.png");
     BiFunction<Integer, Integer, EnableFilterButton> enableFilterButtonSupplier = this
-        .getEnableFilterButtonSupplier(116, 18);
+            .getEnableFilterButtonSupplier(116, 18);
     @Getter
     private EnableFilterButton enableFilterButton = null;
     private final BatchCrafterMenu menu;
@@ -84,10 +85,11 @@ public class BatchCrafterScreen extends BaseMachineScreen<BatchCrafterMenu> impl
             if (!slot.getItem().isEmpty()) break start;
             int slot1 = slot.getContainerSlot();
             if (this.menu.isFilterEnabled()) {
-                if (!this.menu.isSlotDisabled(slot1)) new SlotDisableChangePack(slot1, false).send();
+                if (!this.menu.isSlotDisabled(slot1))
+                    PacketDistributor.sendToServer(new SlotDisableChangePack(slot1, false));
                 break start;
             }
-            new SlotDisableChangePack(slot1, !this.menu.isSlotDisabled(slot1)).send();
+            PacketDistributor.sendToServer(new SlotDisableChangePack(slot1, !this.menu.isSlotDisabled(slot1)));
         }
         super.slotClicked(slot, slotId, mouseButton, type);
     }

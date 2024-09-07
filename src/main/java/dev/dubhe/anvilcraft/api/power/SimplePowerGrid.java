@@ -67,9 +67,7 @@ public class SimplePowerGrid {
      * @param buf 缓冲区
      */
     public void encode(@NotNull FriendlyByteBuf buf) {
-        Tag tag = CODEC.encodeStart(NbtOps.INSTANCE, this)
-                .getOrThrow(false, ignored -> {
-                });
+        Tag tag = CODEC.encodeStart(NbtOps.INSTANCE, this).getOrThrow();
         CompoundTag data = new CompoundTag();
         data.put("data", tag);
         buf.writeNbt(data);

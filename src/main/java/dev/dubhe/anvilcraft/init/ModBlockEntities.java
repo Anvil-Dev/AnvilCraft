@@ -33,7 +33,6 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeGeneratorRendere
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HasMobBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeliostatsRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LaserRenderer;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 
