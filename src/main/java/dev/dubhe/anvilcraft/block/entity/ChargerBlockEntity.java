@@ -16,6 +16,7 @@ import dev.dubhe.anvilcraft.util.StateListener;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -137,6 +138,11 @@ public class ChargerBlockEntity
         tag.putBoolean("Mode", isCharger);
         tag.putBoolean("PreviousDischargeFailed", previousDischargeFailed);
         tag.putBoolean("Locked", locked);
+    }
+
+    @Override
+    protected void saveAdditional(CompoundTag pTag, HolderLookup.Provider pRegistries) {
+        super.saveAdditional(pTag, pRegistries);
     }
 
     @Override

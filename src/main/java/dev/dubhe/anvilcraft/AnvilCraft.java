@@ -16,7 +16,6 @@ import dev.dubhe.anvilcraft.init.ModEvents;
 import dev.dubhe.anvilcraft.init.ModItemGroups;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
-import dev.dubhe.anvilcraft.init.ModNetworks;
 import dev.dubhe.anvilcraft.init.ModResourcePacks;
 import dev.dubhe.anvilcraft.util.EnchantmentDisableUtil;
 import dev.dubhe.anvilcraft.util.Lazy;
@@ -69,7 +68,7 @@ public class AnvilCraft {
         ModBlockEntities.register();
         ModMenuTypes.register();
         ModDispenserBehavior.register();
-        ModEnchantments.register();
+        ModEnchantments.key();
         ModResourcePacks.register();
 
         AnvilRecipe.init();
