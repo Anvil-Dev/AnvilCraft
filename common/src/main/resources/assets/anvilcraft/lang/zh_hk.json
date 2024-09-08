@@ -6,7 +6,7 @@
   "block.anvilcraft.active_silencer": "主動消音器",
   "block.anvilcraft.amber_block": "琥珀磚",
   "block.anvilcraft.arrow": "箭頭方塊",
-  "block.anvilcraft.batch_crafter": "自動合成器",
+  "block.anvilcraft.batch_crafter": "批量合成器",
   "block.anvilcraft.berry_cake_block": "漿果蛋糕塊",
   "block.anvilcraft.berry_cream_block": "漿果忌廉塊",
   "block.anvilcraft.black_sand": "黑沙",
@@ -491,5 +491,11 @@
   "tooltip.anvilcraft.item.transmission_pole": "組建電網，傳輸距離為 8 個方塊",
   "tooltip.anvilcraft.jade.power_information": "電網：%d / %d kW",
   "tooltip.anvilcraft.only_jei": "檢測到您只安裝了 JEI，無法獲取完整嘅配方查詢。 我們建議安裝 %s 以獲得完整嘅遊戲體驗！",
-  "tooltip.anvilcraft.ruby_prism.power": "激光等級：%d"
+  "tooltip.anvilcraft.ruby_prism.power": "激光等級：%d",
+  "block.anvilcraft.auto_crafter": "自動合成器",
+  "block.anvilcraft.magnetic_chute": "磁性溜槽",
+  "block.anvilcraft.spectral_anvil": "幻靈鐵砧",
+  "entity.anvilcraft.falling_spectral_block": "下落嘅幻靈鐵砧",
+  "text.autoconfig.anvilcraft.option.batchCrafterCooldown": "批量合成器合成冷卻",
+  "text.autoconfig.anvilcraft.option.batchCrafterCooldown.@Tooltip": "批量合成器合成物品嘅時間間隔（單位：ticks）"
 }
