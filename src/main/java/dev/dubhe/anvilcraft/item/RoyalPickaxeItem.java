@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.item;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.PickaxeItem;
 import net.minecraft.world.item.Tiers;
@@ -17,7 +18,9 @@ import java.util.Map;
 
 public class RoyalPickaxeItem extends PickaxeItem implements IHasDefaultEnchantment {
     public RoyalPickaxeItem(Properties properties) {
-        super(Tiers.DIAMOND, 1, -2.8f, properties);
+        super(Tiers.DIAMOND, properties.attributes(AxeItem.createAttributes(
+            Tiers.DIAMOND,  1, -2.8f
+        )));
     }
 
     @Override

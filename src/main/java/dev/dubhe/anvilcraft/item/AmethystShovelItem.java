@@ -20,7 +20,6 @@ public class AmethystShovelItem extends ShovelItem {
     @Override
     public @NotNull ItemStack getDefaultInstance() {
         ItemStack stack = super.getDefaultInstance();
-        stack.enchant(Enchantments.BLOCK_EFFICIENCY, 3);
         return stack;
     }
 }

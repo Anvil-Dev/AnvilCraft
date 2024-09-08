@@ -28,7 +28,6 @@ public class AnvilCraftForge {
     public AnvilCraftForge(IEventBus modEventBus, ModContainer container) {
         AnvilCraft.init(modEventBus);
         ModVillagers.register(modEventBus);
-        modEventBus.addListener(ModRecipeTypesForge::register);
         NeoForge.EVENT_BUS.addListener(AnvilCraftForge::registerCommand);
         try {
             ClientEventListener ignore = new ClientEventListener();

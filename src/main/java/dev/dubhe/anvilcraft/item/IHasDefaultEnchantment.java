@@ -32,16 +32,16 @@ public interface IHasDefaultEnchantment {
                 .translatable("item.anvilcraft.default_enchantment.tooltip")
                 .withStyle(ChatFormatting.GRAY)
         );
-        for (Map.Entry<ResourceKey<Enchantment>, Integer> entry : getDefaultEnchantments().entrySet()) {
-            ResourceKey<Enchantment> enchantment = entry.getKey();
-            Integer level = entry.getValue();
-            list.add(
-                Component
-                    .literal("- ")
-                    .append(Enchantment.getFullname(level))
-                    .withStyle(ChatFormatting.DARK_GRAY)
-            );
-        }
+//        for (Map.Entry<ResourceKey<Enchantment>, Integer> entry : getDefaultEnchantments().entrySet()) {
+//            ResourceKey<Enchantment> enchantment = entry.getKey();
+//            Integer level = entry.getValue();
+//            list.add(
+//                Component
+//                    .literal("- ")
+//                    .append(Enchantment.getFullname(level))
+//                    .withStyle(ChatFormatting.DARK_GRAY)
+//            );
+//        }
         return list;
     }
 }

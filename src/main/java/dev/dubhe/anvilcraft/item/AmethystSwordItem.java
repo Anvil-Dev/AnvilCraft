@@ -20,7 +20,6 @@ public class AmethystSwordItem extends SwordItem {
     @Override
     public @NotNull ItemStack getDefaultInstance() {
         ItemStack stack = super.getDefaultInstance();
-        stack.enchant(ModEnchantments.BEHEADING, 1);
         return stack;
     }
 }

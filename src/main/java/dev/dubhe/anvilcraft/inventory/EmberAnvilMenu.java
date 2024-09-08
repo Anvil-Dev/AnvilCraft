@@ -49,7 +49,7 @@ public class EmberAnvilMenu extends AnvilMenu {
         }
         ItemStack outputItem = inputItem1.copy();
         ItemStack inputItem2 = this.inputSlots.getItem(1);
-        Map<Enchantment, Integer> enchantmentsInInput1 = EnchantmentHelperv.getEnchantments(outputItem);
+        Map<Enchantment, Integer> enchantmentsInInput1 = EnchantmentHelper.getEnchantments(outputItem);
         boolean textChanged = false;
         int totalCost = 0;
         int j = 0;

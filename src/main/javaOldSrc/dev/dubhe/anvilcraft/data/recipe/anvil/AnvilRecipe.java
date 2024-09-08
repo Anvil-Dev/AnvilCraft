@@ -25,7 +25,6 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.block.HasShulkerBoxBlock
 import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.multiblock.HasMultiBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItemTags;
-import dev.dubhe.anvilcraft.util.IItemStackUtil;
 import lombok.Getter;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;

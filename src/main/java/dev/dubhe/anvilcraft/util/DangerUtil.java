@@ -17,10 +17,10 @@ public final class DangerUtil {
     }
 
     public static @NotNull Supplier<ModelFile.UncheckedModelFile> genUncheckedModelFile(String path) {
-        return () -> new ModelFile.UncheckedModelFile(new ResourceLocation(path));
+        return () -> new ModelFile.UncheckedModelFile( ResourceLocation.withDefaultNamespace(path));
     }
 
     public static @NotNull Supplier<ModelFile.UncheckedModelFile> genUncheckedModelFile(String namespace, String path) {
-        return () -> new ModelFile.UncheckedModelFile(new ResourceLocation(namespace, path));
+        return () -> new ModelFile.UncheckedModelFile(ResourceLocation.fromNamespaceAndPath(namespace, path));
     }
 }

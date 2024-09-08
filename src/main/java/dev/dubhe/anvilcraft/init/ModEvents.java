@@ -28,7 +28,6 @@ public class ModEvents {
         AnvilCraft.EVENT_BUS.register(new AnvilHitBlockPlacerEventListener());
         AnvilCraft.EVENT_BUS.register(new AnvilHitBlockDevourerEventListener());
         AnvilCraft.EVENT_BUS.register(new AnvilHitImpactPileEventListener());
-        AnvilCraft.EVENT_BUS.register(new GiantAnvilMultiblockCraftingEventListener());
         AnvilCraft.EVENT_BUS.register(new GiantAnvilLandingEventListener());
         AnvilCraft.EVENT_BUS.register(new ServerBlockEntityEventListener());
         AnvilCraft.EVENT_BUS.register(new ClientPlayerDisconnectEventListener());

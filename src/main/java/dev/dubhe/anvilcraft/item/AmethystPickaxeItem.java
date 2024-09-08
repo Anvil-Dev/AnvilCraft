@@ -40,12 +40,4 @@ public class AmethystPickaxeItem extends PickaxeItem {
             .add(Component.translatable("item.anvilcraft.amethyst_pickaxe.tooltip")
                 .withStyle(ChatFormatting.GRAY));
     }
-
-
-    @Override
-    public @NotNull ItemStack getDefaultInstance() {
-        ItemStack stack = super.getDefaultInstance();
-        stack.enchant(Enchantments.FORTUNE, 3);
-        return stack;
-    }
 }

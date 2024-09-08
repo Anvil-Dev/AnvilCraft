@@ -8,7 +8,6 @@ import com.google.gson.JsonSyntaxException;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContext;
 import dev.dubhe.anvilcraft.data.recipe.anvil.CanSetData;
 import dev.dubhe.anvilcraft.data.recipe.anvil.RecipeOutcome;
-import dev.dubhe.anvilcraft.util.IItemStackUtil;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.nbt.CompoundTag;

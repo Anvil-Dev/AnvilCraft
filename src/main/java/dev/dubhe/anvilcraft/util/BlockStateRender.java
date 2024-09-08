@@ -26,7 +26,7 @@ public class BlockStateRender {
         poseStack.pushPose();
         poseStack.translate(0, 0, 150.0f);
         poseStack.scale(size, size, size);
-        poseStack.mulPoseMatrix(new Matrix4f().scaling(1.0f, -1.0f, 1.0f));
+        poseStack.mulPose(new Matrix4f().scaling(1.0f, -1.0f, 1.0f));
         ItemTransform transform = new ItemTransform(
             new Vector3f(30, 210, 0), new Vector3f(0.925f, -0.8125f, 0), new Vector3f(0.625f)
         );
@@ -57,7 +57,7 @@ public class BlockStateRender {
         poseStack.pushPose();
         poseStack.translate(x, y, 150.0f);
         poseStack.scale(size, size, size);
-        poseStack.mulPoseMatrix(new Matrix4f().scaling(1.0f, -1.0f, 1.0f));
+        poseStack.mulPose(new Matrix4f().scaling(1.0f, -1.0f, 1.0f));
         ItemTransform transform = new ItemTransform(
             new Vector3f(30, 210, 0), new Vector3f(0.925f, -0.8125f, 0), new Vector3f(0.625f)
         );

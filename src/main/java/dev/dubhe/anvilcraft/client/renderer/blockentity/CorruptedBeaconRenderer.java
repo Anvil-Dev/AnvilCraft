@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -49,115 +50,152 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
     }
 
     private static void renderBeaconBeam(
-        PoseStack poseStack,
-        MultiBufferSource bufferSource,
-        float partialTick,
-        long gameTime,
-        int pyOffset,
-        int height,
-        float[] colors
+        PoseStack pPoseStack, MultiBufferSource pBufferSource, float pPartialTick, long pGameTime, int pYOffset, int pHeight, int pColor
     ) {
-        CorruptedBeaconRenderer.renderBeaconBeam(
-            poseStack, bufferSource, BEAM_LOCATION, partialTick,
-            1.0f, gameTime, pyOffset, height, colors,
-            0.2f, 0.25f
-        );
+        renderBeaconBeam(pPoseStack, pBufferSource, BEAM_LOCATION, pPartialTick, 1.0F, pGameTime, pYOffset, pHeight, pColor, 0.2F, 0.25F);
     }
 
-    @SuppressWarnings("SameParameterValue")
-    private static void renderBeaconBeam(
-        @NotNull PoseStack poseStack,
-        @NotNull MultiBufferSource bufferSource,
-        ResourceLocation beamLocation,
-        float partialTick,
-        float textureScale,
-        long gameTime,
-        int pyOffset,
-        int height,
-        float @NotNull [] colors,
-        float beamRadius,
-        float glowRadius
+    public static void renderBeaconBeam(
+        PoseStack pPoseStack,
+        MultiBufferSource pBufferSource,
+        ResourceLocation pBeamLocation,
+        float pPartialTick,
+        float pTextureScale,
+        long pGameTime,
+        int pYOffset,
+        int pHeight,
+        int pColor,
+        float pBeamRadius,
+        float pGlowRadius
     ) {
-        poseStack.pushPose();
-        poseStack.translate(0.5, 0.0, 0.5);
-        float f = (float) Math.floorMod(gameTime, 40) + partialTick;
-        float g = height < 0 ? f : -f;
-        float h = Mth.frac(g * 0.2f - (float) Mth.floor(g * 0.1f));
-        float j = colors[0];
-        float k = colors[1];
-        float l = colors[2];
-        poseStack.pushPose();
-        poseStack.mulPose(Axis.YP.rotationDegrees(f * 2.25f - 45.0f));
-        float m;
-        float n = beamRadius;
-        float o = beamRadius;
-        float q = -beamRadius;
-        float t = -beamRadius;
-        float w = -1.0f + h;
-        float x = (float) height * textureScale * (0.5f / beamRadius) + w;
-        int i = pyOffset + height;
-        CorruptedBeaconRenderer.renderPart(
-            poseStack, bufferSource.getBuffer(RenderType.beaconBeam(beamLocation, false)),
-            j, k, l, 1.0f, pyOffset, i, 0.0f, n, o, 0.0f, q, 0.0f, 0.0f, t, x, w);
-        poseStack.popPose();
-        m = -glowRadius;
-        n = -glowRadius;
-        o = glowRadius;
-        q = -glowRadius;
-        t = glowRadius;
-        w = -1.0f + h;
-        x = (float) height * textureScale + w;
-        float p = -glowRadius;
-        CorruptedBeaconRenderer.renderPart(
-            poseStack, bufferSource.getBuffer(RenderType.beaconBeam(beamLocation, true)), j, k, l,
-            0.125f, pyOffset, i, m, n, o, p, q, glowRadius, glowRadius, t, x, w);
-        poseStack.popPose();
+        int i = pYOffset + pHeight;
+        pPoseStack.pushPose();
+        pPoseStack.translate(0.5, 0.0, 0.5);
+        float f = (float)Math.floorMod(pGameTime, 40) + pPartialTick;
+        float f1 = pHeight < 0 ? f : -f;
+        float f2 = Mth.frac(f1 * 0.2F - (float)Mth.floor(f1 * 0.1F));
+        pPoseStack.pushPose();
+        pPoseStack.mulPose(Axis.YP.rotationDegrees(f * 2.25F - 45.0F));
+        float f3;
+        float f5;
+        float f6 = -pBeamRadius;
+        float f9 = -pBeamRadius;
+        float f12 = -1.0F + f2;
+        float f13 = (float)pHeight * pTextureScale * (0.5F / pBeamRadius) + f12;
+        renderPart(
+            pPoseStack,
+            pBufferSource.getBuffer(RenderType.beaconBeam(pBeamLocation, false)),
+            pColor,
+            pYOffset,
+            i,
+            0.0F,
+            pBeamRadius,
+            pBeamRadius,
+            0.0F,
+            f6,
+            0.0F,
+            0.0F,
+            f9,
+            0.0F,
+            1.0F,
+            f13,
+            f12
+        );
+        pPoseStack.popPose();
+        f3 = -pGlowRadius;
+        float f4 = -pGlowRadius;
+        f5 = -pGlowRadius;
+        f6 = -pGlowRadius;
+        f12 = -1.0F + f2;
+        f13 = (float)pHeight * pTextureScale + f12;
+        renderPart(
+            pPoseStack,
+            pBufferSource.getBuffer(RenderType.beaconBeam(pBeamLocation, true)),
+            FastColor.ARGB32.color(32, pColor),
+            pYOffset,
+            i,
+            f3,
+            f4,
+            pGlowRadius,
+            f5,
+            f6,
+            pGlowRadius,
+            pGlowRadius,
+            pGlowRadius,
+            0.0F,
+            1.0F,
+            f13,
+            f12
+        );
+        pPoseStack.popPose();
     }
 
     private static void renderPart(
-        @NotNull PoseStack poseStack, VertexConsumer consumer, float red, float green, float blue, float alpha,
-        int minY, int maxY, float x0, float z0, float x1, float z1, float x2, float z2,
-        float x3, float z3, float minV, float maxV
+        PoseStack pPoseStack,
+        VertexConsumer pConsumer,
+        int pColor,
+        int pMinY,
+        int pMaxY,
+        float pX1,
+        float pZ1,
+        float pX2,
+        float pZ2,
+        float pX3,
+        float pZ3,
+        float pX4,
+        float pZ4,
+        float pMinU,
+        float pMaxU,
+        float pMinV,
+        float pMaxV
     ) {
-        PoseStack.Pose pose = poseStack.last();
-        Matrix4f matrix4f = pose.pose();
-        Matrix3f matrix3f = pose.normal();
-        CorruptedBeaconRenderer.renderQuad(matrix4f, matrix3f,
-            consumer, red, green, blue, alpha, minY, maxY, x0, z0, x1, z1, minV, maxV);
-        CorruptedBeaconRenderer.renderQuad(matrix4f, matrix3f,
-            consumer, red, green, blue, alpha, minY, maxY, x3, z3, x2, z2, minV, maxV);
-        CorruptedBeaconRenderer.renderQuad(matrix4f, matrix3f,
-            consumer, red, green, blue, alpha, minY, maxY, x1, z1, x3, z3, minV, maxV);
-        CorruptedBeaconRenderer.renderQuad(matrix4f, matrix3f,
-            consumer, red, green, blue, alpha, minY, maxY, x2, z2, x0, z0, minV, maxV);
+        PoseStack.Pose posestack$pose = pPoseStack.last();
+        renderQuad(
+            posestack$pose, pConsumer, pColor, pMinY, pMaxY, pX1, pZ1, pX2, pZ2, pMinU, pMaxU, pMinV, pMaxV
+        );
+        renderQuad(
+            posestack$pose, pConsumer, pColor, pMinY, pMaxY, pX4, pZ4, pX3, pZ3, pMinU, pMaxU, pMinV, pMaxV
+        );
+        renderQuad(
+            posestack$pose, pConsumer, pColor, pMinY, pMaxY, pX2, pZ2, pX4, pZ4, pMinU, pMaxU, pMinV, pMaxV
+        );
+        renderQuad(
+            posestack$pose, pConsumer, pColor, pMinY, pMaxY, pX3, pZ3, pX1, pZ1, pMinU, pMaxU, pMinV, pMaxV
+        );
     }
 
     private static void renderQuad(
-        Matrix4f pose, Matrix3f normal, VertexConsumer consumer, float red, float green,
-        float blue, float alpha, int minY, int maxY, float minX, float minZ,
-        float maxX, float maxZ, float minV, float maxV
+        PoseStack.Pose pPose,
+        VertexConsumer pConsumer,
+        int pColor,
+        int pMinY,
+        int pMaxY,
+        float pMinX,
+        float pMinZ,
+        float pMaxX,
+        float pMaxZ,
+        float pMinU,
+        float pMaxU,
+        float pMinV,
+        float pMaxV
     ) {
-        CorruptedBeaconRenderer.addVertex(pose, normal, consumer,
-            red, green, blue, alpha, maxY, minX, minZ, (float) 1.0, minV);
-        CorruptedBeaconRenderer.addVertex(pose, normal, consumer,
-            red, green, blue, alpha, minY, minX, minZ, (float) 1.0, maxV);
-        CorruptedBeaconRenderer.addVertex(pose, normal, consumer,
-            red, green, blue, alpha, minY, maxX, maxZ, (float) 0.0, maxV);
-        CorruptedBeaconRenderer.addVertex(pose, normal, consumer,
-            red, green, blue, alpha, maxY, maxX, maxZ, (float) 0.0, minV);
+        addVertex(pPose, pConsumer, pColor, pMaxY, pMinX, pMinZ, pMaxU, pMinV);
+        addVertex(pPose, pConsumer, pColor, pMinY, pMinX, pMinZ, pMaxU, pMaxV);
+        addVertex(pPose, pConsumer, pColor, pMinY, pMaxX, pMaxZ, pMinU, pMaxV);
+        addVertex(pPose, pConsumer, pColor, pMaxY, pMaxX, pMaxZ, pMinU, pMinV);
     }
 
-    /**
-     * @param u the left-most coordinate of the texture region
-     * @param v the top-most coordinate of the texture region
-     */
     private static void addVertex(
-        Matrix4f pose, Matrix3f normal, @NotNull VertexConsumer consumer, float red,
-        float green, float blue, float alpha, int y, float x, float z, float u, float v) {
-        consumer.vertex(pose, x, y, z).color(red, green, blue, alpha).uv(u, v)
-            .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(0xF000F0)
-            .normal(normal, 0.0f, 1.0f, 0.0f).endVertex();
+        PoseStack.Pose pPose, VertexConsumer pConsumer, int pColor, int pY, float pX, float pZ, float pU, float pV
+    ) {
+        pConsumer.addVertex(pPose, pX, (float)pY, pZ)
+            .setColor(pColor)
+            .setUv(pU, pV)
+            .setOverlay(OverlayTexture.NO_OVERLAY)
+            .setLight(15728880)
+            .setNormal(pPose, 0.0F, 1.0F, 0.0F);
     }
+
 
     @Override
     public boolean shouldRenderOffScreen(@NotNull CorruptedBeaconBlockEntity blockEntity) {

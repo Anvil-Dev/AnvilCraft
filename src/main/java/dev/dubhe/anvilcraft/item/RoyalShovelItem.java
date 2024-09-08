@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.item;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.item.Tiers;
@@ -17,7 +18,9 @@ import java.util.Map;
 
 public class RoyalShovelItem extends ShovelItem implements IHasDefaultEnchantment {
     public RoyalShovelItem(Properties properties) {
-        super(Tiers.DIAMOND, 1.5f, -3.0f, properties);
+        super(Tiers.DIAMOND, properties.attributes(AxeItem.createAttributes(
+            Tiers.DIAMOND,  1.5f, -3.0f
+        )));
     }
 
     @Override

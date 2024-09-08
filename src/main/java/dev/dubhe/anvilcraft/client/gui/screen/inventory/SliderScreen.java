@@ -65,8 +65,16 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
             (btn) -> this.slider.setValueWithUpdate(slider.getMin())
         );
         ImageButton minus = new ImageButton(
-            26 + offsetX, 43 + offsetY,
-            16, 16, 0, 0, 16, BUTTON_MINUS, 16, 32,
+            26 + offsetX,
+            43 + offsetY,
+            16,
+            16,
+            0,
+            0,
+            16,
+            BUTTON_MINUS,
+            16,
+            32,
             (btn) -> this.slider.setValueWithUpdate(Math.max(slider.getMin(), slider.getValue() - 1))
         );
         this.addRenderableWidget(max);
