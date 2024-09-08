@@ -19,12 +19,13 @@ import net.neoforged.neoforge.network.handling.IPayloadHandler;
 @Getter
 public class MachineEnableFilterPack implements CustomPacketPayload {
     public static final Type<MachineEnableFilterPack> TYPE = new Type<>(AnvilCraft.of("machine_record_material"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, MachineEnableFilterPack> STREAM_CODEC = StreamCodec.composite(
+    public static final StreamCodec<RegistryFriendlyByteBuf, MachineEnableFilterPack> STREAM_CODEC =
+        StreamCodec.composite(
             ByteBufCodecs.BOOL, MachineEnableFilterPack::isFilterEnabled, MachineEnableFilterPack::new
-    );
+        );
     public static final IPayloadHandler<MachineEnableFilterPack> HANDLER = new DirectionalPayloadHandler<>(
-            MachineEnableFilterPack::clientHandler,
-            MachineEnableFilterPack::serverHandler
+        MachineEnableFilterPack::clientHandler,
+        MachineEnableFilterPack::serverHandler
     );
 
     private final boolean filterEnabled;
@@ -39,7 +40,9 @@ public class MachineEnableFilterPack implements CustomPacketPayload {
         return TYPE;
     }
 
-
+    /**
+     *
+     */
     public static void serverHandler(MachineEnableFilterPack data, IPayloadContext context) {
         ServerPlayer player = (ServerPlayer) context.player();
         context.enqueueWork(() -> {
@@ -59,6 +62,9 @@ public class MachineEnableFilterPack implements CustomPacketPayload {
         });
     }
 
+    /**
+     *
+     */
     public static void clientHandler(MachineEnableFilterPack data, IPayloadContext context) {
         Minecraft client = Minecraft.getInstance();
         context.enqueueWork(() -> {

@@ -53,8 +53,14 @@ public class PowerGrid {
         this.level = level;
     }
 
+    /**
+     *
+     */
     public void update() {
-        PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, this.level.getChunkAt(this.getPos()).getPos(), new PowerGridSyncPack(this));
+        PacketDistributor.sendToPlayersTrackingChunk(
+            (ServerLevel) level,
+            this.level.getChunkAt(this.getPos()).getPos(), new PowerGridSyncPack(this)
+        );
     }
 
     /**

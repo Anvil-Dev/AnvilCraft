@@ -30,6 +30,9 @@ public class OverNestingShulkerBoxBlock extends BetterBlock {
         super(properties);
     }
 
+    /**
+     *
+     */
     public @NotNull InteractionResult use(@NotNull BlockState state,
                                           @NotNull Level level,
                                           @NotNull BlockPos pos,

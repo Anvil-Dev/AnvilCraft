@@ -38,12 +38,17 @@ public class LavaCauldronBlock extends LayeredCauldronBlock implements IHammerRe
     }
 
     @Override
-    public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
+    public ItemStack getCloneItemStack(
+        BlockState state,
+        HitResult target,
+        LevelReader level,
+        BlockPos pos,
+        Player player
+    ) {
         return new ItemStack(Items.CAULDRON);
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public void neighborChanged(
         @NotNull BlockState state,
         @NotNull Level level,

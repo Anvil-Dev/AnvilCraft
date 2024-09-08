@@ -21,12 +21,12 @@ import org.jetbrains.annotations.NotNull;
 public class MachineOutputDirectionPack implements CustomPacketPayload {
     public static final Type<MachineOutputDirectionPack> TYPE = new Type<>(AnvilCraft.of("machine_output_direction"));
     public static final StreamCodec<RegistryFriendlyByteBuf, MachineOutputDirectionPack> STREAM_CODEC = StreamCodec.ofMember(
-            MachineOutputDirectionPack::encode,
-            MachineOutputDirectionPack::new
+        MachineOutputDirectionPack::encode,
+        MachineOutputDirectionPack::new
     );
     public static final IPayloadHandler<MachineOutputDirectionPack> HANDLER = new DirectionalPayloadHandler<>(
-            MachineOutputDirectionPack::clientHandler,
-            MachineOutputDirectionPack::serverHandler
+        MachineOutputDirectionPack::clientHandler,
+        MachineOutputDirectionPack::serverHandler
     );
     private final Direction direction;
 
@@ -47,19 +47,24 @@ public class MachineOutputDirectionPack implements CustomPacketPayload {
         buf.writeEnum(this.getDirection());
     }
 
+    /**
+     *
+     */
     public static void serverHandler(MachineOutputDirectionPack data, IPayloadContext context) {
         ServerPlayer player = (ServerPlayer) context.player();
         context.enqueueWork(() -> {
-                    if (!player.hasContainerOpen()) return;
-                    if (!(player.containerMenu instanceof BaseMachineMenu menu)) return;
-                    Direction direction = data.getDirection();
-                    menu.setDirection(direction);
-                    PacketDistributor.sendToPlayer(player, data);
-                }
+                if (!player.hasContainerOpen()) return;
+                if (!(player.containerMenu instanceof BaseMachineMenu menu)) return;
+                Direction direction = data.getDirection();
+                menu.setDirection(direction);
+                PacketDistributor.sendToPlayer(player, data);
+            }
         );
     }
 
-
+    /**
+     *
+     */
     public static void clientHandler(MachineOutputDirectionPack data, IPayloadContext context) {
         Minecraft client = Minecraft.getInstance();
         context.enqueueWork(() -> {

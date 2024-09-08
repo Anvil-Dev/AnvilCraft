@@ -21,6 +21,9 @@ import java.util.Map;
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class RoyalHoeItem extends HoeItem implements IHasDefaultEnchantment {
+    /**
+     *
+     */
     public RoyalHoeItem(Properties properties) {
         super(Tiers.DIAMOND, properties.attributes(AxeItem.createAttributes(
             Tiers.DIAMOND, -3, 0

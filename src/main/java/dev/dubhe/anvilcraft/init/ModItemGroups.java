@@ -52,9 +52,6 @@ public class ModItemGroups {
                     entries.accept(ModItems.BEEF_MUSHROOM_STEW.get().getDefaultInstance());
                     entries.accept(ModItems.UTUSAN.get().getDefaultInstance());
                     entries.accept(ModItems.SEEDS_PACK.get().getDefaultInstance());
-//                entries.accept(ModItemGroups.createMaxLevelBook(ModEnchantments.FELLING));
-//                entries.accept(ModItemGroups.createMaxLevelBook(ModEnchantments.HARVEST));
-//                entries.accept(ModItemGroups.createMaxLevelBook(ModEnchantments.BEHEADING));
                 })
                 .title(REGISTRATE.addLang("itemGroup", AnvilCraft.of("tools"), "AnvilCraft: Utilities"))
                 .build()

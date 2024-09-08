@@ -17,6 +17,9 @@ import java.util.Map;
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class RoyalAxeItem extends AxeItem implements IHasDefaultEnchantment {
+    /**
+     *
+     */
     public RoyalAxeItem(Properties properties) {
         super(Tiers.DIAMOND, properties.attributes(AxeItem.createAttributes(
             ModTiers.AMETHYST, 5, -3.0f

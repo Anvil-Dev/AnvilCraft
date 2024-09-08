@@ -69,6 +69,9 @@ public class NestingShulkerBoxBlock extends Block {
         );
     }
 
+    /**
+     *
+     */
     public @NotNull InteractionResult use(
         @NotNull BlockState state,
         @NotNull Level level,
