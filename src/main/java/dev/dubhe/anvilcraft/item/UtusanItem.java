@@ -1,7 +1,9 @@
 package dev.dubhe.anvilcraft.item;
 
 import dev.dubhe.anvilcraft.util.PlayerUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
@@ -19,9 +21,12 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class UtusanItem extends Item {
     public UtusanItem(Properties properties) {
         super(properties);
@@ -53,9 +58,9 @@ public class UtusanItem extends Item {
     public static void removeHarmfulEffects(@NotNull LivingEntity livingEntity) {
         if (livingEntity.level().isClientSide) return;
         boolean bl = false;
-        List<MobEffect> effects = new ArrayList<>();
+        List<Holder<MobEffect>> effects = new ArrayList<>();
         for (MobEffectInstance effect : livingEntity.getActiveEffects()) {
-            if (!effect.getEffect().getCategory().equals(MobEffectCategory.HARMFUL)) continue;
+            if (!effect.getEffect().value().getCategory().equals(MobEffectCategory.HARMFUL)) continue;
             effects.add(effect.getEffect());
             bl = true;
         }
@@ -63,11 +68,11 @@ public class UtusanItem extends Item {
             livingEntity.addEffect(new MobEffectInstance(MobEffects.POISON, 600, 4));
             return;
         }
-        for (MobEffect effect : effects) livingEntity.removeEffect(effect);
+        for (Holder<MobEffect> effect : effects) livingEntity.removeEffect(effect);
     }
 
     @Override
-    public int getUseDuration(@NotNull ItemStack itemStack) {
+    public int getUseDuration(ItemStack pStack, LivingEntity pEntity) {
         return 10;
     }
 

@@ -34,26 +34,13 @@ public class ModEnchantments {
             (Registry<Enchantment>) BuiltInRegistries.REGISTRY.get(Registries.ENCHANTMENT.location());
         return enchantmentRegistry.getHolderOrThrow(HARVEST_KEY).getDelegate();
     });
-    ;
+
     public static final Lazy<Holder<Enchantment>> BEHEADING = new Lazy<>(() -> {
         Registry<Enchantment> enchantmentRegistry =
             (Registry<Enchantment>) BuiltInRegistries.REGISTRY.get(Registries.ENCHANTMENT.location());
         return enchantmentRegistry.getHolderOrThrow(BEHEADING_KEY).getDelegate();
     });
-    ;
 
-//    public static final RegistryEntry<FellingEnchantment> FELLING = REGISTRATE
-//            .enchantment("felling", EnchantmentCategory.DIGGER, FellingEnchantment::new)
-//            .rarity(Enchantment.Rarity.RARE)
-//            .register();
-//    public static final RegistryEntry<HarvestEnchantment> HARVEST = REGISTRATE
-//            .enchantment("harvest", EnchantmentCategory.DIGGER, HarvestEnchantment::new)
-//            .rarity(Enchantment.Rarity.RARE)
-//            .register();
-//    public static final RegistryEntry<BeheadingEnchantment> BEHEADING = REGISTRATE
-//            .enchantment("beheading", EnchantmentCategory.WEAPON, BeheadingEnchantment::new)
-//            .rarity(Enchantment.Rarity.RARE)
-//            .register();
 
     public static ResourceKey<Enchantment> key(String name) {
         return ResourceKey.create(Registries.ENCHANTMENT, AnvilCraft.of(name));

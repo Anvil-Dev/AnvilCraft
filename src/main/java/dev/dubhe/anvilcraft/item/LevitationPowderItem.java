@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.item;
 
+import net.minecraft.core.Holder;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -38,7 +39,7 @@ public class LevitationPowderItem extends Item {
         }
     }
 
-    private static MobEffectInstance getEffectInstance(MobEffect effect, int amplifier) {
+    private static MobEffectInstance getEffectInstance(Holder<MobEffect> effect, int amplifier) {
         return new MobEffectInstance(effect, 200, amplifier, true, true);
     }
 

@@ -1,37 +1,41 @@
 package dev.dubhe.anvilcraft.item;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Tiers;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.Map;
 
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class RoyalAxeItem extends AxeItem implements IHasDefaultEnchantment {
     public RoyalAxeItem(Properties properties) {
-        super(Tiers.DIAMOND, 5, -3.0f, properties);
+        super(Tiers.DIAMOND, properties.attributes(AxeItem.createAttributes(
+            ModTiers.AMETHYST, 5, -3.0f
+        )));
     }
 
     @Override
     public void appendHoverText(
-        @NotNull ItemStack stack,
-        @Nullable Level level,
-        @NotNull List<Component> tooltipComponents,
-        @NotNull TooltipFlag isAdvanced
+        ItemStack pStack,
+        TooltipContext pContext,
+        List<Component> pTooltipComponents,
+        TooltipFlag pTooltipFlag
     ) {
-        super.appendHoverText(stack, level, tooltipComponents, isAdvanced);
-        tooltipComponents.addAll(this.getDefaultEnchantmentsTooltip());
+        super.appendHoverText(pStack, pContext, pTooltipComponents, pTooltipFlag);
+        pTooltipComponents.addAll(this.getDefaultEnchantmentsTooltip());
     }
 
     @Override
-    public Map<Enchantment, Integer> getDefaultEnchantments() {
+    public Map<ResourceKey<Enchantment>, Integer> getDefaultEnchantments() {
         return Map.of(Enchantments.UNBREAKING, 3);
     }
 }

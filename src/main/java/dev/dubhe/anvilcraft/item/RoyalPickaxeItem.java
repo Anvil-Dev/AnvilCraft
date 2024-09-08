@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.item;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.PickaxeItem;
 import net.minecraft.world.item.Tiers;
@@ -21,17 +22,17 @@ public class RoyalPickaxeItem extends PickaxeItem implements IHasDefaultEnchantm
 
     @Override
     public void appendHoverText(
-        @NotNull ItemStack stack,
-        @Nullable Level level,
-        @NotNull List<Component> tooltipComponents,
-        @NotNull TooltipFlag isAdvanced
+        ItemStack pStack,
+        TooltipContext pContext,
+        List<Component> pTooltipComponents,
+        TooltipFlag pTooltipFlag
     ) {
-        super.appendHoverText(stack, level, tooltipComponents, isAdvanced);
-        tooltipComponents.addAll(this.getDefaultEnchantmentsTooltip());
+        super.appendHoverText(pStack, pContext, pTooltipComponents, pTooltipFlag);
+        pTooltipComponents.addAll(this.getDefaultEnchantmentsTooltip());
     }
 
     @Override
-    public Map<Enchantment, Integer> getDefaultEnchantments() {
+    public Map<ResourceKey<Enchantment>, Integer> getDefaultEnchantments() {
         return Map.of(Enchantments.UNBREAKING, 3);
     }
 }

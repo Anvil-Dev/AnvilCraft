@@ -1,11 +1,16 @@
 package dev.dubhe.anvilcraft.item;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class CursedBlockItem extends BlockItem implements ICursed {
 
     public CursedBlockItem(Block block, Properties properties) {
