@@ -68,7 +68,7 @@ public class ResinBlockItem extends HasMobBlockItem {
         entity.moveTo(pos.getCenter());
         level.addFreshEntity(entity);
         RandomSource random = level.getRandom();
-        ItemStack back = new ItemStack(ModItems.RESIN, random.nextInt(1, 4));
+        ItemStack back = new ItemStack(ModItems.RESIN.asItem(), random.nextInt(1, 4));
         if (!player.getAbilities().instabuild) player.getInventory().placeItemBackInInventory(back);
     }
 }

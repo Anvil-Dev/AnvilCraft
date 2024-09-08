@@ -9,8 +9,8 @@ import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
+import dev.dubhe.anvilcraft.init.ModComponents;
 import dev.dubhe.anvilcraft.init.ModDispenserBehavior;
-import dev.dubhe.anvilcraft.init.ModEnchantments;
 import dev.dubhe.anvilcraft.init.ModEntities;
 import dev.dubhe.anvilcraft.init.ModEvents;
 import dev.dubhe.anvilcraft.init.ModItemGroups;
@@ -34,20 +34,20 @@ public class AnvilCraft {
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
     public static final IEventBus EVENT_BUS = BusBuilder.builder()
-        .checkTypesOnDispatch()
-        .markerType(SubscribeEvent.class)
-        .setExceptionHandler((bus, event, listeners, index, throwable) -> LOGGER.error(
-            "An exception was thrown from {} while dispatching event {} on {}",
-            listeners[index],
-            event,
-            bus,
-            throwable
-        ))
-        .build();
+            .checkTypesOnDispatch()
+            .markerType(SubscribeEvent.class)
+            .setExceptionHandler((bus, event, listeners, index, throwable) -> LOGGER.error(
+                    "An exception was thrown from {} while dispatching event {} on {}",
+                    listeners[index],
+                    event,
+                    bus,
+                    throwable
+            ))
+            .build();
 
     public static AnvilCraftConfig config = AutoConfig
-        .register(AnvilCraftConfig.class, JanksonConfigSerializer::new)
-        .getConfig();
+            .register(AnvilCraftConfig.class, JanksonConfigSerializer::new)
+            .getConfig();
     public static IEventBus MOD_EVENT_BUS;
     // EnchantmentDisable
     public static final Lazy<EnchantmentDisableUtil> enchantmentDisableUtil = new Lazy<>(EnchantmentDisableUtil::new);
@@ -68,8 +68,8 @@ public class AnvilCraft {
         ModBlockEntities.register();
         ModMenuTypes.register();
         ModDispenserBehavior.register();
-        ModEnchantments.key();
         ModResourcePacks.register();
+        ModComponents.register(bus);
 
         AnvilRecipe.init();
         // datagen
