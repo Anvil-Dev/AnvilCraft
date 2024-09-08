@@ -55,7 +55,7 @@ public class BeheadingLootLoader {
     private static final LootTable.Builder SKELETON = genBeheading(Items.SKELETON_SKULL);
     private static final LootTable.Builder WITHER_SKELETON;
 
-    private static ResourceKey<LootTable> createKey(String path){
+    private static ResourceKey<LootTable> createKey(String path) {
         return ResourceKey.create(Registries.LOOT_TABLE, AnvilCraft.of(path));
     }
 

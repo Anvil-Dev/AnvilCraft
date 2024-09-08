@@ -23,10 +23,12 @@ import java.util.List;
 
 @Getter
 public class ClientRecipeManagerSyncPack implements CustomPacketPayload {
-    public static final Type<ClientRecipeManagerSyncPack> TYPE = new Type<>(AnvilCraft.of("client_recipe_manager_sync"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, ClientRecipeManagerSyncPack> STREAM_CODEC = StreamCodec.ofMember(
+    public static final Type<ClientRecipeManagerSyncPack> TYPE =
+        new Type<>(AnvilCraft.of("client_recipe_manager_sync"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, ClientRecipeManagerSyncPack> STREAM_CODEC =
+        StreamCodec.ofMember(
             ClientRecipeManagerSyncPack::encode, ClientRecipeManagerSyncPack::new
-    );
+        );
     public static final IPayloadHandler<ClientRecipeManagerSyncPack> HANDLER = ClientRecipeManagerSyncPack::clientHandler;
 
 
@@ -50,7 +52,10 @@ public class ClientRecipeManagerSyncPack implements CustomPacketPayload {
         int index = buf.readInt();
         ArrayList<AnvilRecipe> anvilRecipes = new ArrayList<>();
         for (int i = 0; i < index; i++) {
-            AnvilRecipe recipe = new AnvilRecipe(buf.readResourceLocation(), ItemStack.OPTIONAL_STREAM_CODEC.decode(buf));
+            AnvilRecipe recipe = new AnvilRecipe(
+                buf.readResourceLocation(),
+                ItemStack.OPTIONAL_STREAM_CODEC.decode(buf)
+            );
             recipe.setAnvilRecipeType(AnvilRecipeType.valueOf(buf.readUtf().toUpperCase()));
             int size;
             size = buf.readVarInt();
@@ -66,7 +71,9 @@ public class ClientRecipeManagerSyncPack implements CustomPacketPayload {
         this.anvilRecipes = anvilRecipes;
     }
 
-
+    /**
+     *
+     */
     public void encode(@NotNull RegistryFriendlyByteBuf buf) {
         buf.writeInt(anvilRecipes.size());
         for (AnvilRecipe recipe : anvilRecipes) {
@@ -85,10 +92,13 @@ public class ClientRecipeManagerSyncPack implements CustomPacketPayload {
     }
 
     @Override
-    public Type<? extends CustomPacketPayload> type() {
+    public @NotNull Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 
+    /**
+     *
+     */
     public static void clientHandler(ClientRecipeManagerSyncPack data, IPayloadContext context) {
         context.enqueueWork(() -> AnvilRecipeManager.setAnvilRecipeList(data.anvilRecipes));
         // TODO: REI EMI

@@ -25,26 +25,28 @@ import javax.annotation.ParametersAreNonnullByDefault;
 public class HoneyCauldronBlock extends LayeredCauldronBlock implements IHammerRemovable {
 
     public HoneyCauldronBlock(
-            Properties properties
+        Properties properties
     ) {
-        super(Biome.Precipitation.NONE, CauldronInteraction.EMPTY,properties);
+        super(Biome.Precipitation.NONE, CauldronInteraction.EMPTY, properties);
     }
 
     @Override
     public void entityInside(
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull Entity entity
-    ) {}
+        @NotNull BlockState state,
+        @NotNull Level level,
+        @NotNull BlockPos pos,
+        @NotNull Entity entity
+    ) {
+    }
 
     @Override
     public void handlePrecipitation(
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull Biome.Precipitation precipitation
-    ) {}
+        @NotNull BlockState state,
+        @NotNull Level level,
+        @NotNull BlockPos pos,
+        @NotNull Biome.Precipitation precipitation
+    ) {
+    }
 
     @Override
     protected boolean canReceiveStalactiteDrip(@NotNull Fluid fluid) {
@@ -53,14 +55,21 @@ public class HoneyCauldronBlock extends LayeredCauldronBlock implements IHammerR
 
     @Override
     protected void receiveStalactiteDrip(
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull Fluid fluid
-    ) {}
+        @NotNull BlockState state,
+        @NotNull Level level,
+        @NotNull BlockPos pos,
+        @NotNull Fluid fluid
+    ) {
+    }
 
     @Override
-    public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
+    public ItemStack getCloneItemStack(
+        BlockState state,
+        HitResult target,
+        LevelReader level,
+        BlockPos pos,
+        Player player
+    ) {
         return new ItemStack(Items.CAULDRON);
     }
 }

@@ -8,6 +8,9 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import org.jetbrains.annotations.NotNull;
 
 public class AmethystShovelItem extends ShovelItem {
+    /**
+     *
+     */
     public AmethystShovelItem(Properties properties) {
         super(ModTiers.AMETHYST, properties.attributes(AxeItem.createAttributes(
             ModTiers.AMETHYST, 1.5f, -3.0f

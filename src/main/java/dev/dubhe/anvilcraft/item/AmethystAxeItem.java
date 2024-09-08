@@ -7,9 +7,12 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import org.jetbrains.annotations.NotNull;
 
 public class AmethystAxeItem extends AxeItem {
+    /**
+     *
+     */
     public AmethystAxeItem(Properties properties) {
         super(ModTiers.AMETHYST, properties.attributes(AxeItem.createAttributes(
-            ModTiers.AMETHYST,7, -3.2f
+            ModTiers.AMETHYST, 7, -3.2f
         )));
     }
 

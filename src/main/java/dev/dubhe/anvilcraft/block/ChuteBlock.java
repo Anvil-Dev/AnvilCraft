@@ -238,8 +238,14 @@ public class ChuteBlock extends BetterBaseEntityBlock implements IHammerChangeab
                 PacketDistributor.sendToPlayer(serverPlayer, new MachineOutputDirectionPack(entity.getDirection()));
                 PacketDistributor.sendToPlayer(serverPlayer, new MachineEnableFilterPack(entity.isFilterEnabled()));
                 for (int i = 0; i < entity.getFilteredItems().size(); i++) {
-                    PacketDistributor.sendToPlayer(serverPlayer, new SlotDisableChangePack(i, entity.getDepository().getDisabled().get(i)));
-                    PacketDistributor.sendToPlayer(serverPlayer, new SlotFilterChangePack(i, entity.getFilter(i)));
+                    PacketDistributor.sendToPlayer(
+                        serverPlayer,
+                        new SlotDisableChangePack(i, entity.getDepository().getDisabled().get(i))
+                    );
+                    PacketDistributor.sendToPlayer(
+                        serverPlayer,
+                        new SlotFilterChangePack(i, entity.getFilter(i))
+                    );
                 }
             }
         }

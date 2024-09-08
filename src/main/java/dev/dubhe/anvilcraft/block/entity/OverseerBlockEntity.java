@@ -20,7 +20,7 @@ import java.util.Arrays;
 
 public class OverseerBlockEntity extends BlockEntity {
     private int waterLoggerBlockNum = 0;
-    private int lastWaterLoggerBlockNum = 0;
+    private final int lastWaterLoggerBlockNum = 0;
 
     public OverseerBlockEntity(BlockPos pos, BlockState blockState) {
         this(ModBlockEntities.OVERSEER.get(), pos, blockState);

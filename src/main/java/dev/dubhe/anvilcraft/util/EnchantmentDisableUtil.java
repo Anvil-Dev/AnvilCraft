@@ -12,7 +12,7 @@ import java.util.List;
 public class EnchantmentDisableUtil {
 
     @Getter
-    private List<Enchantment> disableEnchantmentList = new ArrayList<>();
+    private final List<Enchantment> disableEnchantmentList = new ArrayList<>();
 
     protected static final List<String> DEFAULT_DISABLE_ENCHANTMENTS
         = Arrays.asList(

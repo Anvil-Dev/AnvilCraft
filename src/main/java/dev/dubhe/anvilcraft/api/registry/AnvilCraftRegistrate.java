@@ -78,7 +78,8 @@ public class AnvilCraftRegistrate extends Registrate {
     }
 
     private RegistryEntry<CreativeModeTab, CreativeModeTab> currentTab;
-    private static final Map<RegistryEntry<?, ?>, RegistryEntry<CreativeModeTab, CreativeModeTab>> TAB_LOOKUP = new IdentityHashMap<>();
+    private static final Map<RegistryEntry<?, ?>, RegistryEntry<CreativeModeTab, CreativeModeTab>> TAB_LOOKUP
+        = new IdentityHashMap<>();
 
     public void creativeModeTab(@NotNull Supplier<RegistryEntry<CreativeModeTab, CreativeModeTab>> currentTab) {
         this.currentTab = currentTab.get();
@@ -92,7 +93,10 @@ public class AnvilCraftRegistrate extends Registrate {
         return TAB_LOOKUP.get(entry) == tab;
     }
 
-    public void setCreativeTab(RegistryEntry<?, ?> entry, @Nullable RegistryEntry<CreativeModeTab, CreativeModeTab> tab) {
+    public void setCreativeTab(
+        RegistryEntry<?, ?> entry,
+        @Nullable RegistryEntry<CreativeModeTab, CreativeModeTab> tab
+    ) {
         TAB_LOOKUP.put(entry, tab);
     }
 

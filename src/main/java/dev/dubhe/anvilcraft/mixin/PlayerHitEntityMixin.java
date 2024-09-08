@@ -47,7 +47,7 @@ public abstract class PlayerHitEntityMixin extends LivingEntity {
         List<LivingEntity> entities = level().getEntitiesOfClass(
             LivingEntity.class,
             headBlockBoundBox,
-            it -> it != (Object) this
+            it -> it != this
         );
         if (entities.isEmpty()) return;
         Vec3 movement = getDeltaMovement();

@@ -85,7 +85,8 @@ public class AutoCrafterScreen extends BaseMachineScreen<AutoCrafterMenu> implem
             if (!slot.getItem().isEmpty()) break start;
             int slot1 = slot.getContainerSlot();
             if (this.menu.isFilterEnabled()) {
-                if (!this.menu.isSlotDisabled(slot1)) PacketDistributor.sendToServer(new SlotDisableChangePack(slot1, false));
+                if (!this.menu.isSlotDisabled(slot1))
+                    PacketDistributor.sendToServer(new SlotDisableChangePack(slot1, false));
                 break start;
             }
             PacketDistributor.sendToServer(new SlotDisableChangePack(slot1, !this.menu.isSlotDisabled(slot1)));

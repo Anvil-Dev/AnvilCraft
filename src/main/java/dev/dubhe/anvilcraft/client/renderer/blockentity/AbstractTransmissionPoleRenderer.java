@@ -19,7 +19,8 @@ public abstract class AbstractTransmissionPoleRenderer<T extends AbstractTransmi
             int packedLight,
             int packedOverlay
     ) {
-        if (!isHeadBlock(blockEntity.getBlockState())) return;
+        if (!isHeadBlock(blockEntity.getBlockState())) {
+        }
 
     }
 

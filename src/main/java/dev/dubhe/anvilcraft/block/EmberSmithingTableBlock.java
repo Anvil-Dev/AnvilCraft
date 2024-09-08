@@ -78,7 +78,9 @@ public class EmberSmithingTableBlock extends SmithingTableBlock implements IHamm
             pHitResult
         );
     }
-
+    /**
+     *
+     */
     @SuppressWarnings("UnreachableCode")
     public @NotNull InteractionResult use(
         @NotNull BlockState state, @NotNull Level level,

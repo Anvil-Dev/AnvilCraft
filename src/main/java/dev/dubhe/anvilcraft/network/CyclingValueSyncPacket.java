@@ -16,11 +16,12 @@ import net.neoforged.neoforge.network.handling.IPayloadHandler;
 public class CyclingValueSyncPacket implements CustomPacketPayload {
 
     public static final Type<CyclingValueSyncPacket> TYPE = new Type<>(AnvilCraft.of("cycling_value"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, CyclingValueSyncPacket> STREAM_CODEC = StreamCodec.composite(
+    public static final StreamCodec<RegistryFriendlyByteBuf, CyclingValueSyncPacket> STREAM_CODEC =
+        StreamCodec.composite(
             ByteBufCodecs.INT, CyclingValueSyncPacket::getIndex,
             ByteBufCodecs.STRING_UTF8, CyclingValueSyncPacket::getName,
             CyclingValueSyncPacket::new
-    );
+        );
     public static final IPayloadHandler<CyclingValueSyncPacket> HANDLER = CyclingValueSyncPacket::serverHandler;
 
     private final int index;
@@ -36,6 +37,9 @@ public class CyclingValueSyncPacket implements CustomPacketPayload {
         return TYPE;
     }
 
+    /**
+     *
+     */
     public static void serverHandler(CyclingValueSyncPacket data, IPayloadContext context) {
         ServerPlayer player = (ServerPlayer) context.player();
         if (player.containerMenu instanceof ItemCollectorMenu menu) {

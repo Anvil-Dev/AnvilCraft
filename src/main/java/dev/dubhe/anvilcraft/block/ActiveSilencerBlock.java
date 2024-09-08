@@ -57,10 +57,10 @@ public class ActiveSilencerBlock extends BaseEntityBlock implements IHammerRemov
         InteractionHand pHand,
         BlockHitResult pHitResult
     ) {
-        if (pLevel.isClientSide)return ItemInteractionResult.SUCCESS;
-        if (pPlayer instanceof ServerPlayer serverPlayer){
+        if (pLevel.isClientSide) return ItemInteractionResult.SUCCESS;
+        if (pPlayer instanceof ServerPlayer serverPlayer) {
             BlockEntity be = pLevel.getBlockEntity(pPos);
-            if (be instanceof ActiveSilencerBlockEntity asbe && pPlayer.getItemInHand(pHand).is(ModItems.DISK.get())){
+            if (be instanceof ActiveSilencerBlockEntity asbe && pPlayer.getItemInHand(pHand).is(ModItems.DISK.get())) {
                 return Utils.interactionResultConverter().apply(asbe.useDisk(
                     pLevel,
                     serverPlayer,
@@ -85,7 +85,7 @@ public class ActiveSilencerBlock extends BaseEntityBlock implements IHammerRemov
             return InteractionResult.SUCCESS;
         }
         BlockEntity be = pLevel.getBlockEntity(pPos);
-        if (be instanceof ActiveSilencerBlockEntity asbe && pPlayer instanceof ServerPlayer sp){
+        if (be instanceof ActiveSilencerBlockEntity asbe && pPlayer instanceof ServerPlayer sp) {
             ModMenuTypes.open(sp, asbe, pPos);
             PacketDistributor.sendToPlayer(sp, new MutedSoundSyncPacket(new ArrayList<>(asbe.getMutedSound())));
             return InteractionResult.SUCCESS;

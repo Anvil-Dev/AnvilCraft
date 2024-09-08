@@ -20,6 +20,9 @@ import java.util.List;
 @MethodsReturnNonnullByDefault
 public class AmethystPickaxeItem extends PickaxeItem {
     public AmethystPickaxeItem(Properties properties) {
+        /**
+         *
+         */
         super(ModTiers.AMETHYST, properties.attributes(AxeItem.createAttributes(
             ModTiers.AMETHYST, 1, -2.8f
         )));

@@ -11,7 +11,7 @@ import dev.dubhe.anvilcraft.init.ModBlockTags;
 import java.util.List;
 import javax.annotation.Nonnull;
 
-import dev.dubhe.anvilcraft.util.AABBUtil;
+import dev.dubhe.anvilcraft.util.AabbUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -160,21 +160,21 @@ public class BlockDevourerBlock extends DirectionalBlock implements IHammerChang
         final List<BlockPos> devourBlockPosList;
         AABB devourBlockBoundingBox;
         switch (devourerDirection) {
-            case DOWN, UP -> devourBlockBoundingBox = AABBUtil.create(
+            case DOWN, UP -> devourBlockBoundingBox = AabbUtil.create(
                 devourCenterPos
                     .relative(Direction.NORTH, range)
                     .relative(Direction.WEST, range),
                 devourCenterPos
                     .relative(Direction.SOUTH, range)
                     .relative(Direction.EAST, range));
-            case NORTH, SOUTH -> devourBlockBoundingBox = AABBUtil.create(
+            case NORTH, SOUTH -> devourBlockBoundingBox = AabbUtil.create(
                 devourCenterPos
                     .relative(Direction.UP, range)
                     .relative(Direction.WEST, range),
                 devourCenterPos
                     .relative(Direction.DOWN, range)
                     .relative(Direction.EAST, range));
-            case WEST, EAST -> devourBlockBoundingBox = AABBUtil.create(
+            case WEST, EAST -> devourBlockBoundingBox = AabbUtil.create(
                 devourCenterPos
                     .relative(Direction.UP, range)
                     .relative(Direction.NORTH, range),

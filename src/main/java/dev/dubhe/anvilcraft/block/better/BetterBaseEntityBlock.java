@@ -21,6 +21,7 @@ public abstract class BetterBaseEntityBlock extends BaseEntityBlock {
     protected BetterBaseEntityBlock(Properties pProperties) {
         super(pProperties);
     }
+
     @Override
     protected ItemInteractionResult useItemOn(
         ItemStack pStack,

@@ -31,6 +31,9 @@ import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class AnvilCraftDatagen {
+    /**
+     *
+     */
     @SubscribeEvent
     public static void gatherData(GatherDataEvent event) {
         DataGenerator generator = event.getGenerator();

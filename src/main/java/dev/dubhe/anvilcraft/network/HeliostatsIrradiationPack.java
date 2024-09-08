@@ -17,12 +17,13 @@ import org.jetbrains.annotations.NotNull;
 
 public class HeliostatsIrradiationPack implements CustomPacketPayload {
     public static final Type<HeliostatsIrradiationPack> TYPE = new Type<>(AnvilCraft.of("heliostats_irradiation_pack"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, HeliostatsIrradiationPack> STREAM_CODEC = StreamCodec.ofMember(
+    public static final StreamCodec<RegistryFriendlyByteBuf, HeliostatsIrradiationPack> STREAM_CODEC =
+        StreamCodec.ofMember(
             HeliostatsIrradiationPack::encode, HeliostatsIrradiationPack::new
-    );
+        );
     public static final IPayloadHandler<HeliostatsIrradiationPack> HANDLER = new DirectionalPayloadHandler<>(
-            HeliostatsIrradiationPack::clientHandler,
-            HeliostatsIrradiationPack::serverHandler
+        HeliostatsIrradiationPack::clientHandler,
+        HeliostatsIrradiationPack::serverHandler
     );
 
     private final BlockPos blockPos;
@@ -32,8 +33,8 @@ public class HeliostatsIrradiationPack implements CustomPacketPayload {
      * 定日镜照射网络包
      */
     public HeliostatsIrradiationPack(
-            BlockPos blockPos,
-            BlockPos irritatePos
+        BlockPos blockPos,
+        BlockPos irritatePos
     ) {
         this.blockPos = blockPos;
         this.irritatePos = irritatePos;
@@ -57,6 +58,9 @@ public class HeliostatsIrradiationPack implements CustomPacketPayload {
         return TYPE;
     }
 
+    /**
+     *
+     */
     public static void clientHandler(HeliostatsIrradiationPack data, IPayloadContext context) {
         context.enqueueWork(() -> {
             if (Minecraft.getInstance().level != null
@@ -67,6 +71,9 @@ public class HeliostatsIrradiationPack implements CustomPacketPayload {
         });
     }
 
+    /**
+     *
+     */
     public static void serverHandler(HeliostatsIrradiationPack data, IPayloadContext context) {
         ServerPlayer player = (ServerPlayer) context.player();
         context.enqueueWork(() -> {

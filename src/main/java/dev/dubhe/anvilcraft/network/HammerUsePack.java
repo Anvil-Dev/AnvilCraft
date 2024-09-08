@@ -44,7 +44,9 @@ public class HammerUsePack implements CustomPacketPayload {
     public Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
-
+    /**
+     *
+     */
     public static void serverHandler(HammerUsePack data, IPayloadContext context) {
         ServerPlayer player = (ServerPlayer) context.player();
         context.enqueueWork(() -> {

@@ -9,11 +9,12 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
+import org.jetbrains.annotations.NotNull;
 
 public class LaserEmitPack implements CustomPacketPayload {
     public static final Type<LaserEmitPack> TYPE = new Type<>(AnvilCraft.of("laser_emit"));
     public static final StreamCodec<RegistryFriendlyByteBuf, LaserEmitPack> STREAM_CODEC = StreamCodec.ofMember(
-            LaserEmitPack::encode, LaserEmitPack::new
+        LaserEmitPack::encode, LaserEmitPack::new
     );
     public static final IPayloadHandler<LaserEmitPack> HANDLER = LaserEmitPack::clientHandler;
 
@@ -43,6 +44,9 @@ public class LaserEmitPack implements CustomPacketPayload {
         this.irradiateBlockPos = buf.readBlockPos();
     }
 
+    /**
+     *
+     */
     public void encode(RegistryFriendlyByteBuf buf) {
         buf.writeInt(lightPowerLevel);
         buf.writeBlockPos(laserBlockPos);
@@ -52,10 +56,13 @@ public class LaserEmitPack implements CustomPacketPayload {
     }
 
     @Override
-    public Type<? extends CustomPacketPayload> type() {
+    public @NotNull Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 
+    /**
+     *
+     */
     public static void clientHandler(LaserEmitPack data, IPayloadContext context) {
         context.enqueueWork(() -> {
             if (Minecraft.getInstance().level != null

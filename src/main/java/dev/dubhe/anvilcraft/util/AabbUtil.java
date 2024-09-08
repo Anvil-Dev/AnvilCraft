@@ -3,11 +3,14 @@ package dev.dubhe.anvilcraft.util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.AABB;
 
-public class AABBUtil {
+public class AabbUtil {
+    /**
+     * 从方块坐标创建
+     */
     public static AABB create(
         BlockPos a,
         BlockPos b
-    ){
+    ) {
         return new AABB(
             a.getX(),
             a.getY(),

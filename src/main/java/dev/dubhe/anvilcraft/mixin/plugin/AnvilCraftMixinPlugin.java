@@ -11,7 +11,7 @@ import java.util.Set;
 
 public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
     private static boolean hasZetaPiston = false;
-    private static boolean hasCreate = false;
+    private static final boolean hasCreate = false;
     private static boolean hasReiScreen = false;
 
     private boolean isLoaded(String clazz) {

@@ -189,10 +189,10 @@ public class ModBlocks {
                 .pattern("BAB")
                 .pattern("B B")
                 .pattern("B B")
-                .define('A', ModItemTags.IRON_PLATES_FORGE)
+                .define('A', ModItemTags.IRON_PLATES)
                 .define('B', Items.IRON_INGOT)
-                .unlockedBy("has_" + ModItemTags.IRON_PLATES_FORGE.location().getPath(),
-                    AnvilCraftDatagen.has(ModItemTags.IRON_PLATES_FORGE))
+                .unlockedBy("has_" + ModItemTags.IRON_PLATES.location().getPath(),
+                    AnvilCraftDatagen.has(ModItemTags.IRON_PLATES))
                 .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT),
                     AnvilCraftDatagen.has(Items.IRON_INGOT))
                 .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get().asItem()) + "_forge");
@@ -319,41 +319,33 @@ public class ModBlocks {
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.MINEABLE_WITH_AXE)
         .recipe((ctx, provider) -> {
-                ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
-                    .pattern("ABA")
-                    .pattern("ADC")
-                    .pattern("AEA")
-                    .define('A', Items.IRON_INGOT)
-                    .define('B', Items.CRAFTING_TABLE)
-                    .define('C', Items.DROPPER)
-                    .define('D', ModItems.MAGNETOELECTRIC_CORE)
-                    .define('E', ModItems.CIRCUIT_BOARD)
-                    .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT),
-                        AnvilCraftDatagen.has(Items.IRON_INGOT))
-                    .unlockedBy(
-                        AnvilCraftDatagen.hasItem(Items.CRAFTING_TABLE),
-                        AnvilCraftDatagen.has(Items.CRAFTING_TABLE)
-                    )
-                    .unlockedBy(AnvilCraftDatagen.hasItem(Items.DROPPER),
-                        AnvilCraftDatagen.has(Items.DROPPER))
-                    .unlockedBy(
-                        AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
-                        AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
-                    )
-                    .unlockedBy(
-                        AnvilCraftDatagen.hasItem(ModItems.CIRCUIT_BOARD),
-                        AnvilCraftDatagen.has(ModItems.CIRCUIT_BOARD)
-                    )
-                    .save(provider);
-                ShapelessRecipeBuilder.shapeless(RecipeCategory.TOOLS, ctx.get())
-                    .requires(AUTO_CRAFTER)
-                    .unlockedBy(
-                        AnvilCraftDatagen.hasItem(AUTO_CRAFTER),
-                        AnvilCraftDatagen.has(AUTO_CRAFTER)
-                    ).save(provider, AnvilCraft.of("batch_crafter_convert"));
-            }
-        )
-        .register();
+            ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
+                .pattern("ABA")
+                .pattern("ADC")
+                .pattern("AEA")
+                .define('A', Items.IRON_INGOT)
+                .define('B', Items.CRAFTING_TABLE)
+                .define('C', Items.DROPPER)
+                .define('D', ModItems.MAGNETOELECTRIC_CORE)
+                .define('E', ModItems.CIRCUIT_BOARD)
+                .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT),
+                    AnvilCraftDatagen.has(Items.IRON_INGOT))
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(Items.CRAFTING_TABLE),
+                    AnvilCraftDatagen.has(Items.CRAFTING_TABLE)
+                )
+                .unlockedBy(AnvilCraftDatagen.hasItem(Items.DROPPER),
+                    AnvilCraftDatagen.has(Items.DROPPER))
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
+                    AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
+                )
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItems.CIRCUIT_BOARD),
+                    AnvilCraftDatagen.has(ModItems.CIRCUIT_BOARD)
+                )
+                .save(provider);
+        }).register();
     public static final BlockEntry<? extends Block> ROYAL_GRINDSTONE = REGISTRATE
         .block("royal_grindstone", RoyalGrindstone::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
@@ -600,8 +592,7 @@ public class ModBlocks {
         .block("zinc_block", Block::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .simpleItem()
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS,
-            ModBlockTags.FORGE_ZINC_BLOCKS, ModBlockTags.ZINC_BLOCKS)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS, ModBlockTags.ZINC_BLOCKS)
         .recipe((ctx, provider) -> {
             ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                 .pattern("AAA")
@@ -615,9 +606,9 @@ public class ModBlocks {
                 .pattern("AAA")
                 .pattern("AAA")
                 .pattern("AAA")
-                .define('A', ModItemTags.ZINC_INGOTS_FORGE)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.ZINC_INGOTS_FORGE),
-                    AnvilCraftDatagen.has(ModItemTags.ZINC_INGOTS_FORGE))
+                .define('A', ModItemTags.ZINC_INGOTS)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.ZINC_INGOTS),
+                    AnvilCraftDatagen.has(ModItemTags.ZINC_INGOTS))
                 .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath() + "_forge");
         })
         .register();
@@ -625,8 +616,7 @@ public class ModBlocks {
         .block("tin_block", Block::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .simpleItem()
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS,
-            ModBlockTags.FORGE_TIN_BLOCKS, ModBlockTags.TIN_BLOCKS)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS, ModBlockTags.TIN_BLOCKS)
         .recipe((ctx, provider) -> {
             ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                 .pattern("AAA")
@@ -640,9 +630,9 @@ public class ModBlocks {
                 .pattern("AAA")
                 .pattern("AAA")
                 .pattern("AAA")
-                .define('A', ModItemTags.TIN_INGOTS_FORGE)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.TIN_INGOTS_FORGE),
-                    AnvilCraftDatagen.has(ModItemTags.TIN_INGOTS_FORGE))
+                .define('A', ModItemTags.TIN_INGOTS)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.TIN_INGOTS),
+                    AnvilCraftDatagen.has(ModItemTags.TIN_INGOTS))
                 .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath() + "_forge");
         })
         .register();
@@ -650,8 +640,7 @@ public class ModBlocks {
         .block("titanium_block", Block::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .simpleItem()
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS,
-            ModBlockTags.FORGE_TITANIUM_BLOCKS, ModBlockTags.TITANIUM_BLOCKS)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS, ModBlockTags.TITANIUM_BLOCKS)
         .recipe((ctx, provider) -> {
             ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                 .pattern("AAA")
@@ -665,9 +654,9 @@ public class ModBlocks {
                 .pattern("AAA")
                 .pattern("AAA")
                 .pattern("AAA")
-                .define('A', ModItemTags.TITANIUM_INGOTS_FORGE)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.TITANIUM_INGOTS_FORGE),
-                    AnvilCraftDatagen.has(ModItemTags.TITANIUM_INGOTS_FORGE))
+                .define('A', ModItemTags.TITANIUM_INGOTS)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.TITANIUM_INGOTS),
+                    AnvilCraftDatagen.has(ModItemTags.TITANIUM_INGOTS))
                 .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath() + "_forge");
         })
         .register();
@@ -678,7 +667,7 @@ public class ModBlocks {
         .initialProperties(() -> new Item.Properties().fireResistant())
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS,
-            ModBlockTags.TUNGSTEN_BLOCKS, ModBlockTags.FORGE_TUNGSTEN_BLOCKS)
+            ModBlockTags.TUNGSTEN_BLOCKS)
         .recipe((ctx, provider) -> {
             ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                 .pattern("AAA")
@@ -692,9 +681,9 @@ public class ModBlocks {
                 .pattern("AAA")
                 .pattern("AAA")
                 .pattern("AAA")
-                .define('A', ModItemTags.TUNGSTEN_INGOTS_FORGE)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.TUNGSTEN_INGOTS_FORGE),
-                    AnvilCraftDatagen.has(ModItemTags.TUNGSTEN_INGOTS_FORGE))
+                .define('A', ModItemTags.TUNGSTEN_INGOTS)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.TUNGSTEN_INGOTS),
+                    AnvilCraftDatagen.has(ModItemTags.TUNGSTEN_INGOTS))
                 .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath() + "_forge");
         })
         .register();
@@ -702,8 +691,7 @@ public class ModBlocks {
         .block("lead_block", Block::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .simpleItem()
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS,
-            ModBlockTags.FORGE_LEAD_BLOCKS, ModBlockTags.LEAD_BLOCKS)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS, ModBlockTags.LEAD_BLOCKS)
         .recipe((ctx, provider) -> {
             ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                 .pattern("AAA")
@@ -717,9 +705,9 @@ public class ModBlocks {
                 .pattern("AAA")
                 .pattern("AAA")
                 .pattern("AAA")
-                .define('A', ModItemTags.LEAD_INGOTS_FORGE)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.LEAD_INGOTS_FORGE),
-                    AnvilCraftDatagen.has(ModItemTags.LEAD_INGOTS_FORGE))
+                .define('A', ModItemTags.LEAD_INGOTS)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.LEAD_INGOTS),
+                    AnvilCraftDatagen.has(ModItemTags.LEAD_INGOTS))
                 .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath() + "_forge");
         })
         .register();
@@ -727,8 +715,7 @@ public class ModBlocks {
         .block("silver_block", Block::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .simpleItem()
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS,
-            ModBlockTags.FORGE_SILVER_BLOCKS, ModBlockTags.SILVER_BLOCKS)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS, ModBlockTags.SILVER_BLOCKS)
         .recipe((ctx, provider) -> {
             ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                 .pattern("AAA")
@@ -742,9 +729,9 @@ public class ModBlocks {
                 .pattern("AAA")
                 .pattern("AAA")
                 .pattern("AAA")
-                .define('A', ModItemTags.SILVER_INGOTS_FORGE)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.SILVER_INGOTS_FORGE),
-                    AnvilCraftDatagen.has(ModItemTags.SILVER_INGOTS_FORGE))
+                .define('A', ModItemTags.SILVER_INGOTS)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.SILVER_INGOTS),
+                    AnvilCraftDatagen.has(ModItemTags.SILVER_INGOTS))
                 .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath() + "_forge");
         })
         .register();
@@ -752,8 +739,7 @@ public class ModBlocks {
         .block("uranium_block", Block::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .simpleItem()
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS,
-            ModBlockTags.FORGE_URANIUM_BLOCKS, ModBlockTags.URANIUM_BLOCKS)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS, ModBlockTags.URANIUM_BLOCKS)
         .recipe((ctx, provider) -> {
             ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                 .pattern("AAA")
@@ -767,9 +753,9 @@ public class ModBlocks {
                 .pattern("AAA")
                 .pattern("AAA")
                 .pattern("AAA")
-                .define('A', ModItemTags.URANIUM_INGOTS_FORGE)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.URANIUM_INGOTS_FORGE),
-                    AnvilCraftDatagen.has(ModItemTags.URANIUM_INGOTS_FORGE))
+                .define('A', ModItemTags.URANIUM_INGOTS)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.URANIUM_INGOTS),
+                    AnvilCraftDatagen.has(ModItemTags.URANIUM_INGOTS))
                 .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath() + "_forge");
         })
         .register();
@@ -777,8 +763,7 @@ public class ModBlocks {
         .block("bronze_block", Block::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .simpleItem()
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS,
-            ModBlockTags.FORGE_BRONZE_BLOCKS, ModBlockTags.BRONZE_BLOCKS)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS, ModBlockTags.BRONZE_BLOCKS)
         .recipe((ctx, provider) -> {
             ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                 .pattern("AAA")
@@ -792,9 +777,9 @@ public class ModBlocks {
                 .pattern("AAA")
                 .pattern("AAA")
                 .pattern("AAA")
-                .define('A', ModItemTags.BRONZE_INGOTS_FORGE)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.BRONZE_INGOTS_FORGE),
-                    AnvilCraftDatagen.has(ModItemTags.BRONZE_INGOTS_FORGE))
+                .define('A', ModItemTags.BRONZE_INGOTS)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.BRONZE_INGOTS),
+                    AnvilCraftDatagen.has(ModItemTags.BRONZE_INGOTS))
                 .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath() + "_forge");
         })
         .register();
@@ -802,8 +787,7 @@ public class ModBlocks {
         .block("brass_block", Block::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .simpleItem()
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS,
-            ModBlockTags.FORGE_BRASS_BLOCKS, ModBlockTags.BRASS_BLOCKS)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS, ModBlockTags.BRASS_BLOCKS)
         .recipe((ctx, provider) -> {
             ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                 .pattern("AAA")
@@ -817,9 +801,9 @@ public class ModBlocks {
                 .pattern("AAA")
                 .pattern("AAA")
                 .pattern("AAA")
-                .define('A', ModItemTags.BRASS_INGOTS_FORGE)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.BRASS_INGOTS_FORGE),
-                    AnvilCraftDatagen.has(ModItemTags.BRASS_INGOTS_FORGE))
+                .define('A', ModItemTags.BRASS_INGOTS)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.BRASS_INGOTS),
+                    AnvilCraftDatagen.has(ModItemTags.BRASS_INGOTS))
                 .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath() + "_forge");
         })
         .register();
@@ -833,31 +817,31 @@ public class ModBlocks {
     public static final BlockEntry<? extends PressurePlateBlock> OXIDIZED_COPPER_PRESSURE_PLATE =
         registerOtherCopperPressurePlate("oxidized_", Blocks.OXIDIZED_COPPER);
     public static final BlockEntry<? extends PressurePlateBlock> TUNGSTEN_PRESSURE_PLATE = registerPressurePlate(
-        "tungsten", TUNGSTEN_BLOCK, ModItemTags.TUNGSTEN_INGOTS, ModItemTags.TUNGSTEN_INGOTS_FORGE
+        "tungsten", TUNGSTEN_BLOCK, ModItemTags.TUNGSTEN_INGOTS, ModItemTags.TUNGSTEN_INGOTS
     );
     public static final BlockEntry<? extends PressurePlateBlock> TITANIUM_PRESSURE_PLATE = registerPressurePlate(
-        "titanium", TITANIUM_BLOCK, ModItemTags.TITANIUM_INGOTS, ModItemTags.TITANIUM_INGOTS_FORGE
+        "titanium", TITANIUM_BLOCK, ModItemTags.TITANIUM_INGOTS, ModItemTags.TITANIUM_INGOTS
     );
     public static final BlockEntry<? extends PressurePlateBlock> ZINC_PRESSURE_PLATE = registerPressurePlate(
-        "zinc", ZINC_BLOCK, ModItemTags.ZINC_INGOTS, ModItemTags.ZINC_INGOTS_FORGE
+        "zinc", ZINC_BLOCK, ModItemTags.ZINC_INGOTS, ModItemTags.ZINC_INGOTS
     );
     public static final BlockEntry<? extends PressurePlateBlock> TIN_PRESSURE_PLATE = registerPressurePlate(
-        "tin", TIN_BLOCK, ModItemTags.TIN_INGOTS, ModItemTags.TIN_INGOTS_FORGE
+        "tin", TIN_BLOCK, ModItemTags.TIN_INGOTS, ModItemTags.TIN_INGOTS
     );
     public static final BlockEntry<? extends PressurePlateBlock> LEAD_PRESSURE_PLATE = registerPressurePlate(
-        "lead", LEAD_BLOCK, ModItemTags.LEAD_INGOTS, ModItemTags.LEAD_INGOTS_FORGE
+        "lead", LEAD_BLOCK, ModItemTags.LEAD_INGOTS, ModItemTags.LEAD_INGOTS
     );
     public static final BlockEntry<? extends PressurePlateBlock> SILVER_PRESSURE_PLATE = registerPressurePlate(
-        "silver", SILVER_BLOCK, ModItemTags.SILVER_INGOTS, ModItemTags.SILVER_INGOTS_FORGE
+        "silver", SILVER_BLOCK, ModItemTags.SILVER_INGOTS, ModItemTags.SILVER_INGOTS
     );
     public static final BlockEntry<? extends PressurePlateBlock> URANIUM_PRESSURE_PLATE = registerPressurePlate(
-        "uranium", URANIUM_BLOCK, ModItemTags.URANIUM_INGOTS, ModItemTags.URANIUM_INGOTS_FORGE
+        "uranium", URANIUM_BLOCK, ModItemTags.URANIUM_INGOTS, ModItemTags.URANIUM_INGOTS
     );
     public static final BlockEntry<? extends PressurePlateBlock> BRONZE_PRESSURE_PLATE = registerPressurePlate(
-        "bronze", BRONZE_BLOCK, ModItemTags.BRONZE_INGOTS, ModItemTags.BRONZE_INGOTS_FORGE
+        "bronze", BRONZE_BLOCK, ModItemTags.BRONZE_INGOTS, ModItemTags.BRONZE_INGOTS
     );
     public static final BlockEntry<? extends PressurePlateBlock> BRASS_PRESSURE_PLATE = registerPressurePlate(
-        "brass", BRASS_BLOCK, ModItemTags.BRASS_INGOTS, ModItemTags.BRASS_INGOTS_FORGE
+        "brass", BRASS_BLOCK, ModItemTags.BRASS_INGOTS, ModItemTags.BRASS_INGOTS
     );
     public static final BlockEntry<? extends Block> TOPAZ_BLOCK = REGISTRATE
         .block("topaz_block", Block::new)
@@ -1407,14 +1391,14 @@ public class ModBlocks {
                     .pattern(" B ")
                     .pattern("ABA")
                     .define('A', Items.COPPER_INGOT)
-                    .define('B', ModItemTags.QUARTZ_BLOCKS_FORGE)
+                    .define('B', ModItemTags.QUARTZ_BLOCKS)
                     .unlockedBy(
                         AnvilCraftDatagen.hasItem(Items.COPPER_INGOT),
                         AnvilCraftDatagen.has(Items.COPPER_INGOT)
                     )
                     .unlockedBy(
-                        AnvilCraftDatagen.hasItem(ModItemTags.QUARTZ_BLOCKS_FORGE),
-                        AnvilCraftDatagen.has(ModItemTags.QUARTZ_BLOCKS_FORGE)
+                        AnvilCraftDatagen.hasItem(ModItemTags.QUARTZ_BLOCKS),
+                        AnvilCraftDatagen.has(ModItemTags.QUARTZ_BLOCKS)
                     )
                     .save(
                         provider,
@@ -1425,14 +1409,14 @@ public class ModBlocks {
                     .pattern(" B ")
                     .pattern("ABA")
                     .define('A', Items.COPPER_INGOT)
-                    .define('B', ModItemTags.AMETHYST_BLOCKS_FORGE)
+                    .define('B', ModItemTags.AMETHYST_BLOCKS)
                     .unlockedBy(
                         AnvilCraftDatagen.hasItem(Items.COPPER_INGOT),
                         AnvilCraftDatagen.has(Items.COPPER_INGOT)
                     )
                     .unlockedBy(
-                        AnvilCraftDatagen.hasItem(ModItemTags.AMETHYST_BLOCKS_FORGE),
-                        AnvilCraftDatagen.has(ModItemTags.AMETHYST_BLOCKS_FORGE)
+                        AnvilCraftDatagen.hasItem(ModItemTags.AMETHYST_BLOCKS),
+                        AnvilCraftDatagen.has(ModItemTags.AMETHYST_BLOCKS)
                     )
                     .save(
                         provider,
@@ -2407,7 +2391,7 @@ public class ModBlocks {
         .block("deepslate_zinc_ore", Block::new)
         .initialProperties(() -> Blocks.DEEPSLATE_IRON_ORE)
         .item()
-        .tag(ModItemTags.ORES, ModItemTags.ORES_FORGE, ModItemTags.ZINC_ORES, ModItemTags.ZINC_ORES_FORGE)
+        .tag(ModItemTags.ORES, ModItemTags.ORES, ModItemTags.ZINC_ORES, ModItemTags.ZINC_ORES)
         .build()
         .loot((tables, block) -> tables.add(block, tables.createOreDrop(block, ModItems.RAW_ZINC.get())))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -2416,7 +2400,7 @@ public class ModBlocks {
         .block("deepslate_tin_ore", Block::new)
         .initialProperties(() -> Blocks.DEEPSLATE_IRON_ORE)
         .item()
-        .tag(ModItemTags.ORES, ModItemTags.ORES_FORGE, ModItemTags.TIN_ORES, ModItemTags.TIN_ORES_FORGE)
+        .tag(ModItemTags.ORES, ModItemTags.ORES, ModItemTags.TIN_ORES, ModItemTags.TIN_ORES)
         .build()
         .loot((tables, block) -> tables.add(block, tables.createOreDrop(block, ModItems.RAW_TIN.get())))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -2425,7 +2409,7 @@ public class ModBlocks {
         .block("deepslate_titanium_ore", Block::new)
         .initialProperties(() -> Blocks.DEEPSLATE_IRON_ORE)
         .item()
-        .tag(ModItemTags.ORES, ModItemTags.ORES_FORGE, ModItemTags.TITANIUM_ORES, ModItemTags.TITANIUM_ORES_FORGE)
+        .tag(ModItemTags.ORES, ModItemTags.ORES, ModItemTags.TITANIUM_ORES, ModItemTags.TITANIUM_ORES)
         .build()
         .loot((tables, block) -> tables.add(block, tables.createOreDrop(block, ModItems.RAW_TITANIUM.get())))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -2434,7 +2418,7 @@ public class ModBlocks {
         .block("deepslate_tungsten_ore", Block::new)
         .initialProperties(() -> Blocks.DEEPSLATE_IRON_ORE)
         .item()
-        .tag(ModItemTags.ORES, ModItemTags.ORES_FORGE, ModItemTags.TUNGSTEN_ORES, ModItemTags.TUNGSTEN_ORES_FORGE)
+        .tag(ModItemTags.ORES, ModItemTags.ORES, ModItemTags.TUNGSTEN_ORES, ModItemTags.TUNGSTEN_ORES)
         .build()
         .loot((tables, block) -> tables.add(block, tables.createOreDrop(block, ModItems.RAW_TUNGSTEN.get())))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -2443,7 +2427,7 @@ public class ModBlocks {
         .block("deepslate_lead_ore", Block::new)
         .initialProperties(() -> Blocks.DEEPSLATE_IRON_ORE)
         .item()
-        .tag(ModItemTags.ORES, ModItemTags.ORES_FORGE, ModItemTags.LEAD_ORES, ModItemTags.LEAD_ORES_FORGE)
+        .tag(ModItemTags.ORES, ModItemTags.ORES, ModItemTags.LEAD_ORES, ModItemTags.LEAD_ORES)
         .build()
         .loot((tables, block) -> tables.add(block, tables.createOreDrop(block, ModItems.RAW_LEAD.get())))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -2452,7 +2436,7 @@ public class ModBlocks {
         .block("deepslate_silver_ore", Block::new)
         .initialProperties(() -> Blocks.DEEPSLATE_IRON_ORE)
         .item()
-        .tag(ModItemTags.ORES, ModItemTags.ORES_FORGE, ModItemTags.SILVER_ORES, ModItemTags.SILVER_ORES_FORGE)
+        .tag(ModItemTags.ORES, ModItemTags.ORES, ModItemTags.SILVER_ORES, ModItemTags.SILVER_ORES)
         .build()
         .loot((tables, block) -> tables.add(block, tables.createOreDrop(block, ModItems.RAW_SILVER.get())))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -2461,7 +2445,7 @@ public class ModBlocks {
         .block("deepslate_uranium_ore", Block::new)
         .initialProperties(() -> Blocks.DEEPSLATE_IRON_ORE)
         .item()
-        .tag(ModItemTags.ORES, ModItemTags.ORES_FORGE, ModItemTags.URANIUM_ORES, ModItemTags.URANIUM_ORES_FORGE)
+        .tag(ModItemTags.ORES, ModItemTags.ORES, ModItemTags.URANIUM_ORES, ModItemTags.URANIUM_ORES)
         .build()
         .loot((tables, block) -> tables.add(block, tables.createOreDrop(block, ModItems.RAW_URANIUM.get())))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -2471,7 +2455,7 @@ public class ModBlocks {
         .block("void_stone", Block::new)
         .initialProperties(() -> Blocks.DIAMOND_BLOCK)
         .item()
-        .tag(ModItemTags.ORES, ModItemTags.ORES_FORGE, ModItemTags.VOID_RESISTANT)
+        .tag(ModItemTags.ORES, ModItemTags.ORES, ModItemTags.VOID_RESISTANT)
         .build()
         .loot((tables, block) -> tables.add(block, tables.createOreDrop(block, ModItems.VOID_MATTER.get())))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -2506,7 +2490,7 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.DIAMOND_BLOCK)
         .properties(properties -> properties.explosionResistance(1200))
         .item()
-        .tag(ModItemTags.ORES, ModItemTags.ORES_FORGE)
+        .tag(ModItemTags.ORES, ModItemTags.ORES)
         .build()
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
@@ -2907,9 +2891,7 @@ public class ModBlocks {
             .item()
             .tag(
                 ModItemTags.PLATES,
-                ModItemTags.bindC("copper" + "_plates"),
-                ModItemTags.PLATES_FORGE,
-                ModItemTags.bindForge("plates/" + "copper")
+                ModItemTags.bindC("copper" + "_plates")
             )
             .build()
             .register();
@@ -2949,9 +2931,7 @@ public class ModBlocks {
             .item()
             .tag(
                 ModItemTags.PLATES,
-                ModItemTags.bindC(type + "_plates"),
-                ModItemTags.PLATES_FORGE,
-                ModItemTags.bindForge("plates/" + type)
+                ModItemTags.bindC(type + "_plates")
             )
             .build()
             .recipe(
@@ -3009,8 +2989,7 @@ public class ModBlocks {
             .tag(
                 ModItemTags.PLATES,
                 ModItemTags.bindC(type + "_plates"),
-                ModItemTags.PLATES_FORGE,
-                ModItemTags.bindForge("plates/" + type)
+                ModItemTags.PLATES
             )
             .initialProperties(() ->
                 type.equals("tungsten")

@@ -37,7 +37,6 @@ public enum Orientation implements StringRepresentable {
      */
     public Orientation opposite() {
         return switch (this) {
-            default -> Orientation.SOUTH_UP;
             case SOUTH_UP -> Orientation.NORTH_UP;
             case WEST_UP -> Orientation.EAST_UP;
             case EAST_UP -> Orientation.WEST_UP;
@@ -49,6 +48,7 @@ public enum Orientation implements StringRepresentable {
             case DOWN_SOUTH -> Orientation.UP_SOUTH;
             case DOWN_WEST -> Orientation.UP_WEST;
             case DOWN_EAST -> Orientation.UP_EAST;
+            default -> Orientation.SOUTH_UP;
         };
     }
 
@@ -77,12 +77,12 @@ public enum Orientation implements StringRepresentable {
      */
     public Direction getDirection() {
         return switch (this) {
-            default -> Direction.NORTH;
             case SOUTH_UP -> Direction.SOUTH;
             case WEST_UP -> Direction.WEST;
             case EAST_UP -> Direction.EAST;
             case UP_NORTH, UP_SOUTH, UP_WEST, UP_EAST -> Direction.UP;
             case DOWN_NORTH, DOWN_SOUTH, DOWN_WEST, DOWN_EAST -> Direction.DOWN;
+            default -> Direction.NORTH;
         };
     }
 }

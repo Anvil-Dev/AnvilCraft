@@ -23,9 +23,11 @@ public abstract class Utils {
     public static <I> Function<I, I> unchanged() {
         return a -> a;
     }
-
-    public static Function<InteractionResult, ItemInteractionResult> interactionResultConverter(){
-        return it -> switch (it){
+    /**
+     *
+     */
+    public static Function<InteractionResult, ItemInteractionResult> interactionResultConverter() {
+        return it -> switch (it) {
             case SUCCESS, SUCCESS_NO_ITEM_USED -> ItemInteractionResult.SUCCESS;
             case CONSUME -> ItemInteractionResult.CONSUME;
             case CONSUME_PARTIAL -> ItemInteractionResult.CONSUME_PARTIAL;
@@ -33,9 +35,11 @@ public abstract class Utils {
             case FAIL -> ItemInteractionResult.FAIL;
         };
     }
-
-    public static EquipmentSlot convertToSlot(InteractionHand hand){
-        return switch (hand){
+    /**
+     *
+     */
+    public static EquipmentSlot convertToSlot(InteractionHand hand) {
+        return switch (hand) {
             case MAIN_HAND -> EquipmentSlot.MAINHAND;
             case OFF_HAND -> EquipmentSlot.OFFHAND;
         };

@@ -148,8 +148,17 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
                 ModMenuTypes.open(serverPlayer, eb, pos);
                 PacketDistributor.sendToPlayer(serverPlayer, new MachineEnableFilterPack(eb.isFilterEnabled()));
                 for (int i = 0; i < eb.getFilteredItems().size(); i++) {
-                    PacketDistributor.sendToPlayer(serverPlayer, new SlotDisableChangePack(i, eb.getDepository().getDisabled().get(i)));
-                    PacketDistributor.sendToPlayer(serverPlayer, new SlotFilterChangePack(i, eb.getFilter(i)));
+                    PacketDistributor.sendToPlayer(
+                        serverPlayer,
+                        new SlotDisableChangePack(
+                            i,
+                            eb.getDepository().getDisabled().get(i)
+                        )
+                    );
+                    PacketDistributor.sendToPlayer(
+                        serverPlayer,
+                        new SlotFilterChangePack(i, eb.getFilter(i))
+                    );
                 }
             }
         }

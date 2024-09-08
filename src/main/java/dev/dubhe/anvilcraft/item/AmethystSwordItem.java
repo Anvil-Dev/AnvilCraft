@@ -8,6 +8,9 @@ import net.minecraft.world.item.Tiers;
 import org.jetbrains.annotations.NotNull;
 
 public class AmethystSwordItem extends SwordItem {
+    /**
+     *
+     */
     public AmethystSwordItem(Properties properties) {
         super(ModTiers.AMETHYST, properties.attributes(AxeItem.createAttributes(
             ModTiers.AMETHYST,  3, -2.4f
