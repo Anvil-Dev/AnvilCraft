@@ -1,19 +1,24 @@
 package dev.dubhe.anvilcraft.item;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.block.RedhotMetalBlock;
 import dev.dubhe.anvilcraft.block.entity.HeliostatsBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlocks;
+import dev.dubhe.anvilcraft.init.ModComponents;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
@@ -25,8 +30,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
+import java.util.Objects;
 
+@ParametersAreNonnullByDefault
 public class HeliostatsItem extends BlockItem {
     public HeliostatsItem(Block block, Properties properties) {
         super(block, properties);
@@ -36,33 +44,20 @@ public class HeliostatsItem extends BlockItem {
      * 磁盘中是否存储有数据
      */
     public static boolean hasDataStored(ItemStack stack) {
-        return stack.getOrCreateTag().contains("HeliostatsData")
-                && stack.getOrCreateTag().get("HeliostatsData") instanceof CompoundTag
-                && !stack.getOrCreateTag().getCompound("HeliostatsData").isEmpty();
+        return stack.has(ModComponents.HELIOSTATS_DATA);
     }
 
     /**
      * 获取存储的数据
      */
+    @SuppressWarnings("DataFlowIssue")
     public static BlockPos getData(ItemStack stack) {
-        CompoundTag ct = stack.getOrCreateTag().getCompound("HeliostatsData");
-        int x = ct.getInt("X");
-        int y = ct.getInt("Y");
-        int z = ct.getInt("Z");
-        return new BlockPos(x, y, z);
-    }
-
-    /**
-     *
-     */
-    public static CompoundTag createData(ItemStack stack) {
-        CompoundTag tag = new CompoundTag();
-        stack.getOrCreateTag().put("HeliostatsData", tag);
-        return tag;
+        HeliostatsData heliostatsData = stack.get(ModComponents.HELIOSTATS_DATA);
+        return heliostatsData.pos;
     }
 
     public static void deleteData(ItemStack stack) {
-        stack.getOrCreateTag().remove("HeliostatsData");
+        stack.remove(ModComponents.HELIOSTATS_DATA);
     }
 
     @Override
@@ -94,11 +89,8 @@ public class HeliostatsItem extends BlockItem {
             }
             return false;
         }
-        CompoundTag tag = stack.getOrCreateTag().getCompound("HeliostatsData");
-        int x = tag.getInt("X");
-        int y = tag.getInt("Y");
-        int z = tag.getInt("Z");
-        BlockPos irritatePos = new BlockPos(x, y, z);
+
+        BlockPos irritatePos = getData(stack);
         BlockEntity entity = level.getBlockEntity(pos);
         if (entity instanceof HeliostatsBlockEntity e) {
             if (!e.setIrritatePos(irritatePos) && player != null) {
@@ -115,18 +107,14 @@ public class HeliostatsItem extends BlockItem {
 
     @Override
     public void appendHoverText(
-            @NotNull ItemStack stack,
-            @Nullable Level level,
-            @NotNull List<Component> tooltipComponents,
-            @NotNull TooltipFlag isAdvanced
+            ItemStack stack,
+            Item.TooltipContext context,
+            List<Component> tooltipComponents,
+            TooltipFlag isAdvanced
     ) {
-        super.appendHoverText(stack, level, tooltipComponents, isAdvanced);
+        super.appendHoverText(stack, context, tooltipComponents, isAdvanced);
         if (hasDataStored(stack)) {
-            CompoundTag tag = stack.getOrCreateTag().getCompound("HeliostatsData");
-            int x = tag.getInt("X");
-            int y = tag.getInt("Y");
-            int z = tag.getInt("Z");
-            BlockPos pos = new BlockPos(x, y, z);
+            BlockPos pos = getData(stack);
             tooltipComponents.add(
                     Component.translatable("item.anvilcraft.heliostats.pos_set", pos.toShortString())
                             .withStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY))
@@ -165,10 +153,7 @@ public class HeliostatsItem extends BlockItem {
                 return result;
             } else {
                 BlockPos clickPos = context.getClickedPos();
-                CompoundTag tag = createData(context.getItemInHand());
-                tag.putInt("X", clickPos.getX());
-                tag.putInt("Y", clickPos.getY());
-                tag.putInt("Z", clickPos.getZ());
+                stack.set(ModComponents.HELIOSTATS_DATA, new HeliostatsData(clickPos));
             }
             return InteractionResult.SUCCESS;
         } else {
@@ -196,5 +181,34 @@ public class HeliostatsItem extends BlockItem {
             return InteractionResultHolder.success(itemStack);
         }
         return super.use(level, player, usedHand);
+    }
+
+    public record HeliostatsData(BlockPos pos) {
+
+        public static final Codec<HeliostatsData> CODEC = RecordCodecBuilder.create(ins -> ins.group(
+                BlockPos.CODEC.fieldOf("pos").forGetter(HeliostatsData::pos)
+        ).apply(ins, HeliostatsData::new));
+
+
+        public static final StreamCodec<ByteBuf, HeliostatsData> STREAM_CODEC = StreamCodec.composite(
+                BlockPos.STREAM_CODEC,
+                HeliostatsData::pos,
+                HeliostatsData::new
+        );
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) return true;
+            if (obj instanceof HeliostatsData heliostatsData) {
+                return heliostatsData.pos.equals(pos);
+            } else {
+                return false;
+            }
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(pos);
+        }
     }
 }

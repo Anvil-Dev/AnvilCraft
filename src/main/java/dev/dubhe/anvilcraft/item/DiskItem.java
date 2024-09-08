@@ -1,11 +1,17 @@
 package dev.dubhe.anvilcraft.item;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
+import dev.dubhe.anvilcraft.init.ModComponents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -18,9 +24,9 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Objects;
 
 public class DiskItem extends Item {
 
@@ -32,13 +38,11 @@ public class DiskItem extends Item {
      * 磁盘中是否存储有数据
      */
     public static boolean hasDataStored(ItemStack stack) {
-        return stack.getOrCreateTag().contains("DiskData")
-                && stack.getOrCreateTag().get("DiskData") instanceof CompoundTag
-                && !stack.getOrCreateTag().getCompound("DiskData").isEmpty();
+        return stack.has(ModComponents.DISK_DATA);
     }
 
     public static CompoundTag getData(ItemStack stack) {
-        return stack.getOrCreateTag().getCompound("DiskData");
+        return stack.getOrDefault(ModComponents.DISK_DATA, new DiskData(new CompoundTag())).tag();
     }
 
     /**
@@ -46,12 +50,12 @@ public class DiskItem extends Item {
      */
     public static CompoundTag createData(ItemStack stack) {
         CompoundTag tag = new CompoundTag();
-        stack.getOrCreateTag().put("DiskData", tag);
+        stack.set(ModComponents.DISK_DATA, new DiskData(tag));
         return tag;
     }
 
     public static void deleteData(ItemStack stack) {
-        stack.getOrCreateTag().remove("DiskData");
+        stack.remove(ModComponents.DISK_DATA);
     }
 
     @Override
@@ -67,17 +71,13 @@ public class DiskItem extends Item {
     @Override
     public void appendHoverText(
             @NotNull ItemStack stack,
-            @Nullable Level level,
+            @NotNull Item.TooltipContext context,
             @NotNull List<Component> tooltipComponents,
             @NotNull TooltipFlag isAdvanced
     ) {
-        super.appendHoverText(stack, level, tooltipComponents, isAdvanced);
+        super.appendHoverText(stack, context, tooltipComponents, isAdvanced);
         if (hasDataStored(stack)) {
-            ResourceLocation storedFrom = new ResourceLocation(
-                    stack.getOrCreateTag()
-                            .getCompound("DiskData")
-                            .getString("StoredFrom")
-            );
+            ResourceLocation storedFrom = ResourceLocation.parse(getData(stack).getString("StoredFrom"));
             String name = Component.translatable("block.anvilcraft." + storedFrom.getPath()).getString();
             tooltipComponents.add(
                     Component.translatable("item.anvilcraft.disk.stored_from", name)
@@ -127,5 +127,32 @@ public class DiskItem extends Item {
             return InteractionResultHolder.success(itemStack);
         }
         return super.use(level, player, usedHand);
+    }
+
+    public record DiskData(CompoundTag tag) {
+        public static final Codec<DiskData> CODEC = RecordCodecBuilder.create(ins -> ins.group(
+                CompoundTag.CODEC.fieldOf("tag").forGetter(DiskData::tag)
+        ).apply(ins, DiskData::new));
+
+        public static final StreamCodec<RegistryFriendlyByteBuf, DiskData> STREAM_CODEC = StreamCodec.composite(
+                ByteBufCodecs.COMPOUND_TAG,
+                DiskData::tag,
+                DiskData::new
+        );
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) return true;
+            if (obj instanceof DiskData diskData) {
+                return tag.equals(diskData.tag);
+            } else {
+                return false;
+            }
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(tag);
+        }
     }
 }
