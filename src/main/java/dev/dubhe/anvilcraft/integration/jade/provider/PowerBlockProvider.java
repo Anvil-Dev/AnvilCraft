@@ -18,13 +18,11 @@ import snownee.jade.api.ui.IElementHelper;
 public enum PowerBlockProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
     INSTANCE;
 
-    public static final BoxStyle POWER_BOX = new BoxStyle();
-
     @Override
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
         CompoundTag serverData = accessor.getServerData();
         if (serverData.contains("generate") && serverData.contains("consume")) {
-            IElementHelper elementHelper = tooltip.getElementHelper();
+            IElementHelper elementHelper = IElementHelper.get();
             int generate = serverData.getInt("generate");
             int consume = serverData.getInt("consume");
 
@@ -41,8 +39,8 @@ public enum PowerBlockProvider implements IBlockComponentProvider, IServerDataPr
                     percent,
                     Component.translatable("tooltip.anvilcraft.jade.power_information", consume, generate),
                     elementHelper.progressStyle().color(color).textColor(-1),
-                    Util.make(POWER_BOX, boxStyle -> {
-                        boxStyle.borderColor = 0xFF555555;
+                    Util.make(BoxStyle.GradientBorder.TRANSPARENT, boxStyle -> {
+                        boxStyle.borderColor = new int[]{0xFF555555, 0xFF555555, 0xFF555555, 0xFF555555};
                         boxStyle.bgColor = 0xFF32CD32;
                     }),
                     true
