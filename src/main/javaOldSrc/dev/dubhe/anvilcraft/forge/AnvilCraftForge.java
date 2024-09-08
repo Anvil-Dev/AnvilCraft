@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
 import dev.dubhe.anvilcraft.event.forge.ClientEventListener;
 import dev.dubhe.anvilcraft.init.ModCommands;
 import dev.dubhe.anvilcraft.init.ModNetworks;
-import dev.dubhe.anvilcraft.init.forge.ModRecipeTypesForge;
 import dev.dubhe.anvilcraft.init.forge.ModVillagers;
 import lombok.Getter;
 import me.shedaniel.autoconfig.AutoConfig;

@@ -6,9 +6,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.generator.lang.LangHandler;
 import dev.dubhe.anvilcraft.data.generator.loot.LootHandler;
 import dev.dubhe.anvilcraft.data.generator.provider.ModRegistryProvider;
-import dev.dubhe.anvilcraft.data.generator.recipe.RecipesHandler;
 import dev.dubhe.anvilcraft.data.generator.tags.TagsHandler;
-import dev.dubhe.anvilcraft.data.recipe.RecipeItem;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.core.HolderLookup;
@@ -51,7 +49,6 @@ public class AnvilCraftDatagen {
         REGISTRATE.addDataGenerator(ProviderType.BLOCK_TAGS, TagsHandler::initBlock);
         REGISTRATE.addDataGenerator(ProviderType.FLUID_TAGS, TagsHandler::initFluid);
         REGISTRATE.addDataGenerator(ProviderType.LANG, LangHandler::init);
-        REGISTRATE.addDataGenerator(ProviderType.RECIPE, RecipesHandler::init);
         REGISTRATE.addDataGenerator(ProviderType.LOOT, LootHandler::init);
     }
 
@@ -63,16 +60,6 @@ public class AnvilCraftDatagen {
         return RegistrateRecipeProvider.has(tag);
     }
 
-    /**
-     * @param item 物品
-     */
-    public static @NotNull Criterion<InventoryChangeTrigger.TriggerInstance> has(RecipeItem item) {
-        if (item.getItem() == null) {
-            return has(item.getItemTagKey());
-        } else {
-            return has(item.getItem());
-        }
-    }
 
     public static @NotNull String hasItem(@NotNull TagKey<Item> item) {
         return "has_" + item.location().getPath();
@@ -82,14 +69,4 @@ public class AnvilCraftDatagen {
         return "has_" + BuiltInRegistries.ITEM.getKey(item.asItem()).getPath();
     }
 
-    /**
-     * @param item 物品
-     */
-    public static @NotNull String hasItem(RecipeItem item) {
-        if (item.getItem() == null) {
-            return hasItem(item.getItemTagKey());
-        } else {
-            return hasItem(item.getItem());
-        }
-    }
 }

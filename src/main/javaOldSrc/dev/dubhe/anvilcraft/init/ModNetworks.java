@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.init;
 
 import dev.dubhe.anvilcraft.network.AddMutedSoundPacket;
-import dev.dubhe.anvilcraft.network.ClientRecipeManagerSyncPack;
 import dev.dubhe.anvilcraft.network.CyclingValueSyncPacket;
 import dev.dubhe.anvilcraft.network.HammerUsePack;
 import dev.dubhe.anvilcraft.network.HeliostatsIrradiationPack;

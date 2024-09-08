@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.init;
 
 import com.tterrag.registrate.util.entry.MenuEntry;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.ActiveSilencerScreen;
-import dev.dubhe.anvilcraft.client.gui.screen.inventory.AutoCrafterScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.BatchCrafterScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.ChuteScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.EmberAnvilScreen;
@@ -33,12 +32,6 @@ import net.minecraft.world.MenuProvider;
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 
 public class ModMenuTypes {
-
-    @SuppressWarnings("DataFlowIssue")
-    public static final MenuEntry<AutoCrafterMenu> AUTO_CRAFTER = REGISTRATE
-            .menu("auto_crafter", AutoCrafterMenu::new, () -> AutoCrafterScreen::new)
-            .register();
-
     @SuppressWarnings("DataFlowIssue")
     public static final MenuEntry<BatchCrafterMenu> BATCH_CRAFTER = REGISTRATE
             .menu("batch_crafter", BatchCrafterMenu::new, () -> BatchCrafterScreen::new)

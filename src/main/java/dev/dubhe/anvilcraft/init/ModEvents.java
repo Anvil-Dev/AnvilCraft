@@ -8,7 +8,6 @@ import dev.dubhe.anvilcraft.event.anvil.AnvilHitImpactPileEventListener;
 import dev.dubhe.anvilcraft.event.anvil.AnvilHitPiezoelectricCrystalBlockEventListener;
 import dev.dubhe.anvilcraft.event.anvil.AnvilHurtVillagerEventListener;
 import dev.dubhe.anvilcraft.event.giantanvil.GiantAnvilLandingEventListener;
-import dev.dubhe.anvilcraft.event.giantanvil.GiantAnvilMultiblockCraftingEventListener;
 import dev.dubhe.anvilcraft.event.LightningEventListener;
 import dev.dubhe.anvilcraft.event.PlayerEventListener;
 import dev.dubhe.anvilcraft.event.ServerBlockEntityEventListener;

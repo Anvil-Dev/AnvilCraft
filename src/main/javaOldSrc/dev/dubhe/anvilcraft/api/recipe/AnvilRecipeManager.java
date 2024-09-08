@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.api.recipe;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.recipe.RecipeReloadEvent;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
-import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.Holder;

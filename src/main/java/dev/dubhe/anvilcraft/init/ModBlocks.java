@@ -89,20 +89,6 @@ import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.Vertical3PartHalf;
 import dev.dubhe.anvilcraft.block.state.Vertical4PartHalf;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
-import dev.dubhe.anvilcraft.data.generator.recipe.BlockSmashRecipesLoader;
-import dev.dubhe.anvilcraft.data.generator.recipe.StampingRecipesLoader;
-import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
-import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;
-import dev.dubhe.anvilcraft.data.recipe.anvil.RecipeOutcome;
-import dev.dubhe.anvilcraft.data.recipe.anvil.RecipePredicate;
-import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SelectOne;
-import dev.dubhe.anvilcraft.data.recipe.anvil.outcome.SpawnItem;
-import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.item.HasItem;
-import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.item.HasItemIngredient;
-import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.item.HasItemIngredientWithNoNbt;
-import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.item.ModItemWithNoNbtPredicate;
-import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.block.HasBlock;
-import dev.dubhe.anvilcraft.data.recipe.anvil.predicate.block.HasShulkerBoxBlockEntity;
 import dev.dubhe.anvilcraft.item.AbstractMultiplePartBlockItem;
 import dev.dubhe.anvilcraft.item.CursedBlockItem;
 import dev.dubhe.anvilcraft.item.EndDustBlockItem;
@@ -378,31 +364,6 @@ public class ModBlocks {
                 .define('A', ModItems.ROYAL_STEEL_INGOT)
                 .unlockedBy("hasitem", RegistrateRecipeProvider.has(ModItems.ROYAL_STEEL_INGOT))
                 .save(provider);
-            AnvilRecipe.Builder.create(RecipeCategory.MISC)
-                .icon(ctx.get())
-                .type(AnvilRecipeType.SUPER_HEATING)
-                .hasBlock(ModBlocks.HEATER.get(), new Vec3(0.0, -2.0, 0.0),
-                    Map.entry(OVERLOAD, false))
-                .hasBlock(Blocks.CAULDRON)
-                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 3, Items.IRON_BLOCK)
-                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 1, Items.DIAMOND_BLOCK)
-                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 3, Items.AMETHYST_BLOCK)
-                .hasItemIngredient(new Vec3(0.0, -1.0, 0.0), 1, ModItemTags.GEM_BLOCKS)
-                .spawnItem(new Vec3(0.0, -1.0, 0.0), ctx.get().asItem(), 1)
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_BLOCK),
-                    AnvilCraftDatagen.has(Items.IRON_BLOCK))
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.DIAMOND_BLOCK),
-                    AnvilCraftDatagen.has(Items.DIAMOND_BLOCK))
-                .unlockedBy(
-                    AnvilCraftDatagen.hasItem(Items.AMETHYST_BLOCK),
-                    AnvilCraftDatagen.has(Items.AMETHYST_BLOCK)
-                )
-                .unlockedBy(
-                    AnvilCraftDatagen.hasItem(ModItemTags.GEM_BLOCKS),
-                    AnvilCraftDatagen.has(ModItemTags.GEM_BLOCKS)
-                )
-                .save(provider, AnvilCraft.of("heating/"
-                    + BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath()));
         })
         .register();
     public static final BlockEntry<? extends Block> SMOOTH_ROYAL_STEEL_BLOCK = REGISTRATE
@@ -921,28 +882,7 @@ public class ModBlocks {
                 .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.AMBER),
                     AnvilCraftDatagen.has(ModItems.AMBER))
                 .save(provider);
-            HasItem.ModItemPredicate item = HasItem.ModItemPredicate
-                .of(ModBlocks.RESIN_BLOCK)
-                .withCount(MinMaxBounds.Ints.atLeast(1));
-            HasItem hasItem = new HasItemIngredient(new Vec3(0.0, -1.0, 0.0), item).notHasTag("BlockEntityTag.entity");
-            AnvilRecipe.Builder.create(RecipeCategory.MISC)
-                .icon(ctx.get())
-                .type(AnvilRecipeType.TIMEWARP)
-                .hasBlock(
-                    ModBlocks.CORRUPTED_BEACON.get(),
-                    new Vec3(0.0, -2.0, 0.0),
-                    Map.entry(CorruptedBeaconBlock.LIT, true)
-                )
-                .hasBlock(Blocks.CAULDRON)
-                .addPredicates(hasItem)
-                .spawnItem(new Vec3(0.0, -1.0, 0.0), ctx.get(), 1)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ctx.get()),
-                    AnvilCraftDatagen.has(ModBlocks.RESIN_BLOCK))
-                .save(
-                    provider,
-                    AnvilCraft.of(
-                        "timewarp/" + BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath())
-                );
+
         })
         .register();
 
@@ -952,79 +892,7 @@ public class ModBlocks {
         })
         .item(HasMobBlockItem::new)
         .recipe((ctx, provider) -> {
-            CompoundTag tag = new CompoundTag();
-            tag.putBoolean("is_monster", false);
-            HasItem.ModItemPredicate item = HasItem.ModItemPredicate
-                .of(ModBlocks.RESIN_BLOCK)
-                .withCount(MinMaxBounds.Ints.atLeast(1))
-                .withNbt(tag);
-            RecipePredicate hasItem = new HasItemIngredient(new Vec3(0.0, -1.0, 0.0), item)
-                .hasTag("BlockEntityTag.entity")
-                .saveItemData("resin");
-            RecipeOutcome spawnItem0 = new SpawnItem(
-                new Vec3(0.0, -1.0, 0.0),
-                1.0,
-                ctx.get().getDefaultInstance()
-            ).loadItemData("resin");
-            AnvilRecipe.Builder.create(RecipeCategory.MISC)
-                .icon(ctx.get())
-                .type(AnvilRecipeType.TIMEWARP)
-                .hasBlock(
-                    ModBlocks.CORRUPTED_BEACON.get(),
-                    new Vec3(0.0, -2.0, 0.0),
-                    Map.entry(CorruptedBeaconBlock.LIT, true)
-                )
-                .hasBlock(Blocks.CAULDRON)
-                .addPredicates(hasItem)
-                .addOutcomes(spawnItem0)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ctx.get()),
-                    AnvilCraftDatagen.has(ModBlocks.RESIN_BLOCK))
-                .save(
-                    provider,
-                    AnvilCraft.of(
-                        "timewarp/" + BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath())
-                );
 
-            tag = new CompoundTag();
-            tag.putBoolean("is_monster", true);
-            HasItem.ModItemPredicate monster = HasItem.ModItemPredicate
-                .of(ModBlocks.RESIN_BLOCK)
-                .withCount(MinMaxBounds.Ints.atLeast(1))
-                .withNbt(tag);
-            RecipePredicate hasItemMonster = new HasItemIngredient(new Vec3(0.0, -1.0, 0.0), monster)
-                .hasTag("BlockEntityTag.entity")
-                .saveItemData("resin");
-            RecipeOutcome spawnItem1 = new SpawnItem(
-                new Vec3(0.0, -1.0, 0.0),
-                0.95,
-                ctx.get().getDefaultInstance()
-            ).loadItemData("resin");
-            RecipeOutcome spawnItem2 = new SpawnItem(
-                new Vec3(0.0, -1.0, 0.0),
-                0.05,
-                ModBlocks.RESENTFUL_AMBER_BLOCK.asItem().getDefaultInstance()
-            ).loadItemData("resin");
-            AnvilRecipe.Builder.create(RecipeCategory.MISC)
-                .icon(ctx.get())
-                .type(AnvilRecipeType.TIMEWARP)
-                .hasBlock(
-                    ModBlocks.CORRUPTED_BEACON.get(),
-                    new Vec3(0.0, -2.0, 0.0),
-                    Map.entry(CorruptedBeaconBlock.LIT, true)
-                )
-                .hasBlock(Blocks.CAULDRON)
-                .addPredicates(hasItemMonster)
-                .addOutcomes(new SelectOne().add(spawnItem1).add(spawnItem2))
-                .unlockedBy(AnvilCraftDatagen.hasItem(ctx.get()),
-                    AnvilCraftDatagen.has(ModBlocks.RESIN_BLOCK))
-                .save(
-                    provider,
-                    AnvilCraft.of(
-                        "timewarp/"
-                            + BuiltInRegistries.ITEM.getKey(ctx.get().asItem()).getPath()
-                            + "_resentful"
-                    )
-                );
         })
         .build()
         .initialProperties(ModBlocks.AMBER_BLOCK)
@@ -1312,8 +1180,7 @@ public class ModBlocks {
         ))
         .simpleItem()
         .initialProperties(() -> Blocks.BLACK_CONCRETE_POWDER)
-        .recipe((ctx, provider) -> BlockSmashRecipesLoader.smash(Blocks.NETHERRACK, ctx.get(),
-            provider))
+        .recipe((ctx, provider) -> {})
         .tag(BlockTags.MINEABLE_WITH_SHOVEL)
         .register();
     public static final BlockEntry<EndDustBlock> END_DUST = REGISTRATE
@@ -1322,7 +1189,7 @@ public class ModBlocks {
         .build()
         .initialProperties(() -> Blocks.BLACK_CONCRETE_POWDER)
         .recipe(
-            (ctx, provider) -> BlockSmashRecipesLoader.smash(Blocks.END_STONE, ctx.get(), provider))
+            (ctx, provider) ->{})
         .tag(BlockTags.MINEABLE_WITH_SHOVEL)
         .register();
     public static final BlockEntry<ColoredFallingBlock> DEEPSLATE_CHIPS = REGISTRATE
@@ -2947,7 +2814,6 @@ public class ModBlocks {
                                 "craft/" + id + "_from_"
                                     + location1.getPath().replace('/', '_')
                             ));
-                        StampingRecipesLoader.stamping(provider, ingredient, ctx.get().asItem());
                     }
                 }
             )
@@ -3008,7 +2874,6 @@ public class ModBlocks {
                                 "craft/" + id + "_from_"
                                     + ingredient.location().getPath().replace('/', '_')
                             ));
-                        StampingRecipesLoader.stamping(provider, ingredient, ctx.get().asItem());
                     }
                 }
             )
@@ -3058,52 +2923,6 @@ public class ModBlocks {
         .model((ctx, provider) -> provider.blockItem(ctx))
         .build()
         .recipe((ctx, provider) -> {
-            CompoundTag innerTag1 = new CompoundTag();
-            innerTag1.put("Items", new ListTag());
-            CompoundTag innerTag2 = new CompoundTag();
-            innerTag2.putString("id", "minecraft:shulker_box");
-            innerTag1.merge(innerTag2);
-            CompoundTag shulkerBoxItemInventoryNbt = new CompoundTag();
-            //targeted nbt: "BlockEntityTag:{Items:[],id:\"minecraft:shulker_box\"}"
-            shulkerBoxItemInventoryNbt.put("BlockEntityTag", innerTag1);
-            AnvilRecipe.Builder.create(RecipeCategory.MISC)
-                .type(AnvilRecipeType.ITEM_INJECT)
-                .hasBlock(new Vec3(0.0, -1.0, 0.0), Blocks.SHULKER_BOX)
-                .addPredicates(new HasShulkerBoxBlockEntity(
-                    new Vec3(0.0, -1.0, 0.0),
-                    new HasBlock.ModBlockPredicate().block(Blocks.SHULKER_BOX),
-                    HasShulkerBoxBlockEntity.IS_EMPTY,
-                    HasItem.ModItemPredicate.of()
-                ))
-                //.hasItemIngredient(Vec3.ZERO, Items.SHULKER_BOX)
-                .addPredicates(new HasItemIngredient(Vec3.ZERO, HasItem.ModItemPredicate
-                    .of(Items.SHULKER_BOX)
-                    .withCount(MinMaxBounds.Ints.atLeast(1))
-                    .withNbt(shulkerBoxItemInventoryNbt)
-                ))
-                .setBlock(new Vec3(0.0, -1.0, 0.0), ctx.get())
-                .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.SHULKER_BOX.asItem()),
-                    AnvilCraftDatagen.has(Blocks.SHULKER_BOX.asItem()))
-                .save(provider, AnvilCraft.of("item_inject/nesting_shulker_box"));
-            AnvilRecipe.Builder.create(RecipeCategory.MISC)
-                .type(AnvilRecipeType.ITEM_INJECT)
-                .hasBlock(new Vec3(0.0, -1.0, 0.0), Blocks.SHULKER_BOX)
-                .addPredicates(new HasShulkerBoxBlockEntity(
-                    new Vec3(0.0, -1.0, 0.0),
-                    new HasBlock.ModBlockPredicate().block(Blocks.SHULKER_BOX),
-                    HasShulkerBoxBlockEntity.IS_EMPTY,
-                    HasItem.ModItemPredicate.of()
-                ))
-                //.hasItemIngredient(Vec3.ZERO, Items.SHULKER_BOX)
-                .addPredicates(new HasItemIngredientWithNoNbt(
-                    Vec3.ZERO,
-                    ModItemWithNoNbtPredicate.of(Items.SHULKER_BOX)
-                        .withCount(MinMaxBounds.Ints.atLeast(1))
-                ))
-                .setBlock(new Vec3(0.0, -1.0, 0.0), ctx.get())
-                .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.SHULKER_BOX.asItem()),
-                    AnvilCraftDatagen.has(Blocks.SHULKER_BOX.asItem()))
-                .save(provider, AnvilCraft.of("item_inject/nesting_shulker_box_with_no_nbt"));
         })
         .register();
     public static final BlockEntry<OverNestingShulkerBoxBlock> OVER_NESTING_SHULKER_BOX = REGISTRATE
@@ -3117,20 +2936,6 @@ public class ModBlocks {
         .model((ctx, provider) -> provider.blockItem(ctx))
         .build()
         .recipe((ctx, provider) -> {
-            AnvilRecipe.Builder.create(RecipeCategory.MISC)
-                .type(AnvilRecipeType.ITEM_INJECT)
-                .hasBlock(new Vec3(0.0, -1.0, 0.0), Blocks.SHULKER_BOX)
-                .addPredicates(new HasShulkerBoxBlockEntity(
-                    new Vec3(0.0, -1.0, 0.0),
-                    new HasBlock.ModBlockPredicate().block(Blocks.SHULKER_BOX),
-                    HasShulkerBoxBlockEntity.IS_EMPTY,
-                    HasItem.ModItemPredicate.of()
-                ))
-                .hasItemIngredient(Vec3.ZERO, ModBlocks.NESTING_SHULKER_BOX.asItem())
-                .setBlock(new Vec3(0.0, -1.0, 0.0), ctx.get())
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.NESTING_SHULKER_BOX.asItem()),
-                    AnvilCraftDatagen.has(Blocks.SHULKER_BOX.asItem()))
-                .save(provider, AnvilCraft.of("item_inject/over_nesting_shulker_box"));
         })
         .register();
     public static final BlockEntry<SupercriticalNestingShulkerBoxBlock> SUPERCRITICAL_NESTING_SHULKER_BOX = REGISTRATE
@@ -3144,20 +2949,6 @@ public class ModBlocks {
         .model((ctx, provider) -> provider.blockItem(ctx))
         .build()
         .recipe((ctx, provider) -> {
-            AnvilRecipe.Builder.create(RecipeCategory.MISC)
-                .type(AnvilRecipeType.ITEM_INJECT)
-                .hasBlock(new Vec3(0.0, -1.0, 0.0), Blocks.SHULKER_BOX)
-                .addPredicates(new HasShulkerBoxBlockEntity(
-                    new Vec3(0.0, -1.0, 0.0),
-                    new HasBlock.ModBlockPredicate().block(Blocks.SHULKER_BOX),
-                    HasShulkerBoxBlockEntity.IS_EMPTY,
-                    HasItem.ModItemPredicate.of()
-                ))
-                .hasItemIngredient(Vec3.ZERO, ModBlocks.OVER_NESTING_SHULKER_BOX.asItem())
-                .setBlock(new Vec3(0.0, -1.0, 0.0), ctx.get())
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.OVER_NESTING_SHULKER_BOX.asItem()),
-                    AnvilCraftDatagen.has(Blocks.SHULKER_BOX.asItem()))
-                .save(provider, AnvilCraft.of("item_inject/supercritical_nesting_shulker_box"));
         })
         .register();
     public static final BlockEntry<SpaceOvercompressorBlock> SPACE_OVERCOMPRESSOR = REGISTRATE

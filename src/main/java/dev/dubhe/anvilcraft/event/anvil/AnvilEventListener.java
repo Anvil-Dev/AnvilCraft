@@ -6,13 +6,9 @@ import dev.dubhe.anvilcraft.api.IHasMultiBlock;
 import dev.dubhe.anvilcraft.api.depository.ItemDepository;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilHurtEntityEvent;
-import dev.dubhe.anvilcraft.api.recipe.AnvilRecipeManager;
 import dev.dubhe.anvilcraft.block.CrabTrapBlock;
 import dev.dubhe.anvilcraft.block.EmberAnvilBlock;
 import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
-import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilCraftingContext;
-import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
-import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.mixin.accessor.BaseSpawnerAccessor;
@@ -84,12 +80,12 @@ public class AnvilEventListener {
         belowPos = belowPos.below();
         state = level.getBlockState(belowPos);
         if (state.is(Blocks.STONECUTTER)) brokeBlock(level, belowPos.above(), event);
-        AnvilCraftingContext context = new AnvilCraftingContext(level, pos, event.getEntity());
-        Optional<AnvilRecipe> optional = AnvilRecipeManager.getAnvilRecipeList().stream()
-            .filter(recipe -> !recipe.getAnvilRecipeType().equals(AnvilRecipeType.MULTIBLOCK_CRAFTING)
-                && recipe.matches(context, level))
-            .findFirst();
-        optional.ifPresent(anvilRecipe -> anvilProcess(anvilRecipe, context, event));
+//        AnvilCraftingContext context = new AnvilCraftingContext(level, pos, event.getEntity());
+//        Optional<AnvilRecipe> optional = AnvilRecipeManager.getAnvilRecipeList().stream()
+//            .filter(recipe -> !recipe.getAnvilRecipeType().equals(AnvilRecipeType.MULTIBLOCK_CRAFTING)
+//                && recipe.matches(context, level))
+//            .findFirst();
+//        optional.ifPresent(anvilRecipe -> anvilProcess(anvilRecipe, context, event));
     }
 
     private void hitBeeNest(Level level, BlockState state, BlockPos pos) {
@@ -285,15 +281,15 @@ public class AnvilEventListener {
         }
     }
 
-    private void anvilProcess(AnvilRecipe recipe, AnvilCraftingContext context, AnvilFallOnLandEvent event) {
-        int counts = 0;
-        while (counts < AnvilCraft.config.anvilEfficiency) {
-            if (!recipe.craft(context.clearData())) break;
-            counts++;
-        }
-        if (context.isAnvilDamage()) event.setAnvilDamage(true);
-        context.spawnItemEntity();
-    }
+//    private void anvilProcess(AnvilRecipe recipe, AnvilCraftingContext context, AnvilFallOnLandEvent event) {
+//        int counts = 0;
+//        while (counts < AnvilCraft.config.anvilEfficiency) {
+//            if (!recipe.craft(context.clearData())) break;
+//            counts++;
+//        }
+//        if (context.isAnvilDamage()) event.setAnvilDamage(true);
+//        context.spawnItemEntity();
+//    }
 
     private void brokeBlock(@NotNull Level level, BlockPos pos, AnvilFallOnLandEvent event) {
         if (!(level instanceof ServerLevel serverLevel)) return;
