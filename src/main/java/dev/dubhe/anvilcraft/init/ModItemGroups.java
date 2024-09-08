@@ -4,10 +4,14 @@ import com.tterrag.registrate.util.entry.RegistryEntry;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Items;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 
 @SuppressWarnings("unused")
+@EventBusSubscriber
 public class ModItemGroups {
     public static final RegistryEntry<CreativeModeTab, CreativeModeTab> ANVILCRAFT_TOOL = REGISTRATE
         .defaultCreativeTab("tools", builder -> builder
@@ -364,6 +368,8 @@ public class ModItemGroups {
         )
         .register();
 
-    public static void register() {
+    @SubscribeEvent
+    public static void register(BuildCreativeModeTabContentsEvent event) {
+
     }
 }

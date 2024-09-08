@@ -49,8 +49,19 @@ public class AnvilCraft {
 
     public AnvilCraft(IEventBus modEventBus, ModContainer container) {
         EVENT_BUS = modEventBus;
-
-        init(modEventBus);
+        REGISTRATE.registerRegistrate(modEventBus);
+        ModEvents.register();
+        ModBlocks.register();
+        ModEntities.register();
+        ModItems.register();
+        ModItemGroups.register();
+        ModBlockEntities.register();
+        ModMenuTypes.register();
+        ModDispenserBehavior.register();
+        ModComponents.register(modEventBus);
+        ModVillagers.register(modEventBus);
+        // datagen
+        AnvilCraftDatagen.init();
         modEventBus.addListener(AnvilCraft::registerPayload);
         NeoForge.EVENT_BUS.addListener(AnvilCraft::registerCommand);
         try {
@@ -62,31 +73,9 @@ public class AnvilCraft {
                 IConfigScreenFactory.class,
                 () -> ((c, screen) -> AutoConfig.getConfigScreen(AnvilCraftConfig.class, screen).get())
         );
+
     }
 
-
-    /**
-     * 初始化函数
-     */
-    public static void init(IEventBus bus) {
-        EVENT_BUS = bus;
-        // common
-        ModEvents.register();
-        ModBlocks.register();
-        ModEntities.register();
-        ModItems.register();
-        ModItemGroups.register();
-        ModBlockEntities.register();
-        ModMenuTypes.register();
-        ModDispenserBehavior.register();
-        ModComponents.register(bus);
-        ModVillagers.register(bus);
-        // datagen
-        AnvilCraftDatagen.init();
-        // fabric 独有，请在此之前插入注册
-        // 现在没有了
-        REGISTRATE.registerRegistrate(bus);
-    }
 
     public static @NotNull ResourceLocation of(String path) {
         return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
