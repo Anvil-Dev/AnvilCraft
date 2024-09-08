@@ -3,12 +3,7 @@ package dev.dubhe.anvilcraft.init;
 import com.tterrag.registrate.util.entry.RegistryEntry;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.EnchantedBookItem;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentInstance;
-import org.jetbrains.annotations.NotNull;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 

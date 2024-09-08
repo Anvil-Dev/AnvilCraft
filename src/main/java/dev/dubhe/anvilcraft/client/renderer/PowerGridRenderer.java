@@ -3,8 +3,6 @@ package dev.dubhe.anvilcraft.client.renderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.dubhe.anvilcraft.api.power.SimplePowerGrid;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
@@ -16,7 +14,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-@Environment(EnvType.CLIENT)
 public class PowerGridRenderer {
     private static final Map<Integer, SimplePowerGrid> GRID_MAP = Collections.synchronizedMap(new HashMap<>());
 
@@ -69,14 +66,12 @@ public class PowerGridRenderer {
             float l = (float) (maxY - minY);
             float m = (float) (maxZ - minZ);
             float n = Mth.sqrt(k * k + l * l + m * m);
-            consumer.vertex(pose.pose(), (float) (minX + x), (float) (minY + y), (float) (minZ + z))
-                .color(red, green, blue, alpha)
-                .normal(pose.normal(), k /= n, l /= n, m /= n)
-                .endVertex();
-            consumer.vertex(pose.pose(), (float) (maxX + x), (float) (maxY + y), (float) (maxZ + z))
-                .color(red, green, blue, alpha)
-                .normal(pose.normal(), k, l, m)
-                .endVertex();
+            consumer.addVertex(pose.pose(), (float) (minX + x), (float) (minY + y), (float) (minZ + z))
+                .setColor(red, green, blue, alpha)
+                .setNormal(pose.copy(), k /= n, l /= n, m /= n);
+            consumer.addVertex(pose.pose(), (float) (maxX + x), (float) (maxY + y), (float) (maxZ + z))
+                .setColor(red, green, blue, alpha)
+                .setNormal(pose.copy(), k, l, m);
         });
     }
 }

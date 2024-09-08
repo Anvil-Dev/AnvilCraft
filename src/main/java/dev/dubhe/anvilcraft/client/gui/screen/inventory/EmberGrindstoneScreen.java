@@ -27,7 +27,7 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
 
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(guiGraphics);
+        this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         this.renderBg(guiGraphics, partialTick, mouseX, mouseY);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
@@ -42,7 +42,7 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
 
     protected void renderLabels(GuiGraphics guiGraphics) {
         if (this.menu.getSlot(2).hasItem()) {
-            drawLabel((int) (92 + 4.5 - (this.font.width(Component.literal("" + this.menu.usedGold)) / 2)), 38,
+            drawLabel((int) (92 + 4.5 - (this.font.width(Component.literal("" + this.menu.usedGold)) / 2f)), 38,
                 Component.literal("" + this.menu.usedGold), guiGraphics);
             drawLabel(112, 19, Component.literal(
                 Component.translatable("screen.anvilcraft.royal_grindstone.remove_curse_number")
@@ -54,7 +54,7 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
     }
 
     private void drawLabel(int x, int y, Component component, @NotNull GuiGraphics guiGraphics) {
-        int i = (this.width - this.imageWidth - 2) / 2;
+        int i = (int) ((this.width - this.imageWidth - 2) / 2f);
         int j = (this.height - this.imageHeight + 23) / 2;
         x = x + i;
         y = y + j;

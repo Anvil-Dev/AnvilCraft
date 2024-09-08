@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.client.renderer.blockentity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.CreativeGeneratorBlockEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
@@ -15,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class CreativeGeneratorRenderer implements BlockEntityRenderer<CreativeGeneratorBlockEntity> {
     public static final ModelResourceLocation MODEL =
-            new ModelResourceLocation("anvilcraft", "creative_generator_cube", "");
+        ModelResourceLocation.standalone(AnvilCraft.of("creative_generator_cube"));
 
 
     /**

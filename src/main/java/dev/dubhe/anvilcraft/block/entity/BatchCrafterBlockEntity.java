@@ -17,8 +17,10 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -34,6 +36,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
@@ -57,8 +60,8 @@ import java.util.function.Predicate;
 @Getter
 @SuppressWarnings("NullableProblems")
 public class BatchCrafterBlockEntity
-        extends BaseMachineBlockEntity
-        implements IFilterBlockEntity, IPowerConsumer, IDiskCloneable, IHasDisplayItem {
+    extends BaseMachineBlockEntity
+    implements IFilterBlockEntity, IPowerConsumer, IDiskCloneable, IHasDisplayItem {
     private static final AtomicInteger COUNTER = new AtomicInteger(0);
     private static final RandomSource RANDOM = RandomSource.create();
 
@@ -73,11 +76,15 @@ public class BatchCrafterBlockEntity
         public void onContentsChanged(int slot) {
             if (level != null) {
                 RecipeManager recipeManager = level.getRecipeManager();
-                Optional<CraftingRecipe> recipe = recipeManager
-                        .getRecipeFor(RecipeType.CRAFTING, dummyCraftingContainer, level);
+                Optional<RecipeHolder<CraftingRecipe>> recipe = recipeManager
+                    .getRecipeFor(
+                        RecipeType.CRAFTING,
+                        dummyCraftingContainer.asCraftInput(),
+                        level
+                    );
                 displayItemStack = recipe
-                        .map(craftingRecipe -> craftingRecipe.getResultItem(level.registryAccess()))
-                        .orElse(ItemStack.EMPTY);
+                    .map(craftingRecipe -> craftingRecipe.value().getResultItem(level.registryAccess()))
+                    .orElse(ItemStack.EMPTY);
                 if (!level.isClientSide) {
                     PacketDistributor.sendToAllPlayers(new UpdateDisplayItemPacket(displayItemStack, getPos()));
                 }
@@ -135,23 +142,27 @@ public class BatchCrafterBlockEntity
         lastTimeCrafted = level.getGameTime();
         ItemStack result;
         Optional<AutoCrafterCache> cacheOptional = cache
-                .stream()
-                .filter(recipe -> recipe.test(craftingContainer))
-                .findFirst();
-        Optional<CraftingRecipe> optional;
+            .stream()
+            .filter(recipe -> recipe.test(craftingContainer))
+            .findFirst();
+        Optional<RecipeHolder<CraftingRecipe>> optional;
         NonNullList<ItemStack> craftRemaining;
         if (cacheOptional.isPresent()) {
             AutoCrafterCache crafterCache = cacheOptional.get();
             optional = crafterCache.getRecipe();
             craftRemaining = crafterCache.getRemaining();
         } else {
-            optional = level.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, craftingContainer, level);
+            optional = level.getRecipeManager().getRecipeFor(
+                RecipeType.CRAFTING,
+                craftingContainer.asCraftInput(),
+                level
+            );
             craftRemaining = level.getRecipeManager()
-                    .getRemainingItemsFor(
-                            RecipeType.CRAFTING,
-                            craftingContainer,
-                            level
-                    );
+                .getRemainingItemsFor(
+                    RecipeType.CRAFTING,
+                    craftingContainer.asCraftInput(),
+                    level
+                );
             AutoCrafterCache cache = new AutoCrafterCache(craftingContainer, optional, craftRemaining);
             this.cache.push(cache);
             while (this.cache.size() >= 10) {
@@ -159,7 +170,7 @@ public class BatchCrafterBlockEntity
             }
         }
         if (optional.isEmpty()) return;
-        result = optional.get().assemble(craftingContainer, level.registryAccess());
+        result = optional.get().value().assemble(craftingContainer.asCraftInput(), level.registryAccess());
         displayItemStack = result.copy();
         if (!level.isClientSide) {
             PacketDistributor.sendToAllPlayers((new UpdateDisplayItemPacket(displayItemStack, getPos())));
@@ -179,7 +190,7 @@ public class BatchCrafterBlockEntity
         result.setCount(result.getCount() * times);
         craftRemaining.forEach(stack -> stack.setCount(stack.getCount() * times));
         IItemDepository itemDepository = ItemDepositoryHelper.getItemDepository(
-                level, getBlockPos().relative(getDirection()), getDirection().getOpposite()
+            level, getBlockPos().relative(getDirection()), getDirection().getOpposite()
         );
         if (itemDepository != null) {
             // 尝试向容器插入物品
@@ -215,26 +226,24 @@ public class BatchCrafterBlockEntity
     }
 
     @Override
-    public CompoundTag getUpdateTag() {
-        return this.saveWithoutMetadata();
+    public CompoundTag getUpdateTag(HolderLookup.Provider pRegistries) {
+        return this.saveWithoutMetadata(pRegistries);
     }
 
     @Override
-    public void load(@NotNull CompoundTag tag) {
-        super.load(tag);
+    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider pRegistries) {
         depository.deserializeNbt(tag.getCompound("Inventory"));
         if (tag.contains("ResultItemStack")) {
-            displayItemStack = ItemStack.of(tag.getCompound("ResultItemStack"));
+            displayItemStack = ItemStack.parseOptional(pRegistries, tag.getCompound("ResultItemStack"));
         }
     }
 
     @Override
-    protected void saveAdditional(@NotNull CompoundTag tag) {
-        super.saveAdditional(tag);
+    protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.Provider pRegistries) {
+        super.saveAdditional(tag, pRegistries);
         tag.put("Inventory", this.depository.serializeNbt());
         if (displayItemStack == null) displayItemStack = ItemStack.EMPTY;
-        CompoundTag item = new CompoundTag();
-        this.displayItemStack.save(item);
+        Tag item = this.displayItemStack.save(pRegistries);
         tag.put("ResultItemStack", item);
     }
 
@@ -319,7 +328,7 @@ public class BatchCrafterBlockEntity
     public static class AutoCrafterCache implements Predicate<Container> {
         private final Container container;
         @Getter
-        private final Optional<CraftingRecipe> recipe;
+        private final Optional<RecipeHolder<CraftingRecipe>> recipe;
         @Getter
         private final NonNullList<ItemStack> remaining;
 
@@ -331,7 +340,7 @@ public class BatchCrafterBlockEntity
          * @param remaining 返还物品
          */
         public AutoCrafterCache(
-                @NotNull Container container, Optional<CraftingRecipe> recipe, NonNullList<ItemStack> remaining
+            @NotNull Container container, Optional<RecipeHolder<CraftingRecipe>> recipe, NonNullList<ItemStack> remaining
         ) {
             this.container = new SimpleContainer(container.getContainerSize());
             for (int i = 0; i < container.getContainerSize(); i++) {
@@ -347,7 +356,7 @@ public class BatchCrafterBlockEntity
         public boolean test(@NotNull Container container) {
             if (container.getContainerSize() != this.container.getContainerSize()) return false;
             for (int i = 0; i < this.container.getContainerSize(); i++) {
-                if (!ItemStack.isSameItemSameTags(container.getItem(i), this.container.getItem(i))) return false;
+                if (!ItemStack.isSameItemSameComponents(container.getItem(i), this.container.getItem(i))) return false;
             }
             return true;
         }
@@ -359,9 +368,9 @@ public class BatchCrafterBlockEntity
         Level level = this.getLevel();
         if (level == null) return;
         ItemEntity itemEntity = new ItemEntity(
-                level, center.x, center.y, center.z,
-                stack,
-                0.25 * step.x, 0.25 * step.y, 0.25 * step.z
+            level, center.x, center.y, center.z,
+            stack,
+            0.25 * step.x, 0.25 * step.y, 0.25 * step.z
         );
         itemEntity.setDefaultPickUpDelay();
         level.addFreshEntity(itemEntity);

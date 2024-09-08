@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.init;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.BlockSource;
+import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -24,8 +24,8 @@ public class ModDispenserBehavior {
     }
 
     private static @NotNull ItemStack ironIngot(@NotNull BlockSource source, @NotNull ItemStack stack) {
-        BlockPos blockPos = source.getPos().relative(source.getBlockState().getValue(DispenserBlock.FACING));
-        ServerLevel level = source.getLevel();
+        BlockPos blockPos = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
+        ServerLevel level = source.level();
         List<IronGolem> entities = level.getEntities(EntityTypeTest.forClass(IronGolem.class),
             new AABB(blockPos), Entity::isAlive).stream().filter(e -> e.getHealth() < e.getMaxHealth()).toList();
         if (entities.isEmpty()) return ModDispenserBehavior.defaultDispenseItemBehavior.dispense(source, stack);

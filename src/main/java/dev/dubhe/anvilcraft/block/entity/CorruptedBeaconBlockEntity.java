@@ -7,15 +7,19 @@ import dev.dubhe.anvilcraft.data.recipe.transform.MobTransformContainer;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import lombok.Getter;
+import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.FastColor;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -28,11 +32,13 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BeaconBeamBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BeaconBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
+import net.neoforged.neoforge.event.EventHooks;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -61,101 +67,90 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
 
     /**
      * tick 逻辑
-     *
-     * @param level       世界
-     * @param pos         坐标
-     * @param state       方块状态
-     * @param blockEntity 方块实体
      */
     @SuppressWarnings("unused")
     public static void tick(
-            Level level, @NotNull BlockPos pos, BlockState state, @NotNull CorruptedBeaconBlockEntity blockEntity
+        Level pLevel,
+        BlockPos pPos,
+        BlockState pState,
+        CorruptedBeaconBlockEntity pBlockEntity
     ) {
-        int m;
-        BlockPos blockPos;
-        int i = pos.getX();
-        int j = pos.getY();
-        int k = pos.getZ();
-        if (blockEntity.lastCheckY < j) {
-            blockPos = pos;
-            blockEntity.checkingBeamSections = Lists.newArrayList();
-            blockEntity.lastCheckY = blockPos.getY() - 1;
+        int i = pPos.getX();
+        int j = pPos.getY();
+        int k = pPos.getZ();
+        BlockPos blockpos;
+        if (pBlockEntity.lastCheckY < j) {
+            blockpos = pPos;
+            pBlockEntity.checkingBeamSections = Lists.newArrayList();
+            pBlockEntity.lastCheckY = pPos.getY() - 1;
         } else {
-            blockPos = new BlockPos(i, blockEntity.lastCheckY + 1, k);
+            blockpos = new BlockPos(i, pBlockEntity.lastCheckY + 1, k);
         }
-        BeaconBeamSection beaconBeamSection = blockEntity.checkingBeamSections.isEmpty()
-                ? null
-                : blockEntity.checkingBeamSections.get(blockEntity.checkingBeamSections.size() - 1);
-        int l = level.getHeight(Heightmap.Types.WORLD_SURFACE, i, k);
-        for (m = 0; m < 10 && blockPos.getY() <= l; ++m) {
-            block18:
-            {
-                BlockState blockState;
-                block16:
-                {
-                    float[] fs;
-                    block17:
-                    {
-                        blockState = level.getBlockState(blockPos);
-                        Block block = blockState.getBlock();
-                        if (!(block instanceof BeaconBeamBlock beaconBeamBlock)) break block16;
-                        fs = beaconBeamBlock.getColor().getTextureDiffuseColors();
-                        if (blockEntity.checkingBeamSections.size() > 1) break block17;
-                        beaconBeamSection = new BeaconBeamSection(fs);
-                        blockEntity.checkingBeamSections.add(beaconBeamSection);
-                        break block18;
-                    }
-                    if (beaconBeamSection == null) break block18;
-                    if (Arrays.equals(fs, beaconBeamSection.color)) {
-                        beaconBeamSection.increaseHeight();
+
+        BeaconBeamSection beamSection = pBlockEntity.checkingBeamSections.isEmpty()
+            ? null
+            : pBlockEntity.checkingBeamSections.getLast();
+        int l = pLevel.getHeight(Heightmap.Types.WORLD_SURFACE, i, k);
+
+        for (int i1 = 0; i1 < 10 && blockpos.getY() <= l; i1++) {
+            BlockState blockstate = pLevel.getBlockState(blockpos);
+            Integer j1 = blockstate.getBeaconColorMultiplier(pLevel, blockpos, pPos);
+            if (j1 != null) {
+                if (pBlockEntity.checkingBeamSections.size() <= 1) {
+                    beamSection = new BeaconBeamSection(j1);
+                    pBlockEntity.checkingBeamSections.add(beamSection);
+                } else if (beamSection != null) {
+                    if (j1 == beamSection.color) {
+                        beamSection.increaseHeight();
                     } else {
-                        beaconBeamSection = new BeaconBeamSection(new float[]{
-                            (beaconBeamSection.color[0] + fs[0]) / 2.0f,
-                            (beaconBeamSection.color[1] + fs[1]) / 2.0f,
-                            (beaconBeamSection.color[2] + fs[2]) / 2.0f
-                        });
-                        blockEntity.checkingBeamSections.add(beaconBeamSection);
+                        beamSection = new BeaconBeamSection(
+                            FastColor.ARGB32.average(beamSection.color, j1)
+                        );
+                        pBlockEntity.checkingBeamSections.add(beamSection);
                     }
-                    break block18;
                 }
-                if (beaconBeamSection != null
-                        && (blockState.getLightBlock(level, blockPos) < 15 || blockState.is(Blocks.BEDROCK))) {
-                    beaconBeamSection.increaseHeight();
-                } else {
-                    blockEntity.checkingBeamSections.clear();
-                    blockEntity.lastCheckY = l;
+            } else {
+                if (beamSection == null || blockstate.getLightBlock(pLevel, blockpos) >= 15 && !blockstate.is(Blocks.BEDROCK)) {
+                    pBlockEntity.checkingBeamSections.clear();
+                    pBlockEntity.lastCheckY = l;
                     break;
                 }
+
+                beamSection.increaseHeight();
             }
-            blockPos = blockPos.above();
-            ++blockEntity.lastCheckY;
+
+            blockpos = blockpos.above();
+            pBlockEntity.lastCheckY++;
         }
-        m = blockEntity.levels;
-        if (level.getGameTime() % 80L == 0L) {
-            if (!blockEntity.beamSections.isEmpty()) {
-                blockEntity.levels = updateBase(level, i, j, k);
-                if (blockEntity.levels > 0 && !state.getValue(CorruptedBeaconBlock.LIT)) {
-                    level.setBlockAndUpdate(pos, state.setValue(CorruptedBeaconBlock.LIT, true));
-                } else if (blockEntity.levels <= 0 && state.getValue(CorruptedBeaconBlock.LIT)) {
-                    level.setBlockAndUpdate(pos, state.setValue(CorruptedBeaconBlock.LIT, false));
-                }
+
+        int k1 = pBlockEntity.levels;
+        if (pLevel.getGameTime() % 80L == 0L) {
+            if (!pBlockEntity.beamSections.isEmpty()) {
+                pBlockEntity.levels = updateBase(pLevel, i, j, k);
             }
-            if (blockEntity.levels > 0 && !blockEntity.beamSections.isEmpty()) {
-                CorruptedBeaconBlockEntity.affectEntities(level, pos);
-                CorruptedBeaconBlockEntity.playSound(level, pos, SoundEvents.BEACON_AMBIENT);
+
+            if (pBlockEntity.levels > 0 && !pBlockEntity.beamSections.isEmpty()) {
+                playSound(pLevel, pPos, SoundEvents.BEACON_AMBIENT);
+                CorruptedBeaconBlockEntity.affectEntities(pLevel, pPos);
             }
         }
-        if (blockEntity.lastCheckY >= l) {
-            blockEntity.lastCheckY = level.getMinBuildHeight() - 1;
-            boolean bl = m > 0;
-            blockEntity.beamSections = blockEntity.checkingBeamSections;
-            if (!level.isClientSide) {
-                boolean bl2;
-                bl2 = blockEntity.levels > 0;
-                if (!bl && bl2) {
-                    playSound(level, pos, SoundEvents.BEACON_ACTIVATE);
-                } else if (bl && !bl2) {
-                    playSound(level, pos, SoundEvents.BEACON_DEACTIVATE);
+
+        if (pBlockEntity.lastCheckY >= l) {
+            pBlockEntity.lastCheckY = pLevel.getMinBuildHeight() - 1;
+            boolean flag = k1 > 0;
+            pBlockEntity.beamSections = pBlockEntity.checkingBeamSections;
+            if (!pLevel.isClientSide) {
+                boolean flag1 = pBlockEntity.levels > 0;
+                if (!flag && flag1) {
+                    playSound(pLevel, pPos, SoundEvents.BEACON_ACTIVATE);
+
+                    for (ServerPlayer serverplayer : pLevel.getEntitiesOfClass(
+                        ServerPlayer.class, new AABB((double)i, (double)j, (double)k, (double)i, (double)(j - 4), (double)k).inflate(10.0, 5.0, 10.0)
+                    )) {
+                        CriteriaTriggers.CONSTRUCT_BEACON.trigger(serverplayer, pBlockEntity.levels);
+                    }
+                } else if (flag && !flag1) {
+                    playSound(pLevel, pPos, SoundEvents.BEACON_DEACTIVATE);
                 }
             }
         }
@@ -197,7 +192,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
         MobTransformContainer container = new MobTransformContainer(level, pos, livingEntity);
         var recipe = manager.getRecipeFor(ModRecipeTypes.MOB_TRANSFORM_RECIPE, container, level);
         if (recipe.isEmpty()) return;
-        var entityType = recipe.get().result(level.random);
+        var entityType = recipe.get().value().result(level.random);
         CompoundTag tag = new CompoundTag();
         tag.putString("id", BuiltInRegistries.ENTITY_TYPE.getKey(entityType).toString());
         Entity entity = EntityType.loadEntityRecursive(tag, level, (e) -> {
@@ -212,15 +207,15 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
         });
         if (entity == null) return;
         if (entity instanceof Mob mob) {
-            mob.finalizeSpawn(
+            EventHooks.finalizeMobSpawn(
+                mob,
                     level,
                     level.getCurrentDifficultyAt(entity.blockPosition()),
                     MobSpawnType.NATURAL,
-                    null,
                     null
             );
         }
-        recipe.get().postProcess(livingEntity, entity);
+        recipe.get().value().postProcess(livingEntity, entity);
         livingEntity.remove(Entity.RemovalReason.DISCARDED);
         level.tryAddFreshEntityWithPassengers(entity);
     }
@@ -250,8 +245,8 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag() {
-        return this.saveWithoutMetadata();
+    public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider pRegistries) {
+        return this.saveWithoutMetadata(pRegistries);
     }
 
     @Override
@@ -260,32 +255,20 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
         this.lastCheckY = level.getMinBuildHeight() - 1;
     }
 
+    @Getter
     public static class BeaconBeamSection {
-        final float[] color;
-        @Getter
+        final int color;
         private int height;
 
-        public BeaconBeamSection(float[] color) {
-            this.color = color;
+        public BeaconBeamSection(int pColor) {
+            this.color = pColor;
             this.height = 1;
         }
 
         protected void increaseHeight() {
-            ++this.height;
+            this.height++;
         }
 
-        /**
-         * 获取颜色
-         *
-         * @return 颜色
-         */
-        public float[] getColor() {
-            return new float[]{
-                    Math.max(0.0f, 1 - color[0] - 0.3f),
-                    Math.max(0.0f, 1 - color[1] - 0.3f),
-                    Math.max(0.0f, 1 - color[2] - 0.3f)
-            };
-        }
     }
 
     /**

@@ -19,6 +19,7 @@ import net.minecraft.world.item.SmithingTemplateItem;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,9 +30,9 @@ public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
     private static final ResourceLocation ERROR =
         AnvilCraft.of("textures/gui/container/smithing/error.png");
     private static final ResourceLocation EMPTY_SLOT_SMITHING_TEMPLATE_ARMOR_TRIM =
-        new ResourceLocation("item/empty_slot_smithing_template_armor_trim");
+        ResourceLocation.withDefaultNamespace("item/empty_slot_smithing_template_armor_trim");
     private static final ResourceLocation EMPTY_SLOT_SMITHING_TEMPLATE_NETHERITE_UPGRADE =
-        new ResourceLocation("item/empty_slot_smithing_template_netherite_upgrade");
+        ResourceLocation.withDefaultNamespace("item/empty_slot_smithing_template_netherite_upgrade");
     private static final Component MISSING_TEMPLATE_TOOLTIP =
         Component.translatable("container.upgrade.missing_template_tooltip");
     private static final Component ERROR_TOOLTIP =
@@ -109,8 +110,16 @@ public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
         this.baseIcon.render(this.menu, guiGraphics, partialTick, this.leftPos, this.topPos);
         this.additionalIcon.render(this.menu, guiGraphics, partialTick, this.leftPos, this.topPos);
         if (this.armorStandPreview == null) return;
-        InventoryScreen.renderEntityInInventory(guiGraphics, this.leftPos + 149, this.topPos + 75,
-            25, ARMOR_STAND_ANGLE, null, this.armorStandPreview);
+        InventoryScreen.renderEntityInInventory(
+            guiGraphics,
+            this.leftPos + 149,
+            this.topPos + 75,
+            25,
+            new Vector3f(),
+            ARMOR_STAND_ANGLE,
+            null,
+            this.armorStandPreview
+        );
     }
 
     @Override

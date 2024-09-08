@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.ItemCombinerScreen;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundRenameItemPacket;
 import net.minecraft.resources.ResourceLocation;
@@ -47,7 +48,6 @@ public class EmberAnvilScreen extends ItemCombinerScreen<EmberAnvilMenu> {
     @Override
     public void containerTick() {
         super.containerTick();
-        this.name.tick();
     }
 
     @Override
@@ -91,7 +91,7 @@ public class EmberAnvilScreen extends ItemCombinerScreen<EmberAnvilMenu> {
             return;
         }
         String string = name;
-        if (!slot.getItem().hasCustomHoverName() && string.equals(slot.getItem().getHoverName().getString())) {
+        if (!slot.getItem().has(DataComponents.CUSTOM_NAME) && string.equals(slot.getItem().getHoverName().getString())) {
             string = "";
         }
         if (this.menu.setItemName(string) && this.minecraft != null && this.minecraft.player != null) {

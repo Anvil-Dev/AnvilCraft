@@ -19,7 +19,7 @@ import org.joml.Matrix4f;
 import java.util.List;
 
 public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBeaconBlockEntity> {
-    public static final ResourceLocation BEAM_LOCATION = new ResourceLocation("textures/entity/beacon_beam.png");
+    public static final ResourceLocation BEAM_LOCATION = ResourceLocation.withDefaultNamespace("textures/entity/beacon_beam.png");
     public static final int MAX_RENDER_Y = 1024;
 
     @SuppressWarnings("unused")

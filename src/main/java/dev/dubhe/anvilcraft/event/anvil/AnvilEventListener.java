@@ -15,9 +15,7 @@ import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipe;
 import dev.dubhe.anvilcraft.data.recipe.anvil.AnvilRecipeType;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.init.ModBlocks;
-import dev.dubhe.anvilcraft.inventory.container.SingleSlotContainer;
 import dev.dubhe.anvilcraft.mixin.accessor.BaseSpawnerAccessor;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -37,9 +35,8 @@ import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.item.crafting.SmeltingRecipe;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.BaseSpawner;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
@@ -58,6 +55,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.event.EventHooks;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -88,9 +86,9 @@ public class AnvilEventListener {
         if (state.is(Blocks.STONECUTTER)) brokeBlock(level, belowPos.above(), event);
         AnvilCraftingContext context = new AnvilCraftingContext(level, pos, event.getEntity());
         Optional<AnvilRecipe> optional = AnvilRecipeManager.getAnvilRecipeList().stream()
-                .filter(recipe -> !recipe.getAnvilRecipeType().equals(AnvilRecipeType.MULTIBLOCK_CRAFTING)
-                        && recipe.matches(context, level))
-                .findFirst();
+            .filter(recipe -> !recipe.getAnvilRecipeType().equals(AnvilRecipeType.MULTIBLOCK_CRAFTING)
+                && recipe.matches(context, level))
+            .findFirst();
         optional.ifPresent(anvilRecipe -> anvilProcess(anvilRecipe, context, event));
     }
 
@@ -103,13 +101,13 @@ public class AnvilEventListener {
         if (pot.is(Blocks.CAULDRON)) {
             level.setBlockAndUpdate(pos, state.setValue(BeehiveBlock.HONEY_LEVEL, 0));
             level.setBlockAndUpdate(
-                    potPos,
-                    ModBlocks.HONEY_CAULDRON.getDefaultState()
+                potPos,
+                ModBlocks.HONEY_CAULDRON.getDefaultState()
             );
             level.setBlockAndUpdate(
-                    potPos,
-                    level.getBlockState(potPos)
-                            .setValue(LayeredCauldronBlock.LEVEL, 1)
+                potPos,
+                level.getBlockState(potPos)
+                    .setValue(LayeredCauldronBlock.LEVEL, 1)
             );
         } else {
             if (pot.is(ModBlocks.HONEY_CAULDRON.get())) {
@@ -117,13 +115,13 @@ public class AnvilEventListener {
                 level.setBlockAndUpdate(pos, state.setValue(BeehiveBlock.HONEY_LEVEL, 0));
                 if (cauldronHoneyLevel < LayeredCauldronBlock.MAX_FILL_LEVEL) {
                     level.setBlockAndUpdate(
-                            potPos,
-                            pot.setValue(LayeredCauldronBlock.LEVEL, cauldronHoneyLevel + 1)
+                        potPos,
+                        pot.setValue(LayeredCauldronBlock.LEVEL, cauldronHoneyLevel + 1)
                     );
                 } else {
                     level.setBlockAndUpdate(
-                            potPos,
-                            Blocks.CAULDRON.defaultBlockState()
+                        potPos,
+                        Blocks.CAULDRON.defaultBlockState()
                     );
                     this.returnItems(level, potPos, List.of(Items.HONEY_BLOCK.getDefaultInstance()));
                 }
@@ -170,11 +168,11 @@ public class AnvilEventListener {
     }
 
     private void spawnEntities(
-            SpawnData spawnData,
-            ServerLevel serverLevel,
-            BlockPos pos,
-            RandomSource randomSource,
-            @NotNull BaseSpawnerAccessor accessor
+        SpawnData spawnData,
+        ServerLevel serverLevel,
+        BlockPos pos,
+        RandomSource randomSource,
+        @NotNull BaseSpawnerAccessor accessor
     ) {
         for (int i = 0; i < accessor.getSpawnCount(); ++i) {
             CompoundTag compoundTag = spawnData.getEntityToSpawn();
@@ -192,8 +190,8 @@ public class AnvilEventListener {
                 x = listTag.getDouble(0);
             } else {
                 x = (double) pos.getX()
-                        + (randomSource.nextDouble() - randomSource.nextDouble())
-                        * accessor.getSpawnRange() + 0.5;
+                    + (randomSource.nextDouble() - randomSource.nextDouble())
+                    * accessor.getSpawnRange() + 0.5;
             }
             if (size >= 2) {
                 y = listTag.getDouble(1);
@@ -204,31 +202,31 @@ public class AnvilEventListener {
                 z = listTag.getDouble(2);
             } else {
                 z = (double) pos.getZ()
-                        + (randomSource.nextDouble() - randomSource.nextDouble())
-                        * accessor.getSpawnRange() + 0.5;
+                    + (randomSource.nextDouble() - randomSource.nextDouble())
+                    * accessor.getSpawnRange() + 0.5;
             }
-            if (serverLevel.noCollision(optional.get().getAABB(x, y, z))) {
+            if (serverLevel.noCollision(optional.get().getSpawnAABB(x, y, z))) {
                 BlockPos blockPos = BlockPos.containing(x, y, z);
                 if (spawnData.getCustomSpawnRules().isPresent()) {
                     if (!optional.get().getCategory().isFriendly()
-                            && serverLevel.getDifficulty() == Difficulty.PEACEFUL
+                        && serverLevel.getDifficulty() == Difficulty.PEACEFUL
                     ) {
                         continue;
                     }
 
                     SpawnData.CustomSpawnRules customSpawnRules = spawnData.getCustomSpawnRules().get();
                     if (!customSpawnRules.blockLightLimit()
-                            .isValueInRange(serverLevel.getBrightness(LightLayer.BLOCK, blockPos))
-                            || !customSpawnRules.skyLightLimit()
-                            .isValueInRange(serverLevel.getBrightness(LightLayer.SKY, blockPos))) {
+                        .isValueInRange(serverLevel.getBrightness(LightLayer.BLOCK, blockPos))
+                        || !customSpawnRules.skyLightLimit()
+                        .isValueInRange(serverLevel.getBrightness(LightLayer.SKY, blockPos))) {
                         continue;
                     }
                 } else if (!SpawnPlacements.checkSpawnRules(
-                        optional.get(),
-                        serverLevel,
-                        MobSpawnType.SPAWNER,
-                        blockPos,
-                        serverLevel.getRandom()
+                    optional.get(),
+                    serverLevel,
+                    MobSpawnType.SPAWNER,
+                    blockPos,
+                    serverLevel.getRandom()
                 )) {
                     continue;
                 }
@@ -240,16 +238,16 @@ public class AnvilEventListener {
                     return;
                 }
                 AABB boundingBox = new AABB(
-                        pos.getX(),
-                        pos.getY(),
-                        pos.getZ(),
-                        pos.getX() + 1,
-                        pos.getY() + 1,
-                        pos.getZ() + 1
+                    pos.getX(),
+                    pos.getY(),
+                    pos.getZ(),
+                    pos.getX() + 1,
+                    pos.getY() + 1,
+                    pos.getZ() + 1
                 );
                 int k = serverLevel.getEntitiesOfClass(
-                        entity.getClass(),
-                        boundingBox.inflate(accessor.getSpawnRange())
+                    entity.getClass(),
+                    boundingBox.inflate(accessor.getSpawnRange())
                 ).size();
                 if (k >= accessor.getMaxNearbyEntities()) {
                     return;
@@ -258,18 +256,18 @@ public class AnvilEventListener {
                 entity.moveTo(entity.getX(), entity.getY(), entity.getZ(), randomSource.nextFloat() * 360.0F, 0.0F);
                 if (entity instanceof Mob mob) {
                     if (spawnData.getCustomSpawnRules().isEmpty()
-                            && !mob.checkSpawnRules(serverLevel, MobSpawnType.SPAWNER)
-                            || !mob.checkSpawnObstruction(serverLevel)) {
+                        && !mob.checkSpawnRules(serverLevel, MobSpawnType.SPAWNER)
+                        || !mob.checkSpawnObstruction(serverLevel)) {
                         continue;
                     }
 
                     if (spawnData.getEntityToSpawn().size() == 1 && spawnData.getEntityToSpawn().contains("id", 8)) {
-                        ((Mob) entity).finalizeSpawn(
-                                serverLevel,
-                                serverLevel.getCurrentDifficultyAt(entity.blockPosition()),
-                                MobSpawnType.SPAWNER,
-                                null,
-                                null
+                        EventHooks.finalizeMobSpawn(
+                            (Mob) entity,
+                            serverLevel,
+                            serverLevel.getCurrentDifficultyAt(entity.blockPosition()),
+                            MobSpawnType.SPAWNER,
+                            null
                         );
                     }
                 }
@@ -304,10 +302,10 @@ public class AnvilEventListener {
         if (state.getDestroySpeed(level, pos) < 0) return;
         BlockEntity blockEntity = state.hasBlockEntity() ? level.getBlockEntity(pos) : null;
         LootParams.Builder builder = new LootParams
-                .Builder(serverLevel)
-                .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos))
-                .withParameter(LootContextParams.TOOL, ItemStack.EMPTY)
-                .withOptionalParameter(LootContextParams.BLOCK_ENTITY, blockEntity);
+            .Builder(serverLevel)
+            .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos))
+            .withParameter(LootContextParams.TOOL, ItemStack.EMPTY)
+            .withOptionalParameter(LootContextParams.BLOCK_ENTITY, blockEntity);
         state.spawnAfterBreak(serverLevel, pos, ItemStack.EMPTY, false);
         if (state.getBlock() instanceof IHasMultiBlock multiBlock) {
             multiBlock.onRemove(level, pos, state);
@@ -315,12 +313,12 @@ public class AnvilEventListener {
         List<ItemStack> drops = state.getDrops(builder);
         if (event.getEntity() != null && event.getEntity().blockState.getBlock() instanceof EmberAnvilBlock) {
             drops = drops.stream().map(it -> {
-                SingleSlotContainer cont = new SingleSlotContainer(it);
+                SingleRecipeInput cont = new SingleRecipeInput(it);
                 return level.getRecipeManager().getRecipeFor(
-                        RecipeType.SMELTING,
-                        cont,
-                        level
-                ).map(smeltingRecipe -> smeltingRecipe.assemble(cont, level.registryAccess())).orElse(it);
+                    RecipeType.SMELTING,
+                    cont,
+                    level
+                ).map(smeltingRecipe -> smeltingRecipe.value().assemble(cont, level.registryAccess())).orElse(it);
             }).collect(Collectors.toList());
         }
         this.dropItems(drops, level, pos.getCenter());
@@ -406,13 +404,13 @@ public class AnvilEventListener {
         DamageSource source = entity.level().damageSources().anvil(eventEntity);
         LootParams.Builder builder = new LootParams.Builder(serverLevel);
         builder.withParameter(LootContextParams.DAMAGE_SOURCE, source);
-        builder.withOptionalParameter(LootContextParams.DIRECT_KILLER_ENTITY, eventEntity);
-        builder.withOptionalParameter(LootContextParams.KILLER_ENTITY, eventEntity);
+        builder.withOptionalParameter(LootContextParams.DIRECT_ATTACKING_ENTITY, eventEntity);
+        builder.withOptionalParameter(LootContextParams.ATTACKING_ENTITY, eventEntity);
         builder.withParameter(LootContextParams.THIS_ENTITY, entity);
         Vec3 pos = entity.position();
         builder.withParameter(LootContextParams.ORIGIN, pos);
         LootParams lootParams = builder.create(LootContextParamSets.ENTITY);
-        LootTable lootTable = serverLevel.getServer().getLootData().getLootTable(entity.getLootTable());
+        LootTable lootTable = serverLevel.getServer().reloadableRegistries().getLootTable(entity.getLootTable());
         this.dropItems(lootTable.getRandomItems(lootParams), serverLevel, pos);
         if (rate >= 0.6) this.dropItems(lootTable.getRandomItems(lootParams), serverLevel, pos);
         if (rate >= 0.8) this.dropItems(lootTable.getRandomItems(lootParams), serverLevel, pos);

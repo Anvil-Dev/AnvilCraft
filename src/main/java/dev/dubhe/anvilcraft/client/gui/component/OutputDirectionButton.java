@@ -83,7 +83,6 @@ public class OutputDirectionButton extends Button {
             0, 0, 16, this.width, this.height, 16, 32);
     }
 
-    @Override
     public void renderTexture(
         @NotNull GuiGraphics guiGraphics, @NotNull ResourceLocation texture,
         int x, int y, int puOffset, int pvOffset, int textureDifference,

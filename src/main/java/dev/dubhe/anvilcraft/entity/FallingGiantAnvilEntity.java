@@ -179,31 +179,6 @@ public class FallingGiantAnvilEntity extends FallingBlockEntity {
                                             this.fallDistance
                                     );
                                 }
-
-                                if (this.blockData != null && this.blockState.hasBlockEntity()) {
-                                    BlockEntity blockEntity = this.level().getBlockEntity(blockPos);
-                                    if (blockEntity != null) {
-                                        CompoundTag compoundTag = blockEntity.saveWithoutMetadata();
-
-                                        for (String string : this.blockData.getAllKeys()) {
-                                            compoundTag.put(
-                                                    string,
-                                                    Objects.requireNonNull(this.blockData.get(string)).copy()
-                                            );
-                                        }
-
-                                        try {
-                                            blockEntity.load(compoundTag);
-                                        } catch (Exception var15) {
-                                            AnvilCraft.LOGGER.error(
-                                                    "Failed to load block entity from falling block",
-                                                    var15
-                                            );
-                                        }
-
-                                        blockEntity.setChanged();
-                                    }
-                                }
                             } else if (
                                     this.dropItem
                                             && this.level().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)

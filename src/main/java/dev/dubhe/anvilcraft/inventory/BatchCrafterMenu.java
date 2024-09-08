@@ -17,6 +17,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
@@ -191,10 +192,14 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
     private void onChanged() {
         //if (!level.isClientSide) return;
         RecipeManager recipeManager = level.getRecipeManager();
-        Optional<CraftingRecipe> recipe = recipeManager
-            .getRecipeFor(RecipeType.CRAFTING, blockEntity.getDummyCraftingContainer(), level);
+        Optional<RecipeHolder<CraftingRecipe>> recipe = recipeManager
+            .getRecipeFor(
+                RecipeType.CRAFTING,
+                blockEntity.getDummyCraftingContainer().asCraftInput(),
+                level
+            );
         if (recipe.isPresent()) {
-            ItemStack resultItem = recipe.get().getResultItem(level.registryAccess());
+            ItemStack resultItem = recipe.get().value().getResultItem(level.registryAccess());
             this.resultSlot.set(resultItem);
         } else {
             this.resultSlot.set(ItemStack.EMPTY);

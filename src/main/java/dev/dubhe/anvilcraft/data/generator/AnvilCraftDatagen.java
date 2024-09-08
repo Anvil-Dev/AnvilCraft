@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.data.generator;
 import com.tterrag.registrate.providers.ProviderType;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.data.generator.advancement.AdvancementHandler;
 import dev.dubhe.anvilcraft.data.generator.lang.LangHandler;
 import dev.dubhe.anvilcraft.data.generator.loot.LootHandler;
 import dev.dubhe.anvilcraft.data.generator.provider.ModRegistryProvider;
@@ -54,7 +53,6 @@ public class AnvilCraftDatagen {
         REGISTRATE.addDataGenerator(ProviderType.LANG, LangHandler::init);
         REGISTRATE.addDataGenerator(ProviderType.RECIPE, RecipesHandler::init);
         REGISTRATE.addDataGenerator(ProviderType.LOOT, LootHandler::init);
-        REGISTRATE.addDataGenerator(ProviderType.ADVANCEMENT, AdvancementHandler::init);
     }
 
     public static @NotNull Criterion<InventoryChangeTrigger.TriggerInstance> has(ItemLike itemLike) {

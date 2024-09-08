@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.ActiveSilencerMenu;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
@@ -37,7 +38,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 public class ActiveSilencerBlockEntity extends BlockEntity implements MenuProvider, SoundEventListener, IDiskCloneable {
     public static final Codec<List<ResourceLocation>> CODEC =
-            ResourceLocation.CODEC.listOf().fieldOf("mutedSound").codec();
+        ResourceLocation.CODEC.listOf().fieldOf("mutedSound").codec();
     @Getter
     private final Set<ResourceLocation> mutedSound = new CopyOnWriteArraySet<>();
 
@@ -49,29 +50,26 @@ public class ActiveSilencerBlockEntity extends BlockEntity implements MenuProvid
     public ActiveSilencerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
         range = AABB.ofSize(
-                Vec3.atCenterOf(pos),
-                31,
-                31,
-                31
+            Vec3.atCenterOf(pos),
+            31,
+            31,
+            31
         );
     }
 
     @Override
-    protected void saveAdditional(@NotNull CompoundTag tag) {
-        super.saveAdditional(tag);
+    protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider pRegistries) {
+        super.saveAdditional(tag, pRegistries);
         Tag t = CODEC.encodeStart(NbtOps.INSTANCE, new ArrayList<>(mutedSound))
-                .getOrThrow(false, x -> {
-                });
+            .getOrThrow();
         tag.put("MutedSound", t);
     }
 
     @Override
-    public void load(@NotNull CompoundTag tag) {
-        super.load(tag);
+    public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider pRegistries) {
+        super.loadAdditional(tag, pRegistries);
         mutedSound.addAll(
-                CODEC.decode(NbtOps.INSTANCE, tag.get("MutedSound"))
-                        .getOrThrow(false, x -> {
-                        }).getFirst()
+            CODEC.decode(NbtOps.INSTANCE, tag.get("MutedSound")).getOrThrow().getFirst()
         );
     }
 
@@ -82,11 +80,10 @@ public class ActiveSilencerBlockEntity extends BlockEntity implements MenuProvid
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag() {
+    public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider pRegistries) {
         CompoundTag tag = new CompoundTag();
         Tag t = CODEC.encodeStart(NbtOps.INSTANCE, new ArrayList<>(mutedSound))
-                .getOrThrow(false, x -> {
-                });
+            .getOrThrow();
         tag.put("MutedSound", t);
         return tag;
     }
@@ -113,10 +110,10 @@ public class ActiveSilencerBlockEntity extends BlockEntity implements MenuProvid
     @Override
     public AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
         return new ActiveSilencerMenu(
-                ModMenuTypes.ACTIVE_SILENCER.get(),
-                i,
-                inventory,
-                this
+            ModMenuTypes.ACTIVE_SILENCER.get(),
+            i,
+            inventory,
+            this
         );
     }
 
@@ -148,17 +145,15 @@ public class ActiveSilencerBlockEntity extends BlockEntity implements MenuProvid
     @Override
     public void storeDiskData(CompoundTag tag) {
         Tag t = CODEC.encodeStart(NbtOps.INSTANCE, new ArrayList<>(mutedSound))
-                .getOrThrow(false, x -> {
-                });
+            .getOrThrow();
         tag.put("MutedSound", t);
     }
 
     @Override
     public void applyDiskData(CompoundTag data) {
         mutedSound.addAll(
-                CODEC.decode(NbtOps.INSTANCE, data.get("MutedSound"))
-                        .getOrThrow(false, x -> {
-                        }).getFirst()
+            CODEC.decode(NbtOps.INSTANCE, data.get("MutedSound"))
+                .getOrThrow().getFirst()
         );
     }
 }

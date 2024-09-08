@@ -68,11 +68,6 @@ public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerPro
         return this.power;
     }
 
-    @Override
-    public void load(@NotNull CompoundTag tag) {
-        super.load(tag);
-    }
-
     /**
      * 方块实体tick
      */

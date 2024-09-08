@@ -126,7 +126,6 @@ public class SilencerButton extends Button {
         );
     }
 
-    @Override
     public void renderTexture(@NotNull GuiGraphics guiGraphics, @NotNull ResourceLocation texture,
                               int x, int y, int puOffset, int pvOffset, int textureDifference,
                               int width, int height, int textureWidth, int textureHeight) {

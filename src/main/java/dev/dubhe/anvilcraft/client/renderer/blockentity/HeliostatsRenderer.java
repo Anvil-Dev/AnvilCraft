@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.HeliostatsBlockEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -14,7 +15,7 @@ import org.joml.Vector3f;
 
 public class HeliostatsRenderer implements BlockEntityRenderer<HeliostatsBlockEntity> {
     private static final ModelResourceLocation HELIOSTATS_HEAD =
-            new ModelResourceLocation("anvilcraft", "heliostats_head", "");
+        ModelResourceLocation.standalone(AnvilCraft.of("heliostats_head"));
 
     @SuppressWarnings("unused")
     public HeliostatsRenderer(BlockEntityRendererProvider.Context context) {

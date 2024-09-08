@@ -1,10 +1,10 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import dev.architectury.injectables.annotations.ExpectPlatform;
 import dev.dubhe.anvilcraft.api.depository.DepositoryHolder;
 import dev.dubhe.anvilcraft.api.depository.ItemDepository;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -19,14 +19,14 @@ public class CrabTrapBlockEntity extends BlockEntity implements DepositoryHolder
     private final ItemDepository depository = new ItemDepository(9);
 
     @Override
-    protected void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider pRegistries) {
+        super.saveAdditional(tag, pRegistries);
         tag.put("Inventory", depository.serializeNbt());
     }
 
     @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider pRegistries) {
+        super.loadAdditional(tag, pRegistries);
         depository.deserializeNbt(tag.getCompound("Inventory"));
     }
 }

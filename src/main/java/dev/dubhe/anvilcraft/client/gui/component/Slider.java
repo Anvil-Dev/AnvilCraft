@@ -10,6 +10,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
@@ -147,13 +148,11 @@ public class Slider extends AbstractWidget {
             && Util.getMillis() - this.hoverOrFocusedStartTime > (long) this.tooltipMsDelay
             && (screen = Minecraft.getInstance().screen) != null
         ) {
-            screen.setTooltipForNextRenderPass(this.getTooltip(), this.createTooltipPositioner(), this.isFocused());
+            screen.setTooltipForNextRenderPass(
+                this.getTooltip(),
+                DefaultTooltipPositioner.INSTANCE,
+                this.isFocused()
+            );
         }
-    }
-
-    @Override
-    public void setTooltipDelay(int tooltipMsDelay) {
-        super.setTooltipDelay(tooltipMsDelay);
-        this.tooltipMsDelay = tooltipMsDelay;
     }
 }

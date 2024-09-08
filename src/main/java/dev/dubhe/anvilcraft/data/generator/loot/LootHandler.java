@@ -9,6 +9,5 @@ public class LootHandler {
     public static void init(RegistrateLootTableProvider provider) {
         CrabTrapLootLoader.init(provider);
         BeheadingLootLoader.init(provider);
-        AdvancementLootLoader.init(provider);
     }
 }

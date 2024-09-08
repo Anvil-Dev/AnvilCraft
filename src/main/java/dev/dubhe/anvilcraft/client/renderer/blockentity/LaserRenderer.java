@@ -27,7 +27,7 @@ public class LaserRenderer implements BlockEntityRenderer<BaseLaserBlockEntity> 
         if (blockEntity.getLevel() == null) return;
         if (blockEntity.irradiateBlockPos == null) return;
         final TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS)
-            .apply(new ResourceLocation("block/white_concrete"));
+            .apply(ResourceLocation.withDefaultNamespace("block/white_concrete"));
         poseStack.pushPose();
         poseStack.translate(0.5f, 0.5f, 0.5);
         float offest = 0;
@@ -114,14 +114,12 @@ public class LaserRenderer implements BlockEntityRenderer<BaseLaserBlockEntity> 
     private static void addVertex(
         @NotNull VertexConsumer consumer, @NotNull PoseStack poseStack,
         float x, float y, float z, float u, float v, float a) {
-        consumer
-            .vertex(poseStack.last().pose(), x, y, z)
-            .color(1f, 0.05f, 0.05f, a)
-            .uv(u, v)
-            .overlayCoords(OverlayTexture.NO_OVERLAY)
-            .uv2(0xF000F0)
-            .normal(1, 0, 0)
-            .endVertex();
+        consumer.addVertex(poseStack.last().pose(), x, y, z)
+            .setColor(1f, 0.05f, 0.05f, a)
+            .setUv(u, v)
+            .setOverlay(OverlayTexture.NO_OVERLAY)
+            //.setUv2(0xF000F0)
+            .setNormal(1, 0, 0);
     }
 
     @Override

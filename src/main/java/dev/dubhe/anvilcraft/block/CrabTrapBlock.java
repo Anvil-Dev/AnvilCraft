@@ -183,14 +183,19 @@ public class CrabTrapBlock extends BetterBaseEntityBlock implements SimpleWaterl
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
-    private void tryInsertLoot(BlockState state, ServerLevel level, BlockPos pos, ResourceLocation loot) {
+    private void tryInsertLoot(
+        BlockState state,
+        ServerLevel level,
+        BlockPos pos,
+        ResourceKey<LootTable> loot
+    ) {
         if (state.hasBlockEntity()) {
             LootParams lootParams = new LootParams.Builder(level)
                 .withParameter(LootContextParams.ORIGIN, pos.getCenter())
                 .create(LootContextParamSets.CHEST);
 
             LootTable lootTable = level.getServer().reloadableRegistries()
-                .getLootTable(ResourceKey.create(Registries.LOOT_TABLE, loot));
+                .getLootTable(loot);
             ObjectArrayList<ItemStack> items = lootTable.getRandomItems(lootParams);
             if (items.isEmpty()) return;
             CrabTrapBlockEntity blockEntity = (CrabTrapBlockEntity) level.getBlockEntity(pos);

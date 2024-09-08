@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.init;
 
 import com.tterrag.registrate.util.entry.MenuEntry;
-import dev.architectury.injectables.annotations.ExpectPlatform;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.ActiveSilencerScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.AutoCrafterScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.BatchCrafterScreen;
@@ -16,7 +15,6 @@ import dev.dubhe.anvilcraft.client.gui.screen.inventory.RoyalGrindstoneScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.RoyalSmithingScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.SliderScreen;
 import dev.dubhe.anvilcraft.inventory.ActiveSilencerMenu;
-import dev.dubhe.anvilcraft.inventory.AutoCrafterMenu;
 import dev.dubhe.anvilcraft.inventory.BatchCrafterMenu;
 import dev.dubhe.anvilcraft.inventory.ChuteMenu;
 import dev.dubhe.anvilcraft.inventory.EmberAnvilMenu;
@@ -115,13 +113,13 @@ public class ModMenuTypes {
     public static void register() {
     }
 
-    @ExpectPlatform
+
     public static void open(ServerPlayer player, MenuProvider provider) {
-        throw new AssertionError();
+        player.openMenu(provider);
     }
 
-    @ExpectPlatform
+
     public static void open(ServerPlayer player, MenuProvider provider, BlockPos pos) {
-        throw new AssertionError();
+        player.openMenu(provider, pos);
     }
 }

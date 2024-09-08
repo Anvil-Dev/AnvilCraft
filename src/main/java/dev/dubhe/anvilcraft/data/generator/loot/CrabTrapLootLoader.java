@@ -4,7 +4,14 @@ import com.tterrag.registrate.providers.loot.RegistrateLootTableProvider;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.init.ModLootTables;
 import net.minecraft.advancements.critereon.LocationPredicate;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -16,31 +23,61 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCon
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 
 public class CrabTrapLootLoader {
+    @SuppressWarnings("unchecked")
+    private static HolderSet<Biome> asHolderSet(ResourceKey<Biome>... rks) {
+        Registry<Biome> registry = (Registry<Biome>) BuiltInRegistries.REGISTRY.get(Registries.BIOME.location());
+        Holder<Biome>[] holders = new Holder[rks.length];
+        for (int i = 0; i < holders.length; i++) {
+            holders[i] = registry.getHolderOrThrow(rks[i]);
+        }
+        return HolderSet.direct(holders);
+    }
+
     private static final LootItemCondition.Builder IN_RIVER =
-        LocationCheck.checkLocation(LocationPredicate.Builder.location().setBiome(Biomes.RIVER))
-            .or(LocationCheck.checkLocation(LocationPredicate.Builder.location().setBiome(Biomes.FROZEN_RIVER)));
+        LocationCheck.checkLocation(
+            LocationPredicate.Builder.location()
+                .setBiomes(
+                    asHolderSet(
+                        Biomes.RIVER, Biomes.FROZEN_RIVER
+                    )
+                )
+        );
 
     private static final LootItemCondition.Builder IN_OCEAN =
-        LocationCheck.checkLocation(LocationPredicate.Builder.location().setBiome(Biomes.OCEAN))
-            .or(LocationCheck.checkLocation(LocationPredicate.Builder.location().setBiome(Biomes.COLD_OCEAN)))
-            .or(LocationCheck.checkLocation(LocationPredicate.Builder.location().setBiome(Biomes.DEEP_OCEAN)))
-            .or(LocationCheck.checkLocation(LocationPredicate.Builder.location().setBiome(Biomes.DEEP_COLD_OCEAN)))
-            .or(LocationCheck.checkLocation(LocationPredicate.Builder.location().setBiome(Biomes.FROZEN_OCEAN)))
-            .or(LocationCheck.checkLocation(LocationPredicate.Builder.location().setBiome(Biomes.DEEP_FROZEN_OCEAN)));
+        LocationCheck.checkLocation(LocationPredicate.Builder.location().setBiomes(
+            asHolderSet(
+                Biomes.OCEAN,
+                Biomes.COLD_OCEAN,
+                Biomes.DEEP_OCEAN,
+                Biomes.DEEP_COLD_OCEAN,
+                Biomes.FROZEN_OCEAN,
+                Biomes.DEEP_FROZEN_OCEAN
+            )
+        ));
 
     private static final LootItemCondition.Builder IN_WARM_OCEAN =
-        LocationCheck.checkLocation(LocationPredicate.Builder.location().setBiome(Biomes.WARM_OCEAN))
-            .or(LocationCheck.checkLocation(LocationPredicate.Builder.location().setBiome(Biomes.LUKEWARM_OCEAN)))
-            .or(LocationCheck.checkLocation(LocationPredicate.Builder.location().setBiome(Biomes.DEEP_LUKEWARM_OCEAN)));
+        LocationCheck.checkLocation(
+            LocationPredicate.Builder.location()
+                .setBiomes(
+                    asHolderSet(Biomes.WARM_OCEAN,Biomes.LUKEWARM_OCEAN,Biomes.DEEP_LUKEWARM_OCEAN)
+                )
+            );
 
     private static final LootItemCondition.Builder IN_SWAMP =
-        LocationCheck.checkLocation(LocationPredicate.Builder.location().setBiome(Biomes.SWAMP))
-            .or(LocationCheck.checkLocation(LocationPredicate.Builder.location().setBiome(Biomes.MANGROVE_SWAMP)));
+        LocationCheck.checkLocation(
+            LocationPredicate.Builder.location()
+                .setBiomes(
+                    asHolderSet(Biomes.SWAMP, Biomes.MANGROVE_SWAMP)
+                )
+            );
 
     private static final LootItemCondition.Builder IN_JUNGLE =
-        LocationCheck.checkLocation(LocationPredicate.Builder.location().setBiome(Biomes.JUNGLE))
-            .or(LocationCheck.checkLocation(LocationPredicate.Builder.location().setBiome(Biomes.BAMBOO_JUNGLE)))
-            .or(LocationCheck.checkLocation(LocationPredicate.Builder.location().setBiome(Biomes.SPARSE_JUNGLE)));
+        LocationCheck.checkLocation(
+            LocationPredicate.Builder.location()
+                .setBiomes(
+                    asHolderSet(Biomes.JUNGLE, Biomes.BAMBOO_JUNGLE,Biomes.SPARSE_JUNGLE)
+                )
+            );
 
     private static final LootTable.Builder COMMON = LootTable.lootTable().withPool(
         LootPool.lootPool().setRolls(ConstantValue.exactly(1.0f))

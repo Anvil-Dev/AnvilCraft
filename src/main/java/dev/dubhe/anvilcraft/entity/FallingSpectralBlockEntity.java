@@ -20,10 +20,10 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.AbstractGlassBlock;
 import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.TransparentBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
@@ -158,9 +158,7 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
         return blockState.isAir()
                 || blockState.is(ModBlockTags.GLASS_BLOCKS)
                 || blockState.is(ModBlockTags.GLASS_PANES)
-                || blockState.is(ModBlockTags.FORGE_GLASS_BLOCKS)
-                || blockState.is(ModBlockTags.FORGE_GLASS_PANES)
-                || blockState.getBlock() instanceof AbstractGlassBlock
+                || blockState.getBlock() instanceof TransparentBlock
                 || blockState.getBlock() instanceof SpectralAnvilBlock
                 || blockState.canBeReplaced();
     }

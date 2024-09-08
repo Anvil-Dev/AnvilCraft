@@ -260,24 +260,24 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double pScrollX, double pScrollY) {
         int leftPos = (this.width - this.imageWidth) / 2;
         int topPos = (this.height - this.imageHeight) / 2;
         if (mouseInLeft(mouseX, mouseY, leftPos, topPos)) {
             if (this.filteredSounds.size() > 8) {
                 this.leftScrollOff = (int) Mth.clamp(
-                        this.leftScrollOff - delta,
-                        0,
-                        this.filteredSounds.size() - 7
+                    this.leftScrollOff - pScrollY,
+                    0,
+                    this.filteredSounds.size() - 7
                 );
             }
         } else {
             if (mouseInRight(mouseX, mouseY, leftPos, topPos)) {
                 if (this.mutedSounds.size() > 8) {
                     this.rightScrollOff = (int) Mth.clamp(
-                            this.rightScrollOff - delta,
-                            0,
-                            this.mutedSounds.size() - 7
+                        this.rightScrollOff - pScrollY,
+                        0,
+                        this.mutedSounds.size() - 7
                     );
                 }
             }

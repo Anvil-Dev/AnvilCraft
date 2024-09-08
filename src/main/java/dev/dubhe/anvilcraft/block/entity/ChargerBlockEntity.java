@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import dev.architectury.injectables.annotations.ExpectPlatform;
 import dev.dubhe.anvilcraft.api.depository.DepositoryHolder;
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.api.item.IChargerChargeable;
@@ -131,8 +130,8 @@ public class ChargerBlockEntity
 
 
     @Override
-    protected void saveAdditional(@NotNull CompoundTag tag) {
-        super.saveAdditional(tag);
+    protected void saveAdditional(@NotNull CompoundTag tag,HolderLookup.Provider pRegistries) {
+        super.saveAdditional(tag, pRegistries);
         tag.putInt("Cooldown", cd);
         tag.put("Depository", depository.serializeNbt());
         tag.putBoolean("Mode", isCharger);
@@ -141,13 +140,8 @@ public class ChargerBlockEntity
     }
 
     @Override
-    protected void saveAdditional(CompoundTag pTag, HolderLookup.Provider pRegistries) {
-        super.saveAdditional(pTag, pRegistries);
-    }
-
-    @Override
-    public void load(@NotNull CompoundTag tag) {
-        super.load(tag);
+    public void loadAdditional(@NotNull CompoundTag tag,HolderLookup.Provider pRegistries) {
+        super.loadAdditional(tag, pRegistries);
         cd = tag.getInt("Cooldown");
         depository.deserializeNbt(tag.getCompound("Depository"));
         isCharger = tag.getBoolean("Mode");

@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModComponents;
 import dev.dubhe.anvilcraft.init.ModDispenserBehavior;
+import dev.dubhe.anvilcraft.init.ModEnchantments;
 import dev.dubhe.anvilcraft.init.ModEntities;
 import dev.dubhe.anvilcraft.init.ModEvents;
 import dev.dubhe.anvilcraft.init.ModItemGroups;
@@ -67,8 +68,6 @@ public class AnvilCraft {
         ModBlockEntities.register();
         ModMenuTypes.register();
         ModDispenserBehavior.register();
-        ModEnchantments.key();
-        ModResourcePacks.register();
         ModComponents.register(bus);
 
         AnvilRecipe.init();

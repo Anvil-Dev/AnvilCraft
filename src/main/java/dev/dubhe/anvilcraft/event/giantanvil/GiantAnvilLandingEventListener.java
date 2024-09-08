@@ -26,7 +26,6 @@ import net.minecraft.world.level.block.CaveVinesBlock;
 import net.minecraft.world.level.block.ChorusPlantBlock;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.NetherWartBlock;
-import net.minecraft.world.level.block.StemGrownBlock;
 import net.minecraft.world.level.block.SweetBerryBushBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootParams;
@@ -163,7 +162,7 @@ public class GiantAnvilLandingEventListener {
                                 level.setBlockAndUpdate(pos, cropBlock.getStateForAge(0));
                             }
                         }
-                        if (state.getBlock() instanceof StemGrownBlock) {
+                        if (state.getBlock() instanceof CropBlock) {
                             level.destroyBlock(pos, true);
                         }
                         if (state.getBlock() instanceof SweetBerryBushBlock) {
