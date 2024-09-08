@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.inventory;
 
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
+import mezz.jei.api.constants.RecipeTypes;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
@@ -10,8 +11,10 @@ import net.minecraft.world.inventory.ItemCombinerMenuSlotDefinition;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SmithingRecipe;
+import net.minecraft.world.item.crafting.SmithingRecipeInput;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
@@ -25,8 +28,8 @@ import java.util.Optional;
 public class EmberSmithingMenu extends ItemCombinerMenu {
     private final Level level;
     @Nullable
-    private SmithingRecipe selectedRecipe;
-    private final List<SmithingRecipe> recipes;
+    private RecipeHolder<SmithingRecipe> selectedRecipe;
+    private final List<RecipeHolder<SmithingRecipe>> recipes;
 
     public EmberSmithingMenu(int containerId, Inventory playerInventory) {
         this(containerId, playerInventory, ContainerLevelAccess.NULL);
@@ -59,11 +62,11 @@ public class EmberSmithingMenu extends ItemCombinerMenu {
     protected @NotNull ItemCombinerMenuSlotDefinition createInputSlotDefinitions() {
         return ItemCombinerMenuSlotDefinition.create()
             .withSlot(0, 8, 48, itemStack -> this.recipes.stream()
-                .anyMatch(smithingRecipe -> smithingRecipe.isTemplateIngredient(itemStack)))
+                .anyMatch(smithingRecipe -> smithingRecipe.value().isTemplateIngredient(itemStack)))
             .withSlot(1, 44, 48, itemStack -> this.recipes.stream()
-                .anyMatch(smithingRecipe -> smithingRecipe.isBaseIngredient(itemStack)))
+                .anyMatch(smithingRecipe -> smithingRecipe.value().isBaseIngredient(itemStack)))
             .withSlot(2, 62, 48, itemStack -> this.recipes.stream()
-                .anyMatch(smithingRecipe -> smithingRecipe.isAdditionIngredient(itemStack)))
+                .anyMatch(smithingRecipe -> smithingRecipe.value().isAdditionIngredient(itemStack)))
             .withResultSlot(3, 106, 48).build();
     }
 
@@ -72,7 +75,7 @@ public class EmberSmithingMenu extends ItemCombinerMenu {
     }
 
     protected boolean mayPickup(@NotNull Player player, boolean hasStack) {
-        return this.selectedRecipe != null && this.selectedRecipe.matches(this.inputSlots, this.level);
+        return this.selectedRecipe != null && this.selectedRecipe.value().matches(this.createRecipeInput(), this.level);
     }
 
     protected void onTake(@NotNull Player player, @NotNull ItemStack stack) {
@@ -95,19 +98,27 @@ public class EmberSmithingMenu extends ItemCombinerMenu {
         }
     }
 
+    private SmithingRecipeInput createRecipeInput() {
+        return new SmithingRecipeInput(
+            this.inputSlots.getItem(0),
+            this.inputSlots.getItem(1),
+            this.inputSlots.getItem(2)
+        );
+    }
+
     @Override
     public void createResult() {
-        List<SmithingRecipe> list = this.level.getRecipeManager()
-            .getRecipesFor(RecipeType.SMITHING, this.inputSlots, this.level);
+        SmithingRecipeInput smithingrecipeinput = this.createRecipeInput();
+        List<RecipeHolder<SmithingRecipe>> list = this.level.getRecipeManager().getRecipesFor(RecipeType.SMITHING, smithingrecipeinput, this.level);
         if (list.isEmpty()) {
             this.resultSlots.setItem(0, ItemStack.EMPTY);
         } else {
-            SmithingRecipe smithingRecipe = list.get(0);
-            ItemStack itemStack = smithingRecipe.assemble(this.inputSlots, this.level.registryAccess());
-            if (itemStack.isItemEnabled(this.level.enabledFeatures())) {
-                this.selectedRecipe = smithingRecipe;
-                this.resultSlots.setRecipeUsed(smithingRecipe);
-                this.resultSlots.setItem(0, itemStack);
+            RecipeHolder<SmithingRecipe> recipeholder = list.getFirst();
+            ItemStack itemstack = recipeholder.value().assemble(smithingrecipeinput, this.level.registryAccess());
+            if (itemstack.isItemEnabled(this.level.enabledFeatures())) {
+                this.selectedRecipe = recipeholder;
+                this.resultSlots.setRecipeUsed(recipeholder);
+                this.resultSlots.setItem(0, itemstack);
             }
         }
     }
@@ -116,7 +127,7 @@ public class EmberSmithingMenu extends ItemCombinerMenu {
     @Override
     public int getSlotToQuickMoveTo(@NotNull ItemStack stack) {
         return this.recipes.stream().map(smithingRecipe ->
-            EmberSmithingMenu.findSlotMatchingIngredient(smithingRecipe, stack))
+            EmberSmithingMenu.findSlotMatchingIngredient(smithingRecipe.value(), stack))
             .filter(Optional::isPresent).findFirst().orElse(Optional.of(0)).get();
     }
 
@@ -135,6 +146,6 @@ public class EmberSmithingMenu extends ItemCombinerMenu {
     @Override
     public boolean canMoveIntoInputSlots(@NotNull ItemStack stack) {
         return this.recipes.stream().map(smithingRecipe ->
-            EmberSmithingMenu.findSlotMatchingIngredient(smithingRecipe, stack)).anyMatch(Optional::isPresent);
+            EmberSmithingMenu.findSlotMatchingIngredient(smithingRecipe.value(), stack)).anyMatch(Optional::isPresent);
     }
 }

@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.gui.screen.inventory;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.gui.component.Slider;
+import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.inventory.SliderMenu;
 import dev.dubhe.anvilcraft.network.SliderUpdatePack;
 import net.minecraft.client.gui.GuiGraphics;
@@ -49,30 +50,28 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
         this.value.setMaxLength(50);
         this.value.setResponder(this::onValueInput);
         this.value.setValue("");
-        ImageButton max = new ImageButton(
+        TexturedButton max = new TexturedButton(
             152 + offsetX, 43 + offsetY,
-            16, 16, 0, 0, 16, BUTTON_MAX, 16, 32,
+            16, 16, BUTTON_MAX, 16, 16, 32,
             (btn) -> this.slider.setValueWithUpdate(slider.getMax())
         );
-        ImageButton add = new ImageButton(
+        TexturedButton add = new TexturedButton(
             134 + offsetX, 43 + offsetY,
-            16, 16, 0, 0, 16, BUTTON_ADD, 16, 32,
+            16, 16, BUTTON_ADD, 16, 16, 32,
             (btn) -> this.slider.setValueWithUpdate(Math.min(slider.getMax(), slider.getValue() + 1))
         );
-        ImageButton min = new ImageButton(
+        TexturedButton min = new TexturedButton(
             8 + offsetX, 43 + offsetY,
-            16, 16, 0, 0, 16, BUTTON_MIN, 16, 32,
+            16, 16, BUTTON_MIN, 16, 16, 32,
             (btn) -> this.slider.setValueWithUpdate(slider.getMin())
         );
-        ImageButton minus = new ImageButton(
+        TexturedButton minus = new TexturedButton(
             26 + offsetX,
             43 + offsetY,
             16,
             16,
-            0,
-            0,
-            16,
             BUTTON_MINUS,
+            16,
             16,
             32,
             (btn) -> this.slider.setValueWithUpdate(Math.max(slider.getMin(), slider.getValue() - 1))
