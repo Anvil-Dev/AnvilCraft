@@ -181,3 +181,10 @@ idea {
         downloadJavadoc = true
     }
 }
+
+subsystems {
+    parchment {
+        minecraftVersion = '1.21'
+        mappingsVersion = '2024.07.28'
+    }
+}
