@@ -40,7 +40,6 @@
     "ClientPacketListenerMixin",
     "ItemBlockRenderTypesMixin",
     "ItemInHandRendererMixin",
-    "LevelRendererMixin",
     "SoundEngineMixin",
     "TooltipRenderMixin",
     "accessor.ItemInHandRendererAccessor"

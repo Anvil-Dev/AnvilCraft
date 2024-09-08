@@ -19,7 +19,6 @@ public class AmethystAxeItem extends AxeItem {
     @Override
     public @NotNull ItemStack getDefaultInstance() {
         ItemStack stack = super.getDefaultInstance();
-        stack.enchant(ModEnchantments.FELLING.get(), 1);
         return stack;
     }
 }

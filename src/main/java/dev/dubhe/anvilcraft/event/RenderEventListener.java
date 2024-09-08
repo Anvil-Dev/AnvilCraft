@@ -23,7 +23,7 @@ import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 @EventBusSubscriber
 public class RenderEventListener {
     @SubscribeEvent
-    void onRender(RenderLevelStageEvent event){
+    public static void onRender(RenderLevelStageEvent event){
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_BLOCK_ENTITIES)return;
         Entity entity = event.getCamera().getEntity();
         MultiBufferSource.BufferSource bufferSource = event.getLevelRenderer().renderBuffers.bufferSource();

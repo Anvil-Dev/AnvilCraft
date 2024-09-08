@@ -16,9 +16,9 @@ public class RegisterAdditionalEventListener {
      */
     @SubscribeEvent
     public static void registerModels(ModelEvent.RegisterAdditional event) {
-        event.register(new ModelResourceLocation(AnvilCraft.of("crab_claw_holding_block"), "inventory"));
-        event.register(new ModelResourceLocation(AnvilCraft.of("crab_claw_holding_item"), "inventory"));
-        event.register(new ModelResourceLocation(AnvilCraft.of("heliostats_head"), ""));
-        event.register(new ModelResourceLocation(AnvilCraft.of("creative_generator_cube"), ""));
+        event.register( ModelResourceLocation.standalone(AnvilCraft.of("crab_claw_holding_block")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("crab_claw_holding_item")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("heliostats_head")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("creative_generator_cube")));
     }
 }
