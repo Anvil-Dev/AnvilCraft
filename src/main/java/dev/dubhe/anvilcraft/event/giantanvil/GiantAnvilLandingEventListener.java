@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.event.giantanvil;
 
-import dev.anvilcraft.lib.event.SubscribeEvent;
+import net.neoforged.bus.api.SubscribeEvent;
 import dev.dubhe.anvilcraft.api.event.entity.GiantAnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.init.ModBlocks;

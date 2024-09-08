@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.event.anvil;
 
-import dev.anvilcraft.lib.event.SubscribeEvent;
+import net.neoforged.bus.api.SubscribeEvent;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.block.ImpactPileBlock;
 import net.minecraft.core.BlockPos;

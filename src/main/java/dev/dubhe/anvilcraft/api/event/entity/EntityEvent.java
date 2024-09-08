@@ -5,9 +5,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.Event;
+import net.neoforged.fml.event.IModBusEvent;
 
 @Getter
-public class EntityEvent<T extends Entity> extends Event {
+public class EntityEvent<T extends Entity> extends Event implements IModBusEvent {
     private final T entity;
     private final BlockPos pos;
     private final Level level;

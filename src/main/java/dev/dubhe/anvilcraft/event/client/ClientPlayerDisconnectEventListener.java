@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.event.client;
 
-import dev.anvilcraft.lib.event.SubscribeEvent;
+import net.neoforged.bus.api.SubscribeEvent;
 import dev.dubhe.anvilcraft.api.event.client.ClientPlayerDisconnectEvent;
 import dev.dubhe.anvilcraft.api.sound.SoundHelper;
 

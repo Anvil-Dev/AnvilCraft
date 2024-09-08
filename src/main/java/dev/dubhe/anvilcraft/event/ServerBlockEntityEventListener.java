@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.event;
 
-import dev.anvilcraft.lib.event.SubscribeEvent;
+import net.neoforged.bus.api.SubscribeEvent;
 import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
 import dev.dubhe.anvilcraft.api.chargecollector.HeatedBlockRecorder;
 import dev.dubhe.anvilcraft.api.event.server.block.ServerBlockEntityLoadEvent;
