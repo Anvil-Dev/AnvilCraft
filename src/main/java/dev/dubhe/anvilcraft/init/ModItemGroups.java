@@ -14,55 +14,55 @@ import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 
 @SuppressWarnings("unused")
 public class ModItemGroups {
-    public static final RegistryEntry<CreativeModeTab> ANVILCRAFT_TOOL = REGISTRATE
+    public static final RegistryEntry<CreativeModeTab, CreativeModeTab> ANVILCRAFT_TOOL = REGISTRATE
         .defaultCreativeTab("tools", builder -> builder
-            .icon(ModItems.MAGNET::asStack)
-            .displayItems((ctx, entries) -> {
-                entries.accept(ModItems.GUIDE_BOOK.get().getDefaultInstance());
-                entries.accept(ModItems.MAGNET.get().getDefaultInstance());
-                entries.accept(ModItems.GEODE.get().getDefaultInstance());
-                entries.accept(ModItems.AMETHYST_PICKAXE.get().getDefaultInstance());
-                entries.accept(ModItems.AMETHYST_AXE.get().getDefaultInstance());
-                entries.accept(ModItems.AMETHYST_SHOVEL.get().getDefaultInstance());
-                entries.accept(ModItems.AMETHYST_HOE.get().getDefaultInstance());
-                entries.accept(ModItems.AMETHYST_SWORD.get().getDefaultInstance());
-                entries.accept(ModItems.ROYAL_STEEL_PICKAXE.get().getDefaultInstance());
-                entries.accept(ModItems.ROYAL_STEEL_AXE.get().getDefaultInstance());
-                entries.accept(ModItems.ROYAL_STEEL_SHOVEL.get().getDefaultInstance());
-                entries.accept(ModItems.ROYAL_STEEL_HOE.get().getDefaultInstance());
-                entries.accept(ModItems.ROYAL_STEEL_SWORD.get().getDefaultInstance());
-                entries.accept(ModItems.EMBER_METAL_PICKAXE.get().getDefaultInstance());
-                entries.accept(ModItems.EMBER_METAL_AXE.get().getDefaultInstance());
-                entries.accept(ModItems.EMBER_METAL_SHOVEL.get().getDefaultInstance());
-                entries.accept(ModItems.EMBER_METAL_HOE.get().getDefaultInstance());
-                entries.accept(ModItems.EMBER_METAL_SWORD.get().getDefaultInstance());
-                entries.accept(ModItems.ANVIL_HAMMER.get().getDefaultInstance());
-                entries.accept(ModItems.ROYAL_ANVIL_HAMMER.get().getDefaultInstance());
-                entries.accept(ModItems.EMBER_ANVIL_HAMMER.get().getDefaultInstance());
-                entries.accept(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE.get().getDefaultInstance());
-                entries.accept(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE.get().getDefaultInstance());
-                entries.accept(ModItems.DISK.get().getDefaultInstance());
-                entries.accept(ModItems.CRAB_CLAW.asStack());
-                entries.accept(ModItems.CAPACITOR.get().getDefaultInstance());
-                entries.accept(ModItems.CAPACITOR_EMPTY.get().getDefaultInstance());
-                entries.accept(ModItems.CHOCOLATE.get().getDefaultInstance());
-                entries.accept(ModItems.CHOCOLATE_BLACK.get().getDefaultInstance());
-                entries.accept(ModItems.CHOCOLATE_WHITE.get().getDefaultInstance());
-                entries.accept(ModItems.CREAMY_BREAD_ROLL.get().getDefaultInstance());
-                entries.accept(ModItems.BEEF_MUSHROOM_STEW.get().getDefaultInstance());
-                entries.accept(ModItems.UTUSAN.get().getDefaultInstance());
-                entries.accept(ModItems.SEEDS_PACK.get().getDefaultInstance());
+                .icon(ModItems.MAGNET::asStack)
+                .displayItems((ctx, entries) -> {
+                    entries.accept(ModItems.GUIDE_BOOK.get().getDefaultInstance());
+                    entries.accept(ModItems.MAGNET.get().getDefaultInstance());
+                    entries.accept(ModItems.GEODE.get().getDefaultInstance());
+                    entries.accept(ModItems.AMETHYST_PICKAXE.get().getDefaultInstance());
+                    entries.accept(ModItems.AMETHYST_AXE.get().getDefaultInstance());
+                    entries.accept(ModItems.AMETHYST_SHOVEL.get().getDefaultInstance());
+                    entries.accept(ModItems.AMETHYST_HOE.get().getDefaultInstance());
+                    entries.accept(ModItems.AMETHYST_SWORD.get().getDefaultInstance());
+                    entries.accept(ModItems.ROYAL_STEEL_PICKAXE.get().getDefaultInstance());
+                    entries.accept(ModItems.ROYAL_STEEL_AXE.get().getDefaultInstance());
+                    entries.accept(ModItems.ROYAL_STEEL_SHOVEL.get().getDefaultInstance());
+                    entries.accept(ModItems.ROYAL_STEEL_HOE.get().getDefaultInstance());
+                    entries.accept(ModItems.ROYAL_STEEL_SWORD.get().getDefaultInstance());
+                    entries.accept(ModItems.EMBER_METAL_PICKAXE.get().getDefaultInstance());
+                    entries.accept(ModItems.EMBER_METAL_AXE.get().getDefaultInstance());
+                    entries.accept(ModItems.EMBER_METAL_SHOVEL.get().getDefaultInstance());
+                    entries.accept(ModItems.EMBER_METAL_HOE.get().getDefaultInstance());
+                    entries.accept(ModItems.EMBER_METAL_SWORD.get().getDefaultInstance());
+                    entries.accept(ModItems.ANVIL_HAMMER.get().getDefaultInstance());
+                    entries.accept(ModItems.ROYAL_ANVIL_HAMMER.get().getDefaultInstance());
+                    entries.accept(ModItems.EMBER_ANVIL_HAMMER.get().getDefaultInstance());
+                    entries.accept(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE.get().getDefaultInstance());
+                    entries.accept(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE.get().getDefaultInstance());
+                    entries.accept(ModItems.DISK.get().getDefaultInstance());
+                    entries.accept(ModItems.CRAB_CLAW.asStack());
+                    entries.accept(ModItems.CAPACITOR.get().getDefaultInstance());
+                    entries.accept(ModItems.CAPACITOR_EMPTY.get().getDefaultInstance());
+                    entries.accept(ModItems.CHOCOLATE.get().getDefaultInstance());
+                    entries.accept(ModItems.CHOCOLATE_BLACK.get().getDefaultInstance());
+                    entries.accept(ModItems.CHOCOLATE_WHITE.get().getDefaultInstance());
+                    entries.accept(ModItems.CREAMY_BREAD_ROLL.get().getDefaultInstance());
+                    entries.accept(ModItems.BEEF_MUSHROOM_STEW.get().getDefaultInstance());
+                    entries.accept(ModItems.UTUSAN.get().getDefaultInstance());
+                    entries.accept(ModItems.SEEDS_PACK.get().getDefaultInstance());
 //                entries.accept(ModItemGroups.createMaxLevelBook(ModEnchantments.FELLING));
 //                entries.accept(ModItemGroups.createMaxLevelBook(ModEnchantments.HARVEST));
 //                entries.accept(ModItemGroups.createMaxLevelBook(ModEnchantments.BEHEADING));
-            })
-            .title(REGISTRATE.addLang("itemGroup", AnvilCraft.of("tools"), "AnvilCraft: Utilities"))
-            .build()
+                })
+                .title(REGISTRATE.addLang("itemGroup", AnvilCraft.of("tools"), "AnvilCraft: Utilities"))
+                .build()
         )
         .register();
 
 
-    public static final RegistryEntry<CreativeModeTab> ANVILCRAFT_INGREDIENTS = REGISTRATE
+    public static final RegistryEntry<CreativeModeTab, CreativeModeTab> ANVILCRAFT_INGREDIENTS = REGISTRATE
         .defaultCreativeTab("ingredients", builder -> builder
             .icon(ModItems.MAGNET_INGOT::asStack)
             .displayItems((ctx, entries) -> {
@@ -131,7 +131,7 @@ public class ModItemGroups {
         )
         .register();
 
-    public static final RegistryEntry<CreativeModeTab> ANVILCRAFT_FUNCTION_BLOCK = REGISTRATE
+    public static final RegistryEntry<CreativeModeTab, CreativeModeTab> ANVILCRAFT_FUNCTION_BLOCK = REGISTRATE
         .defaultCreativeTab("functional_block", builder -> builder
             .icon(ModBlocks.MAGNET_BLOCK::asStack)
             .displayItems((ctx, entries) -> {
@@ -165,7 +165,6 @@ public class ModItemGroups {
                 entries.accept(ModBlocks.POWER_CONVERTER_MIDDLE.asStack());
                 entries.accept(ModBlocks.POWER_CONVERTER_BIG.asStack());
                 entries.accept(ModBlocks.PIEZOELECTRIC_CRYSTAL.asStack());
-                entries.accept(ModBlocks.AUTO_CRAFTER.asStack());
                 entries.accept(ModBlocks.BATCH_CRAFTER.asStack());
                 entries.accept(ModBlocks.ITEM_COLLECTOR.asStack());
                 entries.accept(ModBlocks.THERMOELECTRIC_CONVERTER.asStack());
@@ -209,7 +208,7 @@ public class ModItemGroups {
         )
         .register();
 
-    public static final RegistryEntry<CreativeModeTab> ANVILCRAFT_BUILD_BLOCK = REGISTRATE
+    public static final RegistryEntry<CreativeModeTab, CreativeModeTab> ANVILCRAFT_BUILD_BLOCK = REGISTRATE
         .defaultCreativeTab("building_block", builder -> builder
             .icon(ModBlocks.REINFORCED_CONCRETE_BLACK::asStack)
             .displayItems((ctx, entries) -> {

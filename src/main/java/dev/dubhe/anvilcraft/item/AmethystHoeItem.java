@@ -13,7 +13,7 @@ public class AmethystHoeItem extends HoeItem {
     @Override
     public @NotNull ItemStack getDefaultInstance() {
         ItemStack stack = super.getDefaultInstance();
-        stack.enchant(ModEnchantments.HARVEST.get(), 1);
+        stack.enchant(ModEnchantments.HARVEST, 1);
         return stack;
     }
 }

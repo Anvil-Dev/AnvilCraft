@@ -14,6 +14,7 @@ import net.minecraft.data.recipes.packs.VanillaRecipeProvider;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.SmokingRecipe;
 
 public class VanillaRecipesLoader {
     /**
@@ -90,8 +91,15 @@ public class VanillaRecipesLoader {
                 Items.BREAD, 0.35f, 100)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.DOUGH.get()), AnvilCraftDatagen.has(ModItems.DOUGH))
             .save(provider, AnvilCraft.of("smoking_bread"));
-        SimpleCookingRecipeBuilder.generic(Ingredient.of(ModItemTags.DOUGH), RecipeCategory.FOOD,
-                Items.BREAD, 0.35f, 600, RecipeSerializer.SMOKING_RECIPE)
+        SimpleCookingRecipeBuilder.generic(
+                Ingredient.of(ModItemTags.DOUGH),
+                RecipeCategory.FOOD,
+                Items.BREAD,
+                0.35f,
+                600,
+                RecipeSerializer.SMOKING_RECIPE,
+                SmokingRecipe::new
+            )
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.DOUGH.get()), AnvilCraftDatagen.has(ModItems.DOUGH))
             .save(provider, AnvilCraft.of("generic_cooking_bread"));
 
