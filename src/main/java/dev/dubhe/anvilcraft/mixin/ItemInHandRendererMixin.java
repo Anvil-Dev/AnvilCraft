@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModItems;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
@@ -28,10 +29,11 @@ abstract class ItemInHandRendererMixin {
 
     @Unique
     private static final ModelResourceLocation anvilCraft$HOLDING_ITEM =
-            new ModelResourceLocation("anvilcraft", "crab_claw_holding_item", "inventory");
+        ModelResourceLocation.inventory(AnvilCraft.of("crab_claw_holding_item"));
+
     @Unique
     private static final ModelResourceLocation anvilCraft$HOLDING_BLOCK =
-            new ModelResourceLocation("anvilcraft", "crab_claw_holding_block", "inventory");
+        ModelResourceLocation.inventory(AnvilCraft.of("crab_claw_holding_block"));
 
     @Shadow private ItemStack offHandItem;
     @Shadow private ItemStack mainHandItem;

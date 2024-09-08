@@ -79,7 +79,7 @@ public abstract class PlayerHitEntityMixin extends LivingEntity {
             itemStack.hurtAndBreak(
                 1,
                 player,
-                e -> e.broadcastBreakEvent(EquipmentSlot.MAINHAND)
+                EquipmentSlot.HEAD
             );
         }
     }

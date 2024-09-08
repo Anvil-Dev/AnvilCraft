@@ -17,7 +17,6 @@ import dev.dubhe.anvilcraft.init.ModEvents;
 import dev.dubhe.anvilcraft.init.ModItemGroups;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
-import dev.dubhe.anvilcraft.util.EnchantmentDisableUtil;
 import dev.dubhe.anvilcraft.util.Lazy;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;

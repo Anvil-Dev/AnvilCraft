@@ -13,7 +13,7 @@ import java.util.HashMap;
 
 @Mixin(ItemBlockRenderTypes.class)
 public class ItemBlockRenderTypesMixin {
-    @Inject(method = "method_23685", at = @At("RETURN"))
+    @Inject(method = "lambda$static$0", at = @At("RETURN"))
     private static void registerRenderTypes(HashMap<Block, RenderType> map, CallbackInfo ci) {
         map.put(ModBlocks.SPECTRAL_ANVIL.get(), RenderType.translucent());
     }

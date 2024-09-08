@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.IHasMultiBlock;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectListIterator;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
@@ -19,6 +20,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
+import java.util.List;
+
 @Mixin(Explosion.class)
 abstract class ExplosionMixin {
 
@@ -29,18 +32,23 @@ abstract class ExplosionMixin {
     @Inject(method = "finalizeExplosion",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/level/block/state/BlockState;"
-                + "getBlock()Lnet/minecraft/world/level/block/Block;"
+            target = "Lnet/minecraft/world/level/block/state/BlockState;onExplosionHit(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/Explosion;Ljava/util/function/BiConsumer;)V",
+            shift = At.Shift.AFTER
         ),
-        locals = LocalCapture.CAPTURE_FAILSOFT)
+        locals = LocalCapture.CAPTURE_FAILSOFT
+    )
     private void finalizeExplosion(
-        boolean spawnParticles, CallbackInfo ci, boolean bl, ObjectArrayList<Pair<ItemStack, BlockPos>> objectArrayList,
-        boolean bl2, ObjectListIterator<BlockPos> var5, BlockPos blockPos,
-        @NotNull BlockState blockState
+        boolean pSpawnParticles,
+        CallbackInfo ci,
+        boolean flag,
+        List<Pair<ItemStack, BlockPos>> list,
+        ObjectListIterator<BlockPos> var4,
+        BlockPos blockpos
     ) {
-        Block block = blockState.getBlock();
+        BlockState state = this.level.getBlockState(blockpos);
+        Block block = state.getBlock();
         if (block instanceof IHasMultiBlock multiBlock) {
-            multiBlock.onRemove(level, blockPos, blockState);
+            multiBlock.onRemove(level, blockpos, state);
         }
     }
 }

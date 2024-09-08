@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.BlockSource;
+import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
@@ -16,16 +16,14 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-@Mixin(targets = "net/minecraft/core/dispenser/DispenseItemBehavior$27")
+@Mixin(targets = "net/minecraft/core/dispenser/DispenseItemBehavior$18")
 abstract class DispenseItemWaterBottleBehaviorMixin extends DefaultDispenseItemBehavior {
     @Inject(
-        method = "execute(Lnet/minecraft/core/BlockSource;"
+        method = "execute(Lnet/minecraft/core/dispenser/BlockSource;"
             + "Lnet/minecraft/world/item/ItemStack;)Lnet/minecraft/world/item/ItemStack;",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/server/level/ServerLevel;"
-                + "getBlockState(Lnet/minecraft/core/BlockPos;)"
-                + "Lnet/minecraft/world/level/block/state/BlockState;"
+            target = "Lnet/minecraft/server/level/ServerLevel;getBlockState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;"
         ),
         locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true
     )

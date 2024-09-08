@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.BlockSource;
+import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -24,28 +24,28 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
 
-@Mixin(targets = "net/minecraft/core/dispenser/DispenseItemBehavior$17")
+@Mixin(targets = "net/minecraft/core/dispenser/DispenseItemBehavior$7")
 abstract class DispenseItemEmptyBucketBehaviorMixin extends DefaultDispenseItemBehavior {
     @Unique
     private final DefaultDispenseItemBehavior anvilCraft$defaultDispenseItemBehavior =
         new DefaultDispenseItemBehavior();
 
     @Inject(
-        method = "execute(Lnet/minecraft/core/BlockSource;Lnet/minecraft/world/item/ItemStack;)"
+        method = "execute(Lnet/minecraft/core/dispenser/BlockSource;Lnet/minecraft/world/item/ItemStack;)"
             + "Lnet/minecraft/world/item/ItemStack;",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/core/dispenser/DefaultDispenseItemBehavior;"
-                + "execute(Lnet/minecraft/core/BlockSource;Lnet/minecraft/world/item/ItemStack;)"
+                + "execute(Lnet/minecraft/core/dispenser/BlockSource;Lnet/minecraft/world/item/ItemStack;)"
                 + "Lnet/minecraft/world/item/ItemStack;",
             ordinal = 1
         ),
         cancellable = true
     )
     public void takeMilkFromCow(@NotNull BlockSource source, ItemStack stack, CallbackInfoReturnable<ItemStack> cir) {
-        BlockPos blockPos = source.getPos().relative(source.getBlockState().getValue(DispenserBlock.FACING));
-        ServerLevel level = source.getLevel();
-        ServerLevel levelAccessor = source.getLevel();
+        BlockPos blockPos = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
+        ServerLevel level = source.level();
+        ServerLevel levelAccessor = source.level();
         List<Cow> cows = level.getEntities(EntityTypeTest.forClass(Cow.class), new AABB(blockPos), Entity::isAlive)
             .stream().toList();
         List<Goat> goats = level.getEntities(EntityTypeTest.forClass(Goat.class), new AABB(blockPos), Entity::isAlive)
@@ -58,7 +58,7 @@ abstract class DispenseItemEmptyBucketBehaviorMixin extends DefaultDispenseItemB
             cir.setReturnValue(new ItemStack(item));
             return;
         }
-        if (((DispenserBlockEntity) source.getEntity()).addItem(new ItemStack(item)) < 0) {
+        if (source.blockEntity().insertItem(new ItemStack(item)).getCount() < 0) {
             this.anvilCraft$defaultDispenseItemBehavior.dispense(source, new ItemStack(item));
         }
         cir.setReturnValue(stack);

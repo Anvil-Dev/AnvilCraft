@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.item.enchantment;
 
-import dev.dubhe.anvilcraft.data.generator.loot.BeheadingLootLoader;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;

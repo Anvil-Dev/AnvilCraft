@@ -1,7 +1,9 @@
 package dev.dubhe.anvilcraft.mixin;
 
+import com.mojang.blaze3d.platform.Window;
 import dev.dubhe.anvilcraft.api.tooltip.HudTooltipManager;
 import dev.dubhe.anvilcraft.item.IEngineerGoggles;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Gui;
@@ -27,12 +29,6 @@ public abstract class TooltipRenderMixin {
     public abstract Font getFont();
 
     @Shadow
-    private int screenHeight;
-
-    @Shadow
-    private int screenWidth;
-
-    @Shadow
     @Final
     private Minecraft minecraft;
 
@@ -40,11 +36,15 @@ public abstract class TooltipRenderMixin {
             method = "render",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/Gui;renderCrosshair(Lnet/minecraft/client/gui/GuiGraphics;)V",
+                    target = "Lnet/neoforged/neoforge/client/gui/GuiLayerManager;render(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V",
                     shift = At.Shift.AFTER
             )
     )
-    void onHudRender(GuiGraphics guiGraphics, float partialTick, CallbackInfo ci) {
+    void onHudRender(GuiGraphics guiGraphics, DeltaTracker pDeltaTracker, CallbackInfo ci) {
+        float partialTick = pDeltaTracker.getGameTimeDeltaPartialTick(Minecraft.getInstance().isPaused());
+        Window window = Minecraft.getInstance().getWindow();
+        int screenWidth = window.getWidth();
+        int screenHeight = window.getHeight();
         if (minecraft.player == null || minecraft.isPaused()) return;
         if (minecraft.screen != null) return;
         ItemStack mainHandItem = minecraft.player.getItemInHand(InteractionHand.MAIN_HAND);

@@ -25,7 +25,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 abstract class BucketItemMixin {
     @Shadow
     @Final
-    private Fluid content;
+    public Fluid content;
     @Unique
     private final BucketItem anvilCraft$ths = (BucketItem) (Object) this;
 

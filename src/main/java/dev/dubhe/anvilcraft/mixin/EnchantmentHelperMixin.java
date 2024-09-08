@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.mixin;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.item.IHasDefaultEnchantment;
+import net.minecraft.core.Holder;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -18,31 +19,11 @@ import java.util.List;
 abstract class EnchantmentHelperMixin {
     @Inject(method = "getItemEnchantmentLevel", at = @At("RETURN"), cancellable = true)
     private static void getItemEnchantmentLevel(
-        Enchantment enchantment, @NotNull ItemStack stack, CallbackInfoReturnable<Integer> cir
+        Holder<Enchantment> enchantment, @NotNull ItemStack stack, CallbackInfoReturnable<Integer> cir
     ) {
         if (!(stack.getItem() instanceof IHasDefaultEnchantment item)) return;
         int level = cir.getReturnValue();
-        int defaultLevel = item.getDefaultEnchantmentLevel(enchantment);
+        int defaultLevel = item.getDefaultEnchantmentLevel(enchantment.value());
         cir.setReturnValue(Math.max(level, defaultLevel));
-    }
-
-    @Redirect(
-        method = "getAvailableEnchantmentResults",
-        at = @At(
-            value = "INVOKE",
-            target = "Ljava/util/List;add(Ljava/lang/Object;)Z"
-        )
-    )
-    private static <E> boolean getAvailableEnchantmentResults(List<EnchantmentInstance> instance, E e) {
-        EnchantmentInstance entry = (EnchantmentInstance) e;
-        Enchantment enchantment = entry.enchantment;
-        List<Enchantment> disableList = AnvilCraft.getEnchantmentDisableUtil().getDisableEnchantmentList();
-
-        if (
-            disableList.contains(enchantment)
-        ) {
-            return false;
-        }
-        return instance.add(entry);
     }
 }

@@ -52,15 +52,17 @@ abstract class ItemEntityMixin extends Entity {
         method = "tick",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/phys/Vec3;add(DDD)Lnet/minecraft/world/phys/Vec3;"
+            target = "Lnet/minecraft/world/entity/item/ItemEntity;getDeltaMovement()Lnet/minecraft/world/phys/Vec3;"
         )
     )
-    private @NotNull Vec3 slowDown(Vec3 instance, double dx, double dy, double dz) {
+    private @NotNull Vec3 slowDown(ItemEntity instance) {
+        Vec3 vec3 = instance.getDeltaMovement();
+        double dy = 1;
         if (this.getItem().is(ModItems.LEVITATION_POWDER.get()))
             dy *= -0.005;
         if (this.level().getBlockState(this.blockPosition()).is(ModBlocks.HOLLOW_MAGNET_BLOCK.get()))
             dy *= 0.2;
-        return instance.add(dx, dy, dz);
+        return new Vec3(vec3.x, vec3.y * dy, vec3.z);
     }
 
     @Unique
@@ -78,7 +80,7 @@ abstract class ItemEntityMixin extends Entity {
         if (!this.anvilcraft$needMagnetization) return;
         this.anvilcraft$needMagnetization = false;
         if (this.level().random.nextInt(100) <= 10) {
-            this.setItem(new ItemStack(ModItems.MAGNET_INGOT));
+            this.setItem(new ItemStack(ModItems.MAGNET_INGOT.get()));
         }
     }
 

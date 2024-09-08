@@ -10,8 +10,6 @@
     "BeaconMenuMixin",
     "BlockItemInvoker",
     "BlockMixin",
-    "ClientboundUpdateRecipesPacketMixin",
-    "DiggerItemMixin",
     "DispenseItemEmptyBottleBehaviorMixin",
     "DispenseItemEmptyBucketBehaviorMixin",
     "DispenseItemWaterBottleBehaviorMixin",
@@ -33,6 +31,13 @@
     "accessor.BaseSpawnerAccessor",
     "accessor.FallingBlockEntityAccessor",
     "accessor.LootContextParamSetsAccessor",
+    "forge.BucketItemMixin",
+    "forge.CraftingHelperMixin",
+    "forge.FallingBlockEntityMixin",
+    "forge.LightningBoltMixin",
+    "forge.MinecraftServerMixin",
+    "forge.PistonMovingBlockEntityMixin",
+    "forge.accessor.PistonStructorResolverAccessor",
     "integration.create.BasinBlockEntityMixin"
   ],
   "client": [

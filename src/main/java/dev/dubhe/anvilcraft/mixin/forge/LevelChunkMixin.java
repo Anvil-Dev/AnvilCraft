@@ -4,8 +4,9 @@ import dev.dubhe.anvilcraft.api.event.forge.BlockEntityEvent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraftforge.common.MinecraftForge;
+import net.neoforged.neoforge.common.NeoForge;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -32,7 +33,7 @@ abstract class LevelChunkMixin {
     )
     private void onLoadBlockEntity(BlockEntity entity, CallbackInfo ci) {
         if (this.getLevel().isClientSide) return;
-        MinecraftForge.EVENT_BUS.post(new BlockEntityEvent.ServerLoad(this.getLevel(), entity));
+        NeoForge.EVENT_BUS.post(new BlockEntityEvent.ServerLoad(this.getLevel(), entity));
     }
 
     @Inject(
@@ -43,9 +44,16 @@ abstract class LevelChunkMixin {
         ),
         locals = LocalCapture.CAPTURE_FAILEXCEPTION
     )
-    private void onRemoveBlockEntity(BlockEntity entity, CallbackInfo ci, BlockPos blockPos, BlockEntity entity2) {
+    private void onRemoveBlockEntity(
+        BlockEntity pBlockEntity,
+        CallbackInfo ci,
+        BlockPos blockpos,
+        BlockState blockstate,
+        BlockState blockstate1,
+        BlockEntity blockentity
+    ) {
         if (this.getLevel().isClientSide) return;
-        MinecraftForge.EVENT_BUS.post(new BlockEntityEvent.ServerUnload(this.getLevel(), entity2));
+        NeoForge.EVENT_BUS.post(new BlockEntityEvent.ServerUnload(this.getLevel(), blockentity));
     }
 
     @Redirect(
@@ -64,7 +72,7 @@ abstract class LevelChunkMixin {
         @Nullable final V removed = map.remove(key);
         if (!this.getLevel().isClientSide && removed != null) {
             if (removed instanceof BlockEntity entity) {
-                MinecraftForge.EVENT_BUS.post(new BlockEntityEvent.ServerUnload(this.getLevel(), entity));
+                NeoForge.EVENT_BUS.post(new BlockEntityEvent.ServerUnload(this.getLevel(), entity));
             }
         }
         return removed;
@@ -81,7 +89,7 @@ abstract class LevelChunkMixin {
     private void onRemoveBlockEntity(BlockPos pos, CallbackInfo ci, BlockEntity removed) {
         if (this.getLevel().isClientSide) return;
         if (removed != null) {
-            MinecraftForge.EVENT_BUS.post(new BlockEntityEvent.ServerUnload(this.getLevel(), removed));
+            NeoForge.EVENT_BUS.post(new BlockEntityEvent.ServerUnload(this.getLevel(), removed));
         }
     }
 }

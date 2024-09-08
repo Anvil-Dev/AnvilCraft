@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.MinecraftForge;
+import net.neoforged.neoforge.common.NeoForge;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -29,9 +29,9 @@ import java.util.function.Predicate;
 @Mixin(FallingBlockEntity.class)
 abstract class FallingBlockEntityMixin extends Entity {
     @Shadow
-    private BlockState blockState;
+    public BlockState blockState;
     @Shadow
-    private boolean cancelDrop;
+    public boolean cancelDrop;
     @Unique
     private float anvilcraft$fallDistance;
 
@@ -68,7 +68,7 @@ abstract class FallingBlockEntityMixin extends Entity {
         if (!this.blockState.is(BlockTags.ANVIL)) return;
         FallingBlockEntity entity = (FallingBlockEntity) (Object) this;
         AnvilEvent.OnLand event = new AnvilEvent.OnLand(this.level(), blockPos, entity, this.anvilcraft$fallDistance);
-        MinecraftForge.EVENT_BUS.post(event);
+        NeoForge.EVENT_BUS.post(event);
         if (event.isAnvilDamage()) {
             BlockState state = this.blockState.is(ModBlocks.ROYAL_ANVIL.get())
                 ? this.blockState
@@ -93,14 +93,20 @@ abstract class FallingBlockEntityMixin extends Entity {
         locals = LocalCapture.CAPTURE_FAILHARD
     )
     private void anvilHurtEntity(
-        float fallDistance, float multiplier, DamageSource source, CallbackInfoReturnable<Boolean> cir,
-        int i, Predicate<Entity> predicate, Block block, DamageSource damageSource, DamageSource damageSource2, float f
+        float pFallDistance,
+        float pMultiplier,
+        DamageSource pSource,
+        CallbackInfoReturnable<Boolean> cir,
+        int i,
+        Predicate<Entity> predicate,
+        DamageSource damagesource,
+        float f
     ) {
         FallingBlockEntity anvil = (FallingBlockEntity) (Object) this;
         Level level = this.level();
         List<Entity> entities = level.getEntities(this, this.getBoundingBox(), predicate);
         for (Entity entity : entities) {
-            MinecraftForge.EVENT_BUS.post(new AnvilEvent.HurtEntity(anvil, this.getOnPos(), level, entity, f));
+            NeoForge.EVENT_BUS.post(new AnvilEvent.HurtEntity(anvil, this.getOnPos(), level, entity, f));
         }
     }
 }

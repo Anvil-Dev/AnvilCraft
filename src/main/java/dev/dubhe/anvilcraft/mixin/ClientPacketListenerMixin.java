@@ -17,18 +17,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ClientPacketListener.class)
 public abstract class ClientPacketListenerMixin {
     @Shadow
-    @Final
-    private Minecraft minecraft;
-
-    @Shadow
     public abstract ClientLevel getLevel();
 
     @Inject(
         method = "handleLogin",
-        at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Options;broadcastOptions()V")
+        at = @At(value = "RETURN")
     )
     private void handleLogin(ClientboundLoginPacket packet, CallbackInfo ci) {
-        LocalPlayer player = this.minecraft.player;
+        LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
             AnvilCraft.EVENT_BUS.post(new PlayerEvent.ClientPlayerJoin(player, player.getOnPos(), this.getLevel()));
         }
