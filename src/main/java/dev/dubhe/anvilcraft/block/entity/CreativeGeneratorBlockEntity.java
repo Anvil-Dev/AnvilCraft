@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.inventory.SliderMenu;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.MenuProvider;
@@ -49,14 +50,14 @@ public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerP
     }
 
     @Override
-    protected void saveAdditional(@NotNull CompoundTag tag) {
-        super.saveAdditional(tag);
+    protected void saveAdditional(@NotNull CompoundTag tag,  HolderLookup.Provider provider) {
+        super.saveAdditional(tag, provider);
         tag.putInt("power", power);
     }
 
     @Override
-    public void load(@NotNull CompoundTag tag) {
-        super.load(tag);
+    public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
+        super.loadAdditional(tag, provider);
         this.power = tag.getInt("power");
     }
 

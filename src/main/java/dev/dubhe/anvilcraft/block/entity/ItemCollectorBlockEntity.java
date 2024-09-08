@@ -1,9 +1,8 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import dev.architectury.injectables.annotations.ExpectPlatform;
 import dev.dubhe.anvilcraft.api.depository.DepositoryHolder;
-import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
+import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IHasAffectRange;
@@ -14,6 +13,7 @@ import dev.dubhe.anvilcraft.util.WatchableCyclingValue;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
@@ -68,9 +68,9 @@ public class ItemCollectorBlockEntity
     };
 
     public ItemCollectorBlockEntity(
-        BlockEntityType<? extends BlockEntity> type,
-        BlockPos pos,
-        BlockState blockState
+            BlockEntityType<? extends BlockEntity> type,
+            BlockPos pos,
+            BlockState blockState
     ) {
         super(type, pos, blockState);
     }
@@ -105,17 +105,17 @@ public class ItemCollectorBlockEntity
     }
 
     @Override
-    public void load(@NotNull CompoundTag tag) {
-        super.load(tag);
-        depository.deserializeNbt(tag.getCompound("Inventory"));
+    public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
+        super.loadAdditional(tag, provider);
+        depository.deserializeNbt(provider, tag.getCompound("Inventory"));
         cooldown.fromIndex(tag.getInt("Cooldown"));
         rangeRadius.fromIndex(tag.getInt("RangeRadius"));
     }
 
     @Override
-    public void saveAdditional(@NotNull CompoundTag tag) {
-        super.saveAdditional(tag);
-        tag.put("Inventory", this.depository.serializeNbt());
+    public void saveAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
+        super.saveAdditional(tag, provider);
+        tag.put("Inventory", this.depository.serializeNbt(provider));
         tag.putInt("Cooldown", cooldown.index());
         tag.putInt("RangeRadius", rangeRadius.index());
     }
@@ -133,13 +133,15 @@ public class ItemCollectorBlockEntity
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag() {
+    public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider provider) {
         CompoundTag tag = new CompoundTag();
-        tag.put("Inventory", this.depository.serializeNbt());
+        tag.put("Inventory", this.depository.serializeNbt(provider));
         tag.putInt("Cooldown", cooldown.index());
         tag.putInt("RangeRadius", rangeRadius.index());
         return tag;
     }
+
+
 
     @Override
     public void gridTick() {

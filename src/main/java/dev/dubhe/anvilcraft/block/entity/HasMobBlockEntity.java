@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -44,27 +45,27 @@ public abstract class HasMobBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void saveAdditional(@NotNull CompoundTag tag) {
-        super.saveAdditional(tag);
+    protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
+        super.saveAdditional(tag, provider);
         if (this.entity != null) {
             tag.put("entity", this.entity);
         }
     }
 
     @Override
-    public void load(@NotNull CompoundTag tag) {
+    public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
         if (tag.contains("entity")) {
             this.entity = tag.getCompound("entity");
             if (this.level != null) {
                 this.getEntity(this.level);
             }
         }
-        super.load(tag);
+        super.loadAdditional(tag, provider);
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag() {
-        return this.saveWithoutMetadata();
+    public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider provider) {
+        return this.saveWithoutMetadata(provider);
     }
 
     @Nullable

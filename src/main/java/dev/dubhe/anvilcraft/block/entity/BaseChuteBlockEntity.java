@@ -88,17 +88,17 @@ public abstract class BaseChuteBlockEntity
     public abstract AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player);
 
     @Override
-    protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider pRegistries) {
-        super.saveAdditional(tag, pRegistries);
+    protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
+        super.saveAdditional(tag, provider);
         tag.putInt("Cooldown", cooldown);
-        tag.put("Inventory", depository.serializeNbt());
+        tag.put("Inventory", depository.serializeNbt(provider));
     }
 
     @Override
-    public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider pRegistries) {
-        super.loadAdditional(tag, pRegistries);
+    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.loadAdditional(tag, provider);
         cooldown = tag.getInt("Cooldown");
-        depository.deserializeNbt(tag.getCompound("Inventory"));
+        depository.deserializeNbt(provider, tag.getCompound("Inventory"));
     }
 
     /**

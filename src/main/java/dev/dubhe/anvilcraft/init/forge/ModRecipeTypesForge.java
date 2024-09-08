@@ -2,10 +2,10 @@ package dev.dubhe.anvilcraft.init.forge;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.neoforged.neoforge.registries.RegisterEvent;
 
 import java.util.Map;
@@ -24,14 +24,14 @@ public class ModRecipeTypesForge {
             RecipeType<?> type = entry.getValue().getValue();
             if (serializer != null) {
                 event.register(
-                    NeoForgeRegistries.Keys.RECIPE_SERIALIZERS,
-                    (helper) -> helper.register(location, serializer)
+                        Registries.RECIPE_SERIALIZER,
+                        (helper) -> helper.register(location, serializer)
                 );
             }
             if (type != null) {
                 event.register(
-                    NeoForgeRegistries.Keys.RECIPE_TYPES,
-                    (helper) -> helper.register(location, type)
+                        Registries.RECIPE_TYPE,
+                        (helper) -> helper.register(location, type)
                 );
             }
         }

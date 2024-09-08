@@ -58,18 +58,19 @@ public class ActiveSilencerBlockEntity extends BlockEntity implements MenuProvid
     }
 
     @Override
-    protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider pRegistries) {
-        super.saveAdditional(tag, pRegistries);
-        Tag t = CODEC.encodeStart(NbtOps.INSTANCE, new ArrayList<>(mutedSound))
-            .getOrThrow();
+    protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
+        super.saveAdditional(tag, provider);
+        Tag t = CODEC.encodeStart(NbtOps.INSTANCE, new ArrayList<>(mutedSound)).getOrThrow();
         tag.put("MutedSound", t);
     }
 
     @Override
-    public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider pRegistries) {
-        super.loadAdditional(tag, pRegistries);
+    public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
+        super.loadAdditional(tag, provider);
         mutedSound.addAll(
-            CODEC.decode(NbtOps.INSTANCE, tag.get("MutedSound")).getOrThrow().getFirst()
+                CODEC.decode(NbtOps.INSTANCE, tag.get("MutedSound"))
+                        .getOrThrow()
+                        .getFirst()
         );
     }
 
@@ -80,10 +81,10 @@ public class ActiveSilencerBlockEntity extends BlockEntity implements MenuProvid
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider pRegistries) {
+    public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider provider) {
         CompoundTag tag = new CompoundTag();
         Tag t = CODEC.encodeStart(NbtOps.INSTANCE, new ArrayList<>(mutedSound))
-            .getOrThrow();
+                .getOrThrow();
         tag.put("MutedSound", t);
         return tag;
     }
@@ -145,15 +146,16 @@ public class ActiveSilencerBlockEntity extends BlockEntity implements MenuProvid
     @Override
     public void storeDiskData(CompoundTag tag) {
         Tag t = CODEC.encodeStart(NbtOps.INSTANCE, new ArrayList<>(mutedSound))
-            .getOrThrow();
+                .getOrThrow();
         tag.put("MutedSound", t);
     }
 
     @Override
     public void applyDiskData(CompoundTag data) {
         mutedSound.addAll(
-            CODEC.decode(NbtOps.INSTANCE, data.get("MutedSound"))
-                .getOrThrow().getFirst()
+                CODEC.decode(NbtOps.INSTANCE, data.get("MutedSound"))
+                        .getOrThrow()
+                        .getFirst()
         );
     }
 }

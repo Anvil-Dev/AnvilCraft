@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IHasAffectRange;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -25,7 +24,7 @@ public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerPro
     private int power = 0;
 
     public static @NotNull ChargeCollectorBlockEntity createBlockEntity(
-        BlockEntityType<?> type, BlockPos pos, BlockState blockState
+            BlockEntityType<?> type, BlockPos pos, BlockState blockState
     ) {
         return new ChargeCollectorBlockEntity(type, pos, blockState);
     }
@@ -85,7 +84,6 @@ public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerPro
      * 向集电器添加电荷
      *
      * @param num 添加至收集器的电荷数
-     *
      * @return 溢出的电荷数(既未被添加至收集器的电荷数)
      */
     public double incomingCharge(double num) {

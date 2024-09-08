@@ -130,20 +130,20 @@ public class ChargerBlockEntity
 
 
     @Override
-    protected void saveAdditional(@NotNull CompoundTag tag,HolderLookup.Provider pRegistries) {
-        super.saveAdditional(tag, pRegistries);
+    protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
+        super.saveAdditional(tag, provider);
         tag.putInt("Cooldown", cd);
-        tag.put("Depository", depository.serializeNbt());
+        tag.put("Depository", depository.serializeNbt(provider));
         tag.putBoolean("Mode", isCharger);
         tag.putBoolean("PreviousDischargeFailed", previousDischargeFailed);
         tag.putBoolean("Locked", locked);
     }
 
     @Override
-    public void loadAdditional(@NotNull CompoundTag tag,HolderLookup.Provider pRegistries) {
-        super.loadAdditional(tag, pRegistries);
+    public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
+        super.loadAdditional(tag, provider);
         cd = tag.getInt("Cooldown");
-        depository.deserializeNbt(tag.getCompound("Depository"));
+        depository.deserializeNbt(provider, tag.getCompound("Depository"));
         isCharger = tag.getBoolean("Mode");
         locked = tag.getBoolean("Locked");
         previousDischargeFailed = tag.getBoolean("PreviousDischargeFailed");

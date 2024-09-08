@@ -2,10 +2,10 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.IHasDisplayItem;
-import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.api.depository.IItemDepository;
 import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
+import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.BatchCrafterBlock;
@@ -20,7 +20,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -226,24 +225,26 @@ public class BatchCrafterBlockEntity
     }
 
     @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider pRegistries) {
-        return this.saveWithoutMetadata(pRegistries);
+    public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
+        return this.saveWithoutMetadata(provider);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider pRegistries) {
-        depository.deserializeNbt(tag.getCompound("Inventory"));
+    public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
+        super.loadAdditional(tag, provider);
+        depository.deserializeNbt(provider, tag.getCompound("Inventory"));
         if (tag.contains("ResultItemStack")) {
-            displayItemStack = ItemStack.parseOptional(pRegistries, tag.getCompound("ResultItemStack"));
+            displayItemStack = ItemStack.parse(provider, tag.getCompound("ResultItemStack")).orElse(ItemStack.EMPTY);
         }
     }
 
     @Override
-    protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.Provider pRegistries) {
-        super.saveAdditional(tag, pRegistries);
-        tag.put("Inventory", this.depository.serializeNbt());
+    protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
+        super.saveAdditional(tag, provider);
+        tag.put("Inventory", this.depository.serializeNbt(provider));
         if (displayItemStack == null) displayItemStack = ItemStack.EMPTY;
-        Tag item = this.displayItemStack.save(pRegistries);
+        CompoundTag item = new CompoundTag();
+        this.displayItemStack.save(provider, item);
         tag.put("ResultItemStack", item);
     }
 

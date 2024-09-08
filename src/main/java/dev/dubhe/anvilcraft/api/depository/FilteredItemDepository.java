@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.api.depository;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.Getter;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -159,7 +160,7 @@ public class FilteredItemDepository extends ItemDepository {
     }
 
     @Override
-    public @NotNull CompoundTag serializeNbt() {
+    public @NotNull CompoundTag serializeNbt(HolderLookup.Provider provider) {
         CompoundTag compoundTag = new CompoundTag();
         compoundTag.putBoolean("filterEnabled", this.filterEnabled);
         ListTag listTag = new ListTag();
@@ -169,11 +170,11 @@ public class FilteredItemDepository extends ItemDepository {
             ItemStack stack = this.getStack(slot);
             CompoundTag itemTag = new CompoundTag();
             itemTag.putInt("Slot", slot);
-            stack.save(itemTag);
+            stack.save(provider, itemTag);
             ItemStack filter = this.filteredItems.get(slot);
             if (!filter.isEmpty()) {
                 CompoundTag filtered = new CompoundTag();
-                filter.save(filtered);
+                filter.save(provider, filtered);
                 itemTag.put("filtered", filtered);
             }
             itemTag.putBoolean("disabled", this.disabled.get(slot));
@@ -184,7 +185,7 @@ public class FilteredItemDepository extends ItemDepository {
     }
 
     @Override
-    public void deserializeNbt(@NotNull CompoundTag tag) {
+    public void deserializeNbt(HolderLookup.Provider provider, @NotNull CompoundTag tag) {
         if (!tag.contains("Items")) return;
         this.filterEnabled = tag.getBoolean("filterEnabled");
         ListTag listTag = tag.getList("Items", Tag.TAG_COMPOUND);
@@ -193,9 +194,10 @@ public class FilteredItemDepository extends ItemDepository {
             CompoundTag itemTag = listTag.getCompound(i);
             int slot = itemTag.getInt("Slot");
             if (slot < 0 || slot >= slots) continue;
-            this.getStacks().set(slot, ItemStack.of(itemTag));
-            if (itemTag.contains("filtered"))
-                this.filteredItems.set(slot, ItemStack.of(itemTag.getCompound("filtered")));
+            ItemStack.parse(provider, itemTag).ifPresent(stack -> this.setStack(slot, stack));
+            if (itemTag.contains("filtered")) {
+                ItemStack.parse(provider, itemTag.getCompound("filtered")).ifPresent(stack ->  this.filteredItems.set(slot, stack));
+            }
             this.disabled.set(slot, itemTag.getBoolean("disabled"));
         }
     }
@@ -204,9 +206,7 @@ public class FilteredItemDepository extends ItemDepository {
      *
      */
     public CompoundTag serializeFiltering() {
-        return (CompoundTag) CODEC.encodeStart(NbtOps.INSTANCE, this)
-            .getOrThrow(false, e -> {
-            });
+        return (CompoundTag) CODEC.encodeStart(NbtOps.INSTANCE, this).getOrThrow();
     }
 
     /**
@@ -214,8 +214,7 @@ public class FilteredItemDepository extends ItemDepository {
      */
     public void deserializeFiltering(@NotNull CompoundTag tag) {
         FilteredItemDepository depository = CODEC.decode(NbtOps.INSTANCE, tag)
-            .getOrThrow(false, s -> {
-            })
+            .getOrThrow()
             .getFirst();
         if (this.getSize() != depository.getSize()) throw new IllegalArgumentException("Depository size mismatch");
         this.filterEnabled = tag.getBoolean("filterEnabled");
@@ -253,7 +252,7 @@ public class FilteredItemDepository extends ItemDepository {
                     slot = index;
                     countInSlot = 0;
                     continue;
-                } else if (!ItemStack.isSameItemSameTags(stackInSlot, stack)) continue;
+                } else if (!ItemStack.isSameItemSameComponents(stackInSlot, stack)) continue;
                 int stackInSlotCount = stackInSlot.getCount();
                 if (stackInSlotCount <= countInSlot && stackInSlotCount < this.getSlotLimit(index)) {
                     slot = index;

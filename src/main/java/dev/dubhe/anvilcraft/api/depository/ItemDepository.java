@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.api.depository;
 
 import dev.dubhe.anvilcraft.api.INamedTagSerializable;
 import lombok.Getter;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -46,8 +47,8 @@ public class ItemDepository implements IItemDepository, INamedTagSerializable {
         if (!this.canPlaceItem(slot, stack)) return stack;
         ItemStack stackInSlot = this.getStack(slot);
         int limit = this.getSlotLimit(slot);
-        if (!stackInSlot.isEmpty() && !ItemStack.isSameItemSameTags(stackInSlot, stack)) return stack;
-        limit = Math.min(limit, stackInSlot.getItem().getMaxStackSize());
+        if (!stackInSlot.isEmpty() && !ItemStack.isSameItemSameComponents(stackInSlot, stack)) return stack;
+        limit = Math.min(limit, stackInSlot.getItem().getMaxStackSize(stackInSlot));
         limit -= stackInSlot.getCount();
         if (limit <= 0) return stack;
         boolean reachedLimit = stack.getCount() > limit;
@@ -112,7 +113,7 @@ public class ItemDepository implements IItemDepository, INamedTagSerializable {
     }
 
     @Override
-    public @NotNull CompoundTag serializeNbt() {
+    public @NotNull CompoundTag serializeNbt(HolderLookup.Provider provider) {
         CompoundTag compoundTag = new CompoundTag();
         ListTag listTag = new ListTag();
         int slots = this.getSlots();
@@ -122,15 +123,14 @@ public class ItemDepository implements IItemDepository, INamedTagSerializable {
             if (stack.isEmpty()) continue;
             CompoundTag itemTag = new CompoundTag();
             itemTag.putInt("Slot", i);
-            stack.save(itemTag);
-            listTag.add(itemTag);
+            listTag.add(stack.save(provider, itemTag));
         }
         if (!listTag.isEmpty()) compoundTag.put("Items", listTag);
         return compoundTag;
     }
 
     @Override
-    public void deserializeNbt(@NotNull CompoundTag tag) {
+    public void deserializeNbt(HolderLookup.Provider provider, @NotNull CompoundTag tag) {
         if (!tag.contains("Items")) return;
         ListTag listTag = tag.getList("Items", Tag.TAG_COMPOUND);
         int slots = this.getSlots();
@@ -138,7 +138,7 @@ public class ItemDepository implements IItemDepository, INamedTagSerializable {
             CompoundTag itemTag = listTag.getCompound(i);
             int slot = itemTag.getInt("Slot");
             if (slot < 0 || slot >= slots) continue;
-            this.stacks.set(slot, ItemStack.of(itemTag));
+            ItemStack.parse(provider, itemTag).ifPresent(stack -> this.stacks.set(slot, stack));
         }
     }
 
@@ -191,7 +191,7 @@ public class ItemDepository implements IItemDepository, INamedTagSerializable {
             int countInSlot = Integer.MAX_VALUE;
             for (int i = slotCount - 1; i >= 0; i--) {
                 ItemStack stackInSlot = this.getStack(i);
-                if (!stackInSlot.isEmpty() && !ItemStack.isSameItemSameTags(stackInSlot, stack)) continue;
+                if (!stackInSlot.isEmpty() && !ItemStack.isSameItemSameComponents(stackInSlot, stack)) continue;
                 int stackInSlotCount = stackInSlot.getCount();
                 if (stackInSlotCount <= countInSlot && stackInSlotCount < this.getSlotLimit(i)) {
                     slot = i;

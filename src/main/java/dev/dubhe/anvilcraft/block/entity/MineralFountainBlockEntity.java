@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
@@ -19,17 +20,17 @@ import java.util.HashMap;
 
 public class MineralFountainBlockEntity extends BlockEntity {
     private static final HashMap<ResourceLocation, HashMap<Block, Float>> CHANGE_MAP = new HashMap<>() {{
-            put(new ResourceLocation("overworld"), new HashMap<>() {{
+            put(Level.OVERWORLD.location(), new HashMap<>() {{
                     put(ModBlocks.VOID_STONE.get(), 0.01f);
                     put(ModBlocks.EARTH_CORE_SHARD_ORE.get(), 0.01f);
                 }
             });
-            put(new ResourceLocation("the_nether"), new HashMap<>() {{
+            put(Level.NETHER.location(), new HashMap<>() {{
                     put(ModBlocks.VOID_STONE.get(), 0f);
                     put(ModBlocks.EARTH_CORE_SHARD_ORE.get(), 0.2f);
                 }
             });
-            put(new ResourceLocation("the_end"), new HashMap<>() {{
+            put(Level.END.location(), new HashMap<>() {{
                     put(ModBlocks.VOID_STONE.get(), 0.2f);
                     put(ModBlocks.EARTH_CORE_SHARD_ORE.get(), 0f);
                 }
@@ -90,7 +91,7 @@ public class MineralFountainBlockEntity extends BlockEntity {
         } else if (aroundBlock.is(ModBlockTags.DEEPSLATE_METAL) && aboveBlock.is(Blocks.DEEPSLATE)) {
             HashMap<Block, Float> changeMap = CHANGE_MAP.containsKey(level.dimension().location())
                     ? CHANGE_MAP.get(level.dimension().location())
-                    : CHANGE_MAP.get(new ResourceLocation("overworld"));
+                    : CHANGE_MAP.get(Level.OVERWORLD.location());
             for (Block block : changeMap.keySet()) {
                 if (level.getRandom().nextDouble() <= changeMap.get(block)) {
                     level.setBlockAndUpdate(getBlockPos().above(), block.defaultBlockState());

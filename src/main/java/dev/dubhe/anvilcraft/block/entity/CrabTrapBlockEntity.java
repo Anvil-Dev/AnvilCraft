@@ -19,14 +19,14 @@ public class CrabTrapBlockEntity extends BlockEntity implements DepositoryHolder
     private final ItemDepository depository = new ItemDepository(9);
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider pRegistries) {
-        super.saveAdditional(tag, pRegistries);
-        tag.put("Inventory", depository.serializeNbt());
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.saveAdditional(tag, provider);
+        tag.put("Inventory", depository.serializeNbt(provider));
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider pRegistries) {
-        super.loadAdditional(tag, pRegistries);
-        depository.deserializeNbt(tag.getCompound("Inventory"));
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.loadAdditional(tag, provider);
+        depository.deserializeNbt(provider, tag.getCompound("Inventory"));
     }
 }

@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.block.SimpleChuteBlock;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -35,17 +36,17 @@ public class SimpleChuteBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void saveAdditional(@NotNull CompoundTag tag) {
-        super.saveAdditional(tag);
+    protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
+        super.saveAdditional(tag, provider);
         tag.putInt("Cooldown", cooldown);
-        tag.put("Inventory", depository.serializeNbt());
+        tag.put("Inventory", depository.serializeNbt(provider));
     }
 
     @Override
-    public void load(@NotNull CompoundTag tag) {
-        super.load(tag);
+    public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
+        super.loadAdditional(tag, provider);
         cooldown = tag.getInt("Cooldown");
-        depository.deserializeNbt(tag.getCompound("Inventory"));
+        depository.deserializeNbt(provider, tag.getCompound("Inventory"));
     }
 
     /**
@@ -56,9 +57,9 @@ public class SimpleChuteBlockEntity extends BlockEntity {
         if (cooldown <= 0) {
             if (getBlockState().getValue(SimpleChuteBlock.ENABLED)) {
                 IItemDepository depository = ItemDepositoryHelper.getItemDepository(
-                    getLevel(),
-                    getBlockPos().relative(getDirection()),
-                    getDirection().getOpposite()
+                        getLevel(),
+                        getBlockPos().relative(getDirection()),
+                        getDirection().getOpposite()
                 );
                 if (depository != null) {
                     // 尝试向朝向容器输出
@@ -68,8 +69,8 @@ public class SimpleChuteBlockEntity extends BlockEntity {
                 } else {
                     Vec3 center = getBlockPos().relative(getDirection()).getCenter();
                     List<ItemEntity> itemEntities = getLevel().getEntitiesOfClass(
-                        ItemEntity.class, new AABB(getBlockPos().relative(getDirection())),
-                        itemEntity -> !itemEntity.getItem().isEmpty());
+                            ItemEntity.class, new AABB(getBlockPos().relative(getDirection())),
+                            itemEntity -> !itemEntity.getItem().isEmpty());
                     AABB aabb = new AABB(center.add(-0.125, -0.125, -0.125), center.add(0.125, 0.125, 0.125));
                     if (getLevel().noCollision(aabb)) {
                         for (int i = 0; i < this.depository.getSlots(); i++) {
@@ -81,17 +82,17 @@ public class SimpleChuteBlockEntity extends BlockEntity {
                                         sameItemCount += entity.getItem().getCount();
                                     }
                                 }
-                                if (sameItemCount < stack.getItem().getMaxStackSize()) {
+                                if (sameItemCount < stack.getItem().getMaxStackSize(stack)) {
                                     ItemStack droppedItemStack = stack.copy();
                                     int droppedItemCount = Math.min(stack.getCount(),
-                                        stack.getMaxStackSize() - sameItemCount);
+                                            stack.getMaxStackSize() - sameItemCount);
                                     droppedItemStack.setCount(droppedItemCount);
                                     stack.setCount(stack.getCount() - droppedItemCount);
                                     if (stack.getCount() == 0) stack = ItemStack.EMPTY;
                                     ItemEntity itemEntity = new ItemEntity(
-                                        getLevel(), center.x, center.y, center.z,
-                                        droppedItemStack,
-                                        0, 0, 0);
+                                            getLevel(), center.x, center.y, center.z,
+                                            droppedItemStack,
+                                            0, 0, 0);
                                     itemEntity.setDefaultPickUpDelay();
                                     getLevel().addFreshEntity(itemEntity);
                                     this.depository.setStack(i, stack);
