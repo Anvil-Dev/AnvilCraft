@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import dev.anvilcraft.lib.event.SubscribeEvent;
 import dev.dubhe.anvilcraft.api.registry.AnvilCraftRegistrate;
 import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;

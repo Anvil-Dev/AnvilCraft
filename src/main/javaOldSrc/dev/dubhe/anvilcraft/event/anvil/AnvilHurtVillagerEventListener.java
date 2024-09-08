@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.event.anvil;
 
-import dev.anvilcraft.lib.event.SubscribeEvent;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilHurtEntityEvent;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;

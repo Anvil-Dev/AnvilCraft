@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.event;
 
-import dev.anvilcraft.lib.event.SubscribeEvent;
 import dev.dubhe.anvilcraft.api.event.entity.PlayerEvent;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.item.ResinBlockItem;

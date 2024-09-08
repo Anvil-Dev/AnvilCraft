@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.event.server;
 
-import dev.anvilcraft.lib.event.SubscribeEvent;
 import dev.dubhe.anvilcraft.api.event.server.ServerEndDataPackReloadEvent;
 import dev.dubhe.anvilcraft.api.event.server.ServerStartedEvent;
 import dev.dubhe.anvilcraft.api.hammer.HammerManager;

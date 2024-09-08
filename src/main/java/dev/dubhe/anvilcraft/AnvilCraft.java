@@ -69,6 +69,7 @@ public class AnvilCraft {
      * 初始化函数
      */
     public static void init(IEventBus bus) {
+        EVENT_BUS = bus;
         // common
         ModEvents.register();
         ModBlocks.register();

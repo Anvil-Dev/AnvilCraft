@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.event.anvil;
 
-import dev.anvilcraft.lib.event.SubscribeEvent;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.IHasMultiBlock;
 import dev.dubhe.anvilcraft.api.depository.ItemDepository;

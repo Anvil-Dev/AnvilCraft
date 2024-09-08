@@ -35,27 +35,5 @@ public class PlayerEventListener {
      */
     @SubscribeEvent
     public void onPlayerJoin(@NotNull PlayerEvent.ClientPlayerJoin event) {
-        if (Utils.isLoaded("jei") && !Utils.isLoaded("emi")) {
-            LocalPlayer entity = event.getEntity();
-            entity.sendSystemMessage(
-                Component.literal("[").withStyle(ChatFormatting.GREEN).append(
-                    Component.translatable("modmenu.nameTranslation.anvilcraft").withStyle(ChatFormatting.GOLD).append(
-                        Component.literal("] ").withStyle(ChatFormatting.GREEN).append(
-                            Component.translatable(
-                                "tooltip.anvilcraft.only_jei",
-                                Component.literal("EMI").withStyle(ChatFormatting.BLUE).withStyle(
-                                    style -> style.withClickEvent(
-                                        new ClickEvent(
-                                            ClickEvent.Action.OPEN_URL,
-                                            "https://modrinth.com/mod/emi"
-                                        )
-                                    )
-                                )
-                            ).withStyle(ChatFormatting.WHITE)
-                        )
-                    )
-                )
-            );
-        }
     }
 }

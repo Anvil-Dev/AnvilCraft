@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.event.anvil;
 
-import dev.anvilcraft.lib.event.SubscribeEvent;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.block.BlockDevourerBlock;
 import net.minecraft.core.BlockPos;

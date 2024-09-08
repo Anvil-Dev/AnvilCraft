@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.event.giantanvil;
 
-import dev.anvilcraft.lib.event.SubscribeEvent;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.entity.GiantAnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.api.recipe.AnvilRecipeManager;
