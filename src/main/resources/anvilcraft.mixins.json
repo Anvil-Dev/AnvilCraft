@@ -2,7 +2,7 @@
   "required": true,
   "minVersion": "0.8",
   "package": "dev.dubhe.anvilcraft.mixin",
-  "compatibilityLevel": "JAVA_17",
+  "compatibilityLevel": "JAVA_21",
   "mixins": [
     "AbstractCauldronBlockMixin",
     "AnvilBlockMixin",
@@ -13,16 +13,13 @@
     "DispenseItemEmptyBottleBehaviorMixin",
     "DispenseItemEmptyBucketBehaviorMixin",
     "DispenseItemWaterBottleBehaviorMixin",
-    "DoubleBlockIconMixin",
     "EnchantmentHelperMixin",
     "EndPortalBlockMixin",
     "ExplosionMixin",
     "FlyingHitEntityMixin",
-    "HoeItemMixin",
     "IngredientValueAccessor$Item",
     "IngredientValueAccessor$Tag",
     "ItemEntityMixin",
-    "LivingEntityMixin",
     "PistonBaseBlockMixin",
     "PistonStructureResolverMixin",
     "PlayerHitEntityMixin",
@@ -32,13 +29,11 @@
     "accessor.FallingBlockEntityAccessor",
     "accessor.LootContextParamSetsAccessor",
     "forge.BucketItemMixin",
-    "forge.CraftingHelperMixin",
     "forge.FallingBlockEntityMixin",
     "forge.LightningBoltMixin",
     "forge.MinecraftServerMixin",
     "forge.PistonMovingBlockEntityMixin",
-    "forge.accessor.PistonStructorResolverAccessor",
-    "integration.create.BasinBlockEntityMixin"
+    "forge.accessor.PistonStructorResolverAccessor"
   ],
   "client": [
     "ClientLevelMixin",
@@ -48,9 +43,7 @@
     "LevelRendererMixin",
     "SoundEngineMixin",
     "TooltipRenderMixin",
-    "accessor.ItemInHandRendererAccessor",
-    "accessor.MinecraftAccessor",
-    "integration.rei.DefaultDisplayViewingScreenMixin"
+    "accessor.ItemInHandRendererAccessor"
   ],
   "plugin": "dev.dubhe.anvilcraft.mixin.plugin.AnvilCraftMixinPlugin",
   "injectors": {

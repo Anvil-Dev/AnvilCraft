@@ -114,7 +114,7 @@ dependencies {
     localRuntime "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
 
     compileOnly "maven.modrinth:jade:$jade_version"
-    compileOnly "me.shedaniel.cloth:cloth-config-neoforge:$cloth_config_version"
+    implementation "me.shedaniel.cloth:cloth-config-neoforge:$cloth_config_version"
     compileOnly 'org.projectlombok:lombok:1.18.34'
     compileOnly "com.tterrag.registrate:Registrate:$registrate_version"
     annotationProcessor 'org.projectlombok:lombok:1.18.34'

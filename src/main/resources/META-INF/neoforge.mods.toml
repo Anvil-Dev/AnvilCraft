@@ -50,7 +50,7 @@ file="META-INF/accesstransformer.cfg"
 # The coremods config file path is not configurable and is always loaded from META-INF/coremods.json
 
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
-[[dependencies.${mod_id}]] #optional
+[[dependencies."${mod_id}"]] #optional
     modId="neoforge" #mandatory
     type="required" #mandatory
     versionRange="${neo_version_range}" #mandatory
@@ -62,7 +62,7 @@ file="META-INF/accesstransformer.cfg"
     side="BOTH"
 
 # Here's another dependency
-[[dependencies.${mod_id}]]
+[[dependencies."${mod_id}"]]
     modId="minecraft"
     type="required"
     # This version range declares a minimum of the current minecraft version up to but not including the next major version
@@ -70,14 +70,7 @@ file="META-INF/accesstransformer.cfg"
     ordering="NONE"
     side="BOTH"
 
-[[dependencies.${ mod_id }]]
-modId = "anvillib"
-mandatory = true
-versionRange = "[1.0.0,)"
-ordering = "NONE"
-side = "BOTH"
-
-[[dependencies.${ mod_id }]]
+[[dependencies."${mod_id}"]]
 modId = "cloth_config"
 mandatory = true
 versionRange = "[11.0.0,)"
