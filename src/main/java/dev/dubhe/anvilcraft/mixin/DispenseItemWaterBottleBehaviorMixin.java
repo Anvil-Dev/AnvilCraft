@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.mixin;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
@@ -19,17 +20,17 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 @Mixin(targets = "net/minecraft/core/dispenser/DispenseItemBehavior$18")
 abstract class DispenseItemWaterBottleBehaviorMixin extends DefaultDispenseItemBehavior {
     @Inject(
-        method = "execute(Lnet/minecraft/core/dispenser/BlockSource;"
-            + "Lnet/minecraft/world/item/ItemStack;)Lnet/minecraft/world/item/ItemStack;",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/server/level/ServerLevel;getBlockState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;"
-        ),
-        locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true
+            method = "execute(Lnet/minecraft/core/dispenser/BlockSource;"
+                    + "Lnet/minecraft/world/item/ItemStack;)Lnet/minecraft/world/item/ItemStack;",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/server/level/ServerLevel;getBlockState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;"
+            ),
+            cancellable = true
     )
     public void takeLiquidFromCauldron(
-        BlockSource source, ItemStack stack, CallbackInfoReturnable<ItemStack> cir, @NotNull ServerLevel serverLevel,
-        BlockPos blockPos, BlockPos blockPos2
+            BlockSource source, ItemStack stack, CallbackInfoReturnable<ItemStack> cir, @Local @NotNull ServerLevel serverLevel,
+            @Local(ordinal = 0) BlockPos blockPos2
     ) {
         BlockState state = serverLevel.getBlockState(blockPos2);
         if (state.is(Blocks.CAULDRON)) {

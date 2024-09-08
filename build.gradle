@@ -115,8 +115,8 @@ dependencies {
 
     compileOnly "maven.modrinth:jade:$jade_version"
     implementation "me.shedaniel.cloth:cloth-config-neoforge:$cloth_config_version"
+    implementation "com.tterrag.registrate:Registrate:$registrate_version"
     compileOnly 'org.projectlombok:lombok:1.18.34'
-    compileOnly "com.tterrag.registrate:Registrate:$registrate_version"
     annotationProcessor 'org.projectlombok:lombok:1.18.34'
 
     jarJar(group: "dev.toma.configuration", name: "configuration-$minecraft_version", version: "${configuration_version}-neoforge")
