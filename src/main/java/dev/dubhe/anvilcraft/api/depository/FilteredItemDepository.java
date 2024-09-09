@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.api.depository;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.dubhe.anvilcraft.util.CodecUtil;
 import lombok.Getter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
@@ -12,16 +13,23 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.text.html.Option;
 import java.util.List;
+import java.util.Optional;
 
 
 @Getter
 @SuppressWarnings("unused")
 public class FilteredItemDepository extends ItemDepository {
 
+
     public static final Codec<FilteredItemDepository> CODEC = RecordCodecBuilder.create(ins -> ins.group(
         Codec.BOOL.fieldOf("filterEnabled").forGetter(o -> o.filterEnabled),
-        ItemStack.CODEC.listOf().fieldOf("filteredItems").forGetter(o -> o.filteredItems),
+        CodecUtil.createOptionalCodec(ItemStack.CODEC).listOf().fieldOf("filteredItems")
+            .forGetter(o -> o.filteredItems.stream()
+                .map(it -> it.isEmpty() ? Optional.<ItemStack>empty() : Optional.of(it))
+                .toList()
+            ),
         Codec.BOOL.listOf().fieldOf("disabled").forGetter(o -> o.disabled)
     ).apply(ins, FilteredItemDepository::new));
 
@@ -32,10 +40,10 @@ public class FilteredItemDepository extends ItemDepository {
     /**
      *
      */
-    public FilteredItemDepository(boolean filterEnabled, List<ItemStack> filteredItems, List<Boolean> disabled) {
+    public FilteredItemDepository(boolean filterEnabled, List<Optional<ItemStack>> filteredItems, List<Boolean> disabled) {
         super(filteredItems.size());
         this.filteredItems = NonNullList.create();
-        this.filteredItems.addAll(filteredItems);
+        this.filteredItems.addAll(filteredItems.stream().map(it -> it.orElse(ItemStack.EMPTY)).toList());
         this.disabled = NonNullList.create();
         this.disabled.addAll(disabled);
     }

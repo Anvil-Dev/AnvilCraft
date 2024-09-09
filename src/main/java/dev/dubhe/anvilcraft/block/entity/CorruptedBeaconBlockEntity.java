@@ -85,7 +85,9 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
             Integer j1 = blockstate.getBeaconColorMultiplier(pLevel, blockpos, pPos);
             if (j1 != null) {
                 if (pBlockEntity.checkingBeamSections.size() <= 1) {
-                    beamSection = new BeaconBeamSection(j1);
+                    beamSection = new BeaconBeamSection(
+                        0x101010
+                    );
                     pBlockEntity.checkingBeamSections.add(beamSection);
                 } else if (beamSection != null) {
                     if (j1 == beamSection.color) {
@@ -98,7 +100,10 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
                     }
                 }
             } else {
-                if (beamSection == null || blockstate.getLightBlock(pLevel, blockpos) >= 15 && !blockstate.is(Blocks.BEDROCK)) {
+                if (beamSection == null
+                    || blockstate.getLightBlock(pLevel, blockpos) >= 15
+                    && !blockstate.is(Blocks.BEDROCK)
+                ) {
                     pBlockEntity.checkingBeamSections.clear();
                     pBlockEntity.lastCheckY = l;
                     break;
