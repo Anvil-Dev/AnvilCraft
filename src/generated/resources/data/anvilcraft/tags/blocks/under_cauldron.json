@@ -1,9 +1,0 @@
-{
-  "replace": false,
-  "values": [
-    "#minecraft:campfires",
-    "minecraft:magma_block",
-    "anvilcraft:heater",
-    "anvilcraft:corrupted_beacon"
-  ]
-}

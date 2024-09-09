@@ -1,8 +1,0 @@
-{
-  "type": "minecraft:stonecutting",
-  "count": 1,
-  "ingredient": {
-    "item": "anvilcraft:reinforced_concrete_lime"
-  },
-  "result": "anvilcraft:reinforced_concrete_lime_wall"
-}

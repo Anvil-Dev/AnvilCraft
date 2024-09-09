@@ -1,8 +1,0 @@
-{
-  "type": "minecraft:stonecutting",
-  "count": 2,
-  "ingredient": {
-    "item": "anvilcraft:reinforced_concrete_orange"
-  },
-  "result": "anvilcraft:reinforced_concrete_orange_slab"
-}

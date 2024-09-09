@@ -1,0 +1,20 @@
+{
+  "anvil_cost": 2,
+  "description": {
+    "translate": "enchantment.anvilcraft.harvest"
+  },
+  "max_cost": {
+    "base": 15,
+    "per_level_above_first": 10
+  },
+  "max_level": 3,
+  "min_cost": {
+    "base": 1,
+    "per_level_above_first": 10
+  },
+  "slots": [
+    "mainhand"
+  ],
+  "supported_items": "#minecraft:hoes",
+  "weight": 5
+}

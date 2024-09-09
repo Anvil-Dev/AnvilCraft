@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_nuggets/tin": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#c:nuggets/tin"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:tin_ingot"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_nuggets/tin"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:tin_ingot"
+    ]
+  }
+}

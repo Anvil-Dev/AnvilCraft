@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "A": {
+      "item": "minecraft:iron_ingot"
+    },
+    "B": {
+      "item": "minecraft:crafting_table"
+    },
+    "C": {
+      "item": "minecraft:dropper"
+    },
+    "D": {
+      "item": "anvilcraft:magnetoelectric_core"
+    },
+    "E": {
+      "item": "anvilcraft:circuit_board"
+    }
+  },
+  "pattern": [
+    "ABA",
+    "ADC",
+    "AEA"
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:batch_crafter"
+  }
+}

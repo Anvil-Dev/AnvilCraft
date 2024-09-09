@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_reinforced_concrete_pink": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:reinforced_concrete_pink"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "minecraft:reinforced_concrete_pink_slab_from_reinforced_concrete_pink_stonecutting"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_reinforced_concrete_pink"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "minecraft:reinforced_concrete_pink_slab_from_reinforced_concrete_pink_stonecutting"
+    ]
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_ingots/brass": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#c:ingots/brass"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "minecraft:brass_block_forge"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_ingots/brass"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "minecraft:brass_block_forge"
+    ]
+  }
+}

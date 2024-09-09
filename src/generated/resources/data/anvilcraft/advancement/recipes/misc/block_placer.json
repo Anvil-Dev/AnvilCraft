@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_crab_claw": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:crab_claw"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:block_placer"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_crab_claw"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:block_placer"
+    ]
+  }
+}

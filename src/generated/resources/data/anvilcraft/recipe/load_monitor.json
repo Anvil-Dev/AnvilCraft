@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "minecraft:compass"
+    },
+    "B": {
+      "item": "anvilcraft:magnetoelectric_core"
+    }
+  },
+  "pattern": [
+    "A",
+    "B"
+  ],
+  "result": {
+    "count": 4,
+    "id": "anvilcraft:load_monitor"
+  }
+}

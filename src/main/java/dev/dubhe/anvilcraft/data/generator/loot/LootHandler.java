@@ -7,6 +7,6 @@ public class LootHandler {
      * @param provider 提供器
      */
     public static void init(RegistrateLootTableProvider provider) {
-        CrabTrapLootLoader.init(provider);
+//        CrabTrapLootLoader.init(provider);
     }
 }

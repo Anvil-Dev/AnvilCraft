@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "anvilcraft:magnetoelectric_core"
+    },
+    "B": {
+      "item": "anvilcraft:transmission_pole"
+    },
+    "C": {
+      "item": "minecraft:anvil"
+    }
+  },
+  "pattern": [
+    "A",
+    "B",
+    "C"
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:remote_transmission_pole"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_reinforced_concrete_light_blue": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:reinforced_concrete_light_blue"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "minecraft:reinforced_concrete_light_blue_slab_from_reinforced_concrete_light_blue_stonecutting"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_reinforced_concrete_light_blue"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "minecraft:reinforced_concrete_light_blue_slab_from_reinforced_concrete_light_blue_stonecutting"
+    ]
+  }
+}

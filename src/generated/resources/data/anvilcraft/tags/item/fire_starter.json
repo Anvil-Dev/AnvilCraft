@@ -1,0 +1,9 @@
+{
+  "values": [
+    "minecraft:torch",
+    "minecraft:soul_torch",
+    "minecraft:campfire",
+    "minecraft:soul_campfire",
+    "minecraft:blaze_powder"
+  ]
+}

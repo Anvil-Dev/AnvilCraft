@@ -1,0 +1,16 @@
+{
+  "values": [
+    {
+      "id": "#c:seeds",
+      "required": false
+    },
+    {
+      "id": "#c:berries",
+      "required": false
+    },
+    {
+      "id": "#c:vegetables",
+      "required": false
+    }
+  ]
+}

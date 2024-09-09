@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "anvilcraft:ember_metal_block"
+  },
+  "result": {
+    "count": 4,
+    "id": "anvilcraft:cut_ember_metal_stairs"
+  }
+}

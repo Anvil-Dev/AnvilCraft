@@ -1,0 +1,43 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_netherite_scrap": {
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:netherite_scrap"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:netherite_crystal_nucleus"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "has_tungsten_pressure_plate": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:tungsten_pressure_plate"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_tungsten_pressure_plate",
+      "has_netherite_scrap"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:netherite_crystal_nucleus"
+    ]
+  }
+}

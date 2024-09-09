@@ -1,0 +1,43 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_coco_butter": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:cocoa_butter"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_coco_powder": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:cocoa_powder"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:cocoa_liquor"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_coco_powder",
+      "has_coco_butter"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:cocoa_liquor"
+    ]
+  }
+}

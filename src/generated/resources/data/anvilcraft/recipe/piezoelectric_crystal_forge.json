@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "minecraft:copper_ingot"
+    },
+    "B": {
+      "tag": "c:storage_blocks/quartz"
+    }
+  },
+  "pattern": [
+    "ABA",
+    " B ",
+    "ABA"
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:piezoelectric_crystal"
+  }
+}

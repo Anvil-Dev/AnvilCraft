@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_ingots/uranium": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#c:ingots/uranium"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "minecraft:uranium_block_forge"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_ingots/uranium"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "minecraft:uranium_block_forge"
+    ]
+  }
+}

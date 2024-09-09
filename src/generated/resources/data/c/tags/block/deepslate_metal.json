@@ -1,0 +1,14 @@
+{
+  "values": [
+    "minecraft:deepslate_gold_ore",
+    "minecraft:deepslate_iron_ore",
+    "minecraft:deepslate_copper_ore",
+    "anvilcraft:deepslate_zinc_ore",
+    "anvilcraft:deepslate_tin_ore",
+    "anvilcraft:deepslate_titanium_ore",
+    "anvilcraft:deepslate_tungsten_ore",
+    "anvilcraft:deepslate_lead_ore",
+    "anvilcraft:deepslate_silver_ore",
+    "anvilcraft:deepslate_uranium_ore"
+  ]
+}

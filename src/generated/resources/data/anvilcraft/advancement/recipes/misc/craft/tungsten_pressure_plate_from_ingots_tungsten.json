@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_ingots/tungsten": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#c:ingots/tungsten"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:craft/tungsten_pressure_plate_from_ingots_tungsten"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_ingots/tungsten"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:craft/tungsten_pressure_plate_from_ingots_tungsten"
+    ]
+  }
+}

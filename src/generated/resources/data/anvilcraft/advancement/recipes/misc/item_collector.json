@@ -1,0 +1,65 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_hopper": {
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:hopper"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_iron_ingot": {
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:iron_ingot"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_magnet": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:magnet"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_magnetoelectric_core": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:magnetoelectric_core"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:item_collector"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_magnetoelectric_core",
+      "has_iron_ingot",
+      "has_magnet",
+      "has_hopper"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:item_collector"
+    ]
+  }
+}

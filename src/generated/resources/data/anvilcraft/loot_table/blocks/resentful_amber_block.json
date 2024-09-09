@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "anvilcraft:resentful_amber_block"
+        }
+      ],
+      "functions": [
+        {
+          "function": "minecraft:copy_components",
+          "include": [
+            "minecraft:block_entity_data"
+          ],
+          "source": "block_entity"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "anvilcraft:blocks/resentful_amber_block"
+}

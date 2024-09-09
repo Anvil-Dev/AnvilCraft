@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "anvilcraft:royal_steel_ingot"
+    },
+    "B": {
+      "item": "anvilcraft:induction_light"
+    },
+    "C": {
+      "item": "anvilcraft:silver_pressure_plate"
+    },
+    "D": {
+      "item": "anvilcraft:ruby_block"
+    },
+    "E": {
+      "item": "minecraft:tinted_glass"
+    }
+  },
+  "pattern": [
+    "AEA",
+    "BDB",
+    "ACA"
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:ruby_laser"
+  }
+}

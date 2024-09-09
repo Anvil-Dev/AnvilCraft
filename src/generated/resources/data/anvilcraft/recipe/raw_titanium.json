@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "anvilcraft:raw_titanium_block"
+    }
+  ],
+  "result": {
+    "count": 9,
+    "id": "anvilcraft:raw_titanium"
+  }
+}
