@@ -37,8 +37,7 @@ abstract class AnvilBlockMixin extends FallingBlock {
         @NotNull BlockPos pos,
         @NotNull RandomSource random
     ) {
-        if (
-            anvilCraft$isAttracts(level.getBlockState(pos.above()))
+        if (anvilCraft$isAttracts(level.getBlockState(pos.above()))
                 || !FallingBlock.isFree(level.getBlockState(pos.below()))
                 || pos.getY() < level.getMinBuildHeight()
         ) {
@@ -79,11 +78,12 @@ abstract class AnvilBlockMixin extends FallingBlock {
         BlockState state1 = level.getBlockState(pos.above());
         if (!this.anvilCraft$isAttracts(state1)) this.anvilCraft$wasAttracted(state, level, pos);
     }
-
+//-1 -56 7, -1 -57 7
     @Unique
     private void anvilCraft$wasAttracted(BlockState state, @NotNull Level level, @NotNull BlockPos anvil) {
         BlockPos magnet = anvil;
-        if (level.getBlockState(anvil.above()).is(ModBlockTags.MAGNET)) return;
+        BlockState aboveState = level.getBlockState(anvil.above());
+        if (aboveState.is(ModBlockTags.MAGNET) || aboveState.getBlock() instanceof MagnetBlock) return;
         int distance = AnvilCraft.config.magnetAttractsDistance;
         for (int i = 0; i < distance; i++) {
             magnet = magnet.above();

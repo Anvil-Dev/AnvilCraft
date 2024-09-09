@@ -170,7 +170,10 @@ public class FilteredItemDepository extends ItemDepository {
             ItemStack stack = this.getStack(slot);
             CompoundTag itemTag = new CompoundTag();
             itemTag.putInt("Slot", slot);
-            stack.save(provider, itemTag);
+            itemTag.putBoolean("IsEmpty", stack.isEmpty());
+            if (!stack.isEmpty()){
+                stack.save(provider, itemTag);
+            }
             ItemStack filter = this.filteredItems.get(slot);
             if (!filter.isEmpty()) {
                 CompoundTag filtered = new CompoundTag();
@@ -194,7 +197,9 @@ public class FilteredItemDepository extends ItemDepository {
             CompoundTag itemTag = listTag.getCompound(i);
             int slot = itemTag.getInt("Slot");
             if (slot < 0 || slot >= slots) continue;
-            ItemStack.parse(provider, itemTag).ifPresent(stack -> this.setStack(slot, stack));
+            if (!itemTag.getBoolean("IsEmpty")) {
+                ItemStack.parse(provider, itemTag).ifPresent(stack -> this.setStack(slot, stack));
+            }
             if (itemTag.contains("filtered")) {
                 ItemStack.parse(provider, itemTag.getCompound("filtered")).ifPresent(stack ->  this.filteredItems.set(slot, stack));
             }

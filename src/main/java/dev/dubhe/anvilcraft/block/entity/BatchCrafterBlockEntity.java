@@ -233,7 +233,7 @@ public class BatchCrafterBlockEntity
     public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
         depository.deserializeNbt(provider, tag.getCompound("Inventory"));
-        if (tag.contains("ResultItemStack")) {
+        if (tag.getBoolean("HasDisplayItemStack") && tag.contains("ResultItemStack")) {
             displayItemStack = ItemStack.parse(provider, tag.getCompound("ResultItemStack")).orElse(ItemStack.EMPTY);
         }
     }
@@ -242,10 +242,14 @@ public class BatchCrafterBlockEntity
     protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
         tag.put("Inventory", this.depository.serializeNbt(provider));
-        if (displayItemStack == null) displayItemStack = ItemStack.EMPTY;
-        CompoundTag item = new CompoundTag();
-        this.displayItemStack.save(provider, item);
-        tag.put("ResultItemStack", item);
+        boolean hasDisplayItemStack = displayItemStack != null && !displayItemStack.isEmpty();
+        tag.putBoolean("HasDisplayItemStack", hasDisplayItemStack);
+        if (hasDisplayItemStack) {
+            CompoundTag item = new CompoundTag();
+            this.displayItemStack.save(provider, item);
+            tag.put("ResultItemStack", item);
+        }
+
     }
 
     @Override
