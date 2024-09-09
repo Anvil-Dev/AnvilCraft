@@ -50,7 +50,7 @@ public class AnvilCraft {
     public AnvilCraft(IEventBus modEventBus, ModContainer container) {
         EVENT_BUS = modEventBus;
         ModEvents.register();
-        ModItemGroups.register();
+        ModItemGroups.register(modEventBus);
         ModBlocks.register();
         ModEntities.register();
         ModItems.register();
