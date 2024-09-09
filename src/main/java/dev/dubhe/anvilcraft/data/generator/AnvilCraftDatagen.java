@@ -4,7 +4,7 @@ import com.tterrag.registrate.providers.ProviderType;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.generator.lang.LangHandler;
-import dev.dubhe.anvilcraft.data.generator.loot.LootHandler;
+import dev.dubhe.anvilcraft.data.generator.provider.ModLootTableProvider;
 import dev.dubhe.anvilcraft.data.generator.provider.ModRegistryProvider;
 import dev.dubhe.anvilcraft.data.generator.tags.TagsHandler;
 import net.minecraft.advancements.Criterion;
@@ -39,6 +39,7 @@ public class AnvilCraftDatagen {
         PackOutput packOutput = generator.getPackOutput();
 
         generator.addProvider(event.includeServer(), new ModRegistryProvider(packOutput, lookupProvider));
+        generator.addProvider(event.includeServer(), new ModLootTableProvider(packOutput, lookupProvider));
     }
 
     /**
@@ -49,7 +50,6 @@ public class AnvilCraftDatagen {
         REGISTRATE.addDataGenerator(ProviderType.BLOCK_TAGS, TagsHandler::initBlock);
         REGISTRATE.addDataGenerator(ProviderType.FLUID_TAGS, TagsHandler::initFluid);
         REGISTRATE.addDataGenerator(ProviderType.LANG, LangHandler::init);
-        REGISTRATE.addDataGenerator(ProviderType.LOOT, LootHandler::init);
     }
 
     public static @NotNull Criterion<InventoryChangeTrigger.TriggerInstance> has(ItemLike itemLike) {

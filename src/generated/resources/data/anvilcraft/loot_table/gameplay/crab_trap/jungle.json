@@ -1,0 +1,36 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:location_check",
+          "predicate": {
+            "biomes": [
+              "minecraft:jungle",
+              "minecraft:bamboo_jungle",
+              "minecraft:sparse_jungle"
+            ]
+          }
+        },
+        {
+          "chance": 0.1,
+          "condition": "minecraft:random_chance"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:bamboo"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:cocoa_beans"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "anvilcraft:gameplay/crab_trap/jungle"
+}

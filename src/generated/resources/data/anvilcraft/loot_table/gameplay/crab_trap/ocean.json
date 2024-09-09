@@ -1,0 +1,47 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:location_check",
+          "predicate": {
+            "biomes": [
+              "minecraft:ocean",
+              "minecraft:cold_ocean",
+              "minecraft:deep_ocean",
+              "minecraft:deep_cold_ocean",
+              "minecraft:frozen_ocean",
+              "minecraft:deep_frozen_ocean"
+            ]
+          }
+        },
+        {
+          "chance": 0.1,
+          "condition": "minecraft:random_chance"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:cod"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:kelp"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:nautilus_shell"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:ink_sac"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "anvilcraft:gameplay/crab_trap/ocean"
+}
