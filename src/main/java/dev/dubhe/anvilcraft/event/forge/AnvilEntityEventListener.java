@@ -19,7 +19,7 @@ public class AnvilEntityEventListener {
         AnvilFallOnLandEvent event = new AnvilFallOnLandEvent(
             e.getLevel(), e.getPos(), e.getEntity(), e.getFallDistance()
         );
-        NeoForge.EVENT_BUS.post(event);
+        AnvilCraft.EVENT_BUS.post(event);
         e.setAnvilDamage(event.isAnvilDamage());
     }
 

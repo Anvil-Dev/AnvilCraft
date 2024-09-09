@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.tterrag.registrate.Registrate;
 import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
+import dev.dubhe.anvilcraft.event.anvil.AnvilBehavior;
 import dev.dubhe.anvilcraft.event.forge.ClientEventListener;
 import dev.dubhe.anvilcraft.event.forge.CommonEventHandlerListener;
 import dev.dubhe.anvilcraft.event.forge.GuiLayerRegistrationEventListener;
@@ -59,6 +60,7 @@ public class AnvilCraft {
         ModBlockEntities.register();
         ModMenuTypes.register();
         ModDispenserBehavior.register();
+        AnvilBehavior.register();
         ModComponents.register(modEventBus);
         ModVillagers.register(modEventBus);
         // datagen

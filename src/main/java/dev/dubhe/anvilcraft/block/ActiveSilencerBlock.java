@@ -16,11 +16,16 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
@@ -32,8 +37,11 @@ import java.util.ArrayList;
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class ActiveSilencerBlock extends BaseEntityBlock implements IHammerRemovable {
+    public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
+
     public ActiveSilencerBlock(Properties properties) {
         super(properties);
+        registerDefaultState(getStateDefinition().any().setValue(POWERED, false));
     }
 
     @Override
@@ -41,10 +49,33 @@ public class ActiveSilencerBlock extends BaseEntityBlock implements IHammerRemov
         return simpleCodec(ActiveSilencerBlock::new);
     }
 
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder) {
+        pBuilder.add(POWERED);
+    }
+
     @Nullable
     @Override
     public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
         return new ActiveSilencerBlockEntity(ModBlockEntities.ACTIVE_SILENCER.get(), pos, state);
+    }
+
+    @Override
+    public @Nullable BlockState getStateForPlacement(BlockPlaceContext pContext) {
+        return defaultBlockState()
+            .setValue(POWERED, pContext.getLevel().hasNeighborSignal(pContext.getClickedPos()));
+    }
+
+    @Override
+    protected void neighborChanged(
+        BlockState pState,
+        Level pLevel,
+        BlockPos pPos,
+        Block pNeighborBlock,
+        BlockPos pNeighborPos,
+        boolean pMovedByPiston
+    ) {
+        pLevel.setBlockAndUpdate(pPos, pState.setValue(POWERED, pLevel.hasNeighborSignal(pPos)));
     }
 
     @Override

@@ -193,6 +193,7 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
             .setUv(pU, pV)
             .setOverlay(OverlayTexture.NO_OVERLAY)
             .setLight(15728880)
+            .setUv2(0xF000F0 & '\uffff', 0xF000F0 & '\uffff')
             .setNormal(pPose, 0.0F, 1.0F, 0.0F);
     }
 

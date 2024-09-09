@@ -77,9 +77,14 @@ public class AnvilEventListener {
         if (state.is(Blocks.REDSTONE_BLOCK)) redstoneEmp(level, belowPos, event.getFallDistance());
         if (state.is(Blocks.SPAWNER)) hitSpawner(level, belowPos, event.getFallDistance());
         if (state.is(Blocks.BEEHIVE) || state.is(Blocks.BEE_NEST)) hitBeeNest(level, state, belowPos);
+        for (AnvilBehavior behavior : AnvilBehavior.BEHAVIORS) {
+            if (behavior.handle(level, belowPos, state, event.getFallDistance())) break;
+        }
         belowPos = belowPos.below();
         state = level.getBlockState(belowPos);
         if (state.is(Blocks.STONECUTTER)) brokeBlock(level, belowPos.above(), event);
+
+
 //        AnvilCraftingContext context = new AnvilCraftingContext(level, pos, event.getEntity());
 //        Optional<AnvilRecipe> optional = AnvilRecipeManager.getAnvilRecipeList().stream()
 //            .filter(recipe -> !recipe.getAnvilRecipeType().equals(AnvilRecipeType.MULTIBLOCK_CRAFTING)

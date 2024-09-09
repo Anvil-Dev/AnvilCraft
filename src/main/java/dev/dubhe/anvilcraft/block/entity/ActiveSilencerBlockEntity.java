@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.sound.SoundEventListener;
 import dev.dubhe.anvilcraft.api.sound.SoundHelper;
+import dev.dubhe.anvilcraft.block.ActiveSilencerBlock;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.ActiveSilencerMenu;
 import lombok.Getter;
@@ -133,6 +134,7 @@ public class ActiveSilencerBlockEntity extends BlockEntity implements MenuProvid
 
     @Override
     public boolean shouldPlay(ResourceLocation sound, Vec3 pos) {
+        if (getBlockState().getValue(ActiveSilencerBlock.POWERED))return true;
         boolean inRange = range.contains(pos);
         boolean inList = mutedSound.contains(sound);
         return !inRange || !inList;

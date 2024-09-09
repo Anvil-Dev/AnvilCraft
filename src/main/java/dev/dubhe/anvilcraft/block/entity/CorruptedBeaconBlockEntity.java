@@ -133,7 +133,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
                     playSound(pLevel, pPos, SoundEvents.BEACON_ACTIVATE);
 
                     for (ServerPlayer serverplayer : pLevel.getEntitiesOfClass(
-                        ServerPlayer.class, new AABB((double)i, (double)j, (double)k, (double)i, (double)(j - 4), (double)k).inflate(10.0, 5.0, 10.0)
+                        ServerPlayer.class, new AABB(i, j, k, i, j - 4, k).inflate(10.0, 5.0, 10.0)
                     )) {
                         CriteriaTriggers.CONSTRUCT_BEACON.trigger(serverplayer, pBlockEntity.levels);
                     }

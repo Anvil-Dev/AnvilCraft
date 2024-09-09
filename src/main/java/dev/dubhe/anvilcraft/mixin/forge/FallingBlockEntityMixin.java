@@ -58,8 +58,7 @@ abstract class FallingBlockEntityMixin extends Entity {
         method = "tick",
         at = @At(
             value = "INVOKE",
-            ordinal = 16,
-            target = "Lnet/minecraft/world/entity/item/FallingBlockEntity;level()Lnet/minecraft/world/level/Level;"
+            target = "Lnet/minecraft/world/level/block/Fallable;onLand(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/entity/item/FallingBlockEntity;)V"
         ),
         locals = LocalCapture.CAPTURE_FAILHARD
     )
