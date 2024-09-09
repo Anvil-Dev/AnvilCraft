@@ -24,10 +24,12 @@ import dev.dubhe.anvilcraft.init.forge.ModVillagers;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
@@ -81,7 +83,9 @@ public class AnvilCraft {
 
     private static void registerEvents(IEventBus eventBus){
         eventBus.addListener(AnvilCraft::registerPayload);
-        eventBus.register(new GuiLayerRegistrationEventListener());
+        if (FMLEnvironment.dist == Dist.CLIENT) {
+            eventBus.register(new GuiLayerRegistrationEventListener());
+        }
     }
 
 
