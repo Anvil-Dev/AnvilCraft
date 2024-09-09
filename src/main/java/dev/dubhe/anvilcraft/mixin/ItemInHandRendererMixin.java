@@ -29,11 +29,11 @@ abstract class ItemInHandRendererMixin {
 
     @Unique
     private static final ModelResourceLocation anvilCraft$HOLDING_ITEM =
-        ModelResourceLocation.inventory(AnvilCraft.of("crab_claw_holding_item"));
+        ModelResourceLocation.standalone(AnvilCraft.of("item/crab_claw_holding_item"));
 
     @Unique
     private static final ModelResourceLocation anvilCraft$HOLDING_BLOCK =
-        ModelResourceLocation.inventory(AnvilCraft.of("crab_claw_holding_block"));
+        ModelResourceLocation.standalone(AnvilCraft.of("item/crab_claw_holding_block"));
 
     @Shadow private ItemStack offHandItem;
     @Shadow private ItemStack mainHandItem;

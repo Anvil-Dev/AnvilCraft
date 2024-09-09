@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.api.event.client.ClientPlayerDisconnectEvent;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModLoader;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import org.jetbrains.annotations.NotNull;
@@ -21,7 +22,7 @@ public class CommonEventHandlerListener {
     @SubscribeEvent
     public static void onLoad(@NotNull BlockEntityEvent.ServerLoad event) {
         if (event.getLevel() instanceof ServerLevel serverLevel)
-            AnvilCraft.EVENT_BUS.post(new ServerBlockEntityLoadEvent(serverLevel, event.getEntity()));
+            ModLoader.postEvent(new ServerBlockEntityLoadEvent(serverLevel, event.getEntity()));
     }
 
     /**

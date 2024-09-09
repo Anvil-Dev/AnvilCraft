@@ -15,7 +15,7 @@ import org.joml.Vector3f;
 
 public class HeliostatsRenderer implements BlockEntityRenderer<HeliostatsBlockEntity> {
     private static final ModelResourceLocation HELIOSTATS_HEAD =
-        ModelResourceLocation.standalone(AnvilCraft.of("heliostats_head"));
+        ModelResourceLocation.standalone(AnvilCraft.of("block/heliostats_head"));
 
     @SuppressWarnings("unused")
     public HeliostatsRenderer(BlockEntityRendererProvider.Context context) {

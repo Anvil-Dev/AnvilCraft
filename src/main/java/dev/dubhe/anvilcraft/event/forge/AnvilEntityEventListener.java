@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.event.entity.AnvilHurtEntityEvent;
 import dev.dubhe.anvilcraft.api.event.forge.AnvilEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.NeoForge;
 import org.jetbrains.annotations.NotNull;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
@@ -18,7 +19,7 @@ public class AnvilEntityEventListener {
         AnvilFallOnLandEvent event = new AnvilFallOnLandEvent(
             e.getLevel(), e.getPos(), e.getEntity(), e.getFallDistance()
         );
-        AnvilCraft.EVENT_BUS.post(event);
+        NeoForge.EVENT_BUS.post(event);
         e.setAnvilDamage(event.isAnvilDamage());
     }
 

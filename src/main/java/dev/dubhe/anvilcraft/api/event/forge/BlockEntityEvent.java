@@ -4,9 +4,10 @@ import lombok.Getter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.bus.api.Event;
+import net.neoforged.fml.event.IModBusEvent;
 
 @Getter
-public class BlockEntityEvent extends Event {
+public class BlockEntityEvent extends Event{
     private final Level level;
     private final BlockEntity entity;
 

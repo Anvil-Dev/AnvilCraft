@@ -30,6 +30,7 @@
     "accessor.LootContextParamSetsAccessor",
     "forge.BucketItemMixin",
     "forge.FallingBlockEntityMixin",
+    "forge.LevelChunkMixin",
     "forge.LightningBoltMixin",
     "forge.MinecraftServerMixin",
     "forge.PistonMovingBlockEntityMixin",

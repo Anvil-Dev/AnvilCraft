@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class CreativeGeneratorRenderer implements BlockEntityRenderer<CreativeGeneratorBlockEntity> {
     public static final ModelResourceLocation MODEL =
-        ModelResourceLocation.standalone(AnvilCraft.of("creative_generator_cube"));
+        ModelResourceLocation.standalone(AnvilCraft.of("block/creative_generator_cube"));
 
 
     /**
