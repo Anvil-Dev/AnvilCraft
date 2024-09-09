@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.item;
 
+import dev.dubhe.anvilcraft.init.ModComponents;
 import dev.dubhe.anvilcraft.init.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundSource;
@@ -51,6 +52,7 @@ public class ResinBlockItem extends HasMobBlockItem {
     private static void spawnMobFromItem(@NotNull Level level, Player player, BlockPos pos, @NotNull ItemStack stack) {
         ItemStack copy = stack.copy();
         stack.shrink(1);
+        stack.remove(ModComponents.SAVED_ENTITY);
         if (level.isClientSide()) {
             Item item = copy.getItem();
             if (item instanceof ResinBlockItem item1) {
@@ -69,6 +71,8 @@ public class ResinBlockItem extends HasMobBlockItem {
         level.addFreshEntity(entity);
         RandomSource random = level.getRandom();
         ItemStack back = new ItemStack(ModItems.RESIN.asItem(), random.nextInt(1, 4));
-        if (!player.getAbilities().instabuild) player.getInventory().placeItemBackInInventory(back);
+        if (!player.getAbilities().instabuild) {
+            player.getInventory().placeItemBackInInventory(back);
+        }
     }
 }
