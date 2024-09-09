@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import dev.dubhe.anvilcraft.api.registry.AnvilCraftRegistrate;
+import com.tterrag.registrate.Registrate;
 import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.event.forge.ClientEventListener;
@@ -45,16 +45,15 @@ public class AnvilCraft {
             .register(AnvilCraftConfig.class, JanksonConfigSerializer::new)
             .getConfig();
 
-    public static final AnvilCraftRegistrate REGISTRATE = AnvilCraftRegistrate.create(MOD_ID);
+    public static final Registrate REGISTRATE = Registrate.create(MOD_ID);
 
     public AnvilCraft(IEventBus modEventBus, ModContainer container) {
         EVENT_BUS = modEventBus;
-        REGISTRATE.registerRegistrate(modEventBus);
         ModEvents.register();
+        ModItemGroups.register();
         ModBlocks.register();
         ModEntities.register();
         ModItems.register();
-        ModItemGroups.register();
         ModBlockEntities.register();
         ModMenuTypes.register();
         ModDispenserBehavior.register();
