@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.depository.DepositoryHolder;
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.api.depository.IItemDepository;
 import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
@@ -31,7 +32,7 @@ import java.util.List;
 @Getter
 public abstract class BaseChuteBlockEntity
     extends BaseMachineBlockEntity
-    implements IFilterBlockEntity, IDiskCloneable {
+    implements IFilterBlockEntity, IDiskCloneable, DepositoryHolder {
     private int cooldown = 0;
     private final FilteredItemDepository depository = new FilteredItemDepository(9) {
         @Override

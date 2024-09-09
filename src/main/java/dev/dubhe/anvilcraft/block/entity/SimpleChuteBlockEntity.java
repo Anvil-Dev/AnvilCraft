@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.depository.DepositoryHolder;
 import dev.dubhe.anvilcraft.api.depository.IItemDepository;
 import dev.dubhe.anvilcraft.api.depository.ItemDepository;
 import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
@@ -22,7 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 @Getter
-public class SimpleChuteBlockEntity extends BlockEntity {
+public class SimpleChuteBlockEntity extends BlockEntity implements DepositoryHolder {
     private int cooldown = 0;
     private final ItemDepository depository = new ItemDepository(1) {
         @Override
