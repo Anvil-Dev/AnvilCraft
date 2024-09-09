@@ -41,7 +41,6 @@
     "ItemBlockRenderTypesMixin",
     "ItemInHandRendererMixin",
     "SoundEngineMixin",
-    "TooltipRenderMixin",
     "accessor.ItemInHandRendererAccessor"
   ],
   "plugin": "dev.dubhe.anvilcraft.mixin.plugin.AnvilCraftMixinPlugin",

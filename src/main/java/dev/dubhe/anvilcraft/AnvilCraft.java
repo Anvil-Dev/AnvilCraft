@@ -6,6 +6,7 @@ import com.tterrag.registrate.Registrate;
 import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.event.forge.ClientEventListener;
+import dev.dubhe.anvilcraft.event.forge.GuiLayerRegistrationEventListener;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModCommands;
@@ -63,6 +64,7 @@ public class AnvilCraft {
         AnvilCraftDatagen.init();
         modEventBus.addListener(AnvilCraft::registerPayload);
         NeoForge.EVENT_BUS.addListener(AnvilCraft::registerCommand);
+        modEventBus.register(new GuiLayerRegistrationEventListener());
         try {
             ClientEventListener ignore = new ClientEventListener();
         } catch (NoSuchMethodError ignore) {
@@ -72,6 +74,10 @@ public class AnvilCraft {
                 IConfigScreenFactory.class,
                 () -> ((c, screen) -> AutoConfig.getConfigScreen(AnvilCraftConfig.class, screen).get())
         );
+
+    }
+
+    private static void registerEvents(IEventBus eventBus){
 
     }
 
