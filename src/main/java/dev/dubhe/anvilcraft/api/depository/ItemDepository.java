@@ -120,9 +120,9 @@ public class ItemDepository implements IItemDepository, INamedTagSerializable {
         compoundTag.putInt("Size", slots);
         for (int i = 0; i < slots; i++) {
             ItemStack stack = this.getStack(i);
-            if (stack.isEmpty()) continue;
             CompoundTag itemTag = new CompoundTag();
             itemTag.putInt("Slot", i);
+            if (stack.isEmpty()) continue;
             listTag.add(stack.save(provider, itemTag));
         }
         if (!listTag.isEmpty()) compoundTag.put("Items", listTag);
@@ -138,7 +138,9 @@ public class ItemDepository implements IItemDepository, INamedTagSerializable {
             CompoundTag itemTag = listTag.getCompound(i);
             int slot = itemTag.getInt("Slot");
             if (slot < 0 || slot >= slots) continue;
-            ItemStack.parse(provider, itemTag).ifPresent(stack -> this.stacks.set(slot, stack));
+            if (itemTag.contains("id")) {
+                ItemStack.parse(provider, itemTag).ifPresent(stack -> this.stacks.set(slot, stack));
+            }
         }
     }
 

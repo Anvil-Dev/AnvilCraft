@@ -135,7 +135,6 @@ public class BatchCrafterBlockEntity
     private void craft(@NotNull Level level) {
         if (craftingContainer.isEmpty()) return;
         if (!canCraft()) return;
-        System.out.println("lastTimeCrafted = " + lastTimeCrafted);
         if (lastTimeCrafted > (level.getGameTime() + AnvilCraft.config.batchCrafterCooldown))
             return;
         lastTimeCrafted = level.getGameTime();
@@ -234,7 +233,8 @@ public class BatchCrafterBlockEntity
         super.loadAdditional(tag, provider);
         depository.deserializeNbt(provider, tag.getCompound("Inventory"));
         if (tag.getBoolean("HasDisplayItemStack") && tag.contains("ResultItemStack")) {
-            displayItemStack = ItemStack.parse(provider, tag.getCompound("ResultItemStack")).orElse(ItemStack.EMPTY);
+            CompoundTag ct = tag.getCompound("ResultItemStack");
+            displayItemStack = ct.contains("id") ? ItemStack.parse(provider, ct).orElse(ItemStack.EMPTY) : ItemStack.EMPTY;
         }
     }
 

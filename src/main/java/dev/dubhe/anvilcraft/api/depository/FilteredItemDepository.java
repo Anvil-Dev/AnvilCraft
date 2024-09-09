@@ -13,7 +13,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,7 +20,6 @@ import java.util.Optional;
 @Getter
 @SuppressWarnings("unused")
 public class FilteredItemDepository extends ItemDepository {
-
 
     public static final Codec<FilteredItemDepository> CODEC = RecordCodecBuilder.create(ins -> ins.group(
         Codec.BOOL.fieldOf("filterEnabled").forGetter(o -> o.filterEnabled),
@@ -178,7 +176,6 @@ public class FilteredItemDepository extends ItemDepository {
             ItemStack stack = this.getStack(slot);
             CompoundTag itemTag = new CompoundTag();
             itemTag.putInt("Slot", slot);
-            itemTag.putBoolean("IsEmpty", stack.isEmpty());
             if (!stack.isEmpty()){
                 stack.save(provider, itemTag);
             }
@@ -205,11 +202,14 @@ public class FilteredItemDepository extends ItemDepository {
             CompoundTag itemTag = listTag.getCompound(i);
             int slot = itemTag.getInt("Slot");
             if (slot < 0 || slot >= slots) continue;
-            if (!itemTag.getBoolean("IsEmpty")) {
-                ItemStack.parse(provider, itemTag).ifPresent(stack -> this.setStack(slot, stack));
+            if (itemTag.contains("id")) {
+                this.setStack(slot, ItemStack.parseOptional(provider, itemTag));
             }
             if (itemTag.contains("filtered")) {
-                ItemStack.parse(provider, itemTag.getCompound("filtered")).ifPresent(stack ->  this.filteredItems.set(slot, stack));
+                CompoundTag filtered = itemTag.getCompound("filtered");
+                if (filtered.contains("id")) {
+                    ItemStack.parse(provider, filtered).ifPresent(stack -> this.filteredItems.set(slot, stack));
+                }
             }
             this.disabled.set(slot, itemTag.getBoolean("disabled"));
         }
