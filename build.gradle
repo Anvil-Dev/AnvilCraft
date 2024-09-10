@@ -15,7 +15,14 @@ tasks.named('wrapper', Wrapper).configure {
     distributionType = Wrapper.DistributionType.BIN
 }
 
-version = mod_version
+String buildType = 'build'
+String buildNumber
+if (System.getenv("CI_BUILD") == 'false') buildNumber = null
+else {
+    if (System.getenv("PR_BUILD") != 'false') buildType = 'pr'
+    buildNumber = System.getenv("GITHUB_RUN_NUMBER")
+}
+version = "${mod_version}" + (buildNumber != null ? "+${buildType}.${buildNumber}" : "")
 group = mod_group_id
 
 repositories {
