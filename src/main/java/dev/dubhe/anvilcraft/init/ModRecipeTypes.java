@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.recipe.CompressRecipe;
 import dev.dubhe.anvilcraft.recipe.CrushRecipe;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.crafting.Recipe;
@@ -17,6 +18,9 @@ public class ModRecipeTypes {
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<CrushRecipe>> CRUSH_TYPE = registerType("crush");
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<CrushRecipe>> CRUSH_SERIALIZER = RECIPE_SERIALIZERS.register("crush", CrushRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<CompressRecipe>> COMPRESS_TYPE = registerType("compress");
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<CompressRecipe>> COMPRESS_SERIALIZER = RECIPE_SERIALIZERS.register("compress", CompressRecipe.Serializer::new);
 
     private static <T extends Recipe<?>> DeferredHolder<RecipeType<?>, RecipeType<T>> registerType(String name) {
         return RECIPE_TYPES.register(name, () -> new RecipeType<>() {

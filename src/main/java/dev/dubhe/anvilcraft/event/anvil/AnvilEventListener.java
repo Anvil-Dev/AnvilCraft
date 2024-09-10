@@ -1,7 +1,9 @@
 package dev.dubhe.anvilcraft.event.anvil;
 
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
+import dev.dubhe.anvilcraft.recipe.CompressRecipe;
 import dev.dubhe.anvilcraft.recipe.CrushRecipe;
+import net.minecraft.world.level.block.Block;
 import net.neoforged.bus.api.SubscribeEvent;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.IHasMultiBlock;
@@ -56,6 +58,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.EventHooks;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -77,7 +80,8 @@ public class AnvilEventListener {
         BlockPos belowPos = pos.below();
         BlockState state = level.getBlockState(belowPos);
 
-        handleCrushRecipe(level, belowPos, state);
+        handleCompressRecipe(level, belowPos);
+        handleCrushRecipe(level, belowPos);
 
         if (state.is(Blocks.REDSTONE_BLOCK)) redstoneEmp(level, belowPos, event.getFallDistance());
         if (state.is(Blocks.SPAWNER)) hitSpawner(level, belowPos, event.getFallDistance());
@@ -97,11 +101,28 @@ public class AnvilEventListener {
 //        optional.ifPresent(anvilRecipe -> anvilProcess(anvilRecipe, context, event));
     }
 
-    private void handleCrushRecipe(Level level, final BlockPos pos, BlockState state) {
+    private void handleCrushRecipe(Level level, final BlockPos pos) {
+        BlockState state = level.getBlockState(pos);
         level.getRecipeManager().getRecipeFor(
                 ModRecipeTypes.CRUSH_TYPE.get(),
                 new CrushRecipe.Input(state.getBlock()), level
         ).ifPresent(recipe -> level.setBlockAndUpdate(pos, recipe.value().result.defaultBlockState()));
+    }
+
+    private void handleCompressRecipe(Level level, final BlockPos pos) {
+        List<Block> inputs = new ArrayList<>();
+        for (int i = 0; i < 9; i++) {
+            inputs.add(level.getBlockState(pos.below(i)).getBlock());
+        }
+        level.getRecipeManager().getRecipeFor(
+                ModRecipeTypes.COMPRESS_TYPE.get(),
+                new CompressRecipe.Input(inputs), level
+        ).ifPresent(recipe -> {
+            for (int i = 0; i < recipe.value().inputs.size(); i++) {
+                level.setBlockAndUpdate(pos.below(i), Blocks.AIR.defaultBlockState());
+            }
+            level.setBlockAndUpdate(pos.below(recipe.value().inputs.size() - 1), recipe.value().result.defaultBlockState());
+        });
     }
 
     private void hitBeeNest(Level level, BlockState state, BlockPos pos) {

@@ -1,0 +1,10 @@
+{
+  "type": "anvilcraft:compress",
+  "inputs": [
+    "minecraft:ice",
+    "minecraft:ice",
+    "minecraft:ice",
+    "minecraft:ice"
+  ],
+  "result": "minecraft:packed_ice"
+}
