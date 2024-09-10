@@ -201,7 +201,7 @@ public class ChargerBlockEntity
         this.flushState(level1, blockPos);
         BlockState state = level1.getBlockState(blockPos);
         powered = state.getValue(ChargerBlock.POWERED);
-
+        if (grid == null) return;
         if (level1.getGameTime() % 21 != 0) return;
         if (depository.getStack(0).isEmpty()) {
             locked = false;
