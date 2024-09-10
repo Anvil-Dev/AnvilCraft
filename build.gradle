@@ -109,6 +109,7 @@ configurations {
 
 dependencies {
     implementation "net.neoforged:neoforge:${neo_version}"
+
     compileOnly "mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"
     compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"
     localRuntime "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
@@ -116,10 +117,10 @@ dependencies {
     implementation "maven.modrinth:jade:$jade_version"
     implementation "me.shedaniel.cloth:cloth-config-neoforge:$cloth_config_version"
     implementation "com.tterrag.registrate:Registrate:$registrate_version"
+
     compileOnly 'org.projectlombok:lombok:1.18.34'
     annotationProcessor 'org.projectlombok:lombok:1.18.34'
 
-    jarJar(group: "dev.toma.configuration", name: "configuration-$minecraft_version", version: "${configuration_version}-neoforge")
     jarJar(group: "com.tterrag.registrate", name: "Registrate", version: registrate_version)
 }
 
