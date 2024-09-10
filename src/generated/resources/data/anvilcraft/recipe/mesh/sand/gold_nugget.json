@@ -1,0 +1,15 @@
+{
+  "type": "anvilcraft:mesh",
+  "input": {
+    "tag": "c:sands"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:gold_nugget"
+  },
+  "result_amount": {
+    "type": "minecraft:binomial",
+    "n": 1.0,
+    "p": 0.05
+  }
+}

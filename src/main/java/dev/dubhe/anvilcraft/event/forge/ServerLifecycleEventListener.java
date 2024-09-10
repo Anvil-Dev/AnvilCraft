@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.api.event.forge.DataPackReloadedEvent;
 import dev.dubhe.anvilcraft.api.event.server.ServerEndDataPackReloadEvent;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.world.load.RandomChuckTickLoadManager;
+import dev.dubhe.anvilcraft.recipe.cache.RecipeCaches;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.resources.CloseableResourceManager;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -56,6 +57,7 @@ public class ServerLifecycleEventListener {
         PowerGrid.isServerClosing = false;
         PowerGrid.clear();
         ThermoManager.clear();
+        RecipeCaches.unload();
     }
 
     /**

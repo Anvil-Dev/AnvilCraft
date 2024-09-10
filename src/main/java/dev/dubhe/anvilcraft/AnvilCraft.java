@@ -20,9 +20,12 @@ import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.ModNetworks;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.init.forge.ModVillagers;
+import dev.dubhe.anvilcraft.recipe.cache.RecipeCaches;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Unit;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -31,6 +34,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -66,8 +70,9 @@ public class AnvilCraft {
         ModRecipeTypes.register(modEventBus);
         // datagen
         AnvilCraftDatagen.init();
-        NeoForge.EVENT_BUS.addListener(AnvilCraft::registerCommand);
+
         registerEvents(modEventBus);
+
         try {
             ClientEventListener ignore = new ClientEventListener();
         } catch (NoSuchMethodError ignore) {
@@ -80,7 +85,10 @@ public class AnvilCraft {
 
     }
 
-    private static void registerEvents(IEventBus eventBus){
+    private static void registerEvents(IEventBus eventBus) {
+        NeoForge.EVENT_BUS.addListener(AnvilCraft::registerCommand);
+        NeoForge.EVENT_BUS.addListener(AnvilCraft::addReloadListeners);
+
         eventBus.addListener(AnvilCraft::registerPayload);
         if (FMLEnvironment.dist == Dist.CLIENT) {
             eventBus.register(new GuiLayerRegistrationEventListener());
@@ -99,5 +107,12 @@ public class AnvilCraft {
     public static void registerPayload(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar("1");
         ModNetworks.init(registrar);
+    }
+
+    public static void addReloadListeners(AddReloadListenerEvent event) {
+        RecipeManager recipeManager = event.getServerResources().getRecipeManager();
+        event.addListener(((prepBarrier, resourceManager, prepProfiler, reloadProfiler, backgroundExecutor, gameExecutor) -> prepBarrier.wait(Unit.INSTANCE).thenRunAsync(() -> {
+            RecipeCaches.reload(recipeManager);
+        }, gameExecutor)));
     }
 }

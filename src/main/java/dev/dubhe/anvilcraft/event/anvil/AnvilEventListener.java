@@ -3,7 +3,14 @@ package dev.dubhe.anvilcraft.event.anvil;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.CompressRecipe;
 import dev.dubhe.anvilcraft.recipe.CrushRecipe;
+import dev.dubhe.anvilcraft.recipe.MeshRecipe;
+import dev.dubhe.anvilcraft.recipe.cache.RecipeCaches;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.storage.loot.LootContext;
 import net.neoforged.bus.api.SubscribeEvent;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.IHasMultiBlock;
@@ -60,6 +67,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -83,6 +91,7 @@ public class AnvilEventListener {
         handleCompressRecipe(level, belowPos);
         handleCrushRecipe(level, belowPos);
 
+        if (state.is(Blocks.SCAFFOLDING)) handleMeshRecipe(level, pos);
         if (state.is(Blocks.REDSTONE_BLOCK)) redstoneEmp(level, belowPos, event.getFallDistance());
         if (state.is(Blocks.SPAWNER)) hitSpawner(level, belowPos, event.getFallDistance());
         if (state.is(Blocks.BEEHIVE) || state.is(Blocks.BEE_NEST)) hitBeeNest(level, state, belowPos);
@@ -123,6 +132,29 @@ public class AnvilEventListener {
             }
             level.setBlockAndUpdate(pos.below(recipe.value().inputs.size() - 1), recipe.value().result.defaultBlockState());
         });
+    }
+
+    private void handleMeshRecipe(Level level, final BlockPos pos) {
+        List<ItemEntity> entities = level.getEntitiesOfClass(ItemEntity.class, new AABB(pos));
+        for (ItemEntity entity : entities) {
+            ItemStack stack = entity.getItem();
+            List<RecipeHolder<MeshRecipe>> cacheMeshRecipes = RecipeCaches.getCacheMeshRecipes(stack);
+            if (cacheMeshRecipes != null && !cacheMeshRecipes.isEmpty()) {
+                LootContext context = new LootContext.Builder(new LootParams((ServerLevel) level, Map.of(), Map.of(), 0)).create(Optional.empty());
+                Object2IntMap<Item> itemCounts = new Object2IntOpenHashMap<>();
+                for (int i = 0; i < stack.getCount(); i++) {
+                    for (RecipeHolder<MeshRecipe> recipe : cacheMeshRecipes) {
+                        int amount = recipe.value().resultAmount.getInt(context);
+                        itemCounts.mergeInt(recipe.value().result.getItem(), amount, Integer::sum);
+                    }
+                }
+                List<ItemStack> outputs = itemCounts.object2IntEntrySet().stream()
+                        .map(entry -> new ItemStack(entry.getKey(), entry.getIntValue()))
+                        .toList();
+                dropItems(outputs, level, pos.below().getCenter());
+                entity.remove(Entity.RemovalReason.DISCARDED);
+            }
+        }
     }
 
     private void hitBeeNest(Level level, BlockState state, BlockPos pos) {

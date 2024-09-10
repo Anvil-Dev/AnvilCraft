@@ -6,5 +6,6 @@ public class RecipeHandler {
     public static void init(RegistrateRecipeProvider provider) {
         CrushRecipeLoader.init(provider);
         CompressRecipeLoader.init(provider);
+        MeshRecipeLoader.init(provider);
     }
 }
