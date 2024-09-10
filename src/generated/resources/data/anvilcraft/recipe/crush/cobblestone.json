@@ -1,0 +1,5 @@
+{
+  "type": "anvilcraft:crush",
+  "input": "minecraft:stone",
+  "result": "minecraft:cobblestone"
+}

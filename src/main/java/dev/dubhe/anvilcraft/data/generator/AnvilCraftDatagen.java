@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.generator.lang.LangHandler;
 import dev.dubhe.anvilcraft.data.generator.provider.ModLootTableProvider;
 import dev.dubhe.anvilcraft.data.generator.provider.ModRegistryProvider;
+import dev.dubhe.anvilcraft.data.generator.recipe.RecipeHandler;
 import dev.dubhe.anvilcraft.data.generator.tags.TagsHandler;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
@@ -50,6 +51,7 @@ public class AnvilCraftDatagen {
         REGISTRATE.addDataGenerator(ProviderType.BLOCK_TAGS, TagsHandler::initBlock);
         REGISTRATE.addDataGenerator(ProviderType.FLUID_TAGS, TagsHandler::initFluid);
         REGISTRATE.addDataGenerator(ProviderType.LANG, LangHandler::init);
+        REGISTRATE.addDataGenerator(ProviderType.RECIPE, RecipeHandler::init);
     }
 
     public static @NotNull Criterion<InventoryChangeTrigger.TriggerInstance> has(ItemLike itemLike) {

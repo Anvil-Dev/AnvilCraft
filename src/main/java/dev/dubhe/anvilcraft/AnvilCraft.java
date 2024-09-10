@@ -5,9 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.tterrag.registrate.Registrate;
 import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
-import dev.dubhe.anvilcraft.event.anvil.AnvilBehavior;
 import dev.dubhe.anvilcraft.event.forge.ClientEventListener;
-import dev.dubhe.anvilcraft.event.forge.CommonEventHandlerListener;
 import dev.dubhe.anvilcraft.event.forge.GuiLayerRegistrationEventListener;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
@@ -20,6 +18,7 @@ import dev.dubhe.anvilcraft.init.ModItemGroups;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.ModNetworks;
+import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.init.forge.ModVillagers;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
@@ -62,9 +61,9 @@ public class AnvilCraft {
         ModBlockEntities.register();
         ModMenuTypes.register();
         ModDispenserBehavior.register();
-        AnvilBehavior.register();
         ModComponents.register(modEventBus);
         ModVillagers.register(modEventBus);
+        ModRecipeTypes.register(modEventBus);
         // datagen
         AnvilCraftDatagen.init();
         NeoForge.EVENT_BUS.addListener(AnvilCraft::registerCommand);
