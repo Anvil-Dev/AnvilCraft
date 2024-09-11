@@ -24,5 +24,10 @@ public interface AnvilBehavior {
             level.setBlockAndUpdate(hitBlockPos, Blocks.GRAVEL.defaultBlockState());
             return true;
         });
+        registerBehavior((level, hitBlockPos, hitBlockState, fallDistance) -> {
+            if (!hitBlockState.is(Blocks.GRAVEL)) return false;
+            level.setBlockAndUpdate(hitBlockPos, Blocks.SAND.defaultBlockState());
+            return true;
+        });
     }
 }

@@ -70,6 +70,7 @@ import net.neoforged.neoforge.event.EventHooks;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -119,22 +120,23 @@ public class AnvilEventListener {
     private void handleBlockCrushRecipe(Level level, final BlockPos pos) {
         BlockState state = level.getBlockState(pos);
         level.getRecipeManager().getRecipeFor(
-                ModRecipeTypes.BLOCK_CRUSH_TYPE.get(),
-                new BlockCrushRecipe.Input(state.getBlock()), level
+            ModRecipeTypes.BLOCK_CRUSH_TYPE.get(),
+            new BlockCrushRecipe.Input(state.getBlock()), level
         ).ifPresent(recipe -> level.setBlockAndUpdate(pos, recipe.value().result.defaultBlockState()));
     }
 
     private void handleItemCrushRecipe(Level level, final BlockPos pos) {
-        List<ItemStack> items = level.getEntitiesOfClass(ItemEntity.class, new AABB(pos)).stream()
-                .map(ItemEntity::getItem)
-                .toList();
-        ItemCrushRecipe.Input input = new ItemCrushRecipe.Input(items);
+        Map<ItemEntity, ItemStack> items = level.getEntitiesOfClass(ItemEntity.class, new AABB(pos)).stream()
+            .map(it -> Map.entry(it, it.getItem()))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        ItemCrushRecipe.Input input = new ItemCrushRecipe.Input(items.values().stream().toList());
         level.getRecipeManager().getRecipeFor(ModRecipeTypes.ITEM_CRUSH_TYPE.get(), input, level).ifPresent(recipe -> {
             int times = recipe.value().getMaxCraftTime(input);
             ItemStack result = recipe.value().result.copy();
             result.setCount(times * result.getCount());
             for (int i = 0; i < times; i++) {
-                for (ItemStack stack : items) {
+                for (ItemStack stack : items.values()) {
                     for (Ingredient ingredient : recipe.value().getIngredients()) {
                         if (ingredient.test(stack)) {
                             stack.shrink(1);
@@ -143,9 +145,26 @@ public class AnvilEventListener {
                 }
             }
             dropItems(List.of(result), level, pos.below().getCenter());
-            AnvilCraft.LOGGER.info(recipe.id().toString());
         });
-
+        items.forEach((k, v) -> {
+            k.discard();
+            if (v.isEmpty()) {
+                return;
+            }
+            Vec3 entityPos = k.position();
+            Vec3 movement = k.getDeltaMovement();
+            ItemEntity entity = new ItemEntity(
+                level,
+                entityPos.x,
+                entityPos.y,
+                entityPos.z,
+                v.copy(),
+                movement.x,
+                movement.y,
+                movement.z
+            );
+            level.addFreshEntity(entity);
+        });
     }
 
     private void handleCompressRecipe(Level level, final BlockPos pos) {
@@ -154,8 +173,8 @@ public class AnvilEventListener {
             inputs.add(level.getBlockState(pos.below(i)).getBlock());
         }
         level.getRecipeManager().getRecipeFor(
-                ModRecipeTypes.COMPRESS_TYPE.get(),
-                new CompressRecipe.Input(inputs), level
+            ModRecipeTypes.COMPRESS_TYPE.get(),
+            new CompressRecipe.Input(inputs), level
         ).ifPresent(recipe -> {
             for (int i = 0; i < recipe.value().inputs.size(); i++) {
                 level.setBlockAndUpdate(pos.below(i), Blocks.AIR.defaultBlockState());
@@ -179,8 +198,8 @@ public class AnvilEventListener {
                     }
                 }
                 List<ItemStack> outputs = itemCounts.object2IntEntrySet().stream()
-                        .map(entry -> new ItemStack(entry.getKey(), entry.getIntValue()))
-                        .toList();
+                    .map(entry -> new ItemStack(entry.getKey(), entry.getIntValue()))
+                    .toList();
                 dropItems(outputs, level, pos.below().getCenter());
                 entity.remove(Entity.RemovalReason.DISCARDED);
             }
@@ -196,13 +215,13 @@ public class AnvilEventListener {
         if (pot.is(Blocks.CAULDRON)) {
             level.setBlockAndUpdate(pos, state.setValue(BeehiveBlock.HONEY_LEVEL, 0));
             level.setBlockAndUpdate(
-                    potPos,
-                    ModBlocks.HONEY_CAULDRON.getDefaultState()
+                potPos,
+                ModBlocks.HONEY_CAULDRON.getDefaultState()
             );
             level.setBlockAndUpdate(
-                    potPos,
-                    level.getBlockState(potPos)
-                            .setValue(LayeredCauldronBlock.LEVEL, 1)
+                potPos,
+                level.getBlockState(potPos)
+                    .setValue(LayeredCauldronBlock.LEVEL, 1)
             );
         } else {
             if (pot.is(ModBlocks.HONEY_CAULDRON.get())) {
@@ -210,13 +229,13 @@ public class AnvilEventListener {
                 level.setBlockAndUpdate(pos, state.setValue(BeehiveBlock.HONEY_LEVEL, 0));
                 if (cauldronHoneyLevel < LayeredCauldronBlock.MAX_FILL_LEVEL) {
                     level.setBlockAndUpdate(
-                            potPos,
-                            pot.setValue(LayeredCauldronBlock.LEVEL, cauldronHoneyLevel + 1)
+                        potPos,
+                        pot.setValue(LayeredCauldronBlock.LEVEL, cauldronHoneyLevel + 1)
                     );
                 } else {
                     level.setBlockAndUpdate(
-                            potPos,
-                            Blocks.CAULDRON.defaultBlockState()
+                        potPos,
+                        Blocks.CAULDRON.defaultBlockState()
                     );
                     this.returnItems(level, potPos, List.of(Items.HONEY_BLOCK.getDefaultInstance()));
                 }
@@ -263,11 +282,11 @@ public class AnvilEventListener {
     }
 
     private void spawnEntities(
-            SpawnData spawnData,
-            ServerLevel serverLevel,
-            BlockPos pos,
-            RandomSource randomSource,
-            @NotNull BaseSpawnerAccessor accessor
+        SpawnData spawnData,
+        ServerLevel serverLevel,
+        BlockPos pos,
+        RandomSource randomSource,
+        @NotNull BaseSpawnerAccessor accessor
     ) {
         for (int i = 0; i < accessor.getSpawnCount(); ++i) {
             CompoundTag compoundTag = spawnData.getEntityToSpawn();
@@ -285,8 +304,8 @@ public class AnvilEventListener {
                 x = listTag.getDouble(0);
             } else {
                 x = (double) pos.getX()
-                        + (randomSource.nextDouble() - randomSource.nextDouble())
-                        * accessor.getSpawnRange() + 0.5;
+                    + (randomSource.nextDouble() - randomSource.nextDouble())
+                    * accessor.getSpawnRange() + 0.5;
             }
             if (size >= 2) {
                 y = listTag.getDouble(1);
@@ -297,31 +316,31 @@ public class AnvilEventListener {
                 z = listTag.getDouble(2);
             } else {
                 z = (double) pos.getZ()
-                        + (randomSource.nextDouble() - randomSource.nextDouble())
-                        * accessor.getSpawnRange() + 0.5;
+                    + (randomSource.nextDouble() - randomSource.nextDouble())
+                    * accessor.getSpawnRange() + 0.5;
             }
             if (serverLevel.noCollision(optional.get().getSpawnAABB(x, y, z))) {
                 BlockPos blockPos = BlockPos.containing(x, y, z);
                 if (spawnData.getCustomSpawnRules().isPresent()) {
                     if (!optional.get().getCategory().isFriendly()
-                            && serverLevel.getDifficulty() == Difficulty.PEACEFUL
+                        && serverLevel.getDifficulty() == Difficulty.PEACEFUL
                     ) {
                         continue;
                     }
 
                     SpawnData.CustomSpawnRules customSpawnRules = spawnData.getCustomSpawnRules().get();
                     if (!customSpawnRules.blockLightLimit()
-                            .isValueInRange(serverLevel.getBrightness(LightLayer.BLOCK, blockPos))
-                            || !customSpawnRules.skyLightLimit()
-                            .isValueInRange(serverLevel.getBrightness(LightLayer.SKY, blockPos))) {
+                        .isValueInRange(serverLevel.getBrightness(LightLayer.BLOCK, blockPos))
+                        || !customSpawnRules.skyLightLimit()
+                        .isValueInRange(serverLevel.getBrightness(LightLayer.SKY, blockPos))) {
                         continue;
                     }
                 } else if (!SpawnPlacements.checkSpawnRules(
-                        optional.get(),
-                        serverLevel,
-                        MobSpawnType.SPAWNER,
-                        blockPos,
-                        serverLevel.getRandom()
+                    optional.get(),
+                    serverLevel,
+                    MobSpawnType.SPAWNER,
+                    blockPos,
+                    serverLevel.getRandom()
                 )) {
                     continue;
                 }
@@ -333,16 +352,16 @@ public class AnvilEventListener {
                     return;
                 }
                 AABB boundingBox = new AABB(
-                        pos.getX(),
-                        pos.getY(),
-                        pos.getZ(),
-                        pos.getX() + 1,
-                        pos.getY() + 1,
-                        pos.getZ() + 1
+                    pos.getX(),
+                    pos.getY(),
+                    pos.getZ(),
+                    pos.getX() + 1,
+                    pos.getY() + 1,
+                    pos.getZ() + 1
                 );
                 int k = serverLevel.getEntitiesOfClass(
-                        entity.getClass(),
-                        boundingBox.inflate(accessor.getSpawnRange())
+                    entity.getClass(),
+                    boundingBox.inflate(accessor.getSpawnRange())
                 ).size();
                 if (k >= accessor.getMaxNearbyEntities()) {
                     return;
@@ -351,18 +370,18 @@ public class AnvilEventListener {
                 entity.moveTo(entity.getX(), entity.getY(), entity.getZ(), randomSource.nextFloat() * 360.0F, 0.0F);
                 if (entity instanceof Mob mob) {
                     if (spawnData.getCustomSpawnRules().isEmpty()
-                            && !mob.checkSpawnRules(serverLevel, MobSpawnType.SPAWNER)
-                            || !mob.checkSpawnObstruction(serverLevel)) {
+                        && !mob.checkSpawnRules(serverLevel, MobSpawnType.SPAWNER)
+                        || !mob.checkSpawnObstruction(serverLevel)) {
                         continue;
                     }
 
                     if (spawnData.getEntityToSpawn().size() == 1 && spawnData.getEntityToSpawn().contains("id", 8)) {
                         EventHooks.finalizeMobSpawn(
-                                (Mob) entity,
-                                serverLevel,
-                                serverLevel.getCurrentDifficultyAt(entity.blockPosition()),
-                                MobSpawnType.SPAWNER,
-                                null
+                            (Mob) entity,
+                            serverLevel,
+                            serverLevel.getCurrentDifficultyAt(entity.blockPosition()),
+                            MobSpawnType.SPAWNER,
+                            null
                         );
                     }
                 }
@@ -397,10 +416,10 @@ public class AnvilEventListener {
         if (state.getDestroySpeed(level, pos) < 0) return;
         BlockEntity blockEntity = state.hasBlockEntity() ? level.getBlockEntity(pos) : null;
         LootParams.Builder builder = new LootParams
-                .Builder(serverLevel)
-                .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos))
-                .withParameter(LootContextParams.TOOL, ItemStack.EMPTY)
-                .withOptionalParameter(LootContextParams.BLOCK_ENTITY, blockEntity);
+            .Builder(serverLevel)
+            .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos))
+            .withParameter(LootContextParams.TOOL, ItemStack.EMPTY)
+            .withOptionalParameter(LootContextParams.BLOCK_ENTITY, blockEntity);
         state.spawnAfterBreak(serverLevel, pos, ItemStack.EMPTY, false);
         if (state.getBlock() instanceof IHasMultiBlock multiBlock) {
             multiBlock.onRemove(level, pos, state);
@@ -410,9 +429,9 @@ public class AnvilEventListener {
             drops = drops.stream().map(it -> {
                 SingleRecipeInput cont = new SingleRecipeInput(it);
                 return level.getRecipeManager().getRecipeFor(
-                        RecipeType.SMELTING,
-                        cont,
-                        level
+                    RecipeType.SMELTING,
+                    cont,
+                    level
                 ).map(smeltingRecipe -> smeltingRecipe.value().assemble(cont, level.registryAccess())).orElse(it);
             }).collect(Collectors.toList());
         }
