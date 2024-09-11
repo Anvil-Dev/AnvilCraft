@@ -3,13 +3,12 @@ package dev.dubhe.anvilcraft.event.anvil;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.CompressRecipe;
 import dev.dubhe.anvilcraft.recipe.BlockCrushRecipe;
+import dev.dubhe.anvilcraft.recipe.ItemCrushRecipe;
 import dev.dubhe.anvilcraft.recipe.MeshRecipe;
 import dev.dubhe.anvilcraft.recipe.cache.RecipeCaches;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Block;
@@ -71,12 +70,10 @@ import net.neoforged.neoforge.event.EventHooks;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class AnvilEventListener {
 
@@ -128,24 +125,26 @@ public class AnvilEventListener {
     }
 
     private void handleItemCrushRecipe(Level level, final BlockPos pos) {
-        NonNullList<ItemStack> items = NonNullList.withSize(9, ItemStack.EMPTY);
-        List<ItemStack> list = level.getEntitiesOfClass(ItemEntity.class, new AABB(pos)).stream()
+        List<ItemStack> items = level.getEntitiesOfClass(ItemEntity.class, new AABB(pos)).stream()
                 .map(ItemEntity::getItem)
                 .toList();
-        for (int i = 0; i < list.size(); i++) {
-            items.set(i, list.get(i));
-        }
-        level.getRecipeManager().getRecipeFor(
-                ModRecipeTypes.ITEM_CRUSH_TYPE.get(),
-                CraftingInput.of(3, 3, items), level
-        ).ifPresent(recipe -> items.stream()
-                .filter(stack -> !stack.isEmpty())
-                .min(Comparator.comparingInt(ItemStack::getCount)).ifPresent(s -> {
+        ItemCrushRecipe.Input input = new ItemCrushRecipe.Input(items);
+        level.getRecipeManager().getRecipeFor(ModRecipeTypes.ITEM_CRUSH_TYPE.get(), input, level).ifPresent(recipe -> {
+            int times = recipe.value().getMaxCraftTime(input);
             ItemStack result = recipe.value().result.copy();
-            result.setCount(result.getCount() * s.getCount());
-            items.forEach(stack -> stack.shrink(s.getCount()));
+            result.setCount(times * result.getCount());
+            for (int i = 0; i < times; i++) {
+                for (ItemStack stack : items) {
+                    for (Ingredient ingredient : recipe.value().getIngredients()) {
+                        if (ingredient.test(stack)) {
+                            stack.shrink(1);
+                        }
+                    }
+                }
+            }
             dropItems(List.of(result), level, pos.below().getCenter());
-        }));
+            AnvilCraft.LOGGER.info(recipe.id().toString());
+        });
 
     }
 

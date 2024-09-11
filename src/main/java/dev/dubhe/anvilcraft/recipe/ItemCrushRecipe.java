@@ -5,6 +5,10 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.builder.AbstractRecipeBuilder;
+import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
+import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -17,26 +21,26 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.common.util.RecipeMatcher;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class ItemCrushRecipe implements Recipe<CraftingInput> {
+public class ItemCrushRecipe implements Recipe<ItemCrushRecipe.Input> {
     public final NonNullList<Ingredient> ingredients;
     public final ItemStack result;
     public final boolean isSimple;
+    private Input cacheInput;
+    private int cacheMaxCraftTime = -1;
 
     public ItemCrushRecipe(NonNullList<Ingredient> ingredients, ItemStack result) {
         this.ingredients = ingredients;
@@ -69,27 +73,61 @@ public class ItemCrushRecipe implements Recipe<CraftingInput> {
     }
 
     @Override
-    public boolean matches(CraftingInput pInput, Level pLevel) {
-        if (pInput.ingredientCount() != ingredients.size()) {
-            return false;
-        } else if (!isSimple) {
-            List<ItemStack> items = new ArrayList<>(pInput.ingredientCount());
-            for (ItemStack stack : pInput.items()) {
-                if (!stack.isEmpty()) {
-                    items.add(stack);
-                }
-            }
-            return RecipeMatcher.findMatches(items, this.ingredients) != null;
-        } else {
-            return pInput.size() == 1 && this.ingredients.size() == 1
-                    ? this.ingredients.getFirst().test(pInput.getItem(0))
-                    : pInput.stackedContents().canCraft(this, null);
-        }
+    public boolean matches(Input pInput, Level pLevel) {
+        return getMaxCraftTime(pInput) > 0;
     }
 
     @Override
-    public ItemStack assemble(CraftingInput pInput, HolderLookup.Provider pRegistries) {
+    public ItemStack assemble(Input pInput, HolderLookup.Provider pRegistries) {
         return this.result.copy();
+    }
+
+    public int getMaxCraftTime(Input pInput) {
+        if (cacheInput == pInput) {
+            return cacheMaxCraftTime;
+        }
+        Object2IntMap<Item> contents = new Object2IntOpenHashMap<>();
+        Object2BooleanMap<Item> flags = new Object2BooleanOpenHashMap<>();
+        for (ItemStack stack : pInput.items()) {
+            contents.mergeInt(stack.getItem(), stack.getCount(), Integer::sum);
+            flags.put(stack.getItem(), false);
+        }
+        int times = 0;
+        while (true) {
+            for (Ingredient ingredient : ingredients) {
+                for (Item item : contents.keySet()) {
+                    if (ingredient.test(new ItemStack(item))) {
+                        contents.put(item, contents.getInt(item) - 1);
+                        flags.put(item, true);
+                    }
+                }
+            }
+            if (flags.values().stream().anyMatch(flag -> !flag)) {
+                cacheInput = pInput;
+                cacheMaxCraftTime = 0;
+                return 0;
+            }
+            if (contents.values().intStream().allMatch(i -> i >= 0)) {
+                times += 1;
+            } else {
+                cacheInput = pInput;
+                cacheMaxCraftTime = times;
+                return times;
+            }
+        }
+    }
+
+    public record Input(List<ItemStack> items) implements RecipeInput {
+
+        @Override
+        public ItemStack getItem(int pIndex) {
+            return items.get(pIndex);
+        }
+
+        @Override
+        public int size() {
+            return items.size();
+        }
     }
 
     public static class Serializer implements RecipeSerializer<ItemCrushRecipe> {
