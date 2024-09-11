@@ -26,17 +26,17 @@ import net.minecraft.world.level.block.Block;
 
 @MethodsReturnNonnullByDefault
 @Getter
-public class CrushRecipe implements Recipe<CrushRecipe.Input> {
+public class BlockCrushRecipe implements Recipe<BlockCrushRecipe.Input> {
 
     public final Block input;
     public final Block result;
 
-    public CrushRecipe(Block input, Block result) {
+    public BlockCrushRecipe(Block input, Block result) {
         this.input = input;
         this.result = result;
     }
 
-    public CrushRecipe(String input, String result) {
+    public BlockCrushRecipe(String input, String result) {
         this(
                 BuiltInRegistries.BLOCK.get(ResourceLocation.parse(input)),
                 BuiltInRegistries.BLOCK.get(ResourceLocation.parse(result))
@@ -49,12 +49,12 @@ public class CrushRecipe implements Recipe<CrushRecipe.Input> {
 
     @Override
     public RecipeType<?> getType() {
-        return ModRecipeTypes.CRUSH_TYPE.get();
+        return ModRecipeTypes.BLOCK_CRUSH_TYPE.get();
     }
 
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return ModRecipeTypes.CRUSH_SERIALIZER.get();
+        return ModRecipeTypes.BLOCK_CRUSH_SERIALIZER.get();
     }
 
     @Override
@@ -95,32 +95,32 @@ public class CrushRecipe implements Recipe<CrushRecipe.Input> {
         }
     }
 
-    public static class Serializer implements RecipeSerializer<CrushRecipe> {
-        private static final MapCodec<CrushRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
+    public static class Serializer implements RecipeSerializer<BlockCrushRecipe> {
+        private static final MapCodec<BlockCrushRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
                 Codec.STRING.fieldOf("input").forGetter(recipe -> BuiltInRegistries.BLOCK.getKey(recipe.input).toString()),
                 Codec.STRING.fieldOf("result").forGetter(recipe -> BuiltInRegistries.BLOCK.getKey(recipe.result).toString())
-        ).apply(ins, CrushRecipe::new));
+        ).apply(ins, BlockCrushRecipe::new));
 
-        private static final StreamCodec<RegistryFriendlyByteBuf, CrushRecipe> STREAM_CODEC = StreamCodec.composite(
+        private static final StreamCodec<RegistryFriendlyByteBuf, BlockCrushRecipe> STREAM_CODEC = StreamCodec.composite(
                 ByteBufCodecs.STRING_UTF8, recipe -> BuiltInRegistries.BLOCK.getKey(recipe.getInput()).toString(),
                 ByteBufCodecs.STRING_UTF8, recipe -> BuiltInRegistries.BLOCK.getKey(recipe.getResult()).toString(),
-                CrushRecipe::new
+                BlockCrushRecipe::new
         );
 
         @Override
-        public MapCodec<CrushRecipe> codec() {
+        public MapCodec<BlockCrushRecipe> codec() {
             return CODEC;
         }
 
         @Override
-        public StreamCodec<RegistryFriendlyByteBuf, CrushRecipe> streamCodec() {
+        public StreamCodec<RegistryFriendlyByteBuf, BlockCrushRecipe> streamCodec() {
             return STREAM_CODEC;
         }
     }
 
     @Setter
     @Accessors(fluent = true, chain = true)
-    public static class Builder extends AbstractRecipeBuilder<CrushRecipe> {
+    public static class Builder extends AbstractRecipeBuilder<BlockCrushRecipe> {
         private Block input;
         private Block result;
 
@@ -130,8 +130,8 @@ public class CrushRecipe implements Recipe<CrushRecipe.Input> {
         }
 
         @Override
-        public CrushRecipe buildRecipe() {
-            return new CrushRecipe(input, result);
+        public BlockCrushRecipe buildRecipe() {
+            return new BlockCrushRecipe(input, result);
         }
 
         @Override

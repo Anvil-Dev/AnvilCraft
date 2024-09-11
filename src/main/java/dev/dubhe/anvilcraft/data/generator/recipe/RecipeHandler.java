@@ -4,7 +4,8 @@ import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 
 public class RecipeHandler {
     public static void init(RegistrateRecipeProvider provider) {
-        CrushRecipeLoader.init(provider);
+        BlockCrushRecipeLoader.init(provider);
+        ItemCrushRecipeLoader.init(provider);
         CompressRecipeLoader.init(provider);
         MeshRecipeLoader.init(provider);
     }

@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:crush/cobblestone"
+        "recipe": "anvilcraft:block_crush/cobblestone"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -15,7 +15,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:crush/cobblestone"
+      "anvilcraft:block_crush/cobblestone"
     ]
   }
 }

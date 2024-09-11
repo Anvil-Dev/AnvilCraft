@@ -2,7 +2,8 @@ package dev.dubhe.anvilcraft.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.recipe.CompressRecipe;
-import dev.dubhe.anvilcraft.recipe.CrushRecipe;
+import dev.dubhe.anvilcraft.recipe.BlockCrushRecipe;
+import dev.dubhe.anvilcraft.recipe.ItemCrushRecipe;
 import dev.dubhe.anvilcraft.recipe.MeshRecipe;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.crafting.Recipe;
@@ -17,8 +18,11 @@ public class ModRecipeTypes {
     private static final DeferredRegister<RecipeType<?>> RECIPE_TYPES = DeferredRegister.create(Registries.RECIPE_TYPE, AnvilCraft.MOD_ID);
     private static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(Registries.RECIPE_SERIALIZER, AnvilCraft.MOD_ID);
 
-    public static final DeferredHolder<RecipeType<?>, RecipeType<CrushRecipe>> CRUSH_TYPE = registerType("crush");
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<CrushRecipe>> CRUSH_SERIALIZER = RECIPE_SERIALIZERS.register("crush", CrushRecipe.Serializer::new);
+    public static final DeferredHolder<RecipeType<?>, RecipeType<BlockCrushRecipe>> BLOCK_CRUSH_TYPE = registerType("block_crush");
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<BlockCrushRecipe>> BLOCK_CRUSH_SERIALIZER = RECIPE_SERIALIZERS.register("block_crush", BlockCrushRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<ItemCrushRecipe>> ITEM_CRUSH_TYPE = registerType("item_crush");
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<ItemCrushRecipe>> ITEM_CRUSH_SERIALIZERS = RECIPE_SERIALIZERS.register("item_crush", ItemCrushRecipe.Serializer::new);
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<CompressRecipe>> COMPRESS_TYPE = registerType("compress");
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<CompressRecipe>> COMPRESS_SERIALIZER = RECIPE_SERIALIZERS.register("compress", CompressRecipe.Serializer::new);

@@ -2,14 +2,19 @@ package dev.dubhe.anvilcraft.event.anvil;
 
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.CompressRecipe;
-import dev.dubhe.anvilcraft.recipe.CrushRecipe;
+import dev.dubhe.anvilcraft.recipe.BlockCrushRecipe;
 import dev.dubhe.anvilcraft.recipe.MeshRecipe;
 import dev.dubhe.anvilcraft.recipe.cache.RecipeCaches;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.TrapDoorBlock;
+import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.neoforged.bus.api.SubscribeEvent;
 import dev.dubhe.anvilcraft.AnvilCraft;
@@ -66,10 +71,12 @@ import net.neoforged.neoforge.event.EventHooks;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class AnvilEventListener {
 
@@ -89,9 +96,11 @@ public class AnvilEventListener {
         BlockState state = level.getBlockState(belowPos);
 
         handleCompressRecipe(level, belowPos);
-        handleCrushRecipe(level, belowPos);
-
+        handleBlockCrushRecipe(level, belowPos);
+        if (state.is(Blocks.IRON_TRAPDOOR) && state.getValue(TrapDoorBlock.HALF) == Half.TOP && !state.getValue(TrapDoorBlock.OPEN))
+            handleItemCrushRecipe(level, pos);
         if (state.is(Blocks.SCAFFOLDING)) handleMeshRecipe(level, pos);
+
         if (state.is(Blocks.REDSTONE_BLOCK)) redstoneEmp(level, belowPos, event.getFallDistance());
         if (state.is(Blocks.SPAWNER)) hitSpawner(level, belowPos, event.getFallDistance());
         if (state.is(Blocks.BEEHIVE) || state.is(Blocks.BEE_NEST)) hitBeeNest(level, state, belowPos);
@@ -110,12 +119,34 @@ public class AnvilEventListener {
 //        optional.ifPresent(anvilRecipe -> anvilProcess(anvilRecipe, context, event));
     }
 
-    private void handleCrushRecipe(Level level, final BlockPos pos) {
+    private void handleBlockCrushRecipe(Level level, final BlockPos pos) {
         BlockState state = level.getBlockState(pos);
         level.getRecipeManager().getRecipeFor(
-                ModRecipeTypes.CRUSH_TYPE.get(),
-                new CrushRecipe.Input(state.getBlock()), level
+                ModRecipeTypes.BLOCK_CRUSH_TYPE.get(),
+                new BlockCrushRecipe.Input(state.getBlock()), level
         ).ifPresent(recipe -> level.setBlockAndUpdate(pos, recipe.value().result.defaultBlockState()));
+    }
+
+    private void handleItemCrushRecipe(Level level, final BlockPos pos) {
+        NonNullList<ItemStack> items = NonNullList.withSize(9, ItemStack.EMPTY);
+        List<ItemStack> list = level.getEntitiesOfClass(ItemEntity.class, new AABB(pos)).stream()
+                .map(ItemEntity::getItem)
+                .toList();
+        for (int i = 0; i < list.size(); i++) {
+            items.set(i, list.get(i));
+        }
+        level.getRecipeManager().getRecipeFor(
+                ModRecipeTypes.ITEM_CRUSH_TYPE.get(),
+                CraftingInput.of(3, 3, items), level
+        ).ifPresent(recipe -> items.stream()
+                .filter(stack -> !stack.isEmpty())
+                .min(Comparator.comparingInt(ItemStack::getCount)).ifPresent(s -> {
+            ItemStack result = recipe.value().result.copy();
+            result.setCount(result.getCount() * s.getCount());
+            items.forEach(stack -> stack.shrink(s.getCount()));
+            dropItems(List.of(result), level, pos.below().getCenter());
+        }));
+
     }
 
     private void handleCompressRecipe(Level level, final BlockPos pos) {
