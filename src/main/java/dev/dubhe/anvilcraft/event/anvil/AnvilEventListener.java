@@ -147,23 +147,11 @@ public class AnvilEventListener {
             dropItems(List.of(result), level, pos.below().getCenter());
         });
         items.forEach((k, v) -> {
-            k.discard();
             if (v.isEmpty()) {
+                k.discard();
                 return;
             }
-            Vec3 entityPos = k.position();
-            Vec3 movement = k.getDeltaMovement();
-            ItemEntity entity = new ItemEntity(
-                level,
-                entityPos.x,
-                entityPos.y,
-                entityPos.z,
-                v.copy(),
-                movement.x,
-                movement.y,
-                movement.z
-            );
-            level.addFreshEntity(entity);
+            k.setItem(v.copy());
         });
     }
 
