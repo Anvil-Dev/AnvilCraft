@@ -120,10 +120,12 @@ public class AnvilCraftConfig implements ConfigData {
     public int inductionLightBlockRipeningRange = 5;
 
     @Comment("The number of ticks between heliostat detections")
-    @ConfigEntry.Gui.Tooltip
     @ConfigEntry.BoundedDiscrete(max = 20, min = 1)
     @SerializedName("Heliostats detection interval")
     public int heliostatsDetectionInterval = 4;
+
+    @ConfigEntry.Gui.Tooltip
+    public boolean doNotShowTooltipWhenJadePresent = true;
 
     public static class PowerConverter implements ConfigData {
         @Comment("The working interval of power converters")
