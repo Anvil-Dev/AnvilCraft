@@ -1,7 +1,6 @@
-package dev.dubhe.anvilcraft.init.forge;
+package dev.dubhe.anvilcraft.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.init.ModBlocks;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.sounds.SoundEvents;

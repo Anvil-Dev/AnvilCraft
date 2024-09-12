@@ -388,6 +388,8 @@
   "text.autoconfig.anvilcraft.option.chuteMaxCooldown.@Tooltip": "Maximum cooldown time of chute (in ticks)",
   "text.autoconfig.anvilcraft.option.displayAnvilAnimation": "Display Anvil Animation",
   "text.autoconfig.anvilcraft.option.displayAnvilAnimation.@Tooltip": "Should show anvil levitate animation",
+  "text.autoconfig.anvilcraft.option.doNotShowTooltipWhenJadePresent": "Do Not Show Tooltip When Jade Present",
+  "text.autoconfig.anvilcraft.option.doNotShowTooltipWhenJadePresent.@Tooltip": "Do not render power component tooltip when jade present",
   "text.autoconfig.anvilcraft.option.fellingBlockPerLevel": "Felling Block Per Level",
   "text.autoconfig.anvilcraft.option.fellingBlockPerLevel.@Tooltip": "The maximum number of logs that can be cut per level of Felling enchantment",
   "text.autoconfig.anvilcraft.option.geodeCooldown": "Geode Search Cooldown",

@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.data.generator;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.generator.lang.LangHandler;
 import dev.dubhe.anvilcraft.data.generator.provider.ModLootTableProvider;
+import dev.dubhe.anvilcraft.data.generator.provider.ModPoiTagProvider;
 import dev.dubhe.anvilcraft.data.generator.provider.ModRegistryProvider;
 import dev.dubhe.anvilcraft.data.generator.recipe.RecipeHandler;
 import dev.dubhe.anvilcraft.data.generator.tags.TagsHandler;
@@ -31,9 +32,6 @@ import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class AnvilCraftDatagen {
-    /**
-     *
-     */
     @SubscribeEvent
     public static void gatherData(GatherDataEvent event) {
         DataGenerator generator = event.getGenerator();
@@ -45,6 +43,9 @@ public class AnvilCraftDatagen {
                 event.includeServer(), new ModRegistryProvider(packOutput, lookupProvider));
         generator.addProvider(
                 event.includeServer(), new ModLootTableProvider(packOutput, lookupProvider));
+        generator.addProvider(
+                event.includeServer(),
+                new ModPoiTagProvider(packOutput, lookupProvider, existingFileHelper));
     }
 
     /**
