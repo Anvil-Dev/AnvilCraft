@@ -125,6 +125,7 @@ public class AnvilCraftConfig implements ConfigData {
     public int heliostatsDetectionInterval = 4;
 
     @ConfigEntry.Gui.Tooltip
+    @Comment("Do not render power component tooltip when jade present")
     public boolean doNotShowTooltipWhenJadePresent = true;
 
     public static class PowerConverter implements ConfigData {
