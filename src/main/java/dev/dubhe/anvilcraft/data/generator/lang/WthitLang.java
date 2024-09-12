@@ -13,7 +13,7 @@ public class WthitLang {
         provider.add("config.waila.plugin_anvilcraft.power_provider", "Anvil Craft Power");
         provider.add("config.waila.plugin_anvilcraft.warning_percent", "Warning Threshold");
 
-        //The tooltip variable temporarily uses Jade's translation key name:
-        //"tooltip.anvilcraft.jade.power_information"
+        // The tooltip variable temporarily uses Jade's translation key name:
+        // "tooltip.anvilcraft.jade.power_information"
     }
 }

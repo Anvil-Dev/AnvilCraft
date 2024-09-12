@@ -1,11 +1,13 @@
 package dev.dubhe.anvilcraft.inventory;
 
 import dev.dubhe.anvilcraft.block.entity.BaseMachineBlockEntity;
-import lombok.Getter;
+
 import net.minecraft.core.Direction;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.entity.BlockEntity;
+
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,7 +15,8 @@ import org.jetbrains.annotations.Nullable;
 public abstract class BaseMachineMenu extends AbstractContainerMenu {
     protected final BlockEntity machine;
 
-    protected BaseMachineMenu(@Nullable MenuType<?> menuType, int containerId, @NotNull BlockEntity machine) {
+    protected BaseMachineMenu(
+            @Nullable MenuType<?> menuType, int containerId, @NotNull BlockEntity machine) {
         super(menuType, containerId);
         this.machine = machine;
     }

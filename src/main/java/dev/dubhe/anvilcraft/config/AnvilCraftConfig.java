@@ -1,12 +1,12 @@
 package dev.dubhe.anvilcraft.config;
 
-import com.google.gson.annotations.SerializedName;
 import dev.dubhe.anvilcraft.AnvilCraft;
+
+import com.google.gson.annotations.SerializedName;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.Comment;
-
 
 @Config(name = AnvilCraft.MOD_ID)
 public class AnvilCraftConfig implements ConfigData {
@@ -108,7 +108,6 @@ public class AnvilCraftConfig implements ConfigData {
 
     @ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
     public PowerConverter powerConverter = new PowerConverter();
-
 
     @ConfigEntry.Gui.Tooltip()
     public boolean isLaserDoImpactChecking = true;

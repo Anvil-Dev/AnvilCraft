@@ -1,34 +1,34 @@
 package dev.dubhe.anvilcraft.item;
 
-import com.google.common.base.Suppliers;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.init.ModItems;
+
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.Block;
+
+import com.google.common.base.Suppliers;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 
 public enum ModTiers implements Tier {
     AMETHYST(
-        751,
-        4.0f,
-        1.0f,
-        10,
-        () -> Ingredient.of(Items.AMETHYST_SHARD),
-        ModBlockTags.INCORRECT_FOR_AMYTHEST_TOOL
-    ),
+            751,
+            4.0f,
+            1.0f,
+            10,
+            () -> Ingredient.of(Items.AMETHYST_SHARD),
+            ModBlockTags.INCORRECT_FOR_AMYTHEST_TOOL),
     EMBER_METAL(
-        0,
-        10.0f,
-        1.0f,
-        22,
-        () -> Ingredient.of(ModItems.EMBER_METAL_INGOT),
-        ModBlockTags.INCORRECT_FOR_EMBER_TOOL
-    );
+            0,
+            10.0f,
+            1.0f,
+            22,
+            () -> Ingredient.of(ModItems.EMBER_METAL_INGOT),
+            ModBlockTags.INCORRECT_FOR_EMBER_TOOL);
     private final int uses;
     private final float speed;
     private final float damage;
@@ -37,13 +37,12 @@ public enum ModTiers implements Tier {
     private final TagKey<Block> incorrectBlockTags;
 
     ModTiers(
-        int uses,
-        float speed,
-        float damage,
-        int enchantmentValue,
-        @NotNull Supplier<Ingredient> supplier,
-        TagKey<Block> incorrectBlockTags
-    ) {
+            int uses,
+            float speed,
+            float damage,
+            int enchantmentValue,
+            @NotNull Supplier<Ingredient> supplier,
+            TagKey<Block> incorrectBlockTags) {
         this.uses = uses;
         this.speed = speed;
         this.damage = damage;

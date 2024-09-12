@@ -1,13 +1,13 @@
 package dev.dubhe.anvilcraft.api.event.forge;
 
-import lombok.Getter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.bus.api.Event;
-import net.neoforged.fml.event.IModBusEvent;
+
+import lombok.Getter;
 
 @Getter
-public class BlockEntityEvent extends Event{
+public class BlockEntityEvent extends Event {
     private final Level level;
     private final BlockEntity entity;
 

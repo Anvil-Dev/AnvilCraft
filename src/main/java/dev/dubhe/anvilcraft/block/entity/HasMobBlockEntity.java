@@ -12,6 +12,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -68,8 +69,7 @@ public abstract class HasMobBlockEntity extends BlockEntity {
         return this.saveWithoutMetadata(provider);
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
     }
@@ -77,8 +77,7 @@ public abstract class HasMobBlockEntity extends BlockEntity {
     /**
      * @return 实体
      */
-    @Nullable
-    public Entity getOrCreateDisplayEntity(Level level) {
+    @Nullable public Entity getOrCreateDisplayEntity(Level level) {
         if (this.displayEntity == null && this.entity != null) {
             this.getEntity(level);
         }

@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
@@ -25,97 +26,123 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.stream.Stream;
 
 public class LargeCakeBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf> {
-    public static final EnumProperty<Cube3x3PartHalf> HALF = EnumProperty.create("half", Cube3x3PartHalf.class);
+    public static final EnumProperty<Cube3x3PartHalf> HALF =
+            EnumProperty.create("half", Cube3x3PartHalf.class);
 
     protected static final VoxelShape BASE_ANGLE_NW = Stream.of(
-        Block.box(1, 0, 1, 16, 6, 16), Block.box(0, 6, 0, 16, 16, 16)
-    ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+                    Block.box(1, 0, 1, 16, 6, 16), Block.box(0, 6, 0, 16, 16, 16))
+            .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
+            .get();
     protected static final VoxelShape BASE_ANGLE_SW = Stream.of(
-        Block.box(1, 0, 0, 16, 6, 15), Block.box(0, 6, 0, 16, 16, 16)
-    ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+                    Block.box(1, 0, 0, 16, 6, 15), Block.box(0, 6, 0, 16, 16, 16))
+            .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
+            .get();
     protected static final VoxelShape BASE_ANGLE_SE = Stream.of(
-        Block.box(0, 0, 0, 15, 6, 15), Block.box(0, 6, 0, 16, 16, 16)
-    ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+                    Block.box(0, 0, 0, 15, 6, 15), Block.box(0, 6, 0, 16, 16, 16))
+            .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
+            .get();
     protected static final VoxelShape BASE_ANGLE_NE = Stream.of(
-        Block.box(0, 0, 1, 15, 6, 16), Block.box(0, 6, 0, 16, 16, 16)
-    ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+                    Block.box(0, 0, 1, 15, 6, 16), Block.box(0, 6, 0, 16, 16, 16))
+            .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
+            .get();
 
     protected static final VoxelShape BASE_N = Stream.of(
-        Block.box(0, 6, 0, 16, 16, 16), Block.box(0, 0, 1, 16, 6, 16)
-    ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+                    Block.box(0, 6, 0, 16, 16, 16), Block.box(0, 0, 1, 16, 6, 16))
+            .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
+            .get();
     protected static final VoxelShape BASE_W = Stream.of(
-        Block.box(0, 6, 0, 16, 16, 16), Block.box(1, 0, 0, 16, 6, 16)
-    ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+                    Block.box(0, 6, 0, 16, 16, 16), Block.box(1, 0, 0, 16, 6, 16))
+            .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
+            .get();
     protected static final VoxelShape BASE_S = Stream.of(
-        Block.box(0, 6, 0, 16, 16, 16), Block.box(0, 0, 0, 16, 6, 15)
-    ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+                    Block.box(0, 6, 0, 16, 16, 16), Block.box(0, 0, 0, 16, 6, 15))
+            .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
+            .get();
     protected static final VoxelShape BASE_E = Stream.of(
-        Block.box(0, 6, 0, 16, 16, 16), Block.box(0, 0, 0, 15, 6, 16)
-    ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+                    Block.box(0, 6, 0, 16, 16, 16), Block.box(0, 0, 0, 15, 6, 16))
+            .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
+            .get();
 
     protected static final VoxelShape MID_CENTER = Block.box(1, 0, 1, 15, 14, 15);
 
     protected static final VoxelShape MID_ANGLE_NW = Stream.of(
-        Block.box(5, 5, 5, 17, 14, 17), Block.box(6, 0, 6, 17, 5, 17)
-    ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+                    Block.box(5, 5, 5, 17, 14, 17), Block.box(6, 0, 6, 17, 5, 17))
+            .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
+            .get();
     protected static final VoxelShape MID_ANGLE_SW = Stream.of(
-        Block.box(5, 5, -1, 17, 14, 11), Block.box(6, 0, -1, 17, 5, 10)
-    ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+                    Block.box(5, 5, -1, 17, 14, 11), Block.box(6, 0, -1, 17, 5, 10))
+            .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
+            .get();
     protected static final VoxelShape MID_ANGLE_SE = Stream.of(
-        Block.box(-1, 5, -1, 11, 14, 11), Block.box(-1, 0, -1, 10, 5, 10)
-    ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+                    Block.box(-1, 5, -1, 11, 14, 11), Block.box(-1, 0, -1, 10, 5, 10))
+            .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
+            .get();
     protected static final VoxelShape MID_ANGLE_NE = Stream.of(
-        Block.box(-1, 5, 5, 11, 14, 17), Block.box(-1, 0, 6, 10, 5, 17)
-    ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
-
+                    Block.box(-1, 5, 5, 11, 14, 17), Block.box(-1, 0, 6, 10, 5, 17))
+            .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
+            .get();
 
     protected static final VoxelShape MID_N = Stream.of(
-        Block.box(1, 5, 5, 15, 14, 17), Block.box(1, 0, 6, 15, 5, 17)
-    ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+                    Block.box(1, 5, 5, 15, 14, 17), Block.box(1, 0, 6, 15, 5, 17))
+            .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
+            .get();
     protected static final VoxelShape MID_W = Stream.of(
-        Block.box(5, 5, 1, 17, 14, 15), Block.box(6, 0, 1, 17, 5, 15)
-    ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+                    Block.box(5, 5, 1, 17, 14, 15), Block.box(6, 0, 1, 17, 5, 15))
+            .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
+            .get();
     protected static final VoxelShape MID_S = Stream.of(
-        Block.box(1, 5, -1, 15, 14, 11), Block.box(1, 0, -1, 15, 5, 10)
-    ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+                    Block.box(1, 5, -1, 15, 14, 11), Block.box(1, 0, -1, 15, 5, 10))
+            .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
+            .get();
     protected static final VoxelShape MID_E = Stream.of(
-        Block.box(-1, 5, 1, 11, 14, 15), Block.box(-1, 0, 1, 10, 5, 15)
-    ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+                    Block.box(-1, 5, 1, 11, 14, 15), Block.box(-1, 0, 1, 10, 5, 15))
+            .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
+            .get();
 
     protected static final VoxelShape TOP_CENTER = Stream.of(
-        Block.box(5, 10, 5, 11, 13, 11), Block.box(2, -2, 2, 14, 10, 14)
-    ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+                    Block.box(5, 10, 5, 11, 13, 11), Block.box(2, -2, 2, 14, 10, 14))
+            .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
+            .get();
 
     protected static final VoxelShape TOP_ANGLE_NW = Stream.of(
-        Block.box(11, -2, 11, 18, 2, 18), Block.box(10, 2, 10, 18, 10, 18)
-    ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+                    Block.box(11, -2, 11, 18, 2, 18), Block.box(10, 2, 10, 18, 10, 18))
+            .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
+            .get();
     protected static final VoxelShape TOP_ANGLE_SW = Stream.of(
-        Block.box(11, -2, -2, 18, 2, 5), Block.box(10, 2, -2, 18, 10, 6)
-    ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+                    Block.box(11, -2, -2, 18, 2, 5), Block.box(10, 2, -2, 18, 10, 6))
+            .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
+            .get();
     protected static final VoxelShape TOP_ANGLE_SE = Stream.of(
-        Block.box(-2, -2, -2, 5, 2, 5), Block.box(-2, 2, -2, 6, 10, 6)
-    ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+                    Block.box(-2, -2, -2, 5, 2, 5), Block.box(-2, 2, -2, 6, 10, 6))
+            .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
+            .get();
     protected static final VoxelShape TOP_ANGLE_NE = Stream.of(
-        Block.box(-2, -2, 11, 5, 2, 18), Block.box(-2, 2, 10, 6, 10, 18)
-    ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+                    Block.box(-2, -2, 11, 5, 2, 18), Block.box(-2, 2, 10, 6, 10, 18))
+            .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
+            .get();
 
     protected static final VoxelShape TOP_N = Stream.of(
-        Block.box(2, -2, 11, 14, 2, 18), Block.box(2, 2, 10, 14, 10, 18)
-    ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+                    Block.box(2, -2, 11, 14, 2, 18), Block.box(2, 2, 10, 14, 10, 18))
+            .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
+            .get();
     protected static final VoxelShape TOP_W = Stream.of(
-        Block.box(11, -2, 2, 18, 2, 14), Block.box(10, 2, 2, 18, 10, 14)
-    ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+                    Block.box(11, -2, 2, 18, 2, 14), Block.box(10, 2, 2, 18, 10, 14))
+            .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
+            .get();
     protected static final VoxelShape TOP_S = Stream.of(
-        Block.box(2, -2, -2, 14, 2, 5), Block.box(2, 2, -2, 14, 10, 6)
-    ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+                    Block.box(2, -2, -2, 14, 2, 5), Block.box(2, 2, -2, 14, 10, 6))
+            .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
+            .get();
     protected static final VoxelShape TOP_E = Stream.of(
-        Block.box(-2, -2, 2, 5, 2, 14), Block.box(-2, 2, 2, 6, 10, 14)
-    ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+                    Block.box(-2, -2, 2, 5, 2, 14), Block.box(-2, 2, 2, 6, 10, 14))
+            .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
+            .get();
 
     /**
      * @param properties 属性
@@ -123,19 +150,16 @@ public class LargeCakeBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf> {
     public LargeCakeBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(
-            this.stateDefinition.any()
-                .setValue(HALF, Cube3x3PartHalf.BOTTOM_CENTER)
-        );
+                this.stateDefinition.any().setValue(HALF, Cube3x3PartHalf.BOTTOM_CENTER));
     }
 
     @SuppressWarnings("deprecation")
     @Override
     public @NotNull VoxelShape getShape(
-        @NotNull BlockState state,
-        @NotNull BlockGetter level,
-        @NotNull BlockPos pos,
-        @NotNull CollisionContext context
-    ) {
+            @NotNull BlockState state,
+            @NotNull BlockGetter level,
+            @NotNull BlockPos pos,
+            @NotNull CollisionContext context) {
         return switch (state.getValue(HALF)) {
             case TOP_CENTER -> TOP_CENTER;
             case TOP_E -> TOP_E;
@@ -168,7 +192,8 @@ public class LargeCakeBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf> {
     }
 
     @Override
-    protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(
+            @NotNull StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(HALF);
     }
 
@@ -183,48 +208,51 @@ public class LargeCakeBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf> {
     }
 
     @Override
-    public float getShadeBrightness(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos) {
+    public float getShadeBrightness(
+            @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos) {
         return 1.0F;
     }
 
     @Override
     public boolean propagatesSkylightDown(
-        @NotNull BlockState state,
-        @NotNull BlockGetter level,
-        @NotNull BlockPos pos
-    ) {
+            @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos) {
         return true;
     }
 
     @Override
     public void onPlace(
-        @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos,
-        @NotNull BlockState oldState, boolean movedByPiston
-    ) {
+            @NotNull BlockState state,
+            @NotNull Level level,
+            @NotNull BlockPos pos,
+            @NotNull BlockState oldState,
+            boolean movedByPiston) {
         if (state.getValue(HALF) != Cube3x3PartHalf.BOTTOM_CENTER) return;
         for (Cube3x3PartHalf part : this.getParts()) {
             if (part == Cube3x3PartHalf.BOTTOM_CENTER) continue;
-            BlockState newState = state
-                .setValue(HALF, part);
+            BlockState newState = state.setValue(HALF, part);
             level.setBlockAndUpdate(pos.offset(part.getOffset()), newState);
         }
     }
 
     @Override
     public @NotNull BlockState updateShape(
-        @NotNull BlockState state, @NotNull Direction direction, @NotNull BlockState neighborState,
-        @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockPos neighborPos
-    ) {
-        return direction == Direction.DOWN && !state.canSurvive(level, pos) ? Blocks.AIR.defaultBlockState() : state;
+            @NotNull BlockState state,
+            @NotNull Direction direction,
+            @NotNull BlockState neighborState,
+            @NotNull LevelAccessor level,
+            @NotNull BlockPos pos,
+            @NotNull BlockPos neighborPos) {
+        return direction == Direction.DOWN && !state.canSurvive(level, pos)
+                ? Blocks.AIR.defaultBlockState()
+                : state;
     }
 
     @Override
     public @NotNull BlockState playerWillDestroy(
-        @NotNull Level level,
-        @NotNull BlockPos pos,
-        @NotNull BlockState state,
-        @NotNull Player player
-    ) {
+            @NotNull Level level,
+            @NotNull BlockPos pos,
+            @NotNull BlockState state,
+            @NotNull Player player) {
         this.spawnDestroyParticles(level, player, pos, state);
         if (state.is(BlockTags.GUARDED_BY_PIGLINS)) {
             PiglinAi.angerNearbyPiglins(player, false);
@@ -242,9 +270,12 @@ public class LargeCakeBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf> {
 
     @Override
     public @NotNull InteractionResult use(
-        @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos,
-        @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult hit
-    ) {
+            @NotNull BlockState state,
+            @NotNull Level level,
+            @NotNull BlockPos pos,
+            @NotNull Player player,
+            @NotNull InteractionHand hand,
+            @NotNull BlockHitResult hit) {
         ItemStack itemStack = player.getItemInHand(hand);
         if (level.isClientSide) {
             if (eat(level, pos, player).consumesAction()) {
@@ -271,7 +302,8 @@ public class LargeCakeBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf> {
 
     private static void removeFromTop(Level level, BlockPos pos, Player player) {
         BlockState aboveState = level.getBlockState(pos.above());
-        if (aboveState.getBlock() instanceof LargeCakeBlock && aboveState.getValue(HALF).getOffsetY() != 0) {
+        if (aboveState.getBlock() instanceof LargeCakeBlock
+                && aboveState.getValue(HALF).getOffsetY() != 0) {
             removeFromTop(level, pos.above(), player);
             return;
         }

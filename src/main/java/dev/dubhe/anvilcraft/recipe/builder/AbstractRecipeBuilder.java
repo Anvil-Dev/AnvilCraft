@@ -10,6 +10,7 @@ import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Recipe;
+
 import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashMap;
@@ -33,7 +34,8 @@ public abstract class AbstractRecipeBuilder<T extends Recipe<?>> implements Reci
     @Override
     public void save(RecipeOutput pRecipeOutput, ResourceLocation pId) {
         validate(pId);
-        Advancement.Builder advancement = pRecipeOutput.advancement()
+        Advancement.Builder advancement = pRecipeOutput
+                .advancement()
                 .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(pId))
                 .rewards(AdvancementRewards.Builder.recipe(pId))
                 .requirements(AdvancementRequirements.Strategy.OR);

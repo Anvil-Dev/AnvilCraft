@@ -1,10 +1,11 @@
 package dev.dubhe.anvilcraft.api.event.server.block;
 
-import lombok.Getter;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.bus.api.Event;
 import net.neoforged.fml.event.IModBusEvent;
+
+import lombok.Getter;
 
 @Getter
 abstract class ServerBlockEntityEvent extends Event implements IModBusEvent {

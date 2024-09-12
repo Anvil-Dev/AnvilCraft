@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.PowerConverterBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -24,11 +25,13 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
-public abstract class BasePowerConverterBlock extends BetterBaseEntityBlock implements IHammerRemovable {
+public abstract class BasePowerConverterBlock extends BetterBaseEntityBlock
+        implements IHammerRemovable {
     private final int inputPower;
 
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
@@ -39,9 +42,8 @@ public abstract class BasePowerConverterBlock extends BetterBaseEntityBlock impl
      */
     public BasePowerConverterBlock(Properties properties, int inputPower) {
         super(properties);
-        registerDefaultState(stateDefinition.any()
-            .setValue(FACING, Direction.DOWN)
-            .setValue(OVERLOAD, true));
+        registerDefaultState(
+                stateDefinition.any().setValue(FACING, Direction.DOWN).setValue(OVERLOAD, true));
         this.inputPower = inputPower;
     }
 
@@ -62,24 +64,21 @@ public abstract class BasePowerConverterBlock extends BetterBaseEntityBlock impl
         return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return defaultBlockState().setValue(FACING, context.getClickedFace().getOpposite());
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-        Level level, BlockState state, BlockEntityType<T> type
-    ) {
+            Level level, BlockState state, BlockEntityType<T> type) {
         if (level.isClientSide()) {
             return null;
         }
         return createTickerHelper(
-            type, ModBlockEntities.POWER_CONVERTER.get(),
-            (level1, blockPos, blockState, blockEntity) -> blockEntity.tick()
-        );
+                type,
+                ModBlockEntities.POWER_CONVERTER.get(),
+                (level1, blockPos, blockState, blockEntity) -> blockEntity.tick());
     }
 
     @Override
@@ -87,17 +86,13 @@ public abstract class BasePowerConverterBlock extends BetterBaseEntityBlock impl
         return RenderShape.MODEL;
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new PowerConverterBlockEntity(
-            ModBlockEntities.POWER_CONVERTER.get(),
-            pos,
-            state,
-            inputPower
-        );
+                ModBlockEntities.POWER_CONVERTER.get(), pos, state, inputPower);
     }
 
     @Override
-    public abstract VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context);
+    public abstract VoxelShape getShape(
+            BlockState state, BlockGetter level, BlockPos pos, CollisionContext context);
 }

@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.event.forge;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModItems;
+
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
@@ -14,6 +15,7 @@ import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.LootTableLoadEvent;
+
 import org.jetbrains.annotations.NotNull;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
@@ -29,31 +31,29 @@ public class LootTableEventListener {
         LootTable table = event.getTable();
         if (Blocks.BUDDING_AMETHYST.getLootTable().location().equals(id)) {
             table.addPool(new LootPool.Builder()
-                .add(LootItem.lootTableItem(ModItems.GEODE))
-                .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1)))
-                .build()
-            );
+                    .add(LootItem.lootTableItem(ModItems.GEODE))
+                    .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1)))
+                    .build());
         }
         if (BuiltInLootTables.SPAWN_BONUS_CHEST.location().equals(id)) {
             table.addPool(new LootPool.Builder()
-                .add(LootItem.lootTableItem(ModItems.GEODE))
-                .apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 6)))
-                .build()
-            );
+                    .add(LootItem.lootTableItem(ModItems.GEODE))
+                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 6)))
+                    .build());
         }
         if (BuiltInLootTables.VILLAGE_WEAPONSMITH.location().equals(id)) {
             table.addPool(LootPool.lootPool()
-                .setRolls(ConstantValue.exactly(1))
-                .add(LootItem.lootTableItem(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE)
-                    .setWeight(2)
-                    .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1))))
-                .add(LootItem.lootTableItem(ModItems.ROYAL_STEEL_INGOT)
-                    .setWeight(3)
-                    .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1))))
-                .add(LootItem.lootTableItem(ModItems.ROYAL_STEEL_NUGGET)
-                    .setWeight(10)
-                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 5))))
-                .build());
+                    .setRolls(ConstantValue.exactly(1))
+                    .add(LootItem.lootTableItem(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE)
+                            .setWeight(2)
+                            .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1))))
+                    .add(LootItem.lootTableItem(ModItems.ROYAL_STEEL_INGOT)
+                            .setWeight(3)
+                            .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1))))
+                    .add(LootItem.lootTableItem(ModItems.ROYAL_STEEL_NUGGET)
+                            .setWeight(10)
+                            .apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 5))))
+                    .build());
         }
         event.setTable(table);
     }

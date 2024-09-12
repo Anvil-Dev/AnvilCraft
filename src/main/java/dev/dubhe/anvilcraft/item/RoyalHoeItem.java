@@ -10,13 +10,11 @@ import net.minecraft.world.item.Tiers;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.Map;
+
+import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -25,18 +23,15 @@ public class RoyalHoeItem extends HoeItem implements IHasDefaultEnchantment {
      *
      */
     public RoyalHoeItem(Properties properties) {
-        super(Tiers.DIAMOND, properties.attributes(AxeItem.createAttributes(
-            Tiers.DIAMOND, -3, 0
-        )));
+        super(Tiers.DIAMOND, properties.attributes(AxeItem.createAttributes(Tiers.DIAMOND, -3, 0)));
     }
 
     @Override
     public void appendHoverText(
-        ItemStack pStack,
-        TooltipContext pContext,
-        List<Component> pTooltipComponents,
-        TooltipFlag pTooltipFlag
-    ) {
+            ItemStack pStack,
+            TooltipContext pContext,
+            List<Component> pTooltipComponents,
+            TooltipFlag pTooltipFlag) {
         super.appendHoverText(pStack, pContext, pTooltipComponents, pTooltipFlag);
         pTooltipComponents.addAll(this.getDefaultEnchantmentsTooltip());
     }

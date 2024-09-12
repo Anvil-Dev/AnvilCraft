@@ -2,11 +2,13 @@ package dev.dubhe.anvilcraft.api.tooltip.impl;
 
 import dev.dubhe.anvilcraft.api.tooltip.providers.BlockEntityTooltipProvider;
 import dev.dubhe.anvilcraft.block.entity.RubyPrismBlockEntity;
-import java.util.ArrayList;
-import java.util.List;
+
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class RubyPrismTooltipProvider implements BlockEntityTooltipProvider {
     public RubyPrismTooltipProvider() {}
@@ -20,7 +22,8 @@ public class RubyPrismTooltipProvider implements BlockEntityTooltipProvider {
     public List<Component> tooltip(BlockEntity e) {
         if (!(e instanceof RubyPrismBlockEntity rubyPrismBlockEntity)) return null;
         final List<Component> lines = new ArrayList<>();
-        lines.add(Component.translatable("tooltip.anvilcraft.ruby_prism.power", rubyPrismBlockEntity.laserLevel));
+        lines.add(Component.translatable(
+                "tooltip.anvilcraft.ruby_prism.power", rubyPrismBlockEntity.laserLevel));
         return lines;
     }
 

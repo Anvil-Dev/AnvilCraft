@@ -1,13 +1,15 @@
 package dev.dubhe.anvilcraft.event.anvil;
 
-import net.neoforged.bus.api.SubscribeEvent;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilHurtEntityEvent;
+
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.npc.VillagerData;
 import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.level.Level;
+import net.neoforged.bus.api.SubscribeEvent;
+
 import org.jetbrains.annotations.NotNull;
 
 public class AnvilHurtVillagerEventListener {
@@ -24,8 +26,8 @@ public class AnvilHurtVillagerEventListener {
             RandomSource random = event.getLevel().random;
             double change = random.nextDouble();
             if (change <= 0.2) {
-                villager.setVillagerData(villager.getVillagerData().setProfession(
-                    VillagerProfession.NITWIT));
+                villager.setVillagerData(
+                        villager.getVillagerData().setProfession(VillagerProfession.NITWIT));
                 return;
             }
             VillagerData villagerData = villager.getVillagerData();

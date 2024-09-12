@@ -13,6 +13,7 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.BlockHitResult;
+
 import org.jetbrains.annotations.NotNull;
 
 public class EndDustBlockItem extends BlockItem {
@@ -22,33 +23,23 @@ public class EndDustBlockItem extends BlockItem {
 
     @Override
     public @NotNull InteractionResultHolder<ItemStack> use(
-            @NotNull Level level,
-            @NotNull Player player,
-            @NotNull InteractionHand usedHand
-    ) {
-        BlockPos blockPos = level.clip(new ClipContext(
-                player.getEyePosition(1f),
-                player.getEyePosition(1f).add(player.getViewVector(1f).scale(2.5)),
-                ClipContext.Block.OUTLINE,
-                ClipContext.Fluid.NONE, player
-        )).getBlockPos();
+            @NotNull Level level, @NotNull Player player, @NotNull InteractionHand usedHand) {
+        BlockPos blockPos = level
+                .clip(new ClipContext(
+                        player.getEyePosition(1f),
+                        player.getEyePosition(1f).add(player.getViewVector(1f).scale(2.5)),
+                        ClipContext.Block.OUTLINE,
+                        ClipContext.Fluid.NONE,
+                        player))
+                .getBlockPos();
         ItemStack itemStack = player.getItemInHand(usedHand);
 
         if (!(level.getBlockState(blockPos).is(BlockTags.REPLACEABLE)))
             return InteractionResultHolder.fail(itemStack);
-        BlockHitResult blockHitResult = new BlockHitResult(
-                blockPos.getCenter(),
-                player.getDirection(),
-                blockPos,
-                false
-        );
+        BlockHitResult blockHitResult =
+                new BlockHitResult(blockPos.getCenter(), player.getDirection(), blockPos, false);
         BlockPlaceContext blockPlaceContext =
-                new BlockPlaceContext(level,
-                        player,
-                        usedHand,
-                        itemStack,
-                        blockHitResult
-                );
+                new BlockPlaceContext(level, player, usedHand, itemStack, blockHitResult);
         if (!this.canPlace(blockPlaceContext, this.getBlock().defaultBlockState()))
             return InteractionResultHolder.fail(itemStack);
         if (this.place(blockPlaceContext) == InteractionResult.FAIL)

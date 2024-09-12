@@ -1,9 +1,11 @@
 package dev.dubhe.anvilcraft.data.generator.recipe;
 
-import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.recipe.BlockCrushRecipe;
+
 import net.minecraft.world.level.block.Blocks;
+
+import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 
 public class BlockCrushRecipeLoader {
     public static void init(RegistrateRecipeProvider provider) {

@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.gui.screen.inventory;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.inventory.EmberAnvilMenu;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
@@ -15,15 +16,16 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+
 import org.jetbrains.annotations.NotNull;
 
 public class EmberAnvilScreen extends ItemCombinerScreen<EmberAnvilMenu> {
     private static final ResourceLocation ANVIL_LOCATION =
-        AnvilCraft.of("textures/gui/container/smithing/background/ember_anvil.png");
+            AnvilCraft.of("textures/gui/container/smithing/background/ember_anvil.png");
     private static final ResourceLocation TEXT_LOCATION =
-        AnvilCraft.of("textures/gui/container/smithing/text_field.png");
+            AnvilCraft.of("textures/gui/container/smithing/text_field.png");
     private static final ResourceLocation TEXT_DISABLE_LOCATION =
-        AnvilCraft.of("textures/gui/container/smithing/text_field_disabled.png");
+            AnvilCraft.of("textures/gui/container/smithing/text_field_disabled.png");
     private EditBox name;
     private final Player player;
 
@@ -54,7 +56,8 @@ public class EmberAnvilScreen extends ItemCombinerScreen<EmberAnvilMenu> {
     protected void subInit() {
         int i = (this.width - this.imageWidth) / 2;
         int j = (this.height - this.imageHeight) / 2;
-        this.name = new EditBox(this.font, i + 62, j + 24, 103, 12, Component.translatable("container.repair"));
+        this.name =
+                new EditBox(this.font, i + 62, j + 24, 103, 12, Component.translatable("container.repair"));
         this.name.setCanLoseFocus(false);
         this.name.setTextColor(-1);
         this.name.setTextColorUneditable(-1);
@@ -91,7 +94,8 @@ public class EmberAnvilScreen extends ItemCombinerScreen<EmberAnvilMenu> {
             return;
         }
         String string = name;
-        if (!slot.getItem().has(DataComponents.CUSTOM_NAME) && string.equals(slot.getItem().getHoverName().getString())) {
+        if (!slot.getItem().has(DataComponents.CUSTOM_NAME)
+                && string.equals(slot.getItem().getHoverName().getString())) {
             string = "";
         }
         if (this.menu.setItemName(string) && this.minecraft != null && this.minecraft.player != null) {
@@ -123,25 +127,26 @@ public class EmberAnvilScreen extends ItemCombinerScreen<EmberAnvilMenu> {
     }
 
     @Override
-    protected void renderBg(@NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(
+            @NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         super.renderBg(guiGraphics, partialTick, mouseX, mouseY);
-        ResourceLocation location = this.menu.getSlot(0).getItem().isEmpty() ? TEXT_DISABLE_LOCATION : TEXT_LOCATION;
+        ResourceLocation location =
+                this.menu.getSlot(0).getItem().isEmpty() ? TEXT_DISABLE_LOCATION : TEXT_LOCATION;
         guiGraphics.blit(location, this.leftPos + 59, this.topPos + 20, 0, 0, 110, 16, 110, 16);
     }
 
     @Override
-    public void renderFg(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void renderFg(
+            @NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.name.render(guiGraphics, mouseX, mouseY, partialTick);
     }
 
     @Override
-    protected void renderErrorIcon(@NotNull GuiGraphics guiGraphics, int x, int y) {
-    }
+    protected void renderErrorIcon(@NotNull GuiGraphics guiGraphics, int x, int y) {}
 
     @Override
     public void slotChanged(
-        @NotNull AbstractContainerMenu containerToSend, int dataSlotIndex, @NotNull ItemStack stack
-    ) {
+            @NotNull AbstractContainerMenu containerToSend, int dataSlotIndex, @NotNull ItemStack stack) {
         if (dataSlotIndex == 0) {
             this.name.setValue(stack.isEmpty() ? "" : stack.getHoverName().getString());
             this.name.setEditable(!stack.isEmpty());

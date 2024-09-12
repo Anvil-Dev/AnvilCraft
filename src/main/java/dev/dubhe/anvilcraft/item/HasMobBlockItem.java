@@ -1,9 +1,7 @@
 package dev.dubhe.anvilcraft.item;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.ModComponents;
-import io.netty.buffer.ByteBuf;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -28,6 +26,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
+
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,15 +47,14 @@ public class HasMobBlockItem extends BlockItem {
             ItemStack stack,
             Item.TooltipContext context,
             List<Component> tooltipComponents,
-            TooltipFlag isAdvanced
-    ) {
+            TooltipFlag isAdvanced) {
         super.appendHoverText(stack, context, tooltipComponents, isAdvanced);
         if (!HasMobBlockItem.hasMob(stack)) return;
         Entity entity = HasMobBlockItem.getMobFromItem(context.level(), stack);
         if (entity != null) {
-            tooltipComponents.add(
-                    Component.literal("- ").append(entity.getDisplayName()).withStyle(ChatFormatting.DARK_GRAY)
-            );
+            tooltipComponents.add(Component.literal("- ")
+                    .append(entity.getDisplayName())
+                    .withStyle(ChatFormatting.DARK_GRAY));
         }
     }
 
@@ -76,8 +77,7 @@ public class HasMobBlockItem extends BlockItem {
      * 向物品中存入实体
      */
     public static void saveMobInItem(
-            @NotNull Level level, @NotNull Mob entity, @NotNull Player player, @NotNull ItemStack stack
-    ) {
+            @NotNull Level level, @NotNull Mob entity, @NotNull Player player, @NotNull ItemStack stack) {
         stack = stack.split(1);
         if (level.isClientSide()) {
             Item item = stack.getItem();
@@ -86,9 +86,12 @@ public class HasMobBlockItem extends BlockItem {
                 BlockState blockState = item1.getBlock().defaultBlockState();
                 SoundType soundType = blockState.getSoundType();
                 level.playSound(
-                        player, blockPos, item1.getPlaceSound(blockState), SoundSource.BLOCKS,
-                        (soundType.getVolume() + 1.0f) / 2.0f, soundType.getPitch() * 0.8f
-                );
+                        player,
+                        blockPos,
+                        item1.getPlaceSound(blockState),
+                        SoundSource.BLOCKS,
+                        (soundType.getVolume() + 1.0f) / 2.0f,
+                        soundType.getPitch() * 0.8f);
             }
             return;
         }
@@ -110,17 +113,16 @@ public class HasMobBlockItem extends BlockItem {
 
     public static class SavedEntity {
         public static final Codec<SavedEntity> CODEC = RecordCodecBuilder.create(ins -> ins.group(
-                CompoundTag.CODEC.fieldOf("tag").forGetter(o -> o.tag),
-                Codec.BOOL.fieldOf("isMonster").forGetter(o -> o.isMonster)
-        ).apply(ins, SavedEntity::new));
+                        CompoundTag.CODEC.fieldOf("tag").forGetter(o -> o.tag),
+                        Codec.BOOL.fieldOf("isMonster").forGetter(o -> o.isMonster))
+                .apply(ins, SavedEntity::new));
 
         public static final StreamCodec<ByteBuf, SavedEntity> STREAM_CODEC = StreamCodec.composite(
                 ByteBufCodecs.COMPOUND_TAG,
                 o -> o.tag,
                 ByteBufCodecs.BOOL,
                 o -> o.isMonster,
-                SavedEntity::new
-        );
+                SavedEntity::new);
 
         private final CompoundTag tag;
         private final boolean isMonster;

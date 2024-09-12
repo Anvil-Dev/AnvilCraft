@@ -3,13 +3,15 @@ package dev.dubhe.anvilcraft.block.entity;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.RubyLaserBlock;
-import lombok.Getter;
-import lombok.Setter;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
@@ -17,14 +19,12 @@ import org.jetbrains.annotations.NotNull;
 public class RubyLaserBlockEntity extends BaseLaserBlockEntity implements IPowerConsumer {
     private PowerGrid grid;
 
-    private RubyLaserBlockEntity(BlockEntityType<?> type,
-                                 BlockPos pos, BlockState blockState) {
+    private RubyLaserBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
 
     public static @NotNull RubyLaserBlockEntity createBlockEntity(
-            BlockEntityType<?> type, BlockPos pos, BlockState blockState
-    ) {
+            BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         return new RubyLaserBlockEntity(type, pos, blockState);
     }
 
@@ -37,11 +37,7 @@ public class RubyLaserBlockEntity extends BaseLaserBlockEntity implements IPower
     public void tick(@NotNull Level level) {
         if (getGrid() != null
                 && getBlockState().getValue(RubyLaserBlock.OVERLOAD) == getGrid().isWork())
-            level.setBlock(
-                    getPos(),
-                    getBlockState()
-                            .setValue(OVERLOAD, !getGrid().isWork()),
-                    2);
+            level.setBlock(getPos(), getBlockState().setValue(OVERLOAD, !getGrid().isWork()), 2);
         if (level.hasNeighborSignal(getBlockPos()) == (getBlockState().getValue(SWITCH) == Switch.ON))
             level.setBlock(
                     getPos(),
@@ -51,7 +47,8 @@ public class RubyLaserBlockEntity extends BaseLaserBlockEntity implements IPower
         if (isSwitch()) emitLaser(getDirection());
         else {
             if (irradiateBlockPos != null
-                    && level.getBlockEntity(irradiateBlockPos) instanceof BaseLaserBlockEntity irradiateBlockEntity)
+                    && level.getBlockEntity(irradiateBlockPos)
+                            instanceof BaseLaserBlockEntity irradiateBlockEntity)
                 irradiateBlockEntity.onCancelingIrradiation(irradiateBlockEntity);
             irradiateBlockPos = null;
         }
@@ -65,8 +62,7 @@ public class RubyLaserBlockEntity extends BaseLaserBlockEntity implements IPower
     }
 
     @Override
-    public void onIrradiated(BaseLaserBlockEntity baseLaserBlockEntity) {
-    }
+    public void onIrradiated(BaseLaserBlockEntity baseLaserBlockEntity) {}
 
     @Override
     public Level getCurrentLevel() {

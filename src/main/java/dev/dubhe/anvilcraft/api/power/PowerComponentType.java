@@ -1,7 +1,8 @@
 package dev.dubhe.anvilcraft.api.power;
 
-import com.mojang.serialization.Codec;
 import net.minecraft.util.StringRepresentable;
+
+import com.mojang.serialization.Codec;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -13,11 +14,11 @@ public enum PowerComponentType implements StringRepresentable {
     CONSUMER,
     STORAGE,
     TRANSMITTER;
-    public static final Codec<PowerComponentType> CODEC = StringRepresentable.fromEnum(PowerComponentType::values);
+    public static final Codec<PowerComponentType> CODEC =
+            StringRepresentable.fromEnum(PowerComponentType::values);
 
     @Override
-    @NotNull
-    public String getSerializedName() {
+    @NotNull public String getSerializedName() {
         return name();
     }
 }

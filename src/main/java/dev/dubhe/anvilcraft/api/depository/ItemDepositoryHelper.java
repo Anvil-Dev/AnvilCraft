@@ -1,7 +1,5 @@
 package dev.dubhe.anvilcraft.api.depository;
 
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
@@ -13,18 +11,21 @@ import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
+
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 
+import javax.annotation.Nonnull;
+
 public class ItemDepositoryHelper {
-    private ItemDepositoryHelper() {
-    }
+    private ItemDepositoryHelper() {}
 
     /**
      * 从指定位置获取物品存储
@@ -34,23 +35,23 @@ public class ItemDepositoryHelper {
      * @param direction 输入方向
      * @return 物品存储
      */
-    public static @Nullable IItemDepository getItemDepository(Level level, BlockPos pos, Direction direction) {
+    public static @Nullable IItemDepository getItemDepository(
+            Level level, BlockPos pos, Direction direction) {
         IItemDepository depository = ItemDepositoryHelper.getItemDepositoryFromHolder(level, pos);
         if (depository != null) return depository;
         BlockEntity be = level.getBlockEntity(pos);
         if (be != null) {
-            IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, direction.getOpposite());
+            IItemHandler handler =
+                    level.getCapability(Capabilities.ItemHandler.BLOCK, pos, direction.getOpposite());
             if (handler != null) {
                 return toItemDepository(handler);
             }
         }
-        List<IItemHandler> itemHandlers = level
-            .getEntitiesOfClass(Entity.class, new AABB(pos))
-            .stream()
-            .filter(entity -> entity instanceof ContainerEntity)
-            .map(entity -> entity.getCapability(Capabilities.ItemHandler.ENTITY, null))
-            .filter(Objects::nonNull)
-            .toList();
+        List<IItemHandler> itemHandlers = level.getEntitiesOfClass(Entity.class, new AABB(pos)).stream()
+                .filter(entity -> entity instanceof ContainerEntity)
+                .map(entity -> entity.getCapability(Capabilities.ItemHandler.ENTITY, null))
+                .filter(Objects::nonNull)
+                .toList();
         if (itemHandlers.isEmpty()) return null;
         IItemHandler handler = itemHandlers.get(level.getRandom().nextInt(0, itemHandlers.size()));
         return toItemDepository(handler);
@@ -78,11 +79,10 @@ public class ItemDepositoryHelper {
      */
     @SuppressWarnings("DuplicatedCode")
     public static boolean exportToTarget(
-        @NotNull IItemDepository source,
-        int maxAmount,
-        Predicate<ItemStack> predicate,
-        IItemDepository target
-    ) {
+            @NotNull IItemDepository source,
+            int maxAmount,
+            Predicate<ItemStack> predicate,
+            IItemDepository target) {
         boolean hasDone = false;
         for (int srcIndex = 0; srcIndex < source.getSlots(); srcIndex++) {
             ItemStack sourceStack = source.extract(srcIndex, Integer.MAX_VALUE, true);
@@ -143,11 +143,10 @@ public class ItemDepositoryHelper {
      */
     @SuppressWarnings("DuplicatedCode")
     public static boolean importToTarget(
-        IItemDepository target,
-        int maxAmount,
-        Predicate<ItemStack> predicate,
-        @NotNull IItemDepository source
-    ) {
+            IItemDepository target,
+            int maxAmount,
+            Predicate<ItemStack> predicate,
+            @NotNull IItemDepository source) {
         boolean hasDone = false;
         for (int srcIndex = 0; srcIndex < source.getSlots(); srcIndex++) {
             ItemStack sourceStack = source.extract(srcIndex, Integer.MAX_VALUE, true);
@@ -176,7 +175,8 @@ public class ItemDepositoryHelper {
      * @param simulate   是否模拟
      * @return 未插入的物品
      */
-    public static ItemStack insertItem(IItemDepository depository, ItemStack stack, boolean simulate) {
+    public static ItemStack insertItem(
+            IItemDepository depository, ItemStack stack, boolean simulate) {
         if (depository == null || stack.isEmpty()) {
             return stack;
         }
@@ -217,7 +217,8 @@ public class ItemDepositoryHelper {
      * @param simulate   是否模拟
      * @return 未插入的物品
      */
-    public static ItemStack insertToEmpty(IItemDepository depository, ItemStack stack, boolean simulate) {
+    public static ItemStack insertToEmpty(
+            IItemDepository depository, ItemStack stack, boolean simulate) {
         if (depository == null || stack.isEmpty()) {
             return stack;
         }
@@ -240,14 +241,11 @@ public class ItemDepositoryHelper {
      * @return AB能否合并
      */
     public static boolean canItemStackMerge(@Nonnull ItemStack a, @Nonnull ItemStack b) {
-        if (a.isEmpty() || b.isEmpty() || a.getItem() != b.getItem())
-            return false;
+        if (a.isEmpty() || b.isEmpty() || a.getItem() != b.getItem()) return false;
 
-        if (!a.isStackable())
-            return false;
+        if (!a.isStackable()) return false;
 
-        if (a.getComponents().isEmpty() != b.getComponents().isEmpty())
-            return false;
+        if (a.getComponents().isEmpty() != b.getComponents().isEmpty()) return false;
 
         return (!a.getComponents().isEmpty() || a.getComponents().equals(b.getComponents()));
     }
@@ -294,8 +292,7 @@ public class ItemDepositoryHelper {
 
             @Override
             public ItemStack insert(
-                int slot, ItemStack stack, boolean simulate, boolean notifyChanges, boolean isServer
-            ) {
+                    int slot, ItemStack stack, boolean simulate, boolean notifyChanges, boolean isServer) {
                 return handler.insertItem(slot, stack, simulate);
             }
 

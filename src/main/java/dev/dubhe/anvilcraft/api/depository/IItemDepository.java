@@ -51,7 +51,8 @@ public interface IItemDepository {
      * @param isServer      是否在服务端调用
      * @return 剩余的物品堆栈
      */
-    ItemStack insert(int slot, ItemStack stack, boolean simulate, boolean notifyChanges, boolean isServer);
+    ItemStack insert(
+            int slot, ItemStack stack, boolean simulate, boolean notifyChanges, boolean isServer);
 
     /**
      * 向指定槽位中插入物品
@@ -65,7 +66,6 @@ public interface IItemDepository {
     default ItemStack insert(int slot, ItemStack stack, boolean simulate, boolean notifyChanges) {
         return this.insert(slot, stack, simulate, !simulate, true);
     }
-
 
     /**
      * 向指定槽位中插入物品
@@ -89,7 +89,6 @@ public interface IItemDepository {
      * @return 实际提取到的物品堆栈
      */
     ItemStack extract(int slot, int amount, boolean simulate, boolean notifyChanges);
-
 
     /**
      * 从指定槽位中提取物品堆栈
@@ -135,7 +134,5 @@ public interface IItemDepository {
     /**
      * 在物品存储更新后触发
      */
-    default void onContentsChanged() {
-    }
-
+    default void onContentsChanged() {}
 }

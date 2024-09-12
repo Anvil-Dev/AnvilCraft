@@ -1,10 +1,12 @@
 package dev.dubhe.anvilcraft.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
+
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("unused")
@@ -78,7 +80,6 @@ public class ModItemTags {
     public static final TagKey<Item> BERRIES = bindC("berries");
     public static final TagKey<Item> WRENCH = bindC("tools/wrench");
 
-
     public static final TagKey<Item> ROYAL_STEEL_PICKAXE_BASE = bind("royal_steel_pickaxe_base");
     public static final TagKey<Item> ROYAL_STEEL_AXE_BASE = bind("royal_steel_axe_base");
     public static final TagKey<Item> ROYAL_STEEL_HOE_BASE = bind("royal_steel_hoe_base");
@@ -97,7 +98,7 @@ public class ModItemTags {
     public static final TagKey<Item> EXPLOSION_PROOF = bind("explosion_proof");
 
     public static @NotNull TagKey<Item> bindC(String id) {
-        return TagKey.create(Registries.ITEM,  ResourceLocation.fromNamespaceAndPath("c", id));
+        return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("c", id));
     }
 
     public static @NotNull TagKey<Item> bind(String id) {

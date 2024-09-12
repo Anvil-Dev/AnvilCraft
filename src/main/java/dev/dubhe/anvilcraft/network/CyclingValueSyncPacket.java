@@ -1,9 +1,8 @@
 package dev.dubhe.anvilcraft.network;
 
-
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.inventory.ItemCollectorMenu;
-import lombok.Getter;
+
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -12,17 +11,22 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
 
+import lombok.Getter;
+
 @Getter
 public class CyclingValueSyncPacket implements CustomPacketPayload {
 
-    public static final Type<CyclingValueSyncPacket> TYPE = new Type<>(AnvilCraft.of("cycling_value"));
+    public static final Type<CyclingValueSyncPacket> TYPE =
+            new Type<>(AnvilCraft.of("cycling_value"));
     public static final StreamCodec<RegistryFriendlyByteBuf, CyclingValueSyncPacket> STREAM_CODEC =
-        StreamCodec.composite(
-            ByteBufCodecs.INT, CyclingValueSyncPacket::getIndex,
-            ByteBufCodecs.STRING_UTF8, CyclingValueSyncPacket::getName,
-            CyclingValueSyncPacket::new
-        );
-    public static final IPayloadHandler<CyclingValueSyncPacket> HANDLER = CyclingValueSyncPacket::serverHandler;
+            StreamCodec.composite(
+                    ByteBufCodecs.INT,
+                    CyclingValueSyncPacket::getIndex,
+                    ByteBufCodecs.STRING_UTF8,
+                    CyclingValueSyncPacket::getName,
+                    CyclingValueSyncPacket::new);
+    public static final IPayloadHandler<CyclingValueSyncPacket> HANDLER =
+            CyclingValueSyncPacket::serverHandler;
 
     private final int index;
     private final String name;

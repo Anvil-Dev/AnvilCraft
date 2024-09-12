@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+
 import org.jetbrains.annotations.NotNull;
 
 public class IncandescentMetalBlock extends RedhotMetalBlock {
@@ -25,8 +26,7 @@ public class IncandescentMetalBlock extends RedhotMetalBlock {
             @NotNull Level level,
             @NotNull BlockPos pos,
             @NotNull BlockState oldState,
-            boolean movedByPiston
-    ) {
+            boolean movedByPiston) {
         for (Direction direction : Direction.values()) {
             BlockPos neighbour = pos.relative(direction);
             checkWater(level, neighbour);
@@ -40,8 +40,7 @@ public class IncandescentMetalBlock extends RedhotMetalBlock {
             @NotNull BlockPos pos,
             @NotNull Block neighborBlock,
             @NotNull BlockPos neighborPos,
-            boolean movedByPiston
-    ) {
+            boolean movedByPiston) {
         checkWater(level, neighborPos);
     }
 
@@ -50,7 +49,8 @@ public class IncandescentMetalBlock extends RedhotMetalBlock {
         BlockState blockState = level.getBlockState(neighborPos);
         if (neighbourState.is(Fluids.WATER) || neighbourState.is(Fluids.FLOWING_WATER)) {
             if (blockState.hasProperty(BlockStateProperties.WATERLOGGED)) {
-                level.setBlock(neighborPos, blockState.setValue(BlockStateProperties.WATERLOGGED, false), 3);
+                level.setBlock(
+                        neighborPos, blockState.setValue(BlockStateProperties.WATERLOGGED, false), 3);
             } else {
                 if (blockState.is(Blocks.WATER)) {
                     level.setBlock(neighborPos, Blocks.AIR.defaultBlockState(), 3);
@@ -62,8 +62,7 @@ public class IncandescentMetalBlock extends RedhotMetalBlock {
                     SoundEvents.FIRE_EXTINGUISH,
                     SoundSource.BLOCKS,
                     0.5F,
-                    2.6F + (level.random.nextFloat() - level.random.nextFloat()) * 0.8F
-            );
+                    2.6F + (level.random.nextFloat() - level.random.nextFloat()) * 0.8F);
 
             for (int l = 0; l < 8; ++l) {
                 level.addParticle(
@@ -73,8 +72,7 @@ public class IncandescentMetalBlock extends RedhotMetalBlock {
                         (double) neighborPos.getZ() + Math.random(),
                         0.0,
                         0.0,
-                        0.0
-                );
+                        0.0);
             }
         }
     }

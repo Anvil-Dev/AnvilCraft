@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.network;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.IFilterScreen;
 import dev.dubhe.anvilcraft.inventory.IFilterMenu;
-import lombok.Getter;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -15,18 +15,22 @@ import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
 
+import lombok.Getter;
+
 @Getter
 public class SlotDisableChangePack implements CustomPacketPayload {
-    public static final Type<SlotDisableChangePack> TYPE = new Type<>(AnvilCraft.of("slot_disable_change"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, SlotDisableChangePack> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.INT, SlotDisableChangePack::getIndex,
-            ByteBufCodecs.BOOL, SlotDisableChangePack::isState,
-            SlotDisableChangePack::new
-    );
-    public static final IPayloadHandler<SlotDisableChangePack> HANDLER = new DirectionalPayloadHandler<>(
-            SlotDisableChangePack::clientHandler,
-            SlotDisableChangePack::serverHandler
-    );
+    public static final Type<SlotDisableChangePack> TYPE =
+            new Type<>(AnvilCraft.of("slot_disable_change"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, SlotDisableChangePack> STREAM_CODEC =
+            StreamCodec.composite(
+                    ByteBufCodecs.INT,
+                    SlotDisableChangePack::getIndex,
+                    ByteBufCodecs.BOOL,
+                    SlotDisableChangePack::isState,
+                    SlotDisableChangePack::new);
+    public static final IPayloadHandler<SlotDisableChangePack> HANDLER =
+            new DirectionalPayloadHandler<>(
+                    SlotDisableChangePack::clientHandler, SlotDisableChangePack::serverHandler);
 
     private final int index;
     private final boolean state;
@@ -35,7 +39,6 @@ public class SlotDisableChangePack implements CustomPacketPayload {
         this.index = index;
         this.state = state;
     }
-
 
     @Override
     public Type<? extends CustomPacketPayload> type() {
@@ -52,7 +55,6 @@ public class SlotDisableChangePack implements CustomPacketPayload {
             PacketDistributor.sendToPlayer(player, data);
         });
     }
-
 
     public static void clientHandler(SlotDisableChangePack data, IPayloadContext context) {
         Minecraft client = Minecraft.getInstance();

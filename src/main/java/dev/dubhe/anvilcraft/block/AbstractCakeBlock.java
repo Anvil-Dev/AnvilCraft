@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.util.Utils;
+
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -18,8 +19,9 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.BlockHitResult;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Function;
+
+import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -30,14 +32,10 @@ public class AbstractCakeBlock extends Block {
 
     @Override
     protected InteractionResult useWithoutItem(
-        BlockState pState,
-        Level pLevel,
-        BlockPos pPos,
-        Player pPlayer,
-        BlockHitResult pHitResult
-    ) {
+            BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, BlockHitResult pHitResult) {
         if (pLevel.isClientSide) {
-            if (eat(pLevel, pPos, pPlayer, getFoodLevel(), getSaturationLevel(), it -> it).consumesAction()) {
+            if (eat(pLevel, pPos, pPlayer, getFoodLevel(), getSaturationLevel(), it -> it)
+                    .consumesAction()) {
                 return InteractionResult.SUCCESS;
             }
             return InteractionResult.CONSUME;
@@ -47,26 +45,25 @@ public class AbstractCakeBlock extends Block {
 
     @Override
     protected ItemInteractionResult useItemOn(
-        ItemStack pStack,
-        BlockState pState,
-        Level pLevel,
-        BlockPos pPos,
-        Player pPlayer,
-        InteractionHand pHand,
-        BlockHitResult pHitResult
-    ) {
+            ItemStack pStack,
+            BlockState pState,
+            Level pLevel,
+            BlockPos pPos,
+            Player pPlayer,
+            InteractionHand pHand,
+            BlockHitResult pHitResult) {
         ItemStack itemStack = pPlayer.getItemInHand(pHand);
         if (!(itemStack.getItem() instanceof ShovelItem))
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         if (pLevel.isClientSide) {
             if (eat(
-                pLevel,
-                pPos,
-                pPlayer,
-                getFoodLevel(),
-                getSaturationLevel(),
-                Utils.interactionResultConverter()).consumesAction()
-            ) {
+                            pLevel,
+                            pPos,
+                            pPlayer,
+                            getFoodLevel(),
+                            getSaturationLevel(),
+                            Utils.interactionResultConverter())
+                    .consumesAction()) {
                 return ItemInteractionResult.SUCCESS;
             }
 
@@ -74,21 +71,24 @@ public class AbstractCakeBlock extends Block {
                 return ItemInteractionResult.CONSUME;
             }
         } else {
-            itemStack.hurtAndBreak(1, (ServerLevel) pLevel, pPlayer, p -> {
-
-            });
+            itemStack.hurtAndBreak(1, (ServerLevel) pLevel, pPlayer, p -> {});
         }
-        return eat(pLevel, pPos, pPlayer, getFoodLevel(), getSaturationLevel(), Utils.interactionResultConverter());
+        return eat(
+                pLevel,
+                pPos,
+                pPlayer,
+                getFoodLevel(),
+                getSaturationLevel(),
+                Utils.interactionResultConverter());
     }
 
     private static <T> T eat(
-        LevelAccessor level,
-        BlockPos pos,
-        Player player,
-        int foodLevel,
-        float saturationLevel,
-        Function<InteractionResult, T> converter
-    ) {
+            LevelAccessor level,
+            BlockPos pos,
+            Player player,
+            int foodLevel,
+            float saturationLevel,
+            Function<InteractionResult, T> converter) {
         if (!player.canEat(false)) {
             return converter.apply(InteractionResult.PASS);
         } else {

@@ -4,8 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.chargecollector.HeatedBlockRecorder;
 import dev.dubhe.anvilcraft.api.entity.player.AnvilCraftBlockPlacer;
 import dev.dubhe.anvilcraft.network.HeliostatsIrradiationPack;
-import lombok.Getter;
-import lombok.Setter;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -19,6 +18,9 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
+
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 
@@ -27,15 +29,19 @@ import java.util.Objects;
 public class HeliostatsBlockEntity extends BlockEntity {
     @Getter
     private BlockPos irritatePos;
+
     @Getter
     @Setter
     private Vector3f normalVector3f = new Vector3f().normalize();
+
     @Getter
     @Setter
     private Vector3f irritateVector3f = new Vector3f().normalize();
+
     @Getter
     @Setter
     private WorkResult workResult = WorkResult.SUCCESS;
+
     private int surfaceVec3Hash = 0;
     private Vec3 surfaceVec3 = new Vec3(0, 0, 0);
 
@@ -75,8 +81,7 @@ public class HeliostatsBlockEntity extends BlockEntity {
     private WorkResult validatePos(BlockPos irritatePos) {
         normalVector3f = new Vector3f();
         if (level == null) return WorkResult.UNKNOWN;
-        if (level.isClientSide && Minecraft.getInstance().player == null)
-            return WorkResult.UNKNOWN;
+        if (level.isClientSide && Minecraft.getInstance().player == null) return WorkResult.UNKNOWN;
         if (irritatePos == null) return WorkResult.UNSPECIFIED_IRRADIATION_BLOCK;
         if (getBlockPos().getCenter().distanceTo(irritatePos.getCenter()) > 16)
             return WorkResult.TOO_FAR;
@@ -91,20 +96,18 @@ public class HeliostatsBlockEntity extends BlockEntity {
                 ClipContext.Fluid.NONE,
                 level.isClientSide
                         ? Objects.requireNonNull(Minecraft.getInstance().player)
-                        : AnvilCraftBlockPlacer.anvilCraftBlockPlacer.getPlayer()
-                )
-        );
-        if (!blockHitResult.getBlockPos().equals(irritatePos))
-            return WorkResult.OBSCURED;
+                        : AnvilCraftBlockPlacer.anvilCraftBlockPlacer.getPlayer()));
+        if (!blockHitResult.getBlockPos().equals(irritatePos)) return WorkResult.OBSCURED;
         double sunAngle = level.getSunAngle(1);
         sunAngle = sunAngle <= Math.PI / 2 * 3 ? sunAngle + Math.PI / 2 : sunAngle - Math.PI / 2 * 3;
         if (sunAngle > Math.PI) return WorkResult.NO_SUN;
-        Vector3f sunVector3f = new Vector3f((float) Math.cos(sunAngle), (float) Math.sin(sunAngle), 0).normalize();
+        Vector3f sunVector3f =
+                new Vector3f((float) Math.cos(sunAngle), (float) Math.sin(sunAngle), 0).normalize();
         irritateVector3f = new Vector3f(
-                (float) (irritateVec3.x - getBlockPos().getX()),
-                (float) (irritateVec3.y - getBlockPos().getY()),
-                (float) (irritateVec3.z - getBlockPos().getZ())
-        ).normalize();
+                        (float) (irritateVec3.x - getBlockPos().getX()),
+                        (float) (irritateVec3.y - getBlockPos().getY()),
+                        (float) (irritateVec3.z - getBlockPos().getZ()))
+                .normalize();
         normalVector3f = sunVector3f.add(irritateVector3f).div(2);
         if (normalVector3f.y < 0) return WorkResult.NO_ROTATION_ANGLE;
         return WorkResult.SUCCESS;
@@ -153,7 +156,6 @@ public class HeliostatsBlockEntity extends BlockEntity {
     }
 
     public enum WorkResult {
-
         SUCCESS(""),
         NO_ROTATION_ANGLE("tooltip.anvilcraft.heliostats.no_rotation_angle"),
         NO_SUN("tooltip.anvilcraft.heliostats.no_sun"),

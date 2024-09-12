@@ -2,8 +2,7 @@ package dev.dubhe.anvilcraft.client.gui.screen.inventory;
 
 import dev.dubhe.anvilcraft.client.gui.component.OutputDirectionButton;
 import dev.dubhe.anvilcraft.network.MachineOutputDirectionPack;
-import lombok.Getter;
-import lombok.Setter;
+
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.Direction;
@@ -12,17 +11,23 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.neoforged.neoforge.network.PacketDistributor;
+
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.function.BiFunction;
 
-public abstract class BaseMachineScreen<T extends AbstractContainerMenu> extends AbstractContainerScreen<T> {
+public abstract class BaseMachineScreen<T extends AbstractContainerMenu>
+        extends AbstractContainerScreen<T> {
     @Setter
     private BiFunction<Integer, Integer, OutputDirectionButton> directionButtonSupplier;
+
     @Getter
     private OutputDirectionButton directionButton = null;
+
     @Getter
     private final Player player;
 
@@ -48,16 +53,19 @@ public abstract class BaseMachineScreen<T extends AbstractContainerMenu> extends
     }
 
     @Contract(pure = true)
-    protected static @NotNull BiFunction<Integer, Integer, OutputDirectionButton> getDirectionButtonSupplier(
-        int x, int y, Direction... skip
-    ) {
-        return (i, j) -> new OutputDirectionButton(i + x, j + y, button -> {
-            if (button instanceof OutputDirectionButton button1) {
-                Arrays.stream(skip).forEach(button1::skip);
-                MachineOutputDirectionPack packet = new MachineOutputDirectionPack(button1.next());
-                PacketDistributor.sendToServer(packet);
-            }
-        }, Direction.DOWN);
+    protected static @NotNull BiFunction<Integer, Integer, OutputDirectionButton>
+            getDirectionButtonSupplier(int x, int y, Direction... skip) {
+        return (i, j) -> new OutputDirectionButton(
+                i + x,
+                j + y,
+                button -> {
+                    if (button instanceof OutputDirectionButton button1) {
+                        Arrays.stream(skip).forEach(button1::skip);
+                        MachineOutputDirectionPack packet = new MachineOutputDirectionPack(button1.next());
+                        PacketDistributor.sendToServer(packet);
+                    }
+                },
+                Direction.DOWN);
     }
 
     @Override

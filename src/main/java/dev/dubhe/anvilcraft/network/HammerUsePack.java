@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.network;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -12,15 +13,14 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
+
 import org.jetbrains.annotations.NotNull;
 
 public class HammerUsePack implements CustomPacketPayload {
     public static final Type<HammerUsePack> TYPE = new Type<>(AnvilCraft.of("hammer_use"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, HammerUsePack> STREAM_CODEC = StreamCodec.ofMember(
-            HammerUsePack::encode, HammerUsePack::new
-    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, HammerUsePack> STREAM_CODEC =
+            StreamCodec.ofMember(HammerUsePack::encode, HammerUsePack::new);
     public static final IPayloadHandler<HammerUsePack> HANDLER = HammerUsePack::serverHandler;
-
 
     private final BlockPos pos;
     private final InteractionHand hand;

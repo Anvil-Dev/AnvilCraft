@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.network;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.IFilterScreen;
 import dev.dubhe.anvilcraft.inventory.IFilterMenu;
-import lombok.Getter;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -16,24 +16,26 @@ import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
 
+import lombok.Getter;
+
 @Getter
 public class MachineEnableFilterPack implements CustomPacketPayload {
-    public static final Type<MachineEnableFilterPack> TYPE = new Type<>(AnvilCraft.of("machine_record_material"));
+    public static final Type<MachineEnableFilterPack> TYPE =
+            new Type<>(AnvilCraft.of("machine_record_material"));
     public static final StreamCodec<RegistryFriendlyByteBuf, MachineEnableFilterPack> STREAM_CODEC =
-        StreamCodec.composite(
-            ByteBufCodecs.BOOL, MachineEnableFilterPack::isFilterEnabled, MachineEnableFilterPack::new
-        );
-    public static final IPayloadHandler<MachineEnableFilterPack> HANDLER = new DirectionalPayloadHandler<>(
-        MachineEnableFilterPack::clientHandler,
-        MachineEnableFilterPack::serverHandler
-    );
+            StreamCodec.composite(
+                    ByteBufCodecs.BOOL,
+                    MachineEnableFilterPack::isFilterEnabled,
+                    MachineEnableFilterPack::new);
+    public static final IPayloadHandler<MachineEnableFilterPack> HANDLER =
+            new DirectionalPayloadHandler<>(
+                    MachineEnableFilterPack::clientHandler, MachineEnableFilterPack::serverHandler);
 
     private final boolean filterEnabled;
 
     public MachineEnableFilterPack(boolean filterEnabled) {
         this.filterEnabled = filterEnabled;
     }
-
 
     @Override
     public Type<? extends CustomPacketPayload> type() {

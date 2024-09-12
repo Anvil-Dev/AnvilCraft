@@ -1,17 +1,17 @@
 package dev.dubhe.anvilcraft.data.generator.lang;
 
-import com.google.gson.annotations.SerializedName;
-import com.tterrag.registrate.providers.RegistrateLangProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
 import dev.dubhe.anvilcraft.util.IFormattingUtil;
+
+import com.google.gson.annotations.SerializedName;
+import com.tterrag.registrate.providers.RegistrateLangProvider;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.Comment;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
-
 
 public class ConfigScreenLang {
     private static final String OPTION_STRING = "text.autoconfig.%s.option.%s";
@@ -27,16 +27,14 @@ public class ConfigScreenLang {
         readConfigClass(AnvilCraftConfig.class, provider, null);
     }
 
-
     @SuppressWarnings("SameParameterValue")
     private static void readConfigClass(
-        @NotNull Class<?> configClass, RegistrateLangProvider provider, @Nullable String parent
-    ) {
+            @NotNull Class<?> configClass, RegistrateLangProvider provider, @Nullable String parent) {
         for (Field field : configClass.getDeclaredFields()) {
             String fieldName = field.getName();
             String name;
             if (field.isAnnotationPresent(ConfigEntry.Gui.CollapsibleObject.class)
-                || field.isAnnotationPresent(ConfigEntry.Gui.TransitiveObject.class)) {
+                    || field.isAnnotationPresent(ConfigEntry.Gui.TransitiveObject.class)) {
                 readConfigClass(field.getType(), provider, fieldName);
             }
             if (field.isAnnotationPresent(SerializedName.class)) {
@@ -50,7 +48,8 @@ public class ConfigScreenLang {
             provider.add(OPTION_STRING.formatted(AnvilCraft.MOD_ID, fieldName), name);
             if (field.isAnnotationPresent(Comment.class)) {
                 Comment comment = field.getAnnotation(Comment.class);
-                provider.add(OPTION_TOOLTIP_STRING.formatted(AnvilCraft.MOD_ID, fieldName), comment.value());
+                provider.add(
+                        OPTION_TOOLTIP_STRING.formatted(AnvilCraft.MOD_ID, fieldName), comment.value());
             }
         }
     }

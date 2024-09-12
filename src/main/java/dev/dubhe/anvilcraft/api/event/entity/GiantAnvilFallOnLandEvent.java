@@ -1,9 +1,11 @@
 package dev.dubhe.anvilcraft.api.event.entity;
 
 import dev.dubhe.anvilcraft.entity.FallingGiantAnvilEntity;
-import lombok.Getter;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
+
+import lombok.Getter;
 
 @Getter
 public class GiantAnvilFallOnLandEvent extends EntityEvent<FallingGiantAnvilEntity> {
@@ -16,7 +18,8 @@ public class GiantAnvilFallOnLandEvent extends EntityEvent<FallingGiantAnvilEnti
      * @param pos    位置
      * @param level  世界
      */
-    public GiantAnvilFallOnLandEvent(FallingGiantAnvilEntity entity, BlockPos pos, Level level, float fallDistance) {
+    public GiantAnvilFallOnLandEvent(
+            FallingGiantAnvilEntity entity, BlockPos pos, Level level, float fallDistance) {
         super(entity, pos, level);
         this.fallDistance = fallDistance;
     }

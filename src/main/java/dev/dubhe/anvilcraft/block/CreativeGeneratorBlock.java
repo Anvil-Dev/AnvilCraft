@@ -1,12 +1,12 @@
 package dev.dubhe.anvilcraft.block;
 
-import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.CreativeGeneratorBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.network.SliderInitPack;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -25,6 +25,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
+
+import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,42 +47,37 @@ public class CreativeGeneratorBlock extends BetterBaseEntityBlock implements IHa
     @Override
     @SuppressWarnings({"UnreachableCode"})
     public @NotNull InteractionResult use(
-        @NotNull BlockState state, @NotNull Level level,
-        @NotNull BlockPos pos, @NotNull Player player,
-        @NotNull InteractionHand hand, @NotNull BlockHitResult hit
-    ) {
+            @NotNull BlockState state,
+            @NotNull Level level,
+            @NotNull BlockPos pos,
+            @NotNull Player player,
+            @NotNull InteractionHand hand,
+            @NotNull BlockHitResult hit) {
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
         }
-        if (
-            level.getBlockEntity(pos) instanceof CreativeGeneratorBlockEntity entity
-                && player instanceof ServerPlayer serverPlayer
-        ) {
+        if (level.getBlockEntity(pos) instanceof CreativeGeneratorBlockEntity entity
+                && player instanceof ServerPlayer serverPlayer) {
             ModMenuTypes.open(serverPlayer, entity, pos);
-            PacketDistributor.sendToPlayer(serverPlayer, new SliderInitPack(entity.getPower(), -8192, 8192));
+            PacketDistributor.sendToPlayer(
+                    serverPlayer, new SliderInitPack(entity.getPower(), -8192, 8192));
         }
         return InteractionResult.SUCCESS;
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
         return new CreativeGeneratorBlockEntity(pos, state);
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-            @NotNull Level level,
-            @NotNull BlockState state,
-            @NotNull BlockEntityType<T> type
-    ) {
+            @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type) {
         return createTickerHelper(
-                type, ModBlockEntities.CREATIVE_GENERATOR.get(),
-                (level1, blockPos, blockState, blockEntity) -> blockEntity.tick()
-        );
+                type,
+                ModBlockEntities.CREATIVE_GENERATOR.get(),
+                (level1, blockPos, blockState, blockEntity) -> blockEntity.tick());
     }
-
 
     @Override
     public @Nonnull RenderShape getRenderShape(@Nonnull BlockState state) {
@@ -90,8 +87,10 @@ public class CreativeGeneratorBlock extends BetterBaseEntityBlock implements IHa
     @Override
     @SuppressWarnings("deprecation")
     public @NotNull VoxelShape getShape(
-        @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context
-    ) {
+            @NotNull BlockState state,
+            @NotNull BlockGetter level,
+            @NotNull BlockPos pos,
+            @NotNull CollisionContext context) {
         return CreativeGeneratorBlock.SHAPE;
     }
 }

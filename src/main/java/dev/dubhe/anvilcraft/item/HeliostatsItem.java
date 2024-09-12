@@ -1,12 +1,10 @@
 package dev.dubhe.anvilcraft.item;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.block.RedhotMetalBlock;
 import dev.dubhe.anvilcraft.block.entity.HeliostatsBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModComponents;
-import io.netty.buffer.ByteBuf;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -27,12 +25,17 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.Objects;
+
+import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 public class HeliostatsItem extends BlockItem {
@@ -76,16 +79,14 @@ public class HeliostatsItem extends BlockItem {
             @NotNull Level level,
             @Nullable Player player,
             @NotNull ItemStack stack,
-            @NotNull BlockState state
-    ) {
+            @NotNull BlockState state) {
         if (level.isClientSide) return false;
         if (!hasDataStored(stack)) {
             if (player != null) {
                 player.displayClientMessage(
                         Component.translatable("block.anvilcraft.heliostats.placement_no_pos")
                                 .withStyle(ChatFormatting.RED),
-                        true
-                );
+                        true);
             }
             return false;
         }
@@ -97,8 +98,7 @@ public class HeliostatsItem extends BlockItem {
                 player.displayClientMessage(
                         Component.translatable("block.anvilcraft.heliostats.invalid_placement")
                                 .withStyle(ChatFormatting.RED),
-                        true
-                );
+                        true);
             }
             return true;
         }
@@ -110,15 +110,13 @@ public class HeliostatsItem extends BlockItem {
             ItemStack stack,
             Item.TooltipContext context,
             List<Component> tooltipComponents,
-            TooltipFlag isAdvanced
-    ) {
+            TooltipFlag isAdvanced) {
         super.appendHoverText(stack, context, tooltipComponents, isAdvanced);
         if (hasDataStored(stack)) {
             BlockPos pos = getData(stack);
             tooltipComponents.add(
                     Component.translatable("item.anvilcraft.heliostats.pos_set", pos.toShortString())
-                            .withStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY))
-            );
+                            .withStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
         }
     }
 
@@ -137,8 +135,7 @@ public class HeliostatsItem extends BlockItem {
                 || blockState.is(Blocks.NETHERITE_BLOCK)
                 || blockState.is(ModBlocks.HEATED_TUNGSTEN.get())
                 || blockState.is(ModBlocks.HEATED_NETHERITE.get())
-                || blockState.getBlock() instanceof RedhotMetalBlock
-        ) {
+                || blockState.getBlock() instanceof RedhotMetalBlock) {
             ItemStack stack = context.getItemInHand();
             if (hasDataStored(stack)) {
                 InteractionResult result = super.useOn(context);
@@ -147,8 +144,7 @@ public class HeliostatsItem extends BlockItem {
                             context.getPlayer(),
                             context.getClickedPos(),
                             blockState.getSoundType().getPlaceSound(),
-                            SoundSource.BLOCKS
-                    );
+                            SoundSource.BLOCKS);
                 }
                 return result;
             } else {
@@ -163,16 +159,15 @@ public class HeliostatsItem extends BlockItem {
                         context.getPlayer(),
                         context.getClickedPos(),
                         blockState.getSoundType().getPlaceSound(),
-                        SoundSource.BLOCKS
-                );
+                        SoundSource.BLOCKS);
             }
             return result;
         }
     }
 
     @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(Level level, @NotNull Player player,
-                                                           @NotNull InteractionHand usedHand) {
+    public @NotNull InteractionResultHolder<ItemStack> use(
+            Level level, @NotNull Player player, @NotNull InteractionHand usedHand) {
         if (!level.isClientSide && player.isShiftKeyDown()) {
             ItemStack itemStack = player.getItemInHand(usedHand);
             if (hasDataStored(itemStack)) {
@@ -185,16 +180,12 @@ public class HeliostatsItem extends BlockItem {
 
     public record HeliostatsData(BlockPos pos) {
 
-        public static final Codec<HeliostatsData> CODEC = RecordCodecBuilder.create(ins -> ins.group(
-                BlockPos.CODEC.fieldOf("pos").forGetter(HeliostatsData::pos)
-        ).apply(ins, HeliostatsData::new));
+        public static final Codec<HeliostatsData> CODEC = RecordCodecBuilder.create(
+                ins -> ins.group(BlockPos.CODEC.fieldOf("pos").forGetter(HeliostatsData::pos))
+                        .apply(ins, HeliostatsData::new));
 
-
-        public static final StreamCodec<ByteBuf, HeliostatsData> STREAM_CODEC = StreamCodec.composite(
-                BlockPos.STREAM_CODEC,
-                HeliostatsData::pos,
-                HeliostatsData::new
-        );
+        public static final StreamCodec<ByteBuf, HeliostatsData> STREAM_CODEC =
+                StreamCodec.composite(BlockPos.STREAM_CODEC, HeliostatsData::pos, HeliostatsData::new);
 
         @Override
         public boolean equals(Object obj) {

@@ -1,9 +1,9 @@
 package dev.dubhe.anvilcraft.inventory;
 
-import com.google.common.collect.Maps;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
+
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
@@ -23,11 +23,12 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
+
+import com.google.common.collect.Maps;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class EmberGrindstoneMenu extends AbstractContainerMenu {
     private final Container repairToolSlots;
@@ -40,11 +41,13 @@ public class EmberGrindstoneMenu extends AbstractContainerMenu {
     public int removeRepairCostNumber = 0;
     public int removeCurseNumber = 0;
 
-    public EmberGrindstoneMenu(MenuType<EmberGrindstoneMenu> type, int containerId, Inventory playerInventory) {
+    public EmberGrindstoneMenu(
+            MenuType<EmberGrindstoneMenu> type, int containerId, Inventory playerInventory) {
         this(type, containerId, playerInventory, ContainerLevelAccess.NULL);
     }
 
-    public EmberGrindstoneMenu(int containerId, Inventory playerInventory, ContainerLevelAccess access) {
+    public EmberGrindstoneMenu(
+            int containerId, Inventory playerInventory, ContainerLevelAccess access) {
         this(ModMenuTypes.EMBER_GRINDSTONE.get(), containerId, playerInventory, access);
     }
 
@@ -57,8 +60,10 @@ public class EmberGrindstoneMenu extends AbstractContainerMenu {
      * @param access          检查
      */
     public EmberGrindstoneMenu(
-            MenuType<EmberGrindstoneMenu> type, int containerId, Inventory playerInventory, ContainerLevelAccess access
-    ) {
+            MenuType<EmberGrindstoneMenu> type,
+            int containerId,
+            Inventory playerInventory,
+            ContainerLevelAccess access) {
         super(type, containerId);
         this.repairToolSlots = new SimpleContainer(1) {
             public void setChanged() {
@@ -93,12 +98,14 @@ public class EmberGrindstoneMenu extends AbstractContainerMenu {
             public void onTake(@NotNull Player player, @NotNull ItemStack stack) {
                 player.playSound(SoundEvents.GRINDSTONE_USE);
                 repairToolSlots.setItem(0, ItemStack.EMPTY);
-                repairMaterialSlots.setItem(0, new ItemStack(Items.GOLD_INGOT,
-                    repairMaterialSlots.getItem(0).getCount() - usedGold));
-                resultMaterialSlots.setItem(2, new ItemStack(
-                    ModItems.CURSED_GOLD_INGOT.get(),
-                    usedGold + resultMaterialSlots.getItem(2).getCount())
-                );
+                repairMaterialSlots.setItem(
+                        0,
+                        new ItemStack(Items.GOLD_INGOT, repairMaterialSlots.getItem(0).getCount() - usedGold));
+                resultMaterialSlots.setItem(
+                        2,
+                        new ItemStack(
+                                ModItems.CURSED_GOLD_INGOT.get(),
+                                usedGold + resultMaterialSlots.getItem(2).getCount()));
             }
         });
         this.addSlot(new Slot(this.resultMaterialSlots, 2, 89, 47) {
@@ -142,7 +149,8 @@ public class EmberGrindstoneMenu extends AbstractContainerMenu {
         Iterator<Holder<Enchantment>> iterator = curseMap.keySet().iterator();
         final int needGold = 16;
         while (goldNumber >= needGold && curseNumber > 0 && goldUsed < 64) {
-            ItemEnchantments.Mutable enchantments = new ItemEnchantments.Mutable(result.getEnchantments());
+            ItemEnchantments.Mutable enchantments =
+                    new ItemEnchantments.Mutable(result.getEnchantments());
             enchantments.removeIf(it -> it == iterator.next());
             ItemStack itemStack = result.copy();
             itemStack.remove(DataComponents.ENCHANTMENTS);
@@ -158,11 +166,11 @@ public class EmberGrindstoneMenu extends AbstractContainerMenu {
             result = new ItemStack(Items.BOOK, result.getCount());
         }
         this.usedGold = goldUsed;
-        this.removeRepairCostNumber = repairTool.getOrDefault(DataComponents.REPAIR_COST, 0) - repairCost;
+        this.removeRepairCostNumber =
+                repairTool.getOrDefault(DataComponents.REPAIR_COST, 0) - repairCost;
         this.removeCurseNumber = removeCurseNumber;
         return result;
     }
-
 
     @Override
     public @NotNull ItemStack quickMoveStack(@NotNull Player player, int index) {
@@ -184,7 +192,9 @@ public class EmberGrindstoneMenu extends AbstractContainerMenu {
                 }
             } else {
                 ItemStack gold;
-                if (itemStack.isDamageableItem() || itemStack.is(Items.ENCHANTED_BOOK) || itemStack.isEnchanted()) {
+                if (itemStack.isDamageableItem()
+                        || itemStack.is(Items.ENCHANTED_BOOK)
+                        || itemStack.isEnchanted()) {
                     if (!this.getSlot(0).hasItem()) {
                         this.getSlot(0).setByPlayer(itemStack);
                         this.getSlot(index).setByPlayer(ItemStack.EMPTY);
@@ -195,10 +205,8 @@ public class EmberGrindstoneMenu extends AbstractContainerMenu {
                     if (!this.getSlot(1).hasItem()) {
                         this.getSlot(1).setByPlayer(itemStack);
                         this.getSlot(index).setByPlayer(ItemStack.EMPTY);
-                    } else if (
-                        (gold = this.getSlot(1).getItem()).is(Items.GOLD_INGOT)
-                            && gold.getCount() < gold.getMaxStackSize()
-                    ) {
+                    } else if ((gold = this.getSlot(1).getItem()).is(Items.GOLD_INGOT)
+                            && gold.getCount() < gold.getMaxStackSize()) {
                         int canSet = gold.getMaxStackSize() - gold.getCount();
                         canSet = Math.min(itemStack.getCount(), canSet);
                         gold.grow(canSet);
@@ -213,7 +221,6 @@ public class EmberGrindstoneMenu extends AbstractContainerMenu {
         }
         return ItemStack.EMPTY;
     }
-
 
     @Override
     public boolean stillValid(@NotNull Player player) {
@@ -242,7 +249,8 @@ public class EmberGrindstoneMenu extends AbstractContainerMenu {
 
     protected void clearContainer(Player player, @NotNull Container container) {
         int i;
-        if (!player.isAlive() || player instanceof ServerPlayer && ((ServerPlayer) player).hasDisconnected()) {
+        if (!player.isAlive()
+                || player instanceof ServerPlayer && ((ServerPlayer) player).hasDisconnected()) {
             for (i = 0; i < container.getContainerSize(); ++i) {
                 player.drop(container.removeItemNoUpdate(i), false);
             }
@@ -254,7 +262,6 @@ public class EmberGrindstoneMenu extends AbstractContainerMenu {
                     inventory.placeItemBackInInventory(container.removeItemNoUpdate(i));
                 }
             }
-
         }
     }
 }

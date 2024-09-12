@@ -1,11 +1,13 @@
 package dev.dubhe.anvilcraft.data.generator.recipe;
 
-import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.recipe.ItemCrushRecipe;
+
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+
+import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 
 public class ItemCrushRecipeLoader {
     public static void init(RegistrateRecipeProvider provider) {

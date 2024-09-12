@@ -10,9 +10,10 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.Map;
+
+import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -21,18 +22,17 @@ public class RoyalAxeItem extends AxeItem implements IHasDefaultEnchantment {
      *
      */
     public RoyalAxeItem(Properties properties) {
-        super(Tiers.DIAMOND, properties.attributes(AxeItem.createAttributes(
-            ModTiers.AMETHYST, 5, -3.0f
-        )));
+        super(
+                Tiers.DIAMOND,
+                properties.attributes(AxeItem.createAttributes(ModTiers.AMETHYST, 5, -3.0f)));
     }
 
     @Override
     public void appendHoverText(
-        ItemStack pStack,
-        TooltipContext pContext,
-        List<Component> pTooltipComponents,
-        TooltipFlag pTooltipFlag
-    ) {
+            ItemStack pStack,
+            TooltipContext pContext,
+            List<Component> pTooltipComponents,
+            TooltipFlag pTooltipFlag) {
         super.appendHoverText(pStack, pContext, pTooltipComponents, pTooltipFlag);
         pTooltipComponents.addAll(this.getDefaultEnchantmentsTooltip());
     }

@@ -22,8 +22,9 @@ public interface IFormattingUtil {
     static @NotNull String toLowerCaseUnderscore(@NotNull String string) {
         StringBuilder result = new StringBuilder();
         for (int i = 0; i < string.length(); i++) {
-            if (i != 0 && (Character.isUpperCase(string.charAt(i)) || (
-                Character.isDigit(string.charAt(i - 1)) ^ Character.isDigit(string.charAt(i)))))
+            if (i != 0
+                    && (Character.isUpperCase(string.charAt(i))
+                            || (Character.isDigit(string.charAt(i - 1)) ^ Character.isDigit(string.charAt(i)))))
                 result.append("_");
             result.append(Character.toLowerCase(string.charAt(i)));
         }
@@ -45,7 +46,7 @@ public interface IFormattingUtil {
      */
     static String toEnglishName(@NotNull Object internalName) {
         return Arrays.stream(internalName.toString().toLowerCase(Locale.ROOT).split("_"))
-            .map(StringUtils::capitalize)
-            .collect(Collectors.joining(" "));
+                .map(StringUtils::capitalize)
+                .collect(Collectors.joining(" "));
     }
 }

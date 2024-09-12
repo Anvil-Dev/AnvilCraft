@@ -5,22 +5,28 @@ import dev.dubhe.anvilcraft.client.gui.component.Slider;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.inventory.SliderMenu;
 import dev.dubhe.anvilcraft.network.SliderUpdatePack;
+
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.network.PacketDistributor;
+
 import org.jetbrains.annotations.NotNull;
 
 public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
-    public static final ResourceLocation LOCATION = AnvilCraft.of("textures/gui/container/slider/background.png");
-    public static final ResourceLocation BUTTON_MAX = AnvilCraft.of("textures/gui/container/slider/button_max.png");
-    public static final ResourceLocation BUTTON_ADD = AnvilCraft.of("textures/gui/container/slider/button_add.png");
-    public static final ResourceLocation BUTTON_MINUS = AnvilCraft.of("textures/gui/container/slider/button_minus.png");
-    public static final ResourceLocation BUTTON_MIN = AnvilCraft.of("textures/gui/container/slider/button_min.png");
+    public static final ResourceLocation LOCATION =
+            AnvilCraft.of("textures/gui/container/slider/background.png");
+    public static final ResourceLocation BUTTON_MAX =
+            AnvilCraft.of("textures/gui/container/slider/button_max.png");
+    public static final ResourceLocation BUTTON_ADD =
+            AnvilCraft.of("textures/gui/container/slider/button_add.png");
+    public static final ResourceLocation BUTTON_MINUS =
+            AnvilCraft.of("textures/gui/container/slider/button_minus.png");
+    public static final ResourceLocation BUTTON_MIN =
+            AnvilCraft.of("textures/gui/container/slider/button_min.png");
     private Slider slider = null;
     private EditBox value;
 
@@ -42,7 +48,8 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
         int offsetX = (this.width - this.imageWidth) / 2;
         int offsetY = (this.height - this.imageHeight) / 2;
         this.slider = new Slider(8 + offsetX, 31 + offsetY, 0, 16, 160, this::update);
-        this.value = new EditBox(this.font, offsetX + 50, offsetY + 47, 76, 8, Component.literal("value"));
+        this.value =
+                new EditBox(this.font, offsetX + 50, offsetY + 47, 76, 8, Component.literal("value"));
         this.value.setCanLoseFocus(false);
         this.value.setTextColor(-1);
         this.value.setTextColorUneditable(-1);
@@ -51,31 +58,45 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
         this.value.setResponder(this::onValueInput);
         this.value.setValue("");
         TexturedButton max = new TexturedButton(
-            152 + offsetX, 43 + offsetY,
-            16, 16, BUTTON_MAX, 16, 16, 32,
-            (btn) -> this.slider.setValueWithUpdate(slider.getMax())
-        );
+                152 + offsetX,
+                43 + offsetY,
+                16,
+                16,
+                BUTTON_MAX,
+                16,
+                16,
+                32,
+                (btn) -> this.slider.setValueWithUpdate(slider.getMax()));
         TexturedButton add = new TexturedButton(
-            134 + offsetX, 43 + offsetY,
-            16, 16, BUTTON_ADD, 16, 16, 32,
-            (btn) -> this.slider.setValueWithUpdate(Math.min(slider.getMax(), slider.getValue() + 1))
-        );
+                134 + offsetX,
+                43 + offsetY,
+                16,
+                16,
+                BUTTON_ADD,
+                16,
+                16,
+                32,
+                (btn) -> this.slider.setValueWithUpdate(Math.min(slider.getMax(), slider.getValue() + 1)));
         TexturedButton min = new TexturedButton(
-            8 + offsetX, 43 + offsetY,
-            16, 16, BUTTON_MIN, 16, 16, 32,
-            (btn) -> this.slider.setValueWithUpdate(slider.getMin())
-        );
+                8 + offsetX,
+                43 + offsetY,
+                16,
+                16,
+                BUTTON_MIN,
+                16,
+                16,
+                32,
+                (btn) -> this.slider.setValueWithUpdate(slider.getMin()));
         TexturedButton minus = new TexturedButton(
-            26 + offsetX,
-            43 + offsetY,
-            16,
-            16,
-            BUTTON_MINUS,
-            16,
-            16,
-            32,
-            (btn) -> this.slider.setValueWithUpdate(Math.max(slider.getMin(), slider.getValue() - 1))
-        );
+                26 + offsetX,
+                43 + offsetY,
+                16,
+                16,
+                BUTTON_MINUS,
+                16,
+                16,
+                32,
+                (btn) -> this.slider.setValueWithUpdate(Math.max(slider.getMin(), slider.getValue() - 1)));
         this.addRenderableWidget(max);
         this.addRenderableWidget(add);
         this.addRenderableWidget(min);
@@ -119,11 +140,13 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
 
     @Override
     protected void renderLabels(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 0x404040, false);
+        guiGraphics.drawString(
+                this.font, this.title, this.titleLabelX, this.titleLabelY, 0x404040, false);
     }
 
     @Override
-    protected void renderBg(@NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(
+            @NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         int offsetX = (this.width - this.imageWidth) / 2;
         int offsetY = (this.height - this.imageHeight) / 2;
         guiGraphics.blit(LOCATION, offsetX, offsetY, 0, 0, this.imageWidth, this.imageHeight, 256, 128);

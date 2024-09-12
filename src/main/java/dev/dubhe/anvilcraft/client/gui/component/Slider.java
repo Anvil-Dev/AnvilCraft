@@ -2,8 +2,7 @@ package dev.dubhe.anvilcraft.client.gui.component;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.inventory.SliderMenu;
-import lombok.Getter;
-import lombok.Setter;
+
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -13,18 +12,26 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 public class Slider extends AbstractWidget {
-    public static final ResourceLocation SLIDER = AnvilCraft.of("textures/gui/container/slider/slider.png");
+    public static final ResourceLocation SLIDER =
+            AnvilCraft.of("textures/gui/container/slider/slider.png");
+
     @Setter
     @Getter
     private int min;
+
     @Setter
     @Getter
     private int max;
+
     @Getter
     private int value;
+
     private final int posX;
     private final int posY;
     private final int length;
@@ -77,7 +84,8 @@ public class Slider extends AbstractWidget {
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+    public boolean mouseDragged(
+            double mouseX, double mouseY, int button, double dragX, double dragY) {
         if (button == 0) {
             this.onDrag(mouseX, mouseY, dragX, dragY);
             return true;
@@ -127,32 +135,29 @@ public class Slider extends AbstractWidget {
     }
 
     @Override
-    protected void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void renderWidget(
+            @NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         int offsetX = posX + (int) ((length - 16) * this.getProportion());
         guiGraphics.blit(SLIDER, offsetX, posY, 0, this.isHovered ? 8 : 0, 16, 8, 16, 16);
     }
 
     @Override
-    protected void updateWidgetNarration(@NotNull NarrationElementOutput narrationElementOutput) {
-    }
+    protected void updateWidgetNarration(@NotNull NarrationElementOutput narrationElementOutput) {}
 
     private void updateTooltip() {
         if (this.getTooltip() == null) return;
-        boolean bl = this.isHovered || this.isFocused() && Minecraft.getInstance().getLastInputType().isKeyboard();
+        boolean bl = this.isHovered
+                || this.isFocused() && Minecraft.getInstance().getLastInputType().isKeyboard();
         if (bl != this.wasHoveredOrFocused) {
             if (bl) this.hoverOrFocusedStartTime = Util.getMillis();
             this.wasHoveredOrFocused = bl;
         }
         Screen screen;
         if (bl
-            && Util.getMillis() - this.hoverOrFocusedStartTime > (long) this.tooltipMsDelay
-            && (screen = Minecraft.getInstance().screen) != null
-        ) {
+                && Util.getMillis() - this.hoverOrFocusedStartTime > (long) this.tooltipMsDelay
+                && (screen = Minecraft.getInstance().screen) != null) {
             screen.setTooltipForNextRenderPass(
-                this.getTooltip(),
-                DefaultTooltipPositioner.INSTANCE,
-                this.isFocused()
-            );
+                    this.getTooltip(), DefaultTooltipPositioner.INSTANCE, this.isFocused());
         }
     }
 }

@@ -1,12 +1,13 @@
 package dev.dubhe.anvilcraft.api.world.load;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
+
+import lombok.Getter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 public class LoadChuckData {
@@ -21,8 +22,7 @@ public class LoadChuckData {
             List<ChunkPos> chunkPosList,
             boolean isNeedRandomTick,
             int level,
-            ServerLevel serverLevel
-    ) {
+            ServerLevel serverLevel) {
         this.centerPos = centerPos;
         this.chunkPosList = chunkPosList;
         this.isNeedRandomTick = isNeedRandomTick;
@@ -39,11 +39,7 @@ public class LoadChuckData {
      * @return 强加载区块区域数据
      */
     public static LoadChuckData createLoadChuckData(
-            int level,
-            BlockPos centerPos,
-            boolean isNeedRandomTick,
-            ServerLevel serverLevel
-    ) {
+            int level, BlockPos centerPos, boolean isNeedRandomTick, ServerLevel serverLevel) {
         List<ChunkPos> chunkPosList = new ArrayList<>();
         ChunkPos centerChunkPos = new ChunkPos(centerPos);
         for (int x = centerChunkPos.x - level; x < centerChunkPos.x + level; x++) {

@@ -1,9 +1,10 @@
 package dev.dubhe.anvilcraft.api.event.forge;
 
-import lombok.Getter;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.resources.CloseableResourceManager;
 import net.neoforged.neoforge.event.server.ServerLifecycleEvent;
+
+import lombok.Getter;
 
 @Getter
 public class DataPackReloadedEvent extends ServerLifecycleEvent {

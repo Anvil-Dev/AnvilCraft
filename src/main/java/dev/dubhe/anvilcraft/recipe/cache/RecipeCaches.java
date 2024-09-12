@@ -1,9 +1,11 @@
 package dev.dubhe.anvilcraft.recipe.cache;
 
 import dev.dubhe.anvilcraft.recipe.MeshRecipe;
+
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
+
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -19,8 +21,7 @@ public class RecipeCaches {
         meshRecipeCache = null;
     }
 
-    @Nullable
-    public static List<RecipeHolder<MeshRecipe>> getCacheMeshRecipes(ItemStack stack) {
+    @Nullable public static List<RecipeHolder<MeshRecipe>> getCacheMeshRecipes(ItemStack stack) {
         return meshRecipeCache.getMeshRecipes(stack);
     }
 }

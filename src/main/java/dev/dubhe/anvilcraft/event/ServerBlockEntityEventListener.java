@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.event;
 
-import net.neoforged.bus.api.SubscribeEvent;
 import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
 import dev.dubhe.anvilcraft.api.chargecollector.HeatedBlockRecorder;
 import dev.dubhe.anvilcraft.api.event.server.block.ServerBlockEntityLoadEvent;
@@ -11,6 +10,8 @@ import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeliostatsBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.OverseerBlockEntity;
+
+import net.neoforged.bus.api.SubscribeEvent;
 
 public class ServerBlockEntityEventListener {
 
@@ -24,7 +25,8 @@ public class ServerBlockEntityEventListener {
             PowerGrid.addComponent(component);
         }
         if (event.getBlockEntity() instanceof ChargeCollectorBlockEntity chargeCollector) {
-            ChargeCollectorManager.getInstance(event.getServerLevel()).addChargeCollector(chargeCollector);
+            ChargeCollectorManager.getInstance(event.getServerLevel())
+                    .addChargeCollector(chargeCollector);
         }
     }
 
@@ -38,7 +40,8 @@ public class ServerBlockEntityEventListener {
             PowerGrid.removeComponent(component);
         }
         if (event.getBlockEntity() instanceof ChargeCollectorBlockEntity chargeCollector) {
-            ChargeCollectorManager.getInstance(event.getServerLevel()).removeChargeCollector(chargeCollector);
+            ChargeCollectorManager.getInstance(event.getServerLevel())
+                    .removeChargeCollector(chargeCollector);
             return;
         }
         if (event.getBlockEntity() instanceof OverseerBlockEntity overseerBlockEntity) {
@@ -46,10 +49,8 @@ public class ServerBlockEntityEventListener {
             return;
         }
         if (event.getBlockEntity() instanceof HeliostatsBlockEntity heliostatsBlockEntity) {
-            HeatedBlockRecorder.getInstance(event.getServerLevel()).remove(
-                    heliostatsBlockEntity.getIrritatePos(),
-                    heliostatsBlockEntity
-            );
+            HeatedBlockRecorder.getInstance(event.getServerLevel())
+                    .remove(heliostatsBlockEntity.getIrritatePos(), heliostatsBlockEntity);
         }
     }
 }

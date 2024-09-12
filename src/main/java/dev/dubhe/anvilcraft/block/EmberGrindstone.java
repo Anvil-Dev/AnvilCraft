@@ -4,8 +4,7 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.better.BetterGrindstoneBlock;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.EmberGrindstoneMenu;
-import lombok.Getter;
-import lombok.Setter;
+
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -22,6 +21,9 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -32,7 +34,8 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @MethodsReturnNonnullByDefault
 public class EmberGrindstone extends BetterGrindstoneBlock implements IHammerRemovable, EmberBlock {
 
-    private static final Component CONTAINER_TITLE = Component.translatable("container.grindstone_title");
+    private static final Component CONTAINER_TITLE =
+            Component.translatable("container.grindstone_title");
     private BlockState checkBlockState;
 
     public EmberGrindstone(Properties properties) {
@@ -44,10 +47,12 @@ public class EmberGrindstone extends BetterGrindstoneBlock implements IHammerRem
      */
     @SuppressWarnings("UnreachableCode")
     public @NotNull InteractionResult use(
-        @NotNull BlockState state, @NotNull Level level,
-        @NotNull BlockPos pos, @NotNull Player player,
-        @NotNull InteractionHand hand, @NotNull BlockHitResult hit
-    ) {
+            @NotNull BlockState state,
+            @NotNull Level level,
+            @NotNull BlockPos pos,
+            @NotNull Player player,
+            @NotNull InteractionHand hand,
+            @NotNull BlockHitResult hit) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
         ModMenuTypes.open((ServerPlayer) player, state.getMenuProvider(level, pos));
         player.awardStat(Stats.INTERACT_WITH_GRINDSTONE);
@@ -55,9 +60,12 @@ public class EmberGrindstone extends BetterGrindstoneBlock implements IHammerRem
     }
 
     @Override
-    public MenuProvider getMenuProvider(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos) {
-        return new SimpleMenuProvider((i, inventory, player) ->
-            new EmberGrindstoneMenu(i, inventory, ContainerLevelAccess.create(level, pos)), CONTAINER_TITLE);
+    public MenuProvider getMenuProvider(
+            @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos) {
+        return new SimpleMenuProvider(
+                (i, inventory, player) ->
+                        new EmberGrindstoneMenu(i, inventory, ContainerLevelAccess.create(level, pos)),
+                CONTAINER_TITLE);
     }
 
     @Override
@@ -70,11 +78,9 @@ public class EmberGrindstone extends BetterGrindstoneBlock implements IHammerRem
             @NotNull BlockState state,
             @NotNull ServerLevel level,
             @NotNull BlockPos pos,
-            @NotNull RandomSource random
-    ) {
+            @NotNull RandomSource random) {
         if (random.nextDouble() <= 0.5) {
             tryAbsorbWater(level, pos);
         }
     }
 }
-

@@ -1,9 +1,9 @@
 package dev.dubhe.anvilcraft.block;
 
-import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.HeliostatsBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -17,15 +17,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
+import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class HeliostatsBlock extends BaseEntityBlock implements IHammerRemovable {
     public static final VoxelShape SHAPE = Shapes.or(
-            Block.box(1, 8, 1, 15, 13, 15),
-            Block.box(4, 0, 4, 12, 2, 12),
-            Block.box(7, 2, 7, 9, 8, 9)
-    );
+            Block.box(1, 8, 1, 15, 13, 15), Block.box(4, 0, 4, 12, 2, 12), Block.box(7, 2, 7, 9, 8, 9));
 
     public HeliostatsBlock(Properties properties) {
         super(properties);
@@ -41,8 +40,7 @@ public class HeliostatsBlock extends BaseEntityBlock implements IHammerRemovable
             @NotNull BlockState state,
             @NotNull BlockGetter level,
             @NotNull BlockPos pos,
-            @NotNull CollisionContext context
-    ) {
+            @NotNull CollisionContext context) {
         return SHAPE;
     }
 
@@ -51,22 +49,18 @@ public class HeliostatsBlock extends BaseEntityBlock implements IHammerRemovable
         return RenderShape.MODEL;
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
         return new HeliostatsBlockEntity(ModBlockEntities.HELIOSTATS.get(), pos, state);
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-            @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type
-    ) {
+            @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type) {
         return createTickerHelper(
                 type,
                 ModBlockEntities.HELIOSTATS.get(),
-                (level1, blockPos, blockState, blockEntity) -> blockEntity.tick()
-        );
+                (level1, blockPos, blockState, blockEntity) -> blockEntity.tick());
     }
 
     @Override
@@ -75,8 +69,7 @@ public class HeliostatsBlock extends BaseEntityBlock implements IHammerRemovable
             @NotNull Level level,
             @NotNull BlockPos pos,
             @NotNull BlockState newState,
-            boolean movedByPiston
-    ) {
+            boolean movedByPiston) {
         if (state.hasBlockEntity()) {
             HeliostatsBlockEntity be = (HeliostatsBlockEntity) level.getBlockEntity(pos);
             if (be == null) return;

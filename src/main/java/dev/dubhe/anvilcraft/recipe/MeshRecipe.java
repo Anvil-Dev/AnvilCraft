@@ -1,13 +1,9 @@
 package dev.dubhe.anvilcraft.recipe;
 
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.util.NumberProviderUtil;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.Accessors;
+
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -24,6 +20,12 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProviders;
+
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 @Getter
 @MethodsReturnNonnullByDefault
@@ -91,17 +93,20 @@ public class MeshRecipe implements Recipe<MeshRecipe.Input> {
 
     public static class Serializer implements RecipeSerializer<MeshRecipe> {
         private static final MapCodec<MeshRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-                Ingredient.CODEC_NONEMPTY.fieldOf("input").forGetter(MeshRecipe::getInput),
-                ItemStack.CODEC.fieldOf("result").forGetter(MeshRecipe::getResult),
-                NumberProviders.CODEC.fieldOf("result_amount").forGetter(MeshRecipe::getResultAmount)
-        ).apply(ins, MeshRecipe::new));
+                        Ingredient.CODEC_NONEMPTY.fieldOf("input").forGetter(MeshRecipe::getInput),
+                        ItemStack.CODEC.fieldOf("result").forGetter(MeshRecipe::getResult),
+                        NumberProviders.CODEC.fieldOf("result_amount").forGetter(MeshRecipe::getResultAmount))
+                .apply(ins, MeshRecipe::new));
 
-        private static final StreamCodec<RegistryFriendlyByteBuf, MeshRecipe> STREAM_CODEC = StreamCodec.composite(
-                Ingredient.CONTENTS_STREAM_CODEC, MeshRecipe::getInput,
-                ItemStack.STREAM_CODEC, MeshRecipe::getResult,
-                StreamCodec.of(NumberProviderUtil::toNetwork, NumberProviderUtil::fromNetwork), MeshRecipe::getResultAmount,
-                MeshRecipe::new
-        );
+        private static final StreamCodec<RegistryFriendlyByteBuf, MeshRecipe> STREAM_CODEC =
+                StreamCodec.composite(
+                        Ingredient.CONTENTS_STREAM_CODEC,
+                        MeshRecipe::getInput,
+                        ItemStack.STREAM_CODEC,
+                        MeshRecipe::getResult,
+                        StreamCodec.of(NumberProviderUtil::toNetwork, NumberProviderUtil::fromNetwork),
+                        MeshRecipe::getResultAmount,
+                        MeshRecipe::new);
 
         @Override
         public MapCodec<MeshRecipe> codec() {

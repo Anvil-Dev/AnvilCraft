@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.gui.screen.inventory;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.inventory.EmberSmithingMenu;
+
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.CyclingSlotBackground;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
@@ -16,6 +17,7 @@ import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SmithingTemplateItem;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
@@ -26,26 +28,26 @@ import java.util.Optional;
 
 public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
     private static final ResourceLocation SMITHING_LOCATION =
-        AnvilCraft.of("textures/gui/container/smithing/background/ember_smithing_table.png");
+            AnvilCraft.of("textures/gui/container/smithing/background/ember_smithing_table.png");
     private static final ResourceLocation ERROR =
-        AnvilCraft.of("textures/gui/container/smithing/error.png");
+            AnvilCraft.of("textures/gui/container/smithing/error.png");
     private static final ResourceLocation EMPTY_SLOT_SMITHING_TEMPLATE_ARMOR_TRIM =
-        ResourceLocation.withDefaultNamespace("item/empty_slot_smithing_template_armor_trim");
+            ResourceLocation.withDefaultNamespace("item/empty_slot_smithing_template_armor_trim");
     private static final ResourceLocation EMPTY_SLOT_SMITHING_TEMPLATE_NETHERITE_UPGRADE =
-        ResourceLocation.withDefaultNamespace("item/empty_slot_smithing_template_netherite_upgrade");
+            ResourceLocation.withDefaultNamespace("item/empty_slot_smithing_template_netherite_upgrade");
     private static final Component MISSING_TEMPLATE_TOOLTIP =
-        Component.translatable("container.upgrade.missing_template_tooltip");
+            Component.translatable("container.upgrade.missing_template_tooltip");
     private static final Component ERROR_TOOLTIP =
-        Component.translatable("container.upgrade.error_tooltip");
-    private static final List<ResourceLocation> EMPTY_SLOT_SMITHING_TEMPLATES =
-        List.of(EMPTY_SLOT_SMITHING_TEMPLATE_ARMOR_TRIM, EMPTY_SLOT_SMITHING_TEMPLATE_NETHERITE_UPGRADE);
-    public static final Quaternionf ARMOR_STAND_ANGLE = new Quaternionf()
-        .rotationXYZ(0.43633232f, 0.0f, (float) Math.PI);
+            Component.translatable("container.upgrade.error_tooltip");
+    private static final List<ResourceLocation> EMPTY_SLOT_SMITHING_TEMPLATES = List.of(
+            EMPTY_SLOT_SMITHING_TEMPLATE_ARMOR_TRIM, EMPTY_SLOT_SMITHING_TEMPLATE_NETHERITE_UPGRADE);
+    public static final Quaternionf ARMOR_STAND_ANGLE =
+            new Quaternionf().rotationXYZ(0.43633232f, 0.0f, (float) Math.PI);
     private final CyclingSlotBackground templateIcon = new CyclingSlotBackground(0);
     private final CyclingSlotBackground baseIcon = new CyclingSlotBackground(1);
     private final CyclingSlotBackground additionalIcon = new CyclingSlotBackground(2);
-    @Nullable
-    private ArmorStand armorStandPreview;
+
+    @Nullable private ArmorStand armorStandPreview;
 
     /**
      * 皇家锻造台 GUI
@@ -84,7 +86,8 @@ public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
         Optional<SmithingTemplateItem> optional = this.getTemplateItem();
         this.templateIcon.tick(EMPTY_SLOT_SMITHING_TEMPLATES);
         this.baseIcon.tick(optional.map(SmithingTemplateItem::getBaseSlotEmptyIcons).orElse(List.of()));
-        this.additionalIcon.tick(optional.map(SmithingTemplateItem::getAdditionalSlotEmptyIcons).orElse(List.of()));
+        this.additionalIcon.tick(
+                optional.map(SmithingTemplateItem::getAdditionalSlotEmptyIcons).orElse(List.of()));
     }
 
     private Optional<SmithingTemplateItem> getTemplateItem() {
@@ -104,28 +107,27 @@ public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
     }
 
     @Override
-    protected void renderBg(@NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(
+            @NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         super.renderBg(guiGraphics, partialTick, mouseX, mouseY);
         this.templateIcon.render(this.menu, guiGraphics, partialTick, this.leftPos, this.topPos);
         this.baseIcon.render(this.menu, guiGraphics, partialTick, this.leftPos, this.topPos);
         this.additionalIcon.render(this.menu, guiGraphics, partialTick, this.leftPos, this.topPos);
         if (this.armorStandPreview == null) return;
         InventoryScreen.renderEntityInInventory(
-            guiGraphics,
-            this.leftPos + 149,
-            this.topPos + 75,
-            25,
-            new Vector3f(),
-            ARMOR_STAND_ANGLE,
-            null,
-            this.armorStandPreview
-        );
+                guiGraphics,
+                this.leftPos + 149,
+                this.topPos + 75,
+                25,
+                new Vector3f(),
+                ARMOR_STAND_ANGLE,
+                null,
+                this.armorStandPreview);
     }
 
     @Override
     public void slotChanged(
-        @NotNull AbstractContainerMenu containerToSend, int dataSlotIndex, @NotNull ItemStack stack
-    ) {
+            @NotNull AbstractContainerMenu containerToSend, int dataSlotIndex, @NotNull ItemStack stack) {
         if (dataSlotIndex == 3) {
             this.updateArmorStandPreview(stack);
         }
@@ -182,13 +184,13 @@ public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
             }
         }
         optional.ifPresent(component ->
-            guiGraphics.renderTooltip(this.font, this.font.split(component, 115), mouseX, mouseY));
+                guiGraphics.renderTooltip(this.font, this.font.split(component, 115), mouseX, mouseY));
     }
 
     private boolean hasRecipeError() {
         return this.menu.getSlot(0).hasItem()
-            && this.menu.getSlot(1).hasItem()
-            && this.menu.getSlot(2).hasItem()
-            && !this.menu.getSlot(this.menu.getResultSlot()).hasItem();
+                && this.menu.getSlot(1).hasItem()
+                && this.menu.getSlot(2).hasItem()
+                && !this.menu.getSlot(this.menu.getResultSlot()).hasItem();
     }
 }

@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.energy.EnergyHelper;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.BasePowerConverterBlock;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -13,9 +14,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 
 public class PowerConverterBlockEntity extends BlockEntity implements IPowerConsumer {
     private PowerGrid grid = null;
@@ -26,14 +27,14 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
         this(type, pos, blockState, 1);
     }
 
-    public PowerConverterBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState, int inputPower) {
+    public PowerConverterBlockEntity(
+            BlockEntityType<?> type, BlockPos pos, BlockState blockState, int inputPower) {
         super(type, pos, blockState);
         this.inputPower = inputPower;
     }
 
     public static PowerConverterBlockEntity createBlockEntity(
-        BlockEntityType<?> type, BlockPos pos, BlockState blockState
-    ) {
+            BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         return new PowerConverterBlockEntity(type, pos, blockState);
     }
 
@@ -61,13 +62,13 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
         } else {
             cooldown = AnvilCraft.config.powerConverter.powerConverterCountdown;
             if (getBlockState().getValue(BasePowerConverterBlock.OVERLOAD)) return;
-            int amountTick = (int) (
-                inputPower * AnvilCraft.config.powerConverter.powerConverterEfficiency
-                    * (1 - AnvilCraft.config.powerConverter.powerConverterLoss)
-            );
+            int amountTick = (int) (inputPower
+                    * AnvilCraft.config.powerConverter.powerConverterEfficiency
+                    * (1 - AnvilCraft.config.powerConverter.powerConverterLoss));
             int amount = amountTick * AnvilCraft.config.powerConverter.powerConverterCountdown;
             Direction face = getBlockState().getValue(BasePowerConverterBlock.FACING);
-            EnergyHelper.insertEnergy(getLevel(), getBlockPos().relative(face), face.getOpposite(), amount);
+            EnergyHelper.insertEnergy(
+                    getLevel(), getBlockPos().relative(face), face.getOpposite(), amount);
         }
     }
 

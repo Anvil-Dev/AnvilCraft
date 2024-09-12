@@ -1,13 +1,8 @@
 package dev.dubhe.anvilcraft.recipe;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.builder.AbstractRecipeBuilder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.Accessors;
+
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -23,6 +18,13 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,9 +42,10 @@ public class CompressRecipe implements Recipe<CompressRecipe.Input> {
 
     public CompressRecipe(List<String> inputs, String result) {
         this(
-                inputs.stream().map(s -> BuiltInRegistries.BLOCK.get(ResourceLocation.parse(s))).toList(),
-                BuiltInRegistries.BLOCK.get(ResourceLocation.parse(result))
-        );
+                inputs.stream()
+                        .map(s -> BuiltInRegistries.BLOCK.get(ResourceLocation.parse(s)))
+                        .toList(),
+                BuiltInRegistries.BLOCK.get(ResourceLocation.parse(result)));
     }
 
     public static Builder builder() {
@@ -109,21 +112,28 @@ public class CompressRecipe implements Recipe<CompressRecipe.Input> {
     }
 
     public static class Serializer implements RecipeSerializer<CompressRecipe> {
-        private static final MapCodec<CompressRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-                Codec.STRING.listOf(1, 9).fieldOf("inputs").forGetter(recipe -> recipe.inputs.stream()
-                        .map(b -> BuiltInRegistries.BLOCK.getKey(b).toString())
-                        .toList()),
-                Codec.STRING.fieldOf("result").forGetter(recipe -> BuiltInRegistries.BLOCK.getKey(recipe.result).toString())
-        ).apply(ins, CompressRecipe::new));
+        private static final MapCodec<CompressRecipe> CODEC =
+                RecordCodecBuilder.mapCodec(ins -> ins.group(
+                                Codec.STRING
+                                        .listOf(1, 9)
+                                        .fieldOf("inputs")
+                                        .forGetter(recipe -> recipe.inputs.stream()
+                                                .map(b -> BuiltInRegistries.BLOCK.getKey(b).toString())
+                                                .toList()),
+                                Codec.STRING.fieldOf("result").forGetter(recipe -> BuiltInRegistries.BLOCK
+                                        .getKey(recipe.result)
+                                        .toString()))
+                        .apply(ins, CompressRecipe::new));
 
-        private static final StreamCodec<RegistryFriendlyByteBuf, CompressRecipe> STREAM_CODEC = StreamCodec.composite(
-                ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list(9)),
-                recipe -> recipe.inputs.stream()
-                        .map(b -> BuiltInRegistries.BLOCK.getKey(b).toString())
-                        .toList(),
-                ByteBufCodecs.STRING_UTF8, recipe -> BuiltInRegistries.BLOCK.getKey(recipe.result).toString(),
-                CompressRecipe::new
-        );
+        private static final StreamCodec<RegistryFriendlyByteBuf, CompressRecipe> STREAM_CODEC =
+                StreamCodec.composite(
+                        ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list(9)),
+                        recipe -> recipe.inputs.stream()
+                                .map(b -> BuiltInRegistries.BLOCK.getKey(b).toString())
+                                .toList(),
+                        ByteBufCodecs.STRING_UTF8,
+                        recipe -> BuiltInRegistries.BLOCK.getKey(recipe.result).toString(),
+                        CompressRecipe::new);
 
         @Override
         public MapCodec<CompressRecipe> codec() {

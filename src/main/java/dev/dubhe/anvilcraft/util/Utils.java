@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.util;
 
-
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
@@ -10,8 +9,7 @@ import net.neoforged.fml.ModList;
 import java.util.function.Function;
 
 public abstract class Utils {
-    private Utils() {
-    }
+    private Utils() {}
 
     /**
      * @return 模组是否加载

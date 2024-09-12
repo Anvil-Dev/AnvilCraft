@@ -1,13 +1,15 @@
 package dev.dubhe.anvilcraft.data.generator.recipe;
 
-import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.recipe.MeshRecipe;
+
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.storage.loot.providers.number.BinomialDistributionGenerator;
 import net.neoforged.neoforge.common.Tags;
+
+import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 
 public class MeshRecipeLoader {
     public static void init(RegistrateRecipeProvider provider) {

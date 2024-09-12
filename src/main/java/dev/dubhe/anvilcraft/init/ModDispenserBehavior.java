@@ -12,23 +12,30 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 public class ModDispenserBehavior {
-    private static final DefaultDispenseItemBehavior defaultDispenseItemBehavior = new DefaultDispenseItemBehavior();
+    private static final DefaultDispenseItemBehavior defaultDispenseItemBehavior =
+            new DefaultDispenseItemBehavior();
 
     public static void register() {
         DispenserBlock.registerBehavior(Items.IRON_INGOT, ModDispenserBehavior::ironIngot);
     }
 
-    private static @NotNull ItemStack ironIngot(@NotNull BlockSource source, @NotNull ItemStack stack) {
+    private static @NotNull ItemStack ironIngot(
+            @NotNull BlockSource source, @NotNull ItemStack stack) {
         BlockPos blockPos = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
         ServerLevel level = source.level();
-        List<IronGolem> entities = level.getEntities(EntityTypeTest.forClass(IronGolem.class),
-            new AABB(blockPos), Entity::isAlive).stream().filter(e -> e.getHealth() < e.getMaxHealth()).toList();
-        if (entities.isEmpty()) return ModDispenserBehavior.defaultDispenseItemBehavior.dispense(source, stack);
+        List<IronGolem> entities = level
+                .getEntities(EntityTypeTest.forClass(IronGolem.class), new AABB(blockPos), Entity::isAlive)
+                .stream()
+                .filter(e -> e.getHealth() < e.getMaxHealth())
+                .toList();
+        if (entities.isEmpty())
+            return ModDispenserBehavior.defaultDispenseItemBehavior.dispense(source, stack);
         IronGolem ironGolem = entities.get(level.random.nextInt(0, entities.size()));
         ironGolem.heal(25.0f);
         float g = 1.0f + (level.random.nextFloat() - level.random.nextFloat()) * 0.2f;

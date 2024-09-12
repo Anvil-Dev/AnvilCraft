@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.block;
 
-import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeableBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
@@ -14,6 +13,7 @@ import dev.dubhe.anvilcraft.network.MachineEnableFilterPack;
 import dev.dubhe.anvilcraft.network.MachineOutputDirectionPack;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
 import dev.dubhe.anvilcraft.network.SlotFilterChangePack;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -46,10 +46,13 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
+
+import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class BatchCrafterBlock extends BetterBaseEntityBlock implements IHammerChangeableBlock, IHammerRemovable {
+public class BatchCrafterBlock extends BetterBaseEntityBlock
+        implements IHammerChangeableBlock, IHammerRemovable {
     public static final DirectionProperty FACING = DirectionalBlock.FACING;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
@@ -59,12 +62,11 @@ public class BatchCrafterBlock extends BetterBaseEntityBlock implements IHammerC
      */
     public BatchCrafterBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(
-            this.stateDefinition.any()
+        this.registerDefaultState(this.stateDefinition
+                .any()
                 .setValue(POWERED, false)
                 .setValue(OVERLOAD, true)
-                .setValue(FACING, Direction.NORTH)
-        );
+                .setValue(FACING, Direction.NORTH));
     }
 
     @Override
@@ -80,7 +82,8 @@ public class BatchCrafterBlock extends BetterBaseEntityBlock implements IHammerC
 
     @Override
     @SuppressWarnings("deprecation")
-    public int getAnalogOutputSignal(@NotNull BlockState blockState, @NotNull Level level, @NotNull BlockPos blockPos) {
+    public int getAnalogOutputSignal(
+            @NotNull BlockState blockState, @NotNull Level level, @NotNull BlockPos blockPos) {
         BlockEntity blockEntity = level.getBlockEntity(blockPos);
         if (blockEntity instanceof BatchCrafterBlockEntity crafterBlockEntity) {
             return crafterBlockEntity.getRedstoneSignal();
@@ -91,40 +94,32 @@ public class BatchCrafterBlock extends BetterBaseEntityBlock implements IHammerC
     @Override
     @SuppressWarnings({"deprecation", "UnreachableCode"})
     public @NotNull InteractionResult use(
-        @NotNull BlockState state,
-        @NotNull Level level,
-        @NotNull BlockPos pos,
-        @NotNull Player player,
-        @NotNull InteractionHand hand,
-        @NotNull BlockHitResult hit
-    ) {
+            @NotNull BlockState state,
+            @NotNull Level level,
+            @NotNull BlockPos pos,
+            @NotNull Player player,
+            @NotNull InteractionHand hand,
+            @NotNull BlockHitResult hit) {
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
         }
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof BatchCrafterBlockEntity entity) {
             if (player.getItemInHand(hand).is(ModItems.DISK.get())) {
-                return entity.useDisk(
-                        level,
-                        player,
-                        hand,
-                        player.getItemInHand(hand),
-                        hit
-                );
+                return entity.useDisk(level, player, hand, player.getItemInHand(hand), hit);
             }
             if (player instanceof ServerPlayer serverPlayer) {
                 ModMenuTypes.open(serverPlayer, entity, pos);
-                PacketDistributor.sendToPlayer(serverPlayer, new MachineOutputDirectionPack(entity.getDirection()));
-                PacketDistributor.sendToPlayer(serverPlayer, new MachineEnableFilterPack(entity.isFilterEnabled()));
+                PacketDistributor.sendToPlayer(
+                        serverPlayer, new MachineOutputDirectionPack(entity.getDirection()));
+                PacketDistributor.sendToPlayer(
+                        serverPlayer, new MachineEnableFilterPack(entity.isFilterEnabled()));
                 for (int i = 0; i < entity.getFilteredItems().size(); i++) {
                     PacketDistributor.sendToPlayer(
-                        serverPlayer,
-                        new SlotDisableChangePack(i, entity.getDepository().getDisabled().get(i))
-                    );
+                            serverPlayer,
+                            new SlotDisableChangePack(i, entity.getDepository().getDisabled().get(i)));
                     PacketDistributor.sendToPlayer(
-                        serverPlayer,
-                        new SlotFilterChangePack(i, entity.getFilter(i))
-                    );
+                            serverPlayer, new SlotFilterChangePack(i, entity.getFilter(i)));
                 }
             }
         }
@@ -134,12 +129,11 @@ public class BatchCrafterBlock extends BetterBaseEntityBlock implements IHammerC
     @Override
     @SuppressWarnings("deprecation")
     public void onRemove(
-        @NotNull BlockState state,
-        @NotNull Level level,
-        @NotNull BlockPos pos,
-        @NotNull BlockState newState,
-        boolean movedByPiston
-    ) {
+            @NotNull BlockState state,
+            @NotNull Level level,
+            @NotNull BlockPos pos,
+            @NotNull BlockState newState,
+            boolean movedByPiston) {
         if (state.is(newState.getBlock())) return;
         if (level.getBlockEntity(pos) instanceof BatchCrafterBlockEntity entity) {
             Vec3 vec3 = entity.getBlockPos().getCenter();
@@ -161,46 +155,35 @@ public class BatchCrafterBlock extends BetterBaseEntityBlock implements IHammerC
             @NotNull BlockState state,
             @NotNull BlockGetter level,
             @NotNull BlockPos pos,
-            @NotNull CollisionContext context
-    ) {
+            @NotNull CollisionContext context) {
         return Shapes.empty();
     }
 
     public float getShadeBrightness(
-            @NotNull BlockState state,
-            @NotNull BlockGetter level,
-            @NotNull BlockPos pos
-    ) {
+            @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos) {
         return 1.0F;
     }
 
     public boolean propagatesSkylightDown(
-            @NotNull BlockState state,
-            @NotNull BlockGetter level,
-            @NotNull BlockPos pos
-    ) {
+            @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos) {
         return false;
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
         return new BatchCrafterBlockEntity(ModBlockEntities.BATCH_CRAFTER.get(), pos, state);
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-        @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type
-    ) {
+            @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type) {
         if (level.isClientSide) {
             return null;
         }
         return createTickerHelper(
-            type,
-            ModBlockEntities.BATCH_CRAFTER.get(),
-            (level1, blockPos, blockState, blockEntity) -> blockEntity.tick(level1, blockPos)
-        );
+                type,
+                ModBlockEntities.BATCH_CRAFTER.get(),
+                (level1, blockPos, blockState, blockEntity) -> blockEntity.tick(level1, blockPos));
     }
 
     @Override
@@ -209,33 +192,32 @@ public class BatchCrafterBlock extends BetterBaseEntityBlock implements IHammerC
     }
 
     @Override
-    @Nullable
-    public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
+    @Nullable public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
         Direction dir = context.getNearestLookingDirection().getOpposite();
         if (context.getPlayer() != null && context.getPlayer().isShiftKeyDown()) {
             dir = dir.getOpposite();
         }
         return this.defaultBlockState()
-            .setValue(FACING, dir)
-            .setValue(POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()))
-            .setValue(OVERLOAD, true);
+                .setValue(FACING, dir)
+                .setValue(POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()))
+                .setValue(OVERLOAD, true);
     }
 
     @Override
-    protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(
+            @NotNull StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(POWERED).add(OVERLOAD).add(FACING);
     }
 
     @Override
     @SuppressWarnings("deprecation")
     public void neighborChanged(
-        @NotNull BlockState state,
-        @NotNull Level level,
-        @NotNull BlockPos pos,
-        @NotNull Block neighborBlock,
-        @NotNull BlockPos neighborPos,
-        boolean movedByPiston
-    ) {
+            @NotNull BlockState state,
+            @NotNull Level level,
+            @NotNull BlockPos pos,
+            @NotNull Block neighborBlock,
+            @NotNull BlockPos neighborPos,
+            boolean movedByPiston) {
         if (level.isClientSide) {
             return;
         }
@@ -245,8 +227,10 @@ public class BatchCrafterBlock extends BetterBaseEntityBlock implements IHammerC
     @Override
     @SuppressWarnings("deprecation")
     public void tick(
-        @NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random
-    ) {
+            @NotNull BlockState state,
+            @NotNull ServerLevel level,
+            @NotNull BlockPos pos,
+            @NotNull RandomSource random) {
         if (state.getValue(POWERED) && !level.hasNeighborSignal(pos)) {
             level.setBlock(pos, state.cycle(POWERED), 2);
         }

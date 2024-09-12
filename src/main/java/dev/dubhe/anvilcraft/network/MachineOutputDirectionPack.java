@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.network;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.BaseMachineScreen;
 import dev.dubhe.anvilcraft.inventory.BaseMachineMenu;
-import lombok.Getter;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Direction;
 import net.minecraft.network.FriendlyByteBuf;
@@ -15,19 +15,20 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
+
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
 public class MachineOutputDirectionPack implements CustomPacketPayload {
-    public static final Type<MachineOutputDirectionPack> TYPE = new Type<>(AnvilCraft.of("machine_output_direction"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, MachineOutputDirectionPack> STREAM_CODEC = StreamCodec.ofMember(
-        MachineOutputDirectionPack::encode,
-        MachineOutputDirectionPack::new
-    );
-    public static final IPayloadHandler<MachineOutputDirectionPack> HANDLER = new DirectionalPayloadHandler<>(
-        MachineOutputDirectionPack::clientHandler,
-        MachineOutputDirectionPack::serverHandler
-    );
+    public static final Type<MachineOutputDirectionPack> TYPE =
+            new Type<>(AnvilCraft.of("machine_output_direction"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, MachineOutputDirectionPack>
+            STREAM_CODEC =
+                    StreamCodec.ofMember(MachineOutputDirectionPack::encode, MachineOutputDirectionPack::new);
+    public static final IPayloadHandler<MachineOutputDirectionPack> HANDLER =
+            new DirectionalPayloadHandler<>(
+                    MachineOutputDirectionPack::clientHandler, MachineOutputDirectionPack::serverHandler);
     private final Direction direction;
 
     @Override
@@ -53,13 +54,12 @@ public class MachineOutputDirectionPack implements CustomPacketPayload {
     public static void serverHandler(MachineOutputDirectionPack data, IPayloadContext context) {
         ServerPlayer player = (ServerPlayer) context.player();
         context.enqueueWork(() -> {
-                if (!player.hasContainerOpen()) return;
-                if (!(player.containerMenu instanceof BaseMachineMenu menu)) return;
-                Direction direction = data.getDirection();
-                menu.setDirection(direction);
-                PacketDistributor.sendToPlayer(player, data);
-            }
-        );
+            if (!player.hasContainerOpen()) return;
+            if (!(player.containerMenu instanceof BaseMachineMenu menu)) return;
+            Direction direction = data.getDirection();
+            menu.setDirection(direction);
+            PacketDistributor.sendToPlayer(player, data);
+        });
     }
 
     /**

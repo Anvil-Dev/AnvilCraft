@@ -1,13 +1,8 @@
 package dev.dubhe.anvilcraft.recipe;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.builder.AbstractRecipeBuilder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.Accessors;
+
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -24,6 +19,13 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
+
 @MethodsReturnNonnullByDefault
 @Getter
 public class BlockCrushRecipe implements Recipe<BlockCrushRecipe.Input> {
@@ -39,8 +41,7 @@ public class BlockCrushRecipe implements Recipe<BlockCrushRecipe.Input> {
     public BlockCrushRecipe(String input, String result) {
         this(
                 BuiltInRegistries.BLOCK.get(ResourceLocation.parse(input)),
-                BuiltInRegistries.BLOCK.get(ResourceLocation.parse(result))
-        );
+                BuiltInRegistries.BLOCK.get(ResourceLocation.parse(result)));
     }
 
     public static Builder builder() {
@@ -96,16 +97,23 @@ public class BlockCrushRecipe implements Recipe<BlockCrushRecipe.Input> {
     }
 
     public static class Serializer implements RecipeSerializer<BlockCrushRecipe> {
-        private static final MapCodec<BlockCrushRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-                Codec.STRING.fieldOf("input").forGetter(recipe -> BuiltInRegistries.BLOCK.getKey(recipe.input).toString()),
-                Codec.STRING.fieldOf("result").forGetter(recipe -> BuiltInRegistries.BLOCK.getKey(recipe.result).toString())
-        ).apply(ins, BlockCrushRecipe::new));
+        private static final MapCodec<BlockCrushRecipe> CODEC =
+                RecordCodecBuilder.mapCodec(ins -> ins.group(
+                                Codec.STRING.fieldOf("input").forGetter(recipe -> BuiltInRegistries.BLOCK
+                                        .getKey(recipe.input)
+                                        .toString()),
+                                Codec.STRING.fieldOf("result").forGetter(recipe -> BuiltInRegistries.BLOCK
+                                        .getKey(recipe.result)
+                                        .toString()))
+                        .apply(ins, BlockCrushRecipe::new));
 
-        private static final StreamCodec<RegistryFriendlyByteBuf, BlockCrushRecipe> STREAM_CODEC = StreamCodec.composite(
-                ByteBufCodecs.STRING_UTF8, recipe -> BuiltInRegistries.BLOCK.getKey(recipe.getInput()).toString(),
-                ByteBufCodecs.STRING_UTF8, recipe -> BuiltInRegistries.BLOCK.getKey(recipe.getResult()).toString(),
-                BlockCrushRecipe::new
-        );
+        private static final StreamCodec<RegistryFriendlyByteBuf, BlockCrushRecipe> STREAM_CODEC =
+                StreamCodec.composite(
+                        ByteBufCodecs.STRING_UTF8,
+                        recipe -> BuiltInRegistries.BLOCK.getKey(recipe.getInput()).toString(),
+                        ByteBufCodecs.STRING_UTF8,
+                        recipe -> BuiltInRegistries.BLOCK.getKey(recipe.getResult()).toString(),
+                        BlockCrushRecipe::new);
 
         @Override
         public MapCodec<BlockCrushRecipe> codec() {

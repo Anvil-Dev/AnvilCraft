@@ -1,13 +1,12 @@
 package dev.dubhe.anvilcraft.client.gui.screen.inventory;
 
-
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.depository.ItemDepositorySlot;
 import dev.dubhe.anvilcraft.block.entity.BaseChuteBlockEntity;
 import dev.dubhe.anvilcraft.client.gui.component.EnableFilterButton;
 import dev.dubhe.anvilcraft.inventory.BaseChuteMenu;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
-import lombok.Getter;
+
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -16,6 +15,8 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.neoforged.neoforge.network.PacketDistributor;
+
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiFunction;
@@ -24,16 +25,16 @@ import java.util.function.BiFunction;
  * 溜槽屏幕基类
  */
 public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends BaseChuteMenu<T>>
-        extends BaseMachineScreen<M>
-        implements IFilterScreen<M> {
+        extends BaseMachineScreen<M> implements IFilterScreen<M> {
     private static final ResourceLocation CONTAINER_LOCATION =
             AnvilCraft.of("textures/gui/container/machine/background/chute.png");
 
-
     BiFunction<Integer, Integer, EnableFilterButton> enableFilterButtonSupplier =
             this.getEnableFilterButtonSupplier(134, 36);
+
     @Getter
     private EnableFilterButton enableFilterButton = null;
+
     private final M menu;
 
     public BaseChuteScreen(M menu, Inventory playerInventory, Component title) {
@@ -56,7 +57,8 @@ public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends 
     abstract boolean shouldSkipDirection(Direction direction);
 
     @Override
-    protected void renderBg(@NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(
+            @NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         int i = (this.width - this.imageWidth) / 2;
         int j = (this.height - this.imageHeight) / 2;
         guiGraphics.blit(CONTAINER_LOCATION, i, j, 0, 0, this.imageWidth, this.imageHeight);
@@ -80,7 +82,8 @@ public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends 
         if (!((ItemDepositorySlot) this.hoveredSlot).isFilter()) return;
         if (!this.isFilterEnabled()) return;
         if (!this.isSlotDisabled(this.hoveredSlot.getContainerSlot())) return;
-        guiGraphics.renderTooltip(this.font, Component.translatable("screen.anvilcraft.slot.disable.tooltip"), x, y);
+        guiGraphics.renderTooltip(
+                this.font, Component.translatable("screen.anvilcraft.slot.disable.tooltip"), x, y);
     }
 
     @Override
@@ -93,9 +96,9 @@ public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends 
         this.enableFilterButton.flush();
     }
 
-
     @Override
-    protected void slotClicked(@NotNull Slot slot, int slotId, int mouseButton, @NotNull ClickType type) {
+    protected void slotClicked(
+            @NotNull Slot slot, int slotId, int mouseButton, @NotNull ClickType type) {
         start:
         if (type == ClickType.PICKUP) {
             if (!this.menu.getCarried().isEmpty()) break start;
@@ -107,7 +110,8 @@ public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends 
                     PacketDistributor.sendToServer(new SlotDisableChangePack(slot1, false));
                 break start;
             }
-            PacketDistributor.sendToServer(new SlotDisableChangePack(slot1, !this.menu.isSlotDisabled(slot1)));
+            PacketDistributor.sendToServer(
+                    new SlotDisableChangePack(slot1, !this.menu.isSlotDisabled(slot1)));
         }
         super.slotClicked(slot, slotId, mouseButton, type);
     }

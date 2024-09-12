@@ -10,6 +10,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+
 import org.jetbrains.annotations.NotNull;
 
 public class LevitationPowderItem extends Item {
@@ -20,8 +21,11 @@ public class LevitationPowderItem extends Item {
 
     @Override
     public void inventoryTick(
-        @NotNull ItemStack stack, @NotNull Level level, @NotNull Entity entity, int slotId, boolean isSelected
-    ) {
+            @NotNull ItemStack stack,
+            @NotNull Level level,
+            @NotNull Entity entity,
+            int slotId,
+            boolean isSelected) {
         super.inventoryTick(stack, level, entity, slotId, isSelected);
         if (!(entity instanceof Player player)) return;
         int curedNumber = this.hasItemNumber(player);

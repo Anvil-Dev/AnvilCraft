@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.better;
 
 import dev.dubhe.anvilcraft.util.Utils;
+
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
@@ -24,51 +25,30 @@ public abstract class BetterBaseEntityBlock extends BaseEntityBlock {
 
     @Override
     protected ItemInteractionResult useItemOn(
-        ItemStack pStack,
-        BlockState pState,
-        Level pLevel,
-        BlockPos pPos,
-        Player pPlayer,
-        InteractionHand pHand,
-        BlockHitResult pHitResult
-    ) {
-        return Utils.interactionResultConverter().apply(this.use(
-            pState,
-            pLevel,
-            pPos,
-            pPlayer,
-            pHand,
-            pHitResult
-        ));
+            ItemStack pStack,
+            BlockState pState,
+            Level pLevel,
+            BlockPos pPos,
+            Player pPlayer,
+            InteractionHand pHand,
+            BlockHitResult pHitResult) {
+        return Utils.interactionResultConverter()
+                .apply(this.use(pState, pLevel, pPos, pPlayer, pHand, pHitResult));
     }
-
 
     @Override
     protected InteractionResult useWithoutItem(
-        BlockState pState,
-        Level pLevel,
-        BlockPos pPos,
-        Player pPlayer,
-        BlockHitResult pHitResult
-    ) {
-        return this.use(
-            pState,
-            pLevel,
-            pPos,
-            pPlayer,
-            InteractionHand.MAIN_HAND,
-            pHitResult
-        );
+            BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, BlockHitResult pHitResult) {
+        return this.use(pState, pLevel, pPos, pPlayer, InteractionHand.MAIN_HAND, pHitResult);
     }
 
     public InteractionResult use(
-        BlockState state,
-        Level level,
-        BlockPos pos,
-        Player player,
-        InteractionHand hand,
-        BlockHitResult hit
-    ) {
+            BlockState state,
+            Level level,
+            BlockPos pos,
+            Player player,
+            InteractionHand hand,
+            BlockHitResult hit) {
         return InteractionResult.PASS;
     }
 }

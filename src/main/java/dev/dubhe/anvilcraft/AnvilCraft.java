@@ -1,8 +1,5 @@
 package dev.dubhe.anvilcraft;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.tterrag.registrate.Registrate;
 import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.event.forge.ClientEventListener;
@@ -21,8 +18,7 @@ import dev.dubhe.anvilcraft.init.ModNetworks;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.init.forge.ModVillagers;
 import dev.dubhe.anvilcraft.recipe.cache.RecipeCaches;
-import me.shedaniel.autoconfig.AutoConfig;
-import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
+
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Unit;
 import net.minecraft.world.item.crafting.RecipeManager;
@@ -38,6 +34,12 @@ import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.tterrag.registrate.Registrate;
+import me.shedaniel.autoconfig.AutoConfig;
+import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,9 +51,8 @@ public class AnvilCraft {
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
     public static IEventBus EVENT_BUS;
-    public static AnvilCraftConfig config = AutoConfig
-            .register(AnvilCraftConfig.class, JanksonConfigSerializer::new)
-            .getConfig();
+    public static AnvilCraftConfig config =
+            AutoConfig.register(AnvilCraftConfig.class, JanksonConfigSerializer::new).getConfig();
 
     public static final Registrate REGISTRATE = Registrate.create(MOD_ID);
 
@@ -78,11 +79,11 @@ public class AnvilCraft {
         } catch (NoSuchMethodError ignore) {
             AnvilCraft.LOGGER.debug("Server");
         }
-        ModLoadingContext.get().registerExtensionPoint(
-                IConfigScreenFactory.class,
-                () -> ((c, screen) -> AutoConfig.getConfigScreen(AnvilCraftConfig.class, screen).get())
-        );
-
+        ModLoadingContext.get()
+                .registerExtensionPoint(
+                        IConfigScreenFactory.class,
+                        () -> ((c, screen) ->
+                                AutoConfig.getConfigScreen(AnvilCraftConfig.class, screen).get()));
     }
 
     private static void registerEvents(IEventBus eventBus) {
@@ -94,7 +95,6 @@ public class AnvilCraft {
             eventBus.register(new GuiLayerRegistrationEventListener());
         }
     }
-
 
     public static @NotNull ResourceLocation of(String path) {
         return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
@@ -111,8 +111,18 @@ public class AnvilCraft {
 
     public static void addReloadListeners(AddReloadListenerEvent event) {
         RecipeManager recipeManager = event.getServerResources().getRecipeManager();
-        event.addListener(((prepBarrier, resourceManager, prepProfiler, reloadProfiler, backgroundExecutor, gameExecutor) -> prepBarrier.wait(Unit.INSTANCE).thenRunAsync(() -> {
-            RecipeCaches.reload(recipeManager);
-        }, gameExecutor)));
+        event.addListener(
+                ((prepBarrier,
+                        resourceManager,
+                        prepProfiler,
+                        reloadProfiler,
+                        backgroundExecutor,
+                        gameExecutor) -> prepBarrier
+                        .wait(Unit.INSTANCE)
+                        .thenRunAsync(
+                                () -> {
+                                    RecipeCaches.reload(recipeManager);
+                                },
+                                gameExecutor)));
     }
 }

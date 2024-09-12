@@ -1,0 +1,24 @@
+spotless {
+    encoding 'UTF-8'
+    format 'misc', {
+        target '.gitignore', '*.gradle', 'gradle/scripts/*.gradle'
+
+        trimTrailingWhitespace()
+        indentWithSpaces(4)
+        endWithNewline()
+    }
+    java {
+        target 'src/*/java/**/*.java'
+
+        palantirJavaFormat("2.50.0").style("GOOGLE")
+        indentWithTabs(2)
+        indentWithSpaces(4)
+
+        // Must be after Google Format, see https://github.com/diffplug/spotless/issues/1407
+        importOrderFile("$rootDir/spotless/spotless.importorder")
+        removeUnusedImports()
+
+        cleanthat()
+        formatAnnotations()
+    }
+}

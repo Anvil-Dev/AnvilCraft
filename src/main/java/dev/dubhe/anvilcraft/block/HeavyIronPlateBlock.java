@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
@@ -21,11 +22,10 @@ public class HeavyIronPlateBlock extends Block implements IHammerRemovable {
     @SuppressWarnings("deprecation")
     @Override
     public @Nonnull VoxelShape getShape(
-        @Nonnull BlockState blockState,
-        @Nonnull BlockGetter blockGetter,
-        @Nonnull BlockPos blockPos,
-        @Nonnull CollisionContext collisionContext
-    ) {
+            @Nonnull BlockState blockState,
+            @Nonnull BlockGetter blockGetter,
+            @Nonnull BlockPos blockPos,
+            @Nonnull CollisionContext collisionContext) {
         return AABB;
     }
 }

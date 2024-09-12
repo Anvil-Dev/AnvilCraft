@@ -1,16 +1,18 @@
 package dev.dubhe.anvilcraft.block;
 
-import lombok.Getter;
-import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 public class EmberMetalBlock extends Block implements EmberBlock {
     private final double waterAbsorptionChance;
+
     @Getter
     @Setter
     private BlockState checkBlockState;
@@ -30,8 +32,7 @@ public class EmberMetalBlock extends Block implements EmberBlock {
             @NotNull BlockState state,
             @NotNull ServerLevel level,
             @NotNull BlockPos pos,
-            @NotNull RandomSource random
-    ) {
+            @NotNull RandomSource random) {
         if (random.nextDouble() <= waterAbsorptionChance) {
             tryAbsorbWater(level, pos);
         }

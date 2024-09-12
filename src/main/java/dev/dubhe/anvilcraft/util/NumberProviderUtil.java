@@ -28,7 +28,7 @@ public class NumberProviderUtil {
                 toNetwork(buf, binomialDistributionGenerator.n());
                 toNetwork(buf, binomialDistributionGenerator.p());
             }
-            case null, default -> buf.writeByte(UNKNOWN_TYPE);
+            default -> buf.writeByte(UNKNOWN_TYPE);
         }
     }
 

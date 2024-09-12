@@ -1,9 +1,9 @@
 package dev.dubhe.anvilcraft.network;
 
-
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.IFilterScreen;
 import dev.dubhe.anvilcraft.inventory.IFilterMenu;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -14,17 +14,17 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
+
 import org.jetbrains.annotations.NotNull;
 
 public class SlotFilterChangePack implements CustomPacketPayload {
-    public static final Type<SlotFilterChangePack> TYPE = new Type<>(AnvilCraft.of("slot_filter_change"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, SlotFilterChangePack> STREAM_CODEC = StreamCodec.ofMember(
-            SlotFilterChangePack::encode, SlotFilterChangePack::new
-    );
-    public static final IPayloadHandler<SlotFilterChangePack> HANDLER = new DirectionalPayloadHandler<>(
-            SlotFilterChangePack::clientHandler,
-            SlotFilterChangePack::serverHandler
-    );
+    public static final Type<SlotFilterChangePack> TYPE =
+            new Type<>(AnvilCraft.of("slot_filter_change"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, SlotFilterChangePack> STREAM_CODEC =
+            StreamCodec.ofMember(SlotFilterChangePack::encode, SlotFilterChangePack::new);
+    public static final IPayloadHandler<SlotFilterChangePack> HANDLER =
+            new DirectionalPayloadHandler<>(
+                    SlotFilterChangePack::clientHandler, SlotFilterChangePack::serverHandler);
 
     private final int index;
     private final ItemStack filter;
@@ -65,7 +65,6 @@ public class SlotFilterChangePack implements CustomPacketPayload {
             PacketDistributor.sendToPlayer(player, data);
         });
     }
-
 
     public static void clientHandler(SlotFilterChangePack data, IPayloadContext context) {
         Minecraft client = Minecraft.getInstance();

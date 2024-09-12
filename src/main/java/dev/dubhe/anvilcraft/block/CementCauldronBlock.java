@@ -1,9 +1,9 @@
 package dev.dubhe.anvilcraft.block;
 
-import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.better.BetterAbstractCauldronBlock;
 import dev.dubhe.anvilcraft.block.state.Color;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.world.level.Level;
@@ -12,25 +12,24 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+
+import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.NotNull;
 
 public class CementCauldronBlock extends BetterAbstractCauldronBlock implements IHammerRemovable {
-    public static final EnumProperty<Color> COLOR =
-        EnumProperty.create("color", Color.class);
+    public static final EnumProperty<Color> COLOR = EnumProperty.create("color", Color.class);
 
     /**
      * @param properties 方块属性
      */
     public CementCauldronBlock(Properties properties) {
         super(properties, CauldronInteraction.EMPTY);
-        this.registerDefaultState(
-            this.stateDefinition.any()
-                .setValue(COLOR, Color.GRAY));
+        this.registerDefaultState(this.stateDefinition.any().setValue(COLOR, Color.GRAY));
     }
 
     @Override
     protected void createBlockStateDefinition(
-        @NotNull StateDefinition.Builder<Block, BlockState> builder) {
+            @NotNull StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(COLOR);
     }
 
@@ -50,7 +49,8 @@ public class CementCauldronBlock extends BetterAbstractCauldronBlock implements 
     }
 
     @Override
-    public int getAnalogOutputSignal(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos) {
+    public int getAnalogOutputSignal(
+            @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos) {
         return 3;
     }
 }

@@ -2,10 +2,12 @@ package dev.dubhe.anvilcraft.recipe.cache;
 
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.MeshRecipe;
+
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
+
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -21,8 +23,7 @@ public class MeshRecipeCache {
         this.recipeManager = recipeManager;
     }
 
-    @Nullable
-    public List<RecipeHolder<MeshRecipe>> getMeshRecipes(ItemStack stack) {
+    @Nullable public List<RecipeHolder<MeshRecipe>> getMeshRecipes(ItemStack stack) {
         if (meshCaches == null) {
             buildRecipeCache();
         }
@@ -31,7 +32,8 @@ public class MeshRecipeCache {
 
     private void buildRecipeCache() {
         meshCaches = new HashMap<>();
-        for (RecipeHolder<MeshRecipe> recipeHolder : recipeManager.getAllRecipesFor(ModRecipeTypes.MESH_TYPE.get())) {
+        for (RecipeHolder<MeshRecipe> recipeHolder :
+                recipeManager.getAllRecipesFor(ModRecipeTypes.MESH_TYPE.get())) {
             MeshRecipe recipe = recipeHolder.value();
             for (ItemStack stack : recipe.getInput().getItems()) {
                 meshCaches.computeIfAbsent(stack.getItem(), k -> new ArrayList<>()).add(recipeHolder);
