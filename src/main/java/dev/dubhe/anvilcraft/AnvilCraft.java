@@ -22,7 +22,6 @@ import net.minecraft.util.Unit;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
@@ -31,8 +30,6 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.tterrag.registrate.Registrate;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
@@ -44,7 +41,6 @@ import org.slf4j.LoggerFactory;
 public class AnvilCraft {
     public static final String MOD_ID = "anvilcraft";
     public static final String MOD_NAME = "AnvilCraft";
-    public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
     public static IEventBus EVENT_BUS;
     public static AnvilCraftConfig config =
@@ -70,11 +66,9 @@ public class AnvilCraft {
 
         registerEvents(modEventBus);
 
-        ModLoadingContext.get()
-                .registerExtensionPoint(
-                        IConfigScreenFactory.class,
-                        () -> ((c, screen) ->
-                                AutoConfig.getConfigScreen(AnvilCraftConfig.class, screen).get()));
+        container.registerExtensionPoint(
+                IConfigScreenFactory.class,
+                (c, s) -> AutoConfig.getConfigScreen(AnvilCraftConfig.class, s).get());
     }
 
     private static void registerEvents(IEventBus eventBus) {
@@ -107,10 +101,6 @@ public class AnvilCraft {
                         backgroundExecutor,
                         gameExecutor) -> prepBarrier
                         .wait(Unit.INSTANCE)
-                        .thenRunAsync(
-                                () -> {
-                                    RecipeCaches.reload(recipeManager);
-                                },
-                                gameExecutor)));
+                        .thenRunAsync(() -> RecipeCaches.reload(recipeManager), gameExecutor)));
     }
 }
