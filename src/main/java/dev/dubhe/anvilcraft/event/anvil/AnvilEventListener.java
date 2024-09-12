@@ -70,7 +70,6 @@ import net.neoforged.neoforge.event.EventHooks;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -136,10 +135,11 @@ public class AnvilEventListener {
             ItemStack result = recipe.value().result.copy();
             result.setCount(times * result.getCount());
             for (int i = 0; i < times; i++) {
-                for (ItemStack stack : items.values()) {
-                    for (Ingredient ingredient : recipe.value().getIngredients()) {
+                for (Ingredient ingredient : recipe.value().getIngredients()) {
+                    for (ItemStack stack : items.values()) {
                         if (ingredient.test(stack)) {
                             stack.shrink(1);
+                            break;
                         }
                     }
                 }
