@@ -136,7 +136,7 @@ public class AnvilEventListener {
     }
 
     private void handleItemCrushRecipe(Level level, final BlockPos pos) {
-        itemProcess(ModRecipeTypes.ITEM_CRUSH_TYPE.get(), level, pos);
+        itemProcess(ModRecipeTypes.ITEM_CRUSH_TYPE.get(), level, pos, pos.below());
     }
 
     private void handleBlockCompressRecipe(Level level, final BlockPos pos) {
@@ -159,7 +159,7 @@ public class AnvilEventListener {
     }
 
     private void handleItemCompressRecipe(Level level, final BlockPos pos) {
-        itemProcess(ModRecipeTypes.ITEM_COMPRESS_TYPE.get(), level, pos);
+        itemProcess(ModRecipeTypes.ITEM_COMPRESS_TYPE.get(), level, pos, pos);
     }
 
     private void handleMeshRecipe(Level level, final BlockPos pos) {
@@ -188,9 +188,9 @@ public class AnvilEventListener {
     }
 
     private <T extends AbstractItemProcessRecipe> void itemProcess(
-            RecipeType<T> recipeType, Level level, final BlockPos pos) {
+            RecipeType<T> recipeType, Level level, final BlockPos itemPos, final BlockPos resultPos) {
         Map<ItemEntity, ItemStack> items =
-                level.getEntitiesOfClass(ItemEntity.class, new AABB(pos)).stream()
+                level.getEntitiesOfClass(ItemEntity.class, new AABB(itemPos)).stream()
                         .map(it -> Map.entry(it, it.getItem()))
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
@@ -209,7 +209,7 @@ public class AnvilEventListener {
                     }
                 }
             }
-            dropItems(List.of(result), level, pos.below().getCenter());
+            dropItems(List.of(result), level, resultPos.getCenter());
         });
         items.forEach((k, v) -> {
             if (v.isEmpty()) {
