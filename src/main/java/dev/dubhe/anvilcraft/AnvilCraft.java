@@ -26,7 +26,6 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
-import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
@@ -68,10 +67,6 @@ public class AnvilCraft {
         AnvilCraftDatagen.init();
 
         registerEvents(modEventBus);
-
-        container.registerExtensionPoint(
-                IConfigScreenFactory.class,
-                (c, s) -> AutoConfig.getConfigScreen(AnvilCraftConfig.class, s).get());
     }
 
     private static void registerEvents(IEventBus eventBus) {
