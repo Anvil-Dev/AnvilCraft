@@ -18,7 +18,8 @@ interface ShockBehaviorDefinition {
 
     void acceptRanges(List<BlockPos> blockPosList, Level level);
 
-    class Simple<T> implements ShockBehaviorDefinition {
+    // spotless:off
+    abstract class Simple<T> implements ShockBehaviorDefinition {
         private final int[] dt = {-1, 1};
         final BiConsumer<List<BlockPos>, Level> rangeAcceptor;
         final T cornerBlock;
@@ -48,6 +49,7 @@ interface ShockBehaviorDefinition {
             rangeAcceptor.accept(blockPosList, level);
         }
     }
+    // spotless:on
 
     class SimpleTag extends Simple<TagKey<Block>> {
 

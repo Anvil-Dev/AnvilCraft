@@ -20,5 +20,6 @@ spotless {
 
         cleanthat()
         formatAnnotations()
+        toggleOffOn()
     }
 }
