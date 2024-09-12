@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.api.anvil.impl.ItemStampingBehavior;
 import dev.dubhe.anvilcraft.api.anvil.impl.RedstoneEMPBehavior;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.init.ModBlocks;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -27,7 +28,12 @@ import java.util.function.Predicate;
 public interface AnvilBehavior {
     Map<Predicate<BlockState>, AnvilBehavior> BEHAVIORS = new HashMap<>();
 
-    void handle(Level level, BlockPos hitBlockPos, BlockState hitBlockState, float fallDistance, AnvilFallOnLandEvent event);
+    void handle(
+            Level level,
+            BlockPos hitBlockPos,
+            BlockState hitBlockState,
+            float fallDistance,
+            AnvilFallOnLandEvent event);
 
     static void registerBehavior(Block matchingBlock, AnvilBehavior behavior) {
         BEHAVIORS.put(it -> it.is(matchingBlock), behavior);
@@ -44,19 +50,16 @@ public interface AnvilBehavior {
     static void register() {
         registerBehavior(ModBlocks.CRAB_TRAP.get(), new HitCrabTrapBehavior());
         registerBehavior(
-            state -> state.is(Blocks.IRON_TRAPDOOR)
-                && state.getValue(TrapDoorBlock.HALF) == Half.TOP
-                && !state.getValue(TrapDoorBlock.OPEN),
-            new ItemCrushBehavior()
-        );
+                state -> state.is(Blocks.IRON_TRAPDOOR)
+                        && state.getValue(TrapDoorBlock.HALF) == Half.TOP
+                        && !state.getValue(TrapDoorBlock.OPEN),
+                new ItemCrushBehavior());
         registerBehavior(Blocks.CAULDRON, new ItemCompressBehavior());
         registerBehavior(ModBlocks.STAMPING_PLATFORM.get(), new ItemStampingBehavior());
         registerBehavior(Blocks.SCAFFOLDING, new ItemMeshBehavior());
         registerBehavior(Blocks.REDSTONE_BLOCK, new RedstoneEMPBehavior());
         registerBehavior(
-            state -> state.is(Blocks.BEEHIVE) || state.is(Blocks.BEE_NEST),
-            new HitBeeNestBehavior()
-        );
+                state -> state.is(Blocks.BEEHIVE) || state.is(Blocks.BEE_NEST), new HitBeeNestBehavior());
         registerBehavior(Blocks.SPAWNER, new HitSpawnerBehavior());
     }
 }

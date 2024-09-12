@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.util;
 
 import dev.dubhe.anvilcraft.recipe.AbstractItemProcessRecipe;
 import dev.dubhe.anvilcraft.recipe.input.ItemProcessInput;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -10,6 +11,7 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -18,11 +20,11 @@ import java.util.stream.Collectors;
 
 public class AnvilUtil {
     public static <T extends AbstractItemProcessRecipe> void itemProcess(
-        RecipeType<T> recipeType, Level level, final BlockPos itemPos, final Vec3 resultPos) {
+            RecipeType<T> recipeType, Level level, final BlockPos itemPos, final Vec3 resultPos) {
         Map<ItemEntity, ItemStack> items =
-            level.getEntitiesOfClass(ItemEntity.class, new AABB(itemPos)).stream()
-                .map(it -> Map.entry(it, it.getItem()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                level.getEntitiesOfClass(ItemEntity.class, new AABB(itemPos)).stream()
+                        .map(it -> Map.entry(it, it.getItem()))
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         ItemProcessInput input = new ItemProcessInput(items.values().stream().toList());
         level.getRecipeManager().getRecipeFor(recipeType, input, level).ifPresent(recipe -> {
@@ -53,22 +55,13 @@ public class AnvilUtil {
     public static void dropItems(@NotNull List<ItemStack> items, Level level, Vec3 pos) {
         for (ItemStack item : items) {
             if (item.isEmpty()) continue;
-            ItemEntity entity = new ItemEntity(
-                level,
-                pos.x,
-                pos.y,
-                pos.z,
-                item.copy(),
-                0.0d,
-                0.0d,
-                0.0d
-            );
+            ItemEntity entity = new ItemEntity(level, pos.x, pos.y, pos.z, item.copy(), 0.0d, 0.0d, 0.0d);
             level.addFreshEntity(entity);
         }
     }
 
     public static void returnItems(
-        @NotNull Level level, @NotNull BlockPos pos, @NotNull List<ItemStack> items) {
+            @NotNull Level level, @NotNull BlockPos pos, @NotNull List<ItemStack> items) {
         for (ItemStack item : items) {
             ItemStack type = item.copy();
             type.setCount(1);

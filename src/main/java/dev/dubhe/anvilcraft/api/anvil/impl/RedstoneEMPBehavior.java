@@ -4,17 +4,24 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.anvil.AnvilBehavior;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RedstoneTorchBlock;
 import net.minecraft.world.level.block.state.BlockState;
+
 import org.jetbrains.annotations.NotNull;
 
 public class RedstoneEMPBehavior implements AnvilBehavior {
     @Override
-    public void handle(Level level, BlockPos pos, BlockState hitBlockState, float fallDistance, AnvilFallOnLandEvent event) {
+    public void handle(
+            Level level,
+            BlockPos pos,
+            BlockState hitBlockState,
+            float fallDistance,
+            AnvilFallOnLandEvent event) {
         int radius = AnvilCraft.config.redstoneEmpRadius;
         int maxRadius = AnvilCraft.config.redstoneEmpMaxRadius;
         int distance = Math.min(((int) Math.ceil(fallDistance)) * radius, maxRadius);
