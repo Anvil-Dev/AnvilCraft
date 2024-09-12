@@ -20,19 +20,20 @@ dependencyResolutionManagement {
     }
 
     versionCatalogs {
-        def minecraftVersion = "1.21"
+        def minecraftVersion = "1.21.1"
 
         // Mod Dependencies Versions
-        def neoForgeVersion = "21.0.167"
+        def neoForgeVersion = "21.1.47"
         def registrateVersion = "MC1.21-1.3.0+53"
         def clothConfigVersion = "15.0.130"
 
-        def jeiVersion = "19.8.2.99"
+        def jeiVersion = "19.17.0.193"
         def reiVersion = "16.0.762"
-        def emiVersion = "1.1.12"
+        def emiVersion = "1.1.13"
 
         def jadeVersion = "15.3.4+neoforge"
-        def kjsVersion = "2100.7.0-build.119"
+        def topVersion = "1.21_neo-12.0.3-5"
+        def kjsVersion = "2101.7.0-build.126"
 
         def parchmentVersion = "2024.07.28" // https://parchmentmc.org/docs/getting-started
 
@@ -66,6 +67,9 @@ dependencyResolutionManagement {
 
             def jade = version("jade", jadeVersion)
             library("jade", "maven.modrinth", "jade").versionRef(jade)
+
+            def theoneprobe = version("theoneprobe", topVersion)
+            library("theoneprobe", "mcjty.theoneprobe", "theoneprobe").versionRef(theoneprobe)
 
             def kubejs = version("kubejs", kjsVersion)
             library("kubejs", "dev.latvian.mods", "kubejs-neoforge").versionRef(kubejs)

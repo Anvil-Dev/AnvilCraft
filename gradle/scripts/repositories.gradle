@@ -28,4 +28,7 @@ repositories {
             includeGroup "dev.latvian.apps"
         }
     }
+    maven { // TOP
+        url "https://maven.k-4u.nl"
+    }
 }
