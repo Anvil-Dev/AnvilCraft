@@ -101,6 +101,7 @@ public class AnvilEventListener {
                 && state.getValue(TrapDoorBlock.HALF) == Half.TOP
                 && !state.getValue(TrapDoorBlock.OPEN)) handleItemCrushRecipe(level, pos);
         if (state.is(Blocks.CAULDRON)) handleItemCompressRecipe(level, belowPos);
+        if (state.is(ModBlocks.STAMPING_PLATFORM)) handleStampingRecipe(level, belowPos);
         if (state.is(Blocks.SCAFFOLDING)) handleMeshRecipe(level, pos);
 
         if (state.is(Blocks.REDSTONE_BLOCK)) redstoneEmp(level, belowPos, event.getFallDistance());
@@ -136,7 +137,7 @@ public class AnvilEventListener {
     }
 
     private void handleItemCrushRecipe(Level level, final BlockPos pos) {
-        itemProcess(ModRecipeTypes.ITEM_CRUSH_TYPE.get(), level, pos, pos.below());
+        itemProcess(ModRecipeTypes.ITEM_CRUSH_TYPE.get(), level, pos, pos.below().getCenter());
     }
 
     private void handleBlockCompressRecipe(Level level, final BlockPos pos) {
@@ -159,7 +160,7 @@ public class AnvilEventListener {
     }
 
     private void handleItemCompressRecipe(Level level, final BlockPos pos) {
-        itemProcess(ModRecipeTypes.ITEM_COMPRESS_TYPE.get(), level, pos, pos);
+        itemProcess(ModRecipeTypes.ITEM_COMPRESS_TYPE.get(), level, pos, pos.getCenter());
     }
 
     private void handleMeshRecipe(Level level, final BlockPos pos) {
@@ -187,8 +188,12 @@ public class AnvilEventListener {
         }
     }
 
+    private void handleStampingRecipe(Level level, final BlockPos pos) {
+        itemProcess(ModRecipeTypes.STAMPING_TYPE.get(), level, pos, pos.getCenter().add(0, 0.25, 0));
+    }
+
     private <T extends AbstractItemProcessRecipe> void itemProcess(
-            RecipeType<T> recipeType, Level level, final BlockPos itemPos, final BlockPos resultPos) {
+            RecipeType<T> recipeType, Level level, final BlockPos itemPos, final Vec3 resultPos) {
         Map<ItemEntity, ItemStack> items =
                 level.getEntitiesOfClass(ItemEntity.class, new AABB(itemPos)).stream()
                         .map(it -> Map.entry(it, it.getItem()))
@@ -209,7 +214,7 @@ public class AnvilEventListener {
                     }
                 }
             }
-            dropItems(List.of(result), level, resultPos.getCenter());
+            dropItems(List.of(result), level, resultPos);
         });
         items.forEach((k, v) -> {
             if (v.isEmpty()) {

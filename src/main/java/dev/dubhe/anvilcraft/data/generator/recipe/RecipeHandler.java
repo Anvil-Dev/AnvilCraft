@@ -9,5 +9,6 @@ public class RecipeHandler {
         BlockCompressRecipeLoader.init(provider);
         ItemCompressRecipeLoader.init(provider);
         MeshRecipeLoader.init(provider);
+        StampingRecipeLoader.init(provider);
     }
 }

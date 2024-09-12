@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.recipe.BlockCrushRecipe;
 import dev.dubhe.anvilcraft.recipe.ItemCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.ItemCrushRecipe;
 import dev.dubhe.anvilcraft.recipe.MeshRecipe;
+import dev.dubhe.anvilcraft.recipe.StampingRecipe;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.crafting.Recipe;
@@ -44,6 +45,11 @@ public class ModRecipeTypes {
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<ItemCompressRecipe>>
             ITEM_COMPRESS_SERIALIZER =
                     RECIPE_SERIALIZERS.register("item_compress", ItemCompressRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<StampingRecipe>> STAMPING_TYPE =
+            registerType("stamping");
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<StampingRecipe>>
+            STAMPING_SERIALIZER = RECIPE_SERIALIZERS.register("stamping", StampingRecipe.Serializer::new);
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<MeshRecipe>> MESH_TYPE =
             registerType("mesh");
