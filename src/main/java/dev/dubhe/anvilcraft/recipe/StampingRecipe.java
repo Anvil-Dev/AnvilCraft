@@ -95,5 +95,10 @@ public class StampingRecipe extends AbstractItemProcessRecipe {
         public StampingRecipe buildRecipe() {
             return new StampingRecipe(ingredients, result);
         }
+
+        @Override
+        public String getType() {
+            return "stamping";
+        }
     }
 }

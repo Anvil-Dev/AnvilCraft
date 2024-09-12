@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.data.generator.recipe;
 
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.recipe.BlockCompressRecipe;
 
 import net.minecraft.world.level.block.Blocks;
@@ -13,7 +12,7 @@ public class BlockCompressRecipeLoader {
                 .input(Blocks.STONE)
                 .input(Blocks.STONE)
                 .result(Blocks.DEEPSLATE)
-                .save(provider, AnvilCraft.of("block_compress/deepslate"));
+                .save(provider);
 
         BlockCompressRecipe.builder()
                 .input(Blocks.ICE)
@@ -21,6 +20,6 @@ public class BlockCompressRecipeLoader {
                 .input(Blocks.ICE)
                 .input(Blocks.ICE)
                 .result(Blocks.PACKED_ICE)
-                .save(provider, AnvilCraft.of("block_compress/packed_ice"));
+                .save(provider);
     }
 }

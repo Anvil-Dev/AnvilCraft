@@ -149,5 +149,10 @@ public class MeshRecipe implements Recipe<MeshRecipe.Input> {
         public Item getResult() {
             return result.getItem();
         }
+
+        @Override
+        public String getType() {
+            return "mesh";
+        }
     }
 }

@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.data.generator.recipe;
 
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.recipe.StampingRecipe;
 
 import net.minecraft.world.item.ItemStack;
@@ -13,6 +12,6 @@ public class StampingRecipeLoader {
         StampingRecipe.builder()
                 .requires(Items.IRON_INGOT)
                 .result(new ItemStack(Items.HEAVY_WEIGHTED_PRESSURE_PLATE))
-                .save(provider, AnvilCraft.of("stamping/heavy_weighted_pressure_plate"));
+                .save(provider);
     }
 }

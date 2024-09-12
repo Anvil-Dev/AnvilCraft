@@ -151,5 +151,10 @@ public class BlockCrushRecipe implements Recipe<BlockCrushRecipe.Input> {
                 throw new IllegalArgumentException("Recipe has no result, RecipeId:" + recipeId);
             }
         }
+
+        @Override
+        public String getType() {
+            return "block_crush";
+        }
     }
 }

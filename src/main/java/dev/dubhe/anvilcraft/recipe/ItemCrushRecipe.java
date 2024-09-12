@@ -100,5 +100,10 @@ public class ItemCrushRecipe extends AbstractItemProcessRecipe {
         public ItemCrushRecipe buildRecipe() {
             return new ItemCrushRecipe(ingredients, result);
         }
+
+        @Override
+        public String getType() {
+            return "item_crush";
+        }
     }
 }

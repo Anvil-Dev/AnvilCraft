@@ -95,5 +95,10 @@ public class ItemCompressRecipe extends AbstractItemProcessRecipe {
         public ItemCompressRecipe buildRecipe() {
             return new ItemCompressRecipe(this.ingredients, this.result);
         }
+
+        @Override
+        public String getType() {
+            return "item_compress";
+        }
     }
 }

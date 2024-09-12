@@ -1,11 +1,14 @@
 package dev.dubhe.anvilcraft.recipe.builder;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
+
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.ResourceLocation;
@@ -44,7 +47,17 @@ public abstract class AbstractRecipeBuilder<T extends Recipe<?>> implements Reci
         pRecipeOutput.accept(pId, recipe, advancement.build(pId.withPrefix("recipe/")));
     }
 
+    @Override
+    public void save(RecipeOutput recipeOutput) {
+        save(
+                recipeOutput,
+                AnvilCraft.of(BuiltInRegistries.ITEM.getKey(getResult()).getPath())
+                        .withPrefix(getType() + "/"));
+    }
+
     public abstract T buildRecipe();
 
     public abstract void validate(ResourceLocation pId);
+
+    public abstract String getType();
 }

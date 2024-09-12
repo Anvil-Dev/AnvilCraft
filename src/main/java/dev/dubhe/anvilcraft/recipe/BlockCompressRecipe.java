@@ -177,5 +177,10 @@ public class BlockCompressRecipe implements Recipe<BlockCompressRecipe.Input> {
         public Item getResult() {
             return result.asItem();
         }
+
+        @Override
+        public String getType() {
+            return "block_compress";
+        }
     }
 }

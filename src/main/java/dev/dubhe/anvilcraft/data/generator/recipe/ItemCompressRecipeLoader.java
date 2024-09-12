@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.data.generator.recipe;
 
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.recipe.ItemCompressRecipe;
 
 import net.minecraft.world.item.ItemStack;
@@ -13,6 +12,6 @@ public class ItemCompressRecipeLoader {
         ItemCompressRecipe.builder()
                 .requires(Items.BONE, 3)
                 .result(new ItemStack(Items.BONE_BLOCK))
-                .save(provider, AnvilCraft.of("item_compress/bone_block"));
+                .save(provider);
     }
 }

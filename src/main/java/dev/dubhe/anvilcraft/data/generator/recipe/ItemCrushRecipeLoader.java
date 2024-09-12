@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.data.generator.recipe;
 
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.recipe.ItemCrushRecipe;
 
@@ -14,11 +13,11 @@ public class ItemCrushRecipeLoader {
         ItemCrushRecipe.builder()
                 .requires(Items.WET_SPONGE)
                 .result(new ItemStack(ModItems.SPONGE_GEMMULE.asItem(), 4))
-                .save(provider, AnvilCraft.of("item_crush/sponge_gemmule"));
+                .save(provider);
         ItemCrushRecipe.builder()
                 .requires(Items.HONEY_BLOCK)
                 .requires(Items.GLASS_BOTTLE, 4)
                 .result(new ItemStack(Items.HONEY_BOTTLE, 4))
-                .save(provider, AnvilCraft.of("item_crush/honey_bottle"));
+                .save(provider);
     }
 }
