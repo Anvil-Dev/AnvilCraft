@@ -20,7 +20,7 @@ dependencies {
     implementation(forge.emi)
 
     implementation(forge.jade)
-    compileOnly(forge.theoneprobe)
+    implementation(forge.theoneprobe)
 
     implementation(forge.kubejs)
 }

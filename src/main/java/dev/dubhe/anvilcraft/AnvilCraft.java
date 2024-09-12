@@ -15,6 +15,7 @@ import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.ModNetworks;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.init.forge.ModVillagers;
+import dev.dubhe.anvilcraft.integration.top.AnvilCraftTopPlugin;
 import dev.dubhe.anvilcraft.recipe.cache.RecipeCaches;
 
 import net.minecraft.resources.ResourceLocation;
@@ -23,6 +24,7 @@ import net.minecraft.world.item.crafting.RecipeManager;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
@@ -76,6 +78,7 @@ public class AnvilCraft {
         NeoForge.EVENT_BUS.addListener(AnvilCraft::addReloadListeners);
 
         eventBus.addListener(AnvilCraft::registerPayload);
+        eventBus.addListener(AnvilCraft::loadComplete);
     }
 
     public static @NotNull ResourceLocation of(String path) {
@@ -102,5 +105,17 @@ public class AnvilCraft {
                         gameExecutor) -> prepBarrier
                         .wait(Unit.INSTANCE)
                         .thenRunAsync(() -> RecipeCaches.reload(recipeManager), gameExecutor)));
+    }
+
+    public static void loadComplete(FMLLoadCompleteEvent event) {
+
+        event.enqueueWork(() -> {
+            try {
+                Class.forName("mcjty.theoneprobe.TheOneProbe");
+                LOGGER.info("TheOneProbe found. Loading AnvilCraft TheOneProbe plugin...");
+                AnvilCraftTopPlugin.init();
+            } catch (ClassNotFoundException ignore) {
+            }
+        });
     }
 }

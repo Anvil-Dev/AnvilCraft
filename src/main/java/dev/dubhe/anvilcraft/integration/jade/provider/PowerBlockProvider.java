@@ -43,7 +43,8 @@ public enum PowerBlockProvider
                     Component.translatable("tooltip.anvilcraft.jade.power_information", consume, generate),
                     elementHelper.progressStyle().color(color).textColor(-1),
                     Util.make(STYLE, boxStyle -> {
-                        boxStyle.borderColor = new int[] {0xFF555555, 0xFF555555, 0xFF555555, 0xFF555555};
+                        boxStyle.borderColor = new int[] {0xFFE0E0E0, 0xFFE0E0E0, 0xFFE0E0E0, 0xFFE0E0E0};
+                        boxStyle.borderWidth = 1.0f;
                         boxStyle.bgColor = 0xFF32CD32;
                     }),
                     true));
