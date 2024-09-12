@@ -39,12 +39,16 @@ public class BlockEventListener {
         if (event.getEntity().getItemInHand(hand).getItem() instanceof AnvilHammerItem) {
             if (event.getLevel().isClientSide()) {
                 if (AnvilHammerItem.ableToUseAnvilHammer(
-                        event.getLevel(), event.getPos(), event.getEntity())) {
+                        event.getLevel(),
+                    event.getPos(),
+                    event.getEntity()
+                )) {
                     PacketDistributor.sendToServer(new HammerUsePack(event.getPos(), hand));
+                    event.setCancellationResult(InteractionResult.SUCCESS);
+                    event.setCanceled(true);
                 }
             }
-            event.setCancellationResult(InteractionResult.SUCCESS);
-            event.setCanceled(true);
+
         }
     }
 }
