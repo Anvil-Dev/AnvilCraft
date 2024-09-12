@@ -18,6 +18,7 @@ import dev.dubhe.anvilcraft.init.forge.ModVillagers;
 import dev.dubhe.anvilcraft.integration.top.AnvilCraftTopPlugin;
 import dev.dubhe.anvilcraft.recipe.cache.RecipeCaches;
 
+import dev.dubhe.anvilcraft.util.Utils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Unit;
 import net.minecraft.world.item.crafting.RecipeManager;
@@ -108,13 +109,10 @@ public class AnvilCraft {
     }
 
     public static void loadComplete(FMLLoadCompleteEvent event) {
-
         event.enqueueWork(() -> {
-            try {
-                Class.forName("mcjty.theoneprobe.TheOneProbe");
+            if (Utils.isLoaded("theoneprobe")) {
                 LOGGER.info("TheOneProbe found. Loading AnvilCraft TheOneProbe plugin...");
                 AnvilCraftTopPlugin.init();
-            } catch (ClassNotFoundException ignore) {
             }
         });
     }
