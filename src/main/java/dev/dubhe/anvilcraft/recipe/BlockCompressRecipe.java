@@ -31,16 +31,16 @@ import java.util.List;
 
 @MethodsReturnNonnullByDefault
 @Getter
-public class CompressRecipe implements Recipe<CompressRecipe.Input> {
+public class BlockCompressRecipe implements Recipe<BlockCompressRecipe.Input> {
     public final List<Block> inputs;
     public final Block result;
 
-    public CompressRecipe(List<Block> inputs, Block result) {
+    public BlockCompressRecipe(List<Block> inputs, Block result) {
         this.inputs = inputs;
         this.result = result;
     }
 
-    public CompressRecipe(List<String> inputs, String result) {
+    public BlockCompressRecipe(List<String> inputs, String result) {
         this(
                 inputs.stream()
                         .map(s -> BuiltInRegistries.BLOCK.get(ResourceLocation.parse(s)))
@@ -54,12 +54,12 @@ public class CompressRecipe implements Recipe<CompressRecipe.Input> {
 
     @Override
     public RecipeType<?> getType() {
-        return ModRecipeTypes.COMPRESS_TYPE.get();
+        return ModRecipeTypes.BLOCK_COMPRESS_TYPE.get();
     }
 
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return ModRecipeTypes.COMPRESS_SERIALIZER.get();
+        return ModRecipeTypes.BLOCK_COMPRESS_SERIALIZER.get();
     }
 
     @Override
@@ -111,8 +111,8 @@ public class CompressRecipe implements Recipe<CompressRecipe.Input> {
         }
     }
 
-    public static class Serializer implements RecipeSerializer<CompressRecipe> {
-        private static final MapCodec<CompressRecipe> CODEC =
+    public static class Serializer implements RecipeSerializer<BlockCompressRecipe> {
+        private static final MapCodec<BlockCompressRecipe> CODEC =
                 RecordCodecBuilder.mapCodec(ins -> ins.group(
                                 Codec.STRING
                                         .listOf(1, 9)
@@ -123,9 +123,9 @@ public class CompressRecipe implements Recipe<CompressRecipe.Input> {
                                 Codec.STRING.fieldOf("result").forGetter(recipe -> BuiltInRegistries.BLOCK
                                         .getKey(recipe.result)
                                         .toString()))
-                        .apply(ins, CompressRecipe::new));
+                        .apply(ins, BlockCompressRecipe::new));
 
-        private static final StreamCodec<RegistryFriendlyByteBuf, CompressRecipe> STREAM_CODEC =
+        private static final StreamCodec<RegistryFriendlyByteBuf, BlockCompressRecipe> STREAM_CODEC =
                 StreamCodec.composite(
                         ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list(9)),
                         recipe -> recipe.inputs.stream()
@@ -133,22 +133,22 @@ public class CompressRecipe implements Recipe<CompressRecipe.Input> {
                                 .toList(),
                         ByteBufCodecs.STRING_UTF8,
                         recipe -> BuiltInRegistries.BLOCK.getKey(recipe.result).toString(),
-                        CompressRecipe::new);
+                        BlockCompressRecipe::new);
 
         @Override
-        public MapCodec<CompressRecipe> codec() {
+        public MapCodec<BlockCompressRecipe> codec() {
             return CODEC;
         }
 
         @Override
-        public StreamCodec<RegistryFriendlyByteBuf, CompressRecipe> streamCodec() {
+        public StreamCodec<RegistryFriendlyByteBuf, BlockCompressRecipe> streamCodec() {
             return STREAM_CODEC;
         }
     }
 
     @Setter
     @Accessors(fluent = true, chain = true)
-    public static class Builder extends AbstractRecipeBuilder<CompressRecipe> {
+    public static class Builder extends AbstractRecipeBuilder<BlockCompressRecipe> {
 
         private List<Block> inputs = new ArrayList<>();
         private Block result;
@@ -159,8 +159,8 @@ public class CompressRecipe implements Recipe<CompressRecipe.Input> {
         }
 
         @Override
-        public CompressRecipe buildRecipe() {
-            return new CompressRecipe(inputs, result);
+        public BlockCompressRecipe buildRecipe() {
+            return new BlockCompressRecipe(inputs, result);
         }
 
         @Override

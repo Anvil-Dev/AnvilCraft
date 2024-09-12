@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:compress/deepslate"
+        "recipe": "anvilcraft:block_compress/packed_ice"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -15,7 +15,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:compress/deepslate"
+      "anvilcraft:block_compress/packed_ice"
     ]
   }
 }

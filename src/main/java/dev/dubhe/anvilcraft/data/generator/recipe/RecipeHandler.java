@@ -6,7 +6,8 @@ public class RecipeHandler {
     public static void init(RegistrateRecipeProvider provider) {
         BlockCrushRecipeLoader.init(provider);
         ItemCrushRecipeLoader.init(provider);
-        CompressRecipeLoader.init(provider);
+        BlockCompressRecipeLoader.init(provider);
+        ItemCompressRecipeLoader.init(provider);
         MeshRecipeLoader.init(provider);
     }
 }

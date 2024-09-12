@@ -1,8 +1,9 @@
 package dev.dubhe.anvilcraft.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.recipe.BlockCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.BlockCrushRecipe;
-import dev.dubhe.anvilcraft.recipe.CompressRecipe;
+import dev.dubhe.anvilcraft.recipe.ItemCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.ItemCrushRecipe;
 import dev.dubhe.anvilcraft.recipe.MeshRecipe;
 
@@ -32,10 +33,17 @@ public class ModRecipeTypes {
             ITEM_CRUSH_SERIALIZERS =
                     RECIPE_SERIALIZERS.register("item_crush", ItemCrushRecipe.Serializer::new);
 
-    public static final DeferredHolder<RecipeType<?>, RecipeType<CompressRecipe>> COMPRESS_TYPE =
-            registerType("compress");
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<CompressRecipe>>
-            COMPRESS_SERIALIZER = RECIPE_SERIALIZERS.register("compress", CompressRecipe.Serializer::new);
+    public static final DeferredHolder<RecipeType<?>, RecipeType<BlockCompressRecipe>>
+            BLOCK_COMPRESS_TYPE = registerType("block_compress");
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<BlockCompressRecipe>>
+            BLOCK_COMPRESS_SERIALIZER =
+                    RECIPE_SERIALIZERS.register("block_compress", BlockCompressRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<ItemCompressRecipe>>
+            ITEM_COMPRESS_TYPE = registerType("item_compress");
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<ItemCompressRecipe>>
+            ITEM_COMPRESS_SERIALIZER =
+                    RECIPE_SERIALIZERS.register("item_compress", ItemCompressRecipe.Serializer::new);
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<MeshRecipe>> MESH_TYPE =
             registerType("mesh");

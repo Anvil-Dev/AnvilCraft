@@ -12,11 +12,12 @@ import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.mixin.accessor.BaseSpawnerAccessor;
+import dev.dubhe.anvilcraft.recipe.AbstractItemProcessRecipe;
+import dev.dubhe.anvilcraft.recipe.BlockCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.BlockCrushRecipe;
-import dev.dubhe.anvilcraft.recipe.CompressRecipe;
-import dev.dubhe.anvilcraft.recipe.ItemCrushRecipe;
 import dev.dubhe.anvilcraft.recipe.MeshRecipe;
 import dev.dubhe.anvilcraft.recipe.cache.RecipeCaches;
+import dev.dubhe.anvilcraft.recipe.input.ItemProcessInput;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -94,11 +95,12 @@ public class AnvilEventListener {
         BlockPos belowPos = pos.below();
         BlockState state = level.getBlockState(belowPos);
 
-        handleCompressRecipe(level, belowPos);
+        handleBlockCompressRecipe(level, belowPos);
         handleBlockCrushRecipe(level, belowPos);
         if (state.is(Blocks.IRON_TRAPDOOR)
                 && state.getValue(TrapDoorBlock.HALF) == Half.TOP
                 && !state.getValue(TrapDoorBlock.OPEN)) handleItemCrushRecipe(level, pos);
+        if (state.is(Blocks.CAULDRON)) handleItemCompressRecipe(level, belowPos);
         if (state.is(Blocks.SCAFFOLDING)) handleMeshRecipe(level, pos);
 
         if (state.is(Blocks.REDSTONE_BLOCK)) redstoneEmp(level, belowPos, event.getFallDistance());
@@ -134,49 +136,18 @@ public class AnvilEventListener {
     }
 
     private void handleItemCrushRecipe(Level level, final BlockPos pos) {
-        Map<ItemEntity, ItemStack> items =
-                level.getEntitiesOfClass(ItemEntity.class, new AABB(pos)).stream()
-                        .map(it -> Map.entry(it, it.getItem()))
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
-        ItemCrushRecipe.Input input =
-                new ItemCrushRecipe.Input(items.values().stream().toList());
-        level
-                .getRecipeManager()
-                .getRecipeFor(ModRecipeTypes.ITEM_CRUSH_TYPE.get(), input, level)
-                .ifPresent(recipe -> {
-                    int times = recipe.value().getMaxCraftTime(input);
-                    ItemStack result = recipe.value().result.copy();
-                    result.setCount(times * result.getCount());
-                    for (int i = 0; i < times; i++) {
-                        for (Ingredient ingredient : recipe.value().getIngredients()) {
-                            for (ItemStack stack : items.values()) {
-                                if (ingredient.test(stack)) {
-                                    stack.shrink(1);
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    dropItems(List.of(result), level, pos.below().getCenter());
-                });
-        items.forEach((k, v) -> {
-            if (v.isEmpty()) {
-                k.discard();
-                return;
-            }
-            k.setItem(v.copy());
-        });
+        itemProcess(ModRecipeTypes.ITEM_CRUSH_TYPE.get(), level, pos);
     }
 
-    private void handleCompressRecipe(Level level, final BlockPos pos) {
+    private void handleBlockCompressRecipe(Level level, final BlockPos pos) {
         List<Block> inputs = new ArrayList<>();
         for (int i = 0; i < 9; i++) {
             inputs.add(level.getBlockState(pos.below(i)).getBlock());
         }
         level
                 .getRecipeManager()
-                .getRecipeFor(ModRecipeTypes.COMPRESS_TYPE.get(), new CompressRecipe.Input(inputs), level)
+                .getRecipeFor(
+                        ModRecipeTypes.BLOCK_COMPRESS_TYPE.get(), new BlockCompressRecipe.Input(inputs), level)
                 .ifPresent(recipe -> {
                     for (int i = 0; i < recipe.value().inputs.size(); i++) {
                         level.setBlockAndUpdate(pos.below(i), Blocks.AIR.defaultBlockState());
@@ -185,6 +156,10 @@ public class AnvilEventListener {
                             pos.below(recipe.value().inputs.size() - 1),
                             recipe.value().result.defaultBlockState());
                 });
+    }
+
+    private void handleItemCompressRecipe(Level level, final BlockPos pos) {
+        itemProcess(ModRecipeTypes.ITEM_COMPRESS_TYPE.get(), level, pos);
     }
 
     private void handleMeshRecipe(Level level, final BlockPos pos) {
@@ -210,6 +185,39 @@ public class AnvilEventListener {
                 entity.remove(Entity.RemovalReason.DISCARDED);
             }
         }
+    }
+
+    private <T extends AbstractItemProcessRecipe> void itemProcess(
+            RecipeType<T> recipeType, Level level, final BlockPos pos) {
+        Map<ItemEntity, ItemStack> items =
+                level.getEntitiesOfClass(ItemEntity.class, new AABB(pos)).stream()
+                        .map(it -> Map.entry(it, it.getItem()))
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        ItemProcessInput input = new ItemProcessInput(items.values().stream().toList());
+        level.getRecipeManager().getRecipeFor(recipeType, input, level).ifPresent(recipe -> {
+            int times = recipe.value().getMaxCraftTime(input);
+            ItemStack result = recipe.value().result.copy();
+            result.setCount(times * result.getCount());
+            for (int i = 0; i < times; i++) {
+                for (Ingredient ingredient : recipe.value().getIngredients()) {
+                    for (ItemStack stack : items.values()) {
+                        if (ingredient.test(stack)) {
+                            stack.shrink(1);
+                            break;
+                        }
+                    }
+                }
+            }
+            dropItems(List.of(result), level, pos.below().getCenter());
+        });
+        items.forEach((k, v) -> {
+            if (v.isEmpty()) {
+                k.discard();
+                return;
+            }
+            k.setItem(v.copy());
+        });
     }
 
     private void hitBeeNest(Level level, BlockState state, BlockPos pos) {
