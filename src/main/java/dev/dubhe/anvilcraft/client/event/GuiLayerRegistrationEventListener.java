@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.event.forge;
+package dev.dubhe.anvilcraft.client.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.tooltip.HudTooltipManager;
@@ -12,15 +12,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 
 import com.mojang.blaze3d.platform.Window;
 
 public class GuiLayerRegistrationEventListener {
 
-    @SubscribeEvent
-    public void onRegister(RegisterGuiLayersEvent event) {
+    public static void onRegister(RegisterGuiLayersEvent event) {
         event.registerAboveAll(AnvilCraft.of("power"), (guiGraphics, pDeltaTracker) -> {
             Minecraft minecraft = Minecraft.getInstance();
             float partialTick =

@@ -2,8 +2,6 @@ package dev.dubhe.anvilcraft;
 
 import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
 import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
-import dev.dubhe.anvilcraft.event.forge.ClientEventListener;
-import dev.dubhe.anvilcraft.event.forge.GuiLayerRegistrationEventListener;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModCommands;
@@ -22,12 +20,10 @@ import dev.dubhe.anvilcraft.recipe.cache.RecipeCaches;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Unit;
 import net.minecraft.world.item.crafting.RecipeManager;
-import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
@@ -74,11 +70,6 @@ public class AnvilCraft {
 
         registerEvents(modEventBus);
 
-        try {
-            ClientEventListener ignore = new ClientEventListener();
-        } catch (NoSuchMethodError ignore) {
-            AnvilCraft.LOGGER.debug("Server");
-        }
         ModLoadingContext.get()
                 .registerExtensionPoint(
                         IConfigScreenFactory.class,
@@ -91,9 +82,6 @@ public class AnvilCraft {
         NeoForge.EVENT_BUS.addListener(AnvilCraft::addReloadListeners);
 
         eventBus.addListener(AnvilCraft::registerPayload);
-        if (FMLEnvironment.dist == Dist.CLIENT) {
-            eventBus.register(new GuiLayerRegistrationEventListener());
-        }
     }
 
     public static @NotNull ResourceLocation of(String path) {
