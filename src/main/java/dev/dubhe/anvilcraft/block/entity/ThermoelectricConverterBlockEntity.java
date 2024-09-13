@@ -14,8 +14,7 @@ public class ThermoelectricConverterBlockEntity extends BlockEntity {
 
     private boolean created = false;
 
-    public ThermoelectricConverterBlockEntity(
-            BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+    public ThermoelectricConverterBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
 
@@ -26,8 +25,7 @@ public class ThermoelectricConverterBlockEntity extends BlockEntity {
         if (!created && level != null) {
             for (Direction direction : DIRECTIONS) {
                 BlockPos neighborPos = getBlockPos().relative(direction);
-                ThermoManager.getInstance(level)
-                        .addThermoBlock(neighborPos, level.getBlockState(neighborPos));
+                ThermoManager.getInstance(level).addThermoBlock(neighborPos, level.getBlockState(neighborPos));
             }
             created = true;
         }

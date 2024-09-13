@@ -22,8 +22,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Getter
 public class ChuteBlockEntity extends BaseChuteBlockEntity {
-    protected ChuteBlockEntity(
-            BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
+    protected ChuteBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
 
@@ -57,8 +56,7 @@ public class ChuteBlockEntity extends BaseChuteBlockEntity {
         return getBlockState().getValue(ChuteBlock.ENABLED);
     }
 
-    public static ChuteBlockEntity createBlockEntity(
-            BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+    public static ChuteBlockEntity createBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         return new ChuteBlockEntity(type, pos, blockState);
     }
 
@@ -70,8 +68,7 @@ public class ChuteBlockEntity extends BaseChuteBlockEntity {
     }
 
     @Nullable @Override
-    public AbstractContainerMenu createMenu(
-            int i, @NotNull Inventory inventory, @NotNull Player player) {
+    public AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
         return new ChuteMenu(ModMenuTypes.CHUTE.get(), i, inventory, this);
     }
 }

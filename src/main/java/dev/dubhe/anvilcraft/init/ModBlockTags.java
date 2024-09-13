@@ -18,8 +18,7 @@ public class ModBlockTags {
     public static final TagKey<Block> HAMMER_REMOVABLE = bind("hammer_removable");
     public static final TagKey<Block> HAMMER_CHANGEABLE = bind("hammer_changeable");
     public static final TagKey<Block> OVERSEER_BASE = bind("overseer_base");
-    public static final TagKey<Block> BLOCK_DEVOURER_PROBABILITY_DROPPING =
-            bind("block_devourer_probability_dropping");
+    public static final TagKey<Block> BLOCK_DEVOURER_PROBABILITY_DROPPING = bind("block_devourer_probability_dropping");
     public static final TagKey<Block> LASE_CAN_PASS_THROUGH = bind("lase_can_pass_though");
     public static final TagKey<Block> END_PORTAL_UNABLE_CHANGE = bind("end_portal_unable_change");
 
@@ -41,8 +40,7 @@ public class ModBlockTags {
     public static final TagKey<Block> BRONZE_BLOCKS = bindC("storage_blocks/bronze_blocks");
     public static final TagKey<Block> BRASS_BLOCKS = bindC("storage_blocks/brass_blocks");
 
-    public static final TagKey<Block> INCORRECT_FOR_AMYTHEST_TOOL =
-            bind("incorrect_for_amythest_tool");
+    public static final TagKey<Block> INCORRECT_FOR_AMYTHEST_TOOL = bind("incorrect_for_amythest_tool");
     public static final TagKey<Block> INCORRECT_FOR_EMBER_TOOL = bind("incorrect_for_amythest_tool");
 
     private static @NotNull TagKey<Block> bindC(String id) {

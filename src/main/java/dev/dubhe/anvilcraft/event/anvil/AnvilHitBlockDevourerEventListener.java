@@ -28,8 +28,7 @@ public class AnvilHitBlockDevourerEventListener {
         BlockState state = level.getBlockState(pos);
         Block block = state.getBlock();
         if (!(level instanceof ServerLevel serverLevel)) return;
-        if (block instanceof BlockDevourerBlock devourerBlock
-                && !state.getValue(BlockDevourerBlock.TRIGGERED)) {
+        if (block instanceof BlockDevourerBlock devourerBlock && !state.getValue(BlockDevourerBlock.TRIGGERED)) {
             int range = (int) event.getFallDistance() + 2;
             range = Math.min(range, 3);
             level.setBlock(pos, state.setValue(BlockDevourerBlock.TRIGGERED, true), 2);

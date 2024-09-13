@@ -56,7 +56,8 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
                 20,
                 8,
                 minecraft.font,
-                () -> Component.literal(menu.getBlockEntity().getRangeRadius().get().toString())));
+                () -> Component.literal(
+                        menu.getBlockEntity().getRangeRadius().get().toString())));
         // cooldown
         this.addRenderableWidget(new TextWidget(
                 leftPos + 57,
@@ -64,7 +65,8 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
                 20,
                 8,
                 minecraft.font,
-                () -> Component.literal(menu.getBlockEntity().getCooldown().get().toString())));
+                () -> Component.literal(
+                        menu.getBlockEntity().getCooldown().get().toString())));
         // power cost
         this.addRenderableWidget(new TextWidget(
                 leftPos + 43,
@@ -94,8 +96,7 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
     }
 
     @Override
-    protected void renderBg(
-            @NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(@NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         int i = (this.width - this.imageWidth) / 2;
         int j = (this.height - this.imageHeight) / 2;
         guiGraphics.blit(CONTAINER_LOCATION, i, j, 0, 0, this.imageWidth, this.imageHeight);
@@ -119,8 +120,7 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
         if (!((ItemDepositorySlot) this.hoveredSlot).isFilter()) return;
         if (!this.isFilterEnabled()) return;
         if (!this.isSlotDisabled(this.hoveredSlot.getContainerSlot())) return;
-        guiGraphics.renderTooltip(
-                this.font, Component.translatable("screen.anvilcraft.slot.disable.tooltip"), x, y);
+        guiGraphics.renderTooltip(this.font, Component.translatable("screen.anvilcraft.slot.disable.tooltip"), x, y);
     }
 
     @Override
@@ -134,8 +134,7 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
     }
 
     @Override
-    protected void slotClicked(
-            @NotNull Slot slot, int slotId, int mouseButton, @NotNull ClickType type) {
+    protected void slotClicked(@NotNull Slot slot, int slotId, int mouseButton, @NotNull ClickType type) {
         start:
         if (type == ClickType.PICKUP) {
             if (!this.menu.getCarried().isEmpty()) break start;
@@ -147,8 +146,7 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
                     PacketDistributor.sendToServer(new SlotDisableChangePack(slot1, false));
                 break start;
             }
-            PacketDistributor.sendToServer(
-                    new SlotDisableChangePack(slot1, !this.menu.isSlotDisabled(slot1)));
+            PacketDistributor.sendToServer(new SlotDisableChangePack(slot1, !this.menu.isSlotDisabled(slot1)));
         }
         super.slotClicked(slot, slotId, mouseButton, type);
     }

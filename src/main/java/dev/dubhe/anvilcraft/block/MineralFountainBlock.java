@@ -34,9 +34,7 @@ public class MineralFountainBlock extends BaseEntityBlock {
 
     @Nullable @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-            @NotNull Level level,
-            @NotNull BlockState state,
-            @NotNull BlockEntityType<T> blockEntityType) {
+            @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> blockEntityType) {
         if (level.isClientSide) return null;
         return createTickerHelper(
                 blockEntityType,

@@ -45,8 +45,7 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
      */
     public ChargerBlock(Properties properties) {
         super(properties);
-        registerDefaultState(
-                getStateDefinition().any().setValue(POWERED, false).setValue(OVERLOAD, true));
+        registerDefaultState(getStateDefinition().any().setValue(POWERED, false).setValue(OVERLOAD, true));
     }
 
     @Override
@@ -134,8 +133,7 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
     }
 
     @Override
-    public boolean change(
-            Player player, BlockPos blockPos, @NotNull Level level, ItemStack anvilHammer) {
+    public boolean change(Player player, BlockPos blockPos, @NotNull Level level, ItemStack anvilHammer) {
         level.setBlock(blockPos, ModBlocks.DISCHARGER.getDefaultState(), 2);
         if (level.getBlockEntity(blockPos) instanceof StateListener<?> listener) {
             StateListener<Boolean> thiz = (StateListener<Boolean>) listener;

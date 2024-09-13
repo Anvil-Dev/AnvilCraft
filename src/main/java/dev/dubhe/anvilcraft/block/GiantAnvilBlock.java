@@ -49,59 +49,40 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.stream.Stream;
 
-public class GiantAnvilBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf>
-        implements Fallable, IHammerRemovable {
+public class GiantAnvilBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf> implements Fallable, IHammerRemovable {
     private static final Component CONTAINER_TITLE = Component.translatable("container.repair");
-    public static final EnumProperty<Cube3x3PartHalf> HALF =
-            EnumProperty.create("half", Cube3x3PartHalf.class);
-    public static final EnumProperty<GiantAnvilCube> CUBE =
-            EnumProperty.create("cube", GiantAnvilCube.class);
+    public static final EnumProperty<Cube3x3PartHalf> HALF = EnumProperty.create("half", Cube3x3PartHalf.class);
+    public static final EnumProperty<GiantAnvilCube> CUBE = EnumProperty.create("cube", GiantAnvilCube.class);
     protected static final VoxelShape BASE_ANGLE_NW = Stream.of(
-                    Block.box(9, 8, 9, 16, 13, 16),
-                    Block.box(12, 13, 12, 16, 16, 16),
-                    Block.box(4, 0, 4, 16, 8, 16))
+                    Block.box(9, 8, 9, 16, 13, 16), Block.box(12, 13, 12, 16, 16, 16), Block.box(4, 0, 4, 16, 8, 16))
             .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
             .get();
     protected static final VoxelShape BASE_ANGLE_SW = Stream.of(
-                    Block.box(9, 8, 0, 16, 13, 7),
-                    Block.box(12, 13, 0, 16, 16, 4),
-                    Block.box(4, 0, 0, 16, 8, 12))
+                    Block.box(9, 8, 0, 16, 13, 7), Block.box(12, 13, 0, 16, 16, 4), Block.box(4, 0, 0, 16, 8, 12))
             .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
             .get();
     protected static final VoxelShape BASE_ANGLE_NE = Stream.of(
-                    Block.box(0, 8, 9, 7, 13, 16),
-                    Block.box(0, 13, 12, 4, 16, 16),
-                    Block.box(0, 0, 4, 12, 8, 16))
+                    Block.box(0, 8, 9, 7, 13, 16), Block.box(0, 13, 12, 4, 16, 16), Block.box(0, 0, 4, 12, 8, 16))
             .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
             .get();
     protected static final VoxelShape BASE_ANGLE_SE = Stream.of(
-                    Block.box(0, 8, 0, 7, 13, 7),
-                    Block.box(0, 13, 0, 4, 16, 4),
-                    Block.box(0, 0, 0, 12, 8, 12))
+                    Block.box(0, 8, 0, 7, 13, 7), Block.box(0, 13, 0, 4, 16, 4), Block.box(0, 0, 0, 12, 8, 12))
             .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
             .get();
     protected static final VoxelShape BASE_N = Stream.of(
-                    Block.box(0, 13, 12, 16, 16, 16),
-                    Block.box(0, 8, 9, 16, 13, 16),
-                    Block.box(0, 0, 4, 16, 8, 16))
+                    Block.box(0, 13, 12, 16, 16, 16), Block.box(0, 8, 9, 16, 13, 16), Block.box(0, 0, 4, 16, 8, 16))
             .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
             .get();
     protected static final VoxelShape BASE_S = Stream.of(
-                    Block.box(0, 13, 0, 16, 16, 4),
-                    Block.box(0, 8, 0, 16, 13, 7),
-                    Block.box(0, 0, 0, 16, 8, 12))
+                    Block.box(0, 13, 0, 16, 16, 4), Block.box(0, 8, 0, 16, 13, 7), Block.box(0, 0, 0, 16, 8, 12))
             .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
             .get();
     protected static final VoxelShape BASE_E = Stream.of(
-                    Block.box(0, 13, 0, 4, 16, 16),
-                    Block.box(0, 8, 0, 7, 13, 16),
-                    Block.box(0, 0, 0, 12, 8, 16))
+                    Block.box(0, 13, 0, 4, 16, 16), Block.box(0, 8, 0, 7, 13, 16), Block.box(0, 0, 0, 12, 8, 16))
             .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
             .get();
     protected static final VoxelShape BASE_W = Stream.of(
-                    Block.box(12, 13, 0, 16, 16, 16),
-                    Block.box(9, 8, 0, 16, 13, 16),
-                    Block.box(4, 0, 0, 16, 8, 16))
+                    Block.box(12, 13, 0, 16, 16, 16), Block.box(9, 8, 0, 16, 13, 16), Block.box(4, 0, 0, 16, 8, 16))
             .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
             .get();
     protected static final VoxelShape MID_ANGLE_NW =
@@ -113,27 +94,19 @@ public class GiantAnvilBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf>
     protected static final VoxelShape MID_ANGLE_SE =
             Shapes.join(Block.box(0, 0, 0, 4, 10, 4), Block.box(0, 10, 0, 8, 16, 8), BooleanOp.OR);
     protected static final VoxelShape MID_EDGE_N = Stream.of(
-                    Block.box(0, 0, 12, 16, 9, 16),
-                    Block.box(0, 9, 6, 16, 16, 16),
-                    Block.box(0, 12, 0, 16, 16, 6))
+                    Block.box(0, 0, 12, 16, 9, 16), Block.box(0, 9, 6, 16, 16, 16), Block.box(0, 12, 0, 16, 16, 6))
             .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
             .get();
     protected static final VoxelShape MID_EDGE_S = Stream.of(
-                    Block.box(0, 0, 0, 16, 9, 4),
-                    Block.box(0, 9, 0, 16, 16, 10),
-                    Block.box(0, 12, 10, 16, 16, 16))
+                    Block.box(0, 0, 0, 16, 9, 4), Block.box(0, 9, 0, 16, 16, 10), Block.box(0, 12, 10, 16, 16, 16))
             .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
             .get();
     protected static final VoxelShape MID_EDGE_E = Stream.of(
-                    Block.box(0, 0, 0, 4, 9, 16),
-                    Block.box(0, 9, 0, 10, 16, 16),
-                    Block.box(10, 12, 0, 16, 16, 16))
+                    Block.box(0, 0, 0, 4, 9, 16), Block.box(0, 9, 0, 10, 16, 16), Block.box(10, 12, 0, 16, 16, 16))
             .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
             .get();
     protected static final VoxelShape MID_EDGE_W = Stream.of(
-                    Block.box(12, 0, 0, 16, 9, 16),
-                    Block.box(6, 9, 0, 16, 16, 16),
-                    Block.box(0, 12, 0, 6, 16, 16))
+                    Block.box(12, 0, 0, 16, 9, 16), Block.box(6, 9, 0, 16, 16, 16), Block.box(0, 12, 0, 6, 16, 16))
             .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
             .get();
 
@@ -179,14 +152,11 @@ public class GiantAnvilBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf>
     @Override
     protected BlockState placedState(Cube3x3PartHalf part, @NotNull BlockState state) {
         return super.placedState(part, state)
-                .setValue(
-                        CUBE,
-                        part == Cube3x3PartHalf.MID_CENTER ? GiantAnvilCube.CENTER : GiantAnvilCube.CORNER);
+                .setValue(CUBE, part == Cube3x3PartHalf.MID_CENTER ? GiantAnvilCube.CENTER : GiantAnvilCube.CORNER);
     }
 
     @Override
-    protected void createBlockStateDefinition(
-            @NotNull StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(HALF, CUBE);
     }
 
@@ -218,25 +188,18 @@ public class GiantAnvilBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf>
         BlockPos belowPos = pos.below();
         if (!canSurvive(state, level, belowPos)) {
             ItemEntity itemEntity = new ItemEntity(
-                    level,
-                    belowPos.getX(),
-                    belowPos.getY(),
-                    belowPos.getZ(),
-                    ModBlocks.GIANT_ANVIL.asStack());
+                    level, belowPos.getX(), belowPos.getY(), belowPos.getZ(), ModBlocks.GIANT_ANVIL.asStack());
             itemEntity.setDefaultPickUpDelay();
             level.addFreshEntity(itemEntity);
             return;
         }
         for (Cube3x3PartHalf part : this.getParts()) {
-            BlockState newState = state
-                    .setValue(HALF, part)
-                    .setValue(
-                            CUBE,
-                            part == Cube3x3PartHalf.MID_CENTER ? GiantAnvilCube.CENTER : GiantAnvilCube.CORNER);
+            BlockState newState = state.setValue(HALF, part)
+                    .setValue(CUBE, part == Cube3x3PartHalf.MID_CENTER ? GiantAnvilCube.CENTER : GiantAnvilCube.CORNER);
             level.setBlockAndUpdate(belowPos.offset(part.getOffset()), newState);
         }
-        AnvilCraft.EVENT_BUS.post(new GiantAnvilFallOnLandEvent(
-                (FallingGiantAnvilEntity) fallingBlock, pos, level, fallDistance));
+        AnvilCraft.EVENT_BUS.post(
+                new GiantAnvilFallOnLandEvent((FallingGiantAnvilEntity) fallingBlock, pos, level, fallDistance));
         for (int dx = -1; dx <= 1; dx++) {
             for (int dz = -1; dz <= 1; dz++) {
                 BlockPos pos1 = belowPos.offset(new Vec3i(dx, 0, dz));
@@ -263,13 +226,12 @@ public class GiantAnvilBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf>
         if (state.getValue(HALF) != Cube3x3PartHalf.BOTTOM_CENTER) return;
         for (Cube3x3PartHalf part : getParts()) {
             if (part.getOffsetY() != 0) continue;
-            if (!FallingBlock.isFree(level.getBlockState(pos.offset(part.getOffset()).below()))) return;
+            if (!FallingBlock.isFree(
+                    level.getBlockState(pos.offset(part.getOffset()).below()))) return;
         }
         BlockPos above = pos.above();
         BlockState state1 = level.getBlockState(above);
-        if (!state1.is(this)
-                || !state1.hasProperty(HALF)
-                || state1.getValue(HALF) != Cube3x3PartHalf.MID_CENTER) {
+        if (!state1.is(this) || !state1.hasProperty(HALF) || state1.getValue(HALF) != Cube3x3PartHalf.MID_CENTER) {
             return;
         }
 
@@ -282,8 +244,7 @@ public class GiantAnvilBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf>
                 }
             }
         }
-        FallingBlockEntity fallingBlockEntity =
-                FallingGiantAnvilEntity.fall(level, above, state1, false);
+        FallingBlockEntity fallingBlockEntity = FallingGiantAnvilEntity.fall(level, above, state1, false);
         this.falling(fallingBlockEntity);
     }
 
@@ -300,8 +261,7 @@ public class GiantAnvilBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf>
             @NotNull BlockState oldState,
             boolean movedByPiston) {
         if (state.hasProperty(HALF)) {
-            level.scheduleTick(
-                    pos.subtract(state.getValue(HALF).getOffset()), this, this.getDelayAfterPlace());
+            level.scheduleTick(pos.subtract(state.getValue(HALF).getOffset()), this, this.getDelayAfterPlace());
         }
     }
 
@@ -314,8 +274,7 @@ public class GiantAnvilBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf>
             @NotNull BlockPos pos,
             @NotNull BlockPos neighborPos) {
         if (state.hasProperty(HALF)) {
-            level.scheduleTick(
-                    pos.subtract(state.getValue(HALF).getOffset()), this, this.getDelayAfterPlace());
+            level.scheduleTick(pos.subtract(state.getValue(HALF).getOffset()), this, this.getDelayAfterPlace());
         }
         return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
     }
@@ -344,8 +303,7 @@ public class GiantAnvilBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf>
 
     @SuppressWarnings("deprecation")
     @Override
-    @Nullable public MenuProvider getMenuProvider(
-            @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos) {
+    @Nullable public MenuProvider getMenuProvider(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos) {
         return new SimpleMenuProvider(
                 (syncId, inventory, player) ->
                         new AnvilMenu(syncId, inventory, ContainerLevelAccess.create(level, pos)),

@@ -38,8 +38,8 @@ public class HeatedBlockRecorder {
                 ModBlocks.GLOWING_NETHERITE.get(),
                 ModBlocks.INCANDESCENT_NETHERITE.get()));
 
-        BlockFamily emberMetalFamily = new BlockFamily(
-                List.of(ModBlocks.EMBER_METAL_BLOCK.get(), ModBlocks.CUT_EMBER_METAL_BLOCK.get()));
+        BlockFamily emberMetalFamily =
+                new BlockFamily(List.of(ModBlocks.EMBER_METAL_BLOCK.get(), ModBlocks.CUT_EMBER_METAL_BLOCK.get()));
 
         TRANSFORMS.put(Pair.of(ModBlocks.HEATED_TUNGSTEN.get(), 2), tungstenFamily);
         TRANSFORMS.put(Pair.of(ModBlocks.REDHOT_TUNGSTEN.get(), 8), tungstenFamily);
@@ -85,7 +85,8 @@ public class HeatedBlockRecorder {
         int level = record.get(pos).addAndGet(1);
         irritateEntity.add(entity);
         List<Block> blocks = TRANSFORMS.entrySet().stream()
-                .filter(it -> it.getValue().anyMatch(this.level.getBlockState(pos).getBlock()))
+                .filter(it ->
+                        it.getValue().anyMatch(this.level.getBlockState(pos).getBlock()))
                 .map(Map.Entry::getKey)
                 .sorted(Comparator.comparingInt(Pair::right))
                 .filter(it -> it.right() <= level)

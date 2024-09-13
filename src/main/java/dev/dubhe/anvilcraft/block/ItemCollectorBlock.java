@@ -107,8 +107,7 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
     }
 
     @Override
-    protected void createBlockStateDefinition(
-            @NotNull StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(POWERED).add(OVERLOAD);
     }
 
@@ -131,14 +130,13 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
             }
             if (player instanceof ServerPlayer serverPlayer) {
                 ModMenuTypes.open(serverPlayer, eb, pos);
-                PacketDistributor.sendToPlayer(
-                        serverPlayer, new MachineEnableFilterPack(eb.isFilterEnabled()));
+                PacketDistributor.sendToPlayer(serverPlayer, new MachineEnableFilterPack(eb.isFilterEnabled()));
                 for (int i = 0; i < eb.getFilteredItems().size(); i++) {
                     PacketDistributor.sendToPlayer(
                             serverPlayer,
-                            new SlotDisableChangePack(i, eb.getDepository().getDisabled().get(i)));
-                    PacketDistributor.sendToPlayer(
-                            serverPlayer, new SlotFilterChangePack(i, eb.getFilter(i)));
+                            new SlotDisableChangePack(
+                                    i, eb.getDepository().getDisabled().get(i)));
+                    PacketDistributor.sendToPlayer(serverPlayer, new SlotFilterChangePack(i, eb.getFilter(i)));
                 }
             }
         }
@@ -179,8 +177,7 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
 
     @Override
     @SuppressWarnings("deprecation")
-    public int getAnalogOutputSignal(
-            @NotNull BlockState blockState, @NotNull Level level, @NotNull BlockPos blockPos) {
+    public int getAnalogOutputSignal(@NotNull BlockState blockState, @NotNull Level level, @NotNull BlockPos blockPos) {
         BlockEntity blockEntity = level.getBlockEntity(blockPos);
         if (blockEntity instanceof ItemCollectorBlockEntity itemCollectorBlockEntity) {
             return itemCollectorBlockEntity.getRedstoneSignal();

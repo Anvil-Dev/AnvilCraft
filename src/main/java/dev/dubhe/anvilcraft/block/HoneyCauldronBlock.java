@@ -31,10 +31,7 @@ public class HoneyCauldronBlock extends LayeredCauldronBlock implements IHammerR
 
     @Override
     public void entityInside(
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull Entity entity) {}
+            @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Entity entity) {}
 
     @Override
     public void handlePrecipitation(
@@ -50,10 +47,7 @@ public class HoneyCauldronBlock extends LayeredCauldronBlock implements IHammerR
 
     @Override
     protected void receiveStalactiteDrip(
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull Fluid fluid) {}
+            @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Fluid fluid) {}
 
     @Override
     public ItemStack getCloneItemStack(

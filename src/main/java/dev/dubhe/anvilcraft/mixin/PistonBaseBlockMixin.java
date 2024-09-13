@@ -19,8 +19,7 @@ import org.spongepowered.asm.mixin.Mixin;
 public class PistonBaseBlockMixin implements IHammerChangeable {
 
     @Override
-    public boolean change(
-            Player player, BlockPos blockPos, @NotNull Level level, ItemStack anvilHammer) {
+    public boolean change(Player player, BlockPos blockPos, @NotNull Level level, ItemStack anvilHammer) {
         BlockState blockState = level.getBlockState(blockPos);
         // 活塞已伸出，不旋转
         if (blockState.getValue(PistonBaseBlock.EXTENDED)) {

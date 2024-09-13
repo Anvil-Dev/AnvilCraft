@@ -15,9 +15,6 @@ public class ClientEventListener {
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) return;
         IBlockHighlightUtil.render(
-                level,
-                Minecraft.getInstance().renderBuffers().bufferSource(),
-                event.getPoseStack(),
-                event.getCamera());
+                level, Minecraft.getInstance().renderBuffers().bufferSource(), event.getPoseStack(), event.getCamera());
     }
 }

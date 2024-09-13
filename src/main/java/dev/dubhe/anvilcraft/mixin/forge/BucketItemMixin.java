@@ -50,8 +50,7 @@ abstract class BucketItemMixin {
                 if (anvilCraft$ths.equals(Items.WATER_BUCKET)) {
                     if (!level.isClientSide) {
                         level.setBlockAndUpdate(
-                                pos,
-                                Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3));
+                                pos, Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3));
                     }
                 } else if (anvilCraft$ths.equals(Items.LAVA_BUCKET)) {
                     if (!level.isClientSide) {
@@ -59,8 +58,7 @@ abstract class BucketItemMixin {
                     }
                 } else return;
                 if (this.content.getPickupSound().isPresent()) {
-                    level.playSound(
-                            player, pos, this.content.getPickupSound().get(), SoundSource.BLOCKS, 1.0f, 1.0f);
+                    level.playSound(player, pos, this.content.getPickupSound().get(), SoundSource.BLOCKS, 1.0f, 1.0f);
                 }
                 level.gameEvent(player, GameEvent.FLUID_PLACE, pos);
                 cir.setReturnValue(true);

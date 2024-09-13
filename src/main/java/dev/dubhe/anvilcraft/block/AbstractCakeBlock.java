@@ -56,13 +56,7 @@ public class AbstractCakeBlock extends Block {
         if (!(itemStack.getItem() instanceof ShovelItem))
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         if (pLevel.isClientSide) {
-            if (eat(
-                            pLevel,
-                            pPos,
-                            pPlayer,
-                            getFoodLevel(),
-                            getSaturationLevel(),
-                            Utils.interactionResultConverter())
+            if (eat(pLevel, pPos, pPlayer, getFoodLevel(), getSaturationLevel(), Utils.interactionResultConverter())
                     .consumesAction()) {
                 return ItemInteractionResult.SUCCESS;
             }
@@ -73,13 +67,7 @@ public class AbstractCakeBlock extends Block {
         } else {
             itemStack.hurtAndBreak(1, (ServerLevel) pLevel, pPlayer, p -> {});
         }
-        return eat(
-                pLevel,
-                pPos,
-                pPlayer,
-                getFoodLevel(),
-                getSaturationLevel(),
-                Utils.interactionResultConverter());
+        return eat(pLevel, pPos, pPlayer, getFoodLevel(), getSaturationLevel(), Utils.interactionResultConverter());
     }
 
     private static <T> T eat(

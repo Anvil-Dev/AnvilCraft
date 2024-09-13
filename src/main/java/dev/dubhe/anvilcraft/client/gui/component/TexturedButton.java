@@ -37,7 +37,6 @@ public class TexturedButton extends Button {
         if (this.isHovered) {
             pVOffset = yDiffTex;
         }
-        gg.blit(
-                texture, this.getX(), this.getY(), 0, pVOffset, width, height, textureWidth, textureHeight);
+        gg.blit(texture, this.getX(), this.getY(), 0, pVOffset, width, height, textureWidth, textureHeight);
     }
 }

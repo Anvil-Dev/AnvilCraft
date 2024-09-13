@@ -56,8 +56,7 @@ public class EmberAnvilScreen extends ItemCombinerScreen<EmberAnvilMenu> {
     protected void subInit() {
         int i = (this.width - this.imageWidth) / 2;
         int j = (this.height - this.imageHeight) / 2;
-        this.name =
-                new EditBox(this.font, i + 62, j + 24, 103, 12, Component.translatable("container.repair"));
+        this.name = new EditBox(this.font, i + 62, j + 24, 103, 12, Component.translatable("container.repair"));
         this.name.setCanLoseFocus(false);
         this.name.setTextColor(-1);
         this.name.setTextColorUneditable(-1);
@@ -127,17 +126,14 @@ public class EmberAnvilScreen extends ItemCombinerScreen<EmberAnvilMenu> {
     }
 
     @Override
-    protected void renderBg(
-            @NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(@NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         super.renderBg(guiGraphics, partialTick, mouseX, mouseY);
-        ResourceLocation location =
-                this.menu.getSlot(0).getItem().isEmpty() ? TEXT_DISABLE_LOCATION : TEXT_LOCATION;
+        ResourceLocation location = this.menu.getSlot(0).getItem().isEmpty() ? TEXT_DISABLE_LOCATION : TEXT_LOCATION;
         guiGraphics.blit(location, this.leftPos + 59, this.topPos + 20, 0, 0, 110, 16, 110, 16);
     }
 
     @Override
-    public void renderFg(
-            @NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void renderFg(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.name.render(guiGraphics, mouseX, mouseY, partialTick);
     }
 

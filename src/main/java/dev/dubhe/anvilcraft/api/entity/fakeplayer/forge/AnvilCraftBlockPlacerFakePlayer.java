@@ -13,8 +13,7 @@ import java.util.UUID;
 public class AnvilCraftBlockPlacerFakePlayer implements IAnvilCraftBlockPlacer {
     static final UUID placerUUID = UUID.randomUUID();
     static final String placerName = "AnvilCraftBlockPlacer";
-    static final GameProfile fakeProfile =
-            new GameProfile(placerUUID, "[Block Placer of " + placerName + "]");
+    static final GameProfile fakeProfile = new GameProfile(placerUUID, "[Block Placer of " + placerName + "]");
     private static ServerPlayer fakePlayer;
 
     public AnvilCraftBlockPlacerFakePlayer(ServerLevel world) {

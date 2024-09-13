@@ -86,15 +86,17 @@ public class BatchCrafterRenderer implements BlockEntityRenderer<BatchCrafterBlo
                         OverlayTexture.NO_OVERLAY);
         ItemStack itemStack = blockEntity.getDisplayItemStack();
         if (itemStack == null || itemStack.isEmpty()) return;
-        int seed =
-                itemStack.isEmpty() ? 187 : Item.getId(itemStack.getItem()) + itemStack.getDamageValue();
+        int seed = itemStack.isEmpty() ? 187 : Item.getId(itemStack.getItem()) + itemStack.getDamageValue();
         this.random.setSeed(seed);
         BakedModel bakedModel = this.itemRenderer.getModel(itemStack, level, null, blockEntity.getId());
         poseStack.pushPose();
         final boolean isGui3d = bakedModel.isGui3d();
         final int renderAmount = this.getRenderAmount(itemStack);
-        float transformedGroundScaleY =
-                bakedModel.getTransforms().getTransform(ItemDisplayContext.GROUND).scale.y();
+        float transformedGroundScaleY = bakedModel
+                .getTransforms()
+                .getTransform(ItemDisplayContext.GROUND)
+                .scale
+                .y();
         poseStack.translate(0.5F, 0.5F * transformedGroundScaleY + 0.15f, 0.5F);
         float rotation = (blockEntity.getLevel().getGameTime() + partialTick) * 2f;
         poseStack.mulPose(Axis.YP.rotationDegrees(rotation));

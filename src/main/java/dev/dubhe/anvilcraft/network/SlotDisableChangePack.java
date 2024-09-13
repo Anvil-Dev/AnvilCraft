@@ -19,8 +19,7 @@ import lombok.Getter;
 
 @Getter
 public class SlotDisableChangePack implements CustomPacketPayload {
-    public static final Type<SlotDisableChangePack> TYPE =
-            new Type<>(AnvilCraft.of("slot_disable_change"));
+    public static final Type<SlotDisableChangePack> TYPE = new Type<>(AnvilCraft.of("slot_disable_change"));
     public static final StreamCodec<RegistryFriendlyByteBuf, SlotDisableChangePack> STREAM_CODEC =
             StreamCodec.composite(
                     ByteBufCodecs.INT,
@@ -29,8 +28,7 @@ public class SlotDisableChangePack implements CustomPacketPayload {
                     SlotDisableChangePack::isState,
                     SlotDisableChangePack::new);
     public static final IPayloadHandler<SlotDisableChangePack> HANDLER =
-            new DirectionalPayloadHandler<>(
-                    SlotDisableChangePack::clientHandler, SlotDisableChangePack::serverHandler);
+            new DirectionalPayloadHandler<>(SlotDisableChangePack::clientHandler, SlotDisableChangePack::serverHandler);
 
     private final int index;
     private final boolean state;

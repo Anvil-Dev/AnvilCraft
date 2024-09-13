@@ -20,22 +20,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Getter
-public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends BaseMachineMenu
-        implements IFilterMenu {
+public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends BaseMachineMenu implements IFilterMenu {
 
     public final T blockEntity;
     private final Level level;
 
     public BaseChuteMenu(
-            @Nullable MenuType<?> menuType,
-            int containerId,
-            Inventory inventory,
-            @NotNull FriendlyByteBuf extraData) {
-        this(
-                menuType,
-                containerId,
-                inventory,
-                inventory.player.level().getBlockEntity(extraData.readBlockPos()));
+            @Nullable MenuType<?> menuType, int containerId, Inventory inventory, @NotNull FriendlyByteBuf extraData) {
+        this(menuType, containerId, inventory, inventory.player.level().getBlockEntity(extraData.readBlockPos()));
     }
 
     /**
@@ -46,8 +38,7 @@ public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends Base
      * @param inventory   背包
      * @param blockEntity 方块实体
      */
-    public BaseChuteMenu(
-            MenuType<?> menuType, int containerId, Inventory inventory, BlockEntity blockEntity) {
+    public BaseChuteMenu(MenuType<?> menuType, int containerId, Inventory inventory, BlockEntity blockEntity) {
         super(menuType, containerId, blockEntity);
         this.blockEntity = (T) blockEntity;
         this.level = inventory.player.level();
@@ -57,8 +48,8 @@ public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends Base
 
         for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < 3; ++j) {
-                this.addSlot(new ItemDepositorySlot(
-                        this.blockEntity.getDepository(), i * 3 + j, 62 + j * 18, 18 + i * 18));
+                this.addSlot(
+                        new ItemDepositorySlot(this.blockEntity.getDepository(), i * 3 + j, 62 + j * 18, 18 + i * 18));
             }
         }
     }
@@ -89,12 +80,10 @@ public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends Base
     private static final int HOTBAR_SLOT_COUNT = 9;
     private static final int PLAYER_INVENTORY_ROW_COUNT = 3;
     private static final int PLAYER_INVENTORY_COLUMN_COUNT = 9;
-    private static final int PLAYER_INVENTORY_SLOT_COUNT =
-            PLAYER_INVENTORY_COLUMN_COUNT * PLAYER_INVENTORY_ROW_COUNT;
+    private static final int PLAYER_INVENTORY_SLOT_COUNT = PLAYER_INVENTORY_COLUMN_COUNT * PLAYER_INVENTORY_ROW_COUNT;
     private static final int VANILLA_SLOT_COUNT = HOTBAR_SLOT_COUNT + PLAYER_INVENTORY_SLOT_COUNT;
     private static final int VANILLA_FIRST_SLOT_INDEX = 0;
-    private static final int TE_INVENTORY_FIRST_SLOT_INDEX =
-            VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
+    private static final int TE_INVENTORY_FIRST_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
 
     // THIS YOU HAVE TO DEFINE!
     private static final int TE_INVENTORY_SLOT_COUNT = 9; // must be the number of slots you have!
@@ -121,10 +110,7 @@ public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends Base
         } else if (index < TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT) {
             // This is a TE slot so merge the stack into the players inventory
             if (!moveItemStackTo(
-                    sourceStack,
-                    VANILLA_FIRST_SLOT_INDEX,
-                    VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT,
-                    false)) {
+                    sourceStack, VANILLA_FIRST_SLOT_INDEX, VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT, false)) {
                 return ItemStack.EMPTY;
             }
         } else {
@@ -143,8 +129,7 @@ public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends Base
 
     @Override
     public boolean stillValid(@NotNull Player player) {
-        return stillValid(
-                ContainerLevelAccess.create(level, blockEntity.getBlockPos()), player, getBlock());
+        return stillValid(ContainerLevelAccess.create(level, blockEntity.getBlockPos()), player, getBlock());
     }
 
     protected abstract Block getBlock();

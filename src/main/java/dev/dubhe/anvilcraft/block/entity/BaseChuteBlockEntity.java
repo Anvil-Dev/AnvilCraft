@@ -42,8 +42,7 @@ public abstract class BaseChuteBlockEntity extends BaseMachineBlockEntity
         }
     };
 
-    protected BaseChuteBlockEntity(
-            BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
+    protected BaseChuteBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
 
@@ -87,8 +86,7 @@ public abstract class BaseChuteBlockEntity extends BaseMachineBlockEntity
     public abstract Component getDisplayName();
 
     @Nullable @Override
-    public abstract AbstractContainerMenu createMenu(
-            int i, @NotNull Inventory inventory, @NotNull Player player);
+    public abstract AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player);
 
     @Override
     protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
@@ -146,8 +144,7 @@ public abstract class BaseChuteBlockEntity extends BaseMachineBlockEntity
                 if (depository != null) {
                     // 尝试向朝向容器输出
                     if (!this.depository.isEmpty()) {
-                        if (ItemDepositoryHelper.exportToTarget(
-                                this.depository, 64, stack -> true, depository)) {
+                        if (ItemDepositoryHelper.exportToTarget(this.depository, 64, stack -> true, depository)) {
                             cooldown = AnvilCraft.config.chuteMaxCooldown;
                         }
                     }

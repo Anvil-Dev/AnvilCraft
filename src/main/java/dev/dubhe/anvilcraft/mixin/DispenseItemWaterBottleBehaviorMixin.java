@@ -45,8 +45,7 @@ abstract class DispenseItemWaterBottleBehaviorMixin extends DefaultDispenseItemB
                     blockPos2,
                     Blocks.WATER_CAULDRON
                             .defaultBlockState()
-                            .setValue(
-                                    LayeredCauldronBlock.LEVEL, state.getValue(LayeredCauldronBlock.LEVEL) + 1));
+                            .setValue(LayeredCauldronBlock.LEVEL, state.getValue(LayeredCauldronBlock.LEVEL) + 1));
             cir.setReturnValue(new ItemStack(Items.GLASS_BOTTLE));
         }
     }

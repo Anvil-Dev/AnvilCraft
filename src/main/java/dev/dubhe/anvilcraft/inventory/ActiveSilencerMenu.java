@@ -31,25 +31,15 @@ public class ActiveSilencerMenu extends AbstractContainerMenu {
      * 主动消音器的ScreenHandler
      */
     public ActiveSilencerMenu(
-            @Nullable MenuType<?> menuType,
-            int containerId,
-            Inventory inventory,
-            @NotNull BlockEntity machine) {
+            @Nullable MenuType<?> menuType, int containerId, Inventory inventory, @NotNull BlockEntity machine) {
         super(menuType, containerId);
         blockEntity = (ActiveSilencerBlockEntity) machine;
         this.level = inventory.player.level();
     }
 
     public ActiveSilencerMenu(
-            @Nullable MenuType<?> menuType,
-            int containerId,
-            Inventory inventory,
-            @NotNull FriendlyByteBuf extraData) {
-        this(
-                menuType,
-                containerId,
-                inventory,
-                inventory.player.level().getBlockEntity(extraData.readBlockPos()));
+            @Nullable MenuType<?> menuType, int containerId, Inventory inventory, @NotNull FriendlyByteBuf extraData) {
+        this(menuType, containerId, inventory, inventory.player.level().getBlockEntity(extraData.readBlockPos()));
     }
 
     @Override
@@ -60,9 +50,7 @@ public class ActiveSilencerMenu extends AbstractContainerMenu {
     @Override
     public boolean stillValid(@NotNull Player player) {
         return stillValid(
-                ContainerLevelAccess.create(level, blockEntity.getBlockPos()),
-                player,
-                ModBlocks.ACTIVE_SILENCER.get());
+                ContainerLevelAccess.create(level, blockEntity.getBlockPos()), player, ModBlocks.ACTIVE_SILENCER.get());
     }
 
     public void addSound(ResourceLocation soundId) {

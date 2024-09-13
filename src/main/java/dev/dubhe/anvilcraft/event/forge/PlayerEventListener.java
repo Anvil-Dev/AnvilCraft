@@ -19,8 +19,8 @@ public class PlayerEventListener {
      */
     @SubscribeEvent
     public static void useEntity(@NotNull PlayerInteractEvent.EntityInteract event) {
-        PlayerEvent.UseEntity playerEvent = new PlayerEvent.UseEntity(
-                event.getEntity(), event.getTarget(), event.getHand(), event.getLevel());
+        PlayerEvent.UseEntity playerEvent =
+                new PlayerEvent.UseEntity(event.getEntity(), event.getTarget(), event.getHand(), event.getLevel());
         AnvilCraft.EVENT_BUS.post(playerEvent);
         InteractionResult result = playerEvent.getResult();
         if (result != InteractionResult.PASS) {

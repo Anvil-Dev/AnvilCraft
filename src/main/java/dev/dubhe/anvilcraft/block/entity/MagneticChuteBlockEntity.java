@@ -21,8 +21,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class MagneticChuteBlockEntity extends BaseChuteBlockEntity {
 
-    public MagneticChuteBlockEntity(
-            BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
+    public MagneticChuteBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
 
@@ -62,8 +61,7 @@ public class MagneticChuteBlockEntity extends BaseChuteBlockEntity {
     }
 
     @Nullable @Override
-    public AbstractContainerMenu createMenu(
-            int i, @NotNull Inventory inventory, @NotNull Player player) {
+    public AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
         return new MagneticChuteMenu(ModMenuTypes.MAGNETIC_CHUTE.get(), i, inventory, this);
     }
 }

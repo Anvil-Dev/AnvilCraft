@@ -32,11 +32,12 @@ public class MeshRecipeCache {
 
     private void buildRecipeCache() {
         meshCaches = new HashMap<>();
-        for (RecipeHolder<MeshRecipe> recipeHolder :
-                recipeManager.getAllRecipesFor(ModRecipeTypes.MESH_TYPE.get())) {
+        for (RecipeHolder<MeshRecipe> recipeHolder : recipeManager.getAllRecipesFor(ModRecipeTypes.MESH_TYPE.get())) {
             MeshRecipe recipe = recipeHolder.value();
             for (ItemStack stack : recipe.getInput().getItems()) {
-                meshCaches.computeIfAbsent(stack.getItem(), k -> new ArrayList<>()).add(recipeHolder);
+                meshCaches
+                        .computeIfAbsent(stack.getItem(), k -> new ArrayList<>())
+                        .add(recipeHolder);
             }
         }
     }

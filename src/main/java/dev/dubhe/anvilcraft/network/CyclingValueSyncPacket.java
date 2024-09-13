@@ -16,8 +16,7 @@ import lombok.Getter;
 @Getter
 public class CyclingValueSyncPacket implements CustomPacketPayload {
 
-    public static final Type<CyclingValueSyncPacket> TYPE =
-            new Type<>(AnvilCraft.of("cycling_value"));
+    public static final Type<CyclingValueSyncPacket> TYPE = new Type<>(AnvilCraft.of("cycling_value"));
     public static final StreamCodec<RegistryFriendlyByteBuf, CyclingValueSyncPacket> STREAM_CODEC =
             StreamCodec.composite(
                     ByteBufCodecs.INT,
@@ -25,8 +24,7 @@ public class CyclingValueSyncPacket implements CustomPacketPayload {
                     ByteBufCodecs.STRING_UTF8,
                     CyclingValueSyncPacket::getName,
                     CyclingValueSyncPacket::new);
-    public static final IPayloadHandler<CyclingValueSyncPacket> HANDLER =
-            CyclingValueSyncPacket::serverHandler;
+    public static final IPayloadHandler<CyclingValueSyncPacket> HANDLER = CyclingValueSyncPacket::serverHandler;
 
     private final int index;
     private final String name;

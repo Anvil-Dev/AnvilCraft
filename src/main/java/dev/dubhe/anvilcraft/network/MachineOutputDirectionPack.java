@@ -21,14 +21,11 @@ import org.jetbrains.annotations.NotNull;
 
 @Getter
 public class MachineOutputDirectionPack implements CustomPacketPayload {
-    public static final Type<MachineOutputDirectionPack> TYPE =
-            new Type<>(AnvilCraft.of("machine_output_direction"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, MachineOutputDirectionPack>
-            STREAM_CODEC =
-                    StreamCodec.ofMember(MachineOutputDirectionPack::encode, MachineOutputDirectionPack::new);
-    public static final IPayloadHandler<MachineOutputDirectionPack> HANDLER =
-            new DirectionalPayloadHandler<>(
-                    MachineOutputDirectionPack::clientHandler, MachineOutputDirectionPack::serverHandler);
+    public static final Type<MachineOutputDirectionPack> TYPE = new Type<>(AnvilCraft.of("machine_output_direction"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, MachineOutputDirectionPack> STREAM_CODEC =
+            StreamCodec.ofMember(MachineOutputDirectionPack::encode, MachineOutputDirectionPack::new);
+    public static final IPayloadHandler<MachineOutputDirectionPack> HANDLER = new DirectionalPayloadHandler<>(
+            MachineOutputDirectionPack::clientHandler, MachineOutputDirectionPack::serverHandler);
     private final Direction direction;
 
     @Override

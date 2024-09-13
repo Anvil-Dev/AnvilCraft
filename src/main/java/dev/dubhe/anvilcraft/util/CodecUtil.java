@@ -10,8 +10,6 @@ public class CodecUtil {
         return RecordCodecBuilder.create(ins -> ins.group(
                         Codec.BOOL.fieldOf("isPresent").forGetter(Optional::isPresent),
                         elementCodec.optionalFieldOf("content").forGetter(o -> o))
-                .apply(
-                        ins,
-                        (isPresent, content) -> isPresent && content.isPresent() ? content : Optional.empty()));
+                .apply(ins, (isPresent, content) -> isPresent && content.isPresent() ? content : Optional.empty()));
     }
 }

@@ -29,7 +29,6 @@ public class AnvilHitImpactPileEventListener {
                 && event.getFallDistance() + 1 >= 20
                 && (level.getMinBuildHeight() <= pos.getY() && pos.getY() <= level.getMinBuildHeight() + 4)
                 && (level.getBlockState(pos.below()).is(Blocks.DEEPSLATE)
-                        || level.getBlockState(pos.below()).is(Blocks.BEDROCK)))
-            impactPileBlock.impact(level, pos);
+                        || level.getBlockState(pos.below()).is(Blocks.BEDROCK))) impactPileBlock.impact(level, pos);
     }
 }

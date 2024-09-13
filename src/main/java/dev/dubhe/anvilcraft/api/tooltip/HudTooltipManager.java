@@ -62,11 +62,7 @@ public class HudTooltipManager {
      * 渲染
      */
     public void renderTooltip(
-            GuiGraphics guiGraphics,
-            BlockEntity entity,
-            float partialTick,
-            int screenWidth,
-            int screenHeight) {
+            GuiGraphics guiGraphics, BlockEntity entity, float partialTick, int screenWidth, int screenHeight) {
         if (entity == null) return;
         final int tooltipPosX = screenWidth / 2 + 10;
         final int tooltipPosY = screenHeight / 2 + 10;
@@ -91,12 +87,7 @@ public class HudTooltipManager {
      * 渲染手持物品Tooltip
      */
     public void renderHandItemLevelTooltip(
-            ItemStack itemStack,
-            PoseStack poseStack,
-            VertexConsumer consumer,
-            double camX,
-            double camY,
-            double camZ) {
+            ItemStack itemStack, PoseStack poseStack, VertexConsumer consumer, double camX, double camY, double camZ) {
         HandHeldItemTooltipProvider pv = determineHandHeldItemTooltipProvider(itemStack);
         if (pv == null) return;
         pv.render(poseStack, consumer, itemStack, camX, camY, camZ);
@@ -106,11 +97,7 @@ public class HudTooltipManager {
      * 渲染手持物品Hud Tooltip
      */
     public void renderHandItemHudTooltip(
-            GuiGraphics guiGraphics,
-            ItemStack itemStack,
-            float partialTick,
-            int screenWidth,
-            int screenHeight) {
+            GuiGraphics guiGraphics, ItemStack itemStack, float partialTick, int screenWidth, int screenHeight) {
         HandHeldItemTooltipProvider pv = determineHandHeldItemTooltipProvider(itemStack);
         if (pv == null) return;
         pv.renderTooltip(guiGraphics, screenWidth, screenHeight);
@@ -120,12 +107,7 @@ public class HudTooltipManager {
      * 渲染作用范围
      */
     public void renderAffectRange(
-            BlockEntity entity,
-            PoseStack poseStack,
-            VertexConsumer consumer,
-            double camX,
-            double camY,
-            double camZ) {
+            BlockEntity entity, PoseStack poseStack, VertexConsumer consumer, double camX, double camY, double camZ) {
         AffectRangeProvider currentProvider = determineAffectRangeProvider(entity);
         if (currentProvider == null) return;
         VoxelShape shape = currentProvider.affectRange(entity);
@@ -145,11 +127,10 @@ public class HudTooltipManager {
 
     private BlockEntityTooltipProvider determineBlockEntityTooltipProvider(BlockEntity entity) {
         if (entity == null) return null;
-        ArrayList<BlockEntityTooltipProvider> blockEntityTooltipProviders =
-                blockEntityProviders.stream()
-                        .filter(it -> it.accepts(entity))
-                        .sorted(Comparator.comparingInt(BlockEntityTooltipProvider::priority))
-                        .collect(Collectors.toCollection(ArrayList::new));
+        ArrayList<BlockEntityTooltipProvider> blockEntityTooltipProviders = blockEntityProviders.stream()
+                .filter(it -> it.accepts(entity))
+                .sorted(Comparator.comparingInt(BlockEntityTooltipProvider::priority))
+                .collect(Collectors.toCollection(ArrayList::new));
         if (blockEntityTooltipProviders.isEmpty()) return null;
         return blockEntityTooltipProviders.get(0);
     }

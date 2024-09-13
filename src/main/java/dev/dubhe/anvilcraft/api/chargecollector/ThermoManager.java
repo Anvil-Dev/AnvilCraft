@@ -69,7 +69,8 @@ public class ThermoManager {
                 thermoEntries.stream().filter(it -> it.accepts(state) > 0).findFirst();
         if (op.isPresent()) {
             thermoBlocks.removeIf(it -> blockPos.equals(it.pos));
-            thermoBlocks.add(new ThermoBlock(blockPos, state.getBlock(), op.get().ttl()));
+            thermoBlocks.add(
+                    new ThermoBlock(blockPos, state.getBlock(), op.get().ttl()));
         }
     }
 
@@ -77,35 +78,26 @@ public class ThermoManager {
         this.level = level;
         register(ThermoEntry.simple(
                 256, ModBlocks.INCANDESCENT_NETHERITE.get(), ModBlocks.GLOWING_NETHERITE.get(), true));
-        register(ThermoEntry.simple(
-                64, ModBlocks.GLOWING_NETHERITE.get(), ModBlocks.REDHOT_NETHERITE.get(), true));
-        register(ThermoEntry.simple(
-                16, ModBlocks.REDHOT_NETHERITE.get(), ModBlocks.HEATED_NETHERITE.get(), true));
+        register(ThermoEntry.simple(64, ModBlocks.GLOWING_NETHERITE.get(), ModBlocks.REDHOT_NETHERITE.get(), true));
+        register(ThermoEntry.simple(16, ModBlocks.REDHOT_NETHERITE.get(), ModBlocks.HEATED_NETHERITE.get(), true));
         register(ThermoEntry.simple(4, ModBlocks.HEATED_NETHERITE.get(), Blocks.NETHERITE_BLOCK, true));
 
-        register(ThermoEntry.simple(
-                256, ModBlocks.INCANDESCENT_TUNGSTEN.get(), ModBlocks.GLOWING_TUNGSTEN.get(), true));
-        register(ThermoEntry.simple(
-                64, ModBlocks.GLOWING_TUNGSTEN.get(), ModBlocks.REDHOT_TUNGSTEN.get(), true));
-        register(ThermoEntry.simple(
-                16, ModBlocks.REDHOT_TUNGSTEN.get(), ModBlocks.HEATED_TUNGSTEN.get(), true));
-        register(ThermoEntry.simple(
-                4, ModBlocks.HEATED_TUNGSTEN.get(), ModBlocks.TUNGSTEN_BLOCK.get(), true));
+        register(
+                ThermoEntry.simple(256, ModBlocks.INCANDESCENT_TUNGSTEN.get(), ModBlocks.GLOWING_TUNGSTEN.get(), true));
+        register(ThermoEntry.simple(64, ModBlocks.GLOWING_TUNGSTEN.get(), ModBlocks.REDHOT_TUNGSTEN.get(), true));
+        register(ThermoEntry.simple(16, ModBlocks.REDHOT_TUNGSTEN.get(), ModBlocks.HEATED_TUNGSTEN.get(), true));
+        register(ThermoEntry.simple(4, ModBlocks.HEATED_TUNGSTEN.get(), ModBlocks.TUNGSTEN_BLOCK.get(), true));
 
         register(ThermoEntry.forever(2, ModBlocks.URANIUM_BLOCK.get(), false));
 
         register(ThermoEntry.simple(4, Blocks.MAGMA_BLOCK, Blocks.NETHERRACK, false));
-        register(
-                ThermoEntry.simple(4, Blocks.LAVA_CAULDRON, ModBlocks.OBSIDIDAN_CAULDRON.get(), false));
+        register(ThermoEntry.simple(4, Blocks.LAVA_CAULDRON, ModBlocks.OBSIDIDAN_CAULDRON.get(), false));
 
         register(ThermoEntry.predicate(
                 4, CampfireBlock::isLitCampfire, t -> t.setValue(CampfireBlock.LIT, false), false));
 
         register(ThermoEntry.predicate(
-                4,
-                (state) -> state.getFluidState().is(Fluids.LAVA),
-                it -> Blocks.OBSIDIAN.defaultBlockState(),
-                false));
+                4, (state) -> state.getFluidState().is(Fluids.LAVA), it -> Blocks.OBSIDIAN.defaultBlockState(), false));
     }
 
     public static void tick() {
@@ -126,8 +118,7 @@ public class ThermoManager {
                     charge(entry.accepts(state), blockPos);
                 }
                 if (entry.isCanIrritated()) {
-                    if (HeatedBlockRecorder.getInstance(level)
-                            .requireLightLevel(blockPos, entry.getCharge() / 2)) {
+                    if (HeatedBlockRecorder.getInstance(level).requireLightLevel(blockPos, entry.getCharge() / 2)) {
                         if (block.ttl % 2 == 0) {
                             block.ttl = Mth.clamp(block.ttl - 1, 0, 2);
                         } else {
@@ -162,8 +153,7 @@ public class ThermoManager {
         double surplus = chargeNum;
         for (ChargeCollectorManager.Entry entry : chargeCollectorCollection) {
             ChargeCollectorBlockEntity chargeCollectorBlockEntity = entry.getBlockEntity();
-            if (!ChargeCollectorManager.getInstance(level)
-                    .canCollect(chargeCollectorBlockEntity, blockPos)) return;
+            if (!ChargeCollectorManager.getInstance(level).canCollect(chargeCollectorBlockEntity, blockPos)) return;
             surplus = chargeCollectorBlockEntity.incomingCharge(surplus);
             if (surplus == 0) return;
         }

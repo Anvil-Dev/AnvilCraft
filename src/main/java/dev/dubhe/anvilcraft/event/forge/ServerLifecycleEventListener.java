@@ -27,8 +27,7 @@ public class ServerLifecycleEventListener {
      */
     @SubscribeEvent
     public static void serverStarted(@NotNull ServerStartedEvent event) {
-        AnvilCraft.EVENT_BUS.post(
-                new dev.dubhe.anvilcraft.api.event.server.ServerStartedEvent(event.getServer()));
+        AnvilCraft.EVENT_BUS.post(new dev.dubhe.anvilcraft.api.event.server.ServerStartedEvent(event.getServer()));
     }
 
     /**

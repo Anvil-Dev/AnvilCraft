@@ -57,35 +57,26 @@ import javax.annotation.Nonnull;
 
 import static dev.dubhe.anvilcraft.block.MagneticChuteBlock.isFacingDownChute;
 
-public class ChuteBlock extends BetterBaseEntityBlock
-        implements IHammerChangeableBlock, IHammerRemovable {
+public class ChuteBlock extends BetterBaseEntityBlock implements IHammerChangeableBlock, IHammerRemovable {
     public static final DirectionProperty FACING = BlockStateProperties.FACING_HOPPER;
     public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
 
     public static final VoxelShape AABB =
             Shapes.join(Block.box(0, 12, 0, 16, 16, 16), Block.box(2, 0, 2, 14, 12, 14), BooleanOp.OR);
     public static final VoxelShape AABB_W = Stream.of(
-                    Block.box(2, 8, 2, 14, 12, 14),
-                    Block.box(0, 4, 4, 12, 12, 12),
-                    Block.box(0, 12, 0, 16, 16, 16))
+                    Block.box(2, 8, 2, 14, 12, 14), Block.box(0, 4, 4, 12, 12, 12), Block.box(0, 12, 0, 16, 16, 16))
             .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
             .get();
     public static final VoxelShape AABB_E = Stream.of(
-                    Block.box(2, 8, 2, 14, 12, 14),
-                    Block.box(4, 4, 4, 16, 12, 12),
-                    Block.box(0, 12, 0, 16, 16, 16))
+                    Block.box(2, 8, 2, 14, 12, 14), Block.box(4, 4, 4, 16, 12, 12), Block.box(0, 12, 0, 16, 16, 16))
             .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
             .get();
     public static final VoxelShape AABB_S = Stream.of(
-                    Block.box(2, 8, 2, 14, 12, 14),
-                    Block.box(4, 4, 4, 12, 12, 16),
-                    Block.box(0, 12, 0, 16, 16, 16))
+                    Block.box(2, 8, 2, 14, 12, 14), Block.box(4, 4, 4, 12, 12, 16), Block.box(0, 12, 0, 16, 16, 16))
             .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
             .get();
     public static final VoxelShape AABB_N = Stream.of(
-                    Block.box(2, 8, 2, 14, 12, 14),
-                    Block.box(4, 4, 0, 12, 12, 12),
-                    Block.box(0, 12, 0, 16, 16, 16))
+                    Block.box(2, 8, 2, 14, 12, 14), Block.box(4, 4, 0, 12, 12, 12), Block.box(0, 12, 0, 16, 16, 16))
             .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
             .get();
 
@@ -96,10 +87,8 @@ public class ChuteBlock extends BetterBaseEntityBlock
      */
     public ChuteBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition
-                .any()
-                .setValue(FACING, Direction.DOWN)
-                .setValue(ENABLED, Boolean.TRUE));
+        this.registerDefaultState(
+                this.stateDefinition.any().setValue(FACING, Direction.DOWN).setValue(ENABLED, Boolean.TRUE));
     }
 
     @Override
@@ -133,8 +122,7 @@ public class ChuteBlock extends BetterBaseEntityBlock
     }
 
     @Override
-    protected void createBlockStateDefinition(
-            @Nonnull StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(@Nonnull StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING, ENABLED);
     }
 
@@ -158,8 +146,7 @@ public class ChuteBlock extends BetterBaseEntityBlock
         if (!blockState.is(ModBlocks.CHUTE.get())) return;
         if (hasChuteFacing(level, neighborPos)) {
             BlockState newState = ModBlocks.SIMPLE_CHUTE.getDefaultState();
-            newState = newState
-                    .setValue(SimpleChuteBlock.FACING, blockState.getValue(FACING))
+            newState = newState.setValue(SimpleChuteBlock.FACING, blockState.getValue(FACING))
                     .setValue(SimpleChuteBlock.ENABLED, blockState.getValue(ENABLED));
             BlockState upState = level.getBlockState(neighborPos.relative(Direction.UP));
             if (upState.is(ModBlocks.SIMPLE_CHUTE.get()) || upState.is(ModBlocks.CHUTE.get())) {
@@ -240,16 +227,14 @@ public class ChuteBlock extends BetterBaseEntityBlock
             }
             if (player instanceof ServerPlayer serverPlayer) {
                 ModMenuTypes.open(serverPlayer, entity, pos);
-                PacketDistributor.sendToPlayer(
-                        serverPlayer, new MachineOutputDirectionPack(entity.getDirection()));
-                PacketDistributor.sendToPlayer(
-                        serverPlayer, new MachineEnableFilterPack(entity.isFilterEnabled()));
+                PacketDistributor.sendToPlayer(serverPlayer, new MachineOutputDirectionPack(entity.getDirection()));
+                PacketDistributor.sendToPlayer(serverPlayer, new MachineEnableFilterPack(entity.isFilterEnabled()));
                 for (int i = 0; i < entity.getFilteredItems().size(); i++) {
                     PacketDistributor.sendToPlayer(
                             serverPlayer,
-                            new SlotDisableChangePack(i, entity.getDepository().getDisabled().get(i)));
-                    PacketDistributor.sendToPlayer(
-                            serverPlayer, new SlotFilterChangePack(i, entity.getFilter(i)));
+                            new SlotDisableChangePack(
+                                    i, entity.getDepository().getDisabled().get(i)));
+                    PacketDistributor.sendToPlayer(serverPlayer, new SlotFilterChangePack(i, entity.getFilter(i)));
                 }
             }
         }
@@ -313,12 +298,10 @@ public class ChuteBlock extends BetterBaseEntityBlock
                 return;
             }
             BlockState newState = ModBlocks.SIMPLE_CHUTE.getDefaultState();
-            newState = newState
-                    .setValue(SimpleChuteBlock.FACING, facingState.getValue(FACING))
+            newState = newState.setValue(SimpleChuteBlock.FACING, facingState.getValue(FACING))
                     .setValue(SimpleChuteBlock.ENABLED, facingState.getValue(ENABLED));
             if (facingState.hasProperty(SimpleChuteBlock.TALL))
-                newState =
-                        newState.setValue(SimpleChuteBlock.TALL, facingState.getValue(SimpleChuteBlock.TALL));
+                newState = newState.setValue(SimpleChuteBlock.TALL, facingState.getValue(SimpleChuteBlock.TALL));
             BlockState facingUpState =
                     level.getBlockState(pos.relative(state.getValue(FACING)).relative(Direction.UP));
             if (state.getValue(FACING) == Direction.DOWN || isFacingDownChute(facingUpState)) {
@@ -331,8 +314,7 @@ public class ChuteBlock extends BetterBaseEntityBlock
         BlockState upState = level.getBlockState(pos.relative(Direction.UP));
         if (upState.is(ModBlocks.MAGNETIC_CHUTE.get())) {
             BlockState newState = ModBlocks.SIMPLE_CHUTE.getDefaultState();
-            newState = newState
-                    .setValue(SimpleChuteBlock.FACING, state.getValue(FACING))
+            newState = newState.setValue(SimpleChuteBlock.FACING, state.getValue(FACING))
                     .setValue(SimpleChuteBlock.ENABLED, state.getValue(ENABLED))
                     .setValue(SimpleChuteBlock.TALL, true);
             level.setBlockAndUpdate(pos, newState);
@@ -348,8 +330,7 @@ public class ChuteBlock extends BetterBaseEntityBlock
 
     @Override
     @SuppressWarnings("deprecation")
-    public int getAnalogOutputSignal(
-            @NotNull BlockState blockState, @NotNull Level level, @NotNull BlockPos blockPos) {
+    public int getAnalogOutputSignal(@NotNull BlockState blockState, @NotNull Level level, @NotNull BlockPos blockPos) {
         BlockEntity blockEntity = level.getBlockEntity(blockPos);
         if (blockEntity instanceof ChuteBlockEntity chuteBlockEntity) {
             return chuteBlockEntity.getRedstoneSignal();

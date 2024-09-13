@@ -16,15 +16,11 @@ import org.jetbrains.annotations.Nullable;
 @Getter
 public class MagneticChuteMenu extends BaseChuteMenu<MagneticChuteBlockEntity> {
     public MagneticChuteMenu(
-            @Nullable MenuType<?> menuType,
-            int containerId,
-            Inventory inventory,
-            @NotNull FriendlyByteBuf extraData) {
+            @Nullable MenuType<?> menuType, int containerId, Inventory inventory, @NotNull FriendlyByteBuf extraData) {
         super(menuType, containerId, inventory, extraData);
     }
 
-    public MagneticChuteMenu(
-            MenuType<?> menuType, int containerId, Inventory inventory, BlockEntity blockEntity) {
+    public MagneticChuteMenu(MenuType<?> menuType, int containerId, Inventory inventory, BlockEntity blockEntity) {
         super(menuType, containerId, inventory, blockEntity);
     }
 

@@ -31,10 +31,7 @@ public class LavaCauldronBlock extends LayeredCauldronBlock implements IHammerRe
 
     @Override
     public void entityInside(
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull Entity entity) {
+            @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Entity entity) {
         if (this.isEntityInsideContent(state, pos, entity)) {
             entity.lavaHurt();
         }

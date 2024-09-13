@@ -40,27 +40,21 @@ public class ItemDepository implements IItemDepository, INamedTagSerializable {
 
     @Override
     public ItemStack insert(
-            int slot,
-            @NotNull ItemStack stack,
-            boolean simulate,
-            boolean notifyChanges,
-            boolean isServer) {
+            int slot, @NotNull ItemStack stack, boolean simulate, boolean notifyChanges, boolean isServer) {
         this.validateSlotIndex(slot);
         if (stack.isEmpty()) return ItemStack.EMPTY;
         if (isServer && !this.isItemValid(slot, stack)) return stack;
         if (!this.canPlaceItem(slot, stack)) return stack;
         ItemStack stackInSlot = this.getStack(slot);
         int limit = this.getSlotLimit(slot);
-        if (!stackInSlot.isEmpty() && !ItemStack.isSameItemSameComponents(stackInSlot, stack))
-            return stack;
+        if (!stackInSlot.isEmpty() && !ItemStack.isSameItemSameComponents(stackInSlot, stack)) return stack;
         limit = Math.min(limit, stackInSlot.getItem().getMaxStackSize(stackInSlot));
         limit -= stackInSlot.getCount();
         if (limit <= 0) return stack;
         boolean reachedLimit = stack.getCount() > limit;
         if (!simulate) {
             if (stackInSlot.isEmpty()) {
-                this.stacks.set(
-                        slot, reachedLimit ? ItemDepositoryHelper.copyStackWithSize(stack, limit) : stack);
+                this.stacks.set(slot, reachedLimit ? ItemDepositoryHelper.copyStackWithSize(stack, limit) : stack);
             } else {
                 stackInSlot.grow(reachedLimit ? limit : stack.getCount());
             }
@@ -68,9 +62,7 @@ public class ItemDepository implements IItemDepository, INamedTagSerializable {
                 this.onContentsChanged(slot);
             }
         }
-        return reachedLimit
-                ? ItemDepositoryHelper.copyStackWithSize(stack, stack.getCount() - limit)
-                : ItemStack.EMPTY;
+        return reachedLimit ? ItemDepositoryHelper.copyStackWithSize(stack, stack.getCount() - limit) : ItemStack.EMPTY;
     }
 
     @Override
@@ -96,8 +88,7 @@ public class ItemDepository implements IItemDepository, INamedTagSerializable {
         } else {
             if (!simulate) {
                 this.stacks.set(
-                        slot,
-                        ItemDepositoryHelper.copyStackWithSize(existing, existing.getCount() - toExtract));
+                        slot, ItemDepositoryHelper.copyStackWithSize(existing, existing.getCount() - toExtract));
                 if (notifyChanges) {
                     onContentsChanged(slot);
                 }
@@ -155,8 +146,7 @@ public class ItemDepository implements IItemDepository, INamedTagSerializable {
 
     protected void validateSlotIndex(int slot) {
         if (slot < 0 || slot >= stacks.size())
-            throw new RuntimeException(
-                    "Slot " + slot + " not in valid range - [0," + stacks.size() + ")");
+            throw new RuntimeException("Slot " + slot + " not in valid range - [0," + stacks.size() + ")");
     }
 
     /**
@@ -203,8 +193,7 @@ public class ItemDepository implements IItemDepository, INamedTagSerializable {
             int countInSlot = Integer.MAX_VALUE;
             for (int i = slotCount - 1; i >= 0; i--) {
                 ItemStack stackInSlot = this.getStack(i);
-                if (!stackInSlot.isEmpty() && !ItemStack.isSameItemSameComponents(stackInSlot, stack))
-                    continue;
+                if (!stackInSlot.isEmpty() && !ItemStack.isSameItemSameComponents(stackInSlot, stack)) continue;
                 int stackInSlotCount = stackInSlot.getCount();
                 if (stackInSlotCount <= countInSlot && stackInSlotCount < this.getSlotLimit(i)) {
                     slot = i;

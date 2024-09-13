@@ -34,8 +34,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @MethodsReturnNonnullByDefault
 public class EmberGrindstone extends BetterGrindstoneBlock implements IHammerRemovable, EmberBlock {
 
-    private static final Component CONTAINER_TITLE =
-            Component.translatable("container.grindstone_title");
+    private static final Component CONTAINER_TITLE = Component.translatable("container.grindstone_title");
     private BlockState checkBlockState;
 
     public EmberGrindstone(Properties properties) {
@@ -60,8 +59,7 @@ public class EmberGrindstone extends BetterGrindstoneBlock implements IHammerRem
     }
 
     @Override
-    public MenuProvider getMenuProvider(
-            @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos) {
+    public MenuProvider getMenuProvider(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos) {
         return new SimpleMenuProvider(
                 (i, inventory, player) ->
                         new EmberGrindstoneMenu(i, inventory, ContainerLevelAccess.create(level, pos)),

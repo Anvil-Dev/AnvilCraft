@@ -53,8 +53,7 @@ public class LightningEventListener {
             Collection<Entry> nearestChargeCollect =
                     ChargeCollectorManager.getInstance(level).getNearestChargeCollect(pos);
             for (var floatChargeCollectorBlockEntityEntry : nearestChargeCollect) {
-                ChargeCollectorBlockEntity blockEntity =
-                        floatChargeCollectorBlockEntityEntry.getBlockEntity();
+                ChargeCollectorBlockEntity blockEntity = floatChargeCollectorBlockEntityEntry.getBlockEntity();
                 if (ChargeCollectorManager.getInstance(level).canCollect(blockEntity, pos)) {
                     unCharged = blockEntity.incomingCharge(unCharged);
                     if (unCharged <= 0) break;

@@ -21,8 +21,7 @@ public class LevelEventListener {
     @SubscribeEvent
     public static void onLevelLoad(@NotNull LevelEvent.Load event) {
         if (event.getLevel() instanceof ServerLevel serverLevel)
-            AnvilCraftBlockPlacer.anvilCraftBlockPlacer =
-                    new AnvilCraftBlockPlacerFakePlayer(serverLevel);
+            AnvilCraftBlockPlacer.anvilCraftBlockPlacer = new AnvilCraftBlockPlacerFakePlayer(serverLevel);
     }
 
     /**

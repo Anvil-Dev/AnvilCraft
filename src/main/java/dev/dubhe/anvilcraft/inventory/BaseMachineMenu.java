@@ -15,8 +15,7 @@ import org.jetbrains.annotations.Nullable;
 public abstract class BaseMachineMenu extends AbstractContainerMenu {
     protected final BlockEntity machine;
 
-    protected BaseMachineMenu(
-            @Nullable MenuType<?> menuType, int containerId, @NotNull BlockEntity machine) {
+    protected BaseMachineMenu(@Nullable MenuType<?> menuType, int containerId, @NotNull BlockEntity machine) {
         super(menuType, containerId);
         this.machine = machine;
     }

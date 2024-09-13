@@ -15,8 +15,7 @@ import lombok.experimental.Accessors;
 
 @Setter
 @Accessors(fluent = true, chain = true)
-public abstract class AbstractItemProcessBuilder<T extends AbstractItemProcessRecipe>
-        extends AbstractRecipeBuilder<T> {
+public abstract class AbstractItemProcessBuilder<T extends AbstractItemProcessRecipe> extends AbstractRecipeBuilder<T> {
     protected NonNullList<Ingredient> ingredients = NonNullList.create();
     protected ItemStack result;
 

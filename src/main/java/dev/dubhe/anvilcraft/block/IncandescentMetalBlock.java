@@ -49,8 +49,7 @@ public class IncandescentMetalBlock extends RedhotMetalBlock {
         BlockState blockState = level.getBlockState(neighborPos);
         if (neighbourState.is(Fluids.WATER) || neighbourState.is(Fluids.FLOWING_WATER)) {
             if (blockState.hasProperty(BlockStateProperties.WATERLOGGED)) {
-                level.setBlock(
-                        neighborPos, blockState.setValue(BlockStateProperties.WATERLOGGED, false), 3);
+                level.setBlock(neighborPos, blockState.setValue(BlockStateProperties.WATERLOGGED, false), 3);
             } else {
                 if (blockState.is(Blocks.WATER)) {
                     level.setBlock(neighborPos, Blocks.AIR.defaultBlockState(), 3);

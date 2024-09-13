@@ -43,27 +43,28 @@ public class ItemCrushRecipe extends AbstractItemProcessRecipe {
     }
 
     public static class Serializer implements RecipeSerializer<ItemCrushRecipe> {
-        private static final MapCodec<ItemCrushRecipe> CODEC =
-                RecordCodecBuilder.mapCodec(ins -> ins.group(
-                                Ingredient.CODEC_NONEMPTY
-                                        .listOf(1, 9)
-                                        .fieldOf("ingredients")
-                                        .flatXmap(
-                                                i -> {
-                                                    Ingredient[] ingredients = i.toArray(Ingredient[]::new);
-                                                    if (ingredients.length == 0) {
-                                                        return DataResult.error(() -> "No ingredients for item_crush recipe");
-                                                    } else {
-                                                        return ingredients.length > 9
-                                                                ? DataResult.error(() ->
+        private static final MapCodec<ItemCrushRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
+                        Ingredient.CODEC_NONEMPTY
+                                .listOf(1, 9)
+                                .fieldOf("ingredients")
+                                .flatXmap(
+                                        i -> {
+                                            Ingredient[] ingredients = i.toArray(Ingredient[]::new);
+                                            if (ingredients.length == 0) {
+                                                return DataResult.error(() -> "No ingredients for item_crush recipe");
+                                            } else {
+                                                return ingredients.length > 9
+                                                        ? DataResult.error(
+                                                                () ->
                                                                         "Too many ingredients for item_crush recipe. The maximum is: 9")
-                                                                : DataResult.success(NonNullList.of(Ingredient.EMPTY, ingredients));
-                                                    }
-                                                },
-                                                DataResult::success)
-                                        .forGetter(ItemCrushRecipe::getIngredients),
-                                ItemStack.CODEC.fieldOf("result").forGetter(ItemCrushRecipe::getResult))
-                        .apply(ins, ItemCrushRecipe::new));
+                                                        : DataResult.success(
+                                                                NonNullList.of(Ingredient.EMPTY, ingredients));
+                                            }
+                                        },
+                                        DataResult::success)
+                                .forGetter(ItemCrushRecipe::getIngredients),
+                        ItemStack.CODEC.fieldOf("result").forGetter(ItemCrushRecipe::getResult))
+                .apply(ins, ItemCrushRecipe::new));
 
         private static final StreamCodec<RegistryFriendlyByteBuf, ItemCrushRecipe> STREAM_CODEC =
                 StreamCodec.of(Serializer::encode, Serializer::decode);

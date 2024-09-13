@@ -16,8 +16,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import org.jetbrains.annotations.NotNull;
 
-public class CreativeGeneratorRenderer
-        implements BlockEntityRenderer<CreativeGeneratorBlockEntity> {
+public class CreativeGeneratorRenderer implements BlockEntityRenderer<CreativeGeneratorBlockEntity> {
     public static final ModelResourceLocation MODEL =
             ModelResourceLocation.standalone(AnvilCraft.of("block/creative_generator_cube"));
 

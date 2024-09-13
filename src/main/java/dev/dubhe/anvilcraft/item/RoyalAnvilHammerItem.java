@@ -32,10 +32,7 @@ public class RoyalAnvilHammerItem extends AnvilHammerItem implements IHasDefault
 
     @Override
     public void appendHoverText(
-            ItemStack pStack,
-            TooltipContext pContext,
-            List<Component> pTooltipComponents,
-            TooltipFlag pTooltipFlag) {
+            ItemStack pStack, TooltipContext pContext, List<Component> pTooltipComponents, TooltipFlag pTooltipFlag) {
         super.appendHoverText(pStack, pContext, pTooltipComponents, pTooltipFlag);
         pTooltipComponents.addAll(this.getDefaultEnchantmentsTooltip());
     }

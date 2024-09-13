@@ -36,15 +36,8 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
     private final Level level;
 
     public BatchCrafterMenu(
-            @Nullable MenuType<?> menuType,
-            int containerId,
-            Inventory inventory,
-            @NotNull FriendlyByteBuf extraData) {
-        this(
-                menuType,
-                containerId,
-                inventory,
-                inventory.player.level().getBlockEntity(extraData.readBlockPos()));
+            @Nullable MenuType<?> menuType, int containerId, Inventory inventory, @NotNull FriendlyByteBuf extraData) {
+        this(menuType, containerId, inventory, inventory.player.level().getBlockEntity(extraData.readBlockPos()));
     }
 
     /**
@@ -55,8 +48,7 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
      * @param inventory   背包
      * @param blockEntity 方块实体
      */
-    public BatchCrafterMenu(
-            MenuType<?> menuType, int containerId, Inventory inventory, BlockEntity blockEntity) {
+    public BatchCrafterMenu(MenuType<?> menuType, int containerId, Inventory inventory, BlockEntity blockEntity) {
         super(menuType, containerId, blockEntity);
         BatchCrafterMenu.checkContainerSize(inventory, 9);
 
@@ -68,8 +60,8 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
 
         for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < 3; ++j) {
-                this.addSlot(new ItemDepositorySlot(
-                        this.blockEntity.getDepository(), i * 3 + j, 26 + j * 18, 18 + i * 18));
+                this.addSlot(
+                        new ItemDepositorySlot(this.blockEntity.getDepository(), i * 3 + j, 26 + j * 18, 18 + i * 18));
             }
         }
 
@@ -102,12 +94,10 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
     private static final int HOTBAR_SLOT_COUNT = 9;
     private static final int PLAYER_INVENTORY_ROW_COUNT = 3;
     private static final int PLAYER_INVENTORY_COLUMN_COUNT = 9;
-    private static final int PLAYER_INVENTORY_SLOT_COUNT =
-            PLAYER_INVENTORY_COLUMN_COUNT * PLAYER_INVENTORY_ROW_COUNT;
+    private static final int PLAYER_INVENTORY_SLOT_COUNT = PLAYER_INVENTORY_COLUMN_COUNT * PLAYER_INVENTORY_ROW_COUNT;
     private static final int VANILLA_SLOT_COUNT = HOTBAR_SLOT_COUNT + PLAYER_INVENTORY_SLOT_COUNT;
     private static final int VANILLA_FIRST_SLOT_INDEX = 0;
-    private static final int TE_INVENTORY_FIRST_SLOT_INDEX =
-            VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
+    private static final int TE_INVENTORY_FIRST_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
 
     // THIS YOU HAVE TO DEFINE!
     private static final int TE_INVENTORY_SLOT_COUNT = 9; // must be the number of slots you have!
@@ -128,10 +118,7 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
         } else if (index < TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT) {
             // This is a TE slot so merge the stack into the players inventory
             if (!moveItemStackTo(
-                    sourceStack,
-                    VANILLA_FIRST_SLOT_INDEX,
-                    VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT,
-                    false)) {
+                    sourceStack, VANILLA_FIRST_SLOT_INDEX, VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT, false)) {
                 return ItemStack.EMPTY;
             }
         } else {
@@ -181,9 +168,7 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
     @Override
     public boolean stillValid(@NotNull Player player) {
         return stillValid(
-                ContainerLevelAccess.create(level, blockEntity.getBlockPos()),
-                player,
-                ModBlocks.BATCH_CRAFTER.get());
+                ContainerLevelAccess.create(level, blockEntity.getBlockPos()), player, ModBlocks.BATCH_CRAFTER.get());
     }
 
     @Override
@@ -222,8 +207,7 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
     }
 
     @Override
-    public void dataChanged(
-            @NotNull AbstractContainerMenu containerMenu, int dataSlotIndex, int value) {}
+    public void dataChanged(@NotNull AbstractContainerMenu containerMenu, int dataSlotIndex, int value) {}
 
     @Override
     public void flush() {

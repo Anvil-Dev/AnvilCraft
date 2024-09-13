@@ -33,26 +33,18 @@ public class VillagerEventListener {
         if (event.getType() == ModVillagers.JEWELER.get()) {
             Int2ObjectMap<List<VillagerTrades.ItemListing>> trades = event.getTrades();
             // level 1
-            trades
-                    .get(1)
+            trades.get(1)
                     .add((entity, random) -> new MerchantOffer(
-                            new ItemCost(Items.AMETHYST_SHARD, 4),
-                            new ItemStack(Items.EMERALD, 1),
-                            16,
-                            2,
-                            0.05f));
-            trades
-                    .get(1)
+                            new ItemCost(Items.AMETHYST_SHARD, 4), new ItemStack(Items.EMERALD, 1), 16, 2, 0.05f));
+            trades.get(1)
                     .add((entity, random) -> new MerchantOffer(
                             new ItemCost(Items.EMERALD, 1), new ItemStack(Items.TINTED_GLASS, 1), 12, 4, 0.05f));
 
             // level 2
-            trades
-                    .get(2)
+            trades.get(2)
                     .add((entity, random) -> new MerchantOffer(
                             new ItemCost(Items.SEA_LANTERN, 8), new ItemStack(Items.EMERALD, 1), 12, 10, 0.05f));
-            trades
-                    .get(2)
+            trades.get(2)
                     .add((entity, random) -> new MerchantOffer(
                             new ItemCost(ModItems.AMBER, 4), new ItemStack(Items.EMERALD, 1), 16, 5, 0.05f));
 
@@ -66,8 +58,7 @@ public class VillagerEventListener {
                         };
                 return new MerchantOffer(cost, new ItemStack(Items.EMERALD, 8), 8, 10, 0.05f);
             });
-            trades
-                    .get(3)
+            trades.get(3)
                     .add((entity, random) -> new MerchantOffer(
                             new ItemCost(Items.EMERALD, 40),
                             Optional.of(new ItemCost(ModItems.ROYAL_STEEL_INGOT, 4)),
@@ -77,8 +68,7 @@ public class VillagerEventListener {
                             0.05f));
 
             // level 4
-            trades
-                    .get(4)
+            trades.get(4)
                     .add((entity, random) -> new MerchantOffer(
                             new ItemCost(Items.NAUTILUS_SHELL),
                             Optional.of(new ItemCost(Items.BARRIER)),
@@ -86,8 +76,7 @@ public class VillagerEventListener {
                             12,
                             10,
                             0.05f));
-            trades
-                    .get(4)
+            trades.get(4)
                     .add((entity, random) -> ((int) (random.nextDouble() * 2)) == 1
                             ? new MerchantOffer(
                                     new ItemCost(ModBlocks.MOB_AMBER_BLOCK),
@@ -105,8 +94,7 @@ public class VillagerEventListener {
                                     0.05f));
 
             // level 5
-            trades
-                    .get(5)
+            trades.get(5)
                     .add((entity, random) -> new MerchantOffer(
                             new ItemCost(Items.EMERALD, 64),
                             Optional.of(new ItemCost(Blocks.SMOOTH_BASALT, 32)),
@@ -114,8 +102,7 @@ public class VillagerEventListener {
                             4,
                             30,
                             0.05f));
-            trades
-                    .get(5)
+            trades.get(5)
                     .add((entity, random) -> new MerchantOffer(
                             new ItemCost(Items.EMERALD, 64),
                             Optional.of(new ItemCost(Items.TOTEM_OF_UNDYING)),

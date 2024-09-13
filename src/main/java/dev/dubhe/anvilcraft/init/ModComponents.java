@@ -29,8 +29,7 @@ public class ModComponents {
             register("heliostats_data", b -> b.persistent(HeliostatsItem.HeliostatsData.CODEC)
                     .networkSynchronized(HeliostatsItem.HeliostatsData.STREAM_CODEC));
 
-    private static <T> DataComponentType<T> register(
-            String name, Consumer<DataComponentType.Builder<T>> customizer) {
+    private static <T> DataComponentType<T> register(String name, Consumer<DataComponentType.Builder<T>> customizer) {
         var builder = DataComponentType.<T>builder();
         customizer.accept(builder);
         var componentType = builder.build();

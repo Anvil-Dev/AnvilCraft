@@ -57,11 +57,7 @@ abstract class ItemInHandRendererMixin {
 
     @Redirect(
             method = "renderArmWithItem",
-            at =
-                    @At(
-                            value = "INVOKE",
-                            target = "Lnet/minecraft/world/item/ItemStack;isEmpty()Z",
-                            ordinal = 0))
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;isEmpty()Z", ordinal = 0))
     private boolean isEmpty(ItemStack instance) {
         if (this.offHandItem.is(ModItems.CRAB_CLAW.get())) return false;
         return instance.isEmpty();
@@ -91,8 +87,7 @@ abstract class ItemInHandRendererMixin {
             MultiBufferSource buffer,
             int combinedLight,
             CallbackInfo ci) {
-        if (this.offHandItem.is(ModItems.CRAB_CLAW.get())
-                && !this.mainHandItem.is(ModItems.CRAB_CLAW.get())) {
+        if (this.offHandItem.is(ModItems.CRAB_CLAW.get()) && !this.mainHandItem.is(ModItems.CRAB_CLAW.get())) {
             if (hand == InteractionHand.OFF_HAND) {
                 poseStack.popPose();
                 ci.cancel();

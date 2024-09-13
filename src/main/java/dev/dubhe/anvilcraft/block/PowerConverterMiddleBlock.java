@@ -31,8 +31,7 @@ public class PowerConverterMiddleBlock extends BasePowerConverterBlock implement
     }
 
     @Override
-    public VoxelShape getShape(
-            BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return switch (state.getValue(FACING)) {
             case UP -> SHAPE_UP;
             case DOWN -> SHAPE_DOWN;

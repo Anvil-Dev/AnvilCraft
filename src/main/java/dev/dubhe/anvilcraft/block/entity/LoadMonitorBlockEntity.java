@@ -74,7 +74,8 @@ public class LoadMonitorBlockEntity extends BlockEntity implements IPowerConsume
             // 满载
             if (getGrid().getConsume() > getGrid().getGenerate()) return;
             int load = getGrid().getConsume() != 0
-                    ? (int) Math.ceil((double) getGrid().getConsume() / getGrid().getGenerate() * 10)
+                    ? (int) Math.ceil(
+                            (double) getGrid().getConsume() / getGrid().getGenerate() * 10)
                     : 0;
             BlockState state = getBlockState().setValue(LoadMonitorBlock.LOAD, load);
             getLevel().setBlockAndUpdate(getBlockPos(), state);

@@ -160,14 +160,12 @@ public class ModItems {
                     .define('A', Items.ANVIL)
                     .define('B', Items.LIGHTNING_ROD)
                     .define('C', Items.IRON_INGOT)
-                    .unlockedBy(
-                            AnvilCraftDatagen.hasItem(Items.ANVIL), RegistrateRecipeProvider.has(Items.ANVIL))
+                    .unlockedBy(AnvilCraftDatagen.hasItem(Items.ANVIL), RegistrateRecipeProvider.has(Items.ANVIL))
                     .unlockedBy(
                             AnvilCraftDatagen.hasItem(Items.LIGHTNING_ROD),
                             RegistrateRecipeProvider.has(Items.LIGHTNING_ROD))
                     .unlockedBy(
-                            AnvilCraftDatagen.hasItem(Items.IRON_INGOT),
-                            RegistrateRecipeProvider.has(Items.IRON_INGOT))
+                            AnvilCraftDatagen.hasItem(Items.IRON_INGOT), RegistrateRecipeProvider.has(Items.IRON_INGOT))
                     .save(provider))
             .register();
 
@@ -181,14 +179,12 @@ public class ModItems {
             .model((ctx, provider) -> {})
             .register();
     // 升级模板
-    public static final ItemEntry<RoyalUpgradeTemplateItem> ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE =
-            REGISTRATE
-                    .item("royal_steel_upgrade_smithing_template", RoyalUpgradeTemplateItem::new)
-                    .register();
-    public static final ItemEntry<EmberMetalUpgradeTemplateItem>
-            EMBER_METAL_UPGRADE_SMITHING_TEMPLATE = REGISTRATE
-                    .item("ember_metal_upgrade_smithing_template", EmberMetalUpgradeTemplateItem::new)
-                    .register();
+    public static final ItemEntry<RoyalUpgradeTemplateItem> ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE = REGISTRATE
+            .item("royal_steel_upgrade_smithing_template", RoyalUpgradeTemplateItem::new)
+            .register();
+    public static final ItemEntry<EmberMetalUpgradeTemplateItem> EMBER_METAL_UPGRADE_SMITHING_TEMPLATE = REGISTRATE
+            .item("ember_metal_upgrade_smithing_template", EmberMetalUpgradeTemplateItem::new)
+            .register();
 
     public static final ItemEntry<DiskItem> DISK = REGISTRATE
             .item("disk", DiskItem::new)
@@ -204,8 +200,7 @@ public class ModItems {
                             AnvilCraftDatagen.hasItem(ModItems.HARDEND_RESIN),
                             RegistrateRecipeProvider.has(ModItems.HARDEND_RESIN))
                     .unlockedBy(
-                            AnvilCraftDatagen.hasItem(Items.IRON_INGOT),
-                            RegistrateRecipeProvider.has(Items.IRON_INGOT))
+                            AnvilCraftDatagen.hasItem(Items.IRON_INGOT), RegistrateRecipeProvider.has(Items.IRON_INGOT))
                     .unlockedBy(
                             AnvilCraftDatagen.hasItem(ModItems.MAGNET_INGOT),
                             RegistrateRecipeProvider.has(ModItems.MAGNET_INGOT))
@@ -723,8 +718,7 @@ public class ModItems {
                         .save(provider);
                 ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, Items.COPPER_INGOT)
                         .requires(ctx.get(), 9)
-                        .unlockedBy(
-                                AnvilCraftDatagen.hasItem(ctx.get()), RegistrateRecipeProvider.has(ctx.get()))
+                        .unlockedBy(AnvilCraftDatagen.hasItem(ctx.get()), RegistrateRecipeProvider.has(ctx.get()))
                         .save(provider);
             })
             .register();
@@ -804,8 +798,7 @@ public class ModItems {
             .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
                     .requires(ModBlocks.RAW_ZINC)
                     .unlockedBy(
-                            AnvilCraftDatagen.hasItem(ModBlocks.RAW_ZINC),
-                            AnvilCraftDatagen.has(ModBlocks.RAW_ZINC))
+                            AnvilCraftDatagen.hasItem(ModBlocks.RAW_ZINC), AnvilCraftDatagen.has(ModBlocks.RAW_ZINC))
                     .save(provider))
             .register();
     public static final ItemEntry<Item> RAW_TIN = REGISTRATE
@@ -813,18 +806,12 @@ public class ModItems {
             .tag(ModItemTags.RAW_ORES, ModItemTags.RAW_ORES, ModItemTags.RAW_TIN, ModItemTags.RAW_TIN)
             .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
                     .requires(ModBlocks.RAW_TIN)
-                    .unlockedBy(
-                            AnvilCraftDatagen.hasItem(ModBlocks.RAW_TIN),
-                            AnvilCraftDatagen.has(ModBlocks.RAW_TIN))
+                    .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.RAW_TIN), AnvilCraftDatagen.has(ModBlocks.RAW_TIN))
                     .save(provider))
             .register();
     public static final ItemEntry<Item> RAW_TITANIUM = REGISTRATE
             .item("raw_titanium", Item::new)
-            .tag(
-                    ModItemTags.RAW_ORES,
-                    ModItemTags.RAW_ORES,
-                    ModItemTags.RAW_TITANIUM,
-                    ModItemTags.RAW_TITANIUM)
+            .tag(ModItemTags.RAW_ORES, ModItemTags.RAW_ORES, ModItemTags.RAW_TITANIUM, ModItemTags.RAW_TITANIUM)
             .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
                     .requires(ModBlocks.RAW_TITANIUM)
                     .unlockedBy(
@@ -835,11 +822,7 @@ public class ModItems {
     public static final ItemEntry<Item> RAW_TUNGSTEN = REGISTRATE
             .item("raw_tungsten", Item::new)
             .initialProperties(() -> new Item.Properties().fireResistant())
-            .tag(
-                    ModItemTags.RAW_ORES,
-                    ModItemTags.RAW_ORES,
-                    ModItemTags.RAW_TUNGSTEN,
-                    ModItemTags.RAW_TUNGSTEN)
+            .tag(ModItemTags.RAW_ORES, ModItemTags.RAW_ORES, ModItemTags.RAW_TUNGSTEN, ModItemTags.RAW_TUNGSTEN)
             .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
                     .requires(ModBlocks.RAW_TUNGSTEN)
                     .unlockedBy(
@@ -853,17 +836,12 @@ public class ModItems {
             .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
                     .requires(ModBlocks.RAW_LEAD)
                     .unlockedBy(
-                            AnvilCraftDatagen.hasItem(ModBlocks.RAW_LEAD),
-                            AnvilCraftDatagen.has(ModBlocks.RAW_LEAD))
+                            AnvilCraftDatagen.hasItem(ModBlocks.RAW_LEAD), AnvilCraftDatagen.has(ModBlocks.RAW_LEAD))
                     .save(provider))
             .register();
     public static final ItemEntry<Item> RAW_SILVER = REGISTRATE
             .item("raw_silver", Item::new)
-            .tag(
-                    ModItemTags.RAW_ORES,
-                    ModItemTags.RAW_ORES,
-                    ModItemTags.RAW_SILVER,
-                    ModItemTags.RAW_SILVER)
+            .tag(ModItemTags.RAW_ORES, ModItemTags.RAW_ORES, ModItemTags.RAW_SILVER, ModItemTags.RAW_SILVER)
             .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
                     .requires(ModBlocks.RAW_SILVER)
                     .unlockedBy(
@@ -873,11 +851,7 @@ public class ModItems {
             .register();
     public static final ItemEntry<Item> RAW_URANIUM = REGISTRATE
             .item("raw_uranium", Item::new)
-            .tag(
-                    ModItemTags.RAW_ORES,
-                    ModItemTags.RAW_ORES,
-                    ModItemTags.RAW_URANIUM,
-                    ModItemTags.RAW_URANIUM)
+            .tag(ModItemTags.RAW_ORES, ModItemTags.RAW_ORES, ModItemTags.RAW_URANIUM, ModItemTags.RAW_URANIUM)
             .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
                     .requires(ModBlocks.RAW_URANIUM)
                     .unlockedBy(

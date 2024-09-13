@@ -49,8 +49,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
-public class InductionLightBlock extends BetterBaseEntityBlock
-        implements IHammerRemovable, SimpleWaterloggedBlock {
+public class InductionLightBlock extends BetterBaseEntityBlock implements IHammerRemovable, SimpleWaterloggedBlock {
 
     public static final VoxelShape SHAPE_X = Block.box(0, 6, 6, 16, 10, 10);
     public static final VoxelShape SHAPE_Y = Block.box(6, 0, 6, 10, 16, 10);
@@ -60,8 +59,7 @@ public class InductionLightBlock extends BetterBaseEntityBlock
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
     public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.AXIS;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
-    public static final EnumProperty<LightColor> COLOR =
-            EnumProperty.create("color", LightColor.class);
+    public static final EnumProperty<LightColor> COLOR = EnumProperty.create("color", LightColor.class);
 
     /**
      *
@@ -115,14 +113,16 @@ public class InductionLightBlock extends BetterBaseEntityBlock
                 .setValue(AXIS, context.getClickedFace().getAxis())
                 .setValue(
                         WATERLOGGED,
-                        context.getLevel().getFluidState(context.getClickedPos()).getType() == Fluids.WATER)
+                        context.getLevel()
+                                        .getFluidState(context.getClickedPos())
+                                        .getType()
+                                == Fluids.WATER)
                 .setValue(COLOR, LightColor.PRIMARY);
     }
 
     @Nullable @Override
     public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
-        return InductionLightBlockEntity.createBlockEntity(
-                ModBlockEntities.INDUCTION_LIGHT.get(), pos, state);
+        return InductionLightBlockEntity.createBlockEntity(ModBlockEntities.INDUCTION_LIGHT.get(), pos, state);
     }
 
     @Override

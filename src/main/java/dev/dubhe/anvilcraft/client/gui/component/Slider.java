@@ -18,8 +18,7 @@ import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 public class Slider extends AbstractWidget {
-    public static final ResourceLocation SLIDER =
-            AnvilCraft.of("textures/gui/container/slider/slider.png");
+    public static final ResourceLocation SLIDER = AnvilCraft.of("textures/gui/container/slider/slider.png");
 
     @Setter
     @Getter
@@ -84,8 +83,7 @@ public class Slider extends AbstractWidget {
     }
 
     @Override
-    public boolean mouseDragged(
-            double mouseX, double mouseY, int button, double dragX, double dragY) {
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
         if (button == 0) {
             this.onDrag(mouseX, mouseY, dragX, dragY);
             return true;
@@ -135,8 +133,7 @@ public class Slider extends AbstractWidget {
     }
 
     @Override
-    protected void renderWidget(
-            @NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         int offsetX = posX + (int) ((length - 16) * this.getProportion());
         guiGraphics.blit(SLIDER, offsetX, posY, 0, this.isHovered ? 8 : 0, 16, 8, 16, 16);
     }
@@ -147,7 +144,8 @@ public class Slider extends AbstractWidget {
     private void updateTooltip() {
         if (this.getTooltip() == null) return;
         boolean bl = this.isHovered
-                || this.isFocused() && Minecraft.getInstance().getLastInputType().isKeyboard();
+                || this.isFocused()
+                        && Minecraft.getInstance().getLastInputType().isKeyboard();
         if (bl != this.wasHoveredOrFocused) {
             if (bl) this.hoverOrFocusedStartTime = Util.getMillis();
             this.wasHoveredOrFocused = bl;
@@ -156,8 +154,7 @@ public class Slider extends AbstractWidget {
         if (bl
                 && Util.getMillis() - this.hoverOrFocusedStartTime > (long) this.tooltipMsDelay
                 && (screen = Minecraft.getInstance().screen) != null) {
-            screen.setTooltipForNextRenderPass(
-                    this.getTooltip(), DefaultTooltipPositioner.INSTANCE, this.isFocused());
+            screen.setTooltipForNextRenderPass(this.getTooltip(), DefaultTooltipPositioner.INSTANCE, this.isFocused());
         }
     }
 }

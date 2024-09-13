@@ -112,18 +112,14 @@ public class BlockCompressRecipe implements Recipe<BlockCompressRecipe.Input> {
     }
 
     public static class Serializer implements RecipeSerializer<BlockCompressRecipe> {
-        private static final MapCodec<BlockCompressRecipe> CODEC =
-                RecordCodecBuilder.mapCodec(ins -> ins.group(
-                                Codec.STRING
-                                        .listOf(1, 9)
-                                        .fieldOf("inputs")
-                                        .forGetter(recipe -> recipe.inputs.stream()
-                                                .map(b -> BuiltInRegistries.BLOCK.getKey(b).toString())
-                                                .toList()),
-                                Codec.STRING.fieldOf("result").forGetter(recipe -> BuiltInRegistries.BLOCK
-                                        .getKey(recipe.result)
-                                        .toString()))
-                        .apply(ins, BlockCompressRecipe::new));
+        private static final MapCodec<BlockCompressRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
+                        Codec.STRING.listOf(1, 9).fieldOf("inputs").forGetter(recipe -> recipe.inputs.stream()
+                                .map(b -> BuiltInRegistries.BLOCK.getKey(b).toString())
+                                .toList()),
+                        Codec.STRING.fieldOf("result").forGetter(recipe -> BuiltInRegistries.BLOCK
+                                .getKey(recipe.result)
+                                .toString()))
+                .apply(ins, BlockCompressRecipe::new));
 
         private static final StreamCodec<RegistryFriendlyByteBuf, BlockCompressRecipe> STREAM_CODEC =
                 StreamCodec.composite(

@@ -7,8 +7,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
-public class MagneticChuteScreen
-        extends BaseChuteScreen<MagneticChuteBlockEntity, MagneticChuteMenu> {
+public class MagneticChuteScreen extends BaseChuteScreen<MagneticChuteBlockEntity, MagneticChuteMenu> {
 
     public MagneticChuteScreen(MagneticChuteMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);

@@ -97,22 +97,25 @@ public class BlockCrushRecipe implements Recipe<BlockCrushRecipe.Input> {
     }
 
     public static class Serializer implements RecipeSerializer<BlockCrushRecipe> {
-        private static final MapCodec<BlockCrushRecipe> CODEC =
-                RecordCodecBuilder.mapCodec(ins -> ins.group(
-                                Codec.STRING.fieldOf("input").forGetter(recipe -> BuiltInRegistries.BLOCK
-                                        .getKey(recipe.input)
-                                        .toString()),
-                                Codec.STRING.fieldOf("result").forGetter(recipe -> BuiltInRegistries.BLOCK
-                                        .getKey(recipe.result)
-                                        .toString()))
-                        .apply(ins, BlockCrushRecipe::new));
+        private static final MapCodec<BlockCrushRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
+                        Codec.STRING.fieldOf("input").forGetter(recipe -> BuiltInRegistries.BLOCK
+                                .getKey(recipe.input)
+                                .toString()),
+                        Codec.STRING.fieldOf("result").forGetter(recipe -> BuiltInRegistries.BLOCK
+                                .getKey(recipe.result)
+                                .toString()))
+                .apply(ins, BlockCrushRecipe::new));
 
         private static final StreamCodec<RegistryFriendlyByteBuf, BlockCrushRecipe> STREAM_CODEC =
                 StreamCodec.composite(
                         ByteBufCodecs.STRING_UTF8,
-                        recipe -> BuiltInRegistries.BLOCK.getKey(recipe.getInput()).toString(),
+                        recipe -> BuiltInRegistries.BLOCK
+                                .getKey(recipe.getInput())
+                                .toString(),
                         ByteBufCodecs.STRING_UTF8,
-                        recipe -> BuiltInRegistries.BLOCK.getKey(recipe.getResult()).toString(),
+                        recipe -> BuiltInRegistries.BLOCK
+                                .getKey(recipe.getResult())
+                                .toString(),
                         BlockCrushRecipe::new);
 
         @Override

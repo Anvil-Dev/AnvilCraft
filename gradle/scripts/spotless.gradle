@@ -10,8 +10,7 @@ spotless {
     java {
         target 'src/*/java/**/*.java'
 
-        palantirJavaFormat("2.50.0").style("GOOGLE")
-        indentWithTabs(2)
+        palantirJavaFormat("2.50.0")
         indentWithSpaces(4)
 
         // Must be after Google Format, see https://github.com/diffplug/spotless/issues/1407

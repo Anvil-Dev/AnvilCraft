@@ -61,9 +61,7 @@ public interface IBlockHighlightUtil {
         if (level == null) return;
         SUBCHUNKS.put(
                 new Vector3i(
-                        Math.floorDiv(pos.getX(), 16),
-                        Math.floorDiv(pos.getY(), 16),
-                        Math.floorDiv(pos.getZ(), 16)),
+                        Math.floorDiv(pos.getX(), 16), Math.floorDiv(pos.getY(), 16), Math.floorDiv(pos.getZ(), 16)),
                 level.getGameTime());
     }
 
@@ -76,10 +74,7 @@ public interface IBlockHighlightUtil {
      * @param camera    相机
      */
     static void render(
-            Level level,
-            @NotNull MultiBufferSource consumers,
-            @NotNull PoseStack poseStack,
-            @NotNull Camera camera) {
+            Level level, @NotNull MultiBufferSource consumers, @NotNull PoseStack poseStack, @NotNull Camera camera) {
         VertexConsumer consumer = consumers.getBuffer(IBlockHighlightUtil.NO_DEPTH);
         Vec3 cameraPos = camera.getPosition();
         int color = 0xFF8932B8;

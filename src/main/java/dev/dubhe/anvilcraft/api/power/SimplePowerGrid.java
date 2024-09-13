@@ -60,7 +60,8 @@ public class SimplePowerGrid {
         this.hash = hash;
         this.generate = generate;
         this.consume = consume;
-        blocks.addAll(powerComponentInfoList.stream().map(PowerComponentInfo::pos).toList());
+        blocks.addAll(
+                powerComponentInfoList.stream().map(PowerComponentInfo::pos).toList());
         this.powerComponentInfoList.addAll(powerComponentInfoList);
     }
 
@@ -78,7 +79,9 @@ public class SimplePowerGrid {
      * 获得指定坐标的电网元件信息
      */
     public Optional<PowerComponentInfo> getInfoForPos(BlockPos pos) {
-        return powerComponentInfoList.stream().filter(it -> it.pos().equals(pos)).findFirst();
+        return powerComponentInfoList.stream()
+                .filter(it -> it.pos().equals(pos))
+                .findFirst();
     }
 
     /**
@@ -109,24 +112,12 @@ public class SimplePowerGrid {
                 case CONSUMER -> {
                     IPowerConsumer it = (IPowerConsumer) component;
                     powerComponentInfoList.add(new PowerComponentInfo(
-                            it.getPos(),
-                            it.getInputPower(),
-                            0,
-                            0,
-                            0,
-                            it.getRange(),
-                            PowerComponentType.CONSUMER));
+                            it.getPos(), it.getInputPower(), 0, 0, 0, it.getRange(), PowerComponentType.CONSUMER));
                 }
                 case PRODUCER -> {
                     IPowerProducer it = (IPowerProducer) component;
                     powerComponentInfoList.add(new PowerComponentInfo(
-                            it.getPos(),
-                            0,
-                            it.getOutputPower(),
-                            0,
-                            0,
-                            it.getRange(),
-                            PowerComponentType.PRODUCER));
+                            it.getPos(), 0, it.getOutputPower(), 0, 0, it.getRange(), PowerComponentType.PRODUCER));
                 }
 
                 case TRANSMITTER -> {
@@ -149,12 +140,7 @@ public class SimplePowerGrid {
     public VoxelShape getShape() {
         return this.powerComponentInfoList.stream()
                 .map(it -> Shapes.box(
-                                -it.range(),
-                                -it.range(),
-                                -it.range(),
-                                it.range() + 1,
-                                it.range() + 1,
-                                it.range() + 1)
+                                -it.range(), -it.range(), -it.range(), it.range() + 1, it.range() + 1, it.range() + 1)
                         .move(
                                 this.offset(it.pos()).getX(),
                                 this.offset(it.pos()).getY(),

@@ -59,8 +59,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
      * tick 逻辑
      */
     @SuppressWarnings("unused")
-    public static void tick(
-            Level pLevel, BlockPos pPos, BlockState pState, CorruptedBeaconBlockEntity pBlockEntity) {
+    public static void tick(Level pLevel, BlockPos pPos, BlockState pState, CorruptedBeaconBlockEntity pBlockEntity) {
         int i = pPos.getX();
         int j = pPos.getY();
         int k = pPos.getZ();
@@ -73,9 +72,8 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
             blockpos = new BlockPos(i, pBlockEntity.lastCheckY + 1, k);
         }
 
-        BeaconBeamSection beamSection = pBlockEntity.checkingBeamSections.isEmpty()
-                ? null
-                : pBlockEntity.checkingBeamSections.getLast();
+        BeaconBeamSection beamSection =
+                pBlockEntity.checkingBeamSections.isEmpty() ? null : pBlockEntity.checkingBeamSections.getLast();
         int l = pLevel.getHeight(Heightmap.Types.WORLD_SURFACE, i, k);
 
         for (int i1 = 0; i1 < 10 && blockpos.getY() <= l; i1++) {

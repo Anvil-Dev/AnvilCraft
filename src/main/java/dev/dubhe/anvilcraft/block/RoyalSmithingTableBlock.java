@@ -27,11 +27,9 @@ public class RoyalSmithingTableBlock extends SmithingTableBlock implements IHamm
     }
 
     @Override
-    public MenuProvider getMenuProvider(
-            @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos) {
+    public MenuProvider getMenuProvider(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos) {
         return new SimpleMenuProvider(
-                (i, inventory, player) ->
-                        new RoyalSmithingMenu(i, inventory, ContainerLevelAccess.create(level, pos)),
+                (i, inventory, player) -> new RoyalSmithingMenu(i, inventory, ContainerLevelAccess.create(level, pos)),
                 CONTAINER_TITLE);
     }
 }

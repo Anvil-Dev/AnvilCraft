@@ -31,8 +31,7 @@ public class MagnetItem extends Item implements IChargerChargeable {
         AABB aabb = new AABB(
                 player.position().add(-radius, -radius, -radius),
                 player.position().add(radius, radius, radius));
-        level
-                .getEntities(EntityTypeTest.forClass(ItemEntity.class), aabb, Entity::isAlive)
+        level.getEntities(EntityTypeTest.forClass(ItemEntity.class), aabb, Entity::isAlive)
                 .forEach(e -> e.moveTo(player.position()));
         item.hurtAndBreak(1, player, Utils.convertToSlot(usedHand));
         return InteractionResultHolder.sidedSuccess(item, level.isClientSide());

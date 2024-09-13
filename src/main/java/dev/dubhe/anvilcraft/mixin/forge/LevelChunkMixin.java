@@ -31,8 +31,7 @@ abstract class LevelChunkMixin {
             at =
                     @At(
                             value = "INVOKE",
-                            target =
-                                    "Ljava/util/Map;put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;"))
+                            target = "Ljava/util/Map;put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;"))
     private void onLoadBlockEntity(BlockEntity entity, CallbackInfo ci) {
         if (this.getLevel().isClientSide) return;
         NeoForge.EVENT_BUS.post(new BlockEntityEvent.ServerLoad(this.getLevel(), entity));
@@ -40,10 +39,7 @@ abstract class LevelChunkMixin {
 
     @Inject(
             method = "setBlockEntity",
-            at =
-                    @At(
-                            value = "INVOKE",
-                            target = "Lnet/minecraft/world/level/block/entity/BlockEntity;setRemoved()V"),
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/entity/BlockEntity;setRemoved()V"),
             locals = LocalCapture.CAPTURE_FAILEXCEPTION)
     private void onRemoveBlockEntity(
             BlockEntity pBlockEntity,
@@ -79,10 +75,7 @@ abstract class LevelChunkMixin {
 
     @Inject(
             method = "removeBlockEntity",
-            at =
-                    @At(
-                            value = "INVOKE",
-                            target = "Lnet/minecraft/world/level/block/entity/BlockEntity;setRemoved()V"),
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/entity/BlockEntity;setRemoved()V"),
             locals = LocalCapture.CAPTURE_FAILEXCEPTION)
     private void onRemoveBlockEntity(BlockPos pos, CallbackInfo ci, BlockEntity removed) {
         if (this.getLevel().isClientSide) return;

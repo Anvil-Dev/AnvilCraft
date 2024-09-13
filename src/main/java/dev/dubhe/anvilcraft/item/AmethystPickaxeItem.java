@@ -19,17 +19,12 @@ public class AmethystPickaxeItem extends PickaxeItem {
         /**
          *
          */
-        super(
-                ModTiers.AMETHYST,
-                properties.attributes(AxeItem.createAttributes(ModTiers.AMETHYST, 1, -2.8f)));
+        super(ModTiers.AMETHYST, properties.attributes(AxeItem.createAttributes(ModTiers.AMETHYST, 1, -2.8f)));
     }
 
     @Override
     public void appendHoverText(
-            ItemStack pStack,
-            TooltipContext pContext,
-            List<Component> pTooltipComponents,
-            TooltipFlag pTooltipFlag) {
+            ItemStack pStack, TooltipContext pContext, List<Component> pTooltipComponents, TooltipFlag pTooltipFlag) {
         super.appendHoverText(pStack, pContext, pTooltipComponents, pTooltipFlag);
         pTooltipComponents.add(Component.translatable("item.anvilcraft.amethyst_pickaxe.tooltip")
                 .withStyle(ChatFormatting.GRAY));

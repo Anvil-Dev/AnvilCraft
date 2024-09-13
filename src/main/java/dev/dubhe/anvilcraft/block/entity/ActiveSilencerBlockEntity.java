@@ -38,8 +38,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-public class ActiveSilencerBlockEntity extends BlockEntity
-        implements MenuProvider, SoundEventListener, IDiskCloneable {
+public class ActiveSilencerBlockEntity extends BlockEntity implements MenuProvider, SoundEventListener, IDiskCloneable {
     public static final Codec<List<ResourceLocation>> CODEC =
             ResourceLocation.CODEC.listOf().fieldOf("mutedSound").codec();
 
@@ -66,8 +65,9 @@ public class ActiveSilencerBlockEntity extends BlockEntity
     @Override
     public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
-        mutedSound.addAll(
-                CODEC.decode(NbtOps.INSTANCE, tag.get("MutedSound")).getOrThrow().getFirst());
+        mutedSound.addAll(CODEC.decode(NbtOps.INSTANCE, tag.get("MutedSound"))
+                .getOrThrow()
+                .getFirst());
     }
 
     @Nullable @Override
@@ -101,8 +101,7 @@ public class ActiveSilencerBlockEntity extends BlockEntity
     }
 
     @Nullable @Override
-    public AbstractContainerMenu createMenu(
-            int i, @NotNull Inventory inventory, @NotNull Player player) {
+    public AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
         return new ActiveSilencerMenu(ModMenuTypes.ACTIVE_SILENCER.get(), i, inventory, this);
     }
 
@@ -140,7 +139,8 @@ public class ActiveSilencerBlockEntity extends BlockEntity
 
     @Override
     public void applyDiskData(CompoundTag data) {
-        mutedSound.addAll(
-                CODEC.decode(NbtOps.INSTANCE, data.get("MutedSound")).getOrThrow().getFirst());
+        mutedSound.addAll(CODEC.decode(NbtOps.INSTANCE, data.get("MutedSound"))
+                .getOrThrow()
+                .getFirst());
     }
 }

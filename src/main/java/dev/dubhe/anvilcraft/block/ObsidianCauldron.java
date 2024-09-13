@@ -34,8 +34,7 @@ public class ObsidianCauldron extends BetterAbstractCauldronBlock implements IHa
     }
 
     @Override
-    public int getAnalogOutputSignal(
-            @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos) {
+    public int getAnalogOutputSignal(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos) {
         return 3;
     }
 }

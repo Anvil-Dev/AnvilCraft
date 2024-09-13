@@ -12,8 +12,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 public class ModLootTableProvider extends LootTableProvider {
-    public ModLootTableProvider(
-            PackOutput output, CompletableFuture<HolderLookup.Provider> provider) {
+    public ModLootTableProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> provider) {
         super(
                 output,
                 Set.of(),

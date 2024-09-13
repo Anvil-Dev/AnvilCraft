@@ -64,8 +64,7 @@ public class ActiveSilencerBlock extends BaseEntityBlock implements IHammerRemov
 
     @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext pContext) {
-        return defaultBlockState()
-                .setValue(POWERED, pContext.getLevel().hasNeighborSignal(pContext.getClickedPos()));
+        return defaultBlockState().setValue(POWERED, pContext.getLevel().hasNeighborSignal(pContext.getClickedPos()));
     }
 
     @Override
@@ -110,8 +109,7 @@ public class ActiveSilencerBlock extends BaseEntityBlock implements IHammerRemov
         BlockEntity be = pLevel.getBlockEntity(pPos);
         if (be instanceof ActiveSilencerBlockEntity asbe && pPlayer instanceof ServerPlayer sp) {
             ModMenuTypes.open(sp, asbe, pPos);
-            PacketDistributor.sendToPlayer(
-                    sp, new MutedSoundSyncPacket(new ArrayList<>(asbe.getMutedSound())));
+            PacketDistributor.sendToPlayer(sp, new MutedSoundSyncPacket(new ArrayList<>(asbe.getMutedSound())));
             return InteractionResult.SUCCESS;
         }
         return InteractionResult.FAIL;

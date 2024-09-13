@@ -21,16 +21,14 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @MethodsReturnNonnullByDefault
 public class RoyalGrindstone extends BetterGrindstoneBlock implements IHammerRemovable {
 
-    private static final Component CONTAINER_TITLE =
-            Component.translatable("container.grindstone_title");
+    private static final Component CONTAINER_TITLE = Component.translatable("container.grindstone_title");
 
     public RoyalGrindstone(Properties properties) {
         super(properties);
     }
 
     @Override
-    public MenuProvider getMenuProvider(
-            @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos) {
+    public MenuProvider getMenuProvider(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos) {
         return new SimpleMenuProvider(
                 (i, inventory, player) ->
                         new RoyalGrindstoneMenu(i, inventory, ContainerLevelAccess.create(level, pos)),

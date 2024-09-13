@@ -39,13 +39,10 @@ public class AnvilCraftDatagen {
         ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
         PackOutput packOutput = generator.getPackOutput();
 
+        generator.addProvider(event.includeServer(), new ModRegistryProvider(packOutput, lookupProvider));
+        generator.addProvider(event.includeServer(), new ModLootTableProvider(packOutput, lookupProvider));
         generator.addProvider(
-                event.includeServer(), new ModRegistryProvider(packOutput, lookupProvider));
-        generator.addProvider(
-                event.includeServer(), new ModLootTableProvider(packOutput, lookupProvider));
-        generator.addProvider(
-                event.includeServer(),
-                new ModPoiTagProvider(packOutput, lookupProvider, existingFileHelper));
+                event.includeServer(), new ModPoiTagProvider(packOutput, lookupProvider, existingFileHelper));
     }
 
     /**

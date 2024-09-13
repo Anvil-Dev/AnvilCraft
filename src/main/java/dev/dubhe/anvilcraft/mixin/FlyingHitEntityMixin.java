@@ -50,8 +50,8 @@ public abstract class FlyingHitEntityMixin extends Entity {
         if (!(this.getItemBySlot(EquipmentSlot.HEAD).getItem() instanceof AnvilHammerItem)
                 && !this.getItemBySlot(EquipmentSlot.HEAD).is(ModItems.ROYAL_ANVIL_HAMMER.get())) return;
         AABB headBlockBoundBox = AABB.ofSize(this.getEyePosition(), 1, 1, 1);
-        List<LivingEntity> entities = level()
-                .getEntitiesOfClass(LivingEntity.class, headBlockBoundBox, it -> it != (Object) this);
+        List<LivingEntity> entities =
+                level().getEntitiesOfClass(LivingEntity.class, headBlockBoundBox, it -> it != (Object) this);
         Vec3 movement = getDeltaMovement();
         float amount = (float) (movement.length() * DAMAGE_FACTOR);
         for (LivingEntity entity : entities) {

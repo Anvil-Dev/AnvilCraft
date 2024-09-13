@@ -15,16 +15,12 @@ import java.util.Map;
 
 public class RoyalShovelItem extends ShovelItem implements IHasDefaultEnchantment {
     public RoyalShovelItem(Properties properties) {
-        super(
-                Tiers.DIAMOND, properties.attributes(AxeItem.createAttributes(Tiers.DIAMOND, 1.5f, -3.0f)));
+        super(Tiers.DIAMOND, properties.attributes(AxeItem.createAttributes(Tiers.DIAMOND, 1.5f, -3.0f)));
     }
 
     @Override
     public void appendHoverText(
-            ItemStack pStack,
-            TooltipContext pContext,
-            List<Component> pTooltipComponents,
-            TooltipFlag pTooltipFlag) {
+            ItemStack pStack, TooltipContext pContext, List<Component> pTooltipComponents, TooltipFlag pTooltipFlag) {
         super.appendHoverText(pStack, pContext, pTooltipComponents, pTooltipFlag);
         pTooltipComponents.addAll(this.getDefaultEnchantmentsTooltip());
     }

@@ -11,8 +11,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
 
 public abstract class BetterAbstractCauldronBlock extends AbstractCauldronBlock {
-    public BetterAbstractCauldronBlock(
-            Properties pProperties, CauldronInteraction.InteractionMap pInteractions) {
+    public BetterAbstractCauldronBlock(Properties pProperties, CauldronInteraction.InteractionMap pInteractions) {
         super(pProperties, pInteractions);
     }
 

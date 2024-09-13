@@ -31,8 +31,7 @@ import java.util.stream.Stream;
 
 public class LoadMonitorBlock extends BaseEntityBlock implements IHammerRemovable {
 
-    public static final VoxelShape SHAPE = Stream.of(
-                    Block.box(3, 0, 3, 13, 4, 13), Block.box(5, 4, 5, 11, 16, 11))
+    public static final VoxelShape SHAPE = Stream.of(Block.box(3, 0, 3, 13, 4, 13), Block.box(5, 4, 5, 11, 16, 11))
             .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
             .get();
 
@@ -74,8 +73,7 @@ public class LoadMonitorBlock extends BaseEntityBlock implements IHammerRemovabl
 
     @Override
     public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
-        if (state.hasBlockEntity()
-                && level.getBlockEntity(pos) instanceof LoadMonitorBlockEntity entity) {
+        if (state.hasBlockEntity() && level.getBlockEntity(pos) instanceof LoadMonitorBlockEntity entity) {
             return entity.getRedstoneSignal();
         }
         return 0;
@@ -101,8 +99,7 @@ public class LoadMonitorBlock extends BaseEntityBlock implements IHammerRemovabl
     }
 
     @Override
-    public VoxelShape getShape(
-            BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return SHAPE;
     }
 }

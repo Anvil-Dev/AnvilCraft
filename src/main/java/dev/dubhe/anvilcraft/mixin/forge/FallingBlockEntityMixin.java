@@ -70,8 +70,7 @@ abstract class FallingBlockEntityMixin extends Entity {
         if (this.level().isClientSide()) return;
         if (!this.blockState.is(BlockTags.ANVIL)) return;
         FallingBlockEntity entity = (FallingBlockEntity) (Object) this;
-        AnvilEvent.OnLand event =
-                new AnvilEvent.OnLand(this.level(), blockPos, entity, this.anvilcraft$fallDistance);
+        AnvilEvent.OnLand event = new AnvilEvent.OnLand(this.level(), blockPos, entity, this.anvilcraft$fallDistance);
         NeoForge.EVENT_BUS.post(event);
         if (event.isAnvilDamage()) {
             BlockState state = this.blockState.is(ModBlocks.ROYAL_ANVIL.get())
@@ -92,9 +91,8 @@ abstract class FallingBlockEntityMixin extends Entity {
             at =
                     @At(
                             value = "INVOKE",
-                            target =
-                                    "Lnet/minecraft/world/level/Level;getEntities(Lnet/minecraft/world/entity/Entity;"
-                                            + "Lnet/minecraft/world/phys/AABB;Ljava/util/function/Predicate;)Ljava/util/List;"),
+                            target = "Lnet/minecraft/world/level/Level;getEntities(Lnet/minecraft/world/entity/Entity;"
+                                    + "Lnet/minecraft/world/phys/AABB;Ljava/util/function/Predicate;)Ljava/util/List;"),
             locals = LocalCapture.CAPTURE_FAILHARD)
     private void anvilHurtEntity(
             float pFallDistance,

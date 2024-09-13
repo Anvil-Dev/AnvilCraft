@@ -32,8 +32,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public abstract class AbstractMultiplePartBlock<P extends Enum<P> & MultiplePartBlockState<P>>
-        extends Block {
+public abstract class AbstractMultiplePartBlock<P extends Enum<P> & MultiplePartBlockState<P>> extends Block {
     public AbstractMultiplePartBlock(Properties properties) {
         super(properties);
     }
@@ -93,10 +92,7 @@ public abstract class AbstractMultiplePartBlock<P extends Enum<P> & MultiplePart
 
     @Override
     public @NotNull BlockState playerWillDestroy(
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull BlockState state,
-            @NotNull Player player) {
+            @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player) {
         if (!level.isClientSide && player.isCreative()) {
             this.preventCreativeDropFromMainPart(level, pos, state, player);
         }
@@ -104,10 +100,7 @@ public abstract class AbstractMultiplePartBlock<P extends Enum<P> & MultiplePart
     }
 
     private void preventCreativeDropFromMainPart(
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull BlockState state,
-            @NotNull Player player) {
+            @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player) {
         if (!state.is(this)) return;
         if (!state.hasProperty(this.getPart())) return;
         P value = state.getValue(this.getPart());
@@ -174,8 +167,7 @@ public abstract class AbstractMultiplePartBlock<P extends Enum<P> & MultiplePart
             Player pPlayer,
             InteractionHand pHand,
             BlockHitResult pHitResult) {
-        return Utils.interactionResultConverter()
-                .apply(this.use(pState, pLevel, pPos, pPlayer, pHand, pHitResult));
+        return Utils.interactionResultConverter().apply(this.use(pState, pLevel, pPos, pPlayer, pHand, pHitResult));
     }
 
     @Override
@@ -185,12 +177,7 @@ public abstract class AbstractMultiplePartBlock<P extends Enum<P> & MultiplePart
     }
 
     public InteractionResult use(
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            Player player,
-            InteractionHand hand,
-            BlockHitResult hit) {
+            BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         return InteractionResult.PASS;
     }
 }

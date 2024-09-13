@@ -21,8 +21,8 @@ public class GuiLayerRegistrationEventListener {
     public static void onRegister(RegisterGuiLayersEvent event) {
         event.registerAboveAll(AnvilCraft.of("power"), (guiGraphics, pDeltaTracker) -> {
             Minecraft minecraft = Minecraft.getInstance();
-            float partialTick =
-                    pDeltaTracker.getGameTimeDeltaPartialTick(Minecraft.getInstance().isPaused());
+            float partialTick = pDeltaTracker.getGameTimeDeltaPartialTick(
+                    Minecraft.getInstance().isPaused());
             Window window = Minecraft.getInstance().getWindow();
             int screenWidth = window.getGuiScaledWidth();
             int screenHeight = window.getGuiScaledHeight();
@@ -35,8 +35,7 @@ public class GuiLayerRegistrationEventListener {
                 HudTooltipManager.INSTANCE.renderHandItemHudTooltip(
                         guiGraphics, handItem, partialTick, screenWidth, screenHeight);
             }
-            if (!(minecraft.player.getItemBySlot(EquipmentSlot.HEAD).getItem()
-                    instanceof IEngineerGoggles)) return;
+            if (!(minecraft.player.getItemBySlot(EquipmentSlot.HEAD).getItem() instanceof IEngineerGoggles)) return;
             HitResult hit = minecraft.hitResult;
             if (hit == null || hit.getType() != HitResult.Type.BLOCK) {
                 return;
@@ -46,8 +45,7 @@ public class GuiLayerRegistrationEventListener {
                 if (minecraft.level == null) return;
                 BlockEntity e = minecraft.level.getBlockEntity(blockPos);
                 if (e == null) return;
-                HudTooltipManager.INSTANCE.renderTooltip(
-                        guiGraphics, e, partialTick, screenWidth, screenHeight);
+                HudTooltipManager.INSTANCE.renderTooltip(guiGraphics, e, partialTick, screenWidth, screenHeight);
             }
         });
     }

@@ -39,8 +39,7 @@ import javax.annotation.Nonnull;
 
 import static dev.dubhe.anvilcraft.api.entity.player.AnvilCraftBlockPlacer.anvilCraftBlockPlacer;
 
-public class BlockDevourerBlock extends DirectionalBlock
-        implements IHammerChangeableBlock, IHammerRemovable {
+public class BlockDevourerBlock extends DirectionalBlock implements IHammerChangeableBlock, IHammerRemovable {
 
     public static final VoxelShape NORTH_SHAPE = Block.box(0, 0, 8, 16, 16, 16);
     public static final VoxelShape SOUTH_SHAPE = Block.box(0, 0, 0, 16, 16, 8);
@@ -66,8 +65,7 @@ public class BlockDevourerBlock extends DirectionalBlock
     }
 
     @Override
-    protected void createBlockStateDefinition(
-            @NotNull StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING).add(TRIGGERED);
     }
 
@@ -149,14 +147,11 @@ public class BlockDevourerBlock extends DirectionalBlock
      * @param range             破坏半径(正方形)
      */
     @SuppressWarnings("unreachable")
-    public void devourBlock(
-            ServerLevel level, BlockPos devourerPos, Direction devourerDirection, int range) {
+    public void devourBlock(ServerLevel level, BlockPos devourerPos, Direction devourerDirection, int range) {
         BlockPos outputPos = devourerPos.relative(devourerDirection.getOpposite());
         BlockPos devourCenterPos = devourerPos.relative(devourerDirection);
         IItemDepository depository = ItemDepositoryHelper.getItemDepository(
-                level,
-                devourerPos.relative(devourerDirection.getOpposite()),
-                devourerDirection.getOpposite());
+                level, devourerPos.relative(devourerDirection.getOpposite()), devourerDirection.getOpposite());
         Vec3 center = outputPos.getCenter();
         AABB aabb = new AABB(center.add(-0.125, -0.125, -0.125), center.add(0.125, 0.125, 0.125));
         final List<BlockPos> devourBlockPosList;
@@ -183,8 +178,8 @@ public class BlockDevourerBlock extends DirectionalBlock
             if (devouBlockState.isAir()) continue;
             if (devouBlockState.getBlock().defaultDestroyTime() < 0) continue;
             if (!isDropOriginalPlace) {
-                for (ItemStack itemStack : Block.getDrops(
-                        devouBlockState, level, devourBlockPos, level.getBlockEntity(devourBlockPos))) {
+                for (ItemStack itemStack :
+                        Block.getDrops(devouBlockState, level, devourBlockPos, level.getBlockEntity(devourBlockPos))) {
                     if (devouBlockState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)
                             && level.random.nextDouble() > 0.05) break;
                     if (depository != null) {
@@ -194,8 +189,7 @@ public class BlockDevourerBlock extends DirectionalBlock
                         }
                         isDropOriginalPlace = !outItemStack.isEmpty();
                     } else {
-                        ItemEntity itemEntity =
-                                new ItemEntity(level, center.x, center.y, center.z, itemStack, 0, 0, 0);
+                        ItemEntity itemEntity = new ItemEntity(level, center.x, center.y, center.z, itemStack, 0, 0, 0);
                         itemEntity.setDefaultPickUpDelay();
                         level.addFreshEntity(itemEntity);
                     }
@@ -203,8 +197,7 @@ public class BlockDevourerBlock extends DirectionalBlock
             }
             devouBlockState
                     .getBlock()
-                    .playerWillDestroy(
-                            level, devourBlockPos, devouBlockState, anvilCraftBlockPlacer.getPlayer());
+                    .playerWillDestroy(level, devourBlockPos, devouBlockState, anvilCraftBlockPlacer.getPlayer());
             level.destroyBlock(
                     devourBlockPos,
                     (isDropOriginalPlace

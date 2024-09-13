@@ -15,20 +15,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Supplier;
 
 public enum ModTiers implements Tier {
-    AMETHYST(
-            751,
-            4.0f,
-            1.0f,
-            10,
-            () -> Ingredient.of(Items.AMETHYST_SHARD),
-            ModBlockTags.INCORRECT_FOR_AMYTHEST_TOOL),
+    AMETHYST(751, 4.0f, 1.0f, 10, () -> Ingredient.of(Items.AMETHYST_SHARD), ModBlockTags.INCORRECT_FOR_AMYTHEST_TOOL),
     EMBER_METAL(
-            0,
-            10.0f,
-            1.0f,
-            22,
-            () -> Ingredient.of(ModItems.EMBER_METAL_INGOT),
-            ModBlockTags.INCORRECT_FOR_EMBER_TOOL);
+            0, 10.0f, 1.0f, 22, () -> Ingredient.of(ModItems.EMBER_METAL_INGOT), ModBlockTags.INCORRECT_FOR_EMBER_TOOL);
     private final int uses;
     private final float speed;
     private final float damage;

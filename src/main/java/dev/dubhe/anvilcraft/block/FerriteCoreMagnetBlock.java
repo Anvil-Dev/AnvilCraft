@@ -23,8 +23,7 @@ public class FerriteCoreMagnetBlock extends MagnetBlock {
             @NotNull RandomSource randomSource) {
         int times = 0;
         for (Direction face : Direction.values()) {
-            if (serverLevel.getBlockState(blockPos.relative(face)).is(ModBlocks.MAGNET_BLOCK.get()))
-                times++;
+            if (serverLevel.getBlockState(blockPos.relative(face)).is(ModBlocks.MAGNET_BLOCK.get())) times++;
         }
         if (randomSource.nextInt(7) <= times) {
             serverLevel.setBlockAndUpdate(blockPos, ModBlocks.MAGNET_BLOCK.get().defaultBlockState());

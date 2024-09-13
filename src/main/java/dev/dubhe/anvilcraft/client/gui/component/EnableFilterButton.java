@@ -20,10 +20,8 @@ import java.util.function.Supplier;
 @Getter
 public class EnableFilterButton extends Button {
     private final Supplier<Boolean> filterEnabled;
-    private static final ResourceLocation YES =
-            AnvilCraft.of("textures/gui/container/machine/button_yes.png");
-    private static final ResourceLocation NO =
-            AnvilCraft.of("textures/gui/container/machine/button_no.png");
+    private static final ResourceLocation YES = AnvilCraft.of("textures/gui/container/machine/button_yes.png");
+    private static final ResourceLocation NO = AnvilCraft.of("textures/gui/container/machine/button_no.png");
     private static final MutableComponent defaultMessage = Component.translatable(
             "screen.anvilcraft.button.record", Component.translatable("screen.anvilcraft.button.off"));
 
@@ -52,12 +50,9 @@ public class EnableFilterButton extends Button {
     }
 
     @Override
-    public void renderWidget(
-            @NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        ResourceLocation location =
-                this.filterEnabled.get() ? EnableFilterButton.YES : EnableFilterButton.NO;
-        this.renderTexture(
-                guiGraphics, location, this.getX(), this.getY(), 0, 0, 16, this.width, this.height, 16, 32);
+    public void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        ResourceLocation location = this.filterEnabled.get() ? EnableFilterButton.YES : EnableFilterButton.NO;
+        this.renderTexture(guiGraphics, location, this.getX(), this.getY(), 0, 0, 16, this.width, this.height, 16, 32);
     }
 
     public void renderTexture(

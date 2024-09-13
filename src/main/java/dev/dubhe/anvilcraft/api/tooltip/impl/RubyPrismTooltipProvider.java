@@ -22,8 +22,7 @@ public class RubyPrismTooltipProvider implements BlockEntityTooltipProvider {
     public List<Component> tooltip(BlockEntity e) {
         if (!(e instanceof RubyPrismBlockEntity rubyPrismBlockEntity)) return null;
         final List<Component> lines = new ArrayList<>();
-        lines.add(Component.translatable(
-                "tooltip.anvilcraft.ruby_prism.power", rubyPrismBlockEntity.laserLevel));
+        lines.add(Component.translatable("tooltip.anvilcraft.ruby_prism.power", rubyPrismBlockEntity.laserLevel));
         return lines;
     }
 

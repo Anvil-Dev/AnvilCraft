@@ -17,9 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 abstract class EnchantmentHelperMixin {
     @Inject(method = "getItemEnchantmentLevel", at = @At("RETURN"), cancellable = true)
     private static void getItemEnchantmentLevel(
-            Holder<Enchantment> enchantment,
-            @NotNull ItemStack stack,
-            CallbackInfoReturnable<Integer> cir) {
+            Holder<Enchantment> enchantment, @NotNull ItemStack stack, CallbackInfoReturnable<Integer> cir) {
         if (!(stack.getItem() instanceof IHasDefaultEnchantment item)) return;
         int level = cir.getReturnValue();
         int defaultLevel = item.getDefaultEnchantmentLevel(enchantment.value());

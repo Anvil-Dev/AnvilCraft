@@ -20,8 +20,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.function.BiFunction;
 
-public abstract class BaseMachineScreen<T extends AbstractContainerMenu>
-        extends AbstractContainerScreen<T> {
+public abstract class BaseMachineScreen<T extends AbstractContainerMenu> extends AbstractContainerScreen<T> {
     @Setter
     private BiFunction<Integer, Integer, OutputDirectionButton> directionButtonSupplier;
 
@@ -53,8 +52,8 @@ public abstract class BaseMachineScreen<T extends AbstractContainerMenu>
     }
 
     @Contract(pure = true)
-    protected static @NotNull BiFunction<Integer, Integer, OutputDirectionButton>
-            getDirectionButtonSupplier(int x, int y, Direction... skip) {
+    protected static @NotNull BiFunction<Integer, Integer, OutputDirectionButton> getDirectionButtonSupplier(
+            int x, int y, Direction... skip) {
         return (i, j) -> new OutputDirectionButton(
                 i + x,
                 j + y,

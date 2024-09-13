@@ -18,8 +18,7 @@ public class CursedBlockItem extends BlockItem implements ICursed {
     }
 
     @Override
-    public void inventoryTick(
-            ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
+    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         super.inventoryTick(stack, level, entity, slotId, isSelected);
         ICursed.super.inventoryTick(stack, level, entity, slotId, isSelected);
     }

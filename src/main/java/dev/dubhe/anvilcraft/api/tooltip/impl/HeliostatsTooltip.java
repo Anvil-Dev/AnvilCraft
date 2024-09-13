@@ -23,18 +23,12 @@ public class HeliostatsTooltip implements HandHeldItemTooltipProvider {
 
     @Override
     public void render(
-            PoseStack poseStack,
-            VertexConsumer consumer,
-            ItemStack itemStack,
-            double camX,
-            double camY,
-            double camZ) {
+            PoseStack poseStack, VertexConsumer consumer, ItemStack itemStack, double camX, double camY, double camZ) {
         if (HeliostatsItem.hasDataStored(itemStack)) {
             BlockPos pos = HeliostatsItem.getData(itemStack);
             AABB aabb = new AABB(pos);
             VoxelShape shape = Shapes.create(aabb);
-            TooltipRenderHelper.renderOutline(
-                    poseStack, consumer, camX, camY, camZ, BlockPos.ZERO, shape, 0xFF66CCFF);
+            TooltipRenderHelper.renderOutline(poseStack, consumer, camX, camY, camZ, BlockPos.ZERO, shape, 0xFF66CCFF);
         }
     }
 

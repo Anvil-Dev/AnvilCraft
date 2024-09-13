@@ -47,17 +47,7 @@ public class LaserRenderer implements BlockEntityRenderer<BaseLaserBlockEntity> 
         if (blockEntity instanceof RubyLaserBlockEntity) offest = 0.489f;
         poseStack.mulPose(blockEntity.getDirection().getRotation());
         renderBox(consumer, poseStack, -0.0625f, -offest, -0.0625f, 0.0625f, length, 0.0625f, sprite);
-        renderBox(
-                consumer,
-                poseStack,
-                -0.0625f,
-                length,
-                -0.0625f,
-                0.0625f,
-                length + 0.3f,
-                0.0625f,
-                0.35f,
-                sprite);
+        renderBox(consumer, poseStack, -0.0625f, length, -0.0625f, 0.0625f, length + 0.3f, 0.0625f, 0.35f, sprite);
         renderBox(
                 consumer,
                 poseStack,
@@ -169,8 +159,7 @@ public class LaserRenderer implements BlockEntityRenderer<BaseLaserBlockEntity> 
             float u,
             float v,
             float a) {
-        consumer
-                .addVertex(poseStack.last().pose(), x, y, z)
+        consumer.addVertex(poseStack.last().pose(), x, y, z)
                 .setColor(1f, 0.05f, 0.05f, a)
                 .setUv(u, v)
                 .setOverlay(OverlayTexture.NO_OVERLAY)

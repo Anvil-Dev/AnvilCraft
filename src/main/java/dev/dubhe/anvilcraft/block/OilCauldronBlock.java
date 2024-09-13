@@ -36,10 +36,7 @@ public class OilCauldronBlock extends LayeredCauldronBlock implements IHammerRem
 
     @Override
     public void entityInside(
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull Entity entity) {
+            @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Entity entity) {
         if (entity.getType().equals(EntityType.ARROW) && entity.isOnFire()) {
             level.setBlockAndUpdate(
                     pos,
@@ -83,8 +80,7 @@ public class OilCauldronBlock extends LayeredCauldronBlock implements IHammerRem
             Player pPlayer,
             InteractionHand pHand,
             BlockHitResult pHitResult) {
-        return Utils.interactionResultConverter()
-                .apply(this.use(pState, pLevel, pPos, pPlayer, pHand, pHitResult));
+        return Utils.interactionResultConverter().apply(this.use(pState, pLevel, pPos, pPlayer, pHand, pHitResult));
     }
 
     @Override

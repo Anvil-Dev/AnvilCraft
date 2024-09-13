@@ -21,29 +21,28 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 
 public class MineralFountainBlockEntity extends BlockEntity {
-    private static final HashMap<ResourceLocation, HashMap<Block, Float>> CHANGE_MAP =
-            new HashMap<>() {
+    private static final HashMap<ResourceLocation, HashMap<Block, Float>> CHANGE_MAP = new HashMap<>() {
+        {
+            put(Level.OVERWORLD.location(), new HashMap<>() {
                 {
-                    put(Level.OVERWORLD.location(), new HashMap<>() {
-                        {
-                            put(ModBlocks.VOID_STONE.get(), 0.01f);
-                            put(ModBlocks.EARTH_CORE_SHARD_ORE.get(), 0.01f);
-                        }
-                    });
-                    put(Level.NETHER.location(), new HashMap<>() {
-                        {
-                            put(ModBlocks.VOID_STONE.get(), 0f);
-                            put(ModBlocks.EARTH_CORE_SHARD_ORE.get(), 0.2f);
-                        }
-                    });
-                    put(Level.END.location(), new HashMap<>() {
-                        {
-                            put(ModBlocks.VOID_STONE.get(), 0.2f);
-                            put(ModBlocks.EARTH_CORE_SHARD_ORE.get(), 0f);
-                        }
-                    });
+                    put(ModBlocks.VOID_STONE.get(), 0.01f);
+                    put(ModBlocks.EARTH_CORE_SHARD_ORE.get(), 0.01f);
                 }
-            };
+            });
+            put(Level.NETHER.location(), new HashMap<>() {
+                {
+                    put(ModBlocks.VOID_STONE.get(), 0f);
+                    put(ModBlocks.EARTH_CORE_SHARD_ORE.get(), 0.2f);
+                }
+            });
+            put(Level.END.location(), new HashMap<>() {
+                {
+                    put(ModBlocks.VOID_STONE.get(), 0.2f);
+                    put(ModBlocks.EARTH_CORE_SHARD_ORE.get(), 0f);
+                }
+            });
+        }
+    };
     private int tickCount = 0;
 
     public MineralFountainBlockEntity(BlockPos pos, BlockState blockState) {
@@ -77,8 +76,8 @@ public class MineralFountainBlockEntity extends BlockEntity {
             return;
         }
         // 高度检查
-        if (level.getMinBuildHeight() > getBlockPos().getY()
-                || getBlockPos().getY() > level.getMinBuildHeight() + 5) return;
+        if (level.getMinBuildHeight() > getBlockPos().getY() || getBlockPos().getY() > level.getMinBuildHeight() + 5)
+            return;
         // 底层基岩检查
         BlockPos checkPos = getBlockPos();
         while (checkPos.getY() > level.getMinBuildHeight()) {
@@ -96,9 +95,10 @@ public class MineralFountainBlockEntity extends BlockEntity {
             if (hotBlock == null) return;
             level.setBlockAndUpdate(getBlockPos().above(), hotBlock.defaultBlockState());
         } else if (aroundBlock.is(ModBlockTags.DEEPSLATE_METAL) && aboveBlock.is(Blocks.DEEPSLATE)) {
-            HashMap<Block, Float> changeMap = CHANGE_MAP.containsKey(level.dimension().location())
-                    ? CHANGE_MAP.get(level.dimension().location())
-                    : CHANGE_MAP.get(Level.OVERWORLD.location());
+            HashMap<Block, Float> changeMap =
+                    CHANGE_MAP.containsKey(level.dimension().location())
+                            ? CHANGE_MAP.get(level.dimension().location())
+                            : CHANGE_MAP.get(Level.OVERWORLD.location());
             for (Block block : changeMap.keySet()) {
                 if (level.getRandom().nextDouble() <= changeMap.get(block)) {
                     level.setBlockAndUpdate(getBlockPos().above(), block.defaultBlockState());
@@ -125,8 +125,7 @@ public class MineralFountainBlockEntity extends BlockEntity {
 
     private boolean aroundHas(Block block) {
         if (level == null) return false;
-        for (Direction direction :
-                new Direction[] {Direction.SOUTH, Direction.NORTH, Direction.WEST, Direction.EAST}) {
+        for (Direction direction : new Direction[] {Direction.SOUTH, Direction.NORTH, Direction.WEST, Direction.EAST}) {
             if (level.getBlockState(getBlockPos().relative(direction)).is(block)) return true;
         }
         return false;

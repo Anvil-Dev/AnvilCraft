@@ -17,8 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PowerGridRenderer {
-    private static final Map<Integer, SimplePowerGrid> GRID_MAP =
-            Collections.synchronizedMap(new HashMap<>());
+    private static final Map<Integer, SimplePowerGrid> GRID_MAP = Collections.synchronizedMap(new HashMap<>());
 
     public static Map<Integer, SimplePowerGrid> getGridMap() {
         return PowerGridRenderer.GRID_MAP;
@@ -27,8 +26,7 @@ public class PowerGridRenderer {
     /**
      * 渲染
      */
-    public static void render(
-            PoseStack poseStack, VertexConsumer consumer, double camX, double camY, double camZ) {
+    public static void render(PoseStack poseStack, VertexConsumer consumer, double camX, double camY, double camZ) {
         if (Minecraft.getInstance().level == null) return;
         RandomSource random = Minecraft.getInstance().level.random;
         String level = Minecraft.getInstance().level.dimension().location().toString();
@@ -97,12 +95,10 @@ public class PowerGridRenderer {
             float l = (float) (maxY - minY);
             float m = (float) (maxZ - minZ);
             float n = Mth.sqrt(k * k + l * l + m * m);
-            consumer
-                    .addVertex(pose.pose(), (float) (minX + x), (float) (minY + y), (float) (minZ + z))
+            consumer.addVertex(pose.pose(), (float) (minX + x), (float) (minY + y), (float) (minZ + z))
                     .setColor(red, green, blue, alpha)
                     .setNormal(pose.copy(), k /= n, l /= n, m /= n);
-            consumer
-                    .addVertex(pose.pose(), (float) (maxX + x), (float) (maxY + y), (float) (maxZ + z))
+            consumer.addVertex(pose.pose(), (float) (maxX + x), (float) (maxY + y), (float) (maxZ + z))
                     .setColor(red, green, blue, alpha)
                     .setNormal(pose.copy(), k, l, m);
         });

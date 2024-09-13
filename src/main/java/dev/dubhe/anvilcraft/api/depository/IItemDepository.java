@@ -51,8 +51,7 @@ public interface IItemDepository {
      * @param isServer      是否在服务端调用
      * @return 剩余的物品堆栈
      */
-    ItemStack insert(
-            int slot, ItemStack stack, boolean simulate, boolean notifyChanges, boolean isServer);
+    ItemStack insert(int slot, ItemStack stack, boolean simulate, boolean notifyChanges, boolean isServer);
 
     /**
      * 向指定槽位中插入物品

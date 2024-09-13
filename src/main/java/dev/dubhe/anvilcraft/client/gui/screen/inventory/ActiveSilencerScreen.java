@@ -79,7 +79,8 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
             String search = text.replaceFirst("#", "");
             allSounds.stream()
                     .filter(it -> it.left().toString().contains(search))
-                    .filter(it -> mutedSounds.stream().noneMatch(it1 -> it1.left().equals(it.first())))
+                    .filter(it ->
+                            mutedSounds.stream().noneMatch(it1 -> it1.left().equals(it.first())))
                     .forEach(filteredSounds::add);
         } else {
             if (text.startsWith("~")) {
@@ -87,7 +88,8 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
                     Pattern search = Pattern.compile(text.replaceFirst("~", ""));
                     allSounds.stream()
                             .filter(it -> search.matcher(it.left().toString()).matches())
-                            .filter(it -> mutedSounds.stream().noneMatch(it1 -> it1.left().equals(it.first())))
+                            .filter(it -> mutedSounds.stream()
+                                    .noneMatch(it1 -> it1.left().equals(it.first())))
                             .forEach(filteredSounds::add);
                 } catch (Exception ignored) {
                     // intentionally empty
@@ -95,7 +97,8 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
             }
             allSounds.stream()
                     .filter(it -> it.right().getString().contains(filterText))
-                    .filter(it -> mutedSounds.stream().noneMatch(it1 -> it1.left().equals(it.first())))
+                    .filter(it ->
+                            mutedSounds.stream().noneMatch(it1 -> it1.left().equals(it.first())))
                     .forEach(filteredSounds::add);
         }
     }
@@ -103,8 +106,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (this.minecraft.options.keyInventory.matches(keyCode, scanCode)) {
-            return this.getFocused() != null
-                    && this.getFocused().keyPressed(keyCode, scanCode, modifiers);
+            return this.getFocused() != null && this.getFocused().keyPressed(keyCode, scanCode, modifiers);
         } else {
             return super.keyPressed(keyCode, scanCode, modifiers);
         }
@@ -139,8 +141,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         SoundManager manager = Minecraft.getInstance().getSoundManager();
         WeighedSoundEvents event = manager.getSoundEvent(sound);
         if (event == null) return;
-        this.mutedSounds.add(
-                Pair.of(sound, event.getSubtitle() == null ? Component.empty() : event.getSubtitle()));
+        this.mutedSounds.add(Pair.of(sound, event.getSubtitle() == null ? Component.empty() : event.getSubtitle()));
     }
 
     void removeMutedSound(ResourceLocation sound) {
@@ -155,8 +156,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         int actualIndex = index;
         if (variant == SOUND_FILTERED) {
             actualIndex += leftScrollOff;
-            if (filteredSounds.isEmpty() || actualIndex >= filteredSounds.size())
-                return Component.empty();
+            if (filteredSounds.isEmpty() || actualIndex >= filteredSounds.size()) return Component.empty();
             return filteredSounds.get(actualIndex).right();
         } else {
             actualIndex += rightScrollOff;
@@ -285,8 +285,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         int topPos = (this.height - this.imageHeight) / 2;
         if (mouseInLeft(mouseX, mouseY, leftPos, topPos)) {
             if (this.filteredSounds.size() > 8) {
-                this.leftScrollOff =
-                        (int) Mth.clamp(this.leftScrollOff - pScrollY, 0, this.filteredSounds.size() - 7);
+                this.leftScrollOff = (int) Mth.clamp(this.leftScrollOff - pScrollY, 0, this.filteredSounds.size() - 7);
             }
         } else {
             if (mouseInRight(mouseX, mouseY, leftPos, topPos)) {
@@ -302,8 +301,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     /**
      * 鼠标拖动事件
      */
-    public boolean mouseDragged(
-            double mouseX, double mouseY, int button, double dragX, double dragY) {
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
         int leftPos = (this.width - this.imageWidth) / 2;
         int topPos = (this.height - this.imageHeight) / 2;
         if (mouseInLeftSlider(mouseX, mouseY, leftPos, topPos)) {
@@ -355,8 +353,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
-    private void renderScroller(
-            GuiGraphics guiGraphics, int posX, int posY, int totalCount, int scrollOff) {
+    private void renderScroller(GuiGraphics guiGraphics, int posX, int posY, int totalCount, int scrollOff) {
         int i = totalCount + 1 - 8;
         if (i > 1) {
             int maxY = posY + SCROLL_BAR_HEIGHT - SCROLLER_HEIGHT;
@@ -377,11 +374,9 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         int topPos = (this.height - this.imageHeight) / 2;
 
         super.render(guiGraphics, mouseX, mouseY, partialTick);
-        this.renderScroller(
-                guiGraphics, leftPos + 119, topPos + 35, filteredSounds.size(), leftScrollOff);
+        this.renderScroller(guiGraphics, leftPos + 119, topPos + 35, filteredSounds.size(), leftScrollOff);
 
-        this.renderScroller(
-                guiGraphics, leftPos + 245, topPos + 35, mutedSounds.size(), rightScrollOff);
+        this.renderScroller(guiGraphics, leftPos + 245, topPos + 35, mutedSounds.size(), rightScrollOff);
 
         this.renderTooltip(guiGraphics, mouseX, mouseY);
     }
@@ -403,13 +398,11 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
 
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        guiGraphics.drawString(
-                this.font, this.title, this.titleLabelX, this.titleLabelY, 0x404040, false);
+        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 0x404040, false);
     }
 
     @Override
-    protected void renderBg(
-            @NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(@NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         int i = (this.width - this.imageWidth) / 2;
         int j = (this.height - this.imageHeight) / 2;
         guiGraphics.blit(CONTAINER_LOCATION, i, j, 0, 0, this.imageWidth, this.imageHeight);

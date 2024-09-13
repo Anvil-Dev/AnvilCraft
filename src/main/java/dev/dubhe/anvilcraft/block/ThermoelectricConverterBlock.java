@@ -23,9 +23,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 
 public class ThermoelectricConverterBlock extends BaseEntityBlock implements IHammerRemovable {
-    public static final Direction[] DIRECTIONS = {
-        Direction.SOUTH, Direction.NORTH, Direction.EAST, Direction.WEST
-    };
+    public static final Direction[] DIRECTIONS = {Direction.SOUTH, Direction.NORTH, Direction.EAST, Direction.WEST};
 
     public ThermoelectricConverterBlock(Properties properties) {
         super(properties);
@@ -55,8 +53,7 @@ public class ThermoelectricConverterBlock extends BaseEntityBlock implements IHa
 
     @Nullable @Override
     public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
-        return new ThermoelectricConverterBlockEntity(
-                ModBlockEntities.THERMOELECTRIC_CONVERTER.get(), pos, state);
+        return new ThermoelectricConverterBlockEntity(ModBlockEntities.THERMOELECTRIC_CONVERTER.get(), pos, state);
     }
 
     @Override
@@ -66,9 +63,7 @@ public class ThermoelectricConverterBlock extends BaseEntityBlock implements IHa
             @NotNull BlockPos pos,
             @NotNull BlockState newState,
             boolean movedByPiston) {
-        Arrays.stream(DIRECTIONS)
-                .map(pos::relative)
-                .forEach(ThermoManager.getInstance(level)::removeThermalBlock);
+        Arrays.stream(DIRECTIONS).map(pos::relative).forEach(ThermoManager.getInstance(level)::removeThermalBlock);
     }
 
     @Nullable @Override

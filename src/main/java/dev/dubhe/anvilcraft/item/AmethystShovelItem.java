@@ -11,9 +11,7 @@ public class AmethystShovelItem extends ShovelItem {
      *
      */
     public AmethystShovelItem(Properties properties) {
-        super(
-                ModTiers.AMETHYST,
-                properties.attributes(AxeItem.createAttributes(ModTiers.AMETHYST, 1.5f, -3.0f)));
+        super(ModTiers.AMETHYST, properties.attributes(AxeItem.createAttributes(ModTiers.AMETHYST, 1.5f, -3.0f)));
     }
 
     @Override

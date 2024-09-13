@@ -30,8 +30,7 @@ public class TransmissionPoleBlockEntity extends AbstractTransmissionPoleBlockEn
         return new TransmissionPoleBlockEntity(type, pos, blockState);
     }
 
-    private TransmissionPoleBlockEntity(
-            BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+    private TransmissionPoleBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
 
@@ -43,8 +42,7 @@ public class TransmissionPoleBlockEntity extends AbstractTransmissionPoleBlockEn
     @Override
     public @NotNull PowerComponentType getComponentType() {
         if (this.getLevel() == null) return PowerComponentType.INVALID;
-        if (!this.getBlockState().is(ModBlocks.TRANSMISSION_POLE.get()))
-            return PowerComponentType.INVALID;
+        if (!this.getBlockState().is(ModBlocks.TRANSMISSION_POLE.get())) return PowerComponentType.INVALID;
         if (this.getBlockState().getValue(TransmissionPoleBlock.HALF) != Vertical3PartHalf.TOP)
             return PowerComponentType.INVALID;
         return PowerComponentType.TRANSMITTER;
@@ -65,8 +63,7 @@ public class TransmissionPoleBlockEntity extends AbstractTransmissionPoleBlockEn
         if (state.getValue(TransmissionPoleBlock.HALF) != Vertical3PartHalf.TOP) return;
         if (state.getValue(TransmissionPoleBlock.SWITCH) == Switch.OFF && this.getGrid() != null) {
             this.getGrid().remove(this);
-        } else if (state.getValue(TransmissionPoleBlock.SWITCH) == Switch.ON
-                && this.getGrid() == null) {
+        } else if (state.getValue(TransmissionPoleBlock.SWITCH) == Switch.ON && this.getGrid() == null) {
             PowerGrid.addComponent(this);
         }
         this.flushState(level, pos);

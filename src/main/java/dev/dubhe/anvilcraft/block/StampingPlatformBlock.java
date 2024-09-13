@@ -22,16 +22,14 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import org.jetbrains.annotations.NotNull;
 
-public class StampingPlatformBlock extends Block
-        implements SimpleWaterloggedBlock, IHammerRemovable {
+public class StampingPlatformBlock extends Block implements SimpleWaterloggedBlock, IHammerRemovable {
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     private static final VoxelShape REDUCE_AABB = Shapes.or(
             Block.box(2.0, 12.0, 2.0, 14.0, 16.0, 14.0),
             Block.box(2.0, 0.0, 2.0, 14.0, 10.0, 14.0),
             Block.box(4.0, 0.0, 0.0, 12.0, 10.0, 16.0),
             Block.box(0.0, 0.0, 4.0, 16.0, 10.0, 12.0));
-    private static final VoxelShape AABB =
-            Shapes.join(Shapes.block(), REDUCE_AABB, BooleanOp.NOT_SAME);
+    private static final VoxelShape AABB = Shapes.join(Shapes.block(), REDUCE_AABB, BooleanOp.NOT_SAME);
 
     public StampingPlatformBlock(Properties properties) {
         super(properties);
@@ -39,8 +37,7 @@ public class StampingPlatformBlock extends Block
     }
 
     @Override
-    protected void createBlockStateDefinition(
-            @NotNull StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
         builder.add(WATERLOGGED);
     }
@@ -73,9 +70,7 @@ public class StampingPlatformBlock extends Block
     @Override
     @SuppressWarnings("deprecation")
     public @NotNull FluidState getFluidState(@NotNull BlockState blockState) {
-        return blockState.getValue(WATERLOGGED)
-                ? Fluids.WATER.getSource(false)
-                : super.getFluidState(blockState);
+        return blockState.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(blockState);
     }
 
     @Override
@@ -90,7 +85,6 @@ public class StampingPlatformBlock extends Block
         if (blockState.getValue(WATERLOGGED)) {
             levelAccessor.scheduleTick(blockPos, Fluids.WATER, Fluids.WATER.getTickDelay(levelAccessor));
         }
-        return super.updateShape(
-                blockState, direction, blockState2, levelAccessor, blockPos, blockPos2);
+        return super.updateShape(blockState, direction, blockState2, levelAccessor, blockPos, blockPos2);
     }
 }

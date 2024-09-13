@@ -22,17 +22,16 @@ import java.util.Optional;
 @SuppressWarnings("unused")
 public class FilteredItemDepository extends ItemDepository {
 
-    public static final Codec<FilteredItemDepository> CODEC =
-            RecordCodecBuilder.create(ins -> ins.group(
-                            Codec.BOOL.fieldOf("filterEnabled").forGetter(o -> o.filterEnabled),
-                            CodecUtil.createOptionalCodec(ItemStack.CODEC)
-                                    .listOf()
-                                    .fieldOf("filteredItems")
-                                    .forGetter(o -> o.filteredItems.stream()
-                                            .map(it -> it.isEmpty() ? Optional.<ItemStack>empty() : Optional.of(it))
-                                            .toList()),
-                            Codec.BOOL.listOf().fieldOf("disabled").forGetter(o -> o.disabled))
-                    .apply(ins, FilteredItemDepository::new));
+    public static final Codec<FilteredItemDepository> CODEC = RecordCodecBuilder.create(ins -> ins.group(
+                    Codec.BOOL.fieldOf("filterEnabled").forGetter(o -> o.filterEnabled),
+                    CodecUtil.createOptionalCodec(ItemStack.CODEC)
+                            .listOf()
+                            .fieldOf("filteredItems")
+                            .forGetter(o -> o.filteredItems.stream()
+                                    .map(it -> it.isEmpty() ? Optional.<ItemStack>empty() : Optional.of(it))
+                                    .toList()),
+                    Codec.BOOL.listOf().fieldOf("disabled").forGetter(o -> o.disabled))
+            .apply(ins, FilteredItemDepository::new));
 
     private boolean filterEnabled = false;
     private NonNullList<ItemStack> filteredItems;
@@ -215,8 +214,7 @@ public class FilteredItemDepository extends ItemDepository {
             if (itemTag.contains("filtered")) {
                 CompoundTag filtered = itemTag.getCompound("filtered");
                 if (filtered.contains("id")) {
-                    ItemStack.parse(provider, filtered)
-                            .ifPresent(stack -> this.filteredItems.set(slot, stack));
+                    ItemStack.parse(provider, filtered).ifPresent(stack -> this.filteredItems.set(slot, stack));
                 }
             }
             this.disabled.set(slot, itemTag.getBoolean("disabled"));
@@ -236,12 +234,10 @@ public class FilteredItemDepository extends ItemDepository {
     public void deserializeFiltering(@NotNull CompoundTag tag) {
         FilteredItemDepository depository =
                 CODEC.decode(NbtOps.INSTANCE, tag).getOrThrow().getFirst();
-        if (this.getSize() != depository.getSize())
-            throw new IllegalArgumentException("Depository size mismatch");
+        if (this.getSize() != depository.getSize()) throw new IllegalArgumentException("Depository size mismatch");
         this.filterEnabled = tag.getBoolean("filterEnabled");
         int size = depository.filteredItems.size();
-        this.filteredItems =
-                NonNullList.of(ItemStack.EMPTY, depository.filteredItems.toArray(new ItemStack[size]));
+        this.filteredItems = NonNullList.of(ItemStack.EMPTY, depository.filteredItems.toArray(new ItemStack[size]));
         this.disabled = depository.disabled;
     }
 

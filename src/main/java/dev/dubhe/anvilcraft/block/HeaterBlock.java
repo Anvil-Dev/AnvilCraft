@@ -36,8 +36,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.annotation.Nonnull;
 
 public class HeaterBlock extends BaseEntityBlock implements IHammerRemovable {
-    public static final VoxelShape SHAPE =
-            Shapes.or(Block.box(0, 2, 0, 16, 16, 16), Block.box(1, 0, 1, 15, 2, 15));
+    public static final VoxelShape SHAPE = Shapes.or(Block.box(0, 2, 0, 16, 16, 16), Block.box(1, 0, 1, 15, 2, 15));
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
 
     /**
@@ -64,8 +63,7 @@ public class HeaterBlock extends BaseEntityBlock implements IHammerRemovable {
     }
 
     @Override
-    protected void createBlockStateDefinition(
-            @NotNull StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(OVERLOAD);
     }
 
@@ -79,17 +77,11 @@ public class HeaterBlock extends BaseEntityBlock implements IHammerRemovable {
             @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type) {
         if (level.isClientSide) return null;
         return createTickerHelper(
-                type,
-                ModBlockEntities.HEATER.get(),
-                (level1, pos, state1, entity) -> entity.tick(level1, pos));
+                type, ModBlockEntities.HEATER.get(), (level1, pos, state1, entity) -> entity.tick(level1, pos));
     }
 
     @Override
-    public void stepOn(
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull BlockState state,
-            @NotNull Entity entity) {
+    public void stepOn(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Entity entity) {
         if (state.is(ModBlocks.HEATER.get())
                 && !state.getValue(OVERLOAD)
                 && !entity.isSteppingCarefully()
@@ -98,7 +90,9 @@ public class HeaterBlock extends BaseEntityBlock implements IHammerRemovable {
                         living.getItemBySlot(EquipmentSlot.FEET), EnchantmentTags.PREVENTS_ICE_MELTING)) {
             if (entity.hurt(level.damageSources().hotFloor(), 4.0F)) {
                 entity.playSound(
-                        SoundEvents.GENERIC_BURN, 0.4F, 2.0F + living.getRandom().nextFloat() * 0.4F);
+                        SoundEvents.GENERIC_BURN,
+                        0.4F,
+                        2.0F + living.getRandom().nextFloat() * 0.4F);
             }
         }
         super.stepOn(level, pos, state, entity);

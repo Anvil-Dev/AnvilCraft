@@ -38,8 +38,7 @@ public class BlockEventListener {
         InteractionHand hand = event.getHand();
         if (event.getEntity().getItemInHand(hand).getItem() instanceof AnvilHammerItem) {
             if (event.getLevel().isClientSide()) {
-                if (AnvilHammerItem.ableToUseAnvilHammer(
-                        event.getLevel(), event.getPos(), event.getEntity())) {
+                if (AnvilHammerItem.ableToUseAnvilHammer(event.getLevel(), event.getPos(), event.getEntity())) {
                     PacketDistributor.sendToServer(new HammerUsePack(event.getPos(), hand));
                     event.setCancellationResult(InteractionResult.SUCCESS);
                     event.setCanceled(true);

@@ -35,34 +35,25 @@ public class SilencerButton extends Button {
      * 主动静音器 screen 的按钮
      */
     public SilencerButton(
-            int x,
-            int y,
-            int index,
-            int variant,
-            OnPress onPress,
-            ActiveSilencerScreen parent,
-            String textureVariant) {
-        super(x, y, 10, 10, Component.literal(""), onPress, (var) -> parent
-                .getSoundTextAt(index, variant)
+            int x, int y, int index, int variant, OnPress onPress, ActiveSilencerScreen parent, String textureVariant) {
+        super(x, y, 10, 10, Component.literal(""), onPress, (var) -> parent.getSoundTextAt(index, variant)
                 .copy());
         this.textureVariant = textureVariant;
         this.height = 15;
         this.width = 112;
         this.index = index;
-        texture = AnvilCraft.of(
-                "textures/gui/container/machine/active_silencer_button_%s.png".formatted(textureVariant));
+        texture =
+                AnvilCraft.of("textures/gui/container/machine/active_silencer_button_%s.png".formatted(textureVariant));
         this.parent = parent;
         this.variant = variant;
     }
 
     @Override
-    public void renderWidget(
-            @NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         String searchText = parent.getFilterText();
         ResourceLocation soundId = parent.getSoundIdAt(index, variant);
         if (soundId == null) return;
-        this.renderTexture(
-                guiGraphics, texture, this.getX(), this.getY(), 0, 0, 15, this.width, this.height, 112, 30);
+        this.renderTexture(guiGraphics, texture, this.getX(), this.getY(), 0, 0, 15, this.width, this.height, 112, 30);
         Component message;
         if (searchText.startsWith("#") || searchText.startsWith("~")) {
             message = parent.getSoundTextAt(index, variant);
@@ -74,14 +65,10 @@ public class SilencerButton extends Button {
                     ChatFormatting.YELLOW);
         }
         this.setMessage(message);
-        this.renderString(
-                guiGraphics, Minecraft.getInstance().font, 16777215 | Mth.ceil(this.alpha * 255.0F) << 24);
+        this.renderString(guiGraphics, Minecraft.getInstance().font, 16777215 | Mth.ceil(this.alpha * 255.0F) << 24);
         if (this.isHovered()) {
             Component soundIdText = highlighted(
-                    soundId.toString(),
-                    searchText.replaceFirst("#", ""),
-                    ChatFormatting.GRAY,
-                    ChatFormatting.YELLOW);
+                    soundId.toString(), searchText.replaceFirst("#", ""), ChatFormatting.GRAY, ChatFormatting.YELLOW);
             guiGraphics.renderTooltip(
                     Minecraft.getInstance().font,
                     List.of(message.getVisualOrderText(), soundIdText.getVisualOrderText()),
@@ -98,8 +85,7 @@ public class SilencerButton extends Button {
         String[] parts = original.split(hightlighted);
         List<Component> components = new ArrayList<>();
         for (String s : parts) {
-            components.add(
-                    Component.literal(s).copy().setStyle(Style.EMPTY.applyFormat(originalFormatting)));
+            components.add(Component.literal(s).copy().setStyle(Style.EMPTY.applyFormat(originalFormatting)));
         }
         return ComponentUtils.formatList(
                 components, Component.literal(hightlighted).withStyle(hightlightFormatting));

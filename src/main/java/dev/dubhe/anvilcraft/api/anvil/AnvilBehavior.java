@@ -60,15 +60,13 @@ public interface AnvilBehavior {
                         && state.getValue(TrapDoorBlock.HALF) == Half.TOP
                         && !state.getValue(TrapDoorBlock.OPEN),
                 new ItemCrushBehavior());
-        registerBehavior(
-                state -> state.getBlock() instanceof AbstractCauldronBlock, new TimeWarpBehavior());
+        registerBehavior(state -> state.getBlock() instanceof AbstractCauldronBlock, new TimeWarpBehavior());
         registerBehavior(Blocks.CAULDRON, new SuperHeatingBehavior());
         registerBehavior(Blocks.CAULDRON, new ItemCompressBehavior());
         registerBehavior(ModBlocks.STAMPING_PLATFORM.get(), new ItemStampingBehavior());
         registerBehavior(Blocks.SCAFFOLDING, new ItemMeshBehavior());
         registerBehavior(Blocks.REDSTONE_BLOCK, new RedstoneEMPBehavior());
-        registerBehavior(
-                state -> state.is(Blocks.BEEHIVE) || state.is(Blocks.BEE_NEST), new HitBeeNestBehavior());
+        registerBehavior(state -> state.is(Blocks.BEEHIVE) || state.is(Blocks.BEE_NEST), new HitBeeNestBehavior());
         registerBehavior(Blocks.SPAWNER, new HitSpawnerBehavior());
     }
 }

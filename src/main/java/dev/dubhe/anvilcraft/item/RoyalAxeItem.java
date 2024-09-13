@@ -22,17 +22,12 @@ public class RoyalAxeItem extends AxeItem implements IHasDefaultEnchantment {
      *
      */
     public RoyalAxeItem(Properties properties) {
-        super(
-                Tiers.DIAMOND,
-                properties.attributes(AxeItem.createAttributes(ModTiers.AMETHYST, 5, -3.0f)));
+        super(Tiers.DIAMOND, properties.attributes(AxeItem.createAttributes(ModTiers.AMETHYST, 5, -3.0f)));
     }
 
     @Override
     public void appendHoverText(
-            ItemStack pStack,
-            TooltipContext pContext,
-            List<Component> pTooltipComponents,
-            TooltipFlag pTooltipFlag) {
+            ItemStack pStack, TooltipContext pContext, List<Component> pTooltipComponents, TooltipFlag pTooltipFlag) {
         super.appendHoverText(pStack, pContext, pTooltipComponents, pTooltipFlag);
         pTooltipComponents.addAll(this.getDefaultEnchantmentsTooltip());
     }

@@ -11,9 +11,7 @@ public class AmethystHoeItem extends HoeItem {
      *
      */
     public AmethystHoeItem(Properties properties) {
-        super(
-                ModTiers.AMETHYST,
-                properties.attributes(AxeItem.createAttributes(ModTiers.AMETHYST, -1, -2.0f)));
+        super(ModTiers.AMETHYST, properties.attributes(AxeItem.createAttributes(ModTiers.AMETHYST, -1, -2.0f)));
     }
 
     @Override

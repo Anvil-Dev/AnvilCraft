@@ -24,11 +24,7 @@ public class ResinBlock extends HalfTransparentBlock {
      * @param fallDistance 掉落距离
      */
     public void fallOn(
-            @NotNull Level level,
-            @NotNull BlockState state,
-            @NotNull BlockPos pos,
-            Entity entity,
-            float fallDistance) {
+            @NotNull Level level, @NotNull BlockState state, @NotNull BlockPos pos, Entity entity, float fallDistance) {
         if (entity.isSuppressingBounce()) {
             super.fallOn(level, state, pos, entity, fallDistance);
         } else {
@@ -62,8 +58,7 @@ public class ResinBlock extends HalfTransparentBlock {
      * @param state 方块状态
      * @param entity 实体
      */
-    public void stepOn(
-            @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, Entity entity) {
+    public void stepOn(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, Entity entity) {
         double d = Math.abs(entity.getDeltaMovement().y);
         if (d < 0.1 && !entity.isSteppingCarefully()) {
             double e = 0.4 + d * 0.2;

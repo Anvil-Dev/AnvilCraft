@@ -20,23 +20,20 @@ public class ModEntities {
                     .renderer(() -> AscendingBlockRenderer::new)
                     .register();
 
-    public static final EntityEntry<? extends FallingGiantAnvilEntity> FALLING_GIANT_ANVIL =
-            AnvilCraft.REGISTRATE
-                    .entity("falling_giant_anvil", FallingGiantAnvilEntity::new, MobCategory.MISC)
-                    .renderer(() -> FallingBlockRenderer::new)
-                    .register();
+    public static final EntityEntry<? extends FallingGiantAnvilEntity> FALLING_GIANT_ANVIL = AnvilCraft.REGISTRATE
+            .entity("falling_giant_anvil", FallingGiantAnvilEntity::new, MobCategory.MISC)
+            .renderer(() -> FallingBlockRenderer::new)
+            .register();
 
-    public static final EntityEntry<? extends FallingSpectralBlockEntity> FALLING_SPECTRAL_BLOCK =
-            AnvilCraft.REGISTRATE
-                    .entity("falling_spectral_block", FallingSpectralBlockEntity::new, MobCategory.MISC)
-                    .renderer(() -> SpectralBlockRenderer::new)
-                    .register();
+    public static final EntityEntry<? extends FallingSpectralBlockEntity> FALLING_SPECTRAL_BLOCK = AnvilCraft.REGISTRATE
+            .entity("falling_spectral_block", FallingSpectralBlockEntity::new, MobCategory.MISC)
+            .renderer(() -> SpectralBlockRenderer::new)
+            .register();
 
-    public static final EntityEntry<? extends FloatingBlockEntity> FLOATING_BLOCK =
-            AnvilCraft.REGISTRATE
-                    .entity("floating_block", FloatingBlockEntity::new, MobCategory.MISC)
-                    .renderer(() -> FallingBlockRenderer::new)
-                    .register();
+    public static final EntityEntry<? extends FloatingBlockEntity> FLOATING_BLOCK = AnvilCraft.REGISTRATE
+            .entity("floating_block", FloatingBlockEntity::new, MobCategory.MISC)
+            .renderer(() -> FallingBlockRenderer::new)
+            .register();
 
     public static void register() {
         // intentionally empty

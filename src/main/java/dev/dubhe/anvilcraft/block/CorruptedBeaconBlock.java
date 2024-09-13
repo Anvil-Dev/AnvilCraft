@@ -49,8 +49,7 @@ public class CorruptedBeaconBlock extends BeaconBlock implements IHammerRemovabl
     }
 
     @Override
-    protected void createBlockStateDefinition(
-            @NotNull StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(LIT);
     }
 
@@ -67,9 +66,7 @@ public class CorruptedBeaconBlock extends BeaconBlock implements IHammerRemovabl
 
     @Override
     @Nullable public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-            @NotNull Level level,
-            @NotNull BlockState state,
-            @NotNull BlockEntityType<T> blockEntityType) {
+            @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> blockEntityType) {
         return CorruptedBeaconBlock.createTickerHelper(
                 blockEntityType, ModBlockEntities.CORRUPTED_BEACON.get(), CorruptedBeaconBlockEntity::tick);
     }

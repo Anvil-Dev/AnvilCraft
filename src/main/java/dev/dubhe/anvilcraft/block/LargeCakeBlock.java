@@ -32,8 +32,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.stream.Stream;
 
 public class LargeCakeBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf> {
-    public static final EnumProperty<Cube3x3PartHalf> HALF =
-            EnumProperty.create("half", Cube3x3PartHalf.class);
+    public static final EnumProperty<Cube3x3PartHalf> HALF = EnumProperty.create("half", Cube3x3PartHalf.class);
 
     protected static final VoxelShape BASE_ANGLE_NW = Stream.of(
                     Block.box(1, 0, 1, 16, 6, 16), Block.box(0, 6, 0, 16, 16, 16))
@@ -52,20 +51,16 @@ public class LargeCakeBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf> {
             .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
             .get();
 
-    protected static final VoxelShape BASE_N = Stream.of(
-                    Block.box(0, 6, 0, 16, 16, 16), Block.box(0, 0, 1, 16, 6, 16))
+    protected static final VoxelShape BASE_N = Stream.of(Block.box(0, 6, 0, 16, 16, 16), Block.box(0, 0, 1, 16, 6, 16))
             .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
             .get();
-    protected static final VoxelShape BASE_W = Stream.of(
-                    Block.box(0, 6, 0, 16, 16, 16), Block.box(1, 0, 0, 16, 6, 16))
+    protected static final VoxelShape BASE_W = Stream.of(Block.box(0, 6, 0, 16, 16, 16), Block.box(1, 0, 0, 16, 6, 16))
             .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
             .get();
-    protected static final VoxelShape BASE_S = Stream.of(
-                    Block.box(0, 6, 0, 16, 16, 16), Block.box(0, 0, 0, 16, 6, 15))
+    protected static final VoxelShape BASE_S = Stream.of(Block.box(0, 6, 0, 16, 16, 16), Block.box(0, 0, 0, 16, 6, 15))
             .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
             .get();
-    protected static final VoxelShape BASE_E = Stream.of(
-                    Block.box(0, 6, 0, 16, 16, 16), Block.box(0, 0, 0, 15, 6, 16))
+    protected static final VoxelShape BASE_E = Stream.of(Block.box(0, 6, 0, 16, 16, 16), Block.box(0, 0, 0, 15, 6, 16))
             .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
             .get();
 
@@ -88,20 +83,16 @@ public class LargeCakeBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf> {
             .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
             .get();
 
-    protected static final VoxelShape MID_N = Stream.of(
-                    Block.box(1, 5, 5, 15, 14, 17), Block.box(1, 0, 6, 15, 5, 17))
+    protected static final VoxelShape MID_N = Stream.of(Block.box(1, 5, 5, 15, 14, 17), Block.box(1, 0, 6, 15, 5, 17))
             .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
             .get();
-    protected static final VoxelShape MID_W = Stream.of(
-                    Block.box(5, 5, 1, 17, 14, 15), Block.box(6, 0, 1, 17, 5, 15))
+    protected static final VoxelShape MID_W = Stream.of(Block.box(5, 5, 1, 17, 14, 15), Block.box(6, 0, 1, 17, 5, 15))
             .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
             .get();
-    protected static final VoxelShape MID_S = Stream.of(
-                    Block.box(1, 5, -1, 15, 14, 11), Block.box(1, 0, -1, 15, 5, 10))
+    protected static final VoxelShape MID_S = Stream.of(Block.box(1, 5, -1, 15, 14, 11), Block.box(1, 0, -1, 15, 5, 10))
             .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
             .get();
-    protected static final VoxelShape MID_E = Stream.of(
-                    Block.box(-1, 5, 1, 11, 14, 15), Block.box(-1, 0, 1, 10, 5, 15))
+    protected static final VoxelShape MID_E = Stream.of(Block.box(-1, 5, 1, 11, 14, 15), Block.box(-1, 0, 1, 10, 5, 15))
             .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
             .get();
 
@@ -135,12 +126,10 @@ public class LargeCakeBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf> {
                     Block.box(11, -2, 2, 18, 2, 14), Block.box(10, 2, 2, 18, 10, 14))
             .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
             .get();
-    protected static final VoxelShape TOP_S = Stream.of(
-                    Block.box(2, -2, -2, 14, 2, 5), Block.box(2, 2, -2, 14, 10, 6))
+    protected static final VoxelShape TOP_S = Stream.of(Block.box(2, -2, -2, 14, 2, 5), Block.box(2, 2, -2, 14, 10, 6))
             .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
             .get();
-    protected static final VoxelShape TOP_E = Stream.of(
-                    Block.box(-2, -2, 2, 5, 2, 14), Block.box(-2, 2, 2, 6, 10, 14))
+    protected static final VoxelShape TOP_E = Stream.of(Block.box(-2, -2, 2, 5, 2, 14), Block.box(-2, 2, 2, 6, 10, 14))
             .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
             .get();
 
@@ -149,8 +138,7 @@ public class LargeCakeBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf> {
      */
     public LargeCakeBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(
-                this.stateDefinition.any().setValue(HALF, Cube3x3PartHalf.BOTTOM_CENTER));
+        this.registerDefaultState(this.stateDefinition.any().setValue(HALF, Cube3x3PartHalf.BOTTOM_CENTER));
     }
 
     @SuppressWarnings("deprecation")
@@ -192,8 +180,7 @@ public class LargeCakeBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf> {
     }
 
     @Override
-    protected void createBlockStateDefinition(
-            @NotNull StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(HALF);
     }
 
@@ -208,8 +195,7 @@ public class LargeCakeBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf> {
     }
 
     @Override
-    public float getShadeBrightness(
-            @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos) {
+    public float getShadeBrightness(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos) {
         return 1.0F;
     }
 
@@ -242,17 +228,12 @@ public class LargeCakeBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf> {
             @NotNull LevelAccessor level,
             @NotNull BlockPos pos,
             @NotNull BlockPos neighborPos) {
-        return direction == Direction.DOWN && !state.canSurvive(level, pos)
-                ? Blocks.AIR.defaultBlockState()
-                : state;
+        return direction == Direction.DOWN && !state.canSurvive(level, pos) ? Blocks.AIR.defaultBlockState() : state;
     }
 
     @Override
     public @NotNull BlockState playerWillDestroy(
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull BlockState state,
-            @NotNull Player player) {
+            @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player) {
         this.spawnDestroyParticles(level, player, pos, state);
         if (state.is(BlockTags.GUARDED_BY_PIGLINS)) {
             PiglinAi.angerNearbyPiglins(player, false);

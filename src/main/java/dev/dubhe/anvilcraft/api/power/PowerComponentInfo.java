@@ -6,13 +6,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 public record PowerComponentInfo(
-        BlockPos pos,
-        int consumes,
-        int produces,
-        int stores,
-        int capacity,
-        int range,
-        PowerComponentType type) {
+        BlockPos pos, int consumes, int produces, int stores, int capacity, int range, PowerComponentType type) {
     public static final Codec<PowerComponentInfo> CODEC = RecordCodecBuilder.create(ins -> ins.group(
                     BlockPos.CODEC.fieldOf("pos").forGetter(o -> o.pos),
                     Codec.INT.fieldOf("consumes").forGetter(o -> o.consumes),

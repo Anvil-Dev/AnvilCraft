@@ -107,16 +107,12 @@ public class HeliostatsItem extends BlockItem {
 
     @Override
     public void appendHoverText(
-            ItemStack stack,
-            Item.TooltipContext context,
-            List<Component> tooltipComponents,
-            TooltipFlag isAdvanced) {
+            ItemStack stack, Item.TooltipContext context, List<Component> tooltipComponents, TooltipFlag isAdvanced) {
         super.appendHoverText(stack, context, tooltipComponents, isAdvanced);
         if (hasDataStored(stack)) {
             BlockPos pos = getData(stack);
-            tooltipComponents.add(
-                    Component.translatable("item.anvilcraft.heliostats.pos_set", pos.toShortString())
-                            .withStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
+            tooltipComponents.add(Component.translatable("item.anvilcraft.heliostats.pos_set", pos.toShortString())
+                    .withStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
         }
     }
 

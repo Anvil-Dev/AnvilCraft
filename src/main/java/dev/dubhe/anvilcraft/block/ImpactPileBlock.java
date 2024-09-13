@@ -17,8 +17,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
 public class ImpactPileBlock extends Block implements IHammerRemovable {
-    private static final VoxelShape SHAPE = Shapes.or(
-            Block.box(5, 14, 5, 11, 16, 11), Block.box(7, 0, 7, 9, 2, 9), Block.box(6, 2, 6, 10, 14, 10));
+    private static final VoxelShape SHAPE =
+            Shapes.or(Block.box(5, 14, 5, 11, 16, 11), Block.box(7, 0, 7, 9, 2, 9), Block.box(6, 2, 6, 10, 14, 10));
 
     public ImpactPileBlock(Properties properties) {
         super(properties);

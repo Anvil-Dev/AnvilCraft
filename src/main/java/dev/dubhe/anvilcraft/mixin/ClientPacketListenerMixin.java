@@ -24,8 +24,7 @@ public abstract class ClientPacketListenerMixin {
     private void handleLogin(ClientboundLoginPacket packet, CallbackInfo ci) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
-            AnvilCraft.EVENT_BUS.post(
-                    new PlayerEvent.ClientPlayerJoin(player, player.getOnPos(), this.getLevel()));
+            AnvilCraft.EVENT_BUS.post(new PlayerEvent.ClientPlayerJoin(player, player.getOnPos(), this.getLevel()));
         }
     }
 }

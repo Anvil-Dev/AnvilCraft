@@ -55,8 +55,7 @@ import javax.annotation.Nonnull;
 import static dev.dubhe.anvilcraft.block.ChuteBlock.ENABLED;
 import static dev.dubhe.anvilcraft.block.ChuteBlock.hasChuteFacing;
 
-public class MagneticChuteBlock extends BetterBaseEntityBlock
-        implements IHammerChangeableBlock, IHammerRemovable {
+public class MagneticChuteBlock extends BetterBaseEntityBlock implements IHammerChangeableBlock, IHammerRemovable {
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
@@ -171,12 +170,10 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock
                 return;
             }
             BlockState newState = ModBlocks.SIMPLE_CHUTE.getDefaultState();
-            newState = newState
-                    .setValue(SimpleChuteBlock.FACING, facingState.getValue(ChuteBlock.FACING))
+            newState = newState.setValue(SimpleChuteBlock.FACING, facingState.getValue(ChuteBlock.FACING))
                     .setValue(SimpleChuteBlock.ENABLED, facingState.getValue(SimpleChuteBlock.ENABLED));
             if (facingState.hasProperty(SimpleChuteBlock.TALL))
-                newState =
-                        newState.setValue(SimpleChuteBlock.TALL, facingState.getValue(SimpleChuteBlock.TALL));
+                newState = newState.setValue(SimpleChuteBlock.TALL, facingState.getValue(SimpleChuteBlock.TALL));
             BlockState facingUpState =
                     level.getBlockState(pos.relative(state.getValue(FACING)).relative(Direction.UP));
             if (state.getValue(FACING) == Direction.DOWN || isFacingDownChute(facingUpState)) {
@@ -213,8 +210,7 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock
     }
 
     @Override
-    protected void createBlockStateDefinition(
-            @Nonnull StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(@Nonnull StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING, POWERED);
     }
 
@@ -231,9 +227,7 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock
 
     @Override
     public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-            @NotNull Level level,
-            @NotNull BlockState state,
-            @NotNull BlockEntityType<T> blockEntityType) {
+            @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> blockEntityType) {
         if (level.isClientSide()) {
             return null;
         }
@@ -261,16 +255,14 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock
             }
             if (player instanceof ServerPlayer serverPlayer) {
                 ModMenuTypes.open(serverPlayer, entity, pos);
-                PacketDistributor.sendToPlayer(
-                        serverPlayer, new MachineOutputDirectionPack(entity.getDirection()));
-                PacketDistributor.sendToPlayer(
-                        serverPlayer, new MachineEnableFilterPack(entity.isFilterEnabled()));
+                PacketDistributor.sendToPlayer(serverPlayer, new MachineOutputDirectionPack(entity.getDirection()));
+                PacketDistributor.sendToPlayer(serverPlayer, new MachineEnableFilterPack(entity.isFilterEnabled()));
                 for (int i = 0; i < entity.getFilteredItems().size(); i++) {
                     PacketDistributor.sendToPlayer(
                             serverPlayer,
-                            new SlotDisableChangePack(i, entity.getDepository().getDisabled().get(i)));
-                    PacketDistributor.sendToPlayer(
-                            serverPlayer, new SlotFilterChangePack(i, entity.getFilter(i)));
+                            new SlotDisableChangePack(
+                                    i, entity.getDepository().getDisabled().get(i)));
+                    PacketDistributor.sendToPlayer(serverPlayer, new SlotFilterChangePack(i, entity.getFilter(i)));
                 }
             }
         }

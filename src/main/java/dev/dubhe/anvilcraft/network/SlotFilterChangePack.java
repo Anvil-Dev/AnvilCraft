@@ -18,13 +18,11 @@ import net.neoforged.neoforge.network.handling.IPayloadHandler;
 import org.jetbrains.annotations.NotNull;
 
 public class SlotFilterChangePack implements CustomPacketPayload {
-    public static final Type<SlotFilterChangePack> TYPE =
-            new Type<>(AnvilCraft.of("slot_filter_change"));
+    public static final Type<SlotFilterChangePack> TYPE = new Type<>(AnvilCraft.of("slot_filter_change"));
     public static final StreamCodec<RegistryFriendlyByteBuf, SlotFilterChangePack> STREAM_CODEC =
             StreamCodec.ofMember(SlotFilterChangePack::encode, SlotFilterChangePack::new);
     public static final IPayloadHandler<SlotFilterChangePack> HANDLER =
-            new DirectionalPayloadHandler<>(
-                    SlotFilterChangePack::clientHandler, SlotFilterChangePack::serverHandler);
+            new DirectionalPayloadHandler<>(SlotFilterChangePack::clientHandler, SlotFilterChangePack::serverHandler);
 
     private final int index;
     private final ItemStack filter;

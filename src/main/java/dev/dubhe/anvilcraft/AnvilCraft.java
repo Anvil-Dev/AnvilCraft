@@ -45,8 +45,8 @@ public class AnvilCraft {
     public static final String MOD_NAME = "AnvilCraft";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
     public static IEventBus EVENT_BUS;
-    public static AnvilCraftConfig config =
-            AutoConfig.register(AnvilCraftConfig.class, JanksonConfigSerializer::new).getConfig();
+    public static AnvilCraftConfig config = AutoConfig.register(AnvilCraftConfig.class, JanksonConfigSerializer::new)
+            .getConfig();
 
     public static final Registrate REGISTRATE = Registrate.create(MOD_ID);
 
@@ -93,14 +93,10 @@ public class AnvilCraft {
     public static void addReloadListeners(AddReloadListenerEvent event) {
         RecipeManager recipeManager = event.getServerResources().getRecipeManager();
         event.addListener(
-                ((prepBarrier,
-                        resourceManager,
-                        prepProfiler,
-                        reloadProfiler,
-                        backgroundExecutor,
-                        gameExecutor) -> prepBarrier
-                        .wait(Unit.INSTANCE)
-                        .thenRunAsync(() -> RecipeCaches.reload(recipeManager), gameExecutor)));
+                ((prepBarrier, resourceManager, prepProfiler, reloadProfiler, backgroundExecutor, gameExecutor) ->
+                        prepBarrier
+                                .wait(Unit.INSTANCE)
+                                .thenRunAsync(() -> RecipeCaches.reload(recipeManager), gameExecutor)));
     }
 
     public static void loadComplete(FMLLoadCompleteEvent event) {

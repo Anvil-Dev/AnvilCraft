@@ -16,7 +16,6 @@ public class LightningEventListener {
      */
     @SubscribeEvent
     public static void onLightningStrike(@NotNull LightningBoltStrikeEvent event) {
-        AnvilCraft.EVENT_BUS.post(
-                new LightningStrikeEvent(event.getEntity(), event.getPos(), event.getLevel()));
+        AnvilCraft.EVENT_BUS.post(new LightningStrikeEvent(event.getEntity(), event.getPos(), event.getLevel()));
     }
 }

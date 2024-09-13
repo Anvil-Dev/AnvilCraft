@@ -45,8 +45,7 @@ public class TopazItem extends Item {
     private void breakItem(Player player, @NotNull ItemStack stack) {
         if (!stack.isEmpty()) {
             if (!player.isSilent()) {
-                player
-                        .level()
+                player.level()
                         .playLocalSound(
                                 player.getX(),
                                 player.getY(),
@@ -63,8 +62,7 @@ public class TopazItem extends Item {
 
     private void spawnItemParticles(Player player, ItemStack stack) {
         for (int i = 0; i < 5; ++i) {
-            Vec3 vec3 = new Vec3(
-                    ((double) player.getRandom().nextFloat() - 0.5) * 0.1, Math.random() * 0.1 + 0.1, 0.0);
+            Vec3 vec3 = new Vec3(((double) player.getRandom().nextFloat() - 0.5) * 0.1, Math.random() * 0.1 + 0.1, 0.0);
             vec3 = vec3.xRot(-player.getXRot() * ((float) Math.PI / 180));
             vec3 = vec3.yRot(-player.getYRot() * ((float) Math.PI / 180));
             double d = (double) (-player.getRandom().nextFloat()) * 0.6 - 0.3;
@@ -72,8 +70,7 @@ public class TopazItem extends Item {
             vec32 = vec32.xRot(-player.getXRot() * ((float) Math.PI / 180));
             vec32 = vec32.yRot(-player.getYRot() * ((float) Math.PI / 180));
             vec32 = vec32.add(player.getX(), player.getEyeY(), player.getZ());
-            player
-                    .level()
+            player.level()
                     .addParticle(
                             new ItemParticleOption(ParticleTypes.ITEM, stack),
                             vec32.x,

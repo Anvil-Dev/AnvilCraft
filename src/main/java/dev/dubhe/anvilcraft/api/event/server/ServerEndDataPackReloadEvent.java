@@ -9,8 +9,7 @@ import lombok.Getter;
 public class ServerEndDataPackReloadEvent extends ServerEvent {
     private final CloseableResourceManager resourceManager;
 
-    public ServerEndDataPackReloadEvent(
-            MinecraftServer server, CloseableResourceManager resourceManager) {
+    public ServerEndDataPackReloadEvent(MinecraftServer server, CloseableResourceManager resourceManager) {
         super(server);
         this.resourceManager = resourceManager;
     }

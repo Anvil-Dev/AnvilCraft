@@ -22,8 +22,7 @@ import java.util.function.BiFunction;
  * 有过滤的 GUI
  */
 public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> {
-    ResourceLocation DISABLED_SLOT =
-            AnvilCraft.of("textures/gui/container/machine/disabled_slot.png");
+    ResourceLocation DISABLED_SLOT = AnvilCraft.of("textures/gui/container/machine/disabled_slot.png");
 
     T getFilterMenu();
 
@@ -95,8 +94,7 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> {
      * @param y 按钮 Y 坐标
      * @return 生成启用过滤按钮的生成器
      */
-    default BiFunction<Integer, Integer, EnableFilterButton> getEnableFilterButtonSupplier(
-            int x, int y) {
+    default BiFunction<Integer, Integer, EnableFilterButton> getEnableFilterButtonSupplier(int x, int y) {
         return (i, j) -> new EnableFilterButton(
                 i + x,
                 j + y,
@@ -146,8 +144,7 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> {
      * @param slot        槽位
      * @param stack       物品堆栈
      */
-    default void renderFilterItem(
-            @NotNull GuiGraphics guiGraphics, @NotNull Slot slot, @NotNull ItemStack stack) {
+    default void renderFilterItem(@NotNull GuiGraphics guiGraphics, @NotNull Slot slot, @NotNull ItemStack stack) {
         int i = slot.x;
         int j = slot.y;
         guiGraphics.renderFakeItem(stack, i, j);

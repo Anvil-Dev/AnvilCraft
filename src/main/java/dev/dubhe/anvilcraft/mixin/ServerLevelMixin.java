@@ -15,7 +15,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ServerLevelMixin {
     @Inject(method = "onBlockStateChange", at = @At("RETURN"))
     void onBlockChange(BlockPos pos, BlockState blockState, BlockState newState, CallbackInfo ci) {
-        HeatedBlockRecorder.getInstance((ServerLevel) (Object) this)
-                .onBlockStateChange(pos, blockState, newState);
+        HeatedBlockRecorder.getInstance((ServerLevel) (Object) this).onBlockStateChange(pos, blockState, newState);
     }
 }

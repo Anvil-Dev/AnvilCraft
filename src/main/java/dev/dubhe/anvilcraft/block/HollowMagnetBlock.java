@@ -23,8 +23,7 @@ import org.jetbrains.annotations.NotNull;
 public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedBlock {
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     private static final VoxelShape REDUCE_AABB = Block.box(5.0, 0.0, 5.0, 11.0, 16.0, 11.0);
-    private static final VoxelShape AABB =
-            Shapes.join(Shapes.block(), REDUCE_AABB, BooleanOp.NOT_SAME);
+    private static final VoxelShape AABB = Shapes.join(Shapes.block(), REDUCE_AABB, BooleanOp.NOT_SAME);
 
     public HollowMagnetBlock(Properties properties) {
         super(properties);
@@ -32,8 +31,7 @@ public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedB
     }
 
     @Override
-    protected void createBlockStateDefinition(
-            @NotNull StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
         builder.add(WATERLOGGED);
     }
@@ -66,9 +64,7 @@ public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedB
     @Override
     @SuppressWarnings("deprecation")
     public @NotNull FluidState getFluidState(@NotNull BlockState blockState) {
-        return blockState.getValue(WATERLOGGED)
-                ? Fluids.WATER.getSource(false)
-                : super.getFluidState(blockState);
+        return blockState.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(blockState);
     }
 
     @Override
@@ -83,7 +79,6 @@ public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedB
         if (blockState.getValue(WATERLOGGED)) {
             levelAccessor.scheduleTick(blockPos, Fluids.WATER, Fluids.WATER.getTickDelay(levelAccessor));
         }
-        return super.updateShape(
-                blockState, direction, blockState2, levelAccessor, blockPos, blockPos2);
+        return super.updateShape(blockState, direction, blockState2, levelAccessor, blockPos, blockPos2);
     }
 }

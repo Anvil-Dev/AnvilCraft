@@ -57,13 +57,11 @@ public class LevelLoadManager {
     }
 
     public static void reload(ServerLevel serverLevel) {
-        for (LoadChuckData loadChuckData : LEVEL_LOAD_CHUCK_AREA_MAP.values())
-            loadChuckData.load(serverLevel);
+        for (LoadChuckData loadChuckData : LEVEL_LOAD_CHUCK_AREA_MAP.values()) loadChuckData.load(serverLevel);
     }
 
     public static void removeAll(ServerLevel level) {
-        for (LoadChuckData loadChuckData : LEVEL_LOAD_CHUCK_AREA_MAP.values())
-            loadChuckData.unLoad(level);
+        for (LoadChuckData loadChuckData : LEVEL_LOAD_CHUCK_AREA_MAP.values()) loadChuckData.unLoad(level);
         LEVEL_LOAD_CHUCK_AREA_MAP.clear();
     }
 }

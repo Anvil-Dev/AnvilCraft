@@ -17,8 +17,7 @@ public class DischargerBlock extends ChargerBlock {
     }
 
     @Override
-    public boolean change(
-            Player player, BlockPos blockPos, @NotNull Level level, ItemStack anvilHammer) {
+    public boolean change(Player player, BlockPos blockPos, @NotNull Level level, ItemStack anvilHammer) {
         level.setBlock(blockPos, ModBlocks.CHARGER.getDefaultState(), 2);
         if (level.getBlockEntity(blockPos) instanceof StateListener<?> listener) {
             StateListener<Boolean> thiz = (StateListener<Boolean>) listener;

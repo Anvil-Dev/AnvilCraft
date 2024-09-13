@@ -18,8 +18,7 @@ public class GiantAnvilFallOnLandEvent extends EntityEvent<FallingGiantAnvilEnti
      * @param pos    位置
      * @param level  世界
      */
-    public GiantAnvilFallOnLandEvent(
-            FallingGiantAnvilEntity entity, BlockPos pos, Level level, float fallDistance) {
+    public GiantAnvilFallOnLandEvent(FallingGiantAnvilEntity entity, BlockPos pos, Level level, float fallDistance) {
         super(entity, pos, level);
         this.fallDistance = fallDistance;
     }

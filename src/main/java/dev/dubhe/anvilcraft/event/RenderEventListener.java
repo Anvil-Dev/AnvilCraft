@@ -63,8 +63,7 @@ public class RenderEventListener {
             if (Minecraft.getInstance().level == null) return;
             BlockEntity e = Minecraft.getInstance().level.getBlockEntity(blockPos);
             if (e == null) return;
-            HudTooltipManager.INSTANCE.renderAffectRange(
-                    e, event.getPoseStack(), vertexConsumer3, camX, camY, camZ);
+            HudTooltipManager.INSTANCE.renderAffectRange(e, event.getPoseStack(), vertexConsumer3, camX, camY, camZ);
         }
     }
 }

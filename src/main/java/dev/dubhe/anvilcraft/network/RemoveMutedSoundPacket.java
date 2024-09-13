@@ -14,12 +14,10 @@ import net.neoforged.neoforge.network.handling.IPayloadHandler;
 import org.jetbrains.annotations.NotNull;
 
 public class RemoveMutedSoundPacket implements CustomPacketPayload {
-    public static final Type<RemoveMutedSoundPacket> TYPE =
-            new Type<>(AnvilCraft.of("muted_sound_remove"));
+    public static final Type<RemoveMutedSoundPacket> TYPE = new Type<>(AnvilCraft.of("muted_sound_remove"));
     public static final StreamCodec<RegistryFriendlyByteBuf, RemoveMutedSoundPacket> STREAM_CODEC =
             StreamCodec.ofMember(RemoveMutedSoundPacket::encode, RemoveMutedSoundPacket::new);
-    public static final IPayloadHandler<RemoveMutedSoundPacket> HANDLER =
-            RemoveMutedSoundPacket::serverHandler;
+    public static final IPayloadHandler<RemoveMutedSoundPacket> HANDLER = RemoveMutedSoundPacket::serverHandler;
 
     private final ResourceLocation soundId;
 

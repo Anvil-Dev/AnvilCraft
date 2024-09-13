@@ -56,13 +56,11 @@ public class TooltipRenderHelper {
             float l = (float) (maxY - minY);
             float m = (float) (maxZ - minZ);
             float n = Mth.sqrt(k * k + l * l + m * m);
-            consumer
-                    .addVertex(pose.pose(), (float) (minX + x), (float) (minY + y), (float) (minZ + z))
+            consumer.addVertex(pose.pose(), (float) (minX + x), (float) (minY + y), (float) (minZ + z))
                     .setColor(color)
                     .setNormal(pose.copy(), k /= n, l /= n, m /= n);
 
-            consumer
-                    .addVertex(pose.pose(), (float) (maxX + x), (float) (maxY + y), (float) (maxZ + z))
+            consumer.addVertex(pose.pose(), (float) (maxX + x), (float) (maxY + y), (float) (maxZ + z))
                     .setColor(color)
                     .setNormal(pose.copy(), k, l, m);
         });
@@ -102,8 +100,7 @@ public class TooltipRenderHelper {
             height += component.getHeight();
         }
 
-        Vector2ic vector2ic =
-                tooltipPositioner.positionTooltip(thiz.guiWidth(), thiz.guiHeight(), x, y, width, height);
+        Vector2ic vector2ic = tooltipPositioner.positionTooltip(thiz.guiWidth(), thiz.guiHeight(), x, y, width, height);
         int vx = vector2ic.x();
         int vy = vector2ic.y();
         thiz.pose().pushPose();
@@ -112,14 +109,7 @@ public class TooltipRenderHelper {
         int finalWidth = width;
         int finalHeight = height + 16;
         thiz.drawManaged(() -> renderTooltipBackground(
-                thiz,
-                vx,
-                finalVy,
-                finalWidth,
-                finalHeight,
-                backgroundColor,
-                borderTopColor,
-                borderBottomColor));
+                thiz, vx, finalVy, finalWidth, finalHeight, backgroundColor, borderTopColor, borderBottomColor));
         thiz.pose().translate(0.0F, 0.0F, 400.0F);
 
         thiz.renderFakeItem(itemStack, vx, vy);
@@ -164,22 +154,14 @@ public class TooltipRenderHelper {
     }
 
     private static void renderFrameGradient(
-            GuiGraphics guiGraphics,
-            int x,
-            int y,
-            int width,
-            int height,
-            int z,
-            int topColor,
-            int bottomColor) {
+            GuiGraphics guiGraphics, int x, int y, int width, int height, int z, int topColor, int bottomColor) {
         renderVerticalLineGradient(guiGraphics, x, y, height - 2, z, topColor, bottomColor);
         renderVerticalLineGradient(guiGraphics, x + width - 1, y, height - 2, z, topColor, bottomColor);
         renderHorizontalLine(guiGraphics, x, y - 1, width, z, topColor);
         renderHorizontalLine(guiGraphics, x, y - 1 + height - 1, width, z, bottomColor);
     }
 
-    private static void renderVerticalLine(
-            GuiGraphics guiGraphics, int x, int y, int length, int z, int color) {
+    private static void renderVerticalLine(GuiGraphics guiGraphics, int x, int y, int length, int z, int color) {
         guiGraphics.fill(x, y, x + 1, y + length, z, color);
     }
 
@@ -188,8 +170,7 @@ public class TooltipRenderHelper {
         guiGraphics.fillGradient(x, y, x + 1, y + length, z, topColor, bottomColor);
     }
 
-    private static void renderHorizontalLine(
-            GuiGraphics guiGraphics, int x, int y, int length, int z, int color) {
+    private static void renderHorizontalLine(GuiGraphics guiGraphics, int x, int y, int length, int z, int color) {
         guiGraphics.fill(x, y, x + length, y + 1, z, color);
     }
 

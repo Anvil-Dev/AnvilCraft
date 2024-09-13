@@ -48,8 +48,7 @@ public class ConfigScreenLang {
             provider.add(OPTION_STRING.formatted(AnvilCraft.MOD_ID, fieldName), name);
             if (field.isAnnotationPresent(Comment.class)) {
                 Comment comment = field.getAnnotation(Comment.class);
-                provider.add(
-                        OPTION_TOOLTIP_STRING.formatted(AnvilCraft.MOD_ID, fieldName), comment.value());
+                provider.add(OPTION_TOOLTIP_STRING.formatted(AnvilCraft.MOD_ID, fieldName), comment.value());
             }
         }
     }

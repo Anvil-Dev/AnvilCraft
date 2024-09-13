@@ -25,8 +25,7 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
                         .getResource("org/violetmoon/zeta/piston/ZetaPistonStructureResolver.class")
                 != null;
         hasZetaPiston = this.isLoaded("org/violetmoon/zeta/piston/ZetaPistonStructureResolver.class");
-        hasReiScreen =
-                this.isLoaded("me/shedaniel/rei/impl/client/gui/screen/DefaultDisplayViewingScreen.class");
+        hasReiScreen = this.isLoaded("me/shedaniel/rei/impl/client/gui/screen/DefaultDisplayViewingScreen.class");
     }
 
     @Override
@@ -53,12 +52,10 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
     }
 
     @Override
-    public void preApply(
-            String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {}
+    public void preApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {}
 
     @Override
-    public void postApply(
-            String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
+    public void postApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
         if (!targetClassName.contains("dev.dubhe.anvilcraft.integration.emi.DoubleBlockIcon")) return;
         for (MethodNode methodNode : targetClass.methods) {
             if (methodNode.name.equals("method_25394")) {

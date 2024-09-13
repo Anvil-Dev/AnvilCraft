@@ -76,8 +76,7 @@ abstract class AnvilBlockMixin extends FallingBlock {
         if (!this.anvilCraft$isAttracts(state1)) this.anvilCraft$wasAttracted(state, level, pos);
     }
     // -1 -56 7, -1 -57 7
-    @Unique private void anvilCraft$wasAttracted(
-            BlockState state, @NotNull Level level, @NotNull BlockPos anvil) {
+    @Unique private void anvilCraft$wasAttracted(BlockState state, @NotNull Level level, @NotNull BlockPos anvil) {
         BlockPos magnet = anvil;
         BlockState aboveState = level.getBlockState(anvil.above());
         if (aboveState.is(ModBlockTags.MAGNET) || aboveState.getBlock() instanceof MagnetBlock) return;

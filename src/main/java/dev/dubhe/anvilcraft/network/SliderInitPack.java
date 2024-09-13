@@ -16,15 +16,14 @@ import lombok.Getter;
 @Getter
 public class SliderInitPack implements CustomPacketPayload {
     public static final Type<SliderInitPack> TYPE = new Type<>(AnvilCraft.of("slider_init"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, SliderInitPack> STREAM_CODEC =
-            StreamCodec.composite(
-                    ByteBufCodecs.INT,
-                    SliderInitPack::getValue,
-                    ByteBufCodecs.INT,
-                    SliderInitPack::getMin,
-                    ByteBufCodecs.INT,
-                    SliderInitPack::getMax,
-                    SliderInitPack::new);
+    public static final StreamCodec<RegistryFriendlyByteBuf, SliderInitPack> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.INT,
+            SliderInitPack::getValue,
+            ByteBufCodecs.INT,
+            SliderInitPack::getMin,
+            ByteBufCodecs.INT,
+            SliderInitPack::getMax,
+            SliderInitPack::new);
     public static final IPayloadHandler<SliderInitPack> HANDLER = SliderInitPack::clientHandler;
 
     private final int value;

@@ -23,13 +23,11 @@ public interface ICursed {
      * @param slotId     槽位id
      * @param isSelected 是否选中
      */
-    default void inventoryTick(
-            ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
+    default void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         if (!(entity instanceof Player player)) return;
         if (player.getAbilities().instabuild) return;
         MobEffectInstance weakness = new MobEffectInstance(MobEffects.WEAKNESS, 200, 1, false, true);
-        MobEffectInstance slowness =
-                new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 200, 1, false, true);
+        MobEffectInstance slowness = new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 200, 1, false, true);
         MobEffectInstance hungry = new MobEffectInstance(MobEffects.HUNGER, 200, 1, false, true);
         player.addEffect((weakness));
         int curedNumber = ICursed.hasCuredNumber(player);

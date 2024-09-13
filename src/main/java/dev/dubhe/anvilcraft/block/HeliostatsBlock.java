@@ -23,8 +23,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class HeliostatsBlock extends BaseEntityBlock implements IHammerRemovable {
-    public static final VoxelShape SHAPE = Shapes.or(
-            Block.box(1, 8, 1, 15, 13, 15), Block.box(4, 0, 4, 12, 2, 12), Block.box(7, 2, 7, 9, 8, 9));
+    public static final VoxelShape SHAPE =
+            Shapes.or(Block.box(1, 8, 1, 15, 13, 15), Block.box(4, 0, 4, 12, 2, 12), Block.box(7, 2, 7, 9, 8, 9));
 
     public HeliostatsBlock(Properties properties) {
         super(properties);

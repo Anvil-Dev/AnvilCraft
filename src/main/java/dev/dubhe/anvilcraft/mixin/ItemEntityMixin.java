@@ -62,8 +62,7 @@ abstract class ItemEntityMixin extends Entity {
         Vec3 vec3 = instance.getDeltaMovement();
         double dy = 1;
         if (this.getItem().is(ModItems.LEVITATION_POWDER.get())) dy *= -0.005;
-        if (this.level().getBlockState(this.blockPosition()).is(ModBlocks.HOLLOW_MAGNET_BLOCK.get()))
-            dy *= 0.2;
+        if (this.level().getBlockState(this.blockPosition()).is(ModBlocks.HOLLOW_MAGNET_BLOCK.get())) dy *= 0.2;
         return new Vec3(vec3.x, vec3.y * dy, vec3.z);
     }
 
@@ -75,8 +74,7 @@ abstract class ItemEntityMixin extends Entity {
         ItemStack itemStack = this.getItem();
         if (!itemStack.is(Items.IRON_INGOT)) return;
         BlockState blockState = this.level().getBlockState(this.blockPosition());
-        if (!blockState.is(ModBlocks.HOLLOW_MAGNET_BLOCK.get())
-                || blockState.getValue(HollowMagnetBlock.LIT)) return;
+        if (!blockState.is(ModBlocks.HOLLOW_MAGNET_BLOCK.get()) || blockState.getValue(HollowMagnetBlock.LIT)) return;
         if (this.getOwner() == null || !(this.getOwner() instanceof ServerPlayer)) return;
         if (itemStack.getCount() != 1) return;
         if (!this.anvilcraft$needMagnetization) return;
@@ -94,8 +92,7 @@ abstract class ItemEntityMixin extends Entity {
     }
 
     @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
-    private void explosionProof(
-            DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+    private void explosionProof(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         if (!this.getItem().isEmpty()
                 && this.getItem().is(ModItemTags.EXPLOSION_PROOF)
                 && source.is(DamageTypeTags.IS_EXPLOSION)) {

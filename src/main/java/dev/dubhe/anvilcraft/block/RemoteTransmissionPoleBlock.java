@@ -34,8 +34,7 @@ import javax.annotation.Nonnull;
 
 public class RemoteTransmissionPoleBlock extends AbstractMultiplePartBlock<Vertical4PartHalf>
         implements IHammerRemovable, IHasMultiBlock, EntityBlock {
-    public static final EnumProperty<Vertical4PartHalf> HALF =
-            EnumProperty.create("half", Vertical4PartHalf.class);
+    public static final EnumProperty<Vertical4PartHalf> HALF = EnumProperty.create("half", Vertical4PartHalf.class);
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
     public static final EnumProperty<IPowerComponent.Switch> SWITCH = IPowerComponent.SWITCH;
     public static final VoxelShape TRANSMISSION_POLE_TOP =
@@ -81,8 +80,7 @@ public class RemoteTransmissionPoleBlock extends AbstractMultiplePartBlock<Verti
     }
 
     @Override
-    protected void createBlockStateDefinition(
-            @NotNull StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(HALF).add(OVERLOAD).add(SWITCH);
     }
 
@@ -113,10 +111,7 @@ public class RemoteTransmissionPoleBlock extends AbstractMultiplePartBlock<Verti
 
     @Override
     public @NotNull BlockState playerWillDestroy(
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull BlockState state,
-            @NotNull Player player) {
+            @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player) {
         if (level.isClientSide) return state;
         onRemove(level, pos, state);
         super.playerWillDestroy(level, pos, state, player);

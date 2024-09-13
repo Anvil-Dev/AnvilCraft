@@ -26,8 +26,7 @@ public class AnvilHurtVillagerEventListener {
             RandomSource random = event.getLevel().random;
             double change = random.nextDouble();
             if (change <= 0.2) {
-                villager.setVillagerData(
-                        villager.getVillagerData().setProfession(VillagerProfession.NITWIT));
+                villager.setVillagerData(villager.getVillagerData().setProfession(VillagerProfession.NITWIT));
                 return;
             }
             VillagerData villagerData = villager.getVillagerData();

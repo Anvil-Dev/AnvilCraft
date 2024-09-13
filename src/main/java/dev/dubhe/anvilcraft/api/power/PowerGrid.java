@@ -67,19 +67,14 @@ public class PowerGrid {
      */
     public void update() {
         PacketDistributor.sendToPlayersTrackingChunk(
-                (ServerLevel) level,
-                this.level.getChunkAt(this.getPos()).getPos(),
-                new PowerGridSyncPack(this));
+                (ServerLevel) level, this.level.getChunkAt(this.getPos()).getPos(), new PowerGridSyncPack(this));
     }
 
     /**
      * @return 获取电网中的元件数量
      */
     public int getComponentCount() {
-        return this.transmitters.size()
-                + this.producers.size()
-                + this.consumers.size()
-                + this.storages.size();
+        return this.transmitters.size() + this.producers.size() + this.consumers.size() + this.storages.size();
     }
 
     /**
@@ -208,8 +203,7 @@ public class PowerGrid {
         BlockPos vec3 = component.getPos();
         VoxelShape range = component
                 .getShape()
-                .move(
-                        vec3.getX() - center.getX(), vec3.getY() - center.getY(), vec3.getZ() - center.getZ());
+                .move(vec3.getX() - center.getX(), vec3.getY() - center.getY(), vec3.getZ() - center.getZ());
         this.shape = Shapes.join(this.shape, range, BooleanOp.OR);
     }
 
@@ -278,9 +272,7 @@ public class PowerGrid {
     public boolean isInRange(@NotNull IPowerComponent component) {
         BlockPos vec3 = component.getPos().subtract(this.getPos());
         VoxelShape range = Shapes.join(
-                this.shape,
-                component.getShape().move(vec3.getX(), vec3.getY(), vec3.getZ()),
-                BooleanOp.AND);
+                this.shape, component.getShape().move(vec3.getX(), vec3.getY(), vec3.getZ()), BooleanOp.AND);
         return !range.isEmpty();
     }
 
@@ -304,15 +296,13 @@ public class PowerGrid {
 
     private static class PowerGridData {
         private final Map<Level, Set<PowerGrid>> gridMap = Collections.synchronizedMap(new HashMap<>());
-        private final LinkedBlockingQueue<Map.Entry<Level, IPowerComponent>> addQueue =
-                new LinkedBlockingQueue<>();
+        private final LinkedBlockingQueue<Map.Entry<Level, IPowerComponent>> addQueue = new LinkedBlockingQueue<>();
 
         public PowerGridData() {}
 
         public synchronized void addComponent(@NotNull IPowerComponent component) {
             try {
-                addQueue.offer(
-                        Map.entry(component.getCurrentLevel(), component), 500, TimeUnit.MICROSECONDS);
+                addQueue.offer(Map.entry(component.getCurrentLevel(), component), 500, TimeUnit.MICROSECONDS);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }

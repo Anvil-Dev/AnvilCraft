@@ -27,8 +27,7 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
         this(type, pos, blockState, 1);
     }
 
-    public PowerConverterBlockEntity(
-            BlockEntityType<?> type, BlockPos pos, BlockState blockState, int inputPower) {
+    public PowerConverterBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState, int inputPower) {
         super(type, pos, blockState);
         this.inputPower = inputPower;
     }
@@ -67,8 +66,7 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
                     * (1 - AnvilCraft.config.powerConverter.powerConverterLoss));
             int amount = amountTick * AnvilCraft.config.powerConverter.powerConverterCountdown;
             Direction face = getBlockState().getValue(BasePowerConverterBlock.FACING);
-            EnergyHelper.insertEnergy(
-                    getLevel(), getBlockPos().relative(face), face.getOpposite(), amount);
+            EnergyHelper.insertEnergy(getLevel(), getBlockPos().relative(face), face.getOpposite(), amount);
         }
     }
 

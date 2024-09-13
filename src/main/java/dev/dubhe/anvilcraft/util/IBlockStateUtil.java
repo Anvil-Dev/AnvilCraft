@@ -40,8 +40,7 @@ public interface IBlockStateUtil {
         JsonObject object = stateJson.getAsJsonObject();
         if (!object.has("block")) throw new JsonSyntaxException("The field block is missing");
         JsonElement blockElement = object.get("block");
-        if (!blockElement.isJsonPrimitive())
-            throw new JsonSyntaxException("Expected item to be string");
+        if (!blockElement.isJsonPrimitive()) throw new JsonSyntaxException("Expected item to be string");
         StringBuilder block = new StringBuilder(blockElement.getAsString());
         if (object.has("state")) {
             block.append(GsonHelper.getAsString(object, "state"));
@@ -64,7 +63,8 @@ public interface IBlockStateUtil {
      */
     static @NotNull JsonElement toJson(@NotNull BlockState state) {
         JsonObject object = new JsonObject();
-        object.addProperty("block", BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString());
+        object.addProperty(
+                "block", BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString());
         if (!state.getValues().isEmpty()) {
             String stringBuilder = '['
                     + state.getValues().entrySet().stream()

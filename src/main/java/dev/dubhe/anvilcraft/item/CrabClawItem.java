@@ -19,8 +19,8 @@ import java.util.function.Supplier;
 
 public class CrabClawItem extends Item {
 
-    public static final AttributeModifier rangeAttributeModifier = new AttributeModifier(
-            AnvilCraft.of("range_modifier"), 3, AttributeModifier.Operation.ADD_VALUE);
+    public static final AttributeModifier rangeAttributeModifier =
+            new AttributeModifier(AnvilCraft.of("range_modifier"), 3, AttributeModifier.Operation.ADD_VALUE);
 
     public static final String CRAB_CLAW_MARKER = "crabClaw";
     public static final String DUAL_CRAB_CLAW_MARKER = "dualCrabClaw";

@@ -33,8 +33,7 @@ public class CrabTrapLootSubProvider implements LootTableSubProvider {
 
     @Override
     public void generate(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> consumer) {
-        HolderLookup.RegistryLookup<Biome> biomeRegistryLookup =
-                this.provider.lookupOrThrow(Registries.BIOME);
+        HolderLookup.RegistryLookup<Biome> biomeRegistryLookup = this.provider.lookupOrThrow(Registries.BIOME);
         consumer.accept(
                 ModLootTables.CRAB_TRAP_COMMON,
                 LootTable.lootTable()

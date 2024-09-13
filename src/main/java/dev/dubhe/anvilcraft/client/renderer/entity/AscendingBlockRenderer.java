@@ -45,8 +45,7 @@ public class AscendingBlockRenderer extends EntityRenderer<AnimateAscendingBlock
             if (blockState != level.getBlockState(entity.blockPosition())
                     && blockState.getRenderShape() != RenderShape.INVISIBLE) {
                 poseStack.pushPose();
-                BlockPos blockPos =
-                        BlockPos.containing(entity.getX(), entity.getBoundingBox().maxY, entity.getZ());
+                BlockPos blockPos = BlockPos.containing(entity.getX(), entity.getBoundingBox().maxY, entity.getZ());
                 poseStack.translate(-0.5, 0.0, -0.5);
                 this.dispatcher
                         .getModelRenderer()

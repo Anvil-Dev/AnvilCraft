@@ -23,21 +23,22 @@ public class ModVillagers {
     public static final DeferredHolder<PoiType, PoiType> JEWELER_POI = POI_TYPES.register(
             "jeweler_poi",
             () -> new PoiType(
-                    ImmutableSet.copyOf(
-                            ModBlocks.JEWEL_CRAFTING_TABLE.get().getStateDefinition().getPossibleStates()),
+                    ImmutableSet.copyOf(ModBlocks.JEWEL_CRAFTING_TABLE
+                            .get()
+                            .getStateDefinition()
+                            .getPossibleStates()),
                     1,
                     1));
 
-    public static final DeferredHolder<VillagerProfession, VillagerProfession> JEWELER =
-            VILLAGER_PROFESSIONS.register(
+    public static final DeferredHolder<VillagerProfession, VillagerProfession> JEWELER = VILLAGER_PROFESSIONS.register(
+            "jeweler",
+            () -> new VillagerProfession(
                     "jeweler",
-                    () -> new VillagerProfession(
-                            "jeweler",
-                            entry -> entry.value() == JEWELER_POI.get(),
-                            entry -> entry.value() == JEWELER_POI.get(),
-                            ImmutableSet.of(),
-                            ImmutableSet.of(),
-                            SoundEvents.VILLAGER_WORK_TOOLSMITH));
+                    entry -> entry.value() == JEWELER_POI.get(),
+                    entry -> entry.value() == JEWELER_POI.get(),
+                    ImmutableSet.of(),
+                    ImmutableSet.of(),
+                    SoundEvents.VILLAGER_WORK_TOOLSMITH));
 
     public static void register(IEventBus eventBus) {
         POI_TYPES.register(eventBus);

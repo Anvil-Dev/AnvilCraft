@@ -49,8 +49,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class CrabTrapBlock extends BetterBaseEntityBlock
-        implements SimpleWaterloggedBlock, IHammerRemovable {
+public class CrabTrapBlock extends BetterBaseEntityBlock implements SimpleWaterloggedBlock, IHammerRemovable {
 
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
@@ -82,7 +81,10 @@ public class CrabTrapBlock extends BetterBaseEntityBlock
                 .setValue(FACING, context.getHorizontalDirection().getOpposite())
                 .setValue(
                         WATERLOGGED,
-                        context.getLevel().getFluidState(context.getClickedPos()).getType() == Fluids.WATER);
+                        context.getLevel()
+                                        .getFluidState(context.getClickedPos())
+                                        .getType()
+                                == Fluids.WATER);
     }
 
     @Override
@@ -140,8 +142,7 @@ public class CrabTrapBlock extends BetterBaseEntityBlock
                     ItemStack stack = itemStacks.get(i);
                     if (stack.isEmpty()) continue;
                     Vec3 center = pos.relative(Direction.UP).getCenter();
-                    ItemEntity itemEntity =
-                            new ItemEntity(level, center.x(), center.y(), center.z(), stack, 0, 0.2, 0);
+                    ItemEntity itemEntity = new ItemEntity(level, center.x(), center.y(), center.z(), stack, 0, 0.2, 0);
                     itemEntity.setDefaultPickUpDelay();
                     level.addFreshEntity(itemEntity);
                     depository.extract(i, stack.getCount(), false);
@@ -163,11 +164,7 @@ public class CrabTrapBlock extends BetterBaseEntityBlock
 
     @Override
     public void onRemove(
-            BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            BlockState newState,
-            boolean movedByPiston) {
+            BlockState state, @NotNull Level level, @NotNull BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (state.is(newState.getBlock())) return;
         if (level.getBlockEntity(pos) instanceof CrabTrapBlockEntity entity) {
             Vec3 vec3 = entity.getBlockPos().getCenter();
@@ -180,8 +177,7 @@ public class CrabTrapBlock extends BetterBaseEntityBlock
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
-    private void tryInsertLoot(
-            BlockState state, ServerLevel level, BlockPos pos, ResourceKey<LootTable> loot) {
+    private void tryInsertLoot(BlockState state, ServerLevel level, BlockPos pos, ResourceKey<LootTable> loot) {
         if (state.hasBlockEntity()) {
             LootParams lootParams = new LootParams.Builder(level)
                     .withParameter(LootContextParams.ORIGIN, pos.getCenter())

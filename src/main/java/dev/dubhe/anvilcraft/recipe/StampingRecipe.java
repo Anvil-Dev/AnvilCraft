@@ -38,27 +38,28 @@ public class StampingRecipe extends AbstractItemProcessRecipe {
     }
 
     public static class Serializer implements RecipeSerializer<StampingRecipe> {
-        private static final MapCodec<StampingRecipe> CODEC =
-                RecordCodecBuilder.mapCodec(ins -> ins.group(
-                                Ingredient.CODEC_NONEMPTY
-                                        .listOf(1, 9)
-                                        .fieldOf("ingredients")
-                                        .flatXmap(
-                                                i -> {
-                                                    Ingredient[] ingredients = i.toArray(Ingredient[]::new);
-                                                    if (ingredients.length == 0) {
-                                                        return DataResult.error(() -> "No ingredients for item_crush recipe");
-                                                    } else {
-                                                        return ingredients.length > 9
-                                                                ? DataResult.error(() ->
+        private static final MapCodec<StampingRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
+                        Ingredient.CODEC_NONEMPTY
+                                .listOf(1, 9)
+                                .fieldOf("ingredients")
+                                .flatXmap(
+                                        i -> {
+                                            Ingredient[] ingredients = i.toArray(Ingredient[]::new);
+                                            if (ingredients.length == 0) {
+                                                return DataResult.error(() -> "No ingredients for item_crush recipe");
+                                            } else {
+                                                return ingredients.length > 9
+                                                        ? DataResult.error(
+                                                                () ->
                                                                         "Too many ingredients for item_crush recipe. The maximum is: 9")
-                                                                : DataResult.success(NonNullList.of(Ingredient.EMPTY, ingredients));
-                                                    }
-                                                },
-                                                DataResult::success)
-                                        .forGetter(StampingRecipe::getIngredients),
-                                ItemStack.CODEC.fieldOf("result").forGetter(StampingRecipe::getResult))
-                        .apply(ins, StampingRecipe::new));
+                                                        : DataResult.success(
+                                                                NonNullList.of(Ingredient.EMPTY, ingredients));
+                                            }
+                                        },
+                                        DataResult::success)
+                                .forGetter(StampingRecipe::getIngredients),
+                        ItemStack.CODEC.fieldOf("result").forGetter(StampingRecipe::getResult))
+                .apply(ins, StampingRecipe::new));
 
         private static final StreamCodec<RegistryFriendlyByteBuf, StampingRecipe> STREAM_CODEC =
                 StreamCodec.of(Serializer::encode, Serializer::decode);

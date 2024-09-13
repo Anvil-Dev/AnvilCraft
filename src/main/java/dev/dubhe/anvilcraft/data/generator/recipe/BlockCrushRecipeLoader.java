@@ -8,6 +8,9 @@ import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 
 public class BlockCrushRecipeLoader {
     public static void init(RegistrateRecipeProvider provider) {
-        BlockCrushRecipe.builder().input(Blocks.STONE).result(Blocks.COBBLESTONE).save(provider);
+        BlockCrushRecipe.builder()
+                .input(Blocks.STONE)
+                .result(Blocks.COBBLESTONE)
+                .save(provider);
     }
 }

@@ -21,7 +21,6 @@ abstract class LightningBoltMixin {
     @Inject(method = "powerLightningRod", at = @At("HEAD"))
     private void powerLightningRod(CallbackInfo ci) {
         LightningBolt bolt = (LightningBolt) (Object) this;
-        NeoForge.EVENT_BUS.post(
-                new LightningBoltStrikeEvent(bolt, bolt.level(), this.getStrikePosition()));
+        NeoForge.EVENT_BUS.post(new LightningBoltStrikeEvent(bolt, bolt.level(), this.getStrikePosition()));
     }
 }

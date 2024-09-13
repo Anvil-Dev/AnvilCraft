@@ -21,10 +21,9 @@ import java.util.stream.Collectors;
 public class AnvilUtil {
     public static <T extends AbstractItemProcessRecipe> void itemProcess(
             RecipeType<T> recipeType, Level level, final BlockPos itemPos, final Vec3 resultPos) {
-        Map<ItemEntity, ItemStack> items =
-                level.getEntitiesOfClass(ItemEntity.class, new AABB(itemPos)).stream()
-                        .map(it -> Map.entry(it, it.getItem()))
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        Map<ItemEntity, ItemStack> items = level.getEntitiesOfClass(ItemEntity.class, new AABB(itemPos)).stream()
+                .map(it -> Map.entry(it, it.getItem()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         ItemProcessInput input = new ItemProcessInput(items.values().stream().toList());
         level.getRecipeManager().getRecipeFor(recipeType, input, level).ifPresent(recipe -> {
@@ -60,8 +59,7 @@ public class AnvilUtil {
         }
     }
 
-    public static void returnItems(
-            @NotNull Level level, @NotNull BlockPos pos, @NotNull List<ItemStack> items) {
+    public static void returnItems(@NotNull Level level, @NotNull BlockPos pos, @NotNull List<ItemStack> items) {
         for (ItemStack item : items) {
             ItemStack type = item.copy();
             type.setCount(1);

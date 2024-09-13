@@ -17,8 +17,7 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import org.jetbrains.annotations.NotNull;
 
-public class AbstractMultiplePartBlockItem<P extends Enum<P> & MultiplePartBlockState<P>>
-        extends BlockItem {
+public class AbstractMultiplePartBlockItem<P extends Enum<P> & MultiplePartBlockState<P>> extends BlockItem {
     private final AbstractMultiplePartBlock<P> block;
 
     public AbstractMultiplePartBlockItem(AbstractMultiplePartBlock<P> block, Properties properties) {
@@ -32,9 +31,8 @@ public class AbstractMultiplePartBlockItem<P extends Enum<P> & MultiplePartBlock
         Level level = context.getLevel();
         for (P part : this.block.getParts()) {
             BlockPos offset = pos.offset(part.getOffset());
-            BlockState blockState = level.isWaterAt(offset)
-                    ? Blocks.WATER.defaultBlockState()
-                    : Blocks.AIR.defaultBlockState();
+            BlockState blockState =
+                    level.isWaterAt(offset) ? Blocks.WATER.defaultBlockState() : Blocks.AIR.defaultBlockState();
             level.setBlock(offset, blockState, 27);
         }
         return super.placeBlock(context, state);
@@ -63,9 +61,7 @@ public class AbstractMultiplePartBlockItem<P extends Enum<P> & MultiplePartBlock
                     context.getHand(),
                     context.getItemInHand(),
                     new BlockHitResult(
-                            context
-                                    .getClickLocation()
-                                    .relative(clickedFace, this.getMaxOffsetDistance(clickedFace)),
+                            context.getClickLocation().relative(clickedFace, this.getMaxOffsetDistance(clickedFace)),
                             clickedFace,
                             context.getClickedPos().relative(clickedFace, this.getMaxOffsetDistance(clickedFace)),
                             false)));

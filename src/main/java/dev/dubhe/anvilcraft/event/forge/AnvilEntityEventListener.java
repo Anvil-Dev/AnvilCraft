@@ -28,7 +28,7 @@ public class AnvilEntityEventListener {
      */
     @SubscribeEvent
     public static void hurt(@NotNull AnvilEvent.HurtEntity e) {
-        AnvilCraft.EVENT_BUS.post(new AnvilHurtEntityEvent(
-                e.getEntity(), e.getPos(), e.getLevel(), e.getHurtedEntity(), e.getDamage()));
+        AnvilCraft.EVENT_BUS.post(
+                new AnvilHurtEntityEvent(e.getEntity(), e.getPos(), e.getLevel(), e.getHurtedEntity(), e.getDamage()));
     }
 }

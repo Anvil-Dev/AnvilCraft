@@ -16,15 +16,11 @@ import org.jetbrains.annotations.Nullable;
 @Getter
 public class ChuteMenu extends BaseChuteMenu<ChuteBlockEntity> {
     public ChuteMenu(
-            @Nullable MenuType<?> menuType,
-            int containerId,
-            Inventory inventory,
-            @NotNull FriendlyByteBuf extraData) {
+            @Nullable MenuType<?> menuType, int containerId, Inventory inventory, @NotNull FriendlyByteBuf extraData) {
         super(menuType, containerId, inventory, extraData);
     }
 
-    public ChuteMenu(
-            MenuType<?> menuType, int containerId, Inventory inventory, BlockEntity blockEntity) {
+    public ChuteMenu(MenuType<?> menuType, int containerId, Inventory inventory, BlockEntity blockEntity) {
         super(menuType, containerId, inventory, blockEntity);
     }
 

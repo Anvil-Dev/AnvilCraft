@@ -22,13 +22,11 @@ public class ReinforcedConcreteBlock extends Block {
      */
     public ReinforcedConcreteBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(
-                this.stateDefinition.any().setValue(HALF, ReinforcedConcreteHalf.SINGLE));
+        this.registerDefaultState(this.stateDefinition.any().setValue(HALF, ReinforcedConcreteHalf.SINGLE));
     }
 
     @Override
-    protected void createBlockStateDefinition(
-            @NotNull StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(HALF);
     }
 

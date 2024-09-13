@@ -31,8 +31,7 @@ public class RemoteTransmissionPoleBlockEntity extends AbstractTransmissionPoleB
         return new RemoteTransmissionPoleBlockEntity(type, pos, blockState);
     }
 
-    private RemoteTransmissionPoleBlockEntity(
-            BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+    private RemoteTransmissionPoleBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
 
@@ -44,8 +43,7 @@ public class RemoteTransmissionPoleBlockEntity extends AbstractTransmissionPoleB
     @Override
     public @NotNull PowerComponentType getComponentType() {
         if (this.getLevel() == null) return PowerComponentType.INVALID;
-        if (!this.getBlockState().is(ModBlocks.REMOTE_TRANSMISSION_POLE.get()))
-            return PowerComponentType.INVALID;
+        if (!this.getBlockState().is(ModBlocks.REMOTE_TRANSMISSION_POLE.get())) return PowerComponentType.INVALID;
         if (this.getBlockState().getValue(RemoteTransmissionPoleBlock.HALF) != Vertical4PartHalf.TOP)
             return PowerComponentType.INVALID;
         return PowerComponentType.TRANSMITTER;
@@ -64,11 +62,9 @@ public class RemoteTransmissionPoleBlockEntity extends AbstractTransmissionPoleB
         BlockState state = level.getBlockState(pos);
         if (!state.is(ModBlocks.REMOTE_TRANSMISSION_POLE.get())) return;
         if (state.getValue(RemoteTransmissionPoleBlock.HALF) != Vertical4PartHalf.TOP) return;
-        if (state.getValue(RemoteTransmissionPoleBlock.SWITCH) == Switch.OFF
-                && this.getGrid() != null) {
+        if (state.getValue(RemoteTransmissionPoleBlock.SWITCH) == Switch.OFF && this.getGrid() != null) {
             this.getGrid().remove(this);
-        } else if (state.getValue(RemoteTransmissionPoleBlock.SWITCH) == Switch.ON
-                && this.getGrid() == null) {
+        } else if (state.getValue(RemoteTransmissionPoleBlock.SWITCH) == Switch.ON && this.getGrid() == null) {
             PowerGrid.addComponent(this);
         }
         this.flushState(level, pos);

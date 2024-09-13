@@ -51,8 +51,7 @@ import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class BatchCrafterBlock extends BetterBaseEntityBlock
-        implements IHammerChangeableBlock, IHammerRemovable {
+public class BatchCrafterBlock extends BetterBaseEntityBlock implements IHammerChangeableBlock, IHammerRemovable {
     public static final DirectionProperty FACING = DirectionalBlock.FACING;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
@@ -82,8 +81,7 @@ public class BatchCrafterBlock extends BetterBaseEntityBlock
 
     @Override
     @SuppressWarnings("deprecation")
-    public int getAnalogOutputSignal(
-            @NotNull BlockState blockState, @NotNull Level level, @NotNull BlockPos blockPos) {
+    public int getAnalogOutputSignal(@NotNull BlockState blockState, @NotNull Level level, @NotNull BlockPos blockPos) {
         BlockEntity blockEntity = level.getBlockEntity(blockPos);
         if (blockEntity instanceof BatchCrafterBlockEntity crafterBlockEntity) {
             return crafterBlockEntity.getRedstoneSignal();
@@ -110,16 +108,14 @@ public class BatchCrafterBlock extends BetterBaseEntityBlock
             }
             if (player instanceof ServerPlayer serverPlayer) {
                 ModMenuTypes.open(serverPlayer, entity, pos);
-                PacketDistributor.sendToPlayer(
-                        serverPlayer, new MachineOutputDirectionPack(entity.getDirection()));
-                PacketDistributor.sendToPlayer(
-                        serverPlayer, new MachineEnableFilterPack(entity.isFilterEnabled()));
+                PacketDistributor.sendToPlayer(serverPlayer, new MachineOutputDirectionPack(entity.getDirection()));
+                PacketDistributor.sendToPlayer(serverPlayer, new MachineEnableFilterPack(entity.isFilterEnabled()));
                 for (int i = 0; i < entity.getFilteredItems().size(); i++) {
                     PacketDistributor.sendToPlayer(
                             serverPlayer,
-                            new SlotDisableChangePack(i, entity.getDepository().getDisabled().get(i)));
-                    PacketDistributor.sendToPlayer(
-                            serverPlayer, new SlotFilterChangePack(i, entity.getFilter(i)));
+                            new SlotDisableChangePack(
+                                    i, entity.getDepository().getDisabled().get(i)));
+                    PacketDistributor.sendToPlayer(serverPlayer, new SlotFilterChangePack(i, entity.getFilter(i)));
                 }
             }
         }
@@ -159,8 +155,7 @@ public class BatchCrafterBlock extends BetterBaseEntityBlock
         return Shapes.empty();
     }
 
-    public float getShadeBrightness(
-            @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos) {
+    public float getShadeBrightness(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos) {
         return 1.0F;
     }
 
@@ -204,8 +199,7 @@ public class BatchCrafterBlock extends BetterBaseEntityBlock
     }
 
     @Override
-    protected void createBlockStateDefinition(
-            @NotNull StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(POWERED).add(OVERLOAD).add(FACING);
     }
 

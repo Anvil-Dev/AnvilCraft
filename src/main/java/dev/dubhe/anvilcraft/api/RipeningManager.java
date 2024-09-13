@@ -51,8 +51,7 @@ public class RipeningManager {
     }
 
     private static boolean isLit(@NotNull BlockState state) {
-        return !(state.getValue(InductionLightBlock.POWERED)
-                || state.getValue(InductionLightBlock.OVERLOAD));
+        return !(state.getValue(InductionLightBlock.POWERED) || state.getValue(InductionLightBlock.OVERLOAD));
     }
 
     private static boolean canCropGrow(@NotNull BlockState state) {

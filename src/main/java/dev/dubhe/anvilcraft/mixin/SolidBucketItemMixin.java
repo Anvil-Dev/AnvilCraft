@@ -40,10 +40,7 @@ abstract class SolidBucketItemMixin {
         if (level.isInWorldBounds(pos) && level.getBlockState(pos).is(Blocks.CAULDRON)) {
             if (!level.isClientSide) {
                 level.setBlockAndUpdate(
-                        pos,
-                        Blocks.POWDER_SNOW_CAULDRON
-                                .defaultBlockState()
-                                .setValue(LayeredCauldronBlock.LEVEL, 3));
+                        pos, Blocks.POWDER_SNOW_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3));
             }
             level.gameEvent(player, GameEvent.FLUID_PLACE, pos);
             level.playSound(player, pos, this.placeSound, SoundSource.BLOCKS, 1.0f, 1.0f);

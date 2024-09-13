@@ -119,17 +119,13 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<PowerConverterBlockEntity> POWER_CONVERTER = REGISTRATE
             .blockEntity("power_converter", PowerConverterBlockEntity::createBlockEntity)
             .validBlocks(
-                    ModBlocks.POWER_CONVERTER_SMALL,
-                    ModBlocks.POWER_CONVERTER_MIDDLE,
-                    ModBlocks.POWER_CONVERTER_BIG)
+                    ModBlocks.POWER_CONVERTER_SMALL, ModBlocks.POWER_CONVERTER_MIDDLE, ModBlocks.POWER_CONVERTER_BIG)
             .register();
 
-    public static final BlockEntityEntry<RemoteTransmissionPoleBlockEntity> REMOTE_TRANSMISSION_POLE =
-            REGISTRATE
-                    .blockEntity(
-                            "remote_transmission_pole", RemoteTransmissionPoleBlockEntity::createBlockEntity)
-                    .validBlock(ModBlocks.REMOTE_TRANSMISSION_POLE)
-                    .register();
+    public static final BlockEntityEntry<RemoteTransmissionPoleBlockEntity> REMOTE_TRANSMISSION_POLE = REGISTRATE
+            .blockEntity("remote_transmission_pole", RemoteTransmissionPoleBlockEntity::createBlockEntity)
+            .validBlock(ModBlocks.REMOTE_TRANSMISSION_POLE)
+            .register();
 
     public static final BlockEntityEntry<LoadMonitorBlockEntity> LOAD_MONITOR = REGISTRATE
             .blockEntity("load_monitor", LoadMonitorBlockEntity::new)
@@ -167,11 +163,10 @@ public class ModBlockEntities {
             .renderer(() -> LaserRenderer::new)
             .register();
 
-    public static final BlockEntityEntry<ThermoelectricConverterBlockEntity>
-            THERMOELECTRIC_CONVERTER = REGISTRATE
-                    .blockEntity("thermoelectric_converter", ThermoelectricConverterBlockEntity::new)
-                    .validBlocks(ModBlocks.THERMOELECTRIC_CONVERTER)
-                    .register();
+    public static final BlockEntityEntry<ThermoelectricConverterBlockEntity> THERMOELECTRIC_CONVERTER = REGISTRATE
+            .blockEntity("thermoelectric_converter", ThermoelectricConverterBlockEntity::new)
+            .validBlocks(ModBlocks.THERMOELECTRIC_CONVERTER)
+            .register();
 
     public static final BlockEntityEntry<MineralFountainBlockEntity> MINERAL_FOUNTAIN = REGISTRATE
             .blockEntity("mineral_fountain", MineralFountainBlockEntity::createBlockEntity)

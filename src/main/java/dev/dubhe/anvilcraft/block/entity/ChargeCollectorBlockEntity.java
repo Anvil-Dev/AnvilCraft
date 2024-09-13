@@ -15,8 +15,7 @@ import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class ChargeCollectorBlockEntity extends BlockEntity
-        implements IPowerProducer, IHasAffectRange {
+public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerProducer, IHasAffectRange {
 
     private static final double MAX_POWER_PER_INCOMING = 128;
     private static final int COOLDOWN = 40;

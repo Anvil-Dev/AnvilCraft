@@ -17,8 +17,7 @@ public class ModRegistryProvider extends DatapackBuiltinEntriesProvider {
     private static final RegistrySetBuilder BUILDER =
             new RegistrySetBuilder().add(Registries.ENCHANTMENT, ModEnchantments::bootstrap);
 
-    public ModRegistryProvider(
-            PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
+    public ModRegistryProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
         super(output, registries, BUILDER, Set.of(AnvilCraft.MOD_ID));
     }
 }

@@ -60,8 +60,7 @@ public class SpectralAnvilBlock extends TransparentBlock {
     }
 
     @Override
-    public VoxelShape getShape(
-            BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         Direction direction = state.getValue(FACING);
         return direction.getAxis() == Direction.Axis.X ? X_AXIS_AABB : Z_AXIS_AABB;
     }

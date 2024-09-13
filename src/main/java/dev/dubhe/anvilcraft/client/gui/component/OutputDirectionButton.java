@@ -20,21 +20,14 @@ import java.util.Optional;
 public class OutputDirectionButton extends Button {
     private Direction direction;
     private final List<Direction> skip = new ArrayList<>();
-    private static final ResourceLocation UP =
-            AnvilCraft.of("textures/gui/container/machine/button_u.png");
-    private static final ResourceLocation DOWN =
-            AnvilCraft.of("textures/gui/container/machine/button_d.png");
-    private static final ResourceLocation EAST =
-            AnvilCraft.of("textures/gui/container/machine/button_e.png");
-    private static final ResourceLocation WEST =
-            AnvilCraft.of("textures/gui/container/machine/button_w.png");
-    private static final ResourceLocation SOUTH =
-            AnvilCraft.of("textures/gui/container/machine/button_s.png");
-    private static final ResourceLocation NORTH =
-            AnvilCraft.of("textures/gui/container/machine/button_n.png");
+    private static final ResourceLocation UP = AnvilCraft.of("textures/gui/container/machine/button_u.png");
+    private static final ResourceLocation DOWN = AnvilCraft.of("textures/gui/container/machine/button_d.png");
+    private static final ResourceLocation EAST = AnvilCraft.of("textures/gui/container/machine/button_e.png");
+    private static final ResourceLocation WEST = AnvilCraft.of("textures/gui/container/machine/button_w.png");
+    private static final ResourceLocation SOUTH = AnvilCraft.of("textures/gui/container/machine/button_s.png");
+    private static final ResourceLocation NORTH = AnvilCraft.of("textures/gui/container/machine/button_n.png");
     private static final MutableComponent defaultMessage = Component.translatable(
-            "screen.anvilcraft.button.direction",
-            Component.translatable("screen.anvilcraft.button.direction.up"));
+            "screen.anvilcraft.button.direction", Component.translatable("screen.anvilcraft.button.direction.up"));
 
     public OutputDirectionButton(int x, int y, OnPress onPress, Direction direction) {
         super(x, y, 16, 16, defaultMessage, onPress, (var) -> defaultMessage);
@@ -62,8 +55,7 @@ public class OutputDirectionButton extends Button {
                     this.add(getMessage());
                 }
             };
-            guiGraphics.renderTooltip(
-                    Minecraft.getInstance().font, components, Optional.empty(), mouseX, mouseY);
+            guiGraphics.renderTooltip(Minecraft.getInstance().font, components, Optional.empty(), mouseX, mouseY);
         }
     }
 
@@ -80,8 +72,7 @@ public class OutputDirectionButton extends Button {
     }
 
     @Override
-    public void renderWidget(
-            @NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         ResourceLocation location =
                 switch (direction) {
                     case UP -> UP;
@@ -91,8 +82,7 @@ public class OutputDirectionButton extends Button {
                     case NORTH -> NORTH;
                     default -> DOWN;
                 };
-        this.renderTexture(
-                guiGraphics, location, this.getX(), this.getY(), 0, 0, 16, this.width, this.height, 16, 32);
+        this.renderTexture(guiGraphics, location, this.getX(), this.getY(), 0, 0, 16, this.width, this.height, 16, 32);
     }
 
     public void renderTexture(

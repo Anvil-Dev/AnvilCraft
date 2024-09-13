@@ -31,8 +31,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 @Getter
-public class CreativeGeneratorBlockEntity extends BlockEntity
-        implements IPowerProducer, IPowerConsumer, MenuProvider {
+public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerProducer, IPowerConsumer, MenuProvider {
     private PowerGrid grid = null;
 
     @Setter
@@ -49,8 +48,7 @@ public class CreativeGeneratorBlockEntity extends BlockEntity
         this(ModBlockEntities.CREATIVE_GENERATOR.get(), pos, blockState);
     }
 
-    private CreativeGeneratorBlockEntity(
-            BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+    private CreativeGeneratorBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
 
@@ -97,8 +95,7 @@ public class CreativeGeneratorBlockEntity extends BlockEntity
     }
 
     @Nullable @Override
-    public AbstractContainerMenu createMenu(
-            int i, @NotNull Inventory inventory, @NotNull Player player) {
+    public AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
         return new SliderMenu(i, -8192, 8192, this::setPower);
     }
 

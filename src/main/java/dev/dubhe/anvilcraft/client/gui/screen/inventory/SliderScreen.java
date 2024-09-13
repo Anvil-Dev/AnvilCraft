@@ -17,16 +17,11 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
-    public static final ResourceLocation LOCATION =
-            AnvilCraft.of("textures/gui/container/slider/background.png");
-    public static final ResourceLocation BUTTON_MAX =
-            AnvilCraft.of("textures/gui/container/slider/button_max.png");
-    public static final ResourceLocation BUTTON_ADD =
-            AnvilCraft.of("textures/gui/container/slider/button_add.png");
-    public static final ResourceLocation BUTTON_MINUS =
-            AnvilCraft.of("textures/gui/container/slider/button_minus.png");
-    public static final ResourceLocation BUTTON_MIN =
-            AnvilCraft.of("textures/gui/container/slider/button_min.png");
+    public static final ResourceLocation LOCATION = AnvilCraft.of("textures/gui/container/slider/background.png");
+    public static final ResourceLocation BUTTON_MAX = AnvilCraft.of("textures/gui/container/slider/button_max.png");
+    public static final ResourceLocation BUTTON_ADD = AnvilCraft.of("textures/gui/container/slider/button_add.png");
+    public static final ResourceLocation BUTTON_MINUS = AnvilCraft.of("textures/gui/container/slider/button_minus.png");
+    public static final ResourceLocation BUTTON_MIN = AnvilCraft.of("textures/gui/container/slider/button_min.png");
     private Slider slider = null;
     private EditBox value;
 
@@ -48,8 +43,7 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
         int offsetX = (this.width - this.imageWidth) / 2;
         int offsetY = (this.height - this.imageHeight) / 2;
         this.slider = new Slider(8 + offsetX, 31 + offsetY, 0, 16, 160, this::update);
-        this.value =
-                new EditBox(this.font, offsetX + 50, offsetY + 47, 76, 8, Component.literal("value"));
+        this.value = new EditBox(this.font, offsetX + 50, offsetY + 47, 76, 8, Component.literal("value"));
         this.value.setCanLoseFocus(false);
         this.value.setTextColor(-1);
         this.value.setTextColorUneditable(-1);
@@ -140,13 +134,11 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
 
     @Override
     protected void renderLabels(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        guiGraphics.drawString(
-                this.font, this.title, this.titleLabelX, this.titleLabelY, 0x404040, false);
+        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 0x404040, false);
     }
 
     @Override
-    protected void renderBg(
-            @NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(@NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         int offsetX = (this.width - this.imageWidth) / 2;
         int offsetY = (this.height - this.imageHeight) / 2;
         guiGraphics.blit(LOCATION, offsetX, offsetY, 0, 0, this.imageWidth, this.imageHeight, 256, 128);

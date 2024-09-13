@@ -26,52 +26,45 @@ public class ModRecipeTypes {
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<BlockCrushRecipe>> BLOCK_CRUSH_TYPE =
             registerType("block_crush");
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<BlockCrushRecipe>>
-            BLOCK_CRUSH_SERIALIZER =
-                    RECIPE_SERIALIZERS.register("block_crush", BlockCrushRecipe.Serializer::new);
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<BlockCrushRecipe>> BLOCK_CRUSH_SERIALIZER =
+            RECIPE_SERIALIZERS.register("block_crush", BlockCrushRecipe.Serializer::new);
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<ItemCrushRecipe>> ITEM_CRUSH_TYPE =
             registerType("item_crush");
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<ItemCrushRecipe>>
-            ITEM_CRUSH_SERIALIZERS =
-                    RECIPE_SERIALIZERS.register("item_crush", ItemCrushRecipe.Serializer::new);
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<ItemCrushRecipe>> ITEM_CRUSH_SERIALIZERS =
+            RECIPE_SERIALIZERS.register("item_crush", ItemCrushRecipe.Serializer::new);
 
-    public static final DeferredHolder<RecipeType<?>, RecipeType<BlockCompressRecipe>>
-            BLOCK_COMPRESS_TYPE = registerType("block_compress");
+    public static final DeferredHolder<RecipeType<?>, RecipeType<BlockCompressRecipe>> BLOCK_COMPRESS_TYPE =
+            registerType("block_compress");
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<BlockCompressRecipe>>
             BLOCK_COMPRESS_SERIALIZER =
                     RECIPE_SERIALIZERS.register("block_compress", BlockCompressRecipe.Serializer::new);
 
-    public static final DeferredHolder<RecipeType<?>, RecipeType<ItemCompressRecipe>>
-            ITEM_COMPRESS_TYPE = registerType("item_compress");
+    public static final DeferredHolder<RecipeType<?>, RecipeType<ItemCompressRecipe>> ITEM_COMPRESS_TYPE =
+            registerType("item_compress");
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<ItemCompressRecipe>>
-            ITEM_COMPRESS_SERIALIZER =
-                    RECIPE_SERIALIZERS.register("item_compress", ItemCompressRecipe.Serializer::new);
+            ITEM_COMPRESS_SERIALIZER = RECIPE_SERIALIZERS.register("item_compress", ItemCompressRecipe.Serializer::new);
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<StampingRecipe>> STAMPING_TYPE =
             registerType("stamping");
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<StampingRecipe>>
-            STAMPING_SERIALIZER = RECIPE_SERIALIZERS.register("stamping", StampingRecipe.Serializer::new);
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<StampingRecipe>> STAMPING_SERIALIZER =
+            RECIPE_SERIALIZERS.register("stamping", StampingRecipe.Serializer::new);
 
-    public static final DeferredHolder<RecipeType<?>, RecipeType<SuperHeatingRecipe>>
-            SUPER_HEATING_TYPE = registerType("super_heating");
+    public static final DeferredHolder<RecipeType<?>, RecipeType<SuperHeatingRecipe>> SUPER_HEATING_TYPE =
+            registerType("super_heating");
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<SuperHeatingRecipe>>
-            SUPER_HEATING_SERIALIZER =
-                    RECIPE_SERIALIZERS.register("super_heating", SuperHeatingRecipe.Serializer::new);
+            SUPER_HEATING_SERIALIZER = RECIPE_SERIALIZERS.register("super_heating", SuperHeatingRecipe.Serializer::new);
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<TimeWarpRecipe>> TIME_WARP_TYPE =
             registerType("time_warp");
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<TimeWarpRecipe>>
-            TIME_WARP_SERIALIZER =
-                    RECIPE_SERIALIZERS.register("time_warp", TimeWarpRecipe.Serializer::new);
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<TimeWarpRecipe>> TIME_WARP_SERIALIZER =
+            RECIPE_SERIALIZERS.register("time_warp", TimeWarpRecipe.Serializer::new);
 
-    public static final DeferredHolder<RecipeType<?>, RecipeType<MeshRecipe>> MESH_TYPE =
-            registerType("mesh");
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MeshRecipe>>
-            MESH_SERIALIZER = RECIPE_SERIALIZERS.register("mesh", MeshRecipe.Serializer::new);
+    public static final DeferredHolder<RecipeType<?>, RecipeType<MeshRecipe>> MESH_TYPE = registerType("mesh");
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MeshRecipe>> MESH_SERIALIZER =
+            RECIPE_SERIALIZERS.register("mesh", MeshRecipe.Serializer::new);
 
-    private static <T extends Recipe<?>> DeferredHolder<RecipeType<?>, RecipeType<T>> registerType(
-            String name) {
+    private static <T extends Recipe<?>> DeferredHolder<RecipeType<?>, RecipeType<T>> registerType(String name) {
         return RECIPE_TYPES.register(name, () -> new RecipeType<>() {
             @Override
             public String toString() {

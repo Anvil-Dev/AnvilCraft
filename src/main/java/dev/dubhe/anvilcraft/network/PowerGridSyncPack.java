@@ -40,7 +40,8 @@ public class PowerGridSyncPack implements CustomPacketPayload {
     public PowerGridSyncPack(@NotNull FriendlyByteBuf buf) {
         CompoundTag tag = buf.readNbt();
         Tag data = tag.get("data");
-        this.grid = SimplePowerGrid.CODEC.decode(NbtOps.INSTANCE, data).getOrThrow().getFirst();
+        this.grid =
+                SimplePowerGrid.CODEC.decode(NbtOps.INSTANCE, data).getOrThrow().getFirst();
     }
 
     public void encode(@NotNull FriendlyByteBuf buf) {

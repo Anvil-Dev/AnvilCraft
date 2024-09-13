@@ -27,10 +27,7 @@ abstract class BlockMixin {
 
     @Inject(
             method = "shouldRenderFace",
-            at =
-                    @At(
-                            value = "INVOKE",
-                            target = "Lnet/minecraft/world/level/block/state/BlockState;canOcclude()Z"),
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;canOcclude()Z"),
             cancellable = true)
     private static void emberMetalBlockFaceSkip(
             BlockState state,
@@ -42,8 +39,7 @@ abstract class BlockMixin {
         if (state.getBlock() instanceof EmberBlock) {
             BlockState blockstate = level.getBlockState(pos);
             if (blockstate.canOcclude() || blockstate.getBlock() instanceof EmberBlock) {
-                Block.BlockStatePairKey blockstatepairkey =
-                        new Block.BlockStatePairKey(state, blockstate, face);
+                Block.BlockStatePairKey blockstatepairkey = new Block.BlockStatePairKey(state, blockstate, face);
                 Object2ByteLinkedOpenHashMap<Block.BlockStatePairKey> object2bytelinkedopenhashmap =
                         OCCLUSION_CACHE.get();
                 byte b0 = object2bytelinkedopenhashmap.getAndMoveToFirst(blockstatepairkey);

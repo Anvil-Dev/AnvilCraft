@@ -78,14 +78,13 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
         public void onContentsChanged(int slot) {
             if (level != null) {
                 RecipeManager recipeManager = level.getRecipeManager();
-                Optional<RecipeHolder<CraftingRecipe>> recipe = recipeManager.getRecipeFor(
-                        RecipeType.CRAFTING, dummyCraftingContainer.asCraftInput(), level);
-                displayItemStack = recipe
-                        .map(craftingRecipe -> craftingRecipe.value().getResultItem(level.registryAccess()))
+                Optional<RecipeHolder<CraftingRecipe>> recipe =
+                        recipeManager.getRecipeFor(RecipeType.CRAFTING, dummyCraftingContainer.asCraftInput(), level);
+                displayItemStack = recipe.map(
+                                craftingRecipe -> craftingRecipe.value().getResultItem(level.registryAccess()))
                         .orElse(ItemStack.EMPTY);
                 if (!level.isClientSide) {
-                    PacketDistributor.sendToAllPlayers(
-                            new UpdateDisplayItemPacket(displayItemStack, getPos()));
+                    PacketDistributor.sendToAllPlayers(new UpdateDisplayItemPacket(displayItemStack, getPos()));
                 }
             }
             setChanged();
@@ -101,8 +100,7 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
     @Getter
     private final int id;
 
-    public BatchCrafterBlockEntity(
-            BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
+    public BatchCrafterBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
         id = COUNTER.incrementAndGet();
     }
@@ -147,11 +145,9 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
             optional = crafterCache.getRecipe();
             craftRemaining = crafterCache.getRemaining();
         } else {
-            optional = level
-                    .getRecipeManager()
-                    .getRecipeFor(RecipeType.CRAFTING, craftingContainer.asCraftInput(), level);
-            craftRemaining = level
-                    .getRecipeManager()
+            optional =
+                    level.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, craftingContainer.asCraftInput(), level);
+            craftRemaining = level.getRecipeManager()
                     .getRemainingItemsFor(RecipeType.CRAFTING, craftingContainer.asCraftInput(), level);
             AutoCrafterCache cache = new AutoCrafterCache(craftingContainer, optional, craftRemaining);
             this.cache.push(cache);
@@ -160,8 +156,7 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
             }
         }
         if (optional.isEmpty()) return;
-        result =
-                optional.get().value().assemble(craftingContainer.asCraftInput(), level.registryAccess());
+        result = optional.get().value().assemble(craftingContainer.asCraftInput(), level.registryAccess());
         displayItemStack = result.copy();
         if (!level.isClientSide) {
             PacketDistributor.sendToAllPlayers((new UpdateDisplayItemPacket(displayItemStack, getPos())));
@@ -227,9 +222,8 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
         depository.deserializeNbt(provider, tag.getCompound("Inventory"));
         if (tag.getBoolean("HasDisplayItemStack") && tag.contains("ResultItemStack")) {
             CompoundTag ct = tag.getCompound("ResultItemStack");
-            displayItemStack = ct.contains("id")
-                    ? ItemStack.parse(provider, ct).orElse(ItemStack.EMPTY)
-                    : ItemStack.EMPTY;
+            displayItemStack =
+                    ct.contains("id") ? ItemStack.parse(provider, ct).orElse(ItemStack.EMPTY) : ItemStack.EMPTY;
         }
     }
 
@@ -288,8 +282,7 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
     }
 
     @Nullable @Override
-    public AbstractContainerMenu createMenu(
-            int i, @NotNull Inventory inventory, @NotNull Player player) {
+    public AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
         return new BatchCrafterMenu(ModMenuTypes.BATCH_CRAFTER.get(), i, inventory, this);
     }
 
@@ -358,8 +351,7 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
         public boolean test(@NotNull Container container) {
             if (container.getContainerSize() != this.container.getContainerSize()) return false;
             for (int i = 0; i < this.container.getContainerSize(); i++) {
-                if (!ItemStack.isSameItemSameComponents(container.getItem(i), this.container.getItem(i)))
-                    return false;
+                if (!ItemStack.isSameItemSameComponents(container.getItem(i), this.container.getItem(i))) return false;
             }
             return true;
         }
@@ -370,8 +362,8 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
         Vector3f step = getDirection().step();
         Level level = this.getLevel();
         if (level == null) return;
-        ItemEntity itemEntity = new ItemEntity(
-                level, center.x, center.y, center.z, stack, 0.25 * step.x, 0.25 * step.y, 0.25 * step.z);
+        ItemEntity itemEntity =
+                new ItemEntity(level, center.x, center.y, center.z, stack, 0.25 * step.x, 0.25 * step.y, 0.25 * step.z);
         itemEntity.setDefaultPickUpDelay();
         level.addFreshEntity(itemEntity);
     }

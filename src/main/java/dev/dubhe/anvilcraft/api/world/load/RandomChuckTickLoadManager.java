@@ -10,8 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class RandomChuckTickLoadManager {
-    private static final Map<BlockPos, LoadChuckData> RANDOM_TICK_LOAD_CHUCK_AREA_MAP =
-            new HashMap<>();
+    private static final Map<BlockPos, LoadChuckData> RANDOM_TICK_LOAD_CHUCK_AREA_MAP = new HashMap<>();
 
     public static void register(BlockPos centerPos, LoadChuckData loadChuckData) {
         if (RANDOM_TICK_LOAD_CHUCK_AREA_MAP.containsKey(centerPos)) unregister(centerPos);

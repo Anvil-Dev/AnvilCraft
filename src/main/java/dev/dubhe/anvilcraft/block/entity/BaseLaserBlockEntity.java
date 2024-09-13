@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.depository.IItemDepository;
 import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.network.LaserEmitPack;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -23,6 +24,7 @@ import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -30,12 +32,14 @@ import java.util.HashSet;
 import java.util.List;
 
 public abstract class BaseLaserBlockEntity extends BlockEntity {
-    private final HashMap<Integer, Integer> levelToTimeMap = new HashMap<>() {{
+    private final HashMap<Integer, Integer> levelToTimeMap = new HashMap<>() {
+        {
             put(1, 24);
             put(2, 6);
             put(3, 2);
             put(4, 1);
-        }};
+        }
+    };
     protected int maxTransmissionDistance = 128;
     protected int tickCount = 0;
 
@@ -43,8 +47,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
     public BlockPos irradiateBlockPos = null;
     public int laserLevel = 0;
 
-    public BaseLaserBlockEntity(BlockEntityType<?> type,
-        BlockPos pos, BlockState blockState) {
+    public BaseLaserBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
 
@@ -52,17 +55,17 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         if (level == null) return false;
         BlockState blockState = level.getBlockState(blockPos);
         if (blockState.is(ModBlockTags.LASE_CAN_PASS_THROUGH)
-            || blockState.is(ModBlockTags.GLASS_BLOCKS)
-            || blockState.is(ModBlockTags.GLASS_PANES)
-            || blockState.is(BlockTags.REPLACEABLE)) return true;
+                || blockState.is(ModBlockTags.GLASS_BLOCKS)
+                || blockState.is(ModBlockTags.GLASS_PANES)
+                || blockState.is(BlockTags.REPLACEABLE)) return true;
         if (!AnvilCraft.config.isLaserDoImpactChecking) return false;
-        AABB laseBoundingBox = switch (direction.getAxis()) {
-            case X -> Block.box(0, 7, 7, 16, 9, 9).bounds();
-            case Y -> Block.box(7, 0, 7, 9, 16, 9).bounds();
-            case Z -> Block.box(7, 7, 0, 9, 9, 16).bounds();
-        };
-        return blockState.getCollisionShape(level, blockPos).toAabbs().stream().noneMatch(
-            laseBoundingBox::intersects);
+        AABB laseBoundingBox =
+                switch (direction.getAxis()) {
+                    case X -> Block.box(0, 7, 7, 16, 9, 9).bounds();
+                    case Y -> Block.box(7, 0, 7, 9, 16, 9).bounds();
+                    case Z -> Block.box(7, 7, 0, 9, 9, 16).bounds();
+                };
+        return blockState.getCollisionShape(level, blockPos).toAabbs().stream().noneMatch(laseBoundingBox::intersects);
     }
 
     private BlockPos getIrradiateBlockPos(int expectedLength, Direction direction, BlockPos originPos) {
@@ -70,7 +73,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
             if (!canPassThrough(direction, originPos.relative(direction, length)))
                 return originPos.relative(direction, length);
         }
-        return  originPos.relative(direction, expectedLength);
+        return originPos.relative(direction, expectedLength);
     }
 
     protected int getBaseLaserLevel() {
@@ -79,7 +82,9 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
 
     protected int getLaserLevel() {
         return getBaseLaserLevel()
-            + irradiateSelfLaserBlockSet.stream().mapToInt(BaseLaserBlockEntity::getLaserLevel).sum();
+                + irradiateSelfLaserBlockSet.stream()
+                        .mapToInt(BaseLaserBlockEntity::getLaserLevel)
+                        .sum();
     }
 
     /**
@@ -90,63 +95,47 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         BlockPos tempIrradiateBlockPos = getIrradiateBlockPos(maxTransmissionDistance, direction, getBlockPos());
         if (!tempIrradiateBlockPos.equals(irradiateBlockPos)) {
             if (irradiateBlockPos != null
-                && level.getBlockEntity(irradiateBlockPos)
-                instanceof BaseLaserBlockEntity lastIrradiatedLaserBlockEntity)
+                    && level.getBlockEntity(irradiateBlockPos)
+                            instanceof BaseLaserBlockEntity lastIrradiatedLaserBlockEntity)
                 lastIrradiatedLaserBlockEntity.onCancelingIrradiation(this);
         }
-        if (level.getBlockEntity(tempIrradiateBlockPos)
-            instanceof BaseLaserBlockEntity irradiatedLaserBlockEntity
-            && !isInIrradiateSelfLaserBlockSet(irradiatedLaserBlockEntity))
+        if (level.getBlockEntity(tempIrradiateBlockPos) instanceof BaseLaserBlockEntity irradiatedLaserBlockEntity
+                && !isInIrradiateSelfLaserBlockSet(irradiatedLaserBlockEntity))
             irradiatedLaserBlockEntity.onIrradiated(this);
         irradiateBlockPos = tempIrradiateBlockPos;
 
         if (!(level instanceof ServerLevel serverLevel)) return;
         laserLevel = getLaserLevel();
-        AABB trackBoundingBox =
-            new AABB(getBlockPos().relative(direction).getCenter().add(-0.0625, -0.0625, -0.0625),
-                irradiateBlockPos.relative(direction.getOpposite()).getCenter().add(0.0625, 0.0625, 0.0625)
-                );
+        AABB trackBoundingBox = new AABB(
+                getBlockPos().relative(direction).getCenter().add(-0.0625, -0.0625, -0.0625),
+                irradiateBlockPos.relative(direction.getOpposite()).getCenter().add(0.0625, 0.0625, 0.0625));
         int hurt = Math.min(16, laserLevel - 4);
         if (hurt > 0) {
             level.getEntities(EntityTypeTest.forClass(LivingEntity.class), trackBoundingBox, Entity::isAlive)
-                .forEach(livingEntity -> livingEntity.hurt(level.damageSources().generic(), hurt));
+                    .forEach(livingEntity ->
+                            livingEntity.hurt(level.damageSources().generic(), hurt));
         }
         BlockState irradiateBlock = level.getBlockState(irradiateBlockPos);
-        List<ItemStack> drops = Block.getDrops(irradiateBlock, serverLevel, irradiateBlockPos,
-            level.getBlockEntity(irradiateBlockPos));
+        List<ItemStack> drops =
+                Block.getDrops(irradiateBlock, serverLevel, irradiateBlockPos, level.getBlockEntity(irradiateBlockPos));
         int coldDown = levelToTimeMap.containsKey(Math.min(16, laserLevel) / 4)
-            ? levelToTimeMap.get(Math.min(16, laserLevel) / 4) * 20 : Integer.MAX_VALUE;
+                ? levelToTimeMap.get(Math.min(16, laserLevel) / 4) * 20
+                : Integer.MAX_VALUE;
         if (tickCount >= coldDown) {
             tickCount = 0;
             if (irradiateBlock.is(ModBlockTags.ORES)) {
                 Vec3 blockPos = getBlockPos().relative(direction.getOpposite()).getCenter();
                 IItemDepository depository = ItemDepositoryHelper.getItemDepository(
-                    getLevel(),
-                    getBlockPos().relative(this.getDirection().getOpposite()),
-                    this.getDirection()
-                );
+                        getLevel(), getBlockPos().relative(this.getDirection().getOpposite()), this.getDirection());
                 drops.forEach(itemStack -> {
                     if (depository != null) {
-                        ItemStack outItemStack = ItemDepositoryHelper.insertItem(depository,
-                            itemStack, true);
+                        ItemStack outItemStack = ItemDepositoryHelper.insertItem(depository, itemStack, true);
                         if (outItemStack.isEmpty()) {
                             ItemDepositoryHelper.insertItem(depository, itemStack, false);
                         } else
-                            level.addFreshEntity(new ItemEntity(
-                                level,
-                                blockPos.x,
-                                blockPos.y,
-                                blockPos.z,
-                                outItemStack
-                            ));
-                    } else
-                        level.addFreshEntity(new ItemEntity(
-                        level,
-                        blockPos.x,
-                        blockPos.y,
-                        blockPos.z,
-                        itemStack
-                    ));
+                            level.addFreshEntity(
+                                    new ItemEntity(level, blockPos.x, blockPos.y, blockPos.z, outItemStack));
+                    } else level.addFreshEntity(new ItemEntity(level, blockPos.x, blockPos.y, blockPos.z, itemStack));
                 });
                 if (irradiateBlock.is(Blocks.ANCIENT_DEBRIS))
                     level.setBlockAndUpdate(irradiateBlockPos, Blocks.NETHERRACK.defaultBlockState());
@@ -156,17 +145,17 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
                     level.setBlockAndUpdate(irradiateBlockPos, Blocks.NETHERRACK.defaultBlockState());
                 else level.setBlockAndUpdate(irradiateBlockPos, Blocks.STONE.defaultBlockState());
                 /* else {
-                if (level.getBlockState(irradiateBlockPos).getBlock().defaultDestroyTime() >= 0
-                    && !(level.getBlockEntity(irradiateBlockPos) instanceof BaseLaserBlockEntity)) {
-                    level.getBlockState(irradiateBlockPos).getBlock()
-                        .playerWillDestroy(
-                            level,
-                            irradiateBlockPos,
-                            level.getBlockState(irradiateBlockPos),
-                            anvilCraftBlockPlacer.getPlayer());
-                    level.destroyBlock(irradiateBlockPos, false);
-                }
-            }*/
+                    if (level.getBlockState(irradiateBlockPos).getBlock().defaultDestroyTime() >= 0
+                        && !(level.getBlockEntity(irradiateBlockPos) instanceof BaseLaserBlockEntity)) {
+                        level.getBlockState(irradiateBlockPos).getBlock()
+                            .playerWillDestroy(
+                                level,
+                                irradiateBlockPos,
+                                level.getBlockState(irradiateBlockPos),
+                                anvilCraftBlockPlacer.getPlayer());
+                        level.destroyBlock(irradiateBlockPos, false);
+                    }
+                }*/
             }
         }
     }
@@ -176,9 +165,10 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
      */
     public boolean isInIrradiateSelfLaserBlockSet(BaseLaserBlockEntity baseLaserBlockEntity) {
         return baseLaserBlockEntity == this
-            || irradiateSelfLaserBlockSet.contains(baseLaserBlockEntity)
-            || irradiateSelfLaserBlockSet.stream().anyMatch(baseLaserBlockEntity1 ->
-            baseLaserBlockEntity1.isInIrradiateSelfLaserBlockSet(baseLaserBlockEntity));
+                || irradiateSelfLaserBlockSet.contains(baseLaserBlockEntity)
+                || irradiateSelfLaserBlockSet.stream()
+                        .anyMatch(baseLaserBlockEntity1 ->
+                                baseLaserBlockEntity1.isInIrradiateSelfLaserBlockSet(baseLaserBlockEntity));
     }
 
     public void onIrradiated(BaseLaserBlockEntity baseLaserBlockEntity) {
@@ -228,7 +218,12 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
      */
     @SuppressWarnings("unused")
     public AABB getRenderBoundingBox() {
-        return new AABB(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY,
-            Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
+        return new AABB(
+                Double.NEGATIVE_INFINITY,
+                Double.NEGATIVE_INFINITY,
+                Double.NEGATIVE_INFINITY,
+                Double.POSITIVE_INFINITY,
+                Double.POSITIVE_INFINITY,
+                Double.POSITIVE_INFINITY);
     }
 }

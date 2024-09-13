@@ -32,11 +32,7 @@ import java.util.Optional;
 public class HitSpawnerBehavior implements AnvilBehavior {
     @Override
     public void handle(
-            Level level,
-            BlockPos pos,
-            BlockState hitBlockState,
-            float fallDistance,
-            AnvilFallOnLandEvent event) {
+            Level level, BlockPos pos, BlockState hitBlockState, float fallDistance, AnvilFallOnLandEvent event) {
         if (level instanceof ServerLevel serverLevel) {
             RandomSource randomSource = serverLevel.getRandom();
             float f = randomSource.nextFloat();
@@ -121,8 +117,8 @@ public class HitSpawnerBehavior implements AnvilBehavior {
                 if (entity == null) {
                     return;
                 }
-                AABB boundingBox = new AABB(
-                        pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1);
+                AABB boundingBox =
+                        new AABB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1);
                 int k = serverLevel
                         .getEntitiesOfClass(entity.getClass(), boundingBox.inflate(accessor.getSpawnRange()))
                         .size();
@@ -130,8 +126,7 @@ public class HitSpawnerBehavior implements AnvilBehavior {
                     return;
                 }
 
-                entity.moveTo(
-                        entity.getX(), entity.getY(), entity.getZ(), randomSource.nextFloat() * 360.0F, 0.0F);
+                entity.moveTo(entity.getX(), entity.getY(), entity.getZ(), randomSource.nextFloat() * 360.0F, 0.0F);
                 if (entity instanceof Mob mob) {
                     if (spawnData.getCustomSpawnRules().isEmpty()
                                     && !mob.checkSpawnRules(serverLevel, MobSpawnType.SPAWNER)

@@ -40,10 +40,9 @@ public class HeliostatsRenderer implements BlockEntityRenderer<HeliostatsBlockEn
         if (!blockEntity.getNormalVector3f().equals(new Vector3f())
                 && !blockEntity.getNormalVector3f().equals(new Vector3f(Float.NaN))) {
             poseStack.mulPose(new Quaternionf()
-                    .rotateY(getHorizontalAngle(
-                            blockEntity.getNormalVector3f().x, blockEntity.getNormalVector3f().z)));
-            poseStack.mulPose(new Quaternionf().rotateX((float) (Math.atan(
-                    Math.sqrt((blockEntity.getNormalVector3f().z * blockEntity.getNormalVector3f().z)
+                    .rotateY(getHorizontalAngle(blockEntity.getNormalVector3f().x, blockEntity.getNormalVector3f().z)));
+            poseStack.mulPose(new Quaternionf().rotateX((float)
+                    (Math.atan(Math.sqrt((blockEntity.getNormalVector3f().z * blockEntity.getNormalVector3f().z)
                                     + (blockEntity.getNormalVector3f().x * blockEntity.getNormalVector3f().x))
                             / blockEntity.getNormalVector3f().y))));
         }

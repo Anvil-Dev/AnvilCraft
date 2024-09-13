@@ -95,7 +95,10 @@ public class FloatingBlockEntity extends FallingBlockEntity {
                                 boolean bl5 = this.blockState.canSurvive(this.level(), blockPos);
                                 if (bl3 && bl5) {
                                     if (this.blockState.hasProperty(BlockStateProperties.WATERLOGGED)
-                                            && this.level().getFluidState(blockPos).getType() == Fluids.WATER) {
+                                            && this.level()
+                                                            .getFluidState(blockPos)
+                                                            .getType()
+                                                    == Fluids.WATER) {
                                         this.blockState =
                                                 this.blockState.setValue(BlockStateProperties.WATERLOGGED, true);
                                     }
@@ -107,7 +110,8 @@ public class FloatingBlockEntity extends FallingBlockEntity {
                                                 .broadcast(
                                                         this,
                                                         new ClientboundBlockUpdatePacket(
-                                                                blockPos, this.level().getBlockState(blockPos)));
+                                                                blockPos,
+                                                                this.level().getBlockState(blockPos)));
                                         this.discard();
                                         if (block instanceof Fallable) {
                                             ((Fallable) block)

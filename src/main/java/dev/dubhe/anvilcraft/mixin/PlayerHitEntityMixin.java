@@ -33,8 +33,7 @@ public abstract class PlayerHitEntityMixin extends LivingEntity {
 
     @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
     @SuppressWarnings("UnreachableCode")
-    private void onFlyingHitBlock(
-            DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+    private void onFlyingHitBlock(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         if (!((Object) this instanceof ServerPlayer)) return;
         if (!this.isFallFlying()) return;
         if (!(this.getItemBySlot(EquipmentSlot.HEAD).getItem() instanceof AnvilHammerItem)

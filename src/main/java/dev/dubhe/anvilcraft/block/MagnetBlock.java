@@ -36,8 +36,7 @@ public class MagnetBlock extends Block implements IHammerRemovable {
 
     @Override
     @Nullable public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
-        return this.defaultBlockState()
-                .setValue(LIT, context.getLevel().hasNeighborSignal(context.getClickedPos()));
+        return this.defaultBlockState().setValue(LIT, context.getLevel().hasNeighborSignal(context.getClickedPos()));
     }
 
     @Override
@@ -53,8 +52,7 @@ public class MagnetBlock extends Block implements IHammerRemovable {
     }
 
     @Override
-    protected void createBlockStateDefinition(
-            @NotNull StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(LIT);
     }
 

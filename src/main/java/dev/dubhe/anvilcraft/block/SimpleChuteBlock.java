@@ -95,8 +95,7 @@ public class SimpleChuteBlock extends BaseEntityBlock
     }
 
     @Override
-    protected void createBlockStateDefinition(
-            @NotNull StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING, WATERLOGGED, ENABLED, TALL);
     }
 
@@ -120,8 +119,7 @@ public class SimpleChuteBlock extends BaseEntityBlock
         if (!blockState.is(ModBlocks.CHUTE.get())) return;
         if (ChuteBlock.hasChuteFacing(level, neighborPos)) {
             BlockState newState = ModBlocks.SIMPLE_CHUTE.getDefaultState();
-            newState = newState
-                    .setValue(SimpleChuteBlock.FACING, blockState.getValue(FACING))
+            newState = newState.setValue(SimpleChuteBlock.FACING, blockState.getValue(FACING))
                     .setValue(SimpleChuteBlock.ENABLED, blockState.getValue(ENABLED));
             BlockState upState = level.getBlockState(neighborPos.relative(Direction.UP));
             if (upState.is(ModBlocks.SIMPLE_CHUTE.get()) || upState.is(ModBlocks.CHUTE.get())) {
@@ -203,9 +201,7 @@ public class SimpleChuteBlock extends BaseEntityBlock
 
     @Nullable @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-            @NotNull Level level,
-            @NotNull BlockState state,
-            @NotNull BlockEntityType<T> blockEntityType) {
+            @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> blockEntityType) {
         if (level.isClientSide) return null;
         return createTickerHelper(
                 blockEntityType,
@@ -245,8 +241,7 @@ public class SimpleChuteBlock extends BaseEntityBlock
     }
 
     @Override
-    public int getAnalogOutputSignal(
-            @NotNull BlockState blockState, @NotNull Level level, @NotNull BlockPos blockPos) {
+    public int getAnalogOutputSignal(@NotNull BlockState blockState, @NotNull Level level, @NotNull BlockPos blockPos) {
         BlockEntity blockEntity = level.getBlockEntity(blockPos);
         if (blockEntity instanceof SimpleChuteBlockEntity chuteBlockEntity) {
             return chuteBlockEntity.getRedstoneSignal();

@@ -33,8 +33,7 @@ public abstract class BetterGrindstoneBlock extends GrindstoneBlock {
             Player pPlayer,
             InteractionHand pHand,
             BlockHitResult pHitResult) {
-        return Utils.interactionResultConverter()
-                .apply(this.use(pState, pLevel, pPos, pPlayer, pHand, pHitResult));
+        return Utils.interactionResultConverter().apply(this.use(pState, pLevel, pPos, pPlayer, pHand, pHitResult));
     }
 
     @Override
@@ -44,12 +43,7 @@ public abstract class BetterGrindstoneBlock extends GrindstoneBlock {
     }
 
     public InteractionResult use(
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            Player player,
-            InteractionHand hand,
-            BlockHitResult hit) {
+            BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         return InteractionResult.PASS;
     }
 }

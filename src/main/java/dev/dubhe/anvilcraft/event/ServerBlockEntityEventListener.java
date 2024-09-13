@@ -25,8 +25,7 @@ public class ServerBlockEntityEventListener {
             PowerGrid.addComponent(component);
         }
         if (event.getBlockEntity() instanceof ChargeCollectorBlockEntity chargeCollector) {
-            ChargeCollectorManager.getInstance(event.getServerLevel())
-                    .addChargeCollector(chargeCollector);
+            ChargeCollectorManager.getInstance(event.getServerLevel()).addChargeCollector(chargeCollector);
         }
     }
 
@@ -40,8 +39,7 @@ public class ServerBlockEntityEventListener {
             PowerGrid.removeComponent(component);
         }
         if (event.getBlockEntity() instanceof ChargeCollectorBlockEntity chargeCollector) {
-            ChargeCollectorManager.getInstance(event.getServerLevel())
-                    .removeChargeCollector(chargeCollector);
+            ChargeCollectorManager.getInstance(event.getServerLevel()).removeChargeCollector(chargeCollector);
             return;
         }
         if (event.getBlockEntity() instanceof OverseerBlockEntity overseerBlockEntity) {

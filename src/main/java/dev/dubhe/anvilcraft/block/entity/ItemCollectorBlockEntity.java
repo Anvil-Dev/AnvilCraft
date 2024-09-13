@@ -42,12 +42,7 @@ import java.util.List;
 
 @Getter
 public class ItemCollectorBlockEntity extends BlockEntity
-        implements MenuProvider,
-                IFilterBlockEntity,
-                IPowerConsumer,
-                IDiskCloneable,
-                IHasAffectRange,
-                DepositoryHolder {
+        implements MenuProvider, IFilterBlockEntity, IPowerConsumer, IDiskCloneable, IHasAffectRange, DepositoryHolder {
     @Setter
     private PowerGrid grid;
 
@@ -80,8 +75,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
         }
     };
 
-    public ItemCollectorBlockEntity(
-            BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
+    public ItemCollectorBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
 
@@ -129,8 +123,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
     }
 
     @Nullable @Override
-    public AbstractContainerMenu createMenu(
-            int i, @NotNull Inventory inventory, @NotNull Player player) {
+    public AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
         return new ItemCollectorMenu(ModMenuTypes.ITEM_COLLECTOR.get(), i, inventory, this);
     }
 
@@ -152,8 +145,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
     public void gridTick() {
         if (level == null || level.isClientSide) return;
         BlockState state = level.getBlockState(getBlockPos());
-        if (state.hasProperty(ItemCollectorBlock.POWERED) && state.getValue(ItemCollectorBlock.POWERED))
-            return;
+        if (state.hasProperty(ItemCollectorBlock.POWERED) && state.getValue(ItemCollectorBlock.POWERED)) return;
         if (cd - 1 != 0) {
             cd--;
             return;

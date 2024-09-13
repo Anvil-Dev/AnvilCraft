@@ -35,8 +35,7 @@ public class FallingGiantAnvilEntity extends FallingBlockEntity {
 
     private float fallDistance = 0;
 
-    public FallingGiantAnvilEntity(
-            EntityType<? extends FallingGiantAnvilEntity> entityType, Level level) {
+    public FallingGiantAnvilEntity(EntityType<? extends FallingGiantAnvilEntity> entityType, Level level) {
         super(entityType, level);
     }
 
@@ -57,8 +56,7 @@ public class FallingGiantAnvilEntity extends FallingBlockEntity {
      * @param pos        方块坐标
      * @param blockState 方块状态
      */
-    public static FallingGiantAnvilEntity fall(
-            Level level, BlockPos pos, BlockState blockState, boolean updateBlock) {
+    public static FallingGiantAnvilEntity fall(Level level, BlockPos pos, BlockState blockState, boolean updateBlock) {
         FallingGiantAnvilEntity fallingBlockEntity = new FallingGiantAnvilEntity(
                 level,
                 (double) pos.getX() + 0.5,
@@ -106,7 +104,9 @@ public class FallingGiantAnvilEntity extends FallingBlockEntity {
                                     ClipContext.Fluid.SOURCE_ONLY,
                                     this));
                     if (blockHitResult.getType() != HitResult.Type.MISS
-                            && this.level().getFluidState(blockHitResult.getBlockPos()).is(FluidTags.WATER)) {
+                            && this.level()
+                                    .getFluidState(blockHitResult.getBlockPos())
+                                    .is(FluidTags.WATER)) {
                         blockPos = blockHitResult.getBlockPos();
                         shouldHandleWater = true;
                     }
@@ -116,10 +116,10 @@ public class FallingGiantAnvilEntity extends FallingBlockEntity {
                     if (!this.level().isClientSide
                             && (this.time > 100
                                             && (blockPos.getY() <= this.level().getMinBuildHeight()
-                                                    || blockPos.getY() > this.level().getMaxBuildHeight())
+                                                    || blockPos.getY()
+                                                            > this.level().getMaxBuildHeight())
                                     || this.time > 600)) {
-                        if (this.dropItem
-                                && this.level().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
+                        if (this.dropItem && this.level().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
                             this.spawnAtLocation(block);
                         }
 
@@ -137,8 +137,8 @@ public class FallingGiantAnvilEntity extends FallingBlockEntity {
                     for (int i = -1; i <= 1; i++) {
                         for (int j = -1; j <= 1; j++) {
                             BlockPos offsetPos = blockPos.offset(i, -1, j);
-                            isMovingPiston =
-                                    isMovingPiston || this.level().getBlockState(offsetPos).is(Blocks.MOVING_PISTON);
+                            isMovingPiston = isMovingPiston
+                                    || this.level().getBlockState(offsetPos).is(Blocks.MOVING_PISTON);
                             for (int k = -1; k <= 1; k++) {
                                 canBeReplaced = canBeReplaced
                                         && this.level()
@@ -166,7 +166,12 @@ public class FallingGiantAnvilEntity extends FallingBlockEntity {
                                 this.discard();
                                 if (block instanceof GiantAnvilBlock block1) {
                                     block1.onLand(
-                                            this.level(), blockPos, this.blockState, blockState, this, this.fallDistance);
+                                            this.level(),
+                                            blockPos,
+                                            this.blockState,
+                                            blockState,
+                                            this,
+                                            this.fallDistance);
                                 }
                             } else if (this.dropItem
                                     && this.level().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
@@ -176,8 +181,7 @@ public class FallingGiantAnvilEntity extends FallingBlockEntity {
                             }
                         } else {
                             this.discard();
-                            if (this.dropItem
-                                    && this.level().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
+                            if (this.dropItem && this.level().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
                                 this.callOnBrokenAfterFall(block, blockPos);
                                 this.spawnAtLocation(block);
                             }

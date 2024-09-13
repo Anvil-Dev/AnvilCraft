@@ -34,16 +34,14 @@ public class TimeWarpBehavior implements AnvilBehavior {
             AnvilFallOnLandEvent event) {
         AnvilCraft.LOGGER.info("TimeWarpHandle");
         BlockState belowState = level.getBlockState(hitBlockPos.below());
-        if (belowState.is(ModBlocks.CORRUPTED_BEACON)
-                && belowState.getValue(CorruptedBeaconBlock.LIT)) {
+        if (belowState.is(ModBlocks.CORRUPTED_BEACON) && belowState.getValue(CorruptedBeaconBlock.LIT)) {
             Map<ItemEntity, ItemStack> items =
                     level.getEntitiesOfClass(ItemEntity.class, new AABB(hitBlockPos)).stream()
                             .map(it -> Map.entry(it, it.getItem()))
                             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             TimeWarpRecipe.Input input =
                     new TimeWarpRecipe.Input(items.values().stream().toList(), hitBlockState);
-            level
-                    .getRecipeManager()
+            level.getRecipeManager()
                     .getRecipeFor(ModRecipeTypes.TIME_WARP_TYPE.get(), input, level)
                     .ifPresent(recipe -> {
                         ItemStack result = recipe.value().getResult().copy();
@@ -83,7 +81,8 @@ public class TimeWarpBehavior implements AnvilBehavior {
                                         hitBlockPos, hitBlockState.setValue(LayeredCauldronBlock.LEVEL, cauldronLevel));
                             } else {
                                 level.setBlockAndUpdate(
-                                        hitBlockPos, recipe.value().getCauldron().defaultBlockState());
+                                        hitBlockPos,
+                                        recipe.value().getCauldron().defaultBlockState());
                             }
                         }
 

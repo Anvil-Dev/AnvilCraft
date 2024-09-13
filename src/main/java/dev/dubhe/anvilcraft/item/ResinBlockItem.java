@@ -39,8 +39,7 @@ public class ResinBlockItem extends HasMobBlockItem {
     /**
      * 右键实体
      */
-    public static InteractionResult useEntity(
-            Player player, @NotNull Entity target, ItemStack stack) {
+    public static InteractionResult useEntity(Player player, @NotNull Entity target, ItemStack stack) {
         if (!(target instanceof Mob mob)
                 || target.getBbHeight() > 2.0
                 || target.getBbWidth() > 1.5
@@ -51,8 +50,7 @@ public class ResinBlockItem extends HasMobBlockItem {
         return InteractionResult.SUCCESS;
     }
 
-    private static void spawnMobFromItem(
-            @NotNull Level level, Player player, BlockPos pos, @NotNull ItemStack stack) {
+    private static void spawnMobFromItem(@NotNull Level level, Player player, BlockPos pos, @NotNull ItemStack stack) {
         ItemStack copy = stack.copy();
         stack.shrink(1);
         stack.remove(ModComponents.SAVED_ENTITY);

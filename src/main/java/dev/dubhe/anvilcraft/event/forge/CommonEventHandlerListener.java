@@ -38,8 +38,7 @@ public class CommonEventHandlerListener {
 
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
-    public static void clientPlayerDisconnectEvent(
-            @NotNull PlayerEvent.PlayerLoggedOutEvent playerLoggedOutEvent) {
+    public static void clientPlayerDisconnectEvent(@NotNull PlayerEvent.PlayerLoggedOutEvent playerLoggedOutEvent) {
         AnvilCraft.EVENT_BUS.post(new ClientPlayerDisconnectEvent());
     }
 }

@@ -82,8 +82,7 @@ public abstract class BeaconMenuMixin {
             block1:
             for (int l = x - j; l <= x + j && bl; ++l) {
                 for (int m = z - j; m <= z + j; ++m) {
-                    if (level.getBlockState(new BlockPos(l, k, m)).is(ModBlocks.CURSED_GOLD_BLOCK.get()))
-                        continue;
+                    if (level.getBlockState(new BlockPos(l, k, m)).is(ModBlocks.CURSED_GOLD_BLOCK.get())) continue;
                     bl = false;
                     continue block1;
                 }

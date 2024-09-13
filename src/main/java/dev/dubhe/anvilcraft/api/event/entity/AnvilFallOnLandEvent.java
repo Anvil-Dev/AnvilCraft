@@ -21,8 +21,7 @@ public class AnvilFallOnLandEvent extends EntityEvent<FallingBlockEntity> {
      * @param entity       铁砧实体
      * @param fallDistance 下落距离
      */
-    public AnvilFallOnLandEvent(
-            Level level, BlockPos pos, FallingBlockEntity entity, float fallDistance) {
+    public AnvilFallOnLandEvent(Level level, BlockPos pos, FallingBlockEntity entity, float fallDistance) {
         super(entity, pos, level);
         this.fallDistance = fallDistance;
         this.isAnvilDamage = false;

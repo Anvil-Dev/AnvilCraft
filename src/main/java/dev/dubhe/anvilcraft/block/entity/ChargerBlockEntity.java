@@ -28,11 +28,7 @@ import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 public class ChargerBlockEntity extends BlockEntity
-        implements IPowerConsumer,
-                IPowerProducer,
-                IFilterBlockEntity,
-                StateListener<Boolean>,
-                DepositoryHolder {
+        implements IPowerConsumer, IPowerProducer, IFilterBlockEntity, StateListener<Boolean>, DepositoryHolder {
 
     @Setter
     private boolean isCharger;
@@ -48,24 +44,18 @@ public class ChargerBlockEntity extends BlockEntity
 
         @Override
         public ItemStack insert(
-                int slot,
-                @NotNull ItemStack stack,
-                boolean simulate,
-                boolean notifyChanges,
-                boolean isServer) {
+                int slot, @NotNull ItemStack stack, boolean simulate, boolean notifyChanges, boolean isServer) {
             if (!locked && !previousDischargeFailed) {
                 ItemStack original = stack.copy();
                 original.shrink(1);
                 if (original.isEmpty()) {
-                    ItemStack left =
-                            super.insert(slot, stack.copyWithCount(1), simulate, notifyChanges, isServer);
+                    ItemStack left = super.insert(slot, stack.copyWithCount(1), simulate, notifyChanges, isServer);
                     if (left.isEmpty() && !simulate) {
                         locked = true;
                     }
                     return left;
                 } else {
-                    ItemStack left =
-                            super.insert(slot, stack.copyWithCount(1), simulate, notifyChanges, isServer);
+                    ItemStack left = super.insert(slot, stack.copyWithCount(1), simulate, notifyChanges, isServer);
                     if (left.isEmpty() && !simulate) {
                         locked = true;
                     }

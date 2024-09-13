@@ -35,14 +35,12 @@ public class ItemDepositoryHelper {
      * @param direction 输入方向
      * @return 物品存储
      */
-    public static @Nullable IItemDepository getItemDepository(
-            Level level, BlockPos pos, Direction direction) {
+    public static @Nullable IItemDepository getItemDepository(Level level, BlockPos pos, Direction direction) {
         IItemDepository depository = ItemDepositoryHelper.getItemDepositoryFromHolder(level, pos);
         if (depository != null) return depository;
         BlockEntity be = level.getBlockEntity(pos);
         if (be != null) {
-            IItemHandler handler =
-                    level.getCapability(Capabilities.ItemHandler.BLOCK, pos, direction.getOpposite());
+            IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, direction.getOpposite());
             if (handler != null) {
                 return toItemDepository(handler);
             }
@@ -79,10 +77,7 @@ public class ItemDepositoryHelper {
      */
     @SuppressWarnings("DuplicatedCode")
     public static boolean exportToTarget(
-            @NotNull IItemDepository source,
-            int maxAmount,
-            Predicate<ItemStack> predicate,
-            IItemDepository target) {
+            @NotNull IItemDepository source, int maxAmount, Predicate<ItemStack> predicate, IItemDepository target) {
         boolean hasDone = false;
         for (int srcIndex = 0; srcIndex < source.getSlots(); srcIndex++) {
             ItemStack sourceStack = source.extract(srcIndex, Integer.MAX_VALUE, true);
@@ -143,10 +138,7 @@ public class ItemDepositoryHelper {
      */
     @SuppressWarnings("DuplicatedCode")
     public static boolean importToTarget(
-            IItemDepository target,
-            int maxAmount,
-            Predicate<ItemStack> predicate,
-            @NotNull IItemDepository source) {
+            IItemDepository target, int maxAmount, Predicate<ItemStack> predicate, @NotNull IItemDepository source) {
         boolean hasDone = false;
         for (int srcIndex = 0; srcIndex < source.getSlots(); srcIndex++) {
             ItemStack sourceStack = source.extract(srcIndex, Integer.MAX_VALUE, true);
@@ -175,8 +167,7 @@ public class ItemDepositoryHelper {
      * @param simulate   是否模拟
      * @return 未插入的物品
      */
-    public static ItemStack insertItem(
-            IItemDepository depository, ItemStack stack, boolean simulate) {
+    public static ItemStack insertItem(IItemDepository depository, ItemStack stack, boolean simulate) {
         if (depository == null || stack.isEmpty()) {
             return stack;
         }
@@ -217,8 +208,7 @@ public class ItemDepositoryHelper {
      * @param simulate   是否模拟
      * @return 未插入的物品
      */
-    public static ItemStack insertToEmpty(
-            IItemDepository depository, ItemStack stack, boolean simulate) {
+    public static ItemStack insertToEmpty(IItemDepository depository, ItemStack stack, boolean simulate) {
         if (depository == null || stack.isEmpty()) {
             return stack;
         }

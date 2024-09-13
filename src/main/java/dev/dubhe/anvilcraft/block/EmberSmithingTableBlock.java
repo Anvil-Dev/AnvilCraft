@@ -33,8 +33,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class EmberSmithingTableBlock extends SmithingTableBlock
-        implements IHammerRemovable, EmberBlock {
+public class EmberSmithingTableBlock extends SmithingTableBlock implements IHammerRemovable, EmberBlock {
     private static final Component CONTAINER_TITLE = Component.translatable("container.upgrade");
 
     @Getter
@@ -54,8 +53,7 @@ public class EmberSmithingTableBlock extends SmithingTableBlock
             Player pPlayer,
             InteractionHand pHand,
             BlockHitResult pHitResult) {
-        return Utils.interactionResultConverter()
-                .apply(this.use(pState, pLevel, pPos, pPlayer, pHand, pHitResult));
+        return Utils.interactionResultConverter().apply(this.use(pState, pLevel, pPos, pPlayer, pHand, pHitResult));
     }
 
     @Override
@@ -81,11 +79,9 @@ public class EmberSmithingTableBlock extends SmithingTableBlock
     }
 
     @Override
-    public MenuProvider getMenuProvider(
-            @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos) {
+    public MenuProvider getMenuProvider(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos) {
         return new SimpleMenuProvider(
-                (i, inventory, player) ->
-                        new EmberSmithingMenu(i, inventory, ContainerLevelAccess.create(level, pos)),
+                (i, inventory, player) -> new EmberSmithingMenu(i, inventory, ContainerLevelAccess.create(level, pos)),
                 CONTAINER_TITLE);
     }
 

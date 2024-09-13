@@ -82,11 +82,9 @@ public class EmberAnvilBlock extends BetterAnvilBlock implements IHammerRemovabl
     }
 
     @Override
-    @Nullable public MenuProvider getMenuProvider(
-            @Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos) {
+    @Nullable public MenuProvider getMenuProvider(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos) {
         return new SimpleMenuProvider(
-                (i, inventory, player) ->
-                        new EmberAnvilMenu(i, inventory, ContainerLevelAccess.create(level, pos)),
+                (i, inventory, player) -> new EmberAnvilMenu(i, inventory, ContainerLevelAccess.create(level, pos)),
                 CONTAINER_TITLE);
     }
 

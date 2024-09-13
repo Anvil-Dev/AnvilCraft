@@ -90,9 +90,7 @@ public class ModEnchantments {
     }
 
     public static void register(
-            BootstrapContext<Enchantment> context,
-            ResourceKey<Enchantment> key,
-            Enchantment.Builder builder) {
+            BootstrapContext<Enchantment> context, ResourceKey<Enchantment> key, Enchantment.Builder builder) {
         context.register(key, builder.build(key.location()));
     }
 }

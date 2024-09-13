@@ -98,15 +98,14 @@ public class MeshRecipe implements Recipe<MeshRecipe.Input> {
                         NumberProviders.CODEC.fieldOf("result_amount").forGetter(MeshRecipe::getResultAmount))
                 .apply(ins, MeshRecipe::new));
 
-        private static final StreamCodec<RegistryFriendlyByteBuf, MeshRecipe> STREAM_CODEC =
-                StreamCodec.composite(
-                        Ingredient.CONTENTS_STREAM_CODEC,
-                        MeshRecipe::getInput,
-                        ItemStack.STREAM_CODEC,
-                        MeshRecipe::getResult,
-                        StreamCodec.of(NumberProviderUtil::toNetwork, NumberProviderUtil::fromNetwork),
-                        MeshRecipe::getResultAmount,
-                        MeshRecipe::new);
+        private static final StreamCodec<RegistryFriendlyByteBuf, MeshRecipe> STREAM_CODEC = StreamCodec.composite(
+                Ingredient.CONTENTS_STREAM_CODEC,
+                MeshRecipe::getInput,
+                ItemStack.STREAM_CODEC,
+                MeshRecipe::getResult,
+                StreamCodec.of(NumberProviderUtil::toNetwork, NumberProviderUtil::fromNetwork),
+                MeshRecipe::getResultAmount,
+                MeshRecipe::new);
 
         @Override
         public MapCodec<MeshRecipe> codec() {

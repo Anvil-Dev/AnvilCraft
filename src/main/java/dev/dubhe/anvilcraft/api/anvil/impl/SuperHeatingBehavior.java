@@ -36,10 +36,10 @@ public class SuperHeatingBehavior implements AnvilBehavior {
                             .map(it -> Map.entry(it, it.getItem()))
                             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-            ItemProcessInput input = new ItemProcessInput(items.values().stream().toList());
+            ItemProcessInput input =
+                    new ItemProcessInput(items.values().stream().toList());
 
-            level
-                    .getRecipeManager()
+            level.getRecipeManager()
                     .getRecipeFor(ModRecipeTypes.SUPER_HEATING_TYPE.get(), input, level)
                     .ifPresent(recipe -> {
                         int times = recipe.value().getMaxCraftTime(input);

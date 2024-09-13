@@ -30,8 +30,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
-public abstract class BasePowerConverterBlock extends BetterBaseEntityBlock
-        implements IHammerRemovable {
+public abstract class BasePowerConverterBlock extends BetterBaseEntityBlock implements IHammerRemovable {
     private final int inputPower;
 
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
@@ -88,11 +87,9 @@ public abstract class BasePowerConverterBlock extends BetterBaseEntityBlock
 
     @Nullable @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new PowerConverterBlockEntity(
-                ModBlockEntities.POWER_CONVERTER.get(), pos, state, inputPower);
+        return new PowerConverterBlockEntity(ModBlockEntities.POWER_CONVERTER.get(), pos, state, inputPower);
     }
 
     @Override
-    public abstract VoxelShape getShape(
-            BlockState state, BlockGetter level, BlockPos pos, CollisionContext context);
+    public abstract VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context);
 }

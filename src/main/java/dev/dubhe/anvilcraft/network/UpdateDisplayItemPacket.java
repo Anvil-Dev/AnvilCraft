@@ -16,12 +16,10 @@ import net.neoforged.neoforge.network.handling.IPayloadHandler;
 import org.jetbrains.annotations.NotNull;
 
 public class UpdateDisplayItemPacket implements CustomPacketPayload {
-    public static final Type<UpdateDisplayItemPacket> TYPE =
-            new Type<>(AnvilCraft.of("client_update_display_item"));
+    public static final Type<UpdateDisplayItemPacket> TYPE = new Type<>(AnvilCraft.of("client_update_display_item"));
     public static final StreamCodec<RegistryFriendlyByteBuf, UpdateDisplayItemPacket> STREAM_CODEC =
             StreamCodec.ofMember(UpdateDisplayItemPacket::encode, UpdateDisplayItemPacket::new);
-    public static final IPayloadHandler<UpdateDisplayItemPacket> HANDLER =
-            UpdateDisplayItemPacket::clientHandler;
+    public static final IPayloadHandler<UpdateDisplayItemPacket> HANDLER = UpdateDisplayItemPacket::clientHandler;
 
     private final ItemStack displayItem;
     private final BlockPos pos;

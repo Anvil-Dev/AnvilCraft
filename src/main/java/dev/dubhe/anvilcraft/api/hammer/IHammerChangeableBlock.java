@@ -21,15 +21,13 @@ public interface IHammerChangeableBlock extends IHammerChangeable {
     DirectionProperty HORIZONTAL_FACING = BlockStateProperties.HORIZONTAL_FACING;
     IHammerChangeableBlock DEFAULT = new IHammerChangeableBlock() {};
     IHammerChangeableBlock EMPTY = new IHammerChangeableBlock() {
-        public boolean change(
-                Player player, BlockPos blockPos, @NotNull Level level, ItemStack anvilHammer) {
+        public boolean change(Player player, BlockPos blockPos, @NotNull Level level, ItemStack anvilHammer) {
             return false;
         }
     };
 
     @Override
-    default boolean change(
-            Player player, BlockPos blockPos, @NotNull Level level, ItemStack anvilHammer) {
+    default boolean change(Player player, BlockPos blockPos, @NotNull Level level, ItemStack anvilHammer) {
         BlockState state = level.getBlockState(blockPos);
         if (state.hasProperty(FACING)) {
             state = IHammerChangeableBlock.rotate(state);
@@ -63,6 +61,7 @@ public interface IHammerChangeableBlock extends IHammerChangeable {
 
     @SuppressWarnings("SameParameterValue")
     private static @NotNull BlockState horizontalRotate(@NotNull BlockState state) {
-        return state.setValue(HORIZONTAL_FACING, state.getValue(HORIZONTAL_FACING).getClockWise());
+        return state.setValue(
+                HORIZONTAL_FACING, state.getValue(HORIZONTAL_FACING).getClockWise());
     }
 }

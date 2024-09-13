@@ -20,8 +20,7 @@ public class WatchableCyclingValue<T> {
      * 可监听的循环值选择器
      */
     @SafeVarargs
-    public WatchableCyclingValue(
-            String name, Consumer<WatchableCyclingValue<T>> onChangedCallback, T... values) {
+    public WatchableCyclingValue(String name, Consumer<WatchableCyclingValue<T>> onChangedCallback, T... values) {
         this.onChangedCallback = onChangedCallback;
         this.values = values;
         this.name = name;

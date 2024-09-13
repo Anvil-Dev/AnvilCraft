@@ -30,8 +30,7 @@ public class HitCrabTrapBehavior implements AnvilBehavior {
         ItemDepository depository = blockEntity.getDepository();
         for (int i = 0; i < depository.getSlots(); i++) {
             ItemStack stack = depository.getStack(i);
-            ItemEntity itemEntity =
-                    new ItemEntity(level, dropPos.x, dropPos.y - 0.4, dropPos.z, stack, 0, 0, 0);
+            ItemEntity itemEntity = new ItemEntity(level, dropPos.x, dropPos.y - 0.4, dropPos.z, stack, 0, 0, 0);
             itemEntity.setDefaultPickUpDelay();
             level.addFreshEntity(itemEntity);
             depository.extract(i, stack.getCount(), false);

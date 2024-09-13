@@ -20,16 +20,12 @@ import lombok.Getter;
 
 @Getter
 public class MachineEnableFilterPack implements CustomPacketPayload {
-    public static final Type<MachineEnableFilterPack> TYPE =
-            new Type<>(AnvilCraft.of("machine_record_material"));
+    public static final Type<MachineEnableFilterPack> TYPE = new Type<>(AnvilCraft.of("machine_record_material"));
     public static final StreamCodec<RegistryFriendlyByteBuf, MachineEnableFilterPack> STREAM_CODEC =
             StreamCodec.composite(
-                    ByteBufCodecs.BOOL,
-                    MachineEnableFilterPack::isFilterEnabled,
-                    MachineEnableFilterPack::new);
-    public static final IPayloadHandler<MachineEnableFilterPack> HANDLER =
-            new DirectionalPayloadHandler<>(
-                    MachineEnableFilterPack::clientHandler, MachineEnableFilterPack::serverHandler);
+                    ByteBufCodecs.BOOL, MachineEnableFilterPack::isFilterEnabled, MachineEnableFilterPack::new);
+    public static final IPayloadHandler<MachineEnableFilterPack> HANDLER = new DirectionalPayloadHandler<>(
+            MachineEnableFilterPack::clientHandler, MachineEnableFilterPack::serverHandler);
 
     private final boolean filterEnabled;
 

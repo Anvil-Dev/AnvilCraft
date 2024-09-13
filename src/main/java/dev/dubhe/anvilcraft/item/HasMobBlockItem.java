@@ -44,17 +44,13 @@ public class HasMobBlockItem extends BlockItem {
 
     @Override
     public void appendHoverText(
-            ItemStack stack,
-            Item.TooltipContext context,
-            List<Component> tooltipComponents,
-            TooltipFlag isAdvanced) {
+            ItemStack stack, Item.TooltipContext context, List<Component> tooltipComponents, TooltipFlag isAdvanced) {
         super.appendHoverText(stack, context, tooltipComponents, isAdvanced);
         if (!HasMobBlockItem.hasMob(stack)) return;
         Entity entity = HasMobBlockItem.getMobFromItem(context.level(), stack);
         if (entity != null) {
-            tooltipComponents.add(Component.literal("- ")
-                    .append(entity.getDisplayName())
-                    .withStyle(ChatFormatting.DARK_GRAY));
+            tooltipComponents.add(
+                    Component.literal("- ").append(entity.getDisplayName()).withStyle(ChatFormatting.DARK_GRAY));
         }
     }
 
@@ -118,11 +114,7 @@ public class HasMobBlockItem extends BlockItem {
                 .apply(ins, SavedEntity::new));
 
         public static final StreamCodec<ByteBuf, SavedEntity> STREAM_CODEC = StreamCodec.composite(
-                ByteBufCodecs.COMPOUND_TAG,
-                o -> o.tag,
-                ByteBufCodecs.BOOL,
-                o -> o.isMonster,
-                SavedEntity::new);
+                ByteBufCodecs.COMPOUND_TAG, o -> o.tag, ByteBufCodecs.BOOL, o -> o.isMonster, SavedEntity::new);
 
         private final CompoundTag tag;
         private final boolean isMonster;

@@ -84,14 +84,10 @@ public class OverseerBlockEntity extends BlockEntity {
             }
             level.setBlockAndUpdate(
                     pos.above(),
-                    state
-                            .setValue(OverseerBlock.LEVEL, laminar)
-                            .setValue(OverseerBlock.HALF, Vertical3PartHalf.MID));
+                    state.setValue(OverseerBlock.LEVEL, laminar).setValue(OverseerBlock.HALF, Vertical3PartHalf.MID));
             level.setBlockAndUpdate(
                     pos.above(2),
-                    state
-                            .setValue(OverseerBlock.LEVEL, laminar)
-                            .setValue(OverseerBlock.HALF, Vertical3PartHalf.TOP));
+                    state.setValue(OverseerBlock.LEVEL, laminar).setValue(OverseerBlock.HALF, Vertical3PartHalf.TOP));
             for (int x = pos.getX() - 1; x <= pos.getX() + 1; x++) {
                 for (int z = pos.getZ() - 1; z <= pos.getZ() + 1; z++) {
                     BlockPos basePos = new BlockPos(x, pos.getY() - laminar - 1, z);

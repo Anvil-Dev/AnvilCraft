@@ -35,14 +35,9 @@ public interface IAnvilCraftBlockPlacer {
      * @return 放置结果
      */
     default InteractionResult placeBlock(
-            Level level,
-            BlockPos pos,
-            Orientation orientation,
-            BlockItem blockItem,
-            ItemStack itemStack) {
+            Level level, BlockPos pos, Orientation orientation, BlockItem blockItem, ItemStack itemStack) {
         if (AnvilCraftBlockPlacer.BLOCK_PLACER_BLACKLIST.contains(
-                BuiltInRegistries.BLOCK.getKey(blockItem.getBlock()).toString()))
-            return InteractionResult.FAIL;
+                BuiltInRegistries.BLOCK.getKey(blockItem.getBlock()).toString())) return InteractionResult.FAIL;
         if (level instanceof ServerLevel serverLevel) getPlayer().setServerLevel(serverLevel);
         getPlayer()
                 .moveTo(
@@ -59,10 +54,9 @@ public interface IAnvilCraftBlockPlacer {
                 orientation.getDirection().getOpposite(),
                 pos,
                 false);
-        BlockPlaceContext blockPlaceContext = new BlockPlaceContext(
-                level, getPlayer(), getPlayer().getUsedItemHand(), itemStack, blockHitResult);
-        BlockState blockState =
-                ((BlockItemInvoker) blockItem).invokerGetPlacementState(blockPlaceContext);
+        BlockPlaceContext blockPlaceContext =
+                new BlockPlaceContext(level, getPlayer(), getPlayer().getUsedItemHand(), itemStack, blockHitResult);
+        BlockState blockState = ((BlockItemInvoker) blockItem).invokerGetPlacementState(blockPlaceContext);
         if (blockState == null) {
             return InteractionResult.FAIL;
         }

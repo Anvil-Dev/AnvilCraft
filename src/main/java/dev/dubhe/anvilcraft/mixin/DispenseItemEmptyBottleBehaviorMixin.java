@@ -26,9 +26,8 @@ abstract class DispenseItemEmptyBottleBehaviorMixin extends OptionalDispenseItem
     protected abstract ItemStack takeLiquid(BlockSource source, ItemStack empty, ItemStack filled);
 
     @Inject(
-            method =
-                    "execute(Lnet/minecraft/core/dispenser/BlockSource;Lnet/minecraft/world/item/ItemStack;)"
-                            + "Lnet/minecraft/world/item/ItemStack;",
+            method = "execute(Lnet/minecraft/core/dispenser/BlockSource;Lnet/minecraft/world/item/ItemStack;)"
+                    + "Lnet/minecraft/world/item/ItemStack;",
             at =
                     @At(
                             value = "INVOKE",

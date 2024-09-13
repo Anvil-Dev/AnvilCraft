@@ -7,10 +7,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-public abstract class AbstractTransmissionPoleBlockEntity extends BlockEntity
-        implements IPowerTransmitter {
-    public AbstractTransmissionPoleBlockEntity(
-            BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+public abstract class AbstractTransmissionPoleBlockEntity extends BlockEntity implements IPowerTransmitter {
+    public AbstractTransmissionPoleBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
 }

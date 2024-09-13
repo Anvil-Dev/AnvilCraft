@@ -17,8 +17,7 @@ import snownee.jade.api.config.IPluginConfig;
 import snownee.jade.api.ui.BoxStyle;
 import snownee.jade.api.ui.IElementHelper;
 
-public enum PowerBlockProvider
-        implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
+public enum PowerBlockProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
     INSTANCE;
     private static final BoxStyle.GradientBorder STYLE = BoxStyle.GradientBorder.TRANSPARENT.clone();
 

@@ -16,13 +16,10 @@ import org.jetbrains.annotations.NotNull;
 
 @Getter
 public class PowerGridRemovePack implements CustomPacketPayload {
-    public static final Type<PowerGridRemovePack> TYPE =
-            new Type<>(AnvilCraft.of("power_grid_remove"));
+    public static final Type<PowerGridRemovePack> TYPE = new Type<>(AnvilCraft.of("power_grid_remove"));
     public static final StreamCodec<RegistryFriendlyByteBuf, PowerGridRemovePack> STREAM_CODEC =
-            StreamCodec.composite(
-                    ByteBufCodecs.INT, PowerGridRemovePack::getGrid, PowerGridRemovePack::new);
-    public static final IPayloadHandler<PowerGridRemovePack> HANDLER =
-            PowerGridRemovePack::clientHandler;
+            StreamCodec.composite(ByteBufCodecs.INT, PowerGridRemovePack::getGrid, PowerGridRemovePack::new);
+    public static final IPayloadHandler<PowerGridRemovePack> HANDLER = PowerGridRemovePack::clientHandler;
 
     private final int grid;
 

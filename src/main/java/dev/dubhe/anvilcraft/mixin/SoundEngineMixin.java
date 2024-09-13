@@ -15,8 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class SoundEngineMixin {
     @Inject(method = "play", at = @At(value = "HEAD"), cancellable = true)
     private void onSoundPlay(SoundInstance sound, CallbackInfo ci) {
-        if (!SoundHelper.INSTANCE.shouldPlay(
-                sound.getLocation(), new Vec3(sound.getX(), sound.getY(), sound.getZ()))) {
+        if (!SoundHelper.INSTANCE.shouldPlay(sound.getLocation(), new Vec3(sound.getX(), sound.getY(), sound.getZ()))) {
             ci.cancel();
         }
     }

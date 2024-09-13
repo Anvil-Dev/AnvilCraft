@@ -29,23 +29,21 @@ public class AnimateAscendingBlockEntity extends Entity {
 
     private BlockState blockState;
 
-    private static final EntityDataAccessor<BlockPos> DATA_START_POS = SynchedEntityData.defineId(
-            AnimateAscendingBlockEntity.class, EntityDataSerializers.BLOCK_POS);
-    private static final EntityDataAccessor<BlockPos> DATA_END_POS = SynchedEntityData.defineId(
-            AnimateAscendingBlockEntity.class, EntityDataSerializers.BLOCK_POS);
+    private static final EntityDataAccessor<BlockPos> DATA_START_POS =
+            SynchedEntityData.defineId(AnimateAscendingBlockEntity.class, EntityDataSerializers.BLOCK_POS);
+    private static final EntityDataAccessor<BlockPos> DATA_END_POS =
+            SynchedEntityData.defineId(AnimateAscendingBlockEntity.class, EntityDataSerializers.BLOCK_POS);
 
     /**
      *
      */
-    public AnimateAscendingBlockEntity(
-            EntityType<? extends AnimateAscendingBlockEntity> entityType, Level level) {
+    public AnimateAscendingBlockEntity(EntityType<? extends AnimateAscendingBlockEntity> entityType, Level level) {
         super(entityType, level);
         this.blockState = Blocks.SAND.defaultBlockState();
         this.noPhysics = true;
     }
 
-    private AnimateAscendingBlockEntity(
-            Level level, double x, double y, double z, BlockState state, BlockPos endPos) {
+    private AnimateAscendingBlockEntity(Level level, double x, double y, double z, BlockState state, BlockPos endPos) {
         this(ModEntities.ASCENDING_BLOCK_ENTITY.get(), level);
         this.blockState = state;
         this.blocksBuilding = true;

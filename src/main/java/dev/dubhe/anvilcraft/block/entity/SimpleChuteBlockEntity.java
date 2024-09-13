@@ -60,7 +60,9 @@ public class SimpleChuteBlockEntity extends BlockEntity implements DepositoryHol
         if (cooldown <= 0) {
             if (getBlockState().getValue(SimpleChuteBlock.ENABLED)) {
                 IItemDepository depository = ItemDepositoryHelper.getItemDepository(
-                        getLevel(), getBlockPos().relative(getDirection()), getDirection().getOpposite());
+                        getLevel(),
+                        getBlockPos().relative(getDirection()),
+                        getDirection().getOpposite());
                 if (depository != null) {
                     // 尝试向朝向容器输出
                     if (!this.depository.isEmpty()) {
@@ -115,8 +117,7 @@ public class SimpleChuteBlockEntity extends BlockEntity implements DepositoryHol
     private Direction getDirection() {
         if (getLevel() == null) return Direction.DOWN;
         BlockState state = getLevel().getBlockState(getBlockPos());
-        if (state.getBlock() instanceof SimpleChuteBlock)
-            return state.getValue(SimpleChuteBlock.FACING);
+        if (state.getBlock() instanceof SimpleChuteBlock) return state.getValue(SimpleChuteBlock.FACING);
         return Direction.DOWN;
     }
 

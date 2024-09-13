@@ -20,17 +20,11 @@ public class ModPoiTagProvider extends TagsProvider<PoiType> {
             PackOutput output,
             CompletableFuture<HolderLookup.Provider> lookupProvider,
             @Nullable ExistingFileHelper existingFileHelper) {
-        super(
-                output,
-                Registries.POINT_OF_INTEREST_TYPE,
-                lookupProvider,
-                AnvilCraft.MOD_ID,
-                existingFileHelper);
+        super(output, Registries.POINT_OF_INTEREST_TYPE, lookupProvider, AnvilCraft.MOD_ID, existingFileHelper);
     }
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {
-        getOrCreateRawBuilder(PoiTypeTags.ACQUIRABLE_JOB_SITE)
-                .addOptionalElement(ModVillagers.JEWELER_POI.getId());
+        getOrCreateRawBuilder(PoiTypeTags.ACQUIRABLE_JOB_SITE).addOptionalElement(ModVillagers.JEWELER_POI.getId());
     }
 }

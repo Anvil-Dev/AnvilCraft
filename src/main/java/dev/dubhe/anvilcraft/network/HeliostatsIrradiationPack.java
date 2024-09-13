@@ -17,13 +17,11 @@ import net.neoforged.neoforge.network.handling.IPayloadHandler;
 import org.jetbrains.annotations.NotNull;
 
 public class HeliostatsIrradiationPack implements CustomPacketPayload {
-    public static final Type<HeliostatsIrradiationPack> TYPE =
-            new Type<>(AnvilCraft.of("heliostats_irradiation_pack"));
+    public static final Type<HeliostatsIrradiationPack> TYPE = new Type<>(AnvilCraft.of("heliostats_irradiation_pack"));
     public static final StreamCodec<RegistryFriendlyByteBuf, HeliostatsIrradiationPack> STREAM_CODEC =
             StreamCodec.ofMember(HeliostatsIrradiationPack::encode, HeliostatsIrradiationPack::new);
-    public static final IPayloadHandler<HeliostatsIrradiationPack> HANDLER =
-            new DirectionalPayloadHandler<>(
-                    HeliostatsIrradiationPack::clientHandler, HeliostatsIrradiationPack::serverHandler);
+    public static final IPayloadHandler<HeliostatsIrradiationPack> HANDLER = new DirectionalPayloadHandler<>(
+            HeliostatsIrradiationPack::clientHandler, HeliostatsIrradiationPack::serverHandler);
 
     private final BlockPos blockPos;
     private final BlockPos irritatePos;
@@ -73,10 +71,8 @@ public class HeliostatsIrradiationPack implements CustomPacketPayload {
     public static void serverHandler(HeliostatsIrradiationPack data, IPayloadContext context) {
         ServerPlayer player = (ServerPlayer) context.player();
         context.enqueueWork(() -> {
-            if (player.level().getBlockEntity(data.blockPos)
-                    instanceof HeliostatsBlockEntity heliostatsBlockEntity) {
-                var pack =
-                        new HeliostatsIrradiationPack(data.blockPos, heliostatsBlockEntity.getIrritatePos());
+            if (player.level().getBlockEntity(data.blockPos) instanceof HeliostatsBlockEntity heliostatsBlockEntity) {
+                var pack = new HeliostatsIrradiationPack(data.blockPos, heliostatsBlockEntity.getIrritatePos());
                 PacketDistributor.sendToPlayer(player, pack);
             }
         });

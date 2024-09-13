@@ -25,24 +25,20 @@ public class BlockTagLoader {
      * @param provider 提供器
      */
     public static void init(@NotNull RegistrateTagsProvider<Block> provider) {
-        provider
-                .addTag(ModBlockTags.REDSTONE_TORCH)
+        provider.addTag(ModBlockTags.REDSTONE_TORCH)
                 .add(findResourceKey(Blocks.REDSTONE_WALL_TORCH))
                 .add(findResourceKey(Blocks.REDSTONE_TORCH));
-        provider
-                .addTag(ModBlockTags.MUSHROOM_BLOCK)
+        provider.addTag(ModBlockTags.MUSHROOM_BLOCK)
                 .add(findResourceKey(Blocks.BROWN_MUSHROOM_BLOCK))
                 .add(findResourceKey(Blocks.RED_MUSHROOM_BLOCK))
                 .add(findResourceKey(Blocks.MUSHROOM_STEM));
-        provider
-                .addTag(ModBlockTags.HAMMER_CHANGEABLE)
+        provider.addTag(ModBlockTags.HAMMER_CHANGEABLE)
                 .add(findResourceKey(Blocks.OBSERVER))
                 .add(findResourceKey(Blocks.HOPPER))
                 .add(findResourceKey(Blocks.DROPPER))
                 .add(findResourceKey(Blocks.DISPENSER))
                 .add(findResourceKey(Blocks.LIGHTNING_ROD));
-        provider
-                .addTag(ModBlockTags.HAMMER_REMOVABLE)
+        provider.addTag(ModBlockTags.HAMMER_REMOVABLE)
                 .add(findResourceKey(Blocks.BELL))
                 .add(findResourceKey(Blocks.REDSTONE_LAMP))
                 .add(findResourceKey(Blocks.IRON_DOOR))
@@ -99,14 +95,12 @@ public class BlockTagLoader {
                 .add(findResourceKey(ModBlocks.POLISHED_HEAVY_IRON_SLAB.get()))
                 .add(findResourceKey(ModBlocks.POLISHED_HEAVY_IRON_STAIRS.get()));
 
-        provider
-                .addTag(ModBlockTags.UNDER_CAULDRON)
+        provider.addTag(ModBlockTags.UNDER_CAULDRON)
                 .addTag(BlockTags.CAMPFIRES)
                 .add(findResourceKey(Blocks.MAGMA_BLOCK))
                 .add(findResourceKey(ModBlocks.HEATER.get()))
                 .add(findResourceKey(ModBlocks.CORRUPTED_BEACON.get()));
-        provider
-                .addTag(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)
+        provider.addTag(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)
                 .add(findResourceKey(Blocks.STONE))
                 .add(findResourceKey(Blocks.DEEPSLATE))
                 .add(findResourceKey(Blocks.ANDESITE))
@@ -117,16 +111,12 @@ public class BlockTagLoader {
                 .add(findResourceKey(Blocks.BASALT))
                 .add(findResourceKey(Blocks.BLACKSTONE))
                 .add(findResourceKey(Blocks.END_STONE));
-        provider
-                .addTag(ModBlockTags.GLASS_BLOCKS)
-                .add(findResourceKey(ModBlocks.TEMPERING_GLASS.get()));
-        provider
-                .addTag(ModBlockTags.LASE_CAN_PASS_THROUGH)
+        provider.addTag(ModBlockTags.GLASS_BLOCKS).add(findResourceKey(ModBlocks.TEMPERING_GLASS.get()));
+        provider.addTag(ModBlockTags.LASE_CAN_PASS_THROUGH)
                 .addTag(ModBlockTags.GLASS_BLOCKS)
                 .addTag(ModBlockTags.GLASS_PANES)
                 .addTag(BlockTags.REPLACEABLE);
-        provider
-                .addTag(ModBlockTags.DEEPSLATE_METAL)
+        provider.addTag(ModBlockTags.DEEPSLATE_METAL)
                 .add(findResourceKey(Blocks.DEEPSLATE_GOLD_ORE))
                 .add(findResourceKey(Blocks.DEEPSLATE_IRON_ORE))
                 .add(findResourceKey(Blocks.DEEPSLATE_COPPER_ORE))
@@ -137,8 +127,7 @@ public class BlockTagLoader {
                 .add(findResourceKey(ModBlocks.DEEPSLATE_LEAD_ORE.get()))
                 .add(findResourceKey(ModBlocks.DEEPSLATE_SILVER_ORE.get()))
                 .add(findResourceKey(ModBlocks.DEEPSLATE_URANIUM_ORE.get()));
-        provider
-                .addTag(ModBlockTags.ORES)
+        provider.addTag(ModBlockTags.ORES)
                 .add(findResourceKey(ModBlocks.DEEPSLATE_ZINC_ORE.get()))
                 .add(findResourceKey(ModBlocks.DEEPSLATE_TIN_ORE.get()))
                 .add(findResourceKey(ModBlocks.DEEPSLATE_TITANIUM_ORE.get()))
@@ -148,8 +137,7 @@ public class BlockTagLoader {
                 .add(findResourceKey(ModBlocks.DEEPSLATE_URANIUM_ORE.get()))
                 .add(findResourceKey(ModBlocks.VOID_STONE.get()))
                 .add(findResourceKey(ModBlocks.EARTH_CORE_SHARD_ORE.get()));
-        provider
-                .addTag(ModBlockTags.ORES_IN_GROUND_DEEPSLATE)
+        provider.addTag(ModBlockTags.ORES_IN_GROUND_DEEPSLATE)
                 .add(findResourceKey(ModBlocks.DEEPSLATE_ZINC_ORE.get()))
                 .add(findResourceKey(ModBlocks.DEEPSLATE_TIN_ORE.get()))
                 .add(findResourceKey(ModBlocks.DEEPSLATE_TITANIUM_ORE.get()))

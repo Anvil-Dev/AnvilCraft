@@ -27,8 +27,7 @@ public class ModItemGroups {
             DF.register("ingredients", () -> CreativeModeTab.builder()
                     .icon(ModItems.MAGNET_INGOT::asStack)
                     .displayItems((ctx, entries) -> {})
-                    .title(REGISTRATE.addLang(
-                            "itemGroup", AnvilCraft.of("ingredients"), "AnvilCraft: Ingredients"))
+                    .title(REGISTRATE.addLang("itemGroup", AnvilCraft.of("ingredients"), "AnvilCraft: Ingredients"))
                     .build());
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> ANVILCRAFT_FUNCTION_BLOCK =

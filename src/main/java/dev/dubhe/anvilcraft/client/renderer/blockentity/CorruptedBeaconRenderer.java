@@ -166,62 +166,10 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
             float pMinV,
             float pMaxV) {
         PoseStack.Pose posestack$pose = pPoseStack.last();
-        renderQuad(
-                posestack$pose,
-                pConsumer,
-                pColor,
-                pMinY,
-                pMaxY,
-                pX1,
-                pZ1,
-                pX2,
-                pZ2,
-                pMinU,
-                pMaxU,
-                pMinV,
-                pMaxV);
-        renderQuad(
-                posestack$pose,
-                pConsumer,
-                pColor,
-                pMinY,
-                pMaxY,
-                pX4,
-                pZ4,
-                pX3,
-                pZ3,
-                pMinU,
-                pMaxU,
-                pMinV,
-                pMaxV);
-        renderQuad(
-                posestack$pose,
-                pConsumer,
-                pColor,
-                pMinY,
-                pMaxY,
-                pX2,
-                pZ2,
-                pX4,
-                pZ4,
-                pMinU,
-                pMaxU,
-                pMinV,
-                pMaxV);
-        renderQuad(
-                posestack$pose,
-                pConsumer,
-                pColor,
-                pMinY,
-                pMaxY,
-                pX3,
-                pZ3,
-                pX1,
-                pZ1,
-                pMinU,
-                pMaxU,
-                pMinV,
-                pMaxV);
+        renderQuad(posestack$pose, pConsumer, pColor, pMinY, pMaxY, pX1, pZ1, pX2, pZ2, pMinU, pMaxU, pMinV, pMaxV);
+        renderQuad(posestack$pose, pConsumer, pColor, pMinY, pMaxY, pX4, pZ4, pX3, pZ3, pMinU, pMaxU, pMinV, pMaxV);
+        renderQuad(posestack$pose, pConsumer, pColor, pMinY, pMaxY, pX2, pZ2, pX4, pZ4, pMinU, pMaxU, pMinV, pMaxV);
+        renderQuad(posestack$pose, pConsumer, pColor, pMinY, pMaxY, pX3, pZ3, pX1, pZ1, pMinU, pMaxU, pMinV, pMaxV);
     }
 
     private static void renderQuad(
@@ -274,8 +222,7 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
     }
 
     @Override
-    public boolean shouldRender(
-            @NotNull CorruptedBeaconBlockEntity blockEntity, @NotNull Vec3 cameraPos) {
+    public boolean shouldRender(@NotNull CorruptedBeaconBlockEntity blockEntity, @NotNull Vec3 cameraPos) {
         return Vec3.atCenterOf(blockEntity.getBlockPos())
                 .multiply(1.0, 0.0, 1.0)
                 .closerThan(cameraPos.multiply(1.0, 0.0, 1.0), this.getViewDistance());

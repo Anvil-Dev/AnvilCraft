@@ -22,10 +22,8 @@ import java.util.Collection;
 import javax.annotation.Nonnull;
 
 public class PiezoelectricCrystalBlock extends Block implements IHammerRemovable {
-    public static VoxelShape SHAPE = Shapes.or(
-            Block.box(0, 14, 0, 16, 16, 16),
-            Block.box(2, 2, 2, 14, 14, 14),
-            Block.box(0, 0, 0, 16, 2, 16));
+    public static VoxelShape SHAPE =
+            Shapes.or(Block.box(0, 14, 0, 16, 16, 16), Block.box(2, 2, 2, 14, 14, 14), Block.box(0, 0, 0, 16, 2, 16));
 
     public PiezoelectricCrystalBlock(Properties properties) {
         super(properties);
@@ -61,8 +59,7 @@ public class PiezoelectricCrystalBlock extends Block implements IHammerRemovable
         double surplus = chargeNum;
         for (Entry entry : chargeCollectorCollection) {
             ChargeCollectorBlockEntity chargeCollectorBlockEntity = entry.getBlockEntity();
-            if (!ChargeCollectorManager.getInstance(level)
-                    .canCollect(chargeCollectorBlockEntity, blockPos)) return;
+            if (!ChargeCollectorManager.getInstance(level).canCollect(chargeCollectorBlockEntity, blockPos)) return;
             surplus = chargeCollectorBlockEntity.incomingCharge(surplus);
             if (surplus == 0) return;
         }

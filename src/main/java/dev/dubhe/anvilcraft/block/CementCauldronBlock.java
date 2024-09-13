@@ -28,8 +28,7 @@ public class CementCauldronBlock extends BetterAbstractCauldronBlock implements 
     }
 
     @Override
-    protected void createBlockStateDefinition(
-            @NotNull StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(COLOR);
     }
 
@@ -49,8 +48,7 @@ public class CementCauldronBlock extends BetterAbstractCauldronBlock implements 
     }
 
     @Override
-    public int getAnalogOutputSignal(
-            @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos) {
+    public int getAnalogOutputSignal(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos) {
         return 3;
     }
 }

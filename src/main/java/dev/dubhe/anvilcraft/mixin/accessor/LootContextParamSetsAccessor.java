@@ -22,8 +22,7 @@ public interface LootContextParamSetsAccessor {
     }
 
     @Invoker("register")
-    static LootContextParamSet register(
-            String registryName, Consumer<LootContextParamSet.Builder> builderConsumer) {
+    static LootContextParamSet register(String registryName, Consumer<LootContextParamSet.Builder> builderConsumer) {
         throw new UnsupportedOperationException();
     }
 }

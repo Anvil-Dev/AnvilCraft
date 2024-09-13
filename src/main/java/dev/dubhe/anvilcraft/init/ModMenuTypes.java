@@ -55,10 +55,7 @@ public class ModMenuTypes {
                     () -> RoyalGrindstoneScreen::new)
             .register();
     public static final MenuEntry<RoyalAnvilMenu> ROYAL_ANVIL = REGISTRATE
-            .menu(
-                    "royal_anvil",
-                    (type, id, inv) -> new RoyalAnvilMenu(id, inv),
-                    () -> RoyalAnvilScreen::new)
+            .menu("royal_anvil", (type, id, inv) -> new RoyalAnvilMenu(id, inv), () -> RoyalAnvilScreen::new)
             .register();
     public static final MenuEntry<RoyalSmithingMenu> ROYAL_SMITHING = REGISTRATE
             .menu(
@@ -80,10 +77,7 @@ public class ModMenuTypes {
             .menu("active_silencer", ActiveSilencerMenu::new, () -> ActiveSilencerScreen::new)
             .register();
     public static final MenuEntry<EmberAnvilMenu> EMBER_ANVIL = REGISTRATE
-            .menu(
-                    "ember_anvil",
-                    (type, id, inv) -> new EmberAnvilMenu(id, inv),
-                    () -> EmberAnvilScreen::new)
+            .menu("ember_anvil", (type, id, inv) -> new EmberAnvilMenu(id, inv), () -> EmberAnvilScreen::new)
             .register();
     public static final MenuEntry<EmberGrindstoneMenu> EMBER_GRINDSTONE = REGISTRATE
             .menu(
