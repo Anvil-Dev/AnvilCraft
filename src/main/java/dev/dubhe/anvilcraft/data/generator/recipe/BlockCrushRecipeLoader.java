@@ -12,5 +12,12 @@ public class BlockCrushRecipeLoader {
                 .input(Blocks.STONE)
                 .result(Blocks.COBBLESTONE)
                 .save(provider);
+
+        BlockCrushRecipe.builder()
+                .input(Blocks.COBBLESTONE)
+                .result(Blocks.GRAVEL)
+                .save(provider);
+
+        BlockCrushRecipe.builder().input(Blocks.GRAVEL).result(Blocks.SAND).save(provider);
     }
 }
