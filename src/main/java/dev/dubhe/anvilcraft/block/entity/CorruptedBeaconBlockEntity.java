@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 
 import net.minecraft.advancements.CriteriaTriggers;
@@ -127,6 +128,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
                 boolean flag1 = pBlockEntity.levels > 0;
                 if (!flag && flag1) {
                     playSound(pLevel, pPos, SoundEvents.BEACON_ACTIVATE);
+                    pLevel.setBlockAndUpdate(pPos, pState.setValue(CorruptedBeaconBlock.LIT, true));
 
                     for (ServerPlayer serverplayer : pLevel.getEntitiesOfClass(
                             ServerPlayer.class, new AABB(i, j, k, i, j - 4, k).inflate(10.0, 5.0, 10.0))) {
@@ -134,6 +136,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
                     }
                 } else if (flag && !flag1) {
                     playSound(pLevel, pPos, SoundEvents.BEACON_DEACTIVATE);
+                    pLevel.setBlockAndUpdate(pPos, pState.setValue(CorruptedBeaconBlock.LIT, false));
                 }
             }
         }

@@ -1,0 +1,15 @@
+{
+  "type": "anvilcraft:time_warp",
+  "cauldron": "anvilcraft:melt_gem_cauldron",
+  "consume_fluid": true,
+  "ingredients": [
+    {
+      "item": "minecraft:emerald"
+    }
+  ],
+  "produce_fluid": false,
+  "result": {
+    "count": 1,
+    "id": "minecraft:emerald_block"
+  }
+}

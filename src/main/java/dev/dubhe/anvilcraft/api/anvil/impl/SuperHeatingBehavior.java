@@ -51,6 +51,13 @@ public class SuperHeatingBehavior implements AnvilBehavior {
                 }
                 AnvilUtil.dropItems(List.of(result), level, hitBlockPos.getCenter());
             });
+            items.forEach((k, v) -> {
+                if (v.isEmpty()) {
+                    k.discard();
+                    return;
+                }
+                k.setItem(v.copy());
+            });
         }
     }
 }

@@ -42,6 +42,7 @@ import static dev.dubhe.anvilcraft.util.AnvilUtil.dropItems;
 public class AnvilEventListener {
 
     private boolean behaviorRegistered = false;
+
     /**
      * 侦听铁砧落地事件
      *
@@ -65,9 +66,10 @@ public class AnvilEventListener {
         BlockState hitBelowState = level.getBlockState(belowPos);
         if (hitBelowState.is(Blocks.STONECUTTER)) brokeBlock(level, hitBlockPos, event);
 
-        AnvilBehavior.findMatching(state)
-                .ifPresent(
-                        behavior -> behavior.handle(level, hitBlockPos, state, event.getFallDistance(), event));
+        AnvilBehavior.findMatching(state).forEach(
+                behavior -> behavior.handle(level, hitBlockPos, state, event.getFallDistance(), event)
+        );
+
     }
 
     private void handleBlockCrushRecipe(Level level, final BlockPos pos) {

@@ -11,5 +11,6 @@ public class RecipeHandler {
         MeshRecipeLoader.init(provider);
         StampingRecipeLoader.init(provider);
         SuperHeatingRecipeLoader.init(provider);
+        TimeWarpRecipeLoader.init(provider);
     }
 }

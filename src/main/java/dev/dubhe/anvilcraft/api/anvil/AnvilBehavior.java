@@ -9,11 +9,13 @@ import dev.dubhe.anvilcraft.api.anvil.impl.ItemMeshBehavior;
 import dev.dubhe.anvilcraft.api.anvil.impl.ItemStampingBehavior;
 import dev.dubhe.anvilcraft.api.anvil.impl.RedstoneEMPBehavior;
 import dev.dubhe.anvilcraft.api.anvil.impl.SuperHeatingBehavior;
+import dev.dubhe.anvilcraft.api.anvil.impl.TimeWarpBehavior;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.AbstractCauldronBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.TrapDoorBlock;
@@ -21,8 +23,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Half;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Predicate;
 
 @FunctionalInterface
@@ -44,8 +46,8 @@ public interface AnvilBehavior {
         BEHAVIORS.put(pred, behavior);
     }
 
-    static Optional<AnvilBehavior> findMatching(BlockState state) {
-        return BEHAVIORS.keySet().stream().filter(it -> it.test(state)).findFirst().map(BEHAVIORS::get);
+    static List<AnvilBehavior> findMatching(BlockState state) {
+        return BEHAVIORS.keySet().stream().filter(it -> it.test(state)).map(BEHAVIORS::get).toList();
     }
 
     static void register() {
@@ -55,6 +57,7 @@ public interface AnvilBehavior {
                         && state.getValue(TrapDoorBlock.HALF) == Half.TOP
                         && !state.getValue(TrapDoorBlock.OPEN),
                 new ItemCrushBehavior());
+        registerBehavior(state -> state.getBlock() instanceof AbstractCauldronBlock, new TimeWarpBehavior());
         registerBehavior(Blocks.CAULDRON, new SuperHeatingBehavior());
         registerBehavior(Blocks.CAULDRON, new ItemCompressBehavior());
         registerBehavior(ModBlocks.STAMPING_PLATFORM.get(), new ItemStampingBehavior());
