@@ -22,14 +22,14 @@ import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Half;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
 @FunctionalInterface
 public interface AnvilBehavior {
-    Map<Predicate<BlockState>, AnvilBehavior> BEHAVIORS = new HashMap<>();
+    Map<Predicate<BlockState>, AnvilBehavior> BEHAVIORS = new LinkedHashMap<>();
 
     void handle(
             Level level,
