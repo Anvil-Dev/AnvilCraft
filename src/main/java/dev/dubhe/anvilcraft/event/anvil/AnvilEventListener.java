@@ -66,10 +66,9 @@ public class AnvilEventListener {
         BlockState hitBelowState = level.getBlockState(belowPos);
         if (hitBelowState.is(Blocks.STONECUTTER)) brokeBlock(level, hitBlockPos, event);
 
-        AnvilBehavior.findMatching(state).forEach(
-                behavior -> behavior.handle(level, hitBlockPos, state, event.getFallDistance(), event)
-        );
-
+        AnvilBehavior.findMatching(state)
+                .forEach(
+                        behavior -> behavior.handle(level, hitBlockPos, state, event.getFallDistance(), event));
     }
 
     private void handleBlockCrushRecipe(Level level, final BlockPos pos) {
@@ -101,39 +100,6 @@ public class AnvilEventListener {
                             pos.below(recipe.value().inputs.size() - 1),
                             recipe.value().result.defaultBlockState());
                 });
-    }
-
-    public void handleBreakBlock(Level level, BlockPos pos, AnvilFallOnLandEvent event) {
-        if (!(level instanceof ServerLevel serverLevel)) return;
-        BlockState state = level.getBlockState(pos);
-        if (state.getBlock().getExplosionResistance() >= 1200.0) event.setAnvilDamage(true);
-        if (state.getDestroySpeed(level, pos) < 0) return;
-        BlockEntity blockEntity = state.hasBlockEntity() ? level.getBlockEntity(pos) : null;
-        LootParams.Builder builder = new LootParams.Builder(serverLevel)
-                .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos))
-                .withParameter(LootContextParams.TOOL, ItemStack.EMPTY)
-                .withOptionalParameter(LootContextParams.BLOCK_ENTITY, blockEntity);
-        state.spawnAfterBreak(serverLevel, pos, ItemStack.EMPTY, false);
-        if (state.getBlock() instanceof IHasMultiBlock multiBlock) {
-            multiBlock.onRemove(level, pos, state);
-        }
-        List<ItemStack> drops = state.getDrops(builder);
-        if (event.getEntity() != null
-                && event.getEntity().blockState.getBlock() instanceof EmberAnvilBlock) {
-            drops = drops.stream()
-                    .map(it -> {
-                        SingleRecipeInput cont = new SingleRecipeInput(it);
-                        return level
-                                .getRecipeManager()
-                                .getRecipeFor(RecipeType.SMELTING, cont, level)
-                                .map(
-                                        smeltingRecipe -> smeltingRecipe.value().assemble(cont, level.registryAccess()))
-                                .orElse(it);
-                    })
-                    .collect(Collectors.toList());
-        }
-        dropItems(drops, level, pos.getCenter());
-        level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
     }
 
     private void brokeBlock(@NotNull Level level, BlockPos pos, AnvilFallOnLandEvent event) {

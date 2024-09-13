@@ -1,15 +1,11 @@
 package dev.dubhe.anvilcraft.recipe;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.builder.AbstractItemProcessBuilder;
 import dev.dubhe.anvilcraft.recipe.input.ItemProcessInput;
-import lombok.Setter;
-import lombok.experimental.Accessors;
+
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeOutput;
@@ -21,30 +17,43 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
+
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class SuperHeatingRecipe extends AbstractItemProcessRecipe {
 
-    @Nullable
-    public final Block blockResult;
+    @Nullable public final Block blockResult;
 
     public SuperHeatingRecipe(NonNullList<Ingredient> ingredients, ItemStack result) {
         super(ingredients, result);
         this.blockResult = null;
     }
 
-    public SuperHeatingRecipe(NonNullList<Ingredient> ingredients, ItemStack result, @Nullable Block blockResult) {
+    public SuperHeatingRecipe(
+            NonNullList<Ingredient> ingredients, ItemStack result, @Nullable Block blockResult) {
         super(ingredients, result);
         this.blockResult = blockResult;
     }
 
-    public static SuperHeatingRecipe fromCodec(NonNullList<Ingredient> ingredients, ItemStack result, String blockResult) {
+    public static SuperHeatingRecipe fromCodec(
+            NonNullList<Ingredient> ingredients, ItemStack result, String blockResult) {
         if (blockResult.isEmpty()) {
             return new SuperHeatingRecipe(ingredients, result);
         } else {
-            return new SuperHeatingRecipe(ingredients, result, BuiltInRegistries.BLOCK.get(ResourceLocation.parse(blockResult)));
+            return new SuperHeatingRecipe(
+                    ingredients, result, BuiltInRegistries.BLOCK.get(ResourceLocation.parse(blockResult)));
         }
     }
 
@@ -77,36 +86,41 @@ public class SuperHeatingRecipe extends AbstractItemProcessRecipe {
 
     public static class Serializer implements RecipeSerializer<SuperHeatingRecipe> {
 
-        private static final MapCodec<SuperHeatingRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-                Ingredient.CODEC_NONEMPTY
-                        .listOf(1, 64)
-                        .fieldOf("ingredients")
-                        .flatXmap(
-                                i -> {
-                                    Ingredient[] ingredients = i.toArray(Ingredient[]::new);
-                                    if (ingredients.length == 0) {
-                                        return DataResult.error(() -> "No ingredients for super_heating recipe");
+        private static final MapCodec<SuperHeatingRecipe> CODEC =
+                RecordCodecBuilder.mapCodec(ins -> ins.group(
+                                Ingredient.CODEC_NONEMPTY
+                                        .listOf(1, 64)
+                                        .fieldOf("ingredients")
+                                        .flatXmap(
+                                                i -> {
+                                                    Ingredient[] ingredients = i.toArray(Ingredient[]::new);
+                                                    if (ingredients.length == 0) {
+                                                        return DataResult.error(
+                                                                () -> "No ingredients for super_heating recipe");
+                                                    } else {
+                                                        return ingredients.length > 64
+                                                                ? DataResult.error(
+                                                                        () ->
+                                                                                "Too many ingredients for super_heating recipe. The maximum is: 64")
+                                                                : DataResult.success(NonNullList.of(Ingredient.EMPTY, ingredients));
+                                                    }
+                                                },
+                                                DataResult::success)
+                                        .forGetter(SuperHeatingRecipe::getIngredients),
+                                ItemStack.OPTIONAL_CODEC
+                                        .optionalFieldOf("result", ItemStack.EMPTY)
+                                        .forGetter(SuperHeatingRecipe::getResult),
+                                Codec.STRING.optionalFieldOf("block_result", "").forGetter(recipe -> {
+                                    if (recipe.blockResult != null) {
+                                        return BuiltInRegistries.BLOCK.getKey(recipe.blockResult).toString();
                                     } else {
-                                        return ingredients.length > 64
-                                                ? DataResult.error(() ->
-                                                "Too many ingredients for super_heating recipe. The maximum is: 64")
-                                                : DataResult.success(NonNullList.of(Ingredient.EMPTY, ingredients));
+                                        return "";
                                     }
-                                },
-                                DataResult::success)
-                        .forGetter(SuperHeatingRecipe::getIngredients),
-                ItemStack.OPTIONAL_CODEC.optionalFieldOf("result", ItemStack.EMPTY).forGetter(SuperHeatingRecipe::getResult),
-                Codec.STRING.optionalFieldOf("block_result", "").forGetter(recipe -> {
-                    if (recipe.blockResult != null) {
-                        return BuiltInRegistries.BLOCK.getKey(recipe.blockResult).toString();
-                    } else {
-                        return "";
-                    }
-                })
-        ).apply(ins, SuperHeatingRecipe::fromCodec));
+                                }))
+                        .apply(ins, SuperHeatingRecipe::fromCodec));
 
-        private static final StreamCodec<RegistryFriendlyByteBuf, SuperHeatingRecipe> STREAM_CODEC = StreamCodec.of(
-                Serializer::encode, Serializer::decode);
+        private static final StreamCodec<RegistryFriendlyByteBuf, SuperHeatingRecipe> STREAM_CODEC =
+                StreamCodec.of(Serializer::encode, Serializer::decode);
 
         @Override
         public MapCodec<SuperHeatingRecipe> codec() {
@@ -127,9 +141,9 @@ public class SuperHeatingRecipe extends AbstractItemProcessRecipe {
             if (string.isEmpty()) {
                 return new SuperHeatingRecipe(ingredients, result);
             } else {
-                return new SuperHeatingRecipe(ingredients, result, BuiltInRegistries.BLOCK.get(ResourceLocation.parse(string)));
+                return new SuperHeatingRecipe(
+                        ingredients, result, BuiltInRegistries.BLOCK.get(ResourceLocation.parse(string)));
             }
-
         }
 
         private static void encode(RegistryFriendlyByteBuf buf, SuperHeatingRecipe recipe) {
@@ -146,7 +160,6 @@ public class SuperHeatingRecipe extends AbstractItemProcessRecipe {
         }
     }
 
-
     @Setter
     @Accessors(fluent = true, chain = true)
     public static class Builder extends AbstractItemProcessBuilder<SuperHeatingRecipe> {
@@ -159,7 +172,8 @@ public class SuperHeatingRecipe extends AbstractItemProcessRecipe {
                 if (blockResult != null) {
                     id = BuiltInRegistries.BLOCK.getKey(blockResult);
                 } else {
-                    throw new IllegalArgumentException("Recipe either result or blockResult must not be null");
+                    throw new IllegalArgumentException(
+                            "Recipe either result or blockResult must not be null");
                 }
             } else {
                 id = BuiltInRegistries.ITEM.getKey(result.getItem());
@@ -170,7 +184,8 @@ public class SuperHeatingRecipe extends AbstractItemProcessRecipe {
         @Override
         public void validate(ResourceLocation pId) {
             if (ingredients.isEmpty() || ingredients.size() > 64) {
-                throw new IllegalArgumentException("Recipe ingredients size must in 0-64, RecipeId: " + pId);
+                throw new IllegalArgumentException(
+                        "Recipe ingredients size must in 0-64, RecipeId: " + pId);
             }
             if (result == null && blockResult == null) {
                 throw new IllegalArgumentException(

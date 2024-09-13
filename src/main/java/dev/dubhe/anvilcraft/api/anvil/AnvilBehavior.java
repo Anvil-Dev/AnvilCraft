@@ -47,7 +47,10 @@ public interface AnvilBehavior {
     }
 
     static List<AnvilBehavior> findMatching(BlockState state) {
-        return BEHAVIORS.keySet().stream().filter(it -> it.test(state)).map(BEHAVIORS::get).toList();
+        return BEHAVIORS.keySet().stream()
+                .filter(it -> it.test(state))
+                .map(BEHAVIORS::get)
+                .toList();
     }
 
     static void register() {
@@ -57,7 +60,8 @@ public interface AnvilBehavior {
                         && state.getValue(TrapDoorBlock.HALF) == Half.TOP
                         && !state.getValue(TrapDoorBlock.OPEN),
                 new ItemCrushBehavior());
-        registerBehavior(state -> state.getBlock() instanceof AbstractCauldronBlock, new TimeWarpBehavior());
+        registerBehavior(
+                state -> state.getBlock() instanceof AbstractCauldronBlock, new TimeWarpBehavior());
         registerBehavior(Blocks.CAULDRON, new SuperHeatingBehavior());
         registerBehavior(Blocks.CAULDRON, new ItemCompressBehavior());
         registerBehavior(ModBlocks.STAMPING_PLATFORM.get(), new ItemStampingBehavior());

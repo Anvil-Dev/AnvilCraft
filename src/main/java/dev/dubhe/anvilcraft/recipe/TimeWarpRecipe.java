@@ -1,18 +1,8 @@
 package dev.dubhe.anvilcraft.recipe;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.builder.AbstractRecipeBuilder;
-import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
-import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.Accessors;
+
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
@@ -34,11 +24,24 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
+
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
+import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
+
+import javax.annotation.ParametersAreNonnullByDefault;
 
 @Getter
 @MethodsReturnNonnullByDefault
@@ -53,8 +56,12 @@ public class TimeWarpRecipe implements Recipe<TimeWarpRecipe.Input> {
     private Input cacheInput;
     private int cacheMaxCraftTime;
 
-
-    public TimeWarpRecipe(NonNullList<Ingredient> ingredients, Block cauldron, ItemStack result, boolean produceFluid, boolean consumeFluid) {
+    public TimeWarpRecipe(
+            NonNullList<Ingredient> ingredients,
+            Block cauldron,
+            ItemStack result,
+            boolean produceFluid,
+            boolean consumeFluid) {
         this.ingredients = ingredients;
         this.cauldron = cauldron;
         this.result = result;
@@ -156,7 +163,6 @@ public class TimeWarpRecipe implements Recipe<TimeWarpRecipe.Input> {
                     return times;
                 }
             }
-
         }
     }
 
@@ -174,36 +180,42 @@ public class TimeWarpRecipe implements Recipe<TimeWarpRecipe.Input> {
     }
 
     public static class Serializer implements RecipeSerializer<TimeWarpRecipe> {
-        private static final MapCodec<TimeWarpRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-                Ingredient.CODEC_NONEMPTY
-                        .listOf(1, 64)
-                        .fieldOf("ingredients")
-                        .flatXmap(
-                                i -> {
-                                    Ingredient[] ingredients = i.toArray(Ingredient[]::new);
-                                    if (ingredients.length == 0) {
-                                        return DataResult.error(() -> "No ingredients for time_warp recipe");
-                                    } else {
-                                        return ingredients.length > 64
-                                                ? DataResult.error(() ->
-                                                "Too many ingredients for time_warp recipe. The maximum is: 64")
-                                                : DataResult.success(NonNullList.of(Ingredient.EMPTY, ingredients));
-                                    }
-                                },
-                                DataResult::success)
-                        .forGetter(TimeWarpRecipe::getIngredients),
-                Codec.STRING.fieldOf("cauldron").flatXmap(
-                        i -> DataResult.success(BuiltInRegistries.BLOCK.get(ResourceLocation.parse(i))),
-                        b -> DataResult.success(BuiltInRegistries.BLOCK.getKey(b).toString())
-                ).forGetter(TimeWarpRecipe::getCauldron),
-                ItemStack.OPTIONAL_CODEC.optionalFieldOf("result", ItemStack.EMPTY).forGetter(TimeWarpRecipe::getResult),
-                Codec.BOOL.fieldOf("produce_fluid").forGetter(TimeWarpRecipe::isProduceFluid),
-                Codec.BOOL.fieldOf("consume_fluid").forGetter(TimeWarpRecipe::isConsumeFluid)
-        ).apply(ins, TimeWarpRecipe::new));
+        private static final MapCodec<TimeWarpRecipe> CODEC =
+                RecordCodecBuilder.mapCodec(ins -> ins.group(
+                                Ingredient.CODEC_NONEMPTY
+                                        .listOf(1, 64)
+                                        .fieldOf("ingredients")
+                                        .flatXmap(
+                                                i -> {
+                                                    Ingredient[] ingredients = i.toArray(Ingredient[]::new);
+                                                    if (ingredients.length == 0) {
+                                                        return DataResult.error(() -> "No ingredients for time_warp recipe");
+                                                    } else {
+                                                        return ingredients.length > 64
+                                                                ? DataResult.error(() ->
+                                                                        "Too many ingredients for time_warp recipe. The maximum is: 64")
+                                                                : DataResult.success(NonNullList.of(Ingredient.EMPTY, ingredients));
+                                                    }
+                                                },
+                                                DataResult::success)
+                                        .forGetter(TimeWarpRecipe::getIngredients),
+                                Codec.STRING
+                                        .fieldOf("cauldron")
+                                        .flatXmap(
+                                                i -> DataResult.success(
+                                                        BuiltInRegistries.BLOCK.get(ResourceLocation.parse(i))),
+                                                b ->
+                                                        DataResult.success(BuiltInRegistries.BLOCK.getKey(b).toString()))
+                                        .forGetter(TimeWarpRecipe::getCauldron),
+                                ItemStack.OPTIONAL_CODEC
+                                        .optionalFieldOf("result", ItemStack.EMPTY)
+                                        .forGetter(TimeWarpRecipe::getResult),
+                                Codec.BOOL.fieldOf("produce_fluid").forGetter(TimeWarpRecipe::isProduceFluid),
+                                Codec.BOOL.fieldOf("consume_fluid").forGetter(TimeWarpRecipe::isConsumeFluid))
+                        .apply(ins, TimeWarpRecipe::new));
 
-        private static final StreamCodec<RegistryFriendlyByteBuf, TimeWarpRecipe> STREAM_CODEC = StreamCodec.of(
-                Serializer::encode, Serializer::decode
-        );
+        private static final StreamCodec<RegistryFriendlyByteBuf, TimeWarpRecipe> STREAM_CODEC =
+                StreamCodec.of(Serializer::encode, Serializer::decode);
 
         @Override
         public MapCodec<TimeWarpRecipe> codec() {
@@ -248,7 +260,6 @@ public class TimeWarpRecipe implements Recipe<TimeWarpRecipe.Input> {
         private boolean produceFluid = false;
         private boolean consumeFluid = false;
 
-
         public Builder requires(Ingredient ingredient, int count) {
             for (int i = 0; i < count; i++) {
                 this.ingredients.add(ingredient);
@@ -276,7 +287,6 @@ public class TimeWarpRecipe implements Recipe<TimeWarpRecipe.Input> {
             return requires(pTag, 1);
         }
 
-
         @Override
         public TimeWarpRecipe buildRecipe() {
             if (result == null) {
@@ -288,13 +298,15 @@ public class TimeWarpRecipe implements Recipe<TimeWarpRecipe.Input> {
         @Override
         public void validate(ResourceLocation pId) {
             if (ingredients.isEmpty() || ingredients.size() > 64) {
-                throw new IllegalArgumentException("Recipe ingredients size must in 0-64, RecipeId: " + pId);
+                throw new IllegalArgumentException(
+                        "Recipe ingredients size must in 0-64, RecipeId: " + pId);
             }
             if (cauldron == null) {
                 throw new IllegalArgumentException("Recipe cauldron must not be null, RecipeId: " + pId);
             }
             if (result == null && !produceFluid) {
-                throw new IllegalArgumentException("Recipe result must not be null when need fluid is false, RecipeId: " + pId);
+                throw new IllegalArgumentException(
+                        "Recipe result must not be null when need fluid is false, RecipeId: " + pId);
             }
         }
 
