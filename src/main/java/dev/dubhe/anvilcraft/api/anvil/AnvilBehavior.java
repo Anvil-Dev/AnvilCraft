@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.api.anvil.impl.ItemCrushBehavior;
 import dev.dubhe.anvilcraft.api.anvil.impl.ItemMeshBehavior;
 import dev.dubhe.anvilcraft.api.anvil.impl.ItemStampingBehavior;
 import dev.dubhe.anvilcraft.api.anvil.impl.RedstoneEMPBehavior;
+import dev.dubhe.anvilcraft.api.anvil.impl.SuperHeatingBehavior;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 
@@ -54,6 +55,7 @@ public interface AnvilBehavior {
                         && state.getValue(TrapDoorBlock.HALF) == Half.TOP
                         && !state.getValue(TrapDoorBlock.OPEN),
                 new ItemCrushBehavior());
+        registerBehavior(Blocks.CAULDRON, new SuperHeatingBehavior());
         registerBehavior(Blocks.CAULDRON, new ItemCompressBehavior());
         registerBehavior(ModBlocks.STAMPING_PLATFORM.get(), new ItemStampingBehavior());
         registerBehavior(Blocks.SCAFFOLDING, new ItemMeshBehavior());

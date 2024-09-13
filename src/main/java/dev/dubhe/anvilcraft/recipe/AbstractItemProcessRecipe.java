@@ -21,8 +21,8 @@ public abstract class AbstractItemProcessRecipe implements Recipe<ItemProcessInp
     public final NonNullList<Ingredient> ingredients;
     public final ItemStack result;
     public final boolean isSimple;
-    private ItemProcessInput cacheInput;
-    private int cacheMaxCraftTime = -1;
+    protected ItemProcessInput cacheInput;
+    protected int cacheMaxCraftTime = -1;
 
     public AbstractItemProcessRecipe(NonNullList<Ingredient> ingredients, ItemStack result) {
         this.ingredients = ingredients;

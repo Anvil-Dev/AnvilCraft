@@ -10,5 +10,6 @@ public class RecipeHandler {
         ItemCompressRecipeLoader.init(provider);
         MeshRecipeLoader.init(provider);
         StampingRecipeLoader.init(provider);
+        SuperHeatingRecipeLoader.init(provider);
     }
 }

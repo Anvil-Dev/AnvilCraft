@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.recipe.ItemCrushRecipe;
 import dev.dubhe.anvilcraft.recipe.MeshRecipe;
 import dev.dubhe.anvilcraft.recipe.StampingRecipe;
 
+import dev.dubhe.anvilcraft.recipe.SuperHeatingRecipe;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -50,6 +51,11 @@ public class ModRecipeTypes {
             registerType("stamping");
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<StampingRecipe>>
             STAMPING_SERIALIZER = RECIPE_SERIALIZERS.register("stamping", StampingRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<SuperHeatingRecipe>> SUPER_HEATING_TYPE =
+            registerType("super_heating");
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<SuperHeatingRecipe>>
+            SUPER_HEATING_SERIALIZER = RECIPE_SERIALIZERS.register("super_heating", SuperHeatingRecipe.Serializer::new);
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<MeshRecipe>> MESH_TYPE =
             registerType("mesh");
