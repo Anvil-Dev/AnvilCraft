@@ -1,0 +1,12 @@
+{
+  "type": "anvilcraft:boiling",
+  "ingredients": [
+    {
+      "item": "anvilcraft:resin"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "minecraft:slime_ball"
+  }
+}

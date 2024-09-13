@@ -3,6 +3,8 @@ package dev.dubhe.anvilcraft.init;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.recipe.BlockCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.BlockCrushRecipe;
+import dev.dubhe.anvilcraft.recipe.BoilingRecipe;
+import dev.dubhe.anvilcraft.recipe.CookingRecipe;
 import dev.dubhe.anvilcraft.recipe.ItemCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.ItemCrushRecipe;
 import dev.dubhe.anvilcraft.recipe.MeshRecipe;
@@ -54,6 +56,14 @@ public class ModRecipeTypes {
             registerType("super_heating");
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<SuperHeatingRecipe>>
             SUPER_HEATING_SERIALIZER = RECIPE_SERIALIZERS.register("super_heating", SuperHeatingRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<CookingRecipe>> COOKING_TYPE = registerType("cooking");
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<CookingRecipe>> COOKING_SERIALIZER =
+            RECIPE_SERIALIZERS.register("cooking", CookingRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<BoilingRecipe>> BOILING_TYPE = registerType("boiling");
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<BoilingRecipe>> BOILING_SERIALIZER =
+            RECIPE_SERIALIZERS.register("boiling", BoilingRecipe.Serializer::new);
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<TimeWarpRecipe>> TIME_WARP_TYPE =
             registerType("time_warp");

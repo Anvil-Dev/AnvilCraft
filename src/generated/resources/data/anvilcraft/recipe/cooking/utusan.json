@@ -1,0 +1,12 @@
+{
+  "type": "anvilcraft:cooking",
+  "ingredients": [
+    {
+      "item": "anvilcraft:utusan_raw"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:utusan"
+  }
+}

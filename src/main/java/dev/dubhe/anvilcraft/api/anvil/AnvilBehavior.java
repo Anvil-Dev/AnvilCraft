@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.api.anvil;
 
+import dev.dubhe.anvilcraft.api.anvil.impl.BoilingBehavior;
+import dev.dubhe.anvilcraft.api.anvil.impl.CookingBehavior;
 import dev.dubhe.anvilcraft.api.anvil.impl.HitBeeNestBehavior;
 import dev.dubhe.anvilcraft.api.anvil.impl.HitCrabTrapBehavior;
 import dev.dubhe.anvilcraft.api.anvil.impl.HitSpawnerBehavior;
@@ -62,7 +64,9 @@ public interface AnvilBehavior {
                 new ItemCrushBehavior());
         registerBehavior(state -> state.getBlock() instanceof AbstractCauldronBlock, new TimeWarpBehavior());
         registerBehavior(Blocks.CAULDRON, new SuperHeatingBehavior());
+        registerBehavior(Blocks.CAULDRON, new CookingBehavior());
         registerBehavior(Blocks.CAULDRON, new ItemCompressBehavior());
+        registerBehavior(Blocks.WATER_CAULDRON, new BoilingBehavior());
         registerBehavior(ModBlocks.STAMPING_PLATFORM.get(), new ItemStampingBehavior());
         registerBehavior(Blocks.SCAFFOLDING, new ItemMeshBehavior());
         registerBehavior(Blocks.REDSTONE_BLOCK, new RedstoneEMPBehavior());

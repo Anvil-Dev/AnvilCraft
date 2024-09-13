@@ -1,0 +1,12 @@
+{
+  "type": "anvilcraft:cooking",
+  "ingredients": [
+    {
+      "item": "anvilcraft:resin"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:hardend_resin"
+  }
+}

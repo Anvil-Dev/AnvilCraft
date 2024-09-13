@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.api.anvil.impl;
 
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.anvil.AnvilBehavior;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
@@ -32,7 +31,6 @@ public class TimeWarpBehavior implements AnvilBehavior {
             BlockState hitBlockState,
             float fallDistance,
             AnvilFallOnLandEvent event) {
-        AnvilCraft.LOGGER.info("TimeWarpHandle");
         BlockState belowState = level.getBlockState(hitBlockPos.below());
         if (belowState.is(ModBlocks.CORRUPTED_BEACON) && belowState.getValue(CorruptedBeaconBlock.LIT)) {
             Map<ItemEntity, ItemStack> items =
