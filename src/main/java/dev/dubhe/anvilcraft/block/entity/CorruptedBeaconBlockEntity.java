@@ -86,7 +86,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
             Integer j1 = blockstate.getBeaconColorMultiplier(pLevel, blockpos, pPos);
             if (j1 != null) {
                 if (pBlockEntity.checkingBeamSections.size() <= 1) {
-                    beamSection = new BeaconBeamSection(0x101010);
+                    beamSection = new BeaconBeamSection(0xDF101010);
                     pBlockEntity.checkingBeamSections.add(beamSection);
                 } else if (beamSection != null) {
                     if (j1 == beamSection.color) {
