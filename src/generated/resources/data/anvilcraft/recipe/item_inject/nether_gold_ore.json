@@ -1,0 +1,13 @@
+{
+  "type": "anvilcraft:item_inject",
+  "ingredients": [
+    {
+      "item": "minecraft:gold_ingot"
+    },
+    {
+      "item": "minecraft:gold_ingot"
+    }
+  ],
+  "input_block": "minecraft:netherrack",
+  "result_block": "minecraft:nether_gold_ore"
+}

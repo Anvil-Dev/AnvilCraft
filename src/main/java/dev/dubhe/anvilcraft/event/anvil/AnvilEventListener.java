@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.block.EmberAnvilBlock;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.BlockCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.BlockCrushRecipe;
+import dev.dubhe.anvilcraft.recipe.ItemInjectRecipe;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
@@ -16,7 +17,9 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.Level;
@@ -28,6 +31,7 @@ import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 
@@ -35,6 +39,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static dev.dubhe.anvilcraft.util.AnvilUtil.dropItems;
@@ -59,15 +64,17 @@ public class AnvilEventListener {
         MinecraftServer server = level.getServer();
         if (null == server) return;
         final BlockPos hitBlockPos = pos.below();
-        final BlockState state = level.getBlockState(hitBlockPos);
+        final BlockState hitBlockState = level.getBlockState(hitBlockPos);
         handleBlockCompressRecipe(level, hitBlockPos);
         handleBlockCrushRecipe(level, hitBlockPos);
+        handleItemInjectRecipe(level, hitBlockPos, hitBlockState);
         BlockPos belowPos = hitBlockPos.below();
         BlockState hitBelowState = level.getBlockState(belowPos);
         if (hitBelowState.is(Blocks.STONECUTTER)) brokeBlock(level, hitBlockPos, event);
 
-        AnvilBehavior.findMatching(state)
-                .forEach(behavior -> behavior.handle(level, hitBlockPos, state, event.getFallDistance(), event));
+        AnvilBehavior.findMatching(hitBlockState)
+                .forEach(
+                        behavior -> behavior.handle(level, hitBlockPos, hitBlockState, event.getFallDistance(), event));
     }
 
     private void handleBlockCrushRecipe(Level level, final BlockPos pos) {
@@ -93,6 +100,34 @@ public class AnvilEventListener {
                     level.setBlockAndUpdate(
                             pos.below(recipe.value().inputs.size() - 1),
                             recipe.value().result.defaultBlockState());
+                });
+    }
+
+    private void handleItemInjectRecipe(Level level, final BlockPos pos, BlockState state) {
+        Map<ItemEntity, ItemStack> items = level.getEntitiesOfClass(ItemEntity.class, new AABB(pos.above())).stream()
+                .map(it -> Map.entry(it, it.getItem()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        ItemInjectRecipe.Input input =
+                new ItemInjectRecipe.Input(items.values().stream().toList(), state.getBlock());
+        level.getRecipeManager()
+                .getRecipeFor(ModRecipeTypes.ITEM_INJECT_TYPE.get(), input, level)
+                .ifPresent(recipe -> {
+                    for (Ingredient ingredient : recipe.value().getIngredients()) {
+                        for (ItemStack stack : input.items()) {
+                            if (ingredient.test(stack)) {
+                                stack.shrink(1);
+                                break;
+                            }
+                        }
+                    }
+                    level.setBlockAndUpdate(pos, recipe.value().resultBlock.defaultBlockState());
+                    items.forEach((k, v) -> {
+                        if (v.isEmpty()) {
+                            k.discard();
+                            return;
+                        }
+                        k.setItem(v.copy());
+                    });
                 });
     }
 

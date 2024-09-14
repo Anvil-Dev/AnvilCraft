@@ -14,5 +14,6 @@ public class RecipeHandler {
         TimeWarpRecipeLoader.init(provider);
         CookingRecipeLoader.init(provider);
         BulgingRecipeLoader.init(provider);
+        ItemInjectRecipeLoader.init(provider);
     }
 }

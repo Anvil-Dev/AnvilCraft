@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.recipe.BulgingRecipe;
 import dev.dubhe.anvilcraft.recipe.CookingRecipe;
 import dev.dubhe.anvilcraft.recipe.ItemCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.ItemCrushRecipe;
+import dev.dubhe.anvilcraft.recipe.ItemInjectRecipe;
 import dev.dubhe.anvilcraft.recipe.MeshRecipe;
 import dev.dubhe.anvilcraft.recipe.StampingRecipe;
 import dev.dubhe.anvilcraft.recipe.SuperHeatingRecipe;
@@ -57,6 +58,11 @@ public class ModRecipeTypes {
             registerType("super_heating");
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<SuperHeatingRecipe>>
             SUPER_HEATING_SERIALIZER = RECIPE_SERIALIZERS.register("super_heating", SuperHeatingRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<ItemInjectRecipe>> ITEM_INJECT_TYPE =
+            registerType("item_inject");
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<ItemInjectRecipe>> ITEM_INJECT_SERIALIZER =
+            RECIPE_SERIALIZERS.register("item_inject", ItemInjectRecipe.Serializer::new);
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<CookingRecipe>> COOKING_TYPE = registerType("cooking");
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<CookingRecipe>> COOKING_SERIALIZER =
