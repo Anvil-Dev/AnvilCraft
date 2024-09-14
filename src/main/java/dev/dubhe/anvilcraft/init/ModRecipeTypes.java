@@ -14,8 +14,8 @@ import dev.dubhe.anvilcraft.recipe.anvil.SqueezingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.StampingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.SuperHeatingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.TimeWarpRecipe;
-
 import dev.dubhe.anvilcraft.recipe.transform.MobTransformRecipe;
+
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -92,9 +92,10 @@ public class ModRecipeTypes {
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MeshRecipe>> MESH_SERIALIZER =
             RECIPE_SERIALIZERS.register("mesh", MeshRecipe.Serializer::new);
 
-    public static final DeferredHolder<RecipeType<?>, RecipeType<MobTransformRecipe>> MOB_TRANSFORM_TYPE = registerType("mob_transform");
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MobTransformRecipe>> MOB_TRANSFORM_SERIALIZER =
-        RECIPE_SERIALIZERS.register("mob_transform", MobTransformRecipe.Serializer::new);
+    public static final DeferredHolder<RecipeType<?>, RecipeType<MobTransformRecipe>> MOB_TRANSFORM_TYPE =
+            registerType("mob_transform");
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MobTransformRecipe>>
+            MOB_TRANSFORM_SERIALIZER = RECIPE_SERIALIZERS.register("mob_transform", MobTransformRecipe.Serializer::new);
 
     private static <T extends Recipe<?>> DeferredHolder<RecipeType<?>, RecipeType<T>> registerType(String name) {
         return RECIPE_TYPES.register(name, () -> new RecipeType<>() {

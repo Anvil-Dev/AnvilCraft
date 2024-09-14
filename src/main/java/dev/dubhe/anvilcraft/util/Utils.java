@@ -6,14 +6,12 @@ import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.neoforged.fml.ModList;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
 public abstract class Utils {
-    private Utils() {
-    }
+    private Utils() {}
 
     /**
      * @return 模组是否加载

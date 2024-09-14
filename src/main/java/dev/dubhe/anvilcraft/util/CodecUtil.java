@@ -15,7 +15,6 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import javax.swing.text.html.parser.Entity;
 import java.util.Optional;
 
 public class CodecUtil {
@@ -70,24 +69,25 @@ public class CodecUtil {
             buf -> BuiltInRegistries.BLOCK.get(ResourceLocation.parse(buf.readUtf())));
 
     public static final Codec<EntityType<?>> ENTITY_CODEC = ResourceLocation.CODEC.flatXmap(
-        id -> {
-            if (!BuiltInRegistries.ENTITY_TYPE.containsKey(id)){
-                return DataResult.error(() -> "Could not find entity type " + id + " as it does not exist in ENTITY_TYPE registry.");
-            }
-            EntityType<?> e = BuiltInRegistries.ENTITY_TYPE.get(id);
-            return DataResult.success(e);
-        },
-        b -> {
-            ResourceLocation key = BuiltInRegistries.ENTITY_TYPE.getKey(b);
-            if (!BuiltInRegistries.ENTITY_TYPE.containsValue(b)) {
-                return DataResult.error(() -> "Could not find key of entity type " + key + " as it does not exist in ENTITY_TYPE registry.");
-            } else {
-                return DataResult.success(key);
-            }
-        });
+            id -> {
+                if (!BuiltInRegistries.ENTITY_TYPE.containsKey(id)) {
+                    return DataResult.error(() ->
+                            "Could not find entity type " + id + " as it does not exist in ENTITY_TYPE registry.");
+                }
+                EntityType<?> e = BuiltInRegistries.ENTITY_TYPE.get(id);
+                return DataResult.success(e);
+            },
+            b -> {
+                ResourceLocation key = BuiltInRegistries.ENTITY_TYPE.getKey(b);
+                if (!BuiltInRegistries.ENTITY_TYPE.containsValue(b)) {
+                    return DataResult.error(() -> "Could not find key of entity type " + key
+                            + " as it does not exist in ENTITY_TYPE registry.");
+                } else {
+                    return DataResult.success(key);
+                }
+            });
 
     public static final StreamCodec<RegistryFriendlyByteBuf, EntityType<?>> ENTITY_STREAM_CODEC = StreamCodec.of(
-        (buf, e) -> buf.writeResourceLocation(BuiltInRegistries.ENTITY_TYPE.getKey(e)),
-        buf -> BuiltInRegistries.ENTITY_TYPE.get(buf.readResourceLocation())
-    );
+            (buf, e) -> buf.writeResourceLocation(BuiltInRegistries.ENTITY_TYPE.getKey(e)),
+            buf -> BuiltInRegistries.ENTITY_TYPE.get(buf.readResourceLocation()));
 }
