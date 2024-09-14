@@ -118,10 +118,9 @@ public class AnvilCraft {
         event.addPackFinders(
                 of("resourcepacks/transparent_cauldron"),
                 PackType.CLIENT_RESOURCES,
-                Component.translatable("pack.anvilcraft.transparent_cauldron.description"),
+                Component.translatable("pack.anvilcraft.builtin_pack"),
                 PackSource.BUILT_IN,
                 false,
-                Pack.Position.TOP
-        );
+                Pack.Position.TOP);
     }
 }
