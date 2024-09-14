@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.api.anvil.impl.ItemStampingBehavior;
 import dev.dubhe.anvilcraft.api.anvil.impl.RedstoneEMPBehavior;
 import dev.dubhe.anvilcraft.api.anvil.impl.SuperHeatingBehavior;
 import dev.dubhe.anvilcraft.api.anvil.impl.TimeWarpBehavior;
+import dev.dubhe.anvilcraft.api.anvil.impl.WaxingBehavior;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 
@@ -71,6 +72,7 @@ public interface AnvilBehavior {
         registerBehavior(Blocks.WATER_CAULDRON, new BoilingBehavior());
         registerBehavior(ModBlocks.STAMPING_PLATFORM.get(), new ItemStampingBehavior());
         registerBehavior(Blocks.SCAFFOLDING, new ItemMeshBehavior());
+        registerBehavior(Blocks.HONEY_BLOCK, new WaxingBehavior());
         registerBehavior(Blocks.REDSTONE_BLOCK, new RedstoneEMPBehavior());
         registerBehavior(state -> state.is(Blocks.BEEHIVE) || state.is(Blocks.BEE_NEST), new HitBeeNestBehavior());
         registerBehavior(Blocks.SPAWNER, new HitSpawnerBehavior());
