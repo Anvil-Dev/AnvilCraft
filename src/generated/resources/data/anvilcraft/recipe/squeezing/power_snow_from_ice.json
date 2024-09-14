@@ -1,0 +1,6 @@
+{
+  "type": "anvilcraft:squeezing",
+  "cauldron": "minecraft:powder_snow_cauldron",
+  "input_block": "minecraft:snow_block",
+  "result_block": "minecraft:ice"
+}

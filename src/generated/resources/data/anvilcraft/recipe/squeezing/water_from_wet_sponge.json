@@ -1,0 +1,6 @@
+{
+  "type": "anvilcraft:squeezing",
+  "cauldron": "minecraft:water_cauldron",
+  "input_block": "minecraft:wet_sponge",
+  "result_block": "minecraft:sponge"
+}

@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.recipe.ItemCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.ItemCrushRecipe;
 import dev.dubhe.anvilcraft.recipe.ItemInjectRecipe;
 import dev.dubhe.anvilcraft.recipe.MeshRecipe;
+import dev.dubhe.anvilcraft.recipe.SqueezingRecipe;
 import dev.dubhe.anvilcraft.recipe.StampingRecipe;
 import dev.dubhe.anvilcraft.recipe.SuperHeatingRecipe;
 import dev.dubhe.anvilcraft.recipe.TimeWarpRecipe;
@@ -63,6 +64,11 @@ public class ModRecipeTypes {
             registerType("item_inject");
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<ItemInjectRecipe>> ITEM_INJECT_SERIALIZER =
             RECIPE_SERIALIZERS.register("item_inject", ItemInjectRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<SqueezingRecipe>> SQUEEZING_TYPE =
+            registerType("squeezing");
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<SqueezingRecipe>> SQUEEZING_SERIALIZER =
+            RECIPE_SERIALIZERS.register("squeezing", SqueezingRecipe.Serializer::new);
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<CookingRecipe>> COOKING_TYPE = registerType("cooking");
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<CookingRecipe>> COOKING_SERIALIZER =

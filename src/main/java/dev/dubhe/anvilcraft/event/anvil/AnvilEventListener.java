@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.BlockCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.BlockCrushRecipe;
 import dev.dubhe.anvilcraft.recipe.ItemInjectRecipe;
+import dev.dubhe.anvilcraft.recipe.SqueezingRecipe;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
@@ -23,8 +24,10 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.AbstractCauldronBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootParams;
@@ -68,6 +71,7 @@ public class AnvilEventListener {
         handleBlockCompressRecipe(level, hitBlockPos);
         handleBlockCrushRecipe(level, hitBlockPos);
         handleItemInjectRecipe(level, hitBlockPos, hitBlockState);
+        handleSqueezingRecipe(level, hitBlockPos, hitBlockState);
         BlockPos belowPos = hitBlockPos.below();
         BlockState hitBelowState = level.getBlockState(belowPos);
         if (hitBelowState.is(Blocks.STONECUTTER)) brokeBlock(level, hitBlockPos, event);
@@ -129,6 +133,30 @@ public class AnvilEventListener {
                         k.setItem(v.copy());
                     });
                 });
+    }
+
+    private void handleSqueezingRecipe(Level level, final BlockPos pos, BlockState state) {
+        BlockPos belowPos = pos.below();
+        BlockState belowState = level.getBlockState(belowPos);
+        if (belowState.getBlock() instanceof AbstractCauldronBlock) {
+            SqueezingRecipe.Input input = new SqueezingRecipe.Input(state.getBlock(), belowState);
+            level.getRecipeManager()
+                    .getRecipeFor(ModRecipeTypes.SQUEEZING_TYPE.get(), input, level)
+                    .ifPresent(recipe -> {
+                        if (belowState.is(Blocks.CAULDRON)) {
+                            level.setBlockAndUpdate(
+                                    belowPos, recipe.value().cauldron.defaultBlockState());
+                        } else {
+                            if (belowState.getBlock() instanceof LayeredCauldronBlock) {
+                                BlockState newState = belowState.setValue(
+                                        LayeredCauldronBlock.LEVEL,
+                                        belowState.getValue(LayeredCauldronBlock.LEVEL) + 1);
+                                level.setBlockAndUpdate(belowPos, newState);
+                            }
+                        }
+                        level.setBlockAndUpdate(pos, recipe.value().resultBlock.defaultBlockState());
+                    });
+        }
     }
 
     private void brokeBlock(@NotNull Level level, BlockPos pos, AnvilFallOnLandEvent event) {

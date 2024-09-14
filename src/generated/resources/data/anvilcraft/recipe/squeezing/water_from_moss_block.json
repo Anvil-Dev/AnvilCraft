@@ -1,0 +1,6 @@
+{
+  "type": "anvilcraft:squeezing",
+  "cauldron": "minecraft:water_cauldron",
+  "input_block": "minecraft:moss_block",
+  "result_block": "minecraft:moss_carpet"
+}
