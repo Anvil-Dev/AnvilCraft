@@ -19,7 +19,11 @@ import dev.dubhe.anvilcraft.integration.top.AnvilCraftTopPlugin;
 import dev.dubhe.anvilcraft.recipe.cache.RecipeCaches;
 import dev.dubhe.anvilcraft.util.Utils;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.util.Unit;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.neoforged.bus.api.IEventBus;
@@ -27,6 +31,7 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
@@ -75,6 +80,7 @@ public class AnvilCraft {
 
         eventBus.addListener(AnvilCraft::registerPayload);
         eventBus.addListener(AnvilCraft::loadComplete);
+        eventBus.addListener(AnvilCraft::packSetup);
     }
 
     public static @NotNull ResourceLocation of(String path) {
@@ -106,5 +112,16 @@ public class AnvilCraft {
                 AnvilCraftTopPlugin.init();
             }
         });
+    }
+
+    public static void packSetup(AddPackFindersEvent event) {
+        event.addPackFinders(
+                of("resourcepacks/transparent_cauldron"),
+                PackType.CLIENT_RESOURCES,
+                Component.translatable("pack.anvilcraft.transparent_cauldron.description"),
+                PackSource.BUILT_IN,
+                false,
+                Pack.Position.TOP
+        );
     }
 }
