@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
 import dev.dubhe.anvilcraft.init.ModItems;
-import dev.dubhe.anvilcraft.recipe.BulgingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.BulgingRecipe;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;

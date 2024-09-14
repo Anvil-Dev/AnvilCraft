@@ -1,6 +1,6 @@
-package dev.dubhe.anvilcraft.recipe.cache;
+package dev.dubhe.anvilcraft.recipe.anvil.cache;
 
-import dev.dubhe.anvilcraft.recipe.MeshRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.MeshRecipe;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;

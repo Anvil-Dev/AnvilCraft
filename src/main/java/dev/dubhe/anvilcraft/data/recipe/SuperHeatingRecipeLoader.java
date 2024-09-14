@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.data.recipe;
 
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
-import dev.dubhe.anvilcraft.recipe.SuperHeatingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.SuperHeatingRecipe;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;

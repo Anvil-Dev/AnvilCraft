@@ -16,7 +16,7 @@ import dev.dubhe.anvilcraft.init.ModNetworks;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.init.ModVillagers;
 import dev.dubhe.anvilcraft.integration.top.AnvilCraftTopPlugin;
-import dev.dubhe.anvilcraft.recipe.cache.RecipeCaches;
+import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
 import dev.dubhe.anvilcraft.util.Utils;
 
 import net.minecraft.network.chat.Component;

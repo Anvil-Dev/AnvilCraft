@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.recipe.input;
+package dev.dubhe.anvilcraft.recipe.anvil.input;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeInput;

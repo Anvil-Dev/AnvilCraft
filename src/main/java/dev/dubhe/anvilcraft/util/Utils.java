@@ -6,10 +6,14 @@ import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.neoforged.fml.ModList;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 public abstract class Utils {
-    private Utils() {}
+    private Utils() {
+    }
 
     /**
      * @return 模组是否加载
@@ -21,6 +25,7 @@ public abstract class Utils {
     public static <I> Function<I, I> unchanged() {
         return a -> a;
     }
+
     /**
      *
      */
@@ -33,6 +38,7 @@ public abstract class Utils {
             case FAIL -> ItemInteractionResult.FAIL;
         };
     }
+
     /**
      *
      */
@@ -41,5 +47,10 @@ public abstract class Utils {
             case MAIN_HAND -> EquipmentSlot.MAINHAND;
             case OFF_HAND -> EquipmentSlot.OFFHAND;
         };
+    }
+
+    public static <E> Optional<List<E>> intoOptional(List<E> collection) {
+        if (collection.isEmpty()) return Optional.empty();
+        return Optional.of(collection);
     }
 }

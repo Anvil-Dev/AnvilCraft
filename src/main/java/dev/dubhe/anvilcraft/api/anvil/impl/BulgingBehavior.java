@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.api.anvil.impl;
 import dev.dubhe.anvilcraft.api.anvil.AnvilBehavior;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
-import dev.dubhe.anvilcraft.recipe.BulgingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.BulgingRecipe;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
 
 import net.minecraft.core.BlockPos;

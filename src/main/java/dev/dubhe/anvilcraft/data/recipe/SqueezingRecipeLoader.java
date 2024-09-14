@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.data.recipe;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModBlocks;
-import dev.dubhe.anvilcraft.recipe.SqueezingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.SqueezingRecipe;
 
 import net.minecraft.world.level.block.Blocks;
 

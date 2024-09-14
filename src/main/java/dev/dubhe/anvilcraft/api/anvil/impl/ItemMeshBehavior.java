@@ -2,8 +2,8 @@ package dev.dubhe.anvilcraft.api.anvil.impl;
 
 import dev.dubhe.anvilcraft.api.anvil.AnvilBehavior;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
-import dev.dubhe.anvilcraft.recipe.MeshRecipe;
-import dev.dubhe.anvilcraft.recipe.cache.RecipeCaches;
+import dev.dubhe.anvilcraft.recipe.anvil.MeshRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
 
 import net.minecraft.core.BlockPos;

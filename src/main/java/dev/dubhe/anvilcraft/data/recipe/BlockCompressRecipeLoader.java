@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
-import dev.dubhe.anvilcraft.recipe.BlockCompressRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.BlockCompressRecipe;
 
 import net.minecraft.world.level.block.Blocks;
 

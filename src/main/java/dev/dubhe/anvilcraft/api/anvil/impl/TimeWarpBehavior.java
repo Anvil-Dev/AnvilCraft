@@ -5,7 +5,7 @@ import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
-import dev.dubhe.anvilcraft.recipe.TimeWarpRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.TimeWarpRecipe;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
 
 import net.minecraft.core.BlockPos;

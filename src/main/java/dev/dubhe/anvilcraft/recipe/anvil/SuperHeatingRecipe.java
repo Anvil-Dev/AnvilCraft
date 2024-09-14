@@ -1,9 +1,9 @@
-package dev.dubhe.anvilcraft.recipe;
+package dev.dubhe.anvilcraft.recipe.anvil;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
-import dev.dubhe.anvilcraft.recipe.builder.AbstractItemProcessBuilder;
-import dev.dubhe.anvilcraft.recipe.input.ItemProcessInput;
+import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractItemProcessBuilder;
+import dev.dubhe.anvilcraft.recipe.anvil.input.ItemProcessInput;
 import dev.dubhe.anvilcraft.util.CodecUtil;
 
 import net.minecraft.MethodsReturnNonnullByDefault;

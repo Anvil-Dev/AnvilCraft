@@ -1,6 +1,6 @@
-package dev.dubhe.anvilcraft.recipe.builder;
+package dev.dubhe.anvilcraft.recipe.anvil.builder;
 
-import dev.dubhe.anvilcraft.recipe.AbstractItemProcessRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.AbstractItemProcessRecipe;
 
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;

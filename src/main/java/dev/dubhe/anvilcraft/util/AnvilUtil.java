@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.util;
 
-import dev.dubhe.anvilcraft.recipe.AbstractItemProcessRecipe;
-import dev.dubhe.anvilcraft.recipe.input.ItemProcessInput;
+import dev.dubhe.anvilcraft.recipe.anvil.AbstractItemProcessRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.input.ItemProcessInput;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.item.ItemEntity;

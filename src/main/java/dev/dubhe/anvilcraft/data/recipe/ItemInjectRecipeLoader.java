@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
 import dev.dubhe.anvilcraft.init.ModBlocks;
-import dev.dubhe.anvilcraft.recipe.ItemInjectRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.ItemInjectRecipe;
 
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;

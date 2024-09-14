@@ -1,6 +1,6 @@
-package dev.dubhe.anvilcraft.recipe;
+package dev.dubhe.anvilcraft.recipe.anvil;
 
-import dev.dubhe.anvilcraft.recipe.input.ItemProcessInput;
+import dev.dubhe.anvilcraft.recipe.anvil.input.ItemProcessInput;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;

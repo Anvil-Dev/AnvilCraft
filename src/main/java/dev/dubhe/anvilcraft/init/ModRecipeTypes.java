@@ -1,20 +1,21 @@
 package dev.dubhe.anvilcraft.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.recipe.BlockCompressRecipe;
-import dev.dubhe.anvilcraft.recipe.BlockCrushRecipe;
-import dev.dubhe.anvilcraft.recipe.BoilingRecipe;
-import dev.dubhe.anvilcraft.recipe.BulgingRecipe;
-import dev.dubhe.anvilcraft.recipe.CookingRecipe;
-import dev.dubhe.anvilcraft.recipe.ItemCompressRecipe;
-import dev.dubhe.anvilcraft.recipe.ItemCrushRecipe;
-import dev.dubhe.anvilcraft.recipe.ItemInjectRecipe;
-import dev.dubhe.anvilcraft.recipe.MeshRecipe;
-import dev.dubhe.anvilcraft.recipe.SqueezingRecipe;
-import dev.dubhe.anvilcraft.recipe.StampingRecipe;
-import dev.dubhe.anvilcraft.recipe.SuperHeatingRecipe;
-import dev.dubhe.anvilcraft.recipe.TimeWarpRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.BlockCompressRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.BlockCrushRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.BoilingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.BulgingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.CookingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.ItemCompressRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.ItemCrushRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.ItemInjectRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.MeshRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.SqueezingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.StampingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.SuperHeatingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.TimeWarpRecipe;
 
+import dev.dubhe.anvilcraft.recipe.transform.MobTransformRecipe;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -90,6 +91,10 @@ public class ModRecipeTypes {
     public static final DeferredHolder<RecipeType<?>, RecipeType<MeshRecipe>> MESH_TYPE = registerType("mesh");
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MeshRecipe>> MESH_SERIALIZER =
             RECIPE_SERIALIZERS.register("mesh", MeshRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<MobTransformRecipe>> MOB_TRANSFORM_TYPE = registerType("mob_transform");
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MobTransformRecipe>> MOB_TRANSFORM_SERIALIZER =
+        RECIPE_SERIALIZERS.register("mob_transform", MobTransformRecipe.Serializer::new);
 
     private static <T extends Recipe<?>> DeferredHolder<RecipeType<?>, RecipeType<T>> registerType(String name) {
         return RECIPE_TYPES.register(name, () -> new RecipeType<>() {

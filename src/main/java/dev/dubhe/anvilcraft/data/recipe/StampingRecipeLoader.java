@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
-import dev.dubhe.anvilcraft.recipe.StampingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.StampingRecipe;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;

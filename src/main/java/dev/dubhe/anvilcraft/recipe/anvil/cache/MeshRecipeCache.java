@@ -1,7 +1,7 @@
-package dev.dubhe.anvilcraft.recipe.cache;
+package dev.dubhe.anvilcraft.recipe.anvil.cache;
 
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
-import dev.dubhe.anvilcraft.recipe.MeshRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.MeshRecipe;
 
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;

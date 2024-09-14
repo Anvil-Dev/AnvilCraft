@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
 import dev.dubhe.anvilcraft.init.ModItems;
-import dev.dubhe.anvilcraft.recipe.ItemCrushRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.ItemCrushRecipe;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;

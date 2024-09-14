@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.recipe.MeshRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.MeshRecipe;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;

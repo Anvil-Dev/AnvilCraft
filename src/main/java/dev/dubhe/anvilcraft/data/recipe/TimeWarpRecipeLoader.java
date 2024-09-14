@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.data.recipe;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
-import dev.dubhe.anvilcraft.recipe.TimeWarpRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.TimeWarpRecipe;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;

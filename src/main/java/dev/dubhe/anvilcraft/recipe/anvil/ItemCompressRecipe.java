@@ -1,7 +1,7 @@
-package dev.dubhe.anvilcraft.recipe;
+package dev.dubhe.anvilcraft.recipe.anvil;
 
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
-import dev.dubhe.anvilcraft.recipe.builder.AbstractItemProcessBuilder;
+import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractItemProcessBuilder;
 import dev.dubhe.anvilcraft.util.CodecUtil;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -22,8 +22,8 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class StampingRecipe extends AbstractItemProcessRecipe {
-    public StampingRecipe(NonNullList<Ingredient> ingredients, ItemStack result) {
+public class ItemCompressRecipe extends AbstractItemProcessRecipe {
+    public ItemCompressRecipe(NonNullList<Ingredient> ingredients, ItemStack result) {
         super(ingredients, result);
     }
 
@@ -34,43 +34,43 @@ public class StampingRecipe extends AbstractItemProcessRecipe {
 
     @Override
     public RecipeType<?> getType() {
-        return ModRecipeTypes.STAMPING_TYPE.get();
+        return ModRecipeTypes.ITEM_COMPRESS_TYPE.get();
     }
 
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return ModRecipeTypes.STAMPING_SERIALIZER.get();
+        return ModRecipeTypes.ITEM_COMPRESS_SERIALIZER.get();
     }
 
-    public static class Serializer implements RecipeSerializer<StampingRecipe> {
-        private static final MapCodec<StampingRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-                        CodecUtil.createIngredientListCodec("ingredients", 9, "stamping")
-                                .forGetter(StampingRecipe::getIngredients),
-                        ItemStack.CODEC.fieldOf("result").forGetter(StampingRecipe::getResult))
-                .apply(ins, StampingRecipe::new));
+    public static class Serializer implements RecipeSerializer<ItemCompressRecipe> {
+        private static final MapCodec<ItemCompressRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
+                        CodecUtil.createIngredientListCodec("ingredients", 9, "item_compress")
+                                .forGetter(ItemCompressRecipe::getIngredients),
+                        ItemStack.CODEC.fieldOf("result").forGetter(ItemCompressRecipe::getResult))
+                .apply(ins, ItemCompressRecipe::new));
 
-        private static final StreamCodec<RegistryFriendlyByteBuf, StampingRecipe> STREAM_CODEC =
+        private static final StreamCodec<RegistryFriendlyByteBuf, ItemCompressRecipe> STREAM_CODEC =
                 StreamCodec.of(Serializer::encode, Serializer::decode);
 
         @Override
-        public MapCodec<StampingRecipe> codec() {
+        public MapCodec<ItemCompressRecipe> codec() {
             return CODEC;
         }
 
         @Override
-        public StreamCodec<RegistryFriendlyByteBuf, StampingRecipe> streamCodec() {
+        public StreamCodec<RegistryFriendlyByteBuf, ItemCompressRecipe> streamCodec() {
             return STREAM_CODEC;
         }
 
-        private static StampingRecipe decode(RegistryFriendlyByteBuf buf) {
+        private static ItemCompressRecipe decode(RegistryFriendlyByteBuf buf) {
             ItemStack result = ItemStack.STREAM_CODEC.decode(buf);
             int size = buf.readVarInt();
             NonNullList<Ingredient> ingredients = NonNullList.withSize(size, Ingredient.EMPTY);
             ingredients.replaceAll(i -> Ingredient.CONTENTS_STREAM_CODEC.decode(buf));
-            return new StampingRecipe(ingredients, result);
+            return new ItemCompressRecipe(ingredients, result);
         }
 
-        private static void encode(RegistryFriendlyByteBuf buf, StampingRecipe recipe) {
+        private static void encode(RegistryFriendlyByteBuf buf, ItemCompressRecipe recipe) {
             ItemStack.STREAM_CODEC.encode(buf, recipe.result);
             buf.writeVarInt(recipe.ingredients.size());
             for (Ingredient ingredient : recipe.ingredients) {
@@ -79,15 +79,15 @@ public class StampingRecipe extends AbstractItemProcessRecipe {
         }
     }
 
-    public static class Builder extends AbstractItemProcessBuilder<StampingRecipe> {
+    public static class Builder extends AbstractItemProcessBuilder<ItemCompressRecipe> {
         @Override
-        public StampingRecipe buildRecipe() {
-            return new StampingRecipe(ingredients, result);
+        public ItemCompressRecipe buildRecipe() {
+            return new ItemCompressRecipe(this.ingredients, this.result);
         }
 
         @Override
         public String getType() {
-            return "stamping";
+            return "item_compress";
         }
     }
 }

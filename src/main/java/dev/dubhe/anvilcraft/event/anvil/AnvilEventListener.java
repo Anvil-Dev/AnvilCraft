@@ -6,10 +6,10 @@ import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilHurtEntityEvent;
 import dev.dubhe.anvilcraft.block.EmberAnvilBlock;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
-import dev.dubhe.anvilcraft.recipe.BlockCompressRecipe;
-import dev.dubhe.anvilcraft.recipe.BlockCrushRecipe;
-import dev.dubhe.anvilcraft.recipe.ItemInjectRecipe;
-import dev.dubhe.anvilcraft.recipe.SqueezingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.BlockCompressRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.BlockCrushRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.ItemInjectRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.SqueezingRecipe;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;

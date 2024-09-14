@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
 import dev.dubhe.anvilcraft.init.ModItems;
-import dev.dubhe.anvilcraft.recipe.BoilingRecipe;
-import dev.dubhe.anvilcraft.recipe.CookingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.BoilingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.CookingRecipe;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;

@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
-import dev.dubhe.anvilcraft.recipe.BlockCrushRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.BlockCrushRecipe;
 
 import net.minecraft.world.level.block.Blocks;
 

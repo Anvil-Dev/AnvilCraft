@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
-import dev.dubhe.anvilcraft.recipe.ItemCompressRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.ItemCompressRecipe;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
