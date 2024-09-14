@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.block.entity;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.chargecollector.HeatedBlockRecorder;
 import dev.dubhe.anvilcraft.api.entity.player.AnvilCraftBlockPlacer;
-import dev.dubhe.anvilcraft.network.HeliostatsIrradiationPack;
+import dev.dubhe.anvilcraft.network.HeliostatsIrradiationPacket;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -135,7 +135,7 @@ public class HeliostatsBlockEntity extends BlockEntity {
         if (level == null) return;
         if (level.getGameTime() % (AnvilCraft.config.heliostatsDetectionInterval + 1) != 0) return;
         if (irritatePos == null && level.isClientSide)
-            PacketDistributor.sendToServer(new HeliostatsIrradiationPack(getBlockPos(), irritatePos));
+            PacketDistributor.sendToServer(new HeliostatsIrradiationPacket(getBlockPos(), irritatePos));
         workResult = validatePos(irritatePos);
         if (workResult.isWork()) {
             HeatedBlockRecorder.getInstance(getLevel()).addOrIncrease(irritatePos, this);

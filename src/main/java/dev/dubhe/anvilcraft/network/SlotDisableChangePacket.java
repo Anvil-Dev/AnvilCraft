@@ -18,22 +18,22 @@ import net.neoforged.neoforge.network.handling.IPayloadHandler;
 import lombok.Getter;
 
 @Getter
-public class SlotDisableChangePack implements CustomPacketPayload {
-    public static final Type<SlotDisableChangePack> TYPE = new Type<>(AnvilCraft.of("slot_disable_change"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, SlotDisableChangePack> STREAM_CODEC =
+public class SlotDisableChangePacket implements CustomPacketPayload {
+    public static final Type<SlotDisableChangePacket> TYPE = new Type<>(AnvilCraft.of("slot_disable_change"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, SlotDisableChangePacket> STREAM_CODEC =
             StreamCodec.composite(
                     ByteBufCodecs.INT,
-                    SlotDisableChangePack::getIndex,
+                    SlotDisableChangePacket::getIndex,
                     ByteBufCodecs.BOOL,
-                    SlotDisableChangePack::isState,
-                    SlotDisableChangePack::new);
-    public static final IPayloadHandler<SlotDisableChangePack> HANDLER =
-            new DirectionalPayloadHandler<>(SlotDisableChangePack::clientHandler, SlotDisableChangePack::serverHandler);
+                    SlotDisableChangePacket::isState,
+                    SlotDisableChangePacket::new);
+    public static final IPayloadHandler<SlotDisableChangePacket> HANDLER = new DirectionalPayloadHandler<>(
+            SlotDisableChangePacket::clientHandler, SlotDisableChangePacket::serverHandler);
 
     private final int index;
     private final boolean state;
 
-    public SlotDisableChangePack(int index, boolean state) {
+    public SlotDisableChangePacket(int index, boolean state) {
         this.index = index;
         this.state = state;
     }
@@ -43,7 +43,7 @@ public class SlotDisableChangePack implements CustomPacketPayload {
         return TYPE;
     }
 
-    public static void serverHandler(SlotDisableChangePack data, IPayloadContext context) {
+    public static void serverHandler(SlotDisableChangePacket data, IPayloadContext context) {
         ServerPlayer player = (ServerPlayer) context.player();
         context.enqueueWork(() -> {
             if (!player.hasContainerOpen()) return;
@@ -54,7 +54,7 @@ public class SlotDisableChangePack implements CustomPacketPayload {
         });
     }
 
-    public static void clientHandler(SlotDisableChangePack data, IPayloadContext context) {
+    public static void clientHandler(SlotDisableChangePacket data, IPayloadContext context) {
         Minecraft client = Minecraft.getInstance();
         context.enqueueWork(() -> {
             if (!(client.screen instanceof IFilterScreen<?> screen)) return;

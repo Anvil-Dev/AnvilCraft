@@ -16,12 +16,13 @@ import net.neoforged.neoforge.network.handling.IPayloadHandler;
 
 import org.jetbrains.annotations.NotNull;
 
-public class HeliostatsIrradiationPack implements CustomPacketPayload {
-    public static final Type<HeliostatsIrradiationPack> TYPE = new Type<>(AnvilCraft.of("heliostats_irradiation_pack"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, HeliostatsIrradiationPack> STREAM_CODEC =
-            StreamCodec.ofMember(HeliostatsIrradiationPack::encode, HeliostatsIrradiationPack::new);
-    public static final IPayloadHandler<HeliostatsIrradiationPack> HANDLER = new DirectionalPayloadHandler<>(
-            HeliostatsIrradiationPack::clientHandler, HeliostatsIrradiationPack::serverHandler);
+public class HeliostatsIrradiationPacket implements CustomPacketPayload {
+    public static final Type<HeliostatsIrradiationPacket> TYPE =
+            new Type<>(AnvilCraft.of("heliostats_irradiation_pack"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, HeliostatsIrradiationPacket> STREAM_CODEC =
+            StreamCodec.ofMember(HeliostatsIrradiationPacket::encode, HeliostatsIrradiationPacket::new);
+    public static final IPayloadHandler<HeliostatsIrradiationPacket> HANDLER = new DirectionalPayloadHandler<>(
+            HeliostatsIrradiationPacket::clientHandler, HeliostatsIrradiationPacket::serverHandler);
 
     private final BlockPos blockPos;
     private final BlockPos irritatePos;
@@ -29,7 +30,7 @@ public class HeliostatsIrradiationPack implements CustomPacketPayload {
     /**
      * 定日镜照射网络包
      */
-    public HeliostatsIrradiationPack(BlockPos blockPos, BlockPos irritatePos) {
+    public HeliostatsIrradiationPacket(BlockPos blockPos, BlockPos irritatePos) {
         this.blockPos = blockPos;
         this.irritatePos = irritatePos;
     }
@@ -37,7 +38,7 @@ public class HeliostatsIrradiationPack implements CustomPacketPayload {
     /**
      * 定日镜照射网络包
      */
-    public HeliostatsIrradiationPack(RegistryFriendlyByteBuf buf) {
+    public HeliostatsIrradiationPacket(RegistryFriendlyByteBuf buf) {
         this.blockPos = buf.readBlockPos();
         this.irritatePos = buf.readNullable(RegistryFriendlyByteBuf::readBlockPos);
     }
@@ -55,7 +56,7 @@ public class HeliostatsIrradiationPack implements CustomPacketPayload {
     /**
      *
      */
-    public static void clientHandler(HeliostatsIrradiationPack data, IPayloadContext context) {
+    public static void clientHandler(HeliostatsIrradiationPacket data, IPayloadContext context) {
         context.enqueueWork(() -> {
             if (Minecraft.getInstance().level != null
                     && Minecraft.getInstance().level.getBlockEntity(data.blockPos)
@@ -68,11 +69,11 @@ public class HeliostatsIrradiationPack implements CustomPacketPayload {
     /**
      *
      */
-    public static void serverHandler(HeliostatsIrradiationPack data, IPayloadContext context) {
+    public static void serverHandler(HeliostatsIrradiationPacket data, IPayloadContext context) {
         ServerPlayer player = (ServerPlayer) context.player();
         context.enqueueWork(() -> {
             if (player.level().getBlockEntity(data.blockPos) instanceof HeliostatsBlockEntity heliostatsBlockEntity) {
-                var pack = new HeliostatsIrradiationPack(data.blockPos, heliostatsBlockEntity.getIrritatePos());
+                var pack = new HeliostatsIrradiationPacket(data.blockPos, heliostatsBlockEntity.getIrritatePos());
                 PacketDistributor.sendToPlayer(player, pack);
             }
         });

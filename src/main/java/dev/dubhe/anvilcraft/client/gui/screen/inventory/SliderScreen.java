@@ -4,7 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.gui.component.Slider;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.inventory.SliderMenu;
-import dev.dubhe.anvilcraft.network.SliderUpdatePack;
+import dev.dubhe.anvilcraft.network.SliderUpdatePacket;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
@@ -145,7 +145,7 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
     }
 
     private void update(int value) {
-        PacketDistributor.sendToServer(new SliderUpdatePack(value));
+        PacketDistributor.sendToServer(new SliderUpdatePacket(value));
         this.value.setValue("" + value);
     }
 }

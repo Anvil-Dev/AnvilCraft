@@ -20,12 +20,12 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
-public class MachineOutputDirectionPack implements CustomPacketPayload {
-    public static final Type<MachineOutputDirectionPack> TYPE = new Type<>(AnvilCraft.of("machine_output_direction"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, MachineOutputDirectionPack> STREAM_CODEC =
-            StreamCodec.ofMember(MachineOutputDirectionPack::encode, MachineOutputDirectionPack::new);
-    public static final IPayloadHandler<MachineOutputDirectionPack> HANDLER = new DirectionalPayloadHandler<>(
-            MachineOutputDirectionPack::clientHandler, MachineOutputDirectionPack::serverHandler);
+public class MachineOutputDirectionPacket implements CustomPacketPayload {
+    public static final Type<MachineOutputDirectionPacket> TYPE = new Type<>(AnvilCraft.of("machine_output_direction"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, MachineOutputDirectionPacket> STREAM_CODEC =
+            StreamCodec.ofMember(MachineOutputDirectionPacket::encode, MachineOutputDirectionPacket::new);
+    public static final IPayloadHandler<MachineOutputDirectionPacket> HANDLER = new DirectionalPayloadHandler<>(
+            MachineOutputDirectionPacket::clientHandler, MachineOutputDirectionPacket::serverHandler);
     private final Direction direction;
 
     @Override
@@ -33,11 +33,11 @@ public class MachineOutputDirectionPack implements CustomPacketPayload {
         return TYPE;
     }
 
-    public MachineOutputDirectionPack(Direction direction) {
+    public MachineOutputDirectionPacket(Direction direction) {
         this.direction = direction;
     }
 
-    public MachineOutputDirectionPack(@NotNull FriendlyByteBuf buf) {
+    public MachineOutputDirectionPacket(@NotNull FriendlyByteBuf buf) {
         this(buf.readEnum(Direction.class));
     }
 
@@ -48,7 +48,7 @@ public class MachineOutputDirectionPack implements CustomPacketPayload {
     /**
      *
      */
-    public static void serverHandler(MachineOutputDirectionPack data, IPayloadContext context) {
+    public static void serverHandler(MachineOutputDirectionPacket data, IPayloadContext context) {
         ServerPlayer player = (ServerPlayer) context.player();
         context.enqueueWork(() -> {
             if (!player.hasContainerOpen()) return;
@@ -62,7 +62,7 @@ public class MachineOutputDirectionPack implements CustomPacketPayload {
     /**
      *
      */
-    public static void clientHandler(MachineOutputDirectionPack data, IPayloadContext context) {
+    public static void clientHandler(MachineOutputDirectionPacket data, IPayloadContext context) {
         Minecraft client = Minecraft.getInstance();
         context.enqueueWork(() -> {
             if (!(client.screen instanceof BaseMachineScreen<?> screen)) return;

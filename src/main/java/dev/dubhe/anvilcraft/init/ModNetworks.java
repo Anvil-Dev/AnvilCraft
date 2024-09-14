@@ -2,20 +2,20 @@ package dev.dubhe.anvilcraft.init;
 
 import dev.dubhe.anvilcraft.network.AddMutedSoundPacket;
 import dev.dubhe.anvilcraft.network.CyclingValueSyncPacket;
-import dev.dubhe.anvilcraft.network.HammerUsePack;
-import dev.dubhe.anvilcraft.network.HeliostatsIrradiationPack;
-import dev.dubhe.anvilcraft.network.LaserEmitPack;
-import dev.dubhe.anvilcraft.network.MachineEnableFilterPack;
-import dev.dubhe.anvilcraft.network.MachineOutputDirectionPack;
+import dev.dubhe.anvilcraft.network.HammerUsePacket;
+import dev.dubhe.anvilcraft.network.HeliostatsIrradiationPacket;
+import dev.dubhe.anvilcraft.network.LaserEmitPacket;
+import dev.dubhe.anvilcraft.network.MachineEnableFilterPacket;
+import dev.dubhe.anvilcraft.network.MachineOutputDirectionPacket;
 import dev.dubhe.anvilcraft.network.MutedSoundSyncPacket;
-import dev.dubhe.anvilcraft.network.PowerGridRemovePack;
-import dev.dubhe.anvilcraft.network.PowerGridSyncPack;
+import dev.dubhe.anvilcraft.network.PowerGridRemovePacket;
+import dev.dubhe.anvilcraft.network.PowerGridSyncPacket;
 import dev.dubhe.anvilcraft.network.RemoveMutedSoundPacket;
 import dev.dubhe.anvilcraft.network.RocketJumpPacket;
-import dev.dubhe.anvilcraft.network.SliderInitPack;
-import dev.dubhe.anvilcraft.network.SliderUpdatePack;
-import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
-import dev.dubhe.anvilcraft.network.SlotFilterChangePack;
+import dev.dubhe.anvilcraft.network.SliderInitPacket;
+import dev.dubhe.anvilcraft.network.SliderUpdatePacket;
+import dev.dubhe.anvilcraft.network.SlotDisableChangePacket;
+import dev.dubhe.anvilcraft.network.SlotFilterChangePacket;
 import dev.dubhe.anvilcraft.network.UpdateDisplayItemPacket;
 
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -26,20 +26,23 @@ public class ModNetworks {
      */
     public static void init(PayloadRegistrar registrar) {
         registrar.playBidirectional(
-                MachineOutputDirectionPack.TYPE,
-                MachineOutputDirectionPack.STREAM_CODEC,
-                MachineOutputDirectionPack.HANDLER);
+                MachineOutputDirectionPacket.TYPE,
+                MachineOutputDirectionPacket.STREAM_CODEC,
+                MachineOutputDirectionPacket.HANDLER);
         registrar.playBidirectional(
-                MachineEnableFilterPack.TYPE, MachineEnableFilterPack.STREAM_CODEC, MachineEnableFilterPack.HANDLER);
+                MachineEnableFilterPacket.TYPE,
+                MachineEnableFilterPacket.STREAM_CODEC,
+                MachineEnableFilterPacket.HANDLER);
         registrar.playBidirectional(
-                SlotDisableChangePack.TYPE, SlotDisableChangePack.STREAM_CODEC, SlotDisableChangePack.HANDLER);
+                SlotDisableChangePacket.TYPE, SlotDisableChangePacket.STREAM_CODEC, SlotDisableChangePacket.HANDLER);
         registrar.playBidirectional(
-                SlotFilterChangePack.TYPE, SlotFilterChangePack.STREAM_CODEC, SlotFilterChangePack.HANDLER);
-        registrar.playToServer(SliderUpdatePack.TYPE, SliderUpdatePack.STREAM_CODEC, SliderUpdatePack.HANDLER);
-        registrar.playToClient(SliderInitPack.TYPE, SliderInitPack.STREAM_CODEC, SliderInitPack.HANDLER);
-        registrar.playToClient(PowerGridSyncPack.TYPE, PowerGridSyncPack.STREAM_CODEC, PowerGridSyncPack.HANDLER);
-        registrar.playToClient(PowerGridRemovePack.TYPE, PowerGridRemovePack.STREAM_CODEC, PowerGridRemovePack.HANDLER);
-        registrar.playToServer(HammerUsePack.TYPE, HammerUsePack.STREAM_CODEC, HammerUsePack.HANDLER);
+                SlotFilterChangePacket.TYPE, SlotFilterChangePacket.STREAM_CODEC, SlotFilterChangePacket.HANDLER);
+        registrar.playToServer(SliderUpdatePacket.TYPE, SliderUpdatePacket.STREAM_CODEC, SliderUpdatePacket.HANDLER);
+        registrar.playToClient(SliderInitPacket.TYPE, SliderInitPacket.STREAM_CODEC, SliderInitPacket.HANDLER);
+        registrar.playToClient(PowerGridSyncPacket.TYPE, PowerGridSyncPacket.STREAM_CODEC, PowerGridSyncPacket.HANDLER);
+        registrar.playToClient(
+                PowerGridRemovePacket.TYPE, PowerGridRemovePacket.STREAM_CODEC, PowerGridRemovePacket.HANDLER);
+        registrar.playToServer(HammerUsePacket.TYPE, HammerUsePacket.STREAM_CODEC, HammerUsePacket.HANDLER);
         registrar.playToServer(
                 CyclingValueSyncPacket.TYPE, CyclingValueSyncPacket.STREAM_CODEC, CyclingValueSyncPacket.HANDLER);
         registrar.playToClient(RocketJumpPacket.TYPE, RocketJumpPacket.STREAM_CODEC, RocketJumpPacket.HANDLER);
@@ -48,11 +51,11 @@ public class ModNetworks {
         registrar.playToServer(AddMutedSoundPacket.TYPE, AddMutedSoundPacket.STREAM_CODEC, AddMutedSoundPacket.HANDLER);
         registrar.playToServer(
                 RemoveMutedSoundPacket.TYPE, RemoveMutedSoundPacket.STREAM_CODEC, RemoveMutedSoundPacket.HANDLER);
-        registrar.playToClient(LaserEmitPack.TYPE, LaserEmitPack.STREAM_CODEC, LaserEmitPack.HANDLER);
+        registrar.playToClient(LaserEmitPacket.TYPE, LaserEmitPacket.STREAM_CODEC, LaserEmitPacket.HANDLER);
         registrar.playBidirectional(
-                HeliostatsIrradiationPack.TYPE,
-                HeliostatsIrradiationPack.STREAM_CODEC,
-                HeliostatsIrradiationPack.HANDLER);
+                HeliostatsIrradiationPacket.TYPE,
+                HeliostatsIrradiationPacket.STREAM_CODEC,
+                HeliostatsIrradiationPacket.HANDLER);
         registrar.playToClient(
                 UpdateDisplayItemPacket.TYPE, UpdateDisplayItemPacket.STREAM_CODEC, UpdateDisplayItemPacket.HANDLER);
     }

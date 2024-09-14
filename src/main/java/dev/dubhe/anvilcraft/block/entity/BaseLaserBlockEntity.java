@@ -4,7 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.depository.IItemDepository;
 import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
-import dev.dubhe.anvilcraft.network.LaserEmitPack;
+import dev.dubhe.anvilcraft.network.LaserEmitPacket;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -189,7 +189,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
     }
 
     public void tick(@NotNull Level level) {
-        PacketDistributor.sendToAllPlayers(new LaserEmitPack(laserLevel, getBlockPos(), irradiateBlockPos));
+        PacketDistributor.sendToAllPlayers(new LaserEmitPacket(laserLevel, getBlockPos(), irradiateBlockPos));
         tickCount++;
     }
 

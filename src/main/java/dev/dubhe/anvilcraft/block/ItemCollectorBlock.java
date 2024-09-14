@@ -8,9 +8,9 @@ import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
-import dev.dubhe.anvilcraft.network.MachineEnableFilterPack;
-import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
-import dev.dubhe.anvilcraft.network.SlotFilterChangePack;
+import dev.dubhe.anvilcraft.network.MachineEnableFilterPacket;
+import dev.dubhe.anvilcraft.network.SlotDisableChangePacket;
+import dev.dubhe.anvilcraft.network.SlotFilterChangePacket;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -130,13 +130,13 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
             }
             if (player instanceof ServerPlayer serverPlayer) {
                 ModMenuTypes.open(serverPlayer, eb, pos);
-                PacketDistributor.sendToPlayer(serverPlayer, new MachineEnableFilterPack(eb.isFilterEnabled()));
+                PacketDistributor.sendToPlayer(serverPlayer, new MachineEnableFilterPacket(eb.isFilterEnabled()));
                 for (int i = 0; i < eb.getFilteredItems().size(); i++) {
                     PacketDistributor.sendToPlayer(
                             serverPlayer,
-                            new SlotDisableChangePack(
+                            new SlotDisableChangePacket(
                                     i, eb.getDepository().getDisabled().get(i)));
-                    PacketDistributor.sendToPlayer(serverPlayer, new SlotFilterChangePack(i, eb.getFilter(i)));
+                    PacketDistributor.sendToPlayer(serverPlayer, new SlotFilterChangePacket(i, eb.getFilter(i)));
                 }
             }
         }

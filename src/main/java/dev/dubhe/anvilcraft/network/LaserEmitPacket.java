@@ -13,11 +13,11 @@ import net.neoforged.neoforge.network.handling.IPayloadHandler;
 
 import org.jetbrains.annotations.NotNull;
 
-public class LaserEmitPack implements CustomPacketPayload {
-    public static final Type<LaserEmitPack> TYPE = new Type<>(AnvilCraft.of("laser_emit"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, LaserEmitPack> STREAM_CODEC =
-            StreamCodec.ofMember(LaserEmitPack::encode, LaserEmitPack::new);
-    public static final IPayloadHandler<LaserEmitPack> HANDLER = LaserEmitPack::clientHandler;
+public class LaserEmitPacket implements CustomPacketPayload {
+    public static final Type<LaserEmitPacket> TYPE = new Type<>(AnvilCraft.of("laser_emit"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, LaserEmitPacket> STREAM_CODEC =
+            StreamCodec.ofMember(LaserEmitPacket::encode, LaserEmitPacket::new);
+    public static final IPayloadHandler<LaserEmitPacket> HANDLER = LaserEmitPacket::clientHandler;
 
     private final int lightPowerLevel;
     private final BlockPos laserBlockPos;
@@ -26,7 +26,7 @@ public class LaserEmitPack implements CustomPacketPayload {
     /**
      * 激光照射网络包
      */
-    public LaserEmitPack(int lightPowerLevel, BlockPos laserBlockPos, BlockPos irradiateBlockPos) {
+    public LaserEmitPacket(int lightPowerLevel, BlockPos laserBlockPos, BlockPos irradiateBlockPos) {
         this.lightPowerLevel = lightPowerLevel;
         this.laserBlockPos = laserBlockPos;
         this.irradiateBlockPos = irradiateBlockPos;
@@ -35,7 +35,7 @@ public class LaserEmitPack implements CustomPacketPayload {
     /**
      * 激光照射网络包
      */
-    public LaserEmitPack(RegistryFriendlyByteBuf buf) {
+    public LaserEmitPacket(RegistryFriendlyByteBuf buf) {
         this.lightPowerLevel = buf.readInt();
         this.laserBlockPos = buf.readBlockPos();
         if (buf.readBoolean()) {
@@ -63,7 +63,7 @@ public class LaserEmitPack implements CustomPacketPayload {
     /**
      *
      */
-    public static void clientHandler(LaserEmitPack data, IPayloadContext context) {
+    public static void clientHandler(LaserEmitPacket data, IPayloadContext context) {
         context.enqueueWork(() -> {
             if (Minecraft.getInstance().level != null
                     && Minecraft.getInstance().level.getBlockEntity(data.laserBlockPos)

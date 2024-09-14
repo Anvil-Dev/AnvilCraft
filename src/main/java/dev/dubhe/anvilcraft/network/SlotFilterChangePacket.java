@@ -17,12 +17,12 @@ import net.neoforged.neoforge.network.handling.IPayloadHandler;
 
 import org.jetbrains.annotations.NotNull;
 
-public class SlotFilterChangePack implements CustomPacketPayload {
-    public static final Type<SlotFilterChangePack> TYPE = new Type<>(AnvilCraft.of("slot_filter_change"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, SlotFilterChangePack> STREAM_CODEC =
-            StreamCodec.ofMember(SlotFilterChangePack::encode, SlotFilterChangePack::new);
-    public static final IPayloadHandler<SlotFilterChangePack> HANDLER =
-            new DirectionalPayloadHandler<>(SlotFilterChangePack::clientHandler, SlotFilterChangePack::serverHandler);
+public class SlotFilterChangePacket implements CustomPacketPayload {
+    public static final Type<SlotFilterChangePacket> TYPE = new Type<>(AnvilCraft.of("slot_filter_change"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, SlotFilterChangePacket> STREAM_CODEC =
+            StreamCodec.ofMember(SlotFilterChangePacket::encode, SlotFilterChangePacket::new);
+    public static final IPayloadHandler<SlotFilterChangePacket> HANDLER = new DirectionalPayloadHandler<>(
+            SlotFilterChangePacket::clientHandler, SlotFilterChangePacket::serverHandler);
 
     private final int index;
     private final ItemStack filter;
@@ -33,13 +33,13 @@ public class SlotFilterChangePack implements CustomPacketPayload {
      * @param index  槽位
      * @param filter 过滤
      */
-    public SlotFilterChangePack(int index, @NotNull ItemStack filter) {
+    public SlotFilterChangePacket(int index, @NotNull ItemStack filter) {
         this.index = index;
         this.filter = filter.copy();
         this.filter.setCount(1);
     }
 
-    public SlotFilterChangePack(@NotNull RegistryFriendlyByteBuf buf) {
+    public SlotFilterChangePacket(@NotNull RegistryFriendlyByteBuf buf) {
         this(buf.readInt(), ItemStack.OPTIONAL_STREAM_CODEC.decode(buf));
     }
 
@@ -53,7 +53,7 @@ public class SlotFilterChangePack implements CustomPacketPayload {
         return TYPE;
     }
 
-    public static void serverHandler(SlotFilterChangePack data, IPayloadContext context) {
+    public static void serverHandler(SlotFilterChangePacket data, IPayloadContext context) {
         ServerPlayer player = (ServerPlayer) context.player();
         context.enqueueWork(() -> {
             if (!player.hasContainerOpen()) return;
@@ -64,7 +64,7 @@ public class SlotFilterChangePack implements CustomPacketPayload {
         });
     }
 
-    public static void clientHandler(SlotFilterChangePack data, IPayloadContext context) {
+    public static void clientHandler(SlotFilterChangePacket data, IPayloadContext context) {
         Minecraft client = Minecraft.getInstance();
         context.enqueueWork(() -> {
             if (!(client.screen instanceof IFilterScreen<?> screen)) return;

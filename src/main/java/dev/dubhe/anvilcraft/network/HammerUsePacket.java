@@ -16,21 +16,21 @@ import net.neoforged.neoforge.network.handling.IPayloadHandler;
 
 import org.jetbrains.annotations.NotNull;
 
-public class HammerUsePack implements CustomPacketPayload {
-    public static final Type<HammerUsePack> TYPE = new Type<>(AnvilCraft.of("hammer_use"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, HammerUsePack> STREAM_CODEC =
-            StreamCodec.ofMember(HammerUsePack::encode, HammerUsePack::new);
-    public static final IPayloadHandler<HammerUsePack> HANDLER = HammerUsePack::serverHandler;
+public class HammerUsePacket implements CustomPacketPayload {
+    public static final Type<HammerUsePacket> TYPE = new Type<>(AnvilCraft.of("hammer_use"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, HammerUsePacket> STREAM_CODEC =
+            StreamCodec.ofMember(HammerUsePacket::encode, HammerUsePacket::new);
+    public static final IPayloadHandler<HammerUsePacket> HANDLER = HammerUsePacket::serverHandler;
 
     private final BlockPos pos;
     private final InteractionHand hand;
 
-    public HammerUsePack(BlockPos pos, InteractionHand hand) {
+    public HammerUsePacket(BlockPos pos, InteractionHand hand) {
         this.pos = pos;
         this.hand = hand;
     }
 
-    public HammerUsePack(@NotNull RegistryFriendlyByteBuf buf) {
+    public HammerUsePacket(@NotNull RegistryFriendlyByteBuf buf) {
         this.pos = buf.readBlockPos();
         this.hand = buf.readEnum(InteractionHand.class);
     }
@@ -47,7 +47,7 @@ public class HammerUsePack implements CustomPacketPayload {
     /**
      *
      */
-    public static void serverHandler(HammerUsePack data, IPayloadContext context) {
+    public static void serverHandler(HammerUsePacket data, IPayloadContext context) {
         ServerPlayer player = (ServerPlayer) context.player();
         context.enqueueWork(() -> {
             ItemStack itemInHand = player.getItemInHand(data.hand);

@@ -5,7 +5,7 @@ import dev.dubhe.anvilcraft.api.depository.ItemDepositorySlot;
 import dev.dubhe.anvilcraft.block.entity.BaseChuteBlockEntity;
 import dev.dubhe.anvilcraft.client.gui.component.EnableFilterButton;
 import dev.dubhe.anvilcraft.inventory.BaseChuteMenu;
-import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
+import dev.dubhe.anvilcraft.network.SlotDisableChangePacket;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.Direction;
@@ -104,10 +104,10 @@ public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends 
             int slot1 = slot.getContainerSlot();
             if (this.menu.isFilterEnabled()) {
                 if (!this.menu.isSlotDisabled(slot1))
-                    PacketDistributor.sendToServer(new SlotDisableChangePack(slot1, false));
+                    PacketDistributor.sendToServer(new SlotDisableChangePacket(slot1, false));
                 break start;
             }
-            PacketDistributor.sendToServer(new SlotDisableChangePack(slot1, !this.menu.isSlotDisabled(slot1)));
+            PacketDistributor.sendToServer(new SlotDisableChangePacket(slot1, !this.menu.isSlotDisabled(slot1)));
         }
         super.slotClicked(slot, slotId, mouseButton, type);
     }

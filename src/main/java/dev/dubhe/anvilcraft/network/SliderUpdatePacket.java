@@ -14,15 +14,15 @@ import net.neoforged.neoforge.network.handling.IPayloadHandler;
 import lombok.Getter;
 
 @Getter
-public class SliderUpdatePack implements CustomPacketPayload {
-    public static final Type<SliderUpdatePack> TYPE = new Type<>(AnvilCraft.of("slider_update"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, SliderUpdatePack> STREAM_CODEC =
-            StreamCodec.composite(ByteBufCodecs.INT, SliderUpdatePack::getValue, SliderUpdatePack::new);
-    public static final IPayloadHandler<SliderUpdatePack> HANDLER = SliderUpdatePack::serverHandler;
+public class SliderUpdatePacket implements CustomPacketPayload {
+    public static final Type<SliderUpdatePacket> TYPE = new Type<>(AnvilCraft.of("slider_update"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, SliderUpdatePacket> STREAM_CODEC =
+            StreamCodec.composite(ByteBufCodecs.INT, SliderUpdatePacket::getValue, SliderUpdatePacket::new);
+    public static final IPayloadHandler<SliderUpdatePacket> HANDLER = SliderUpdatePacket::serverHandler;
 
     private final int value;
 
-    public SliderUpdatePack(int value) {
+    public SliderUpdatePacket(int value) {
         this.value = value;
     }
 
@@ -31,7 +31,7 @@ public class SliderUpdatePack implements CustomPacketPayload {
         return TYPE;
     }
 
-    public static void serverHandler(SliderUpdatePack data, IPayloadContext context) {
+    public static void serverHandler(SliderUpdatePacket data, IPayloadContext context) {
         ServerPlayer player = (ServerPlayer) context.player();
         context.enqueueWork(() -> {
             if (!player.hasContainerOpen()) return;

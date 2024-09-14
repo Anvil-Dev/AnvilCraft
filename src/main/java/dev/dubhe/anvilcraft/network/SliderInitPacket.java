@@ -14,17 +14,17 @@ import net.neoforged.neoforge.network.handling.IPayloadHandler;
 import lombok.Getter;
 
 @Getter
-public class SliderInitPack implements CustomPacketPayload {
-    public static final Type<SliderInitPack> TYPE = new Type<>(AnvilCraft.of("slider_init"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, SliderInitPack> STREAM_CODEC = StreamCodec.composite(
+public class SliderInitPacket implements CustomPacketPayload {
+    public static final Type<SliderInitPacket> TYPE = new Type<>(AnvilCraft.of("slider_init"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, SliderInitPacket> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.INT,
-            SliderInitPack::getValue,
+            SliderInitPacket::getValue,
             ByteBufCodecs.INT,
-            SliderInitPack::getMin,
+            SliderInitPacket::getMin,
             ByteBufCodecs.INT,
-            SliderInitPack::getMax,
-            SliderInitPack::new);
-    public static final IPayloadHandler<SliderInitPack> HANDLER = SliderInitPack::clientHandler;
+            SliderInitPacket::getMax,
+            SliderInitPacket::new);
+    public static final IPayloadHandler<SliderInitPacket> HANDLER = SliderInitPacket::clientHandler;
 
     private final int value;
     private final int min;
@@ -35,7 +35,7 @@ public class SliderInitPack implements CustomPacketPayload {
      * @param min 最小值
      * @param max 最大值
      */
-    public SliderInitPack(int value, int min, int max) {
+    public SliderInitPacket(int value, int min, int max) {
         this.value = value;
         this.min = min;
         this.max = max;
@@ -46,7 +46,7 @@ public class SliderInitPack implements CustomPacketPayload {
         return TYPE;
     }
 
-    public static void clientHandler(SliderInitPack data, IPayloadContext context) {
+    public static void clientHandler(SliderInitPacket data, IPayloadContext context) {
         Minecraft client = Minecraft.getInstance();
         context.enqueueWork(() -> {
             if (!(client.screen instanceof SliderScreen screen)) return;

@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.client.gui.screen.inventory;
 
 import dev.dubhe.anvilcraft.client.gui.component.OutputDirectionButton;
-import dev.dubhe.anvilcraft.network.MachineOutputDirectionPack;
+import dev.dubhe.anvilcraft.network.MachineOutputDirectionPacket;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -60,7 +60,7 @@ public abstract class BaseMachineScreen<T extends AbstractContainerMenu> extends
                 button -> {
                     if (button instanceof OutputDirectionButton button1) {
                         Arrays.stream(skip).forEach(button1::skip);
-                        MachineOutputDirectionPack packet = new MachineOutputDirectionPack(button1.next());
+                        MachineOutputDirectionPacket packet = new MachineOutputDirectionPacket(button1.next());
                         PacketDistributor.sendToServer(packet);
                     }
                 },

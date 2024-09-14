@@ -4,7 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.depository.ItemDepositorySlot;
 import dev.dubhe.anvilcraft.client.gui.component.EnableFilterButton;
 import dev.dubhe.anvilcraft.inventory.IFilterMenu;
-import dev.dubhe.anvilcraft.network.MachineEnableFilterPack;
+import dev.dubhe.anvilcraft.network.MachineEnableFilterPacket;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
@@ -100,7 +100,7 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> {
                 j + y,
                 button -> {
                     if (button instanceof EnableFilterButton enableFilterButton) {
-                        MachineEnableFilterPack packet = new MachineEnableFilterPack(enableFilterButton.next());
+                        MachineEnableFilterPacket packet = new MachineEnableFilterPacket(enableFilterButton.next());
                         PacketDistributor.sendToServer(packet);
                     }
                 },

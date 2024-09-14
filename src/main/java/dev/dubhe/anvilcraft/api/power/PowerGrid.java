@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.api.power;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.network.PowerGridRemovePack;
-import dev.dubhe.anvilcraft.network.PowerGridSyncPack;
+import dev.dubhe.anvilcraft.network.PowerGridRemovePacket;
+import dev.dubhe.anvilcraft.network.PowerGridSyncPacket;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -67,7 +67,7 @@ public class PowerGrid {
      */
     public void update() {
         PacketDistributor.sendToPlayersTrackingChunk(
-                (ServerLevel) level, this.level.getChunkAt(this.getPos()).getPos(), new PowerGridSyncPack(this));
+                (ServerLevel) level, this.level.getChunkAt(this.getPos()).getPos(), new PowerGridSyncPacket(this));
     }
 
     /**
@@ -244,7 +244,7 @@ public class PowerGrid {
         for (IPowerComponent component : components) {
             set.remove(component);
         }
-        PacketDistributor.sendToAllPlayers(new PowerGridRemovePack(this));
+        PacketDistributor.sendToAllPlayers(new PowerGridRemovePacket(this));
         PowerGrid.addComponent(set.toArray(IPowerComponent[]::new));
     }
 
@@ -336,7 +336,7 @@ public class PowerGrid {
                         else {
                             grid[0].merge(powerGrid);
                             remove.add(powerGrid);
-                            PacketDistributor.sendToAllPlayers(new PowerGridRemovePack(powerGrid));
+                            PacketDistributor.sendToAllPlayers(new PowerGridRemovePacket(powerGrid));
                         }
                     });
                     grids.removeAll(remove);

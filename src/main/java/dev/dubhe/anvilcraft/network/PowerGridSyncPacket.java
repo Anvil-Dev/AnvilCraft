@@ -19,25 +19,25 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
-public class PowerGridSyncPack implements CustomPacketPayload {
-    public static final Type<PowerGridSyncPack> TYPE = new Type<>(AnvilCraft.of("power_grid_sync"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, PowerGridSyncPack> STREAM_CODEC =
-            StreamCodec.ofMember(PowerGridSyncPack::encode, PowerGridSyncPack::new);
-    public static final IPayloadHandler<PowerGridSyncPack> HANDLER = PowerGridSyncPack::clientHandler;
+public class PowerGridSyncPacket implements CustomPacketPayload {
+    public static final Type<PowerGridSyncPacket> TYPE = new Type<>(AnvilCraft.of("power_grid_sync"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, PowerGridSyncPacket> STREAM_CODEC =
+            StreamCodec.ofMember(PowerGridSyncPacket::encode, PowerGridSyncPacket::new);
+    public static final IPayloadHandler<PowerGridSyncPacket> HANDLER = PowerGridSyncPacket::clientHandler;
 
     private final SimplePowerGrid grid;
 
     /**
      * 电网同步
      */
-    public PowerGridSyncPack(PowerGrid grid) {
+    public PowerGridSyncPacket(PowerGrid grid) {
         this.grid = new SimplePowerGrid(grid);
     }
 
     /**
      * @param buf 缓冲区
      */
-    public PowerGridSyncPack(@NotNull FriendlyByteBuf buf) {
+    public PowerGridSyncPacket(@NotNull FriendlyByteBuf buf) {
         CompoundTag tag = buf.readNbt();
         Tag data = tag.get("data");
         this.grid =
@@ -53,7 +53,7 @@ public class PowerGridSyncPack implements CustomPacketPayload {
         return TYPE;
     }
 
-    public static void clientHandler(PowerGridSyncPack data, IPayloadContext context) {
+    public static void clientHandler(PowerGridSyncPacket data, IPayloadContext context) {
         context.enqueueWork(() -> PowerGridRenderer.getGridMap().put(data.grid.getHash(), data.grid));
     }
 }

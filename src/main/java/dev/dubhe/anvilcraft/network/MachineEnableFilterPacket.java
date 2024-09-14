@@ -19,17 +19,17 @@ import net.neoforged.neoforge.network.handling.IPayloadHandler;
 import lombok.Getter;
 
 @Getter
-public class MachineEnableFilterPack implements CustomPacketPayload {
-    public static final Type<MachineEnableFilterPack> TYPE = new Type<>(AnvilCraft.of("machine_record_material"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, MachineEnableFilterPack> STREAM_CODEC =
+public class MachineEnableFilterPacket implements CustomPacketPayload {
+    public static final Type<MachineEnableFilterPacket> TYPE = new Type<>(AnvilCraft.of("machine_record_material"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, MachineEnableFilterPacket> STREAM_CODEC =
             StreamCodec.composite(
-                    ByteBufCodecs.BOOL, MachineEnableFilterPack::isFilterEnabled, MachineEnableFilterPack::new);
-    public static final IPayloadHandler<MachineEnableFilterPack> HANDLER = new DirectionalPayloadHandler<>(
-            MachineEnableFilterPack::clientHandler, MachineEnableFilterPack::serverHandler);
+                    ByteBufCodecs.BOOL, MachineEnableFilterPacket::isFilterEnabled, MachineEnableFilterPacket::new);
+    public static final IPayloadHandler<MachineEnableFilterPacket> HANDLER = new DirectionalPayloadHandler<>(
+            MachineEnableFilterPacket::clientHandler, MachineEnableFilterPacket::serverHandler);
 
     private final boolean filterEnabled;
 
-    public MachineEnableFilterPack(boolean filterEnabled) {
+    public MachineEnableFilterPacket(boolean filterEnabled) {
         this.filterEnabled = filterEnabled;
     }
 
@@ -41,7 +41,7 @@ public class MachineEnableFilterPack implements CustomPacketPayload {
     /**
      *
      */
-    public static void serverHandler(MachineEnableFilterPack data, IPayloadContext context) {
+    public static void serverHandler(MachineEnableFilterPacket data, IPayloadContext context) {
         ServerPlayer player = (ServerPlayer) context.player();
         context.enqueueWork(() -> {
             if (!player.hasContainerOpen()) return;
@@ -52,7 +52,7 @@ public class MachineEnableFilterPack implements CustomPacketPayload {
                 for (int i = 0; i < menu.getFilteredItems().size(); i++) {
                     ItemStack stack = menu.getFilteredItems().get(i);
                     if (stack.isEmpty()) continue;
-                    SlotFilterChangePack pack = new SlotFilterChangePack(i, stack);
+                    SlotFilterChangePacket pack = new SlotFilterChangePacket(i, stack);
                     PacketDistributor.sendToPlayer(player, pack);
                 }
             }
@@ -63,7 +63,7 @@ public class MachineEnableFilterPack implements CustomPacketPayload {
     /**
      *
      */
-    public static void clientHandler(MachineEnableFilterPack data, IPayloadContext context) {
+    public static void clientHandler(MachineEnableFilterPacket data, IPayloadContext context) {
         Minecraft client = Minecraft.getInstance();
         context.enqueueWork(() -> {
             if (client.screen instanceof IFilterScreen<?> screen) {
