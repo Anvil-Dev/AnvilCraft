@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.recipe;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.builder.AbstractItemProcessBuilder;
 import dev.dubhe.anvilcraft.recipe.input.ItemProcessInput;
+import dev.dubhe.anvilcraft.util.CodecUtil;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.NonNullList;
@@ -14,7 +15,6 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 
-import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.Getter;
@@ -53,24 +53,7 @@ public class CookingRecipe extends AbstractItemProcessRecipe {
 
     public static class Serializer implements RecipeSerializer<CookingRecipe> {
         private static final MapCodec<CookingRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-                        Ingredient.CODEC_NONEMPTY
-                                .listOf(1, 9)
-                                .fieldOf("ingredients")
-                                .flatXmap(
-                                        i -> {
-                                            Ingredient[] ingredients = i.toArray(Ingredient[]::new);
-                                            if (ingredients.length == 0) {
-                                                return DataResult.error(() -> "No ingredients for item_crush recipe");
-                                            } else {
-                                                return ingredients.length > 9
-                                                        ? DataResult.error(
-                                                                () ->
-                                                                        "Too many ingredients for item_crush recipe. The maximum is: 9")
-                                                        : DataResult.success(
-                                                                NonNullList.of(Ingredient.EMPTY, ingredients));
-                                            }
-                                        },
-                                        DataResult::success)
+                        CodecUtil.createIngredientListCodec("ingredients", 9, "cooking")
                                 .forGetter(CookingRecipe::getIngredients),
                         ItemStack.CODEC.fieldOf("result").forGetter(CookingRecipe::getResult))
                 .apply(ins, CookingRecipe::new));

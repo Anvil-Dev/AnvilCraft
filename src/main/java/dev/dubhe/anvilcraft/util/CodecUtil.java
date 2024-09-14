@@ -1,14 +1,17 @@
 package dev.dubhe.anvilcraft.util;
 
+import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import java.util.Optional;
@@ -19,6 +22,27 @@ public class CodecUtil {
                         Codec.BOOL.fieldOf("isPresent").forGetter(Optional::isPresent),
                         elementCodec.optionalFieldOf("content").forGetter(o -> o))
                 .apply(ins, (isPresent, content) -> isPresent && content.isPresent() ? content : Optional.empty()));
+    }
+
+    public static MapCodec<NonNullList<Ingredient>> createIngredientListCodec(
+            String fieldName, int size, String recipeType) {
+        return Ingredient.CODEC_NONEMPTY
+                .listOf(1, size)
+                .fieldOf(fieldName)
+                .flatXmap(
+                        i -> {
+                            Ingredient[] ingredients = i.toArray(Ingredient[]::new);
+                            if (ingredients.length == 0) {
+                                return DataResult.error(() -> "No ingredients for %s recipe".formatted(recipeType));
+                            } else {
+                                return ingredients.length > size
+                                        ? DataResult.error(
+                                                () -> "Too many ingredients for %s recipe. The maximum is: %d"
+                                                        .formatted(recipeType, size))
+                                        : DataResult.success(NonNullList.of(Ingredient.EMPTY, ingredients));
+                            }
+                        },
+                        DataResult::success);
     }
 
     public static final Codec<Block> BLOCK_CODEC = Codec.STRING.flatXmap(

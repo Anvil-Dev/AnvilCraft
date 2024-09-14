@@ -26,7 +26,6 @@ import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
@@ -181,24 +180,7 @@ public class TimeWarpRecipe implements Recipe<TimeWarpRecipe.Input> {
 
     public static class Serializer implements RecipeSerializer<TimeWarpRecipe> {
         private static final MapCodec<TimeWarpRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-                        Ingredient.CODEC_NONEMPTY
-                                .listOf(1, 64)
-                                .fieldOf("ingredients")
-                                .flatXmap(
-                                        i -> {
-                                            Ingredient[] ingredients = i.toArray(Ingredient[]::new);
-                                            if (ingredients.length == 0) {
-                                                return DataResult.error(() -> "No ingredients for time_warp recipe");
-                                            } else {
-                                                return ingredients.length > 64
-                                                        ? DataResult.error(
-                                                                () ->
-                                                                        "Too many ingredients for time_warp recipe. The maximum is: 64")
-                                                        : DataResult.success(
-                                                                NonNullList.of(Ingredient.EMPTY, ingredients));
-                                            }
-                                        },
-                                        DataResult::success)
+                        CodecUtil.createIngredientListCodec("ingredients", 64, "time_warp")
                                 .forGetter(TimeWarpRecipe::getIngredients),
                         CodecUtil.BLOCK_CODEC.fieldOf("cauldron").forGetter(TimeWarpRecipe::getCauldron),
                         ItemStack.OPTIONAL_CODEC

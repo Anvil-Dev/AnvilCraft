@@ -20,7 +20,6 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
-import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.Getter;
@@ -73,25 +72,7 @@ public class SuperHeatingRecipe extends AbstractItemProcessRecipe {
     public static class Serializer implements RecipeSerializer<SuperHeatingRecipe> {
 
         private static final MapCodec<SuperHeatingRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-                        Ingredient.CODEC_NONEMPTY
-                                .listOf(1, 64)
-                                .fieldOf("ingredients")
-                                .flatXmap(
-                                        i -> {
-                                            Ingredient[] ingredients = i.toArray(Ingredient[]::new);
-                                            if (ingredients.length == 0) {
-                                                return DataResult.error(
-                                                        () -> "No ingredients for super_heating recipe");
-                                            } else {
-                                                return ingredients.length > 64
-                                                        ? DataResult.error(
-                                                                () ->
-                                                                        "Too many ingredients for super_heating recipe. The maximum is: 64")
-                                                        : DataResult.success(
-                                                                NonNullList.of(Ingredient.EMPTY, ingredients));
-                                            }
-                                        },
-                                        DataResult::success)
+                        CodecUtil.createIngredientListCodec("ingredients", 64, "super_heating")
                                 .forGetter(SuperHeatingRecipe::getIngredients),
                         ItemStack.OPTIONAL_CODEC
                                 .optionalFieldOf("result", ItemStack.EMPTY)
@@ -168,6 +149,9 @@ public class SuperHeatingRecipe extends AbstractItemProcessRecipe {
         public SuperHeatingRecipe buildRecipe() {
             if (result == null) {
                 result = ItemStack.EMPTY;
+            }
+            if (blockResult == null) {
+                blockResult = Blocks.AIR;
             }
             return new SuperHeatingRecipe(ingredients, result, blockResult);
         }
