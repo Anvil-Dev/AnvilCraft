@@ -188,12 +188,8 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements IHammer
 
     @Override
     public BlockState getStateForPlacement(@Nonnull BlockPlaceContext context) {
-        Direction direction = context.getClickedFace();
-        if (context.getPlayer() != null && !context.getPlayer().isShiftKeyDown()) {
-            direction = direction.getOpposite();
-        }
         return this.defaultBlockState()
-                .setValue(FACING, direction)
+                .setValue(FACING, context.getNearestLookingDirection())
                 .setValue(POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()));
     }
 

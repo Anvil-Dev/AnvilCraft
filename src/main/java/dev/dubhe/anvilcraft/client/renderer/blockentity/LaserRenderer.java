@@ -163,7 +163,7 @@ public class LaserRenderer implements BlockEntityRenderer<BaseLaserBlockEntity> 
                 .setColor(1f, 0.05f, 0.05f, a)
                 .setUv(u, v)
                 .setOverlay(OverlayTexture.NO_OVERLAY)
-                // .setUv2(0xF000F0)
+                .setUv2(0xF000F0 & '\uffff', 0xf000f0 >> 16 & '\uffff')
                 .setNormal(1, 0, 0);
     }
 

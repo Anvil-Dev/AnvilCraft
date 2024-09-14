@@ -126,6 +126,12 @@ public class EmberAnvilScreen extends ItemCombinerScreen<EmberAnvilMenu> {
     }
 
     @Override
+    public void renderBackground(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        this.renderBlurredBackground(partialTick);
+        renderBg(guiGraphics, partialTick, mouseX, mouseY);
+    }
+
+    @Override
     protected void renderBg(@NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         super.renderBg(guiGraphics, partialTick, mouseX, mouseY);
         ResourceLocation location = this.menu.getSlot(0).getItem().isEmpty() ? TEXT_DISABLE_LOCATION : TEXT_LOCATION;

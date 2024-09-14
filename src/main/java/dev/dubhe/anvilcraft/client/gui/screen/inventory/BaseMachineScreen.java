@@ -73,4 +73,10 @@ public abstract class BaseMachineScreen<T extends AbstractContainerMenu> extends
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
     }
+
+    @Override
+    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        this.renderBlurredBackground(partialTick);
+        this.renderBg(guiGraphics, partialTick, mouseX, mouseY);
+    }
 }

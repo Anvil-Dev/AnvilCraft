@@ -65,6 +65,12 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
         }
     }
 
+    @Override
+    public void renderBackground(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        this.renderBlurredBackground(partialTick);
+        renderBg(guiGraphics, partialTick, mouseX, mouseY);
+    }
+
     private void drawLabel(int x, int y, Component component, @NotNull GuiGraphics guiGraphics) {
         int i = (this.width - this.imageWidth - 2) / 2;
         int j = (this.height - this.imageHeight + 23) / 2;

@@ -17,6 +17,7 @@ import com.mojang.math.Axis;
 import org.jetbrains.annotations.NotNull;
 
 public class CreativeGeneratorRenderer implements BlockEntityRenderer<CreativeGeneratorBlockEntity> {
+    public static final float ROTATION_MAGIC = 0.001220703125f;
     public static final ModelResourceLocation MODEL =
             ModelResourceLocation.standalone(AnvilCraft.of("block/creative_generator_cube"));
 
@@ -35,7 +36,7 @@ public class CreativeGeneratorRenderer implements BlockEntityRenderer<CreativeGe
             int packedOverlay) {
         poseStack.pushPose();
         int power = blockEntity.getServerPower();
-        float rotation = ((float) blockEntity.getTime() + partialTick) * power * 0.001220703125f;
+        float rotation = ((float) blockEntity.getTime() + partialTick) * power * ROTATION_MAGIC;
         final VertexConsumer vertexConsumer = buffer.getBuffer(RenderType.solid());
         poseStack.translate(0.5F, 0.8f, 0.5F);
         poseStack.mulPose(Axis.YP.rotationDegrees(rotation));
