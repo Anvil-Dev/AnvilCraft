@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft;
 
 import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
-import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
+import dev.dubhe.anvilcraft.data.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModCommands;

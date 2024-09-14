@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.data.generator.recipe;
+package dev.dubhe.anvilcraft.data.recipe;
 
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
