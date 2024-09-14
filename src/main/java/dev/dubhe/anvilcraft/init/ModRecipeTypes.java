@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.recipe.BlockCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.BlockCrushRecipe;
 import dev.dubhe.anvilcraft.recipe.BoilingRecipe;
+import dev.dubhe.anvilcraft.recipe.BulgingRecipe;
 import dev.dubhe.anvilcraft.recipe.CookingRecipe;
 import dev.dubhe.anvilcraft.recipe.ItemCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.ItemCrushRecipe;
@@ -64,6 +65,10 @@ public class ModRecipeTypes {
     public static final DeferredHolder<RecipeType<?>, RecipeType<BoilingRecipe>> BOILING_TYPE = registerType("boiling");
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<BoilingRecipe>> BOILING_SERIALIZER =
             RECIPE_SERIALIZERS.register("boiling", BoilingRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<BulgingRecipe>> BULGING_TYPE = registerType("bulging");
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<BulgingRecipe>> BULGING_SERIALIZER =
+            RECIPE_SERIALIZERS.register("bulging", BulgingRecipe.Serializer::new);
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<TimeWarpRecipe>> TIME_WARP_TYPE =
             registerType("time_warp");

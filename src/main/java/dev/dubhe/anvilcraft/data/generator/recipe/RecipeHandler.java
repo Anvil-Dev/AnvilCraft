@@ -13,5 +13,6 @@ public class RecipeHandler {
         SuperHeatingRecipeLoader.init(provider);
         TimeWarpRecipeLoader.init(provider);
         CookingRecipeLoader.init(provider);
+        BulgingRecipeLoader.init(provider);
     }
 }

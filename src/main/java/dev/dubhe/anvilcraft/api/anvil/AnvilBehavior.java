@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.api.anvil;
 
 import dev.dubhe.anvilcraft.api.anvil.impl.BoilingBehavior;
+import dev.dubhe.anvilcraft.api.anvil.impl.BulgingBehavior;
 import dev.dubhe.anvilcraft.api.anvil.impl.CookingBehavior;
 import dev.dubhe.anvilcraft.api.anvil.impl.HitBeeNestBehavior;
 import dev.dubhe.anvilcraft.api.anvil.impl.HitCrabTrapBehavior;
@@ -62,6 +63,7 @@ public interface AnvilBehavior {
                         && state.getValue(TrapDoorBlock.HALF) == Half.TOP
                         && !state.getValue(TrapDoorBlock.OPEN),
                 new ItemCrushBehavior());
+        registerBehavior(state -> state.getBlock() instanceof AbstractCauldronBlock, new BulgingBehavior());
         registerBehavior(state -> state.getBlock() instanceof AbstractCauldronBlock, new TimeWarpBehavior());
         registerBehavior(Blocks.CAULDRON, new SuperHeatingBehavior());
         registerBehavior(Blocks.CAULDRON, new CookingBehavior());

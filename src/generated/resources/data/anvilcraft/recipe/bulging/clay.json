@@ -1,0 +1,15 @@
+{
+  "type": "anvilcraft:bulging",
+  "cauldron": "minecraft:water_cauldron",
+  "consume_fluid": true,
+  "ingredients": [
+    {
+      "item": "minecraft:dirt"
+    }
+  ],
+  "produce_fluid": false,
+  "result": {
+    "count": 1,
+    "id": "minecraft:clay"
+  }
+}

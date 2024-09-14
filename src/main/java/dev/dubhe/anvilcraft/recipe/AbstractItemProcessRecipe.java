@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.recipe;
 
 import dev.dubhe.anvilcraft.recipe.input.ItemProcessInput;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.Item;
@@ -16,7 +17,11 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import lombok.Getter;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
 @Getter
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public abstract class AbstractItemProcessRecipe implements Recipe<ItemProcessInput> {
     public final NonNullList<Ingredient> ingredients;
     public final ItemStack result;

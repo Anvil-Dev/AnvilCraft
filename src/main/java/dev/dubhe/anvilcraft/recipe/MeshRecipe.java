@@ -27,8 +27,11 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
 @Getter
 @MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class MeshRecipe implements Recipe<MeshRecipe.Input> {
     public final Ingredient input;
     public final ItemStack result;
