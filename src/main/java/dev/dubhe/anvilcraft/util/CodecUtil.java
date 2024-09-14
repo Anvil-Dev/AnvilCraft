@@ -90,4 +90,11 @@ public class CodecUtil {
     public static final StreamCodec<RegistryFriendlyByteBuf, EntityType<?>> ENTITY_STREAM_CODEC = StreamCodec.of(
             (buf, e) -> buf.writeResourceLocation(BuiltInRegistries.ENTITY_TYPE.getKey(e)),
             buf -> BuiltInRegistries.ENTITY_TYPE.get(buf.readResourceLocation()));
+
+    public static final Codec<Character> CHAR_CODEC =
+            Codec.STRING.flatXmap(s -> DataResult.success(s.charAt(0)), c -> DataResult.success(c.toString()));
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, Character> CHAR_STREAM_CODEC =
+            StreamCodec.of((buf, character) -> buf.writeUtf(character.toString()), buf -> buf.readUtf()
+                    .charAt(0));
 }
