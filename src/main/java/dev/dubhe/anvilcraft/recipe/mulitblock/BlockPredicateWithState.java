@@ -7,6 +7,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 
@@ -74,6 +75,7 @@ public class BlockPredicateWithState implements Predicate<BlockState> {
     public boolean test(@Nullable BlockState state) {
         if (state == null) return false;
         if (!state.is(this.block)) return false;
+        if (state.is(Blocks.AIR)) return true;
         Map<String, String> testedProperties = state.getProperties().stream()
                 .collect(Collectors.toMap(Property::getName, property -> {
                     var value = state.getValue(property);

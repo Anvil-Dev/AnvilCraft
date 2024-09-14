@@ -1,8 +1,12 @@
 package dev.dubhe.anvilcraft.event.giantanvil;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.entity.GiantAnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.init.ModBlocks;
+import dev.dubhe.anvilcraft.init.ModRecipeTypes;
+import dev.dubhe.anvilcraft.recipe.mulitblock.MulitblockRecipe;
+import dev.dubhe.anvilcraft.util.AnvilUtil;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -313,6 +317,42 @@ public class GiantAnvilLandingEventListener {
             }
             def.acceptRanges(posList, event.getLevel());
         }
+    }
+
+    @SubscribeEvent
+    public void handleMultiblock(@NotNull GiantAnvilFallOnLandEvent event) {
+        AnvilCraft.LOGGER.info(event.getPos().toString());
+        Level level = event.getLevel();
+        BlockPos inputCenter = event.getPos().below(3);
+        int centerX = inputCenter.getX();
+        int centerY = inputCenter.getY();
+        int centerZ = inputCenter.getZ();
+        List<List<List<BlockState>>> blocks = new ArrayList<>();
+        for (int y = centerY - 1; y <= centerY + 1; y++) {
+            List<List<BlockState>> blocksY = new ArrayList<>();
+            for (int z = centerZ - 1; z <= centerZ + 1; z++) {
+                List<BlockState> blocksZ = new ArrayList<>();
+                for (int x = centerX - 1; x <= centerX + 1; x++) {
+                    blocksZ.add(level.getBlockState(new BlockPos(x, y, z)));
+                }
+                blocksY.add(blocksZ);
+            }
+            blocks.add(blocksY);
+        }
+        MulitblockRecipe.Input input = new MulitblockRecipe.Input(blocks);
+        level.getRecipeManager()
+                .getRecipeFor(ModRecipeTypes.MULITBLOCK_TYPE.get(), input, level)
+                .ifPresent(recipe -> {
+                    ItemStack result = recipe.value().getResult().copy();
+                    for (int y = centerY - 1; y <= centerY + 1; y++) {
+                        for (int z = centerZ - 1; z <= centerZ + 1; z++) {
+                            for (int x = centerX - 1; x <= centerX + 1; x++) {
+                                level.setBlockAndUpdate(new BlockPos(x, y, z), Blocks.AIR.defaultBlockState());
+                            }
+                        }
+                    }
+                    AnvilUtil.dropItems(List.of(result), level, inputCenter.getCenter());
+                });
     }
 
     private boolean isValidShockBaseBlock(BlockPos centerPos, Level level) {

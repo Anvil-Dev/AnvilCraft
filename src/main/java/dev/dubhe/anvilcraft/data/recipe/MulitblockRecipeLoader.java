@@ -24,22 +24,22 @@ public class MulitblockRecipeLoader {
                 .symbol(
                         'B',
                         BlockPredicateWithState.of(ModBlocks.HEAVY_IRON_BEAM.get())
-                                .hasState(HeavyIronBeamBlock.AXIS, Direction.Axis.Z))
+                                .hasState(HeavyIronBeamBlock.AXIS, Direction.Axis.X))
                 .symbol(
                         'C',
                         BlockPredicateWithState.of(ModBlocks.HEAVY_IRON_BEAM.get())
-                                .hasState(HeavyIronBeamBlock.AXIS, Direction.Axis.X))
+                                .hasState(HeavyIronBeamBlock.AXIS, Direction.Axis.Z))
                 .symbol('D', ModBlocks.HEAVY_IRON_COLUMN.get())
                 .symbol('E', ModBlocks.HEAVY_IRON_PLATE.get())
                 .symbol(
                         'F',
                         BlockPredicateWithState.of(ModBlocks.CUT_HEAVY_IRON_STAIRS.get())
-                                .hasState(StairBlock.FACING, Direction.SOUTH)
+                                .hasState(StairBlock.FACING, Direction.NORTH)
                                 .hasState(StairBlock.HALF, Half.BOTTOM))
                 .symbol(
                         'G',
                         BlockPredicateWithState.of(ModBlocks.CUT_HEAVY_IRON_STAIRS.get())
-                                .hasState(StairBlock.FACING, Direction.NORTH)
+                                .hasState(StairBlock.FACING, Direction.SOUTH)
                                 .hasState(StairBlock.HALF, Half.BOTTOM))
                 .symbol(
                         'H',

@@ -6,6 +6,7 @@ import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.level.block.Blocks;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -15,8 +16,10 @@ import org.jetbrains.annotations.Contract;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -57,20 +60,44 @@ public class BlockPattern {
     }
 
     public BlockPattern layer(String... lines) {
-        if (lines.length > 3) {
-            throw new IllegalArgumentException("Must have at most 3 line");
+        if (lines.length != 3) {
+            throw new IllegalArgumentException("Must have 3 line in block pattern");
         }
         for (String line : lines) {
-            if (line.length() > 3) {
-                throw new IllegalArgumentException("Must have at most 3 block in line");
+            if (line.length() != 3) {
+                throw new IllegalArgumentException("Must have 3 block in line");
             }
         }
         layers.add(Arrays.asList(lines));
         return this;
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public BlockPattern symbol(char symbol, BlockPredicateWithState predicate) {
         symbols.put(symbol, predicate);
         return this;
+    }
+
+    public boolean checkSymbols() {
+        Set<Character> characterSet = new HashSet<>();
+        for (List<String> layer : layers) {
+            for (String line : layer) {
+                for (char c : line.toCharArray()) {
+                    if (c == ' ') {
+                        continue;
+                    }
+                    characterSet.add(c);
+                }
+            }
+        }
+        return symbols.keySet().containsAll(characterSet);
+    }
+
+    public BlockPredicateWithState getPredicate(int x, int y, int z) {
+        char c = layers.get(y).get(z).charAt(x);
+        if (c == ' ') {
+            return BlockPredicateWithState.of(Blocks.AIR);
+        }
+        return symbols.get(c);
     }
 }
