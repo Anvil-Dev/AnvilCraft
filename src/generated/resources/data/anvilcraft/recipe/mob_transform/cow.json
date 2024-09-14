@@ -1,0 +1,10 @@
+{
+  "type": "anvilcraft:mob_transform",
+  "input": "minecraft:cow",
+  "results": [
+    {
+      "probability": 1.0,
+      "resultEntityType": "minecraft:sheep"
+    }
+  ]
+}

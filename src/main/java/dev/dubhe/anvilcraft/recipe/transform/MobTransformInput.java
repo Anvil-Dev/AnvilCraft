@@ -24,6 +24,11 @@ public class MobTransformInput implements RecipeInput {
         return 1;
     }
 
+    @Override
+    public boolean isEmpty() {
+        return false;
+    }
+
     public static MobTransformInput of(LivingEntity entity) {
         return new MobTransformInput(entity);
     }

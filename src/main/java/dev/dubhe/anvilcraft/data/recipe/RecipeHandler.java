@@ -16,5 +16,6 @@ public class RecipeHandler {
         BulgingRecipeLoader.init(provider);
         ItemInjectRecipeLoader.init(provider);
         SqueezingRecipeLoader.init(provider);
+        MobTransformRecipeLoader.init(provider);
     }
 }

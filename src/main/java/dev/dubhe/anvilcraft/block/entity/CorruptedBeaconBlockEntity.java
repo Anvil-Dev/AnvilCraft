@@ -2,6 +2,9 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.ModRecipeTypes;
+import dev.dubhe.anvilcraft.recipe.transform.MobTransformInput;
+import dev.dubhe.anvilcraft.recipe.transform.MobTransformRecipe;
 
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
@@ -19,6 +22,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -35,6 +39,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public class CorruptedBeaconBlockEntity extends BlockEntity {
     List<BeaconBeamSection> beamSections = Lists.newArrayList();
@@ -167,8 +172,17 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
         super.setRemoved();
     }
 
-    private static void tryTransformEntity(
-            Entity livingEntity, BlockPos pos, ServerLevel level, RecipeManager manager) {}
+    private static void tryTransformEntity(LivingEntity livingEntity, ServerLevel level, RecipeManager manager) {
+        MobTransformInput input = MobTransformInput.of(livingEntity);
+        Optional<RecipeHolder<MobTransformRecipe>> optionalRecipeHolder =
+                manager.getRecipeFor(ModRecipeTypes.MOB_TRANSFORM_TYPE.get(), input, level);
+        if (optionalRecipeHolder.isEmpty()) return;
+        MobTransformRecipe recipe = optionalRecipeHolder.get().value();
+        Entity result = recipe.apply(level.random, livingEntity, level);
+        if (result == null) return;
+        livingEntity.discard();
+        level.tryAddFreshEntityWithPassengers(result);
+    }
 
     private static void affectEntities(@NotNull Level level, BlockPos pos) {
         if (level.isClientSide) return;
@@ -178,7 +192,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
         RecipeManager manager = Objects.requireNonNull(level.getServer()).getRecipeManager();
         for (LivingEntity livingEntity : list) {
             livingEntity.addEffect(new MobEffectInstance(MobEffects.WITHER, 120, 0, true, true));
-            tryTransformEntity(livingEntity, pos, (ServerLevel) level, manager);
+            tryTransformEntity(livingEntity, (ServerLevel) level, manager);
         }
     }
 
