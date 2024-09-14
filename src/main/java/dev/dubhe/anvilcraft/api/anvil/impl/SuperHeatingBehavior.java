@@ -13,6 +13,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
@@ -54,7 +55,7 @@ public class SuperHeatingBehavior implements AnvilBehavior {
                                     }
                                 }
                             }
-                            if (recipe.value().blockResult != null) {
+                            if (recipe.value().blockResult != Blocks.AIR) {
                                 level.setBlockAndUpdate(
                                         hitBlockPos, recipe.value().blockResult.defaultBlockState());
                             }

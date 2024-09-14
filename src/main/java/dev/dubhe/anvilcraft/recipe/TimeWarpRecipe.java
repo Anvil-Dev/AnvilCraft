@@ -2,11 +2,11 @@ package dev.dubhe.anvilcraft.recipe;
 
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.builder.AbstractRecipeBuilder;
+import dev.dubhe.anvilcraft.util.CodecUtil;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
@@ -200,14 +200,7 @@ public class TimeWarpRecipe implements Recipe<TimeWarpRecipe.Input> {
                                         },
                                         DataResult::success)
                                 .forGetter(TimeWarpRecipe::getIngredients),
-                        Codec.STRING
-                                .fieldOf("cauldron")
-                                .flatXmap(
-                                        i -> DataResult.success(BuiltInRegistries.BLOCK.get(ResourceLocation.parse(i))),
-                                        b -> DataResult.success(BuiltInRegistries.BLOCK
-                                                .getKey(b)
-                                                .toString()))
-                                .forGetter(TimeWarpRecipe::getCauldron),
+                        CodecUtil.BLOCK_CODEC.fieldOf("cauldron").forGetter(TimeWarpRecipe::getCauldron),
                         ItemStack.OPTIONAL_CODEC
                                 .optionalFieldOf("result", ItemStack.EMPTY)
                                 .forGetter(TimeWarpRecipe::getResult),
@@ -233,7 +226,7 @@ public class TimeWarpRecipe implements Recipe<TimeWarpRecipe.Input> {
             for (Ingredient ingredient : recipe.ingredients) {
                 Ingredient.CONTENTS_STREAM_CODEC.encode(buf, ingredient);
             }
-            buf.writeUtf(BuiltInRegistries.BLOCK.getKey(recipe.cauldron).toString());
+            CodecUtil.BLOCK_STREAM_CODEC.encode(buf, recipe.getCauldron());
             ItemStack.OPTIONAL_STREAM_CODEC.encode(buf, recipe.result);
             buf.writeBoolean(recipe.produceFluid);
             buf.writeBoolean(recipe.consumeFluid);
@@ -243,7 +236,7 @@ public class TimeWarpRecipe implements Recipe<TimeWarpRecipe.Input> {
             int size = buf.readVarInt();
             NonNullList<Ingredient> ingredients = NonNullList.withSize(size, Ingredient.EMPTY);
             ingredients.replaceAll(i -> Ingredient.CONTENTS_STREAM_CODEC.decode(buf));
-            Block cauldron = BuiltInRegistries.BLOCK.get(ResourceLocation.parse(buf.readUtf()));
+            Block cauldron = CodecUtil.BLOCK_STREAM_CODEC.decode(buf);
             ItemStack result = ItemStack.OPTIONAL_STREAM_CODEC.decode(buf);
             boolean needFluid = buf.readBoolean();
             boolean isConsume = buf.readBoolean();

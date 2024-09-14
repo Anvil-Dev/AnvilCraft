@@ -2,10 +2,10 @@ package dev.dubhe.anvilcraft.recipe;
 
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.builder.AbstractRecipeBuilder;
+import dev.dubhe.anvilcraft.util.CodecUtil;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -19,7 +19,6 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.Getter;
@@ -29,8 +28,11 @@ import lombok.experimental.Accessors;
 import java.util.ArrayList;
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
+import javax.annotation.ParametersAreNonnullByDefault;
+
 @Getter
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class BlockCompressRecipe implements Recipe<BlockCompressRecipe.Input> {
     public final List<Block> inputs;
     public final Block result;
@@ -38,14 +40,6 @@ public class BlockCompressRecipe implements Recipe<BlockCompressRecipe.Input> {
     public BlockCompressRecipe(List<Block> inputs, Block result) {
         this.inputs = inputs;
         this.result = result;
-    }
-
-    public BlockCompressRecipe(List<String> inputs, String result) {
-        this(
-                inputs.stream()
-                        .map(s -> BuiltInRegistries.BLOCK.get(ResourceLocation.parse(s)))
-                        .toList(),
-                BuiltInRegistries.BLOCK.get(ResourceLocation.parse(result)));
     }
 
     public static Builder builder() {
@@ -113,22 +107,16 @@ public class BlockCompressRecipe implements Recipe<BlockCompressRecipe.Input> {
 
     public static class Serializer implements RecipeSerializer<BlockCompressRecipe> {
         private static final MapCodec<BlockCompressRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-                        Codec.STRING.listOf(1, 9).fieldOf("inputs").forGetter(recipe -> recipe.inputs.stream()
-                                .map(b -> BuiltInRegistries.BLOCK.getKey(b).toString())
-                                .toList()),
-                        Codec.STRING.fieldOf("result").forGetter(recipe -> BuiltInRegistries.BLOCK
-                                .getKey(recipe.result)
-                                .toString()))
+                        CodecUtil.BLOCK_CODEC.listOf(1, 9).fieldOf("inputs").forGetter(BlockCompressRecipe::getInputs),
+                        CodecUtil.BLOCK_CODEC.fieldOf("result").forGetter(BlockCompressRecipe::getResult))
                 .apply(ins, BlockCompressRecipe::new));
 
         private static final StreamCodec<RegistryFriendlyByteBuf, BlockCompressRecipe> STREAM_CODEC =
                 StreamCodec.composite(
-                        ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list(9)),
-                        recipe -> recipe.inputs.stream()
-                                .map(b -> BuiltInRegistries.BLOCK.getKey(b).toString())
-                                .toList(),
-                        ByteBufCodecs.STRING_UTF8,
-                        recipe -> BuiltInRegistries.BLOCK.getKey(recipe.result).toString(),
+                        CodecUtil.BLOCK_STREAM_CODEC.apply(ByteBufCodecs.list(9)),
+                        BlockCompressRecipe::getInputs,
+                        CodecUtil.BLOCK_STREAM_CODEC,
+                        BlockCompressRecipe::getResult,
                         BlockCompressRecipe::new);
 
         @Override

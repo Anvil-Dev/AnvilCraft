@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.builder.AbstractItemProcessBuilder;
 import dev.dubhe.anvilcraft.recipe.input.ItemProcessInput;
+import dev.dubhe.anvilcraft.util.CodecUtil;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.NonNullList;
@@ -17,43 +18,29 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
+@Getter
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class SuperHeatingRecipe extends AbstractItemProcessRecipe {
 
-    @Nullable public final Block blockResult;
+    public final Block blockResult;
 
-    public SuperHeatingRecipe(NonNullList<Ingredient> ingredients, ItemStack result) {
-        super(ingredients, result);
-        this.blockResult = null;
-    }
-
-    public SuperHeatingRecipe(NonNullList<Ingredient> ingredients, ItemStack result, @Nullable Block blockResult) {
+    public SuperHeatingRecipe(NonNullList<Ingredient> ingredients, ItemStack result, Block blockResult) {
         super(ingredients, result);
         this.blockResult = blockResult;
-    }
-
-    public static SuperHeatingRecipe fromCodec(
-            NonNullList<Ingredient> ingredients, ItemStack result, String blockResult) {
-        if (blockResult.isEmpty()) {
-            return new SuperHeatingRecipe(ingredients, result);
-        } else {
-            return new SuperHeatingRecipe(
-                    ingredients, result, BuiltInRegistries.BLOCK.get(ResourceLocation.parse(blockResult)));
-        }
     }
 
     @Contract(" -> new")
@@ -64,7 +51,7 @@ public class SuperHeatingRecipe extends AbstractItemProcessRecipe {
     @Override
     public int getMaxCraftTime(ItemProcessInput pInput) {
         int times = super.getMaxCraftTime(pInput);
-        if (times >= 1 && blockResult != null) {
+        if (times >= 1 && blockResult != Blocks.AIR) {
             cacheInput = pInput;
             cacheMaxCraftTime = 1;
             return 1;
@@ -109,16 +96,10 @@ public class SuperHeatingRecipe extends AbstractItemProcessRecipe {
                         ItemStack.OPTIONAL_CODEC
                                 .optionalFieldOf("result", ItemStack.EMPTY)
                                 .forGetter(SuperHeatingRecipe::getResult),
-                        Codec.STRING.optionalFieldOf("block_result", "").forGetter(recipe -> {
-                            if (recipe.blockResult != null) {
-                                return BuiltInRegistries.BLOCK
-                                        .getKey(recipe.blockResult)
-                                        .toString();
-                            } else {
-                                return "";
-                            }
-                        }))
-                .apply(ins, SuperHeatingRecipe::fromCodec));
+                        CodecUtil.BLOCK_CODEC
+                                .optionalFieldOf("block_result", Blocks.AIR)
+                                .forGetter(SuperHeatingRecipe::getBlockResult))
+                .apply(ins, SuperHeatingRecipe::new));
 
         private static final StreamCodec<RegistryFriendlyByteBuf, SuperHeatingRecipe> STREAM_CODEC =
                 StreamCodec.of(Serializer::encode, Serializer::decode);
@@ -138,13 +119,8 @@ public class SuperHeatingRecipe extends AbstractItemProcessRecipe {
             int size = buf.readVarInt();
             NonNullList<Ingredient> ingredients = NonNullList.withSize(size, Ingredient.EMPTY);
             ingredients.replaceAll(i -> Ingredient.CONTENTS_STREAM_CODEC.decode(buf));
-            String string = buf.readUtf();
-            if (string.isEmpty()) {
-                return new SuperHeatingRecipe(ingredients, result);
-            } else {
-                return new SuperHeatingRecipe(
-                        ingredients, result, BuiltInRegistries.BLOCK.get(ResourceLocation.parse(string)));
-            }
+            Block blockResult = CodecUtil.BLOCK_STREAM_CODEC.decode(buf);
+            return new SuperHeatingRecipe(ingredients, result, blockResult);
         }
 
         private static void encode(RegistryFriendlyByteBuf buf, SuperHeatingRecipe recipe) {
@@ -153,11 +129,7 @@ public class SuperHeatingRecipe extends AbstractItemProcessRecipe {
             for (Ingredient ingredient : recipe.ingredients) {
                 Ingredient.CONTENTS_STREAM_CODEC.encode(buf, ingredient);
             }
-            if (recipe.blockResult != null) {
-                buf.writeUtf(BuiltInRegistries.BLOCK.getKey(recipe.blockResult).toString());
-            } else {
-                buf.writeUtf("");
-            }
+            CodecUtil.BLOCK_STREAM_CODEC.encode(buf, recipe.blockResult);
         }
     }
 
