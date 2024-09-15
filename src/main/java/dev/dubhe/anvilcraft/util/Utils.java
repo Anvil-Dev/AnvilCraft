@@ -56,7 +56,7 @@ public abstract class Utils {
     }
 
     public static @NotNull String generateUniqueRecipeSuffix() {
-        return "_generated_" + generateRandomString(8);
+        return "_generated_" + generateRandomString(8, true, false);
     }
 
     public static @NotNull String generateRandomString(int len) {
