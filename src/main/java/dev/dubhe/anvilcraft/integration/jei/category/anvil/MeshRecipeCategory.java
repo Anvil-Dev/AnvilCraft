@@ -1,20 +1,9 @@
 package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
-import com.google.common.collect.ImmutableList;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MeshRecipeGroup;
 import dev.dubhe.anvilcraft.util.MeshRecipeUtil;
-import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
-import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
-import mezz.jei.api.gui.drawable.IDrawable;
-import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
-import mezz.jei.api.helpers.IGuiHelper;
-import mezz.jei.api.recipe.IFocusGroup;
-import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
-import mezz.jei.api.recipe.category.IRecipeCategory;
-import mezz.jei.api.registration.IRecipeCatalystRegistration;
-import mezz.jei.api.registration.IRecipeRegistration;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.GuiGraphics;
@@ -26,10 +15,24 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import net.neoforged.neoforge.common.util.Lazy;
+
+import com.google.common.collect.ImmutableList;
+import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
+import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
+import mezz.jei.api.gui.drawable.IDrawable;
+import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
+import mezz.jei.api.helpers.IGuiHelper;
+import mezz.jei.api.recipe.IFocusGroup;
+import mezz.jei.api.recipe.RecipeIngredientRole;
+import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.category.IRecipeCategory;
+import mezz.jei.api.registration.IRecipeCatalystRegistration;
+import mezz.jei.api.registration.IRecipeRegistration;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.text.DecimalFormat;
+
+import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -77,13 +80,20 @@ public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
 
         for (int i = 0; i < recipe.results().size(); i++) {
             MeshRecipeGroup.Result result = recipe.results().get(i);
-            IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.OUTPUT, 1 + (i % 9) * 18, 1 + ROW_START + 18 * (i / 9)).addItemStack(result.item);
+            IRecipeSlotBuilder slot = builder.addSlot(
+                            RecipeIngredientRole.OUTPUT, 1 + (i % 9) * 18, 1 + ROW_START + 18 * (i / 9))
+                    .addItemStack(result.item);
             addTooltips(slot, result.provider);
         }
     }
 
     @Override
-    public void draw(MeshRecipeGroup recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
+    public void draw(
+            MeshRecipeGroup recipe,
+            IRecipeSlotsView recipeSlotsView,
+            GuiGraphics guiGraphics,
+            double mouseX,
+            double mouseY) {
         this.slot.draw(guiGraphics, 72, 0);
 
         for (int row = 0; row < MeshRecipeGroup.maxRows; row++) {
@@ -99,7 +109,8 @@ public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
         if (provider instanceof BinomialDistributionGenerator binomial) {
             if (binomial.n() instanceof ConstantValue constantValue && constantValue.value() == 1) {
                 String chance = FORMATTER.format(MeshRecipeUtil.getExpectedValue(binomial.p()) * 100);
-                tooltipLines.add(Component.translatable("gui.anvilcraft.category.mesh.chance", chance).withStyle(ChatFormatting.GRAY));
+                tooltipLines.add(Component.translatable("gui.anvilcraft.category.mesh.chance", chance)
+                        .withStyle(ChatFormatting.GRAY));
             } else {
                 addAvgOutput(tooltipLines, MeshRecipeUtil.getExpectedValue(provider));
             }
@@ -136,15 +147,18 @@ public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
 
     private static void addAvgOutput(ImmutableList.Builder<Component> tooltipLines, double avgValue) {
         String avgOutput = FORMATTER.format(avgValue);
-        tooltipLines.add(Component.translatable("gui.anvilcraft.category.mesh.average_output", avgOutput).withStyle(ChatFormatting.GRAY));
+        tooltipLines.add(Component.translatable("gui.anvilcraft.category.mesh.average_output", avgOutput)
+                .withStyle(ChatFormatting.GRAY));
     }
 
     private static void addMinMax(ImmutableList.Builder<Component> tooltipLines, double min, double max) {
         String minOutput = FORMATTER.format(min);
         String maxOutput = FORMATTER.format(max);
 
-        tooltipLines.add(Component.translatable("gui.anvilcraft.category.mesh.min_output", minOutput).withStyle(ChatFormatting.GRAY));
-        tooltipLines.add(Component.translatable("gui.anvilcraft.category.mesh.max_output", maxOutput).withStyle(ChatFormatting.GRAY));
+        tooltipLines.add(Component.translatable("gui.anvilcraft.category.mesh.min_output", minOutput)
+                .withStyle(ChatFormatting.GRAY));
+        tooltipLines.add(Component.translatable("gui.anvilcraft.category.mesh.max_output", maxOutput)
+                .withStyle(ChatFormatting.GRAY));
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {

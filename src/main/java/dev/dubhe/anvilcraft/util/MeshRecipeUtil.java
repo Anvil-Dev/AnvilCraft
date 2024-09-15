@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.util;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -8,6 +7,8 @@ import net.minecraft.world.level.storage.loot.providers.number.BinomialDistribut
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
+
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import java.util.Iterator;
 
@@ -49,10 +50,12 @@ public class MeshRecipeUtil {
     public static double getExpectedValue(NumberProvider numberProvider) {
         return switch (numberProvider) {
             case ConstantValue constantValue -> constantValue.value();
-            case UniformGenerator uniformGenerator ->
-                    (getExpectedValue(uniformGenerator.min()) + getExpectedValue(uniformGenerator.max())) / 2;
-            case BinomialDistributionGenerator binomialDistributionGenerator ->
-                    getExpectedValue(binomialDistributionGenerator.n()) * getExpectedValue(binomialDistributionGenerator.p());
+            case UniformGenerator uniformGenerator -> (getExpectedValue(uniformGenerator.min())
+                            + getExpectedValue(uniformGenerator.max()))
+                    / 2;
+            case BinomialDistributionGenerator binomialDistributionGenerator -> getExpectedValue(
+                            binomialDistributionGenerator.n())
+                    * getExpectedValue(binomialDistributionGenerator.p());
             default -> -1;
         };
     }
@@ -92,7 +95,8 @@ public class MeshRecipeUtil {
 
         if (firstKlass == secondKlass) {
             if (firstKlass == Ingredient.ItemValue.class) {
-                return ItemStack.matches(((Ingredient.ItemValue) firstValue).item(), ((Ingredient.ItemValue) secondValue).item());
+                return ItemStack.matches(
+                        ((Ingredient.ItemValue) firstValue).item(), ((Ingredient.ItemValue) secondValue).item());
             } else if (firstKlass == Ingredient.TagValue.class) {
                 return ((Ingredient.TagValue) firstValue).tag() == ((Ingredient.TagValue) secondValue).tag();
             } else {

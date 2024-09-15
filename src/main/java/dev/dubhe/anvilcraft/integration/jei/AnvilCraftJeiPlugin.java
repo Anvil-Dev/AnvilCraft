@@ -1,10 +1,10 @@
 package dev.dubhe.anvilcraft.integration.jei;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.MeshRecipeCategory;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MeshRecipeGroup;
 import dev.dubhe.anvilcraft.recipe.anvil.BlockCompressRecipe;
+
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.resources.ResourceLocation;
 
@@ -24,7 +24,8 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 public class AnvilCraftJeiPlugin implements IModPlugin {
 
-    public static final RecipeType<BlockCompressRecipe> BLOCK_COMPRESS = createRecipeType("block_compress", BlockCompressRecipe.class);
+    public static final RecipeType<BlockCompressRecipe> BLOCK_COMPRESS =
+            createRecipeType("block_compress", BlockCompressRecipe.class);
     public static final RecipeType<MeshRecipeGroup> MESH = createRecipeType("mesh", MeshRecipeGroup.class);
 
     @Override

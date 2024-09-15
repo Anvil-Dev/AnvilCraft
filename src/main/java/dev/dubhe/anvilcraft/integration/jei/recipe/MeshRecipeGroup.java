@@ -1,18 +1,20 @@
 package dev.dubhe.anvilcraft.integration.jei.recipe;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Multimap;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.util.RecipeUtil;
 import dev.dubhe.anvilcraft.recipe.anvil.MeshRecipe;
 import dev.dubhe.anvilcraft.util.MeshRecipeUtil;
-import lombok.Getter;
+
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Multimap;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,7 +47,8 @@ public record MeshRecipeGroup(Ingredient ingredient, List<Result> results) {
         }
 
         ImmutableList.Builder<MeshRecipeGroup> jeiRecipes = ImmutableList.builder();
-        Comparator<Result> resultSorter = Comparator.comparingDouble(Result::getExpectedCount).reversed();
+        Comparator<Result> resultSorter =
+                Comparator.comparingDouble(Result::getExpectedCount).reversed();
 
         for (Ingredient ingredient : ingredientGrouper.keySet()) {
             Collection<MeshRecipe> values = ingredientGrouper.get(ingredient);
@@ -53,7 +56,9 @@ public record MeshRecipeGroup(Ingredient ingredient, List<Result> results) {
             List<Result> results = new ArrayList<>(values.size());
 
             for (MeshRecipe recipe : values) {
-                int resultCount = recipe.getResultAmount() instanceof ConstantValue constantValue ? Math.round(constantValue.value()) : 1;
+                int resultCount = recipe.getResultAmount() instanceof ConstantValue constantValue
+                        ? Math.round(constantValue.value())
+                        : 1;
                 results.add(new Result(recipe.getResult().copyWithCount(resultCount), recipe.getResultAmount()));
             }
 
@@ -71,6 +76,7 @@ public record MeshRecipeGroup(Ingredient ingredient, List<Result> results) {
     public static final class Result {
         public final ItemStack item;
         public final NumberProvider provider;
+
         @Getter
         private final double expectedCount;
 
