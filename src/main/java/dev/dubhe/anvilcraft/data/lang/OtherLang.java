@@ -30,5 +30,11 @@ public class OtherLang {
 
         provider.add("pack.anvilcraft.builtin_pack", "AnvilCraft Builtin ResourcePack");
         provider.add("pack.anvilcraft.transparent_cauldron.description", "Transparent Cauldron");
+
+        provider.add("gui.anvilcraft.category.mesh", "Mesh");
+        provider.add("gui.anvilcraft.category.mesh.chance", "Chance: %s%%");
+        provider.add("gui.anvilcraft.category.mesh.average_output", "Average: %s");
+        provider.add("gui.anvilcraft.category.mesh.min_output", "Min: %s");
+        provider.add("gui.anvilcraft.category.mesh.max_output", "Max: %s");
     }
 }

@@ -8,7 +8,7 @@ dependencies {
     // JEI
     compileOnlyApi(forge.jei.common.api) { transitive = false }
     compileOnlyApi(forge.jei.forge.api) { transitive = false }
-    compileOnly(forge.jei.forge.impl) { transitive = false }
+    implementation(forge.jei.forge.impl) { transitive = false }
 
     // REI
     compileOnlyApi(forge.rei.plugin)
@@ -17,7 +17,7 @@ dependencies {
 
     // EMI
     compileOnlyApi("dev.emi:emi-neoforge:${forge.versions.emi.get()}:api")
-    implementation(forge.emi)
+    compileOnly(forge.emi)
 
     implementation(forge.jade)
     implementation(forge.theoneprobe)
