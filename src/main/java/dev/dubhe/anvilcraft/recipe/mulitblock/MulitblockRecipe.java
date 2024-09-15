@@ -75,9 +75,7 @@ public class MulitblockRecipe implements Recipe<MulitblockRecipe.Input> {
         for (int x = 0; x < 3 && flag; x++) {
             for (int y = 0; y < 3 && flag; y++) {
                 for (int z = 0; z < 3 && flag; z++) {
-                    BlockPredicateWithState predicate = pattern.getPredicate(x, y, z);
-                    BlockState state = input.getBlockState(x, y, z);
-                    if (!predicate.test(state)) {
+                    if (!pattern.getPredicate(x, y, z).test(input.getBlockState(x, y, z))) {
                         flag = false;
                     }
                 }
@@ -92,7 +90,7 @@ public class MulitblockRecipe implements Recipe<MulitblockRecipe.Input> {
         for (int x = 0; x < 3 && flag; x++) {
             for (int y = 0; y < 3 && flag; y++) {
                 for (int z = 0; z < 3 && flag; z++) {
-                    if (!pattern.getPredicate(x, y, z).test(input.getBlockState(2 - z, y, x))) {
+                    if (!pattern.getPredicate(x, y, z).test(input.getBlockState(z, y, 2 - x))) {
                         flag = false;
                     }
                 }
@@ -122,7 +120,7 @@ public class MulitblockRecipe implements Recipe<MulitblockRecipe.Input> {
         for (int x = 0; x < 3 && flag; x++) {
             for (int y = 0; y < 3 && flag; y++) {
                 for (int z = 0; z < 3 && flag; z++) {
-                    if (!pattern.getPredicate(x, y, z).test(input.getBlockState(z, y, 2 - x))) {
+                    if (!pattern.getPredicate(x, y, z).test(input.getBlockState(2 - z, y, x))) {
                         flag = false;
                     }
                 }
@@ -165,6 +163,24 @@ public class MulitblockRecipe implements Recipe<MulitblockRecipe.Input> {
                 for (int y = 0; y < 3; y++) {
                     for (int z = 0; z < 3; z++) {
                         BlockState state = getBlockState(x, y, z);
+                        if (state.hasProperty(BlockStateProperties.FACING)) {
+                            setBlockState(
+                                    x,
+                                    y,
+                                    z,
+                                    state.setValue(
+                                            BlockStateProperties.FACING,
+                                            rotateHorizontal(state.getValue(BlockStateProperties.FACING))));
+                        }
+                        if (state.hasProperty(BlockStateProperties.FACING_HOPPER)) {
+                            setBlockState(
+                                    x,
+                                    y,
+                                    z,
+                                    state.setValue(
+                                            BlockStateProperties.FACING_HOPPER,
+                                            rotateHorizontal(state.getValue(BlockStateProperties.FACING_HOPPER))));
+                        }
                         if (state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
                             setBlockState(
                                     x,
@@ -173,7 +189,8 @@ public class MulitblockRecipe implements Recipe<MulitblockRecipe.Input> {
                                     state.setValue(
                                             BlockStateProperties.HORIZONTAL_FACING,
                                             rotateHorizontal(state.getValue(BlockStateProperties.HORIZONTAL_FACING))));
-                        } else if (state.hasProperty(BlockStateProperties.AXIS)) {
+                        }
+                        if (state.hasProperty(BlockStateProperties.AXIS)) {
                             setBlockState(
                                     x,
                                     y,

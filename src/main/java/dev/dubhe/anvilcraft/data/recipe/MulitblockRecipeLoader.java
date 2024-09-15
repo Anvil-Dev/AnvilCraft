@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.recipe.mulitblock.MulitblockRecipe;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.properties.Half;
@@ -56,6 +57,19 @@ public class MulitblockRecipeLoader {
                         BlockPredicateWithState.of(ModBlocks.CUT_HEAVY_IRON_SLAB.get())
                                 .hasState(SlabBlock.TYPE, SlabType.BOTTOM))
                 .result(new ItemStack(ModBlocks.GIANT_ANVIL.asItem()))
+                .save(provider);
+
+        MulitblockRecipe.builder()
+                .layer("   ", " A ", "   ")
+                .layer("   ", " A ", "   ")
+                .layer(" B ", " A ", "   ")
+                .symbol('A', ModBlocks.POLISHED_HEAVY_IRON_BLOCK.get())
+                .symbol(
+                        'B',
+                        BlockPredicateWithState.of(ModBlocks.CUT_HEAVY_IRON_STAIRS.get())
+                                .hasState(StairBlock.FACING, Direction.SOUTH)
+                                .hasState(StairBlock.HALF, Half.BOTTOM))
+                .result(new ItemStack(Items.NAME_TAG))
                 .save(provider);
     }
 }
