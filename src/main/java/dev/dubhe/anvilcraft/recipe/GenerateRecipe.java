@@ -23,12 +23,14 @@ import net.minecraft.world.item.crafting.SmokingRecipe;
 
 import java.util.Optional;
 
+import static dev.dubhe.anvilcraft.util.Utils.generateUniqueRecipeSuffix;
+
 public class GenerateRecipe {
     public static Optional<RecipeHolder<?>> handleVanillaRecipe(
             RecipeType<?> recipeType, RecipeHolder<?> recipeHolder) {
         if (recipeType == RecipeType.SMOKING) {
             SmokingRecipe recipe = (SmokingRecipe) recipeHolder.value();
-            ResourceLocation newId = AnvilCraft.of(recipeHolder.id().getPath() + "_from_smoking");
+            ResourceLocation newId = AnvilCraft.of(recipeHolder.id().getPath() + generateUniqueRecipeSuffix());
             CookingRecipe newRecipe = CookingRecipe.builder()
                     .requires(recipe.ingredient)
                     .result(recipe.result)
@@ -37,7 +39,7 @@ public class GenerateRecipe {
         }
         if (recipeType == RecipeType.BLASTING) {
             BlastingRecipe recipe = (BlastingRecipe) recipeHolder.value();
-            ResourceLocation newId = AnvilCraft.of(recipeHolder.id().getPath() + "_from_blasting");
+            ResourceLocation newId = AnvilCraft.of(recipeHolder.id().getPath() + generateUniqueRecipeSuffix());
             AbstractItemProcessBuilder<SuperHeatingRecipe> builder =
                     SuperHeatingRecipe.builder().requires(recipe.ingredient);
             ItemStack result = recipe.result.copy();
@@ -52,7 +54,7 @@ public class GenerateRecipe {
         }
         if (recipeType == RecipeType.CRAFTING) {
             CraftingRecipe recipe = (CraftingRecipe) recipeHolder.value();
-            ResourceLocation newId = AnvilCraft.of(recipeHolder.id().getPath() + "_from_crafting");
+            ResourceLocation newId = AnvilCraft.of(recipeHolder.id().getPath() + generateUniqueRecipeSuffix());
             if (recipe instanceof ShapedRecipe shapedRecipe) {
                 NonNullList<Ingredient> ingredients = shapedRecipe.getIngredients();
                 if (ingredients.stream().allMatch(i -> RecipeUtil.isIngredientsEqual(i, ingredients.getFirst()))) {
