@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
+import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.recipe.anvil.BoilingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.CookingRecipe;
@@ -19,6 +20,13 @@ public class CookingRecipeLoader {
         CookingRecipe.builder()
                 .requires(ModItems.RESIN)
                 .result(new ItemStack(ModItems.HARDEND_RESIN.asItem()))
+                .save(provider);
+
+        CookingRecipe.builder()
+                .requires(ModItems.DOUGH)
+                .requires(Items.EGG)
+                .requires(Items.SUGAR)
+                .result(new ItemStack(ModBlocks.CAKE_BASE_BLOCK))
                 .save(provider);
 
         BoilingRecipe.builder()

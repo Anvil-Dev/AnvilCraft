@@ -1,0 +1,15 @@
+{
+  "type": "anvilcraft:mesh",
+  "input": {
+    "item": "anvilcraft:deepslate_chips"
+  },
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:deepslate_chips"
+  },
+  "result_amount": {
+    "type": "minecraft:binomial",
+    "n": 1.0,
+    "p": 0.5
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "type": "anvilcraft:mob_transform",
+  "input": "minecraft:iron_golem",
+  "results": [
+    {
+      "probability": 1.0,
+      "resultEntityType": "minecraft:warden"
+    }
+  ],
+  "tagModifications": [
+    {
+      "op": "SET",
+      "path": "Brain.memories",
+      "tag": "{\n    \"minecraft:dig_cooldown\": {\n        ttl: 1200L,\n        value: {}\n    }\n}"
+    }
+  ],
+  "tagPredicates": [
+    {
+      "expected": 0,
+      "requirement": "EQUAL",
+      "tagKeyPath": "PlayerCreated"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "type": "anvilcraft:bulging",
+  "cauldron": "minecraft:water_cauldron",
+  "consume_fluid": false,
+  "ingredients": [
+    {
+      "item": "minecraft:fire_coral"
+    }
+  ],
+  "produce_fluid": false,
+  "result": {
+    "count": 1,
+    "id": "minecraft:fire_coral_block"
+  }
+}

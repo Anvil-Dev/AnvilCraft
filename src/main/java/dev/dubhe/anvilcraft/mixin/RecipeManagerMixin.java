@@ -11,11 +11,11 @@ import net.neoforged.neoforge.common.conditions.WithConditions;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
+import com.llamalad7.mixinextras.sugar.Local;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(RecipeManager.class)
 public class RecipeManagerMixin {
@@ -26,16 +26,15 @@ public class RecipeManagerMixin {
                             value = "INVOKE",
                             target =
                                     "Lcom/google/common/collect/ImmutableMap$Builder;put(Ljava/lang/Object;Ljava/lang/Object;)Lcom/google/common/collect/ImmutableMap$Builder;",
-                            shift = At.Shift.AFTER),
-            locals = LocalCapture.CAPTURE_FAILHARD)
+                            shift = At.Shift.AFTER))
     private static void onBuildRecipe(
             ResourceLocation resourceLocation,
             ImmutableMultimap.Builder<RecipeType<?>, RecipeHolder<?>> byTypeBuilder,
             ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>> byNameBuilder,
             WithConditions<Recipe<?>> r,
             CallbackInfo ci,
-            Recipe<?> recipe,
-            RecipeHolder<?> recipeHolder) {
+            @Local Recipe<?> recipe,
+            @Local RecipeHolder<?> recipeHolder) {
         GenerateRecipe.handleVanillaRecipe(recipe.getType(), recipeHolder).ifPresent(v -> {
             byTypeBuilder.put(v.value().getType(), v);
             byNameBuilder.put(v.id(), v);

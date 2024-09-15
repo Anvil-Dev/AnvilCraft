@@ -1,23 +1,35 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
+import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.recipe.anvil.BlockCrushRecipe;
 
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 
 public class BlockCrushRecipeLoader {
     public static void init(RegistrateRecipeProvider provider) {
-        BlockCrushRecipe.builder()
-                .input(Blocks.STONE)
-                .result(Blocks.COBBLESTONE)
-                .save(provider);
+        blockCrush(provider, Blocks.STONE, Blocks.COBBLESTONE);
+        blockCrush(provider, Blocks.COBBLESTONE, Blocks.GRAVEL);
+        blockCrush(provider, Blocks.GRAVEL, Blocks.SAND);
+        blockCrush(provider, Blocks.POLISHED_GRANITE, Blocks.GRANITE);
+        blockCrush(provider, Blocks.GRANITE, Blocks.RED_SAND);
+        blockCrush(provider, Blocks.POLISHED_ANDESITE, Blocks.ANDESITE);
+        blockCrush(provider, Blocks.ANDESITE, ModBlocks.CINERITE.get());
+        blockCrush(provider, Blocks.POLISHED_DIORITE, Blocks.DIORITE);
+        blockCrush(provider, Blocks.DIORITE, ModBlocks.QUARTZ_SAND.get());
+        blockCrush(provider, Blocks.DEEPSLATE, ModBlocks.DEEPSLATE_CHIPS.get());
+        blockCrush(provider, Blocks.BLACKSTONE, ModBlocks.BLACK_SAND.get());
+        blockCrush(provider, Blocks.STONE_BRICKS, Blocks.CRACKED_STONE_BRICKS);
+        blockCrush(provider, Blocks.DEEPSLATE_BRICKS, Blocks.CRACKED_DEEPSLATE_BRICKS);
+        blockCrush(provider, Blocks.NETHER_BRICKS, Blocks.CRACKED_NETHER_BRICKS);
+        blockCrush(provider, Blocks.DEEPSLATE_TILES, Blocks.CRACKED_DEEPSLATE_TILES);
+        blockCrush(provider, Blocks.POLISHED_BLACKSTONE_BRICKS, Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS);
+        blockCrush(provider, Blocks.SOUL_SOIL, Blocks.SOUL_SAND);
+    }
 
-        BlockCrushRecipe.builder()
-                .input(Blocks.COBBLESTONE)
-                .result(Blocks.GRAVEL)
-                .save(provider);
-
-        BlockCrushRecipe.builder().input(Blocks.GRAVEL).result(Blocks.SAND).save(provider);
+    private static void blockCrush(RegistrateRecipeProvider provider, Block input, Block result) {
+        BlockCrushRecipe.builder().input(input).result(result).save(provider);
     }
 }

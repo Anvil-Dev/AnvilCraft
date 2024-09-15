@@ -2,8 +2,6 @@
   "type": "anvilcraft:block_compress",
   "inputs": [
     "minecraft:ice",
-    "minecraft:ice",
-    "minecraft:ice",
     "minecraft:ice"
   ],
   "result": "minecraft:packed_ice"

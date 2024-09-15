@@ -1,0 +1,24 @@
+{
+  "type": "anvilcraft:item_compress",
+  "ingredients": [
+    {
+      "item": "anvilcraft:cream"
+    },
+    {
+      "item": "anvilcraft:cream"
+    },
+    {
+      "item": "anvilcraft:cream"
+    },
+    {
+      "item": "anvilcraft:cream"
+    },
+    {
+      "item": "minecraft:sugar"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:cream_block"
+  }
+}

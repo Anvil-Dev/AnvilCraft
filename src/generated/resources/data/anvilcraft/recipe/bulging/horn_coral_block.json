@@ -1,0 +1,15 @@
+{
+  "type": "anvilcraft:bulging",
+  "cauldron": "minecraft:water_cauldron",
+  "consume_fluid": false,
+  "ingredients": [
+    {
+      "item": "minecraft:horn_coral"
+    }
+  ],
+  "produce_fluid": false,
+  "result": {
+    "count": 1,
+    "id": "minecraft:horn_coral_block"
+  }
+}

@@ -1,7 +1,7 @@
 {
   "type": "anvilcraft:bulging",
   "cauldron": "minecraft:water_cauldron",
-  "consume_fluid": true,
+  "consume_fluid": false,
   "ingredients": [
     {
       "item": "minecraft:dirt"

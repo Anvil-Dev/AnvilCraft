@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:mob_transform",
+  "input": "minecraft:horse",
+  "results": [
+    {
+      "probability": 0.8,
+      "resultEntityType": "minecraft:stray"
+    },
+    {
+      "probability": 0.2,
+      "resultEntityType": "minecraft:wither_skeleton"
+    }
+  ]
+}

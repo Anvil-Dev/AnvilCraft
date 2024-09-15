@@ -1,0 +1,10 @@
+{
+  "type": "anvilcraft:mob_transform",
+  "input": "minecraft:guardian",
+  "results": [
+    {
+      "probability": 1.0,
+      "resultEntityType": "minecraft:elder_guardian"
+    }
+  ]
+}
