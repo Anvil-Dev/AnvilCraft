@@ -2,8 +2,18 @@ package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MeshRecipeGroup;
-import dev.dubhe.anvilcraft.util.MeshRecipeUtil;
-
+import dev.dubhe.anvilcraft.util.RecipeUtil;
+import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
+import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
+import mezz.jei.api.gui.drawable.IDrawable;
+import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
+import mezz.jei.api.helpers.IGuiHelper;
+import mezz.jei.api.recipe.IFocusGroup;
+import mezz.jei.api.recipe.RecipeIngredientRole;
+import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.category.IRecipeCategory;
+import mezz.jei.api.registration.IRecipeCatalystRegistration;
+import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.GuiGraphics;
@@ -108,15 +118,15 @@ public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
 
         if (provider instanceof BinomialDistributionGenerator binomial) {
             if (binomial.n() instanceof ConstantValue constantValue && constantValue.value() == 1) {
-                String chance = FORMATTER.format(MeshRecipeUtil.getExpectedValue(binomial.p()) * 100);
+                String chance = FORMATTER.format(RecipeUtil.getExpectedValue(binomial.p()) * 100);
                 tooltipLines.add(Component.translatable("gui.anvilcraft.category.mesh.chance", chance)
                         .withStyle(ChatFormatting.GRAY));
             } else {
-                addAvgOutput(tooltipLines, MeshRecipeUtil.getExpectedValue(provider));
+                addAvgOutput(tooltipLines, RecipeUtil.getExpectedValue(provider));
             }
             addMinMax(tooltipLines, 0, getMax(binomial.n()));
         } else if (provider.getClass() != ConstantValue.class) {
-            double val = MeshRecipeUtil.getExpectedValue(provider);
+            double val = RecipeUtil.getExpectedValue(provider);
             if (val != -1) {
                 addAvgOutput(tooltipLines, val);
                 if (provider instanceof UniformGenerator) {

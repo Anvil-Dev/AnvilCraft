@@ -1,10 +1,9 @@
 package dev.dubhe.anvilcraft.integration.jei.recipe;
 
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
-import dev.dubhe.anvilcraft.integration.jei.util.RecipeUtil;
 import dev.dubhe.anvilcraft.recipe.anvil.MeshRecipe;
-import dev.dubhe.anvilcraft.util.MeshRecipeUtil;
-
+import dev.dubhe.anvilcraft.util.RecipeUtil;
+import lombok.Getter;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -28,7 +27,8 @@ public record MeshRecipeGroup(Ingredient ingredient, List<Result> results) {
     public static ImmutableList<MeshRecipeGroup> getAllRecipesGrouped() {
         maxRows = 1;
 
-        List<MeshRecipe> recipes = RecipeUtil.getRecipesFromType(ModRecipeTypes.MESH_TYPE.get());
+        List<MeshRecipe> recipes =
+                dev.dubhe.anvilcraft.integration.jei.util.RecipeUtil.getRecipesFromType(ModRecipeTypes.MESH_TYPE.get());
         Multimap<Ingredient, MeshRecipe> ingredientGrouper = ArrayListMultimap.create();
 
         for (int i = 0; i < recipes.size(); i++) {
@@ -38,7 +38,7 @@ public record MeshRecipeGroup(Ingredient ingredient, List<Result> results) {
             for (int j = i + 1; j < recipes.size(); j++) {
                 MeshRecipe other = recipes.get(j);
 
-                if (MeshRecipeUtil.isIngredientsEqual(recipe.getInput(), other.getInput())) {
+                if (RecipeUtil.isIngredientsEqual(recipe.getInput(), other.getInput())) {
                     ingredientGrouper.put(recipe.getInput(), other);
                     recipes.remove(other);
                     j--;
@@ -83,7 +83,7 @@ public record MeshRecipeGroup(Ingredient ingredient, List<Result> results) {
         public Result(ItemStack item, NumberProvider provider) {
             this.item = item;
             this.provider = provider;
-            this.expectedCount = MeshRecipeUtil.getExpectedValue(provider);
+            this.expectedCount = RecipeUtil.getExpectedValue(provider);
         }
     }
 }

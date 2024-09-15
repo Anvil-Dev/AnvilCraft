@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.recipe.anvil;
 
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
-import dev.dubhe.anvilcraft.util.MeshRecipeUtil;
+import dev.dubhe.anvilcraft.util.RecipeUtil;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
@@ -106,7 +106,7 @@ public class MeshRecipe implements Recipe<MeshRecipe.Input> {
                 MeshRecipe::getInput,
                 ItemStack.STREAM_CODEC,
                 MeshRecipe::getResult,
-                StreamCodec.of(MeshRecipeUtil::toNetwork, MeshRecipeUtil::fromNetwork),
+                StreamCodec.of(RecipeUtil::toNetwork, RecipeUtil::fromNetwork),
                 MeshRecipe::getResultAmount,
                 MeshRecipe::new);
 

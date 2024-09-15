@@ -12,7 +12,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import java.util.Iterator;
 
-public class MeshRecipeUtil {
+public class RecipeUtil {
     private static final byte CONSTANT_TYPE = 1;
     private static final byte UNIFORM_TYPE = 2;
     private static final byte BINOMIAL_TYPE = 3;
@@ -63,7 +63,7 @@ public class MeshRecipeUtil {
     public static boolean isIngredientsEqual(Ingredient first, Ingredient second) {
         if (first == second) return true;
 
-        if (!first.isCustom() && second.isCustom()) {
+        if (!first.isCustom() && !second.isCustom()) {
             ObjectArrayList<Ingredient.Value> firstValues = new ObjectArrayList<>(first.getValues());
             ObjectArrayList<Ingredient.Value> secondValues = new ObjectArrayList<>(second.getValues());
 
