@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.integration.jei.recipe;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.MeshRecipe;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
-import lombok.Getter;
+
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
