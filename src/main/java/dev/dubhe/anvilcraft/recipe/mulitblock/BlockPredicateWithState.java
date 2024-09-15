@@ -2,12 +2,12 @@ package dev.dubhe.anvilcraft.recipe.mulitblock;
 
 import dev.dubhe.anvilcraft.util.CodecUtil;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 
@@ -24,7 +24,11 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
 @Getter
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class BlockPredicateWithState implements Predicate<BlockState> {
     private final Block block;
     private final Map<String, String> properties;
@@ -75,7 +79,6 @@ public class BlockPredicateWithState implements Predicate<BlockState> {
     public boolean test(@Nullable BlockState state) {
         if (state == null) return false;
         if (!state.is(this.block)) return false;
-        if (state.is(Blocks.AIR)) return true;
         Map<String, String> testedProperties = state.getProperties().stream()
                 .collect(Collectors.toMap(Property::getName, property -> {
                     var value = state.getValue(property);
