@@ -50,5 +50,7 @@ public class OtherLang {
 
         provider.add("gui.anvilcraft.category.super_heating", "Super Heating");
         provider.add("gui.anvilcraft.category.super_heating.convert_to", "Convert to %s");
+
+        provider.add("gui.anvilcraft.category.squeezing", "Squeezing");
     }
 }

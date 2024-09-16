@@ -256,6 +256,7 @@
   "gui.anvilcraft.category.mesh.chance": "Chance: %s%%",
   "gui.anvilcraft.category.mesh.max_output": "Max: %s",
   "gui.anvilcraft.category.mesh.min_output": "Min: %s",
+  "gui.anvilcraft.category.squeezing": "Squeezing",
   "gui.anvilcraft.category.stamping": "Stamping",
   "gui.anvilcraft.category.super_heating": "Super Heating",
   "gui.anvilcraft.category.super_heating.convert_to": "Convert to %s",
