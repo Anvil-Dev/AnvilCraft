@@ -38,11 +38,17 @@ public class OtherLang {
         provider.add("gui.anvilcraft.category.mesh.max_output", "Max: %s");
 
         provider.add("gui.anvilcraft.category.block_compress", "Block Compress");
-
         provider.add("gui.anvilcraft.category.block_crush", "Block Crush");
 
         provider.add("gui.anvilcraft.category.item_compress", "Item Compress");
-
         provider.add("gui.anvilcraft.category.item_crush", "Item Crush");
+
+        provider.add("gui.anvilcraft.category.cooking", "Cooking");
+        provider.add("gui.anvilcraft.category.boiling", "Boiling");
+
+        provider.add("gui.anvilcraft.category.stamping", "Stamping");
+
+        provider.add("gui.anvilcraft.category.super_heating", "Super Heating");
+        provider.add("gui.anvilcraft.category.super_heating.convert_to", "Convert to %s");
     }
 }

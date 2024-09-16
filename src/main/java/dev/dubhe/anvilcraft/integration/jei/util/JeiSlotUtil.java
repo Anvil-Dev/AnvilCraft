@@ -15,7 +15,8 @@ import java.util.List;
 
 public class JeiSlotUtil {
     public static void drawInputSlots(GuiGraphics guiGraphics, IDrawable slot, int inputSize) {
-        if (inputSize <= 1) {
+        if (inputSize == 0) return;
+        if (inputSize == 1) {
             slot.draw(guiGraphics, 20, 23);
         } else if (inputSize <= 4) {
             int startX = 10;
@@ -45,7 +46,8 @@ public class JeiSlotUtil {
     }
 
     public static void drawOutputSlots(GuiGraphics guiGraphics, IDrawable slot, int outputSize) {
-        if (outputSize <= 1) {
+        if (outputSize == 0) return;
+        if (outputSize == 1) {
             slot.draw(guiGraphics, 124, 23);
         } else if (outputSize <= 4) {
             int startX = 116;
@@ -86,7 +88,8 @@ public class JeiSlotUtil {
     public static void addInputSlots(
             IRecipeLayoutBuilder builder, List<Object2IntMap.Entry<Ingredient>> mergedIngredients) {
         int inputSize = mergedIngredients.size();
-        if (inputSize <= 1) {
+        if (inputSize == 0) return;
+        if (inputSize == 1) {
             Object2IntMap.Entry<Ingredient> entry = mergedIngredients.getFirst();
             IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.INPUT, 21, 24);
             slot.addIngredients(entry.getKey());
@@ -123,7 +126,8 @@ public class JeiSlotUtil {
 
     public static void addOutputSlots(IRecipeLayoutBuilder builder, List<ItemStack> results) {
         int outputSize = results.size();
-        if (outputSize <= 1) {
+        if (outputSize == 0) return;
+        if (outputSize == 1) {
             builder.addSlot(RecipeIngredientRole.OUTPUT, 125, 24).addItemStack(results.getFirst());
         } else if (outputSize <= 4) {
             int startX = 117;
