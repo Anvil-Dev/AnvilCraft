@@ -38,5 +38,7 @@ public class OtherLang {
         provider.add("gui.anvilcraft.category.mesh.max_output", "Max: %s");
 
         provider.add("gui.anvilcraft.category.block_compress", "Block Compress");
+
+        provider.add("gui.anvilcraft.category.block_crush", "Block Crush");
     }
 }

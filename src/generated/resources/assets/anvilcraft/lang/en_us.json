@@ -246,6 +246,7 @@
   "entity.minecraft.villager.anvilcraft.jeweler": "Jeweler",
   "entity.minecraft.villager.jeweler": "Jeweler",
   "gui.anvilcraft.category.block_compress": "Block Compress",
+  "gui.anvilcraft.category.block_crush": "Block Crush",
   "gui.anvilcraft.category.mesh": "Mesh",
   "gui.anvilcraft.category.mesh.average_output": "Average: %s",
   "gui.anvilcraft.category.mesh.chance": "Chance: %s%%",
