@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.TextureConstants;
 import dev.dubhe.anvilcraft.recipe.anvil.BlockCompressRecipe;
 import dev.dubhe.anvilcraft.util.RenderHelper;
@@ -91,7 +92,7 @@ public class BlockCompressCategory implements IRecipeCategory<BlockCompressRecip
             GuiGraphics guiGraphics,
             double mouseX,
             double mouseY) {
-        float anvilYOffset = RenderHelper.getAnvilAnimationOffset(timer);
+        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
         progress.draw(guiGraphics, 69, 30);
 
         RenderHelper.renderBlock(

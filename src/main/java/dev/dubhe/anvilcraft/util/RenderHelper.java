@@ -10,7 +10,6 @@ import net.minecraft.world.level.material.FluidState;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import mezz.jei.api.gui.ITickTimer;
 import org.joml.Vector3f;
 
 public class RenderHelper {
@@ -49,14 +48,6 @@ public class RenderHelper {
         }
 
         poseStack.popPose();
-    }
-
-    public static float getAnvilAnimationOffset(ITickTimer timer) {
-        return timer.getValue() < 30 ? RenderHelper.getAnvilAnimationOffset(timer.getValue()) : 8;
-    }
-
-    public static float getAnvilAnimationOffset(float time) {
-        return (float) Math.sin(time / 30d * 2d * Math.PI + Math.PI / 2) * 8;
     }
 
     @FunctionalInterface

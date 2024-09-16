@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.item;
 
 import dev.dubhe.anvilcraft.integration.patchouli.PatchouliUtil;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
@@ -30,10 +31,8 @@ public class GuideBookItem extends Item {
                 PatchouliUtil.openBook(serverPlayer);
                 return new InteractionResultHolder<>(InteractionResult.CONSUME, player.getItemInHand(usedHand));
             } catch (ClassNotFoundException ignore) {
-                serverPlayer.sendSystemMessage(
-                    Component.translatable("message.anvilcraft.need_patchouli_installed")
-                        .withStyle(ChatFormatting.RED)
-                );
+                serverPlayer.sendSystemMessage(Component.translatable("message.anvilcraft.need_patchouli_installed")
+                        .withStyle(ChatFormatting.RED));
             }
         }
         return new InteractionResultHolder<>(InteractionResult.PASS, player.getItemInHand(usedHand));

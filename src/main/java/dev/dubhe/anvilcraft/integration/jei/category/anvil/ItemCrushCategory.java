@@ -7,7 +7,7 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.TextureConstants;
-import dev.dubhe.anvilcraft.recipe.anvil.ItemCompressRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.ItemCrushRecipe;
 import dev.dubhe.anvilcraft.util.RenderHelper;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -16,6 +16,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.TrapDoorBlock;
+import net.minecraft.world.level.block.state.properties.Half;
 import net.neoforged.neoforge.common.util.Lazy;
 
 import mezz.jei.api.gui.ITickTimer;
@@ -34,8 +36,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class ItemCompressCategory implements IRecipeCategory<ItemCompressRecipe> {
-
+public class ItemCrushCategory implements IRecipeCategory<ItemCrushRecipe> {
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
 
@@ -48,11 +49,11 @@ public class ItemCompressCategory implements IRecipeCategory<ItemCompressRecipe>
     private final IDrawable arrowIn;
     private final IDrawable arrowOut;
 
-    public ItemCompressCategory(IGuiHelper helper) {
+    public ItemCrushCategory(IGuiHelper helper) {
         background = Lazy.of(() -> helper.createBlankDrawable(WIDTH, HEIGHT));
-        icon = helper.createDrawableItemStack(new ItemStack(Items.CAULDRON));
+        icon = helper.createDrawableItemStack(new ItemStack(Items.IRON_TRAPDOOR));
         slot = helper.getSlotDrawable();
-        title = Component.translatable("gui.anvilcraft.category.item_compress");
+        title = Component.translatable("gui.anvilcraft.category.item_crush");
         timer = helper.createTickTimer(30, 60, true);
 
         arrowIn = helper.createDrawable(TextureConstants.ANVIL_CRAFT_SPRITES, 0, 31, 16, 8);
@@ -60,8 +61,8 @@ public class ItemCompressCategory implements IRecipeCategory<ItemCompressRecipe>
     }
 
     @Override
-    public RecipeType<ItemCompressRecipe> getRecipeType() {
-        return AnvilCraftJeiPlugin.ITEM_COMPRESS;
+    public RecipeType<ItemCrushRecipe> getRecipeType() {
+        return AnvilCraftJeiPlugin.ITEM_CRUSH;
     }
 
     @Override
@@ -80,14 +81,14 @@ public class ItemCompressCategory implements IRecipeCategory<ItemCompressRecipe>
     }
 
     @Override
-    public void setRecipe(IRecipeLayoutBuilder builder, ItemCompressRecipe recipe, IFocusGroup focuses) {
+    public void setRecipe(IRecipeLayoutBuilder builder, ItemCrushRecipe recipe, IFocusGroup focuses) {
         JeiSlotUtil.addInputSlots(builder, recipe.mergedIngredients);
         JeiSlotUtil.addOutputSlots(builder, recipe.results);
     }
 
     @Override
     public void draw(
-            ItemCompressRecipe recipe,
+            ItemCrushRecipe recipe,
             IRecipeSlotsView recipeSlotsView,
             GuiGraphics guiGraphics,
             double mouseX,
@@ -102,7 +103,13 @@ public class ItemCompressCategory implements IRecipeCategory<ItemCompressRecipe>
                 12,
                 RenderHelper.SINGLE_BLOCK);
         RenderHelper.renderBlock(
-                guiGraphics, Blocks.CAULDRON.defaultBlockState(), 81, 40, 10, 12, RenderHelper.SINGLE_BLOCK);
+                guiGraphics,
+                Blocks.IRON_TRAPDOOR.defaultBlockState().setValue(TrapDoorBlock.HALF, Half.TOP),
+                81,
+                40,
+                10,
+                12,
+                RenderHelper.SINGLE_BLOCK);
 
         arrowIn.draw(guiGraphics, 54, 32);
         arrowOut.draw(guiGraphics, 92, 31);
@@ -115,16 +122,15 @@ public class ItemCompressCategory implements IRecipeCategory<ItemCompressRecipe>
 
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
-                AnvilCraftJeiPlugin.ITEM_COMPRESS,
-                JeiRecipeUtil.getRecipesFromType(ModRecipeTypes.ITEM_COMPRESS_TYPE.get()));
+                AnvilCraftJeiPlugin.ITEM_CRUSH, JeiRecipeUtil.getRecipesFromType(ModRecipeTypes.ITEM_CRUSH_TYPE.get()));
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(new ItemStack(Items.ANVIL), AnvilCraftJeiPlugin.ITEM_COMPRESS);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.ROYAL_ANVIL), AnvilCraftJeiPlugin.ITEM_COMPRESS);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.EMBER_ANVIL), AnvilCraftJeiPlugin.ITEM_COMPRESS);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.GIANT_ANVIL), AnvilCraftJeiPlugin.ITEM_COMPRESS);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.SPECTRAL_ANVIL), AnvilCraftJeiPlugin.ITEM_COMPRESS);
-        registration.addRecipeCatalyst(new ItemStack(Items.CAULDRON), AnvilCraftJeiPlugin.ITEM_COMPRESS);
+        registration.addRecipeCatalyst(new ItemStack(Items.ANVIL), AnvilCraftJeiPlugin.ITEM_CRUSH);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.ROYAL_ANVIL), AnvilCraftJeiPlugin.ITEM_CRUSH);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.EMBER_ANVIL), AnvilCraftJeiPlugin.ITEM_CRUSH);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.GIANT_ANVIL), AnvilCraftJeiPlugin.ITEM_CRUSH);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.SPECTRAL_ANVIL), AnvilCraftJeiPlugin.ITEM_CRUSH);
+        registration.addRecipeCatalyst(new ItemStack(Items.IRON_TRAPDOOR), AnvilCraftJeiPlugin.ITEM_CRUSH);
     }
 }

@@ -248,6 +248,7 @@
   "gui.anvilcraft.category.block_compress": "Block Compress",
   "gui.anvilcraft.category.block_crush": "Block Crush",
   "gui.anvilcraft.category.item_compress": "Item Compress",
+  "gui.anvilcraft.category.item_crush": "Item Crush",
   "gui.anvilcraft.category.mesh": "Mesh",
   "gui.anvilcraft.category.mesh.average_output": "Average: %s",
   "gui.anvilcraft.category.mesh.chance": "Chance: %s%%",

@@ -42,5 +42,7 @@ public class OtherLang {
         provider.add("gui.anvilcraft.category.block_crush", "Block Crush");
 
         provider.add("gui.anvilcraft.category.item_compress", "Item Compress");
+
+        provider.add("gui.anvilcraft.category.item_crush", "Item Crush");
     }
 }

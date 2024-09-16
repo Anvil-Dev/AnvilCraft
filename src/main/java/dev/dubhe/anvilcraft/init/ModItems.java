@@ -915,12 +915,11 @@ public class ModItems {
             .register();
 
     public static final ItemEntry<GuideBookItem> GUIDE_BOOK = REGISTRATE
-        .item("guide_book", GuideBookItem::new)
-        .properties(p -> p.stacksTo(1))
-        .model((ctx, provider) -> {
-        })
-        .lang("AnvilCraft Guide Book")
-        .register();
+            .item("guide_book", GuideBookItem::new)
+            .properties(p -> p.stacksTo(1))
+            .model((ctx, provider) -> {})
+            .lang("AnvilCraft Guide Book")
+            .register();
 
     public static void register() {}
 }
