@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class RecipeUtil {
+public class JeiRecipeUtil {
     public static <I extends RecipeInput, T extends Recipe<I>> List<T> getRecipesFromType(RecipeType<T> recipeType) {
         return Minecraft.getInstance().getConnection().getRecipeManager().getAllRecipesFor(recipeType).stream()
                 .map(RecipeHolder::value)

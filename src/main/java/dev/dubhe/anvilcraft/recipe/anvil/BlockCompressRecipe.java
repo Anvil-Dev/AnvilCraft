@@ -107,7 +107,7 @@ public class BlockCompressRecipe implements Recipe<BlockCompressRecipe.Input> {
 
     public static class Serializer implements RecipeSerializer<BlockCompressRecipe> {
         private static final MapCodec<BlockCompressRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-                        CodecUtil.BLOCK_CODEC.listOf(1, 9).fieldOf("inputs").forGetter(BlockCompressRecipe::getInputs),
+                        CodecUtil.BLOCK_CODEC.listOf(1, 2).fieldOf("inputs").forGetter(BlockCompressRecipe::getInputs),
                         CodecUtil.BLOCK_CODEC.fieldOf("result").forGetter(BlockCompressRecipe::getResult))
                 .apply(ins, BlockCompressRecipe::new));
 
@@ -149,8 +149,8 @@ public class BlockCompressRecipe implements Recipe<BlockCompressRecipe.Input> {
 
         @Override
         public void validate(ResourceLocation pId) {
-            if (inputs.isEmpty() || inputs.size() > 9) {
-                throw new IllegalArgumentException("Recipe input list size must in 0-9, RecipeId: " + pId);
+            if (inputs.isEmpty() || inputs.size() > 2) {
+                throw new IllegalArgumentException("Recipe input list size must in 1-2, RecipeId: " + pId);
             }
             if (result == null) {
                 throw new IllegalArgumentException("Recipe has no result, RecipeId:" + pId);

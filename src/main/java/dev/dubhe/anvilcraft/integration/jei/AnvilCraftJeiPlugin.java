@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.integration.jei;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.integration.jei.category.anvil.BlockCompressCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.MeshRecipeCategory;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MeshRecipeGroup;
 import dev.dubhe.anvilcraft.recipe.anvil.BlockCompressRecipe;
@@ -36,11 +37,13 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
         MeshRecipeCategory.registerRecipes(registration);
+        BlockCompressCategory.registerRecipes(registration);
     }
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         MeshRecipeCategory.registerRecipeCatalysts(registration);
+        BlockCompressCategory.registerRecipeCatalysts(registration);
     }
 
     @Override
@@ -49,6 +52,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         IGuiHelper guiHelper = jeiHelpers.getGuiHelper();
 
         registration.addRecipeCategories(new MeshRecipeCategory(guiHelper));
+        registration.addRecipeCategories(new BlockCompressCategory(guiHelper));
     }
 
     public static <T> RecipeType<T> createRecipeType(String name, Class<T> clazz) {

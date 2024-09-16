@@ -36,5 +36,7 @@ public class OtherLang {
         provider.add("gui.anvilcraft.category.mesh.average_output", "Average: %s");
         provider.add("gui.anvilcraft.category.mesh.min_output", "Min: %s");
         provider.add("gui.anvilcraft.category.mesh.max_output", "Max: %s");
+
+        provider.add("gui.anvilcraft.category.block_compress", "Block Compress");
     }
 }

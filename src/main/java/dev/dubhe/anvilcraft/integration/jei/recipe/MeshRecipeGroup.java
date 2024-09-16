@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.integration.jei.recipe;
 
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.recipe.anvil.MeshRecipe;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
 
@@ -27,8 +28,7 @@ public record MeshRecipeGroup(Ingredient ingredient, List<Result> results) {
     public static ImmutableList<MeshRecipeGroup> getAllRecipesGrouped() {
         maxRows = 1;
 
-        List<MeshRecipe> recipes =
-                dev.dubhe.anvilcraft.integration.jei.util.RecipeUtil.getRecipesFromType(ModRecipeTypes.MESH_TYPE.get());
+        List<MeshRecipe> recipes = JeiRecipeUtil.getRecipesFromType(ModRecipeTypes.MESH_TYPE.get());
         Multimap<Ingredient, MeshRecipe> ingredientGrouper = ArrayListMultimap.create();
 
         for (int i = 0; i < recipes.size(); i++) {
