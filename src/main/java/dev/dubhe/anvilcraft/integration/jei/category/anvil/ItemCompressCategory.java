@@ -8,6 +8,15 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.TextureConstants;
 import dev.dubhe.anvilcraft.recipe.anvil.ItemCompressRecipe;
 import dev.dubhe.anvilcraft.util.RenderHelper;
+
+import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
+import net.neoforged.neoforge.common.util.Lazy;
+
 import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -18,14 +27,12 @@ import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Blocks;
-import net.neoforged.neoforge.common.util.Lazy;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class ItemCompressCategory implements IRecipeCategory<ItemCompressRecipe> {
 
     public static final int WIDTH = 162;
@@ -78,13 +85,21 @@ public class ItemCompressCategory implements IRecipeCategory<ItemCompressRecipe>
     }
 
     @Override
-    public void draw(ItemCompressRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
+    public void draw(
+            ItemCompressRecipe recipe,
+            IRecipeSlotsView recipeSlotsView,
+            GuiGraphics guiGraphics,
+            double mouseX,
+            double mouseY) {
         float anvilYOffset = RenderHelper.getAnvilAnimationOffset(timer);
         RenderHelper.renderBlock(
                 guiGraphics,
                 Blocks.ANVIL.defaultBlockState(),
-                81, 22 + anvilYOffset, 20, 12, RenderHelper.SINGLE_BLOCK
-        );
+                81,
+                22 + anvilYOffset,
+                20,
+                12,
+                RenderHelper.SINGLE_BLOCK);
         RenderHelper.renderBlock(
                 guiGraphics, Blocks.CAULDRON.defaultBlockState(), 81, 40, 10, 12, RenderHelper.SINGLE_BLOCK);
 

@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.recipe.anvil;
 
 import dev.dubhe.anvilcraft.recipe.anvil.input.ItemProcessInput;
-
 import dev.dubhe.anvilcraft.util.RecipeUtil;
+
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
@@ -18,9 +18,10 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import lombok.Getter;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.annotation.ParametersAreNonnullByDefault;
 
 @Getter
 @MethodsReturnNonnullByDefault

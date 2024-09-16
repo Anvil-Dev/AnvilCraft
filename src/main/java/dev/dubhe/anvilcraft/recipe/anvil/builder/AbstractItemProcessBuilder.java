@@ -14,9 +14,10 @@ import net.minecraft.world.level.ItemLike;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.annotation.ParametersAreNonnullByDefault;
 
 @Setter
 @Accessors(fluent = true, chain = true)

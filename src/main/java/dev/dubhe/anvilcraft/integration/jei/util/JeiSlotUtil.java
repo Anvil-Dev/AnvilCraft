@@ -1,14 +1,15 @@
 package dev.dubhe.anvilcraft.integration.jei.util;
 
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.common.gui.elements.DrawableText;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.List;
 
@@ -73,29 +74,24 @@ public class JeiSlotUtil {
         }
     }
 
-
-    public static void addSlotWithCount(IRecipeLayoutBuilder builder, int slotX, int slotY, Object2IntMap.Entry<Ingredient> entry) {
+    public static void addSlotWithCount(
+            IRecipeLayoutBuilder builder, int slotX, int slotY, Object2IntMap.Entry<Ingredient> entry) {
         IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.INPUT, slotX, slotY);
         slot.addIngredients(entry.getKey());
         if (entry.getIntValue() > 1) {
-            slot.setOverlay(
-                    new DrawableText("" + entry.getIntValue(), 2, 2, 0xFFFFFFFF),
-                    12, 12
-            );
+            slot.setOverlay(new DrawableText("" + entry.getIntValue(), 2, 2, 0xFFFFFFFF), 12, 12);
         }
     }
 
-    public static void addInputSlots(IRecipeLayoutBuilder builder, List<Object2IntMap.Entry<Ingredient>> mergedIngredients) {
+    public static void addInputSlots(
+            IRecipeLayoutBuilder builder, List<Object2IntMap.Entry<Ingredient>> mergedIngredients) {
         int inputSize = mergedIngredients.size();
         if (inputSize <= 1) {
             Object2IntMap.Entry<Ingredient> entry = mergedIngredients.getFirst();
             IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.INPUT, 21, 24);
             slot.addIngredients(entry.getKey());
             if (entry.getIntValue() > 1) {
-                slot.setOverlay(
-                        new DrawableText("" + entry.getIntValue(), 2, 2, 0xFFFFFFFF),
-                        12, 12
-                );
+                slot.setOverlay(new DrawableText("" + entry.getIntValue(), 2, 2, 0xFFFFFFFF), 12, 12);
             }
         } else if (inputSize <= 4) {
             int startX = 11;
@@ -128,8 +124,7 @@ public class JeiSlotUtil {
     public static void addOutputSlots(IRecipeLayoutBuilder builder, List<ItemStack> results) {
         int outputSize = results.size();
         if (outputSize <= 1) {
-            builder.addSlot(RecipeIngredientRole.OUTPUT, 125, 24)
-                    .addItemStack(results.getFirst());
+            builder.addSlot(RecipeIngredientRole.OUTPUT, 125, 24).addItemStack(results.getFirst());
         } else if (outputSize <= 4) {
             int startX = 117;
             int startY = 15;

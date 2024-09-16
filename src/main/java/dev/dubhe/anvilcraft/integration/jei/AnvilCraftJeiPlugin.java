@@ -8,8 +8,8 @@ import dev.dubhe.anvilcraft.integration.jei.category.anvil.MeshRecipeCategory;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MeshRecipeGroup;
 import dev.dubhe.anvilcraft.recipe.anvil.BlockCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.BlockCrushRecipe;
-
 import dev.dubhe.anvilcraft.recipe.anvil.ItemCompressRecipe;
+
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.resources.ResourceLocation;
 
@@ -33,7 +33,8 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
             createRecipeType("block_compress", BlockCompressRecipe.class);
     public static final RecipeType<BlockCrushRecipe> BLOCK_CRUSH =
             createRecipeType("block_crush", BlockCrushRecipe.class);
-    public static final RecipeType<ItemCompressRecipe> ITEM_COMPRESS = createRecipeType("item_compress", ItemCompressRecipe.class);
+    public static final RecipeType<ItemCompressRecipe> ITEM_COMPRESS =
+            createRecipeType("item_compress", ItemCompressRecipe.class);
     public static final RecipeType<MeshRecipeGroup> MESH = createRecipeType("mesh", MeshRecipeGroup.class);
 
     @Override
