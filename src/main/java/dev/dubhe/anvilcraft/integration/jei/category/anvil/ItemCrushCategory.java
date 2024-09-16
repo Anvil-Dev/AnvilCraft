@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
+import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
@@ -51,7 +52,9 @@ public class ItemCrushCategory implements IRecipeCategory<ItemCrushRecipe> {
 
     public ItemCrushCategory(IGuiHelper helper) {
         background = Lazy.of(() -> helper.createBlankDrawable(WIDTH, HEIGHT));
-        icon = helper.createDrawableItemStack(new ItemStack(Items.IRON_TRAPDOOR));
+        icon = new DrawableBlockStateIcon(
+                Blocks.ANVIL.defaultBlockState(),
+                Blocks.IRON_TRAPDOOR.defaultBlockState().setValue(TrapDoorBlock.HALF, Half.TOP));
         slot = helper.getSlotDrawable();
         title = Component.translatable("gui.anvilcraft.category.item_crush");
         timer = helper.createTickTimer(30, 60, true);
