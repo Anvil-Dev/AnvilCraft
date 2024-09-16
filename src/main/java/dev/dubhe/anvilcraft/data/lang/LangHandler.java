@@ -17,6 +17,6 @@ public class LangHandler {
         OtherLang.init(provider);
         PatchouliLang.init(provider);
         ScreenLang.init(provider);
-        EmiLang.init(provider);
+        JeiLang.init(provider);
     }
 }

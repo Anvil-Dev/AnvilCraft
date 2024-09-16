@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.integration.jei.category.anvil.BoilingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.CookingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.ItemCompressCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.ItemCrushCategory;
+import dev.dubhe.anvilcraft.integration.jei.category.anvil.ItemInjectCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.MeshRecipeCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.SqueezingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.StampingCategory;
@@ -18,6 +19,7 @@ import dev.dubhe.anvilcraft.recipe.anvil.BoilingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.CookingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.ItemCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.ItemCrushRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.ItemInjectRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.SqueezingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.StampingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.SuperHeatingRecipe;
@@ -46,6 +48,8 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
             createRecipeType("block_compress", BlockCompressRecipe.class);
     public static final RecipeType<BlockCrushRecipe> BLOCK_CRUSH =
             createRecipeType("block_crush", BlockCrushRecipe.class);
+    public static final RecipeType<ItemInjectRecipe> ITEM_INJECT =
+            createRecipeType("item_inject", ItemInjectRecipe.class);
     public static final RecipeType<ItemCompressRecipe> ITEM_COMPRESS =
             createRecipeType("item_compress", ItemCompressRecipe.class);
     public static final RecipeType<ItemCrushRecipe> ITEM_CRUSH = createRecipeType("item_crush", ItemCrushRecipe.class);
@@ -66,13 +70,14 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         MeshRecipeCategory.registerRecipes(registration);
         BlockCompressCategory.registerRecipes(registration);
         BlockCrushCategory.registerRecipes(registration);
+        SqueezingCategory.registerRecipes(registration);
+        ItemInjectCategory.registerRecipes(registration);
         ItemCompressCategory.registerRecipes(registration);
         ItemCrushCategory.registerRecipes(registration);
         CookingCategory.registerRecipes(registration);
         BoilingCategory.registerRecipes(registration);
         StampingCategory.registerRecipes(registration);
         SuperHeatingCategory.registerRecipes(registration);
-        SqueezingCategory.registerRecipes(registration);
     }
 
     @Override
@@ -80,13 +85,14 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         MeshRecipeCategory.registerRecipeCatalysts(registration);
         BlockCompressCategory.registerRecipeCatalysts(registration);
         BlockCrushCategory.registerRecipeCatalysts(registration);
+        SqueezingCategory.registerRecipeCatalysts(registration);
+        ItemInjectCategory.registerRecipeCatalysts(registration);
         ItemCompressCategory.registerRecipeCatalysts(registration);
         ItemCrushCategory.registerRecipeCatalysts(registration);
         CookingCategory.registerRecipeCatalysts(registration);
         BoilingCategory.registerRecipeCatalysts(registration);
         StampingCategory.registerRecipeCatalysts(registration);
         SuperHeatingCategory.registerRecipeCatalysts(registration);
-        SqueezingCategory.registerRecipeCatalysts(registration);
     }
 
     @Override
@@ -97,13 +103,14 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         registration.addRecipeCategories(new MeshRecipeCategory(guiHelper));
         registration.addRecipeCategories(new BlockCompressCategory(guiHelper));
         registration.addRecipeCategories(new BlockCrushCategory(guiHelper));
+        registration.addRecipeCategories(new SqueezingCategory(guiHelper));
+        registration.addRecipeCategories(new ItemInjectCategory(guiHelper));
         registration.addRecipeCategories(new ItemCompressCategory(guiHelper));
         registration.addRecipeCategories(new ItemCrushCategory(guiHelper));
         registration.addRecipeCategories(new CookingCategory(guiHelper));
         registration.addRecipeCategories(new BoilingCategory(guiHelper));
         registration.addRecipeCategories(new StampingCategory(guiHelper));
         registration.addRecipeCategories(new SuperHeatingCategory(guiHelper));
-        registration.addRecipeCategories(new SqueezingCategory(guiHelper));
     }
 
     public static <T> RecipeType<T> createRecipeType(String name, Class<T> clazz) {

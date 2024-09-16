@@ -18,7 +18,6 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import lombok.Getter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -36,7 +35,7 @@ public abstract class AbstractItemProcessRecipe implements Recipe<ItemProcessInp
 
     public AbstractItemProcessRecipe(NonNullList<Ingredient> ingredients, List<ItemStack> results) {
         this.ingredients = ingredients;
-        this.mergedIngredients = mergeIngredient(ingredients);
+        this.mergedIngredients = RecipeUtil.mergeIngredient(ingredients);
         this.results = results;
         this.isSimple = ingredients.stream().allMatch(Ingredient::isSimple);
     }
@@ -94,22 +93,5 @@ public abstract class AbstractItemProcessRecipe implements Recipe<ItemProcessInp
                 return times;
             }
         }
-    }
-
-    public static List<Object2IntMap.Entry<Ingredient>> mergeIngredient(List<Ingredient> ingredients) {
-        Object2IntMap<Ingredient> margeIngredients = new Object2IntOpenHashMap<>();
-        for (Ingredient ingredient : ingredients) {
-            boolean flag = false;
-            for (Ingredient key : margeIngredients.keySet()) {
-                if (RecipeUtil.isIngredientsEqual(ingredient, key)) {
-                    margeIngredients.put(key, margeIngredients.getInt(key) + 1);
-                    flag = true;
-                }
-            }
-            if (!flag) {
-                margeIngredients.put(ingredient, 1);
-            }
-        }
-        return new ArrayList<>(margeIngredients.object2IntEntrySet());
     }
 }

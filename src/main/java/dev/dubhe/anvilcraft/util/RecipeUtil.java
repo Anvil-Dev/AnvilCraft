@@ -8,9 +8,13 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class RecipeUtil {
     private static final byte CONSTANT_TYPE = 1;
@@ -121,5 +125,22 @@ public class RecipeUtil {
         } else {
             return false;
         }
+    }
+
+    public static List<Object2IntMap.Entry<Ingredient>> mergeIngredient(List<Ingredient> ingredients) {
+        Object2IntMap<Ingredient> margeIngredients = new Object2IntOpenHashMap<>();
+        for (Ingredient ingredient : ingredients) {
+            boolean flag = false;
+            for (Ingredient key : margeIngredients.keySet()) {
+                if (isIngredientsEqual(ingredient, key)) {
+                    margeIngredients.put(key, margeIngredients.getInt(key) + 1);
+                    flag = true;
+                }
+            }
+            if (!flag) {
+                margeIngredients.put(ingredient, 1);
+            }
+        }
+        return new ArrayList<>(margeIngredients.object2IntEntrySet());
     }
 }

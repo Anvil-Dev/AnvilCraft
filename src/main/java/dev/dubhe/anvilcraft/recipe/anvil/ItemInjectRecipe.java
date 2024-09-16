@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.recipe.anvil;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.util.CodecUtil;
+import dev.dubhe.anvilcraft.util.RecipeUtil;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
@@ -42,11 +43,13 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 public class ItemInjectRecipe implements Recipe<ItemInjectRecipe.Input> {
     public final NonNullList<Ingredient> ingredients;
+    public final List<Object2IntMap.Entry<Ingredient>> mergedIngredients;
     public final Block inputBlock;
     public final Block resultBlock;
 
     public ItemInjectRecipe(NonNullList<Ingredient> ingredients, Block inputBlock, Block resultBlock) {
         this.ingredients = ingredients;
+        this.mergedIngredients = RecipeUtil.mergeIngredient(ingredients);
         this.inputBlock = inputBlock;
         this.resultBlock = resultBlock;
     }
