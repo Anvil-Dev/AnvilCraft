@@ -16,6 +16,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.util.Lazy;
 
+import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -41,6 +42,7 @@ public class BlockCrushCategory implements IRecipeCategory<BlockCrushRecipe> {
     private final IDrawable progress;
     private final IDrawable icon;
     private final Component title;
+    private final ITickTimer timer;
 
     public BlockCrushCategory(IGuiHelper helper) {
         background = Lazy.of(() -> helper.createBlankDrawable(WIDTH, HEIGHT));
@@ -49,6 +51,7 @@ public class BlockCrushCategory implements IRecipeCategory<BlockCrushRecipe> {
                 .build();
         icon = helper.createDrawableItemStack(new ItemStack(Items.ANVIL));
         title = Component.translatable("gui.anvilcraft.category.block_crush");
+        timer = helper.createTickTimer(30, 60, true);
     }
 
     @Override
@@ -84,10 +87,17 @@ public class BlockCrushCategory implements IRecipeCategory<BlockCrushRecipe> {
             GuiGraphics guiGraphics,
             double mouseX,
             double mouseY) {
+        float anvilYOffset = RenderHelper.getAnvilAnimationOffset(timer);
         progress.draw(guiGraphics, 69, 30);
 
         RenderHelper.renderBlock(
-                guiGraphics, Blocks.ANVIL.defaultBlockState(), 50, 20, 10, 12, RenderHelper.SINGLE_BLOCK);
+                guiGraphics,
+                Blocks.ANVIL.defaultBlockState(),
+                50,
+                22 + anvilYOffset,
+                20,
+                12,
+                RenderHelper.SINGLE_BLOCK);
         RenderHelper.renderBlock(
                 guiGraphics, recipe.input.defaultBlockState(), 50, 40, 10, 12, RenderHelper.SINGLE_BLOCK);
 

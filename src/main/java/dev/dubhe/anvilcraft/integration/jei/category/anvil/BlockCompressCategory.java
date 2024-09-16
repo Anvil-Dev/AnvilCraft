@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.util.Lazy;
 
+import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -42,6 +43,7 @@ public class BlockCompressCategory implements IRecipeCategory<BlockCompressRecip
     private final Lazy<IDrawable> background;
     private final IDrawable progress;
     private final IDrawable icon;
+    private final ITickTimer timer;
     private final Component title;
 
     public BlockCompressCategory(IGuiHelper helper) {
@@ -51,6 +53,7 @@ public class BlockCompressCategory implements IRecipeCategory<BlockCompressRecip
                 .build();
         icon = helper.createDrawableItemStack(new ItemStack(Items.ANVIL));
         title = Component.translatable("gui.anvilcraft.category.block_compress");
+        timer = helper.createTickTimer(30, 60, true);
     }
 
     @Override
@@ -88,10 +91,17 @@ public class BlockCompressCategory implements IRecipeCategory<BlockCompressRecip
             GuiGraphics guiGraphics,
             double mouseX,
             double mouseY) {
+        float anvilYOffset = RenderHelper.getAnvilAnimationOffset(timer);
         progress.draw(guiGraphics, 69, 30);
 
         RenderHelper.renderBlock(
-                guiGraphics, Blocks.ANVIL.defaultBlockState(), 50, 10, 10, 12, RenderHelper.SINGLE_BLOCK);
+                guiGraphics,
+                Blocks.ANVIL.defaultBlockState(),
+                50,
+                12 + anvilYOffset,
+                20,
+                12,
+                RenderHelper.SINGLE_BLOCK);
 
         for (int i = recipe.inputs.size() - 1; i >= 0; i--) {
             Block input = recipe.inputs.get(i);
