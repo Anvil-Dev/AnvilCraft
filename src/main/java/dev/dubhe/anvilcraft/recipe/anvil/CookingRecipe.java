@@ -22,13 +22,15 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class CookingRecipe extends AbstractItemProcessRecipe {
-    public CookingRecipe(NonNullList<Ingredient> ingredients, ItemStack result) {
-        super(ingredients, result);
+    public CookingRecipe(NonNullList<Ingredient> ingredients, List<ItemStack> results) {
+        super(ingredients, results);
     }
 
     @Contract(" -> new")
@@ -55,7 +57,7 @@ public class CookingRecipe extends AbstractItemProcessRecipe {
         private static final MapCodec<CookingRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
                         CodecUtil.createIngredientListCodec("ingredients", 9, "cooking")
                                 .forGetter(CookingRecipe::getIngredients),
-                        ItemStack.CODEC.fieldOf("result").forGetter(CookingRecipe::getResult))
+                        ItemStack.CODEC.listOf().fieldOf("result").forGetter(CookingRecipe::getResults))
                 .apply(ins, CookingRecipe::new));
 
         private static final StreamCodec<RegistryFriendlyByteBuf, CookingRecipe> STREAM_CODEC =
@@ -72,15 +74,22 @@ public class CookingRecipe extends AbstractItemProcessRecipe {
         }
 
         private static CookingRecipe decode(RegistryFriendlyByteBuf buf) {
-            ItemStack result = ItemStack.STREAM_CODEC.decode(buf);
+            List<ItemStack> results = new ArrayList<>();
             int size = buf.readVarInt();
+            for (int i = 0; i < size; i++) {
+                results.add(ItemStack.STREAM_CODEC.decode(buf));
+            }
+            size = buf.readVarInt();
             NonNullList<Ingredient> ingredients = NonNullList.withSize(size, Ingredient.EMPTY);
             ingredients.replaceAll(i -> Ingredient.CONTENTS_STREAM_CODEC.decode(buf));
-            return new CookingRecipe(ingredients, result);
+            return new CookingRecipe(ingredients, results);
         }
 
         private static void encode(RegistryFriendlyByteBuf buf, CookingRecipe recipe) {
-            ItemStack.STREAM_CODEC.encode(buf, recipe.result);
+            buf.writeVarInt(recipe.results.size());
+            for (ItemStack stack : recipe.results) {
+                ItemStack.STREAM_CODEC.encode(buf, stack);
+            }
             buf.writeVarInt(recipe.ingredients.size());
             for (Ingredient ingredient : recipe.ingredients) {
                 Ingredient.CONTENTS_STREAM_CODEC.encode(buf, ingredient);
@@ -91,7 +100,7 @@ public class CookingRecipe extends AbstractItemProcessRecipe {
     public static class Builder extends AbstractItemProcessBuilder<CookingRecipe> {
         @Override
         public CookingRecipe buildRecipe() {
-            return new CookingRecipe(ingredients, result);
+            return new CookingRecipe(ingredients, results);
         }
 
         @Override

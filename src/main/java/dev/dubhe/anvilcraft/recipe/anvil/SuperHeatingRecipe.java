@@ -29,6 +29,8 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @MethodsReturnNonnullByDefault
@@ -37,8 +39,8 @@ public class SuperHeatingRecipe extends AbstractItemProcessRecipe {
 
     public final Block blockResult;
 
-    public SuperHeatingRecipe(NonNullList<Ingredient> ingredients, ItemStack result, Block blockResult) {
-        super(ingredients, result);
+    public SuperHeatingRecipe(NonNullList<Ingredient> ingredients, List<ItemStack> results, Block blockResult) {
+        super(ingredients, results);
         this.blockResult = blockResult;
     }
 
@@ -75,8 +77,9 @@ public class SuperHeatingRecipe extends AbstractItemProcessRecipe {
                         CodecUtil.createIngredientListCodec("ingredients", 64, "super_heating")
                                 .forGetter(SuperHeatingRecipe::getIngredients),
                         ItemStack.OPTIONAL_CODEC
-                                .optionalFieldOf("result", ItemStack.EMPTY)
-                                .forGetter(SuperHeatingRecipe::getResult),
+                                .listOf()
+                                .optionalFieldOf("result", List.of())
+                                .forGetter(SuperHeatingRecipe::getResults),
                         CodecUtil.BLOCK_CODEC
                                 .optionalFieldOf("block_result", Blocks.AIR)
                                 .forGetter(SuperHeatingRecipe::getBlockResult))
@@ -96,16 +99,23 @@ public class SuperHeatingRecipe extends AbstractItemProcessRecipe {
         }
 
         private static SuperHeatingRecipe decode(RegistryFriendlyByteBuf buf) {
-            ItemStack result = ItemStack.OPTIONAL_STREAM_CODEC.decode(buf);
+            List<ItemStack> results = new ArrayList<>();
             int size = buf.readVarInt();
+            for (int i = 0; i < size; i++) {
+                results.add(ItemStack.OPTIONAL_STREAM_CODEC.decode(buf));
+            }
+            size = buf.readVarInt();
             NonNullList<Ingredient> ingredients = NonNullList.withSize(size, Ingredient.EMPTY);
             ingredients.replaceAll(i -> Ingredient.CONTENTS_STREAM_CODEC.decode(buf));
             Block blockResult = CodecUtil.BLOCK_STREAM_CODEC.decode(buf);
-            return new SuperHeatingRecipe(ingredients, result, blockResult);
+            return new SuperHeatingRecipe(ingredients, results, blockResult);
         }
 
         private static void encode(RegistryFriendlyByteBuf buf, SuperHeatingRecipe recipe) {
-            ItemStack.OPTIONAL_STREAM_CODEC.encode(buf, recipe.result);
+            buf.writeVarInt(recipe.results.size());
+            for (ItemStack stack : recipe.results) {
+                ItemStack.OPTIONAL_STREAM_CODEC.encode(buf, stack);
+            }
             buf.writeVarInt(recipe.ingredients.size());
             for (Ingredient ingredient : recipe.ingredients) {
                 Ingredient.CONTENTS_STREAM_CODEC.encode(buf, ingredient);
@@ -122,14 +132,14 @@ public class SuperHeatingRecipe extends AbstractItemProcessRecipe {
         @Override
         public void save(RecipeOutput recipeOutput) {
             ResourceLocation id;
-            if (result == null || result.isEmpty()) {
+            if (results.isEmpty()) {
                 if (blockResult != null) {
                     id = BuiltInRegistries.BLOCK.getKey(blockResult);
                 } else {
                     throw new IllegalArgumentException("Recipe either result or blockResult must not be null");
                 }
             } else {
-                id = BuiltInRegistries.ITEM.getKey(result.getItem());
+                id = BuiltInRegistries.ITEM.getKey(results.getFirst().getItem());
             }
             save(recipeOutput, AnvilCraft.of(id.getPath()).withPrefix(getType() + "/"));
         }
@@ -139,7 +149,7 @@ public class SuperHeatingRecipe extends AbstractItemProcessRecipe {
             if (ingredients.isEmpty() || ingredients.size() > 64) {
                 throw new IllegalArgumentException("Recipe ingredients size must in 0-64, RecipeId: " + pId);
             }
-            if (result == null && blockResult == null) {
+            if (results.isEmpty() && blockResult == null) {
                 throw new IllegalArgumentException(
                         "Recipe either result or blockResult must not be null, RecipeId: " + pId);
             }
@@ -147,13 +157,10 @@ public class SuperHeatingRecipe extends AbstractItemProcessRecipe {
 
         @Override
         public SuperHeatingRecipe buildRecipe() {
-            if (result == null) {
-                result = ItemStack.EMPTY;
-            }
             if (blockResult == null) {
                 blockResult = Blocks.AIR;
             }
-            return new SuperHeatingRecipe(ingredients, result, blockResult);
+            return new SuperHeatingRecipe(ingredients, results, blockResult);
         }
 
         @Override

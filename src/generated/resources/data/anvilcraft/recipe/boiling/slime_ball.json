@@ -5,8 +5,10 @@
       "item": "anvilcraft:resin"
     }
   ],
-  "result": {
-    "count": 1,
-    "id": "minecraft:slime_ball"
-  }
+  "result": [
+    {
+      "count": 1,
+      "id": "minecraft:slime_ball"
+    }
+  ]
 }

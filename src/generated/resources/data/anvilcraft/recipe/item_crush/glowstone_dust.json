@@ -5,8 +5,10 @@
       "item": "minecraft:glowstone"
     }
   ],
-  "result": {
-    "count": 4,
-    "id": "minecraft:glowstone_dust"
-  }
+  "result": [
+    {
+      "count": 4,
+      "id": "minecraft:glowstone_dust"
+    }
+  ]
 }

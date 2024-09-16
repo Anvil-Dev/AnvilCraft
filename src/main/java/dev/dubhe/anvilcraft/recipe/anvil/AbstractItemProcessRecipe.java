@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.recipe.anvil;
 
 import dev.dubhe.anvilcraft.recipe.anvil.input.ItemProcessInput;
 
+import dev.dubhe.anvilcraft.util.RecipeUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
@@ -18,20 +19,24 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import lombok.Getter;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public abstract class AbstractItemProcessRecipe implements Recipe<ItemProcessInput> {
     public final NonNullList<Ingredient> ingredients;
-    public final ItemStack result;
+    public final List<Object2IntMap.Entry<Ingredient>> mergedIngredients;
+    public final List<ItemStack> results;
     public final boolean isSimple;
     protected ItemProcessInput cacheInput;
     protected int cacheMaxCraftTime = -1;
 
-    public AbstractItemProcessRecipe(NonNullList<Ingredient> ingredients, ItemStack result) {
+    public AbstractItemProcessRecipe(NonNullList<Ingredient> ingredients, List<ItemStack> results) {
         this.ingredients = ingredients;
-        this.result = result;
+        this.mergedIngredients = mergeIngredient(ingredients);
+        this.results = results;
         this.isSimple = ingredients.stream().allMatch(Ingredient::isSimple);
     }
 
@@ -42,7 +47,7 @@ public abstract class AbstractItemProcessRecipe implements Recipe<ItemProcessInp
 
     @Override
     public ItemStack getResultItem(HolderLookup.Provider pRegistries) {
-        return result;
+        return results.getFirst();
     }
 
     @Override
@@ -52,7 +57,7 @@ public abstract class AbstractItemProcessRecipe implements Recipe<ItemProcessInp
 
     @Override
     public ItemStack assemble(ItemProcessInput pInput, HolderLookup.Provider pRegistries) {
-        return this.result.copy();
+        return this.results.getFirst();
     }
 
     public int getMaxCraftTime(ItemProcessInput pInput) {
@@ -88,5 +93,22 @@ public abstract class AbstractItemProcessRecipe implements Recipe<ItemProcessInp
                 return times;
             }
         }
+    }
+
+    public static List<Object2IntMap.Entry<Ingredient>> mergeIngredient(List<Ingredient> ingredients) {
+        Object2IntMap<Ingredient> margeIngredients = new Object2IntOpenHashMap<>();
+        for (Ingredient ingredient : ingredients) {
+            boolean flag = false;
+            for (Ingredient key : margeIngredients.keySet()) {
+                if (RecipeUtil.isIngredientsEqual(ingredient, key)) {
+                    margeIngredients.put(key, margeIngredients.getInt(key) + 1);
+                    flag = true;
+                }
+            }
+            if (!flag) {
+                margeIngredients.put(ingredient, 1);
+            }
+        }
+        return new ArrayList<>(margeIngredients.object2IntEntrySet());
     }
 }

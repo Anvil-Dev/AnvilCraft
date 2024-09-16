@@ -5,8 +5,10 @@
       "item": "anvilcraft:beef_mushroom_stew_raw"
     }
   ],
-  "result": {
-    "count": 1,
-    "id": "anvilcraft:beef_mushroom_stew"
-  }
+  "result": [
+    {
+      "count": 1,
+      "id": "anvilcraft:beef_mushroom_stew"
+    }
+  ]
 }

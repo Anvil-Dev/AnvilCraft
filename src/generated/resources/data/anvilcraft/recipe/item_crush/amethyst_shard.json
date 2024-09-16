@@ -5,8 +5,10 @@
       "item": "minecraft:amethyst_block"
     }
   ],
-  "result": {
-    "count": 4,
-    "id": "minecraft:amethyst_shard"
-  }
+  "result": [
+    {
+      "count": 4,
+      "id": "minecraft:amethyst_shard"
+    }
+  ]
 }

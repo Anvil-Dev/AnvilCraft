@@ -17,8 +17,10 @@
       "item": "minecraft:sugar"
     }
   ],
-  "result": {
-    "count": 1,
-    "id": "anvilcraft:cream_block"
-  }
+  "result": [
+    {
+      "count": 1,
+      "id": "anvilcraft:cream_block"
+    }
+  ]
 }

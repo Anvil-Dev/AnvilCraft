@@ -5,8 +5,10 @@
       "item": "minecraft:prismarine_bricks"
     }
   ],
-  "result": {
-    "count": 9,
-    "id": "minecraft:prismarine_shard"
-  }
+  "result": [
+    {
+      "count": 9,
+      "id": "minecraft:prismarine_shard"
+    }
+  ]
 }

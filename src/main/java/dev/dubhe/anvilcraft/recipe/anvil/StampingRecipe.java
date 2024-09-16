@@ -19,12 +19,14 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.ArrayList;
+import java.util.List;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class StampingRecipe extends AbstractItemProcessRecipe {
-    public StampingRecipe(NonNullList<Ingredient> ingredients, ItemStack result) {
-        super(ingredients, result);
+    public StampingRecipe(NonNullList<Ingredient> ingredients, List<ItemStack> results) {
+        super(ingredients, results);
     }
 
     @Contract(" -> new")
@@ -46,7 +48,7 @@ public class StampingRecipe extends AbstractItemProcessRecipe {
         private static final MapCodec<StampingRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
                         CodecUtil.createIngredientListCodec("ingredients", 9, "stamping")
                                 .forGetter(StampingRecipe::getIngredients),
-                        ItemStack.CODEC.fieldOf("result").forGetter(StampingRecipe::getResult))
+                        ItemStack.CODEC.listOf().fieldOf("result").forGetter(StampingRecipe::getResults))
                 .apply(ins, StampingRecipe::new));
 
         private static final StreamCodec<RegistryFriendlyByteBuf, StampingRecipe> STREAM_CODEC =
@@ -63,15 +65,22 @@ public class StampingRecipe extends AbstractItemProcessRecipe {
         }
 
         private static StampingRecipe decode(RegistryFriendlyByteBuf buf) {
-            ItemStack result = ItemStack.STREAM_CODEC.decode(buf);
+            List<ItemStack> results = new ArrayList<>();
             int size = buf.readVarInt();
+            for (int i = 0; i < size; i++) {
+                results.add(ItemStack.STREAM_CODEC.decode(buf));
+            }
+            size = buf.readVarInt();
             NonNullList<Ingredient> ingredients = NonNullList.withSize(size, Ingredient.EMPTY);
             ingredients.replaceAll(i -> Ingredient.CONTENTS_STREAM_CODEC.decode(buf));
-            return new StampingRecipe(ingredients, result);
+            return new StampingRecipe(ingredients, results);
         }
 
         private static void encode(RegistryFriendlyByteBuf buf, StampingRecipe recipe) {
-            ItemStack.STREAM_CODEC.encode(buf, recipe.result);
+            buf.writeVarInt(recipe.results.size());
+            for (ItemStack stack : recipe.results) {
+                ItemStack.STREAM_CODEC.encode(buf, stack);
+            }
             buf.writeVarInt(recipe.ingredients.size());
             for (Ingredient ingredient : recipe.ingredients) {
                 Ingredient.CONTENTS_STREAM_CODEC.encode(buf, ingredient);
@@ -82,7 +91,7 @@ public class StampingRecipe extends AbstractItemProcessRecipe {
     public static class Builder extends AbstractItemProcessBuilder<StampingRecipe> {
         @Override
         public StampingRecipe buildRecipe() {
-            return new StampingRecipe(ingredients, result);
+            return new StampingRecipe(ingredients, results);
         }
 
         @Override

@@ -11,8 +11,10 @@
       "item": "minecraft:bone"
     }
   ],
-  "result": {
-    "count": 1,
-    "id": "minecraft:bone_block"
-  }
+  "result": [
+    {
+      "count": 1,
+      "id": "minecraft:bone_block"
+    }
+  ]
 }

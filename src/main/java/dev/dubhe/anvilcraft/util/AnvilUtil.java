@@ -28,8 +28,8 @@ public class AnvilUtil {
         ItemProcessInput input = new ItemProcessInput(items.values().stream().toList());
         level.getRecipeManager().getRecipeFor(recipeType, input, level).ifPresent(recipe -> {
             int times = recipe.value().getMaxCraftTime(input);
-            ItemStack result = recipe.value().result.copy();
-            result.setCount(times * result.getCount());
+            List<ItemStack> results = recipe.value().results.stream().map(ItemStack::copy).toList();
+            results.forEach(s -> s.setCount(s.getCount() + times));
             for (int i = 0; i < times; i++) {
                 for (Ingredient ingredient : recipe.value().getIngredients()) {
                     for (ItemStack stack : items.values()) {
@@ -40,7 +40,7 @@ public class AnvilUtil {
                     }
                 }
             }
-            dropItems(List.of(result), level, resultPos);
+            dropItems(results, level, resultPos);
         });
         items.forEach((k, v) -> {
             if (v.isEmpty()) {

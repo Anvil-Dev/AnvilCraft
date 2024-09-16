@@ -5,8 +5,10 @@
       "item": "anvilcraft:resin"
     }
   ],
-  "result": {
-    "count": 1,
-    "id": "anvilcraft:hardend_resin"
-  }
+  "result": [
+    {
+      "count": 1,
+      "id": "anvilcraft:hardend_resin"
+    }
+  ]
 }

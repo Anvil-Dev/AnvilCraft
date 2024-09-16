@@ -18,13 +18,15 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.Getter;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class ItemCrushRecipe extends AbstractItemProcessRecipe {
 
-    public ItemCrushRecipe(NonNullList<Ingredient> ingredients, ItemStack result) {
+    public ItemCrushRecipe(NonNullList<Ingredient> ingredients, List<ItemStack> result) {
         super(ingredients, result);
     }
 
@@ -46,7 +48,7 @@ public class ItemCrushRecipe extends AbstractItemProcessRecipe {
         private static final MapCodec<ItemCrushRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
                         CodecUtil.createIngredientListCodec("ingredients", 9, "item_crush")
                                 .forGetter(ItemCrushRecipe::getIngredients),
-                        ItemStack.CODEC.fieldOf("result").forGetter(ItemCrushRecipe::getResult))
+                        ItemStack.CODEC.listOf().fieldOf("result").forGetter(ItemCrushRecipe::getResults))
                 .apply(ins, ItemCrushRecipe::new));
 
         private static final StreamCodec<RegistryFriendlyByteBuf, ItemCrushRecipe> STREAM_CODEC =
@@ -63,15 +65,22 @@ public class ItemCrushRecipe extends AbstractItemProcessRecipe {
         }
 
         private static ItemCrushRecipe decode(RegistryFriendlyByteBuf buf) {
-            ItemStack result = ItemStack.STREAM_CODEC.decode(buf);
+            List<ItemStack> results = new ArrayList<>();
             int size = buf.readVarInt();
+            for (int i = 0; i < size; i++) {
+                results.add(ItemStack.STREAM_CODEC.decode(buf));
+            }
+            size = buf.readVarInt();
             NonNullList<Ingredient> ingredients = NonNullList.withSize(size, Ingredient.EMPTY);
             ingredients.replaceAll(i -> Ingredient.CONTENTS_STREAM_CODEC.decode(buf));
-            return new ItemCrushRecipe(ingredients, result);
+            return new ItemCrushRecipe(ingredients, results);
         }
 
         private static void encode(RegistryFriendlyByteBuf buf, ItemCrushRecipe recipe) {
-            ItemStack.STREAM_CODEC.encode(buf, recipe.result);
+            buf.writeVarInt(recipe.results.size());
+            for (ItemStack stack : recipe.results) {
+                ItemStack.STREAM_CODEC.encode(buf, stack);
+            }
             buf.writeVarInt(recipe.ingredients.size());
             for (Ingredient ingredient : recipe.ingredients) {
                 Ingredient.CONTENTS_STREAM_CODEC.encode(buf, ingredient);
@@ -82,7 +91,7 @@ public class ItemCrushRecipe extends AbstractItemProcessRecipe {
     public static class Builder extends AbstractItemProcessBuilder<ItemCrushRecipe> {
         @Override
         public ItemCrushRecipe buildRecipe() {
-            return new ItemCrushRecipe(ingredients, result);
+            return new ItemCrushRecipe(ingredients, results);
         }
 
         @Override

@@ -5,8 +5,10 @@
       "item": "minecraft:honeycomb_block"
     }
   ],
-  "result": {
-    "count": 4,
-    "id": "minecraft:honeycomb"
-  }
+  "result": [
+    {
+      "count": 4,
+      "id": "minecraft:honeycomb"
+    }
+  ]
 }

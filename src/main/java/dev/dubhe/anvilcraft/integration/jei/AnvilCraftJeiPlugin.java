@@ -3,11 +3,13 @@ package dev.dubhe.anvilcraft.integration.jei;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.BlockCompressCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.BlockCrushCategory;
+import dev.dubhe.anvilcraft.integration.jei.category.anvil.ItemCompressCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.MeshRecipeCategory;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MeshRecipeGroup;
 import dev.dubhe.anvilcraft.recipe.anvil.BlockCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.BlockCrushRecipe;
 
+import dev.dubhe.anvilcraft.recipe.anvil.ItemCompressRecipe;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.resources.ResourceLocation;
 
@@ -31,6 +33,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
             createRecipeType("block_compress", BlockCompressRecipe.class);
     public static final RecipeType<BlockCrushRecipe> BLOCK_CRUSH =
             createRecipeType("block_crush", BlockCrushRecipe.class);
+    public static final RecipeType<ItemCompressRecipe> ITEM_COMPRESS = createRecipeType("item_compress", ItemCompressRecipe.class);
     public static final RecipeType<MeshRecipeGroup> MESH = createRecipeType("mesh", MeshRecipeGroup.class);
 
     @Override
@@ -43,6 +46,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         MeshRecipeCategory.registerRecipes(registration);
         BlockCompressCategory.registerRecipes(registration);
         BlockCrushCategory.registerRecipes(registration);
+        ItemCompressCategory.registerRecipes(registration);
     }
 
     @Override
@@ -50,6 +54,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         MeshRecipeCategory.registerRecipeCatalysts(registration);
         BlockCompressCategory.registerRecipeCatalysts(registration);
         BlockCrushCategory.registerRecipeCatalysts(registration);
+        ItemCompressCategory.registerRecipeCatalysts(registration);
     }
 
     @Override
@@ -60,6 +65,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         registration.addRecipeCategories(new MeshRecipeCategory(guiHelper));
         registration.addRecipeCategories(new BlockCompressCategory(guiHelper));
         registration.addRecipeCategories(new BlockCrushCategory(guiHelper));
+        registration.addRecipeCategories(new ItemCompressCategory(guiHelper));
     }
 
     public static <T> RecipeType<T> createRecipeType(String name, Class<T> clazz) {

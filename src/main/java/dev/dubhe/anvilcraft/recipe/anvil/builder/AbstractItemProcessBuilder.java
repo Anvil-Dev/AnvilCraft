@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.recipe.anvil.builder;
 
 import dev.dubhe.anvilcraft.recipe.anvil.AbstractItemProcessRecipe;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -13,11 +14,17 @@ import net.minecraft.world.level.ItemLike;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.ArrayList;
+import java.util.List;
+
 @Setter
 @Accessors(fluent = true, chain = true)
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public abstract class AbstractItemProcessBuilder<T extends AbstractItemProcessRecipe> extends AbstractRecipeBuilder<T> {
     protected NonNullList<Ingredient> ingredients = NonNullList.create();
-    protected ItemStack result;
+    protected List<ItemStack> results = new ArrayList<>();
 
     public AbstractItemProcessBuilder<T> requires(Ingredient ingredient, int count) {
         for (int i = 0; i < count; i++) {
@@ -46,18 +53,23 @@ public abstract class AbstractItemProcessBuilder<T extends AbstractItemProcessRe
         return requires(pTag, 1);
     }
 
+    public AbstractItemProcessBuilder<T> result(ItemStack stack) {
+        results.add(stack);
+        return this;
+    }
+
     @Override
     public void validate(ResourceLocation pId) {
         if (ingredients.isEmpty() || ingredients.size() > 9) {
             throw new IllegalArgumentException("Recipe ingredients size must in 0-9, RecipeId: " + pId);
         }
-        if (result == null) {
-            throw new IllegalArgumentException("Recipe result must not be null, RecipeId: " + pId);
+        if (results.isEmpty()) {
+            throw new IllegalArgumentException("Recipe results must not be null, RecipeId: " + pId);
         }
     }
 
     @Override
     public Item getResult() {
-        return result.getItem();
+        return results.getFirst().getItem();
     }
 }

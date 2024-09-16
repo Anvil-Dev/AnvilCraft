@@ -19,12 +19,14 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.ArrayList;
+import java.util.List;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class ItemCompressRecipe extends AbstractItemProcessRecipe {
-    public ItemCompressRecipe(NonNullList<Ingredient> ingredients, ItemStack result) {
-        super(ingredients, result);
+    public ItemCompressRecipe(NonNullList<Ingredient> ingredients, List<ItemStack> results) {
+        super(ingredients, results);
     }
 
     @Contract(" -> new")
@@ -46,7 +48,7 @@ public class ItemCompressRecipe extends AbstractItemProcessRecipe {
         private static final MapCodec<ItemCompressRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
                         CodecUtil.createIngredientListCodec("ingredients", 9, "item_compress")
                                 .forGetter(ItemCompressRecipe::getIngredients),
-                        ItemStack.CODEC.fieldOf("result").forGetter(ItemCompressRecipe::getResult))
+                        ItemStack.CODEC.listOf().fieldOf("result").forGetter(ItemCompressRecipe::getResults))
                 .apply(ins, ItemCompressRecipe::new));
 
         private static final StreamCodec<RegistryFriendlyByteBuf, ItemCompressRecipe> STREAM_CODEC =
@@ -63,15 +65,22 @@ public class ItemCompressRecipe extends AbstractItemProcessRecipe {
         }
 
         private static ItemCompressRecipe decode(RegistryFriendlyByteBuf buf) {
-            ItemStack result = ItemStack.STREAM_CODEC.decode(buf);
+            List<ItemStack> results = new ArrayList<>();
             int size = buf.readVarInt();
+            for (int i = 0; i < size; i++) {
+                results.add(ItemStack.STREAM_CODEC.decode(buf));
+            }
+            size = buf.readVarInt();
             NonNullList<Ingredient> ingredients = NonNullList.withSize(size, Ingredient.EMPTY);
             ingredients.replaceAll(i -> Ingredient.CONTENTS_STREAM_CODEC.decode(buf));
-            return new ItemCompressRecipe(ingredients, result);
+            return new ItemCompressRecipe(ingredients, results);
         }
 
         private static void encode(RegistryFriendlyByteBuf buf, ItemCompressRecipe recipe) {
-            ItemStack.STREAM_CODEC.encode(buf, recipe.result);
+            buf.writeVarInt(recipe.results.size());
+            for (ItemStack stack : recipe.results) {
+                ItemStack.STREAM_CODEC.encode(buf, stack);
+            }
             buf.writeVarInt(recipe.ingredients.size());
             for (Ingredient ingredient : recipe.ingredients) {
                 Ingredient.CONTENTS_STREAM_CODEC.encode(buf, ingredient);
@@ -82,7 +91,7 @@ public class ItemCompressRecipe extends AbstractItemProcessRecipe {
     public static class Builder extends AbstractItemProcessBuilder<ItemCompressRecipe> {
         @Override
         public ItemCompressRecipe buildRecipe() {
-            return new ItemCompressRecipe(this.ingredients, this.result);
+            return new ItemCompressRecipe(this.ingredients, this.results);
         }
 
         @Override

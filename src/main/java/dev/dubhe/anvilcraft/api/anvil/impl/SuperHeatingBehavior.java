@@ -44,8 +44,8 @@ public class SuperHeatingBehavior implements AnvilBehavior {
                     .getRecipeFor(ModRecipeTypes.SUPER_HEATING_TYPE.get(), input, level)
                     .ifPresent(recipe -> {
                         int times = recipe.value().getMaxCraftTime(input);
-                        ItemStack result = recipe.value().result.copy();
-                        result.setCount(times * result.getCount());
+                        List<ItemStack> results = recipe.value().results.stream().map(ItemStack::copy).toList();
+                        results.forEach(s -> s.setCount(s.getCount() + times));
                         for (int i = 0; i < times; i++) {
                             for (Ingredient ingredient : recipe.value().getIngredients()) {
                                 for (ItemStack stack : items.values()) {
@@ -60,7 +60,7 @@ public class SuperHeatingBehavior implements AnvilBehavior {
                                         hitBlockPos, recipe.value().blockResult.defaultBlockState());
                             }
                         }
-                        AnvilUtil.dropItems(List.of(result), level, hitBlockPos.getCenter());
+                        AnvilUtil.dropItems(results, level, hitBlockPos.getCenter());
                     });
             items.forEach((k, v) -> {
                 if (v.isEmpty()) {

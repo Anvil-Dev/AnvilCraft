@@ -50,8 +50,10 @@
       "item": "minecraft:coal_block"
     }
   ],
-  "result": {
-    "count": 1,
-    "id": "minecraft:diamond_block"
-  }
+  "result": [
+    {
+      "count": 1,
+      "id": "minecraft:diamond_block"
+    }
+  ]
 }
