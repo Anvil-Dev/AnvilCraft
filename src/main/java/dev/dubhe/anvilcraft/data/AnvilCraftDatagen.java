@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.data;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.data.advancement.AdvancementHandler;
 import dev.dubhe.anvilcraft.data.lang.LangHandler;
 import dev.dubhe.anvilcraft.data.provider.ModLootTableProvider;
 import dev.dubhe.anvilcraft.data.provider.ModPoiTagProvider;
@@ -54,6 +55,7 @@ public class AnvilCraftDatagen {
         REGISTRATE.addDataGenerator(ProviderType.FLUID_TAGS, TagsHandler::initFluid);
         REGISTRATE.addDataGenerator(ProviderType.LANG, LangHandler::init);
         REGISTRATE.addDataGenerator(ProviderType.RECIPE, RecipeHandler::init);
+        REGISTRATE.addDataGenerator(ProviderType.ADVANCEMENT, AdvancementHandler::init);
     }
 
     public static @NotNull Criterion<InventoryChangeTrigger.TriggerInstance> has(ItemLike itemLike) {

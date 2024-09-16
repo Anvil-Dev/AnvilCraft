@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.data.provider;
 
+import dev.dubhe.anvilcraft.data.provider.loot.AdvancementLootSubProvider;
 import dev.dubhe.anvilcraft.data.provider.loot.CrabTrapLootSubProvider;
 
 import net.minecraft.core.HolderLookup;
@@ -16,7 +17,10 @@ public class ModLootTableProvider extends LootTableProvider {
         super(
                 output,
                 Set.of(),
-                List.of(new SubProviderEntry(CrabTrapLootSubProvider::new, LootContextParamSets.CHEST)),
+                List.of(
+                        new SubProviderEntry(CrabTrapLootSubProvider::new, LootContextParamSets.CHEST),
+                        new SubProviderEntry(AdvancementLootSubProvider::new, LootContextParamSets.ENTITY)
+                ),
                 provider);
     }
 }

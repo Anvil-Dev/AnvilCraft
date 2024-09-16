@@ -1,0 +1,32 @@
+{
+  "criteria": {
+    "join": {
+      "trigger": "minecraft:tick"
+    }
+  },
+  "display": {
+    "background": "anvilcraft:textures/gui/advancements/background.png",
+    "description": {
+      "translate": "advancements.anvilcraft.root.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:royal_anvil"
+    },
+    "show_toast": false,
+    "title": {
+      "translate": "advancements.anvilcraft.root.title"
+    }
+  },
+  "requirements": [
+    [
+      "join"
+    ]
+  ],
+  "rewards": {
+    "loot": [
+      "anvilcraft:advancement/root"
+    ]
+  },
+  "sends_telemetry_event": true
+}
