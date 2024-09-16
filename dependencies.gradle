@@ -3,6 +3,9 @@ dependencies {
     api("com.tterrag.registrate:Registrate:${forge.versions.registrate.get()}")
     jarJar("com.tterrag.registrate:Registrate:${forge.versions.registrate.get()}")
 
+    api("vazkii.patchouli:Patchouli:1.21-87-NEOFORGE:api")
+    runtimeOnly("vazkii.patchouli:Patchouli:1.21-87-NEOFORGE")
+
     implementation(forge.clothConfig)
 
     // JEI

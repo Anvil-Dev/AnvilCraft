@@ -21,6 +21,7 @@ import dev.dubhe.anvilcraft.item.EmberMetalSwordItem;
 import dev.dubhe.anvilcraft.item.EmberMetalUpgradeTemplateItem;
 import dev.dubhe.anvilcraft.item.EmptyCapacitorItem;
 import dev.dubhe.anvilcraft.item.GeodeItem;
+import dev.dubhe.anvilcraft.item.GuideBookItem;
 import dev.dubhe.anvilcraft.item.LevitationPowderItem;
 import dev.dubhe.anvilcraft.item.MagnetItem;
 import dev.dubhe.anvilcraft.item.ModFoods;
@@ -912,6 +913,14 @@ public class ModItems {
                             AnvilCraftDatagen.has(ModItems.EMBER_METAL_INGOT))
                     .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_from_ingot"))
             .register();
+
+    public static final ItemEntry<GuideBookItem> GUIDE_BOOK = REGISTRATE
+        .item("guide_book", GuideBookItem::new)
+        .properties(p -> p.stacksTo(1))
+        .model((ctx, provider) -> {
+        })
+        .lang("AnvilCraft Guide Book")
+        .register();
 
     public static void register() {}
 }
