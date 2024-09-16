@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.item;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.event.item.UseMagnetEvent;
 import dev.dubhe.anvilcraft.api.item.IChargerChargeable;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.util.Utils;
@@ -16,6 +17,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 
+import net.neoforged.neoforge.common.NeoForge;
 import org.jetbrains.annotations.NotNull;
 
 public class MagnetItem extends Item implements IChargerChargeable {
@@ -28,6 +30,10 @@ public class MagnetItem extends Item implements IChargerChargeable {
             @NotNull Level level, @NotNull Player player, @NotNull InteractionHand usedHand) {
         ItemStack item = player.getItemInHand(usedHand);
         double radius = AnvilCraft.config.magnetItemAttractsRadius;
+        UseMagnetEvent event = new UseMagnetEvent(level, player, radius);
+        NeoForge.EVENT_BUS.post(event);
+        if (event.isCanceled()) return InteractionResultHolder.pass(item);
+        radius = event.getAttractRadius();
         AABB aabb = new AABB(
                 player.position().add(-radius, -radius, -radius),
                 player.position().add(radius, radius, radius));
