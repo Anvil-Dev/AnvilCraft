@@ -1,0 +1,18 @@
+{
+  "type": "anvilcraft:stamping",
+  "ingredients": [
+    {
+      "item": "minecraft:cocoa_beans"
+    }
+  ],
+  "result": [
+    {
+      "count": 1,
+      "id": "anvilcraft:cocoa_butter"
+    },
+    {
+      "count": 1,
+      "id": "anvilcraft:cocoa_powder"
+    }
+  ]
+}

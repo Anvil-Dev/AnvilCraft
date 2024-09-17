@@ -1,0 +1,21 @@
+{
+  "type": "anvilcraft:super_heating",
+  "ingredients": [
+    {
+      "item": "minecraft:raw_iron"
+    },
+    {
+      "item": "anvilcraft:capacitor"
+    }
+  ],
+  "result": [
+    {
+      "count": 1,
+      "id": "anvilcraft:magnet_ingot"
+    },
+    {
+      "count": 1,
+      "id": "anvilcraft:capacitor_empty"
+    }
+  ]
+}

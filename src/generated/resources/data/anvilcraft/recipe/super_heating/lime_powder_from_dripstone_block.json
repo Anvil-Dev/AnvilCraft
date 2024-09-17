@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:super_heating",
+  "ingredients": [
+    {
+      "item": "minecraft:dripstone_block"
+    }
+  ],
+  "result": [
+    {
+      "count": 4,
+      "id": "anvilcraft:lime_powder"
+    }
+  ]
+}

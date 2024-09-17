@@ -1,0 +1,38 @@
+{
+  "type": "anvilcraft:super_heating",
+  "ingredients": [
+    {
+      "item": "anvilcraft:quartz_sand"
+    },
+    {
+      "item": "anvilcraft:quartz_sand"
+    },
+    {
+      "item": "anvilcraft:quartz_sand"
+    },
+    {
+      "item": "anvilcraft:quartz_sand"
+    },
+    {
+      "item": "anvilcraft:quartz_sand"
+    },
+    {
+      "item": "anvilcraft:quartz_sand"
+    },
+    {
+      "item": "anvilcraft:quartz_sand"
+    },
+    {
+      "item": "anvilcraft:quartz_sand"
+    },
+    {
+      "item": "anvilcraft:ember_metal_ingot"
+    }
+  ],
+  "result": [
+    {
+      "count": 8,
+      "id": "anvilcraft:tempering_glass"
+    }
+  ]
+}

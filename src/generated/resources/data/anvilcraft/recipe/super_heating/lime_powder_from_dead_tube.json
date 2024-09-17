@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:super_heating",
+  "ingredients": [
+    {
+      "tag": "anvilcraft:dead_tube"
+    }
+  ],
+  "result": [
+    {
+      "count": 1,
+      "id": "anvilcraft:lime_powder"
+    }
+  ]
+}

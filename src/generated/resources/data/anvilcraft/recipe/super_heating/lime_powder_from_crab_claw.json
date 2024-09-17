@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:super_heating",
+  "ingredients": [
+    {
+      "item": "anvilcraft:crab_claw"
+    }
+  ],
+  "result": [
+    {
+      "count": 1,
+      "id": "anvilcraft:lime_powder"
+    }
+  ]
+}

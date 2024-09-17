@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:super_heating",
+  "ingredients": [
+    {
+      "item": "minecraft:nautilus_shell"
+    }
+  ],
+  "result": [
+    {
+      "count": 1,
+      "id": "anvilcraft:lime_powder"
+    }
+  ]
+}
