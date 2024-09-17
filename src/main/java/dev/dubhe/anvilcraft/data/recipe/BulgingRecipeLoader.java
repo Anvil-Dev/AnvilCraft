@@ -52,7 +52,7 @@ public class BulgingRecipeLoader {
     private static void crystallize(
             RegistrateRecipeProvider provider, ItemLike input, ItemLike result, boolean consumeFluid) {
         BulgingRecipe.builder()
-                .cauldron(Blocks.POTATOES)
+                .cauldron(Blocks.POWDER_SNOW_CAULDRON)
                 .requires(input)
                 .result(new ItemStack(result))
                 .consumeFluid(consumeFluid)

@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.BlockCompressCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.BlockCrushCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.BoilingCategory;
+import dev.dubhe.anvilcraft.integration.jei.category.anvil.BulgingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.CementStainingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.ConcreteCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.CookingCategory;
@@ -14,12 +15,14 @@ import dev.dubhe.anvilcraft.integration.jei.category.anvil.MeshRecipeCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.SqueezingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.StampingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.SuperHeatingCategory;
+import dev.dubhe.anvilcraft.integration.jei.category.anvil.TimeWarpCategory;
 import dev.dubhe.anvilcraft.integration.jei.recipe.CementStainingRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.ColoredConcreteRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MeshRecipeGroup;
 import dev.dubhe.anvilcraft.recipe.anvil.BlockCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.BlockCrushRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.BoilingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.BulgingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.CookingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.ItemCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.ItemCrushRecipe;
@@ -27,6 +30,7 @@ import dev.dubhe.anvilcraft.recipe.anvil.ItemInjectRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.SqueezingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.StampingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.SuperHeatingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.TimeWarpRecipe;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.resources.ResourceLocation;
@@ -67,6 +71,8 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
             createRecipeType("cement_staining", CementStainingRecipe.class);
     public static final RecipeType<ColoredConcreteRecipe> COLORED_CONCRETE =
             createRecipeType("colored_concrete", ColoredConcreteRecipe.class);
+    public static final RecipeType<BulgingRecipe> BULGING = createRecipeType("bulging", BulgingRecipe.class);
+    public static final RecipeType<TimeWarpRecipe> TIME_WARP = createRecipeType("time_warp", TimeWarpRecipe.class);
 
     @Override
     public ResourceLocation getPluginUid() {
@@ -88,6 +94,8 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         SuperHeatingCategory.registerRecipes(registration);
         CementStainingCategory.registerRecipes(registration);
         ConcreteCategory.registerRecipes(registration);
+        BulgingCategory.registerRecipes(registration);
+        TimeWarpCategory.registerRecipes(registration);
     }
 
     @Override
@@ -105,6 +113,8 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         SuperHeatingCategory.registerRecipeCatalysts(registration);
         CementStainingCategory.registerRecipeCatalysts(registration);
         ConcreteCategory.registerRecipeCatalysts(registration);
+        BulgingCategory.registerRecipeCatalysts(registration);
+        TimeWarpCategory.registerRecipeCatalysts(registration);
     }
 
     @Override
@@ -125,6 +135,8 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         registration.addRecipeCategories(new SuperHeatingCategory(guiHelper));
         registration.addRecipeCategories(new CementStainingCategory(guiHelper));
         registration.addRecipeCategories(new ConcreteCategory(guiHelper));
+        registration.addRecipeCategories(new BulgingCategory(guiHelper));
+        registration.addRecipeCategories(new TimeWarpCategory(guiHelper));
     }
 
     public static <T> RecipeType<T> createRecipeType(String name, Class<T> clazz) {

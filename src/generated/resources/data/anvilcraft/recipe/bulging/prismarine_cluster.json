@@ -1,6 +1,6 @@
 {
   "type": "anvilcraft:bulging",
-  "cauldron": "minecraft:potatoes",
+  "cauldron": "minecraft:powder_snow_cauldron",
   "consume_fluid": true,
   "from_water": false,
   "ingredients": [

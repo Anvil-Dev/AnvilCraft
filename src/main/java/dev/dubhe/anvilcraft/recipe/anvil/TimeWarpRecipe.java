@@ -30,6 +30,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -45,6 +46,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 public class TimeWarpRecipe implements Recipe<TimeWarpRecipe.Input> {
     public final NonNullList<Ingredient> ingredients;
+    public final List<Object2IntMap.Entry<Ingredient>> mergedIngredients;
     public final Block cauldron;
     public final ItemStack result;
     public final boolean produceFluid;
@@ -62,6 +64,7 @@ public class TimeWarpRecipe implements Recipe<TimeWarpRecipe.Input> {
             boolean consumeFluid,
             boolean fromWater) {
         this.ingredients = ingredients;
+        this.mergedIngredients = RecipeUtil.mergeIngredient(ingredients);
         this.cauldron = cauldron;
         this.result = result;
         this.produceFluid = produceFluid;
