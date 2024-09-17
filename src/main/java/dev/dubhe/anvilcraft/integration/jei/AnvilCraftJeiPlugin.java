@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.BlockCompressCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.BlockCrushCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.BoilingCategory;
+import dev.dubhe.anvilcraft.integration.jei.category.anvil.CementStainingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.CookingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.ItemCompressCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.ItemCrushCategory;
@@ -12,6 +13,7 @@ import dev.dubhe.anvilcraft.integration.jei.category.anvil.MeshRecipeCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.SqueezingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.StampingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.SuperHeatingCategory;
+import dev.dubhe.anvilcraft.integration.jei.recipe.CementStainingRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MeshRecipeGroup;
 import dev.dubhe.anvilcraft.recipe.anvil.BlockCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.BlockCrushRecipe;
@@ -59,6 +61,8 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
     public static final RecipeType<SuperHeatingRecipe> SUPER_HEATING =
             createRecipeType("super_heating", SuperHeatingRecipe.class);
     public static final RecipeType<SqueezingRecipe> SQUEEZING = createRecipeType("squeezing", SqueezingRecipe.class);
+    public static final RecipeType<CementStainingRecipe> CEMENT_STAINING =
+            createRecipeType("cement_staining", CementStainingRecipe.class);
 
     @Override
     public ResourceLocation getPluginUid() {
@@ -78,6 +82,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         BoilingCategory.registerRecipes(registration);
         StampingCategory.registerRecipes(registration);
         SuperHeatingCategory.registerRecipes(registration);
+        CementStainingCategory.registerRecipes(registration);
     }
 
     @Override
@@ -93,6 +98,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         BoilingCategory.registerRecipeCatalysts(registration);
         StampingCategory.registerRecipeCatalysts(registration);
         SuperHeatingCategory.registerRecipeCatalysts(registration);
+        CementStainingCategory.registerRecipeCatalysts(registration);
     }
 
     @Override
@@ -111,6 +117,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         registration.addRecipeCategories(new BoilingCategory(guiHelper));
         registration.addRecipeCategories(new StampingCategory(guiHelper));
         registration.addRecipeCategories(new SuperHeatingCategory(guiHelper));
+        registration.addRecipeCategories(new CementStainingCategory(guiHelper));
     }
 
     public static <T> RecipeType<T> createRecipeType(String name, Class<T> clazz) {

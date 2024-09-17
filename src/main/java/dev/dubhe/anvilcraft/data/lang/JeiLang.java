@@ -27,5 +27,7 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.squeezing", "Squeezing");
 
         provider.add("gui.anvilcraft.category.item_inject", "Item Inject");
+
+        provider.add("gui.anvilcraft.category.cement_staining", "Cement Staining");
     }
 }
