@@ -19,8 +19,7 @@ public class ModLootTableProvider extends LootTableProvider {
                 Set.of(),
                 List.of(
                         new SubProviderEntry(CrabTrapLootSubProvider::new, LootContextParamSets.CHEST),
-                        new SubProviderEntry(AdvancementLootSubProvider::new, LootContextParamSets.ENTITY)
-                ),
+                        new SubProviderEntry(AdvancementLootSubProvider::new, LootContextParamSets.ENTITY)),
                 provider);
     }
 }

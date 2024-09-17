@@ -1,10 +1,10 @@
 package dev.dubhe.anvilcraft.data.advancement;
 
-import com.tterrag.registrate.providers.RegistrateAdvancementProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.init.ModLootTables;
+
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementRewards;
@@ -12,6 +12,8 @@ import net.minecraft.advancements.AdvancementType;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.advancements.critereon.PlayerTrigger;
 import net.minecraft.network.chat.Component;
+
+import com.tterrag.registrate.providers.RegistrateAdvancementProvider;
 
 public class AnvilCraftAdvancement {
     public static void init(RegistrateAdvancementProvider provider) {
@@ -24,8 +26,7 @@ public class AnvilCraftAdvancement {
                         AdvancementType.TASK,
                         false,
                         true,
-                        false
-                )
+                        false)
                 .addCriterion("join", PlayerTrigger.TriggerInstance.tick())
                 .rewards(AdvancementRewards.Builder.loot(ModLootTables.ADVANCEMENT_ROOT))
                 .build(AnvilCraft.of("anvilcraft/root"));
@@ -40,8 +41,7 @@ public class AnvilCraftAdvancement {
                         AdvancementType.TASK,
                         true,
                         true,
-                        false
-                )
+                        false)
                 .addCriterion("crab_claw", InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.CRAB_CLAW))
                 .build(AnvilCraft.of("anvilcraft/crab_claw"));
 
