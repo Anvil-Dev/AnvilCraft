@@ -2,6 +2,7 @@
   "type": "anvilcraft:bulging",
   "cauldron": "minecraft:potatoes",
   "consume_fluid": true,
+  "from_water": false,
   "ingredients": [
     {
       "item": "anvilcraft:sea_heart_shell_shard"

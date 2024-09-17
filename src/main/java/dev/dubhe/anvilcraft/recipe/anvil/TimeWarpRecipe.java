@@ -2,7 +2,9 @@ package dev.dubhe.anvilcraft.recipe.anvil;
 
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
+import dev.dubhe.anvilcraft.recipe.anvil.input.IItemsInput;
 import dev.dubhe.anvilcraft.util.CodecUtil;
+import dev.dubhe.anvilcraft.util.RecipeUtil;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
@@ -28,10 +30,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
-import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -51,6 +49,7 @@ public class TimeWarpRecipe implements Recipe<TimeWarpRecipe.Input> {
     public final ItemStack result;
     public final boolean produceFluid;
     public final boolean consumeFluid;
+    public final boolean fromWater;
     public final boolean isSimple;
     private Input cacheInput;
     private int cacheMaxCraftTime;
@@ -60,12 +59,14 @@ public class TimeWarpRecipe implements Recipe<TimeWarpRecipe.Input> {
             Block cauldron,
             ItemStack result,
             boolean produceFluid,
-            boolean consumeFluid) {
+            boolean consumeFluid,
+            boolean fromWater) {
         this.ingredients = ingredients;
         this.cauldron = cauldron;
         this.result = result;
         this.produceFluid = produceFluid;
         this.consumeFluid = consumeFluid;
+        this.fromWater = fromWater;
         this.isSimple = ingredients.stream().allMatch(Ingredient::isSimple);
     }
 
@@ -102,23 +103,30 @@ public class TimeWarpRecipe implements Recipe<TimeWarpRecipe.Input> {
     @SuppressWarnings("DuplicatedCode")
     @Override
     public boolean matches(Input input, Level level) {
-
-        if (consumeFluid) {
-            if (!input.cauldronState.is(cauldron)) {
-                return false;
+        if (fromWater) {
+            if (input.cauldronState.is(Blocks.WATER_CAULDRON)) {
+                if (input.cauldronState.getValue(LayeredCauldronBlock.LEVEL) < 3) {
+                    return false;
+                }
             }
-        }
-        if (produceFluid) {
-            if (!input.cauldronState.is(cauldron) && !input.cauldronState.is(Blocks.CAULDRON)) {
-                return false;
+        } else {
+            if (consumeFluid) {
+                if (!input.cauldronState.is(cauldron)) {
+                    return false;
+                }
             }
-            if (input.cauldronState.is(cauldron)) {
-                if (input.cauldronState.hasProperty(LayeredCauldronBlock.LEVEL)) {
-                    if (input.cauldronState.getValue(LayeredCauldronBlock.LEVEL) >= 3) {
+            if (produceFluid) {
+                if (!input.cauldronState.is(cauldron) && !input.cauldronState.is(Blocks.CAULDRON)) {
+                    return false;
+                }
+                if (input.cauldronState.is(cauldron)) {
+                    if (input.cauldronState.hasProperty(LayeredCauldronBlock.LEVEL)) {
+                        if (input.cauldronState.getValue(LayeredCauldronBlock.LEVEL) >= 3) {
+                            return false;
+                        }
+                    } else {
                         return false;
                     }
-                } else {
-                    return false;
                 }
             }
         }
@@ -130,48 +138,16 @@ public class TimeWarpRecipe implements Recipe<TimeWarpRecipe.Input> {
         if (cacheInput == pInput) {
             return cacheMaxCraftTime;
         }
-        Object2IntMap<Item> contents = new Object2IntOpenHashMap<>();
-        Object2BooleanMap<Ingredient> ingredientFlags = new Object2BooleanOpenHashMap<>();
-        Object2BooleanMap<Item> flags = new Object2BooleanOpenHashMap<>();
-        for (Ingredient ingredient : ingredients) {
-            ingredientFlags.put(ingredient, false);
+        int times = RecipeUtil.getMaxCraftTime(pInput, ingredients);
+        if (produceFluid || consumeFluid || fromWater) {
+            times = times >= 1 ? 1 : 0;
         }
-        for (ItemStack stack : pInput.items()) {
-            contents.mergeInt(stack.getItem(), stack.getCount(), Integer::sum);
-            flags.put(stack.getItem(), false);
-        }
-        int times = 0;
-        while (true) {
-            for (Ingredient ingredient : ingredients) {
-                for (Item item : contents.keySet()) {
-                    if (ingredient.test(new ItemStack(item))) {
-                        contents.put(item, contents.getInt(item) - 1);
-                        ingredientFlags.put(ingredient, true);
-                        flags.put(item, true);
-                    }
-                }
-            }
-            if (ingredientFlags.values().stream().anyMatch(flag -> !flag)
-                    || flags.values().stream().anyMatch(flag -> !flag)) {
-                cacheInput = pInput;
-                cacheMaxCraftTime = 0;
-                return 0;
-            }
-            if (contents.values().intStream().allMatch(i -> i >= 0)) {
-                times += 1;
-            } else {
-                if (produceFluid || consumeFluid) {
-                    return times >= 1 ? 1 : 0;
-                } else {
-                    cacheInput = pInput;
-                    cacheMaxCraftTime = times;
-                    return times;
-                }
-            }
-        }
+        cacheInput = pInput;
+        cacheMaxCraftTime = times;
+        return times;
     }
 
-    public record Input(List<ItemStack> items, BlockState cauldronState) implements RecipeInput {
+    public record Input(List<ItemStack> items, BlockState cauldronState) implements RecipeInput, IItemsInput {
 
         @Override
         public ItemStack getItem(int i) {
@@ -193,7 +169,8 @@ public class TimeWarpRecipe implements Recipe<TimeWarpRecipe.Input> {
                                 .optionalFieldOf("result", ItemStack.EMPTY)
                                 .forGetter(TimeWarpRecipe::getResult),
                         Codec.BOOL.fieldOf("produce_fluid").forGetter(TimeWarpRecipe::isProduceFluid),
-                        Codec.BOOL.fieldOf("consume_fluid").forGetter(TimeWarpRecipe::isConsumeFluid))
+                        Codec.BOOL.fieldOf("consume_fluid").forGetter(TimeWarpRecipe::isConsumeFluid),
+                        Codec.BOOL.fieldOf("from_water").forGetter(TimeWarpRecipe::isFromWater))
                 .apply(ins, TimeWarpRecipe::new));
 
         private static final StreamCodec<RegistryFriendlyByteBuf, TimeWarpRecipe> STREAM_CODEC =
@@ -218,6 +195,7 @@ public class TimeWarpRecipe implements Recipe<TimeWarpRecipe.Input> {
             ItemStack.OPTIONAL_STREAM_CODEC.encode(buf, recipe.result);
             buf.writeBoolean(recipe.produceFluid);
             buf.writeBoolean(recipe.consumeFluid);
+            buf.writeBoolean(recipe.fromWater);
         }
 
         private static TimeWarpRecipe decode(RegistryFriendlyByteBuf buf) {
@@ -226,9 +204,10 @@ public class TimeWarpRecipe implements Recipe<TimeWarpRecipe.Input> {
             ingredients.replaceAll(i -> Ingredient.CONTENTS_STREAM_CODEC.decode(buf));
             Block cauldron = CodecUtil.BLOCK_STREAM_CODEC.decode(buf);
             ItemStack result = ItemStack.OPTIONAL_STREAM_CODEC.decode(buf);
-            boolean needFluid = buf.readBoolean();
-            boolean isConsume = buf.readBoolean();
-            return new TimeWarpRecipe(ingredients, cauldron, result, needFluid, isConsume);
+            boolean produceFluid = buf.readBoolean();
+            boolean consumeFluid = buf.readBoolean();
+            boolean fromWater = buf.readBoolean();
+            return new TimeWarpRecipe(ingredients, cauldron, result, produceFluid, consumeFluid, fromWater);
         }
     }
 
@@ -241,6 +220,7 @@ public class TimeWarpRecipe implements Recipe<TimeWarpRecipe.Input> {
         private ItemStack result;
         private boolean produceFluid = false;
         private boolean consumeFluid = false;
+        private boolean fromWater = false;
 
         public Builder requires(Ingredient ingredient, int count) {
             for (int i = 0; i < count; i++) {
@@ -274,7 +254,7 @@ public class TimeWarpRecipe implements Recipe<TimeWarpRecipe.Input> {
             if (result == null) {
                 result = ItemStack.EMPTY;
             }
-            return new TimeWarpRecipe(ingredients, cauldron, result, produceFluid, consumeFluid);
+            return new TimeWarpRecipe(ingredients, cauldron, result, produceFluid, consumeFluid, fromWater);
         }
 
         @Override
@@ -285,7 +265,7 @@ public class TimeWarpRecipe implements Recipe<TimeWarpRecipe.Input> {
             if (cauldron == null) {
                 throw new IllegalArgumentException("Recipe cauldron must not be null, RecipeId: " + pId);
             }
-            if (result == null && !produceFluid) {
+            if (result == null && (!produceFluid && !fromWater)) {
                 throw new IllegalArgumentException(
                         "Recipe result must not be null when need fluid is false, RecipeId: " + pId);
             }

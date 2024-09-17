@@ -2,6 +2,7 @@
   "type": "anvilcraft:time_warp",
   "cauldron": "anvilcraft:melt_gem_cauldron",
   "consume_fluid": true,
+  "from_water": false,
   "ingredients": [
     {
       "item": "minecraft:emerald"

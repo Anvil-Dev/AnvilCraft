@@ -56,34 +56,39 @@ public class TimeWarpBehavior implements AnvilBehavior {
                             }
                         }
                         AnvilUtil.dropItems(List.of(result), level, hitBlockPos.getCenter());
-                        if (recipe.value().isConsumeFluid()) {
-                            if (hitBlockState.hasProperty(LayeredCauldronBlock.LEVEL)) {
-                                int cauldronLevel = hitBlockState.getValue(LayeredCauldronBlock.LEVEL);
-                                cauldronLevel--;
-                                if (cauldronLevel <= 0) {
-                                    level.setBlockAndUpdate(hitBlockPos, Blocks.CAULDRON.defaultBlockState());
+                        if (recipe.value().isFromWater()) {
+                            level.setBlockAndUpdate(
+                                    hitBlockPos, recipe.value().cauldron.defaultBlockState());
+                        } else {
+                            if (recipe.value().isConsumeFluid()) {
+                                if (hitBlockState.hasProperty(LayeredCauldronBlock.LEVEL)) {
+                                    int cauldronLevel = hitBlockState.getValue(LayeredCauldronBlock.LEVEL);
+                                    cauldronLevel--;
+                                    if (cauldronLevel <= 0) {
+                                        level.setBlockAndUpdate(hitBlockPos, Blocks.CAULDRON.defaultBlockState());
+                                    } else {
+                                        level.setBlockAndUpdate(
+                                                hitBlockPos,
+                                                hitBlockState.setValue(LayeredCauldronBlock.LEVEL, cauldronLevel));
+                                    }
                                 } else {
+                                    level.setBlockAndUpdate(hitBlockPos, Blocks.CAULDRON.defaultBlockState());
+                                }
+                            }
+                            if (recipe.value().isProduceFluid()) {
+                                if (hitBlockState.hasProperty(LayeredCauldronBlock.LEVEL)) {
+                                    int cauldronLevel = hitBlockState.getValue(LayeredCauldronBlock.LEVEL);
+                                    cauldronLevel++;
                                     level.setBlockAndUpdate(
                                             hitBlockPos,
                                             hitBlockState.setValue(LayeredCauldronBlock.LEVEL, cauldronLevel));
+                                } else {
+                                    level.setBlockAndUpdate(
+                                            hitBlockPos,
+                                            recipe.value().getCauldron().defaultBlockState());
                                 }
-                            } else {
-                                level.setBlockAndUpdate(hitBlockPos, Blocks.CAULDRON.defaultBlockState());
                             }
                         }
-                        if (recipe.value().isProduceFluid()) {
-                            if (hitBlockState.hasProperty(LayeredCauldronBlock.LEVEL)) {
-                                int cauldronLevel = hitBlockState.getValue(LayeredCauldronBlock.LEVEL);
-                                cauldronLevel++;
-                                level.setBlockAndUpdate(
-                                        hitBlockPos, hitBlockState.setValue(LayeredCauldronBlock.LEVEL, cauldronLevel));
-                            } else {
-                                level.setBlockAndUpdate(
-                                        hitBlockPos,
-                                        recipe.value().getCauldron().defaultBlockState());
-                            }
-                        }
-
                         items.forEach((k, v) -> {
                             if (v.isEmpty()) {
                                 k.discard();

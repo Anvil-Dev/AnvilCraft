@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.recipe.anvil.BulgingRecipe;
 
@@ -24,6 +26,13 @@ public class BulgingRecipeLoader {
         bulging(provider, ModItems.SPONGE_GEMMULE, Items.WET_SPONGE, true);
         bulging(provider, ModItems.FLOUR, ModItems.DOUGH);
         crystallize(provider, ModItems.SEA_HEART_SHELL_SHARD, ModItems.PRISMARINE_CLUSTER, true);
+
+        BulgingRecipe.builder()
+                .cauldron(ModBlocks.CEMENT_CAULDRON.get())
+                .requires(ModItems.LIME_POWDER, 4)
+                .requires(ModBlocks.CINERITE)
+                .fromWater(true)
+                .save(provider, AnvilCraft.of("bulging/cement_cauldron"));
     }
 
     private static void bulging(
