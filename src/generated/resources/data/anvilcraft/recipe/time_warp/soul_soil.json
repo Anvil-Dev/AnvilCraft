@@ -1,0 +1,16 @@
+{
+  "type": "anvilcraft:time_warp",
+  "cauldron": "minecraft:cauldron",
+  "consume_fluid": false,
+  "from_water": false,
+  "ingredients": [
+    {
+      "item": "anvilcraft:nether_dust"
+    }
+  ],
+  "produce_fluid": false,
+  "result": {
+    "count": 1,
+    "id": "minecraft:soul_soil"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "type": "anvilcraft:time_warp",
+  "cauldron": "minecraft:cauldron",
+  "consume_fluid": false,
+  "from_water": false,
+  "ingredients": [
+    {
+      "item": "anvilcraft:tungsten_block"
+    }
+  ],
+  "produce_fluid": false,
+  "result": {
+    "count": 3,
+    "id": "anvilcraft:raw_tungsten"
+  }
+}

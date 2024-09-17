@@ -1,0 +1,16 @@
+{
+  "type": "anvilcraft:time_warp",
+  "cauldron": "anvilcraft:melt_gem_cauldron",
+  "consume_fluid": true,
+  "from_water": false,
+  "ingredients": [
+    {
+      "item": "anvilcraft:topaz"
+    }
+  ],
+  "produce_fluid": false,
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:topaz_block"
+  }
+}
