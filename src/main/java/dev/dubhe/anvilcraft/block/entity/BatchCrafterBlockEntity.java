@@ -13,8 +13,7 @@ import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.BatchCrafterMenu;
 import dev.dubhe.anvilcraft.network.UpdateDisplayItemPacket;
-import lombok.Getter;
-import lombok.Setter;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -45,6 +44,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
+
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -58,32 +60,29 @@ import java.util.function.Predicate;
 
 @Getter
 @SuppressWarnings("NullableProblems")
-public class BatchCrafterBlockEntity
-    extends BaseMachineBlockEntity
-    implements IFilterBlockEntity, IPowerConsumer, IDiskCloneable, IHasDisplayItem {
+public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
+        implements IFilterBlockEntity, IPowerConsumer, IDiskCloneable, IHasDisplayItem {
     private static final AtomicInteger COUNTER = new AtomicInteger(0);
     private static final RandomSource RANDOM = RandomSource.create();
 
     @Getter
     @Setter
     private PowerGrid grid;
+
     @Getter
     private final int inputPower = 1;
+
     private final Deque<AutoCrafterCache> cache = new ArrayDeque<>();
     private final FilteredItemDepository depository = new FilteredItemDepository.Pollable(9) {
         @Override
         public void onContentsChanged(int slot) {
             if (level != null) {
                 RecipeManager recipeManager = level.getRecipeManager();
-                Optional<RecipeHolder<CraftingRecipe>> recipe = recipeManager
-                    .getRecipeFor(
-                        RecipeType.CRAFTING,
-                        dummyCraftingContainer.asCraftInput(),
-                        level
-                    );
-                displayItemStack = recipe
-                    .map(craftingRecipe -> craftingRecipe.value().getResultItem(level.registryAccess()))
-                    .orElse(ItemStack.EMPTY);
+                Optional<RecipeHolder<CraftingRecipe>> recipe =
+                        recipeManager.getRecipeFor(RecipeType.CRAFTING, dummyCraftingContainer.asCraftInput(), level);
+                displayItemStack = recipe.map(
+                                craftingRecipe -> craftingRecipe.value().getResultItem(level.registryAccess()))
+                        .orElse(ItemStack.EMPTY);
                 if (!level.isClientSide) {
                     PacketDistributor.sendToAllPlayers(new UpdateDisplayItemPacket(displayItemStack, getPos()));
                 }
@@ -91,18 +90,17 @@ public class BatchCrafterBlockEntity
             setChanged();
         }
     };
+
     @Getter
     private ItemStack displayItemStack = null;
+
     private boolean poweredBefore = false;
     private long lastTimeCrafted = 0;
+
     @Getter
     private final int id;
 
-    public BatchCrafterBlockEntity(
-        BlockEntityType<? extends BlockEntity> type,
-        BlockPos pos,
-        BlockState blockState
-    ) {
+    public BatchCrafterBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
         id = COUNTER.incrementAndGet();
     }
@@ -135,14 +133,11 @@ public class BatchCrafterBlockEntity
     private void craft(@NotNull Level level) {
         if (craftingContainer.isEmpty()) return;
         if (!canCraft()) return;
-        if (lastTimeCrafted > (level.getGameTime() + AnvilCraft.config.batchCrafterCooldown))
-            return;
+        if (lastTimeCrafted > (level.getGameTime() + AnvilCraft.config.batchCrafterCooldown)) return;
         lastTimeCrafted = level.getGameTime();
         ItemStack result;
-        Optional<AutoCrafterCache> cacheOptional = cache
-            .stream()
-            .filter(recipe -> recipe.test(craftingContainer))
-            .findFirst();
+        Optional<AutoCrafterCache> cacheOptional =
+                cache.stream().filter(recipe -> recipe.test(craftingContainer)).findFirst();
         Optional<RecipeHolder<CraftingRecipe>> optional;
         NonNullList<ItemStack> craftRemaining;
         if (cacheOptional.isPresent()) {
@@ -150,17 +145,10 @@ public class BatchCrafterBlockEntity
             optional = crafterCache.getRecipe();
             craftRemaining = crafterCache.getRemaining();
         } else {
-            optional = level.getRecipeManager().getRecipeFor(
-                RecipeType.CRAFTING,
-                craftingContainer.asCraftInput(),
-                level
-            );
+            optional =
+                    level.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, craftingContainer.asCraftInput(), level);
             craftRemaining = level.getRecipeManager()
-                .getRemainingItemsFor(
-                    RecipeType.CRAFTING,
-                    craftingContainer.asCraftInput(),
-                    level
-                );
+                    .getRemainingItemsFor(RecipeType.CRAFTING, craftingContainer.asCraftInput(), level);
             AutoCrafterCache cache = new AutoCrafterCache(craftingContainer, optional, craftRemaining);
             this.cache.push(cache);
             while (this.cache.size() >= 10) {
@@ -175,11 +163,13 @@ public class BatchCrafterBlockEntity
         }
         if (!result.isItemEnabled(level.enabledFeatures())) return;
         int times;
-        Optional<ItemStack> minStack = depository.getStacks().stream().filter((s -> !s.isEmpty())).min((s1, s2) -> {
-            int a = s1.getCount();
-            int b = s2.getCount();
-            return Integer.compare(a, b);
-        });
+        Optional<ItemStack> minStack = depository.getStacks().stream()
+                .filter((s -> !s.isEmpty()))
+                .min((s1, s2) -> {
+                    int a = s1.getCount();
+                    int b = s2.getCount();
+                    return Integer.compare(a, b);
+                });
         if (minStack.isPresent()) {
             times = minStack.get().getCount();
         } else {
@@ -188,8 +178,7 @@ public class BatchCrafterBlockEntity
         result.setCount(result.getCount() * times);
         craftRemaining.forEach(stack -> stack.setCount(stack.getCount() * times));
         IItemDepository itemDepository = ItemDepositoryHelper.getItemDepository(
-            level, getBlockPos().relative(getDirection()), getDirection().getOpposite()
-        );
+                level, getBlockPos().relative(getDirection()), getDirection().getOpposite());
         if (itemDepository != null) {
             // 尝试向容器插入物品
             ItemStack remained = ItemDepositoryHelper.insertItem(itemDepository, result, true);
@@ -217,8 +206,7 @@ public class BatchCrafterBlockEntity
         level.updateNeighborsAt(getBlockPos(), ModBlocks.BATCH_CRAFTER.get());
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
     }
@@ -234,7 +222,8 @@ public class BatchCrafterBlockEntity
         depository.deserializeNbt(provider, tag.getCompound("Inventory"));
         if (tag.getBoolean("HasDisplayItemStack") && tag.contains("ResultItemStack")) {
             CompoundTag ct = tag.getCompound("ResultItemStack");
-            displayItemStack = ct.contains("id") ? ItemStack.parse(provider, ct).orElse(ItemStack.EMPTY) : ItemStack.EMPTY;
+            displayItemStack =
+                    ct.contains("id") ? ItemStack.parse(provider, ct).orElse(ItemStack.EMPTY) : ItemStack.EMPTY;
         }
     }
 
@@ -249,7 +238,6 @@ public class BatchCrafterBlockEntity
             this.displayItemStack.save(provider, item);
             tag.put("ResultItemStack", item);
         }
-
     }
 
     @Override
@@ -293,8 +281,7 @@ public class BatchCrafterBlockEntity
         return strength;
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
         return new BatchCrafterMenu(ModMenuTypes.BATCH_CRAFTER.get(), i, inventory, this);
     }
@@ -332,8 +319,10 @@ public class BatchCrafterBlockEntity
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     public static class AutoCrafterCache implements Predicate<Container> {
         private final Container container;
+
         @Getter
         private final Optional<RecipeHolder<CraftingRecipe>> recipe;
+
         @Getter
         private final NonNullList<ItemStack> remaining;
 
@@ -345,8 +334,9 @@ public class BatchCrafterBlockEntity
          * @param remaining 返还物品
          */
         public AutoCrafterCache(
-            @NotNull Container container, Optional<RecipeHolder<CraftingRecipe>> recipe, NonNullList<ItemStack> remaining
-        ) {
+                @NotNull Container container,
+                Optional<RecipeHolder<CraftingRecipe>> recipe,
+                NonNullList<ItemStack> remaining) {
             this.container = new SimpleContainer(container.getContainerSize());
             for (int i = 0; i < container.getContainerSize(); i++) {
                 ItemStack item = container.getItem(i).copy();
@@ -372,11 +362,8 @@ public class BatchCrafterBlockEntity
         Vector3f step = getDirection().step();
         Level level = this.getLevel();
         if (level == null) return;
-        ItemEntity itemEntity = new ItemEntity(
-            level, center.x, center.y, center.z,
-            stack,
-            0.25 * step.x, 0.25 * step.y, 0.25 * step.z
-        );
+        ItemEntity itemEntity =
+                new ItemEntity(level, center.x, center.y, center.z, stack, 0.25 * step.x, 0.25 * step.y, 0.25 * step.z);
         itemEntity.setDefaultPickUpDelay();
         level.addFreshEntity(itemEntity);
     }
@@ -524,8 +511,7 @@ public class BatchCrafterBlockEntity
         }
 
         @Override
-        public void setItem(int slot, ItemStack stack) {
-        }
+        public void setItem(int slot, ItemStack stack) {}
 
         @Override
         public void setChanged() {
@@ -538,8 +524,7 @@ public class BatchCrafterBlockEntity
         }
 
         @Override
-        public void clearContent() {
-        }
+        public void clearContent() {}
 
         @Override
         public void fillStackedContents(StackedContents contents) {

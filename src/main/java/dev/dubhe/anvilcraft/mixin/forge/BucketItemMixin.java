@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.BlockHitResult;
+
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -26,8 +27,8 @@ abstract class BucketItemMixin {
     @Shadow
     @Final
     public Fluid content;
-    @Unique
-    private final BucketItem anvilCraft$ths = (BucketItem) (Object) this;
+
+    @Unique private final BucketItem anvilCraft$ths = (BucketItem) (Object) this;
 
     @Inject(
             method = "emptyContents(Lnet/minecraft/world/entity/player/Player;"
@@ -36,23 +37,20 @@ abstract class BucketItemMixin {
                     + "Lnet/minecraft/world/item/ItemStack;)Z",
             at = @At(value = "HEAD"),
             cancellable = true,
-            remap = false
-    )
+            remap = false)
     private void putLiquidToCauldron(
             Player player,
             @NotNull Level level,
             BlockPos pos,
             BlockHitResult result,
             ItemStack container,
-            CallbackInfoReturnable<Boolean> cir
-    ) {
+            CallbackInfoReturnable<Boolean> cir) {
         if (level.isInWorldBounds(pos)) {
             if (level.getBlockState(pos).is(Blocks.CAULDRON)) {
                 if (anvilCraft$ths.equals(Items.WATER_BUCKET)) {
                     if (!level.isClientSide) {
                         level.setBlockAndUpdate(
-                                pos, Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3)
-                        );
+                                pos, Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3));
                     }
                 } else if (anvilCraft$ths.equals(Items.LAVA_BUCKET)) {
                     if (!level.isClientSide) {

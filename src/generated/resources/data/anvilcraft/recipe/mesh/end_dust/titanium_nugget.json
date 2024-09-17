@@ -1,0 +1,15 @@
+{
+  "type": "anvilcraft:mesh",
+  "input": {
+    "item": "anvilcraft:end_dust"
+  },
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:titanium_nugget"
+  },
+  "result_amount": {
+    "type": "minecraft:binomial",
+    "n": 1.0,
+    "p": 0.1
+  }
+}

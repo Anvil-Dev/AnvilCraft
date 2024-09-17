@@ -1,10 +1,10 @@
 package dev.dubhe.anvilcraft.block;
 
-import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.entity.LoadMonitorBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
@@ -23,16 +23,17 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
+import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.stream.Stream;
 
 public class LoadMonitorBlock extends BaseEntityBlock implements IHammerRemovable {
 
-    public static final VoxelShape SHAPE = Stream.of(
-        Block.box(3, 0, 3, 13, 4, 13),
-        Block.box(5, 4, 5, 11, 16, 11)
-    ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+    public static final VoxelShape SHAPE = Stream.of(Block.box(3, 0, 3, 13, 4, 13), Block.box(5, 4, 5, 11, 16, 11))
+            .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
+            .get();
 
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
     public static final IntegerProperty LOAD = IntegerProperty.create("load", 0, 10);
@@ -42,9 +43,7 @@ public class LoadMonitorBlock extends BaseEntityBlock implements IHammerRemovabl
      */
     public LoadMonitorBlock(Properties properties) {
         super(properties);
-        registerDefaultState(this.defaultBlockState()
-            .setValue(OVERLOAD, true)
-            .setValue(LOAD, 10));
+        registerDefaultState(this.defaultBlockState().setValue(OVERLOAD, true).setValue(LOAD, 10));
     }
 
     @Override
@@ -80,19 +79,16 @@ public class LoadMonitorBlock extends BaseEntityBlock implements IHammerRemovabl
         return 0;
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-        Level level, BlockState state, BlockEntityType<T> type
-    ) {
+            Level level, BlockState state, BlockEntityType<T> type) {
         return createTickerHelper(
-            type, ModBlockEntities.LOAD_MONITOR.get(),
-            (level1, blockPos, blockState, blockEntity) -> blockEntity.tick()
-        );
+                type,
+                ModBlockEntities.LOAD_MONITOR.get(),
+                (level1, blockPos, blockState, blockEntity) -> blockEntity.tick());
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new LoadMonitorBlockEntity(ModBlockEntities.LOAD_MONITOR.get(), pos, state);
     }

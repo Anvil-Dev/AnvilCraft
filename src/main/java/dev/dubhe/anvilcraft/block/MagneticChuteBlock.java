@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.block;
 
-import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeableBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
@@ -11,10 +10,11 @@ import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
-import dev.dubhe.anvilcraft.network.MachineEnableFilterPack;
-import dev.dubhe.anvilcraft.network.MachineOutputDirectionPack;
-import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
-import dev.dubhe.anvilcraft.network.SlotFilterChangePack;
+import dev.dubhe.anvilcraft.network.MachineEnableFilterPacket;
+import dev.dubhe.anvilcraft.network.MachineOutputDirectionPacket;
+import dev.dubhe.anvilcraft.network.SlotDisableChangePacket;
+import dev.dubhe.anvilcraft.network.SlotFilterChangePacket;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
@@ -45,6 +45,8 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
+
+import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -57,37 +59,18 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements IHammer
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
-    public static final VoxelShape SHAPE_UP = Shapes.join(
-            Block.box(4, 8, 4, 12, 16, 12),
-            Block.box(0, 0, 0, 16, 8, 16),
-            BooleanOp.OR
-    );
-    public static final VoxelShape SHAPE_DOWN = Shapes.join(
-            Block.box(4, 0, 4, 12, 8, 12),
-            Block.box(0, 8, 0, 16, 16, 16),
-            BooleanOp.OR
-    );
-    public static final VoxelShape SHAPE_W = Shapes.join(
-            Block.box(0, 4, 4, 8, 12, 12),
-            Block.box(8, 0, 0, 16, 16, 16),
-            BooleanOp.OR
-    );
-    public static final VoxelShape SHAPE_E = Shapes.join(
-            Block.box(8, 4, 4, 16, 12, 12),
-            Block.box(0, 0, 0, 8, 16, 16),
-            BooleanOp.OR
-    );
-    public static final VoxelShape SHAPE_S = Shapes.join(
-            Block.box(4, 4, 8, 12, 12, 16),
-            Block.box(0, 0, 0, 16, 16, 8),
-            BooleanOp.OR
-    );
-    public static final VoxelShape SHAPE_N = Shapes.join(
-            Block.box(4, 4, 0, 12, 12, 8),
-            Block.box(0, 0, 8, 16, 16, 16),
-            BooleanOp.OR
-    );
-
+    public static final VoxelShape SHAPE_UP =
+            Shapes.join(Block.box(4, 8, 4, 12, 16, 12), Block.box(0, 0, 0, 16, 8, 16), BooleanOp.OR);
+    public static final VoxelShape SHAPE_DOWN =
+            Shapes.join(Block.box(4, 0, 4, 12, 8, 12), Block.box(0, 8, 0, 16, 16, 16), BooleanOp.OR);
+    public static final VoxelShape SHAPE_W =
+            Shapes.join(Block.box(0, 4, 4, 8, 12, 12), Block.box(8, 0, 0, 16, 16, 16), BooleanOp.OR);
+    public static final VoxelShape SHAPE_E =
+            Shapes.join(Block.box(8, 4, 4, 16, 12, 12), Block.box(0, 0, 0, 8, 16, 16), BooleanOp.OR);
+    public static final VoxelShape SHAPE_S =
+            Shapes.join(Block.box(4, 4, 8, 12, 12, 16), Block.box(0, 0, 0, 16, 16, 8), BooleanOp.OR);
+    public static final VoxelShape SHAPE_N =
+            Shapes.join(Block.box(4, 4, 0, 12, 12, 8), Block.box(0, 0, 8, 16, 16, 16), BooleanOp.OR);
 
     /**
      * 溜槽方块
@@ -97,10 +80,7 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements IHammer
     public MagneticChuteBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(
-                this.stateDefinition.any()
-                        .setValue(FACING, Direction.DOWN)
-                        .setValue(POWERED, false)
-        );
+                this.stateDefinition.any().setValue(FACING, Direction.DOWN).setValue(POWERED, false));
     }
 
     @Override
@@ -113,8 +93,7 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements IHammer
             @Nonnull BlockState blockState,
             @Nonnull BlockGetter blockGetter,
             @Nonnull BlockPos blockPos,
-            @Nonnull CollisionContext collisionContext
-    ) {
+            @Nonnull CollisionContext collisionContext) {
         return switch (blockState.getValue(FACING)) {
             case NORTH -> SHAPE_N;
             case SOUTH -> SHAPE_S;
@@ -141,8 +120,7 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements IHammer
             @NotNull Level level,
             @NotNull BlockPos pos,
             @NotNull BlockState newState,
-            boolean movedByPiston
-    ) {
+            boolean movedByPiston) {
         if (!state.is(newState.getBlock())) {
             if (level.getBlockEntity(pos) instanceof BaseChuteBlockEntity entity) {
                 Vec3 vec3 = entity.getBlockPos().getCenter();
@@ -184,8 +162,7 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements IHammer
             @NotNull Level level,
             @NotNull BlockPos pos,
             @NotNull BlockState oldState,
-            boolean movedByPiston
-    ) {
+            boolean movedByPiston) {
         BlockState facingState = level.getBlockState(pos.relative(state.getValue(FACING)));
         if (facingState.is(ModBlocks.CHUTE.get()) || facingState.is(ModBlocks.SIMPLE_CHUTE.get())) {
             if (facingState.getValue(ChuteBlock.FACING).getOpposite() == state.getValue(FACING)) {
@@ -193,12 +170,12 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements IHammer
                 return;
             }
             BlockState newState = ModBlocks.SIMPLE_CHUTE.getDefaultState();
-            newState = newState
-                    .setValue(SimpleChuteBlock.FACING, facingState.getValue(ChuteBlock.FACING))
+            newState = newState.setValue(SimpleChuteBlock.FACING, facingState.getValue(ChuteBlock.FACING))
                     .setValue(SimpleChuteBlock.ENABLED, facingState.getValue(SimpleChuteBlock.ENABLED));
             if (facingState.hasProperty(SimpleChuteBlock.TALL))
                 newState = newState.setValue(SimpleChuteBlock.TALL, facingState.getValue(SimpleChuteBlock.TALL));
-            BlockState facingUpState = level.getBlockState(pos.relative(state.getValue(FACING)).relative(Direction.UP));
+            BlockState facingUpState =
+                    level.getBlockState(pos.relative(state.getValue(FACING)).relative(Direction.UP));
             if (state.getValue(FACING) == Direction.DOWN || isFacingDownChute(facingUpState)) {
                 newState = newState.setValue(SimpleChuteBlock.TALL, true);
             } else {
@@ -211,12 +188,8 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements IHammer
 
     @Override
     public BlockState getStateForPlacement(@Nonnull BlockPlaceContext context) {
-        Direction direction = context.getClickedFace();
-        if (context.getPlayer() != null && !context.getPlayer().isShiftKeyDown()) {
-            direction = direction.getOpposite();
-        }
         return this.defaultBlockState()
-                .setValue(FACING, direction)
+                .setValue(FACING, context.getNearestLookingDirection())
                 .setValue(POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()));
     }
 
@@ -244,22 +217,19 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements IHammer
             @NotNull BlockPos pos,
             @NotNull Block neighborBlock,
             @NotNull BlockPos neighborPos,
-            boolean movedByPiston
-    ) {
+            boolean movedByPiston) {
         level.setBlock(pos, state.setValue(POWERED, level.hasNeighborSignal(pos)), 2);
     }
 
     @Override
     public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-            @NotNull Level level,
-            @NotNull BlockState state,
-            @NotNull BlockEntityType<T> blockEntityType
-    ) {
+            @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> blockEntityType) {
         if (level.isClientSide()) {
             return null;
         }
         return createTickerHelper(
-                blockEntityType, ModBlockEntities.MAGNETIC_CHUTE.get(),
+                blockEntityType,
+                ModBlockEntities.MAGNETIC_CHUTE.get(),
                 ((level1, blockPos, blockState, blockEntity) -> blockEntity.tick()));
     }
 
@@ -270,35 +240,25 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements IHammer
             @Nonnull BlockPos pos,
             @Nonnull Player player,
             @Nonnull InteractionHand hand,
-            @Nonnull BlockHitResult hit
-    ) {
+            @Nonnull BlockHitResult hit) {
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
         }
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof MagneticChuteBlockEntity entity) {
             if (player.getItemInHand(hand).is(ModItems.DISK.get())) {
-                return entity.useDisk(
-                        level,
-                        player,
-                        hand,
-                        player.getItemInHand(hand),
-                        hit
-                );
+                return entity.useDisk(level, player, hand, player.getItemInHand(hand), hit);
             }
             if (player instanceof ServerPlayer serverPlayer) {
                 ModMenuTypes.open(serverPlayer, entity, pos);
-                PacketDistributor.sendToPlayer(serverPlayer, new MachineOutputDirectionPack(entity.getDirection()));
-                PacketDistributor.sendToPlayer(serverPlayer, new MachineEnableFilterPack(entity.isFilterEnabled()));
+                PacketDistributor.sendToPlayer(serverPlayer, new MachineOutputDirectionPacket(entity.getDirection()));
+                PacketDistributor.sendToPlayer(serverPlayer, new MachineEnableFilterPacket(entity.isFilterEnabled()));
                 for (int i = 0; i < entity.getFilteredItems().size(); i++) {
                     PacketDistributor.sendToPlayer(
-                        serverPlayer,
-                        new SlotDisableChangePack(i, entity.getDepository().getDisabled().get(i))
-                    );
-                    PacketDistributor.sendToPlayer(
-                        serverPlayer,
-                        new SlotFilterChangePack(i, entity.getFilter(i))
-                    );
+                            serverPlayer,
+                            new SlotDisableChangePacket(
+                                    i, entity.getDepository().getDisabled().get(i)));
+                    PacketDistributor.sendToPlayer(serverPlayer, new SlotFilterChangePacket(i, entity.getFilter(i)));
                 }
             }
         }
@@ -311,8 +271,7 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements IHammer
     public static boolean isFacingDownChute(BlockState blockState) {
         if (!blockState.is(ModBlocks.MAGNETIC_CHUTE.get())
                 && !blockState.is(ModBlocks.SIMPLE_CHUTE.get())
-                && !blockState.is(ModBlocks.CHUTE.get())
-        ) {
+                && !blockState.is(ModBlocks.CHUTE.get())) {
             return false;
         }
         if (blockState.is(ModBlocks.SIMPLE_CHUTE.get()) || blockState.is(ModBlocks.CHUTE.get()))

@@ -1,0 +1,9 @@
+{
+  "type": "anvilcraft:super_heating",
+  "block_result": "anvilcraft:melt_gem_cauldron",
+  "ingredients": [
+    {
+      "tag": "anvilcraft:gem_blocks"
+    }
+  ]
+}

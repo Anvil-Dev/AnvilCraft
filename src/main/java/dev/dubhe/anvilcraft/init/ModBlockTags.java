@@ -1,10 +1,12 @@
 package dev.dubhe.anvilcraft.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
+
 import org.jetbrains.annotations.NotNull;
 
 public class ModBlockTags {
@@ -27,7 +29,7 @@ public class ModBlockTags {
     public static final TagKey<Block> ORES = bindC("ores");
     public static final TagKey<Block> ORES_IN_GROUND_NETHERRACK = bindC("ores_in_ground/netherrack");
     public static final TagKey<Block> ORES_IN_GROUND_DEEPSLATE = bindC("ores_in_ground/deepslate");
-    
+
     public static final TagKey<Block> TUNGSTEN_BLOCKS = bindC("storage_blocks/tungsten_blocks");
     public static final TagKey<Block> TITANIUM_BLOCKS = bindC("storage_blocks/titanium_blocks");
     public static final TagKey<Block> ZINC_BLOCKS = bindC("storage_blocks/zinc_blocks");
@@ -37,7 +39,7 @@ public class ModBlockTags {
     public static final TagKey<Block> URANIUM_BLOCKS = bindC("storage_blocks/uranium_blocks");
     public static final TagKey<Block> BRONZE_BLOCKS = bindC("storage_blocks/bronze_blocks");
     public static final TagKey<Block> BRASS_BLOCKS = bindC("storage_blocks/brass_blocks");
-    
+
     public static final TagKey<Block> INCORRECT_FOR_AMYTHEST_TOOL = bind("incorrect_for_amythest_tool");
     public static final TagKey<Block> INCORRECT_FOR_EMBER_TOOL = bind("incorrect_for_amythest_tool");
 

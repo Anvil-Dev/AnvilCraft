@@ -6,8 +6,8 @@ import dev.dubhe.anvilcraft.client.gui.component.EnableFilterButton;
 import dev.dubhe.anvilcraft.client.gui.component.ItemCollectorButton;
 import dev.dubhe.anvilcraft.client.gui.component.TextWidget;
 import dev.dubhe.anvilcraft.inventory.ItemCollectorMenu;
-import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
-import lombok.Getter;
+import dev.dubhe.anvilcraft.network.SlotDisableChangePacket;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -17,12 +17,14 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.neoforged.neoforge.network.PacketDistributor;
+
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiFunction;
 
 public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMenu>
-    implements IFilterScreen<ItemCollectorMenu> {
+        implements IFilterScreen<ItemCollectorMenu> {
     private static final ResourceLocation CONTAINER_LOCATION =
             AnvilCraft.of("textures/gui/container/machine/background/item_collector.png");
     BiFunction<Integer, Integer, EnableFilterButton> enableFilterButtonSupplier =
@@ -30,6 +32,7 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
 
     @Getter
     private EnableFilterButton enableFilterButton = null;
+
     private final ItemCollectorMenu menu;
 
     /**
@@ -46,53 +49,56 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
         super.init();
         this.enableFilterButton = enableFilterButtonSupplier.apply(this.leftPos, this.topPos);
         this.addRenderableWidget(this.enableFilterButton);
-        //range
+        // range
         this.addRenderableWidget(new TextWidget(
-                leftPos + 57, topPos + 24,
-                20, 8,
+                leftPos + 57,
+                topPos + 24,
+                20,
+                8,
                 minecraft.font,
-                () -> Component.literal(menu.getBlockEntity().getRangeRadius().get().toString())
-        ));
-        //cooldown
+                () -> Component.literal(
+                        menu.getBlockEntity().getRangeRadius().get().toString())));
+        // cooldown
         this.addRenderableWidget(new TextWidget(
-                leftPos + 57, topPos + 38,
-                20, 8,
+                leftPos + 57,
+                topPos + 38,
+                20,
+                8,
                 minecraft.font,
-                () -> Component.literal(menu.getBlockEntity().getCooldown().get().toString())
-        ));
-        //power cost
+                () -> Component.literal(
+                        menu.getBlockEntity().getCooldown().get().toString())));
+        // power cost
         this.addRenderableWidget(new TextWidget(
-                leftPos + 43, topPos + 51,
-                20, 8,
+                leftPos + 43,
+                topPos + 51,
+                20,
+                8,
                 minecraft.font,
-                () -> Component.literal(Integer.toString(menu.getBlockEntity().getInputPower()))
-        ));
-        //range - +
-        this.addRenderableWidget(new ItemCollectorButton(
-                leftPos + 43, topPos + 23,
-                "minus", (b) -> {
+                () -> Component.literal(Integer.toString(menu.getBlockEntity().getInputPower()))));
+        // range - +
+        this.addRenderableWidget(new ItemCollectorButton(leftPos + 43, topPos + 23, "minus", (b) -> {
             menu.getBlockEntity().getRangeRadius().previous();
             menu.getBlockEntity().getRangeRadius().notifyServer();
         }));
-        this.addRenderableWidget(new ItemCollectorButton(
-                leftPos + 81, topPos + 23,
-                "add", (b) -> {
+        this.addRenderableWidget(new ItemCollectorButton(leftPos + 81, topPos + 23, "add", (b) -> {
             menu.getBlockEntity().getRangeRadius().next();
             menu.getBlockEntity().getRangeRadius().notifyServer();
         }));
-        //cooldown - +
-        this.addRenderableWidget(new ItemCollectorButton(
-                leftPos + 43, topPos + 37,
-                "minus", (b) -> {
+        // cooldown - +
+        this.addRenderableWidget(new ItemCollectorButton(leftPos + 43, topPos + 37, "minus", (b) -> {
             menu.getBlockEntity().getCooldown().previous();
             menu.getBlockEntity().getCooldown().notifyServer();
         }));
-        this.addRenderableWidget(new ItemCollectorButton(
-                leftPos + 81, topPos + 37,
-                "add", (b) -> {
+        this.addRenderableWidget(new ItemCollectorButton(leftPos + 81, topPos + 37, "add", (b) -> {
             menu.getBlockEntity().getCooldown().next();
             menu.getBlockEntity().getCooldown().notifyServer();
         }));
+    }
+
+    @Override
+    public void renderBackground(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        this.renderBlurredBackground(partialTick);
+        renderBg(guiGraphics, partialTick, mouseX, mouseY);
     }
 
     @Override
@@ -143,12 +149,10 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
             int slot1 = slot.getContainerSlot();
             if (this.menu.isFilterEnabled()) {
                 if (!this.menu.isSlotDisabled(slot1))
-                    PacketDistributor.sendToServer(
-                        new SlotDisableChangePack(slot1, false)
-                    );
+                    PacketDistributor.sendToServer(new SlotDisableChangePacket(slot1, false));
                 break start;
             }
-            PacketDistributor.sendToServer(new SlotDisableChangePack(slot1, !this.menu.isSlotDisabled(slot1)));
+            PacketDistributor.sendToServer(new SlotDisableChangePacket(slot1, !this.menu.isSlotDisabled(slot1)));
         }
         super.slotClicked(slot, slotId, mouseButton, type);
     }

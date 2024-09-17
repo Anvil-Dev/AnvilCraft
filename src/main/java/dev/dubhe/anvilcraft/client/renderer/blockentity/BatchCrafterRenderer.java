@@ -1,8 +1,7 @@
 package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.block.entity.BatchCrafterBlockEntity;
+
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -19,6 +18,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.state.BlockState;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import org.jetbrains.annotations.NotNull;
 
 public class BatchCrafterRenderer implements BlockEntityRenderer<BatchCrafterBlockEntity> {
@@ -60,8 +62,7 @@ public class BatchCrafterRenderer implements BlockEntityRenderer<BatchCrafterBlo
             @NotNull PoseStack poseStack,
             @NotNull MultiBufferSource buffer,
             int packedLight,
-            int packedOverlay
-    ) {
+            int packedOverlay) {
         BlockState state = blockEntity.getBlockState();
         BakedModel blockModel = blockRenderDispatcher.getBlockModel(state);
         Level level = blockEntity.getLevel();
@@ -71,17 +72,18 @@ public class BatchCrafterRenderer implements BlockEntityRenderer<BatchCrafterBlo
             int blockLight = level.getBrightness(LightLayer.BLOCK, blockEntity.getBlockPos());
             packed = LightTexture.pack(blockLight, skyLight);
         }
-        blockRenderDispatcher.getModelRenderer().renderModel(
-                poseStack.last(),
-                buffer.getBuffer(RenderType.cutout()),
-                state,
-                blockModel,
-                0,
-                0,
-                0,
-                packed,
-                OverlayTexture.NO_OVERLAY
-        );
+        blockRenderDispatcher
+                .getModelRenderer()
+                .renderModel(
+                        poseStack.last(),
+                        buffer.getBuffer(RenderType.cutout()),
+                        state,
+                        blockModel,
+                        0,
+                        0,
+                        0,
+                        packed,
+                        OverlayTexture.NO_OVERLAY);
         ItemStack itemStack = blockEntity.getDisplayItemStack();
         if (itemStack == null || itemStack.isEmpty()) return;
         int seed = itemStack.isEmpty() ? 187 : Item.getId(itemStack.getItem()) + itemStack.getDamageValue();
@@ -90,7 +92,11 @@ public class BatchCrafterRenderer implements BlockEntityRenderer<BatchCrafterBlo
         poseStack.pushPose();
         final boolean isGui3d = bakedModel.isGui3d();
         final int renderAmount = this.getRenderAmount(itemStack);
-        float transformedGroundScaleY = bakedModel.getTransforms().getTransform(ItemDisplayContext.GROUND).scale.y();
+        float transformedGroundScaleY = bakedModel
+                .getTransforms()
+                .getTransform(ItemDisplayContext.GROUND)
+                .scale
+                .y();
         poseStack.translate(0.5F, 0.5F * transformedGroundScaleY + 0.15f, 0.5F);
         float rotation = (blockEntity.getLevel().getGameTime() + partialTick) * 2f;
         poseStack.mulPose(Axis.YP.rotationDegrees(rotation));
@@ -127,15 +133,13 @@ public class BatchCrafterRenderer implements BlockEntityRenderer<BatchCrafterBlo
                     buffer,
                     packedLight,
                     OverlayTexture.NO_OVERLAY,
-                    bakedModel
-            );
+                    bakedModel);
             poseStack.popPose();
             if (!isGui3d) {
                 poseStack.translate(
                         FLAT_ITEM_BUNDLE_OFFSET_X * groundScaleX,
                         FLAT_ITEM_BUNDLE_OFFSET_Y * groundScaleY,
-                        FLAT_ITEM_BUNDLE_OFFSET_Z * groundScaleZ
-                );
+                        FLAT_ITEM_BUNDLE_OFFSET_Z * groundScaleZ);
             }
         }
         poseStack.popPose();

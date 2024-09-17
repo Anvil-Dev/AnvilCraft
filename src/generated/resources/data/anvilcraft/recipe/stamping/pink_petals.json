@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:stamping",
+  "ingredients": [
+    {
+      "item": "minecraft:cherry_leaves"
+    }
+  ],
+  "result": [
+    {
+      "count": 1,
+      "id": "minecraft:pink_petals"
+    }
+  ]
+}

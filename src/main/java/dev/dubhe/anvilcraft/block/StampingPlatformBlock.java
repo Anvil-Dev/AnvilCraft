@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -18,6 +19,7 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
 import org.jetbrains.annotations.NotNull;
 
 public class StampingPlatformBlock extends Block implements SimpleWaterloggedBlock, IHammerRemovable {
@@ -26,8 +28,7 @@ public class StampingPlatformBlock extends Block implements SimpleWaterloggedBlo
             Block.box(2.0, 12.0, 2.0, 14.0, 16.0, 14.0),
             Block.box(2.0, 0.0, 2.0, 14.0, 10.0, 14.0),
             Block.box(4.0, 0.0, 0.0, 12.0, 10.0, 16.0),
-            Block.box(0.0, 0.0, 4.0, 16.0, 10.0, 12.0)
-    );
+            Block.box(0.0, 0.0, 4.0, 16.0, 10.0, 12.0));
     private static final VoxelShape AABB = Shapes.join(Shapes.block(), REDUCE_AABB, BooleanOp.NOT_SAME);
 
     public StampingPlatformBlock(Properties properties) {
@@ -44,9 +45,10 @@ public class StampingPlatformBlock extends Block implements SimpleWaterloggedBlo
     @Override
     @SuppressWarnings("deprecation")
     public @NotNull VoxelShape getShape(
-        @NotNull BlockState blockState, @NotNull BlockGetter blockGetter,
-        @NotNull BlockPos blockPos, @NotNull CollisionContext collisionContext
-    ) {
+            @NotNull BlockState blockState,
+            @NotNull BlockGetter blockGetter,
+            @NotNull BlockPos blockPos,
+            @NotNull CollisionContext collisionContext) {
         return AABB;
     }
 
@@ -74,9 +76,12 @@ public class StampingPlatformBlock extends Block implements SimpleWaterloggedBlo
     @Override
     @SuppressWarnings("deprecation")
     public @NotNull BlockState updateShape(
-        @NotNull BlockState blockState, @NotNull Direction direction, @NotNull BlockState blockState2,
-        @NotNull LevelAccessor levelAccessor, @NotNull BlockPos blockPos, @NotNull BlockPos blockPos2
-    ) {
+            @NotNull BlockState blockState,
+            @NotNull Direction direction,
+            @NotNull BlockState blockState2,
+            @NotNull LevelAccessor levelAccessor,
+            @NotNull BlockPos blockPos,
+            @NotNull BlockPos blockPos2) {
         if (blockState.getValue(WATERLOGGED)) {
             levelAccessor.scheduleTick(blockPos, Fluids.WATER, Fluids.WATER.getTickDelay(levelAccessor));
         }

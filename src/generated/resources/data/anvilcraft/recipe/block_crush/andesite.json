@@ -1,0 +1,5 @@
+{
+  "type": "anvilcraft:block_crush",
+  "input": "minecraft:polished_andesite",
+  "result": "minecraft:andesite"
+}

@@ -1,0 +1,33 @@
+{
+  "parent": "anvilcraft:anvilcraft/root",
+  "criteria": {
+    "crab_claw": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:crab_claw"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.crab_claw.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:crab_claw"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.crab_claw.title"
+    }
+  },
+  "requirements": [
+    [
+      "crab_claw"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -1,17 +1,20 @@
 package dev.dubhe.anvilcraft.util;
 
-
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.neoforged.fml.ModList;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
 import java.util.function.Function;
 
 public abstract class Utils {
-    private Utils() {
-    }
+    private Utils() {}
 
     /**
      * @return 模组是否加载
@@ -23,6 +26,7 @@ public abstract class Utils {
     public static <I> Function<I, I> unchanged() {
         return a -> a;
     }
+
     /**
      *
      */
@@ -35,6 +39,7 @@ public abstract class Utils {
             case FAIL -> ItemInteractionResult.FAIL;
         };
     }
+
     /**
      *
      */
@@ -43,5 +48,30 @@ public abstract class Utils {
             case MAIN_HAND -> EquipmentSlot.MAINHAND;
             case OFF_HAND -> EquipmentSlot.OFFHAND;
         };
+    }
+
+    public static <E> Optional<List<E>> intoOptional(List<E> collection) {
+        if (collection.isEmpty()) return Optional.empty();
+        return Optional.of(collection);
+    }
+
+    public static @NotNull String generateUniqueRecipeSuffix() {
+        return "_generated_" + generateRandomString(8, true, false);
+    }
+
+    public static @NotNull String generateRandomString(int len) {
+        return generateRandomString(len, true, true);
+    }
+
+    public static @NotNull String generateRandomString(int len, boolean hasInteger, boolean hasUpperLetter) {
+        String ch = "abcdefghijklmnopqrstuvwxyz" + (hasUpperLetter ? "ABCDEFGHIGKLMNOPQRSTUVWXYZ" : "")
+                + (hasInteger ? "0123456789" : "");
+        StringBuilder stringBuffer = new StringBuilder();
+        for (int i = 0; i < len; i++) {
+            Random random = new Random(System.nanoTime());
+            int num = random.nextInt(ch.length() - 1);
+            stringBuffer.append(ch.charAt(num));
+        }
+        return stringBuffer.toString();
     }
 }

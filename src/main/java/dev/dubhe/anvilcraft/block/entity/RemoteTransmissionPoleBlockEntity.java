@@ -1,20 +1,20 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.power.IPowerTransmitter;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.RemoteTransmissionPoleBlock;
 import dev.dubhe.anvilcraft.block.state.Vertical4PartHalf;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
-import lombok.Getter;
-import lombok.Setter;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
@@ -27,8 +27,7 @@ public class RemoteTransmissionPoleBlockEntity extends AbstractTransmissionPoleB
     }
 
     public static @NotNull RemoteTransmissionPoleBlockEntity createBlockEntity(
-        BlockEntityType<?> type, BlockPos pos, BlockState blockState
-    ) {
+            BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         return new RemoteTransmissionPoleBlockEntity(type, pos, blockState);
     }
 
@@ -54,7 +53,6 @@ public class RemoteTransmissionPoleBlockEntity extends AbstractTransmissionPoleB
     public Level getCurrentLevel() {
         return this.getLevel();
     }
-
 
     /**
      * @param level 世界

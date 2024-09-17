@@ -1,11 +1,13 @@
 package dev.dubhe.anvilcraft.event.server;
 
-import net.neoforged.bus.api.SubscribeEvent;
 import dev.dubhe.anvilcraft.api.event.server.ServerEndDataPackReloadEvent;
 import dev.dubhe.anvilcraft.api.event.server.ServerStartedEvent;
 import dev.dubhe.anvilcraft.api.hammer.HammerManager;
 import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
 import dev.dubhe.anvilcraft.init.ModHammerInits;
+
+import net.neoforged.bus.api.SubscribeEvent;
+
 import org.jetbrains.annotations.NotNull;
 
 public class ServerEventListener {
@@ -24,7 +26,5 @@ public class ServerEventListener {
 
     @SuppressWarnings("unused")
     @SubscribeEvent
-    public void onServerEndDataPackReload(@NotNull ServerEndDataPackReloadEvent event) {
-    }
-
+    public void onServerEndDataPackReload(@NotNull ServerEndDataPackReloadEvent event) {}
 }

@@ -1,11 +1,10 @@
 package dev.dubhe.anvilcraft.block;
 
-import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeableBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.RubyPrismBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
-import javax.annotation.Nonnull;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -24,41 +23,26 @@ import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
+import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class RubyPrismBlock extends BaseEntityBlock implements IHammerRemovable,
-    IHammerChangeableBlock {
+import javax.annotation.Nonnull;
+
+public class RubyPrismBlock extends BaseEntityBlock implements IHammerRemovable, IHammerChangeableBlock {
     public static final VoxelShape UP_MODEL =
-        Shapes.or(
-            Block.box(0, 0, 0, 16, 4, 16),
-            Block.box(2, 4, 2, 14, 14, 14),
-            Block.box(4, 14, 4, 12, 16, 12));
+            Shapes.or(Block.box(0, 0, 0, 16, 4, 16), Block.box(2, 4, 2, 14, 14, 14), Block.box(4, 14, 4, 12, 16, 12));
     public static final VoxelShape DOWN_MODEL =
-        Shapes.or(
-            Block.box(0, 12, 0, 16, 16, 16),
-            Block.box(2, 2, 2, 14, 12, 14),
-            Block.box(4, 0, 4, 12, 2, 12));
+            Shapes.or(Block.box(0, 12, 0, 16, 16, 16), Block.box(2, 2, 2, 14, 12, 14), Block.box(4, 0, 4, 12, 2, 12));
     public static final VoxelShape NORTH_MODEL =
-        Shapes.or(
-            Block.box(0, 0, 12, 16, 16, 16),
-            Block.box(2, 2, 2, 14, 14, 12),
-            Block.box(4, 4, 0, 12, 12, 2));
+            Shapes.or(Block.box(0, 0, 12, 16, 16, 16), Block.box(2, 2, 2, 14, 14, 12), Block.box(4, 4, 0, 12, 12, 2));
     public static final VoxelShape SOUTH_MODEL =
-        Shapes.or(
-            Block.box(0, 0, 0, 16, 16, 4),
-            Block.box(2, 2, 4, 14, 14, 14),
-            Block.box(4, 4, 14, 12, 12, 16));
+            Shapes.or(Block.box(0, 0, 0, 16, 16, 4), Block.box(2, 2, 4, 14, 14, 14), Block.box(4, 4, 14, 12, 12, 16));
     public static final VoxelShape WEST_MODEL =
-        Shapes.or(
-        Block.box(12, 0, 0, 16, 16, 16),
-        Block.box(2, 2, 2, 12, 14, 14),
-        Block.box(0, 4, 4, 2, 12, 12));
+            Shapes.or(Block.box(12, 0, 0, 16, 16, 16), Block.box(2, 2, 2, 12, 14, 14), Block.box(0, 4, 4, 2, 12, 12));
     public static final VoxelShape EAST_MODEL =
-        Shapes.or(
-            Block.box(0, 0, 0, 4, 16, 16),
-            Block.box(4, 2, 2, 14, 14, 14),
-            Block.box(14, 4, 4, 16, 12, 12));
+            Shapes.or(Block.box(0, 0, 0, 4, 16, 16), Block.box(4, 2, 2, 14, 14, 14), Block.box(14, 4, 4, 16, 12, 12));
     public static final DirectionProperty FACING = DirectionalBlock.FACING;
 
     /**
@@ -66,9 +50,7 @@ public class RubyPrismBlock extends BaseEntityBlock implements IHammerRemovable,
      */
     public RubyPrismBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(
-            this.stateDefinition.any()
-                .setValue(FACING, Direction.DOWN));
+        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.DOWN));
     }
 
     @Override
@@ -77,20 +59,21 @@ public class RubyPrismBlock extends BaseEntityBlock implements IHammerRemovable,
     }
 
     @Override
-    protected void createBlockStateDefinition(
-        @NotNull StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING);
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
         return RubyPrismBlockEntity.createBlockEntity(ModBlockEntities.RUBY_PRISM.get(), pos, state);
     }
 
     @Override
-    public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos,
-        @NotNull CollisionContext context) {
+    public @NotNull VoxelShape getShape(
+            @NotNull BlockState state,
+            @NotNull BlockGetter level,
+            @NotNull BlockPos pos,
+            @NotNull CollisionContext context) {
         return switch (state.getValue(FACING)) {
             case UP -> UP_MODEL;
             case DOWN -> DOWN_MODEL;
@@ -111,13 +94,11 @@ public class RubyPrismBlock extends BaseEntityBlock implements IHammerRemovable,
         return this.defaultBlockState().setValue(FACING, context.getNearestLookingDirection());
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-        @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type
-    ) {
+            @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type) {
         if (level.isClientSide) return null;
-        return createTickerHelper(type, ModBlockEntities.RUBY_PRISM.get(),
-            (level1, pos, state1, entity) -> entity.tick(level1));
+        return createTickerHelper(
+                type, ModBlockEntities.RUBY_PRISM.get(), (level1, pos, state1, entity) -> entity.tick(level1));
     }
 }

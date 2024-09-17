@@ -1,0 +1,18 @@
+{
+  "type": "anvilcraft:stamping",
+  "ingredients": [
+    {
+      "tag": "minecraft:logs"
+    }
+  ],
+  "result": [
+    {
+      "count": 1,
+      "id": "anvilcraft:wood_fiber"
+    },
+    {
+      "count": 1,
+      "id": "anvilcraft:resin"
+    }
+  ]
+}

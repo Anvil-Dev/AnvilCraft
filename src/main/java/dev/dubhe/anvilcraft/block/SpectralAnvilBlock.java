@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
-import com.mojang.math.MethodsReturnNonnullByDefault;
 import dev.dubhe.anvilcraft.entity.FallingSpectralBlockEntity;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -27,6 +27,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
+import com.mojang.math.MethodsReturnNonnullByDefault;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -53,10 +55,8 @@ public class SpectralAnvilBlock extends TransparentBlock {
      */
     public SpectralAnvilBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any()
-                .setValue(FACING, Direction.NORTH)
-                .setValue(POWERED, false)
-        );
+        this.registerDefaultState(
+                this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(POWERED, false));
     }
 
     @Override
@@ -79,12 +79,7 @@ public class SpectralAnvilBlock extends TransparentBlock {
 
     @Override
     protected InteractionResult useWithoutItem(
-        BlockState s,
-        Level p,
-        BlockPos pos,
-        Player player,
-        BlockHitResult hitResult
-    ) {
+            BlockState s, Level p, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (p.isClientSide) {
             return InteractionResult.SUCCESS;
         } else {
@@ -94,16 +89,12 @@ public class SpectralAnvilBlock extends TransparentBlock {
         }
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
         return new SimpleMenuProvider(
-                (syncId, inventory, player) -> new AnvilMenu(
-                        syncId,
-                        inventory,
-                        ContainerLevelAccess.create(level, pos)),
-                CONTAINER_TITLE
-        );
+                (syncId, inventory, player) ->
+                        new AnvilMenu(syncId, inventory, ContainerLevelAccess.create(level, pos)),
+                CONTAINER_TITLE);
     }
 
     @Override
@@ -113,19 +104,13 @@ public class SpectralAnvilBlock extends TransparentBlock {
             BlockPos pos,
             Block neighborBlock,
             BlockPos neighborPos,
-            boolean movedByPiston
-    ) {
+            boolean movedByPiston) {
         if (level.isClientSide) return;
         boolean beforePowered = state.getValue(POWERED);
         level.setBlockAndUpdate(pos, state.setValue(POWERED, level.hasNeighborSignal(pos)));
         if (!beforePowered && level.hasNeighborSignal(pos)) {
             FallingSpectralBlockEntity.fall(
-                    level,
-                    pos.above(),
-                    level.getBlockState(pos).setValue(POWERED, false),
-                    false,
-                    true
-            );
+                    level, pos.above(), level.getBlockState(pos).setValue(POWERED, false), false, true);
         }
     }
 }

@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:super_heating",
+  "ingredients": [
+    {
+      "item": "minecraft:calcite"
+    }
+  ],
+  "result": [
+    {
+      "count": 1,
+      "id": "anvilcraft:lime_powder"
+    }
+  ]
+}

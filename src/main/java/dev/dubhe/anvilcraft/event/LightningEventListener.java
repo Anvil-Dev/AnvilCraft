@@ -6,11 +6,13 @@ import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager.Entry;
 import dev.dubhe.anvilcraft.api.event.entity.LightningStrikeEvent;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlocks;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.SubscribeEvent;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -35,11 +37,9 @@ public class LightningEventListener {
                 for (int y = 0; y < depth; y++) {
                     BlockPos offset = pos.offset(x, -y, z);
                     state = event.getLevel().getBlockState(offset);
-                    if (
-                            !state.is(Blocks.IRON_BLOCK)
-                                    && !state.is(ModBlocks.FERRITE_CORE_MAGNET_BLOCK.get())
-                                    && !state.is(ModBlocks.MAGNET_BLOCK.get())
-                    ) continue;
+                    if (!state.is(Blocks.IRON_BLOCK)
+                            && !state.is(ModBlocks.FERRITE_CORE_MAGNET_BLOCK.get())
+                            && !state.is(ModBlocks.MAGNET_BLOCK.get())) continue;
                     BlockState state1 = ModBlocks.HOLLOW_MAGNET_BLOCK.get().defaultBlockState();
                     event.getLevel().setBlockAndUpdate(offset, state1);
                 }

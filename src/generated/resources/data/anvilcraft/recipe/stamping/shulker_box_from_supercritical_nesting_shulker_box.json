@@ -1,0 +1,26 @@
+{
+  "type": "anvilcraft:stamping",
+  "ingredients": [
+    {
+      "item": "anvilcraft:supercritical_nesting_shulker_box"
+    }
+  ],
+  "result": [
+    {
+      "count": 1,
+      "id": "minecraft:shulker_box"
+    },
+    {
+      "count": 1,
+      "id": "minecraft:shulker_box"
+    },
+    {
+      "count": 1,
+      "id": "minecraft:shulker_box"
+    },
+    {
+      "count": 1,
+      "id": "minecraft:shulker_box"
+    }
+  ]
+}

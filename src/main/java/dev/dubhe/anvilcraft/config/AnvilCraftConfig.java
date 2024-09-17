@@ -1,12 +1,12 @@
 package dev.dubhe.anvilcraft.config;
 
-import com.google.gson.annotations.SerializedName;
 import dev.dubhe.anvilcraft.AnvilCraft;
+
+import com.google.gson.annotations.SerializedName;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.Comment;
-
 
 @Config(name = AnvilCraft.MOD_ID)
 public class AnvilCraftConfig implements ConfigData {
@@ -109,7 +109,6 @@ public class AnvilCraftConfig implements ConfigData {
     @ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
     public PowerConverter powerConverter = new PowerConverter();
 
-
     @ConfigEntry.Gui.Tooltip()
     public boolean isLaserDoImpactChecking = true;
 
@@ -121,10 +120,13 @@ public class AnvilCraftConfig implements ConfigData {
     public int inductionLightBlockRipeningRange = 5;
 
     @Comment("The number of ticks between heliostat detections")
-    @ConfigEntry.Gui.Tooltip
     @ConfigEntry.BoundedDiscrete(max = 20, min = 1)
     @SerializedName("Heliostats detection interval")
     public int heliostatsDetectionInterval = 4;
+
+    @ConfigEntry.Gui.Tooltip
+    @Comment("Do not render power component tooltip when jade present")
+    public boolean doNotShowTooltipWhenJadePresent = true;
 
     public static class PowerConverter implements ConfigData {
         @Comment("The working interval of power converters")

@@ -1,17 +1,17 @@
 package dev.dubhe.anvilcraft.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.event.LightningEventListener;
+import dev.dubhe.anvilcraft.event.PlayerEventListener;
+import dev.dubhe.anvilcraft.event.ServerBlockEntityEventListener;
 import dev.dubhe.anvilcraft.event.anvil.AnvilEventListener;
 import dev.dubhe.anvilcraft.event.anvil.AnvilHitBlockDevourerEventListener;
 import dev.dubhe.anvilcraft.event.anvil.AnvilHitBlockPlacerEventListener;
 import dev.dubhe.anvilcraft.event.anvil.AnvilHitImpactPileEventListener;
 import dev.dubhe.anvilcraft.event.anvil.AnvilHitPiezoelectricCrystalBlockEventListener;
 import dev.dubhe.anvilcraft.event.anvil.AnvilHurtVillagerEventListener;
-import dev.dubhe.anvilcraft.event.giantanvil.GiantAnvilLandingEventListener;
-import dev.dubhe.anvilcraft.event.LightningEventListener;
-import dev.dubhe.anvilcraft.event.PlayerEventListener;
-import dev.dubhe.anvilcraft.event.ServerBlockEntityEventListener;
 import dev.dubhe.anvilcraft.event.client.ClientPlayerDisconnectEventListener;
+import dev.dubhe.anvilcraft.event.giantanvil.GiantAnvilLandingEventListener;
 import dev.dubhe.anvilcraft.event.server.ServerEventListener;
 
 public class ModEvents {

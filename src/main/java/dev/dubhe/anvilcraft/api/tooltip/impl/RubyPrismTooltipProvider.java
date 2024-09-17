@@ -2,11 +2,13 @@ package dev.dubhe.anvilcraft.api.tooltip.impl;
 
 import dev.dubhe.anvilcraft.api.tooltip.providers.BlockEntityTooltipProvider;
 import dev.dubhe.anvilcraft.block.entity.RubyPrismBlockEntity;
-import java.util.ArrayList;
-import java.util.List;
+
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class RubyPrismTooltipProvider implements BlockEntityTooltipProvider {
     public RubyPrismTooltipProvider() {}

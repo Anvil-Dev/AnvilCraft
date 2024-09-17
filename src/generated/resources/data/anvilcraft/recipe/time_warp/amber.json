@@ -1,0 +1,15 @@
+{
+  "type": "anvilcraft:time_warp",
+  "cauldron": "minecraft:cauldron",
+  "consume_fluid": false,
+  "ingredients": [
+    {
+      "item": "anvilcraft:resin"
+    }
+  ],
+  "produce_fluid": false,
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:amber"
+  }
+}

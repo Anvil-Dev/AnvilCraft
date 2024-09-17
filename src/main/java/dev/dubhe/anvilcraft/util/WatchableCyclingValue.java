@@ -1,8 +1,10 @@
 package dev.dubhe.anvilcraft.util;
 
 import dev.dubhe.anvilcraft.network.CyclingValueSyncPacket;
-import lombok.Getter;
+
 import net.neoforged.neoforge.network.PacketDistributor;
+
+import lombok.Getter;
 
 import java.util.function.Consumer;
 
@@ -10,6 +12,7 @@ public class WatchableCyclingValue<T> {
     public final T[] values;
     private int index = 0;
     private final Consumer<WatchableCyclingValue<T>> onChangedCallback;
+
     @Getter
     private final String name;
 

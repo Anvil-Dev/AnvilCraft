@@ -1,0 +1,83 @@
+{
+  "type": "anvilcraft:mulitblock",
+  "pattern": {
+    "layers": [
+      [
+        "ACA",
+        "BAB",
+        "ACA"
+      ],
+      [
+        "EEE",
+        "EDE",
+        "EEE"
+      ],
+      [
+        "JGJ",
+        "HDI",
+        "JFJ"
+      ]
+    ],
+    "symbols": {
+      "A": {
+        "block": "anvilcraft:polished_heavy_iron_block"
+      },
+      "B": {
+        "block": "anvilcraft:heavy_iron_beam",
+        "properties": {
+          "axis": "x"
+        }
+      },
+      "C": {
+        "block": "anvilcraft:heavy_iron_beam",
+        "properties": {
+          "axis": "z"
+        }
+      },
+      "D": {
+        "block": "anvilcraft:heavy_iron_column"
+      },
+      "E": {
+        "block": "anvilcraft:heavy_iron_plate"
+      },
+      "F": {
+        "block": "anvilcraft:cut_heavy_iron_stairs",
+        "properties": {
+          "facing": "north",
+          "half": "bottom"
+        }
+      },
+      "G": {
+        "block": "anvilcraft:cut_heavy_iron_stairs",
+        "properties": {
+          "facing": "south",
+          "half": "bottom"
+        }
+      },
+      "H": {
+        "block": "anvilcraft:cut_heavy_iron_stairs",
+        "properties": {
+          "facing": "east",
+          "half": "bottom"
+        }
+      },
+      "I": {
+        "block": "anvilcraft:cut_heavy_iron_stairs",
+        "properties": {
+          "facing": "west",
+          "half": "bottom"
+        }
+      },
+      "J": {
+        "block": "anvilcraft:cut_heavy_iron_slab",
+        "properties": {
+          "type": "bottom"
+        }
+      }
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:giant_anvil"
+  }
+}

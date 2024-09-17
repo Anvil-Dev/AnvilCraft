@@ -1,9 +1,13 @@
 package dev.dubhe.anvilcraft.event.giantanvil;
 
-import net.neoforged.bus.api.SubscribeEvent;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.entity.GiantAnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.init.ModBlocks;
+import dev.dubhe.anvilcraft.init.ModRecipeTypes;
+import dev.dubhe.anvilcraft.recipe.mulitblock.MulitblockInput;
+import dev.dubhe.anvilcraft.util.AnvilUtil;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -28,6 +32,8 @@ import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.bus.api.SubscribeEvent;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -38,14 +44,12 @@ import java.util.function.Consumer;
 public class GiantAnvilLandingEventListener {
     private static final List<ShockBehaviorDefinition> behaviorDefs = new ArrayList<>();
     public static final Direction[] HORIZONTAL_DIRECTIONS =
-            new Direction[]{Direction.SOUTH, Direction.WEST, Direction.EAST, Direction.NORTH};
-    public static final Direction[] VERTICAL_DIRECTIONS =
-            new Direction[]{Direction.UP, Direction.DOWN};
-    public static final Direction[][] CORNER_DIRECTIONS =
-            new Direction[][]{
-                    {Direction.EAST, Direction.NORTH}, {Direction.EAST, Direction.SOUTH},
-                    {Direction.WEST, Direction.NORTH}, {Direction.WEST, Direction.SOUTH},
-            };
+            new Direction[] {Direction.SOUTH, Direction.WEST, Direction.EAST, Direction.NORTH};
+    public static final Direction[] VERTICAL_DIRECTIONS = new Direction[] {Direction.UP, Direction.DOWN};
+    public static final Direction[][] CORNER_DIRECTIONS = new Direction[][] {
+        {Direction.EAST, Direction.NORTH}, {Direction.EAST, Direction.SOUTH},
+        {Direction.WEST, Direction.NORTH}, {Direction.WEST, Direction.SOUTH},
+    };
 
     static {
         behaviorDefs.add(new ShockBehaviorDefinition.MatchAll((blockPosList, level) -> {
@@ -57,8 +61,7 @@ public class GiantAnvilLandingEventListener {
                         || state.canBeReplaced()
                         || state.is(Blocks.BROWN_MUSHROOM)
                         || state.is(BlockTags.SNOW)
-                        || state.is(BlockTags.ICE)
-                ) {
+                        || state.is(BlockTags.ICE)) {
                     LootParams.Builder builder = new LootParams.Builder((ServerLevel) level)
                             .withParameter(LootContextParams.ORIGIN, pos.getCenter());
                     builder.withParameter(LootContextParams.TOOL, ItemStack.EMPTY);
@@ -69,13 +72,8 @@ public class GiantAnvilLandingEventListener {
                         builder.withParameter(LootContextParams.EXPLOSION_RADIUS, 4f);
                     }
                     for (ItemStack drop : state.getDrops(builder)) {
-                        ItemEntity itemEntity = new ItemEntity(
-                                level,
-                                pos.getX() + 0.5,
-                                pos.getY() + 0.5,
-                                pos.getZ() + 0.5,
-                                drop
-                        );
+                        ItemEntity itemEntity =
+                                new ItemEntity(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, drop);
                         level.addFreshEntity(itemEntity);
                         state.spawnAfterBreak((ServerLevel) level, pos, ItemStack.EMPTY, true);
                     }
@@ -83,128 +81,115 @@ public class GiantAnvilLandingEventListener {
                 }
             }
         }));
-        behaviorDefs.add(new ShockBehaviorDefinition.SimpleTag(
-                BlockTags.WOOL,
-                (blockPosList, level) -> {
-                    for (BlockPos pos : blockPosList) {
-                        BlockState state = level.getBlockState(pos);
-                        if (state.is(BlockTags.LEAVES)
-                                || state.is(BlockTags.FLOWERS)
-                                || state.is(Blocks.RED_MUSHROOM)
-                                || state.canBeReplaced()
-                                || state.is(Blocks.BROWN_MUSHROOM)
-                                || state.is(BlockTags.SNOW)
-                                || state.is(BlockTags.ICE)
-                        ) {
-                            level.destroyBlock(pos, false);
-                            ItemEntity itemEntity = new ItemEntity(
-                                    level,
-                                    pos.getX() + 0.5,
-                                    pos.getY() + 0.5,
-                                    pos.getZ() + 0.5,
-                                    state.getBlock().asItem().getDefaultInstance()
-                            );
-                            level.addFreshEntity(itemEntity);
-                        }
-                        if (isFellingApplicableBlock(state)) {
-                            removeLeaves(pos, level);
-                        }
+        behaviorDefs.add(new ShockBehaviorDefinition.SimpleTag(BlockTags.WOOL, (blockPosList, level) -> {
+            for (BlockPos pos : blockPosList) {
+                BlockState state = level.getBlockState(pos);
+                if (state.is(BlockTags.LEAVES)
+                        || state.is(BlockTags.FLOWERS)
+                        || state.is(Blocks.RED_MUSHROOM)
+                        || state.canBeReplaced()
+                        || state.is(Blocks.BROWN_MUSHROOM)
+                        || state.is(BlockTags.SNOW)
+                        || state.is(BlockTags.ICE)) {
+                    level.destroyBlock(pos, false);
+                    ItemEntity itemEntity = new ItemEntity(
+                            level,
+                            pos.getX() + 0.5,
+                            pos.getY() + 0.5,
+                            pos.getZ() + 0.5,
+                            state.getBlock().asItem().getDefaultInstance());
+                    level.addFreshEntity(itemEntity);
+                }
+                if (isFellingApplicableBlock(state)) {
+                    removeLeaves(pos, level);
+                }
+            }
+        }));
+        behaviorDefs.add(new ShockBehaviorDefinition.SimpleTag(BlockTags.LOGS, (blockPosList, level) -> {
+            for (BlockPos pos : blockPosList) {
+                BlockState state = level.getBlockState(pos);
+                if (state.is(Blocks.SUGAR_CANE)
+                        || state.is(Blocks.BAMBOO)
+                        || state.is(Blocks.KELP)
+                        || state.is(Blocks.CACTUS)) {
+                    level.destroyBlock(pos, true);
+                }
+                processChorus(pos, state, level);
+                if (isFellingApplicableBlock(state)) {
+                    if (state.getBlock() instanceof ChorusPlantBlock) {
+                        level.destroyBlock(pos, true);
+                    }
+                    BlockPos.breadthFirstTraversal(
+                            pos,
+                            Integer.MAX_VALUE,
+                            1024,
+                            GiantAnvilLandingEventListener::acceptDirections,
+                            blockPos -> {
+                                if (blockPos.getY() < pos.getY()) return false;
+                                BlockState blockState = level.getBlockState(blockPos);
+                                if (isFellingApplicableBlock(blockState)) {
+                                    level.destroyBlock(blockPos, true);
+                                    return true;
+                                }
+                                return false;
+                            });
+                }
+            }
+        }));
+        behaviorDefs.add(new ShockBehaviorDefinition.SimpleBlock(Blocks.HAY_BLOCK, (blockPosList, level) -> {
+            for (BlockPos pos : blockPosList) {
+                BlockState state = level.getBlockState(pos);
+                if (state.getBlock() instanceof CropBlock cropBlock) {
+                    if (cropBlock.isMaxAge(state)) {
+                        level.destroyBlock(pos, true);
+                        level.setBlockAndUpdate(pos, cropBlock.getStateForAge(0));
                     }
                 }
-        ));
-        behaviorDefs.add(new ShockBehaviorDefinition.SimpleTag(BlockTags.LOGS,
-                (blockPosList, level) -> {
-                    for (BlockPos pos : blockPosList) {
-                        BlockState state = level.getBlockState(pos);
-                        if (state.is(Blocks.SUGAR_CANE)
-                                || state.is(Blocks.BAMBOO)
-                                || state.is(Blocks.KELP)
-                                || state.is(Blocks.CACTUS)
-                        ) {
-                            level.destroyBlock(pos, true);
-                        }
-                        processChorus(pos, state, level);
-                        if (isFellingApplicableBlock(state)) {
-                            if (state.getBlock() instanceof ChorusPlantBlock) {
-                                level.destroyBlock(pos, true);
-                            }
-                            BlockPos.breadthFirstTraversal(
-                                    pos,
-                                    Integer.MAX_VALUE,
-                                    1024,
-                                    GiantAnvilLandingEventListener::acceptDirections,
-                                    blockPos -> {
-                                        if (blockPos.getY() < pos.getY()) return false;
-                                        BlockState blockState = level.getBlockState(blockPos);
-                                        if (isFellingApplicableBlock(blockState)) {
-                                            level.destroyBlock(blockPos, true);
-                                            return true;
-                                        }
-                                        return false;
-                                    }
-                            );
-                        }
-                    }
-
-                })
-        );
-        behaviorDefs.add(new ShockBehaviorDefinition.SimpleBlock(Blocks.HAY_BLOCK,
-                (blockPosList, level) -> {
-                    for (BlockPos pos : blockPosList) {
-                        BlockState state = level.getBlockState(pos);
-                        if (state.getBlock() instanceof CropBlock cropBlock) {
-                            if (cropBlock.isMaxAge(state)) {
-                                level.destroyBlock(pos, true);
-                                level.setBlockAndUpdate(pos, cropBlock.getStateForAge(0));
-                            }
-                        }
-                        if (state.getBlock() instanceof CropBlock) {
-                            level.destroyBlock(pos, true);
-                        }
-                        if (state.getBlock() instanceof SweetBerryBushBlock) {
-                            level.destroyBlock(pos, true);
-                            level.setBlockAndUpdate(pos, state.setValue(SweetBerryBushBlock.AGE, 0));
-                        }
-                        if (state.getBlock() instanceof CaveVinesBlock) {
-                            level.destroyBlock(pos, true);
-                            level.setBlockAndUpdate(pos, state.setValue(CaveVines.BERRIES, false));
-                        }
-                        if (state.getBlock() instanceof NetherWartBlock) {
-                            level.destroyBlock(pos, true);
-                            level.setBlockAndUpdate(pos, state.setValue(NetherWartBlock.AGE, 0));
-                        }
-                        processChorus(pos, state, level);
-                    }
-                })
-        );
-//        behaviorDefs.add(new ShockBehaviorDefinition.SimpleBlock(Blocks.ANVIL,
-//                (blockPosList, level) -> {
-//                    for (BlockPos pos : blockPosList) {
-//                        BlockPos pos1 = pos.mutable();
-//                        AnvilCraftingContext context = new AnvilCraftingContext(level, pos1, null);
-//                        Optional<AnvilRecipe> optional = AnvilRecipeManager.getAnvilRecipeList().stream()
-//                                .filter(recipe ->
-//                                        recipe.getAnvilRecipeType() == AnvilRecipeType.BLOCK_SMASH
-//                                                && recipe.matches(context, level)
-//                                ).findFirst();
-//                        if (optional.isPresent()) {
-//                            AnvilRecipe recipe = optional.get();
-//                            recipe.craft(context.clearData());
-//                            level.destroyBlock(pos.below(), true);
-//                        }
-//                    }
-//                })
-//        );
+                if (state.getBlock() instanceof CropBlock) {
+                    level.destroyBlock(pos, true);
+                }
+                if (state.getBlock() instanceof SweetBerryBushBlock) {
+                    level.destroyBlock(pos, true);
+                    level.setBlockAndUpdate(pos, state.setValue(SweetBerryBushBlock.AGE, 0));
+                }
+                if (state.getBlock() instanceof CaveVinesBlock) {
+                    level.destroyBlock(pos, true);
+                    level.setBlockAndUpdate(pos, state.setValue(CaveVines.BERRIES, false));
+                }
+                if (state.getBlock() instanceof NetherWartBlock) {
+                    level.destroyBlock(pos, true);
+                    level.setBlockAndUpdate(pos, state.setValue(NetherWartBlock.AGE, 0));
+                }
+                processChorus(pos, state, level);
+            }
+        }));
+        //        behaviorDefs.add(new ShockBehaviorDefinition.SimpleBlock(Blocks.ANVIL,
+        //                (blockPosList, level) -> {
+        //                    for (BlockPos pos : blockPosList) {
+        //                        BlockPos pos1 = pos.mutable();
+        //                        AnvilCraftingContext context = new AnvilCraftingContext(level, pos1,
+        // null);
+        //                        Optional<AnvilRecipe> optional =
+        // AnvilRecipeManager.getAnvilRecipeList().stream()
+        //                                .filter(recipe ->
+        //                                        recipe.getAnvilRecipeType() ==
+        // AnvilRecipeType.BLOCK_SMASH
+        //                                                && recipe.matches(context, level)
+        //                                ).findFirst();
+        //                        if (optional.isPresent()) {
+        //                            AnvilRecipe recipe = optional.get();
+        //                            recipe.craft(context.clearData());
+        //                            level.destroyBlock(pos.below(), true);
+        //                        }
+        //                    }
+        //                })
+        //        );
     }
 
     private static void processChorus(BlockPos pos, BlockState state, Level level) {
         if (state.getBlock() instanceof ChorusPlantBlock) {
             BlockPos.breadthFirstTraversal(
-                    pos,
-                    Integer.MAX_VALUE,
-                    1024,
-                    GiantAnvilLandingEventListener::acceptDirections,
-                    blockPos -> {
+                    pos, Integer.MAX_VALUE, 1024, GiantAnvilLandingEventListener::acceptDirections, blockPos -> {
                         if (blockPos.getY() < pos.getY()) return false;
                         BlockState blockState = level.getBlockState(blockPos);
                         if (blockState.is(Blocks.CHORUS_PLANT)) {
@@ -218,14 +203,12 @@ public class GiantAnvilLandingEventListener {
                                     blockPos.getX() + 0.5,
                                     blockPos.getY() + 0.5,
                                     blockPos.getZ() + 0.5,
-                                    blockState.getBlock().asItem().getDefaultInstance()
-                            );
+                                    blockState.getBlock().asItem().getDefaultInstance());
                             level.addFreshEntity(itemEntity);
                             return true;
                         }
                         return false;
-                    }
-            );
+                    });
         }
     }
 
@@ -235,10 +218,7 @@ public class GiantAnvilLandingEventListener {
         }
         for (Direction horizontal : HORIZONTAL_DIRECTIONS) {
             for (Direction vertical : VERTICAL_DIRECTIONS) {
-                blockPosConsumer.accept(blockPos
-                        .relative(horizontal)
-                        .relative(vertical)
-                );
+                blockPosConsumer.accept(blockPos.relative(horizontal).relative(vertical));
             }
         }
         for (Direction[] corner : CORNER_DIRECTIONS) {
@@ -255,11 +235,7 @@ public class GiantAnvilLandingEventListener {
 
     private static void removeLeaves(BlockPos pos, Level level) {
         BlockPos.breadthFirstTraversal(
-                pos,
-                Integer.MAX_VALUE,
-                1024,
-                GiantAnvilLandingEventListener::acceptDirections,
-                blockPos -> {
+                pos, Integer.MAX_VALUE, 1024, GiantAnvilLandingEventListener::acceptDirections, blockPos -> {
                     if (blockPos.getY() < pos.getY()) return false;
                     BlockState blockState = level.getBlockState(blockPos);
                     if (isFellingApplicableBlock(blockState)) {
@@ -270,8 +246,7 @@ public class GiantAnvilLandingEventListener {
                                     blockPos.getX() + 0.5,
                                     blockPos.getY() + 0.5,
                                     blockPos.getZ() + 0.5,
-                                    blockState.getBlock().asItem().getDefaultInstance()
-                            );
+                                    blockState.getBlock().asItem().getDefaultInstance());
                             level.addFreshEntity(itemEntity);
                             return true;
                         }
@@ -282,15 +257,13 @@ public class GiantAnvilLandingEventListener {
                                     blockPos.getX() + 0.5,
                                     blockPos.getY() + 0.5,
                                     blockPos.getZ() + 0.5,
-                                    blockState.getBlock().asItem().getDefaultInstance()
-                            );
+                                    blockState.getBlock().asItem().getDefaultInstance());
                             level.addFreshEntity(itemEntity);
                         }
                         return true;
                     }
                     return false;
-                }
-        );
+                });
     }
 
     private static boolean isFellingApplicableBlock(BlockState blockState) {
@@ -314,7 +287,6 @@ public class GiantAnvilLandingEventListener {
                 || blockState.is(Blocks.SHROOMLIGHT);
     }
 
-
     /**
      * 撼地
      */
@@ -325,8 +297,7 @@ public class GiantAnvilLandingEventListener {
             Optional<ShockBehaviorDefinition> definitionOpt = behaviorDefs.stream()
                     .filter(it -> it.cornerMatches(groundPos, event.getLevel()))
                     .min((a, b) -> b.priority() - a.priority());
-            if (definitionOpt.isEmpty())
-                return;
+            if (definitionOpt.isEmpty()) return;
             final ShockBehaviorDefinition def = definitionOpt.get();
             int radius = (int) Math.ceil(event.getFallDistance());
             BlockPos ground = groundPos.above();
@@ -340,13 +311,48 @@ public class GiantAnvilLandingEventListener {
             ArrayList<BlockPos> posList = new ArrayList<>();
             for (int dx = -radius; dx <= radius; dx++) {
                 for (int dz = -radius; dz <= radius; dz++) {
-                    BlockPos pos = ground.relative(Direction.Axis.X, dx)
-                            .relative(Direction.Axis.Z, dz);
+                    BlockPos pos = ground.relative(Direction.Axis.X, dx).relative(Direction.Axis.Z, dz);
                     posList.add(pos);
                 }
             }
             def.acceptRanges(posList, event.getLevel());
         }
+    }
+
+    @SubscribeEvent
+    public void handleMultiblock(@NotNull GiantAnvilFallOnLandEvent event) {
+        AnvilCraft.LOGGER.info(event.getPos().toString());
+        Level level = event.getLevel();
+        BlockPos inputCenter = event.getPos().below(3);
+        int centerX = inputCenter.getX();
+        int centerY = inputCenter.getY();
+        int centerZ = inputCenter.getZ();
+        List<List<List<BlockState>>> blocks = new ArrayList<>();
+        for (int y = centerY - 1; y <= centerY + 1; y++) {
+            List<List<BlockState>> blocksY = new ArrayList<>();
+            for (int z = centerZ - 1; z <= centerZ + 1; z++) {
+                List<BlockState> blocksZ = new ArrayList<>();
+                for (int x = centerX - 1; x <= centerX + 1; x++) {
+                    blocksZ.add(level.getBlockState(new BlockPos(x, y, z)));
+                }
+                blocksY.add(blocksZ);
+            }
+            blocks.add(blocksY);
+        }
+        MulitblockInput input = new MulitblockInput(blocks);
+        level.getRecipeManager()
+                .getRecipeFor(ModRecipeTypes.MULITBLOCK_TYPE.get(), input, level)
+                .ifPresent(recipe -> {
+                    ItemStack result = recipe.value().getResult().copy();
+                    for (int y = centerY - 1; y <= centerY + 1; y++) {
+                        for (int z = centerZ - 1; z <= centerZ + 1; z++) {
+                            for (int x = centerX - 1; x <= centerX + 1; x++) {
+                                level.setBlockAndUpdate(new BlockPos(x, y, z), Blocks.AIR.defaultBlockState());
+                            }
+                        }
+                    }
+                    AnvilUtil.dropItems(List.of(result), level, inputCenter.getCenter());
+                });
     }
 
     private boolean isValidShockBaseBlock(BlockPos centerPos, Level level) {
@@ -355,11 +361,8 @@ public class GiantAnvilLandingEventListener {
             return false;
         }
         for (Direction direction : HORIZONTAL_DIRECTIONS) {
-            if (!level.getBlockState(centerPos.relative(direction)).is(ModBlocks.HEAVY_IRON_BLOCK.get()))
-                return false;
+            if (!level.getBlockState(centerPos.relative(direction)).is(ModBlocks.HEAVY_IRON_BLOCK.get())) return false;
         }
         return true;
     }
-
-
 }

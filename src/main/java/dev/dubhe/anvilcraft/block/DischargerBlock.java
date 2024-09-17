@@ -2,10 +2,12 @@ package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.util.StateListener;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+
 import org.jetbrains.annotations.NotNull;
 
 public class DischargerBlock extends ChargerBlock {

@@ -4,15 +4,16 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.gui.component.Slider;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.inventory.SliderMenu;
-import dev.dubhe.anvilcraft.network.SliderUpdatePack;
+import dev.dubhe.anvilcraft.network.SliderUpdatePacket;
+
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.network.PacketDistributor;
+
 import org.jetbrains.annotations.NotNull;
 
 public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
@@ -51,31 +52,45 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
         this.value.setResponder(this::onValueInput);
         this.value.setValue("");
         TexturedButton max = new TexturedButton(
-            152 + offsetX, 43 + offsetY,
-            16, 16, BUTTON_MAX, 16, 16, 32,
-            (btn) -> this.slider.setValueWithUpdate(slider.getMax())
-        );
+                152 + offsetX,
+                43 + offsetY,
+                16,
+                16,
+                BUTTON_MAX,
+                16,
+                16,
+                32,
+                (btn) -> this.slider.setValueWithUpdate(slider.getMax()));
         TexturedButton add = new TexturedButton(
-            134 + offsetX, 43 + offsetY,
-            16, 16, BUTTON_ADD, 16, 16, 32,
-            (btn) -> this.slider.setValueWithUpdate(Math.min(slider.getMax(), slider.getValue() + 1))
-        );
+                134 + offsetX,
+                43 + offsetY,
+                16,
+                16,
+                BUTTON_ADD,
+                16,
+                16,
+                32,
+                (btn) -> this.slider.setValueWithUpdate(Math.min(slider.getMax(), slider.getValue() + 1)));
         TexturedButton min = new TexturedButton(
-            8 + offsetX, 43 + offsetY,
-            16, 16, BUTTON_MIN, 16, 16, 32,
-            (btn) -> this.slider.setValueWithUpdate(slider.getMin())
-        );
+                8 + offsetX,
+                43 + offsetY,
+                16,
+                16,
+                BUTTON_MIN,
+                16,
+                16,
+                32,
+                (btn) -> this.slider.setValueWithUpdate(slider.getMin()));
         TexturedButton minus = new TexturedButton(
-            26 + offsetX,
-            43 + offsetY,
-            16,
-            16,
-            BUTTON_MINUS,
-            16,
-            16,
-            32,
-            (btn) -> this.slider.setValueWithUpdate(Math.max(slider.getMin(), slider.getValue() - 1))
-        );
+                26 + offsetX,
+                43 + offsetY,
+                16,
+                16,
+                BUTTON_MINUS,
+                16,
+                16,
+                32,
+                (btn) -> this.slider.setValueWithUpdate(Math.max(slider.getMin(), slider.getValue() - 1)));
         this.addRenderableWidget(max);
         this.addRenderableWidget(add);
         this.addRenderableWidget(min);
@@ -123,6 +138,12 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
     }
 
     @Override
+    public void renderBackground(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        this.renderBlurredBackground(partialTick);
+        renderBg(guiGraphics, partialTick, mouseX, mouseY);
+    }
+
+    @Override
     protected void renderBg(@NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         int offsetX = (this.width - this.imageWidth) / 2;
         int offsetY = (this.height - this.imageHeight) / 2;
@@ -130,7 +151,7 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
     }
 
     private void update(int value) {
-        PacketDistributor.sendToServer(new SliderUpdatePack(value));
+        PacketDistributor.sendToServer(new SliderUpdatePacket(value));
         this.value.setValue("" + value);
     }
 }

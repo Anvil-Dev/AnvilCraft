@@ -6,7 +6,7 @@ import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.api.depository.IItemDepository;
 import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
-import lombok.Getter;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -24,15 +24,16 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 @Getter
-public abstract class BaseChuteBlockEntity
-    extends BaseMachineBlockEntity
-    implements IFilterBlockEntity, IDiskCloneable, DepositoryHolder {
+public abstract class BaseChuteBlockEntity extends BaseMachineBlockEntity
+        implements IFilterBlockEntity, IDiskCloneable, DepositoryHolder {
     private int cooldown = 0;
     private final FilteredItemDepository depository = new FilteredItemDepository(9) {
         @Override
@@ -84,8 +85,7 @@ public abstract class BaseChuteBlockEntity
     @Override
     public abstract Component getDisplayName();
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public abstract AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player);
 
     @Override
@@ -110,24 +110,24 @@ public abstract class BaseChuteBlockEntity
         if (cooldown <= 0) {
             if (isEnabled()) {
                 IItemDepository depository = ItemDepositoryHelper.getItemDepository(
-                    getLevel(),
-                    getBlockPos().relative(getInputDirection()),
-                    getInputDirection().getOpposite()
-                );
+                        getLevel(),
+                        getBlockPos().relative(getInputDirection()),
+                        getInputDirection().getOpposite());
                 if (depository != null) {
                     // 尝试从上方容器输入
                     if (ItemDepositoryHelper.importToTarget(this.depository, 64, stack -> true, depository)) {
                         cooldown = AnvilCraft.config.chuteMaxCooldown;
                     }
                 } else {
-                    List<ItemEntity> itemEntities = getLevel().getEntitiesOfClass(
-                        ItemEntity.class, new AABB(getBlockPos().relative(getInputDirection())),
-                        itemEntity -> !itemEntity.getItem().isEmpty());
+                    List<ItemEntity> itemEntities = getLevel()
+                            .getEntitiesOfClass(
+                                    ItemEntity.class,
+                                    new AABB(getBlockPos().relative(getInputDirection())),
+                                    itemEntity -> !itemEntity.getItem().isEmpty());
                     int prevSize = itemEntities.size();
                     for (ItemEntity itemEntity : itemEntities) {
-                        ItemStack remaining = ItemDepositoryHelper.insertItem(
-                            this.depository, itemEntity.getItem(), true
-                        );
+                        ItemStack remaining =
+                                ItemDepositoryHelper.insertItem(this.depository, itemEntity.getItem(), true);
                         if (!remaining.isEmpty()) continue;
                         ItemDepositoryHelper.insertItem(this.depository, itemEntity.getItem(), false);
                         itemEntity.kill();
@@ -138,10 +138,9 @@ public abstract class BaseChuteBlockEntity
                     }
                 }
                 depository = ItemDepositoryHelper.getItemDepository(
-                    getLevel(),
-                    getBlockPos().relative(this.getOutputDirection()),
-                    this.getOutputDirection().getOpposite()
-                );
+                        getLevel(),
+                        getBlockPos().relative(this.getOutputDirection()),
+                        this.getOutputDirection().getOpposite());
                 if (depository != null) {
                     // 尝试向朝向容器输出
                     if (!this.depository.isEmpty()) {
@@ -151,9 +150,11 @@ public abstract class BaseChuteBlockEntity
                     }
                 } else {
                     Vec3 center = getBlockPos().relative(getOutputDirection()).getCenter();
-                    List<ItemEntity> itemEntities = getLevel().getEntitiesOfClass(
-                        ItemEntity.class, new AABB(getBlockPos().relative(getOutputDirection())),
-                        itemEntity -> !itemEntity.getItem().isEmpty());
+                    List<ItemEntity> itemEntities = getLevel()
+                            .getEntitiesOfClass(
+                                    ItemEntity.class,
+                                    new AABB(getBlockPos().relative(getOutputDirection())),
+                                    itemEntity -> !itemEntity.getItem().isEmpty());
                     AABB aabb = new AABB(center.add(-0.125, -0.125, -0.125), center.add(0.125, 0.125, 0.125));
                     if (getLevel().noCollision(aabb)) {
                         for (int i = 0; i < this.depository.getSlots(); i++) {
@@ -167,15 +168,13 @@ public abstract class BaseChuteBlockEntity
                                 }
                                 if (sameItemCount < stack.getItem().getMaxStackSize(stack)) {
                                     ItemStack droppedItemStack = stack.copy();
-                                    int droppedItemCount = Math.min(stack.getCount(),
-                                        stack.getMaxStackSize() - sameItemCount);
+                                    int droppedItemCount =
+                                            Math.min(stack.getCount(), stack.getMaxStackSize() - sameItemCount);
                                     droppedItemStack.setCount(droppedItemCount);
                                     stack.setCount(stack.getCount() - droppedItemCount);
                                     if (stack.getCount() == 0) stack = ItemStack.EMPTY;
                                     ItemEntity itemEntity = new ItemEntity(
-                                        getLevel(), center.x, center.y, center.z,
-                                        droppedItemStack,
-                                        0, 0, 0);
+                                            getLevel(), center.x, center.y, center.z, droppedItemStack, 0, 0, 0);
                                     itemEntity.setDefaultPickUpDelay();
                                     getLevel().addFreshEntity(itemEntity);
                                     this.depository.setStack(i, stack);
@@ -228,4 +227,3 @@ public abstract class BaseChuteBlockEntity
         depository.deserializeFiltering(data.getCompound("Filtering"));
     }
 }
-

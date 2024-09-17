@@ -17,6 +17,7 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
 import org.jetbrains.annotations.NotNull;
 
 public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedBlock {
@@ -38,11 +39,10 @@ public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedB
     @Override
     @SuppressWarnings("deprecation")
     public @NotNull VoxelShape getShape(
-        @NotNull BlockState blockState,
-        @NotNull BlockGetter blockGetter,
-        @NotNull BlockPos blockPos,
-        @NotNull CollisionContext collisionContext
-    ) {
+            @NotNull BlockState blockState,
+            @NotNull BlockGetter blockGetter,
+            @NotNull BlockPos blockPos,
+            @NotNull CollisionContext collisionContext) {
         return AABB;
     }
 
@@ -70,13 +70,12 @@ public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedB
     @Override
     @SuppressWarnings("deprecation")
     public @NotNull BlockState updateShape(
-        @NotNull BlockState blockState,
-        @NotNull Direction direction,
-        @NotNull BlockState blockState2,
-        @NotNull LevelAccessor levelAccessor,
-        @NotNull BlockPos blockPos,
-        @NotNull BlockPos blockPos2
-    ) {
+            @NotNull BlockState blockState,
+            @NotNull Direction direction,
+            @NotNull BlockState blockState2,
+            @NotNull LevelAccessor levelAccessor,
+            @NotNull BlockPos blockPos,
+            @NotNull BlockPos blockPos2) {
         if (blockState.getValue(WATERLOGGED)) {
             levelAccessor.scheduleTick(blockPos, Fluids.WATER, Fluids.WATER.getTickDelay(levelAccessor));
         }

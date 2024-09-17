@@ -1,8 +1,9 @@
 package dev.dubhe.anvilcraft.api.event.server;
 
-import lombok.Getter;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.resources.CloseableResourceManager;
+
+import lombok.Getter;
 
 @Getter
 public class ServerEndDataPackReloadEvent extends ServerEvent {

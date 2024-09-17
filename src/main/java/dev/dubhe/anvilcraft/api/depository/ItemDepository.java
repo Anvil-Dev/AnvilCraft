@@ -1,20 +1,21 @@
 package dev.dubhe.anvilcraft.api.depository;
 
 import dev.dubhe.anvilcraft.api.INamedTagSerializable;
-import lombok.Getter;
+
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
+
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
 public class ItemDepository implements IItemDepository, INamedTagSerializable {
     private final NonNullList<ItemStack> stacks;
     private final int size;
-
 
     public ItemDepository(int size) {
         this.stacks = NonNullList.withSize(size, ItemStack.EMPTY);
@@ -39,8 +40,7 @@ public class ItemDepository implements IItemDepository, INamedTagSerializable {
 
     @Override
     public ItemStack insert(
-        int slot, @NotNull ItemStack stack, boolean simulate, boolean notifyChanges, boolean isServer
-    ) {
+            int slot, @NotNull ItemStack stack, boolean simulate, boolean notifyChanges, boolean isServer) {
         this.validateSlotIndex(slot);
         if (stack.isEmpty()) return ItemStack.EMPTY;
         if (isServer && !this.isItemValid(slot, stack)) return stack;
@@ -87,8 +87,8 @@ public class ItemDepository implements IItemDepository, INamedTagSerializable {
             }
         } else {
             if (!simulate) {
-                this.stacks.set(slot,
-                    ItemDepositoryHelper.copyStackWithSize(existing, existing.getCount() - toExtract));
+                this.stacks.set(
+                        slot, ItemDepositoryHelper.copyStackWithSize(existing, existing.getCount() - toExtract));
                 if (notifyChanges) {
                     onContentsChanged(slot);
                 }

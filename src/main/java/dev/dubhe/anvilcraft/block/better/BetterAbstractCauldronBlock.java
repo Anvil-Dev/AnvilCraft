@@ -17,12 +17,7 @@ public abstract class BetterAbstractCauldronBlock extends AbstractCauldronBlock 
 
     @Override
     public ItemStack getCloneItemStack(
-        BlockState state,
-        HitResult target,
-        LevelReader level,
-        BlockPos pos,
-        Player player
-    ) {
+            BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
         return new ItemStack(Items.CAULDRON);
     }
 }

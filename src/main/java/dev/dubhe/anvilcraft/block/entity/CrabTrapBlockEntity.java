@@ -2,13 +2,15 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.depository.DepositoryHolder;
 import dev.dubhe.anvilcraft.api.depository.ItemDepository;
-import lombok.Getter;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+
+import lombok.Getter;
 
 @Getter
 public class CrabTrapBlockEntity extends BlockEntity implements DepositoryHolder {

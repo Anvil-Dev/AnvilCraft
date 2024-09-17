@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:item_crush",
+  "ingredients": [
+    {
+      "item": "minecraft:snow_block"
+    }
+  ],
+  "result": [
+    {
+      "count": 4,
+      "id": "minecraft:snowball"
+    }
+  ]
+}

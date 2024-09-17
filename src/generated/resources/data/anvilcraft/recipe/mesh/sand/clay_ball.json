@@ -1,7 +1,7 @@
 {
   "type": "anvilcraft:mesh",
   "input": {
-    "tag": "c:sands"
+    "item": "minecraft:sand"
   },
   "result": {
     "count": 1,

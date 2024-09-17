@@ -1,0 +1,18 @@
+{
+  "type": "anvilcraft:mob_transform",
+  "input": "minecraft:villager",
+  "results": [
+    {
+      "probability": 0.3,
+      "resultEntityType": "minecraft:pillager"
+    },
+    {
+      "probability": 0.6,
+      "resultEntityType": "minecraft:vindicator"
+    },
+    {
+      "probability": 0.1,
+      "resultEntityType": "minecraft:evoker"
+    }
+  ]
+}

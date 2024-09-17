@@ -1,0 +1,10 @@
+{
+  "type": "anvilcraft:item_inject",
+  "ingredients": [
+    {
+      "item": "minecraft:gold_ingot"
+    }
+  ],
+  "input_block": "minecraft:blackstone",
+  "result_block": "minecraft:gilded_blackstone"
+}

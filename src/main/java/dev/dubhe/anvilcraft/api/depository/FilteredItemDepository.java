@@ -1,9 +1,7 @@
 package dev.dubhe.anvilcraft.api.depository;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.util.CodecUtil;
-import lombok.Getter;
+
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -11,25 +9,29 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
+
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
-
 
 @Getter
 @SuppressWarnings("unused")
 public class FilteredItemDepository extends ItemDepository {
 
     public static final Codec<FilteredItemDepository> CODEC = RecordCodecBuilder.create(ins -> ins.group(
-        Codec.BOOL.fieldOf("filterEnabled").forGetter(o -> o.filterEnabled),
-        CodecUtil.createOptionalCodec(ItemStack.CODEC).listOf().fieldOf("filteredItems")
-            .forGetter(o -> o.filteredItems.stream()
-                .map(it -> it.isEmpty() ? Optional.<ItemStack>empty() : Optional.of(it))
-                .toList()
-            ),
-        Codec.BOOL.listOf().fieldOf("disabled").forGetter(o -> o.disabled)
-    ).apply(ins, FilteredItemDepository::new));
+                    Codec.BOOL.fieldOf("filterEnabled").forGetter(o -> o.filterEnabled),
+                    CodecUtil.createOptionalCodec(ItemStack.CODEC)
+                            .listOf()
+                            .fieldOf("filteredItems")
+                            .forGetter(o -> o.filteredItems.stream()
+                                    .map(it -> it.isEmpty() ? Optional.<ItemStack>empty() : Optional.of(it))
+                                    .toList()),
+                    Codec.BOOL.listOf().fieldOf("disabled").forGetter(o -> o.disabled))
+            .apply(ins, FilteredItemDepository::new));
 
     private boolean filterEnabled = false;
     private NonNullList<ItemStack> filteredItems;
@@ -38,10 +40,12 @@ public class FilteredItemDepository extends ItemDepository {
     /**
      *
      */
-    public FilteredItemDepository(boolean filterEnabled, List<Optional<ItemStack>> filteredItems, List<Boolean> disabled) {
+    public FilteredItemDepository(
+            boolean filterEnabled, List<Optional<ItemStack>> filteredItems, List<Boolean> disabled) {
         super(filteredItems.size());
         this.filteredItems = NonNullList.create();
-        this.filteredItems.addAll(filteredItems.stream().map(it -> it.orElse(ItemStack.EMPTY)).toList());
+        this.filteredItems.addAll(
+                filteredItems.stream().map(it -> it.orElse(ItemStack.EMPTY)).toList());
         this.disabled = NonNullList.create();
         this.disabled.addAll(disabled);
     }
@@ -103,7 +107,9 @@ public class FilteredItemDepository extends ItemDepository {
      */
     public boolean isSlotDisabled(int slot) {
         if (!this.filterEnabled) return this.disabled.get(slot);
-        else return this.disabled.get(slot) || (getStack(slot).isEmpty() && this.filteredItems.get(slot).isEmpty());
+        else
+            return this.disabled.get(slot)
+                    || (getStack(slot).isEmpty() && this.filteredItems.get(slot).isEmpty());
     }
 
     /**
@@ -176,7 +182,7 @@ public class FilteredItemDepository extends ItemDepository {
             ItemStack stack = this.getStack(slot);
             CompoundTag itemTag = new CompoundTag();
             itemTag.putInt("Slot", slot);
-            if (!stack.isEmpty()){
+            if (!stack.isEmpty()) {
                 stack.save(provider, itemTag);
             }
             ItemStack filter = this.filteredItems.get(slot);
@@ -226,9 +232,8 @@ public class FilteredItemDepository extends ItemDepository {
      *
      */
     public void deserializeFiltering(@NotNull CompoundTag tag) {
-        FilteredItemDepository depository = CODEC.decode(NbtOps.INSTANCE, tag)
-            .getOrThrow()
-            .getFirst();
+        FilteredItemDepository depository =
+                CODEC.decode(NbtOps.INSTANCE, tag).getOrThrow().getFirst();
         if (this.getSize() != depository.getSize()) throw new IllegalArgumentException("Depository size mismatch");
         this.filterEnabled = tag.getBoolean("filterEnabled");
         int size = depository.filteredItems.size();

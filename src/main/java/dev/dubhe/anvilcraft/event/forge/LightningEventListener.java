@@ -3,8 +3,10 @@ package dev.dubhe.anvilcraft.event.forge;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.entity.LightningStrikeEvent;
 import dev.dubhe.anvilcraft.api.event.forge.LightningBoltStrikeEvent;
+
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+
 import org.jetbrains.annotations.NotNull;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)

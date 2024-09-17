@@ -1,0 +1,15 @@
+{
+  "type": "anvilcraft:mesh",
+  "input": {
+    "item": "minecraft:gravel"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:iron_nugget"
+  },
+  "result_amount": {
+    "type": "minecraft:binomial",
+    "n": 1.0,
+    "p": 0.2
+  }
+}

@@ -8,6 +8,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -18,8 +19,7 @@ public interface IHammerChangeableBlock extends IHammerChangeable {
     DirectionProperty FACING_HOPPER = BlockStateProperties.FACING_HOPPER;
     DirectionProperty FACING = BlockStateProperties.FACING;
     DirectionProperty HORIZONTAL_FACING = BlockStateProperties.HORIZONTAL_FACING;
-    IHammerChangeableBlock DEFAULT = new IHammerChangeableBlock() {
-    };
+    IHammerChangeableBlock DEFAULT = new IHammerChangeableBlock() {};
     IHammerChangeableBlock EMPTY = new IHammerChangeableBlock() {
         public boolean change(Player player, BlockPos blockPos, @NotNull Level level, ItemStack anvilHammer) {
             return false;
@@ -61,6 +61,7 @@ public interface IHammerChangeableBlock extends IHammerChangeable {
 
     @SuppressWarnings("SameParameterValue")
     private static @NotNull BlockState horizontalRotate(@NotNull BlockState state) {
-        return state.setValue(HORIZONTAL_FACING, state.getValue(HORIZONTAL_FACING).getClockWise());
+        return state.setValue(
+                HORIZONTAL_FACING, state.getValue(HORIZONTAL_FACING).getClockWise());
     }
 }

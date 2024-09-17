@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.inventory;
 
 import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntity;
+
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -86,6 +87,5 @@ public interface IFilterMenu {
     /**
      * 刷新
      */
-    default void flush() {
-    }
+    default void flush() {}
 }

@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.block;
 
-import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.depository.ItemDepository;
 import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
@@ -8,13 +7,11 @@ import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModLootTables;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Containers;
@@ -46,6 +43,9 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+
+import com.mojang.serialization.MapCodec;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,7 +56,8 @@ public class CrabTrapBlock extends BetterBaseEntityBlock implements SimpleWaterl
 
     public CrabTrapBlock(Properties properties) {
         super(properties);
-        registerDefaultState(getStateDefinition().any().setValue(FACING, Direction.NORTH).setValue(WATERLOGGED, false));
+        registerDefaultState(
+                getStateDefinition().any().setValue(FACING, Direction.NORTH).setValue(WATERLOGGED, false));
     }
 
     @Override
@@ -74,12 +75,16 @@ public class CrabTrapBlock extends BetterBaseEntityBlock implements SimpleWaterl
         return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return this.defaultBlockState()
-            .setValue(FACING, context.getHorizontalDirection().getOpposite())
-            .setValue(WATERLOGGED, context.getLevel().getFluidState(context.getClickedPos()).getType() == Fluids.WATER);
+                .setValue(FACING, context.getHorizontalDirection().getOpposite())
+                .setValue(
+                        WATERLOGGED,
+                        context.getLevel()
+                                        .getFluidState(context.getClickedPos())
+                                        .getType()
+                                == Fluids.WATER);
     }
 
     @Override
@@ -103,8 +108,7 @@ public class CrabTrapBlock extends BetterBaseEntityBlock implements SimpleWaterl
             @NotNull BlockState state,
             @NotNull ServerLevel level,
             @NotNull BlockPos pos,
-            @NotNull RandomSource random
-    ) {
+            @NotNull RandomSource random) {
         int times = 0;
         for (Direction face : Direction.values()) {
             if (level.getFluidState(pos.relative(face)).is(Fluids.WATER)) times++;
@@ -128,8 +132,7 @@ public class CrabTrapBlock extends BetterBaseEntityBlock implements SimpleWaterl
             @NotNull BlockPos pos,
             @NotNull Player player,
             @NotNull InteractionHand hand,
-            @NotNull BlockHitResult hit
-    ) {
+            @NotNull BlockHitResult hit) {
         if (!level.isClientSide()) {
             CrabTrapBlockEntity blockEntity = (CrabTrapBlockEntity) level.getBlockEntity(pos);
             if (blockEntity != null) {
@@ -145,16 +148,12 @@ public class CrabTrapBlock extends BetterBaseEntityBlock implements SimpleWaterl
                     depository.extract(i, stack.getCount(), false);
                 }
             }
-
         }
         return InteractionResult.SUCCESS;
     }
 
-    @Nullable
-    @Override
-    public BlockEntity newBlockEntity(
-            @NotNull BlockPos pos,
-            @NotNull BlockState state) {
+    @Nullable @Override
+    public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
         return new CrabTrapBlockEntity(ModBlockEntities.CRAB_TRAP.get(), pos, state);
     }
 
@@ -165,12 +164,7 @@ public class CrabTrapBlock extends BetterBaseEntityBlock implements SimpleWaterl
 
     @Override
     public void onRemove(
-            BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            BlockState newState,
-            boolean movedByPiston
-    ) {
+            BlockState state, @NotNull Level level, @NotNull BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (state.is(newState.getBlock())) return;
         if (level.getBlockEntity(pos) instanceof CrabTrapBlockEntity entity) {
             Vec3 vec3 = entity.getBlockPos().getCenter();
@@ -183,19 +177,13 @@ public class CrabTrapBlock extends BetterBaseEntityBlock implements SimpleWaterl
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
-    private void tryInsertLoot(
-        BlockState state,
-        ServerLevel level,
-        BlockPos pos,
-        ResourceKey<LootTable> loot
-    ) {
+    private void tryInsertLoot(BlockState state, ServerLevel level, BlockPos pos, ResourceKey<LootTable> loot) {
         if (state.hasBlockEntity()) {
             LootParams lootParams = new LootParams.Builder(level)
-                .withParameter(LootContextParams.ORIGIN, pos.getCenter())
-                .create(LootContextParamSets.CHEST);
+                    .withParameter(LootContextParams.ORIGIN, pos.getCenter())
+                    .create(LootContextParamSets.CHEST);
 
-            LootTable lootTable = level.getServer().reloadableRegistries()
-                .getLootTable(loot);
+            LootTable lootTable = level.getServer().reloadableRegistries().getLootTable(loot);
             ObjectArrayList<ItemStack> items = lootTable.getRandomItems(lootParams);
             if (items.isEmpty()) return;
             CrabTrapBlockEntity blockEntity = (CrabTrapBlockEntity) level.getBlockEntity(pos);

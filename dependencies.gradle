@@ -1,0 +1,29 @@
+dependencies {
+    // Registrate
+    api("com.tterrag.registrate:Registrate:${forge.versions.registrate.get()}")
+    jarJar("com.tterrag.registrate:Registrate:${forge.versions.registrate.get()}")
+
+    api("vazkii.patchouli:Patchouli:1.21-87-NEOFORGE:api")
+    runtimeOnly("vazkii.patchouli:Patchouli:1.21-87-NEOFORGE")
+
+    implementation(forge.clothConfig)
+
+    // JEI
+    compileOnlyApi(forge.jei.common.api) { transitive = false }
+    compileOnlyApi(forge.jei.forge.api) { transitive = false }
+    implementation(forge.jei.forge.impl) { transitive = false }
+
+    // REI
+    compileOnlyApi(forge.rei.plugin)
+    compileOnlyApi(forge.rei.api)
+    compileOnly(forge.rei.forge)
+
+    // EMI
+    compileOnlyApi("dev.emi:emi-neoforge:${forge.versions.emi.get()}:api")
+    compileOnly(forge.emi)
+
+    implementation(forge.jade)
+    implementation(forge.theoneprobe)
+
+    implementation(forge.kubejs)
+}

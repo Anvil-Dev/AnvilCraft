@@ -18,6 +18,7 @@ interface ShockBehaviorDefinition {
 
     void acceptRanges(List<BlockPos> blockPosList, Level level);
 
+    // spotless:off
     abstract class Simple<T> implements ShockBehaviorDefinition {
         private final int[] dt = {-1, 1};
         final BiConsumer<List<BlockPos>, Level> rangeAcceptor;
@@ -32,10 +33,10 @@ interface ShockBehaviorDefinition {
         public boolean cornerMatches(BlockPos centerPos, Level level) {
             for (int dx : dt) {
                 for (int dz : dt) {
-                    BlockPos pos = new BlockPos(dx + centerPos.getX(), centerPos.getY(), dz + centerPos.getZ());
+                    BlockPos pos =
+                            new BlockPos(dx + centerPos.getX(), centerPos.getY(), dz + centerPos.getZ());
                     BlockState state = level.getBlockState(pos);
-                    if (!blockMatches(state))
-                        return false;
+                    if (!blockMatches(state)) return false;
                 }
             }
             return true;
@@ -48,6 +49,7 @@ interface ShockBehaviorDefinition {
             rangeAcceptor.accept(blockPosList, level);
         }
     }
+    // spotless:on
 
     class SimpleTag extends Simple<TagKey<Block>> {
 
@@ -72,7 +74,6 @@ interface ShockBehaviorDefinition {
             return state.is(cornerBlock);
         }
     }
-
 
     class MatchAll implements ShockBehaviorDefinition {
 

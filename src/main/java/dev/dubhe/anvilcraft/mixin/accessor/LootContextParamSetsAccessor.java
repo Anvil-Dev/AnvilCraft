@@ -1,9 +1,10 @@
 package dev.dubhe.anvilcraft.mixin.accessor;
 
-import com.google.common.collect.BiMap;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+
+import com.google.common.collect.BiMap;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.gen.Invoker;

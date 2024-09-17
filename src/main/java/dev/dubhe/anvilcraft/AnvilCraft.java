@@ -1,12 +1,7 @@
 package dev.dubhe.anvilcraft;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.tterrag.registrate.Registrate;
 import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
-import dev.dubhe.anvilcraft.data.generator.AnvilCraftDatagen;
-import dev.dubhe.anvilcraft.event.forge.ClientEventListener;
-import dev.dubhe.anvilcraft.event.forge.GuiLayerRegistrationEventListener;
+import dev.dubhe.anvilcraft.data.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModCommands;
@@ -19,25 +14,32 @@ import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.ModNetworks;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
-import dev.dubhe.anvilcraft.init.forge.ModVillagers;
-import dev.dubhe.anvilcraft.recipe.cache.RecipeCaches;
-import me.shedaniel.autoconfig.AutoConfig;
-import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
+import dev.dubhe.anvilcraft.init.ModVillagers;
+import dev.dubhe.anvilcraft.integration.top.AnvilCraftTopPlugin;
+import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
+import dev.dubhe.anvilcraft.util.Utils;
+
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.util.Unit;
 import net.minecraft.world.item.crafting.RecipeManager;
-import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.loading.FMLEnvironment;
-import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
+import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+
+import com.tterrag.registrate.Registrate;
+import me.shedaniel.autoconfig.AutoConfig;
+import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,11 +48,9 @@ import org.slf4j.LoggerFactory;
 public class AnvilCraft {
     public static final String MOD_ID = "anvilcraft";
     public static final String MOD_NAME = "AnvilCraft";
-    public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
     public static IEventBus EVENT_BUS;
-    public static AnvilCraftConfig config = AutoConfig
-            .register(AnvilCraftConfig.class, JanksonConfigSerializer::new)
+    public static AnvilCraftConfig config = AutoConfig.register(AnvilCraftConfig.class, JanksonConfigSerializer::new)
             .getConfig();
 
     public static final Registrate REGISTRATE = Registrate.create(MOD_ID);
@@ -72,17 +72,6 @@ public class AnvilCraft {
         AnvilCraftDatagen.init();
 
         registerEvents(modEventBus);
-
-        try {
-            ClientEventListener ignore = new ClientEventListener();
-        } catch (NoSuchMethodError ignore) {
-            AnvilCraft.LOGGER.debug("Server");
-        }
-        ModLoadingContext.get().registerExtensionPoint(
-                IConfigScreenFactory.class,
-                () -> ((c, screen) -> AutoConfig.getConfigScreen(AnvilCraftConfig.class, screen).get())
-        );
-
     }
 
     private static void registerEvents(IEventBus eventBus) {
@@ -90,11 +79,9 @@ public class AnvilCraft {
         NeoForge.EVENT_BUS.addListener(AnvilCraft::addReloadListeners);
 
         eventBus.addListener(AnvilCraft::registerPayload);
-        if (FMLEnvironment.dist == Dist.CLIENT) {
-            eventBus.register(new GuiLayerRegistrationEventListener());
-        }
+        eventBus.addListener(AnvilCraft::loadComplete);
+        eventBus.addListener(AnvilCraft::packSetup);
     }
-
 
     public static @NotNull ResourceLocation of(String path) {
         return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
@@ -111,8 +98,29 @@ public class AnvilCraft {
 
     public static void addReloadListeners(AddReloadListenerEvent event) {
         RecipeManager recipeManager = event.getServerResources().getRecipeManager();
-        event.addListener(((prepBarrier, resourceManager, prepProfiler, reloadProfiler, backgroundExecutor, gameExecutor) -> prepBarrier.wait(Unit.INSTANCE).thenRunAsync(() -> {
-            RecipeCaches.reload(recipeManager);
-        }, gameExecutor)));
+        event.addListener(
+                ((prepBarrier, resourceManager, prepProfiler, reloadProfiler, backgroundExecutor, gameExecutor) ->
+                        prepBarrier
+                                .wait(Unit.INSTANCE)
+                                .thenRunAsync(() -> RecipeCaches.reload(recipeManager), gameExecutor)));
+    }
+
+    public static void loadComplete(FMLLoadCompleteEvent event) {
+        event.enqueueWork(() -> {
+            if (Utils.isLoaded("theoneprobe")) {
+                LOGGER.info("TheOneProbe found. Loading AnvilCraft TheOneProbe plugin...");
+                AnvilCraftTopPlugin.init();
+            }
+        });
+    }
+
+    public static void packSetup(AddPackFindersEvent event) {
+        event.addPackFinders(
+                of("resourcepacks/transparent_cauldron"),
+                PackType.CLIENT_RESOURCES,
+                Component.translatable("pack.anvilcraft.builtin_pack"),
+                PackSource.BUILT_IN,
+                false,
+                Pack.Position.TOP);
     }
 }

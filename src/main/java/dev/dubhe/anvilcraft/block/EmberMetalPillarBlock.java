@@ -1,12 +1,13 @@
 package dev.dubhe.anvilcraft.block;
 
-import lombok.Getter;
-import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.state.BlockState;
+
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 public class EmberMetalPillarBlock extends RotatedPillarBlock implements EmberBlock {
@@ -28,8 +29,7 @@ public class EmberMetalPillarBlock extends RotatedPillarBlock implements EmberBl
             @NotNull BlockState state,
             @NotNull ServerLevel level,
             @NotNull BlockPos pos,
-            @NotNull RandomSource random
-    ) {
+            @NotNull RandomSource random) {
         if (random.nextDouble() <= 0.1) {
             tryAbsorbWater(level, pos);
         }

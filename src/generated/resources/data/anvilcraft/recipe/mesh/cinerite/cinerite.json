@@ -1,0 +1,15 @@
+{
+  "type": "anvilcraft:mesh",
+  "input": {
+    "item": "anvilcraft:cinerite"
+  },
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:cinerite"
+  },
+  "result_amount": {
+    "type": "minecraft:binomial",
+    "n": 1.0,
+    "p": 0.5
+  }
+}

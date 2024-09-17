@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.block.better.BetterBlock;
+
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -13,6 +14,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -33,12 +35,13 @@ public class OverNestingShulkerBoxBlock extends BetterBlock {
     /**
      *
      */
-    public @NotNull InteractionResult use(@NotNull BlockState state,
-                                          @NotNull Level level,
-                                          @NotNull BlockPos pos,
-                                          @NotNull Player player,
-                                          @NotNull InteractionHand hand,
-                                          @NotNull BlockHitResult hit) {
+    public @NotNull InteractionResult use(
+            @NotNull BlockState state,
+            @NotNull Level level,
+            @NotNull BlockPos pos,
+            @NotNull Player player,
+            @NotNull InteractionHand hand,
+            @NotNull BlockHitResult hit) {
         if (level.isClientSide && canBeInteracted) {
             level.playSound(player, pos, SoundEvents.SHULKER_BOX_OPEN, SoundSource.BLOCKS, 0.8F, 1.0F);
             lastInteractionPlayer = player;
@@ -51,23 +54,24 @@ public class OverNestingShulkerBoxBlock extends BetterBlock {
 
     @SuppressWarnings("deprecation")
     @Override
-    public void tick(@NotNull BlockState state,
-                     @NotNull ServerLevel level,
-                     @NotNull BlockPos pos,
-                     @NotNull RandomSource random) {
-        //super.tick(state, level, pos, random);
+    public void tick(
+            @NotNull BlockState state,
+            @NotNull ServerLevel level,
+            @NotNull BlockPos pos,
+            @NotNull RandomSource random) {
+        // super.tick(state, level, pos, random);
         switch (soundSetId) {
             case 0:
-                level.playSound(lastInteractionPlayer, pos, SoundEvents.SHULKER_BOX_OPEN,
-                    SoundSource.BLOCKS, 0.8F, 0.95F);
-                level.playSound(lastInteractionPlayer, pos, SoundEvents.SHULKER_BOX_CLOSE,
-                    SoundSource.BLOCKS, 0.8F, 0.95F);
+                level.playSound(
+                        lastInteractionPlayer, pos, SoundEvents.SHULKER_BOX_OPEN, SoundSource.BLOCKS, 0.8F, 0.95F);
+                level.playSound(
+                        lastInteractionPlayer, pos, SoundEvents.SHULKER_BOX_CLOSE, SoundSource.BLOCKS, 0.8F, 0.95F);
                 level.scheduleTick(pos, this, soundDelay);
                 soundSetId = 1;
                 break;
             case 1:
-                level.playSound(lastInteractionPlayer, pos, SoundEvents.SHULKER_BOX_CLOSE,
-                    SoundSource.BLOCKS, 0.8F, 1.0F);
+                level.playSound(
+                        lastInteractionPlayer, pos, SoundEvents.SHULKER_BOX_CLOSE, SoundSource.BLOCKS, 0.8F, 1.0F);
                 level.scheduleTick(pos, this, 2 * soundDelay);
                 soundSetId = 2;
                 break;

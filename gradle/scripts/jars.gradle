@@ -1,0 +1,9 @@
+tasks.register('sourcesJar', Jar) {
+    from delombok.outputs.files
+    dependsOn delombok
+    archiveClassifier = "sources"
+}
+
+base {
+    archivesName = "${project.name}-${libs.versions.minecraft.get()}"
+}

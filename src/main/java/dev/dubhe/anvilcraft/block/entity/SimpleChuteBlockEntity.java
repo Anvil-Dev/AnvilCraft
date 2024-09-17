@@ -6,7 +6,7 @@ import dev.dubhe.anvilcraft.api.depository.IItemDepository;
 import dev.dubhe.anvilcraft.api.depository.ItemDepository;
 import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
 import dev.dubhe.anvilcraft.block.SimpleChuteBlock;
-import lombok.Getter;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -18,6 +18,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -60,8 +62,7 @@ public class SimpleChuteBlockEntity extends BlockEntity implements DepositoryHol
                 IItemDepository depository = ItemDepositoryHelper.getItemDepository(
                         getLevel(),
                         getBlockPos().relative(getDirection()),
-                        getDirection().getOpposite()
-                );
+                        getDirection().getOpposite());
                 if (depository != null) {
                     // 尝试向朝向容器输出
                     if (!this.depository.isEmpty()) {
@@ -69,9 +70,11 @@ public class SimpleChuteBlockEntity extends BlockEntity implements DepositoryHol
                     }
                 } else {
                     Vec3 center = getBlockPos().relative(getDirection()).getCenter();
-                    List<ItemEntity> itemEntities = getLevel().getEntitiesOfClass(
-                            ItemEntity.class, new AABB(getBlockPos().relative(getDirection())),
-                            itemEntity -> !itemEntity.getItem().isEmpty());
+                    List<ItemEntity> itemEntities = getLevel()
+                            .getEntitiesOfClass(
+                                    ItemEntity.class,
+                                    new AABB(getBlockPos().relative(getDirection())),
+                                    itemEntity -> !itemEntity.getItem().isEmpty());
                     AABB aabb = new AABB(center.add(-0.125, -0.125, -0.125), center.add(0.125, 0.125, 0.125));
                     if (getLevel().noCollision(aabb)) {
                         for (int i = 0; i < this.depository.getSlots(); i++) {
@@ -85,15 +88,13 @@ public class SimpleChuteBlockEntity extends BlockEntity implements DepositoryHol
                                 }
                                 if (sameItemCount < stack.getItem().getMaxStackSize(stack)) {
                                     ItemStack droppedItemStack = stack.copy();
-                                    int droppedItemCount = Math.min(stack.getCount(),
-                                            stack.getMaxStackSize() - sameItemCount);
+                                    int droppedItemCount =
+                                            Math.min(stack.getCount(), stack.getMaxStackSize() - sameItemCount);
                                     droppedItemStack.setCount(droppedItemCount);
                                     stack.setCount(stack.getCount() - droppedItemCount);
                                     if (stack.getCount() == 0) stack = ItemStack.EMPTY;
                                     ItemEntity itemEntity = new ItemEntity(
-                                            getLevel(), center.x, center.y, center.z,
-                                            droppedItemStack,
-                                            0, 0, 0);
+                                            getLevel(), center.x, center.y, center.z, droppedItemStack, 0, 0, 0);
                                     itemEntity.setDefaultPickUpDelay();
                                     getLevel().addFreshEntity(itemEntity);
                                     this.depository.setStack(i, stack);

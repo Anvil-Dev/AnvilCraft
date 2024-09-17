@@ -1,0 +1,34 @@
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url = "https://server.cjsah.net:1002/maven/" }
+    maven { url = "https://api.modrinth.com/maven" } // LazyDFU, Jade
+    maven { url = "https://maven.terraformersmc.com/releases/" } // Mod Menu, EMI
+    maven { url = "https://maven.shedaniel.me/" } // Cloth Config, REI
+    maven {
+        url "https://cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    } // Curse Forge File
+    maven {
+        name = "Jared's maven"
+        url = "https://maven.blamejared.com/"
+    }
+    maven {
+        url = "https://dvs1.progwml6.com/files/maven/"
+    }
+    maven { url = "https://maven.ithundxr.dev/snapshots" } // Registrate Fork
+    maven { url = "https://mvn.devos.one/snapshots/" }
+    maven {
+        // saps.dev Maven (KubeJS and Rhino)
+        url = "https://maven.saps.dev/minecraft"
+        content {
+            includeGroup "dev.latvian.mods"
+            includeGroup "dev.latvian.apps"
+        }
+    }
+    maven { // TOP
+        url "https://maven.k-4u.nl"
+    }
+}

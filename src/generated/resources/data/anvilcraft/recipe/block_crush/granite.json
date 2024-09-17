@@ -1,0 +1,5 @@
+{
+  "type": "anvilcraft:block_crush",
+  "input": "minecraft:polished_granite",
+  "result": "minecraft:granite"
+}

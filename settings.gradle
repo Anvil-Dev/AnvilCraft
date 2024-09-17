@@ -13,3 +13,83 @@ pluginManagement {
 plugins {
     id 'org.gradle.toolchains.foojay-resolver-convention' version '0.8.0'
 }
+
+dependencyResolutionManagement {
+    repositories {
+        mavenCentral()
+    }
+
+    versionCatalogs {
+        def minecraftVersion = "1.21.1"
+
+        // Mod Dependencies Versions
+        def neoForgeVersion = "21.1.47"
+        def registrateVersion = "MC1.21-1.3.0+53"
+        def clothConfigVersion = "15.0.130"
+
+        def jeiVersion = "19.17.0.193"
+        def reiVersion = "16.0.762"
+        def emiVersion = "1.1.13"
+
+        def jadeVersion = "15.3.4+neoforge"
+        def topVersion = "1.21_neo-12.0.3-5"
+        def kjsVersion = "2101.7.0-build.126"
+
+        def parchmentVersion = "2024.07.28" // https://parchmentmc.org/docs/getting-started
+
+        def modDevGradleVersion = "2.0.28-beta"
+        def spotlessPluginVersion = "7.0.0.BETA2"
+        def lombokPluginVersion = "8.7.1"
+        def machetePluginVersion = "1.+"
+
+        forge {
+            def neoForge = version("neoForge", neoForgeVersion)
+            library("neoForge", "net.neoforged", "neoforge").versionRef(neoForge)
+
+            def registrate = version("registrate", registrateVersion)
+            library("registrate", "com.tterrag.registrate", "Registrate").versionRef(registrate)
+
+            def clothConfig = version("clothConfig", clothConfigVersion)
+            library("clothConfig", "me.shedaniel.cloth", "cloth-config-neoforge").versionRef(clothConfig)
+
+            def jei = version("jei", jeiVersion)
+            library("jei-common-api", "mezz.jei", "jei-${minecraftVersion}-common-api").versionRef(jei)
+            library("jei-forge-api", "mezz.jei", "jei-${minecraftVersion}-neoforge-api").versionRef(jei)
+            library("jei-forge-impl", "mezz.jei", "jei-${minecraftVersion}-neoforge").versionRef(jei)
+
+            def rei = version("rei", reiVersion)
+            library("rei-plugin", "me.shedaniel", "RoughlyEnoughItems-default-plugin-neoforge").versionRef(rei)
+            library("rei-api", "me.shedaniel", "RoughlyEnoughItems-api-neoforge").versionRef(rei)
+            library("rei-forge", "me.shedaniel", "RoughlyEnoughItems-neoforge").versionRef(rei)
+
+            def emi = version("emi", emiVersion + "+" + minecraftVersion)
+            library("emi", "dev.emi", "emi-neoforge").versionRef(emi)
+
+            def jade = version("jade", jadeVersion)
+            library("jade", "maven.modrinth", "jade").versionRef(jade)
+
+            def theoneprobe = version("theoneprobe", topVersion)
+            library("theoneprobe", "mcjty.theoneprobe", "theoneprobe").versionRef(theoneprobe)
+
+            def kubejs = version("kubejs", kjsVersion)
+            library("kubejs", "dev.latvian.mods", "kubejs-neoforge").versionRef(kubejs)
+        }
+
+        libs {
+            version("parchment", parchmentVersion)
+            version("minecraft", minecraftVersion)
+
+            def modDevGradle = version("modDevGradle", modDevGradleVersion)
+            plugin("modDevGradle", "net.neoforged.moddev").versionRef(modDevGradle)
+
+            def spotless = version("spotless", spotlessPluginVersion)
+            plugin("spotless", "com.diffplug.spotless").versionRef(spotless)
+
+            def lombok = version("lombok", lombokPluginVersion)
+            plugin("lombok", "io.freefair.lombok").versionRef(lombok)
+
+            def machete = version("machete", machetePluginVersion)
+            plugin("machete", "io.github.p03w.machete").versionRef(machete)
+        }
+    }
+}

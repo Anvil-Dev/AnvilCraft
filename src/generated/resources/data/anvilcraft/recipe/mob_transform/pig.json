@@ -1,0 +1,10 @@
+{
+  "type": "anvilcraft:mob_transform",
+  "input": "minecraft:pig",
+  "results": [
+    {
+      "probability": 1.0,
+      "resultEntityType": "minecraft:hoglin"
+    }
+  ]
+}

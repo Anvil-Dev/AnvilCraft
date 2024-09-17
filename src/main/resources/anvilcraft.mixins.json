@@ -23,6 +23,7 @@
     "PistonBaseBlockMixin",
     "PistonStructureResolverMixin",
     "PlayerHitEntityMixin",
+    "RecipeManagerMixin",
     "ServerLevelMixin",
     "SolidBucketItemMixin",
     "accessor.BaseSpawnerAccessor",

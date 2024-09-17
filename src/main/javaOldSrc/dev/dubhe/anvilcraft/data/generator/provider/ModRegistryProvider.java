@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.data.generator.provider;
+package dev.dubhe.anvilcraft.data.provider;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModEnchantments;

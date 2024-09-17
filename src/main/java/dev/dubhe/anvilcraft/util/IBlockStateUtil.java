@@ -1,10 +1,5 @@
 package dev.dubhe.anvilcraft.util;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.datafixers.util.Pair;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
@@ -16,6 +11,12 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.datafixers.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -62,14 +63,14 @@ public interface IBlockStateUtil {
      */
     static @NotNull JsonElement toJson(@NotNull BlockState state) {
         JsonObject object = new JsonObject();
-        object.addProperty("block", BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString());
+        object.addProperty(
+                "block", BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString());
         if (!state.getValues().isEmpty()) {
             String stringBuilder = '['
-                + state.getValues()
-                .entrySet()
-                .stream()
-                .map(PROPERTY_ENTRY_TO_STRING_FUNCTION).collect(Collectors.joining(","))
-                + ']';
+                    + state.getValues().entrySet().stream()
+                            .map(PROPERTY_ENTRY_TO_STRING_FUNCTION)
+                            .collect(Collectors.joining(","))
+                    + ']';
             object.addProperty("state", stringBuilder);
         }
         return object;
@@ -79,8 +80,9 @@ public interface IBlockStateUtil {
         @Override
         public @NotNull Stream<Holder.Reference<Block>> listElements() {
             return BuiltInRegistries.BLOCK.stream()
-                .map(BuiltInRegistries.BLOCK::getResourceKey)
-                .filter(Optional::isPresent).map(key -> BuiltInRegistries.BLOCK.getHolderOrThrow(key.get()));
+                    .map(BuiltInRegistries.BLOCK::getResourceKey)
+                    .filter(Optional::isPresent)
+                    .map(key -> BuiltInRegistries.BLOCK.getHolderOrThrow(key.get()));
         }
 
         @Override

@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.network;
 
-
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.gui.screen.inventory.ActiveSilencerScreen;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -11,16 +11,15 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 public class MutedSoundSyncPacket implements CustomPacketPayload {
     public static final Type<MutedSoundSyncPacket> TYPE = new Type<>(AnvilCraft.of("muted_sound_sync"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, MutedSoundSyncPacket> STREAM_CODEC = StreamCodec.ofMember(
-            MutedSoundSyncPacket::encode,
-            MutedSoundSyncPacket::new
-    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, MutedSoundSyncPacket> STREAM_CODEC =
+            StreamCodec.ofMember(MutedSoundSyncPacket::encode, MutedSoundSyncPacket::new);
     public static final IPayloadHandler<MutedSoundSyncPacket> HANDLER = MutedSoundSyncPacket::clientHandler;
 
     private final List<ResourceLocation> sounds;

@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:super_heating",
+  "ingredients": [
+    {
+      "item": "anvilcraft:end_dust"
+    }
+  ],
+  "result": [
+    {
+      "count": 1,
+      "id": "minecraft:end_stone"
+    }
+  ]
+}

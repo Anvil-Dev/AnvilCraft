@@ -1,13 +1,12 @@
 package dev.dubhe.anvilcraft.client.gui.screen.inventory;
 
-
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.depository.ItemDepositorySlot;
 import dev.dubhe.anvilcraft.block.entity.BaseChuteBlockEntity;
 import dev.dubhe.anvilcraft.client.gui.component.EnableFilterButton;
 import dev.dubhe.anvilcraft.inventory.BaseChuteMenu;
-import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
-import lombok.Getter;
+import dev.dubhe.anvilcraft.network.SlotDisableChangePacket;
+
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -16,6 +15,8 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.neoforged.neoforge.network.PacketDistributor;
+
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiFunction;
@@ -24,16 +25,16 @@ import java.util.function.BiFunction;
  * 溜槽屏幕基类
  */
 public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends BaseChuteMenu<T>>
-        extends BaseMachineScreen<M>
-        implements IFilterScreen<M> {
+        extends BaseMachineScreen<M> implements IFilterScreen<M> {
     private static final ResourceLocation CONTAINER_LOCATION =
             AnvilCraft.of("textures/gui/container/machine/background/chute.png");
 
-
     BiFunction<Integer, Integer, EnableFilterButton> enableFilterButtonSupplier =
             this.getEnableFilterButtonSupplier(134, 36);
+
     @Getter
     private EnableFilterButton enableFilterButton = null;
+
     private final M menu;
 
     public BaseChuteScreen(M menu, Inventory playerInventory, Component title) {
@@ -93,7 +94,6 @@ public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends 
         this.enableFilterButton.flush();
     }
 
-
     @Override
     protected void slotClicked(@NotNull Slot slot, int slotId, int mouseButton, @NotNull ClickType type) {
         start:
@@ -104,10 +104,10 @@ public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends 
             int slot1 = slot.getContainerSlot();
             if (this.menu.isFilterEnabled()) {
                 if (!this.menu.isSlotDisabled(slot1))
-                    PacketDistributor.sendToServer(new SlotDisableChangePack(slot1, false));
+                    PacketDistributor.sendToServer(new SlotDisableChangePacket(slot1, false));
                 break start;
             }
-            PacketDistributor.sendToServer(new SlotDisableChangePack(slot1, !this.menu.isSlotDisabled(slot1)));
+            PacketDistributor.sendToServer(new SlotDisableChangePacket(slot1, !this.menu.isSlotDisabled(slot1)));
         }
         super.slotClicked(slot, slotId, mouseButton, type);
     }

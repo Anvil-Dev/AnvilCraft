@@ -4,12 +4,14 @@ import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IHasAffectRange;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,8 +26,7 @@ public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerPro
     private int power = 0;
 
     public static @NotNull ChargeCollectorBlockEntity createBlockEntity(
-            BlockEntityType<?> type, BlockPos pos, BlockState blockState
-    ) {
+            BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         return new ChargeCollectorBlockEntity(type, pos, blockState);
     }
 

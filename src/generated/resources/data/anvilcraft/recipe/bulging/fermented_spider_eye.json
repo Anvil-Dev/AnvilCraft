@@ -1,0 +1,15 @@
+{
+  "type": "anvilcraft:bulging",
+  "cauldron": "minecraft:water_cauldron",
+  "consume_fluid": false,
+  "ingredients": [
+    {
+      "item": "minecraft:spider_eye"
+    }
+  ],
+  "produce_fluid": false,
+  "result": {
+    "count": 1,
+    "id": "minecraft:fermented_spider_eye"
+  }
+}

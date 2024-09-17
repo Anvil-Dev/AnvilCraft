@@ -1,8 +1,10 @@
 package dev.dubhe.anvilcraft.integration.jade;
 
 import dev.dubhe.anvilcraft.integration.jade.provider.PowerBlockProvider;
+
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
+
 import snownee.jade.api.IWailaClientRegistration;
 import snownee.jade.api.IWailaCommonRegistration;
 import snownee.jade.api.IWailaPlugin;

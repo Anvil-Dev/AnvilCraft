@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.data.generator.tags;
+package dev.dubhe.anvilcraft.data.tags;
 
 import com.tterrag.registrate.providers.RegistrateTagsProvider;
 import dev.dubhe.anvilcraft.init.ModBlockTags;

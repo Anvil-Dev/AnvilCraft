@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.block.SpectralAnvilBlock;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.init.ModEntities;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -28,6 +29,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Predicate;
@@ -44,13 +46,7 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
      * @param isGhostEntity 是否为分身
      */
     private FallingSpectralBlockEntity(
-            Level level,
-            double x,
-            double y,
-            double z,
-            BlockState state,
-            boolean isGhostEntity
-    ) {
+            Level level, double x, double y, double z, BlockState state, boolean isGhostEntity) {
         this(ModEntities.FALLING_SPECTRAL_BLOCK.get(), level);
         this.blockState = state;
         this.blocksBuilding = true;
@@ -67,9 +63,7 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
     }
 
     @Override
-    public void callOnBrokenAfterFall(@NotNull Block block, @NotNull BlockPos pos) {
-
-    }
+    public void callOnBrokenAfterFall(@NotNull Block block, @NotNull BlockPos pos) {}
 
     @Override
     public void tick() {
@@ -97,19 +91,16 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
                 return;
             }
             level().playSound(
-                    this,
-                    below,
-                    SoundEvents.ANVIL_LAND,
-                    SoundSource.BLOCKS,
-                    SoundType.ANVIL.volume,
-                    SoundType.ANVIL.pitch
-            );
-            Predicate<Entity> predicate = EntitySelector.NO_CREATIVE_OR_SPECTATOR
-                    .and(EntitySelector.LIVING_ENTITY_STILL_ALIVE);
+                            this,
+                            below,
+                            SoundEvents.ANVIL_LAND,
+                            SoundSource.BLOCKS,
+                            SoundType.ANVIL.volume,
+                            SoundType.ANVIL.pitch);
+            Predicate<Entity> predicate =
+                    EntitySelector.NO_CREATIVE_OR_SPECTATOR.and(EntitySelector.LIVING_ENTITY_STILL_ALIVE);
             level().getEntitiesOfClass(LivingEntity.class, new AABB(current), predicate)
-                    .forEach(it -> it.hurt(level().damageSources().anvil(this),
-                            Math.min(40f, fallDistance * 2)
-                    ));
+                    .forEach(it -> it.hurt(level().damageSources().anvil(this), Math.min(40f, fallDistance * 2)));
             AnvilCraft.EVENT_BUS.post(new AnvilFallOnLandEvent(level(), current, this, fallDistance));
         }
         this.setDeltaMovement(this.getDeltaMovement().scale(0.98));
@@ -137,11 +128,10 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
         if (dist < 0) {
             return false;
         }
-        Predicate<Entity> predicate = EntitySelector.NO_CREATIVE_OR_SPECTATOR
-                .and(EntitySelector.LIVING_ENTITY_STILL_ALIVE);
+        Predicate<Entity> predicate =
+                EntitySelector.NO_CREATIVE_OR_SPECTATOR.and(EntitySelector.LIVING_ENTITY_STILL_ALIVE);
         float f = (float) Math.min(Mth.floor((float) dist * 2), 40);
-        this.level().getEntities(this, this.getBoundingBox(), predicate)
-                .forEach(entity -> entity.hurt(source, f));
+        this.level().getEntities(this, this.getBoundingBox(), predicate).forEach(entity -> entity.hurt(source, f));
         boolean isAnvil = this.blockState.is(BlockTags.ANVIL);
         if (isAnvil && f > 0.0F && this.random.nextFloat() < 0.05F + (float) dist * 0.05F) {
             BlockState blockState = AnvilBlock.damage(this.blockState);
@@ -155,39 +145,32 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
     }
 
     protected static boolean shouldIgnoreBlockInMovement(BlockState blockState) {
-        return blockState.isAir()
-                || blockState.is(ModBlockTags.GLASS_BLOCKS)
-                || blockState.is(ModBlockTags.GLASS_PANES)
-                || blockState.getBlock() instanceof TransparentBlock
-                || blockState.getBlock() instanceof SpectralAnvilBlock
-                || blockState.canBeReplaced();
+        return (blockState.isAir()
+                        || blockState.is(ModBlockTags.GLASS_BLOCKS)
+                        || blockState.is(ModBlockTags.GLASS_PANES)
+                        || blockState.getBlock() instanceof TransparentBlock
+                        || blockState.canBeReplaced())
+                && !(blockState.getBlock() instanceof SpectralAnvilBlock);
     }
 
     /**
      * 落下幻灵实体
      */
     public static FallingSpectralBlockEntity fall(
-            Level level,
-            BlockPos pos,
-            BlockState blockState,
-            boolean updateBlock,
-            boolean isGhostEntity
-    ) {
+            Level level, BlockPos pos, BlockState blockState, boolean updateBlock, boolean isGhostEntity) {
         FallingSpectralBlockEntity fallingBlockEntity = new FallingSpectralBlockEntity(
                 level,
                 (double) pos.getX() + 0.5,
                 pos.getY(),
                 (double) pos.getZ() + 0.5,
                 blockState.hasProperty(BlockStateProperties.WATERLOGGED)
-                        ? blockState.setValue(BlockStateProperties.WATERLOGGED, false) : blockState,
-                isGhostEntity
-        );
+                        ? blockState.setValue(BlockStateProperties.WATERLOGGED, false)
+                        : blockState,
+                isGhostEntity);
         if (updateBlock) {
             level.setBlock(pos, blockState.getFluidState().createLegacyBlock(), 3);
         }
         level.addFreshEntity(fallingBlockEntity);
         return fallingBlockEntity;
     }
-
-
 }

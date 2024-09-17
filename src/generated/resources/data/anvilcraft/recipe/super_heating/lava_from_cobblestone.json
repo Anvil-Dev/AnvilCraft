@@ -1,0 +1,21 @@
+{
+  "type": "anvilcraft:super_heating",
+  "block_result": "anvilcraft:lava_cauldron",
+  "ingredients": [
+    {
+      "item": "minecraft:cobblestone"
+    },
+    {
+      "item": "minecraft:cobblestone"
+    },
+    {
+      "item": "minecraft:cobblestone"
+    },
+    {
+      "item": "minecraft:cobblestone"
+    },
+    {
+      "item": "anvilcraft:lime_powder"
+    }
+  ]
+}

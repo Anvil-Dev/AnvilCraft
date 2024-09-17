@@ -1,0 +1,15 @@
+{
+  "type": "anvilcraft:bulging",
+  "cauldron": "minecraft:potatoes",
+  "consume_fluid": true,
+  "ingredients": [
+    {
+      "item": "anvilcraft:sea_heart_shell_shard"
+    }
+  ],
+  "produce_fluid": false,
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:prismarine_cluster"
+  }
+}

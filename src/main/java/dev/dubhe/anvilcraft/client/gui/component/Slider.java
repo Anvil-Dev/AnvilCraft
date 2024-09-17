@@ -2,8 +2,7 @@ package dev.dubhe.anvilcraft.client.gui.component;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.inventory.SliderMenu;
-import lombok.Getter;
-import lombok.Setter;
+
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -13,18 +12,25 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 public class Slider extends AbstractWidget {
     public static final ResourceLocation SLIDER = AnvilCraft.of("textures/gui/container/slider/slider.png");
+
     @Setter
     @Getter
     private int min;
+
     @Setter
     @Getter
     private int max;
+
     @Getter
     private int value;
+
     private final int posX;
     private final int posY;
     private final int length;
@@ -133,26 +139,22 @@ public class Slider extends AbstractWidget {
     }
 
     @Override
-    protected void updateWidgetNarration(@NotNull NarrationElementOutput narrationElementOutput) {
-    }
+    protected void updateWidgetNarration(@NotNull NarrationElementOutput narrationElementOutput) {}
 
     private void updateTooltip() {
         if (this.getTooltip() == null) return;
-        boolean bl = this.isHovered || this.isFocused() && Minecraft.getInstance().getLastInputType().isKeyboard();
+        boolean bl = this.isHovered
+                || this.isFocused()
+                        && Minecraft.getInstance().getLastInputType().isKeyboard();
         if (bl != this.wasHoveredOrFocused) {
             if (bl) this.hoverOrFocusedStartTime = Util.getMillis();
             this.wasHoveredOrFocused = bl;
         }
         Screen screen;
         if (bl
-            && Util.getMillis() - this.hoverOrFocusedStartTime > (long) this.tooltipMsDelay
-            && (screen = Minecraft.getInstance().screen) != null
-        ) {
-            screen.setTooltipForNextRenderPass(
-                this.getTooltip(),
-                DefaultTooltipPositioner.INSTANCE,
-                this.isFocused()
-            );
+                && Util.getMillis() - this.hoverOrFocusedStartTime > (long) this.tooltipMsDelay
+                && (screen = Minecraft.getInstance().screen) != null) {
+            screen.setTooltipForNextRenderPass(this.getTooltip(), DefaultTooltipPositioner.INSTANCE, this.isFocused());
         }
     }
 }

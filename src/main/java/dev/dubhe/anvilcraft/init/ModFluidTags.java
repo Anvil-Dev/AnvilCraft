@@ -1,9 +1,11 @@
 package dev.dubhe.anvilcraft.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.material.Fluid;
+
 import org.jetbrains.annotations.NotNull;
 
 public class ModFluidTags {

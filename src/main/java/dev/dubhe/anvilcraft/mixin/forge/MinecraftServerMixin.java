@@ -1,9 +1,11 @@
 package dev.dubhe.anvilcraft.mixin.forge;
 
 import dev.dubhe.anvilcraft.api.event.forge.DataPackReloadedEvent;
+
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.resources.CloseableResourceManager;
 import net.neoforged.neoforge.common.NeoForge;
+
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -20,16 +22,17 @@ abstract class MinecraftServerMixin {
     private MinecraftServer.ReloadableResources resources;
 
     @SuppressWarnings("UnreachableCode")
-    @Inject(
-        method = "reloadResources", at = @At("TAIL"))
+    @Inject(method = "reloadResources", at = @At("TAIL"))
     private void endResourceReload(
-        Collection<String> collection, @NotNull CallbackInfoReturnable<CompletableFuture<Void>> cir
-    ) {
+            Collection<String> collection, @NotNull CallbackInfoReturnable<CompletableFuture<Void>> cir) {
         MinecraftServer server = (MinecraftServer) (Object) this;
         CloseableResourceManager resourceManager = this.resources.resourceManager();
-        cir.getReturnValue().handleAsync((value, throwable) -> {
-            NeoForge.EVENT_BUS.post(new DataPackReloadedEvent(server, resourceManager));
-            return value;
-        }, server);
+        cir.getReturnValue()
+                .handleAsync(
+                        (value, throwable) -> {
+                            NeoForge.EVENT_BUS.post(new DataPackReloadedEvent(server, resourceManager));
+                            return value;
+                        },
+                        server);
     }
 }

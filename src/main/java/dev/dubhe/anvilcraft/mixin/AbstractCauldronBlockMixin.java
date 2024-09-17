@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.mixin;
 
-
 import dev.dubhe.anvilcraft.init.ModBlocks;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -24,9 +25,7 @@ import java.util.Optional;
 abstract class AbstractCauldronBlockMixin implements BucketPickup {
     @Override
     public @NotNull ItemStack pickupBlock(
-        @Nullable Player player,
-        @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockState state
-    ) {
+            @Nullable Player player, @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockState state) {
         if (state.is(Blocks.LAVA_CAULDRON)) {
             level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
             return Items.LAVA_BUCKET.getDefaultInstance();

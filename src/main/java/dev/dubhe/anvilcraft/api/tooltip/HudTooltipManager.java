@@ -1,7 +1,5 @@
 package dev.dubhe.anvilcraft.api.tooltip;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.dubhe.anvilcraft.api.tooltip.impl.AffectRangeProviderImpl;
 import dev.dubhe.anvilcraft.api.tooltip.impl.HeliostatsTooltip;
 import dev.dubhe.anvilcraft.api.tooltip.impl.HeliostatsTooltipProvider;
@@ -10,6 +8,7 @@ import dev.dubhe.anvilcraft.api.tooltip.impl.RubyPrismTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.providers.AffectRangeProvider;
 import dev.dubhe.anvilcraft.api.tooltip.providers.BlockEntityTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.providers.HandHeldItemTooltipProvider;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -18,6 +17,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -60,12 +62,7 @@ public class HudTooltipManager {
      * 渲染
      */
     public void renderTooltip(
-            GuiGraphics guiGraphics,
-            BlockEntity entity,
-            float partialTick,
-            int screenWidth,
-            int screenHeight
-    ) {
+            GuiGraphics guiGraphics, BlockEntity entity, float partialTick, int screenWidth, int screenHeight) {
         if (entity == null) return;
         final int tooltipPosX = screenWidth / 2 + 10;
         final int tooltipPosY = screenHeight / 2 + 10;
@@ -83,19 +80,14 @@ public class HudTooltipManager {
                 tooltipPosY,
                 BACKGROUND_COLOR,
                 BORDER_COLOR_TOP,
-                BORDER_COLOR_BOTTOM
-        );
+                BORDER_COLOR_BOTTOM);
     }
 
     /**
      * 渲染手持物品Tooltip
      */
     public void renderHandItemLevelTooltip(
-            ItemStack itemStack,
-            PoseStack poseStack,
-            VertexConsumer consumer,
-            double camX, double camY, double camZ
-    ) {
+            ItemStack itemStack, PoseStack poseStack, VertexConsumer consumer, double camX, double camY, double camZ) {
         HandHeldItemTooltipProvider pv = determineHandHeldItemTooltipProvider(itemStack);
         if (pv == null) return;
         pv.render(poseStack, consumer, itemStack, camX, camY, camZ);
@@ -105,41 +97,22 @@ public class HudTooltipManager {
      * 渲染手持物品Hud Tooltip
      */
     public void renderHandItemHudTooltip(
-            GuiGraphics guiGraphics,
-            ItemStack itemStack,
-            float partialTick,
-            int screenWidth,
-            int screenHeight
-    ) {
+            GuiGraphics guiGraphics, ItemStack itemStack, float partialTick, int screenWidth, int screenHeight) {
         HandHeldItemTooltipProvider pv = determineHandHeldItemTooltipProvider(itemStack);
         if (pv == null) return;
         pv.renderTooltip(guiGraphics, screenWidth, screenHeight);
     }
 
-
     /**
      * 渲染作用范围
      */
     public void renderAffectRange(
-            BlockEntity entity,
-            PoseStack poseStack,
-            VertexConsumer consumer,
-            double camX, double camY, double camZ
-    ) {
+            BlockEntity entity, PoseStack poseStack, VertexConsumer consumer, double camX, double camY, double camZ) {
         AffectRangeProvider currentProvider = determineAffectRangeProvider(entity);
         if (currentProvider == null) return;
         VoxelShape shape = currentProvider.affectRange(entity);
         if (shape == null) return;
-        renderOutline(
-                poseStack,
-                consumer,
-                camX,
-                camY,
-                camZ,
-                BlockPos.ZERO,
-                shape,
-                0xff00ffcc
-        );
+        renderOutline(poseStack, consumer, camX, camY, camZ, BlockPos.ZERO, shape, 0xff00ffcc);
     }
 
     private HandHeldItemTooltipProvider determineHandHeldItemTooltipProvider(ItemStack itemStack) {
@@ -171,5 +144,4 @@ public class HudTooltipManager {
         if (pv.isEmpty()) return null;
         return pv.get(0);
     }
-
 }

@@ -1,9 +1,11 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
+import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
-import lombok.Getter;
+import dev.dubhe.anvilcraft.init.ModRecipeTypes;
+import dev.dubhe.anvilcraft.recipe.transform.MobTransformInput;
+import dev.dubhe.anvilcraft.recipe.transform.MobTransformRecipe;
+
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -20,6 +22,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -28,10 +31,15 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public class CorruptedBeaconBlockEntity extends BlockEntity {
     List<BeaconBeamSection> beamSections = Lists.newArrayList();
@@ -40,8 +48,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
     private int lastCheckY;
 
     public static @NotNull CorruptedBeaconBlockEntity createBlockEntity(
-            BlockEntityType<?> type, BlockPos pos, BlockState blockState
-    ) {
+            BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         return new CorruptedBeaconBlockEntity(type, pos, blockState);
     }
 
@@ -57,12 +64,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
      * tick 逻辑
      */
     @SuppressWarnings("unused")
-    public static void tick(
-        Level pLevel,
-        BlockPos pPos,
-        BlockState pState,
-        CorruptedBeaconBlockEntity pBlockEntity
-    ) {
+    public static void tick(Level pLevel, BlockPos pPos, BlockState pState, CorruptedBeaconBlockEntity pBlockEntity) {
         int i = pPos.getX();
         int j = pPos.getY();
         int k = pPos.getZ();
@@ -75,9 +77,8 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
             blockpos = new BlockPos(i, pBlockEntity.lastCheckY + 1, k);
         }
 
-        BeaconBeamSection beamSection = pBlockEntity.checkingBeamSections.isEmpty()
-            ? null
-            : pBlockEntity.checkingBeamSections.getLast();
+        BeaconBeamSection beamSection =
+                pBlockEntity.checkingBeamSections.isEmpty() ? null : pBlockEntity.checkingBeamSections.getLast();
         int l = pLevel.getHeight(Heightmap.Types.WORLD_SURFACE, i, k);
 
         for (int i1 = 0; i1 < 10 && blockpos.getY() <= l; i1++) {
@@ -85,25 +86,19 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
             Integer j1 = blockstate.getBeaconColorMultiplier(pLevel, blockpos, pPos);
             if (j1 != null) {
                 if (pBlockEntity.checkingBeamSections.size() <= 1) {
-                    beamSection = new BeaconBeamSection(
-                        0x101010
-                    );
+                    beamSection = new BeaconBeamSection(0xDF101010);
                     pBlockEntity.checkingBeamSections.add(beamSection);
                 } else if (beamSection != null) {
                     if (j1 == beamSection.color) {
                         beamSection.increaseHeight();
                     } else {
-                        beamSection = new BeaconBeamSection(
-                            FastColor.ARGB32.average(beamSection.color, j1)
-                        );
+                        beamSection = new BeaconBeamSection(FastColor.ARGB32.average(beamSection.color, j1));
                         pBlockEntity.checkingBeamSections.add(beamSection);
                     }
                 }
             } else {
                 if (beamSection == null
-                    || blockstate.getLightBlock(pLevel, blockpos) >= 15
-                    && !blockstate.is(Blocks.BEDROCK)
-                ) {
+                        || blockstate.getLightBlock(pLevel, blockpos) >= 15 && !blockstate.is(Blocks.BEDROCK)) {
                     pBlockEntity.checkingBeamSections.clear();
                     pBlockEntity.lastCheckY = l;
                     break;
@@ -136,14 +131,15 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
                 boolean flag1 = pBlockEntity.levels > 0;
                 if (!flag && flag1) {
                     playSound(pLevel, pPos, SoundEvents.BEACON_ACTIVATE);
+                    pLevel.setBlockAndUpdate(pPos, pState.setValue(CorruptedBeaconBlock.LIT, true));
 
                     for (ServerPlayer serverplayer : pLevel.getEntitiesOfClass(
-                        ServerPlayer.class, new AABB(i, j, k, i, j - 4, k).inflate(10.0, 5.0, 10.0)
-                    )) {
+                            ServerPlayer.class, new AABB(i, j, k, i, j - 4, k).inflate(10.0, 5.0, 10.0))) {
                         CriteriaTriggers.CONSTRUCT_BEACON.trigger(serverplayer, pBlockEntity.levels);
                     }
                 } else if (flag && !flag1) {
                     playSound(pLevel, pPos, SoundEvents.BEACON_DEACTIVATE);
+                    pLevel.setBlockAndUpdate(pPos, pState.setValue(CorruptedBeaconBlock.LIT, false));
                 }
             }
         }
@@ -176,13 +172,16 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
         super.setRemoved();
     }
 
-    private static void tryTransformEntity(
-            Entity livingEntity,
-            BlockPos pos,
-            ServerLevel level,
-            RecipeManager manager
-    ) {
-
+    private static void tryTransformEntity(LivingEntity livingEntity, ServerLevel level, RecipeManager manager) {
+        MobTransformInput input = MobTransformInput.of(livingEntity);
+        Optional<RecipeHolder<MobTransformRecipe>> optionalRecipeHolder =
+                manager.getRecipeFor(ModRecipeTypes.MOB_TRANSFORM_TYPE.get(), input, level);
+        if (optionalRecipeHolder.isEmpty()) return;
+        MobTransformRecipe recipe = optionalRecipeHolder.get().value();
+        Entity result = recipe.apply(level.random, livingEntity, level);
+        if (result == null) return;
+        livingEntity.discard();
+        level.tryAddFreshEntityWithPassengers(result);
     }
 
     private static void affectEntities(@NotNull Level level, BlockPos pos) {
@@ -193,7 +192,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
         RecipeManager manager = Objects.requireNonNull(level.getServer()).getRecipeManager();
         for (LivingEntity livingEntity : list) {
             livingEntity.addEffect(new MobEffectInstance(MobEffects.WITHER, 120, 0, true, true));
-            tryTransformEntity(livingEntity, pos, (ServerLevel) level, manager);
+            tryTransformEntity(livingEntity, (ServerLevel) level, manager);
         }
     }
 
@@ -233,7 +232,6 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
         protected void increaseHeight() {
             this.height++;
         }
-
     }
 
     /**
@@ -244,7 +242,12 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
      */
     @SuppressWarnings("unused")
     public AABB getRenderBoundingBox() {
-        return new AABB(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY,
-                Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
+        return new AABB(
+                Double.NEGATIVE_INFINITY,
+                Double.NEGATIVE_INFINITY,
+                Double.NEGATIVE_INFINITY,
+                Double.POSITIVE_INFINITY,
+                Double.POSITIVE_INFINITY,
+                Double.POSITIVE_INFINITY);
     }
 }

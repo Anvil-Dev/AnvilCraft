@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:stamping",
+  "ingredients": [
+    {
+      "item": "minecraft:snowball"
+    }
+  ],
+  "result": [
+    {
+      "count": 1,
+      "id": "minecraft:snow"
+    }
+  ]
+}

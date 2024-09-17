@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.better.BetterAnvilBlock;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.RoyalAnvilMenu;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -24,6 +25,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,8 +47,10 @@ public class RoyalAnvilBlock extends BetterAnvilBlock implements IHammerRemovabl
 
     @Override
     public @NotNull VoxelShape getShape(
-        @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context
-    ) {
+            @NotNull BlockState state,
+            @NotNull BlockGetter level,
+            @NotNull BlockPos pos,
+            @NotNull CollisionContext context) {
         Direction direction = state.getValue(FACING);
         if (direction.getAxis() == Direction.Axis.X) {
             return X_AXIS_AABB;
@@ -57,10 +61,12 @@ public class RoyalAnvilBlock extends BetterAnvilBlock implements IHammerRemovabl
     @SuppressWarnings("UnreachableCode")
     @Override
     public @NotNull InteractionResult use(
-        @NotNull BlockState state, @NotNull Level level,
-        @NotNull BlockPos pos, @NotNull Player player,
-        @NotNull InteractionHand hand, @NotNull BlockHitResult hit
-    ) {
+            @NotNull BlockState state,
+            @NotNull Level level,
+            @NotNull BlockPos pos,
+            @NotNull Player player,
+            @NotNull InteractionHand hand,
+            @NotNull BlockHitResult hit) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
         ModMenuTypes.open((ServerPlayer) player, state.getMenuProvider(level, pos));
         player.awardStat(Stats.INTERACT_WITH_ANVIL);
@@ -68,10 +74,10 @@ public class RoyalAnvilBlock extends BetterAnvilBlock implements IHammerRemovabl
     }
 
     @Override
-    @Nullable
-    public MenuProvider getMenuProvider(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos) {
-        return new SimpleMenuProvider((i, inventory, player) ->
-            new RoyalAnvilMenu(i, inventory, ContainerLevelAccess.create(level, pos)), CONTAINER_TITLE);
+    @Nullable public MenuProvider getMenuProvider(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos) {
+        return new SimpleMenuProvider(
+                (i, inventory, player) -> new RoyalAnvilMenu(i, inventory, ContainerLevelAccess.create(level, pos)),
+                CONTAINER_TITLE);
     }
 
     @Override

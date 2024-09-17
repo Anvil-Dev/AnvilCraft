@@ -1,9 +1,9 @@
 package dev.dubhe.anvilcraft.event;
 
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.dubhe.anvilcraft.api.tooltip.HudTooltipManager;
 import dev.dubhe.anvilcraft.client.renderer.PowerGridRenderer;
 import dev.dubhe.anvilcraft.item.IEngineerGoggles;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -20,13 +20,16 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 
+import com.mojang.blaze3d.vertex.VertexConsumer;
+
 @EventBusSubscriber
 public class RenderEventListener {
     @SubscribeEvent
-    public static void onRender(RenderLevelStageEvent event){
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_BLOCK_ENTITIES)return;
+    public static void onRender(RenderLevelStageEvent event) {
+        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_BLOCK_ENTITIES) return;
         Entity entity = event.getCamera().getEntity();
-        MultiBufferSource.BufferSource bufferSource = event.getLevelRenderer().renderBuffers.bufferSource();
+        MultiBufferSource.BufferSource bufferSource =
+                event.getLevelRenderer().renderBuffers.bufferSource();
         VertexConsumer vertexConsumer3 = bufferSource.getBuffer(RenderType.lines());
         Vec3 vec3 = event.getCamera().getPosition();
         double camX = vec3.x();
@@ -38,13 +41,7 @@ public class RenderEventListener {
             ItemStack handItem = mainHandItem.isEmpty() ? offHandItem : mainHandItem;
             if (!handItem.isEmpty()) {
                 HudTooltipManager.INSTANCE.renderHandItemLevelTooltip(
-                    handItem,
-                    event.getPoseStack(),
-                    vertexConsumer3,
-                    camX,
-                    camY,
-                    camZ
-                );
+                        handItem, event.getPoseStack(), vertexConsumer3, camX, camY, camZ);
             }
         }
         if (!(entity instanceof LivingEntity le)) return;

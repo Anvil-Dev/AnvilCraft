@@ -7,10 +7,8 @@ public class EmberMetalAxeItem extends AxeItem {
      *
      */
     public EmberMetalAxeItem(Properties properties) {
-        super(ModTiers.EMBER_METAL, properties.durability(0)
-            .attributes(AxeItem.createAttributes(
-                ModTiers.AMETHYST, 10, -3f
-            ))
-        );
+        super(
+                ModTiers.EMBER_METAL,
+                properties.durability(0).attributes(AxeItem.createAttributes(ModTiers.AMETHYST, 10, -3f)));
     }
 }

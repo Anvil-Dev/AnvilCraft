@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.block;
 
-import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
@@ -9,9 +8,10 @@ import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
-import dev.dubhe.anvilcraft.network.MachineEnableFilterPack;
-import dev.dubhe.anvilcraft.network.SlotDisableChangePack;
-import dev.dubhe.anvilcraft.network.SlotFilterChangePack;
+import dev.dubhe.anvilcraft.network.MachineEnableFilterPacket;
+import dev.dubhe.anvilcraft.network.SlotDisableChangePacket;
+import dev.dubhe.anvilcraft.network.SlotFilterChangePacket;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -35,6 +35,8 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
+
+import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,10 +50,7 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
     public ItemCollectorBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(
-                this.stateDefinition.any()
-                        .setValue(POWERED, false)
-                        .setValue(OVERLOAD, true)
-        );
+                this.stateDefinition.any().setValue(POWERED, false).setValue(OVERLOAD, true));
     }
 
     @Override
@@ -65,8 +64,7 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
         return true;
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
         return new ItemCollectorBlockEntity(ModBlockEntities.ITEM_COLLECTOR.get(), pos, state);
     }
@@ -78,8 +76,7 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
             @NotNull Level level,
             @NotNull BlockPos pos,
             @NotNull BlockState newState,
-            boolean movedByPiston
-    ) {
+            boolean movedByPiston) {
         if (state.is(newState.getBlock())) return;
         if (level.getBlockEntity(pos) instanceof ItemCollectorBlockEntity entity) {
             Vec3 vec3 = entity.getBlockPos().getCenter();
@@ -92,27 +89,21 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-            @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type
-    ) {
+            @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type) {
         if (level.isClientSide) {
             return null;
         }
         return createTickerHelper(
                 type,
                 ModBlockEntities.ITEM_COLLECTOR.get(),
-                (level1, blockPos, blockState, blockEntity) -> blockEntity.tick(level1, blockPos)
-        );
+                (level1, blockPos, blockState, blockEntity) -> blockEntity.tick(level1, blockPos));
     }
 
     @Override
-    @Nullable
-    public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
-        return this.defaultBlockState()
-                .setValue(POWERED, false)
-                .setValue(OVERLOAD, true);
+    @Nullable public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
+        return this.defaultBlockState().setValue(POWERED, false).setValue(OVERLOAD, true);
     }
 
     @Override
@@ -128,37 +119,24 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
             @NotNull BlockPos pos,
             @NotNull Player player,
             @NotNull InteractionHand hand,
-            @NotNull BlockHitResult hit
-    ) {
+            @NotNull BlockHitResult hit) {
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
         }
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof ItemCollectorBlockEntity eb) {
             if (player.getItemInHand(hand).is(ModItems.DISK.get())) {
-                return eb.useDisk(
-                        level,
-                        player,
-                        hand,
-                        player.getItemInHand(hand),
-                        hit
-                );
+                return eb.useDisk(level, player, hand, player.getItemInHand(hand), hit);
             }
             if (player instanceof ServerPlayer serverPlayer) {
                 ModMenuTypes.open(serverPlayer, eb, pos);
-                PacketDistributor.sendToPlayer(serverPlayer, new MachineEnableFilterPack(eb.isFilterEnabled()));
+                PacketDistributor.sendToPlayer(serverPlayer, new MachineEnableFilterPacket(eb.isFilterEnabled()));
                 for (int i = 0; i < eb.getFilteredItems().size(); i++) {
                     PacketDistributor.sendToPlayer(
-                        serverPlayer,
-                        new SlotDisableChangePack(
-                            i,
-                            eb.getDepository().getDisabled().get(i)
-                        )
-                    );
-                    PacketDistributor.sendToPlayer(
-                        serverPlayer,
-                        new SlotFilterChangePack(i, eb.getFilter(i))
-                    );
+                            serverPlayer,
+                            new SlotDisableChangePacket(
+                                    i, eb.getDepository().getDisabled().get(i)));
+                    PacketDistributor.sendToPlayer(serverPlayer, new SlotFilterChangePacket(i, eb.getFilter(i)));
                 }
             }
         }
@@ -173,8 +151,7 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
             @NotNull BlockPos pos,
             @NotNull Block neighborBlock,
             @NotNull BlockPos neighborPos,
-            boolean movedByPiston
-    ) {
+            boolean movedByPiston) {
         if (level.isClientSide) {
             return;
         }
@@ -184,8 +161,10 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
     @Override
     @SuppressWarnings("deprecation")
     public void tick(
-            @NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random
-    ) {
+            @NotNull BlockState state,
+            @NotNull ServerLevel level,
+            @NotNull BlockPos pos,
+            @NotNull RandomSource random) {
         if (state.getValue(POWERED) && !level.hasNeighborSignal(pos)) {
             level.setBlock(pos, state.cycle(POWERED), 2);
         }

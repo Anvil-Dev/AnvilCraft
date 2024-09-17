@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.mixin.forge;
 
 import dev.dubhe.anvilcraft.api.event.forge.AnvilEvent;
 import dev.dubhe.anvilcraft.init.ModBlocks;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.damagesource.DamageSource;
@@ -14,6 +15,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.NeoForge;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -30,23 +32,25 @@ import java.util.function.Predicate;
 abstract class FallingBlockEntityMixin extends Entity {
     @Shadow
     public BlockState blockState;
+
     @Shadow
     public boolean cancelDrop;
-    @Unique
-    private float anvilcraft$fallDistance;
+
+    @Unique private float anvilcraft$fallDistance;
 
     public FallingBlockEntityMixin(EntityType<?> entityType, Level level) {
         super(entityType, level);
     }
 
     @Inject(
-        method = "tick",
-        at = @At(
-            value = "INVOKE",
-            ordinal = 0,
-            target = "Lnet/minecraft/world/entity/item/FallingBlockEntity;level()Lnet/minecraft/world/level/Level;"
-        ),
-        locals = LocalCapture.CAPTURE_FAILHARD)
+            method = "tick",
+            at =
+                    @At(
+                            value = "INVOKE",
+                            ordinal = 0,
+                            target =
+                                    "Lnet/minecraft/world/entity/item/FallingBlockEntity;level()Lnet/minecraft/world/level/Level;"),
+            locals = LocalCapture.CAPTURE_FAILHARD)
     private void anvilPerFallOnGround(CallbackInfo ci, Block block) {
         if (this.level().isClientSide()) return;
         if (this.onGround()) return;
@@ -55,13 +59,13 @@ abstract class FallingBlockEntityMixin extends Entity {
 
     @SuppressWarnings("UnreachableCode")
     @Inject(
-        method = "tick",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/level/block/Fallable;onLand(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/entity/item/FallingBlockEntity;)V"
-        ),
-        locals = LocalCapture.CAPTURE_FAILHARD
-    )
+            method = "tick",
+            at =
+                    @At(
+                            value = "INVOKE",
+                            target =
+                                    "Lnet/minecraft/world/level/block/Fallable;onLand(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/entity/item/FallingBlockEntity;)V"),
+            locals = LocalCapture.CAPTURE_FAILHARD)
     private void anvilFallOnGround(CallbackInfo ci, Block block, BlockPos blockPos) {
         if (this.level().isClientSide()) return;
         if (!this.blockState.is(BlockTags.ANVIL)) return;
@@ -70,8 +74,8 @@ abstract class FallingBlockEntityMixin extends Entity {
         NeoForge.EVENT_BUS.post(event);
         if (event.isAnvilDamage()) {
             BlockState state = this.blockState.is(ModBlocks.ROYAL_ANVIL.get())
-                ? this.blockState
-                : AnvilBlock.damage(this.blockState);
+                    ? this.blockState
+                    : AnvilBlock.damage(this.blockState);
             if (state != null) this.level().setBlockAndUpdate(blockPos, state);
             else {
                 this.level().setBlockAndUpdate(blockPos, Blocks.AIR.defaultBlockState());
@@ -83,24 +87,22 @@ abstract class FallingBlockEntityMixin extends Entity {
 
     @SuppressWarnings("UnreachableCode")
     @Inject(
-        method = "causeFallDamage",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/level/Level;getEntities(Lnet/minecraft/world/entity/Entity;"
-                + "Lnet/minecraft/world/phys/AABB;Ljava/util/function/Predicate;)Ljava/util/List;"
-        ),
-        locals = LocalCapture.CAPTURE_FAILHARD
-    )
+            method = "causeFallDamage",
+            at =
+                    @At(
+                            value = "INVOKE",
+                            target = "Lnet/minecraft/world/level/Level;getEntities(Lnet/minecraft/world/entity/Entity;"
+                                    + "Lnet/minecraft/world/phys/AABB;Ljava/util/function/Predicate;)Ljava/util/List;"),
+            locals = LocalCapture.CAPTURE_FAILHARD)
     private void anvilHurtEntity(
-        float pFallDistance,
-        float pMultiplier,
-        DamageSource pSource,
-        CallbackInfoReturnable<Boolean> cir,
-        int i,
-        Predicate<Entity> predicate,
-        DamageSource damagesource,
-        float f
-    ) {
+            float pFallDistance,
+            float pMultiplier,
+            DamageSource pSource,
+            CallbackInfoReturnable<Boolean> cir,
+            int i,
+            Predicate<Entity> predicate,
+            DamageSource damagesource,
+            float f) {
         FallingBlockEntity anvil = (FallingBlockEntity) (Object) this;
         Level level = this.level();
         List<Entity> entities = level.getEntities(this, this.getBoundingBox(), predicate);

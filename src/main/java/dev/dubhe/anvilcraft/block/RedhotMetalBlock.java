@@ -10,6 +10,7 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+
 import org.jetbrains.annotations.NotNull;
 
 public class RedhotMetalBlock extends Block {
@@ -28,13 +29,14 @@ public class RedhotMetalBlock extends Block {
     @Override
     public void stepOn(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Entity entity) {
         if (!entity.isSteppingCarefully()
-            && entity instanceof LivingEntity living
-            && !EnchantmentHelper.hasTag(
-            living.getItemBySlot(EquipmentSlot.FEET),
-            EnchantmentTags.PREVENTS_ICE_MELTING
-        )) {
+                && entity instanceof LivingEntity living
+                && !EnchantmentHelper.hasTag(
+                        living.getItemBySlot(EquipmentSlot.FEET), EnchantmentTags.PREVENTS_ICE_MELTING)) {
             if (entity.hurt(level.damageSources().hotFloor(), steppingHarmAmount)) {
-                entity.playSound(SoundEvents.GENERIC_BURN, 0.4F, 2.0F + living.getRandom().nextFloat() * 0.4F);
+                entity.playSound(
+                        SoundEvents.GENERIC_BURN,
+                        0.4F,
+                        2.0F + living.getRandom().nextFloat() * 0.4F);
             }
         }
         super.stepOn(level, pos, state, entity);

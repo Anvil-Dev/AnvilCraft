@@ -15,6 +15,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+
 import org.jetbrains.annotations.NotNull;
 
 public class TopazItem extends Item {
@@ -44,9 +45,16 @@ public class TopazItem extends Item {
     private void breakItem(Player player, @NotNull ItemStack stack) {
         if (!stack.isEmpty()) {
             if (!player.isSilent()) {
-                player.level().playLocalSound(player.getX(), player.getY(), player.getZ(),
-                    SoundEvents.ITEM_BREAK, player.getSoundSource(),
-                    0.8f, 0.8f + player.level().random.nextFloat() * 0.4f, false);
+                player.level()
+                        .playLocalSound(
+                                player.getX(),
+                                player.getY(),
+                                player.getZ(),
+                                SoundEvents.ITEM_BREAK,
+                                player.getSoundSource(),
+                                0.8f,
+                                0.8f + player.level().random.nextFloat() * 0.4f,
+                                false);
             }
             this.spawnItemParticles(player, stack);
         }
@@ -62,8 +70,15 @@ public class TopazItem extends Item {
             vec32 = vec32.xRot(-player.getXRot() * ((float) Math.PI / 180));
             vec32 = vec32.yRot(-player.getYRot() * ((float) Math.PI / 180));
             vec32 = vec32.add(player.getX(), player.getEyeY(), player.getZ());
-            player.level().addParticle(new ItemParticleOption(ParticleTypes.ITEM, stack),
-                vec32.x, vec32.y, vec32.z, vec3.x, vec3.y + 0.05, vec3.z);
+            player.level()
+                    .addParticle(
+                            new ItemParticleOption(ParticleTypes.ITEM, stack),
+                            vec32.x,
+                            vec32.y,
+                            vec32.z,
+                            vec3.x,
+                            vec3.y + 0.05,
+                            vec3.z);
         }
     }
 }

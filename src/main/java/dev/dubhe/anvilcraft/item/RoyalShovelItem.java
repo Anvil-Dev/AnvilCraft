@@ -9,27 +9,18 @@ import net.minecraft.world.item.Tiers;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
 
 public class RoyalShovelItem extends ShovelItem implements IHasDefaultEnchantment {
     public RoyalShovelItem(Properties properties) {
-        super(Tiers.DIAMOND, properties.attributes(AxeItem.createAttributes(
-            Tiers.DIAMOND,  1.5f, -3.0f
-        )));
+        super(Tiers.DIAMOND, properties.attributes(AxeItem.createAttributes(Tiers.DIAMOND, 1.5f, -3.0f)));
     }
 
     @Override
     public void appendHoverText(
-        ItemStack pStack,
-        TooltipContext pContext,
-        List<Component> pTooltipComponents,
-        TooltipFlag pTooltipFlag
-    ) {
+            ItemStack pStack, TooltipContext pContext, List<Component> pTooltipComponents, TooltipFlag pTooltipFlag) {
         super.appendHoverText(pStack, pContext, pTooltipComponents, pTooltipFlag);
         pTooltipComponents.addAll(this.getDefaultEnchantmentsTooltip());
     }

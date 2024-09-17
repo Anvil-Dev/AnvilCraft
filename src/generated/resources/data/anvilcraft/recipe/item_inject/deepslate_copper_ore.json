@@ -1,0 +1,16 @@
+{
+  "type": "anvilcraft:item_inject",
+  "ingredients": [
+    {
+      "item": "minecraft:raw_copper_block"
+    },
+    {
+      "item": "minecraft:raw_copper_block"
+    },
+    {
+      "item": "minecraft:raw_copper_block"
+    }
+  ],
+  "input_block": "minecraft:deepslate",
+  "result_block": "minecraft:deepslate_copper_ore"
+}

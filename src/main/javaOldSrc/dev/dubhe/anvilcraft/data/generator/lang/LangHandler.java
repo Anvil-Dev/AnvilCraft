@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.data.generator.lang;
+package dev.dubhe.anvilcraft.data.lang;
 
 import com.tterrag.registrate.providers.RegistrateLangProvider;
 

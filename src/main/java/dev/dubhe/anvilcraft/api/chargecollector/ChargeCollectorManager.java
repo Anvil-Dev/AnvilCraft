@@ -2,6 +2,12 @@ package dev.dubhe.anvilcraft.api.chargecollector;
 
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+
+import lombok.Getter;
+import org.joml.Vector3f;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -10,14 +16,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import lombok.Getter;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
-import org.joml.Vector3f;
-
 public class ChargeCollectorManager {
     private static final Map<Level, ChargeCollectorManager> INSTANCES = new HashMap<>();
     private final Map<BlockPos, ChargeCollectorBlockEntity> chargeCollectors = new HashMap<>();
+
     @Getter
     private final Level level;
 
@@ -56,12 +58,17 @@ public class ChargeCollectorManager {
         List<Entry> distanceList = new ArrayList<>();
         for (Map.Entry<BlockPos, ChargeCollectorBlockEntity> entry : chargeCollectors.entrySet()) {
             double distance = Vector3f.distance(
-                    entry.getKey().getX(), entry.getKey().getY(), entry.getKey().getZ(),
-                    blockPos.getX(), blockPos.getY(), blockPos.getZ());
+                    entry.getKey().getX(),
+                    entry.getKey().getY(),
+                    entry.getKey().getZ(),
+                    blockPos.getX(),
+                    blockPos.getY(),
+                    blockPos.getZ());
             distanceList.add(new Entry(distance, entry.getValue()));
         }
         return distanceList.stream()
-                .sorted(Comparator.comparing(Entry::getDistance)).collect(Collectors.toList());
+                .sorted(Comparator.comparing(Entry::getDistance))
+                .collect(Collectors.toList());
     }
 
     /**

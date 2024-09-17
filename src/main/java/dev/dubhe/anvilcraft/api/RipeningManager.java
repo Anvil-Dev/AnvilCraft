@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.api;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.InductionLightBlock;
 import dev.dubhe.anvilcraft.block.state.LightColor;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.MinecraftServer;
@@ -14,6 +15,7 @@ import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.GrassBlock;
 import net.minecraft.world.level.block.NyliumBlock;
 import net.minecraft.world.level.block.state.BlockState;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -22,7 +24,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
 
 public class RipeningManager {
     private static final Map<Level, RipeningManager> INSTANCES = new HashMap<>();
@@ -41,7 +42,6 @@ public class RipeningManager {
         return INSTANCES.get(level);
     }
 
-
     public RipeningManager(Level level) {
         this.level = level;
     }
@@ -58,10 +58,7 @@ public class RipeningManager {
         return state.getValue(InductionLightBlock.COLOR).equals(LightColor.PINK);
     }
 
-    private void doRipen(
-            @NotNull BlockPos pos,
-            @NotNull HashSet<BlockPos> ripened
-    ) {
+    private void doRipen(@NotNull BlockPos pos, @NotNull HashSet<BlockPos> ripened) {
         int rangeSize = AnvilCraft.config.inductionLightBlockRipeningRange;
         for (int dx = -rangeSize / 2; dx <= rangeSize / 2; dx++) {
             for (int dy = -rangeSize / 2; dy <= rangeSize / 2; dy++) {
@@ -73,15 +70,16 @@ public class RipeningManager {
                             && !(growable instanceof GrassBlock)
                             && !(growable instanceof NyliumBlock)
                             && growable.isValidBonemealTarget(level, pos1, state)
-                            && level.getBrightness(LightLayer.BLOCK, pos1) >= 10
-                    ) {
+                            && level.getBrightness(LightLayer.BLOCK, pos1) >= 10) {
                         growable.performBonemeal((ServerLevel) level, level.getRandom(), pos1, state);
                         level.addParticle(
                                 ParticleTypes.HAPPY_VILLAGER,
                                 pos1.getX() + 0.5,
                                 pos1.getY() + 0.5,
                                 pos1.getZ() + 0.5,
-                                0.0, 0.0, 0.0);
+                                0.0,
+                                0.0,
+                                0.0);
                         ripened.add(pos1);
                     }
                 }
@@ -105,8 +103,7 @@ public class RipeningManager {
                     BlockState lightBlockState = level.getBlockState(pos);
                     if (lightBlockState.getBlock() instanceof InductionLightBlock
                             && isLit(lightBlockState)
-                            && canCropGrow(lightBlockState)
-                    ) {
+                            && canCropGrow(lightBlockState)) {
                         doRipen(pos, ripenedBlocks);
                     } else {
                         it.remove();
