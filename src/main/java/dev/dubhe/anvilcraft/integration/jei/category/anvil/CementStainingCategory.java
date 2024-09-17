@@ -53,7 +53,8 @@ public class CementStainingCategory implements IRecipeCategory<CementStainingRec
     public CementStainingCategory(IGuiHelper helper) {
         background = Lazy.of(() -> helper.createBlankDrawable(WIDTH, HEIGHT));
         icon = new DrawableBlockStateIcon(
-                Blocks.ANVIL.defaultBlockState(), ModBlocks.CEMENT_CAULDRON.getDefaultState());
+                Blocks.ANVIL.defaultBlockState(),
+                ModBlocks.CEMENT_CAULDRON.getDefaultState().setValue(CementCauldronBlock.COLOR, Color.PINK));
         slot = helper.getSlotDrawable();
         title = Component.translatable("gui.anvilcraft.category.cement_staining");
         anvilTimer = helper.createTickTimer(30, 60, true);
