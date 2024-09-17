@@ -6,16 +6,12 @@ import dev.dubhe.anvilcraft.util.RecipeUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.Level;
 
-import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
-import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import lombok.Getter;
 
 import java.util.List;
@@ -64,34 +60,9 @@ public abstract class AbstractItemProcessRecipe implements Recipe<ItemProcessInp
         if (cacheInput == pInput) {
             return cacheMaxCraftTime;
         }
-        Object2IntMap<Item> contents = new Object2IntOpenHashMap<>();
-        Object2BooleanMap<Item> flags = new Object2BooleanOpenHashMap<>();
-        for (ItemStack stack : pInput.items()) {
-            contents.mergeInt(stack.getItem(), stack.getCount(), Integer::sum);
-            flags.put(stack.getItem(), false);
-        }
-        int times = 0;
-        while (true) {
-            for (Ingredient ingredient : ingredients) {
-                for (Item item : contents.keySet()) {
-                    if (ingredient.test(new ItemStack(item))) {
-                        contents.put(item, contents.getInt(item) - 1);
-                        flags.put(item, true);
-                    }
-                }
-            }
-            if (flags.values().stream().anyMatch(flag -> !flag)) {
-                cacheInput = pInput;
-                cacheMaxCraftTime = 0;
-                return 0;
-            }
-            if (contents.values().intStream().allMatch(i -> i >= 0)) {
-                times += 1;
-            } else {
-                cacheInput = pInput;
-                cacheMaxCraftTime = times;
-                return times;
-            }
-        }
+        int times = RecipeUtil.getMaxCraftTime(pInput, ingredients);
+        cacheMaxCraftTime = times;
+        cacheInput = pInput;
+        return times;
     }
 }

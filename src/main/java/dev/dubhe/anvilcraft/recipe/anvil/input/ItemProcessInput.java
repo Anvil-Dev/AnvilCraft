@@ -5,7 +5,7 @@ import net.minecraft.world.item.crafting.RecipeInput;
 
 import java.util.List;
 
-public record ItemProcessInput(List<ItemStack> items) implements RecipeInput {
+public record ItemProcessInput(List<ItemStack> items) implements RecipeInput, IItemsInput {
     @Override
     public ItemStack getItem(int pIndex) {
         return items.get(pIndex);

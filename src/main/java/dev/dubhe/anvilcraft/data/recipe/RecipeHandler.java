@@ -18,5 +18,6 @@ public class RecipeHandler {
         SqueezingRecipeLoader.init(provider);
         MulitblockRecipeLoader.init(provider);
         MobTransformRecipeLoader.init(provider);
+        ConcreteRecipeLoader.init(provider);
     }
 }

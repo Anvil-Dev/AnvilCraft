@@ -130,7 +130,11 @@ public class BulgingRecipe implements Recipe<BulgingRecipe.Input> {
             return cacheMaxCraftTime;
         }
         Object2IntMap<Item> contents = new Object2IntOpenHashMap<>();
+        Object2BooleanMap<Ingredient> ingredientFlags = new Object2BooleanOpenHashMap<>();
         Object2BooleanMap<Item> flags = new Object2BooleanOpenHashMap<>();
+        for (Ingredient ingredient : ingredients) {
+            ingredientFlags.put(ingredient, false);
+        }
         for (ItemStack stack : pInput.items()) {
             contents.mergeInt(stack.getItem(), stack.getCount(), Integer::sum);
             flags.put(stack.getItem(), false);
@@ -141,11 +145,13 @@ public class BulgingRecipe implements Recipe<BulgingRecipe.Input> {
                 for (Item item : contents.keySet()) {
                     if (ingredient.test(new ItemStack(item))) {
                         contents.put(item, contents.getInt(item) - 1);
+                        ingredientFlags.put(ingredient, true);
                         flags.put(item, true);
                     }
                 }
             }
-            if (flags.values().stream().anyMatch(flag -> !flag)) {
+            if (ingredientFlags.values().stream().anyMatch(flag -> !flag)
+                    || flags.values().stream().anyMatch(flag -> !flag)) {
                 cacheInput = pInput;
                 cacheMaxCraftTime = 0;
                 return 0;

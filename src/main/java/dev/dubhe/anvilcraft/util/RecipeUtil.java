@@ -1,6 +1,9 @@
 package dev.dubhe.anvilcraft.util;
 
+import dev.dubhe.anvilcraft.recipe.anvil.input.IItemsInput;
+
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.storage.loot.providers.number.BinomialDistributionGenerator;
@@ -8,6 +11,8 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 
+import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
+import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -142,5 +147,39 @@ public class RecipeUtil {
             }
         }
         return new ArrayList<>(margeIngredients.object2IntEntrySet());
+    }
+
+    public static int getMaxCraftTime(IItemsInput input, List<Ingredient> ingredients) {
+        Object2IntMap<Item> contents = new Object2IntOpenHashMap<>();
+        Object2BooleanMap<Ingredient> ingredientFlags = new Object2BooleanOpenHashMap<>();
+        Object2BooleanMap<Item> flags = new Object2BooleanOpenHashMap<>();
+        for (Ingredient ingredient : ingredients) {
+            ingredientFlags.put(ingredient, false);
+        }
+        for (ItemStack stack : input.items()) {
+            contents.mergeInt(stack.getItem(), stack.getCount(), Integer::sum);
+            flags.put(stack.getItem(), false);
+        }
+        int times = 0;
+        while (true) {
+            for (Ingredient ingredient : ingredients) {
+                for (Item item : contents.keySet()) {
+                    if (ingredient.test(new ItemStack(item))) {
+                        contents.put(item, contents.getInt(item) - 1);
+                        ingredientFlags.put(ingredient, true);
+                        flags.put(item, true);
+                    }
+                }
+            }
+            if (ingredientFlags.values().stream().anyMatch(flag -> !flag)
+                    || flags.values().stream().anyMatch(flag -> !flag)) {
+                return 0;
+            }
+            if (contents.values().intStream().allMatch(i -> i >= 0)) {
+                times += 1;
+            } else {
+                return times;
+            }
+        }
     }
 }

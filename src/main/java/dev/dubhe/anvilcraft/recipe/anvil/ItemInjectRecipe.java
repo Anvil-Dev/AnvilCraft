@@ -88,7 +88,11 @@ public class ItemInjectRecipe implements Recipe<ItemInjectRecipe.Input> {
     @Override
     public boolean matches(Input input, Level pLevel) {
         Object2IntMap<Item> contents = new Object2IntOpenHashMap<>();
+        Object2BooleanMap<Ingredient> ingredientFlags = new Object2BooleanOpenHashMap<>();
         Object2BooleanMap<Item> flags = new Object2BooleanOpenHashMap<>();
+        for (Ingredient ingredient : ingredients) {
+            ingredientFlags.put(ingredient, false);
+        }
         for (ItemStack stack : input.items()) {
             contents.mergeInt(stack.getItem(), stack.getCount(), Integer::sum);
             flags.put(stack.getItem(), false);
@@ -97,11 +101,13 @@ public class ItemInjectRecipe implements Recipe<ItemInjectRecipe.Input> {
             for (Item item : contents.keySet()) {
                 if (ingredient.test(new ItemStack(item))) {
                     contents.put(item, contents.getInt(item) - 1);
+                    ingredientFlags.put(ingredient, true);
                     flags.put(item, true);
                 }
             }
         }
-        if (flags.values().stream().anyMatch(flag -> !flag)) {
+        if (ingredientFlags.values().stream().anyMatch(flag -> !flag)
+                || flags.values().stream().anyMatch(flag -> !flag)) {
             return false;
         }
         return contents.values().intStream().allMatch(count -> count >= 0);

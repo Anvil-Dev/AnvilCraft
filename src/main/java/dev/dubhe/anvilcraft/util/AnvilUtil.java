@@ -42,13 +42,13 @@ public class AnvilUtil {
                 }
             }
             dropItems(results, level, resultPos);
-        });
-        items.forEach((k, v) -> {
-            if (v.isEmpty()) {
-                k.discard();
-                return;
-            }
-            k.setItem(v.copy());
+            items.forEach((k, v) -> {
+                if (v.isEmpty()) {
+                    k.discard();
+                    return;
+                }
+                k.setItem(v.copy());
+            });
         });
     }
 
