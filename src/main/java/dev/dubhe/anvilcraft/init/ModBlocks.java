@@ -137,6 +137,8 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.entry.BlockEntry;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
@@ -1822,134 +1824,14 @@ public class ModBlocks {
             .build()
             .register();
 
-    public static final BlockEntry<ReinforcedConcreteBlock> REINFORCED_CONCRETE_BLACK =
-            registerReinforcedConcreteBlock(Color.BLACK);
-    public static final BlockEntry<ReinforcedConcreteBlock> REINFORCED_CONCRETE_BLUE =
-            registerReinforcedConcreteBlock(Color.BLUE);
-    public static final BlockEntry<ReinforcedConcreteBlock> REINFORCED_CONCRETE_BROWN =
-            registerReinforcedConcreteBlock(Color.BROWN);
-    public static final BlockEntry<ReinforcedConcreteBlock> REINFORCED_CONCRETE_CYAN =
-            registerReinforcedConcreteBlock(Color.CYAN);
-    public static final BlockEntry<ReinforcedConcreteBlock> REINFORCED_CONCRETE_GRAY =
-            registerReinforcedConcreteBlock(Color.GRAY);
-    public static final BlockEntry<ReinforcedConcreteBlock> REINFORCED_CONCRETE_GREEN =
-            registerReinforcedConcreteBlock(Color.GREEN);
-    public static final BlockEntry<ReinforcedConcreteBlock> REINFORCED_CONCRETE_LIGHT_BLUE =
-            registerReinforcedConcreteBlock(Color.LIGHT_BLUE);
-    public static final BlockEntry<ReinforcedConcreteBlock> REINFORCED_CONCRETE_LIGHT_GRAY =
-            registerReinforcedConcreteBlock(Color.LIGHT_GRAY);
-    public static final BlockEntry<ReinforcedConcreteBlock> REINFORCED_CONCRETE_LIME =
-            registerReinforcedConcreteBlock(Color.LIME);
-    public static final BlockEntry<ReinforcedConcreteBlock> REINFORCED_CONCRETE_MAGENTA =
-            registerReinforcedConcreteBlock(Color.MAGENTA);
-    public static final BlockEntry<ReinforcedConcreteBlock> REINFORCED_CONCRETE_ORANGE =
-            registerReinforcedConcreteBlock(Color.ORANGE);
-    public static final BlockEntry<ReinforcedConcreteBlock> REINFORCED_CONCRETE_PINK =
-            registerReinforcedConcreteBlock(Color.PINK);
-    public static final BlockEntry<ReinforcedConcreteBlock> REINFORCED_CONCRETE_PURPLE =
-            registerReinforcedConcreteBlock(Color.PURPLE);
-    public static final BlockEntry<ReinforcedConcreteBlock> REINFORCED_CONCRETE_RED =
-            registerReinforcedConcreteBlock(Color.RED);
-    public static final BlockEntry<ReinforcedConcreteBlock> REINFORCED_CONCRETE_WHITE =
-            registerReinforcedConcreteBlock(Color.WHITE);
-    public static final BlockEntry<ReinforcedConcreteBlock> REINFORCED_CONCRETE_YELLOW =
-            registerReinforcedConcreteBlock(Color.YELLOW);
-    public static final BlockEntry<SlabBlock> REINFORCED_CONCRETE_BLACK_SLAB =
-            registerReinforcedConcreteSlabBlock(Color.BLACK, REINFORCED_CONCRETE_BLACK);
-    public static final BlockEntry<SlabBlock> REINFORCED_CONCRETE_BLUE_SLAB =
-            registerReinforcedConcreteSlabBlock(Color.BLUE, REINFORCED_CONCRETE_BLUE);
-    public static final BlockEntry<SlabBlock> REINFORCED_CONCRETE_BROWN_SLAB =
-            registerReinforcedConcreteSlabBlock(Color.BROWN, REINFORCED_CONCRETE_BROWN);
-    public static final BlockEntry<SlabBlock> REINFORCED_CONCRETE_CYAN_SLAB =
-            registerReinforcedConcreteSlabBlock(Color.CYAN, REINFORCED_CONCRETE_CYAN);
-    public static final BlockEntry<SlabBlock> REINFORCED_CONCRETE_GRAY_SLAB =
-            registerReinforcedConcreteSlabBlock(Color.GRAY, REINFORCED_CONCRETE_GRAY);
-    public static final BlockEntry<SlabBlock> REINFORCED_CONCRETE_GREEN_SLAB =
-            registerReinforcedConcreteSlabBlock(Color.GREEN, REINFORCED_CONCRETE_GREEN);
-    public static final BlockEntry<SlabBlock> REINFORCED_CONCRETE_LIGHT_BLUE_SLAB =
-            registerReinforcedConcreteSlabBlock(Color.LIGHT_BLUE, REINFORCED_CONCRETE_LIGHT_BLUE);
-    public static final BlockEntry<SlabBlock> REINFORCED_CONCRETE_LIGHT_GRAY_SLAB =
-            registerReinforcedConcreteSlabBlock(Color.LIGHT_GRAY, REINFORCED_CONCRETE_LIGHT_GRAY);
-    public static final BlockEntry<SlabBlock> REINFORCED_CONCRETE_LIME_SLAB =
-            registerReinforcedConcreteSlabBlock(Color.LIME, REINFORCED_CONCRETE_LIME);
-    public static final BlockEntry<SlabBlock> REINFORCED_CONCRETE_MAGENTA_SLAB =
-            registerReinforcedConcreteSlabBlock(Color.MAGENTA, REINFORCED_CONCRETE_MAGENTA);
-    public static final BlockEntry<SlabBlock> REINFORCED_CONCRETE_ORANGE_SLAB =
-            registerReinforcedConcreteSlabBlock(Color.ORANGE, REINFORCED_CONCRETE_ORANGE);
-    public static final BlockEntry<SlabBlock> REINFORCED_CONCRETE_PINK_SLAB =
-            registerReinforcedConcreteSlabBlock(Color.PINK, REINFORCED_CONCRETE_PINK);
-    public static final BlockEntry<SlabBlock> REINFORCED_CONCRETE_PURPLE_SLAB =
-            registerReinforcedConcreteSlabBlock(Color.PURPLE, REINFORCED_CONCRETE_PURPLE);
-    public static final BlockEntry<SlabBlock> REINFORCED_CONCRETE_RED_SLAB =
-            registerReinforcedConcreteSlabBlock(Color.RED, REINFORCED_CONCRETE_RED);
-    public static final BlockEntry<SlabBlock> REINFORCED_CONCRETE_WHITE_SLAB =
-            registerReinforcedConcreteSlabBlock(Color.WHITE, REINFORCED_CONCRETE_WHITE);
-    public static final BlockEntry<SlabBlock> REINFORCED_CONCRETE_YELLOW_SLAB =
-            registerReinforcedConcreteSlabBlock(Color.YELLOW, REINFORCED_CONCRETE_YELLOW);
-    public static final BlockEntry<StairBlock> REINFORCED_CONCRETE_BLACK_STAIR =
-            registerReinforcedConcreteStairBlock(Color.BLACK, REINFORCED_CONCRETE_BLACK);
-    public static final BlockEntry<StairBlock> REINFORCED_CONCRETE_BLUE_STAIR =
-            registerReinforcedConcreteStairBlock(Color.BLUE, REINFORCED_CONCRETE_BLUE);
-    public static final BlockEntry<StairBlock> REINFORCED_CONCRETE_BROWN_STAIR =
-            registerReinforcedConcreteStairBlock(Color.BROWN, REINFORCED_CONCRETE_BROWN);
-    public static final BlockEntry<StairBlock> REINFORCED_CONCRETE_CYAN_STAIR =
-            registerReinforcedConcreteStairBlock(Color.CYAN, REINFORCED_CONCRETE_CYAN);
-    public static final BlockEntry<StairBlock> REINFORCED_CONCRETE_GRAY_STAIR =
-            registerReinforcedConcreteStairBlock(Color.GRAY, REINFORCED_CONCRETE_GRAY);
-    public static final BlockEntry<StairBlock> REINFORCED_CONCRETE_GREEN_STAIR =
-            registerReinforcedConcreteStairBlock(Color.GREEN, REINFORCED_CONCRETE_GREEN);
-    public static final BlockEntry<StairBlock> REINFORCED_CONCRETE_LIGHT_BLUE_STAIR =
-            registerReinforcedConcreteStairBlock(Color.LIGHT_BLUE, REINFORCED_CONCRETE_LIGHT_BLUE);
-    public static final BlockEntry<StairBlock> REINFORCED_CONCRETE_LIGHT_GRAY_STAIR =
-            registerReinforcedConcreteStairBlock(Color.LIGHT_GRAY, REINFORCED_CONCRETE_LIGHT_GRAY);
-    public static final BlockEntry<StairBlock> REINFORCED_CONCRETE_LIME_STAIR =
-            registerReinforcedConcreteStairBlock(Color.LIME, REINFORCED_CONCRETE_LIME);
-    public static final BlockEntry<StairBlock> REINFORCED_CONCRETE_MAGENTA_STAIR =
-            registerReinforcedConcreteStairBlock(Color.MAGENTA, REINFORCED_CONCRETE_MAGENTA);
-    public static final BlockEntry<StairBlock> REINFORCED_CONCRETE_ORANGE_STAIR =
-            registerReinforcedConcreteStairBlock(Color.ORANGE, REINFORCED_CONCRETE_ORANGE);
-    public static final BlockEntry<StairBlock> REINFORCED_CONCRETE_PINK_STAIR =
-            registerReinforcedConcreteStairBlock(Color.PINK, REINFORCED_CONCRETE_PINK);
-    public static final BlockEntry<StairBlock> REINFORCED_CONCRETE_PURPLE_STAIR =
-            registerReinforcedConcreteStairBlock(Color.PURPLE, REINFORCED_CONCRETE_PURPLE);
-    public static final BlockEntry<StairBlock> REINFORCED_CONCRETE_RED_STAIR =
-            registerReinforcedConcreteStairBlock(Color.RED, REINFORCED_CONCRETE_RED);
-    public static final BlockEntry<StairBlock> REINFORCED_CONCRETE_WHITE_STAIR =
-            registerReinforcedConcreteStairBlock(Color.WHITE, REINFORCED_CONCRETE_WHITE);
-    public static final BlockEntry<StairBlock> REINFORCED_CONCRETE_YELLOW_STAIR =
-            registerReinforcedConcreteStairBlock(Color.YELLOW, REINFORCED_CONCRETE_YELLOW);
-    public static final BlockEntry<WallBlock> REINFORCED_CONCRETE_BLACK_WALL =
-            registerReinforcedConcreteWallBlock(Color.BLACK, REINFORCED_CONCRETE_BLACK);
-    public static final BlockEntry<WallBlock> REINFORCED_CONCRETE_BLUE_WALL =
-            registerReinforcedConcreteWallBlock(Color.BLUE, REINFORCED_CONCRETE_BLUE);
-    public static final BlockEntry<WallBlock> REINFORCED_CONCRETE_BROWN_WALL =
-            registerReinforcedConcreteWallBlock(Color.BROWN, REINFORCED_CONCRETE_BROWN);
-    public static final BlockEntry<WallBlock> REINFORCED_CONCRETE_CYAN_WALL =
-            registerReinforcedConcreteWallBlock(Color.CYAN, REINFORCED_CONCRETE_CYAN);
-    public static final BlockEntry<WallBlock> REINFORCED_CONCRETE_GRAY_WALL =
-            registerReinforcedConcreteWallBlock(Color.GRAY, REINFORCED_CONCRETE_GRAY);
-    public static final BlockEntry<WallBlock> REINFORCED_CONCRETE_GREEN_WALL =
-            registerReinforcedConcreteWallBlock(Color.GREEN, REINFORCED_CONCRETE_GREEN);
-    public static final BlockEntry<WallBlock> REINFORCED_CONCRETE_LIGHT_BLUE_WALL =
-            registerReinforcedConcreteWallBlock(Color.LIGHT_BLUE, REINFORCED_CONCRETE_LIGHT_BLUE);
-    public static final BlockEntry<WallBlock> REINFORCED_CONCRETE_LIGHT_GRAY_WALL =
-            registerReinforcedConcreteWallBlock(Color.LIGHT_GRAY, REINFORCED_CONCRETE_LIGHT_GRAY);
-    public static final BlockEntry<WallBlock> REINFORCED_CONCRETE_LIME_WALL =
-            registerReinforcedConcreteWallBlock(Color.LIME, REINFORCED_CONCRETE_LIME);
-    public static final BlockEntry<WallBlock> REINFORCED_CONCRETE_MAGENTA_WALL =
-            registerReinforcedConcreteWallBlock(Color.MAGENTA, REINFORCED_CONCRETE_MAGENTA);
-    public static final BlockEntry<WallBlock> REINFORCED_CONCRETE_ORANGE_WALL =
-            registerReinforcedConcreteWallBlock(Color.ORANGE, REINFORCED_CONCRETE_ORANGE);
-    public static final BlockEntry<WallBlock> REINFORCED_CONCRETE_PINK_WALL =
-            registerReinforcedConcreteWallBlock(Color.PINK, REINFORCED_CONCRETE_PINK);
-    public static final BlockEntry<WallBlock> REINFORCED_CONCRETE_PURPLE_WALL =
-            registerReinforcedConcreteWallBlock(Color.PURPLE, REINFORCED_CONCRETE_PURPLE);
-    public static final BlockEntry<WallBlock> REINFORCED_CONCRETE_RED_WALL =
-            registerReinforcedConcreteWallBlock(Color.RED, REINFORCED_CONCRETE_RED);
-    public static final BlockEntry<WallBlock> REINFORCED_CONCRETE_WHITE_WALL =
-            registerReinforcedConcreteWallBlock(Color.WHITE, REINFORCED_CONCRETE_WHITE);
-    public static final BlockEntry<WallBlock> REINFORCED_CONCRETE_YELLOW_WALL =
-            registerReinforcedConcreteWallBlock(Color.YELLOW, REINFORCED_CONCRETE_YELLOW);
+    public static final Object2ObjectMap<Color, BlockEntry<ReinforcedConcreteBlock>> REINFORCED_CONCRETES =
+            registerReinforcedConcretes();
+    public static final Object2ObjectMap<Color, BlockEntry<SlabBlock>> REINFORCED_CONCRETE_SLABS =
+            registerReinforcedConcreteSlabs();
+    public static final Object2ObjectMap<Color, BlockEntry<StairBlock>> REINFORCED_CONCRETE_STAIRS =
+            registerReinforcedConcreteStairs();
+    public static final Object2ObjectMap<Color, BlockEntry<WallBlock>> REINFORCED_CONCRETE_WALLS =
+            registerReinforcedConcreteWalls();
 
     public static final BlockEntry<Block> HEATED_NETHERITE = REGISTRATE
             .block("heated_netherite_block", Block::new)
@@ -2430,6 +2312,15 @@ public class ModBlocks {
             .tag(BlockTags.MINEABLE_WITH_PICKAXE)
             .register();
 
+    private static Object2ObjectMap<Color, BlockEntry<ReinforcedConcreteBlock>> registerReinforcedConcretes() {
+        Object2ObjectMap<Color, BlockEntry<ReinforcedConcreteBlock>> map = new Object2ObjectOpenHashMap<>();
+        for (Color color : Color.values()) {
+            var entry = registerReinforcedConcreteBlock(color);
+            map.put(color, entry);
+        }
+        return map;
+    }
+
     private static @NotNull BlockEntry<ReinforcedConcreteBlock> registerReinforcedConcreteBlock(@NotNull Color color) {
         return REGISTRATE
                 .block("reinforced_concrete_" + color, ReinforcedConcreteBlock::new)
@@ -2470,6 +2361,15 @@ public class ModBlocks {
                 .register();
     }
 
+    private static Object2ObjectMap<Color, BlockEntry<SlabBlock>> registerReinforcedConcreteSlabs() {
+        Object2ObjectMap<Color, BlockEntry<SlabBlock>> map = new Object2ObjectOpenHashMap<>();
+        for (Color color : Color.values()) {
+            var entry = registerReinforcedConcreteSlabBlock(color, REINFORCED_CONCRETES.get(color));
+            map.put(color, entry);
+        }
+        return map;
+    }
+
     private static @NotNull BlockEntry<SlabBlock> registerReinforcedConcreteSlabBlock(
             @NotNull Color color, BlockEntry<ReinforcedConcreteBlock> parent) {
         return REGISTRATE
@@ -2497,6 +2397,15 @@ public class ModBlocks {
                 .register();
     }
 
+    private static Object2ObjectMap<Color, BlockEntry<StairBlock>> registerReinforcedConcreteStairs() {
+        Object2ObjectMap<Color, BlockEntry<StairBlock>> map = new Object2ObjectOpenHashMap<>();
+        for (Color color : Color.values()) {
+            var entry = registerReinforcedConcreteStairBlock(color, REINFORCED_CONCRETES.get(color));
+            map.put(color, entry);
+        }
+        return map;
+    }
+
     private static @NotNull BlockEntry<StairBlock> registerReinforcedConcreteStairBlock(
             @NotNull Color color, BlockEntry<ReinforcedConcreteBlock> parent) {
         return REGISTRATE
@@ -2522,6 +2431,43 @@ public class ModBlocks {
                     RegistrateRecipeProvider.stonecutterResultFromBase(
                             provider, RecipeCategory.BUILDING_BLOCKS, ctx.get(), parent);
                 })
+                .register();
+    }
+
+    private static Object2ObjectMap<Color, BlockEntry<WallBlock>> registerReinforcedConcreteWalls() {
+        Object2ObjectMap<Color, BlockEntry<WallBlock>> map = new Object2ObjectOpenHashMap<>();
+        for (Color color : Color.values()) {
+            var entry = registerReinforcedConcreteWallBlock(color, REINFORCED_CONCRETES.get(color));
+            map.put(color, entry);
+        }
+        return map;
+    }
+
+    private static @NotNull BlockEntry<WallBlock> registerReinforcedConcreteWallBlock(
+            @NotNull Color color, BlockEntry<ReinforcedConcreteBlock> parent) {
+        return REGISTRATE
+                .block("reinforced_concrete_" + color + "_wall", WallBlock::new)
+                .initialProperties(() -> Blocks.TERRACOTTA)
+                .properties(properties -> properties.explosionResistance(15.0f))
+                .blockstate((ctx, provider) ->
+                        provider.wallBlock(ctx.get(), AnvilCraft.of("block/reinforced_concrete_" + color + "_wall")))
+                .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.WALLS)
+                .recipe((ctx, provider) -> {
+                    ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 4)
+                            .pattern("AAA")
+                            .pattern("AAA")
+                            .define('A', parent)
+                            .unlockedBy(AnvilCraftDatagen.hasItem(parent.asItem()), AnvilCraftDatagen.has(parent))
+                            .save(provider, AnvilCraft.of("craft/reinforced_concrete_" + color + "_wall"));
+                    RegistrateRecipeProvider.stonecutterResultFromBase(
+                            provider, RecipeCategory.BUILDING_BLOCKS, ctx.get(), parent);
+                })
+                .item()
+                .model((ctx, provide) -> provide.wallInventory(
+                        "reinforced_concrete_" + color + "_wall",
+                        AnvilCraft.of("block/reinforced_concrete_" + color + "_wall")))
+                .tag(ModItemTags.REINFORCED_CONCRETE)
+                .build()
                 .register();
     }
 
@@ -2627,34 +2573,6 @@ public class ModBlocks {
                                                         .replace('/', '_')));
                     }
                 })
-                .register();
-    }
-
-    private static @NotNull BlockEntry<WallBlock> registerReinforcedConcreteWallBlock(
-            @NotNull Color color, BlockEntry<ReinforcedConcreteBlock> parent) {
-        return REGISTRATE
-                .block("reinforced_concrete_" + color + "_wall", WallBlock::new)
-                .initialProperties(() -> Blocks.TERRACOTTA)
-                .properties(properties -> properties.explosionResistance(15.0f))
-                .blockstate((ctx, provider) ->
-                        provider.wallBlock(ctx.get(), AnvilCraft.of("block/reinforced_concrete_" + color + "_wall")))
-                .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.WALLS)
-                .recipe((ctx, provider) -> {
-                    ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 4)
-                            .pattern("AAA")
-                            .pattern("AAA")
-                            .define('A', parent)
-                            .unlockedBy(AnvilCraftDatagen.hasItem(parent.asItem()), AnvilCraftDatagen.has(parent))
-                            .save(provider, AnvilCraft.of("craft/reinforced_concrete_" + color + "_wall"));
-                    RegistrateRecipeProvider.stonecutterResultFromBase(
-                            provider, RecipeCategory.BUILDING_BLOCKS, ctx.get(), parent);
-                })
-                .item()
-                .model((ctx, provide) -> provide.wallInventory(
-                        "reinforced_concrete_" + color + "_wall",
-                        AnvilCraft.of("block/reinforced_concrete_" + color + "_wall")))
-                .tag(ModItemTags.REINFORCED_CONCRETE)
-                .build()
                 .register();
     }
 

@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.state.Color;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.CreativeModeTab;
@@ -49,7 +50,7 @@ public class ModItemGroups {
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> ANVILCRAFT_BUILD_BLOCK =
             DF.register("building_block", () -> CreativeModeTab.builder()
-                    .icon(ModBlocks.REINFORCED_CONCRETE_BLACK::asStack)
+                    .icon(ModBlocks.REINFORCED_CONCRETES.get(Color.BLACK)::asStack)
                     .displayItems((ctx, entries) -> {})
                     .title(REGISTRATE.addLang(
                             "itemGroup", AnvilCraft.of("building_block"), "AnvilCraft: Building Block"))
