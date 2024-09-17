@@ -148,6 +148,7 @@ public class SuperHeatingCategory implements IRecipeCategory<SuperHeatingRecipe>
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.EMBER_ANVIL), AnvilCraftJeiPlugin.SUPER_HEATING);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.GIANT_ANVIL), AnvilCraftJeiPlugin.SUPER_HEATING);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.SPECTRAL_ANVIL), AnvilCraftJeiPlugin.SUPER_HEATING);
+        registration.addRecipeCatalyst(new ItemStack(Items.CAULDRON), AnvilCraftJeiPlugin.SUPER_HEATING);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.HEATER), AnvilCraftJeiPlugin.SUPER_HEATING);
     }
 }

@@ -155,5 +155,6 @@ public class CementStainingCategory implements IRecipeCategory<CementStainingRec
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.EMBER_ANVIL), AnvilCraftJeiPlugin.CEMENT_STAINING);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.GIANT_ANVIL), AnvilCraftJeiPlugin.CEMENT_STAINING);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.SPECTRAL_ANVIL), AnvilCraftJeiPlugin.CEMENT_STAINING);
+        registration.addRecipeCatalyst(new ItemStack(Items.CAULDRON), AnvilCraftJeiPlugin.CEMENT_STAINING);
     }
 }

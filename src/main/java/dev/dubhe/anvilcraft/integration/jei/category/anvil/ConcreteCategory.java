@@ -147,5 +147,6 @@ public class ConcreteCategory implements IRecipeCategory<ColoredConcreteRecipe> 
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.EMBER_ANVIL), AnvilCraftJeiPlugin.COLORED_CONCRETE);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.GIANT_ANVIL), AnvilCraftJeiPlugin.COLORED_CONCRETE);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.SPECTRAL_ANVIL), AnvilCraftJeiPlugin.COLORED_CONCRETE);
+        registration.addRecipeCatalyst(new ItemStack(Items.CAULDRON), AnvilCraftJeiPlugin.COLORED_CONCRETE);
     }
 }
