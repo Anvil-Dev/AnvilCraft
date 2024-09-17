@@ -10,10 +10,10 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-
-import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.common.Tags;
+
+import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 
 public class TimeWarpRecipeLoader {
     public static void init(RegistrateRecipeProvider provider) {
@@ -71,7 +71,6 @@ public class TimeWarpRecipeLoader {
         timeWarpToOilCauldron(provider, Items.PORKCHOP, 16);
         timeWarpToOilCauldron(provider, Items.MUTTON, 16);
         timeWarpToOilCauldron(provider, Items.RABBIT, 16);
-
     }
 
     private static void timeWarp(
@@ -87,7 +86,10 @@ public class TimeWarpRecipeLoader {
                 .requires(input, inputCount)
                 .produceFluid(true)
                 .cauldron(ModBlocks.OIL_CAULDRON.get())
-                .save(provider, AnvilCraft.of("time_warp/oil_from_" + BuiltInRegistries.ITEM.getKey(input.asItem()).getPath()));
+                .save(
+                        provider,
+                        AnvilCraft.of("time_warp/oil_from_"
+                                + BuiltInRegistries.ITEM.getKey(input.asItem()).getPath()));
     }
 
     private static void timeWarpToOilCauldron(RegistrateRecipeProvider provider, TagKey<Item> input, int inputCount) {
@@ -95,6 +97,8 @@ public class TimeWarpRecipeLoader {
                 .requires(input, inputCount)
                 .produceFluid(true)
                 .cauldron(ModBlocks.OIL_CAULDRON.get())
-                .save(provider, AnvilCraft.of("time_warp/oil_from_" + input.location().getPath()));
+                .save(
+                        provider,
+                        AnvilCraft.of("time_warp/oil_from_" + input.location().getPath()));
     }
 }
