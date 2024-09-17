@@ -60,6 +60,13 @@ public class ModItems {
     static {
         REGISTRATE.defaultCreativeTab(ModItemGroups.ANVILCRAFT_TOOL.getKey());
     }
+
+    public static final ItemEntry<GuideBookItem> GUIDE_BOOK = REGISTRATE
+            .item("guide_book", GuideBookItem::new)
+            .properties(p -> p.stacksTo(1))
+            .model((ctx, provider) -> {})
+            .lang("AnvilCraft Guide Book")
+            .register();
     // 工具
     public static final ItemEntry<MagnetItem> MAGNET = REGISTRATE
             .item("magnet", properties -> new MagnetItem(properties.durability(255)))
@@ -912,13 +919,6 @@ public class ModItems {
                             AnvilCraftDatagen.hasItem(ModItems.EMBER_METAL_INGOT),
                             AnvilCraftDatagen.has(ModItems.EMBER_METAL_INGOT))
                     .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_from_ingot"))
-            .register();
-
-    public static final ItemEntry<GuideBookItem> GUIDE_BOOK = REGISTRATE
-            .item("guide_book", GuideBookItem::new)
-            .properties(p -> p.stacksTo(1))
-            .model((ctx, provider) -> {})
-            .lang("AnvilCraft Guide Book")
             .register();
 
     public static void register() {}
