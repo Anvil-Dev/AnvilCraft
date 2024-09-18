@@ -24,7 +24,7 @@ dependencyResolutionManagement {
 
         // Mod Dependencies Versions
         def neoForgeVersion = "21.1.47"
-        def registrateVersion = "MC1.21-1.3.0+53"
+        def registrateVersion = "MC1.21-1.3.0+55"
         def clothConfigVersion = "15.0.130"
 
         def jeiVersion = "19.17.0.193"
@@ -34,6 +34,7 @@ dependencyResolutionManagement {
         def jadeVersion = "15.3.4+neoforge"
         def topVersion = "1.21_neo-12.0.3-5"
         def kjsVersion = "2101.7.0-build.126"
+        def patchouliVersion = "1.21-87"
 
         def parchmentVersion = "2024.07.28" // https://parchmentmc.org/docs/getting-started
 
@@ -73,6 +74,9 @@ dependencyResolutionManagement {
 
             def kubejs = version("kubejs", kjsVersion)
             library("kubejs", "dev.latvian.mods", "kubejs-neoforge").versionRef(kubejs)
+
+            def patchouli = version("patchouli", "${patchouliVersion}-NEOFORGE")
+            library("patchouli", "vazkii.patchouli", "Patchouli").versionRef(patchouli)
         }
 
         libs {
