@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.state.properties.SlabType;
 
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 
-public class MulitblockRecipeLoader {
+public class MultiBlockRecipeLoader {
     public static void init(RegistrateRecipeProvider provider) {
         MulitblockRecipe.builder(ModBlocks.GIANT_ANVIL)
                 .layer("ACA", "BAB", "ACA")

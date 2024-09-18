@@ -171,53 +171,73 @@ public class FilteredItemDepository extends ItemDepository {
         return this.filteredItems.get(slot);
     }
 
+    public boolean isEnabled(int slot) {
+        return this.disabled.get(slot);
+    }
+
     @Override
     public @NotNull CompoundTag serializeNbt(HolderLookup.Provider provider) {
+        System.out.println("----------------save");
         CompoundTag compoundTag = new CompoundTag();
-        compoundTag.putBoolean("filterEnabled", this.filterEnabled);
-        ListTag listTag = new ListTag();
+        compoundTag.putBoolean("FilterEnabled", this.filterEnabled);
+        ListTag inventory = new ListTag();
         int slots = this.getSlots();
         compoundTag.putInt("Size", slots);
         for (int slot = 0; slot < slots; slot++) {
+            CompoundTag inventoryEntry = new CompoundTag();
+            inventoryEntry.putInt("Slot", slot);
+            System.out.println("slot = " + slot);
             ItemStack stack = this.getStack(slot);
-            CompoundTag itemTag = new CompoundTag();
-            itemTag.putInt("Slot", slot);
+            System.out.println("stack = " + stack);
+            inventoryEntry.putBoolean("IsEmptySlot", stack.isEmpty());
             if (!stack.isEmpty()) {
-                stack.save(provider, itemTag);
+                Tag itemTag = stack.save(provider);
+                inventoryEntry.put("SlotItem", itemTag);
             }
-            ItemStack filter = this.filteredItems.get(slot);
-            if (!filter.isEmpty()) {
-                CompoundTag filtered = new CompoundTag();
-                filter.save(provider, filtered);
-                itemTag.put("filtered", filtered);
+
+            ItemStack filtering = this.getFilter(slot);
+
+            System.out.println("filtering = " + filtering);
+            inventoryEntry.putBoolean("SlotFilterEnabled", !filtering.isEmpty());
+            if (!filtering.isEmpty()) {
+                Tag filterItemTag = filtering.save(provider);
+                inventoryEntry.put("SlotFilterItem", filterItemTag);
             }
-            itemTag.putBoolean("disabled", this.disabled.get(slot));
-            listTag.add(itemTag);
+
+            inventoryEntry.putBoolean("Disabled", this.disabled.get(slot));
+
+            inventory.add(inventoryEntry);
         }
-        if (!listTag.isEmpty()) compoundTag.put("Items", listTag);
+        compoundTag.put("Inventory", inventory);
+        System.out.println("compoundTag = " + compoundTag);
         return compoundTag;
     }
 
     @Override
     public void deserializeNbt(HolderLookup.Provider provider, @NotNull CompoundTag tag) {
-        if (!tag.contains("Items")) return;
-        this.filterEnabled = tag.getBoolean("filterEnabled");
-        ListTag listTag = tag.getList("Items", Tag.TAG_COMPOUND);
-        int slots = this.getSlots();
-        for (int i = 0; i < listTag.size(); i++) {
-            CompoundTag itemTag = listTag.getCompound(i);
-            int slot = itemTag.getInt("Slot");
-            if (slot < 0 || slot >= slots) continue;
-            if (itemTag.contains("id")) {
-                this.setStack(slot, ItemStack.parseOptional(provider, itemTag));
+        System.out.println("----------------read");
+        System.out.println("tag = " + tag);
+        if (!tag.contains("Inventory")) return;
+        this.filterEnabled = tag.getBoolean("FilterEnabled");
+        ListTag inventory = (ListTag) tag.get("Inventory");
+        int size = tag.getInt("Size");
+        for (Tag entry : inventory) {
+            CompoundTag inventoryEntry = (CompoundTag) entry;
+            int slot = inventoryEntry.getInt("Slot");
+            System.out.println("slot = " + slot);
+            boolean isEmptySlot = inventoryEntry.getBoolean("IsEmptySlot");
+            if (!isEmptySlot) {
+                CompoundTag itemTag = inventoryEntry.getCompound("SlotItem");
+                System.out.println("itemTag = " + itemTag);
+                this.stacks.set(slot, ItemStack.parseOptional(provider, itemTag));
             }
-            if (itemTag.contains("filtered")) {
-                CompoundTag filtered = itemTag.getCompound("filtered");
-                if (filtered.contains("id")) {
-                    ItemStack.parse(provider, filtered).ifPresent(stack -> this.filteredItems.set(slot, stack));
-                }
+            boolean slotFilterEnabled = inventoryEntry.getBoolean("SlotFilterEnabled");
+            if (slotFilterEnabled) {
+                CompoundTag filterItemTag = inventoryEntry.getCompound("SlotFilterItem");
+                System.out.println("filterItemTag = " + filterItemTag);
+                this.filteredItems.set(slot, ItemStack.parseOptional(provider, filterItemTag));
             }
-            this.disabled.set(slot, itemTag.getBoolean("disabled"));
+            this.disabled.set(slot, inventoryEntry.getBoolean("Disabled"));
         }
     }
 

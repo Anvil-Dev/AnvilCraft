@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 @Getter
 public class ItemDepository implements IItemDepository, INamedTagSerializable {
-    private final NonNullList<ItemStack> stacks;
+    protected final NonNullList<ItemStack> stacks;
     private final int size;
 
     public ItemDepository(int size) {

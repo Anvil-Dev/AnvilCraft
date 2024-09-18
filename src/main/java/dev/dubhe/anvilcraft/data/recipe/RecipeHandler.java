@@ -16,7 +16,7 @@ public class RecipeHandler {
         BulgingRecipeLoader.init(provider);
         ItemInjectRecipeLoader.init(provider);
         SqueezingRecipeLoader.init(provider);
-        MulitblockRecipeLoader.init(provider);
+        MultiBlockRecipeLoader.init(provider);
         MobTransformRecipeLoader.init(provider);
         ConcreteRecipeLoader.init(provider);
     }
