@@ -16,8 +16,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
-
 import net.neoforged.neoforge.common.NeoForge;
+
 import org.jetbrains.annotations.NotNull;
 
 public class MagnetItem extends Item implements IChargerChargeable {
