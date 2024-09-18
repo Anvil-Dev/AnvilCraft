@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
-import dev.dubhe.anvilcraft.util.Utils;
+import dev.dubhe.anvilcraft.util.Util;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
@@ -56,7 +56,7 @@ public class AbstractCakeBlock extends Block {
         if (!(itemStack.getItem() instanceof ShovelItem))
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         if (pLevel.isClientSide) {
-            if (eat(pLevel, pPos, pPlayer, getFoodLevel(), getSaturationLevel(), Utils.interactionResultConverter())
+            if (eat(pLevel, pPos, pPlayer, getFoodLevel(), getSaturationLevel(), Util.interactionResultConverter())
                     .consumesAction()) {
                 return ItemInteractionResult.SUCCESS;
             }
@@ -67,7 +67,7 @@ public class AbstractCakeBlock extends Block {
         } else {
             itemStack.hurtAndBreak(1, (ServerLevel) pLevel, pPlayer, p -> {});
         }
-        return eat(pLevel, pPos, pPlayer, getFoodLevel(), getSaturationLevel(), Utils.interactionResultConverter());
+        return eat(pLevel, pPos, pPlayer, getFoodLevel(), getSaturationLevel(), Util.interactionResultConverter());
     }
 
     private static <T> T eat(

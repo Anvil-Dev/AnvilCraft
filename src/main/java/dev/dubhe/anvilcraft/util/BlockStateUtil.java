@@ -28,14 +28,14 @@ import static net.minecraft.world.level.block.state.StateHolder.PROPERTY_ENTRY_T
 /**
  * 方块状态注入
  */
-public interface IBlockStateUtil {
+public class BlockStateUtil {
     /**
      * 从 Json 读取
      *
      * @param stateJson json
      * @return 方块状态
      */
-    static @NotNull BlockState fromJson(@NotNull JsonElement stateJson) {
+    public static @NotNull BlockState fromJson(@NotNull JsonElement stateJson) {
         if (!stateJson.isJsonObject()) throw new JsonSyntaxException("Expected item to be object");
         JsonObject object = stateJson.getAsJsonObject();
         if (!object.has("block")) throw new JsonSyntaxException("The field block is missing");
@@ -61,7 +61,7 @@ public interface IBlockStateUtil {
      * @param state 方块状态
      * @return 序列化JSON
      */
-    static @NotNull JsonElement toJson(@NotNull BlockState state) {
+    public static @NotNull JsonElement toJson(@NotNull BlockState state) {
         JsonObject object = new JsonObject();
         object.addProperty(
                 "block", BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString());
@@ -76,7 +76,7 @@ public interface IBlockStateUtil {
         return object;
     }
 
-    class BlockHolderLookup implements HolderLookup<Block>, HolderOwner<Block> {
+    public static class BlockHolderLookup implements HolderLookup<Block>, HolderOwner<Block> {
         @Override
         public @NotNull Stream<Holder.Reference<Block>> listElements() {
             return BuiltInRegistries.BLOCK.stream()

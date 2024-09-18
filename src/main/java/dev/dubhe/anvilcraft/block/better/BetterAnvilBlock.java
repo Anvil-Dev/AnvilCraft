@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.block.better;
 
-import dev.dubhe.anvilcraft.util.Utils;
+import dev.dubhe.anvilcraft.util.Util;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
@@ -27,7 +27,7 @@ public abstract class BetterAnvilBlock extends AnvilBlock {
             Player pPlayer,
             InteractionHand pHand,
             BlockHitResult pHitResult) {
-        return Utils.interactionResultConverter().apply(this.use(pState, pLevel, pPos, pPlayer, pHand, pHitResult));
+        return Util.interactionResultConverter().apply(this.use(pState, pLevel, pPos, pPlayer, pHand, pHitResult));
     }
 
     @Override

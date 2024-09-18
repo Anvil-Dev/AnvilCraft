@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.recipe.transform;
 
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.util.CodecUtil;
-import dev.dubhe.anvilcraft.util.Utils;
+import dev.dubhe.anvilcraft.util.Util;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
@@ -50,15 +50,15 @@ public class MobTransformRecipe implements Recipe<MobTransformInput> {
                     NumericTagValuePredicate.CODEC
                             .listOf()
                             .optionalFieldOf("tagPredicates")
-                            .forGetter(o -> Utils.intoOptional(o.predicates)),
+                            .forGetter(o -> Util.intoOptional(o.predicates)),
                     TagModification.CODEC
                             .listOf()
                             .optionalFieldOf("tagModifications")
-                            .forGetter(o -> Utils.intoOptional(o.tagModifications)),
+                            .forGetter(o -> Util.intoOptional(o.tagModifications)),
                     TransformOptions.CODEC
                             .listOf()
                             .optionalFieldOf("transformOptions")
-                            .forGetter(o -> Utils.intoOptional(o.options)))
+                            .forGetter(o -> Util.intoOptional(o.options)))
             .apply(ins, MobTransformRecipe::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, MobTransformRecipe> STREAM_CODEC = StreamCodec.of(
@@ -208,15 +208,15 @@ public class MobTransformRecipe implements Recipe<MobTransformInput> {
                                 NumericTagValuePredicate.CODEC
                                         .listOf()
                                         .optionalFieldOf("tagPredicates")
-                                        .forGetter(o -> Utils.intoOptional(o.predicates)),
+                                        .forGetter(o -> Util.intoOptional(o.predicates)),
                                 TagModification.CODEC
                                         .listOf()
                                         .optionalFieldOf("tagModifications")
-                                        .forGetter(o -> Utils.intoOptional(o.tagModifications)),
+                                        .forGetter(o -> Util.intoOptional(o.tagModifications)),
                                 TransformOptions.CODEC
                                         .listOf()
                                         .optionalFieldOf("transformOptions")
-                                        .forGetter(o -> Utils.intoOptional(o.options)))
+                                        .forGetter(o -> Util.intoOptional(o.options)))
                         .apply(ins, MobTransformRecipe::new));
 
         @Override

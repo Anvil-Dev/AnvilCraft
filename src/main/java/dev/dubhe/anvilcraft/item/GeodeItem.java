@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.item;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.util.IBlockHighlightUtil;
+import dev.dubhe.anvilcraft.util.BlockHighlightUtil;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -60,7 +60,7 @@ public class GeodeItem extends Item {
                                             HoverEvent.Action.SHOW_TEXT,
                                             Component.translatable("chat.coordinates.tooltip"))));
                     player.sendSystemMessage(Component.translatable("item.anvilcraft.geode.find", component));
-                    IBlockHighlightUtil.highlightBlock(level, offsetPos);
+                    BlockHighlightUtil.highlightBlock(level, offsetPos);
                     break block;
                 }
             }

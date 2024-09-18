@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.block;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.EmberSmithingMenu;
-import dev.dubhe.anvilcraft.util.Utils;
+import dev.dubhe.anvilcraft.util.Util;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
@@ -53,7 +53,7 @@ public class EmberSmithingTableBlock extends SmithingTableBlock implements IHamm
             Player pPlayer,
             InteractionHand pHand,
             BlockHitResult pHitResult) {
-        return Utils.interactionResultConverter().apply(this.use(pState, pLevel, pPos, pPlayer, pHand, pHitResult));
+        return Util.interactionResultConverter().apply(this.use(pState, pLevel, pPos, pPlayer, pHand, pHitResult));
     }
 
     @Override

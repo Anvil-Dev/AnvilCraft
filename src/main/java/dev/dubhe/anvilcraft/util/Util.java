@@ -13,8 +13,8 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.function.Function;
 
-public abstract class Utils {
-    private Utils() {}
+public class Util {
+    private Util() {}
 
     /**
      * @return 模组是否加载

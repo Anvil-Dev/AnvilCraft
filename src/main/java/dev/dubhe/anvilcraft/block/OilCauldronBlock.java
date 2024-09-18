@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.block;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItemTags;
-import dev.dubhe.anvilcraft.util.Utils;
+import dev.dubhe.anvilcraft.util.Util;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
@@ -80,7 +80,7 @@ public class OilCauldronBlock extends LayeredCauldronBlock implements IHammerRem
             Player pPlayer,
             InteractionHand pHand,
             BlockHitResult pHitResult) {
-        return Utils.interactionResultConverter().apply(this.use(pState, pLevel, pPos, pPlayer, pHand, pHitResult));
+        return Util.interactionResultConverter().apply(this.use(pState, pLevel, pPos, pPlayer, pHand, pHitResult));
     }
 
     @Override
@@ -108,7 +108,7 @@ public class OilCauldronBlock extends LayeredCauldronBlock implements IHammerRem
                             .setValue(
                                     LayeredCauldronBlock.LEVEL,
                                     level.getBlockState(pos).getValue(LayeredCauldronBlock.LEVEL)));
-            itemStack.hurtAndBreak(2, player, Utils.convertToSlot(hand));
+            itemStack.hurtAndBreak(2, player, Util.convertToSlot(hand));
             return InteractionResult.SUCCESS;
         }
         if (itemStack.is(Items.FIRE_CHARGE)) {

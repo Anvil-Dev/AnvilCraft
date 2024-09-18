@@ -7,7 +7,7 @@ import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.SimplePowerGrid;
 import dev.dubhe.anvilcraft.api.tooltip.providers.BlockEntityTooltipProvider;
 import dev.dubhe.anvilcraft.util.Lazy;
-import dev.dubhe.anvilcraft.util.Utils;
+import dev.dubhe.anvilcraft.util.Util;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -24,7 +24,7 @@ public class PowerComponentTooltipProvider implements BlockEntityTooltipProvider
 
     public PowerComponentTooltipProvider() {}
 
-    public static final Lazy<Boolean> jadePresent = new Lazy<>(() -> Utils.isLoaded("jade") || Utils.isLoaded("wthit"));
+    public static final Lazy<Boolean> jadePresent = new Lazy<>(() -> Util.isLoaded("jade") || Util.isLoaded("wthit"));
 
     @Override
     public boolean accepts(BlockEntity entity) {

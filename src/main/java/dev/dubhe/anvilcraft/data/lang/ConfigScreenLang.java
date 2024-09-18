@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.data.lang;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
-import dev.dubhe.anvilcraft.util.IFormattingUtil;
+import dev.dubhe.anvilcraft.util.FormattingUtil;
 
 import com.google.gson.annotations.SerializedName;
 import com.tterrag.registrate.providers.RegistrateLangProvider;
@@ -40,7 +40,7 @@ public class ConfigScreenLang {
             if (field.isAnnotationPresent(SerializedName.class)) {
                 name = field.getAnnotation(SerializedName.class).value();
             } else {
-                name = IFormattingUtil.toEnglishName(IFormattingUtil.toLowerCaseUnder(fieldName));
+                name = FormattingUtil.toEnglishName(FormattingUtil.toLowerCaseUnder(fieldName));
             }
             if (parent != null) {
                 fieldName = parent + "." + fieldName;

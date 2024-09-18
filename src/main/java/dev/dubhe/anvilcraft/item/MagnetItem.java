@@ -4,7 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.item.UseMagnetEvent;
 import dev.dubhe.anvilcraft.api.item.IChargerChargeable;
 import dev.dubhe.anvilcraft.init.ModItems;
-import dev.dubhe.anvilcraft.util.Utils;
+import dev.dubhe.anvilcraft.util.Util;
 
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -39,7 +39,7 @@ public class MagnetItem extends Item implements IChargerChargeable {
                 player.position().add(radius, radius, radius));
         level.getEntities(EntityTypeTest.forClass(ItemEntity.class), aabb, Entity::isAlive)
                 .forEach(e -> e.moveTo(player.position()));
-        item.hurtAndBreak(1, player, Utils.convertToSlot(usedHand));
+        item.hurtAndBreak(1, player, Util.convertToSlot(usedHand));
         return InteractionResultHolder.sidedSuccess(item, level.isClientSide());
     }
 

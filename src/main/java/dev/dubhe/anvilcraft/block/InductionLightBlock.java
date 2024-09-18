@@ -9,7 +9,7 @@ import dev.dubhe.anvilcraft.block.state.LightColor;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
-import dev.dubhe.anvilcraft.util.Utils;
+import dev.dubhe.anvilcraft.util.Util;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -166,7 +166,7 @@ public class InductionLightBlock extends BetterBaseEntityBlock implements IHamme
         } else if (itemInHand.is(ItemTags.AXES)) {
             level.setBlockAndUpdate(pos, state.setValue(COLOR, LightColor.PRIMARY));
             itemInHand.hurtAndBreak(1, (ServerLevel) level, (ServerPlayer) player, item -> {
-                player.onEquippedItemBroken(item, Utils.convertToSlot(hand));
+                player.onEquippedItemBroken(item, Util.convertToSlot(hand));
             });
             return InteractionResult.CONSUME_PARTIAL;
         } else if (itemInHand.is(ModItems.VOID_MATTER.asItem())) {

@@ -23,7 +23,7 @@ import net.minecraft.world.item.crafting.SmokingRecipe;
 
 import java.util.Optional;
 
-import static dev.dubhe.anvilcraft.util.Utils.generateUniqueRecipeSuffix;
+import static dev.dubhe.anvilcraft.util.Util.generateUniqueRecipeSuffix;
 
 public class GenerateRecipe {
     public static Optional<RecipeHolder<?>> handleVanillaRecipe(

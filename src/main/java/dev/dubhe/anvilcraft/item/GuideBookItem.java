@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.item;
 
 import dev.dubhe.anvilcraft.integration.patchouli.PatchouliUtil;
-import dev.dubhe.anvilcraft.util.Utils;
+import dev.dubhe.anvilcraft.util.Util;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -27,7 +27,7 @@ public class GuideBookItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         if (player instanceof ServerPlayer serverPlayer) {
-            if (Utils.isLoaded("patchouli")) {
+            if (Util.isLoaded("patchouli")) {
                 PatchouliUtil.openBook(serverPlayer);
                 return new InteractionResultHolder<>(InteractionResult.CONSUME, player.getItemInHand(usedHand));
             } else {

@@ -6,7 +6,7 @@ import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.network.MutedSoundSyncPacket;
-import dev.dubhe.anvilcraft.util.Utils;
+import dev.dubhe.anvilcraft.util.Util;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
@@ -92,7 +92,7 @@ public class ActiveSilencerBlock extends BaseEntityBlock implements IHammerRemov
             BlockEntity be = pLevel.getBlockEntity(pPos);
             if (be instanceof ActiveSilencerBlockEntity asbe
                     && pPlayer.getItemInHand(pHand).is(ModItems.DISK.get())) {
-                return Utils.interactionResultConverter()
+                return Util.interactionResultConverter()
                         .apply(asbe.useDisk(
                                 pLevel, serverPlayer, pHand, serverPlayer.getItemInHand(pHand), pHitResult));
             }
