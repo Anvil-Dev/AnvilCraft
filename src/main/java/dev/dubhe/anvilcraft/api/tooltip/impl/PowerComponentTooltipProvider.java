@@ -24,8 +24,7 @@ public class PowerComponentTooltipProvider implements BlockEntityTooltipProvider
 
     public PowerComponentTooltipProvider() {}
 
-    public static final Lazy<Boolean> jadePresent =
-            new Lazy<>(() -> Utils.isLoaded("jade") || Utils.isLoaded("theoneprobe") || Utils.isLoaded("wthit"));
+    public static final Lazy<Boolean> jadePresent = new Lazy<>(() -> Utils.isLoaded("jade") || Utils.isLoaded("wthit"));
 
     @Override
     public boolean accepts(BlockEntity entity) {
