@@ -1,7 +1,5 @@
 package dev.dubhe.anvilcraft.block;
 
-import dev.dubhe.anvilcraft.api.depository.ItemDepository;
-import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
@@ -46,6 +44,8 @@ import net.minecraft.world.phys.Vec3;
 
 import com.mojang.serialization.MapCodec;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -136,16 +136,15 @@ public class CrabTrapBlock extends BetterBaseEntityBlock implements SimpleWaterl
         if (!level.isClientSide()) {
             CrabTrapBlockEntity blockEntity = (CrabTrapBlockEntity) level.getBlockEntity(pos);
             if (blockEntity != null) {
-                ItemDepository depository = blockEntity.getDepository();
-                NonNullList<ItemStack> itemStacks = depository.getStacks();
-                for (int i = 0; i < itemStacks.size(); i++) {
-                    ItemStack stack = itemStacks.get(i);
+                IItemHandler itemHandler = blockEntity.getItemHandler();
+                for (int i = 0; i < itemHandler.getSlots(); i++) {
+                    ItemStack stack = itemHandler.getStackInSlot(i);
                     if (stack.isEmpty()) continue;
                     Vec3 center = pos.relative(Direction.UP).getCenter();
                     ItemEntity itemEntity = new ItemEntity(level, center.x(), center.y(), center.z(), stack, 0, 0.2, 0);
                     itemEntity.setDefaultPickUpDelay();
                     level.addFreshEntity(itemEntity);
-                    depository.extract(i, stack.getCount(), false);
+                    itemHandler.extractItem(i, stack.getCount(), false);
                 }
             }
         }
@@ -168,9 +167,9 @@ public class CrabTrapBlock extends BetterBaseEntityBlock implements SimpleWaterl
         if (state.is(newState.getBlock())) return;
         if (level.getBlockEntity(pos) instanceof CrabTrapBlockEntity entity) {
             Vec3 vec3 = entity.getBlockPos().getCenter();
-            ItemDepository depository = entity.getDepository();
-            for (int slot = 0; slot < depository.getSlots(); slot++) {
-                Containers.dropItemStack(level, vec3.x, vec3.y, vec3.z, depository.getStack(slot));
+            IItemHandler itemHandler = entity.getItemHandler();
+            for (int slot = 0; slot < itemHandler.getSlots(); slot++) {
+                Containers.dropItemStack(level, vec3.x, vec3.y, vec3.z, itemHandler.getStackInSlot(slot));
             }
             level.updateNeighbourForOutputSignal(pos, this);
         }
@@ -189,7 +188,7 @@ public class CrabTrapBlock extends BetterBaseEntityBlock implements SimpleWaterl
             CrabTrapBlockEntity blockEntity = (CrabTrapBlockEntity) level.getBlockEntity(pos);
             for (ItemStack item : items) {
                 if (blockEntity != null) {
-                    ItemDepositoryHelper.insertItem(blockEntity.getDepository(), item, false);
+                    ItemHandlerHelper.insertItem(blockEntity.getItemHandler(), item, false);
                 }
             }
         }

@@ -1,8 +1,7 @@
 package dev.dubhe.anvilcraft.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.depository.DepositoryHolder;
-import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
+import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerHolder;
 import dev.dubhe.anvilcraft.block.entity.ActiveSilencerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.BatchCrafterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
@@ -195,8 +194,8 @@ public class ModBlockEntities {
                             MAGNETIC_CHUTE.get())
                     .forEach(type -> {
                         e.registerBlockEntity(Capabilities.ItemHandler.BLOCK, type, (be, side) -> {
-                            if (be instanceof DepositoryHolder holder) {
-                                return ItemDepositoryHelper.toItemHandler(holder.getDepository());
+                            if (be instanceof ItemHandlerHolder holder) {
+                                return holder.getItemHandler();
                             }
                             return null;
                         });

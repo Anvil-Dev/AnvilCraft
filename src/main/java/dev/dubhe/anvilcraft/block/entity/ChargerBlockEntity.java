@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import dev.dubhe.anvilcraft.api.depository.DepositoryHolder;
-import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
+import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerHolder;
+import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.api.item.IChargerChargeable;
 import dev.dubhe.anvilcraft.api.item.IChargerDischargeable;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
@@ -28,7 +28,7 @@ import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 public class ChargerBlockEntity extends BlockEntity
-        implements IPowerConsumer, IPowerProducer, IFilterBlockEntity, StateListener<Boolean>, DepositoryHolder {
+        implements IPowerConsumer, IPowerProducer, IFilterBlockEntity, StateListener<Boolean>, ItemHandlerHolder {
 
     @Setter
     private boolean isCharger;
@@ -40,22 +40,22 @@ public class ChargerBlockEntity extends BlockEntity
     private boolean jumpOver = false;
 
     @Getter
-    private final FilteredItemDepository depository = new FilteredItemDepository(1) {
+    private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(1) {
 
         @Override
-        public ItemStack insert(
-                int slot, @NotNull ItemStack stack, boolean simulate, boolean notifyChanges, boolean isServer) {
+        public ItemStack insertItem(
+                int slot, @NotNull ItemStack stack, boolean simulate) {
             if (!locked && !previousDischargeFailed) {
                 ItemStack original = stack.copy();
                 original.shrink(1);
                 if (original.isEmpty()) {
-                    ItemStack left = super.insert(slot, stack.copyWithCount(1), simulate, notifyChanges, isServer);
+                    ItemStack left = super.insertItem(slot, stack.copyWithCount(1), simulate);
                     if (left.isEmpty() && !simulate) {
                         locked = true;
                     }
                     return left;
                 } else {
-                    ItemStack left = super.insert(slot, stack.copyWithCount(1), simulate, notifyChanges, isServer);
+                    ItemStack left = super.insertItem(slot, stack.copyWithCount(1), simulate);
                     if (left.isEmpty() && !simulate) {
                         locked = true;
                     }
@@ -72,8 +72,8 @@ public class ChargerBlockEntity extends BlockEntity
         }
 
         @Override
-        public ItemStack extract(int slot, int amount, boolean simulate, boolean notifyChanges) {
-            return !locked ? super.extract(slot, amount, simulate, notifyChanges) : ItemStack.EMPTY;
+        public ItemStack extractItem(int slot, int amount, boolean simulate) {
+            return !locked ? super.extractItem(slot, amount, simulate) : ItemStack.EMPTY;
         }
     };
 
@@ -94,19 +94,19 @@ public class ChargerBlockEntity extends BlockEntity
     }
 
     private void processItemTransform() {
-        ItemStack stack = depository.getStack(0).copy();
+        ItemStack stack = itemHandler.getStackInSlot(0).copy();
         if (stack.isEmpty() || !containsValidItem(stack)) return;
         if (isCharger) {
             if (stack.getItem() instanceof IChargerChargeable chargeable) {
-                depository.setStack(0, chargeable.charge(stack));
+                itemHandler.setStackInSlot(0, chargeable.charge(stack));
                 return;
             }
             if (stack.is(Items.IRON_INGOT.asItem())) {
-                depository.setStack(0, ModItems.MAGNET_INGOT.asStack(1));
+                itemHandler.setStackInSlot(0, ModItems.MAGNET_INGOT.asStack(1));
             }
         } else {
             if (stack.getItem() instanceof IChargerDischargeable dischargeable) {
-                depository.setStack(0, dischargeable.discharge(stack));
+                itemHandler.setStackInSlot(0, dischargeable.discharge(stack));
             }
         }
     }
@@ -125,7 +125,7 @@ public class ChargerBlockEntity extends BlockEntity
     protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
         tag.putInt("Cooldown", cd);
-        tag.put("Depository", depository.serializeNbt(provider));
+        tag.put("Depository", itemHandler.serializeNBT(provider));
         tag.putBoolean("Mode", isCharger);
         tag.putBoolean("PreviousDischargeFailed", previousDischargeFailed);
         tag.putBoolean("Locked", locked);
@@ -135,7 +135,7 @@ public class ChargerBlockEntity extends BlockEntity
     public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
         cd = tag.getInt("Cooldown");
-        depository.deserializeNbt(provider, tag.getCompound("Depository"));
+        itemHandler.deserializeNBT(provider, tag.getCompound("Depository"));
         isCharger = tag.getBoolean("Mode");
         locked = tag.getBoolean("Locked");
         previousDischargeFailed = tag.getBoolean("PreviousDischargeFailed");
@@ -157,8 +157,8 @@ public class ChargerBlockEntity extends BlockEntity
     }
 
     @Override
-    public FilteredItemDepository getFilteredItemDepository() {
-        return depository;
+    public FilteredItemStackHandler getFilteredItemDepository() {
+        return itemHandler;
     }
 
     @Override
@@ -195,7 +195,7 @@ public class ChargerBlockEntity extends BlockEntity
         powered = state.getValue(ChargerBlock.POWERED);
         if (grid == null) return;
         if (level1.getGameTime() % 21 != 0) return;
-        if (depository.getStack(0).isEmpty()) {
+        if (itemHandler.getStackInSlot(0).isEmpty()) {
             locked = false;
             return;
         }
@@ -203,7 +203,7 @@ public class ChargerBlockEntity extends BlockEntity
             previousDischargeFailed = false;
         }
         if (powered) return;
-        if (cd == 0 && containsValidItem(depository.getStack(0)) && !jumpOver) {
+        if (cd == 0 && containsValidItem(itemHandler.getStackInSlot(0)) && !jumpOver) {
             locked = true;
             cd = 7;
             if (!isCharger) processItemTransform();

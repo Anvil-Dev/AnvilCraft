@@ -1,7 +1,5 @@
 package dev.dubhe.anvilcraft.block;
 
-import dev.dubhe.anvilcraft.api.depository.IItemDepository;
-import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.state.Orientation;
@@ -38,6 +36,8 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -153,7 +153,8 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
     }
 
     @Override
-    @Nullable public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
+    @Nullable
+    public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
         Orientation orientation;
         Direction horizontalDirection = context.getHorizontalDirection();
         if (context.getNearestLookingDirection() == Direction.UP) {
@@ -202,11 +203,11 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
         }
         // 获取放置方块类型
         ItemStack placeItem = null;
-        IItemDepository itemDepository =
-                ItemDepositoryHelper.getItemDepository(level, blockPos.relative(direction.getOpposite()), direction);
+        IItemHandler itemHandler =
+                level.getCapability(Capabilities.ItemHandler.BLOCK, blockPos.relative(direction.getOpposite()), direction);
         int slot;
-        for (slot = 0; itemDepository != null && slot < itemDepository.getSlots(); slot++) {
-            ItemStack blockItemStack = itemDepository.extract(slot, 1, true);
+        for (slot = 0; itemHandler != null && slot < itemHandler.getSlots(); slot++) {
+            ItemStack blockItemStack = itemHandler.extractItem(slot, 1, true);
             if (!blockItemStack.isEmpty() && blockItemStack.getItem() instanceof BlockItem) {
                 placeItem = blockItemStack;
                 break;
@@ -214,7 +215,7 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
         }
         ItemEntity itemEntity = null;
         // 从放置器背后的掉落物中获取物品
-        if (itemDepository == null) {
+        if (itemHandler == null) {
             AABB aabb = new AABB(blockPos.relative(direction.getOpposite()));
             List<ItemEntity> entities =
                     level.getEntities(EntityTypeTest.forClass(ItemEntity.class), aabb, Entity::isAlive);
@@ -238,8 +239,8 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
         // 检查海龟蛋，海泡菜，蜡烛是否可以被放置
         BlockItem blockItem = (BlockItem) placeItem.getItem();
         if ((blockState.is(Blocks.TURTLE_EGG)
-                        || blockState.is(Blocks.SEA_PICKLE)
-                        || (blockState.getBlock() instanceof CandleBlock))
+                || blockState.is(Blocks.SEA_PICKLE)
+                || (blockState.getBlock() instanceof CandleBlock))
                 && blockState.getBlock() != blockItem.getBlock()) {
             return;
         }
@@ -250,7 +251,7 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
             return;
         }
         // 清除消耗的物品
-        if (itemDepository == null) {
+        if (itemHandler == null) {
             if (itemEntity == null) {
                 return;
             }
@@ -262,10 +263,10 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
                 itemEntity.getItem().shrink(1);
             }
         } else {
-            if (itemDepository.getStack(slot).is(Items.POWDER_SNOW_BUCKET)) {
-                itemDepository.insert(slot, new ItemStack(Items.BUCKET), false);
+            if (itemHandler.getStackInSlot(slot).is(Items.POWDER_SNOW_BUCKET)) {
+                itemHandler.insertItem(slot, new ItemStack(Items.BUCKET), false);
             }
-            itemDepository.extract(slot, 1, false);
+            itemHandler.extractItem(slot, 1, false);
         }
     }
 

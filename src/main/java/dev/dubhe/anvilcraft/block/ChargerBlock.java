@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
-import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
+import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
@@ -111,9 +111,9 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
         if (state.is(newState.getBlock())) return;
         if (level.getBlockEntity(pos) instanceof ChargerBlockEntity entity) {
             Vec3 vec3 = entity.getBlockPos().getCenter();
-            FilteredItemDepository depository = entity.getFilteredItemDepository();
+            FilteredItemStackHandler depository = entity.getFilteredItemDepository();
             for (int slot = 0; slot < depository.getSlots(); slot++) {
-                Containers.dropItemStack(level, vec3.x, vec3.y, vec3.z, depository.getStack(slot));
+                Containers.dropItemStack(level, vec3.x, vec3.y, vec3.z, depository.getStackInSlot(slot));
             }
             level.updateNeighbourForOutputSignal(pos, this);
         }

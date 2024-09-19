@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.client.gui.screen.inventory;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.depository.ItemDepositorySlot;
+import dev.dubhe.anvilcraft.api.itemhandler.SlotItemHandlerWithFilter;
 import dev.dubhe.anvilcraft.client.gui.component.EnableFilterButton;
 import dev.dubhe.anvilcraft.inventory.IFilterMenu;
 import dev.dubhe.anvilcraft.network.MachineEnableFilterPacket;
@@ -114,7 +114,7 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> {
      * @param slot        槽位
      */
     default void renderSlot(GuiGraphics guiGraphics, Slot slot) {
-        if (!(slot instanceof ItemDepositorySlot crafterSlot)) return;
+        if (!(slot instanceof SlotItemHandlerWithFilter crafterSlot)) return;
         if (!crafterSlot.isFilter()) return;
         if (this.isSlotDisabled(slot.getContainerSlot())) {
             this.renderDisabledSlot(guiGraphics, crafterSlot);

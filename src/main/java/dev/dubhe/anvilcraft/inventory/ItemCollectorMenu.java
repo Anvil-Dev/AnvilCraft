@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.inventory;
 
-import dev.dubhe.anvilcraft.api.depository.ItemDepositorySlot;
+import dev.dubhe.anvilcraft.api.itemhandler.SlotItemHandlerWithFilter;
 import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlocks;
@@ -44,7 +44,7 @@ public class ItemCollectorMenu extends AbstractContainerMenu implements IFilterM
         for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < 3; ++j) {
                 this.addSlot(
-                        new ItemDepositorySlot(this.blockEntity.getDepository(), i * 3 + j, 98 + j * 18, 18 + i * 18));
+                        new SlotItemHandlerWithFilter(this.blockEntity.getItemHandler(), i * 3 + j, 98 + j * 18, 18 + i * 18));
             }
         }
 

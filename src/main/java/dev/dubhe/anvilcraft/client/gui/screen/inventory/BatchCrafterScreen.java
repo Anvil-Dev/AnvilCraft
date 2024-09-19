@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.client.gui.screen.inventory;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.depository.ItemDepositorySlot;
+import dev.dubhe.anvilcraft.api.itemhandler.SlotItemHandlerWithFilter;
 import dev.dubhe.anvilcraft.client.gui.component.EnableFilterButton;
 import dev.dubhe.anvilcraft.inventory.BatchCrafterMenu;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePacket;
@@ -63,8 +63,8 @@ public class BatchCrafterScreen extends BaseMachineScreen<BatchCrafterMenu> impl
 
     protected void renderSlotTooltip(@NotNull GuiGraphics guiGraphics, int x, int y) {
         if (this.hoveredSlot == null) return;
-        if (!(this.hoveredSlot instanceof ItemDepositorySlot)) return;
-        if (!((ItemDepositorySlot) this.hoveredSlot).isFilter()) return;
+        if (!(this.hoveredSlot instanceof SlotItemHandlerWithFilter)) return;
+        if (!((SlotItemHandlerWithFilter) this.hoveredSlot).isFilter()) return;
         if (!this.isFilterEnabled()) return;
         if (!this.isSlotDisabled(this.hoveredSlot.getContainerSlot())) return;
         guiGraphics.renderTooltip(this.font, Component.translatable("screen.anvilcraft.slot.disable.tooltip"), x, y);
@@ -85,7 +85,7 @@ public class BatchCrafterScreen extends BaseMachineScreen<BatchCrafterMenu> impl
         start:
         if (type == ClickType.PICKUP) {
             if (!this.menu.getCarried().isEmpty()) break start;
-            if (!(slot instanceof ItemDepositorySlot)) break start;
+            if (!(slot instanceof SlotItemHandlerWithFilter)) break start;
             if (!slot.getItem().isEmpty()) break start;
             int slot1 = slot.getContainerSlot();
             if (this.menu.isFilterEnabled()) {

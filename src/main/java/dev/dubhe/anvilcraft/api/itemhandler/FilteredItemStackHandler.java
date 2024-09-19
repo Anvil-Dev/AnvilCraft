@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.api.depository;
+package dev.dubhe.anvilcraft.api.itemhandler;
 
 import dev.dubhe.anvilcraft.util.CodecUtil;
 
@@ -13,6 +13,7 @@ import net.minecraft.world.item.ItemStack;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.Getter;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -20,9 +21,9 @@ import java.util.Optional;
 
 @Getter
 @SuppressWarnings("unused")
-public class FilteredItemDepository extends ItemDepository {
+public class FilteredItemStackHandler extends ItemStackHandler {
 
-    public static final Codec<FilteredItemDepository> CODEC = RecordCodecBuilder.create(ins -> ins.group(
+    public static final Codec<FilteredItemStackHandler> CODEC = RecordCodecBuilder.create(ins -> ins.group(
                     Codec.BOOL.fieldOf("filterEnabled").forGetter(o -> o.filterEnabled),
                     CodecUtil.createOptionalCodec(ItemStack.CODEC)
                             .listOf()
@@ -31,16 +32,20 @@ public class FilteredItemDepository extends ItemDepository {
                                     .map(it -> it.isEmpty() ? Optional.<ItemStack>empty() : Optional.of(it))
                                     .toList()),
                     Codec.BOOL.listOf().fieldOf("disabled").forGetter(o -> o.disabled))
-            .apply(ins, FilteredItemDepository::new));
+            .apply(ins, FilteredItemStackHandler::new));
 
     private boolean filterEnabled = false;
     private NonNullList<ItemStack> filteredItems;
     private NonNullList<Boolean> disabled;
 
+    public NonNullList<ItemStack> getStacks() {
+        return stacks;
+    }
+
     /**
      *
      */
-    public FilteredItemDepository(
+    public FilteredItemStackHandler(
             boolean filterEnabled, List<Optional<ItemStack>> filteredItems, List<Boolean> disabled) {
         super(filteredItems.size());
         this.filteredItems = NonNullList.create();
@@ -55,7 +60,7 @@ public class FilteredItemDepository extends ItemDepository {
      *
      * @param size 大小
      */
-    public FilteredItemDepository(int size) {
+    public FilteredItemStackHandler(int size) {
         super(size);
         this.filteredItems = NonNullList.withSize(size, ItemStack.EMPTY);
         this.disabled = NonNullList.withSize(size, false);
@@ -71,7 +76,7 @@ public class FilteredItemDepository extends ItemDepository {
         this.filterEnabled = filterEnabled;
         if (this.filterEnabled) {
             for (int i = 0; i < this.getSlots(); i++) {
-                ItemStack stack = this.getStack(i);
+                ItemStack stack = this.getStackInSlot(i);
                 if (stack.isEmpty()) continue;
                 this.setFilter(i, stack);
             }
@@ -85,18 +90,13 @@ public class FilteredItemDepository extends ItemDepository {
     }
 
     @Override
-    public boolean canPlaceItem(int slot, ItemStack stack) {
-        return super.isItemValid(slot, stack);
-    }
-
-    @Override
-    public void setStack(int slot, ItemStack stack) {
+    public void setStackInSlot(int slot, ItemStack stack) {
         if (filterEnabled) {
             this.setFilter(slot, stack);
         } else if (!stack.isEmpty()) {
             this.setSlotDisabled(slot, false);
         }
-        super.setStack(slot, stack);
+        super.setStackInSlot(slot, stack);
     }
 
     /**
@@ -109,7 +109,7 @@ public class FilteredItemDepository extends ItemDepository {
         if (!this.filterEnabled) return this.disabled.get(slot);
         else
             return this.disabled.get(slot)
-                    || (getStack(slot).isEmpty() && this.filteredItems.get(slot).isEmpty());
+                    || (getStackInSlot(slot).isEmpty() && this.filteredItems.get(slot).isEmpty());
     }
 
     /**
@@ -176,7 +176,7 @@ public class FilteredItemDepository extends ItemDepository {
     }
 
     @Override
-    public @NotNull CompoundTag serializeNbt(HolderLookup.Provider provider) {
+    public @NotNull CompoundTag serializeNBT(HolderLookup.Provider provider) {
         CompoundTag compoundTag = new CompoundTag();
         compoundTag.putBoolean("FilterEnabled", this.filterEnabled);
         ListTag inventory = new ListTag();
@@ -185,7 +185,7 @@ public class FilteredItemDepository extends ItemDepository {
         for (int slot = 0; slot < slots; slot++) {
             CompoundTag inventoryEntry = new CompoundTag();
             inventoryEntry.putInt("Slot", slot);
-            ItemStack stack = this.getStack(slot);
+            ItemStack stack = this.getStackInSlot(slot);
             inventoryEntry.putBoolean("IsEmptySlot", stack.isEmpty());
             if (!stack.isEmpty()) {
                 Tag itemTag = stack.save(provider);
@@ -209,7 +209,7 @@ public class FilteredItemDepository extends ItemDepository {
     }
 
     @Override
-    public void deserializeNbt(HolderLookup.Provider provider, @NotNull CompoundTag tag) {
+    public void deserializeNBT(HolderLookup.Provider provider, @NotNull CompoundTag tag) {
         if (!tag.contains("Inventory")) return;
         this.filterEnabled = tag.getBoolean("FilterEnabled");
         ListTag inventory = (ListTag) tag.get("Inventory");
@@ -242,52 +242,12 @@ public class FilteredItemDepository extends ItemDepository {
      *
      */
     public void deserializeFiltering(@NotNull CompoundTag tag) {
-        FilteredItemDepository depository =
+        FilteredItemStackHandler handler =
                 CODEC.decode(NbtOps.INSTANCE, tag).getOrThrow().getFirst();
-        if (this.getSize() != depository.getSize()) throw new IllegalArgumentException("Depository size mismatch");
+        if (this.getSlots() != handler.getSlots()) throw new IllegalArgumentException("Depository size mismatch");
         this.filterEnabled = tag.getBoolean("filterEnabled");
-        int size = depository.filteredItems.size();
-        this.filteredItems = NonNullList.of(ItemStack.EMPTY, depository.filteredItems.toArray(new ItemStack[size]));
-        this.disabled = depository.disabled;
-    }
-
-    public static class Pollable extends FilteredItemDepository {
-
-        public Pollable(int size) {
-            super(size);
-        }
-
-        @Override
-        public boolean isItemValid(int slot, ItemStack stack) {
-            return getEmptyOrSmallerSlot(stack) == slot && super.isItemValid(slot, stack);
-        }
-
-        @Override
-        public boolean canPlaceItem(int slot, ItemStack stack) {
-            return super.canPlaceItem(slot, stack);
-        }
-
-        private int getEmptyOrSmallerSlot(ItemStack stack) {
-            int slotCount = this.getSlots();
-            int slot = -1;
-            int countInSlot = Integer.MAX_VALUE;
-            for (int index = slotCount - 1; index >= 0; index--) {
-                if (this.isSlotDisabled(index)) continue;
-                ItemStack stackInSlot = this.getStack(index);
-                if (this.isSlotDisabled(index)) continue;
-                if (!this.isFiltered(index, stack)) continue;
-                if (stackInSlot.isEmpty()) {
-                    slot = index;
-                    countInSlot = 0;
-                    continue;
-                } else if (!ItemStack.isSameItemSameComponents(stackInSlot, stack)) continue;
-                int stackInSlotCount = stackInSlot.getCount();
-                if (stackInSlotCount <= countInSlot && stackInSlotCount < this.getSlotLimit(index)) {
-                    slot = index;
-                    countInSlot = stackInSlotCount;
-                }
-            }
-            return slot;
-        }
+        int size = handler.filteredItems.size();
+        this.filteredItems = NonNullList.of(ItemStack.EMPTY, handler.filteredItems.toArray(new ItemStack[size]));
+        this.disabled = handler.disabled;
     }
 }

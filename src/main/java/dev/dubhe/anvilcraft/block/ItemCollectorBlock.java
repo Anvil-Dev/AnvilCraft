@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
-import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
+import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
@@ -80,9 +80,9 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
         if (state.is(newState.getBlock())) return;
         if (level.getBlockEntity(pos) instanceof ItemCollectorBlockEntity entity) {
             Vec3 vec3 = entity.getBlockPos().getCenter();
-            FilteredItemDepository depository = entity.getDepository();
+            FilteredItemStackHandler depository = entity.getItemHandler();
             for (int slot = 0; slot < depository.getSlots(); slot++) {
-                Containers.dropItemStack(level, vec3.x, vec3.y, vec3.z, depository.getStack(slot));
+                Containers.dropItemStack(level, vec3.x, vec3.y, vec3.z, depository.getStackInSlot(slot));
             }
             level.updateNeighbourForOutputSignal(pos, this);
         }
@@ -135,7 +135,7 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
                     PacketDistributor.sendToPlayer(
                             serverPlayer,
                             new SlotDisableChangePacket(
-                                    i, eb.getDepository().getDisabled().get(i)));
+                                    i, eb.getItemHandler().getDisabled().get(i)));
                     PacketDistributor.sendToPlayer(serverPlayer, new SlotFilterChangePacket(i, eb.getFilter(i)));
                 }
             }
