@@ -70,11 +70,7 @@ public class VillagerEventListener {
             // level 4
             trades.get(4)
                     .add((entity, random) -> new MerchantOffer(
-                            new ItemCost(Items.NAUTILUS_SHELL),
-                            new ItemStack(Items.EMERALD, 2),
-                            12,
-                            10,
-                            0.05f));
+                            new ItemCost(Items.NAUTILUS_SHELL), new ItemStack(Items.EMERALD, 2), 12, 10, 0.05f));
             trades.get(4)
                     .add((entity, random) -> ((int) (random.nextDouble() * 2)) == 1
                             ? new MerchantOffer(
