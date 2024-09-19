@@ -23,10 +23,6 @@ public class Util {
         return ModList.get().isLoaded(modid);
     }
 
-    public static <I> Function<I, I> unchanged() {
-        return a -> a;
-    }
-
     /**
      *
      */
