@@ -71,7 +71,6 @@ public class VillagerEventListener {
             trades.get(4)
                     .add((entity, random) -> new MerchantOffer(
                             new ItemCost(Items.NAUTILUS_SHELL),
-                            Optional.of(new ItemCost(Items.BARRIER)),
                             new ItemStack(Items.EMERALD, 2),
                             12,
                             10,
@@ -80,14 +79,12 @@ public class VillagerEventListener {
                     .add((entity, random) -> ((int) (random.nextDouble() * 2)) == 1
                             ? new MerchantOffer(
                                     new ItemCost(ModBlocks.MOB_AMBER_BLOCK),
-                                    Optional.of(new ItemCost(Items.BARRIER)),
                                     new ItemStack(Items.EMERALD, 8),
                                     2,
                                     10,
                                     0.05f)
                             : new MerchantOffer(
                                     new ItemCost(ModBlocks.RESENTFUL_AMBER_BLOCK),
-                                    Optional.of(new ItemCost(Items.BARRIER)),
                                     new ItemStack(Items.EMERALD, 24),
                                     2,
                                     30,
