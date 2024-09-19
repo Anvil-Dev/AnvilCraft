@@ -35,9 +35,9 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -153,8 +153,7 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
     }
 
     @Override
-    @Nullable
-    public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
+    @Nullable public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
         Orientation orientation;
         Direction horizontalDirection = context.getHorizontalDirection();
         if (context.getNearestLookingDirection() == Direction.UP) {
@@ -203,8 +202,8 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
         }
         // 获取放置方块类型
         ItemStack placeItem = null;
-        IItemHandler itemHandler =
-                level.getCapability(Capabilities.ItemHandler.BLOCK, blockPos.relative(direction.getOpposite()), direction);
+        IItemHandler itemHandler = level.getCapability(
+                Capabilities.ItemHandler.BLOCK, blockPos.relative(direction.getOpposite()), direction);
         int slot;
         for (slot = 0; itemHandler != null && slot < itemHandler.getSlots(); slot++) {
             ItemStack blockItemStack = itemHandler.extractItem(slot, 1, true);
@@ -239,8 +238,8 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
         // 检查海龟蛋，海泡菜，蜡烛是否可以被放置
         BlockItem blockItem = (BlockItem) placeItem.getItem();
         if ((blockState.is(Blocks.TURTLE_EGG)
-                || blockState.is(Blocks.SEA_PICKLE)
-                || (blockState.getBlock() instanceof CandleBlock))
+                        || blockState.is(Blocks.SEA_PICKLE)
+                        || (blockState.getBlock() instanceof CandleBlock))
                 && blockState.getBlock() != blockItem.getBlock()) {
             return;
         }

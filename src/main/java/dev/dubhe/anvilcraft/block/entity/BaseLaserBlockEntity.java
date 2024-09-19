@@ -126,7 +126,11 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
             tickCount = 0;
             if (irradiateBlock.is(ModBlockTags.ORES)) {
                 Vec3 blockPos = getBlockPos().relative(direction.getOpposite()).getCenter();
-                IItemHandler cap = getLevel().getCapability(Capabilities.ItemHandler.BLOCK, getBlockPos().relative(getDirection().getOpposite()), getDirection());
+                IItemHandler cap = getLevel()
+                        .getCapability(
+                                Capabilities.ItemHandler.BLOCK,
+                                getBlockPos().relative(getDirection().getOpposite()),
+                                getDirection());
                 drops.forEach(itemStack -> {
                     if (cap != null) {
                         ItemStack outItemStack = ItemHandlerHelper.insertItem(cap, itemStack, true);

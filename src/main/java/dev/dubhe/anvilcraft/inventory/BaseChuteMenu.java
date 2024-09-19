@@ -48,8 +48,8 @@ public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends Base
 
         for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < 3; ++j) {
-                this.addSlot(
-                        new SlotItemHandlerWithFilter(this.blockEntity.getItemHandler(), i * 3 + j, 62 + j * 18, 18 + i * 18));
+                this.addSlot(new SlotItemHandlerWithFilter(
+                        this.blockEntity.getItemHandler(), i * 3 + j, 62 + j * 18, 18 + i * 18));
             }
         }
     }

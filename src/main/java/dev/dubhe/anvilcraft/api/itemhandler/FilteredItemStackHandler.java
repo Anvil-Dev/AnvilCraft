@@ -9,11 +9,11 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.Getter;
-import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -109,7 +109,8 @@ public class FilteredItemStackHandler extends ItemStackHandler {
         if (!this.filterEnabled) return this.disabled.get(slot);
         else
             return this.disabled.get(slot)
-                    || (getStackInSlot(slot).isEmpty() && this.filteredItems.get(slot).isEmpty());
+                    || (getStackInSlot(slot).isEmpty()
+                            && this.filteredItems.get(slot).isEmpty());
     }
 
     /**

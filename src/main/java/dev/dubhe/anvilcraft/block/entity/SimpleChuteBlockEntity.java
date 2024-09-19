@@ -16,11 +16,11 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-
-import lombok.Getter;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
+
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -60,7 +60,11 @@ public class SimpleChuteBlockEntity extends BlockEntity implements ItemHandlerHo
     public void tick() {
         if (cooldown <= 0) {
             if (getBlockState().getValue(SimpleChuteBlock.ENABLED)) {
-                IItemHandler target = getLevel().getCapability(Capabilities.ItemHandler.BLOCK, getBlockPos().relative(getDirection()), getDirection().getOpposite());
+                IItemHandler target = getLevel()
+                        .getCapability(
+                                Capabilities.ItemHandler.BLOCK,
+                                getBlockPos().relative(getDirection()),
+                                getDirection().getOpposite());
                 if (target != null) {
                     // 尝试向朝向容器输出
                     ItemHandlerUtil.exportToTarget(this.itemHandler, 64, stack -> true, target);

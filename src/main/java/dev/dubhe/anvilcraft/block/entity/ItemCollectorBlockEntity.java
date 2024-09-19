@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerHolder;
-import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
+import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
+import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerHolder;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IHasAffectRange;
@@ -42,7 +42,12 @@ import java.util.List;
 
 @Getter
 public class ItemCollectorBlockEntity extends BlockEntity
-        implements MenuProvider, IFilterBlockEntity, IPowerConsumer, IDiskCloneable, IHasAffectRange, ItemHandlerHolder {
+        implements MenuProvider,
+                IFilterBlockEntity,
+                IPowerConsumer,
+                IDiskCloneable,
+                IHasAffectRange,
+                ItemHandlerHolder {
     @Setter
     private PowerGrid grid;
 
@@ -122,14 +127,12 @@ public class ItemCollectorBlockEntity extends BlockEntity
         tag.putInt("RangeRadius", rangeRadius.index());
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
         return new ItemCollectorMenu(ModMenuTypes.ITEM_COLLECTOR.get(), i, inventory, this);
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
     }

@@ -27,11 +27,11 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-
-import com.mojang.serialization.MapCodec;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
+
+import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -152,7 +152,9 @@ public class BlockDevourerBlock extends DirectionalBlock implements IHammerChang
         BlockPos outputPos = devourerPos.relative(devourerDirection.getOpposite());
         BlockPos devourCenterPos = devourerPos.relative(devourerDirection);
         IItemHandler itemHandler = level.getCapability(
-                Capabilities.ItemHandler.BLOCK, devourerPos.relative(devourerDirection.getOpposite()), devourerDirection.getOpposite());
+                Capabilities.ItemHandler.BLOCK,
+                devourerPos.relative(devourerDirection.getOpposite()),
+                devourerDirection.getOpposite());
         Vec3 center = outputPos.getCenter();
         AABB aabb = new AABB(center.add(-0.125, -0.125, -0.125), center.add(0.125, 0.125, 0.125));
         final List<BlockPos> devourBlockPosList;

@@ -7,7 +7,8 @@ import net.neoforged.neoforge.items.ItemHandlerHelper;
 import java.util.function.Predicate;
 
 public class ItemHandlerUtil {
-    public static void exportToTarget(IItemHandler source, int maxAmount, Predicate<ItemStack> predicate, IItemHandler target) {
+    public static void exportToTarget(
+            IItemHandler source, int maxAmount, Predicate<ItemStack> predicate, IItemHandler target) {
         for (int srcIndex = 0; srcIndex < source.getSlots(); srcIndex++) {
             ItemStack sourceStack = source.extractItem(srcIndex, Integer.MAX_VALUE, true);
             if (sourceStack.isEmpty() || !predicate.test(sourceStack)) {
@@ -24,7 +25,8 @@ public class ItemHandlerUtil {
         }
     }
 
-    public static void importFromTarget(IItemHandler target, int maxAmount, Predicate<ItemStack> predicate, IItemHandler source) {
+    public static void importFromTarget(
+            IItemHandler target, int maxAmount, Predicate<ItemStack> predicate, IItemHandler source) {
         for (int srcIndex = 0; srcIndex < source.getSlots(); srcIndex++) {
             ItemStack sourceStack = source.extractItem(srcIndex, Integer.MAX_VALUE, true);
             if (sourceStack.isEmpty() || !predicate.test(sourceStack)) {

@@ -43,8 +43,8 @@ public class ItemCollectorMenu extends AbstractContainerMenu implements IFilterM
 
         for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < 3; ++j) {
-                this.addSlot(
-                        new SlotItemHandlerWithFilter(this.blockEntity.getItemHandler(), i * 3 + j, 98 + j * 18, 18 + i * 18));
+                this.addSlot(new SlotItemHandlerWithFilter(
+                        this.blockEntity.getItemHandler(), i * 3 + j, 98 + j * 18, 18 + i * 18));
             }
         }
 

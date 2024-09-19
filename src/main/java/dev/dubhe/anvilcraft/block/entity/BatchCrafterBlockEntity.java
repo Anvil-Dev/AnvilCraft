@@ -2,8 +2,8 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.IHasDisplayItem;
-import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
+import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.PollableFilteredItemStackHandler;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
@@ -127,7 +127,8 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
         if (grid == null || !grid.isWork()) return false;
         if (!itemHandler.isFilterEnabled()) return true;
         for (int i = 0; i < itemHandler.getSlots(); i++) {
-            if (itemHandler.getStackInSlot(i).isEmpty() && !itemHandler.getFilter(i).isEmpty()) return false;
+            if (itemHandler.getStackInSlot(i).isEmpty()
+                    && !itemHandler.getFilter(i).isEmpty()) return false;
         }
         return true;
     }
@@ -181,7 +182,11 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
         }
         result.setCount(result.getCount() * times);
         craftRemaining.forEach(stack -> stack.setCount(stack.getCount() * times));
-        IItemHandler cap = getLevel().getCapability(Capabilities.ItemHandler.BLOCK, getBlockPos().relative(getDirection()), getDirection().getOpposite());
+        IItemHandler cap = getLevel()
+                .getCapability(
+                        Capabilities.ItemHandler.BLOCK,
+                        getBlockPos().relative(getDirection()),
+                        getDirection().getOpposite());
         if (cap != null) {
             // 尝试向容器插入物品
             ItemStack remained = ItemHandlerHelper.insertItem(cap, result, true);
@@ -209,8 +214,7 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
         level.updateNeighborsAt(getBlockPos(), ModBlocks.BATCH_CRAFTER.get());
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
     }
@@ -272,7 +276,8 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
         for (int index = 0; index < itemHandler.getSlots(); index++) {
             ItemStack itemStack = itemHandler.getStackInSlot(index);
             // 槽位为未设置过滤的已禁用槽位
-            if (itemHandler.isSlotDisabled(index) && itemHandler.getFilter(index).isEmpty()) {
+            if (itemHandler.isSlotDisabled(index)
+                    && itemHandler.getFilter(index).isEmpty()) {
                 strength++;
                 continue;
             }
@@ -285,8 +290,7 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
         return strength;
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
         return new BatchCrafterMenu(ModMenuTypes.BATCH_CRAFTER.get(), i, inventory, this);
     }
@@ -518,8 +522,7 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
         }
 
         @Override
-        public void setItem(int slot, ItemStack stack) {
-        }
+        public void setItem(int slot, ItemStack stack) {}
 
         @Override
         public void setChanged() {
@@ -532,8 +535,7 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
         }
 
         @Override
-        public void clearContent() {
-        }
+        public void clearContent() {}
 
         @Override
         public void fillStackedContents(StackedContents contents) {

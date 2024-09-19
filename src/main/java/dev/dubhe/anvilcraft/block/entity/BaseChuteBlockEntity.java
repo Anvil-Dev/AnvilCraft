@@ -1,11 +1,11 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerHolder;
-import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
-
+import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
+import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -23,11 +23,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-
-import lombok.Getter;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
+
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -87,8 +87,7 @@ public abstract class BaseChuteBlockEntity extends BaseMachineBlockEntity
     @Override
     public abstract Component getDisplayName();
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public abstract AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player);
 
     @Override
@@ -113,7 +112,11 @@ public abstract class BaseChuteBlockEntity extends BaseMachineBlockEntity
         if (cooldown <= 0) {
             if (isEnabled()) {
                 // 尝试从上方容器输入
-                IItemHandler source = getLevel().getCapability(Capabilities.ItemHandler.BLOCK, getBlockPos().relative(getInputDirection()), getInputDirection().getOpposite());
+                IItemHandler source = getLevel()
+                        .getCapability(
+                                Capabilities.ItemHandler.BLOCK,
+                                getBlockPos().relative(getInputDirection()),
+                                getInputDirection().getOpposite());
                 if (source != null) {
                     ItemHandlerUtil.importFromTarget(getItemHandler(), 64, stack -> true, source);
                 }
@@ -135,12 +138,18 @@ public abstract class BaseChuteBlockEntity extends BaseMachineBlockEntity
                     cooldown = AnvilCraft.config.chuteMaxCooldown;
                 }
             }
-            if (getLevel().getCapability(
-                    Capabilities.ItemHandler.BLOCK,
-                    getBlockPos().relative(this.getOutputDirection()),
-                    getOutputDirection().getOpposite()) != null) {
+            if (getLevel()
+                            .getCapability(
+                                    Capabilities.ItemHandler.BLOCK,
+                                    getBlockPos().relative(this.getOutputDirection()),
+                                    getOutputDirection().getOpposite())
+                    != null) {
                 // 尝试向朝向容器输出
-                IItemHandler target = getLevel().getCapability(Capabilities.ItemHandler.BLOCK, getBlockPos().relative(getOutputDirection()), getOutputDirection().getOpposite());
+                IItemHandler target = getLevel()
+                        .getCapability(
+                                Capabilities.ItemHandler.BLOCK,
+                                getBlockPos().relative(getOutputDirection()),
+                                getOutputDirection().getOpposite());
                 if (target != null) {
                     ItemHandlerUtil.exportToTarget(getItemHandler(), 64, stack -> true, target);
                     cooldown = AnvilCraft.config.chuteMaxCooldown;
