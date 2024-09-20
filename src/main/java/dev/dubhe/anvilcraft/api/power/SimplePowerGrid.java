@@ -45,6 +45,9 @@ public class SimplePowerGrid {
     private final int generate; // 发电功率
     private final int consume; // 耗电功率
 
+    @Getter
+    private final VoxelShape cachedMergedShape;
+
     /**
      * 简单电网
      */
@@ -63,6 +66,7 @@ public class SimplePowerGrid {
         blocks.addAll(
                 powerComponentInfoList.stream().map(PowerComponentInfo::pos).toList());
         this.powerComponentInfoList.addAll(powerComponentInfoList);
+        cachedMergedShape = createMergedShape();
     }
 
     /**
@@ -132,12 +136,10 @@ public class SimplePowerGrid {
         }
         this.consume = grid.getConsume();
         this.generate = grid.getGenerate();
+        cachedMergedShape = Shapes.block();
     }
 
-    /**
-     * @return 获取范围
-     */
-    public VoxelShape getShape() {
+    private VoxelShape createMergedShape() {
         return this.powerComponentInfoList.stream()
                 .map(it -> Shapes.box(
                                 -it.range(), -it.range(), -it.range(), it.range() + 1, it.range() + 1, it.range() + 1)

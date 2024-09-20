@@ -40,7 +40,7 @@ public class PowerGridRenderer {
                     camY,
                     camZ,
                     grid.getPos(),
-                    grid.getShape(),
+                    grid.getCachedMergedShape(),
                     random.nextFloat(),
                     random.nextFloat(),
                     random.nextFloat(),
