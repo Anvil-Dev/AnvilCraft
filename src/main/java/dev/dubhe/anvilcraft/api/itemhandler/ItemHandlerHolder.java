@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.api.itemhandler;
 import net.neoforged.neoforge.items.IItemHandler;
 
 /**
- * 持有物品Depository的
+ * 持有ItemHandler的
  */
 public interface ItemHandlerHolder {
 
