@@ -6,8 +6,8 @@ import dev.dubhe.anvilcraft.block.entity.BaseChuteBlockEntity;
 import dev.dubhe.anvilcraft.client.gui.component.EnableFilterButton;
 import dev.dubhe.anvilcraft.inventory.BaseChuteMenu;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePacket;
-
 import dev.dubhe.anvilcraft.network.SlotFilterChangePacket;
+
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -109,7 +109,8 @@ public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends 
                     menu.setFilter(realSlotId, carriedItem.copy());
                     slot.set(carriedItem);
                 } else {
-                    PacketDistributor.sendToServer(new SlotDisableChangePacket(realSlotId, !this.menu.isSlotDisabled(realSlotId)));
+                    PacketDistributor.sendToServer(
+                            new SlotDisableChangePacket(realSlotId, !this.menu.isSlotDisabled(realSlotId)));
                 }
             }
         }

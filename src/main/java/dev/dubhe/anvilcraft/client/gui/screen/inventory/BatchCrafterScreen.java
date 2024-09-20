@@ -5,8 +5,8 @@ import dev.dubhe.anvilcraft.api.itemhandler.SlotItemHandlerWithFilter;
 import dev.dubhe.anvilcraft.client.gui.component.EnableFilterButton;
 import dev.dubhe.anvilcraft.inventory.BatchCrafterMenu;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePacket;
-
 import dev.dubhe.anvilcraft.network.SlotFilterChangePacket;
+
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -94,7 +94,8 @@ public class BatchCrafterScreen extends BaseMachineScreen<BatchCrafterMenu> impl
                     menu.setFilter(realSlotId, carriedItem.copy());
                     slot.set(carriedItem);
                 } else {
-                    PacketDistributor.sendToServer(new SlotDisableChangePacket(realSlotId, !this.menu.isSlotDisabled(realSlotId)));
+                    PacketDistributor.sendToServer(
+                            new SlotDisableChangePacket(realSlotId, !this.menu.isSlotDisabled(realSlotId)));
                 }
             }
         }

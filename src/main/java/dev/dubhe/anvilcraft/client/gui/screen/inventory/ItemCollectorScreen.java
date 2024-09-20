@@ -7,8 +7,8 @@ import dev.dubhe.anvilcraft.client.gui.component.ItemCollectorButton;
 import dev.dubhe.anvilcraft.client.gui.component.TextWidget;
 import dev.dubhe.anvilcraft.inventory.ItemCollectorMenu;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePacket;
-
 import dev.dubhe.anvilcraft.network.SlotFilterChangePacket;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -153,7 +153,8 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
                     menu.setFilter(realSlotId, carriedItem.copy());
                     slot.set(carriedItem);
                 } else {
-                    PacketDistributor.sendToServer(new SlotDisableChangePacket(realSlotId, !this.menu.isSlotDisabled(realSlotId)));
+                    PacketDistributor.sendToServer(
+                            new SlotDisableChangePacket(realSlotId, !this.menu.isSlotDisabled(realSlotId)));
                 }
             }
         }
