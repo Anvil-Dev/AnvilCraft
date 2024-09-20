@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
+import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
@@ -14,7 +14,7 @@ public interface IFilterBlockEntity {
      *
      * @return 有过滤的物品存储
      */
-    FilteredItemDepository getFilteredItemDepository();
+    FilteredItemStackHandler getFilteredItemDepository();
 
     /**
      * 获取是否开启过滤

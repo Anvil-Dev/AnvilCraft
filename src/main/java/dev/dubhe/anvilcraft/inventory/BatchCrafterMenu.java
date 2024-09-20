@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.inventory;
 
-import dev.dubhe.anvilcraft.api.depository.ItemDepositorySlot;
+import dev.dubhe.anvilcraft.api.itemhandler.SlotItemHandlerWithFilter;
 import dev.dubhe.anvilcraft.block.entity.BatchCrafterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlocks;
@@ -60,8 +60,8 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
 
         for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < 3; ++j) {
-                this.addSlot(
-                        new ItemDepositorySlot(this.blockEntity.getDepository(), i * 3 + j, 26 + j * 18, 18 + i * 18));
+                this.addSlot(new SlotItemHandlerWithFilter(
+                        this.blockEntity.getItemHandler(), i * 3 + j, 26 + j * 18, 18 + i * 18));
             }
         }
 
@@ -152,7 +152,7 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
 
     // 是否可以向槽位中放入物品
     private boolean canPlace(ItemStack stack, int index) {
-        if (this.getSlot(index) instanceof ItemDepositorySlot depositorySlot) {
+        if (this.getSlot(index) instanceof SlotItemHandlerWithFilter depositorySlot) {
             // 如果当前槽位被禁用，返回false
             if (depositorySlot.isSlotDisabled(9 - (45 - index))) {
                 return false;

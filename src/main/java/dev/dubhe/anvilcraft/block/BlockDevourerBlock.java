@@ -1,7 +1,5 @@
 package dev.dubhe.anvilcraft.block;
 
-import dev.dubhe.anvilcraft.api.depository.IItemDepository;
-import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeableBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
@@ -29,6 +27,9 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.NotNull;
@@ -150,8 +151,10 @@ public class BlockDevourerBlock extends DirectionalBlock implements IHammerChang
     public void devourBlock(ServerLevel level, BlockPos devourerPos, Direction devourerDirection, int range) {
         BlockPos outputPos = devourerPos.relative(devourerDirection.getOpposite());
         BlockPos devourCenterPos = devourerPos.relative(devourerDirection);
-        IItemDepository depository = ItemDepositoryHelper.getItemDepository(
-                level, devourerPos.relative(devourerDirection.getOpposite()), devourerDirection.getOpposite());
+        IItemHandler itemHandler = level.getCapability(
+                Capabilities.ItemHandler.BLOCK,
+                devourerPos.relative(devourerDirection.getOpposite()),
+                devourerDirection.getOpposite());
         Vec3 center = outputPos.getCenter();
         AABB aabb = new AABB(center.add(-0.125, -0.125, -0.125), center.add(0.125, 0.125, 0.125));
         final List<BlockPos> devourBlockPosList;
@@ -168,7 +171,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements IHammerChang
                     devourCenterPos.relative(Direction.DOWN, range).relative(Direction.SOUTH, range));
             default -> devourBlockBoundingBox = new AABB(devourCenterPos);
         }
-        boolean isDropOriginalPlace = depository == null && !level.noCollision(aabb);
+        boolean isDropOriginalPlace = itemHandler == null && !level.noCollision(aabb);
         devourBlockPosList = BlockPos.betweenClosedStream(devourBlockBoundingBox)
                 .map(blockPos -> new BlockPos(blockPos.getX(), blockPos.getY(), blockPos.getZ()))
                 .map(BlockPos::new)
@@ -182,10 +185,10 @@ public class BlockDevourerBlock extends DirectionalBlock implements IHammerChang
                         Block.getDrops(devouBlockState, level, devourBlockPos, level.getBlockEntity(devourBlockPos))) {
                     if (devouBlockState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)
                             && level.random.nextDouble() > 0.05) break;
-                    if (depository != null) {
-                        ItemStack outItemStack = ItemDepositoryHelper.insertItem(depository, itemStack, true);
+                    if (itemHandler != null) {
+                        ItemStack outItemStack = ItemHandlerHelper.insertItem(itemHandler, itemStack, true);
                         if (outItemStack.isEmpty()) {
-                            ItemDepositoryHelper.insertItem(depository, itemStack, false);
+                            ItemHandlerHelper.insertItem(itemHandler, itemStack, false);
                         }
                         isDropOriginalPlace = !outItemStack.isEmpty();
                     } else {

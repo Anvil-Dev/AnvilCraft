@@ -2,10 +2,9 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.IHasDisplayItem;
-import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
-import dev.dubhe.anvilcraft.api.depository.IItemDepository;
-import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
+import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
+import dev.dubhe.anvilcraft.api.itemhandler.PollableFilteredItemStackHandler;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.BatchCrafterBlock;
@@ -43,6 +42,9 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import lombok.Getter;
@@ -57,6 +59,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
+import java.util.stream.IntStream;
 
 @Getter
 @SuppressWarnings("NullableProblems")
@@ -73,7 +76,7 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
     private final int inputPower = 1;
 
     private final Deque<AutoCrafterCache> cache = new ArrayDeque<>();
-    private final FilteredItemDepository depository = new FilteredItemDepository.Pollable(9) {
+    private final FilteredItemStackHandler itemHandler = new PollableFilteredItemStackHandler(9) {
         @Override
         public void onContentsChanged(int slot) {
             if (level != null) {
@@ -122,9 +125,10 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
 
     private boolean canCraft() {
         if (grid == null || !grid.isWork()) return false;
-        if (!depository.isFilterEnabled()) return true;
-        for (int i = 0; i < depository.getSlots(); i++) {
-            if (depository.getStack(i).isEmpty() && !depository.getFilter(i).isEmpty()) return false;
+        if (!itemHandler.isFilterEnabled()) return true;
+        for (int i = 0; i < itemHandler.getSlots(); i++) {
+            if (itemHandler.getStackInSlot(i).isEmpty()
+                    && !itemHandler.getFilter(i).isEmpty()) return false;
         }
         return true;
     }
@@ -163,7 +167,8 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
         }
         if (!result.isItemEnabled(level.enabledFeatures())) return;
         int times;
-        Optional<ItemStack> minStack = depository.getStacks().stream()
+        Optional<ItemStack> minStack = IntStream.range(0, itemHandler.getSlots())
+                .mapToObj(itemHandler::getStackInSlot)
                 .filter((s -> !s.isEmpty()))
                 .min((s1, s2) -> {
                     int a = s1.getCount();
@@ -177,16 +182,19 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
         }
         result.setCount(result.getCount() * times);
         craftRemaining.forEach(stack -> stack.setCount(stack.getCount() * times));
-        IItemDepository itemDepository = ItemDepositoryHelper.getItemDepository(
-                level, getBlockPos().relative(getDirection()), getDirection().getOpposite());
-        if (itemDepository != null) {
+        IItemHandler cap = getLevel()
+                .getCapability(
+                        Capabilities.ItemHandler.BLOCK,
+                        getBlockPos().relative(getDirection()),
+                        getDirection().getOpposite());
+        if (cap != null) {
             // 尝试向容器插入物品
-            ItemStack remained = ItemDepositoryHelper.insertItem(itemDepository, result, true);
+            ItemStack remained = ItemHandlerHelper.insertItem(cap, result, true);
             if (!remained.isEmpty()) return;
-            remained = ItemDepositoryHelper.insertItem(itemDepository, result, false);
+            remained = ItemHandlerHelper.insertItem(cap, result, false);
             spawnItemEntity(remained);
             for (ItemStack stack : craftRemaining) {
-                remained = ItemDepositoryHelper.insertItem(itemDepository, stack, false);
+                remained = ItemHandlerHelper.insertItem(cap, stack, false);
                 spawnItemEntity(remained);
             }
         } else {
@@ -200,8 +208,8 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
                 spawnItemEntity(stack);
             }
         }
-        for (int i = 0; i < depository.getSlots(); i++) {
-            depository.extract(i, times, false);
+        for (int i = 0; i < itemHandler.getSlots(); i++) {
+            itemHandler.extractItem(i, times, false);
         }
         level.updateNeighborsAt(getBlockPos(), ModBlocks.BATCH_CRAFTER.get());
     }
@@ -219,7 +227,7 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
     @Override
     public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
-        depository.deserializeNbt(provider, tag.getCompound("Inventory"));
+        itemHandler.deserializeNBT(provider, tag.getCompound("Inventory"));
         if (tag.getBoolean("HasDisplayItemStack") && tag.contains("ResultItemStack")) {
             CompoundTag ct = tag.getCompound("ResultItemStack");
             displayItemStack =
@@ -230,7 +238,7 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
     @Override
     protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
-        tag.put("Inventory", this.depository.serializeNbt(provider));
+        tag.put("Inventory", this.itemHandler.serializeNBT(provider));
         boolean hasDisplayItemStack = displayItemStack != null && !displayItemStack.isEmpty();
         tag.putBoolean("HasDisplayItemStack", hasDisplayItemStack);
         if (hasDisplayItemStack) {
@@ -265,10 +273,11 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
      */
     public int getRedstoneSignal() {
         int strength = 0;
-        for (int index = 0; index < depository.getSlots(); index++) {
-            ItemStack itemStack = depository.getStack(index);
+        for (int index = 0; index < itemHandler.getSlots(); index++) {
+            ItemStack itemStack = itemHandler.getStackInSlot(index);
             // 槽位为未设置过滤的已禁用槽位
-            if (depository.isSlotDisabled(index) && depository.getFilter(index).isEmpty()) {
+            if (itemHandler.isSlotDisabled(index)
+                    && itemHandler.getFilter(index).isEmpty()) {
                 strength++;
                 continue;
             }
@@ -292,8 +301,8 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
     }
 
     @Override
-    public FilteredItemDepository getFilteredItemDepository() {
-        return this.depository;
+    public FilteredItemStackHandler getFilteredItemDepository() {
+        return this.itemHandler;
     }
 
     @Override
@@ -303,12 +312,12 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
 
     @Override
     public void storeDiskData(CompoundTag tag) {
-        tag.put("Filtering", depository.serializeFiltering());
+        tag.put("Filtering", itemHandler.serializeFiltering());
     }
 
     @Override
     public void applyDiskData(CompoundTag data) {
-        depository.deserializeFiltering(data.getCompound("Filtering"));
+        itemHandler.deserializeFiltering(data.getCompound("Filtering"));
     }
 
     @Override
@@ -398,39 +407,41 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
 
         @Override
         public List<ItemStack> getItems() {
-            return depository.getStacks();
+            return itemHandler.getStacks();
         }
 
         @Override
         public int getContainerSize() {
-            return depository.getSlots();
+            return itemHandler.getSlots();
         }
 
         @Override
         public boolean isEmpty() {
-            return depository.isEmpty();
+            return itemHandler.getStacks().isEmpty();
         }
 
         @Override
         public ItemStack getItem(int slot) {
-            return depository.getStack(slot);
+            return itemHandler.getStackInSlot(slot);
         }
 
         @Override
         public ItemStack removeItem(int slot, int amount) {
-            ItemStack stack = depository.extract(slot, amount, false, true);
+            ItemStack stack = itemHandler.extractItem(slot, amount, false);
             BatchCrafterBlockEntity.this.setChanged();
             return stack;
         }
 
         @Override
         public ItemStack removeItemNoUpdate(int slot) {
-            return depository.clearItem(slot);
+            ItemStack stack = itemHandler.getStackInSlot(slot);
+            itemHandler.setStackInSlot(slot, ItemStack.EMPTY);
+            return stack;
         }
 
         @Override
         public void setItem(int slot, ItemStack stack) {
-            depository.setStack(slot, stack);
+            itemHandler.setStackInSlot(slot, stack);
         }
 
         @Override
@@ -446,7 +457,7 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
         @Override
         public void clearContent() {
             for (int i = 0; i < this.getContainerSize(); i++) {
-                depository.clearItem(i);
+                removeItemNoUpdate(i);
             }
         }
 
@@ -482,7 +493,7 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
 
         @Override
         public int getContainerSize() {
-            return depository.getSlots();
+            return itemHandler.getSlots();
         }
 
         @Override
@@ -495,8 +506,8 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
 
         @Override
         public @NotNull ItemStack getItem(int slot) {
-            ItemStack stack = depository.getStack(slot);
-            if (stack.isEmpty()) stack = depository.getFilter(slot);
+            ItemStack stack = itemHandler.getStackInSlot(slot);
+            if (stack.isEmpty()) stack = itemHandler.getFilter(slot);
             return stack;
         }
 

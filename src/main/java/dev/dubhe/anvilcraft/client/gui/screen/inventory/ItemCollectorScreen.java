@@ -1,13 +1,14 @@
 package dev.dubhe.anvilcraft.client.gui.screen.inventory;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.depository.ItemDepositorySlot;
+import dev.dubhe.anvilcraft.api.itemhandler.SlotItemHandlerWithFilter;
 import dev.dubhe.anvilcraft.client.gui.component.EnableFilterButton;
 import dev.dubhe.anvilcraft.client.gui.component.ItemCollectorButton;
 import dev.dubhe.anvilcraft.client.gui.component.TextWidget;
 import dev.dubhe.anvilcraft.inventory.ItemCollectorMenu;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePacket;
 
+import dev.dubhe.anvilcraft.network.SlotFilterChangePacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -16,6 +17,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import lombok.Getter;
@@ -122,8 +124,8 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
 
     protected void renderSlotTooltip(@NotNull GuiGraphics guiGraphics, int x, int y) {
         if (this.hoveredSlot == null) return;
-        if (!(this.hoveredSlot instanceof ItemDepositorySlot)) return;
-        if (!((ItemDepositorySlot) this.hoveredSlot).isFilter()) return;
+        if (!(this.hoveredSlot instanceof SlotItemHandlerWithFilter)) return;
+        if (!((SlotItemHandlerWithFilter) this.hoveredSlot).isFilter()) return;
         if (!this.isFilterEnabled()) return;
         if (!this.isSlotDisabled(this.hoveredSlot.getContainerSlot())) return;
         guiGraphics.renderTooltip(this.font, Component.translatable("screen.anvilcraft.slot.disable.tooltip"), x, y);
@@ -139,20 +141,21 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
         this.enableFilterButton.flush();
     }
 
-    @Override
     protected void slotClicked(@NotNull Slot slot, int slotId, int mouseButton, @NotNull ClickType type) {
-        start:
         if (type == ClickType.PICKUP) {
-            if (!this.menu.getCarried().isEmpty()) break start;
-            if (!(slot instanceof ItemDepositorySlot)) break start;
-            if (!slot.getItem().isEmpty()) break start;
-            int slot1 = slot.getContainerSlot();
-            if (this.menu.isFilterEnabled()) {
-                if (!this.menu.isSlotDisabled(slot1))
-                    PacketDistributor.sendToServer(new SlotDisableChangePacket(slot1, false));
-                break start;
+            if (slot instanceof SlotItemHandlerWithFilter && slot.getItem().isEmpty()) {
+                ItemStack carriedItem = this.menu.getCarried();
+                int realSlotId = slot.getContainerSlot();
+                if (this.menu.isFilterEnabled()) {
+                    PacketDistributor.sendToServer(new SlotDisableChangePacket(realSlotId, false));
+                    PacketDistributor.sendToServer(new SlotFilterChangePacket(realSlotId, carriedItem.copy()));
+                    menu.setSlotDisabled(realSlotId, false);
+                    menu.setFilter(realSlotId, carriedItem.copy());
+                    slot.set(carriedItem);
+                } else {
+                    PacketDistributor.sendToServer(new SlotDisableChangePacket(realSlotId, !this.menu.isSlotDisabled(realSlotId)));
+                }
             }
-            PacketDistributor.sendToServer(new SlotDisableChangePacket(slot1, !this.menu.isSlotDisabled(slot1)));
         }
         super.slotClicked(slot, slotId, mouseButton, type);
     }

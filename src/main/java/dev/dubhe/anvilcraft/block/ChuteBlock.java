@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.block;
 
-import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeableBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
@@ -233,7 +233,7 @@ public class ChuteBlock extends BetterBaseEntityBlock implements IHammerChangeab
                     PacketDistributor.sendToPlayer(
                             serverPlayer,
                             new SlotDisableChangePacket(
-                                    i, entity.getDepository().getDisabled().get(i)));
+                                    i, entity.getItemHandler().getDisabled().get(i)));
                     PacketDistributor.sendToPlayer(serverPlayer, new SlotFilterChangePacket(i, entity.getFilter(i)));
                 }
             }
@@ -252,9 +252,9 @@ public class ChuteBlock extends BetterBaseEntityBlock implements IHammerChangeab
         if (!state.is(newState.getBlock())) {
             if (level.getBlockEntity(pos) instanceof ChuteBlockEntity entity) {
                 Vec3 vec3 = entity.getBlockPos().getCenter();
-                FilteredItemDepository depository = entity.getDepository();
+                FilteredItemStackHandler depository = entity.getItemHandler();
                 for (int slot = 0; slot < depository.getSlots(); slot++) {
-                    Containers.dropItemStack(level, vec3.x, vec3.y, vec3.z, depository.getStack(slot));
+                    Containers.dropItemStack(level, vec3.x, vec3.y, vec3.z, depository.getStackInSlot(slot));
                 }
                 level.updateNeighbourForOutputSignal(pos, this);
             }

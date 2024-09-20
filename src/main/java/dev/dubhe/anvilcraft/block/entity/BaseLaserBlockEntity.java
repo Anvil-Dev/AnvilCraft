@@ -1,8 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.depository.IItemDepository;
-import dev.dubhe.anvilcraft.api.depository.ItemDepositoryHelper;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.network.LaserEmitPacket;
 
@@ -23,6 +21,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import org.jetbrains.annotations.NotNull;
@@ -125,13 +126,16 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
             tickCount = 0;
             if (irradiateBlock.is(ModBlockTags.ORES)) {
                 Vec3 blockPos = getBlockPos().relative(direction.getOpposite()).getCenter();
-                IItemDepository depository = ItemDepositoryHelper.getItemDepository(
-                        getLevel(), getBlockPos().relative(this.getDirection().getOpposite()), this.getDirection());
+                IItemHandler cap = getLevel()
+                        .getCapability(
+                                Capabilities.ItemHandler.BLOCK,
+                                getBlockPos().relative(getDirection().getOpposite()),
+                                getDirection());
                 drops.forEach(itemStack -> {
-                    if (depository != null) {
-                        ItemStack outItemStack = ItemDepositoryHelper.insertItem(depository, itemStack, true);
+                    if (cap != null) {
+                        ItemStack outItemStack = ItemHandlerHelper.insertItem(cap, itemStack, true);
                         if (outItemStack.isEmpty()) {
-                            ItemDepositoryHelper.insertItem(depository, itemStack, false);
+                            ItemHandlerHelper.insertItem(cap, itemStack, false);
                         } else
                             level.addFreshEntity(
                                     new ItemEntity(level, blockPos.x, blockPos.y, blockPos.z, outItemStack));

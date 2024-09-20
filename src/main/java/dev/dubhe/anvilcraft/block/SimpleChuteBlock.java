@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.block;
 
-import dev.dubhe.anvilcraft.api.depository.ItemDepository;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeableBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
@@ -39,6 +38,7 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.items.IItemHandler;
 
 import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.NotNull;
@@ -167,9 +167,9 @@ public class SimpleChuteBlock extends BaseEntityBlock
         if (!state.is(newState.getBlock())) {
             if (level.getBlockEntity(pos) instanceof SimpleChuteBlockEntity entity) {
                 Vec3 vec3 = entity.getBlockPos().getCenter();
-                ItemDepository depository = entity.getDepository();
+                IItemHandler depository = entity.getItemHandler();
                 for (int slot = 0; slot < depository.getSlots(); slot++) {
-                    Containers.dropItemStack(level, vec3.x, vec3.y, vec3.z, depository.getStack(slot));
+                    Containers.dropItemStack(level, vec3.x, vec3.y, vec3.z, depository.getStackInSlot(slot));
                 }
                 level.updateNeighbourForOutputSignal(pos, this);
             }

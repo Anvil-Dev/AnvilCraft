@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import dev.dubhe.anvilcraft.api.depository.DepositoryHolder;
-import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
+import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
+import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerHolder;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IHasAffectRange;
@@ -42,7 +42,12 @@ import java.util.List;
 
 @Getter
 public class ItemCollectorBlockEntity extends BlockEntity
-        implements MenuProvider, IFilterBlockEntity, IPowerConsumer, IDiskCloneable, IHasAffectRange, DepositoryHolder {
+        implements MenuProvider,
+                IFilterBlockEntity,
+                IPowerConsumer,
+                IDiskCloneable,
+                IHasAffectRange,
+                ItemHandlerHolder {
     @Setter
     private PowerGrid grid;
 
@@ -68,7 +73,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
             60);
     private int cd = rangeRadius.get();
 
-    private final FilteredItemDepository depository = new FilteredItemDepository(9) {
+    private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(9) {
         @Override
         public void onContentsChanged(int slot) {
             ItemCollectorBlockEntity.this.setChanged();
@@ -97,8 +102,8 @@ public class ItemCollectorBlockEntity extends BlockEntity
     }
 
     @Override
-    public FilteredItemDepository getFilteredItemDepository() {
-        return depository;
+    public FilteredItemStackHandler getFilteredItemDepository() {
+        return itemHandler;
     }
 
     @Override
@@ -109,7 +114,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
     @Override
     public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
-        depository.deserializeNbt(provider, tag.getCompound("Inventory"));
+        itemHandler.deserializeNBT(provider, tag.getCompound("Inventory"));
         cooldown.fromIndex(tag.getInt("Cooldown"));
         rangeRadius.fromIndex(tag.getInt("RangeRadius"));
     }
@@ -117,7 +122,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
     @Override
     public void saveAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
-        tag.put("Inventory", this.depository.serializeNbt(provider));
+        tag.put("Inventory", this.itemHandler.serializeNBT(provider));
         tag.putInt("Cooldown", cooldown.index());
         tag.putInt("RangeRadius", rangeRadius.index());
     }
@@ -135,7 +140,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
     @Override
     public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider provider) {
         CompoundTag tag = new CompoundTag();
-        tag.put("Inventory", this.depository.serializeNbt(provider));
+        tag.put("Inventory", this.itemHandler.serializeNBT(provider));
         tag.putInt("Cooldown", cooldown.index());
         tag.putInt("RangeRadius", rangeRadius.index());
         return tag;
@@ -160,7 +165,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
             ItemStack itemStack = itemEntity.getItem();
             int slotIndex = 0;
             while (itemStack != ItemStack.EMPTY && slotIndex < 9) {
-                itemStack = depository.insert(slotIndex++, itemStack, false);
+                itemStack = itemHandler.insertItem(slotIndex++, itemStack, false);
             }
             if (itemStack != ItemStack.EMPTY) {
                 itemEntity.setItem(itemStack);
@@ -180,9 +185,9 @@ public class ItemCollectorBlockEntity extends BlockEntity
      */
     public int getRedstoneSignal() {
         int i = 0;
-        for (int j = 0; j < depository.getSlots(); ++j) {
-            ItemStack itemStack = depository.getStack(j);
-            if (itemStack.isEmpty() && !depository.isSlotDisabled(j)) continue;
+        for (int j = 0; j < itemHandler.getSlots(); ++j) {
+            ItemStack itemStack = itemHandler.getStackInSlot(j);
+            if (itemStack.isEmpty() && !itemHandler.isSlotDisabled(j)) continue;
             ++i;
         }
         return i;
@@ -190,12 +195,12 @@ public class ItemCollectorBlockEntity extends BlockEntity
 
     @Override
     public void storeDiskData(CompoundTag tag) {
-        tag.put("Filtering", depository.serializeFiltering());
+        tag.put("Filtering", itemHandler.serializeFiltering());
     }
 
     @Override
     public void applyDiskData(CompoundTag data) {
-        depository.deserializeFiltering(data.getCompound("Filtering"));
+        itemHandler.deserializeFiltering(data.getCompound("Filtering"));
     }
 
     @Override
