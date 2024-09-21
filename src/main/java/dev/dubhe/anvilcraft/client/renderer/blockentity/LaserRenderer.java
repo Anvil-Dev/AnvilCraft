@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.AABB;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -148,6 +149,13 @@ public class LaserRenderer implements BlockEntityRenderer<BaseLaserBlockEntity> 
         addVertex(consumer, poseStack, maxX, maxY, minZ, sprite.getU0(), sprite.getV1(), a);
         addVertex(consumer, poseStack, maxX, minY, maxZ, sprite.getU0(), sprite.getV0(), a);
         addVertex(consumer, poseStack, minX, minY, maxZ, sprite.getU1(), sprite.getV0(), a);
+    }
+
+    @Override
+    public @NotNull AABB getRenderBoundingBox(@NotNull BaseLaserBlockEntity blockEntity) {
+        int renderDistance = Minecraft.getInstance().options.getEffectiveRenderDistance() * 16;
+        return AABB.ofSize(
+                blockEntity.getBlockPos().getCenter(), renderDistance * 2, renderDistance * 2, renderDistance * 2);
     }
 
     private static void addVertex(

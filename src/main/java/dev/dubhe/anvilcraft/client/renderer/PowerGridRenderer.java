@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -31,6 +32,7 @@ public class PowerGridRenderer {
         RandomSource random = Minecraft.getInstance().level.random;
         String level = Minecraft.getInstance().level.dimension().location().toString();
         for (SimplePowerGrid grid : PowerGridRenderer.GRID_MAP.values()) {
+            if (!grid.shouldRenderOutline(new Vec3(camX, camY, camZ))) return;
             if (!grid.getLevel().equals(level)) continue;
             random.setSeed(grid.getHash());
             PowerGridRenderer.renderOutline(
@@ -40,7 +42,7 @@ public class PowerGridRenderer {
                     camY,
                     camZ,
                     grid.getPos(),
-                    grid.getCachedMergedShape(),
+                    grid.getCachedOutlineShape(),
                     random.nextFloat(),
                     random.nextFloat(),
                     random.nextFloat(),

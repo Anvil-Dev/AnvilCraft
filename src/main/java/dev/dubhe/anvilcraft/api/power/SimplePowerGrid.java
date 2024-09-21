@@ -2,11 +2,13 @@ package dev.dubhe.anvilcraft.api.power;
 
 import dev.dubhe.anvilcraft.client.renderer.PowerGridRenderer;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -46,7 +48,7 @@ public class SimplePowerGrid {
     private final int consume; // 耗电功率
 
     @Getter
-    private final VoxelShape cachedMergedShape;
+    private final VoxelShape cachedOutlineShape;
 
     /**
      * 简单电网
@@ -66,7 +68,7 @@ public class SimplePowerGrid {
         blocks.addAll(
                 powerComponentInfoList.stream().map(PowerComponentInfo::pos).toList());
         this.powerComponentInfoList.addAll(powerComponentInfoList);
-        cachedMergedShape = createMergedShape();
+        cachedOutlineShape = createMergedOutlineShape();
     }
 
     /**
@@ -136,10 +138,17 @@ public class SimplePowerGrid {
         }
         this.consume = grid.getConsume();
         this.generate = grid.getGenerate();
-        cachedMergedShape = Shapes.block();
+        cachedOutlineShape = Shapes.block();
     }
 
-    private VoxelShape createMergedShape() {
+    public boolean shouldRenderOutline(Vec3 cameraPos) {
+        int renderDistance = Minecraft.getInstance().options.getEffectiveRenderDistance() * 16;
+        renderDistance *= renderDistance;
+        double distanceSqr = pos.getCenter().distanceToSqr(cameraPos);
+        return distanceSqr < renderDistance;
+    }
+
+    private VoxelShape createMergedOutlineShape() {
         return this.powerComponentInfoList.stream()
                 .map(it -> Shapes.box(
                                 -it.range(), -it.range(), -it.range(), it.range() + 1, it.range() + 1, it.range() + 1)
