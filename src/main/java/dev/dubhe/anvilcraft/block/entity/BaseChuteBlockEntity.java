@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -28,12 +29,15 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
 @Getter
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public abstract class BaseChuteBlockEntity extends BaseMachineBlockEntity
         implements IFilterBlockEntity, IDiskCloneable, ItemHandlerHolder {
     private int cooldown = 0;
@@ -88,10 +92,10 @@ public abstract class BaseChuteBlockEntity extends BaseMachineBlockEntity
     public abstract Component getDisplayName();
 
     @Nullable @Override
-    public abstract AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player);
+    public abstract AbstractContainerMenu createMenu(int i, Inventory inventory, Player player);
 
     @Override
-    protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
         tag.putInt("Cooldown", cooldown);
         tag.put("Inventory", itemHandler.serializeNBT(provider));
@@ -107,7 +111,6 @@ public abstract class BaseChuteBlockEntity extends BaseMachineBlockEntity
     /**
      * 溜槽 tick
      */
-    @SuppressWarnings("UnreachableCode")
     public void tick() {
         if (cooldown <= 0) {
             if (isEnabled()) {
@@ -119,31 +122,26 @@ public abstract class BaseChuteBlockEntity extends BaseMachineBlockEntity
                                 getInputDirection().getOpposite());
                 if (source != null) {
                     ItemHandlerUtil.importFromTarget(getItemHandler(), 64, stack -> true, source);
-                }
-            } else {
-                List<ItemEntity> itemEntities = getLevel()
-                        .getEntitiesOfClass(
-                                ItemEntity.class,
-                                new AABB(getBlockPos().relative(getInputDirection())),
-                                itemEntity -> !itemEntity.getItem().isEmpty());
-                int prevSize = itemEntities.size();
-                for (ItemEntity itemEntity : itemEntities) {
-                    ItemStack remaining = ItemHandlerHelper.insertItem(this.itemHandler, itemEntity.getItem(), true);
-                    if (!remaining.isEmpty()) continue;
-                    ItemHandlerHelper.insertItem(this.itemHandler, itemEntity.getItem(), false);
-                    itemEntity.kill();
-                    break;
-                }
-                if (prevSize > itemEntities.size()) {
                     cooldown = AnvilCraft.config.chuteMaxCooldown;
+                } else {
+                    List<ItemEntity> itemEntities = getLevel()
+                            .getEntitiesOfClass(
+                                    ItemEntity.class,
+                                    new AABB(getBlockPos().relative(getInputDirection())),
+                                    itemEntity -> !itemEntity.getItem().isEmpty());
+                    int prevSize = itemEntities.size();
+                    for (ItemEntity itemEntity : itemEntities) {
+                        ItemStack remaining =
+                                ItemHandlerHelper.insertItem(this.itemHandler, itemEntity.getItem(), true);
+                        if (!remaining.isEmpty()) continue;
+                        ItemHandlerHelper.insertItem(this.itemHandler, itemEntity.getItem(), false);
+                        itemEntity.kill();
+                        break;
+                    }
+                    if (prevSize > itemEntities.size()) {
+                        cooldown = AnvilCraft.config.chuteMaxCooldown;
+                    }
                 }
-            }
-            if (getLevel()
-                            .getCapability(
-                                    Capabilities.ItemHandler.BLOCK,
-                                    getBlockPos().relative(this.getOutputDirection()),
-                                    getOutputDirection().getOpposite())
-                    != null) {
                 // 尝试向朝向容器输出
                 IItemHandler target = getLevel()
                         .getCapability(
@@ -153,49 +151,50 @@ public abstract class BaseChuteBlockEntity extends BaseMachineBlockEntity
                 if (target != null) {
                     ItemHandlerUtil.exportToTarget(getItemHandler(), 64, stack -> true, target);
                     cooldown = AnvilCraft.config.chuteMaxCooldown;
-                }
-            } else {
-                Vec3 center = getBlockPos().relative(getOutputDirection()).getCenter();
-                List<ItemEntity> itemEntities = getLevel()
-                        .getEntitiesOfClass(
-                                ItemEntity.class,
-                                new AABB(getBlockPos().relative(getOutputDirection())),
-                                itemEntity -> !itemEntity.getItem().isEmpty());
-                AABB aabb = new AABB(center.add(-0.125, -0.125, -0.125), center.add(0.125, 0.125, 0.125));
-                if (getLevel().noCollision(aabb)) {
-                    for (int i = 0; i < this.itemHandler.getSlots(); i++) {
-                        ItemStack stack = this.itemHandler.getStackInSlot(i);
-                        if (!stack.isEmpty()) {
-                            int sameItemCount = 0;
-                            for (ItemEntity entity : itemEntities) {
-                                if (entity.getItem().getItem() == stack.getItem()) {
-                                    sameItemCount += entity.getItem().getCount();
+                } else {
+                    Vec3 center = getBlockPos().relative(getOutputDirection()).getCenter();
+                    List<ItemEntity> itemEntities = getLevel()
+                            .getEntitiesOfClass(
+                                    ItemEntity.class,
+                                    new AABB(getBlockPos().relative(getOutputDirection())),
+                                    itemEntity -> !itemEntity.getItem().isEmpty());
+                    AABB aabb = new AABB(center.add(-0.125, -0.125, -0.125), center.add(0.125, 0.125, 0.125));
+                    if (getLevel().noCollision(aabb)) {
+                        for (int i = 0; i < this.itemHandler.getSlots(); i++) {
+                            ItemStack stack = this.itemHandler.getStackInSlot(i);
+                            if (!stack.isEmpty()) {
+                                int sameItemCount = 0;
+                                for (ItemEntity entity : itemEntities) {
+                                    if (entity.getItem().getItem() == stack.getItem()) {
+                                        sameItemCount += entity.getItem().getCount();
+                                    }
                                 }
-                            }
-                            if (sameItemCount < stack.getItem().getMaxStackSize(stack)) {
-                                ItemStack droppedItemStack = stack.copy();
-                                int droppedItemCount =
-                                        Math.min(stack.getCount(), stack.getMaxStackSize() - sameItemCount);
-                                droppedItemStack.setCount(droppedItemCount);
-                                stack.setCount(stack.getCount() - droppedItemCount);
-                                if (stack.getCount() == 0) stack = ItemStack.EMPTY;
-                                ItemEntity itemEntity = new ItemEntity(
-                                        getLevel(), center.x, center.y, center.z, droppedItemStack, 0, 0, 0);
-                                itemEntity.setDefaultPickUpDelay();
-                                getLevel().addFreshEntity(itemEntity);
-                                this.itemHandler.setStackInSlot(i, stack);
-                                cooldown = AnvilCraft.config.chuteMaxCooldown;
-                                break;
+                                if (sameItemCount < stack.getItem().getMaxStackSize(stack)) {
+                                    ItemStack droppedItemStack = stack.copy();
+                                    int droppedItemCount =
+                                            Math.min(stack.getCount(), stack.getMaxStackSize() - sameItemCount);
+                                    droppedItemStack.setCount(droppedItemCount);
+                                    stack.setCount(stack.getCount() - droppedItemCount);
+                                    if (stack.getCount() == 0) stack = ItemStack.EMPTY;
+                                    ItemEntity itemEntity = new ItemEntity(
+                                            getLevel(), center.x, center.y, center.z, droppedItemStack, 0, 0, 0);
+                                    itemEntity.setDefaultPickUpDelay();
+                                    getLevel().addFreshEntity(itemEntity);
+                                    this.itemHandler.setStackInSlot(i, stack);
+                                    cooldown = AnvilCraft.config.chuteMaxCooldown;
+                                    break;
+                                }
                             }
                         }
                     }
                 }
             }
+            if (level != null) {
+                level.updateNeighbourForOutputSignal(
+                        getBlockPos(), getBlockState().getBlock());
+            }
         } else {
             cooldown--;
-        }
-        if (level != null) {
-            level.updateNeighbourForOutputSignal(getBlockPos(), getBlockState().getBlock());
         }
     }
 

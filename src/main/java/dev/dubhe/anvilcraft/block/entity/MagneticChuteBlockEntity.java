@@ -26,12 +26,12 @@ public class MagneticChuteBlockEntity extends BaseChuteBlockEntity {
     }
 
     @Override
-    protected boolean shouldSkipDirection(Direction direction) {
+    protected boolean shouldSkipDirection(@NotNull Direction direction) {
         return false;
     }
 
     @Override
-    protected boolean validateBlockState(BlockState state) {
+    protected boolean validateBlockState(@NotNull BlockState state) {
         return state.is(ModBlocks.MAGNETIC_CHUTE.get());
     }
 
