@@ -122,7 +122,7 @@ public class HudTooltipManager {
                 .sorted(Comparator.comparingInt(HandHeldItemTooltipProvider::priority))
                 .collect(Collectors.toCollection(ArrayList::new));
         if (pv.isEmpty()) return null;
-        return pv.get(0);
+        return pv.getFirst();
     }
 
     private BlockEntityTooltipProvider determineBlockEntityTooltipProvider(BlockEntity entity) {
@@ -132,7 +132,7 @@ public class HudTooltipManager {
                 .sorted(Comparator.comparingInt(BlockEntityTooltipProvider::priority))
                 .collect(Collectors.toCollection(ArrayList::new));
         if (blockEntityTooltipProviders.isEmpty()) return null;
-        return blockEntityTooltipProviders.get(0);
+        return blockEntityTooltipProviders.getFirst();
     }
 
     private AffectRangeProvider determineAffectRangeProvider(BlockEntity entity) {
@@ -142,6 +142,6 @@ public class HudTooltipManager {
                 .sorted(Comparator.comparingInt(AffectRangeProvider::priority))
                 .collect(Collectors.toCollection(ArrayList::new));
         if (pv.isEmpty()) return null;
-        return pv.get(0);
+        return pv.getFirst();
     }
 }

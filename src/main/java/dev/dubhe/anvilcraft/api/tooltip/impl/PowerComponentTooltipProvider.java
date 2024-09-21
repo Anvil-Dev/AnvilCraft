@@ -49,7 +49,7 @@ public class PowerComponentTooltipProvider implements BlockEntityTooltipProvider
         }
         List<SimplePowerGrid> powerGrids = SimplePowerGrid.findPowerGrid(pos);
         if (powerGrids.isEmpty()) return List.of();
-        SimplePowerGrid grid = powerGrids.get(0);
+        SimplePowerGrid grid = powerGrids.getFirst();
         if (grid == null) return List.of();
         final Optional<PowerComponentInfo> optional = grid.getInfoForPos(pos);
         if (optional.isEmpty()) return null;

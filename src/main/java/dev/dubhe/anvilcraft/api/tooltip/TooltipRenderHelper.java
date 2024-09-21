@@ -52,17 +52,16 @@ public class TooltipRenderHelper {
             int color) {
         PoseStack.Pose pose = poseStack.last();
         shape.forAllEdges((minX, minY, minZ, maxX, maxY, maxZ) -> {
-            float k = (float) (maxX - minX);
-            float l = (float) (maxY - minY);
-            float m = (float) (maxZ - minZ);
-            float n = Mth.sqrt(k * k + l * l + m * m);
+            float dx = (float) (maxX - minX);
+            float dy = (float) (maxY - minY);
+            float dz = (float) (maxZ - minZ);
+            float distance = Mth.sqrt(dx * dx + dy * dy + dz * dz);
             consumer.addVertex(pose.pose(), (float) (minX + x), (float) (minY + y), (float) (minZ + z))
                     .setColor(color)
-                    .setNormal(pose.copy(), k /= n, l /= n, m /= n);
-
+                    .setNormal(pose.copy(), dx /= distance, dy /= distance, dz /= distance);
             consumer.addVertex(pose.pose(), (float) (maxX + x), (float) (maxY + y), (float) (maxZ + z))
                     .setColor(color)
-                    .setNormal(pose.copy(), k, l, m);
+                    .setNormal(pose.copy(), dx, dy, dz);
         });
     }
 
