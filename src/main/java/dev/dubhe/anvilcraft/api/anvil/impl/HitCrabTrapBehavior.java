@@ -16,17 +16,17 @@ import net.neoforged.neoforge.items.IItemHandler;
 
 public class HitCrabTrapBehavior implements AnvilBehavior {
     @Override
-    public void handle(
+    public boolean handle(
             Level level,
             BlockPos hitBlockPos,
             BlockState hitBlockState,
             float fallDistance,
             AnvilFallOnLandEvent event) {
-        if (!hitBlockState.hasBlockEntity()) return;
+        if (!hitBlockState.hasBlockEntity()) return false;
         CrabTrapBlockEntity blockEntity = (CrabTrapBlockEntity) level.getBlockEntity(hitBlockPos);
         Direction face = hitBlockState.getValue(CrabTrapBlock.FACING);
         Vec3 dropPos = hitBlockPos.above().relative(face).getCenter().relative(face.getOpposite(), 0.5);
-        if (blockEntity == null) return;
+        if (blockEntity == null) return false;
         IItemHandler depository = blockEntity.getItemHandler();
         for (int i = 0; i < depository.getSlots(); i++) {
             ItemStack stack = depository.getStackInSlot(i);
@@ -35,5 +35,6 @@ public class HitCrabTrapBehavior implements AnvilBehavior {
             level.addFreshEntity(itemEntity);
             depository.extractItem(i, stack.getCount(), false);
         }
+        return false;
     }
 }

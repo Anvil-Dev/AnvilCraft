@@ -18,10 +18,10 @@ import static dev.dubhe.anvilcraft.util.AnvilUtil.returnItems;
 
 public class HitBeeNestBehavior implements AnvilBehavior {
     @Override
-    public void handle(Level level, BlockPos pos, BlockState state, float fallDistance, AnvilFallOnLandEvent event) {
-        if (!state.hasBlockEntity()) return;
+    public boolean handle(Level level, BlockPos pos, BlockState state, float fallDistance, AnvilFallOnLandEvent event) {
+        if (!state.hasBlockEntity()) return false;
         int honeyLevel = state.getValue(BeehiveBlock.HONEY_LEVEL);
-        if (honeyLevel < BeehiveBlock.MAX_HONEY_LEVELS) return;
+        if (honeyLevel < BeehiveBlock.MAX_HONEY_LEVELS) return false;
         BlockPos potPos = pos.below();
         BlockState pot = level.getBlockState(potPos);
         if (pot.is(Blocks.CAULDRON)) {
@@ -40,5 +40,6 @@ public class HitBeeNestBehavior implements AnvilBehavior {
                 }
             }
         }
+        return false;
     }
 }

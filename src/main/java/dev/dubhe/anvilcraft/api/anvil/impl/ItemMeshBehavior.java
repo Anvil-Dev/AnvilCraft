@@ -28,7 +28,7 @@ import java.util.Optional;
 
 public class ItemMeshBehavior implements AnvilBehavior {
     @Override
-    public void handle(
+    public boolean handle(
             Level level,
             BlockPos hitBlockPos,
             BlockState hitBlockState,
@@ -57,5 +57,6 @@ public class ItemMeshBehavior implements AnvilBehavior {
                 entity.remove(Entity.RemovalReason.DISCARDED);
             }
         }
+        return false;
     }
 }

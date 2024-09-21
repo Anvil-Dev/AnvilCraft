@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class RedstoneEMPBehavior implements AnvilBehavior {
     @Override
-    public void handle(
+    public boolean handle(
             Level level, BlockPos pos, BlockState hitBlockState, float fallDistance, AnvilFallOnLandEvent event) {
         int radius = AnvilCraft.config.redstoneEmpRadius;
         int maxRadius = AnvilCraft.config.redstoneEmpMaxRadius;
@@ -49,6 +49,7 @@ public class RedstoneEMPBehavior implements AnvilBehavior {
                 }
             }
         }
+        return false;
     }
 
     private void redstoneEmp(@NotNull Level level, BlockPos pos) {

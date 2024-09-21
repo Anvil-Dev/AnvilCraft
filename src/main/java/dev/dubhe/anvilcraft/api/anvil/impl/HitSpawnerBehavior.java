@@ -31,7 +31,7 @@ import java.util.Optional;
 
 public class HitSpawnerBehavior implements AnvilBehavior {
     @Override
-    public void handle(
+    public boolean handle(
             Level level, BlockPos pos, BlockState hitBlockState, float fallDistance, AnvilFallOnLandEvent event) {
         if (level instanceof ServerLevel serverLevel) {
             RandomSource randomSource = serverLevel.getRandom();
@@ -40,7 +40,7 @@ public class HitSpawnerBehavior implements AnvilBehavior {
                 fallDistance = 1.1f;
             }
             if (f <= (1 / fallDistance)) {
-                return;
+                return false;
             }
             if (level.getBlockEntity(pos) instanceof SpawnerBlockEntity blockEntity) {
                 BaseSpawner spawner = blockEntity.getSpawner();
@@ -49,6 +49,7 @@ public class HitSpawnerBehavior implements AnvilBehavior {
                 spawnEntities(spawnData, serverLevel, pos, randomSource, accessor);
             }
         }
+        return false;
     }
 
     private void spawnEntities(

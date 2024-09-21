@@ -76,9 +76,11 @@ public class AnvilEventListener {
         BlockState hitBelowState = level.getBlockState(belowPos);
         if (hitBelowState.is(Blocks.STONECUTTER)) brokeBlock(level, hitBlockPos, event);
 
-        AnvilBehavior.findMatching(hitBlockState)
-                .forEach(
-                        behavior -> behavior.handle(level, hitBlockPos, hitBlockState, event.getFallDistance(), event));
+        for (AnvilBehavior behavior : AnvilBehavior.findMatching(hitBlockState)) {
+            if (behavior.handle(level, hitBlockPos, hitBlockState, event.getFallDistance(), event)) {
+                return;
+            }
+        }
     }
 
     private void handleBlockCrushRecipe(Level level, final BlockPos pos) {

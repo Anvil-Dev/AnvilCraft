@@ -38,7 +38,7 @@ import java.util.function.Predicate;
 public interface AnvilBehavior {
     Map<Predicate<BlockState>, AnvilBehavior> BEHAVIORS = new LinkedHashMap<>();
 
-    void handle(
+    boolean handle(
             Level level,
             BlockPos hitBlockPos,
             BlockState hitBlockState,
@@ -61,7 +61,12 @@ public interface AnvilBehavior {
     }
 
     static void register() {
+        registerBehavior(Blocks.HONEY_BLOCK, new WaxingBehavior());
+        registerBehavior(Blocks.REDSTONE_BLOCK, new RedstoneEMPBehavior());
+        registerBehavior(state -> state.is(Blocks.BEEHIVE) || state.is(Blocks.BEE_NEST), new HitBeeNestBehavior());
+        registerBehavior(Blocks.SPAWNER, new HitSpawnerBehavior());
         registerBehavior(ModBlocks.CRAB_TRAP.get(), new HitCrabTrapBehavior());
+
         registerBehavior(
                 state -> state.is(Blocks.IRON_TRAPDOOR)
                         && state.getValue(TrapDoorBlock.HALF) == Half.TOP
@@ -77,9 +82,5 @@ public interface AnvilBehavior {
         registerBehavior(Blocks.WATER_CAULDRON, new BoilingBehavior());
         registerBehavior(ModBlocks.STAMPING_PLATFORM.get(), new ItemStampingBehavior());
         registerBehavior(Blocks.SCAFFOLDING, new ItemMeshBehavior());
-        registerBehavior(Blocks.HONEY_BLOCK, new WaxingBehavior());
-        registerBehavior(Blocks.REDSTONE_BLOCK, new RedstoneEMPBehavior());
-        registerBehavior(state -> state.is(Blocks.BEEHIVE) || state.is(Blocks.BEE_NEST), new HitBeeNestBehavior());
-        registerBehavior(Blocks.SPAWNER, new HitSpawnerBehavior());
     }
 }

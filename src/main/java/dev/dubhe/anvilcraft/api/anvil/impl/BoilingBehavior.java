@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class BoilingBehavior implements AnvilBehavior {
     @Override
-    public void handle(
+    public boolean handle(
             Level level,
             BlockPos hitBlockPos,
             BlockState hitBlockState,
@@ -21,7 +21,9 @@ public class BoilingBehavior implements AnvilBehavior {
             AnvilFallOnLandEvent event) {
         BlockState belowState = level.getBlockState(hitBlockPos.below());
         if (belowState.is(Blocks.CAMPFIRE) && belowState.getValue(CampfireBlock.LIT)) {
-            AnvilUtil.itemProcess(ModRecipeTypes.BOILING_TYPE.get(), level, hitBlockPos, hitBlockPos.getCenter());
+            return AnvilUtil.itemProcess(
+                    ModRecipeTypes.BOILING_TYPE.get(), level, hitBlockPos, hitBlockPos.getCenter());
         }
+        return false;
     }
 }

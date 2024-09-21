@@ -11,12 +11,13 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class ItemCompressBehavior implements AnvilBehavior {
     @Override
-    public void handle(
+    public boolean handle(
             Level level,
             BlockPos hitBlockPos,
             BlockState hitBlockState,
             float fallDistance,
             AnvilFallOnLandEvent event) {
-        AnvilUtil.itemProcess(ModRecipeTypes.ITEM_COMPRESS_TYPE.get(), level, hitBlockPos, hitBlockPos.getCenter());
+        return AnvilUtil.itemProcess(
+                ModRecipeTypes.ITEM_COMPRESS_TYPE.get(), level, hitBlockPos, hitBlockPos.getCenter());
     }
 }

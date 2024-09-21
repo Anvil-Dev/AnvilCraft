@@ -11,13 +11,13 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class ItemStampingBehavior implements AnvilBehavior {
     @Override
-    public void handle(
+    public boolean handle(
             Level level,
             BlockPos hitBlockPos,
             BlockState hitBlockState,
             float fallDistance,
             AnvilFallOnLandEvent event) {
-        AnvilUtil.itemProcess(
+        return AnvilUtil.itemProcess(
                 ModRecipeTypes.STAMPING_TYPE.get(),
                 level,
                 hitBlockPos,

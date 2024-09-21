@@ -10,6 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
@@ -18,12 +19,13 @@ import net.minecraft.world.phys.AABB;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class BulgingBehavior implements AnvilBehavior {
     @SuppressWarnings("DuplicatedCode")
     @Override
-    public void handle(
+    public boolean handle(
             Level level,
             BlockPos hitBlockPos,
             BlockState hitBlockState,
@@ -34,62 +36,62 @@ public class BulgingBehavior implements AnvilBehavior {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         BulgingRecipe.Input input =
                 new BulgingRecipe.Input(items.values().stream().toList(), hitBlockState);
-        level.getRecipeManager()
-                .getRecipeFor(ModRecipeTypes.BULGING_TYPE.get(), input, level)
-                .ifPresent(recipe -> {
-                    ItemStack result = recipe.value().getResult().copy();
-                    int times = recipe.value().getMaxCraftTime(input);
-                    result.setCount(times * result.getCount());
-                    for (int i = 0; i < times; i++) {
-                        for (Ingredient ingredient : recipe.value().getIngredients()) {
-                            for (ItemStack stack : items.values()) {
-                                if (ingredient.test(stack)) {
-                                    stack.shrink(1);
-                                    break;
-                                }
-                            }
+        Optional<RecipeHolder<BulgingRecipe>> recipeOptional =
+                level.getRecipeManager().getRecipeFor(ModRecipeTypes.BULGING_TYPE.get(), input, level);
+        if (recipeOptional.isPresent()) {
+            RecipeHolder<BulgingRecipe> recipe = recipeOptional.get();
+            ItemStack result = recipe.value().getResult().copy();
+            int times = recipe.value().getMaxCraftTime(input);
+            result.setCount(times * result.getCount());
+            for (int i = 0; i < times; i++) {
+                for (Ingredient ingredient : recipe.value().getIngredients()) {
+                    for (ItemStack stack : items.values()) {
+                        if (ingredient.test(stack)) {
+                            stack.shrink(1);
+                            break;
                         }
                     }
-                    AnvilUtil.dropItems(List.of(result), level, hitBlockPos.getCenter());
-                    if (recipe.value().isFromWater()) {
-                        level.setBlockAndUpdate(
-                                hitBlockPos, recipe.value().cauldron.defaultBlockState());
+                }
+            }
+            AnvilUtil.dropItems(List.of(result), level, hitBlockPos.getCenter());
+            if (recipe.value().isFromWater()) {
+                level.setBlockAndUpdate(hitBlockPos, recipe.value().cauldron.defaultBlockState());
+            } else {
+                if (recipe.value().isConsumeFluid()) {
+                    if (hitBlockState.hasProperty(LayeredCauldronBlock.LEVEL)) {
+                        int cauldronLevel = hitBlockState.getValue(LayeredCauldronBlock.LEVEL);
+                        cauldronLevel--;
+                        if (cauldronLevel <= 0) {
+                            level.setBlockAndUpdate(hitBlockPos, Blocks.CAULDRON.defaultBlockState());
+                        } else {
+                            level.setBlockAndUpdate(
+                                    hitBlockPos, hitBlockState.setValue(LayeredCauldronBlock.LEVEL, cauldronLevel));
+                        }
                     } else {
-                        if (recipe.value().isConsumeFluid()) {
-                            if (hitBlockState.hasProperty(LayeredCauldronBlock.LEVEL)) {
-                                int cauldronLevel = hitBlockState.getValue(LayeredCauldronBlock.LEVEL);
-                                cauldronLevel--;
-                                if (cauldronLevel <= 0) {
-                                    level.setBlockAndUpdate(hitBlockPos, Blocks.CAULDRON.defaultBlockState());
-                                } else {
-                                    level.setBlockAndUpdate(
-                                            hitBlockPos,
-                                            hitBlockState.setValue(LayeredCauldronBlock.LEVEL, cauldronLevel));
-                                }
-                            } else {
-                                level.setBlockAndUpdate(hitBlockPos, Blocks.CAULDRON.defaultBlockState());
-                            }
-                        }
-                        if (recipe.value().isProduceFluid()) {
-                            if (hitBlockState.hasProperty(LayeredCauldronBlock.LEVEL)) {
-                                int cauldronLevel = hitBlockState.getValue(LayeredCauldronBlock.LEVEL);
-                                cauldronLevel++;
-                                level.setBlockAndUpdate(
-                                        hitBlockPos, hitBlockState.setValue(LayeredCauldronBlock.LEVEL, cauldronLevel));
-                            } else {
-                                level.setBlockAndUpdate(
-                                        hitBlockPos,
-                                        recipe.value().getCauldron().defaultBlockState());
-                            }
-                        }
+                        level.setBlockAndUpdate(hitBlockPos, Blocks.CAULDRON.defaultBlockState());
                     }
-                    items.forEach((k, v) -> {
-                        if (v.isEmpty()) {
-                            k.discard();
-                            return;
-                        }
-                        k.setItem(v.copy());
-                    });
-                });
+                }
+                if (recipe.value().isProduceFluid()) {
+                    if (hitBlockState.hasProperty(LayeredCauldronBlock.LEVEL)) {
+                        int cauldronLevel = hitBlockState.getValue(LayeredCauldronBlock.LEVEL);
+                        cauldronLevel++;
+                        level.setBlockAndUpdate(
+                                hitBlockPos, hitBlockState.setValue(LayeredCauldronBlock.LEVEL, cauldronLevel));
+                    } else {
+                        level.setBlockAndUpdate(
+                                hitBlockPos, recipe.value().getCauldron().defaultBlockState());
+                    }
+                }
+            }
+            items.forEach((k, v) -> {
+                if (v.isEmpty()) {
+                    k.discard();
+                    return;
+                }
+                k.setItem(v.copy());
+            });
+            return true;
+        }
+        return false;
     }
 }

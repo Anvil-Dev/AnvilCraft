@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -18,22 +19,25 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AnvilUtil {
-    public static <T extends AbstractItemProcessRecipe> void itemProcess(
+    public static <T extends AbstractItemProcessRecipe> boolean itemProcess(
             RecipeType<T> recipeType, Level level, final BlockPos itemPos, final Vec3 resultPos) {
         Map<ItemEntity, ItemStack> items = level.getEntitiesOfClass(ItemEntity.class, new AABB(itemPos)).stream()
                 .map(it -> Map.entry(it, it.getItem()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         ItemProcessInput input = new ItemProcessInput(items.values().stream().toList());
-        level.getRecipeManager().getRecipeFor(recipeType, input, level).ifPresent(recipe -> {
+        Optional<RecipeHolder<T>> recipeOptional = level.getRecipeManager().getRecipeFor(recipeType, input, level);
+        if (recipeOptional.isPresent()) {
+            RecipeHolder<T> recipe = recipeOptional.get();
             int times = recipe.value().getMaxCraftTime(input);
             List<ItemStack> results =
                     recipe.value().results.stream().map(ItemStack::copy).toList();
-            results.forEach(s -> s.setCount(s.getCount() + times));
+            results.forEach(s -> s.setCount(s.getCount() * times));
             for (int i = 0; i < times; i++) {
                 for (Ingredient ingredient : recipe.value().getIngredients()) {
                     for (ItemStack stack : items.values()) {
@@ -52,7 +56,9 @@ public class AnvilUtil {
                 }
                 k.setItem(v.copy());
             });
-        });
+            return true;
+        }
+        return false;
     }
 
     public static void dropItems(@NotNull List<ItemStack> items, Level level, Vec3 pos) {

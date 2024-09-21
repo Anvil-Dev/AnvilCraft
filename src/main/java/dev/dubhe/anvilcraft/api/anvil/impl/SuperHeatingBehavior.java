@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
+import dev.dubhe.anvilcraft.recipe.anvil.SuperHeatingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.input.ItemProcessInput;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
 
@@ -12,6 +13,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -19,12 +21,13 @@ import net.minecraft.world.phys.AABB;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class SuperHeatingBehavior implements AnvilBehavior {
     @SuppressWarnings("DuplicatedCode")
     @Override
-    public void handle(
+    public boolean handle(
             Level level,
             BlockPos hitBlockPos,
             BlockState hitBlockState,
@@ -40,37 +43,39 @@ public class SuperHeatingBehavior implements AnvilBehavior {
             ItemProcessInput input =
                     new ItemProcessInput(items.values().stream().toList());
 
-            level.getRecipeManager()
-                    .getRecipeFor(ModRecipeTypes.SUPER_HEATING_TYPE.get(), input, level)
-                    .ifPresent(recipe -> {
-                        int times = recipe.value().getMaxCraftTime(input);
-                        List<ItemStack> results = recipe.value().results.stream()
-                                .map(ItemStack::copy)
-                                .toList();
-                        results.forEach(s -> s.setCount(s.getCount() + times));
-                        for (int i = 0; i < times; i++) {
-                            for (Ingredient ingredient : recipe.value().getIngredients()) {
-                                for (ItemStack stack : items.values()) {
-                                    if (ingredient.test(stack)) {
-                                        stack.shrink(1);
-                                        break;
-                                    }
-                                }
-                            }
-                            if (recipe.value().blockResult != Blocks.AIR) {
-                                level.setBlockAndUpdate(
-                                        hitBlockPos, recipe.value().blockResult.defaultBlockState());
+            Optional<RecipeHolder<SuperHeatingRecipe>> recipeOPtional =
+                    level.getRecipeManager().getRecipeFor(ModRecipeTypes.SUPER_HEATING_TYPE.get(), input, level);
+            if (recipeOPtional.isPresent()) {
+                RecipeHolder<SuperHeatingRecipe> recipe = recipeOPtional.get();
+                int times = recipe.value().getMaxCraftTime(input);
+                List<ItemStack> results =
+                        recipe.value().results.stream().map(ItemStack::copy).toList();
+                results.forEach(s -> s.setCount(s.getCount() * times));
+                for (int i = 0; i < times; i++) {
+                    for (Ingredient ingredient : recipe.value().getIngredients()) {
+                        for (ItemStack stack : items.values()) {
+                            if (ingredient.test(stack)) {
+                                stack.shrink(1);
+                                break;
                             }
                         }
-                        AnvilUtil.dropItems(results, level, hitBlockPos.getCenter());
-                    });
-            items.forEach((k, v) -> {
-                if (v.isEmpty()) {
-                    k.discard();
-                    return;
+                    }
+                    if (recipe.value().blockResult != Blocks.AIR) {
+                        level.setBlockAndUpdate(
+                                hitBlockPos, recipe.value().blockResult.defaultBlockState());
+                    }
                 }
-                k.setItem(v.copy());
-            });
+                AnvilUtil.dropItems(results, level, hitBlockPos.getCenter());
+                items.forEach((k, v) -> {
+                    if (v.isEmpty()) {
+                        k.discard();
+                        return;
+                    }
+                    k.setItem(v.copy());
+                });
+                return true;
+            }
         }
+        return false;
     }
 }
