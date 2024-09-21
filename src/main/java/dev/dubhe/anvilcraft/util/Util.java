@@ -6,6 +6,8 @@ import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.neoforged.fml.ModList;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -13,9 +15,8 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.function.Function;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Util {
-    private Util() {}
-
     /**
      * @return 模组是否加载
      */

@@ -15,6 +15,8 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3i;
 import org.joml.Vector3ic;
@@ -27,6 +29,7 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * 方块高亮
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BlockHighlightUtil {
     public static final RenderType NO_DEPTH = RenderType.create(
             AnvilCraft.MOD_ID + "_no_depth",

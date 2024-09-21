@@ -12,12 +12,15 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AnvilUtil {
     public static <T extends AbstractItemProcessRecipe> void itemProcess(
             RecipeType<T> recipeType, Level level, final BlockPos itemPos, final Vec3 resultPos) {

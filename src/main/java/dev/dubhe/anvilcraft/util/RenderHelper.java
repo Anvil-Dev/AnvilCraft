@@ -10,8 +10,11 @@ import net.minecraft.world.level.material.FluidState;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.joml.Vector3f;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RenderHelper {
     private static final Vector3f L1 = new Vector3f(0.4F, 0.0F, 1.0F).normalize();
     private static final Vector3f L2 = new Vector3f(-0.4F, 1.0F, -0.2F).normalize();

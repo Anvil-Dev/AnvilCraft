@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.util;
 
 import com.google.common.base.CaseFormat;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -11,7 +13,7 @@ import java.util.stream.Collectors;
 /**
  * 格式化工具
  */
-@SuppressWarnings({"UnnecessaryUnicodeEscape", "unused"})
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FormattingUtil {
     /**
      * 与 .to(LOWER_UNDERSCORE, string) 几乎相同，但它也会在单词和数字之间插入下划线。

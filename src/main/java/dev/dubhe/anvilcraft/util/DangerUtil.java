@@ -6,12 +6,14 @@ import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DangerUtil {
-    private DangerUtil() {}
 
     public static @NotNull Supplier<ConfiguredModel[]> genConfiguredModel(String path) {
         return () -> new ConfiguredModel[] {new ConfiguredModel(new ModelFile.UncheckedModelFile(AnvilCraft.of(path)))};

@@ -14,9 +14,12 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import java.util.Optional;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CodecUtil {
     public static <T> Codec<Optional<T>> createOptionalCodec(Codec<T> elementCodec) {
         return RecordCodecBuilder.create(ins -> ins.group(
