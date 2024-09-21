@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.block.state.Color;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -22,6 +23,11 @@ public class ModItemGroups {
                     .icon(ModItems.MAGNET::asStack)
                     .displayItems((ctx, entries) -> {})
                     .title(REGISTRATE.addLang("itemGroup", AnvilCraft.of("tools"), "AnvilCraft: Utilities"))
+                    .withTabsAfter(
+                            AnvilCraft.of("ingredients"),
+                            AnvilCraft.of("functional_block"),
+                            AnvilCraft.of("building_block"))
+                    .withTabsBefore(CreativeModeTabs.SPAWN_EGGS)
                     .build());
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> ANVILCRAFT_INGREDIENTS =
@@ -29,6 +35,10 @@ public class ModItemGroups {
                     .icon(ModItems.MAGNET_INGOT::asStack)
                     .displayItems((ctx, entries) -> {})
                     .title(REGISTRATE.addLang("itemGroup", AnvilCraft.of("ingredients"), "AnvilCraft: Ingredients"))
+                    .withTabsBefore(ANVILCRAFT_TOOL.getId())
+                    .withTabsAfter(
+                            AnvilCraft.of("functional_block"),
+                            AnvilCraft.of("building_block"))
                     .build());
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> ANVILCRAFT_FUNCTION_BLOCK =
@@ -46,6 +56,8 @@ public class ModItemGroups {
                     })
                     .title(REGISTRATE.addLang(
                             "itemGroup", AnvilCraft.of("functional_block"), "AnvilCraft: Functional Block"))
+                    .withTabsBefore(ANVILCRAFT_TOOL.getId(), ANVILCRAFT_INGREDIENTS.getId())
+                    .withTabsAfter(AnvilCraft.of("building_block"))
                     .build());
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> ANVILCRAFT_BUILD_BLOCK =
@@ -54,6 +66,7 @@ public class ModItemGroups {
                     .displayItems((ctx, entries) -> {})
                     .title(REGISTRATE.addLang(
                             "itemGroup", AnvilCraft.of("building_block"), "AnvilCraft: Building Block"))
+                    .withTabsBefore(ANVILCRAFT_TOOL.getId(), ANVILCRAFT_INGREDIENTS.getId(), ANVILCRAFT_FUNCTION_BLOCK.getId())
                     .build());
 
     public static void register(IEventBus modEventBus) {
