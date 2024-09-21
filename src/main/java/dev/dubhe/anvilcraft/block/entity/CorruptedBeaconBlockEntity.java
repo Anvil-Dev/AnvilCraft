@@ -233,21 +233,4 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
             this.height++;
         }
     }
-
-    /**
-     * 为了适配forge中修改的渲染逻辑所添加的函数
-     * 返回一个无限碰撞箱
-     *
-     * @return forge中为原版信标生成的无限碰撞箱
-     */
-    @SuppressWarnings("unused")
-    public AABB getRenderBoundingBox() {
-        return new AABB(
-                Double.NEGATIVE_INFINITY,
-                Double.NEGATIVE_INFINITY,
-                Double.NEGATIVE_INFINITY,
-                Double.POSITIVE_INFINITY,
-                Double.POSITIVE_INFINITY,
-                Double.POSITIVE_INFINITY);
-    }
 }

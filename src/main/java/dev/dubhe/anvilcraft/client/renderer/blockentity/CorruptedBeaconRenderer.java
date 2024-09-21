@@ -7,9 +7,11 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -226,5 +228,11 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
         return Vec3.atCenterOf(blockEntity.getBlockPos())
                 .multiply(1.0, 0.0, 1.0)
                 .closerThan(cameraPos.multiply(1.0, 0.0, 1.0), this.getViewDistance());
+    }
+
+    @Override
+    public AABB getRenderBoundingBox(CorruptedBeaconBlockEntity blockEntity) {
+        BlockPos pos = blockEntity.getBlockPos();
+        return new AABB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, 1024, pos.getZ() + 1);
     }
 }
