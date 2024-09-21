@@ -36,9 +36,7 @@ public class ModItemGroups {
                     .displayItems((ctx, entries) -> {})
                     .title(REGISTRATE.addLang("itemGroup", AnvilCraft.of("ingredients"), "AnvilCraft: Ingredients"))
                     .withTabsBefore(ANVILCRAFT_TOOL.getId())
-                    .withTabsAfter(
-                            AnvilCraft.of("functional_block"),
-                            AnvilCraft.of("building_block"))
+                    .withTabsAfter(AnvilCraft.of("functional_block"), AnvilCraft.of("building_block"))
                     .build());
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> ANVILCRAFT_FUNCTION_BLOCK =
@@ -66,7 +64,8 @@ public class ModItemGroups {
                     .displayItems((ctx, entries) -> {})
                     .title(REGISTRATE.addLang(
                             "itemGroup", AnvilCraft.of("building_block"), "AnvilCraft: Building Block"))
-                    .withTabsBefore(ANVILCRAFT_TOOL.getId(), ANVILCRAFT_INGREDIENTS.getId(), ANVILCRAFT_FUNCTION_BLOCK.getId())
+                    .withTabsBefore(
+                            ANVILCRAFT_TOOL.getId(), ANVILCRAFT_INGREDIENTS.getId(), ANVILCRAFT_FUNCTION_BLOCK.getId())
                     .build());
 
     public static void register(IEventBus modEventBus) {
