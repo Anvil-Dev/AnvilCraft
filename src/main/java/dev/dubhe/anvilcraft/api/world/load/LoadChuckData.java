@@ -17,6 +17,9 @@ public class LoadChuckData {
     private final boolean isNeedRandomTick;
     private final ServerLevel serverLevel;
 
+    @Getter
+    private boolean removed = false;
+
     private LoadChuckData(
             BlockPos centerPos,
             List<ChunkPos> chunkPosList,
@@ -53,20 +56,32 @@ public class LoadChuckData {
     /**
      * 加载区块
      */
-    public void load(ServerLevel level) {
+    public void apply(ServerLevel level) {
         LevelLoadManager.lazy(() -> {
-            if (this.isNeedRandomTick) RandomChuckTickLoadManager.register(this.centerPos, this);
-            for (ChunkPos chunkPos : chunkPosList) level.setChunkForced(chunkPos.x, chunkPos.z, true);
+            if (this.isNeedRandomTick) {
+                RandomChuckTickLoadManager.register(this.centerPos, this);
+            }
+            for (ChunkPos chunkPos : chunkPosList) {
+                level.setChunkForced(chunkPos.x, chunkPos.z, true);
+            }
         });
+    }
+
+    public void markRemoved() {
+        this.removed = true;
     }
 
     /**
      * 取消加载区块
      */
-    public void unLoad(ServerLevel level) {
+    public void discard(ServerLevel level) {
         LevelLoadManager.lazy(() -> {
-            if (this.isNeedRandomTick) RandomChuckTickLoadManager.unregister(this.centerPos);
-            for (ChunkPos chunkPos : chunkPosList) level.setChunkForced(chunkPos.x, chunkPos.z, false);
+            if (this.isNeedRandomTick) {
+                RandomChuckTickLoadManager.unregister(this.centerPos);
+            }
+            for (ChunkPos chunkPos : chunkPosList) {
+                level.setChunkForced(chunkPos.x, chunkPos.z, false);
+            }
         });
     }
 }

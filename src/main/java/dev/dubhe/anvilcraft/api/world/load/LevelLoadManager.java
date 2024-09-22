@@ -3,14 +3,14 @@ package dev.dubhe.anvilcraft.api.world.load;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 
-import java.util.ArrayList;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class LevelLoadManager {
     private static final Map<BlockPos, LoadChuckData> LEVEL_LOAD_CHUCK_AREA_MAP = new HashMap<>();
-    private static final List<Runnable> lazyCalls = new ArrayList<>();
+    private static final Deque<Runnable> lazyCalls = new ArrayDeque<>();
     private static boolean serverStarted = false;
 
     /**
@@ -23,7 +23,7 @@ public class LevelLoadManager {
     public static void register(BlockPos centerPos, LoadChuckData loadChuckData, ServerLevel level) {
         if (LEVEL_LOAD_CHUCK_AREA_MAP.containsKey(centerPos)) return;
         LEVEL_LOAD_CHUCK_AREA_MAP.put(centerPos, loadChuckData);
-        loadChuckData.load(level);
+        reload(level);
     }
 
     public static boolean checkRegistered(BlockPos pos) {
@@ -40,7 +40,9 @@ public class LevelLoadManager {
 
     public static void notifyServerStarted() {
         serverStarted = true;
-        lazyCalls.forEach(Runnable::run);
+        while (!lazyCalls.isEmpty()) {
+            lazyCalls.poll().run();
+        }
     }
 
     /**
@@ -51,17 +53,25 @@ public class LevelLoadManager {
      */
     public static void unregister(BlockPos centerPos, ServerLevel level) {
         if (!LEVEL_LOAD_CHUCK_AREA_MAP.containsKey(centerPos)) return;
-        LEVEL_LOAD_CHUCK_AREA_MAP.get(centerPos).unLoad(level);
-        LEVEL_LOAD_CHUCK_AREA_MAP.remove(centerPos);
+        LEVEL_LOAD_CHUCK_AREA_MAP.get(centerPos).markRemoved();
         reload(level);
     }
 
     public static void reload(ServerLevel serverLevel) {
-        for (LoadChuckData loadChuckData : LEVEL_LOAD_CHUCK_AREA_MAP.values()) loadChuckData.load(serverLevel);
+        LEVEL_LOAD_CHUCK_AREA_MAP.values().stream()
+                .filter(it -> !it.isRemoved())
+                .forEach(it -> it.apply(serverLevel));
+        LEVEL_LOAD_CHUCK_AREA_MAP.values().stream()
+                .filter(LoadChuckData::isRemoved)
+                .forEach(it -> it.discard(serverLevel));
+        LEVEL_LOAD_CHUCK_AREA_MAP.values().removeIf(LoadChuckData::isRemoved);
     }
 
     public static void removeAll(ServerLevel level) {
-        for (LoadChuckData loadChuckData : LEVEL_LOAD_CHUCK_AREA_MAP.values()) loadChuckData.unLoad(level);
+        LEVEL_LOAD_CHUCK_AREA_MAP.values().forEach(it -> {
+            it.markRemoved();
+            it.discard(level);
+        });
         LEVEL_LOAD_CHUCK_AREA_MAP.clear();
     }
 }

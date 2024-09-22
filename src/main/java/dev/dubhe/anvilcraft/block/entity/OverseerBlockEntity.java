@@ -3,12 +3,12 @@ package dev.dubhe.anvilcraft.block.entity;
 import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
 import dev.dubhe.anvilcraft.api.world.load.LoadChuckData;
 import dev.dubhe.anvilcraft.block.OverseerBlock;
-import dev.dubhe.anvilcraft.block.state.Vertical3PartHalf;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -18,11 +18,8 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
-
 public class OverseerBlockEntity extends BlockEntity {
-    private int waterLoggerBlockNum = 0;
-    private final int lastWaterLoggerBlockNum = 0;
+    private int waterLoggedBlockCount = 0;
 
     public OverseerBlockEntity(BlockPos pos, BlockState blockState) {
         this(ModBlockEntities.OVERSEER.get(), pos, blockState);
@@ -48,8 +45,10 @@ public class OverseerBlockEntity extends BlockEntity {
     public void tick(Level level, @NotNull BlockPos pos, BlockState state) {
         if (level instanceof ServerLevel serverLevel) {
             // 如果底座上方不是监督者，直接破坏底座，结束方法
-            if (checkBase(level, pos, state)) {
-                LevelLoadManager.unregister(pos, (ServerLevel) level);
+            if (!isBaseValid()) {
+                if (LevelLoadManager.checkRegistered(pos)) {
+                    LevelLoadManager.unregister(pos, (ServerLevel) level);
+                }
                 return;
             }
             BlockState updatedState = level.getBlockState(pos);
@@ -59,49 +58,80 @@ public class OverseerBlockEntity extends BlockEntity {
                         LoadChuckData.createLoadChuckData(
                                 updatedState.getValue(OverseerBlock.LEVEL),
                                 pos,
-                                (this.waterLoggerBlockNum >= 4),
+                                (this.waterLoggedBlockCount >= 4),
                                 serverLevel),
                         serverLevel);
             }
         }
     }
 
-    /**
-     * @return 是否破坏了底座
-     */
-    private boolean checkBase(Level level, @NotNull BlockPos pos, BlockState state) {
-        int waterLoggerBlockNum = 0;
-        for (int laminar = 0; laminar < 4; laminar++) {
-            level.setBlockAndUpdate(pos, state.setValue(OverseerBlock.LEVEL, laminar));
-            // 如果第二格第三格不是监督者，破坏底座
-            for (BlockPos blockPos : Arrays.asList(pos.above(), pos.above(2))) {
-                if (level.getBlockState(blockPos).is(ModBlocks.OVERSEER_BLOCK.get())) {
-                    continue;
+    private int checkBaseAt(Level level, BlockPos pos) {
+        int waterLogged = 0;
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dz = -1; dz <= 1; dz++) {
+                BlockPos current = pos.mutable().move(dx, 0, dz);
+                BlockState currentState = level.getBlockState(current);
+                if (!currentState.is(ModBlockTags.OVERSEER_BASE)) {
+                    return -1;
                 }
-                // 破坏监督者方块
-                level.destroyBlock(pos, false);
-                return true;
-            }
-            level.setBlockAndUpdate(
-                    pos.above(),
-                    state.setValue(OverseerBlock.LEVEL, laminar).setValue(OverseerBlock.HALF, Vertical3PartHalf.MID));
-            level.setBlockAndUpdate(
-                    pos.above(2),
-                    state.setValue(OverseerBlock.LEVEL, laminar).setValue(OverseerBlock.HALF, Vertical3PartHalf.TOP));
-            for (int x = pos.getX() - 1; x <= pos.getX() + 1; x++) {
-                for (int z = pos.getZ() - 1; z <= pos.getZ() + 1; z++) {
-                    BlockPos basePos = new BlockPos(x, pos.getY() - laminar - 1, z);
-                    if (!level.getBlockState(basePos).is(ModBlockTags.OVERSEER_BASE)) {
-                        this.waterLoggerBlockNum = waterLoggerBlockNum;
-                        return false;
-                    }
-                    if (level.getBlockState(basePos).hasProperty(BlockStateProperties.WATERLOGGED)
-                            && level.getBlockState(basePos).getValue(BlockStateProperties.WATERLOGGED))
-                        waterLoggerBlockNum++;
+                if (currentState.hasProperty(BlockStateProperties.WATERLOGGED)) {
+                    waterLogged++;
                 }
             }
         }
-        this.waterLoggerBlockNum = waterLoggerBlockNum;
-        return false;
+        return waterLogged;
+    }
+
+    private int checkBaseSupportsLevel(Level level, BlockPos selfPos) {
+        int supportLevel = 0;
+        int waterLoggedBlockCount = 0;
+        BlockPos.MutableBlockPos pos = selfPos.mutable();
+        pos.move(Direction.DOWN);
+        int tBase = checkBaseAt(level, pos);
+        if (tBase == -1) {
+            return 0;
+        }
+        waterLoggedBlockCount += tBase;
+        supportLevel++;
+
+        pos.move(Direction.DOWN);
+        tBase = checkBaseAt(level, pos);
+        if (tBase != -1) {
+            waterLoggedBlockCount += tBase;
+            supportLevel++;
+        }
+
+        pos.move(Direction.DOWN);
+        tBase = checkBaseAt(level, pos);
+        if (tBase != -1) {
+            waterLoggedBlockCount += tBase;
+            supportLevel++;
+        }
+        this.waterLoggedBlockCount = waterLoggedBlockCount;
+        return supportLevel;
+    }
+
+    private boolean isBaseValid() {
+        BlockPos thizPos = getBlockPos();
+        if (!checkBlocks()) return false;
+        int supportsLevel = checkBaseSupportsLevel(level, thizPos);
+        for (int i = 0; i < 3; i++) {
+            BlockPos pos = getBlockPos().relative(Direction.Axis.Y, i);
+            BlockState state = level.getBlockState(pos);
+            if (level.getBlockState(pos).is(ModBlocks.OVERSEER_BLOCK)) {
+                level.setBlockAndUpdate(pos, state.setValue(OverseerBlock.LEVEL, supportsLevel));
+            }
+        }
+        return supportsLevel > 0;
+    }
+
+    private boolean checkBlocks() {
+        for (int i = 0; i < 3; i++) {
+            BlockPos pos = getBlockPos().relative(Direction.Axis.Y, i);
+            if (!level.getBlockState(pos).is(ModBlocks.OVERSEER_BLOCK)) {
+                return false;
+            }
+        }
+        return true;
     }
 }
