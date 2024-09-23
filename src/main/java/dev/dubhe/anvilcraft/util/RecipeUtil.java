@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.util;
 
+import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.recipe.anvil.input.IItemsInput;
 import dev.dubhe.anvilcraft.recipe.mulitblock.BlockPattern;
 
@@ -192,9 +193,15 @@ public class RecipeUtil {
 
     public static LevelLike asLevelLike(BlockPattern pattern) {
         LevelLike levelLike = new LevelLike(Minecraft.getInstance().level);
-        levelLike.setBlockState(BlockPos.ZERO, Blocks.TNT.defaultBlockState());
-        levelLike.setBlockState(new BlockPos(1, 1, 1), Blocks.REDSTONE_BLOCK.defaultBlockState());
+        levelLike.setBlockState(BlockPos.ZERO, ModBlocks.MENGER_SPONGE.getDefaultState());
+
+        levelLike.setBlockState(new BlockPos(1, 1, 1), Blocks.TNT.defaultBlockState());
+        levelLike.setBlockState(new BlockPos(1, 0, 1), Blocks.REDSTONE_BLOCK.defaultBlockState());
+
         levelLike.setBlockState(new BlockPos(2, 2, 2), Blocks.DIAMOND_BLOCK.defaultBlockState());
+        levelLike.setBlockState(new BlockPos(2, 1, 2), ModBlocks.HEAVY_IRON_BLOCK.getDefaultState());
+        levelLike.setBlockState(new BlockPos(2, 0, 2), ModBlocks.HEAVY_IRON_COLUMN.getDefaultState());
+
         return levelLike;
     }
 }

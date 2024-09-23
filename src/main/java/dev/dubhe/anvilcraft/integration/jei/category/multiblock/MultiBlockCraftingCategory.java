@@ -47,6 +47,8 @@ import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Quaternionf;
+import org.lwjgl.opengl.GL11;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -102,7 +104,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<MulitblockRec
         PoseStack pose = guiGraphics.pose();
         pose.pushPose();
         pose.translate(xPos, yPos, 100);
-        pose.scale(SCALE, SCALE, SCALE);
+        pose.scale(-SCALE, -SCALE, -SCALE);
         pose.translate(-(float) SIZE_X / 2, -(float) SIZE_Y / 2, 0);
 
         pose.mulPose(Axis.XP.rotationDegrees(-30F));
@@ -112,9 +114,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<MulitblockRec
         float rotationY = clientLevel.getGameTime() * 2f;
 
         pose.translate(-offsetX, 0, -offsetZ);
-        pose.mulPose(Axis.ZP.rotationDegrees(180));
-        pose.mulPose(Axis.YP.rotationDegrees(rotationY));
-        pose.mulPose(Axis.YP.rotationDegrees(45));
+        pose.mulPose(Axis.YP.rotationDegrees(rotationY + 45));
 
         pose.translate(offsetX, 0, offsetZ);
 
@@ -151,6 +151,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<MulitblockRec
         buffers.endBatch();
         pose.popPose();
         pose.popPose();
+        RenderSystem.enableCull();
     }
 
     @Override
