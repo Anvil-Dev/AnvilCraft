@@ -1,7 +1,7 @@
-package dev.dubhe.anvilcraft.client.gui.screen.inventory;
+package dev.dubhe.anvilcraft.client.gui.screen;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.inventory.EmberGrindstoneMenu;
+import dev.dubhe.anvilcraft.inventory.RoyalGrindstoneMenu;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -11,12 +11,12 @@ import net.minecraft.world.entity.player.Inventory;
 
 import org.jetbrains.annotations.NotNull;
 
-public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindstoneMenu> {
+public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindstoneMenu> {
     private static final ResourceLocation GRINDSTONE_LOCATION =
-            AnvilCraft.of("textures/gui/container/smithing/background/ember_grindstone.png");
+            AnvilCraft.of("textures/gui/container/smithing/background/royal_grindstone.png");
 
-    public EmberGrindstoneScreen(
-            EmberGrindstoneMenu menu, Inventory playerInventory, @SuppressWarnings("unused") Component title) {
+    public RoyalGrindstoneScreen(
+            RoyalGrindstoneMenu menu, Inventory playerInventory, @SuppressWarnings("unused") Component title) {
         super(menu, playerInventory, Component.translatable("screen.anvilcraft.royal_grindstone.title"));
     }
 
@@ -28,7 +28,7 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
 
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBlurredBackground(partialTick);
+        this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         this.renderBg(guiGraphics, partialTick, mouseX, mouseY);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
@@ -44,7 +44,7 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
     protected void renderLabels(GuiGraphics guiGraphics) {
         if (this.menu.getSlot(2).hasItem()) {
             drawLabel(
-                    (int) (92 + 4.5 - (this.font.width(Component.literal("" + this.menu.usedGold)) / 2f)),
+                    (int) (92 + 4.5 - (this.font.width(Component.literal("" + this.menu.usedGold)) / 2)),
                     38,
                     Component.literal("" + this.menu.usedGold),
                     guiGraphics);
@@ -65,8 +65,14 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
         }
     }
 
+    @Override
+    public void renderBackground(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        this.renderBlurredBackground(partialTick);
+        renderBg(guiGraphics, partialTick, mouseX, mouseY);
+    }
+
     private void drawLabel(int x, int y, Component component, @NotNull GuiGraphics guiGraphics) {
-        int i = (int) ((this.width - this.imageWidth - 2) / 2f);
+        int i = (this.width - this.imageWidth - 2) / 2;
         int j = (this.height - this.imageHeight + 23) / 2;
         x += i;
         y += j;

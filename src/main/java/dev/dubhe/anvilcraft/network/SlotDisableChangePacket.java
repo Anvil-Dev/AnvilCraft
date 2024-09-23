@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.network;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.client.gui.screen.inventory.IFilterScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.IFilterScreen;
 import dev.dubhe.anvilcraft.inventory.IFilterMenu;
 
 import net.minecraft.client.Minecraft;

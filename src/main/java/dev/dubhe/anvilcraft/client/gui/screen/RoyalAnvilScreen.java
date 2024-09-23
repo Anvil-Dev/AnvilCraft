@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.client.gui.screen.inventory;
+package dev.dubhe.anvilcraft.client.gui.screen;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.inventory.RoyalAnvilMenu;

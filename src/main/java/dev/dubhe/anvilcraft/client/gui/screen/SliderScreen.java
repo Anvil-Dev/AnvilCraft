@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.client.gui.screen.inventory;
+package dev.dubhe.anvilcraft.client.gui.screen;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.gui.component.Slider;
@@ -125,11 +125,15 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
     }
 
     public void setMin(int min) {
-        if (this.slider != null) slider.setMin(min);
+        if (this.slider != null) {
+            slider.setMin(min);
+        }
     }
 
     public void setMax(int max) {
-        if (this.slider != null) slider.setMax(max);
+        if (this.slider != null) {
+            slider.setMax(max);
+        }
     }
 
     @Override
@@ -152,6 +156,6 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
 
     private void update(int value) {
         PacketDistributor.sendToServer(new SliderUpdatePacket(value));
-        this.value.setValue("" + value);
+        this.value.setValue(Integer.toString(value));
     }
 }

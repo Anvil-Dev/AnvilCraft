@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.inventory;
 
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
+import dev.dubhe.anvilcraft.util.Callback;
 
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -16,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 public class SliderMenu extends AbstractContainerMenu {
     private final int min;
     private final int max;
-    private final Update update;
+    private final Callback<Integer> callback;
 
     /**
      * @param menuType    菜单类型
@@ -26,18 +27,18 @@ public class SliderMenu extends AbstractContainerMenu {
         super(menuType, containerId);
         this.min = 0;
         this.max = 160;
-        this.update = null;
+        this.callback = null;
     }
 
     /**
      * @param containerId 容器ID
-     * @param update      更新回调
+     * @param callback      更新回调
      */
-    public SliderMenu(int containerId, int min, int max, Update update) {
+    public SliderMenu(int containerId, int min, int max, Callback<Integer> callback) {
         super(ModMenuTypes.SLIDER.get(), containerId);
         this.min = min;
         this.max = max;
-        this.update = update;
+        this.callback = callback;
     }
 
     @Override
@@ -51,12 +52,5 @@ public class SliderMenu extends AbstractContainerMenu {
     @Override
     public boolean stillValid(@NotNull Player player) {
         return true;
-    }
-
-    /**
-     * 滑条回调
-     */
-    public interface Update {
-        void update(int value);
     }
 }

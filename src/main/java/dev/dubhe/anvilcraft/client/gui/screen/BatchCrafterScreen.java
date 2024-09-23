@@ -1,15 +1,13 @@
-package dev.dubhe.anvilcraft.client.gui.screen.inventory;
+package dev.dubhe.anvilcraft.client.gui.screen;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.itemhandler.SlotItemHandlerWithFilter;
-import dev.dubhe.anvilcraft.block.entity.BaseChuteBlockEntity;
 import dev.dubhe.anvilcraft.client.gui.component.EnableFilterButton;
-import dev.dubhe.anvilcraft.inventory.BaseChuteMenu;
+import dev.dubhe.anvilcraft.inventory.BatchCrafterMenu;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePacket;
 import dev.dubhe.anvilcraft.network.SlotFilterChangePacket;
 
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -23,23 +21,18 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiFunction;
 
-/**
- * 溜槽屏幕基类
- */
-public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends BaseChuteMenu<T>>
-        extends BaseMachineScreen<M> implements IFilterScreen<M> {
+public class BatchCrafterScreen extends BaseMachineScreen<BatchCrafterMenu> implements IFilterScreen<BatchCrafterMenu> {
     private static final ResourceLocation CONTAINER_LOCATION =
-            AnvilCraft.of("textures/gui/container/machine/background/chute.png");
-
+            AnvilCraft.of("textures/gui/container/machine/background/auto_crafter.png");
     BiFunction<Integer, Integer, EnableFilterButton> enableFilterButtonSupplier =
-            this.getEnableFilterButtonSupplier(134, 36);
+            this.getEnableFilterButtonSupplier(116, 18);
 
     @Getter
     private EnableFilterButton enableFilterButton = null;
 
-    private final M menu;
+    private final BatchCrafterMenu menu;
 
-    public BaseChuteScreen(M menu, Inventory playerInventory, Component title) {
+    public BatchCrafterScreen(BatchCrafterMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.menu = menu;
     }
@@ -48,15 +41,8 @@ public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends 
     protected void init() {
         super.init();
         this.enableFilterButton = enableFilterButtonSupplier.apply(this.leftPos, this.topPos);
-        for (Direction value : Direction.values()) {
-            if (shouldSkipDirection(value)) {
-                this.getDirectionButton().skip(value);
-            }
-        }
         this.addRenderableWidget(this.enableFilterButton);
     }
-
-    abstract boolean shouldSkipDirection(Direction direction);
 
     @Override
     protected void renderBg(@NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
@@ -87,8 +73,8 @@ public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends 
     }
 
     @Override
-    public M getFilterMenu() {
-        return menu;
+    public BatchCrafterMenu getFilterMenu() {
+        return this.menu;
     }
 
     @Override
@@ -96,7 +82,6 @@ public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends 
         this.enableFilterButton.flush();
     }
 
-    @Override
     protected void slotClicked(@NotNull Slot slot, int slotId, int mouseButton, @NotNull ClickType type) {
         if (type == ClickType.PICKUP) {
             if (slot instanceof SlotItemHandlerWithFilter && slot.getItem().isEmpty()) {
@@ -109,8 +94,12 @@ public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends 
                     menu.setFilter(realSlotId, carriedItem.copy());
                     slot.set(carriedItem);
                 } else {
-                    PacketDistributor.sendToServer(
-                            new SlotDisableChangePacket(realSlotId, !this.menu.isSlotDisabled(realSlotId)));
+                    if (carriedItem.isEmpty()) {
+                        PacketDistributor.sendToServer(
+                                new SlotDisableChangePacket(realSlotId, !this.menu.isSlotDisabled(realSlotId)));
+                    } else {
+                        PacketDistributor.sendToServer(new SlotDisableChangePacket(realSlotId, false));
+                    }
                 }
             }
         }

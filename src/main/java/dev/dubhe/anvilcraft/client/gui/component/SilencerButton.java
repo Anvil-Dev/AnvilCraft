@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.client.gui.component;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.client.gui.screen.inventory.ActiveSilencerScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.ActiveSilencerScreen;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;

@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.client.gui.screen.inventory;
+package dev.dubhe.anvilcraft.client.gui.screen;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.itemhandler.SlotItemHandlerWithFilter;
@@ -153,8 +153,12 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
                     menu.setFilter(realSlotId, carriedItem.copy());
                     slot.set(carriedItem);
                 } else {
-                    PacketDistributor.sendToServer(
-                            new SlotDisableChangePacket(realSlotId, !this.menu.isSlotDisabled(realSlotId)));
+                    if (carriedItem.isEmpty()) {
+                        PacketDistributor.sendToServer(
+                                new SlotDisableChangePacket(realSlotId, !this.menu.isSlotDisabled(realSlotId)));
+                    } else {
+                        PacketDistributor.sendToServer(new SlotDisableChangePacket(realSlotId, false));
+                    }
                 }
             }
         }

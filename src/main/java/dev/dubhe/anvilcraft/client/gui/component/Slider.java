@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.client.gui.component;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.inventory.SliderMenu;
+import dev.dubhe.anvilcraft.util.Callback;
 
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -34,7 +34,7 @@ public class Slider extends AbstractWidget {
     private final int posX;
     private final int posY;
     private final int length;
-    public final SliderMenu.Update update;
+    public final Callback<Integer> callback;
     private int tooltipMsDelay;
     private long hoverOrFocusedStartTime;
     private boolean wasHoveredOrFocused;
@@ -45,16 +45,16 @@ public class Slider extends AbstractWidget {
      * @param min    最小值
      * @param max    最大值
      * @param length 长度
-     * @param update 更新回调
+     * @param callback 更新回调
      */
-    public Slider(int x, int y, int min, int max, int length, SliderMenu.Update update) {
+    public Slider(int x, int y, int min, int max, int length, Callback<Integer> callback) {
         super(x, y, length, 8, Component.literal("Slider"));
         this.posX = x;
         this.posY = y;
         this.min = min;
         this.max = max;
         this.length = length;
-        this.update = update;
+        this.callback = callback;
     }
 
     public double getProportion() {
@@ -79,7 +79,7 @@ public class Slider extends AbstractWidget {
     }
 
     private void update() {
-        if (this.update != null) this.update.update(this.value);
+        if (this.callback != null) this.callback.onValueChange(this.value);
     }
 
     @Override

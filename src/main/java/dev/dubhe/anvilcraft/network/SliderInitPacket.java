@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.network;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.client.gui.screen.inventory.SliderScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.SliderScreen;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.RegistryFriendlyByteBuf;

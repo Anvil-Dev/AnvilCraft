@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.network;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.client.gui.screen.inventory.BaseMachineScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.BaseMachineScreen;
 import dev.dubhe.anvilcraft.inventory.BaseMachineMenu;
 
 import net.minecraft.client.Minecraft;

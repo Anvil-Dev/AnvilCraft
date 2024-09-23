@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.network;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.inventory.SliderMenu;
+import dev.dubhe.anvilcraft.util.Callback;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -36,8 +37,8 @@ public class SliderUpdatePacket implements CustomPacketPayload {
         context.enqueueWork(() -> {
             if (!player.hasContainerOpen()) return;
             if (!(player.containerMenu instanceof SliderMenu menu)) return;
-            SliderMenu.Update update = menu.getUpdate();
-            if (update != null) update.update(data.value);
+            Callback<Integer> callback = menu.getCallback();
+            if (callback != null) callback.onValueChange(data.value);
         });
     }
 }
