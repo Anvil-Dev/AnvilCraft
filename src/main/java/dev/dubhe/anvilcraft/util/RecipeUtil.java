@@ -1,11 +1,15 @@
 package dev.dubhe.anvilcraft.util;
 
 import dev.dubhe.anvilcraft.recipe.anvil.input.IItemsInput;
+import dev.dubhe.anvilcraft.recipe.mulitblock.BlockPattern;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.storage.loot.providers.number.BinomialDistributionGenerator;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
@@ -184,5 +188,13 @@ public class RecipeUtil {
                 return times;
             }
         }
+    }
+
+    public static LevelLike asLevelLike(BlockPattern pattern) {
+        LevelLike levelLike = new LevelLike(Minecraft.getInstance().level);
+        levelLike.setBlockState(BlockPos.ZERO, Blocks.TNT.defaultBlockState());
+        levelLike.setBlockState(new BlockPos(1, 1, 1), Blocks.REDSTONE_BLOCK.defaultBlockState());
+        levelLike.setBlockState(new BlockPos(2, 2, 2), Blocks.DIAMOND_BLOCK.defaultBlockState());
+        return levelLike;
     }
 }

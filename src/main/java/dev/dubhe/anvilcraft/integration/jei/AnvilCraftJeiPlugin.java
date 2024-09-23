@@ -16,6 +16,7 @@ import dev.dubhe.anvilcraft.integration.jei.category.anvil.SqueezingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.StampingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.SuperHeatingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.TimeWarpCategory;
+import dev.dubhe.anvilcraft.integration.jei.category.multiblock.MultiBlockCraftingCategory;
 import dev.dubhe.anvilcraft.integration.jei.recipe.CementStainingRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.ColoredConcreteRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MeshRecipeGroup;
@@ -31,6 +32,7 @@ import dev.dubhe.anvilcraft.recipe.anvil.SqueezingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.StampingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.SuperHeatingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.TimeWarpRecipe;
+import dev.dubhe.anvilcraft.recipe.mulitblock.MulitblockRecipe;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.resources.ResourceLocation;
@@ -73,6 +75,8 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
             createRecipeType("colored_concrete", ColoredConcreteRecipe.class);
     public static final RecipeType<BulgingRecipe> BULGING = createRecipeType("bulging", BulgingRecipe.class);
     public static final RecipeType<TimeWarpRecipe> TIME_WARP = createRecipeType("time_warp", TimeWarpRecipe.class);
+    public static final RecipeType<MulitblockRecipe> MULTI_BLOCK =
+            createRecipeType("mulitblock", MulitblockRecipe.class);
 
     @Override
     public ResourceLocation getPluginUid() {
@@ -96,6 +100,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         ConcreteCategory.registerRecipes(registration);
         BulgingCategory.registerRecipes(registration);
         TimeWarpCategory.registerRecipes(registration);
+        MultiBlockCraftingCategory.registerRecipes(registration);
     }
 
     @Override
@@ -115,6 +120,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         ConcreteCategory.registerRecipeCatalysts(registration);
         BulgingCategory.registerRecipeCatalysts(registration);
         TimeWarpCategory.registerRecipeCatalysts(registration);
+        MultiBlockCraftingCategory.registerRecipeCatalysts(registration);
     }
 
     @Override
@@ -137,6 +143,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         registration.addRecipeCategories(new ConcreteCategory(guiHelper));
         registration.addRecipeCategories(new BulgingCategory(guiHelper));
         registration.addRecipeCategories(new TimeWarpCategory(guiHelper));
+        registration.addRecipeCategories(new MultiBlockCraftingCategory(guiHelper));
     }
 
     public static <T> RecipeType<T> createRecipeType(String name, Class<T> clazz) {
