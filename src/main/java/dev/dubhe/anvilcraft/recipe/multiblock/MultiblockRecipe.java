@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.recipe.mulitblock;
+package dev.dubhe.anvilcraft.recipe.multiblock;
 
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 
@@ -23,25 +23,25 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @Getter
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class MulitblockRecipe implements Recipe<MulitblockInput> {
+public class MultiblockRecipe implements Recipe<MultiblockInput> {
     public final BlockPattern pattern;
     public final ItemStack result;
 
-    public MulitblockRecipe(BlockPattern pattern, ItemStack result) {
+    public MultiblockRecipe(BlockPattern pattern, ItemStack result) {
         this.pattern = pattern;
         this.result = result;
     }
 
     @Contract(" -> new")
-    public static MulitblockBuilder builder() {
-        return new MulitblockBuilder();
+    public static MultiblockBuilder builder() {
+        return new MultiblockBuilder();
     }
 
-    public static MulitblockBuilder builder(ItemLike item, int count) {
-        return new MulitblockBuilder(item, count);
+    public static MultiblockBuilder builder(ItemLike item, int count) {
+        return new MultiblockBuilder(item, count);
     }
 
-    public static MulitblockBuilder builder(ItemLike item) {
+    public static MultiblockBuilder builder(ItemLike item) {
         return builder(item, 1);
     }
 
@@ -66,7 +66,7 @@ public class MulitblockRecipe implements Recipe<MulitblockInput> {
     }
 
     @Override
-    public boolean matches(MulitblockInput input, Level level) {
+    public boolean matches(MultiblockInput input, Level level) {
         // 无旋转
         boolean flag = true;
         for (int x = 0; x < 3 && flag; x++) {
@@ -127,32 +127,32 @@ public class MulitblockRecipe implements Recipe<MulitblockInput> {
     }
 
     @Override
-    public ItemStack assemble(MulitblockInput input, HolderLookup.Provider provider) {
+    public ItemStack assemble(MultiblockInput input, HolderLookup.Provider provider) {
         return ItemStack.EMPTY;
     }
 
-    public static class Serializer implements RecipeSerializer<MulitblockRecipe> {
+    public static class Serializer implements RecipeSerializer<MultiblockRecipe> {
 
-        private static final MapCodec<MulitblockRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-                        BlockPattern.CODEC.fieldOf("pattern").forGetter(MulitblockRecipe::getPattern),
-                        ItemStack.CODEC.fieldOf("result").forGetter(MulitblockRecipe::getResult))
-                .apply(ins, MulitblockRecipe::new));
+        private static final MapCodec<MultiblockRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
+                        BlockPattern.CODEC.fieldOf("pattern").forGetter(MultiblockRecipe::getPattern),
+                        ItemStack.CODEC.fieldOf("result").forGetter(MultiblockRecipe::getResult))
+                .apply(ins, MultiblockRecipe::new));
 
-        private static final StreamCodec<RegistryFriendlyByteBuf, MulitblockRecipe> STREAM_CODEC =
+        private static final StreamCodec<RegistryFriendlyByteBuf, MultiblockRecipe> STREAM_CODEC =
                 StreamCodec.composite(
                         BlockPattern.STREAM_CODEC,
-                        MulitblockRecipe::getPattern,
+                        MultiblockRecipe::getPattern,
                         ItemStack.STREAM_CODEC,
-                        MulitblockRecipe::getResult,
-                        MulitblockRecipe::new);
+                        MultiblockRecipe::getResult,
+                        MultiblockRecipe::new);
 
         @Override
-        public MapCodec<MulitblockRecipe> codec() {
+        public MapCodec<MultiblockRecipe> codec() {
             return CODEC;
         }
 
         @Override
-        public StreamCodec<RegistryFriendlyByteBuf, MulitblockRecipe> streamCodec() {
+        public StreamCodec<RegistryFriendlyByteBuf, MultiblockRecipe> streamCodec() {
             return STREAM_CODEC;
         }
     }

@@ -15,7 +15,7 @@ import dev.dubhe.anvilcraft.recipe.anvil.SqueezingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.StampingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.SuperHeatingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.TimeWarpRecipe;
-import dev.dubhe.anvilcraft.recipe.mulitblock.MulitblockRecipe;
+import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
 import dev.dubhe.anvilcraft.recipe.transform.MobTransformRecipe;
 
 import net.minecraft.core.registries.Registries;
@@ -104,10 +104,10 @@ public class ModRecipeTypes {
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MobTransformRecipe>>
             MOB_TRANSFORM_SERIALIZER = RECIPE_SERIALIZERS.register("mob_transform", MobTransformRecipe.Serializer::new);
 
-    public static final DeferredHolder<RecipeType<?>, RecipeType<MulitblockRecipe>> MULITBLOCK_TYPE =
+    public static final DeferredHolder<RecipeType<?>, RecipeType<MultiblockRecipe>> MULITBLOCK_TYPE =
             registerType("mulitblock");
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MulitblockRecipe>> MULITBLOCK_SERIALIZER =
-            RECIPE_SERIALIZERS.register("mulitblock", MulitblockRecipe.Serializer::new);
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MultiblockRecipe>> MULITBLOCK_SERIALIZER =
+            RECIPE_SERIALIZERS.register("multiblock", MultiblockRecipe.Serializer::new);
 
     private static <T extends Recipe<?>> DeferredHolder<RecipeType<?>, RecipeType<T>> registerType(String name) {
         return RECIPE_TYPES.register(name, () -> new RecipeType<>() {

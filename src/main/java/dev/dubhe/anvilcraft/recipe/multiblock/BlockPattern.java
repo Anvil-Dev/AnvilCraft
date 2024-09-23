@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.recipe.mulitblock;
+package dev.dubhe.anvilcraft.recipe.multiblock;
 
 import dev.dubhe.anvilcraft.util.CodecUtil;
 

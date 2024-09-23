@@ -42,7 +42,8 @@ public class LevelLike implements BlockAndTintGetter {
     }
 
     public BlockState getBlockState(BlockPos pos) {
-        return blocks.computeIfAbsent(pos, i -> Blocks.AIR.defaultBlockState());
+        BlockState state = blocks.get(pos);
+        return state == null ? Blocks.AIR.defaultBlockState() : state;
     }
 
     @Override

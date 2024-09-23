@@ -2,8 +2,8 @@ package dev.dubhe.anvilcraft.data.recipe;
 
 import dev.dubhe.anvilcraft.block.HeavyIronBeamBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
-import dev.dubhe.anvilcraft.recipe.mulitblock.BlockPredicateWithState;
-import dev.dubhe.anvilcraft.recipe.mulitblock.MulitblockRecipe;
+import dev.dubhe.anvilcraft.recipe.multiblock.BlockPredicateWithState;
+import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.SlabBlock;
@@ -15,7 +15,7 @@ import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 
 public class MultiBlockRecipeLoader {
     public static void init(RegistrateRecipeProvider provider) {
-        MulitblockRecipe.builder(ModBlocks.GIANT_ANVIL)
+        MultiblockRecipe.builder(ModBlocks.GIANT_ANVIL)
                 .layer("ACA", "BAB", "ACA")
                 .layer("EEE", "EDE", "EEE")
                 .layer("JGJ", "HDI", "JFJ")

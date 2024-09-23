@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.util;
 
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.recipe.anvil.input.IItemsInput;
-import dev.dubhe.anvilcraft.recipe.mulitblock.BlockPattern;
+import dev.dubhe.anvilcraft.recipe.multiblock.BlockPattern;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;

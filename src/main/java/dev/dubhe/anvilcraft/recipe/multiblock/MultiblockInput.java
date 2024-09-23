@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.recipe.mulitblock;
+package dev.dubhe.anvilcraft.recipe.multiblock;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.Direction;
@@ -13,7 +13,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public record MulitblockInput(List<List<List<BlockState>>> blocks) implements RecipeInput {
+public record MultiblockInput(List<List<List<BlockState>>> blocks) implements RecipeInput {
     @Override
     public ItemStack getItem(int i) {
         return ItemStack.EMPTY;

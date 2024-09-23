@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.recipe.mulitblock;
+package dev.dubhe.anvilcraft.recipe.multiblock;
 
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 
@@ -18,34 +18,34 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @Accessors(fluent = true, chain = true)
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class MulitblockBuilder extends AbstractRecipeBuilder<MulitblockRecipe> {
+public class MultiblockBuilder extends AbstractRecipeBuilder<MultiblockRecipe> {
 
     private BlockPattern pattern = BlockPattern.create();
     private ItemStack result;
 
-    public MulitblockBuilder() {}
+    public MultiblockBuilder() {}
 
-    public MulitblockBuilder(ItemLike item, int count) {
+    public MultiblockBuilder(ItemLike item, int count) {
         this.result = new ItemStack(item, count);
     }
 
-    public MulitblockBuilder layer(String... layers) {
+    public MultiblockBuilder layer(String... layers) {
         pattern.layer(layers);
         return this;
     }
 
-    public MulitblockBuilder symbol(char symbol, BlockPredicateWithState predicate) {
+    public MultiblockBuilder symbol(char symbol, BlockPredicateWithState predicate) {
         pattern.symbol(symbol, predicate);
         return this;
     }
 
-    public MulitblockBuilder symbol(char symbol, Block block) {
+    public MultiblockBuilder symbol(char symbol, Block block) {
         return symbol(symbol, BlockPredicateWithState.of(block));
     }
 
     @Override
-    public MulitblockRecipe buildRecipe() {
-        return new MulitblockRecipe(pattern, result);
+    public MultiblockRecipe buildRecipe() {
+        return new MultiblockRecipe(pattern, result);
     }
 
     @Override

@@ -32,7 +32,7 @@ import dev.dubhe.anvilcraft.recipe.anvil.SqueezingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.StampingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.SuperHeatingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.TimeWarpRecipe;
-import dev.dubhe.anvilcraft.recipe.mulitblock.MulitblockRecipe;
+import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.resources.ResourceLocation;
@@ -75,8 +75,8 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
             createRecipeType("colored_concrete", ColoredConcreteRecipe.class);
     public static final RecipeType<BulgingRecipe> BULGING = createRecipeType("bulging", BulgingRecipe.class);
     public static final RecipeType<TimeWarpRecipe> TIME_WARP = createRecipeType("time_warp", TimeWarpRecipe.class);
-    public static final RecipeType<MulitblockRecipe> MULTI_BLOCK =
-            createRecipeType("mulitblock", MulitblockRecipe.class);
+    public static final RecipeType<MultiblockRecipe> MULTI_BLOCK =
+            createRecipeType("multiblock", MultiblockRecipe.class);
 
     @Override
     public ResourceLocation getPluginUid() {

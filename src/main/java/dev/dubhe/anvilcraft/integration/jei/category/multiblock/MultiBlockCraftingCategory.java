@@ -8,11 +8,12 @@ import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
-import dev.dubhe.anvilcraft.recipe.mulitblock.MulitblockRecipe;
+import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
 import dev.dubhe.anvilcraft.util.LevelLike;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -52,7 +53,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class MultiBlockCraftingCategory implements IRecipeCategory<MulitblockRecipe> {
+public class MultiBlockCraftingCategory implements IRecipeCategory<MultiblockRecipe> {
     private static final Component TITLE = Component.translatable("gui.anvilcraft.category.multiblock");
     private static final RandomSource RANDOM = RandomSource.createNewThreadLocalInstance();
     public static final int WIDTH = 160;
@@ -80,13 +81,13 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<MulitblockRec
     }
 
     @Override
-    public RecipeType<MulitblockRecipe> getRecipeType() {
+    public RecipeType<MultiblockRecipe> getRecipeType() {
         return AnvilCraftJeiPlugin.MULTI_BLOCK;
     }
 
     @Override
     public void draw(
-            MulitblockRecipe recipe,
+            MultiblockRecipe recipe,
             IRecipeSlotsView recipeSlotsView,
             GuiGraphics guiGraphics,
             double mouseX,
@@ -98,6 +99,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<MulitblockRec
         int xPos = 60;
         int yPos = 60;
         Minecraft minecraft = Minecraft.getInstance();
+        DeltaTracker tracker = minecraft.getTimer();
         ClientLevel clientLevel = minecraft.level;
         PoseStack pose = guiGraphics.pose();
         pose.pushPose();
@@ -109,7 +111,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<MulitblockRec
 
         float offsetX = (float) -SIZE_X / 2;
         float offsetZ = (float) -SIZE_Y / 2 + 1;
-        float rotationY = clientLevel.getGameTime() * 2f;
+        float rotationY = (clientLevel.getGameTime() + tracker.getGameTimeDeltaPartialTick(true)) * 2f;
 
         pose.translate(-offsetX, 0, -offsetZ);
         pose.mulPose(Axis.YP.rotationDegrees(rotationY + 45));
@@ -168,7 +170,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<MulitblockRec
     }
 
     @Override
-    public void setRecipe(IRecipeLayoutBuilder builder, MulitblockRecipe recipe, IFocusGroup focuses) {
+    public void setRecipe(IRecipeLayoutBuilder builder, MultiblockRecipe recipe, IFocusGroup focuses) {
         this.level = RecipeUtil.asLevelLike(recipe.pattern);
         builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT).addItemStack(recipe.result.copy());
     }

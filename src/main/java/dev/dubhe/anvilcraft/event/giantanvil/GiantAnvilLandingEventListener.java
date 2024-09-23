@@ -5,7 +5,7 @@ import dev.dubhe.anvilcraft.api.event.entity.GiantAnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
-import dev.dubhe.anvilcraft.recipe.mulitblock.MulitblockInput;
+import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockInput;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
 
 import net.minecraft.core.BlockPos;
@@ -339,7 +339,7 @@ public class GiantAnvilLandingEventListener {
             }
             blocks.add(blocksY);
         }
-        MulitblockInput input = new MulitblockInput(blocks);
+        MultiblockInput input = new MultiblockInput(blocks);
         level.getRecipeManager()
                 .getRecipeFor(ModRecipeTypes.MULITBLOCK_TYPE.get(), input, level)
                 .ifPresent(recipe -> {
