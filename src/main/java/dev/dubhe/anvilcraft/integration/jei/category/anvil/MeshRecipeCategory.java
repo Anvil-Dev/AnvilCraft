@@ -4,7 +4,10 @@ import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MeshRecipeGroup;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
+import dev.dubhe.anvilcraft.integration.jei.util.TextureConstants;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
+import dev.dubhe.anvilcraft.util.RenderHelper;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -20,6 +23,7 @@ import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import net.neoforged.neoforge.common.util.Lazy;
 
 import com.google.common.collect.ImmutableList;
+import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -43,12 +47,15 @@ public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
     private static final DecimalFormat FORMATTER = new DecimalFormat();
 
     public static final int WIDTH = 162;
-    public static final int ROW_START = 28;
+    public static final int ROW_START = 44;
 
     private final Lazy<IDrawable> background;
     private final IDrawable slot;
     private final IDrawable icon;
     private final Component title;
+    private final ITickTimer timer;
+
+    private final IDrawable arrowIn;
 
     public MeshRecipeCategory(IGuiHelper helper) {
         this.background = Lazy.of(() -> helper.createBlankDrawable(WIDTH, ROW_START + MeshRecipeGroup.maxRows * 18));
@@ -56,6 +63,9 @@ public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
         this.icon =
                 new DrawableBlockStateIcon(Blocks.ANVIL.defaultBlockState(), Blocks.SCAFFOLDING.defaultBlockState());
         this.title = Component.translatable("gui.anvilcraft.category.mesh");
+        this.timer = helper.createTickTimer(30, 60, true);
+
+        this.arrowIn = helper.createDrawable(TextureConstants.ANVIL_CRAFT_SPRITES, 0, 31, 16, 8);
     }
 
     @Override
@@ -80,7 +90,7 @@ public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, MeshRecipeGroup recipe, IFocusGroup focuses) {
-        builder.addSlot(RecipeIngredientRole.INPUT, 73, 1).addIngredients(recipe.ingredient());
+        builder.addSlot(RecipeIngredientRole.INPUT, 37, 14).addIngredients(recipe.ingredient());
 
         for (int i = 0; i < recipe.results().size(); i++) {
             MeshRecipeGroup.Result result = recipe.results().get(i);
@@ -98,11 +108,24 @@ public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
             GuiGraphics guiGraphics,
             double mouseX,
             double mouseY) {
-        this.slot.draw(guiGraphics, 72, 0);
+        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
+        RenderHelper.renderBlock(
+                guiGraphics,
+                Blocks.ANVIL.defaultBlockState(),
+                81,
+                12 + anvilYOffset,
+                20,
+                12,
+                RenderHelper.SINGLE_BLOCK);
+        RenderHelper.renderBlock(
+                guiGraphics, Blocks.SCAFFOLDING.defaultBlockState(), 81, 30, 10, 12, RenderHelper.SINGLE_BLOCK);
+
+        arrowIn.draw(guiGraphics, 54, 22);
+        slot.draw(guiGraphics, 36, 13);
 
         for (int row = 0; row < MeshRecipeGroup.maxRows; row++) {
             for (int column = 0; column < 9; column++) {
-                this.slot.draw(guiGraphics, column * 18, ROW_START + row * 18);
+                slot.draw(guiGraphics, column * 18, ROW_START + row * 18);
             }
         }
     }
