@@ -16,6 +16,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.util.Lazy;
 
@@ -35,7 +36,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class ItemCompressCategory implements IRecipeCategory<ItemCompressRecipe> {
+public class ItemCompressCategory implements IRecipeCategory<RecipeHolder<ItemCompressRecipe>> {
 
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
@@ -61,7 +62,7 @@ public class ItemCompressCategory implements IRecipeCategory<ItemCompressRecipe>
     }
 
     @Override
-    public RecipeType<ItemCompressRecipe> getRecipeType() {
+    public RecipeType<RecipeHolder<ItemCompressRecipe>> getRecipeType() {
         return AnvilCraftJeiPlugin.ITEM_COMPRESS;
     }
 
@@ -81,18 +82,21 @@ public class ItemCompressCategory implements IRecipeCategory<ItemCompressRecipe>
     }
 
     @Override
-    public void setRecipe(IRecipeLayoutBuilder builder, ItemCompressRecipe recipe, IFocusGroup focuses) {
+    public void setRecipe(
+            IRecipeLayoutBuilder builder, RecipeHolder<ItemCompressRecipe> recipeHolder, IFocusGroup focuses) {
+        ItemCompressRecipe recipe = recipeHolder.value();
         JeiSlotUtil.addInputSlots(builder, recipe.mergedIngredients);
         JeiSlotUtil.addOutputSlots(builder, recipe.results);
     }
 
     @Override
     public void draw(
-            ItemCompressRecipe recipe,
+            RecipeHolder<ItemCompressRecipe> recipeHolder,
             IRecipeSlotsView recipeSlotsView,
             GuiGraphics guiGraphics,
             double mouseX,
             double mouseY) {
+        ItemCompressRecipe recipe = recipeHolder.value();
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
         RenderHelper.renderBlock(
                 guiGraphics,
@@ -117,7 +121,7 @@ public class ItemCompressCategory implements IRecipeCategory<ItemCompressRecipe>
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
                 AnvilCraftJeiPlugin.ITEM_COMPRESS,
-                JeiRecipeUtil.getRecipesFromType(ModRecipeTypes.ITEM_COMPRESS_TYPE.get()));
+                JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.ITEM_COMPRESS_TYPE.get()));
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {

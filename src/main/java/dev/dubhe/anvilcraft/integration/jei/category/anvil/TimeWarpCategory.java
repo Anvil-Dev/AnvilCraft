@@ -18,6 +18,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -42,7 +43,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class TimeWarpCategory implements IRecipeCategory<TimeWarpRecipe> {
+public class TimeWarpCategory implements IRecipeCategory<RecipeHolder<TimeWarpRecipe>> {
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
 
@@ -69,7 +70,7 @@ public class TimeWarpCategory implements IRecipeCategory<TimeWarpRecipe> {
     }
 
     @Override
-    public RecipeType<TimeWarpRecipe> getRecipeType() {
+    public RecipeType<RecipeHolder<TimeWarpRecipe>> getRecipeType() {
         return AnvilCraftJeiPlugin.TIME_WARP;
     }
 
@@ -89,7 +90,9 @@ public class TimeWarpCategory implements IRecipeCategory<TimeWarpRecipe> {
     }
 
     @Override
-    public void setRecipe(IRecipeLayoutBuilder builder, TimeWarpRecipe recipe, IFocusGroup focuses) {
+    public void setRecipe(
+            IRecipeLayoutBuilder builder, RecipeHolder<TimeWarpRecipe> recipeHolder, IFocusGroup focuses) {
+        TimeWarpRecipe recipe = recipeHolder.value();
         JeiSlotUtil.addInputSlots(builder, recipe.mergedIngredients);
         if (!recipe.result.isEmpty()) {
             JeiSlotUtil.addOutputSlots(builder, List.of(recipe.result));
@@ -98,11 +101,12 @@ public class TimeWarpCategory implements IRecipeCategory<TimeWarpRecipe> {
 
     @Override
     public void draw(
-            TimeWarpRecipe recipe,
+            RecipeHolder<TimeWarpRecipe> recipeHolder,
             IRecipeSlotsView recipeSlotsView,
             GuiGraphics guiGraphics,
             double mouseX,
             double mouseY) {
+        TimeWarpRecipe recipe = recipeHolder.value();
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
         RenderHelper.renderBlock(
                 guiGraphics,
@@ -184,10 +188,11 @@ public class TimeWarpCategory implements IRecipeCategory<TimeWarpRecipe> {
     @Override
     public void getTooltip(
             ITooltipBuilder tooltip,
-            TimeWarpRecipe recipe,
+            RecipeHolder<TimeWarpRecipe> recipeHolder,
             IRecipeSlotsView recipeSlotsView,
             double mouseX,
             double mouseY) {
+        TimeWarpRecipe recipe = recipeHolder.value();
         if (mouseX >= 72 && mouseX <= 90) {
             if (mouseY >= 24 && mouseY <= 43) {
                 Component text;
@@ -231,7 +236,8 @@ public class TimeWarpCategory implements IRecipeCategory<TimeWarpRecipe> {
 
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
-                AnvilCraftJeiPlugin.TIME_WARP, JeiRecipeUtil.getRecipesFromType(ModRecipeTypes.TIME_WARP_TYPE.get()));
+                AnvilCraftJeiPlugin.TIME_WARP,
+                JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.TIME_WARP_TYPE.get()));
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {

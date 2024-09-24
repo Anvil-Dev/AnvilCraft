@@ -16,6 +16,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.state.properties.Half;
@@ -37,7 +38,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class ItemCrushCategory implements IRecipeCategory<ItemCrushRecipe> {
+public class ItemCrushCategory implements IRecipeCategory<RecipeHolder<ItemCrushRecipe>> {
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
 
@@ -64,7 +65,7 @@ public class ItemCrushCategory implements IRecipeCategory<ItemCrushRecipe> {
     }
 
     @Override
-    public RecipeType<ItemCrushRecipe> getRecipeType() {
+    public RecipeType<RecipeHolder<ItemCrushRecipe>> getRecipeType() {
         return AnvilCraftJeiPlugin.ITEM_CRUSH;
     }
 
@@ -84,18 +85,21 @@ public class ItemCrushCategory implements IRecipeCategory<ItemCrushRecipe> {
     }
 
     @Override
-    public void setRecipe(IRecipeLayoutBuilder builder, ItemCrushRecipe recipe, IFocusGroup focuses) {
+    public void setRecipe(
+            IRecipeLayoutBuilder builder, RecipeHolder<ItemCrushRecipe> recipeHolder, IFocusGroup focuses) {
+        ItemCrushRecipe recipe = recipeHolder.value();
         JeiSlotUtil.addInputSlots(builder, recipe.mergedIngredients);
         JeiSlotUtil.addOutputSlots(builder, recipe.results);
     }
 
     @Override
     public void draw(
-            ItemCrushRecipe recipe,
+            RecipeHolder<ItemCrushRecipe> recipeHolder,
             IRecipeSlotsView recipeSlotsView,
             GuiGraphics guiGraphics,
             double mouseX,
             double mouseY) {
+        ItemCrushRecipe recipe = recipeHolder.value();
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
         RenderHelper.renderBlock(
                 guiGraphics,
@@ -125,7 +129,8 @@ public class ItemCrushCategory implements IRecipeCategory<ItemCrushRecipe> {
 
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
-                AnvilCraftJeiPlugin.ITEM_CRUSH, JeiRecipeUtil.getRecipesFromType(ModRecipeTypes.ITEM_CRUSH_TYPE.get()));
+                AnvilCraftJeiPlugin.ITEM_CRUSH,
+                JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.ITEM_CRUSH_TYPE.get()));
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {

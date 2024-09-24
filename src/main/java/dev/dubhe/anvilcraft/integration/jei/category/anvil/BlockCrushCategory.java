@@ -14,6 +14,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.util.Lazy;
 
@@ -35,7 +36,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class BlockCrushCategory implements IRecipeCategory<BlockCrushRecipe> {
+public class BlockCrushCategory implements IRecipeCategory<RecipeHolder<BlockCrushRecipe>> {
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
 
@@ -56,7 +57,7 @@ public class BlockCrushCategory implements IRecipeCategory<BlockCrushRecipe> {
     }
 
     @Override
-    public RecipeType<BlockCrushRecipe> getRecipeType() {
+    public RecipeType<RecipeHolder<BlockCrushRecipe>> getRecipeType() {
         return AnvilCraftJeiPlugin.BLOCK_CRUSH;
     }
 
@@ -76,14 +77,14 @@ public class BlockCrushCategory implements IRecipeCategory<BlockCrushRecipe> {
     }
 
     @Override
-    public void setRecipe(IRecipeLayoutBuilder builder, BlockCrushRecipe recipe, IFocusGroup focuses) {
-        builder.addInvisibleIngredients(RecipeIngredientRole.INPUT).addItemStack(new ItemStack(recipe.input));
-        builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT).addItemStack(new ItemStack(recipe.result));
+    public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<BlockCrushRecipe> recipe, IFocusGroup focuses) {
+        builder.addInvisibleIngredients(RecipeIngredientRole.INPUT).addItemStack(new ItemStack(recipe.value().input));
+        builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT).addItemStack(new ItemStack(recipe.value().result));
     }
 
     @Override
     public void draw(
-            BlockCrushRecipe recipe,
+            RecipeHolder<BlockCrushRecipe> recipe,
             IRecipeSlotsView recipeSlotsView,
             GuiGraphics guiGraphics,
             double mouseX,
@@ -100,30 +101,30 @@ public class BlockCrushCategory implements IRecipeCategory<BlockCrushRecipe> {
                 12,
                 RenderHelper.SINGLE_BLOCK);
         RenderHelper.renderBlock(
-                guiGraphics, recipe.input.defaultBlockState(), 50, 40, 10, 12, RenderHelper.SINGLE_BLOCK);
+                guiGraphics, recipe.value().input.defaultBlockState(), 50, 40, 10, 12, RenderHelper.SINGLE_BLOCK);
 
         RenderHelper.renderBlock(
                 guiGraphics, Blocks.ANVIL.defaultBlockState(), 110, 30, 10, 12, RenderHelper.SINGLE_BLOCK);
         RenderHelper.renderBlock(
-                guiGraphics, recipe.result.defaultBlockState(), 110, 40, 0, 12, RenderHelper.SINGLE_BLOCK);
+                guiGraphics, recipe.value().result.defaultBlockState(), 110, 40, 0, 12, RenderHelper.SINGLE_BLOCK);
     }
 
     @Override
     public void getTooltip(
             ITooltipBuilder tooltip,
-            BlockCrushRecipe recipe,
+            RecipeHolder<BlockCrushRecipe> recipe,
             IRecipeSlotsView recipeSlotsView,
             double mouseX,
             double mouseY) {
         IRecipeCategory.super.getTooltip(tooltip, recipe, recipeSlotsView, mouseX, mouseY);
         if (mouseX >= 40 && mouseX <= 58) {
             if (mouseY >= 42 && mouseY <= 52) {
-                tooltip.add(recipe.input.getName());
+                tooltip.add(recipe.value().input.getName());
             }
         }
         if (mouseX >= 100 && mouseX <= 120) {
             if (mouseY >= 42 && mouseY <= 52) {
-                tooltip.add(recipe.result.getName());
+                tooltip.add(recipe.value().result.getName());
             }
         }
     }
@@ -131,7 +132,7 @@ public class BlockCrushCategory implements IRecipeCategory<BlockCrushRecipe> {
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
                 AnvilCraftJeiPlugin.BLOCK_CRUSH,
-                JeiRecipeUtil.getRecipesFromType(ModRecipeTypes.BLOCK_CRUSH_TYPE.get()));
+                JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.BLOCK_CRUSH_TYPE.get()));
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {

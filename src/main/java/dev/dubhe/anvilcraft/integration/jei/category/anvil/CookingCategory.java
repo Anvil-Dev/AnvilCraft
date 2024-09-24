@@ -16,6 +16,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.neoforged.neoforge.common.util.Lazy;
@@ -36,7 +37,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class CookingCategory implements IRecipeCategory<CookingRecipe> {
+public class CookingCategory implements IRecipeCategory<RecipeHolder<CookingRecipe>> {
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
 
@@ -63,7 +64,7 @@ public class CookingCategory implements IRecipeCategory<CookingRecipe> {
     }
 
     @Override
-    public RecipeType<CookingRecipe> getRecipeType() {
+    public RecipeType<RecipeHolder<CookingRecipe>> getRecipeType() {
         return AnvilCraftJeiPlugin.COOKING;
     }
 
@@ -83,18 +84,20 @@ public class CookingCategory implements IRecipeCategory<CookingRecipe> {
     }
 
     @Override
-    public void setRecipe(IRecipeLayoutBuilder builder, CookingRecipe recipe, IFocusGroup focuses) {
+    public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<CookingRecipe> recipeHolder, IFocusGroup focuses) {
+        CookingRecipe recipe = recipeHolder.value();
         JeiSlotUtil.addInputSlots(builder, recipe.mergedIngredients);
         JeiSlotUtil.addOutputSlots(builder, recipe.results);
     }
 
     @Override
     public void draw(
-            CookingRecipe recipe,
+            RecipeHolder<CookingRecipe> recipeHolder,
             IRecipeSlotsView recipeSlotsView,
             GuiGraphics guiGraphics,
             double mouseX,
             double mouseY) {
+        CookingRecipe recipe = recipeHolder.value();
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
         RenderHelper.renderBlock(
                 guiGraphics,
@@ -124,7 +127,7 @@ public class CookingCategory implements IRecipeCategory<CookingRecipe> {
 
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
-                AnvilCraftJeiPlugin.COOKING, JeiRecipeUtil.getRecipesFromType(ModRecipeTypes.COOKING_TYPE.get()));
+                AnvilCraftJeiPlugin.COOKING, JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.COOKING_TYPE.get()));
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {

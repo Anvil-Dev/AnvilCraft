@@ -14,6 +14,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.util.Lazy;
 
@@ -35,7 +36,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class SqueezingCategory implements IRecipeCategory<SqueezingRecipe> {
+public class SqueezingCategory implements IRecipeCategory<RecipeHolder<SqueezingRecipe>> {
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
 
@@ -56,7 +57,7 @@ public class SqueezingCategory implements IRecipeCategory<SqueezingRecipe> {
     }
 
     @Override
-    public RecipeType<SqueezingRecipe> getRecipeType() {
+    public RecipeType<RecipeHolder<SqueezingRecipe>> getRecipeType() {
         return AnvilCraftJeiPlugin.SQUEEZING;
     }
 
@@ -76,7 +77,9 @@ public class SqueezingCategory implements IRecipeCategory<SqueezingRecipe> {
     }
 
     @Override
-    public void setRecipe(IRecipeLayoutBuilder builder, SqueezingRecipe recipe, IFocusGroup focuses) {
+    public void setRecipe(
+            IRecipeLayoutBuilder builder, RecipeHolder<SqueezingRecipe> recipeHolder, IFocusGroup focuses) {
+        SqueezingRecipe recipe = recipeHolder.value();
         builder.addInvisibleIngredients(RecipeIngredientRole.INPUT).addItemStack(new ItemStack(recipe.inputBlock));
         builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT).addItemStack(new ItemStack(recipe.resultBlock));
     }
@@ -84,10 +87,11 @@ public class SqueezingCategory implements IRecipeCategory<SqueezingRecipe> {
     @Override
     public void getTooltip(
             ITooltipBuilder tooltip,
-            SqueezingRecipe recipe,
+            RecipeHolder<SqueezingRecipe> recipeHolder,
             IRecipeSlotsView recipeSlotsView,
             double mouseX,
             double mouseY) {
+        SqueezingRecipe recipe = recipeHolder.value();
         if (mouseX >= 40 && mouseX <= 58) {
             if (mouseY >= 24 && mouseY <= 42) {
                 tooltip.add(recipe.inputBlock.getName());
@@ -108,11 +112,12 @@ public class SqueezingCategory implements IRecipeCategory<SqueezingRecipe> {
 
     @Override
     public void draw(
-            SqueezingRecipe recipe,
+            RecipeHolder<SqueezingRecipe> recipeHolder,
             IRecipeSlotsView recipeSlotsView,
             GuiGraphics guiGraphics,
             double mouseX,
             double mouseY) {
+        SqueezingRecipe recipe = recipeHolder.value();
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
         RenderHelper.renderBlock(
                 guiGraphics,
@@ -139,7 +144,8 @@ public class SqueezingCategory implements IRecipeCategory<SqueezingRecipe> {
 
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
-                AnvilCraftJeiPlugin.SQUEEZING, JeiRecipeUtil.getRecipesFromType(ModRecipeTypes.SQUEEZING_TYPE.get()));
+                AnvilCraftJeiPlugin.SQUEEZING,
+                JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.SQUEEZING_TYPE.get()));
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {

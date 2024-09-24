@@ -15,6 +15,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.util.Lazy;
 
@@ -35,7 +36,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class ItemInjectCategory implements IRecipeCategory<ItemInjectRecipe> {
+public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInjectRecipe>> {
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
 
@@ -60,7 +61,7 @@ public class ItemInjectCategory implements IRecipeCategory<ItemInjectRecipe> {
     }
 
     @Override
-    public RecipeType<ItemInjectRecipe> getRecipeType() {
+    public RecipeType<RecipeHolder<ItemInjectRecipe>> getRecipeType() {
         return AnvilCraftJeiPlugin.ITEM_INJECT;
     }
 
@@ -80,7 +81,9 @@ public class ItemInjectCategory implements IRecipeCategory<ItemInjectRecipe> {
     }
 
     @Override
-    public void setRecipe(IRecipeLayoutBuilder builder, ItemInjectRecipe recipe, IFocusGroup focuses) {
+    public void setRecipe(
+            IRecipeLayoutBuilder builder, RecipeHolder<ItemInjectRecipe> recipeHolder, IFocusGroup focuses) {
+        ItemInjectRecipe recipe = recipeHolder.value();
         JeiSlotUtil.addInputSlots(builder, recipe.mergedIngredients);
         builder.addInvisibleIngredients(RecipeIngredientRole.INPUT).addItemStack(new ItemStack(recipe.inputBlock));
         builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT).addItemStack(new ItemStack(recipe.resultBlock));
@@ -88,11 +91,12 @@ public class ItemInjectCategory implements IRecipeCategory<ItemInjectRecipe> {
 
     @Override
     public void draw(
-            ItemInjectRecipe recipe,
+            RecipeHolder<ItemInjectRecipe> recipeHolder,
             IRecipeSlotsView recipeSlotsView,
             GuiGraphics guiGraphics,
             double mouseX,
             double mouseY) {
+        ItemInjectRecipe recipe = recipeHolder.value();
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
         RenderHelper.renderBlock(
                 guiGraphics,
@@ -116,10 +120,11 @@ public class ItemInjectCategory implements IRecipeCategory<ItemInjectRecipe> {
     @Override
     public void getTooltip(
             ITooltipBuilder tooltip,
-            ItemInjectRecipe recipe,
+            RecipeHolder<ItemInjectRecipe> recipeHolder,
             IRecipeSlotsView recipeSlotsView,
             double mouseX,
             double mouseY) {
+        ItemInjectRecipe recipe = recipeHolder.value();
         if (mouseX >= 72 && mouseX <= 90) {
             if (mouseY >= 34 && mouseY <= 53) {
                 tooltip.add(recipe.inputBlock.getName());
@@ -135,7 +140,7 @@ public class ItemInjectCategory implements IRecipeCategory<ItemInjectRecipe> {
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
                 AnvilCraftJeiPlugin.ITEM_INJECT,
-                JeiRecipeUtil.getRecipesFromType(ModRecipeTypes.ITEM_INJECT_TYPE.get()));
+                JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.ITEM_INJECT_TYPE.get()));
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {

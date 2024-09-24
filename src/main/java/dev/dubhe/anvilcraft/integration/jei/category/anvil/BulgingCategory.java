@@ -17,6 +17,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -41,7 +42,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class BulgingCategory implements IRecipeCategory<BulgingRecipe> {
+public class BulgingCategory implements IRecipeCategory<RecipeHolder<BulgingRecipe>> {
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
 
@@ -68,7 +69,7 @@ public class BulgingCategory implements IRecipeCategory<BulgingRecipe> {
     }
 
     @Override
-    public RecipeType<BulgingRecipe> getRecipeType() {
+    public RecipeType<RecipeHolder<BulgingRecipe>> getRecipeType() {
         return AnvilCraftJeiPlugin.BULGING;
     }
 
@@ -88,7 +89,8 @@ public class BulgingCategory implements IRecipeCategory<BulgingRecipe> {
     }
 
     @Override
-    public void setRecipe(IRecipeLayoutBuilder builder, BulgingRecipe recipe, IFocusGroup focuses) {
+    public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<BulgingRecipe> recipeHolder, IFocusGroup focuses) {
+        BulgingRecipe recipe = recipeHolder.value();
         JeiSlotUtil.addInputSlots(builder, recipe.mergedIngredients);
         if (!recipe.result.isEmpty()) {
             JeiSlotUtil.addOutputSlots(builder, List.of(recipe.result));
@@ -97,11 +99,12 @@ public class BulgingCategory implements IRecipeCategory<BulgingRecipe> {
 
     @Override
     public void draw(
-            BulgingRecipe recipe,
+            RecipeHolder<BulgingRecipe> recipeHolder,
             IRecipeSlotsView recipeSlotsView,
             GuiGraphics guiGraphics,
             double mouseX,
             double mouseY) {
+        BulgingRecipe recipe = recipeHolder.value();
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
         RenderHelper.renderBlock(
                 guiGraphics,
@@ -181,10 +184,11 @@ public class BulgingCategory implements IRecipeCategory<BulgingRecipe> {
     @Override
     public void getTooltip(
             ITooltipBuilder tooltip,
-            BulgingRecipe recipe,
+            RecipeHolder<BulgingRecipe> recipeHolder,
             IRecipeSlotsView recipeSlotsView,
             double mouseX,
             double mouseY) {
+        BulgingRecipe recipe = recipeHolder.value();
         if (mouseX >= 72 && mouseX <= 90) {
             if (mouseY >= 34 && mouseY <= 53) {
                 Component text;
@@ -223,7 +227,7 @@ public class BulgingCategory implements IRecipeCategory<BulgingRecipe> {
 
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
-                AnvilCraftJeiPlugin.BULGING, JeiRecipeUtil.getRecipesFromType(ModRecipeTypes.BULGING_TYPE.get()));
+                AnvilCraftJeiPlugin.BULGING, JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.BULGING_TYPE.get()));
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {

@@ -16,6 +16,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.util.Lazy;
 
@@ -35,7 +36,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class StampingCategory implements IRecipeCategory<StampingRecipe> {
+public class StampingCategory implements IRecipeCategory<RecipeHolder<StampingRecipe>> {
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
 
@@ -61,7 +62,7 @@ public class StampingCategory implements IRecipeCategory<StampingRecipe> {
     }
 
     @Override
-    public RecipeType<StampingRecipe> getRecipeType() {
+    public RecipeType<RecipeHolder<StampingRecipe>> getRecipeType() {
         return AnvilCraftJeiPlugin.STAMPING;
     }
 
@@ -81,18 +82,21 @@ public class StampingCategory implements IRecipeCategory<StampingRecipe> {
     }
 
     @Override
-    public void setRecipe(IRecipeLayoutBuilder builder, StampingRecipe recipe, IFocusGroup focuses) {
+    public void setRecipe(
+            IRecipeLayoutBuilder builder, RecipeHolder<StampingRecipe> recipeHolder, IFocusGroup focuses) {
+        StampingRecipe recipe = recipeHolder.value();
         JeiSlotUtil.addInputSlots(builder, recipe.mergedIngredients);
         JeiSlotUtil.addOutputSlots(builder, recipe.results);
     }
 
     @Override
     public void draw(
-            StampingRecipe recipe,
+            RecipeHolder<StampingRecipe> recipeHolder,
             IRecipeSlotsView recipeSlotsView,
             GuiGraphics guiGraphics,
             double mouseX,
             double mouseY) {
+        StampingRecipe recipe = recipeHolder.value();
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
         RenderHelper.renderBlock(
                 guiGraphics,
@@ -114,7 +118,8 @@ public class StampingCategory implements IRecipeCategory<StampingRecipe> {
 
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
-                AnvilCraftJeiPlugin.STAMPING, JeiRecipeUtil.getRecipesFromType(ModRecipeTypes.STAMPING_TYPE.get()));
+                AnvilCraftJeiPlugin.STAMPING,
+                JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.STAMPING_TYPE.get()));
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {

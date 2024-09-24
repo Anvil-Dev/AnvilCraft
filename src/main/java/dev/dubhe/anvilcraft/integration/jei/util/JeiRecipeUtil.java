@@ -16,4 +16,10 @@ public class JeiRecipeUtil {
                 .map(RecipeHolder::value)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
+
+    public static <I extends RecipeInput, T extends Recipe<I>> List<RecipeHolder<T>> getRecipeHoldersFromType(
+            RecipeType<T> recipeType) {
+        return new ArrayList<>(
+                Minecraft.getInstance().getConnection().getRecipeManager().getAllRecipesFor(recipeType));
+    }
 }

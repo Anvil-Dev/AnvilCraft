@@ -16,6 +16,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
@@ -37,7 +38,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class BoilingCategory implements IRecipeCategory<BoilingRecipe> {
+public class BoilingCategory implements IRecipeCategory<RecipeHolder<BoilingRecipe>> {
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
 
@@ -64,7 +65,7 @@ public class BoilingCategory implements IRecipeCategory<BoilingRecipe> {
     }
 
     @Override
-    public RecipeType<BoilingRecipe> getRecipeType() {
+    public RecipeType<RecipeHolder<BoilingRecipe>> getRecipeType() {
         return AnvilCraftJeiPlugin.BOILING;
     }
 
@@ -84,14 +85,14 @@ public class BoilingCategory implements IRecipeCategory<BoilingRecipe> {
     }
 
     @Override
-    public void setRecipe(IRecipeLayoutBuilder builder, BoilingRecipe recipe, IFocusGroup focuses) {
-        JeiSlotUtil.addInputSlots(builder, recipe.mergedIngredients);
-        JeiSlotUtil.addOutputSlots(builder, recipe.results);
+    public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<BoilingRecipe> recipe, IFocusGroup focuses) {
+        JeiSlotUtil.addInputSlots(builder, recipe.value().mergedIngredients);
+        JeiSlotUtil.addOutputSlots(builder, recipe.value().results);
     }
 
     @Override
     public void draw(
-            BoilingRecipe recipe,
+            RecipeHolder<BoilingRecipe> recipe,
             IRecipeSlotsView recipeSlotsView,
             GuiGraphics guiGraphics,
             double mouseX,
@@ -125,13 +126,14 @@ public class BoilingCategory implements IRecipeCategory<BoilingRecipe> {
         arrowIn.draw(guiGraphics, 54, 32);
         arrowOut.draw(guiGraphics, 92, 31);
 
-        JeiSlotUtil.drawInputSlots(guiGraphics, slot, recipe.mergedIngredients.size());
-        JeiSlotUtil.drawOutputSlots(guiGraphics, slot, recipe.results.size());
+        JeiSlotUtil.drawInputSlots(
+                guiGraphics, slot, recipe.value().mergedIngredients.size());
+        JeiSlotUtil.drawOutputSlots(guiGraphics, slot, recipe.value().results.size());
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
-                AnvilCraftJeiPlugin.BOILING, JeiRecipeUtil.getRecipesFromType(ModRecipeTypes.BOILING_TYPE.get()));
+                AnvilCraftJeiPlugin.BOILING, JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.BOILING_TYPE.get()));
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {

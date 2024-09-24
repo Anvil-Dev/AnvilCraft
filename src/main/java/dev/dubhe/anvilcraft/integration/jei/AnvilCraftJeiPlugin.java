@@ -36,6 +36,8 @@ import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
@@ -54,27 +56,26 @@ import javax.annotation.ParametersAreNonnullByDefault;
 public class AnvilCraftJeiPlugin implements IModPlugin {
 
     public static final RecipeType<MeshRecipeGroup> MESH = createRecipeType("mesh", MeshRecipeGroup.class);
-    public static final RecipeType<BlockCompressRecipe> BLOCK_COMPRESS =
-            createRecipeType("block_compress", BlockCompressRecipe.class);
-    public static final RecipeType<BlockCrushRecipe> BLOCK_CRUSH =
-            createRecipeType("block_crush", BlockCrushRecipe.class);
-    public static final RecipeType<ItemInjectRecipe> ITEM_INJECT =
-            createRecipeType("item_inject", ItemInjectRecipe.class);
-    public static final RecipeType<ItemCompressRecipe> ITEM_COMPRESS =
-            createRecipeType("item_compress", ItemCompressRecipe.class);
-    public static final RecipeType<ItemCrushRecipe> ITEM_CRUSH = createRecipeType("item_crush", ItemCrushRecipe.class);
-    public static final RecipeType<CookingRecipe> COOKING = createRecipeType("cooking", CookingRecipe.class);
-    public static final RecipeType<BoilingRecipe> BOILING = createRecipeType("boiling", BoilingRecipe.class);
-    public static final RecipeType<StampingRecipe> STAMPING = createRecipeType("stamping", StampingRecipe.class);
-    public static final RecipeType<SuperHeatingRecipe> SUPER_HEATING =
-            createRecipeType("super_heating", SuperHeatingRecipe.class);
-    public static final RecipeType<SqueezingRecipe> SQUEEZING = createRecipeType("squeezing", SqueezingRecipe.class);
     public static final RecipeType<CementStainingRecipe> CEMENT_STAINING =
             createRecipeType("cement_staining", CementStainingRecipe.class);
     public static final RecipeType<ColoredConcreteRecipe> COLORED_CONCRETE =
             createRecipeType("colored_concrete", ColoredConcreteRecipe.class);
-    public static final RecipeType<BulgingRecipe> BULGING = createRecipeType("bulging", BulgingRecipe.class);
-    public static final RecipeType<TimeWarpRecipe> TIME_WARP = createRecipeType("time_warp", TimeWarpRecipe.class);
+
+    public static final RecipeType<RecipeHolder<BlockCompressRecipe>> BLOCK_COMPRESS =
+            createRecipeHolderType("block_compress");
+    public static final RecipeType<RecipeHolder<BlockCrushRecipe>> BLOCK_CRUSH = createRecipeHolderType("block_crush");
+    public static final RecipeType<RecipeHolder<ItemInjectRecipe>> ITEM_INJECT = createRecipeHolderType("item_inject");
+    public static final RecipeType<RecipeHolder<ItemCompressRecipe>> ITEM_COMPRESS =
+            createRecipeHolderType("item_compress");
+    public static final RecipeType<RecipeHolder<ItemCrushRecipe>> ITEM_CRUSH = createRecipeHolderType("item_crush");
+    public static final RecipeType<RecipeHolder<CookingRecipe>> COOKING = createRecipeHolderType("cooking");
+    public static final RecipeType<RecipeHolder<BoilingRecipe>> BOILING = createRecipeHolderType("boiling");
+    public static final RecipeType<RecipeHolder<StampingRecipe>> STAMPING = createRecipeHolderType("stamping");
+    public static final RecipeType<RecipeHolder<SuperHeatingRecipe>> SUPER_HEATING =
+            createRecipeHolderType("super_heating");
+    public static final RecipeType<RecipeHolder<SqueezingRecipe>> SQUEEZING = createRecipeHolderType("squeezing");
+    public static final RecipeType<RecipeHolder<BulgingRecipe>> BULGING = createRecipeHolderType("bulging");
+    public static final RecipeType<RecipeHolder<TimeWarpRecipe>> TIME_WARP = createRecipeHolderType("time_warp");
     public static final RecipeType<MultiblockRecipe> MULTI_BLOCK =
             createRecipeType("multiblock", MultiblockRecipe.class);
 
@@ -148,5 +149,9 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
 
     public static <T> RecipeType<T> createRecipeType(String name, Class<T> clazz) {
         return new RecipeType<>(AnvilCraft.of(name), clazz);
+    }
+
+    public static <R extends Recipe<?>> RecipeType<RecipeHolder<R>> createRecipeHolderType(String name) {
+        return RecipeType.createRecipeHolderType(AnvilCraft.of(name));
     }
 }

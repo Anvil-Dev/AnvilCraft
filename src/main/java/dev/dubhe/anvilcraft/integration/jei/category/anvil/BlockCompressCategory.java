@@ -14,6 +14,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.util.Lazy;
@@ -36,7 +37,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class BlockCompressCategory implements IRecipeCategory<BlockCompressRecipe> {
+public class BlockCompressCategory implements IRecipeCategory<RecipeHolder<BlockCompressRecipe>> {
 
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
@@ -58,7 +59,7 @@ public class BlockCompressCategory implements IRecipeCategory<BlockCompressRecip
     }
 
     @Override
-    public RecipeType<BlockCompressRecipe> getRecipeType() {
+    public RecipeType<RecipeHolder<BlockCompressRecipe>> getRecipeType() {
         return AnvilCraftJeiPlugin.BLOCK_COMPRESS;
     }
 
@@ -78,7 +79,9 @@ public class BlockCompressCategory implements IRecipeCategory<BlockCompressRecip
     }
 
     @Override
-    public void setRecipe(IRecipeLayoutBuilder builder, BlockCompressRecipe recipe, IFocusGroup focuses) {
+    public void setRecipe(
+            IRecipeLayoutBuilder builder, RecipeHolder<BlockCompressRecipe> recipeHolder, IFocusGroup focuses) {
+        BlockCompressRecipe recipe = recipeHolder.value();
         for (Block block : recipe.inputs) {
             builder.addInvisibleIngredients(RecipeIngredientRole.INPUT).addItemStack(new ItemStack(block));
         }
@@ -87,11 +90,13 @@ public class BlockCompressCategory implements IRecipeCategory<BlockCompressRecip
 
     @Override
     public void draw(
-            BlockCompressRecipe recipe,
+            RecipeHolder<BlockCompressRecipe> recipeHolder,
             IRecipeSlotsView recipeSlotsView,
             GuiGraphics guiGraphics,
             double mouseX,
             double mouseY) {
+        BlockCompressRecipe recipe = recipeHolder.value();
+
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
         progress.draw(guiGraphics, 69, 30);
 
@@ -125,11 +130,13 @@ public class BlockCompressCategory implements IRecipeCategory<BlockCompressRecip
     @Override
     public void getTooltip(
             ITooltipBuilder tooltip,
-            BlockCompressRecipe recipe,
+            RecipeHolder<BlockCompressRecipe> recipeHolder,
             IRecipeSlotsView recipeSlotsView,
             double mouseX,
             double mouseY) {
-        IRecipeCategory.super.getTooltip(tooltip, recipe, recipeSlotsView, mouseX, mouseY);
+        IRecipeCategory.super.getTooltip(tooltip, recipeHolder, recipeSlotsView, mouseX, mouseY);
+        BlockCompressRecipe recipe = recipeHolder.value();
+
         if (mouseX >= 40 && mouseX <= 58) {
             if (mouseY >= 24 && mouseY <= 42) {
                 tooltip.add(recipe.inputs.getFirst().getName());
@@ -148,7 +155,7 @@ public class BlockCompressCategory implements IRecipeCategory<BlockCompressRecip
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
                 AnvilCraftJeiPlugin.BLOCK_COMPRESS,
-                JeiRecipeUtil.getRecipesFromType(ModRecipeTypes.BLOCK_COMPRESS_TYPE.get()));
+                JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.BLOCK_COMPRESS_TYPE.get()));
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {

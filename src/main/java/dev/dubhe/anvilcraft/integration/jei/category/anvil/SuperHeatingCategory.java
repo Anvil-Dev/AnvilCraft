@@ -18,6 +18,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.util.Lazy;
 
@@ -37,7 +38,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class SuperHeatingCategory implements IRecipeCategory<SuperHeatingRecipe> {
+public class SuperHeatingCategory implements IRecipeCategory<RecipeHolder<SuperHeatingRecipe>> {
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
 
@@ -64,7 +65,7 @@ public class SuperHeatingCategory implements IRecipeCategory<SuperHeatingRecipe>
     }
 
     @Override
-    public RecipeType<SuperHeatingRecipe> getRecipeType() {
+    public RecipeType<RecipeHolder<SuperHeatingRecipe>> getRecipeType() {
         return AnvilCraftJeiPlugin.SUPER_HEATING;
     }
 
@@ -84,18 +85,21 @@ public class SuperHeatingCategory implements IRecipeCategory<SuperHeatingRecipe>
     }
 
     @Override
-    public void setRecipe(IRecipeLayoutBuilder builder, SuperHeatingRecipe recipe, IFocusGroup focuses) {
+    public void setRecipe(
+            IRecipeLayoutBuilder builder, RecipeHolder<SuperHeatingRecipe> recipeHolder, IFocusGroup focuses) {
+        SuperHeatingRecipe recipe = recipeHolder.value();
         JeiSlotUtil.addInputSlots(builder, recipe.mergedIngredients);
         JeiSlotUtil.addOutputSlots(builder, recipe.results);
     }
 
     @Override
     public void draw(
-            SuperHeatingRecipe recipe,
+            RecipeHolder<SuperHeatingRecipe> recipeHolder,
             IRecipeSlotsView recipeSlotsView,
             GuiGraphics guiGraphics,
             double mouseX,
             double mouseY) {
+        SuperHeatingRecipe recipe = recipeHolder.value();
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
         RenderHelper.renderBlock(
                 guiGraphics,
@@ -139,7 +143,7 @@ public class SuperHeatingCategory implements IRecipeCategory<SuperHeatingRecipe>
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
                 AnvilCraftJeiPlugin.SUPER_HEATING,
-                JeiRecipeUtil.getRecipesFromType(ModRecipeTypes.SUPER_HEATING_TYPE.get()));
+                JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.SUPER_HEATING_TYPE.get()));
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
