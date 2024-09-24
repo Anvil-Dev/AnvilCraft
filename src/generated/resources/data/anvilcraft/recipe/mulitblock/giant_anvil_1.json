@@ -3,9 +3,9 @@
   "pattern": {
     "layers": [
       [
-        "ACA",
-        "BAB",
-        "ACA"
+        "JGJ",
+        "HDI",
+        "JFJ"
       ],
       [
         "EEE",
@@ -13,9 +13,9 @@
         "EEE"
       ],
       [
-        "JGJ",
-        "HDI",
-        "JFJ"
+        "ACA",
+        "BAB",
+        "ACA"
       ]
     ],
     "symbols": {

@@ -1,0 +1,37 @@
+{
+  "type": "anvilcraft:multiblock",
+  "pattern": {
+    "layers": [
+      [
+        "AAA",
+        "AAA",
+        "AAA"
+      ],
+      [
+        " B ",
+        "BBB",
+        " B "
+      ],
+      [
+        "   ",
+        " C ",
+        "   "
+      ]
+    ],
+    "symbols": {
+      "A": {
+        "block": "anvilcraft:cake_block"
+      },
+      "B": {
+        "block": "anvilcraft:berry_cake_block"
+      },
+      "C": {
+        "block": "anvilcraft:chocolate_cake_block"
+      }
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:large_cake"
+  }
+}

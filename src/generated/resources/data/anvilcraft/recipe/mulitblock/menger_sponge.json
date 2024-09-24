@@ -1,0 +1,34 @@
+{
+  "type": "anvilcraft:multiblock",
+  "pattern": {
+    "layers": [
+      [
+        "AAA",
+        "A A",
+        "AAA"
+      ],
+      [
+        "A A",
+        " B ",
+        "A A"
+      ],
+      [
+        "AAA",
+        "A A",
+        "AAA"
+      ]
+    ],
+    "symbols": {
+      "A": {
+        "block": "minecraft:sponge"
+      },
+      "B": {
+        "block": "anvilcraft:void_matter_block"
+      }
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:menger_sponge"
+  }
+}

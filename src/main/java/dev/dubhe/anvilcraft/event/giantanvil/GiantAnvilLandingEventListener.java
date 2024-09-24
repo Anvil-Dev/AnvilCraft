@@ -32,8 +32,8 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
-
 import net.neoforged.neoforge.common.Tags;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -44,11 +44,11 @@ import java.util.function.Consumer;
 public class GiantAnvilLandingEventListener {
     private static final List<ShockBehaviorDefinition> behaviorDefs = new ArrayList<>();
     public static final Direction[] HORIZONTAL_DIRECTIONS =
-            new Direction[]{Direction.SOUTH, Direction.WEST, Direction.EAST, Direction.NORTH};
-    public static final Direction[] VERTICAL_DIRECTIONS = new Direction[]{Direction.UP, Direction.DOWN};
-    public static final Direction[][] CORNER_DIRECTIONS = new Direction[][]{
-            {Direction.EAST, Direction.NORTH}, {Direction.EAST, Direction.SOUTH},
-            {Direction.WEST, Direction.NORTH}, {Direction.WEST, Direction.SOUTH},
+            new Direction[] {Direction.SOUTH, Direction.WEST, Direction.EAST, Direction.NORTH};
+    public static final Direction[] VERTICAL_DIRECTIONS = new Direction[] {Direction.UP, Direction.DOWN};
+    public static final Direction[][] CORNER_DIRECTIONS = new Direction[][] {
+        {Direction.EAST, Direction.NORTH}, {Direction.EAST, Direction.SOUTH},
+        {Direction.WEST, Direction.NORTH}, {Direction.WEST, Direction.SOUTH},
     };
 
     static {
@@ -326,8 +326,7 @@ public class GiantAnvilLandingEventListener {
 
         int size = findCraftingTableSize(landPos, level);
 
-        BlockPos inputCorner = landPos
-                .relative(Direction.Axis.X, -size / 2)
+        BlockPos inputCorner = landPos.relative(Direction.Axis.X, -size / 2)
                 .relative(Direction.Axis.Z, -size / 2)
                 .relative(Direction.Axis.Y, -size);
 
@@ -355,14 +354,19 @@ public class GiantAnvilLandingEventListener {
                     for (int y = 0; y < size; y++) {
                         for (int z = 0; z < size; z++) {
                             for (int x = 0; x < size; x++) {
-                                level.setBlockAndUpdate(inputCorner
-                                        .relative(Direction.Axis.X, x)
-                                        .relative(Direction.Axis.Z, z)
-                                        .relative(Direction.Axis.Y, y), Blocks.AIR.defaultBlockState());
+                                level.setBlockAndUpdate(
+                                        inputCorner
+                                                .relative(Direction.Axis.X, x)
+                                                .relative(Direction.Axis.Z, z)
+                                                .relative(Direction.Axis.Y, y),
+                                        Blocks.AIR.defaultBlockState());
                             }
                         }
                     }
-                    AnvilUtil.dropItems(List.of(result), level, landPos.relative(Direction.Axis.Y, -size / 2).getCenter());
+                    AnvilUtil.dropItems(
+                            List.of(result),
+                            level,
+                            landPos.relative(Direction.Axis.Y, -size / 2).getCenter());
                 });
     }
 

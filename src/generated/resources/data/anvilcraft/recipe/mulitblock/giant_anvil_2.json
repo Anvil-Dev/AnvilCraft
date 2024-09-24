@@ -1,0 +1,40 @@
+{
+  "type": "anvilcraft:multiblock",
+  "pattern": {
+    "layers": [
+      [
+        "AAA",
+        "AAA",
+        "AAA"
+      ],
+      [
+        "CCC",
+        "CBC",
+        "CCC"
+      ],
+      [
+        "DDD",
+        "DDD",
+        "DDD"
+      ]
+    ],
+    "symbols": {
+      "A": {
+        "block": "anvilcraft:cut_heavy_iron_block"
+      },
+      "B": {
+        "block": "anvilcraft:heavy_iron_column"
+      },
+      "C": {
+        "block": "anvilcraft:heavy_iron_plate"
+      },
+      "D": {
+        "block": "anvilcraft:polished_heavy_iron_block"
+      }
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:giant_anvil"
+  }
+}
