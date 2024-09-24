@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
+import dev.dubhe.anvilcraft.integration.jei.util.TextureConstants;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
 import dev.dubhe.anvilcraft.util.LevelLike;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
@@ -49,6 +50,9 @@ import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
@@ -57,16 +61,17 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<MultiblockRec
     private static final Component TITLE = Component.translatable("gui.anvilcraft.category.multiblock");
     private static final RandomSource RANDOM = RandomSource.createNewThreadLocalInstance();
     public static final int WIDTH = 160;
-    public static final int HEIGHT = 160;
-    public static final int SIZE_X = 3;
-    public static final int SIZE_Y = 3;
-    public static final int SIZE_Z = 3;
+    public static final int HEIGHT = 100;
+    public static final int SCALE_FAC = 93;
     public static final float SCALE = 21.21320343559642573202536f;
     public static final BlockPos CORNER_BLOCK = new BlockPos(2, 2, 2);
+    private static final Map<MultiblockRecipe, LevelLike> cache = new HashMap<>();
 
     private final Lazy<IDrawable> background;
     private final IDrawable icon;
+    private final IDrawable slot;
     private LevelLike level;
+    private final IDrawable arrowOut;
     private boolean renderAllLayers = true;
     private int renderLayer = 0;
 
@@ -78,6 +83,8 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<MultiblockRec
                         .getDefaultState()
                         .setValue(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_CENTER)
                         .setValue(GiantAnvilBlock.CUBE, GiantAnvilCube.CENTER));
+        arrowOut = helper.createDrawable(TextureConstants.ANVIL_CRAFT_SPRITES, 0, 31, 16, 8);
+        slot = helper.getSlotDrawable();
     }
 
     @Override
@@ -96,21 +103,29 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<MultiblockRec
             return;
         }
         RenderSystem.enableBlend();
-        int xPos = 60;
-        int yPos = 60;
+        int xPos = 55;
+        int yPos = 50;
         Minecraft minecraft = Minecraft.getInstance();
         DeltaTracker tracker = minecraft.getTimer();
         ClientLevel clientLevel = minecraft.level;
         PoseStack pose = guiGraphics.pose();
+        int sizeX = level.horizontalSize();
+        int sizeY = level.verticalSize();
+
+        float scaleX = SCALE_FAC / (float) Math.sqrt(sizeX * sizeX * 2);
+        float scaleY = SCALE_FAC / (float) sizeY;
+        float scale = Math.min(scaleY, scaleX);
+
         pose.pushPose();
         pose.translate(xPos, yPos, 100);
-        pose.scale(-SCALE, -SCALE, -SCALE);
-        pose.translate(-(float) SIZE_X / 2, -(float) SIZE_Y / 2, 0);
 
+        pose.scale(-scale, -scale, -scale);
+
+        pose.translate(-(float) sizeX / 2, -(float) sizeY / 2, 0);
         pose.mulPose(Axis.XP.rotationDegrees(-30F));
 
-        float offsetX = (float) -SIZE_X / 2;
-        float offsetZ = (float) -SIZE_Y / 2 + 1;
+        float offsetX = (float) -sizeX / 2;
+        float offsetZ = (float) -sizeY / 2 + 1;
         float rotationY = (clientLevel.getGameTime() + tracker.getGameTimeDeltaPartialTick(true)) * 2f;
 
         pose.translate(-offsetX, 0, -offsetZ);
@@ -120,9 +135,10 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<MultiblockRec
 
         Iterable<BlockPos> iter;
         if (renderAllLayers) {
-            iter = BlockPos.betweenClosed(BlockPos.ZERO, CORNER_BLOCK);
+            iter = BlockPos.betweenClosed(BlockPos.ZERO, new BlockPos(sizeX - 1, sizeY - 1, sizeX - 1));
         } else {
-            iter = BlockPos.betweenClosed(BlockPos.ZERO.atY(renderLayer), CORNER_BLOCK.atY(renderLayer));
+            iter = BlockPos.betweenClosed(
+                    BlockPos.ZERO.atY(renderLayer), new BlockPos(sizeX - 1, renderLayer, sizeX - 1));
         }
         pose.pushPose();
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
@@ -151,7 +167,8 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<MultiblockRec
         buffers.endBatch();
         pose.popPose();
         pose.popPose();
-        RenderSystem.enableCull();
+        arrowOut.draw(guiGraphics, 110, 60);
+        slot.draw(guiGraphics, 129, 69);
     }
 
     @Override
@@ -171,8 +188,8 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<MultiblockRec
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, MultiblockRecipe recipe, IFocusGroup focuses) {
-        this.level = RecipeUtil.asLevelLike(recipe.pattern);
-        builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT).addItemStack(recipe.result.copy());
+        this.level = cache.computeIfAbsent(recipe, it -> RecipeUtil.asLevelLike(it.pattern));
+        builder.addSlot(RecipeIngredientRole.OUTPUT, 130, 70).addItemStack(recipe.result.copy());
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {

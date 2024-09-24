@@ -11,6 +11,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.storage.loot.providers.number.BinomialDistributionGenerator;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
@@ -193,14 +194,28 @@ public class RecipeUtil {
 
     public static LevelLike asLevelLike(BlockPattern pattern) {
         LevelLike levelLike = new LevelLike(Minecraft.getInstance().level);
-        levelLike.setBlockState(BlockPos.ZERO, ModBlocks.MENGER_SPONGE.getDefaultState());
-
         levelLike.setBlockState(new BlockPos(1, 1, 1), Blocks.TNT.defaultBlockState());
         levelLike.setBlockState(new BlockPos(1, 0, 1), Blocks.REDSTONE_BLOCK.defaultBlockState());
 
         levelLike.setBlockState(new BlockPos(2, 2, 2), Blocks.DIAMOND_BLOCK.defaultBlockState());
         levelLike.setBlockState(new BlockPos(2, 1, 2), ModBlocks.HEAVY_IRON_BLOCK.getDefaultState());
         levelLike.setBlockState(new BlockPos(2, 0, 2), ModBlocks.HEAVY_IRON_COLUMN.getDefaultState());
+
+        for (int i = 0; i < 4; i++) {
+            levelLike.setBlockState(new BlockPos(3, i, 3), Blocks.NETHERITE_BLOCK.defaultBlockState());
+        }
+
+        for (int i = 0; i <= 4; i++) {
+            levelLike.setBlockState(new BlockPos(4, i, 4), Blocks.GLASS.defaultBlockState());
+        }
+
+        for (int x = 0; x < 5; x++) {
+            for (int z = 0; z < 5; z++) {
+                levelLike.setBlockState(
+                        new BlockPos(x, 0, z), Blocks.WATER.defaultBlockState().setValue(LiquidBlock.LEVEL, 8));
+            }
+        }
+        levelLike.setBlockState(BlockPos.ZERO, ModBlocks.MENGER_SPONGE.getDefaultState());
 
         return levelLike;
     }

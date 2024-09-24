@@ -71,4 +71,8 @@ public class Util {
         }
         return stringBuffer.toString();
     }
+
+    public static int comparingIntReversed(int x, int y) {
+        return Integer.compare(y, x);
+    }
 }
