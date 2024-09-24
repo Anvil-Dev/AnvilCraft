@@ -82,6 +82,7 @@ public class BatchCrafterScreen extends BaseMachineScreen<BatchCrafterMenu> impl
         this.enableFilterButton.flush();
     }
 
+    @Override
     protected void slotClicked(@NotNull Slot slot, int slotId, int mouseButton, @NotNull ClickType type) {
         if (type == ClickType.PICKUP) {
             if (slot instanceof SlotItemHandlerWithFilter && slot.getItem().isEmpty()) {

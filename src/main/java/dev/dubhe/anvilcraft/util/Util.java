@@ -17,6 +17,8 @@ import java.util.function.Function;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Util {
+    private static final StackWalker STACK_WALKER = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
+
     /**
      * @return 模组是否加载
      */
@@ -74,5 +76,10 @@ public class Util {
 
     public static int comparingIntReversed(int x, int y) {
         return Integer.compare(y, x);
+    }
+
+    public static boolean findCaller(String caller) {
+        return STACK_WALKER.walk(
+                it -> it.anyMatch(frame -> frame.getMethodName().equals(caller)));
     }
 }
