@@ -101,4 +101,8 @@ public class BlockPattern {
         }
         return symbols.get(c);
     }
+
+    public int getSize() {
+        return layers.size();
+    }
 }

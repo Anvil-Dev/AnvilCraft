@@ -21,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -68,6 +69,24 @@ public class BlockPredicateWithState implements Predicate<BlockState> {
         }
         properties.put(stateName, stateValue);
         return this;
+    }
+
+    public <T extends Comparable<T>> boolean hasProperty(Property<T> property) {
+        String stateName = property.getName();
+        return properties.containsKey(stateName);
+    }
+
+    @Nullable
+    public <T extends Comparable<T>> T getPropertyValue(Property<T> property) {
+        String stateName = property.getName();
+        String stateValue = properties.get(stateName);
+        if (stateValue != null) {
+            Optional<T> value = property.getValue(stateValue);
+            if (value.isPresent()) {
+                return value.get();
+            }
+        }
+        return null;
     }
 
     @Contract("_ -> new")

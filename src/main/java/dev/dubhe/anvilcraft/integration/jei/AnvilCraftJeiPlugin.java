@@ -76,8 +76,9 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
     public static final RecipeType<RecipeHolder<SqueezingRecipe>> SQUEEZING = createRecipeHolderType("squeezing");
     public static final RecipeType<RecipeHolder<BulgingRecipe>> BULGING = createRecipeHolderType("bulging");
     public static final RecipeType<RecipeHolder<TimeWarpRecipe>> TIME_WARP = createRecipeHolderType("time_warp");
-    public static final RecipeType<MultiblockRecipe> MULTI_BLOCK =
-            createRecipeType("multiblock", MultiblockRecipe.class);
+
+    public static final RecipeType<RecipeHolder<MultiblockRecipe>> MULTI_BLOCK =
+            createRecipeHolderType("multiblock");
 
     @Override
     public ResourceLocation getPluginUid() {

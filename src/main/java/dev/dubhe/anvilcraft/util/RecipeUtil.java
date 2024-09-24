@@ -1,17 +1,22 @@
 package dev.dubhe.anvilcraft.util;
 
-import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.recipe.anvil.input.IItemsInput;
 import dev.dubhe.anvilcraft.recipe.multiblock.BlockPattern;
 
+import dev.dubhe.anvilcraft.recipe.multiblock.BlockPredicateWithState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.storage.loot.providers.number.BinomialDistributionGenerator;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
@@ -71,10 +76,10 @@ public class RecipeUtil {
         return switch (numberProvider) {
             case ConstantValue constantValue -> constantValue.value();
             case UniformGenerator uniformGenerator -> (getExpectedValue(uniformGenerator.min())
-                            + getExpectedValue(uniformGenerator.max()))
+                    + getExpectedValue(uniformGenerator.max()))
                     / 2;
             case BinomialDistributionGenerator binomialDistributionGenerator -> getExpectedValue(
-                            binomialDistributionGenerator.n())
+                    binomialDistributionGenerator.n())
                     * getExpectedValue(binomialDistributionGenerator.p());
             default -> -1;
         };
@@ -196,29 +201,74 @@ public class RecipeUtil {
 
     @OnlyIn(Dist.CLIENT)
     public static LevelLike asLevelLike(BlockPattern pattern) {
+        @SuppressWarnings("DataFlowIssue")
         LevelLike levelLike = new LevelLike(Minecraft.getInstance().level);
-        levelLike.setBlockState(new BlockPos(1, 1, 1), Blocks.TNT.defaultBlockState());
-        levelLike.setBlockState(new BlockPos(1, 0, 1), Blocks.REDSTONE_BLOCK.defaultBlockState());
 
-        levelLike.setBlockState(new BlockPos(2, 2, 2), Blocks.DIAMOND_BLOCK.defaultBlockState());
-        levelLike.setBlockState(new BlockPos(2, 1, 2), ModBlocks.HEAVY_IRON_BLOCK.getDefaultState());
-        levelLike.setBlockState(new BlockPos(2, 0, 2), ModBlocks.HEAVY_IRON_COLUMN.getDefaultState());
-
-        for (int i = 0; i < 4; i++) {
-            levelLike.setBlockState(new BlockPos(3, i, 3), Blocks.NETHERITE_BLOCK.defaultBlockState());
-        }
-
-        for (int i = 0; i <= 4; i++) {
-            levelLike.setBlockState(new BlockPos(4, i, 4), Blocks.GLASS.defaultBlockState());
-        }
-
-        for (int x = 0; x < 5; x++) {
-            for (int z = 0; z < 5; z++) {
-                levelLike.setBlockState(
-                        new BlockPos(x, 0, z), Blocks.WATER.defaultBlockState().setValue(LiquidBlock.LEVEL, 8));
+        for (int x = 0; x < pattern.getSize(); x++) {
+            for (int y = 0; y < pattern.getSize(); y++) {
+                for (int z = 0; z < pattern.getSize(); z++) {
+                    BlockPredicateWithState predicate = pattern.getPredicate(x, y, z);
+                    BlockState state = predicate.getBlock().defaultBlockState();
+                    for (Property<?> property : predicate.getBlock().getStateDefinition().getProperties()) {
+                        if (predicate.hasProperty(property)) {
+                            switch (property) {
+                                case IntegerProperty integerProperty -> {
+                                    Integer value = predicate.getPropertyValue(integerProperty);
+                                    if (value != null) {
+                                        state = state.setValue(integerProperty, value);
+                                    }
+                                }
+                                case BooleanProperty boolProperty -> {
+                                    Boolean value = predicate.getPropertyValue(boolProperty);
+                                    if (value != null) {
+                                        state = state.setValue(boolProperty, value);
+                                    }
+                                }
+                                case DirectionProperty directionProperty -> {
+                                    Direction value = predicate.getPropertyValue(directionProperty);
+                                    if (value != null) {
+                                        state = state.setValue(directionProperty, value);
+                                    }
+                                }
+                                case EnumProperty<?> enumProperty -> {
+                                    if (enumProperty.getValueClass() == Direction.Axis.class) {
+                                        EnumProperty<Direction.Axis> axisProperty = (EnumProperty<Direction.Axis>) enumProperty;
+                                        Direction.Axis value = predicate.getPropertyValue(axisProperty);
+                                        if (value != null) {
+                                            state = state.setValue(axisProperty, value);
+                                        }
+                                    }
+                                }
+                                default -> {}
+                            }
+                        }
+                    }
+                    levelLike.setBlockState(new BlockPos(x, y, z), state);
+                }
             }
         }
-        levelLike.setBlockState(BlockPos.ZERO, ModBlocks.MENGER_SPONGE.getDefaultState());
+        // levelLike.setBlockState(new BlockPos(1, 1, 1), Blocks.TNT.defaultBlockState());
+        // levelLike.setBlockState(new BlockPos(1, 0, 1), Blocks.REDSTONE_BLOCK.defaultBlockState());
+        //
+        // levelLike.setBlockState(new BlockPos(2, 2, 2), Blocks.DIAMOND_BLOCK.defaultBlockState());
+        // levelLike.setBlockState(new BlockPos(2, 1, 2), ModBlocks.HEAVY_IRON_BLOCK.getDefaultState());
+        // levelLike.setBlockState(new BlockPos(2, 0, 2), ModBlocks.HEAVY_IRON_COLUMN.getDefaultState());
+        //
+        // for (int i = 0; i < 4; i++) {
+        //     levelLike.setBlockState(new BlockPos(3, i, 3), Blocks.NETHERITE_BLOCK.defaultBlockState());
+        // }
+        //
+        // for (int i = 0; i <= 4; i++) {
+        //     levelLike.setBlockState(new BlockPos(4, i, 4), Blocks.GLASS.defaultBlockState());
+        // }
+        //
+        // for (int x = 0; x < 5; x++) {
+        //     for (int z = 0; z < 5; z++) {
+        //         levelLike.setBlockState(
+        //                 new BlockPos(x, 0, z), Blocks.WATER.defaultBlockState().setValue(LiquidBlock.LEVEL, 8));
+        //     }
+        // }
+        // levelLike.setBlockState(BlockPos.ZERO, ModBlocks.MENGER_SPONGE.getDefaultState());
 
         return levelLike;
     }
