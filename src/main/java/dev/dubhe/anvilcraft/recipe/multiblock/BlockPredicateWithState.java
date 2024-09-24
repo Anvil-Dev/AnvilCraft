@@ -108,4 +108,13 @@ public class BlockPredicateWithState implements Predicate<BlockState> {
                 .allMatch(entry -> testedProperties.containsKey(entry.getKey())
                         && testedProperties.get(entry.getKey()).equals(entry.getValue()));
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj instanceof BlockPredicateWithState predicate) {
+            return block == predicate.block && properties.equals(predicate.properties);
+        }
+        return false;
+    }
 }
