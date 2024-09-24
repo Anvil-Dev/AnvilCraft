@@ -12,6 +12,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.Getter;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -100,6 +101,10 @@ public class BlockPattern {
             return BlockPredicateWithState.of(Blocks.AIR);
         }
         return symbols.get(c);
+    }
+
+    @Nullable public BlockPredicateWithState getBySymbol(char symbol) {
+        return symbols.get(symbol);
     }
 
     public int getSize() {
