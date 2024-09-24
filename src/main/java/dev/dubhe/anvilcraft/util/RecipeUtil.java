@@ -16,6 +16,8 @@ import net.minecraft.world.level.storage.loot.providers.number.BinomialDistribut
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
@@ -192,6 +194,7 @@ public class RecipeUtil {
         }
     }
 
+    @OnlyIn(Dist.CLIENT)
     public static LevelLike asLevelLike(BlockPattern pattern) {
         LevelLike levelLike = new LevelLike(Minecraft.getInstance().level);
         levelLike.setBlockState(new BlockPos(1, 1, 1), Blocks.TNT.defaultBlockState());
