@@ -37,6 +37,7 @@ public class MultiblockRecipe implements Recipe<MultiblockInput> {
         return new MultiblockBuilder();
     }
 
+    @Contract(" _, _ -> new")
     public static MultiblockBuilder builder(ItemLike item, int count) {
         return new MultiblockBuilder(item, count);
     }
@@ -67,11 +68,15 @@ public class MultiblockRecipe implements Recipe<MultiblockInput> {
 
     @Override
     public boolean matches(MultiblockInput input, Level level) {
+        int size = input.size();
+        if (pattern.getLayers().size() != size) {
+            return false;
+        }
         // 无旋转
         boolean flag = true;
-        for (int x = 0; x < 3 && flag; x++) {
-            for (int y = 0; y < 3 && flag; y++) {
-                for (int z = 0; z < 3 && flag; z++) {
+        for (int x = 0; x < size && flag; x++) {
+            for (int y = 0; y < size && flag; y++) {
+                for (int z = 0; z < size && flag; z++) {
                     if (!pattern.getPredicate(x, y, z).test(input.getBlockState(x, y, z))) {
                         flag = false;
                     }
@@ -84,10 +89,10 @@ public class MultiblockRecipe implements Recipe<MultiblockInput> {
         // 旋转90
         flag = true;
         input.rotate();
-        for (int x = 0; x < 3 && flag; x++) {
-            for (int y = 0; y < 3 && flag; y++) {
-                for (int z = 0; z < 3 && flag; z++) {
-                    if (!pattern.getPredicate(x, y, z).test(input.getBlockState(z, y, 2 - x))) {
+        for (int x = 0; x < size && flag; x++) {
+            for (int y = 0; y < size && flag; y++) {
+                for (int z = 0; z < size && flag; z++) {
+                    if (!pattern.getPredicate(x, y, z).test(input.getBlockState(z, y, size - 1 - x))) {
                         flag = false;
                     }
                 }
@@ -99,10 +104,10 @@ public class MultiblockRecipe implements Recipe<MultiblockInput> {
         // 旋转180
         flag = true;
         input.rotate();
-        for (int x = 0; x < 3 && flag; x++) {
-            for (int y = 0; y < 3 && flag; y++) {
-                for (int z = 0; z < 3 && flag; z++) {
-                    if (!pattern.getPredicate(x, y, z).test(input.getBlockState(2 - x, y, 2 - z))) {
+        for (int x = 0; x < size && flag; x++) {
+            for (int y = 0; y < size && flag; y++) {
+                for (int z = 0; z < size && flag; z++) {
+                    if (!pattern.getPredicate(x, y, z).test(input.getBlockState(size - 1 - x, y, size - 1 - z))) {
                         flag = false;
                     }
                 }
@@ -114,10 +119,10 @@ public class MultiblockRecipe implements Recipe<MultiblockInput> {
         // 旋转270
         flag = true;
         input.rotate();
-        for (int x = 0; x < 3 && flag; x++) {
-            for (int y = 0; y < 3 && flag; y++) {
-                for (int z = 0; z < 3 && flag; z++) {
-                    if (!pattern.getPredicate(x, y, z).test(input.getBlockState(2 - z, y, x))) {
+        for (int x = 0; x < size && flag; x++) {
+            for (int y = 0; y < size && flag; y++) {
+                for (int z = 0; z < size && flag; z++) {
+                    if (!pattern.getPredicate(x, y, z).test(input.getBlockState(size - 1 - z, y, x))) {
                         flag = false;
                     }
                 }

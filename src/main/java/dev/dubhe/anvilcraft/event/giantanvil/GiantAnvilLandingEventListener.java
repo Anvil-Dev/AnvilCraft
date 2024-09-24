@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.event.giantanvil;
 
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.entity.GiantAnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.init.ModBlocks;
@@ -34,6 +33,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 
+import net.neoforged.neoforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -44,11 +44,11 @@ import java.util.function.Consumer;
 public class GiantAnvilLandingEventListener {
     private static final List<ShockBehaviorDefinition> behaviorDefs = new ArrayList<>();
     public static final Direction[] HORIZONTAL_DIRECTIONS =
-            new Direction[] {Direction.SOUTH, Direction.WEST, Direction.EAST, Direction.NORTH};
-    public static final Direction[] VERTICAL_DIRECTIONS = new Direction[] {Direction.UP, Direction.DOWN};
-    public static final Direction[][] CORNER_DIRECTIONS = new Direction[][] {
-        {Direction.EAST, Direction.NORTH}, {Direction.EAST, Direction.SOUTH},
-        {Direction.WEST, Direction.NORTH}, {Direction.WEST, Direction.SOUTH},
+            new Direction[]{Direction.SOUTH, Direction.WEST, Direction.EAST, Direction.NORTH};
+    public static final Direction[] VERTICAL_DIRECTIONS = new Direction[]{Direction.UP, Direction.DOWN};
+    public static final Direction[][] CORNER_DIRECTIONS = new Direction[][]{
+            {Direction.EAST, Direction.NORTH}, {Direction.EAST, Direction.SOUTH},
+            {Direction.WEST, Direction.NORTH}, {Direction.WEST, Direction.SOUTH},
     };
 
     static {
@@ -321,37 +321,48 @@ public class GiantAnvilLandingEventListener {
 
     @SubscribeEvent
     public void handleMultiblock(@NotNull GiantAnvilFallOnLandEvent event) {
-        AnvilCraft.LOGGER.info(event.getPos().toString());
         Level level = event.getLevel();
-        BlockPos inputCenter = event.getPos().below(3);
-        int centerX = inputCenter.getX();
-        int centerY = inputCenter.getY();
-        int centerZ = inputCenter.getZ();
+        BlockPos landPos = event.getPos().below(2);
+
+        int size = findCraftingTableSize(landPos, level);
+
+        BlockPos inputCorner = landPos
+                .relative(Direction.Axis.X, -size / 2)
+                .relative(Direction.Axis.Z, -size / 2)
+                .relative(Direction.Axis.Y, -size);
+
         List<List<List<BlockState>>> blocks = new ArrayList<>();
-        for (int y = centerY - 1; y <= centerY + 1; y++) {
+        for (int y = 0; y < size; y++) {
             List<List<BlockState>> blocksY = new ArrayList<>();
-            for (int z = centerZ - 1; z <= centerZ + 1; z++) {
+            for (int z = 0; z < size; z++) {
                 List<BlockState> blocksZ = new ArrayList<>();
-                for (int x = centerX - 1; x <= centerX + 1; x++) {
-                    blocksZ.add(level.getBlockState(new BlockPos(x, y, z)));
+                for (int x = 0; x < size; x++) {
+                    BlockState state = level.getBlockState(inputCorner
+                            .relative(Direction.Axis.X, x)
+                            .relative(Direction.Axis.Z, z)
+                            .relative(Direction.Axis.Y, y));
+                    blocksZ.add(state);
                 }
                 blocksY.add(blocksZ);
             }
             blocks.add(blocksY);
         }
-        MultiblockInput input = new MultiblockInput(blocks);
+        MultiblockInput input = new MultiblockInput(blocks, size);
         level.getRecipeManager()
                 .getRecipeFor(ModRecipeTypes.MULITBLOCK_TYPE.get(), input, level)
                 .ifPresent(recipe -> {
                     ItemStack result = recipe.value().getResult().copy();
-                    for (int y = centerY - 1; y <= centerY + 1; y++) {
-                        for (int z = centerZ - 1; z <= centerZ + 1; z++) {
-                            for (int x = centerX - 1; x <= centerX + 1; x++) {
-                                level.setBlockAndUpdate(new BlockPos(x, y, z), Blocks.AIR.defaultBlockState());
+                    for (int y = 0; y < size; y++) {
+                        for (int z = 0; z < size; z++) {
+                            for (int x = 0; x < size; x++) {
+                                level.setBlockAndUpdate(inputCorner
+                                        .relative(Direction.Axis.X, x)
+                                        .relative(Direction.Axis.Z, z)
+                                        .relative(Direction.Axis.Y, y), Blocks.AIR.defaultBlockState());
                             }
                         }
                     }
-                    AnvilUtil.dropItems(List.of(result), level, inputCenter.getCenter());
+                    AnvilUtil.dropItems(List.of(result), level, landPos.relative(Direction.Axis.Y, -size / 2).getCenter());
                 });
     }
 
@@ -364,5 +375,26 @@ public class GiantAnvilLandingEventListener {
             if (!level.getBlockState(centerPos.relative(direction)).is(ModBlocks.HEAVY_IRON_BLOCK.get())) return false;
         }
         return true;
+    }
+
+    private static int findCraftingTableSize(BlockPos centerPos, Level level) {
+        int maxSize = 0;
+        for (int size = 1; size <= 15; size += 2) {
+            boolean flag = true;
+            for (int x = -size / 2; x <= size / 2 && flag; x++) {
+                for (int z = -size / 2; z <= size / 2 && flag; z++) {
+                    BlockPos pos = centerPos.relative(Direction.Axis.X, x).relative(Direction.Axis.Z, z);
+                    if (!level.getBlockState(pos).is(Tags.Blocks.PLAYER_WORKSTATIONS_CRAFTING_TABLES)) {
+                        flag = false;
+                    }
+                }
+            }
+            if (flag) {
+                maxSize = size;
+            } else {
+                break;
+            }
+        }
+        return maxSize;
     }
 }

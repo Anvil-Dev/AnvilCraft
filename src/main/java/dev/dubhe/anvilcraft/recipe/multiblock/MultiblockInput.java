@@ -13,15 +13,10 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public record MultiblockInput(List<List<List<BlockState>>> blocks) implements RecipeInput {
+public record MultiblockInput(List<List<List<BlockState>>> blocks, int size) implements RecipeInput {
     @Override
     public ItemStack getItem(int i) {
         return ItemStack.EMPTY;
-    }
-
-    @Override
-    public int size() {
-        return 0;
     }
 
     @Override
@@ -38,9 +33,9 @@ public record MultiblockInput(List<List<List<BlockState>>> blocks) implements Re
     }
 
     public void rotate() {
-        for (int x = 0; x < 3; x++) {
-            for (int y = 0; y < 3; y++) {
-                for (int z = 0; z < 3; z++) {
+        for (int x = 0; x < size; x++) {
+            for (int y = 0; y < size; y++) {
+                for (int z = 0; z < size; z++) {
                     BlockState state = getBlockState(x, y, z);
                     if (state.hasProperty(BlockStateProperties.FACING)) {
                         setBlockState(

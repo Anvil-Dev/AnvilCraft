@@ -60,12 +60,13 @@ public class BlockPattern {
     }
 
     public BlockPattern layer(String... lines) {
-        if (lines.length != 3) {
-            throw new IllegalArgumentException("Must have 3 line in block pattern");
+        if (lines.length % 2 != 1 && lines.length > 15) {
+            throw new IllegalArgumentException("Each layer must have an odd number of rows and cannot exceed 15.");
         }
         for (String line : lines) {
-            if (line.length() != 3) {
-                throw new IllegalArgumentException("Must have 3 block in line");
+            if (line.length() != lines.length) {
+                throw new IllegalArgumentException(
+                        "The number of squares in each row must be equal to the number of rows.");
             }
         }
         layers.add(Arrays.asList(lines));
