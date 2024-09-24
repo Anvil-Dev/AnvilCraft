@@ -40,5 +40,9 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.time_warp.consume_fluid", "Consume: %s");
         provider.add("gui.anvilcraft.category.time_warp.produce_fluid", "Produce: %s");
         provider.add("gui.anvilcraft.category.time_warp.need_activated", "Need Activated");
+
+        provider.add("gui.anvilcraft.category.multiblock", "Multiblock Crafting");
+        provider.add("gui.anvilcraft.category.multiblock.all_layers", "All Layers Visible");
+        provider.add("gui.anvilcraft.category.multiblock.single_layer", "Visible Layer: %d of %d");
     }
 }

@@ -2,8 +2,8 @@ package dev.dubhe.anvilcraft.util;
 
 import dev.dubhe.anvilcraft.recipe.anvil.input.IItemsInput;
 import dev.dubhe.anvilcraft.recipe.multiblock.BlockPattern;
-
 import dev.dubhe.anvilcraft.recipe.multiblock.BlockPredicateWithState;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -76,10 +76,10 @@ public class RecipeUtil {
         return switch (numberProvider) {
             case ConstantValue constantValue -> constantValue.value();
             case UniformGenerator uniformGenerator -> (getExpectedValue(uniformGenerator.min())
-                    + getExpectedValue(uniformGenerator.max()))
+                            + getExpectedValue(uniformGenerator.max()))
                     / 2;
             case BinomialDistributionGenerator binomialDistributionGenerator -> getExpectedValue(
-                    binomialDistributionGenerator.n())
+                            binomialDistributionGenerator.n())
                     * getExpectedValue(binomialDistributionGenerator.p());
             default -> -1;
         };
@@ -209,7 +209,8 @@ public class RecipeUtil {
                 for (int z = 0; z < pattern.getSize(); z++) {
                     BlockPredicateWithState predicate = pattern.getPredicate(x, y, z);
                     BlockState state = predicate.getBlock().defaultBlockState();
-                    for (Property<?> property : predicate.getBlock().getStateDefinition().getProperties()) {
+                    for (Property<?> property :
+                            predicate.getBlock().getStateDefinition().getProperties()) {
                         if (predicate.hasProperty(property)) {
                             switch (property) {
                                 case IntegerProperty integerProperty -> {
@@ -232,7 +233,8 @@ public class RecipeUtil {
                                 }
                                 case EnumProperty<?> enumProperty -> {
                                     if (enumProperty.getValueClass() == Direction.Axis.class) {
-                                        EnumProperty<Direction.Axis> axisProperty = (EnumProperty<Direction.Axis>) enumProperty;
+                                        EnumProperty<Direction.Axis> axisProperty =
+                                                (EnumProperty<Direction.Axis>) enumProperty;
                                         Direction.Axis value = predicate.getPropertyValue(axisProperty);
                                         if (value != null) {
                                             state = state.setValue(axisProperty, value);

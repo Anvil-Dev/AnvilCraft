@@ -15,6 +15,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.FluidState;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -28,6 +30,13 @@ import javax.annotation.ParametersAreNonnullByDefault;
 public class LevelLike implements BlockAndTintGetter {
     private final Map<BlockPos, BlockState> blocks = new HashMap<>();
     private final Level parent;
+
+    @Getter
+    private int currentVisibleLayer = 0;
+
+    @Setter
+    @Getter
+    private boolean allLayersVisible = true;
 
     public LevelLike(Level parent) {
         this.parent = parent;
@@ -67,6 +76,7 @@ public class LevelLike implements BlockAndTintGetter {
     }
 
     public BlockState getBlockState(BlockPos pos) {
+        if (!allLayersVisible && pos.getY() != currentVisibleLayer) return Blocks.AIR.defaultBlockState();
         BlockState state = blocks.get(pos);
         return state == null ? Blocks.AIR.defaultBlockState() : state;
     }
@@ -110,5 +120,21 @@ public class LevelLike implements BlockAndTintGetter {
     @Override
     public int getRawBrightness(BlockPos pos, int amount) {
         return 15 - amount;
+    }
+
+    public void nextLayer() {
+        if (currentVisibleLayer >= verticalSize() - 1) {
+            currentVisibleLayer = 0;
+        } else {
+            currentVisibleLayer++;
+        }
+    }
+
+    public void previousLayer() {
+        if (currentVisibleLayer <= 0) {
+            currentVisibleLayer = verticalSize() - 1;
+        } else {
+            currentVisibleLayer--;
+        }
     }
 }

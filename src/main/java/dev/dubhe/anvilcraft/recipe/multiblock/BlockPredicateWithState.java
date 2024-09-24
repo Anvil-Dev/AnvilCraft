@@ -76,8 +76,7 @@ public class BlockPredicateWithState implements Predicate<BlockState> {
         return properties.containsKey(stateName);
     }
 
-    @Nullable
-    public <T extends Comparable<T>> T getPropertyValue(Property<T> property) {
+    @Nullable public <T extends Comparable<T>> T getPropertyValue(Property<T> property) {
         String stateName = property.getName();
         String stateValue = properties.get(stateName);
         if (stateValue != null) {

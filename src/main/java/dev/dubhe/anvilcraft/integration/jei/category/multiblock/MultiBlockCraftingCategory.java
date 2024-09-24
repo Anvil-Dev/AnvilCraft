@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.integration.jei.category.multiblock;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
@@ -9,12 +10,12 @@ import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
 import dev.dubhe.anvilcraft.util.LevelLike;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.navigation.ScreenPosition;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -39,6 +40,8 @@ import com.mojang.math.Axis;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
+import mezz.jei.api.gui.inputs.IJeiGuiEventListener;
+import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
@@ -47,6 +50,10 @@ import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Consumer;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -57,23 +64,39 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
     private static final RandomSource RANDOM = RandomSource.createNewThreadLocalInstance();
     public static final int WIDTH = 160;
     public static final int HEIGHT = 100;
-    public static final int SCALE_FAC = 93;
-    public static final float SCALE = 21.21320343559642573202536f;
-    public static final BlockPos CORNER_BLOCK = new BlockPos(2, 2, 2);
-    private static final Object2ObjectMap<RecipeHolder<MultiblockRecipe>, LevelLike> cache = new Object2ObjectOpenHashMap<>();
+    public static final int SCALE_FAC = 80;
+    private final Map<RecipeHolder<MultiblockRecipe>, LevelLike> cache = new HashMap<>();
 
     private final Lazy<IDrawable> background;
     private final IDrawable icon;
     private final IDrawable slot;
+    private final IDrawable layerUp;
+    private final IDrawable layerDown;
+    private final IDrawable renderSwitchOn;
+    private final IDrawable renderSwitchOff;
     private final IDrawable arrowOut;
-    private boolean renderAllLayers = true;
-    private int renderLayer = 0;
 
     public MultiBlockCraftingCategory(IGuiHelper helper) {
         background = Lazy.of(() -> helper.createBlankDrawable(WIDTH, HEIGHT));
         icon = helper.createDrawableItemStack(new ItemStack(ModBlocks.GIANT_ANVIL));
         arrowOut = helper.createDrawable(TextureConstants.ANVIL_CRAFT_SPRITES, 0, 31, 16, 8);
         slot = helper.getSlotDrawable();
+        layerUp = helper.drawableBuilder(
+                        AnvilCraft.of("textures/gui/container/insight/insight_layer_up.png"), 0, 0, 10, 10)
+                .setTextureSize(10, 20)
+                .build();
+        layerDown = helper.drawableBuilder(
+                        AnvilCraft.of("textures/gui/container/insight/insight_layer_down.png"), 0, 0, 10, 10)
+                .setTextureSize(10, 20)
+                .build();
+        renderSwitchOff = helper.drawableBuilder(
+                        AnvilCraft.of("textures/gui/container/insight/insight_layer_switch.png"), 0, 0, 10, 10)
+                .setTextureSize(10, 20)
+                .build();
+        renderSwitchOn = helper.drawableBuilder(
+                        AnvilCraft.of("textures/gui/container/insight/insight_layer_switch.png"), 0, 10, 10, 10)
+                .setTextureSize(10, 20)
+                .build();
     }
 
     @Override
@@ -83,18 +106,20 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
 
     @Override
     public void draw(
-            RecipeHolder<MultiblockRecipe> recipeHolder,
+            RecipeHolder<MultiblockRecipe> recipe,
             IRecipeSlotsView recipeSlotsView,
             GuiGraphics guiGraphics,
             double mouseX,
             double mouseY) {
-        LevelLike level = cache.get(recipeHolder);
+        LevelLike level = cache.get(recipe);
         if (level == null) {
-            level = RecipeUtil.asLevelLike(recipeHolder.value().pattern);
-            cache.put(recipeHolder, level);
+            level = RecipeUtil.asLevelLike(recipe.value().pattern);
+            cache.put(recipe, level);
         }
+        boolean renderAllLayers = level.isAllLayersVisible();
+        int visibleLayer = level.getCurrentVisibleLayer();
         RenderSystem.enableBlend();
-        int xPos = 55;
+        int xPos = 45;
         int yPos = 50;
         Minecraft minecraft = Minecraft.getInstance();
         DeltaTracker tracker = minecraft.getTimer();
@@ -129,7 +154,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
             iter = BlockPos.betweenClosed(BlockPos.ZERO, new BlockPos(sizeX - 1, sizeY - 1, sizeX - 1));
         } else {
             iter = BlockPos.betweenClosed(
-                    BlockPos.ZERO.atY(renderLayer), new BlockPos(sizeX - 1, renderLayer, sizeX - 1));
+                    BlockPos.ZERO.atY(visibleLayer), new BlockPos(sizeX - 1, visibleLayer, sizeX - 1));
         }
         pose.pushPose();
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
@@ -158,6 +183,22 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
         buffers.endBatch();
         pose.popPose();
         pose.popPose();
+        Component component;
+        if (renderAllLayers) {
+            component = Component.translatable("gui.anvilcraft.category.multiblock.all_layers");
+            renderSwitchOff.draw(guiGraphics, 125, 10);
+        } else {
+            component =
+                    Component.translatable("gui.anvilcraft.category.multiblock.single_layer", visibleLayer + 1, sizeY);
+            renderSwitchOn.draw(guiGraphics, 125, 10);
+            layerUp.draw(guiGraphics, 137, 10);
+            layerDown.draw(guiGraphics, 149, 10);
+        }
+        pose.pushPose();
+        pose.scale(0.8f, 0.8f, 0.8f);
+        int textX = renderAllLayers ? 115 : 100;
+        guiGraphics.drawString(minecraft.font, component, textX, 0, 0xf0f0f0, true);
+        pose.popPose();
         arrowOut.draw(guiGraphics, 110, 60);
         slot.draw(guiGraphics, 129, 69);
     }
@@ -178,8 +219,10 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
     }
 
     @Override
-    public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<MultiblockRecipe> recipeHolder, IFocusGroup focuses) {
-        builder.addSlot(RecipeIngredientRole.OUTPUT, 130, 70).addItemStack(recipeHolder.value().result.copy());
+    public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<MultiblockRecipe> recipe, IFocusGroup focuses) {
+        cache.computeIfAbsent(recipe, it -> RecipeUtil.asLevelLike(it.value().getPattern()));
+        builder.addSlot(RecipeIngredientRole.OUTPUT, 130, 70)
+                .addItemStack(recipe.value().getResult().copy());
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {
@@ -188,7 +231,73 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
                 JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.MULITBLOCK_TYPE.get()));
     }
 
+    @Override
+    public void createRecipeExtras(
+            IRecipeExtrasBuilder builder, RecipeHolder<MultiblockRecipe> recipe, IFocusGroup focuses) {
+        builder.addGuiEventListener(new JeiButton<>(
+                125,
+                10,
+                10,
+                it -> {
+                    LevelLike level = this.cache.computeIfAbsent(it, a -> RecipeUtil.asLevelLike(a.value().pattern));
+                    level.setAllLayersVisible(!level.isAllLayersVisible());
+                },
+                recipe));
+
+        builder.addGuiEventListener(new JeiButton<>(
+                137,
+                10,
+                10,
+                it -> {
+                    LevelLike level = this.cache.computeIfAbsent(it, a -> RecipeUtil.asLevelLike(a.value().pattern));
+                    if (level.isAllLayersVisible()) return;
+                    level.nextLayer();
+                },
+                recipe));
+
+        builder.addGuiEventListener(new JeiButton<>(
+                149,
+                10,
+                10,
+                it -> {
+                    LevelLike level = this.cache.computeIfAbsent(it, a -> RecipeUtil.asLevelLike(a.value().pattern));
+                    if (level.isAllLayersVisible()) return;
+                    level.previousLayer();
+                },
+                recipe));
+    }
+
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.GIANT_ANVIL), AnvilCraftJeiPlugin.MULTI_BLOCK);
+    }
+
+    private static class JeiButton<T> implements IJeiGuiEventListener {
+        private final Consumer<T> onClickCallback;
+        private final int x;
+        private final int y;
+        private final int size;
+        private final T metadataKey;
+
+        public JeiButton(int x, int y, int size, Consumer<T> onClickCallback, T metadataKey) {
+            this.onClickCallback = onClickCallback;
+            this.x = x;
+            this.y = y;
+            this.size = size;
+            this.metadataKey = metadataKey;
+        }
+
+        @Override
+        public ScreenRectangle getArea() {
+            return new ScreenRectangle(new ScreenPosition(x, y), size, size);
+        }
+
+        @Override
+        public boolean mouseClicked(double mouseX, double mouseY, int button) {
+            if (button == 0) {
+                onClickCallback.accept(metadataKey);
+                return true;
+            }
+            return false;
+        }
     }
 }
