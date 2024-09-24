@@ -1,12 +1,12 @@
 package dev.dubhe.anvilcraft.util;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.ColorResolver;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Blocks;
@@ -29,7 +29,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 public class LevelLike implements BlockAndTintGetter {
     private final Map<BlockPos, BlockState> blocks = new HashMap<>();
-    private final Level parent;
+    private final ClientLevel parent;
 
     @Getter
     private int currentVisibleLayer = 0;
@@ -38,7 +38,7 @@ public class LevelLike implements BlockAndTintGetter {
     @Getter
     private boolean allLayersVisible = true;
 
-    public LevelLike(Level parent) {
+    public LevelLike(ClientLevel parent) {
         this.parent = parent;
     }
 
@@ -88,7 +88,17 @@ public class LevelLike implements BlockAndTintGetter {
 
     @Override
     public float getShade(Direction direction, boolean b) {
-        return 1f;
+        boolean flag = parent.effects().constantAmbientLight();
+        if (!b) {
+            return flag ? 0.9F : 1.0F;
+        } else {
+            return switch (direction) {
+                case DOWN -> flag ? 0.9F : 0.5F;
+                case UP -> flag ? 0.9F : 1.0F;
+                case NORTH, SOUTH -> 0.8F;
+                case WEST, EAST -> 0.6F;
+            };
+        }
     }
 
     @Override
@@ -114,12 +124,12 @@ public class LevelLike implements BlockAndTintGetter {
 
     @Override
     public int getBrightness(LightLayer type, BlockPos pos) {
-        return 15;
+        return 14;
     }
 
     @Override
     public int getRawBrightness(BlockPos pos, int amount) {
-        return 15 - amount;
+        return 14 - amount;
     }
 
     public void nextLayer() {

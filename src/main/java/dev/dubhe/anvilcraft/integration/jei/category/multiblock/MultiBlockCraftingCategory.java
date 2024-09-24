@@ -138,7 +138,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
         pose.scale(-scale, -scale, -scale);
 
         pose.translate(-(float) sizeX / 2, -(float) sizeY / 2, 0);
-        pose.mulPose(Axis.XP.rotationDegrees(-30F));
+        pose.mulPose(Axis.XP.rotationDegrees(-30));
 
         float offsetX = (float) -sizeX / 2;
         float offsetZ = (float) -sizeY / 2 + 1;
