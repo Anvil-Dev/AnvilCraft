@@ -33,6 +33,7 @@ import dev.dubhe.anvilcraft.item.RoyalShovelItem;
 import dev.dubhe.anvilcraft.item.RoyalSwordItem;
 import dev.dubhe.anvilcraft.item.RoyalUpgradeTemplateItem;
 import dev.dubhe.anvilcraft.item.SeedsPackItem;
+import dev.dubhe.anvilcraft.item.StructureToolItem;
 import dev.dubhe.anvilcraft.item.TopazItem;
 import dev.dubhe.anvilcraft.item.UtusanItem;
 
@@ -40,6 +41,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.HoeItem;
@@ -292,6 +294,11 @@ public class ModItems {
             REGISTRATE.item("utusan", UtusanItem::new).register();
     public static final ItemEntry<SeedsPackItem> SEEDS_PACK =
             REGISTRATE.item("seeds_pack", SeedsPackItem::new).register();
+    public static final ItemEntry<StructureToolItem> STRUCTURE_TOOL = REGISTRATE
+            .item("structure_tool", StructureToolItem::new)
+            .model((ctx, provider) -> provider.generated(ctx::get, ResourceLocation.parse("item/paper")))
+            .properties(properties -> properties.stacksTo(1))
+            .register();
 
     static {
         REGISTRATE.defaultCreativeTab(ModItemGroups.ANVILCRAFT_INGREDIENTS.getKey());

@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.item.DiskItem;
 import dev.dubhe.anvilcraft.item.HasMobBlockItem;
 import dev.dubhe.anvilcraft.item.HeliostatsItem;
+import dev.dubhe.anvilcraft.item.StructureToolItem;
 
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
@@ -28,6 +29,10 @@ public class ModComponents {
     public static final DataComponentType<HeliostatsItem.HeliostatsData> HELIOSTATS_DATA =
             register("heliostats_data", b -> b.persistent(HeliostatsItem.HeliostatsData.CODEC)
                     .networkSynchronized(HeliostatsItem.HeliostatsData.STREAM_CODEC));
+
+    public static final DataComponentType<StructureToolItem.StructureData> STRUCTURE_DATA =
+            register("structure_data", b -> b.persistent(StructureToolItem.StructureData.CODEC)
+                    .networkSynchronized(StructureToolItem.StructureData.STREAM_CODEC));
 
     private static <T> DataComponentType<T> register(String name, Consumer<DataComponentType.Builder<T>> customizer) {
         var builder = DataComponentType.<T>builder();
