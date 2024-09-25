@@ -3,6 +3,7 @@ api_token_env: CROWDIN_API_TOKEN
 base_path: '.'
 
 preserve_hierarchy: true
+
 files:
   - source: 'src/generated/resources/assets/anvilcraft/lang/en_us.json'
     translation: 'src/main/resources/assets/anvilcraft/lang/%locale_with_underscore%.json'
