@@ -128,7 +128,12 @@ public class MultiblockRecipe implements Recipe<MultiblockInput> {
                 }
             }
         }
-        return flag;
+        if (flag) {
+            return true;
+        }
+        // 旋转到无旋转
+        input.rotate();
+        return false;
     }
 
     @Override
