@@ -1,0 +1,31 @@
+name: Update Crowdin Sources / Translations
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - src/generated/resources/assets/anvilcraft/lang/en_us.json
+    branches:
+      - 'dev/1.21'
+  schedule:
+    - cron: 0 * * * *
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - uses: crowdin/github-action@v2.2.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CROWDIN_API_TOKEN: ${{ secrets.CROWDIN_API_TOKEN }}
+        with:
+          upload_sources: 'true'
+          download_translations: 'true'
+          push_translations: 'true'
+          crowdin_branch_name: 'dev/1.21'
+          create_pull_request: 'true'
+          download_translations_args: '-all'
