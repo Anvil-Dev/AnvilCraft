@@ -43,6 +43,10 @@ public class MultiblockBuilder extends AbstractRecipeBuilder<MultiblockRecipe> {
         return symbol(symbol, BlockPredicateWithState.of(block));
     }
 
+    public MultiblockBuilder symbol(char symbol, String block) {
+        return symbol(symbol, BlockPredicateWithState.of(block));
+    }
+
     @Override
     public MultiblockRecipe buildRecipe() {
         return new MultiblockRecipe(pattern, result);

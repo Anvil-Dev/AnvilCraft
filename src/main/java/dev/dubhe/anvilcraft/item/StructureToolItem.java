@@ -196,7 +196,7 @@ public class StructureToolItem extends Item {
                     text.append(")\n");
                 });
             }
-            text.append(");\n");
+            text.append(")\n");
         });
         String code = text.getString();
         player.displayClientMessage(

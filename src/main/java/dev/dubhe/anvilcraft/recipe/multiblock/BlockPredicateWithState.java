@@ -3,9 +3,11 @@ package dev.dubhe.anvilcraft.recipe.multiblock;
 import dev.dubhe.anvilcraft.util.CodecUtil;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -71,6 +73,11 @@ public class BlockPredicateWithState implements Predicate<BlockState> {
         return this;
     }
 
+    public BlockPredicateWithState hasState(String stateName, String stateValue) {
+        properties.put(stateName, stateValue);
+        return this;
+    }
+
     public <T extends Comparable<T>> boolean hasProperty(Property<T> property) {
         String stateName = property.getName();
         return properties.containsKey(stateName);
@@ -91,6 +98,10 @@ public class BlockPredicateWithState implements Predicate<BlockState> {
     @Contract("_ -> new")
     public static @NotNull BlockPredicateWithState of(Block block) {
         return new BlockPredicateWithState(block);
+    }
+
+    public static BlockPredicateWithState of(String block) {
+        return of(BuiltInRegistries.BLOCK.get(ResourceLocation.parse(block)));
     }
 
     @Override
