@@ -84,5 +84,99 @@ public class MultiBlockRecipeLoader {
                 .symbol('B', ModBlocks.BERRY_CAKE_BLOCK.get())
                 .symbol('C', ModBlocks.CHOCOLATE_CAKE_BLOCK.get())
                 .save(provider);
+
+        MultiblockRecipe.builder(ModBlocks.MENGER_SPONGE)
+                .layer(
+                        "AAAAAAAAA",
+                        "A AA AA A",
+                        "AAAAAAAAA",
+                        "AAA   AAA",
+                        "A A   A A",
+                        "AAA   AAA",
+                        "AAAAAAAAA",
+                        "A AA AA A",
+                        "AAAAAAAAA")
+                .layer(
+                        "A AA AA A",
+                        "         ",
+                        "A AA AA A",
+                        "A A   A A",
+                        "         ",
+                        "A A   A A",
+                        "A AA AA A",
+                        "         ",
+                        "A AA AA A")
+                .layer(
+                        "AAAAAAAAA",
+                        "A AA AA A",
+                        "AAAAAAAAA",
+                        "AAA   AAA",
+                        "A A   A A",
+                        "AAA   AAA",
+                        "AAAAAAAAA",
+                        "A AA AA A",
+                        "AAAAAAAAA")
+                .layer(
+                        "AAA   AAA",
+                        "A A   A A",
+                        "AAA   AAA",
+                        "         ",
+                        "         ",
+                        "         ",
+                        "AAA   AAA",
+                        "A A   A A",
+                        "AAA   AAA")
+                .layer(
+                        "A A   A A",
+                        "         ",
+                        "A A   A A",
+                        "         ",
+                        "         ",
+                        "         ",
+                        "A A   A A",
+                        "         ",
+                        "A A   A A")
+                .layer(
+                        "AAA   AAA",
+                        "A A   A A",
+                        "AAA   AAA",
+                        "         ",
+                        "         ",
+                        "         ",
+                        "AAA   AAA",
+                        "A A   A A",
+                        "AAA   AAA")
+                .layer(
+                        "AAAAAAAAA",
+                        "A AA AA A",
+                        "AAAAAAAAA",
+                        "AAA   AAA",
+                        "A A   A A",
+                        "AAA   AAA",
+                        "AAAAAAAAA",
+                        "A AA AA A",
+                        "AAAAAAAAA")
+                .layer(
+                        "A AA AA A",
+                        "         ",
+                        "A AA AA A",
+                        "A A   A A",
+                        "         ",
+                        "A A   A A",
+                        "A AA AA A",
+                        "         ",
+                        "A AA AA A")
+                .layer(
+                        "AAAAAAAAA",
+                        "A AA AA A",
+                        "AAAAAAAAA",
+                        "AAA   AAA",
+                        "A A   A A",
+                        "AAA   AAA",
+                        "AAAAAAAAA",
+                        "A AA AA A",
+                        "AAAAAAAAA")
+                .symbol('A', "anvilcraft:menger_sponge")
+                .save(provider, AnvilCraft.of("mulitblock/menger_sponge_2"));
     }
 }
