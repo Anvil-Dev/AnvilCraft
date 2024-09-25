@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.api.tooltip.impl.RubyPrismTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.providers.AffectRangeProvider;
 import dev.dubhe.anvilcraft.api.tooltip.providers.BlockEntityTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.providers.HandHeldItemTooltipProvider;
+import dev.dubhe.anvilcraft.init.ModItems;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -44,6 +45,7 @@ public class HudTooltipManager {
         INSTANCE.registerBlockEntityTooltip(new RubyPrismTooltipProvider());
         INSTANCE.registerHandHeldItemTooltip(new HeliostatsTooltip());
         INSTANCE.registerBlockEntityTooltip(new HeliostatsTooltipProvider());
+        INSTANCE.registerHandHeldItemTooltip(ModItems.STRUCTURE_TOOL.get());
     }
 
     private void registerAffectRange(AffectRangeProviderImpl affectRangeProvider) {

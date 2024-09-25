@@ -1,9 +1,13 @@
 package dev.dubhe.anvilcraft.item;
 
+import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
+import dev.dubhe.anvilcraft.api.tooltip.providers.HandHeldItemTooltipProvider;
 import dev.dubhe.anvilcraft.init.ModComponents;
 import dev.dubhe.anvilcraft.recipe.multiblock.BlockPredicateWithState;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.ClickEvent;
@@ -24,7 +28,12 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
@@ -36,7 +45,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class StructureToolItem extends Item {
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
+public class StructureToolItem extends Item implements HandHeldItemTooltipProvider {
     public StructureToolItem(Properties properties) {
         super(properties);
     }
@@ -220,6 +233,31 @@ public class StructureToolItem extends Item {
             }
         }
         return currentSymbol;
+    }
+
+    @Override
+    public boolean accepts(ItemStack itemStack) {
+        return itemStack.is(this);
+    }
+
+    @Override
+    public void render(
+            PoseStack poseStack, VertexConsumer consumer, ItemStack itemStack, double camX, double camY, double camZ) {
+        StructureData data = itemStack.get(ModComponents.STRUCTURE_DATA);
+        if (data != null) {
+            BlockPos minPos = data.getMinPos();
+            BlockPos maxPos = data.getMaxPos();
+            VoxelShape shape = Shapes.create(AABB.encapsulatingFullBlocks(minPos, maxPos));
+            TooltipRenderHelper.renderOutline(poseStack, consumer, camX, camY, camZ, BlockPos.ZERO, shape, 0xFFFFFFFF);
+        }
+    }
+
+    @Override
+    public void renderTooltip(GuiGraphics guiGraphics, int screenWidth, int screenHeight) {}
+
+    @Override
+    public int priority() {
+        return 0;
     }
 
     @Getter

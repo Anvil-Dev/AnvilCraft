@@ -20,7 +20,6 @@ public class AnvilCraftClient {
         modBus.addListener(GuiLayerRegistrationEventListener::onRegister);
 
         NeoForge.EVENT_BUS.addListener(ClientEventListener::blockHighlight);
-        NeoForge.EVENT_BUS.addListener(ClientEventListener::StructureHighlight);
 
         container.registerExtensionPoint(
                 IConfigScreenFactory.class,
