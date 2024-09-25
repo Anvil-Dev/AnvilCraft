@@ -11,6 +11,7 @@ files:
       locale_with_underscore:
         zh-CN: zh_cn
         zh-TW: zh_tw
+        zh-HK: zh_hk
         en: en_us
         be: be_by
         cs: cs_cz
