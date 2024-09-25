@@ -8,19 +8,24 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4f;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -44,6 +49,7 @@ public class SimplePowerGrid {
     private final BlockPos pos;
     private final List<BlockPos> blocks = new ArrayList<>();
     private final List<PowerComponentInfo> powerComponentInfoList = new ArrayList<>();
+    private final List<Line> powerTransmitterLines = new ArrayList<>();
     private final int generate; // 发电功率
     private final int consume; // 耗电功率
 
@@ -69,6 +75,7 @@ public class SimplePowerGrid {
                 powerComponentInfoList.stream().map(PowerComponentInfo::pos).toList());
         this.powerComponentInfoList.addAll(powerComponentInfoList);
         cachedOutlineShape = createMergedOutlineShape();
+        createTransmitterVisualLines();
     }
 
     /**
@@ -141,11 +148,40 @@ public class SimplePowerGrid {
         cachedOutlineShape = Shapes.block();
     }
 
-    public boolean shouldRenderOutline(Vec3 cameraPos) {
-        int renderDistance = Minecraft.getInstance().options.getEffectiveRenderDistance() * 16;
-        renderDistance *= renderDistance;
-        double distanceSqr = pos.getCenter().distanceToSqr(cameraPos);
-        return distanceSqr < renderDistance;
+    public boolean shouldRender(Vec3 cameraPos) {
+        int[] renderDistance = {Minecraft.getInstance().options.getEffectiveRenderDistance() * 16};
+        renderDistance[0] *= renderDistance[0];
+        return powerComponentInfoList.stream()
+                .anyMatch(it -> it.pos().getCenter().distanceToSqr(cameraPos) < renderDistance[0]);
+    }
+
+    private void createTransmitterVisualLines() {
+        List<Map.Entry<BlockPos, AABB>> shapes = this.powerComponentInfoList.stream()
+                .filter(it -> it.type() == PowerComponentType.TRANSMITTER)
+                .map(it -> Map.entry(
+                        it.pos(),
+                        new AABB(
+                                -it.range() + it.pos().getX(),
+                                -it.range() + it.pos().getY(),
+                                -it.range() + it.pos().getZ(),
+                                it.range() + 1 + it.pos().getX(),
+                                it.range() + 1 + it.pos().getY(),
+                                it.range() + 1 + it.pos().getZ())))
+                .toList();
+
+        for (int i = 0; i < shapes.size(); i++) {
+            Map.Entry<BlockPos, AABB> e1 = shapes.get(i);
+            for (int j = i + 1; j < shapes.size(); j++) {
+                Map.Entry<BlockPos, AABB> e2 = shapes.get(j);
+                AABB a = e1.getValue();
+                AABB b = e2.getValue();
+                if (a.intersects(b)) {
+                    Vec3 start = e1.getKey().getCenter();
+                    Vec3 end = e2.getKey().getCenter();
+                    powerTransmitterLines.add(new Line(start, end, (float) start.distanceTo(end)));
+                }
+            }
+        }
     }
 
     private VoxelShape createMergedOutlineShape() {
@@ -171,5 +207,24 @@ public class SimplePowerGrid {
         return PowerGridRenderer.getGridMap().values().stream()
                 .filter(it -> it.blocks.stream().anyMatch(it1 -> it1.equals(pos)))
                 .toList();
+    }
+
+    public record Line(Vec3 start, Vec3 end, float distance) {
+
+        public void render(PoseStack pose, VertexConsumer vertex, Vec3 camera, int color) {
+            float dx = (float) (this.start().x - this.end().x);
+            float dy = (float) (this.start().y - this.end().y);
+            float dz = (float) (this.start().z - this.end().z);
+            Matrix4f mat = pose.last().pose();
+            ;
+            vertex.addVertex(mat, (float) (this.start().x - camera.x), (float) (this.start().y - camera.y), (float)
+                            (this.start().z - camera.z))
+                    .setColor(color)
+                    .setNormal(pose.last(), dx /= this.distance(), dy /= this.distance(), dz /= this.distance());
+            vertex.addVertex(mat, (float) (this.end().x - camera.x), (float) (this.end().y - camera.y), (float)
+                            (this.end().z - camera.z))
+                    .setColor(color)
+                    .setNormal(pose.last(), dx, dy, dz);
+        }
     }
 }

@@ -35,6 +35,7 @@ public class RenderEventListener {
         double camX = vec3.x();
         double camY = vec3.y();
         double camZ = vec3.z();
+        PowerGridRenderer.renderTransmitterLine(event.getPoseStack(), bufferSource, vec3);
         if (entity instanceof LivingEntity livingEntity) {
             ItemStack mainHandItem = livingEntity.getItemInHand(InteractionHand.MAIN_HAND);
             ItemStack offHandItem = livingEntity.getItemInHand(InteractionHand.OFF_HAND);
@@ -53,7 +54,7 @@ public class RenderEventListener {
             }
         }
         if (bl) return;
-        PowerGridRenderer.render(event.getPoseStack(), vertexConsumer3, camX, camY, camZ);
+        PowerGridRenderer.render(event.getPoseStack(), bufferSource, vec3);
         HitResult hit = Minecraft.getInstance().hitResult;
         if (hit == null || hit.getType() != HitResult.Type.BLOCK) {
             return;

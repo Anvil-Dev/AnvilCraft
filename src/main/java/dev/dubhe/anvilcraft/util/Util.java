@@ -11,9 +11,12 @@ import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.function.Function;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Util {
@@ -81,5 +84,9 @@ public class Util {
     public static boolean findCaller(String caller) {
         return STACK_WALKER.walk(
                 it -> it.anyMatch(frame -> frame.getMethodName().equals(caller)));
+    }
+
+    public static <K, V> Collector<Map.Entry<K, V>, ?, Map<K, V>> toMapCollector() {
+        return Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue);
     }
 }

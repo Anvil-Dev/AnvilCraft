@@ -29,16 +29,16 @@ public class TooltipRenderHelper {
             double camX,
             double camY,
             double camZ,
-            @NotNull BlockPos pos,
+            @NotNull BlockPos offsetPos,
             @NotNull VoxelShape shape,
             int color) {
         renderShape(
                 poseStack,
                 consumer,
                 shape,
-                (double) pos.getX() - camX,
-                (double) pos.getY() - camY,
-                (double) pos.getZ() - camZ,
+                (double) offsetPos.getX() - camX,
+                (double) offsetPos.getY() - camY,
+                (double) offsetPos.getZ() - camZ,
                 color);
     }
 

@@ -3,6 +3,8 @@ package dev.dubhe.anvilcraft.client.renderer;
 import dev.dubhe.anvilcraft.api.power.SimplePowerGrid;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -27,20 +29,19 @@ public class PowerGridRenderer {
     /**
      * 渲染
      */
-    public static void render(PoseStack poseStack, VertexConsumer consumer, double camX, double camY, double camZ) {
+    public static void render(PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, Vec3 camera) {
         if (Minecraft.getInstance().level == null) return;
         RandomSource random = Minecraft.getInstance().level.random;
         String level = Minecraft.getInstance().level.dimension().location().toString();
+        VertexConsumer consumer = bufferSource.getBuffer(RenderType.lines());
         for (SimplePowerGrid grid : PowerGridRenderer.GRID_MAP.values()) {
-            if (!grid.shouldRenderOutline(new Vec3(camX, camY, camZ))) return;
+            if (!grid.shouldRender(camera)) return;
             if (!grid.getLevel().equals(level)) continue;
             random.setSeed(grid.getHash());
             PowerGridRenderer.renderOutline(
                     poseStack,
                     consumer,
-                    camX,
-                    camY,
-                    camZ,
+                    camera,
                     grid.getPos(),
                     grid.getCachedOutlineShape(),
                     random.nextFloat(),
@@ -48,6 +49,20 @@ public class PowerGridRenderer {
                     random.nextFloat(),
                     0.4f);
         }
+        bufferSource.endLastBatch();
+    }
+
+    public static void renderTransmitterLine(
+            PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, Vec3 camera) {
+        if (Minecraft.getInstance().level == null) return;
+        String level = Minecraft.getInstance().level.dimension().location().toString();
+        VertexConsumer consumer = bufferSource.getBuffer(RenderType.lines());
+        for (SimplePowerGrid grid : PowerGridRenderer.GRID_MAP.values()) {
+            if (!grid.shouldRender(camera)) return;
+            if (!grid.getLevel().equals(level)) continue;
+            grid.getPowerTransmitterLines().forEach(it -> it.render(poseStack, consumer, camera, 0x9966ccff));
+        }
+        bufferSource.endLastBatch();
     }
 
     public static void clearAllGrid() {
@@ -58,9 +73,7 @@ public class PowerGridRenderer {
     private static void renderOutline(
             PoseStack poseStack,
             VertexConsumer consumer,
-            double camX,
-            double camY,
-            double camZ,
+            Vec3 camera,
             @NotNull BlockPos pos,
             @NotNull VoxelShape shape,
             float red,
@@ -71,9 +84,9 @@ public class PowerGridRenderer {
                 poseStack,
                 consumer,
                 shape,
-                (double) pos.getX() - camX,
-                (double) pos.getY() - camY,
-                (double) pos.getZ() - camZ,
+                (double) pos.getX() - camera.x,
+                (double) pos.getY() - camera.y,
+                (double) pos.getZ() - camera.z,
                 red,
                 green,
                 blue,
