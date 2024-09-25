@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - src/generated/resources/assets/anvilcraft/lang/en_us.json
+      - 'crowdin.yml'
       - '.github/workflows/**'
     branches:
       - 'dev/1.21'
@@ -24,9 +25,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CROWDIN_API_TOKEN: ${{ secrets.CROWDIN_API_TOKEN }}
         with:
-          upload_sources: 'true'
-          download_translations: 'true'
-          push_translations: 'true'
+          upload_sources: true
+          download_translations: true
+          push_translations: true
           crowdin_branch_name: 'dev/1.21'
-          create_pull_request: 'true'
+          create_pull_request: true
           download_translations_args: '-all'
