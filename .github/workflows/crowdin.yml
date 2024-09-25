@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - src/generated/resources/assets/anvilcraft/lang/en_us.json
+      - '.github/workflows/**'
     branches:
       - 'dev/1.21'
   schedule:
