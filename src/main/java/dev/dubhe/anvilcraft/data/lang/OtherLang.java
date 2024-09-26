@@ -21,5 +21,14 @@ public class OtherLang {
 
         provider.add("pack.anvilcraft.builtin_pack", "AnvilCraft Builtin ResourcePack");
         provider.add("pack.anvilcraft.transparent_cauldron.description", "Transparent Cauldron");
+
+        provider.add("message.anvilcraft.copied_to_clipboard", "Copied to clipboard");
+        provider.add("message.anvilcraft.code_gen_filed", "Code generation failed");
+        provider.add(
+                "message.anvilcraft.code_gen_check",
+                "Please check if the selected area is a cube and if the output slot has items.");
+        provider.add("message.anvilcraft.no_file_selected", "No file path selected");
+        provider.add("message.anvilcraft.file_save_failed", "An issue occurred while saving file %s, %s");
+        provider.add("message.anvilcraft.file_saved", "File saved to %s");
     }
 }

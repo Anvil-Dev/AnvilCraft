@@ -61,16 +61,20 @@ public class BlockPattern {
     }
 
     public BlockPattern layer(String... lines) {
-        if (lines.length % 2 != 1 && lines.length > 15) {
+        return layer(Arrays.asList(lines));
+    }
+
+    public BlockPattern layer(List<String> layer) {
+        if (layer.size() % 2 != 1 && layer.size() > 15) {
             throw new IllegalArgumentException("Each layer must have an odd number of rows and cannot exceed 15.");
         }
-        for (String line : lines) {
-            if (line.length() != lines.length) {
+        for (String line : layer) {
+            if (line.length() != layer.size()) {
                 throw new IllegalArgumentException(
                         "The number of squares in each row must be equal to the number of rows.");
             }
         }
-        layers.add(Arrays.asList(lines));
+        layers.add(layer);
         return this;
     }
 

@@ -37,6 +37,8 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.tterrag.registrate.Registrate;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
@@ -49,6 +51,8 @@ public class AnvilCraft {
     public static final String MOD_ID = "anvilcraft";
     public static final String MOD_NAME = "AnvilCraft";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
+    public static final Gson GSON =
+            new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
     public static IEventBus EVENT_BUS;
     public static AnvilCraftConfig config = AutoConfig.register(AnvilCraftConfig.class, JanksonConfigSerializer::new)
             .getConfig();

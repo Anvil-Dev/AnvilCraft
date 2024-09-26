@@ -6,17 +6,12 @@ import dev.dubhe.anvilcraft.init.ModComponents;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.StructureToolMenu;
 import dev.dubhe.anvilcraft.network.StructureDataSyncPacket;
-import dev.dubhe.anvilcraft.recipe.multiblock.BlockPredicateWithState;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.HoverEvent;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
@@ -30,9 +25,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -46,10 +38,7 @@ import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import org.jetbrains.annotations.Contract;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -126,7 +115,6 @@ public class StructureToolItem extends Item implements HandHeldItemTooltipProvid
                                     getDescription()));
                     PacketDistributor.sendToPlayer(serverPlayer, new StructureDataSyncPacket(data));
                 }
-                exportStructureData(data, level, player);
                 return InteractionResultHolder.success(itemstack);
             }
         }
@@ -143,111 +131,6 @@ public class StructureToolItem extends Item implements HandHeldItemTooltipProvid
             tooltipComponents.add(Component.translatable(
                     "tooltip.anvilcraft.item.structure_tool.max_pos", data.maxX, data.maxY, data.maxZ));
         }
-    }
-
-    private static char currentSymbol;
-
-    private static void exportStructureData(StructureData data, Level level, Player player) {
-        List<List<String>> layers = new ArrayList<>();
-        Map<Character, BlockPredicateWithState> symbols = new HashMap<>();
-        currentSymbol = '@';
-        for (int y = data.getMinY(); y <= data.getMaxY(); y++) {
-            List<String> layer = new ArrayList<>();
-            for (int z = data.getMinZ(); z <= data.getMaxZ(); z++) {
-                StringBuilder sb = new StringBuilder();
-                for (int x = data.getMinX(); x <= data.getMaxX(); x++) {
-                    BlockState state = level.getBlockState(new BlockPos(x, y, z));
-                    if (state.is(Blocks.AIR)) {
-                        sb.append(' ');
-                        continue;
-                    }
-                    BlockPredicateWithState predicate = BlockPredicateWithState.of(state.getBlock());
-                    if (state.hasProperty(BlockStateProperties.FACING)) {
-                        predicate.hasState(BlockStateProperties.FACING, state.getValue(BlockStateProperties.FACING));
-                    }
-                    if (state.hasProperty(BlockStateProperties.FACING_HOPPER)) {
-                        predicate.hasState(
-                                BlockStateProperties.FACING_HOPPER, state.getValue(BlockStateProperties.FACING_HOPPER));
-                    }
-                    if (state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
-                        predicate.hasState(
-                                BlockStateProperties.HORIZONTAL_FACING,
-                                state.getValue(BlockStateProperties.HORIZONTAL_FACING));
-                    }
-                    if (state.hasProperty(BlockStateProperties.AXIS)) {
-                        predicate.hasState(BlockStateProperties.AXIS, state.getValue(BlockStateProperties.AXIS));
-                    }
-                    if (state.hasProperty(BlockStateProperties.SLAB_TYPE)) {
-                        predicate.hasState(
-                                BlockStateProperties.SLAB_TYPE, state.getValue(BlockStateProperties.SLAB_TYPE));
-                    }
-                    if (state.hasProperty(BlockStateProperties.HALF)) {
-                        predicate.hasState(BlockStateProperties.HALF, state.getValue(BlockStateProperties.HALF));
-                    }
-                    sb.append(getAndPutSymbol(symbols, predicate));
-                }
-                layer.add(sb.toString());
-            }
-            layers.add(layer);
-        }
-
-        MutableComponent text = Component.empty();
-        for (List<String> layer : layers) {
-            text.append(".layer(");
-            for (int i = 0; i < layer.size(); i++) {
-                String s = layer.get(i);
-                text.append(Component.literal("\"" + s + "\"").withStyle(ChatFormatting.GREEN));
-                if (i < layer.size() - 1) {
-                    text.append(", ");
-                }
-            }
-            text.append(")");
-            text.append("\n");
-        }
-        symbols.forEach((key, value) -> {
-            text.append(".symbol(");
-            text.append(Component.literal("'" + key + "'").withStyle(ChatFormatting.GREEN));
-            text.append(", ");
-            if (value.getProperties().isEmpty()) {
-                text.append(Component.literal("\"%s\"".formatted(BuiltInRegistries.BLOCK.getKey(value.getBlock())))
-                        .withStyle(ChatFormatting.GREEN));
-            } else {
-                text.append("BlockPredicateWithState.of(");
-                text.append(Component.literal("\"%s\"".formatted(BuiltInRegistries.BLOCK.getKey(value.getBlock())))
-                        .withStyle(ChatFormatting.GREEN));
-                text.append(")\n");
-                value.getProperties().forEach((stateName, stateValue) -> {
-                    text.append("    .hasState(");
-                    text.append(Component.literal("\"" + stateName + "\"").withStyle(ChatFormatting.GREEN));
-                    text.append(", ");
-                    text.append(Component.literal("\"" + stateValue + "\"").withStyle(ChatFormatting.GREEN));
-                    text.append(")\n");
-                });
-            }
-            text.append(")\n");
-        });
-        String code = text.getString();
-        player.displayClientMessage(
-                text.withStyle(s -> s.withHoverEvent(new HoverEvent(
-                                HoverEvent.Action.SHOW_TEXT,
-                                Component.translatable("tooltip.anvilcraft.item.structure_tool.click_to_copy")))
-                        .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, code))),
-                false);
-    }
-
-    private static char getAndPutSymbol(
-            Map<Character, BlockPredicateWithState> symbols, BlockPredicateWithState predicate) {
-        if (symbols.entrySet().stream().noneMatch(e -> e.getValue().equals(predicate))) {
-            currentSymbol++;
-            symbols.put(currentSymbol, predicate);
-        } else {
-            for (Map.Entry<Character, BlockPredicateWithState> entry : symbols.entrySet()) {
-                if (entry.getValue().equals(predicate)) {
-                    return entry.getKey();
-                }
-            }
-        }
-        return currentSymbol;
     }
 
     @Override

@@ -4,8 +4,10 @@ import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -40,6 +42,10 @@ public class MultiblockRecipe implements Recipe<MultiblockInput> {
     @Contract(" _, _ -> new")
     public static MultiblockBuilder builder(ItemLike item, int count) {
         return new MultiblockBuilder(item, count);
+    }
+
+    public static MultiblockBuilder builder(String item, int count) {
+        return builder(BuiltInRegistries.ITEM.get(ResourceLocation.parse(item)), count);
     }
 
     public static MultiblockBuilder builder(ItemLike item) {
