@@ -391,6 +391,8 @@
   "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.additions_slot_description": "王室鋼インゴットを入れます",
   "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.applies_to": "工具または鍛造ブロック",
   "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.base_slot_description": "ツールを入れる",
+  "screen.anvilcraft.structure_tool.count": "Count: %d",
+  "screen.anvilcraft.structure_tool.size": "Size:",
   "text.autoconfig.anvilcraft.option.anvilEfficiency": "アンビルの効率",
   "text.autoconfig.anvilcraft.option.anvilEfficiency.@Tooltip": "金床が同時に処理できるアイテムの最大数",
   "text.autoconfig.anvilcraft.option.autoCrafterCooldown": "自動シンセサイザー合成のクールダウン",

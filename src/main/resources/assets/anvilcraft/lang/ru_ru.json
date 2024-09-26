@@ -391,6 +391,8 @@
   "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.additions_slot_description": "Положите слиток королевской стали",
   "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.applies_to": "Инструменты или кованые блоки",
   "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.base_slot_description": "Положите в инструмент",
+  "screen.anvilcraft.structure_tool.count": "Count: %d",
+  "screen.anvilcraft.structure_tool.size": "Size:",
   "text.autoconfig.anvilcraft.option.anvilEfficiency": "Эффективность наковальни",
   "text.autoconfig.anvilcraft.option.anvilEfficiency.@Tooltip": "Максимальное количество предметов, обрабатываемых наковальней одновременно",
   "text.autoconfig.anvilcraft.option.autoCrafterCooldown": "Перезарядка Auto Crafter",

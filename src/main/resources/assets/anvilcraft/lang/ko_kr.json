@@ -391,6 +391,8 @@
   "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.additions_slot_description": "왕실 강철 주괴 넣어",
   "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.applies_to": "도구 또는 단조 블록",
   "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.base_slot_description": "도구에 넣어",
+  "screen.anvilcraft.structure_tool.count": "Count: %d",
+  "screen.anvilcraft.structure_tool.size": "Size:",
   "text.autoconfig.anvilcraft.option.anvilEfficiency": "앤빌 효율",
   "text.autoconfig.anvilcraft.option.anvilEfficiency.@Tooltip": "모루가 동시에 처리하는 최대 항목 수",
   "text.autoconfig.anvilcraft.option.autoCrafterCooldown": "자동 크래프터 쿨다운",
