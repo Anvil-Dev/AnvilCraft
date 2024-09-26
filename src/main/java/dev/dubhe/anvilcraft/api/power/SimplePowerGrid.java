@@ -149,10 +149,9 @@ public class SimplePowerGrid {
     }
 
     public boolean shouldRender(Vec3 cameraPos) {
-        int[] renderDistance = {Minecraft.getInstance().options.getEffectiveRenderDistance() * 16};
-        renderDistance[0] *= renderDistance[0];
+        int renderDistance = Minecraft.getInstance().options.getEffectiveRenderDistance() * 16;
         return powerComponentInfoList.stream()
-                .anyMatch(it -> it.pos().getCenter().distanceToSqr(cameraPos) < renderDistance[0]);
+                .anyMatch(it -> it.pos().getCenter().distanceTo(cameraPos) < renderDistance);
     }
 
     private void createTransmitterVisualLines() {
