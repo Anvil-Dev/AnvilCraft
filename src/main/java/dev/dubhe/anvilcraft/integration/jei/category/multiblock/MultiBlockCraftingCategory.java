@@ -259,7 +259,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
         }
         pose.pushPose();
         pose.scale(0.8f, 0.8f, 0.8f);
-        int textX = Math.round((float) (WIDTH - minecraft.font.width(component)) / 0.8f);
+        int textX = Math.round(WIDTH / 0.8f - minecraft.font.width(component) - 5);
         guiGraphics.drawString(minecraft.font, component, textX, 0, 0xf0f0f0, true);
         pose.popPose();
         arrowOut.draw(guiGraphics, 110, 60);
