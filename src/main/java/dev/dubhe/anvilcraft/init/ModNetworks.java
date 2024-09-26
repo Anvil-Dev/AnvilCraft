@@ -16,6 +16,7 @@ import dev.dubhe.anvilcraft.network.SliderInitPacket;
 import dev.dubhe.anvilcraft.network.SliderUpdatePacket;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePacket;
 import dev.dubhe.anvilcraft.network.SlotFilterChangePacket;
+import dev.dubhe.anvilcraft.network.StructureDataSyncPacket;
 import dev.dubhe.anvilcraft.network.UpdateDisplayItemPacket;
 
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -58,5 +59,7 @@ public class ModNetworks {
                 HeliostatsIrradiationPacket.HANDLER);
         registrar.playToClient(
                 UpdateDisplayItemPacket.TYPE, UpdateDisplayItemPacket.STREAM_CODEC, UpdateDisplayItemPacket.HANDLER);
+        registrar.playToClient(
+                StructureDataSyncPacket.TYPE, StructureDataSyncPacket.STREAM_CODEC, StructureDataSyncPacket.HANDLER);
     }
 }

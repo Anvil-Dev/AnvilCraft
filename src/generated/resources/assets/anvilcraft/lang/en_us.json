@@ -391,6 +391,8 @@
   "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.additions_slot_description": "Put the Royal Steel Ingot or Royal Steel Block",
   "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.applies_to": "Anvil Hammer, Amethyst Pickaxe, Golden Pickaxe, Iron Pickaxe, Diamond Pickaxe",
   "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.base_slot_description": "Put ",
+  "screen.anvilcraft.structure_tool.count": "Count: %d",
+  "screen.anvilcraft.structure_tool.size": "Size:",
   "text.autoconfig.anvilcraft.option.anvilEfficiency": "Anvil Efficiency",
   "text.autoconfig.anvilcraft.option.anvilEfficiency.@Tooltip": "Maximum number of items processed by the anvil at the same time",
   "text.autoconfig.anvilcraft.option.autoCrafterCooldown": "Auto Crafter Cooldown",

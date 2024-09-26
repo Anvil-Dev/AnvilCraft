@@ -49,7 +49,6 @@ public class PowerGridRenderer {
                     random.nextFloat(),
                     0.4f);
         }
-        bufferSource.endLastBatch();
     }
 
     public static void renderTransmitterLine(
@@ -62,7 +61,6 @@ public class PowerGridRenderer {
             if (!grid.getLevel().equals(level)) continue;
             grid.getPowerTransmitterLines().forEach(it -> it.render(poseStack, consumer, camera, 0x9966ccff));
         }
-        bufferSource.endLastBatch();
     }
 
     public static void clearAllGrid() {

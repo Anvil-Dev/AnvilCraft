@@ -80,5 +80,8 @@ public class ScreenLang {
         provider.add(
                 "screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template" + ".base_slot_description",
                 "Put ");
+
+        provider.add("screen.anvilcraft.structure_tool.size", "Size:");
+        provider.add("screen.anvilcraft.structure_tool.count", "Count: %d");
     }
 }

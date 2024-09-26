@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.client.gui.screen.RoyalAnvilScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.RoyalGrindstoneScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.RoyalSmithingScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.SliderScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.StructureToolScreen;
 import dev.dubhe.anvilcraft.inventory.ActiveSilencerMenu;
 import dev.dubhe.anvilcraft.inventory.BatchCrafterMenu;
 import dev.dubhe.anvilcraft.inventory.ChuteMenu;
@@ -24,6 +25,7 @@ import dev.dubhe.anvilcraft.inventory.RoyalAnvilMenu;
 import dev.dubhe.anvilcraft.inventory.RoyalGrindstoneMenu;
 import dev.dubhe.anvilcraft.inventory.RoyalSmithingMenu;
 import dev.dubhe.anvilcraft.inventory.SliderMenu;
+import dev.dubhe.anvilcraft.inventory.StructureToolMenu;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -90,6 +92,9 @@ public class ModMenuTypes {
                     "ember_smithing_table",
                     (type, id, inv) -> new EmberSmithingMenu(type, id, inv),
                     () -> EmberSmithingScreen::new)
+            .register();
+    public static final MenuEntry<StructureToolMenu> STRUCTURE_TOOL = REGISTRATE
+            .menu("structure_tool", StructureToolMenu::new, () -> StructureToolScreen::new)
             .register();
 
     public static void register() {}

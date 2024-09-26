@@ -3,6 +3,9 @@ package dev.dubhe.anvilcraft.item;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
 import dev.dubhe.anvilcraft.api.tooltip.providers.HandHeldItemTooltipProvider;
 import dev.dubhe.anvilcraft.init.ModComponents;
+import dev.dubhe.anvilcraft.init.ModMenuTypes;
+import dev.dubhe.anvilcraft.inventory.StructureToolMenu;
+import dev.dubhe.anvilcraft.network.StructureDataSyncPacket;
 import dev.dubhe.anvilcraft.recipe.multiblock.BlockPredicateWithState;
 
 import net.minecraft.ChatFormatting;
@@ -16,9 +19,11 @@ import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -31,6 +36,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -110,6 +116,15 @@ public class StructureToolItem extends Item implements HandHeldItemTooltipProvid
                                     .withStyle(ChatFormatting.RED),
                             false);
                     return InteractionResultHolder.fail(itemstack);
+                }
+                if (player instanceof ServerPlayer serverPlayer) {
+                    ModMenuTypes.open(
+                            serverPlayer,
+                            new SimpleMenuProvider(
+                                    (invId, inv, p) ->
+                                            new StructureToolMenu(ModMenuTypes.STRUCTURE_TOOL.get(), invId, inv),
+                                    getDescription()));
+                    PacketDistributor.sendToPlayer(serverPlayer, new StructureDataSyncPacket(data));
                 }
                 exportStructureData(data, level, player);
                 return InteractionResultHolder.success(itemstack);
