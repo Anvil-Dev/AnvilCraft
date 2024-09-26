@@ -43,7 +43,7 @@ public abstract class AbstractItemProcessRecipe implements Recipe<ItemProcessInp
 
     @Override
     public ItemStack getResultItem(HolderLookup.Provider pRegistries) {
-        return results.getFirst();
+        return results.isEmpty() ? ItemStack.EMPTY : results.getFirst();
     }
 
     @Override
@@ -53,7 +53,7 @@ public abstract class AbstractItemProcessRecipe implements Recipe<ItemProcessInp
 
     @Override
     public ItemStack assemble(ItemProcessInput pInput, HolderLookup.Provider pRegistries) {
-        return this.results.getFirst();
+        return results.isEmpty() ? ItemStack.EMPTY : results.getFirst();
     }
 
     public int getMaxCraftTime(ItemProcessInput pInput) {

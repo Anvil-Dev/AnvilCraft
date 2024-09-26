@@ -75,8 +75,6 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
             MultiblockRecipe recipe = toRecipe();
             if (recipe != null) {
                 ItemStack result = recipe.getResult();
-                // "MultiblockRecipe.builder(\"%s\", %d)".formatted(BuiltInRegistries.ITEM.getKey(result.getItem()),
-                // result.getCount())
                 StringBuilder codeBuilder = new StringBuilder("MultiblockRecipe.builder(\"%s\", %d)"
                         .formatted(BuiltInRegistries.ITEM.getKey(result.getItem()), result.getCount()));
                 codeBuilder.append("\n");
