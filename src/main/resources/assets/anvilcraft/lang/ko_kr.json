@@ -219,6 +219,7 @@
   "block.anvilcraft.zinc_block": "진크 블록",
   "block.anvilcraft.zinc_pressure_plate": "진크 압력판",
   "config.jade.plugin_anvilcraft.power_provider": "모루 크래프트 파워",
+  "config.jade.plugin_anvilcraft.ruby_prism": "Ruby Prism",
   "config.waila.plugin_anvilcraft": "앤빌 크래프트",
   "config.waila.plugin_anvilcraft.power_provider": "앤빌 크래프트 파워",
   "config.waila.plugin_anvilcraft.warning_percent": "경고 임계값",
@@ -524,5 +525,5 @@
   "tooltip.anvilcraft.item.topaz": "번개의 힘을 담아",
   "tooltip.anvilcraft.item.transmission_pole": "전송 거리 8의 전력망 구축",
   "tooltip.anvilcraft.jade.power_information": "전력망: %d/%d kW",
-  "tooltip.anvilcraft.ruby_prism.power": "레이저 레벨: %d"
+  "tooltip.anvilcraft.jade.ruby_prism.power": "Laser level: %d"
 }

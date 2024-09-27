@@ -219,6 +219,7 @@
   "block.anvilcraft.zinc_block": "Bloc de zinc",
   "block.anvilcraft.zinc_pressure_plate": "Plaque de pression en zinc",
   "config.jade.plugin_anvilcraft.power_provider": "Puissance de l'artisanat de l'enclume",
+  "config.jade.plugin_anvilcraft.ruby_prism": "Ruby Prism",
   "config.waila.plugin_anvilcraft": "Artisanat de l'enclume",
   "config.waila.plugin_anvilcraft.power_provider": "Enclume Craft Power",
   "config.waila.plugin_anvilcraft.warning_percent": "Seuil d'avertissement",
@@ -524,5 +525,5 @@
   "tooltip.anvilcraft.item.topaz": "Contenir la puissance de la foudre",
   "tooltip.anvilcraft.item.transmission_pole": "Construire un réseau électrique avec une distance de transmission de 8",
   "tooltip.anvilcraft.jade.power_information": "Réseau électrique: %d/%d kW",
-  "tooltip.anvilcraft.ruby_prism.power": "Niveau laser : %d"
+  "tooltip.anvilcraft.jade.ruby_prism.power": "Laser level: %d"
 }

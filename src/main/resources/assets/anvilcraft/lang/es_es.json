@@ -219,6 +219,7 @@
   "block.anvilcraft.zinc_block": "Bloque de Zinc",
   "block.anvilcraft.zinc_pressure_plate": "Placa de Presión de Zinc",
   "config.jade.plugin_anvilcraft.power_provider": "Poder de artesanía del yunque",
+  "config.jade.plugin_anvilcraft.ruby_prism": "Ruby Prism",
   "config.waila.plugin_anvilcraft": "Artesanía de yunque",
   "config.waila.plugin_anvilcraft.power_provider": "Poder de artesanía de yunque",
   "config.waila.plugin_anvilcraft.warning_percent": "Umbral de advertencia",
@@ -524,5 +525,5 @@
   "tooltip.anvilcraft.item.topaz": "Conteniendo el poder del rayo",
   "tooltip.anvilcraft.item.transmission_pole": "Construir una red eléctrica con una distancia de transmisión de 8",
   "tooltip.anvilcraft.jade.power_information": "Red eléctrica: %d/%d kW",
-  "tooltip.anvilcraft.ruby_prism.power": "Nivel de láser: %d"
+  "tooltip.anvilcraft.jade.ruby_prism.power": "Laser level: %d"
 }

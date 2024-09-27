@@ -219,6 +219,7 @@
   "block.anvilcraft.zinc_block": "Zinkblock",
   "block.anvilcraft.zinc_pressure_plate": "Zinkdruckplatte",
   "config.jade.plugin_anvilcraft.power_provider": "Anvilcraft-Stromnetzinformationen",
+  "config.jade.plugin_anvilcraft.ruby_prism": "Ruby Prism",
   "config.waila.plugin_anvilcraft": "Amboss-Handwerk",
   "config.waila.plugin_anvilcraft.power_provider": "Amboss-Handwerkskraft",
   "config.waila.plugin_anvilcraft.warning_percent": "Schwellenwert für Warnungen",
@@ -524,5 +525,5 @@
   "tooltip.anvilcraft.item.topaz": "Enthält die Kraft des Blitzes",
   "tooltip.anvilcraft.item.transmission_pole": "Bildet ein Stromnetz, Übertragungsentfernung von 8 Blöcken",
   "tooltip.anvilcraft.jade.power_information": "Stromnetz: %d / %d kW",
-  "tooltip.anvilcraft.ruby_prism.power": "Laserniveau: %d"
+  "tooltip.anvilcraft.jade.ruby_prism.power": "Laser level: %d"
 }

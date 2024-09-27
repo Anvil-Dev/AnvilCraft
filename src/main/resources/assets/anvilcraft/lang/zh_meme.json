@@ -219,6 +219,7 @@
   "block.anvilcraft.zinc_block": "锌方块",
   "block.anvilcraft.zinc_pressure_plate": "锌阿姨压一压板",
   "config.jade.plugin_anvilcraft.power_provider": "哐当工艺电网信息",
+  "config.jade.plugin_anvilcraft.ruby_prism": "Ruby Prism",
   "config.waila.plugin_anvilcraft": "哐当工艺",
   "config.waila.plugin_anvilcraft.power_provider": "哐当工艺电网信息",
   "config.waila.plugin_anvilcraft.warning_percent": "电网上火阈值",
@@ -524,5 +525,5 @@
   "tooltip.anvilcraft.item.topaz": "蕴含闪电的抛瓦！",
   "tooltip.anvilcraft.item.transmission_pole": "组建电网，传输距离为 8 个方块（据传上古时期有大能可以用其击碎硬♂硬的东西）",
   "tooltip.anvilcraft.jade.power_information": "电网：%d / %d kW",
-  "tooltip.anvilcraft.ruby_prism.power": "激光等级：%d"
+  "tooltip.anvilcraft.jade.ruby_prism.power": "Laser level: %d"
 }

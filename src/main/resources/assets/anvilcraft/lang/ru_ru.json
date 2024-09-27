@@ -219,6 +219,7 @@
   "block.anvilcraft.zinc_block": "Блок Цинка",
   "block.anvilcraft.zinc_pressure_plate": "Цинковый Давильный Плит",
   "config.jade.plugin_anvilcraft.power_provider": "Сила ремесла наковальни",
+  "config.jade.plugin_anvilcraft.ruby_prism": "Ruby Prism",
   "config.waila.plugin_anvilcraft": "Наковальня Крафт",
   "config.waila.plugin_anvilcraft.power_provider": "Сила крафта наковальни",
   "config.waila.plugin_anvilcraft.warning_percent": "Порог предупреждения",
@@ -524,5 +525,5 @@
   "tooltip.anvilcraft.item.topaz": "Сдерживание силы молнии",
   "tooltip.anvilcraft.item.transmission_pole": "Постройте электросеть с расстоянием передачи 8",
   "tooltip.anvilcraft.jade.power_information": "Электросеть: %d/%d МВт",
-  "tooltip.anvilcraft.ruby_prism.power": "Уровень лазера: %d"
+  "tooltip.anvilcraft.jade.ruby_prism.power": "Laser level: %d"
 }

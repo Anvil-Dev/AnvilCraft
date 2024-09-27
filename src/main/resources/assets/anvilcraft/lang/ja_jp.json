@@ -219,6 +219,7 @@
   "block.anvilcraft.zinc_block": "亜鉛ブロック",
   "block.anvilcraft.zinc_pressure_plate": "亜鉛プレスプレート",
   "config.jade.plugin_anvilcraft.power_provider": "金床クラフトパワー",
+  "config.jade.plugin_anvilcraft.ruby_prism": "Ruby Prism",
   "config.waila.plugin_anvilcraft": "アンビルクラフト",
   "config.waila.plugin_anvilcraft.power_provider": "アンビルクラフトパワー",
   "config.waila.plugin_anvilcraft.warning_percent": "警告しきい値",
@@ -524,5 +525,5 @@
   "tooltip.anvilcraft.item.topaz": "稲妻の力を封じ込める",
   "tooltip.anvilcraft.item.transmission_pole": "送電距離 8 の送電網を構築",
   "tooltip.anvilcraft.jade.power_information": "電力網: %d / %d kW",
-  "tooltip.anvilcraft.ruby_prism.power": "レーザー レベル: %d"
+  "tooltip.anvilcraft.jade.ruby_prism.power": "Laser level: %d"
 }

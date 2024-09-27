@@ -219,6 +219,7 @@
   "block.anvilcraft.zinc_block": "鋅磚",
   "block.anvilcraft.zinc_pressure_plate": "鋅壓力板",
   "config.jade.plugin_anvilcraft.power_provider": "鐵砧工藝電網信息",
+  "config.jade.plugin_anvilcraft.ruby_prism": "Ruby Prism",
   "config.waila.plugin_anvilcraft": "鐵砧工藝",
   "config.waila.plugin_anvilcraft.power_provider": "鐵砧工藝電網信息",
   "config.waila.plugin_anvilcraft.warning_percent": "電力警告閾值",
@@ -524,5 +525,5 @@
   "tooltip.anvilcraft.item.topaz": "蘊含閃電嘅力量",
   "tooltip.anvilcraft.item.transmission_pole": "組建電網，傳輸距離為 8 個方塊",
   "tooltip.anvilcraft.jade.power_information": "電網：%d / %d kW",
-  "tooltip.anvilcraft.ruby_prism.power": "激光等級：%d"
+  "tooltip.anvilcraft.jade.ruby_prism.power": "Laser level: %d"
 }
