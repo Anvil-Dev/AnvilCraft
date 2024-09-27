@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_reinforced_concrete_magenta": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:reinforced_concrete_magenta"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:reinforced_concrete_magenta_wall"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_reinforced_concrete_magenta"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:reinforced_concrete_magenta_wall"
+    ]
+  }
+}

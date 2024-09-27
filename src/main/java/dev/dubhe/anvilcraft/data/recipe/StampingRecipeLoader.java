@@ -11,6 +11,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
+import net.neoforged.neoforge.common.Tags;
 
 public class StampingRecipeLoader {
     public static void init(RegistrateRecipeProvider provider) {
@@ -19,6 +20,12 @@ public class StampingRecipeLoader {
         stamping(provider, Items.SNOWBALL, Items.SNOW);
         stamping(provider, ModItems.WOOD_FIBER.get(), Items.PAPER);
         stamping(provider, Items.MILK_BUCKET, ModItems.CREAM.get(), 4);
+
+        StampingRecipe.builder()
+                .requires(Tags.Items.CROPS_WHEAT)
+                .result(new ItemStack(ModItems.FLOUR.get()))
+                .result(new ItemStack(Items.WHEAT_SEEDS))
+                .save(provider);
 
         StampingRecipe.builder()
                 .requires(Items.SUGAR_CANE)

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": {
+    "item": "anvilcraft:ember_metal_ingot"
+  },
+  "base": {
+    "item": "anvilcraft:royal_steel_shovel"
+  },
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:ember_metal_shovel"
+  },
+  "template": {
+    "item": "anvilcraft:ember_metal_upgrade_smithing_template"
+  }
+}

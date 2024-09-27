@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_reinforced_concrete_red": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:reinforced_concrete_red"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:reinforced_concrete_red_stair"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_reinforced_concrete_red"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:reinforced_concrete_red_stair"
+    ]
+  }
+}

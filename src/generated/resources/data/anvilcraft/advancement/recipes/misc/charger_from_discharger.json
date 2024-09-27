@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:charger_from_discharger"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "hasitme": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:discharger"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "hasitme"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:charger_from_discharger"
+    ]
+  }
+}

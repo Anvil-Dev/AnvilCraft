@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "tag": "c:ingots/copper"
+    },
+    "B": {
+      "tag": "c:gems/quartz"
+    },
+    "C": {
+      "item": "anvilcraft:hardend_resin"
+    }
+  },
+  "pattern": [
+    "ABA",
+    "CCC"
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:circuit_board"
+  }
+}

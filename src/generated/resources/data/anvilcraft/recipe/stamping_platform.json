@@ -6,7 +6,7 @@
       "tag": "c:plates/iron"
     },
     "B": {
-      "item": "minecraft:iron_ingot"
+      "tag": "c:ingots/iron"
     }
   },
   "pattern": [

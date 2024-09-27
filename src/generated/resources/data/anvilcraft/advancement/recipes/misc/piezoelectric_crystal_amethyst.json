@@ -1,21 +1,21 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_copper_ingot": {
+    "has_amethyst_block": {
       "conditions": {
         "items": [
           {
-            "items": "minecraft:copper_ingot"
+            "items": "minecraft:amethyst_block"
           }
         ]
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_storage_blocks/amethyst": {
+    "has_copper_ingot": {
       "conditions": {
         "items": [
           {
-            "items": "#c:storage_blocks/amethyst"
+            "items": "minecraft:copper_ingot"
           }
         ]
       },
@@ -32,7 +32,7 @@
     [
       "has_the_recipe",
       "has_copper_ingot",
-      "has_storage_blocks/amethyst"
+      "has_amethyst_block"
     ]
   ],
   "rewards": {

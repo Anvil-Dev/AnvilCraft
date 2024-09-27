@@ -1,0 +1,18 @@
+{
+  "type": "anvilcraft:stamping",
+  "ingredients": [
+    {
+      "tag": "c:crops/wheat"
+    }
+  ],
+  "result": [
+    {
+      "count": 1,
+      "id": "anvilcraft:flour"
+    },
+    {
+      "count": 1,
+      "id": "minecraft:wheat_seeds"
+    }
+  ]
+}

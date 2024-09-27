@@ -6,7 +6,7 @@
       "item": "anvilcraft:magnet_ingot"
     },
     "B": {
-      "item": "minecraft:iron_ingot"
+      "tag": "c:ingots/iron"
     }
   },
   "pattern": [

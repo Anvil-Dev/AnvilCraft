@@ -51,9 +51,6 @@ public class ModItemTags {
     public static final TagKey<Item> BRASS_NUGGETS = bindC("nuggets/brass");
     public static final TagKey<Item> COPPER_NUGGETS = bindC("nuggets/copper");
 
-    public static final TagKey<Item> QUARTZ_BLOCKS = bindC("storage_blocks/quartz");
-    public static final TagKey<Item> AMETHYST_BLOCKS = bindC("storage_blocks/amethyst");
-
     public static final TagKey<Item> ORES = bindC("ores");
     public static final TagKey<Item> ZINC_ORES = bindC("ores/zinc");
     public static final TagKey<Item> TIN_ORES = bindC("ores/tin");

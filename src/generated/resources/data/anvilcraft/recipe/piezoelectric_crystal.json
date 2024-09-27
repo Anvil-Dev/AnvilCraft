@@ -6,7 +6,7 @@
       "item": "minecraft:copper_ingot"
     },
     "B": {
-      "tag": "c:storage_blocks/quartz"
+      "item": "minecraft:quartz_block"
     }
   },
   "pattern": [

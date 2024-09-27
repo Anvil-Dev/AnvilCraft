@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": {
+    "item": "anvilcraft:royal_steel_ingot"
+  },
+  "base": {
+    "item": "minecraft:grindstone"
+  },
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:royal_grindstone"
+  },
+  "template": {
+    "item": "anvilcraft:royal_steel_upgrade_smithing_template"
+  }
+}

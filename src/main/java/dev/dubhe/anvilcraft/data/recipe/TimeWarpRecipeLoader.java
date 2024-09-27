@@ -37,6 +37,7 @@ public class TimeWarpRecipeLoader {
         timeWarp(provider, ModBlocks.LEAD_BLOCK, 1, ModItems.RAW_LEAD, 3);
         timeWarp(provider, ModBlocks.SILVER_BLOCK, 1, ModItems.RAW_SILVER, 3);
         timeWarp(provider, ModBlocks.URANIUM_BLOCK, 1, ModItems.RAW_URANIUM, 3);
+        timeWarp(provider, ModItems.SEA_HEART_SHELL_SHARD, 1, ModItems.SEA_HEART_SHELL, 1);
 
         TimeWarpRecipe.builder()
                 .requires(Items.EMERALD)
