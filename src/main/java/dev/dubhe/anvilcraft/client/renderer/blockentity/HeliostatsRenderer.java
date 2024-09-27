@@ -17,10 +17,11 @@ import org.joml.Vector3f;
 
 public class HeliostatsRenderer implements BlockEntityRenderer<HeliostatsBlockEntity> {
     private static final ModelResourceLocation HELIOSTATS_HEAD =
-            ModelResourceLocation.standalone(AnvilCraft.of("block/heliostats_head"));
+        ModelResourceLocation.standalone(AnvilCraft.of("block/heliostats_head"));
 
     @SuppressWarnings("unused")
-    public HeliostatsRenderer(BlockEntityRendererProvider.Context context) {}
+    public HeliostatsRenderer(BlockEntityRendererProvider.Context context) {
+    }
 
     private float getHorizontalAngle(float x, float z) {
         float angle = (float) Math.atan(x / z);
@@ -29,36 +30,37 @@ public class HeliostatsRenderer implements BlockEntityRenderer<HeliostatsBlockEn
 
     @Override
     public void render(
-            @NotNull HeliostatsBlockEntity blockEntity,
-            float partialTick,
-            @NotNull PoseStack poseStack,
-            @NotNull MultiBufferSource buffer,
-            int packedLight,
-            int packedOverlay) {
+        @NotNull HeliostatsBlockEntity blockEntity,
+        float partialTick,
+        @NotNull PoseStack poseStack,
+        @NotNull MultiBufferSource buffer,
+        int packedLight,
+        int packedOverlay) {
         poseStack.pushPose();
         poseStack.translate(0.5, 0.5625, 0.5);
         if (!blockEntity.getNormalVector3f().equals(new Vector3f())
-                && !blockEntity.getNormalVector3f().equals(new Vector3f(Float.NaN))) {
+            && !blockEntity.getNormalVector3f().equals(new Vector3f(Float.NaN))) {
             poseStack.mulPose(new Quaternionf()
-                    .rotateY(getHorizontalAngle(blockEntity.getNormalVector3f().x, blockEntity.getNormalVector3f().z)));
+                .rotateY(getHorizontalAngle(blockEntity.getNormalVector3f().x, blockEntity.getNormalVector3f().z)));
             poseStack.mulPose(new Quaternionf().rotateX((float)
-                    (Math.atan(Math.sqrt((blockEntity.getNormalVector3f().z * blockEntity.getNormalVector3f().z)
-                                    + (blockEntity.getNormalVector3f().x * blockEntity.getNormalVector3f().x))
-                            / blockEntity.getNormalVector3f().y))));
+                (Math.atan(Math.sqrt((blockEntity.getNormalVector3f().z * blockEntity.getNormalVector3f().z)
+                    + (blockEntity.getNormalVector3f().x * blockEntity.getNormalVector3f().x))
+                    / blockEntity.getNormalVector3f().y))));
         }
         Minecraft.getInstance()
-                .getBlockRenderer()
-                .getModelRenderer()
-                .renderModel(
-                        poseStack.last(),
-                        buffer.getBuffer(RenderType.solid()),
-                        null,
-                        Minecraft.getInstance().getModelManager().getModel(HELIOSTATS_HEAD),
-                        0,
-                        0,
-                        0,
-                        packedLight,
-                        packedOverlay);
+            .getBlockRenderer()
+            .getModelRenderer()
+            .renderModel(
+                poseStack.last(),
+                buffer.getBuffer(RenderType.solid()),
+                null,
+                Minecraft.getInstance().getModelManager().getModel(HELIOSTATS_HEAD),
+                0,
+                0,
+                0,
+                packedLight,
+                packedOverlay
+            );
         poseStack.popPose();
     }
 }

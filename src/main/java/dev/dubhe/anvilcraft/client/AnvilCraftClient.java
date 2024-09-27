@@ -22,7 +22,8 @@ public class AnvilCraftClient {
         NeoForge.EVENT_BUS.addListener(ClientEventListener::blockHighlight);
 
         container.registerExtensionPoint(
-                IConfigScreenFactory.class,
-                (c, s) -> AutoConfig.getConfigScreen(AnvilCraftConfig.class, s).get());
+            IConfigScreenFactory.class,
+            (c, s) -> AutoConfig.getConfigScreen(AnvilCraftConfig.class, s).get()
+        );
     }
 }

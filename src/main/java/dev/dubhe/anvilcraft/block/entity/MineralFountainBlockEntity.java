@@ -23,28 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 
 public class MineralFountainBlockEntity extends BlockEntity {
-    private static final HashMap<ResourceLocation, HashMap<Block, Float>> CHANGE_MAP = new HashMap<>() {
-        {
-            put(Level.OVERWORLD.location(), new HashMap<>() {
-                {
-                    put(ModBlocks.VOID_STONE.get(), 0.01f);
-                    put(ModBlocks.EARTH_CORE_SHARD_ORE.get(), 0.01f);
-                }
-            });
-            put(Level.NETHER.location(), new HashMap<>() {
-                {
-                    put(ModBlocks.VOID_STONE.get(), 0f);
-                    put(ModBlocks.EARTH_CORE_SHARD_ORE.get(), 0.2f);
-                }
-            });
-            put(Level.END.location(), new HashMap<>() {
-                {
-                    put(ModBlocks.VOID_STONE.get(), 0.2f);
-                    put(ModBlocks.EARTH_CORE_SHARD_ORE.get(), 0f);
-                }
-            });
-        }
-    };
     private int tickCount = 0;
 
     public MineralFountainBlockEntity(BlockPos pos, BlockState blockState) {

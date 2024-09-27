@@ -33,33 +33,33 @@ public class SpectralBlockRenderer extends EntityRenderer<FallingSpectralBlockEn
 
     @Override
     public void render(
-            FallingSpectralBlockEntity entity,
-            float entityYaw,
-            float partialTicks,
-            @NotNull PoseStack poseStack,
-            @NotNull MultiBufferSource buffer,
-            int packedLight) {
+        FallingSpectralBlockEntity entity,
+        float entityYaw,
+        float partialTicks,
+        @NotNull PoseStack poseStack,
+        @NotNull MultiBufferSource buffer,
+        int packedLight) {
         BlockState blockState = entity.getBlockState();
         if (blockState.getRenderShape() == RenderShape.MODEL) {
             Level level = entity.level();
             if (blockState != level.getBlockState(entity.blockPosition())
-                    && blockState.getRenderShape() != RenderShape.INVISIBLE) {
+                && blockState.getRenderShape() != RenderShape.INVISIBLE) {
                 poseStack.pushPose();
                 BlockPos blockPos = BlockPos.containing(entity.getX(), entity.getBoundingBox().maxY, entity.getZ());
                 poseStack.translate(-0.5, -1.0, -0.5);
                 this.dispatcher
-                        .getModelRenderer()
-                        .tesselateBlock(
-                                level,
-                                this.dispatcher.getBlockModel(blockState),
-                                blockState,
-                                blockPos,
-                                poseStack,
-                                buffer.getBuffer(ItemBlockRenderTypes.getMovingBlockRenderType(blockState)),
-                                false,
-                                RandomSource.create(),
-                                blockState.getSeed(entity.getStartPos()),
-                                OverlayTexture.NO_OVERLAY);
+                    .getModelRenderer()
+                    .tesselateBlock(
+                        level,
+                        this.dispatcher.getBlockModel(blockState),
+                        blockState,
+                        blockPos,
+                        poseStack,
+                        buffer.getBuffer(ItemBlockRenderTypes.getMovingBlockRenderType(blockState)),
+                        false,
+                        RandomSource.create(),
+                        blockState.getSeed(entity.getStartPos()),
+                        OverlayTexture.NO_OVERLAY);
                 poseStack.popPose();
                 super.render(entity, entityYaw, partialTicks, poseStack, buffer, packedLight);
             }

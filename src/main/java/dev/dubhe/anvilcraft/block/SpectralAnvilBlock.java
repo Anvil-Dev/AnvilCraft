@@ -35,7 +35,6 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-
 public class SpectralAnvilBlock extends TransparentBlock {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
@@ -56,7 +55,7 @@ public class SpectralAnvilBlock extends TransparentBlock {
     public SpectralAnvilBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(
-                this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(POWERED, false));
+            this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(POWERED, false));
     }
 
     @Override
@@ -68,8 +67,8 @@ public class SpectralAnvilBlock extends TransparentBlock {
     @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
         return this.defaultBlockState()
-                .setValue(FACING, context.getHorizontalDirection().getClockWise())
-                .setValue(POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()));
+            .setValue(FACING, context.getHorizontalDirection().getClockWise())
+            .setValue(POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()));
     }
 
     @Override
@@ -79,7 +78,12 @@ public class SpectralAnvilBlock extends TransparentBlock {
 
     @Override
     protected InteractionResult useWithoutItem(
-            BlockState s, Level p, BlockPos pos, Player player, BlockHitResult hitResult) {
+        BlockState s,
+        Level p,
+        BlockPos pos,
+        Player player,
+        BlockHitResult hitResult
+    ) {
         if (p.isClientSide) {
             return InteractionResult.SUCCESS;
         } else {
@@ -89,28 +93,30 @@ public class SpectralAnvilBlock extends TransparentBlock {
         }
     }
 
-    @Nullable @Override
+    @Nullable
+    @Override
     public MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
         return new SimpleMenuProvider(
-                (syncId, inventory, player) ->
-                        new AnvilMenu(syncId, inventory, ContainerLevelAccess.create(level, pos)),
-                CONTAINER_TITLE);
+            (syncId, inventory, player) ->
+                new AnvilMenu(syncId, inventory, ContainerLevelAccess.create(level, pos)),
+            CONTAINER_TITLE);
     }
 
     @Override
     public void neighborChanged(
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            Block neighborBlock,
-            BlockPos neighborPos,
-            boolean movedByPiston) {
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block neighborBlock,
+        BlockPos neighborPos,
+        boolean movedByPiston
+    ) {
         if (level.isClientSide) return;
         boolean beforePowered = state.getValue(POWERED);
         level.setBlockAndUpdate(pos, state.setValue(POWERED, level.hasNeighborSignal(pos)));
         if (!beforePowered && level.hasNeighborSignal(pos)) {
             FallingSpectralBlockEntity.fall(
-                    level, pos.above(), level.getBlockState(pos).setValue(POWERED, false), false, true);
+                level, pos.above(), level.getBlockState(pos).setValue(POWERED, false), false, true);
         }
     }
 }

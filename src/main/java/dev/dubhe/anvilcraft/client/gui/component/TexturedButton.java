@@ -14,15 +14,16 @@ public class TexturedButton extends Button {
     private final ResourceLocation texture;
 
     public TexturedButton(
-            int pX,
-            int pY,
-            int pWidth,
-            int pHeight,
-            ResourceLocation texture,
-            int yDiffTex,
-            int textureWidth,
-            int textureHeight,
-            OnPress pOnPress) {
+        int pX,
+        int pY,
+        int pWidth,
+        int pHeight,
+        ResourceLocation texture,
+        int yDiffTex,
+        int textureWidth,
+        int textureHeight,
+        OnPress pOnPress
+    ) {
         super(pX, pY, pWidth, pHeight, Component.empty(), pOnPress, DEFAULT_NARRATION);
 
         this.yDiffTex = yDiffTex;

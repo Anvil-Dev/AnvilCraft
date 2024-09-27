@@ -23,7 +23,7 @@ public class EnableFilterButton extends Button {
     private static final ResourceLocation YES = AnvilCraft.of("textures/gui/container/machine/button_yes.png");
     private static final ResourceLocation NO = AnvilCraft.of("textures/gui/container/machine/button_no.png");
     private static final MutableComponent defaultMessage = Component.translatable(
-            "screen.anvilcraft.button.record", Component.translatable("screen.anvilcraft.button.off"));
+        "screen.anvilcraft.button.record", Component.translatable("screen.anvilcraft.button.off"));
 
     public EnableFilterButton(int x, int y, OnPress onPress, Supplier<Boolean> filterEnabled) {
         super(x, y, 16, 16, defaultMessage, onPress, (var) -> defaultMessage);
@@ -35,7 +35,7 @@ public class EnableFilterButton extends Button {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         if (this.isHovered()) {
             guiGraphics.renderTooltip(
-                    Minecraft.getInstance().font, List.of(getMessage()), Optional.empty(), mouseX, mouseY);
+                Minecraft.getInstance().font, List.of(getMessage()), Optional.empty(), mouseX, mouseY);
         }
     }
 
@@ -44,9 +44,9 @@ public class EnableFilterButton extends Button {
      */
     public void flush() {
         this.setMessage(Component.translatable(
-                "screen.anvilcraft.button.record",
-                Component.translatable(
-                        "screen.anvilcraft.button." + (this.getFilterEnabled().get() ? "on" : "off"))));
+            "screen.anvilcraft.button.record",
+            Component.translatable(
+                "screen.anvilcraft.button." + (this.getFilterEnabled().get() ? "on" : "off"))));
     }
 
     @Override
@@ -56,17 +56,18 @@ public class EnableFilterButton extends Button {
     }
 
     public void renderTexture(
-            @NotNull GuiGraphics guiGraphics,
-            @NotNull ResourceLocation texture,
-            int x,
-            int y,
-            int puOffset,
-            int pvOffset,
-            int textureDifference,
-            int width,
-            int height,
-            int textureWidth,
-            int textureHeight) {
+        @NotNull GuiGraphics guiGraphics,
+        @NotNull ResourceLocation texture,
+        int x,
+        int y,
+        int puOffset,
+        int pvOffset,
+        int textureDifference,
+        int width,
+        int height,
+        int textureWidth,
+        int textureHeight
+    ) {
         int i = pvOffset;
         if (this.isHovered()) {
             i += textureDifference;

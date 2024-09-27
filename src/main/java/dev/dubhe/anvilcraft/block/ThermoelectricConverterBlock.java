@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.ThermoelectricConverterBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -20,8 +21,11 @@ import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Arrays;
 
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class ThermoelectricConverterBlock extends BaseEntityBlock implements IHammerRemovable {
     public static final Direction[] DIRECTIONS = {Direction.SOUTH, Direction.NORTH, Direction.EAST, Direction.WEST};
 
@@ -30,51 +34,53 @@ public class ThermoelectricConverterBlock extends BaseEntityBlock implements IHa
     }
 
     @Override
-    protected @NotNull MapCodec<? extends BaseEntityBlock> codec() {
+    protected MapCodec<? extends BaseEntityBlock> codec() {
         return simpleCodec(ThermoelectricConverterBlock::new);
     }
 
     @Override
-    public @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
+    public RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
     }
 
     @Override
     public void neighborChanged(
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull Block neighborBlock,
-            @NotNull BlockPos neighborPos,
-            boolean movedByPiston) {
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block neighborBlock,
+        BlockPos neighborPos,
+        boolean movedByPiston) {
         ThermoManager.getInstance(level).removeThermalBlock(neighborPos);
         ThermoManager.getInstance(level).addThermoBlock(neighborPos, level.getBlockState(neighborPos));
     }
 
-    @Nullable @Override
-    public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
+    @Nullable
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new ThermoelectricConverterBlockEntity(ModBlockEntities.THERMOELECTRIC_CONVERTER.get(), pos, state);
     }
 
     @Override
     public void onRemove(
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull BlockState newState,
-            boolean movedByPiston) {
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        BlockState newState,
+        boolean movedByPiston) {
         Arrays.stream(DIRECTIONS).map(pos::relative).forEach(ThermoManager.getInstance(level)::removeThermalBlock);
     }
 
-    @Nullable @Override
+    @Nullable
+    @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-            @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type) {
+        Level level, BlockState state, BlockEntityType<T> type) {
         if (level.isClientSide()) {
             return null;
         }
         return createTickerHelper(
-                type,
-                ModBlockEntities.THERMOELECTRIC_CONVERTER.get(),
-                ((level1, blockPos, blockState, blockEntity) -> blockEntity.tick()));
+            type,
+            ModBlockEntities.THERMOELECTRIC_CONVERTER.get(),
+            ((level1, blockPos, blockState, blockEntity) -> blockEntity.tick()));
     }
 }

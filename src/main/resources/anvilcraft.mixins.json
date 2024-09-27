@@ -27,7 +27,6 @@
     "ServerLevelMixin",
     "SolidBucketItemMixin",
     "accessor.BaseSpawnerAccessor",
-    "accessor.FallingBlockEntityAccessor",
     "accessor.LootContextParamSetsAccessor",
     "forge.BucketItemMixin",
     "forge.FallingBlockEntityMixin",

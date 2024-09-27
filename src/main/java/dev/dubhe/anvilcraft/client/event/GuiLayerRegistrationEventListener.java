@@ -22,7 +22,8 @@ public class GuiLayerRegistrationEventListener {
         event.registerAboveAll(AnvilCraft.of("power"), (guiGraphics, pDeltaTracker) -> {
             Minecraft minecraft = Minecraft.getInstance();
             float partialTick = pDeltaTracker.getGameTimeDeltaPartialTick(
-                    Minecraft.getInstance().isPaused());
+                Minecraft.getInstance().isPaused()
+            );
             Window window = Minecraft.getInstance().getWindow();
             int screenWidth = window.getGuiScaledWidth();
             int screenHeight = window.getGuiScaledHeight();
@@ -33,7 +34,12 @@ public class GuiLayerRegistrationEventListener {
             ItemStack handItem = mainHandItem.isEmpty() ? offHandItem : mainHandItem;
             if (!handItem.isEmpty()) {
                 HudTooltipManager.INSTANCE.renderHandItemHudTooltip(
-                        guiGraphics, handItem, partialTick, screenWidth, screenHeight);
+                    guiGraphics,
+                    handItem,
+                    partialTick,
+                    screenWidth,
+                    screenHeight
+                );
             }
             if (!(minecraft.player.getItemBySlot(EquipmentSlot.HEAD).getItem() instanceof IEngineerGoggles)) return;
             HitResult hit = minecraft.hitResult;

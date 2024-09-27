@@ -34,14 +34,7 @@ import java.util.HashSet;
 import java.util.List;
 
 public abstract class BaseLaserBlockEntity extends BlockEntity {
-    private final HashMap<Integer, Integer> levelToTimeMap = new HashMap<>() {
-        {
-            put(1, 24);
-            put(2, 6);
-            put(3, 2);
-            put(4, 1);
-        }
-    };
+    private final HashMap<Integer, Integer> levelToTimeMap = new HashMap<>();
     protected int maxTransmissionDistance = 128;
     protected int tickCount = 0;
 
@@ -51,22 +44,26 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
 
     public BaseLaserBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
+        levelToTimeMap.put(1, 24);
+        levelToTimeMap.put(2, 6);
+        levelToTimeMap.put(3, 2);
+        levelToTimeMap.put(4, 1);
     }
 
     private boolean canPassThrough(Direction direction, BlockPos blockPos) {
         if (level == null) return false;
         BlockState blockState = level.getBlockState(blockPos);
         if (blockState.is(ModBlockTags.LASE_CAN_PASS_THROUGH)
-                || blockState.is(Tags.Blocks.GLASS_BLOCKS)
-                || blockState.is(Tags.Blocks.GLASS_PANES)
-                || blockState.is(BlockTags.REPLACEABLE)) return true;
+            || blockState.is(Tags.Blocks.GLASS_BLOCKS)
+            || blockState.is(Tags.Blocks.GLASS_PANES)
+            || blockState.is(BlockTags.REPLACEABLE)) return true;
         if (!AnvilCraft.config.isLaserDoImpactChecking) return false;
         AABB laseBoundingBox =
-                switch (direction.getAxis()) {
-                    case X -> Block.box(0, 7, 7, 16, 9, 9).bounds();
-                    case Y -> Block.box(7, 0, 7, 9, 16, 9).bounds();
-                    case Z -> Block.box(7, 7, 0, 9, 9, 16).bounds();
-                };
+            switch (direction.getAxis()) {
+                case X -> Block.box(0, 7, 7, 16, 9, 9).bounds();
+                case Y -> Block.box(7, 0, 7, 9, 16, 9).bounds();
+                case Z -> Block.box(7, 7, 0, 9, 9, 16).bounds();
+            };
         return blockState.getCollisionShape(level, blockPos).toAabbs().stream().noneMatch(laseBoundingBox::intersects);
     }
 
@@ -84,9 +81,9 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
 
     protected int getLaserLevel() {
         return getBaseLaserLevel()
-                + irradiateSelfLaserBlockSet.stream()
-                        .mapToInt(BaseLaserBlockEntity::getLaserLevel)
-                        .sum();
+            + irradiateSelfLaserBlockSet.stream()
+            .mapToInt(BaseLaserBlockEntity::getLaserLevel)
+            .sum();
     }
 
     /**
@@ -97,58 +94,71 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         BlockPos tempIrradiateBlockPos = getIrradiateBlockPos(maxTransmissionDistance, direction, getBlockPos());
         if (!tempIrradiateBlockPos.equals(irradiateBlockPos)) {
             if (irradiateBlockPos != null
-                    && level.getBlockEntity(irradiateBlockPos)
-                            instanceof BaseLaserBlockEntity lastIrradiatedLaserBlockEntity)
+                && level.getBlockEntity(irradiateBlockPos)
+                instanceof BaseLaserBlockEntity lastIrradiatedLaserBlockEntity)
                 lastIrradiatedLaserBlockEntity.onCancelingIrradiation(this);
         }
         if (level.getBlockEntity(tempIrradiateBlockPos) instanceof BaseLaserBlockEntity irradiatedLaserBlockEntity
-                && !isInIrradiateSelfLaserBlockSet(irradiatedLaserBlockEntity))
+            && !isInIrradiateSelfLaserBlockSet(irradiatedLaserBlockEntity))
             irradiatedLaserBlockEntity.onIrradiated(this);
         irradiateBlockPos = tempIrradiateBlockPos;
 
         if (!(level instanceof ServerLevel serverLevel)) return;
         laserLevel = getLaserLevel();
         AABB trackBoundingBox = new AABB(
-                getBlockPos().relative(direction).getCenter().add(-0.0625, -0.0625, -0.0625),
-                irradiateBlockPos.relative(direction.getOpposite()).getCenter().add(0.0625, 0.0625, 0.0625));
+            getBlockPos().relative(direction).getCenter().add(-0.0625, -0.0625, -0.0625),
+            irradiateBlockPos.relative(direction.getOpposite()).getCenter().add(0.0625, 0.0625, 0.0625));
         int hurt = Math.min(16, laserLevel - 4);
         if (hurt > 0) {
             level.getEntities(EntityTypeTest.forClass(LivingEntity.class), trackBoundingBox, Entity::isAlive)
-                    .forEach(livingEntity ->
-                            livingEntity.hurt(level.damageSources().generic(), hurt));
+                .forEach(livingEntity ->
+                    livingEntity.hurt(level.damageSources().generic(), hurt));
         }
         BlockState irradiateBlock = level.getBlockState(irradiateBlockPos);
         List<ItemStack> drops =
-                Block.getDrops(irradiateBlock, serverLevel, irradiateBlockPos, level.getBlockEntity(irradiateBlockPos));
+            Block.getDrops(irradiateBlock, serverLevel, irradiateBlockPos, level.getBlockEntity(irradiateBlockPos));
         int coldDown = levelToTimeMap.containsKey(Math.min(16, laserLevel) / 4)
-                ? levelToTimeMap.get(Math.min(16, laserLevel) / 4) * 20
-                : Integer.MAX_VALUE;
+            ? levelToTimeMap.get(Math.min(16, laserLevel) / 4) * 20
+            : Integer.MAX_VALUE;
         if (tickCount >= coldDown) {
             tickCount = 0;
             if (irradiateBlock.is(Tags.Blocks.ORES)) {
                 Vec3 blockPos = getBlockPos().relative(direction.getOpposite()).getCenter();
                 IItemHandler cap = getLevel()
-                        .getCapability(
-                                Capabilities.ItemHandler.BLOCK,
-                                getBlockPos().relative(getDirection().getOpposite()),
-                                getDirection());
+                    .getCapability(
+                        Capabilities.ItemHandler.BLOCK,
+                        getBlockPos().relative(getDirection().getOpposite()),
+                        getDirection());
                 drops.forEach(itemStack -> {
                     if (cap != null) {
                         ItemStack outItemStack = ItemHandlerHelper.insertItem(cap, itemStack, true);
                         if (outItemStack.isEmpty()) {
                             ItemHandlerHelper.insertItem(cap, itemStack, false);
-                        } else
+                        } else {
                             level.addFreshEntity(
-                                    new ItemEntity(level, blockPos.x, blockPos.y, blockPos.z, outItemStack));
+                                new ItemEntity(
+                                    level,
+                                    blockPos.x,
+                                    blockPos.y,
+                                    blockPos.z,
+                                    outItemStack)
+                            );
+                        }
                     } else level.addFreshEntity(new ItemEntity(level, blockPos.x, blockPos.y, blockPos.z, itemStack));
                 });
-                if (irradiateBlock.is(Blocks.ANCIENT_DEBRIS))
+                if (irradiateBlock.is(Blocks.ANCIENT_DEBRIS)) {
                     level.setBlockAndUpdate(irradiateBlockPos, Blocks.NETHERRACK.defaultBlockState());
-                else if (irradiateBlock.is(Tags.Blocks.ORES_IN_GROUND_DEEPSLATE))
-                    level.setBlockAndUpdate(irradiateBlockPos, Blocks.DEEPSLATE.defaultBlockState());
-                else if (irradiateBlock.is(Tags.Blocks.ORES_IN_GROUND_NETHERRACK))
-                    level.setBlockAndUpdate(irradiateBlockPos, Blocks.NETHERRACK.defaultBlockState());
-                else level.setBlockAndUpdate(irradiateBlockPos, Blocks.STONE.defaultBlockState());
+                } else {
+                    if (irradiateBlock.is(Tags.Blocks.ORES_IN_GROUND_DEEPSLATE))
+                        level.setBlockAndUpdate(irradiateBlockPos, Blocks.DEEPSLATE.defaultBlockState());
+                    else {
+                        if (irradiateBlock.is(Tags.Blocks.ORES_IN_GROUND_NETHERRACK)) {
+                            level.setBlockAndUpdate(irradiateBlockPos, Blocks.NETHERRACK.defaultBlockState());
+                        } else {
+                            level.setBlockAndUpdate(irradiateBlockPos, Blocks.STONE.defaultBlockState());
+                        }
+                    }
+                }
                 /* else {
                     if (level.getBlockState(irradiateBlockPos).getBlock().defaultDestroyTime() >= 0
                         && !(level.getBlockEntity(irradiateBlockPos) instanceof BaseLaserBlockEntity)) {
@@ -170,10 +180,10 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
      */
     public boolean isInIrradiateSelfLaserBlockSet(BaseLaserBlockEntity baseLaserBlockEntity) {
         return baseLaserBlockEntity == this
-                || irradiateSelfLaserBlockSet.contains(baseLaserBlockEntity)
-                || irradiateSelfLaserBlockSet.stream()
-                        .anyMatch(baseLaserBlockEntity1 ->
-                                baseLaserBlockEntity1.isInIrradiateSelfLaserBlockSet(baseLaserBlockEntity));
+            || irradiateSelfLaserBlockSet.contains(baseLaserBlockEntity)
+            || irradiateSelfLaserBlockSet.stream()
+            .anyMatch(baseLaserBlockEntity1 ->
+                baseLaserBlockEntity1.isInIrradiateSelfLaserBlockSet(baseLaserBlockEntity));
     }
 
     public void onIrradiated(BaseLaserBlockEntity baseLaserBlockEntity) {
@@ -224,11 +234,11 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
     @SuppressWarnings("unused")
     public AABB getRenderBoundingBox() {
         return new AABB(
-                Double.NEGATIVE_INFINITY,
-                Double.NEGATIVE_INFINITY,
-                Double.NEGATIVE_INFINITY,
-                Double.POSITIVE_INFINITY,
-                Double.POSITIVE_INFINITY,
-                Double.POSITIVE_INFINITY);
+            Double.NEGATIVE_INFINITY,
+            Double.NEGATIVE_INFINITY,
+            Double.NEGATIVE_INFINITY,
+            Double.POSITIVE_INFINITY,
+            Double.POSITIVE_INFINITY,
+            Double.POSITIVE_INFINITY);
     }
 }

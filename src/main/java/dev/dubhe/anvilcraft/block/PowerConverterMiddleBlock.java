@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -13,6 +14,10 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class PowerConverterMiddleBlock extends BasePowerConverterBlock implements IHammerRemovable {
     public static final VoxelShape SHAPE_DOWN = Block.box(6, 0, 6, 10, 8, 10);
     public static final VoxelShape SHAPE_UP = Block.box(6, 8, 6, 10, 16, 10);

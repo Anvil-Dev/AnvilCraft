@@ -57,12 +57,12 @@ public class BatchCrafterRenderer implements BlockEntityRenderer<BatchCrafterBlo
 
     @Override
     public void render(
-            BatchCrafterBlockEntity blockEntity,
-            float partialTick,
-            @NotNull PoseStack poseStack,
-            @NotNull MultiBufferSource buffer,
-            int packedLight,
-            int packedOverlay) {
+        BatchCrafterBlockEntity blockEntity,
+        float partialTick,
+        @NotNull PoseStack poseStack,
+        @NotNull MultiBufferSource buffer,
+        int packedLight,
+        int packedOverlay) {
         BlockState state = blockEntity.getBlockState();
         BakedModel blockModel = blockRenderDispatcher.getBlockModel(state);
         Level level = blockEntity.getLevel();
@@ -73,17 +73,17 @@ public class BatchCrafterRenderer implements BlockEntityRenderer<BatchCrafterBlo
             packed = LightTexture.pack(blockLight, skyLight);
         }
         blockRenderDispatcher
-                .getModelRenderer()
-                .renderModel(
-                        poseStack.last(),
-                        buffer.getBuffer(RenderType.cutout()),
-                        state,
-                        blockModel,
-                        0,
-                        0,
-                        0,
-                        packed,
-                        OverlayTexture.NO_OVERLAY);
+            .getModelRenderer()
+            .renderModel(
+                poseStack.last(),
+                buffer.getBuffer(RenderType.cutout()),
+                state,
+                blockModel,
+                0,
+                0,
+                0,
+                packed,
+                OverlayTexture.NO_OVERLAY);
         ItemStack itemStack = blockEntity.getDisplayItemStack();
         if (itemStack == null || itemStack.isEmpty()) return;
         int seed = itemStack.isEmpty() ? 187 : Item.getId(itemStack.getItem()) + itemStack.getDamageValue();
@@ -93,10 +93,10 @@ public class BatchCrafterRenderer implements BlockEntityRenderer<BatchCrafterBlo
         final boolean isGui3d = bakedModel.isGui3d();
         final int renderAmount = this.getRenderAmount(itemStack);
         float transformedGroundScaleY = bakedModel
-                .getTransforms()
-                .getTransform(ItemDisplayContext.GROUND)
-                .scale
-                .y();
+            .getTransforms()
+            .getTransform(ItemDisplayContext.GROUND)
+            .scale
+            .y();
         poseStack.translate(0.5F, 0.5F * transformedGroundScaleY + 0.15f, 0.5F);
         float rotation = (blockEntity.getLevel().getGameTime() + partialTick) * 2f;
         poseStack.mulPose(Axis.YP.rotationDegrees(rotation));
@@ -126,20 +126,21 @@ public class BatchCrafterRenderer implements BlockEntityRenderer<BatchCrafterBlo
             }
 
             this.itemRenderer.render(
-                    itemStack,
-                    ItemDisplayContext.GROUND,
-                    false,
-                    poseStack,
-                    buffer,
-                    packedLight,
-                    OverlayTexture.NO_OVERLAY,
-                    bakedModel);
+                itemStack,
+                ItemDisplayContext.GROUND,
+                false,
+                poseStack,
+                buffer,
+                packedLight,
+                OverlayTexture.NO_OVERLAY,
+                bakedModel
+            );
             poseStack.popPose();
             if (!isGui3d) {
                 poseStack.translate(
-                        FLAT_ITEM_BUNDLE_OFFSET_X * groundScaleX,
-                        FLAT_ITEM_BUNDLE_OFFSET_Y * groundScaleY,
-                        FLAT_ITEM_BUNDLE_OFFSET_Z * groundScaleZ);
+                    FLAT_ITEM_BUNDLE_OFFSET_X * groundScaleX,
+                    FLAT_ITEM_BUNDLE_OFFSET_Y * groundScaleY,
+                    FLAT_ITEM_BUNDLE_OFFSET_Z * groundScaleZ);
             }
         }
         poseStack.popPose();

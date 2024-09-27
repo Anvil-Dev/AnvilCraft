@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager.Entry;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -20,26 +21,29 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class PiezoelectricCrystalBlock extends Block implements IHammerRemovable {
     public static VoxelShape SHAPE =
-            Shapes.or(Block.box(0, 14, 0, 16, 16, 16), Block.box(2, 2, 2, 14, 14, 14), Block.box(0, 0, 0, 16, 2, 16));
+        Shapes.or(Block.box(0, 14, 0, 16, 16, 16), Block.box(2, 2, 2, 14, 14, 14), Block.box(0, 0, 0, 16, 2, 16));
 
     public PiezoelectricCrystalBlock(Properties properties) {
         super(properties);
     }
 
     @Override
-    public @Nonnull RenderShape getRenderShape(@Nonnull BlockState state) {
+    public RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
     }
 
     @Override
-    public @NotNull VoxelShape getShape(
-            @NotNull BlockState state,
-            @NotNull BlockGetter level,
-            @NotNull BlockPos pos,
-            @NotNull CollisionContext context) {
+    public VoxelShape getShape(
+        BlockState state,
+        BlockGetter level,
+        BlockPos pos,
+        CollisionContext context) {
         return SHAPE;
     }
 
@@ -55,7 +59,7 @@ public class PiezoelectricCrystalBlock extends Block implements IHammerRemovable
 
     private void charge(int chargeNum, Level level, BlockPos blockPos) {
         Collection<Entry> chargeCollectorCollection =
-                ChargeCollectorManager.getInstance(level).getNearestChargeCollect(blockPos);
+            ChargeCollectorManager.getInstance(level).getNearestChargeCollect(blockPos);
         double surplus = chargeNum;
         for (Entry entry : chargeCollectorCollection) {
             ChargeCollectorBlockEntity chargeCollectorBlockEntity = entry.getBlockEntity();

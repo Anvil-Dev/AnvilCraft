@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.block.entity.RemoteTransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.state.Vertical4PartHalf;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -31,19 +32,23 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-public class RemoteTransmissionPoleBlock extends AbstractMultiplePartBlock<Vertical4PartHalf>
-        implements IHammerRemovable, IHasMultiBlock, EntityBlock {
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
+public class RemoteTransmissionPoleBlock
+    extends AbstractMultiplePartBlock<Vertical4PartHalf>
+    implements IHammerRemovable, IHasMultiBlock, EntityBlock {
     public static final EnumProperty<Vertical4PartHalf> HALF = EnumProperty.create("half", Vertical4PartHalf.class);
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
     public static final EnumProperty<IPowerComponent.Switch> SWITCH = IPowerComponent.SWITCH;
     public static final VoxelShape TRANSMISSION_POLE_TOP =
-            Shapes.or(Block.box(1, 11, 1, 15, 13, 15), Block.box(4, 0, 4, 12, 16, 12));
+        Shapes.or(Block.box(1, 11, 1, 15, 13, 15), Block.box(4, 0, 4, 12, 16, 12));
 
     public static final VoxelShape TRANSMISSION_POLE_MID = Block.box(6, 0, 6, 10, 16, 10);
 
     public static final VoxelShape TRANSMISSION_POLE_BASE =
-            Shapes.or(Block.box(0, 0, 0, 16, 4, 16), Block.box(4, 4, 4, 12, 16, 12));
+        Shapes.or(Block.box(0, 0, 0, 16, 4, 16), Block.box(4, 4, 4, 12, 16, 12));
 
     /**
      * @param properties 属性
@@ -51,14 +56,14 @@ public class RemoteTransmissionPoleBlock extends AbstractMultiplePartBlock<Verti
     public RemoteTransmissionPoleBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition
-                .any()
-                .setValue(HALF, Vertical4PartHalf.BOTTOM)
-                .setValue(OVERLOAD, true)
-                .setValue(SWITCH, IPowerComponent.Switch.ON));
+            .any()
+            .setValue(HALF, Vertical4PartHalf.BOTTOM)
+            .setValue(OVERLOAD, true)
+            .setValue(SWITCH, IPowerComponent.Switch.ON));
     }
 
     @Override
-    public @NotNull Property<Vertical4PartHalf> getPart() {
+    public Property<Vertical4PartHalf> getPart() {
         return RemoteTransmissionPoleBlock.HALF;
     }
 
@@ -68,64 +73,68 @@ public class RemoteTransmissionPoleBlock extends AbstractMultiplePartBlock<Verti
     }
 
     @Override
-    @Nullable public BlockState getPlacementState(@NotNull BlockPlaceContext context) {
+    @Nullable
+    public BlockState getPlacementState(BlockPlaceContext context) {
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();
         IPowerComponent.Switch sw =
-                level.hasNeighborSignal(pos) ? IPowerComponent.Switch.OFF : IPowerComponent.Switch.ON;
+            level.hasNeighborSignal(pos) ? IPowerComponent.Switch.OFF : IPowerComponent.Switch.ON;
         return this.defaultBlockState()
-                .setValue(HALF, Vertical4PartHalf.BOTTOM)
-                .setValue(OVERLOAD, true)
-                .setValue(SWITCH, sw);
+            .setValue(HALF, Vertical4PartHalf.BOTTOM)
+            .setValue(OVERLOAD, true)
+            .setValue(SWITCH, sw);
     }
 
     @Override
-    protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(HALF).add(OVERLOAD).add(SWITCH);
     }
 
-    
+
     @Override
-    public @Nonnull RenderShape getRenderShape(@Nonnull BlockState state) {
+    public RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
     }
 
-    
+
     @Override
-    public @NotNull VoxelShape getShape(
-            @NotNull BlockState state,
-            @NotNull BlockGetter level,
-            @NotNull BlockPos pos,
-            @NotNull CollisionContext context) {
-        if (state.getValue(HALF) == Vertical4PartHalf.BOTTOM) return TRANSMISSION_POLE_BASE;
-        if (state.getValue(HALF) == Vertical4PartHalf.MID_UPPER) return TRANSMISSION_POLE_MID;
-        if (state.getValue(HALF) == Vertical4PartHalf.MID_LOWER) return TRANSMISSION_POLE_MID;
-        if (state.getValue(HALF) == Vertical4PartHalf.TOP) return TRANSMISSION_POLE_TOP;
-        return super.getShape(state, level, pos, context);
+    public VoxelShape getShape(
+        BlockState state,
+        BlockGetter level,
+        BlockPos pos,
+        CollisionContext context) {
+        return switch (state.getValue(HALF)){
+            case BOTTOM -> TRANSMISSION_POLE_BASE;
+            case MID_UPPER, MID_LOWER -> TRANSMISSION_POLE_MID;
+            case TOP -> TRANSMISSION_POLE_TOP;
+            default -> super.getShape(state, level, pos, context);
+        };
     }
 
     @Override
-    protected BlockState placedState(Vertical4PartHalf part, @NotNull BlockState state) {
+    protected BlockState placedState(Vertical4PartHalf part, BlockState state) {
         return super.placedState(part, state).setValue(SWITCH, IPowerComponent.Switch.ON);
     }
 
     @Override
-    public @NotNull BlockState playerWillDestroy(
-            @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player) {
+    public BlockState playerWillDestroy(
+        Level level, BlockPos pos, BlockState state, Player player) {
         if (level.isClientSide) return state;
         onRemove(level, pos, state);
         super.playerWillDestroy(level, pos, state, player);
         return state;
     }
 
-    @Nullable @Override
-    public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
+    @Nullable
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new RemoteTransmissionPoleBlockEntity(pos, state);
     }
 
-    @Nullable @Override
+    @Nullable
+    @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-            @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type) {
+        Level level, BlockState state, BlockEntityType<T> type) {
         if (level.isClientSide) return null;
         return (level1, pos, state1, entity) -> {
             if (entity instanceof RemoteTransmissionPoleBlockEntity be) be.tick(level1, pos);
@@ -133,14 +142,14 @@ public class RemoteTransmissionPoleBlock extends AbstractMultiplePartBlock<Verti
     }
 
     @Override
-    
+
     public void neighborChanged(
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull Block neighborBlock,
-            @NotNull BlockPos neighborPos,
-            boolean movedByPiston) {
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block neighborBlock,
+        BlockPos neighborPos,
+        boolean movedByPiston) {
         if (level.isClientSide) {
             return;
         }
@@ -165,8 +174,10 @@ public class RemoteTransmissionPoleBlock extends AbstractMultiplePartBlock<Verti
     }
 
     @Override
-    public void onRemove(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state) {}
+    public void onRemove(Level level, BlockPos pos, BlockState state) {
+    }
 
     @Override
-    public void onPlace(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state) {}
+    public void onPlace(Level level, BlockPos pos, BlockState state) {
+    }
 }

@@ -31,13 +31,13 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
+@Setter
+@Getter
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class EmberSmithingTableBlock extends SmithingTableBlock implements IHammerRemovable, EmberBlock {
     private static final Component CONTAINER_TITLE = Component.translatable("container.upgrade");
 
-    @Getter
-    @Setter
     private BlockState checkBlockState;
 
     public EmberSmithingTableBlock(Properties properties) {

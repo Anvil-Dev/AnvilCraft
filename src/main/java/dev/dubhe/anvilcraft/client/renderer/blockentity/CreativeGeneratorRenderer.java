@@ -19,21 +19,22 @@ import org.jetbrains.annotations.NotNull;
 public class CreativeGeneratorRenderer implements BlockEntityRenderer<CreativeGeneratorBlockEntity> {
     public static final float ROTATION_MAGIC = 0.001220703125f;
     public static final ModelResourceLocation MODEL =
-            ModelResourceLocation.standalone(AnvilCraft.of("block/creative_generator_cube"));
+        ModelResourceLocation.standalone(AnvilCraft.of("block/creative_generator_cube"));
 
     /**
      * 创造发电机渲染
      */
-    public CreativeGeneratorRenderer(BlockEntityRendererProvider.Context context) {}
+    public CreativeGeneratorRenderer(BlockEntityRendererProvider.Context context) {
+    }
 
     @Override
     public void render(
-            @NotNull CreativeGeneratorBlockEntity blockEntity,
-            float partialTick,
-            @NotNull PoseStack poseStack,
-            @NotNull MultiBufferSource buffer,
-            int packedLight,
-            int packedOverlay) {
+        @NotNull CreativeGeneratorBlockEntity blockEntity,
+        float partialTick,
+        @NotNull PoseStack poseStack,
+        @NotNull MultiBufferSource buffer,
+        int packedLight,
+        int packedOverlay) {
         poseStack.pushPose();
         int power = blockEntity.getServerPower();
         float rotation = ((float) blockEntity.getTime() + partialTick) * power * ROTATION_MAGIC;
@@ -42,18 +43,19 @@ public class CreativeGeneratorRenderer implements BlockEntityRenderer<CreativeGe
         poseStack.mulPose(Axis.YP.rotationDegrees(rotation));
         poseStack.mulPose(Axis.ZP.rotationDegrees(rotation));
         Minecraft.getInstance()
-                .getBlockRenderer()
-                .getModelRenderer()
-                .renderModel(
-                        poseStack.last(),
-                        vertexConsumer,
-                        null,
-                        Minecraft.getInstance().getModelManager().getModel(MODEL),
-                        0,
-                        0,
-                        0,
-                        LightTexture.FULL_BLOCK,
-                        packedOverlay);
+            .getBlockRenderer()
+            .getModelRenderer()
+            .renderModel(
+                poseStack.last(),
+                vertexConsumer,
+                null,
+                Minecraft.getInstance().getModelManager().getModel(MODEL),
+                0,
+                0,
+                0,
+                LightTexture.FULL_BLOCK,
+                packedOverlay
+            );
         poseStack.popPose();
     }
 }

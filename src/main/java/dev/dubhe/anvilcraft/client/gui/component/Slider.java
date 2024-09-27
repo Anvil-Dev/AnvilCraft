@@ -40,11 +40,11 @@ public class Slider extends AbstractWidget {
     private boolean wasHoveredOrFocused;
 
     /**
-     * @param x      X
-     * @param y      Y
-     * @param min    最小值
-     * @param max    最大值
-     * @param length 长度
+     * @param x        X
+     * @param y        Y
+     * @param min      最小值
+     * @param max      最大值
+     * @param length   长度
      * @param callback 更新回调
      */
     public Slider(int x, int y, int min, int max, int length, Callback<Integer> callback) {
@@ -139,21 +139,22 @@ public class Slider extends AbstractWidget {
     }
 
     @Override
-    protected void updateWidgetNarration(@NotNull NarrationElementOutput narrationElementOutput) {}
+    protected void updateWidgetNarration(@NotNull NarrationElementOutput narrationElementOutput) {
+    }
 
     private void updateTooltip() {
         if (this.getTooltip() == null) return;
         boolean bl = this.isHovered
-                || this.isFocused()
-                        && Minecraft.getInstance().getLastInputType().isKeyboard();
+            || this.isFocused()
+            && Minecraft.getInstance().getLastInputType().isKeyboard();
         if (bl != this.wasHoveredOrFocused) {
             if (bl) this.hoverOrFocusedStartTime = Util.getMillis();
             this.wasHoveredOrFocused = bl;
         }
         Screen screen;
         if (bl
-                && Util.getMillis() - this.hoverOrFocusedStartTime > (long) this.tooltipMsDelay
-                && (screen = Minecraft.getInstance().screen) != null) {
+            && Util.getMillis() - this.hoverOrFocusedStartTime > (long) this.tooltipMsDelay
+            && (screen = Minecraft.getInstance().screen) != null) {
             screen.setTooltipForNextRenderPass(this.getTooltip(), DefaultTooltipPositioner.INSTANCE, this.isFocused());
         }
     }

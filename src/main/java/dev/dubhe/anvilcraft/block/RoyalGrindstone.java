@@ -36,7 +36,7 @@ public class RoyalGrindstone extends BetterGrindstoneBlock implements IHammerRem
 
     @Override
     public InteractionResult use(
-            BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (level.isClientSide()) {
             return InteractionResult.sidedSuccess(level.isClientSide());
         }
@@ -48,8 +48,11 @@ public class RoyalGrindstone extends BetterGrindstoneBlock implements IHammerRem
     @Override
     public MenuProvider getMenuProvider(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos) {
         return new SimpleMenuProvider(
-                (i, inventory, player) ->
-                        new RoyalGrindstoneMenu(i, inventory, ContainerLevelAccess.create(level, pos)),
-                CONTAINER_TITLE);
+            (i, inventory, player) -> new RoyalGrindstoneMenu(
+                i,
+                inventory,
+                ContainerLevelAccess.create(level, pos)
+            ),
+            CONTAINER_TITLE);
     }
 }

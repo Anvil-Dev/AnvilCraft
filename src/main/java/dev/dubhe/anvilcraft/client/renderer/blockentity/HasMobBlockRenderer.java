@@ -14,16 +14,17 @@ import org.jetbrains.annotations.NotNull;
 
 public class HasMobBlockRenderer implements BlockEntityRenderer<HasMobBlockEntity> {
     @SuppressWarnings("unused")
-    public HasMobBlockRenderer(BlockEntityRendererProvider.Context context) {}
+    public HasMobBlockRenderer(BlockEntityRendererProvider.Context context) {
+    }
 
     @Override
     public void render(
-            @NotNull HasMobBlockEntity blockEntity,
-            float partialTick,
-            @NotNull PoseStack poseStack,
-            @NotNull MultiBufferSource buffer,
-            int packedLight,
-            int packedOverlay) {
+        @NotNull HasMobBlockEntity blockEntity,
+        float partialTick,
+        @NotNull PoseStack poseStack,
+        @NotNull MultiBufferSource buffer,
+        int packedLight,
+        int packedOverlay) {
         Entity entity = blockEntity.getOrCreateDisplayEntity(blockEntity.getLevel());
         if (entity == null) return;
         poseStack.pushPose();

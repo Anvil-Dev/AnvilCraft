@@ -23,20 +23,21 @@ import java.util.List;
 
 public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBeaconBlockEntity> {
     public static final ResourceLocation BEAM_LOCATION =
-            ResourceLocation.withDefaultNamespace("textures/entity/beacon_beam.png");
+        ResourceLocation.withDefaultNamespace("textures/entity/beacon_beam.png");
     public static final int MAX_RENDER_Y = 1024;
 
     @SuppressWarnings("unused")
-    public CorruptedBeaconRenderer(BlockEntityRendererProvider.Context context) {}
+    public CorruptedBeaconRenderer(BlockEntityRendererProvider.Context context) {
+    }
 
     @Override
     public void render(
-            @NotNull CorruptedBeaconBlockEntity blockEntity,
-            float partialTick,
-            @NotNull PoseStack poseStack,
-            @NotNull MultiBufferSource buffer,
-            int packedLight,
-            int packedOverlay) {
+        @NotNull CorruptedBeaconBlockEntity blockEntity,
+        float partialTick,
+        @NotNull PoseStack poseStack,
+        @NotNull MultiBufferSource buffer,
+        int packedLight,
+        int packedOverlay) {
         if (blockEntity.getLevel() == null) return;
         long l = blockEntity.getLevel().getGameTime();
         List<CorruptedBeaconBlockEntity.BeaconBeamSection> list = blockEntity.getBeamSections();
@@ -44,51 +45,51 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
         for (int j = 0; j < list.size(); ++j) {
             CorruptedBeaconBlockEntity.BeaconBeamSection beaconBeamSection = list.get(j);
             CorruptedBeaconRenderer.renderBeaconBeam(
-                    poseStack,
-                    buffer,
-                    partialTick,
-                    l,
-                    i,
-                    j == list.size() - 1 ? MAX_RENDER_Y : beaconBeamSection.getHeight(),
-                    beaconBeamSection.getColor());
+                poseStack,
+                buffer,
+                partialTick,
+                l,
+                i,
+                j == list.size() - 1 ? MAX_RENDER_Y : beaconBeamSection.getHeight(),
+                beaconBeamSection.getColor());
             i += beaconBeamSection.getHeight();
         }
     }
 
     private static void renderBeaconBeam(
-            PoseStack pPoseStack,
-            MultiBufferSource pBufferSource,
-            float pPartialTick,
-            long pGameTime,
-            int pYOffset,
-            int pHeight,
-            int pColor) {
+        PoseStack pPoseStack,
+        MultiBufferSource pBufferSource,
+        float pPartialTick,
+        long pGameTime,
+        int pYOffset,
+        int pHeight,
+        int pColor) {
         renderBeaconBeam(
-                pPoseStack,
-                pBufferSource,
-                BEAM_LOCATION,
-                pPartialTick,
-                1.0F,
-                pGameTime,
-                pYOffset,
-                pHeight,
-                pColor,
-                0.2F,
-                0.25F);
+            pPoseStack,
+            pBufferSource,
+            BEAM_LOCATION,
+            pPartialTick,
+            1.0F,
+            pGameTime,
+            pYOffset,
+            pHeight,
+            pColor,
+            0.2F,
+            0.25F);
     }
 
     public static void renderBeaconBeam(
-            PoseStack pPoseStack,
-            MultiBufferSource pBufferSource,
-            ResourceLocation pBeamLocation,
-            float pPartialTick,
-            float pTextureScale,
-            long pGameTime,
-            int pYOffset,
-            int pHeight,
-            int pColor,
-            float pBeamRadius,
-            float pGlowRadius) {
+        PoseStack pPoseStack,
+        MultiBufferSource pBufferSource,
+        ResourceLocation pBeamLocation,
+        float pPartialTick,
+        float pTextureScale,
+        long pGameTime,
+        int pYOffset,
+        int pHeight,
+        int pColor,
+        float pBeamRadius,
+        float pGlowRadius) {
         int i = pYOffset + pHeight;
         pPoseStack.pushPose();
         pPoseStack.translate(0.5, 0.0, 0.5);
@@ -104,23 +105,23 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
         float f12 = -1.0F + f2;
         float f13 = (float) pHeight * pTextureScale * (0.5F / pBeamRadius) + f12;
         renderPart(
-                pPoseStack,
-                pBufferSource.getBuffer(RenderType.beaconBeam(pBeamLocation, false)),
-                pColor,
-                pYOffset,
-                i,
-                0.0F,
-                pBeamRadius,
-                pBeamRadius,
-                0.0F,
-                f6,
-                0.0F,
-                0.0F,
-                f9,
-                0.0F,
-                1.0F,
-                f13,
-                f12);
+            pPoseStack,
+            pBufferSource.getBuffer(RenderType.beaconBeam(pBeamLocation, false)),
+            pColor,
+            pYOffset,
+            i,
+            0.0F,
+            pBeamRadius,
+            pBeamRadius,
+            0.0F,
+            f6,
+            0.0F,
+            0.0F,
+            f9,
+            0.0F,
+            1.0F,
+            f13,
+            f12);
         pPoseStack.popPose();
         f3 = -pGlowRadius;
         float f4 = -pGlowRadius;
@@ -129,44 +130,44 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
         f12 = -1.0F + f2;
         f13 = (float) pHeight * pTextureScale + f12;
         renderPart(
-                pPoseStack,
-                pBufferSource.getBuffer(RenderType.beaconBeam(pBeamLocation, true)),
-                FastColor.ARGB32.color(32, pColor),
-                pYOffset,
-                i,
-                f3,
-                f4,
-                pGlowRadius,
-                f5,
-                f6,
-                pGlowRadius,
-                pGlowRadius,
-                pGlowRadius,
-                0.0F,
-                1.0F,
-                f13,
-                f12);
+            pPoseStack,
+            pBufferSource.getBuffer(RenderType.beaconBeam(pBeamLocation, true)),
+            FastColor.ARGB32.color(32, pColor),
+            pYOffset,
+            i,
+            f3,
+            f4,
+            pGlowRadius,
+            f5,
+            f6,
+            pGlowRadius,
+            pGlowRadius,
+            pGlowRadius,
+            0.0F,
+            1.0F,
+            f13,
+            f12);
         pPoseStack.popPose();
     }
 
     private static void renderPart(
-            PoseStack pPoseStack,
-            VertexConsumer pConsumer,
-            int pColor,
-            int pMinY,
-            int pMaxY,
-            float pX1,
-            float pZ1,
-            float pX2,
-            float pZ2,
-            float pX3,
-            float pZ3,
-            float pX4,
-            float pZ4,
-            float pMinU,
-            float pMaxU,
-            float pMinV,
-            float pMaxV) {
+        PoseStack pPoseStack,
+        VertexConsumer pConsumer,
+        int pColor,
+        int pMinY,
+        int pMaxY,
+        float pX1,
+        float pZ1,
+        float pX2,
+        float pZ2,
+        float pX3,
+        float pZ3,
+        float pX4,
+        float pZ4,
+        float pMinU,
+        float pMaxU,
+        float pMinV,
+        float pMaxV) {
         PoseStack.Pose posestack$pose = pPoseStack.last();
         renderQuad(posestack$pose, pConsumer, pColor, pMinY, pMaxY, pX1, pZ1, pX2, pZ2, pMinU, pMaxU, pMinV, pMaxV);
         renderQuad(posestack$pose, pConsumer, pColor, pMinY, pMaxY, pX4, pZ4, pX3, pZ3, pMinU, pMaxU, pMinV, pMaxV);
@@ -175,19 +176,19 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
     }
 
     private static void renderQuad(
-            PoseStack.Pose pPose,
-            VertexConsumer pConsumer,
-            int pColor,
-            int pMinY,
-            int pMaxY,
-            float pMinX,
-            float pMinZ,
-            float pMaxX,
-            float pMaxZ,
-            float pMinU,
-            float pMaxU,
-            float pMinV,
-            float pMaxV) {
+        PoseStack.Pose pPose,
+        VertexConsumer pConsumer,
+        int pColor,
+        int pMinY,
+        int pMaxY,
+        float pMinX,
+        float pMinZ,
+        float pMaxX,
+        float pMaxZ,
+        float pMinU,
+        float pMaxU,
+        float pMinV,
+        float pMaxV) {
         addVertex(pPose, pConsumer, pColor, pMaxY, pMinX, pMinZ, pMaxU, pMinV);
         addVertex(pPose, pConsumer, pColor, pMinY, pMinX, pMinZ, pMaxU, pMaxV);
         addVertex(pPose, pConsumer, pColor, pMinY, pMaxX, pMaxZ, pMinU, pMaxV);
@@ -195,22 +196,22 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
     }
 
     private static void addVertex(
-            PoseStack.Pose pPose,
-            VertexConsumer pConsumer,
-            int pColor,
-            int pY,
-            float pX,
-            float pZ,
-            float pU,
-            float pV) {
+        PoseStack.Pose pPose,
+        VertexConsumer pConsumer,
+        int pColor,
+        int pY,
+        float pX,
+        float pZ,
+        float pU,
+        float pV) {
         pConsumer
-                .addVertex(pPose, pX, (float) pY, pZ)
-                .setColor(pColor)
-                .setUv(pU, pV)
-                .setOverlay(OverlayTexture.NO_OVERLAY)
-                .setLight(15728880)
-                .setUv2(0xF000F0 & '\uffff', 0xF000F0 & '\uffff')
-                .setNormal(pPose, 0.0F, 1.0F, 0.0F);
+            .addVertex(pPose, pX, (float) pY, pZ)
+            .setColor(pColor)
+            .setUv(pU, pV)
+            .setOverlay(OverlayTexture.NO_OVERLAY)
+            .setLight(15728880)
+            .setUv2(0xF000F0 & '\uffff', 0xF000F0 & '\uffff')
+            .setNormal(pPose, 0.0F, 1.0F, 0.0F);
     }
 
     @Override
@@ -226,8 +227,8 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
     @Override
     public boolean shouldRender(@NotNull CorruptedBeaconBlockEntity blockEntity, @NotNull Vec3 cameraPos) {
         return Vec3.atCenterOf(blockEntity.getBlockPos())
-                .multiply(1.0, 0.0, 1.0)
-                .closerThan(cameraPos.multiply(1.0, 0.0, 1.0), this.getViewDistance());
+            .multiply(1.0, 0.0, 1.0)
+            .closerThan(cameraPos.multiply(1.0, 0.0, 1.0), this.getViewDistance());
     }
 
     @Override

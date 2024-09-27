@@ -38,7 +38,8 @@ public class ItemCollectorButton extends Button {
             int width,
             int height,
             int textureWidth,
-            int textureHeight) {
+            int textureHeight
+    ) {
         int i = pvOffset;
         if (this.isHovered()) {
             i += textureDifference;
