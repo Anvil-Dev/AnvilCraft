@@ -23,8 +23,11 @@ public class ItemTagLoader {
         provider.addTag(ModItemTags.PLATES)
                 .add(findResourceKey(Items.HEAVY_WEIGHTED_PRESSURE_PLATE))
                 .add(findResourceKey(Items.LIGHT_WEIGHTED_PRESSURE_PLATE));
+
         provider.addTag(ModItemTags.IRON_PLATES).add(findResourceKey(Items.HEAVY_WEIGHTED_PRESSURE_PLATE));
+
         provider.addTag(ModItemTags.GOLD_PLATES).add(findResourceKey(Items.LIGHT_WEIGHTED_PRESSURE_PLATE));
+
         provider.addTag(ModItemTags.ROYAL_STEEL_PICKAXE_BASE)
                 .add(findResourceKey(ModItems.AMETHYST_PICKAXE.get()))
                 .add(findResourceKey(Items.GOLDEN_PICKAXE))
@@ -50,11 +53,7 @@ public class ItemTagLoader {
                 .add(findResourceKey(Items.GOLDEN_SHOVEL))
                 .add(findResourceKey(Items.IRON_SHOVEL))
                 .add(findResourceKey(Items.DIAMOND_SHOVEL));
-        provider.addTag(ModItemTags.GEMS)
-                .add(findResourceKey(Items.EMERALD))
-                .add(findResourceKey(ModItems.RUBY.get()))
-                .add(findResourceKey(ModItems.SAPPHIRE.get()))
-                .add(findResourceKey(ModItems.TOPAZ.get()));
+
         provider.addTag(ModItemTags.GEMS)
                 .add(findResourceKey(Items.EMERALD))
                 .add(findResourceKey(ModItems.RUBY.get()))
@@ -65,6 +64,7 @@ public class ItemTagLoader {
                 .add(findResourceKey(ModBlocks.RUBY_BLOCK.asItem()))
                 .add(findResourceKey(ModBlocks.SAPPHIRE_BLOCK.asItem()))
                 .add(findResourceKey(ModBlocks.TOPAZ_BLOCK.asItem()));
+
         provider.addTag(ModItemTags.DEAD_TUBE)
                 .add(findResourceKey(Items.DEAD_BRAIN_CORAL))
                 .add(findResourceKey(Items.DEAD_BUBBLE_CORAL))

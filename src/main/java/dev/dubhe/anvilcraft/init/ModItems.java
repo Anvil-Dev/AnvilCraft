@@ -51,6 +51,7 @@ import net.minecraft.world.item.PickaxeItem;
 import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.neoforged.neoforge.common.Tags;
 
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.entry.ItemEntry;
@@ -230,7 +231,7 @@ public class ModItems {
             .register();
     public static final ItemEntry<Item> CHOCOLATE = REGISTRATE
             .item("chocolate", properties -> new Item(properties.food(ModFoods.CHOCOLATE)))
-            .tag(ModItemTags.FOODS)
+            .tag(Tags.Items.FOODS)
             .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                     .pattern("ABA")
                     .pattern("CDC")
@@ -247,7 +248,7 @@ public class ModItems {
             .register();
     public static final ItemEntry<Item> CHOCOLATE_BLACK = REGISTRATE
             .item("chocolate_black", p -> new Item(p.food(ModFoods.CHOCOLATE_BLACK)))
-            .tag(ModItemTags.FOODS)
+            .tag(Tags.Items.FOODS)
             .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                     .pattern("AAA")
                     .pattern("BCB")
@@ -262,7 +263,7 @@ public class ModItems {
             .register();
     public static final ItemEntry<Item> CHOCOLATE_WHITE = REGISTRATE
             .item("chocolate_white", p -> new Item(p.food(ModFoods.CHOCOLATE_WHITE)))
-            .tag(ModItemTags.FOODS)
+            .tag(Tags.Items.FOODS)
             .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                     .pattern("AAA")
                     .pattern("BCB")
@@ -277,7 +278,7 @@ public class ModItems {
             .register();
     public static final ItemEntry<Item> CREAMY_BREAD_ROLL = REGISTRATE
             .item("creamy_bread_roll", p -> new Item(p.food(ModFoods.CREAMY_BREAD_ROLL)))
-            .tag(ModItemTags.FOODS)
+            .tag(Tags.Items.FOODS)
             .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, ctx.get())
                     .requires(Items.BREAD)
                     .requires(Items.SUGAR)
@@ -288,7 +289,7 @@ public class ModItems {
     public static final ItemEntry<Item> BEEF_MUSHROOM_STEW = REGISTRATE
             .item("beef_mushroom_stew", p -> new Item(p.food(ModFoods.BEEF_MUSHROOM_STEW)))
             .properties(properties -> properties.stacksTo(1))
-            .tag(ModItemTags.FOODS)
+            .tag(Tags.Items.FOODS)
             .register();
     public static final ItemEntry<UtusanItem> UTUSAN =
             REGISTRATE.item("utusan", UtusanItem::new).register();

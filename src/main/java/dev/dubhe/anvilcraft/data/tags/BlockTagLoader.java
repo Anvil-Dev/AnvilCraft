@@ -9,6 +9,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.neoforged.neoforge.common.Tags;
 
 import com.tterrag.registrate.providers.RegistrateTagsProvider;
 import org.jetbrains.annotations.NotNull;
@@ -28,16 +29,19 @@ public class BlockTagLoader {
         provider.addTag(ModBlockTags.REDSTONE_TORCH)
                 .add(findResourceKey(Blocks.REDSTONE_WALL_TORCH))
                 .add(findResourceKey(Blocks.REDSTONE_TORCH));
+
         provider.addTag(ModBlockTags.MUSHROOM_BLOCK)
                 .add(findResourceKey(Blocks.BROWN_MUSHROOM_BLOCK))
                 .add(findResourceKey(Blocks.RED_MUSHROOM_BLOCK))
                 .add(findResourceKey(Blocks.MUSHROOM_STEM));
+
         provider.addTag(ModBlockTags.HAMMER_CHANGEABLE)
                 .add(findResourceKey(Blocks.OBSERVER))
                 .add(findResourceKey(Blocks.HOPPER))
                 .add(findResourceKey(Blocks.DROPPER))
                 .add(findResourceKey(Blocks.DISPENSER))
                 .add(findResourceKey(Blocks.LIGHTNING_ROD));
+
         provider.addTag(ModBlockTags.HAMMER_REMOVABLE)
                 .add(findResourceKey(Blocks.BELL))
                 .add(findResourceKey(Blocks.REDSTONE_LAMP))
@@ -100,6 +104,7 @@ public class BlockTagLoader {
                 .add(findResourceKey(Blocks.MAGMA_BLOCK))
                 .add(findResourceKey(ModBlocks.HEATER.get()))
                 .add(findResourceKey(ModBlocks.CORRUPTED_BEACON.get()));
+
         provider.addTag(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)
                 .add(findResourceKey(Blocks.STONE))
                 .add(findResourceKey(Blocks.DEEPSLATE))
@@ -111,42 +116,12 @@ public class BlockTagLoader {
                 .add(findResourceKey(Blocks.BASALT))
                 .add(findResourceKey(Blocks.BLACKSTONE))
                 .add(findResourceKey(Blocks.END_STONE));
-        provider.addTag(ModBlockTags.GLASS_BLOCKS).add(findResourceKey(ModBlocks.TEMPERING_GLASS.get()));
+
         provider.addTag(ModBlockTags.LASE_CAN_PASS_THROUGH)
-                .addTag(ModBlockTags.GLASS_BLOCKS)
-                .addTag(ModBlockTags.GLASS_PANES)
+                .addTag(Tags.Blocks.GLASS_BLOCKS)
+                .addTag(Tags.Blocks.GLASS_PANES)
                 .addTag(BlockTags.REPLACEABLE);
-        provider.addTag(ModBlockTags.DEEPSLATE_METAL)
-                .add(findResourceKey(Blocks.DEEPSLATE_GOLD_ORE))
-                .add(findResourceKey(Blocks.DEEPSLATE_IRON_ORE))
-                .add(findResourceKey(Blocks.DEEPSLATE_COPPER_ORE))
-                .add(findResourceKey(ModBlocks.DEEPSLATE_ZINC_ORE.get()))
-                .add(findResourceKey(ModBlocks.DEEPSLATE_TIN_ORE.get()))
-                .add(findResourceKey(ModBlocks.DEEPSLATE_TITANIUM_ORE.get()))
-                .add(findResourceKey(ModBlocks.DEEPSLATE_TUNGSTEN_ORE.get()))
-                .add(findResourceKey(ModBlocks.DEEPSLATE_LEAD_ORE.get()))
-                .add(findResourceKey(ModBlocks.DEEPSLATE_SILVER_ORE.get()))
-                .add(findResourceKey(ModBlocks.DEEPSLATE_URANIUM_ORE.get()));
-        provider.addTag(ModBlockTags.ORES)
-                .add(findResourceKey(ModBlocks.DEEPSLATE_ZINC_ORE.get()))
-                .add(findResourceKey(ModBlocks.DEEPSLATE_TIN_ORE.get()))
-                .add(findResourceKey(ModBlocks.DEEPSLATE_TITANIUM_ORE.get()))
-                .add(findResourceKey(ModBlocks.DEEPSLATE_TUNGSTEN_ORE.get()))
-                .add(findResourceKey(ModBlocks.DEEPSLATE_LEAD_ORE.get()))
-                .add(findResourceKey(ModBlocks.DEEPSLATE_SILVER_ORE.get()))
-                .add(findResourceKey(ModBlocks.DEEPSLATE_URANIUM_ORE.get()))
-                .add(findResourceKey(ModBlocks.VOID_STONE.get()))
-                .add(findResourceKey(ModBlocks.EARTH_CORE_SHARD_ORE.get()));
-        provider.addTag(ModBlockTags.ORES_IN_GROUND_DEEPSLATE)
-                .add(findResourceKey(ModBlocks.DEEPSLATE_ZINC_ORE.get()))
-                .add(findResourceKey(ModBlocks.DEEPSLATE_TIN_ORE.get()))
-                .add(findResourceKey(ModBlocks.DEEPSLATE_TITANIUM_ORE.get()))
-                .add(findResourceKey(ModBlocks.DEEPSLATE_TUNGSTEN_ORE.get()))
-                .add(findResourceKey(ModBlocks.DEEPSLATE_LEAD_ORE.get()))
-                .add(findResourceKey(ModBlocks.DEEPSLATE_SILVER_ORE.get()))
-                .add(findResourceKey(ModBlocks.DEEPSLATE_URANIUM_ORE.get()))
-                .add(findResourceKey(ModBlocks.VOID_STONE.get()))
-                .add(findResourceKey(ModBlocks.EARTH_CORE_SHARD_ORE.get()));
+
         provider.addTag(ModBlockTags.END_PORTAL_UNABLE_CHANGE).add(findResourceKey(Blocks.DRAGON_EGG));
     }
 }

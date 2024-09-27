@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.recipe.anvil.SuperHeatingRecipe;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.neoforged.neoforge.common.Tags;
 
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 
@@ -20,7 +21,7 @@ public class SuperHeatingRecipeLoader {
                 .save(provider, AnvilCraft.of("super_heating/lava_from_cobblestone"));
         SuperHeatingRecipe.builder()
                 .blockResult(ModBlocks.LAVA_CAULDRON.get())
-                .requires(ModItemTags.STONE, 4)
+                .requires(Tags.Items.STONES, 4)
                 .requires(ModItems.LIME_POWDER)
                 .save(provider, AnvilCraft.of("super_heating/lava_from_stone"));
 

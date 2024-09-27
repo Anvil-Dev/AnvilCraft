@@ -15,11 +15,8 @@ public class ModItemTags {
     public static final TagKey<Item> WHEAT_FLOUR = bindC("flour/wheat");
     public static final TagKey<Item> DOUGH = bindC("dough");
     public static final TagKey<Item> WHEAT_DOUGH = bindC("dough/wheat");
-    public static final TagKey<Item> PLATES = bindC("plates");
-    public static final TagKey<Item> STONE = bindC("stones");
-    public static final TagKey<Item> GLASS = bindC("glass/silica");
-    public static final TagKey<Item> FOODS = bindC("foods");
 
+    public static final TagKey<Item> PLATES = bindC("plates");
     public static final TagKey<Item> GOLD_PLATES = bindC("plates/gold");
     public static final TagKey<Item> IRON_PLATES = bindC("plates/iron");
     public static final TagKey<Item> COPPER_PLATES = bindC("plates/copper");

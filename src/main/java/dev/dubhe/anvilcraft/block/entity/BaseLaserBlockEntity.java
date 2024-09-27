@@ -22,6 +22,7 @@ import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -56,8 +57,8 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         if (level == null) return false;
         BlockState blockState = level.getBlockState(blockPos);
         if (blockState.is(ModBlockTags.LASE_CAN_PASS_THROUGH)
-                || blockState.is(ModBlockTags.GLASS_BLOCKS)
-                || blockState.is(ModBlockTags.GLASS_PANES)
+                || blockState.is(Tags.Blocks.GLASS_BLOCKS)
+                || blockState.is(Tags.Blocks.GLASS_PANES)
                 || blockState.is(BlockTags.REPLACEABLE)) return true;
         if (!AnvilCraft.config.isLaserDoImpactChecking) return false;
         AABB laseBoundingBox =
@@ -124,7 +125,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
                 : Integer.MAX_VALUE;
         if (tickCount >= coldDown) {
             tickCount = 0;
-            if (irradiateBlock.is(ModBlockTags.ORES)) {
+            if (irradiateBlock.is(Tags.Blocks.ORES)) {
                 Vec3 blockPos = getBlockPos().relative(direction.getOpposite()).getCenter();
                 IItemHandler cap = getLevel()
                         .getCapability(
@@ -143,9 +144,9 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
                 });
                 if (irradiateBlock.is(Blocks.ANCIENT_DEBRIS))
                     level.setBlockAndUpdate(irradiateBlockPos, Blocks.NETHERRACK.defaultBlockState());
-                else if (irradiateBlock.is(ModBlockTags.ORES_IN_GROUND_DEEPSLATE))
+                else if (irradiateBlock.is(Tags.Blocks.ORES_IN_GROUND_DEEPSLATE))
                     level.setBlockAndUpdate(irradiateBlockPos, Blocks.DEEPSLATE.defaultBlockState());
-                else if (irradiateBlock.is(ModBlockTags.ORES_IN_GROUND_NETHERRACK))
+                else if (irradiateBlock.is(Tags.Blocks.ORES_IN_GROUND_NETHERRACK))
                     level.setBlockAndUpdate(irradiateBlockPos, Blocks.NETHERRACK.defaultBlockState());
                 else level.setBlockAndUpdate(irradiateBlockPos, Blocks.STONE.defaultBlockState());
                 /* else {
