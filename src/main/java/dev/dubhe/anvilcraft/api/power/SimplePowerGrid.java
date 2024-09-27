@@ -215,7 +215,6 @@ public class SimplePowerGrid {
             float dy = (float) (this.start().y - this.end().y);
             float dz = (float) (this.start().z - this.end().z);
             Matrix4f mat = pose.last().pose();
-            ;
             vertex.addVertex(mat, (float) (this.start().x - camera.x), (float) (this.start().y - camera.y), (float)
                             (this.start().z - camera.z))
                     .setColor(color)
