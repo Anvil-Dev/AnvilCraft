@@ -18,7 +18,13 @@ import static dev.dubhe.anvilcraft.util.AnvilUtil.returnItems;
 
 public class HitBeeNestBehavior implements AnvilBehavior {
     @Override
-    public boolean handle(Level level, BlockPos pos, BlockState state, float fallDistance, AnvilFallOnLandEvent event) {
+    public boolean handle(
+        Level level,
+        BlockPos pos,
+        BlockState state,
+        float fallDistance,
+        AnvilFallOnLandEvent event
+    ) {
         if (!state.hasBlockEntity()) return false;
         int honeyLevel = state.getValue(BeehiveBlock.HONEY_LEVEL);
         if (honeyLevel < BeehiveBlock.MAX_HONEY_LEVELS) return false;

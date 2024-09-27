@@ -21,7 +21,7 @@ import dev.dubhe.anvilcraft.block.entity.MobAmberBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.OverseerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PowerConverterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RemoteTransmissionPoleBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.ResentfulAmberBlock;
+import dev.dubhe.anvilcraft.block.entity.ResentfulAmberBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RubyLaserBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RubyPrismBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
@@ -109,8 +109,8 @@ public class ModBlockEntities {
             .validBlock(ModBlocks.MOB_AMBER_BLOCK)
             .register();
 
-    public static final BlockEntityEntry<ResentfulAmberBlock> RESENTFUL_AMBER_BLOCK = REGISTRATE
-            .blockEntity("resentful_amber_block", ResentfulAmberBlock::createBlockEntity)
+    public static final BlockEntityEntry<ResentfulAmberBlockEntity> RESENTFUL_AMBER_BLOCK = REGISTRATE
+            .blockEntity("resentful_amber_block", ResentfulAmberBlockEntity::createBlockEntity)
             .renderer(() -> HasMobBlockRenderer::new)
             .validBlock(ModBlocks.RESENTFUL_AMBER_BLOCK)
             .register();

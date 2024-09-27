@@ -22,7 +22,8 @@ public interface IPowerComponent {
 
     Level getCurrentLevel();
 
-    default void gridTick() {}
+    default void gridTick() {
+    }
 
     /**
      * @return 元件位置
@@ -34,12 +35,13 @@ public interface IPowerComponent {
      */
     default VoxelShape getShape() {
         return Shapes.box(
-                -this.getRange(),
-                -this.getRange(),
-                -this.getRange(),
-                this.getRange() + 1,
-                this.getRange() + 1,
-                this.getRange() + 1);
+            -this.getRange(),
+            -this.getRange(),
+            -this.getRange(),
+            this.getRange() + 1,
+            this.getRange() + 1,
+            this.getRange() + 1
+        );
     }
 
     default int getRange() {
@@ -97,9 +99,9 @@ public interface IPowerComponent {
             }
             return;
         }
-        if (this.getGrid().isWork() && state.getValue(OVERLOAD)) {
+        if (this.getGrid().isWorking() && state.getValue(OVERLOAD)) {
             level.setBlockAndUpdate(pos, state.setValue(OVERLOAD, false));
-        } else if (!this.getGrid().isWork() && !state.getValue(OVERLOAD)) {
+        } else if (!this.getGrid().isWorking() && !state.getValue(OVERLOAD)) {
             level.setBlockAndUpdate(pos, state.setValue(OVERLOAD, true));
         }
     }

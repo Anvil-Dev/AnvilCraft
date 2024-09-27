@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.HeliostatsBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -22,9 +23,13 @@ import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class HeliostatsBlock extends BaseEntityBlock implements IHammerRemovable {
     public static final VoxelShape SHAPE =
-            Shapes.or(Block.box(1, 8, 1, 15, 13, 15), Block.box(4, 0, 4, 12, 2, 12), Block.box(7, 2, 7, 9, 8, 9));
+        Shapes.or(Block.box(1, 8, 1, 15, 13, 15), Block.box(4, 0, 4, 12, 2, 12), Block.box(7, 2, 7, 9, 8, 9));
 
     public HeliostatsBlock(Properties properties) {
         super(properties);
@@ -36,40 +41,46 @@ public class HeliostatsBlock extends BaseEntityBlock implements IHammerRemovable
     }
 
     @Override
-    public @NotNull VoxelShape getShape(
-            @NotNull BlockState state,
-            @NotNull BlockGetter level,
-            @NotNull BlockPos pos,
-            @NotNull CollisionContext context) {
+    public VoxelShape getShape(
+        BlockState state,
+        BlockGetter level,
+        BlockPos pos,
+        CollisionContext context) {
         return SHAPE;
     }
 
     @Override
-    public @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
+    public RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
     }
 
-    @Nullable @Override
-    public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
+    @Nullable
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new HeliostatsBlockEntity(ModBlockEntities.HELIOSTATS.get(), pos, state);
     }
 
-    @Nullable @Override
+    @Nullable
+    @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-            @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type) {
+        Level level,
+        BlockState state,
+        BlockEntityType<T> type
+    ) {
         return createTickerHelper(
-                type,
-                ModBlockEntities.HELIOSTATS.get(),
-                (level1, blockPos, blockState, blockEntity) -> blockEntity.tick());
+            type,
+            ModBlockEntities.HELIOSTATS.get(),
+            (level1, blockPos, blockState, blockEntity) -> blockEntity.tick());
     }
 
     @Override
     public void onRemove(
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull BlockState newState,
-            boolean movedByPiston) {
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        BlockState newState,
+        boolean movedByPiston
+    ) {
         if (state.hasBlockEntity()) {
             HeliostatsBlockEntity be = (HeliostatsBlockEntity) level.getBlockEntity(pos);
             if (be == null) return;

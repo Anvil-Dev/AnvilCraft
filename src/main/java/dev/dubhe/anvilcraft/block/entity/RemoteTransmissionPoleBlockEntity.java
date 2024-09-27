@@ -27,7 +27,10 @@ public class RemoteTransmissionPoleBlockEntity extends AbstractTransmissionPoleB
     }
 
     public static @NotNull RemoteTransmissionPoleBlockEntity createBlockEntity(
-            BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+        BlockEntityType<?> type,
+        BlockPos pos,
+        BlockState blockState
+    ) {
         return new RemoteTransmissionPoleBlockEntity(type, pos, blockState);
     }
 
@@ -44,8 +47,9 @@ public class RemoteTransmissionPoleBlockEntity extends AbstractTransmissionPoleB
     public @NotNull PowerComponentType getComponentType() {
         if (this.getLevel() == null) return PowerComponentType.INVALID;
         if (!this.getBlockState().is(ModBlocks.REMOTE_TRANSMISSION_POLE.get())) return PowerComponentType.INVALID;
-        if (this.getBlockState().getValue(RemoteTransmissionPoleBlock.HALF) != Vertical4PartHalf.TOP)
+        if (this.getBlockState().getValue(RemoteTransmissionPoleBlock.HALF) != Vertical4PartHalf.TOP) {
             return PowerComponentType.INVALID;
+        }
         return PowerComponentType.TRANSMITTER;
     }
 

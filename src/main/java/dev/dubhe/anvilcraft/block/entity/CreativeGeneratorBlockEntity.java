@@ -40,7 +40,8 @@ public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerP
     private int time = 0;
 
     public static @NotNull CreativeGeneratorBlockEntity createBlockEntity(
-            BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+        BlockEntityType<?> type, BlockPos pos, BlockState blockState
+    ) {
         return new CreativeGeneratorBlockEntity(type, pos, blockState);
     }
 
@@ -94,7 +95,8 @@ public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerP
         return ModBlocks.CREATIVE_GENERATOR.get().getName();
     }
 
-    @Nullable @Override
+    @Nullable
+    @Override
     public AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
         return new SliderMenu(i, -8192, 8192, this::setPower);
     }
@@ -118,16 +120,16 @@ public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerP
      */
     public int getServerPower() {
         Optional<SimplePowerGrid> s =
-                SimplePowerGrid.findPowerGrid(getPos()).stream().findAny();
+            SimplePowerGrid.findPowerGrid(getPos()).stream().findAny();
         if (s.isPresent()) {
             if (s.get().getConsume() > s.get().getGenerate()) {
                 return 0;
             }
             Optional<PowerComponentInfo> info = s.get().getInfoForPos(getBlockPos());
             return info.map(powerComponentInfo -> powerComponentInfo.type() == PowerComponentType.PRODUCER
-                            ? powerComponentInfo.produces()
-                            : powerComponentInfo.consumes())
-                    .orElse(1);
+                    ? powerComponentInfo.produces()
+                    : powerComponentInfo.consumes())
+                .orElse(1);
         } else {
             return Math.abs(this.power);
         }

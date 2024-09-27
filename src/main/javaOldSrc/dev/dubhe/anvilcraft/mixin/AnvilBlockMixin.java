@@ -49,7 +49,7 @@ abstract class AnvilBlockMixin extends FallingBlock {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public void neighborChanged(
         @NotNull BlockState state,
         @NotNull Level level,

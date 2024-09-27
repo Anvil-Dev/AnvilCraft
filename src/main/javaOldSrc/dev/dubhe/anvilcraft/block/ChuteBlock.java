@@ -109,13 +109,13 @@ public class ChuteBlock extends BetterBaseEntityBlock implements IHammerChangeab
                 .setValue(ENABLED, !context.getLevel().hasNeighborSignal(context.getClickedPos()));
     }
 
-    @SuppressWarnings("deprecation")
+    
     @Override
     public @Nonnull BlockState rotate(@Nonnull BlockState state, @Nonnull Rotation rotation) {
         return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
 
-    @SuppressWarnings("deprecation")
+    
     @Override
     public @Nonnull BlockState mirror(@Nonnull BlockState state, @Nonnull Mirror mirror) {
         return state.rotate(mirror.getRotation(state.getValue(FACING)));
@@ -126,7 +126,7 @@ public class ChuteBlock extends BetterBaseEntityBlock implements IHammerChangeab
         builder.add(FACING, ENABLED);
     }
 
-    @SuppressWarnings("deprecation")
+    
     @Override
     public void neighborChanged(
             @NotNull BlockState state,
@@ -164,7 +164,7 @@ public class ChuteBlock extends BetterBaseEntityBlock implements IHammerChangeab
         }
     }
 
-    @SuppressWarnings("deprecation")
+    
     @Override
     public void tick(
             @NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random
@@ -192,7 +192,7 @@ public class ChuteBlock extends BetterBaseEntityBlock implements IHammerChangeab
                 ((level1, blockPos, blockState, blockEntity) -> blockEntity.tick()));
     }
 
-    @SuppressWarnings("deprecation")
+    
     @Override
     public @Nonnull VoxelShape getShape(
             @Nonnull BlockState blockState,
@@ -252,7 +252,7 @@ public class ChuteBlock extends BetterBaseEntityBlock implements IHammerChangeab
         return InteractionResult.SUCCESS;
     }
 
-    @SuppressWarnings("deprecation")
+    
     @Override
     public void onRemove(
             @NotNull BlockState state,
@@ -296,7 +296,7 @@ public class ChuteBlock extends BetterBaseEntityBlock implements IHammerChangeab
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public void onPlace(
             @NotNull BlockState state,
             @NotNull Level level,
@@ -340,13 +340,13 @@ public class ChuteBlock extends BetterBaseEntityBlock implements IHammerChangeab
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public boolean hasAnalogOutputSignal(@NotNull BlockState blockState) {
         return true;
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public int getAnalogOutputSignal(@NotNull BlockState blockState, @NotNull Level level, @NotNull BlockPos blockPos) {
         BlockEntity blockEntity = level.getBlockEntity(blockPos);
         if (blockEntity instanceof ChuteBlockEntity chuteBlockEntity) {

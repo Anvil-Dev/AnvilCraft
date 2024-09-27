@@ -42,35 +42,38 @@ import java.util.List;
 
 @Getter
 public class ItemCollectorBlockEntity extends BlockEntity
-        implements MenuProvider,
-                IFilterBlockEntity,
-                IPowerConsumer,
-                IDiskCloneable,
-                IHasAffectRange,
-                ItemHandlerHolder {
+    implements MenuProvider,
+    IFilterBlockEntity,
+    IPowerConsumer,
+    IDiskCloneable,
+    IHasAffectRange,
+    ItemHandlerHolder
+{
     @Setter
     private PowerGrid grid;
 
     private final WatchableCyclingValue<Integer> rangeRadius = new WatchableCyclingValue<>(
-            "rangeRadius",
-            thiz -> {
-                this.setChanged();
-            },
-            1,
-            2,
-            4,
-            8);
+        "rangeRadius",
+        thiz -> {
+            this.setChanged();
+        },
+        1,
+        2,
+        4,
+        8
+    );
     private final WatchableCyclingValue<Integer> cooldown = new WatchableCyclingValue<>(
-            "cooldown",
-            thiz -> {
-                cd = thiz.get();
-                this.setChanged();
-            },
-            1,
-            2,
-            5,
-            15,
-            60);
+        "cooldown",
+        thiz -> {
+            cd = thiz.get();
+            this.setChanged();
+        },
+        1,
+        2,
+        5,
+        15,
+        60
+    );
     private int cd = rangeRadius.get();
 
     private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(9) {
@@ -127,12 +130,14 @@ public class ItemCollectorBlockEntity extends BlockEntity
         tag.putInt("RangeRadius", rangeRadius.index());
     }
 
-    @Nullable @Override
+    @Nullable
+    @Override
     public AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
         return new ItemCollectorMenu(ModMenuTypes.ITEM_COLLECTOR.get(), i, inventory, this);
     }
 
-    @Nullable @Override
+    @Nullable
+    @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
     }
@@ -156,10 +161,11 @@ public class ItemCollectorBlockEntity extends BlockEntity
             return;
         }
         AABB box = AABB.ofSize(
-                Vec3.atCenterOf(getBlockPos()),
-                rangeRadius.get() * 2.0 + 1,
-                rangeRadius.get() * 2.0 + 1,
-                rangeRadius.get() * 2.0 + 1);
+            Vec3.atCenterOf(getBlockPos()),
+            rangeRadius.get() * 2.0 + 1,
+            rangeRadius.get() * 2.0 + 1,
+            rangeRadius.get() * 2.0 + 1
+        );
         List<ItemEntity> itemEntities = level.getEntitiesOfClass(ItemEntity.class, box);
         for (ItemEntity itemEntity : itemEntities) {
             ItemStack itemStack = itemEntity.getItem();
@@ -206,9 +212,10 @@ public class ItemCollectorBlockEntity extends BlockEntity
     @Override
     public AABB shape() {
         return AABB.ofSize(
-                Vec3.atCenterOf(getBlockPos()),
-                rangeRadius.get() * 2.0 + 1,
-                rangeRadius.get() * 2.0 + 1,
-                rangeRadius.get() * 2.0 + 1);
+            Vec3.atCenterOf(getBlockPos()),
+            rangeRadius.get() * 2.0 + 1,
+            rangeRadius.get() * 2.0 + 1,
+            rangeRadius.get() * 2.0 + 1
+        );
     }
 }

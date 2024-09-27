@@ -47,7 +47,8 @@ public class PowerGridRenderer {
                     random.nextFloat(),
                     random.nextFloat(),
                     random.nextFloat(),
-                    0.4f);
+                    0.4f
+            );
         }
     }
 
@@ -88,7 +89,8 @@ public class PowerGridRenderer {
                 red,
                 green,
                 blue,
-                alpha);
+                alpha
+        );
     }
 
     private static void renderShape(

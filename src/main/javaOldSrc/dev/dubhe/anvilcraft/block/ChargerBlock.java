@@ -78,7 +78,7 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public void neighborChanged(
             @NotNull BlockState state,
             @NotNull Level level,
@@ -110,7 +110,7 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public void onRemove(
             @NotNull BlockState state,
             @NotNull Level level,
@@ -131,7 +131,7 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public void tick(
             @NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random
     ) {

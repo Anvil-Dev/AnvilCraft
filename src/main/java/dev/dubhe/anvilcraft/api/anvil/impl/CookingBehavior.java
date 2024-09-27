@@ -14,15 +14,20 @@ import net.minecraft.world.level.block.state.BlockState;
 public class CookingBehavior implements AnvilBehavior {
     @Override
     public boolean handle(
-            Level level,
-            BlockPos hitBlockPos,
-            BlockState hitBlockState,
-            float fallDistance,
-            AnvilFallOnLandEvent event) {
+        Level level,
+        BlockPos hitBlockPos,
+        BlockState hitBlockState,
+        float fallDistance,
+        AnvilFallOnLandEvent event
+    ) {
         BlockState belowState = level.getBlockState(hitBlockPos.below());
         if (belowState.is(Blocks.CAMPFIRE) && belowState.getValue(CampfireBlock.LIT)) {
             return AnvilUtil.itemProcess(
-                    ModRecipeTypes.COOKING_TYPE.get(), level, hitBlockPos, hitBlockPos.getCenter());
+                ModRecipeTypes.COOKING_TYPE.get(),
+                level,
+                hitBlockPos,
+                hitBlockPos.getCenter()
+            );
         }
         return false;
     }

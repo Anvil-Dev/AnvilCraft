@@ -16,11 +16,13 @@ public class ItemStampingBehavior implements AnvilBehavior {
             BlockPos hitBlockPos,
             BlockState hitBlockState,
             float fallDistance,
-            AnvilFallOnLandEvent event) {
+            AnvilFallOnLandEvent event
+    ) {
         return AnvilUtil.itemProcess(
                 ModRecipeTypes.STAMPING_TYPE.get(),
                 level,
                 hitBlockPos,
-                hitBlockPos.getCenter().add(0, 0.25, 0));
+                hitBlockPos.getCenter().add(0, 0.25, 0)
+        );
     }
 }

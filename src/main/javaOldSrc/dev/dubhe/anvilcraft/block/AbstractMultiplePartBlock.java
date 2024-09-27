@@ -62,7 +62,7 @@ public abstract class AbstractMultiplePartBlock<P extends Enum<P> & MultiplePart
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public @NotNull BlockState updateShape(
         @NotNull BlockState state, @NotNull Direction direction, @NotNull BlockState neighborState,
         @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockPos neighborPos

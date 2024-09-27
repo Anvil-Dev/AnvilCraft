@@ -89,13 +89,13 @@ public class RemoteTransmissionPoleBlock extends AbstractMultiplePartBlock<Verti
         builder.add(HALF).add(OVERLOAD).add(SWITCH);
     }
 
-    @SuppressWarnings("deprecation")
+    
     @Override
     public @Nonnull RenderShape getRenderShape(@Nonnull BlockState state) {
         return RenderShape.MODEL;
     }
 
-    @SuppressWarnings("deprecation")
+    
     @Override
     public @NotNull VoxelShape getShape(
         @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context
@@ -140,7 +140,7 @@ public class RemoteTransmissionPoleBlock extends AbstractMultiplePartBlock<Verti
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public void neighborChanged(
         @NotNull BlockState state,
         @NotNull Level level,

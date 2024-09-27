@@ -26,10 +26,10 @@ public class HammerManager {
     public static IHammerChangeable getChange(Block block) {
         if (block instanceof IHammerChangeable changeable) return changeable;
         return HammerManager.CHANGE.getOrDefault(
-                block,
-                block.defaultBlockState().is(ModBlockTags.HAMMER_CHANGEABLE)
-                        ? IHammerChangeableBlock.DEFAULT
-                        : IHammerChangeableBlock.EMPTY);
+            block,
+            block.defaultBlockState().is(ModBlockTags.HAMMER_CHANGEABLE)
+                ? IHammerChangeableBlock.DEFAULT
+                : IHammerChangeableBlock.EMPTY);
     }
 
     /**

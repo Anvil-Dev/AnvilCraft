@@ -32,7 +32,12 @@ import java.util.Optional;
 public class HitSpawnerBehavior implements AnvilBehavior {
     @Override
     public boolean handle(
-            Level level, BlockPos pos, BlockState hitBlockState, float fallDistance, AnvilFallOnLandEvent event) {
+        Level level,
+        BlockPos pos,
+        BlockState hitBlockState,
+        float fallDistance,
+        AnvilFallOnLandEvent event
+    ) {
         if (level instanceof ServerLevel serverLevel) {
             RandomSource randomSource = serverLevel.getRandom();
             float f = randomSource.nextFloat();
@@ -53,11 +58,12 @@ public class HitSpawnerBehavior implements AnvilBehavior {
     }
 
     private void spawnEntities(
-            SpawnData spawnData,
-            ServerLevel serverLevel,
-            BlockPos pos,
-            RandomSource randomSource,
-            @NotNull BaseSpawnerAccessor accessor) {
+        SpawnData spawnData,
+        ServerLevel serverLevel,
+        BlockPos pos,
+        RandomSource randomSource,
+        @NotNull BaseSpawnerAccessor accessor
+    ) {
         for (int i = 0; i < accessor.getSpawnCount(); ++i) {
             CompoundTag compoundTag = spawnData.getEntityToSpawn();
             Optional<EntityType<?>> optional = EntityType.by(compoundTag);
@@ -74,8 +80,8 @@ public class HitSpawnerBehavior implements AnvilBehavior {
                 x = listTag.getDouble(0);
             } else {
                 x = (double) pos.getX()
-                        + (randomSource.nextDouble() - randomSource.nextDouble()) * accessor.getSpawnRange()
-                        + 0.5;
+                    + (randomSource.nextDouble() - randomSource.nextDouble()) * accessor.getSpawnRange()
+                    + 0.5;
             }
             if (size >= 2) {
                 y = listTag.getDouble(1);
@@ -86,29 +92,32 @@ public class HitSpawnerBehavior implements AnvilBehavior {
                 z = listTag.getDouble(2);
             } else {
                 z = (double) pos.getZ()
-                        + (randomSource.nextDouble() - randomSource.nextDouble()) * accessor.getSpawnRange()
-                        + 0.5;
+                    + (randomSource.nextDouble() - randomSource.nextDouble()) * accessor.getSpawnRange()
+                    + 0.5;
             }
             if (serverLevel.noCollision(optional.get().getSpawnAABB(x, y, z))) {
                 BlockPos blockPos = BlockPos.containing(x, y, z);
                 if (spawnData.getCustomSpawnRules().isPresent()) {
                     if (!optional.get().getCategory().isFriendly()
-                            && serverLevel.getDifficulty() == Difficulty.PEACEFUL) {
+                        && serverLevel.getDifficulty() == Difficulty.PEACEFUL
+                    ) {
                         continue;
                     }
 
                     SpawnData.CustomSpawnRules customSpawnRules =
-                            spawnData.getCustomSpawnRules().get();
+                        spawnData.getCustomSpawnRules().get();
                     if (!customSpawnRules
-                                    .blockLightLimit()
-                                    .isValueInRange(serverLevel.getBrightness(LightLayer.BLOCK, blockPos))
-                            || !customSpawnRules
-                                    .skyLightLimit()
-                                    .isValueInRange(serverLevel.getBrightness(LightLayer.SKY, blockPos))) {
+                        .blockLightLimit()
+                        .isValueInRange(serverLevel.getBrightness(LightLayer.BLOCK, blockPos))
+                        || !customSpawnRules
+                        .skyLightLimit()
+                        .isValueInRange(serverLevel.getBrightness(LightLayer.SKY, blockPos))
+                    ) {
                         continue;
                     }
                 } else if (!SpawnPlacements.checkSpawnRules(
-                        optional.get(), serverLevel, MobSpawnType.SPAWNER, blockPos, serverLevel.getRandom())) {
+                    optional.get(), serverLevel, MobSpawnType.SPAWNER, blockPos, serverLevel.getRandom())
+                ) {
                     continue;
                 }
                 Entity entity = EntityType.loadEntityRecursive(compoundTag, serverLevel, it -> {
@@ -118,31 +127,46 @@ public class HitSpawnerBehavior implements AnvilBehavior {
                 if (entity == null) {
                     return;
                 }
-                AABB boundingBox =
-                        new AABB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1);
+                AABB boundingBox = new AABB(
+                    pos.getX(),
+                    pos.getY(),
+                    pos.getZ(),
+                    pos.getX() + 1,
+                    pos.getY() + 1,
+                    pos.getZ() + 1
+                );
                 int k = serverLevel
-                        .getEntitiesOfClass(entity.getClass(), boundingBox.inflate(accessor.getSpawnRange()))
-                        .size();
+                    .getEntitiesOfClass(entity.getClass(), boundingBox.inflate(accessor.getSpawnRange()))
+                    .size();
                 if (k >= accessor.getMaxNearbyEntities()) {
                     return;
                 }
 
-                entity.moveTo(entity.getX(), entity.getY(), entity.getZ(), randomSource.nextFloat() * 360.0F, 0.0F);
+                entity.moveTo(
+                    entity.getX(),
+                    entity.getY(),
+                    entity.getZ(),
+                    randomSource.nextFloat() * 360.0F,
+                    0.0F
+                );
                 if (entity instanceof Mob mob) {
                     if (spawnData.getCustomSpawnRules().isEmpty()
-                                    && !mob.checkSpawnRules(serverLevel, MobSpawnType.SPAWNER)
-                            || !mob.checkSpawnObstruction(serverLevel)) {
+                        && !mob.checkSpawnRules(serverLevel, MobSpawnType.SPAWNER)
+                        || !mob.checkSpawnObstruction(serverLevel)
+                    ) {
                         continue;
                     }
 
                     if (spawnData.getEntityToSpawn().size() == 1
-                            && spawnData.getEntityToSpawn().contains("id", 8)) {
+                        && spawnData.getEntityToSpawn().contains("id", 8)
+                    ) {
                         EventHooks.finalizeMobSpawn(
-                                (Mob) entity,
-                                serverLevel,
-                                serverLevel.getCurrentDifficultyAt(entity.blockPosition()),
-                                MobSpawnType.SPAWNER,
-                                null);
+                            (Mob) entity,
+                            serverLevel,
+                            serverLevel.getCurrentDifficultyAt(entity.blockPosition()),
+                            MobSpawnType.SPAWNER,
+                            null
+                        );
                     }
                 }
 

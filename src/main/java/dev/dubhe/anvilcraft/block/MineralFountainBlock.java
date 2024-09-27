@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block;
 import dev.dubhe.anvilcraft.block.entity.MineralFountainBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -16,6 +17,10 @@ import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class MineralFountainBlock extends BaseEntityBlock {
 
     public MineralFountainBlock(Properties properties) {
@@ -27,23 +32,25 @@ public class MineralFountainBlock extends BaseEntityBlock {
         return simpleCodec(MineralFountainBlock::new);
     }
 
-    @Nullable @Override
-    public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
+    @Nullable
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new MineralFountainBlockEntity(pos, state);
     }
 
-    @Nullable @Override
+    @Nullable
+    @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-            @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> blockEntityType) {
+        Level level, BlockState state, BlockEntityType<T> blockEntityType) {
         if (level.isClientSide) return null;
         return createTickerHelper(
-                blockEntityType,
-                ModBlockEntities.MINERAL_FOUNTAIN.get(),
-                (level1, pos, state1, entity) -> entity.tick());
+            blockEntityType,
+            ModBlockEntities.MINERAL_FOUNTAIN.get(),
+            (level1, pos, state1, entity) -> entity.tick());
     }
 
     @Override
-    public @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
+    public RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
     }
 }

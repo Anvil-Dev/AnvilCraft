@@ -45,7 +45,11 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
      */
     public ChargerBlock(Properties properties) {
         super(properties);
-        registerDefaultState(getStateDefinition().any().setValue(POWERED, false).setValue(OVERLOAD, true));
+        registerDefaultState(
+            getStateDefinition().any()
+                .setValue(POWERED, false)
+                .setValue(OVERLOAD, true)
+        );
     }
 
     @Override
@@ -53,39 +57,43 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
         return simpleCodec(ChargerBlock::new);
     }
 
-    @Nullable @Override
+    @Nullable
+    @Override
     public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
         return defaultBlockState().setValue(POWERED, false).setValue(OVERLOAD, true);
     }
 
-    @Nullable @Override
+    @Nullable
+    @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-            @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type) {
+        @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type) {
         if (level.isClientSide) {
             return null;
         }
         return createTickerHelper(
-                type,
-                ModBlockEntities.CHARGER.get(),
-                (level1, blockPos, blockState, blockEntity) -> blockEntity.tick(level1, blockPos));
+            type,
+            ModBlockEntities.CHARGER.get(),
+            (level1, blockPos, blockState, blockEntity) -> blockEntity.tick(level1, blockPos)
+        );
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public void neighborChanged(
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull Block neighborBlock,
-            @NotNull BlockPos neighborPos,
-            boolean movedByPiston) {
+        @NotNull BlockState state,
+        @NotNull Level level,
+        @NotNull BlockPos pos,
+        @NotNull Block neighborBlock,
+        @NotNull BlockPos neighborPos,
+        boolean movedByPiston) {
         if (level.isClientSide) {
             return;
         }
         level.setBlock(pos, state.setValue(POWERED, level.hasNeighborSignal(pos)), 2);
     }
 
-    @Nullable @Override
+    @Nullable
+    @Override
     public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
         return new ChargerBlockEntity(ModBlockEntities.CHARGER.get(), pos, state);
     }
@@ -101,13 +109,13 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public void onRemove(
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull BlockState newState,
-            boolean movedByPiston) {
+        @NotNull BlockState state,
+        @NotNull Level level,
+        @NotNull BlockPos pos,
+        @NotNull BlockState newState,
+        boolean movedByPiston) {
         if (state.is(newState.getBlock())) return;
         if (level.getBlockEntity(pos) instanceof ChargerBlockEntity entity) {
             Vec3 vec3 = entity.getBlockPos().getCenter();
@@ -121,12 +129,12 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public void tick(
-            @NotNull BlockState state,
-            @NotNull ServerLevel level,
-            @NotNull BlockPos pos,
-            @NotNull RandomSource random) {
+        @NotNull BlockState state,
+        @NotNull ServerLevel level,
+        @NotNull BlockPos pos,
+        @NotNull RandomSource random) {
         if (state.getValue(POWERED) && !level.hasNeighborSignal(pos)) {
             level.setBlock(pos, state.cycle(POWERED), 2);
         }

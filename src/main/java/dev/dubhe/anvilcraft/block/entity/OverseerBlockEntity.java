@@ -26,7 +26,10 @@ public class OverseerBlockEntity extends BlockEntity {
     }
 
     public static @NotNull OverseerBlockEntity createBlockEntity(
-            BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+        BlockEntityType<?> type,
+        BlockPos pos,
+        BlockState blockState
+    ) {
         return new OverseerBlockEntity(type, pos, blockState);
     }
 
@@ -54,13 +57,13 @@ public class OverseerBlockEntity extends BlockEntity {
             BlockState updatedState = level.getBlockState(pos);
             if (!LevelLoadManager.checkRegistered(pos)) {
                 LevelLoadManager.register(
+                    pos,
+                    LoadChuckData.createLoadChuckData(
+                        updatedState.getValue(OverseerBlock.LEVEL),
                         pos,
-                        LoadChuckData.createLoadChuckData(
-                                updatedState.getValue(OverseerBlock.LEVEL),
-                                pos,
-                                (this.waterLoggedBlockCount >= 4),
-                                serverLevel),
-                        serverLevel);
+                        (this.waterLoggedBlockCount >= 4),
+                        serverLevel),
+                    serverLevel);
             }
         }
     }

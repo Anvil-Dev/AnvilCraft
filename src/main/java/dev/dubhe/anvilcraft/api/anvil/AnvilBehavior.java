@@ -39,11 +39,12 @@ public interface AnvilBehavior {
     Map<Predicate<BlockState>, AnvilBehavior> BEHAVIORS = new LinkedHashMap<>();
 
     boolean handle(
-            Level level,
-            BlockPos hitBlockPos,
-            BlockState hitBlockState,
-            float fallDistance,
-            AnvilFallOnLandEvent event);
+        Level level,
+        BlockPos hitBlockPos,
+        BlockState hitBlockState,
+        float fallDistance,
+        AnvilFallOnLandEvent event
+    );
 
     static void registerBehavior(Block matchingBlock, AnvilBehavior behavior) {
         BEHAVIORS.put(it -> it.is(matchingBlock), behavior);
@@ -55,23 +56,27 @@ public interface AnvilBehavior {
 
     static List<AnvilBehavior> findMatching(BlockState state) {
         return BEHAVIORS.keySet().stream()
-                .filter(it -> it.test(state))
-                .map(BEHAVIORS::get)
-                .toList();
+            .filter(it -> it.test(state))
+            .map(BEHAVIORS::get)
+            .toList();
     }
 
     static void register() {
         registerBehavior(Blocks.HONEY_BLOCK, new WaxingBehavior());
         registerBehavior(Blocks.REDSTONE_BLOCK, new RedstoneEMPBehavior());
-        registerBehavior(state -> state.is(Blocks.BEEHIVE) || state.is(Blocks.BEE_NEST), new HitBeeNestBehavior());
+        registerBehavior(
+            state -> state.is(Blocks.BEEHIVE) || state.is(Blocks.BEE_NEST),
+            new HitBeeNestBehavior()
+        );
         registerBehavior(Blocks.SPAWNER, new HitSpawnerBehavior());
         registerBehavior(ModBlocks.CRAB_TRAP.get(), new HitCrabTrapBehavior());
 
         registerBehavior(
-                state -> state.is(Blocks.IRON_TRAPDOOR)
-                        && state.getValue(TrapDoorBlock.HALF) == Half.TOP
-                        && !state.getValue(TrapDoorBlock.OPEN),
-                new ItemCrushBehavior());
+            state -> state.is(Blocks.IRON_TRAPDOOR)
+                && state.getValue(TrapDoorBlock.HALF) == Half.TOP
+                && !state.getValue(TrapDoorBlock.OPEN),
+            new ItemCrushBehavior()
+        );
         registerBehavior(state -> state.getBlock() instanceof CementCauldronBlock, new CementStainingBehavior());
         registerBehavior(state -> state.getBlock() instanceof CementCauldronBlock, new ConcreteBehavior());
         registerBehavior(state -> state.getBlock() instanceof AbstractCauldronBlock, new BulgingBehavior());

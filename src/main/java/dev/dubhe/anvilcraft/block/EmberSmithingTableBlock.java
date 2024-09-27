@@ -46,32 +46,39 @@ public class EmberSmithingTableBlock extends SmithingTableBlock implements IHamm
 
     @Override
     protected ItemInteractionResult useItemOn(
-            ItemStack pStack,
-            BlockState pState,
-            Level pLevel,
-            BlockPos pPos,
-            Player pPlayer,
-            InteractionHand pHand,
-            BlockHitResult pHitResult) {
+        ItemStack pStack,
+        BlockState pState,
+        Level pLevel,
+        BlockPos pPos,
+        Player pPlayer,
+        InteractionHand pHand,
+        BlockHitResult pHitResult
+    ) {
         return Util.interactionResultConverter().apply(this.use(pState, pLevel, pPos, pPlayer, pHand, pHitResult));
     }
 
     @Override
     protected InteractionResult useWithoutItem(
-            BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, BlockHitResult pHitResult) {
+        BlockState pState,
+        Level pLevel,
+        BlockPos pPos,
+        Player pPlayer,
+        BlockHitResult pHitResult
+    ) {
         return this.use(pState, pLevel, pPos, pPlayer, InteractionHand.MAIN_HAND, pHitResult);
     }
+
     /**
      *
      */
     @SuppressWarnings("UnreachableCode")
     public @NotNull InteractionResult use(
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull Player player,
-            @NotNull InteractionHand hand,
-            @NotNull BlockHitResult hit) {
+        @NotNull BlockState state,
+        @NotNull Level level,
+        @NotNull BlockPos pos,
+        @NotNull Player player,
+        @NotNull InteractionHand hand,
+        @NotNull BlockHitResult hit) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
         ModMenuTypes.open((ServerPlayer) player, state.getMenuProvider(level, pos));
         player.awardStat(Stats.INTERACT_WITH_SMITHING_TABLE);
@@ -81,8 +88,8 @@ public class EmberSmithingTableBlock extends SmithingTableBlock implements IHamm
     @Override
     public MenuProvider getMenuProvider(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos) {
         return new SimpleMenuProvider(
-                (i, inventory, player) -> new EmberSmithingMenu(i, inventory, ContainerLevelAccess.create(level, pos)),
-                CONTAINER_TITLE);
+            (i, inventory, player) -> new EmberSmithingMenu(i, inventory, ContainerLevelAccess.create(level, pos)),
+            CONTAINER_TITLE);
     }
 
     @Override
@@ -92,10 +99,10 @@ public class EmberSmithingTableBlock extends SmithingTableBlock implements IHamm
 
     @Override
     public void randomTick(
-            @NotNull BlockState state,
-            @NotNull ServerLevel level,
-            @NotNull BlockPos pos,
-            @NotNull RandomSource random) {
+        @NotNull BlockState state,
+        @NotNull ServerLevel level,
+        @NotNull BlockPos pos,
+        @NotNull RandomSource random) {
         if (random.nextDouble() <= 0.5) {
             tryAbsorbWater(level, pos);
         }

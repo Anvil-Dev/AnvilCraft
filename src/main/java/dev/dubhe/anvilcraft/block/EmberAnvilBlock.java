@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.block.better.BetterAnvilBlock;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.EmberAnvilMenu;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -34,9 +35,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 @Setter
 @Getter
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class EmberAnvilBlock extends BetterAnvilBlock implements IHammerRemovable, EmberBlock {
     private static final VoxelShape BASE = Block.box(2.0, 0.0, 2.0, 14.0, 4.0, 14.0);
     private static final VoxelShape X_LEG1 = Block.box(4.0, 4.0, 5.0, 12.0, 10.0, 11.0);
@@ -54,11 +58,11 @@ public class EmberAnvilBlock extends BetterAnvilBlock implements IHammerRemovabl
     }
 
     @Override
-    public @NotNull VoxelShape getShape(
-            @NotNull BlockState state,
-            @NotNull BlockGetter level,
-            @NotNull BlockPos pos,
-            @NotNull CollisionContext context) {
+    public VoxelShape getShape(
+        BlockState state,
+        BlockGetter level,
+        BlockPos pos,
+        CollisionContext context) {
         Direction direction = state.getValue(FACING);
         if (direction.getAxis() == Direction.Axis.X) {
             return X_AXIS_AABB;
@@ -68,13 +72,14 @@ public class EmberAnvilBlock extends BetterAnvilBlock implements IHammerRemovabl
 
     @SuppressWarnings("UnreachableCode")
     @Override
-    public @NotNull InteractionResult use(
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull Player player,
-            @NotNull InteractionHand hand,
-            @NotNull BlockHitResult hit) {
+    public InteractionResult use(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        InteractionHand hand,
+        BlockHitResult hit
+    ) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
         ModMenuTypes.open((ServerPlayer) player, state.getMenuProvider(level, pos));
         player.awardStat(Stats.INTERACT_WITH_ANVIL);
@@ -82,28 +87,29 @@ public class EmberAnvilBlock extends BetterAnvilBlock implements IHammerRemovabl
     }
 
     @Override
-    @Nullable public MenuProvider getMenuProvider(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos) {
+    @Nullable
+    public MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
         return new SimpleMenuProvider(
-                (i, inventory, player) -> new EmberAnvilMenu(i, inventory, ContainerLevelAccess.create(level, pos)),
-                CONTAINER_TITLE);
+            (i, inventory, player) -> new EmberAnvilMenu(i, inventory, ContainerLevelAccess.create(level, pos)),
+            CONTAINER_TITLE);
     }
 
     @Override
-    protected void falling(@NotNull FallingBlockEntity entity) {
+    protected void falling(FallingBlockEntity entity) {
         entity.setHurtsEntities(2.0f, 120);
     }
 
     @Override
-    public boolean isRandomlyTicking(@NotNull BlockState state) {
+    public boolean isRandomlyTicking(BlockState state) {
         return true;
     }
 
     @Override
     public void randomTick(
-            @NotNull BlockState state,
-            @NotNull ServerLevel level,
-            @NotNull BlockPos pos,
-            @NotNull RandomSource random) {
+        BlockState state,
+        ServerLevel level,
+        BlockPos pos,
+        RandomSource random) {
         if (random.nextDouble() <= 0.5) {
             tryAbsorbWater(level, pos);
         }

@@ -26,7 +26,10 @@ public class TransmissionPoleBlockEntity extends AbstractTransmissionPoleBlockEn
     }
 
     public static @NotNull TransmissionPoleBlockEntity createBlockEntity(
-            BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+        BlockEntityType<?> type,
+        BlockPos pos,
+        BlockState blockState
+    ) {
         return new TransmissionPoleBlockEntity(type, pos, blockState);
     }
 

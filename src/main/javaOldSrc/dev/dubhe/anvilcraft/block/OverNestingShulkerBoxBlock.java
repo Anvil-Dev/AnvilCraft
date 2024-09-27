@@ -49,7 +49,7 @@ public class OverNestingShulkerBoxBlock extends BetterBlock {
         return InteractionResult.SUCCESS;
     }
 
-    @SuppressWarnings("deprecation")
+    
     @Override
     public void tick(@NotNull BlockState state,
                      @NotNull ServerLevel level,

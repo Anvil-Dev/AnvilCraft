@@ -73,13 +73,13 @@ public class BatchCrafterBlock extends BetterBaseEntityBlock implements IHammerC
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public boolean hasAnalogOutputSignal(@NotNull BlockState blockState) {
         return true;
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public int getAnalogOutputSignal(@NotNull BlockState blockState, @NotNull Level level, @NotNull BlockPos blockPos) {
         BlockEntity blockEntity = level.getBlockEntity(blockPos);
         if (blockEntity instanceof BatchCrafterBlockEntity crafterBlockEntity) {
@@ -132,7 +132,7 @@ public class BatchCrafterBlock extends BetterBaseEntityBlock implements IHammerC
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public void onRemove(
         @NotNull BlockState state,
         @NotNull Level level,
@@ -227,7 +227,7 @@ public class BatchCrafterBlock extends BetterBaseEntityBlock implements IHammerC
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public void neighborChanged(
         @NotNull BlockState state,
         @NotNull Level level,
@@ -243,7 +243,7 @@ public class BatchCrafterBlock extends BetterBaseEntityBlock implements IHammerC
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public void tick(
         @NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random
     ) {
@@ -253,13 +253,13 @@ public class BatchCrafterBlock extends BetterBaseEntityBlock implements IHammerC
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public @NotNull BlockState rotate(@NotNull BlockState state, @NotNull Rotation rotation) {
         return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public @NotNull BlockState mirror(@NotNull BlockState state, @NotNull Mirror mirror) {
         return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }

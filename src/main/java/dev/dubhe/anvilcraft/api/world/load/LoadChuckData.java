@@ -21,11 +21,12 @@ public class LoadChuckData {
     private boolean removed = false;
 
     private LoadChuckData(
-            BlockPos centerPos,
-            List<ChunkPos> chunkPosList,
-            boolean isNeedRandomTick,
-            int level,
-            ServerLevel serverLevel) {
+        BlockPos centerPos,
+        List<ChunkPos> chunkPosList,
+        boolean isNeedRandomTick,
+        int level,
+        ServerLevel serverLevel
+    ) {
         this.centerPos = centerPos;
         this.chunkPosList = chunkPosList;
         this.isNeedRandomTick = isNeedRandomTick;
@@ -42,7 +43,11 @@ public class LoadChuckData {
      * @return 强加载区块区域数据
      */
     public static LoadChuckData createLoadChuckData(
-            int level, BlockPos centerPos, boolean isNeedRandomTick, ServerLevel serverLevel) {
+        int level,
+        BlockPos centerPos,
+        boolean isNeedRandomTick,
+        ServerLevel serverLevel
+    ) {
         List<ChunkPos> chunkPosList = new ArrayList<>();
         ChunkPos centerChunkPos = new ChunkPos(centerPos);
         for (int x = centerChunkPos.x - level; x < centerChunkPos.x + level; x++) {

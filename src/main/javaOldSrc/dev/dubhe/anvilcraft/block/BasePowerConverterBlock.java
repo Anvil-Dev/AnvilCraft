@@ -50,13 +50,13 @@ public abstract class BasePowerConverterBlock extends BetterBaseEntityBlock impl
         builder.add(FACING, OVERLOAD);
     }
 
-    @SuppressWarnings("deprecation")
+    
     @Override
     public @Nonnull BlockState rotate(@Nonnull BlockState state, @Nonnull Rotation rotation) {
         return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
 
-    @SuppressWarnings("deprecation")
+    
     @Override
     public @Nonnull BlockState mirror(@Nonnull BlockState state, @Nonnull Mirror mirror) {
         return state.rotate(mirror.getRotation(state.getValue(FACING)));

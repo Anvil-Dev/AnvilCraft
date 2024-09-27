@@ -91,7 +91,7 @@ public class PowerGrid {
         if (this.level.getGameTime() % GRID_TICK != 0) return;
         if (this.isRemove()) return;
         if (this.flush()) return;
-        if (this.isWork()) {
+        if (this.isWorking()) {
             int remainder = this.generate - this.consume;
             for (IPowerStorage storage : storages) {
                 if (checkRemove(storage)) return;

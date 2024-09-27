@@ -19,14 +19,14 @@ import java.util.stream.Collectors;
 public class CementStainingBehavior implements AnvilBehavior {
     @Override
     public boolean handle(
-            Level level,
-            BlockPos hitBlockPos,
-            BlockState hitBlockState,
-            float fallDistance,
-            AnvilFallOnLandEvent event) {
+        Level level,
+        BlockPos hitBlockPos,
+        BlockState hitBlockState,
+        float fallDistance,
+        AnvilFallOnLandEvent event) {
         Map<ItemEntity, ItemStack> items = level.getEntitiesOfClass(ItemEntity.class, new AABB(hitBlockPos)).stream()
-                .map(it -> Map.entry(it, it.getItem()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            .map(it -> Map.entry(it, it.getItem()))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         if (items.isEmpty()) return false;
         Item firstItem = items.values().iterator().next().getItem();
         if (items.values().stream().allMatch(s -> s.getItem() == firstItem)) {

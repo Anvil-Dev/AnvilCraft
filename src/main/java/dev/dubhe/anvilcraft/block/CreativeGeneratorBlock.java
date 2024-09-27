@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.network.SliderInitPacket;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -31,7 +32,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class CreativeGeneratorBlock extends BetterBaseEntityBlock implements IHammerRemovable {
     public static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 4, 16);
 
@@ -46,36 +50,40 @@ public class CreativeGeneratorBlock extends BetterBaseEntityBlock implements IHa
 
     @Override
     @SuppressWarnings({"UnreachableCode"})
-    public @NotNull InteractionResult use(
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull Player player,
-            @NotNull InteractionHand hand,
-            @NotNull BlockHitResult hit) {
+    public InteractionResult use(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        InteractionHand hand,
+        BlockHitResult hit
+    ) {
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
         }
         if (level.getBlockEntity(pos) instanceof CreativeGeneratorBlockEntity entity
-                && player instanceof ServerPlayer serverPlayer) {
+            && player instanceof ServerPlayer serverPlayer) {
             ModMenuTypes.open(serverPlayer, entity, pos);
             PacketDistributor.sendToPlayer(serverPlayer, new SliderInitPacket(entity.getPower(), -8192, 8192));
         }
         return InteractionResult.SUCCESS;
     }
 
-    @Nullable @Override
-    public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
+    @Nullable
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new CreativeGeneratorBlockEntity(pos, state);
     }
 
-    @Nullable @Override
+    @Nullable
+    @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-            @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type) {
+        Level level, BlockState state, BlockEntityType<T> type) {
         return createTickerHelper(
-                type,
-                ModBlockEntities.CREATIVE_GENERATOR.get(),
-                (level1, blockPos, blockState, blockEntity) -> blockEntity.tick());
+            type,
+            ModBlockEntities.CREATIVE_GENERATOR.get(),
+            (level1, blockPos, blockState, blockEntity) -> blockEntity.tick()
+        );
     }
 
     @Override
@@ -84,12 +92,13 @@ public class CreativeGeneratorBlock extends BetterBaseEntityBlock implements IHa
     }
 
     @Override
-    @SuppressWarnings("deprecation")
-    public @NotNull VoxelShape getShape(
-            @NotNull BlockState state,
-            @NotNull BlockGetter level,
-            @NotNull BlockPos pos,
-            @NotNull CollisionContext context) {
+
+    public VoxelShape getShape(
+        BlockState state,
+        BlockGetter level,
+        BlockPos pos,
+        CollisionContext context
+    ) {
         return CreativeGeneratorBlock.SHAPE;
     }
 }

@@ -73,13 +73,13 @@ public class OverseerBlock extends AbstractMultiplePartBlock<Vertical3PartHalf>
         builder.add(HALF).add(LEVEL);
     }
 
-    @SuppressWarnings("deprecation")
+    
     @Override
     public @Nonnull RenderShape getRenderShape(@Nonnull BlockState state) {
         return RenderShape.MODEL;
     }
 
-    @SuppressWarnings("deprecation")
+    
     @Override
     public @NotNull VoxelShape getShape(
         @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos,

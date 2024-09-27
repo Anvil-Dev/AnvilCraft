@@ -18,7 +18,10 @@ public class RubyPrismBlockEntity extends BaseLaserBlockEntity {
     }
 
     public static @NotNull RubyPrismBlockEntity createBlockEntity(
-            BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+        BlockEntityType<?> type,
+        BlockPos pos,
+        BlockState blockState
+    ) {
         return new RubyPrismBlockEntity(type, pos, blockState);
     }
 

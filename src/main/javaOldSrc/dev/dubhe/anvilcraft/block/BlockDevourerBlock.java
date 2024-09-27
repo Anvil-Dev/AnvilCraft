@@ -124,7 +124,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements IHammerChang
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public @NotNull VoxelShape getShape(
         @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context
     ) {

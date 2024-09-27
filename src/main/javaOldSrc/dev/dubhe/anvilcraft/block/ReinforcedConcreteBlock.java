@@ -32,7 +32,7 @@ public class ReinforcedConcreteBlock extends Block {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public void neighborChanged(
         @NotNull BlockState state,
         @NotNull Level level,

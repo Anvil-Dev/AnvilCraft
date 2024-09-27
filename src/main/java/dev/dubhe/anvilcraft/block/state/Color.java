@@ -47,7 +47,8 @@ public enum Color implements StringRepresentable {
         return this.name;
     }
 
-    @Nullable public static Color getColorByDyeItem(Item dyeItem) {
+    @Nullable
+    public static Color getColorByDyeItem(Item dyeItem) {
         if (dyeItem == Items.BLACK_DYE) {
             return BLACK;
         } else if (dyeItem == Items.BLUE_DYE) {

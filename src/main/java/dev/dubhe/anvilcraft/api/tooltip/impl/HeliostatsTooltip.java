@@ -23,7 +23,13 @@ public class HeliostatsTooltip implements HandHeldItemTooltipProvider {
 
     @Override
     public void render(
-            PoseStack poseStack, VertexConsumer consumer, ItemStack itemStack, double camX, double camY, double camZ) {
+        PoseStack poseStack,
+        VertexConsumer consumer,
+        ItemStack itemStack,
+        double camX,
+        double camY,
+        double camZ
+    ) {
         if (HeliostatsItem.hasDataStored(itemStack)) {
             BlockPos pos = HeliostatsItem.getData(itemStack);
             AABB aabb = new AABB(pos);
@@ -33,7 +39,8 @@ public class HeliostatsTooltip implements HandHeldItemTooltipProvider {
     }
 
     @Override
-    public void renderTooltip(GuiGraphics guiGraphics, int screenWidth, int screenHeight) {}
+    public void renderTooltip(GuiGraphics guiGraphics, int screenWidth, int screenHeight) {
+    }
 
     @Override
     public int priority() {

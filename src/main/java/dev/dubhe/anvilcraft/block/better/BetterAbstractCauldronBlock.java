@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.better;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.world.entity.player.Player;
@@ -10,6 +11,10 @@ import net.minecraft.world.level.block.AbstractCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public abstract class BetterAbstractCauldronBlock extends AbstractCauldronBlock {
     public BetterAbstractCauldronBlock(Properties pProperties, CauldronInteraction.InteractionMap pInteractions) {
         super(pProperties, pInteractions);
@@ -17,7 +22,12 @@ public abstract class BetterAbstractCauldronBlock extends AbstractCauldronBlock 
 
     @Override
     public ItemStack getCloneItemStack(
-            BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
+        BlockState state,
+        HitResult target,
+        LevelReader level,
+        BlockPos pos,
+        Player player
+    ) {
         return new ItemStack(Items.CAULDRON);
     }
 }

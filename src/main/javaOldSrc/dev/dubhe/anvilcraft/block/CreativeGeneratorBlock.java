@@ -88,7 +88,7 @@ public class CreativeGeneratorBlock extends BetterBaseEntityBlock implements IHa
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public @NotNull VoxelShape getShape(
         @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context
     ) {

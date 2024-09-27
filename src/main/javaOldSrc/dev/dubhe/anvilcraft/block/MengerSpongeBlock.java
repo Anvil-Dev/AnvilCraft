@@ -90,7 +90,7 @@ public class MengerSpongeBlock extends SpongeBlock {
         }) > 1;
     }
 
-    @SuppressWarnings("deprecation")
+    
     @Override
     public @NotNull VoxelShape getInteractionShape(
         @NotNull BlockState state,
@@ -100,7 +100,7 @@ public class MengerSpongeBlock extends SpongeBlock {
         return REDUCE_AABB;
     }
 
-    @SuppressWarnings("deprecation")
+    
     @Override
     public @NotNull VoxelShape getShape(
         @NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context

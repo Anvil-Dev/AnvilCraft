@@ -26,18 +26,19 @@ public class BulgingBehavior implements AnvilBehavior {
     @SuppressWarnings("DuplicatedCode")
     @Override
     public boolean handle(
-            Level level,
-            BlockPos hitBlockPos,
-            BlockState hitBlockState,
-            float fallDistance,
-            AnvilFallOnLandEvent event) {
+        Level level,
+        BlockPos hitBlockPos,
+        BlockState hitBlockState,
+        float fallDistance,
+        AnvilFallOnLandEvent event
+    ) {
         Map<ItemEntity, ItemStack> items = level.getEntitiesOfClass(ItemEntity.class, new AABB(hitBlockPos)).stream()
-                .map(it -> Map.entry(it, it.getItem()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            .map(it -> Map.entry(it, it.getItem()))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         BulgingRecipe.Input input =
-                new BulgingRecipe.Input(items.values().stream().toList(), hitBlockState);
+            new BulgingRecipe.Input(items.values().stream().toList(), hitBlockState);
         Optional<RecipeHolder<BulgingRecipe>> recipeOptional =
-                level.getRecipeManager().getRecipeFor(ModRecipeTypes.BULGING_TYPE.get(), input, level);
+            level.getRecipeManager().getRecipeFor(ModRecipeTypes.BULGING_TYPE.get(), input, level);
         if (recipeOptional.isPresent()) {
             RecipeHolder<BulgingRecipe> recipe = recipeOptional.get();
             ItemStack result = recipe.value().getResult().copy();
@@ -65,7 +66,9 @@ public class BulgingBehavior implements AnvilBehavior {
                             level.setBlockAndUpdate(hitBlockPos, Blocks.CAULDRON.defaultBlockState());
                         } else {
                             level.setBlockAndUpdate(
-                                    hitBlockPos, hitBlockState.setValue(LayeredCauldronBlock.LEVEL, cauldronLevel));
+                                hitBlockPos,
+                                hitBlockState.setValue(LayeredCauldronBlock.LEVEL, cauldronLevel)
+                            );
                         }
                     } else {
                         level.setBlockAndUpdate(hitBlockPos, Blocks.CAULDRON.defaultBlockState());
@@ -76,10 +79,14 @@ public class BulgingBehavior implements AnvilBehavior {
                         int cauldronLevel = hitBlockState.getValue(LayeredCauldronBlock.LEVEL);
                         cauldronLevel++;
                         level.setBlockAndUpdate(
-                                hitBlockPos, hitBlockState.setValue(LayeredCauldronBlock.LEVEL, cauldronLevel));
+                            hitBlockPos,
+                            hitBlockState.setValue(LayeredCauldronBlock.LEVEL, cauldronLevel)
+                        );
                     } else {
                         level.setBlockAndUpdate(
-                                hitBlockPos, recipe.value().getCauldron().defaultBlockState());
+                            hitBlockPos,
+                            recipe.value().getCauldron().defaultBlockState()
+                        );
                     }
                 }
             }

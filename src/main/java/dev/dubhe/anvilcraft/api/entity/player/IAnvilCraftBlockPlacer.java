@@ -35,45 +35,54 @@ public interface IAnvilCraftBlockPlacer {
      * @return 放置结果
      */
     default InteractionResult placeBlock(
-            Level level, BlockPos pos, Orientation orientation, BlockItem blockItem, ItemStack itemStack) {
+        Level level, BlockPos pos, Orientation orientation, BlockItem blockItem, ItemStack itemStack) {
         if (AnvilCraftBlockPlacer.BLOCK_PLACER_BLACKLIST.contains(
-                BuiltInRegistries.BLOCK.getKey(blockItem.getBlock()).toString())) return InteractionResult.FAIL;
+            BuiltInRegistries.BLOCK.getKey(blockItem.getBlock()).toString())) return InteractionResult.FAIL;
         if (level instanceof ServerLevel serverLevel) getPlayer().setServerLevel(serverLevel);
-        getPlayer()
-                .moveTo(
-                        pos.relative(orientation.getDirection().getOpposite()).getX(),
-                        pos.relative(orientation.getDirection().getOpposite()).getY() - 1,
-                        pos.relative(orientation.getDirection().getOpposite()).getZ());
+        getPlayer().moveTo(
+            pos.relative(orientation.getDirection().getOpposite()).getX(),
+            pos.relative(orientation.getDirection().getOpposite()).getY() - 1,
+            pos.relative(orientation.getDirection().getOpposite()).getZ()
+        );
         getPlayer().lookAt(Anchor.EYES, new Vec3(pos.getX(), pos.getY(), pos.getZ()));
         Vec3 clickClickLocation = getPosFromOrientation(orientation);
         double x = clickClickLocation.x;
         double y = clickClickLocation.y;
         double z = clickClickLocation.z;
         BlockHitResult blockHitResult = new BlockHitResult(
-                pos.getCenter().add(-0.5, -0.5, -0.5).add(x, 1 - y, z),
-                orientation.getDirection().getOpposite(),
-                pos,
-                false);
+            pos.getCenter().add(-0.5, -0.5, -0.5).add(x, 1 - y, z),
+            orientation.getDirection().getOpposite(),
+            pos,
+            false
+        );
         BlockPlaceContext blockPlaceContext =
-                new BlockPlaceContext(level, getPlayer(), getPlayer().getUsedItemHand(), itemStack, blockHitResult);
+            new BlockPlaceContext(
+                level,
+                getPlayer(),
+                getPlayer().getUsedItemHand(),
+                itemStack,
+                blockHitResult
+            );
         BlockState blockState = ((BlockItemInvoker) blockItem).invokerGetPlacementState(blockPlaceContext);
         if (blockState == null) {
             return InteractionResult.FAIL;
         }
-        if (!blockItem.canPlace(blockPlaceContext, blockState) || !blockState.canSurvive(level, pos))
+        if (!blockItem.canPlace(blockPlaceContext, blockState) || !blockState.canSurvive(level, pos)) {
             return InteractionResult.FAIL;
+        }
         level.setBlockAndUpdate(pos, blockState);
         blockItem.getBlock().setPlacedBy(level, pos, blockState, getPlayer(), itemStack);
         // 使放置的方块实体有NBT
         BlockItem.updateCustomBlockEntityTag(level, null, pos, itemStack);
         SoundType soundType = blockState.getSoundType(level, pos, getPlayer());
         level.playSound(
-                getPlayer(),
-                pos,
-                soundType.getPlaceSound(),
-                SoundSource.BLOCKS,
-                (soundType.getVolume() + 1.0f) / 2.0f,
-                soundType.getPitch() * 0.8f);
+            getPlayer(),
+            pos,
+            soundType.getPlaceSound(),
+            SoundSource.BLOCKS,
+            (soundType.getVolume() + 1.0f) / 2.0f,
+            soundType.getPitch() * 0.8f
+        );
         return InteractionResult.SUCCESS;
     }
 

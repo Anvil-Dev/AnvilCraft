@@ -28,21 +28,20 @@ public class TimeWarpBehavior implements AnvilBehavior {
     @SuppressWarnings("DuplicatedCode")
     @Override
     public boolean handle(
-            Level level,
-            BlockPos hitBlockPos,
-            BlockState hitBlockState,
-            float fallDistance,
-            AnvilFallOnLandEvent event) {
+        Level level,
+        BlockPos hitBlockPos,
+        BlockState hitBlockState,
+        float fallDistance,
+        AnvilFallOnLandEvent event) {
         BlockState belowState = level.getBlockState(hitBlockPos.below());
         if (belowState.is(ModBlocks.CORRUPTED_BEACON) && belowState.getValue(CorruptedBeaconBlock.LIT)) {
-            Map<ItemEntity, ItemStack> items =
-                    level.getEntitiesOfClass(ItemEntity.class, new AABB(hitBlockPos)).stream()
-                            .map(it -> Map.entry(it, it.getItem()))
-                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            TimeWarpRecipe.Input input =
-                    new TimeWarpRecipe.Input(items.values().stream().toList(), hitBlockState);
-            Optional<RecipeHolder<TimeWarpRecipe>> recipeOptional =
-                    level.getRecipeManager().getRecipeFor(ModRecipeTypes.TIME_WARP_TYPE.get(), input, level);
+            Map<ItemEntity, ItemStack> items = level.getEntitiesOfClass(ItemEntity.class, new AABB(hitBlockPos))
+                .stream()
+                .map(it -> Map.entry(it, it.getItem()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            TimeWarpRecipe.Input input = new TimeWarpRecipe.Input(items.values().stream().toList(), hitBlockState);
+            Optional<RecipeHolder<TimeWarpRecipe>> recipeOptional = level.getRecipeManager()
+                .getRecipeFor(ModRecipeTypes.TIME_WARP_TYPE.get(), input, level);
             if (recipeOptional.isPresent()) {
                 RecipeHolder<TimeWarpRecipe> recipe = recipeOptional.get();
                 ItemStack result = recipe.value().getResult().copy();
@@ -70,7 +69,9 @@ public class TimeWarpBehavior implements AnvilBehavior {
                                 level.setBlockAndUpdate(hitBlockPos, Blocks.CAULDRON.defaultBlockState());
                             } else {
                                 level.setBlockAndUpdate(
-                                        hitBlockPos, hitBlockState.setValue(LayeredCauldronBlock.LEVEL, cauldronLevel));
+                                    hitBlockPos,
+                                    hitBlockState.setValue(LayeredCauldronBlock.LEVEL, cauldronLevel)
+                                );
                             }
                         } else {
                             level.setBlockAndUpdate(hitBlockPos, Blocks.CAULDRON.defaultBlockState());
@@ -81,10 +82,14 @@ public class TimeWarpBehavior implements AnvilBehavior {
                             int cauldronLevel = hitBlockState.getValue(LayeredCauldronBlock.LEVEL);
                             cauldronLevel++;
                             level.setBlockAndUpdate(
-                                    hitBlockPos, hitBlockState.setValue(LayeredCauldronBlock.LEVEL, cauldronLevel));
+                                hitBlockPos,
+                                hitBlockState.setValue(LayeredCauldronBlock.LEVEL, cauldronLevel)
+                            );
                         } else {
                             level.setBlockAndUpdate(
-                                    hitBlockPos, recipe.value().getCauldron().defaultBlockState());
+                                hitBlockPos,
+                                recipe.value().getCauldron().defaultBlockState()
+                            );
                         }
                     }
                 }

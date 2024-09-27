@@ -22,7 +22,8 @@ import java.util.Optional;
 
 public class PowerComponentTooltipProvider implements BlockEntityTooltipProvider {
 
-    public PowerComponentTooltipProvider() {}
+    public PowerComponentTooltipProvider() {
+    }
 
     public static final Lazy<Boolean> jadePresent = new Lazy<>(() -> Util.isLoaded("jade") || Util.isLoaded("wthit"));
 
@@ -39,9 +40,9 @@ public class PowerComponentTooltipProvider implements BlockEntityTooltipProvider
         if (e instanceof IPowerComponent) {
             if (e.getBlockState().hasProperty(IPowerComponent.OVERLOAD)) {
                 overloaded = e.getBlockState()
-                        .getValues()
-                        .getOrDefault(IPowerComponent.OVERLOAD, true)
-                        .equals(Boolean.TRUE);
+                    .getValues()
+                    .getOrDefault(IPowerComponent.OVERLOAD, true)
+                    .equals(Boolean.TRUE);
             }
             pos = e.getBlockPos();
         } else {
@@ -64,26 +65,35 @@ public class PowerComponentTooltipProvider implements BlockEntityTooltipProvider
             }
         }
         if (type == PowerComponentType.PRODUCER) {
-            lines.add(Component.translatable("tooltip.anvilcraft.grid_information.producer_stats")
-                    .setStyle(Style.EMPTY.applyFormat(ChatFormatting.BLUE)));
             lines.add(
-                    Component.translatable("tooltip.anvilcraft.grid_information.output_power", componentInfo.produces())
-                            .setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
+                Component.translatable("tooltip.anvilcraft.grid_information.producer_stats")
+                .setStyle(Style.EMPTY.applyFormat(ChatFormatting.BLUE))
+            );
+            lines.add(
+                Component.translatable(
+                    "tooltip.anvilcraft.grid_information.output_power",
+                    componentInfo.produces()
+                ).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY))
+            );
         } else if (type == PowerComponentType.CONSUMER) {
-            lines.add(Component.translatable("tooltip.anvilcraft.grid_information.consumer_stats")
-                    .setStyle(Style.EMPTY.applyFormat(ChatFormatting.BLUE)));
             lines.add(
-                    Component.translatable("tooltip.anvilcraft.grid_information.input_power", componentInfo.consumes())
-                            .setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
+                Component.translatable("tooltip.anvilcraft.grid_information.consumer_stats")
+                    .setStyle(Style.EMPTY.applyFormat(ChatFormatting.BLUE))
+            );
+            lines.add(
+                Component.translatable(
+                    "tooltip.anvilcraft.grid_information.input_power",
+                    componentInfo.consumes()
+                ).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
         }
 
         List<Component> tooltipLines = List.of(
-                Component.translatable("tooltip.anvilcraft.grid_information.title")
-                        .setStyle(Style.EMPTY.applyFormat(ChatFormatting.BLUE)),
-                Component.translatable("tooltip.anvilcraft.grid_information.total_consumed", grid.getConsume())
-                        .setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)),
-                Component.translatable("tooltip.anvilcraft.grid_information.total_generated", grid.getGenerate())
-                        .setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
+            Component.translatable("tooltip.anvilcraft.grid_information.title")
+                .setStyle(Style.EMPTY.applyFormat(ChatFormatting.BLUE)),
+            Component.translatable("tooltip.anvilcraft.grid_information.total_consumed", grid.getConsume())
+                .setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)),
+            Component.translatable("tooltip.anvilcraft.grid_information.total_generated", grid.getGenerate())
+                .setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
         lines.addAll(tooltipLines);
         return lines;
     }

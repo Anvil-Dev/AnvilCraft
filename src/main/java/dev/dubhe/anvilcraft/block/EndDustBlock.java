@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.entity.FloatingBlockEntity;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
@@ -14,7 +15,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class EndDustBlock extends Block {
     public EndDustBlock(Properties properties) {
         super(properties);
@@ -22,20 +26,22 @@ public class EndDustBlock extends Block {
 
     @Override
     public void onPlace(
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull BlockState oldState,
-            boolean movedByPiston) {
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        BlockState oldState,
+        boolean movedByPiston
+    ) {
         level.scheduleTick(pos, this, this.getDelayAfterPlace());
     }
 
     @Override
     public void tick(
-            @NotNull BlockState state,
-            @NotNull ServerLevel level,
-            @NotNull BlockPos pos,
-            @NotNull RandomSource random) {
+        BlockState state,
+        ServerLevel level,
+        BlockPos pos,
+        RandomSource random
+    ) {
         if (!level.getFluidState(pos.above()).is(FluidTags.WATER)) return;
         if (!FallingBlock.isFree(level.getBlockState(pos.above()))) return;
         FloatingBlockEntity._float(level, pos, state);
@@ -43,12 +49,13 @@ public class EndDustBlock extends Block {
 
     @Override
     public void neighborChanged(
-            @NotNull BlockState state,
-            @Nonnull Level level,
-            @NotNull BlockPos pos,
-            @NotNull Block neighborBlock,
-            @NotNull BlockPos neighborPos,
-            boolean movedByPiston) {
+        BlockState state,
+        @Nonnull Level level,
+        BlockPos pos,
+        Block neighborBlock,
+        BlockPos neighborPos,
+        boolean movedByPiston
+    ) {
         if (level.getFluidState(neighborPos).is(FluidTags.WATER)) {
             level.scheduleTick(pos, this, this.getDelayAfterPlace());
         }

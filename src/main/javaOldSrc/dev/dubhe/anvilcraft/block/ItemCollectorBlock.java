@@ -60,7 +60,7 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public boolean hasAnalogOutputSignal(@NotNull BlockState blockState) {
         return true;
     }
@@ -72,7 +72,7 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public void onRemove(
             @NotNull BlockState state,
             @NotNull Level level,
@@ -166,7 +166,7 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public void neighborChanged(
             @NotNull BlockState state,
             @NotNull Level level,
@@ -182,7 +182,7 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public void tick(
             @NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random
     ) {
@@ -197,7 +197,7 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public int getAnalogOutputSignal(@NotNull BlockState blockState, @NotNull Level level, @NotNull BlockPos blockPos) {
         BlockEntity blockEntity = level.getBlockEntity(blockPos);
         if (blockEntity instanceof ItemCollectorBlockEntity itemCollectorBlockEntity) {

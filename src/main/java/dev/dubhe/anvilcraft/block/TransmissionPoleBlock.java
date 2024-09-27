@@ -120,7 +120,7 @@ public class TransmissionPoleBlock extends AbstractMultiplePartBlock<Vertical3Pa
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public void neighborChanged(
             @NotNull BlockState state,
             @NotNull Level level,

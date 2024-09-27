@@ -86,7 +86,7 @@ public class InductionLightBlock extends BetterBaseEntityBlock implements IHamme
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public @NotNull VoxelShape getShape(
             @NotNull BlockState state,
             @NotNull BlockGetter level,
@@ -101,7 +101,7 @@ public class InductionLightBlock extends BetterBaseEntityBlock implements IHamme
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public boolean hasAnalogOutputSignal(@NotNull BlockState blockState) {
         return false;
     }
@@ -127,7 +127,7 @@ public class InductionLightBlock extends BetterBaseEntityBlock implements IHamme
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public @NotNull FluidState getFluidState(BlockState state) {
         return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
@@ -140,7 +140,7 @@ public class InductionLightBlock extends BetterBaseEntityBlock implements IHamme
 
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public @NotNull InteractionResult use(
             @NotNull BlockState state,
             @NotNull Level level,
@@ -196,7 +196,7 @@ public class InductionLightBlock extends BetterBaseEntityBlock implements IHamme
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public void neighborChanged(
             @NotNull BlockState state,
             @NotNull Level level,
@@ -212,7 +212,7 @@ public class InductionLightBlock extends BetterBaseEntityBlock implements IHamme
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public void tick(
             @NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random
     ) {

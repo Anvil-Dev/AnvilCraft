@@ -29,25 +29,30 @@ public class ConcreteBehavior implements AnvilBehavior {
     @SuppressWarnings("DuplicatedCode")
     @Override
     public boolean handle(
-            Level level,
-            BlockPos hitBlockPos,
-            BlockState hitBlockState,
-            float fallDistance,
-            AnvilFallOnLandEvent event) {
+        Level level,
+        BlockPos hitBlockPos,
+        BlockState hitBlockState,
+        float fallDistance,
+        AnvilFallOnLandEvent event
+    ) {
         Map<ItemEntity, ItemStack> items = level.getEntitiesOfClass(ItemEntity.class, new AABB(hitBlockPos)).stream()
-                .map(it -> Map.entry(it, it.getItem()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            .map(it -> Map.entry(it, it.getItem()))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         ItemProcessInput input = new ItemProcessInput(items.values().stream().toList());
         Optional<RecipeHolder<ConcreteRecipe>> recipeOptional =
-                level.getRecipeManager().getRecipeFor(ModRecipeTypes.CONCRETE_TYPE.get(), input, level);
+            level.getRecipeManager().getRecipeFor(ModRecipeTypes.CONCRETE_TYPE.get(), input, level);
         if (recipeOptional.isPresent()) {
             RecipeHolder<ConcreteRecipe> recipe = recipeOptional.get();
             Color color = hitBlockState.getValue(CementCauldronBlock.COLOR);
             ItemStack result = new ItemStack(
-                    BuiltInRegistries.ITEM.get(
-                            ResourceLocation.parse(recipe.value().result.formatted(color.getSerializedName()))),
-                    recipe.value().resultCount);
+                BuiltInRegistries.ITEM.get(
+                    ResourceLocation.parse(
+                        recipe.value().result.formatted(color.getSerializedName())
+                    )
+                ),
+                recipe.value().resultCount
+            );
             int times = recipe.value().getMaxCraftTime(input);
             result.setCount(result.getCount() * times);
             for (int i = 0; i < times; i++) {

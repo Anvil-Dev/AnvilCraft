@@ -34,7 +34,7 @@ public class CorruptedBeaconBlock extends BeaconBlock implements IHammerRemovabl
 
     @Override
     public @Nullable Integer getBeaconColorMultiplier(
-            BlockState state, LevelReader level, BlockPos pos, BlockPos beaconPos) {
+        BlockState state, LevelReader level, BlockPos pos, BlockPos beaconPos) {
         return 0xffffff;
     }
 
@@ -44,7 +44,8 @@ public class CorruptedBeaconBlock extends BeaconBlock implements IHammerRemovabl
     }
 
     @Override
-    @Nullable public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
+    @Nullable
+    public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
         return this.defaultBlockState().setValue(LIT, false);
     }
 
@@ -55,7 +56,7 @@ public class CorruptedBeaconBlock extends BeaconBlock implements IHammerRemovabl
 
     @Override
     protected InteractionResult useWithoutItem(
-            BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, BlockHitResult pHitResult) {
+        BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, BlockHitResult pHitResult) {
         return InteractionResult.PASS;
     }
 
@@ -65,9 +66,13 @@ public class CorruptedBeaconBlock extends BeaconBlock implements IHammerRemovabl
     }
 
     @Override
-    @Nullable public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-            @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> blockEntityType) {
+    @Nullable
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
+        @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> blockEntityType) {
         return CorruptedBeaconBlock.createTickerHelper(
-                blockEntityType, ModBlockEntities.CORRUPTED_BEACON.get(), CorruptedBeaconBlockEntity::tick);
+            blockEntityType,
+            ModBlockEntities.CORRUPTED_BEACON.get(),
+            CorruptedBeaconBlockEntity::tick
+        );
     }
 }

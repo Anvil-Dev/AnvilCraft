@@ -18,7 +18,7 @@ public class HeavyIronPlateBlock extends Block implements IHammerRemovable {
         super(properties);
     }
 
-    @SuppressWarnings("deprecation")
+    
     @Override
     public @Nonnull VoxelShape getShape(
         @Nonnull BlockState blockState,

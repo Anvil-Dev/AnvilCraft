@@ -31,7 +31,7 @@ public class LavaCauldronBlock extends LayeredCauldronBlock implements IHammerRe
 
     @Override
     public void entityInside(
-            @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Entity entity) {
+        BlockState state, Level level, BlockPos pos, Entity entity) {
         if (this.isEntityInsideContent(state, pos, entity)) {
             entity.lavaHurt();
         }
@@ -39,18 +39,23 @@ public class LavaCauldronBlock extends LayeredCauldronBlock implements IHammerRe
 
     @Override
     public ItemStack getCloneItemStack(
-            BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
+        BlockState state,
+        HitResult target,
+        LevelReader level,
+        BlockPos pos,
+        Player player
+    ) {
         return new ItemStack(Items.CAULDRON);
     }
 
     @Override
     public void neighborChanged(
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull Block neighborBlock,
-            @NotNull BlockPos neighborPos,
-            boolean movedByPiston) {
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block neighborBlock,
+        BlockPos neighborPos,
+        boolean movedByPiston) {
         if (level.isClientSide) {
             return;
         }

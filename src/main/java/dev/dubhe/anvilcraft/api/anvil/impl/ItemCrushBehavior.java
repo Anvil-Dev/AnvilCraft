@@ -12,12 +12,17 @@ import net.minecraft.world.level.block.state.BlockState;
 public class ItemCrushBehavior implements AnvilBehavior {
     @Override
     public boolean handle(
-            Level level,
-            BlockPos hitBlockPos,
-            BlockState hitBlockState,
-            float fallDistance,
-            AnvilFallOnLandEvent event) {
+        Level level,
+        BlockPos hitBlockPos,
+        BlockState hitBlockState,
+        float fallDistance,
+        AnvilFallOnLandEvent event
+    ) {
         return AnvilUtil.itemProcess(
-                ModRecipeTypes.ITEM_CRUSH_TYPE.get(), level, hitBlockPos.above(), hitBlockPos.getCenter());
+            ModRecipeTypes.ITEM_CRUSH_TYPE.get(),
+            level,
+            hitBlockPos.above(),
+            hitBlockPos.getCenter()
+        );
     }
 }

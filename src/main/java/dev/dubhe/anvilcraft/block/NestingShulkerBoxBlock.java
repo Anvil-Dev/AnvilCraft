@@ -27,7 +27,6 @@ import javax.annotation.ParametersAreNonnullByDefault;
 public class NestingShulkerBoxBlock extends Block {
 
     private static final int soundDelay = 8;
-    private boolean canBeInteracted = true;
 
     public NestingShulkerBoxBlock(Properties properties) {
         super(properties);
@@ -35,47 +34,38 @@ public class NestingShulkerBoxBlock extends Block {
 
     @Override
     protected ItemInteractionResult useItemOn(
-            ItemStack pStack,
-            BlockState pState,
-            Level pLevel,
-            BlockPos pPos,
-            Player pPlayer,
-            InteractionHand pHand,
-            BlockHitResult pHitResult) {
+        ItemStack pStack,
+        BlockState pState,
+        Level pLevel,
+        BlockPos pPos,
+        Player pPlayer,
+        InteractionHand pHand,
+        BlockHitResult pHitResult) {
         return Util.interactionResultConverter().apply(this.use(pState, pLevel, pPos, pPlayer, pHand, pHitResult));
     }
 
     @Override
     protected InteractionResult useWithoutItem(
-            BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, BlockHitResult pHitResult) {
+        BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, BlockHitResult pHitResult) {
         return this.use(pState, pLevel, pPos, pPlayer, InteractionHand.MAIN_HAND, pHitResult);
     }
 
     /**
      *
      */
-    public @NotNull InteractionResult use(
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull Player player,
-            @NotNull InteractionHand hand,
-            @NotNull BlockHitResult hit) {
-        if (level.isClientSide && canBeInteracted) {
+    public InteractionResult use(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        InteractionHand hand,
+        BlockHitResult hit
+    ) {
+        if (level.isClientSide) {
             level.playSound(player, pos, SoundEvents.SHULKER_BOX_OPEN, SoundSource.BLOCKS, 0.8F, 1.0F);
             level.playSound(player, pos, SoundEvents.SHULKER_BOX_CLOSE, SoundSource.BLOCKS, 0.8F, 1.0F);
-            canBeInteracted = false;
         }
         level.scheduleTick(pos, this, 2 * soundDelay);
         return InteractionResult.SUCCESS;
-    }
-
-    @Override
-    public void tick(
-            @NotNull BlockState state,
-            @NotNull ServerLevel level,
-            @NotNull BlockPos pos,
-            @NotNull RandomSource random) {
-        canBeInteracted = true;
     }
 }

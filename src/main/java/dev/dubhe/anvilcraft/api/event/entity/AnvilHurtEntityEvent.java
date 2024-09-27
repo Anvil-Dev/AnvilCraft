@@ -22,7 +22,12 @@ public class AnvilHurtEntityEvent extends EntityEvent<FallingBlockEntity> {
      * @param damage       伤害
      */
     public AnvilHurtEntityEvent(
-            FallingBlockEntity entity, BlockPos pos, Level level, Entity hurtedEntity, float damage) {
+            FallingBlockEntity entity,
+            BlockPos pos,
+            Level level,
+            Entity hurtedEntity,
+            float damage
+    ) {
         super(entity, pos, level);
         this.hurtedEntity = hurtedEntity;
         this.damage = damage;

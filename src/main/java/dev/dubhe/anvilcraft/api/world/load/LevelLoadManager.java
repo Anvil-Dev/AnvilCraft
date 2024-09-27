@@ -59,12 +59,13 @@ public class LevelLoadManager {
 
     public static void reload(ServerLevel serverLevel) {
         LEVEL_LOAD_CHUCK_AREA_MAP.values().stream()
-                .filter(it -> !it.isRemoved())
-                .forEach(it -> it.apply(serverLevel));
+            .filter(it -> !it.isRemoved())
+            .forEach(it -> it.apply(serverLevel));
         LEVEL_LOAD_CHUCK_AREA_MAP.values().stream()
-                .filter(LoadChuckData::isRemoved)
-                .forEach(it -> it.discard(serverLevel));
-        LEVEL_LOAD_CHUCK_AREA_MAP.values().removeIf(LoadChuckData::isRemoved);
+            .filter(LoadChuckData::isRemoved)
+            .forEach(it -> it.discard(serverLevel));
+        LEVEL_LOAD_CHUCK_AREA_MAP.values()
+            .removeIf(LoadChuckData::isRemoved);
     }
 
     public static void removeAll(ServerLevel level) {

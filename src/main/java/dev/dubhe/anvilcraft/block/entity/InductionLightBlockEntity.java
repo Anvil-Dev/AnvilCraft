@@ -30,7 +30,10 @@ public class InductionLightBlockEntity extends BlockEntity implements IPowerCons
     }
 
     public static InductionLightBlockEntity createBlockEntity(
-            BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+        BlockEntityType<?> type,
+        BlockPos pos,
+        BlockState blockState
+    ) {
         return new InductionLightBlockEntity(type, pos, blockState);
     }
 
@@ -51,8 +54,8 @@ public class InductionLightBlockEntity extends BlockEntity implements IPowerCons
     public int getInputPower() {
         if (level == null) return 1;
         return getBlockState().getValue(InductionLightBlock.POWERED)
-                ? 0
-                : getBlockState().getValue(InductionLightBlock.COLOR).dissipation;
+            ? 0
+            : getBlockState().getValue(InductionLightBlock.COLOR).dissipation;
     }
 
     @Override

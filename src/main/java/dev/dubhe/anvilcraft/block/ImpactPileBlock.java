@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -16,25 +17,33 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class ImpactPileBlock extends Block implements IHammerRemovable {
     private static final VoxelShape SHAPE =
-            Shapes.or(Block.box(5, 14, 5, 11, 16, 11), Block.box(7, 0, 7, 9, 2, 9), Block.box(6, 2, 6, 10, 14, 10));
+        Shapes.or(
+            Block.box(5, 14, 5, 11, 16, 11),
+            Block.box(7, 0, 7, 9, 2, 9),
+            Block.box(6, 2, 6, 10, 14, 10)
+        );
 
     public ImpactPileBlock(Properties properties) {
         super(properties);
     }
 
     @Override
-    public @NotNull VoxelShape getShape(
-            @NotNull BlockState state,
-            @NotNull BlockGetter level,
-            @NotNull BlockPos pos,
-            @NotNull CollisionContext context) {
+    public  VoxelShape getShape(
+         BlockState state,
+         BlockGetter level,
+         BlockPos pos,
+         CollisionContext context) {
         return SHAPE;
     }
 
     @Override
-    public @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
+    public  RenderShape getRenderShape( BlockState state) {
         return RenderShape.MODEL;
     }
 
@@ -72,7 +81,7 @@ public class ImpactPileBlock extends Block implements IHammerRemovable {
             level.setBlockAndUpdate(pos.east(), Blocks.BEDROCK.defaultBlockState());
         }
         level.setBlockAndUpdate(
-                new BlockPos(blockPos.getX(), level.getMinBuildHeight() + 4, blockPos.getZ()),
-                ModBlocks.MINERAL_FOUNTAIN.getDefaultState());
+            new BlockPos(blockPos.getX(), level.getMinBuildHeight() + 4, blockPos.getZ()),
+            ModBlocks.MINERAL_FOUNTAIN.getDefaultState());
     }
 }

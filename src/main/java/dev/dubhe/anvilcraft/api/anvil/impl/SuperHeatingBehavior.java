@@ -28,28 +28,32 @@ public class SuperHeatingBehavior implements AnvilBehavior {
     @SuppressWarnings("DuplicatedCode")
     @Override
     public boolean handle(
-            Level level,
-            BlockPos hitBlockPos,
-            BlockState hitBlockState,
-            float fallDistance,
-            AnvilFallOnLandEvent event) {
+        Level level,
+        BlockPos hitBlockPos,
+        BlockState hitBlockState,
+        float fallDistance,
+        AnvilFallOnLandEvent event
+    ) {
         BlockState belowState = level.getBlockState(hitBlockPos.below());
         if (belowState.is(ModBlocks.HEATER) && !belowState.getValue(HeaterBlock.OVERLOAD)) {
             Map<ItemEntity, ItemStack> items =
-                    level.getEntitiesOfClass(ItemEntity.class, new AABB(hitBlockPos)).stream()
-                            .map(it -> Map.entry(it, it.getItem()))
-                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                level.getEntitiesOfClass(ItemEntity.class, new AABB(hitBlockPos)).stream()
+                    .map(it -> Map.entry(it, it.getItem()))
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-            ItemProcessInput input =
-                    new ItemProcessInput(items.values().stream().toList());
+            ItemProcessInput input = new ItemProcessInput(items.values().stream().toList());
 
-            Optional<RecipeHolder<SuperHeatingRecipe>> recipeOPtional =
-                    level.getRecipeManager().getRecipeFor(ModRecipeTypes.SUPER_HEATING_TYPE.get(), input, level);
+            Optional<RecipeHolder<SuperHeatingRecipe>> recipeOPtional = level.getRecipeManager()
+                .getRecipeFor(
+                    ModRecipeTypes.SUPER_HEATING_TYPE.get(),
+                    input,
+                    level
+                );
             if (recipeOPtional.isPresent()) {
                 RecipeHolder<SuperHeatingRecipe> recipe = recipeOPtional.get();
                 int times = recipe.value().getMaxCraftTime(input);
                 List<ItemStack> results =
-                        recipe.value().results.stream().map(ItemStack::copy).toList();
+                    recipe.value().results.stream().map(ItemStack::copy).toList();
                 results.forEach(s -> s.setCount(s.getCount() * times));
                 for (int i = 0; i < times; i++) {
                     for (Ingredient ingredient : recipe.value().getIngredients()) {
@@ -62,7 +66,7 @@ public class SuperHeatingBehavior implements AnvilBehavior {
                     }
                     if (recipe.value().blockResult != Blocks.AIR) {
                         level.setBlockAndUpdate(
-                                hitBlockPos, recipe.value().blockResult.defaultBlockState());
+                            hitBlockPos, recipe.value().blockResult.defaultBlockState());
                     }
                 }
                 AnvilUtil.dropItems(results, level, hitBlockPos.getCenter());

@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -15,6 +16,10 @@ import net.minecraft.world.level.material.Fluids;
 
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class IncandescentMetalBlock extends RedhotMetalBlock {
     public IncandescentMetalBlock(Properties properties) {
         super(properties, 4);
@@ -22,11 +27,12 @@ public class IncandescentMetalBlock extends RedhotMetalBlock {
 
     @Override
     public void onPlace(
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull BlockState oldState,
-            boolean movedByPiston) {
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        BlockState oldState,
+        boolean movedByPiston
+    ) {
         for (Direction direction : Direction.values()) {
             BlockPos neighbour = pos.relative(direction);
             checkWater(level, neighbour);
@@ -35,12 +41,13 @@ public class IncandescentMetalBlock extends RedhotMetalBlock {
 
     @Override
     public void neighborChanged(
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull Block neighborBlock,
-            @NotNull BlockPos neighborPos,
-            boolean movedByPiston) {
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block neighborBlock,
+        BlockPos neighborPos,
+        boolean movedByPiston
+    ) {
         checkWater(level, neighborPos);
     }
 
@@ -56,22 +63,22 @@ public class IncandescentMetalBlock extends RedhotMetalBlock {
                 }
             }
             level.playSound(
-                    null,
-                    neighborPos,
-                    SoundEvents.FIRE_EXTINGUISH,
-                    SoundSource.BLOCKS,
-                    0.5F,
-                    2.6F + (level.random.nextFloat() - level.random.nextFloat()) * 0.8F);
+                null,
+                neighborPos,
+                SoundEvents.FIRE_EXTINGUISH,
+                SoundSource.BLOCKS,
+                0.5F,
+                2.6F + (level.random.nextFloat() - level.random.nextFloat()) * 0.8F);
 
             for (int l = 0; l < 8; ++l) {
                 level.addParticle(
-                        ParticleTypes.LARGE_SMOKE,
-                        (double) neighborPos.getX() + Math.random(),
-                        (double) neighborPos.getY() + Math.random(),
-                        (double) neighborPos.getZ() + Math.random(),
-                        0.0,
-                        0.0,
-                        0.0);
+                    ParticleTypes.LARGE_SMOKE,
+                    (double) neighborPos.getX() + Math.random(),
+                    (double) neighborPos.getY() + Math.random(),
+                    (double) neighborPos.getZ() + Math.random(),
+                    0.0,
+                    0.0,
+                    0.0);
             }
         }
     }

@@ -31,7 +31,7 @@ public class ArrowBlock extends DirectionalBlock implements IHammerRemovable {
         builder.add(FACING);
     }
 
-    @SuppressWarnings("deprecation")
+    
     @Override
     public @NotNull BlockState rotate(BlockState state, Rotation rotation) {
         return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
@@ -45,6 +45,6 @@ public class ArrowBlock extends DirectionalBlock implements IHammerRemovable {
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return this.defaultBlockState()
-                .setValue(FACING, context.getNearestLookingDirection().getOpposite());
+            .setValue(FACING, context.getNearestLookingDirection().getOpposite());
     }
 }

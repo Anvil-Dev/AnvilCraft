@@ -30,28 +30,35 @@ public class HoneyCauldronBlock extends LayeredCauldronBlock implements IHammerR
     }
 
     @Override
-    public void entityInside(
-            @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Entity entity) {}
+    public void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
+    }
 
     @Override
     public void handlePrecipitation(
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull Biome.Precipitation precipitation) {}
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Biome.Precipitation precipitation
+    ) {
+    }
 
     @Override
-    protected boolean canReceiveStalactiteDrip(@NotNull Fluid fluid) {
+    protected boolean canReceiveStalactiteDrip(Fluid fluid) {
         return false;
     }
 
     @Override
-    protected void receiveStalactiteDrip(
-            @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Fluid fluid) {}
+    protected void receiveStalactiteDrip(BlockState state, Level level, BlockPos pos, Fluid fluid) {
+    }
 
     @Override
     public ItemStack getCloneItemStack(
-            BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
+        BlockState state,
+        HitResult target,
+        LevelReader level,
+        BlockPos pos,
+        Player player
+    ) {
         return new ItemStack(Items.CAULDRON);
     }
 }

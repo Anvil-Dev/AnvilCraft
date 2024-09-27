@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.util.Util;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -48,7 +49,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class InductionLightBlock extends BetterBaseEntityBlock implements IHammerRemovable, SimpleWaterloggedBlock {
 
     public static final VoxelShape SHAPE_X = Block.box(0, 6, 6, 16, 10, 10);
@@ -67,12 +71,12 @@ public class InductionLightBlock extends BetterBaseEntityBlock implements IHamme
     public InductionLightBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition
-                .any()
-                .setValue(POWERED, false)
-                .setValue(OVERLOAD, true)
-                .setValue(AXIS, Direction.Axis.Y)
-                .setValue(WATERLOGGED, false)
-                .setValue(COLOR, LightColor.PRIMARY));
+            .any()
+            .setValue(POWERED, false)
+            .setValue(OVERLOAD, true)
+            .setValue(AXIS, Direction.Axis.Y)
+            .setValue(WATERLOGGED, false)
+            .setValue(COLOR, LightColor.PRIMARY));
     }
 
     @Override
@@ -86,12 +90,12 @@ public class InductionLightBlock extends BetterBaseEntityBlock implements IHamme
     }
 
     @Override
-    @SuppressWarnings("deprecation")
-    public @NotNull VoxelShape getShape(
-            @NotNull BlockState state,
-            @NotNull BlockGetter level,
-            @NotNull BlockPos pos,
-            @NotNull CollisionContext context) {
+
+    public VoxelShape getShape(
+        BlockState state,
+        BlockGetter level,
+        BlockPos pos,
+        CollisionContext context) {
         return switch (state.getValue(AXIS)) {
             case Y -> SHAPE_Y;
             case Z -> SHAPE_Z;
@@ -100,34 +104,35 @@ public class InductionLightBlock extends BetterBaseEntityBlock implements IHamme
     }
 
     @Override
-    @SuppressWarnings("deprecation")
-    public boolean hasAnalogOutputSignal(@NotNull BlockState blockState) {
+
+    public boolean hasAnalogOutputSignal(BlockState blockState) {
         return false;
     }
 
     @Override
-    @Nullable public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
+    @Nullable
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
         return this.defaultBlockState()
-                .setValue(POWERED, false)
-                .setValue(OVERLOAD, true)
-                .setValue(AXIS, context.getClickedFace().getAxis())
-                .setValue(
-                        WATERLOGGED,
-                        context.getLevel()
-                                        .getFluidState(context.getClickedPos())
-                                        .getType()
-                                == Fluids.WATER)
-                .setValue(COLOR, LightColor.PRIMARY);
+            .setValue(POWERED, false)
+            .setValue(OVERLOAD, true)
+            .setValue(AXIS, context.getClickedFace().getAxis())
+            .setValue(
+                WATERLOGGED,
+                context.getLevel().getFluidState(context.getClickedPos())
+                    .getType() == Fluids.WATER
+            )
+            .setValue(COLOR, LightColor.PRIMARY);
     }
 
-    @Nullable @Override
-    public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
+    @Nullable
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return InductionLightBlockEntity.createBlockEntity(ModBlockEntities.INDUCTION_LIGHT.get(), pos, state);
     }
 
     @Override
-    @SuppressWarnings("deprecation")
-    public @NotNull FluidState getFluidState(BlockState state) {
+
+    public FluidState getFluidState(BlockState state) {
         return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
@@ -137,26 +142,27 @@ public class InductionLightBlock extends BetterBaseEntityBlock implements IHamme
     }
 
     @Override
-    @SuppressWarnings("deprecation")
-    public @NotNull InteractionResult use(
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull Player player,
-            @NotNull InteractionHand hand,
-            @NotNull BlockHitResult hit) {
+
+    public InteractionResult use(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        InteractionHand hand,
+        BlockHitResult hit) {
         ItemStack itemInHand = player.getItemInHand(hand);
         if (itemInHand.is(ModBlocks.INDUCTION_LIGHT.asItem())) {
             return BlockPlaceAssist.tryPlace(
-                    state,
-                    level,
-                    pos,
-                    player,
-                    hand,
-                    hit,
-                    ModBlocks.INDUCTION_LIGHT.asItem(),
-                    AXIS,
-                    ModBlocks.INDUCTION_LIGHT.getDefaultState());
+                state,
+                level,
+                pos,
+                player,
+                hand,
+                hit,
+                ModBlocks.INDUCTION_LIGHT.asItem(),
+                AXIS,
+                ModBlocks.INDUCTION_LIGHT.getDefaultState()
+            );
         } else if (itemInHand.is(Items.REDSTONE)) {
             level.setBlockAndUpdate(pos, state.setValue(COLOR, LightColor.PINK));
             return InteractionResult.SUCCESS;
@@ -175,27 +181,28 @@ public class InductionLightBlock extends BetterBaseEntityBlock implements IHamme
         return InteractionResult.PASS;
     }
 
-    @Nullable @Override
+    @Nullable
+    @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-            @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type) {
+        Level level, BlockState state, BlockEntityType<T> type) {
         if (level.isClientSide) {
             return null;
         }
         return createTickerHelper(
-                type,
-                ModBlockEntities.INDUCTION_LIGHT.get(),
-                (level1, blockPos, blockState, blockEntity) -> blockEntity.tick(level1));
+            type,
+            ModBlockEntities.INDUCTION_LIGHT.get(),
+            (level1, blockPos, blockState, blockEntity) -> blockEntity.tick(level1));
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+
     public void neighborChanged(
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull Block neighborBlock,
-            @NotNull BlockPos neighborPos,
-            boolean movedByPiston) {
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block neighborBlock,
+        BlockPos neighborPos,
+        boolean movedByPiston) {
         if (level.isClientSide) {
             return;
         }
@@ -203,12 +210,12 @@ public class InductionLightBlock extends BetterBaseEntityBlock implements IHamme
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+
     public void tick(
-            @NotNull BlockState state,
-            @NotNull ServerLevel level,
-            @NotNull BlockPos pos,
-            @NotNull RandomSource random) {
+        BlockState state,
+        ServerLevel level,
+        BlockPos pos,
+        RandomSource random) {
         if (state.getValue(POWERED) && !level.hasNeighborSignal(pos)) {
             level.setBlock(pos, state.cycle(POWERED), 2);
         }

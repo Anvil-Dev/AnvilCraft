@@ -24,15 +24,15 @@ import java.util.Optional;
 public class FilteredItemStackHandler extends ItemStackHandler {
 
     public static final Codec<FilteredItemStackHandler> CODEC = RecordCodecBuilder.create(ins -> ins.group(
-                    Codec.BOOL.fieldOf("filterEnabled").forGetter(o -> o.filterEnabled),
-                    CodecUtil.createOptionalCodec(ItemStack.CODEC)
-                            .listOf()
-                            .fieldOf("filteredItems")
-                            .forGetter(o -> o.filteredItems.stream()
-                                    .map(it -> it.isEmpty() ? Optional.<ItemStack>empty() : Optional.of(it))
-                                    .toList()),
-                    Codec.BOOL.listOf().fieldOf("disabled").forGetter(o -> o.disabled))
-            .apply(ins, FilteredItemStackHandler::new));
+            Codec.BOOL.fieldOf("filterEnabled").forGetter(o -> o.filterEnabled),
+            CodecUtil.createOptionalCodec(ItemStack.CODEC)
+                .listOf()
+                .fieldOf("filteredItems")
+                .forGetter(o -> o.filteredItems.stream()
+                    .map(it -> it.isEmpty() ? Optional.<ItemStack>empty() : Optional.of(it))
+                    .toList()),
+            Codec.BOOL.listOf().fieldOf("disabled").forGetter(o -> o.disabled))
+        .apply(ins, FilteredItemStackHandler::new));
 
     private boolean filterEnabled = false;
     private NonNullList<ItemStack> filteredItems;
@@ -46,11 +46,12 @@ public class FilteredItemStackHandler extends ItemStackHandler {
      *
      */
     public FilteredItemStackHandler(
-            boolean filterEnabled, List<Optional<ItemStack>> filteredItems, List<Boolean> disabled) {
+        boolean filterEnabled, List<Optional<ItemStack>> filteredItems, List<Boolean> disabled) {
         super(filteredItems.size());
         this.filteredItems = NonNullList.create();
-        this.filteredItems.addAll(
-                filteredItems.stream().map(it -> it.orElse(ItemStack.EMPTY)).toList());
+        this.filteredItems.addAll(filteredItems.stream()
+            .map(it -> it.orElse(ItemStack.EMPTY)).toList()
+        );
         this.disabled = NonNullList.create();
         this.disabled.addAll(disabled);
     }
@@ -106,11 +107,14 @@ public class FilteredItemStackHandler extends ItemStackHandler {
      * @return 指定槽位是否被禁用
      */
     public boolean isSlotDisabled(int slot) {
-        if (!this.filterEnabled) return this.disabled.get(slot);
-        else
+        if (!this.filterEnabled) {
+            return this.disabled.get(slot);
+        } else {
             return this.disabled.get(slot)
-                    || (getStackInSlot(slot).isEmpty()
-                            && this.filteredItems.get(slot).isEmpty());
+                || (getStackInSlot(slot).isEmpty()
+                && this.filteredItems.get(slot).isEmpty()
+            );
+        }
     }
 
     /**
@@ -244,7 +248,7 @@ public class FilteredItemStackHandler extends ItemStackHandler {
      */
     public void deserializeFiltering(@NotNull CompoundTag tag) {
         FilteredItemStackHandler handler =
-                CODEC.decode(NbtOps.INSTANCE, tag).getOrThrow().getFirst();
+            CODEC.decode(NbtOps.INSTANCE, tag).getOrThrow().getFirst();
         if (this.getSlots() != handler.getSlots()) throw new IllegalArgumentException("Depository size mismatch");
         this.filterEnabled = tag.getBoolean("filterEnabled");
         int size = handler.filteredItems.size();

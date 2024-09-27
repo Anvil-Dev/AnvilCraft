@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.transform.MobTransformInput;
 import dev.dubhe.anvilcraft.recipe.transform.MobTransformRecipe;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -37,10 +38,13 @@ import com.google.common.collect.Lists;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class CorruptedBeaconBlockEntity extends BlockEntity {
     List<BeaconBeamSection> beamSections = Lists.newArrayList();
     private List<BeaconBeamSection> checkingBeamSections = Lists.newArrayList();
@@ -48,7 +52,10 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
     private int lastCheckY;
 
     public static @NotNull CorruptedBeaconBlockEntity createBlockEntity(
-            BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+        BlockEntityType<?> type,
+        BlockPos pos,
+        BlockState blockState
+    ) {
         return new CorruptedBeaconBlockEntity(type, pos, blockState);
     }
 
@@ -64,7 +71,12 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
      * tick 逻辑
      */
     @SuppressWarnings("unused")
-    public static void tick(Level pLevel, BlockPos pPos, BlockState pState, CorruptedBeaconBlockEntity pBlockEntity) {
+    public static void tick(
+        Level pLevel,
+        BlockPos pPos,
+        BlockState pState,
+        CorruptedBeaconBlockEntity pBlockEntity
+    ) {
         int i = pPos.getX();
         int j = pPos.getY();
         int k = pPos.getZ();
@@ -77,8 +89,9 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
             blockpos = new BlockPos(i, pBlockEntity.lastCheckY + 1, k);
         }
 
-        BeaconBeamSection beamSection =
-                pBlockEntity.checkingBeamSections.isEmpty() ? null : pBlockEntity.checkingBeamSections.getLast();
+        BeaconBeamSection beamSection = pBlockEntity.checkingBeamSections.isEmpty()
+            ? null
+            : pBlockEntity.checkingBeamSections.getLast();
         int l = pLevel.getHeight(Heightmap.Types.WORLD_SURFACE, i, k);
 
         for (int i1 = 0; i1 < 10 && blockpos.getY() <= l; i1++) {
@@ -98,7 +111,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
                 }
             } else {
                 if (beamSection == null
-                        || blockstate.getLightBlock(pLevel, blockpos) >= 15 && !blockstate.is(Blocks.BEDROCK)) {
+                    || blockstate.getLightBlock(pLevel, blockpos) >= 15 && !blockstate.is(Blocks.BEDROCK)) {
                     pBlockEntity.checkingBeamSections.clear();
                     pBlockEntity.lastCheckY = l;
                     break;
@@ -134,7 +147,9 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
                     pLevel.setBlockAndUpdate(pPos, pState.setValue(CorruptedBeaconBlock.LIT, true));
 
                     for (ServerPlayer serverplayer : pLevel.getEntitiesOfClass(
-                            ServerPlayer.class, new AABB(i, j, k, i, j - 4, k).inflate(10.0, 5.0, 10.0))) {
+                        ServerPlayer.class,
+                        new AABB(i, j, k, i, j - 4, k).inflate(10.0, 5.0, 10.0))
+                    ) {
                         CriteriaTriggers.CONSTRUCT_BEACON.trigger(serverplayer, pBlockEntity.levels);
                     }
                 } else if (flag && !flag1) {
@@ -175,7 +190,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
     private static void tryTransformEntity(LivingEntity livingEntity, ServerLevel level, RecipeManager manager) {
         MobTransformInput input = MobTransformInput.of(livingEntity);
         Optional<RecipeHolder<MobTransformRecipe>> optionalRecipeHolder =
-                manager.getRecipeFor(ModRecipeTypes.MOB_TRANSFORM_TYPE.get(), input, level);
+            manager.getRecipeFor(ModRecipeTypes.MOB_TRANSFORM_TYPE.get(), input, level);
         if (optionalRecipeHolder.isEmpty()) return;
         MobTransformRecipe recipe = optionalRecipeHolder.get().value();
         Entity result = recipe.apply(level.random, livingEntity, level);
@@ -191,7 +206,15 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
         if (list.isEmpty()) return;
         RecipeManager manager = Objects.requireNonNull(level.getServer()).getRecipeManager();
         for (LivingEntity livingEntity : list) {
-            livingEntity.addEffect(new MobEffectInstance(MobEffects.WITHER, 120, 0, true, true));
+            livingEntity.addEffect(
+                new MobEffectInstance(
+                    MobEffects.WITHER,
+                    120,
+                    0,
+                    true,
+                    true
+                )
+            );
             tryTransformEntity(livingEntity, (ServerLevel) level, manager);
         }
     }

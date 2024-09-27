@@ -97,7 +97,7 @@ public class SimpleChuteBlock extends BaseEntityBlock implements
         builder.add(FACING, WATERLOGGED, ENABLED, TALL);
     }
 
-    @SuppressWarnings("deprecation")
+    
     @Override
     public void neighborChanged(
         @NotNull BlockState state, @Nonnull Level level,
@@ -134,7 +134,7 @@ public class SimpleChuteBlock extends BaseEntityBlock implements
         return new ItemStack(ModBlocks.CHUTE);
     }
 
-    @SuppressWarnings("deprecation")
+    
     @Override
     public void tick(
         @NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random
@@ -149,7 +149,7 @@ public class SimpleChuteBlock extends BaseEntityBlock implements
         return RenderShape.MODEL;
     }
 
-    @SuppressWarnings("deprecation")
+    
     @Override
     public void onRemove(
         @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos,
@@ -200,7 +200,7 @@ public class SimpleChuteBlock extends BaseEntityBlock implements
             ((level1, blockPos, blockState, blockEntity) -> blockEntity.tick()));
     }
 
-    @SuppressWarnings("deprecation")
+    
     @Override
     public @Nonnull VoxelShape getShape(
         @Nonnull BlockState blockState, @Nonnull BlockGetter blockGetter,

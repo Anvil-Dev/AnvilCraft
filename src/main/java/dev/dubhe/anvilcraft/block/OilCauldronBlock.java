@@ -35,90 +35,96 @@ public class OilCauldronBlock extends LayeredCauldronBlock implements IHammerRem
     }
 
     @Override
-    public void entityInside(
-            @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Entity entity) {
+    public void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
         if (entity.getType().equals(EntityType.ARROW) && entity.isOnFire()) {
             level.setBlockAndUpdate(
-                    pos,
-                    ModBlocks.FIRE_CAULDRON
-                            .getDefaultState()
-                            .setValue(
-                                    LayeredCauldronBlock.LEVEL,
-                                    level.getBlockState(pos).getValue(LayeredCauldronBlock.LEVEL)));
+                pos,
+                ModBlocks.FIRE_CAULDRON
+                    .getDefaultState()
+                    .setValue(
+                        LayeredCauldronBlock.LEVEL,
+                        level.getBlockState(pos).getValue(LayeredCauldronBlock.LEVEL)
+                    )
+            );
             return;
         }
         if (entity instanceof ItemEntity itemEntity) {
             if (itemEntity.getItem().is(ModItemTags.FIRE_STARTER)) {
                 level.setBlockAndUpdate(
-                        pos,
-                        ModBlocks.FIRE_CAULDRON
-                                .getDefaultState()
-                                .setValue(
-                                        LayeredCauldronBlock.LEVEL,
-                                        level.getBlockState(pos).getValue(LayeredCauldronBlock.LEVEL)));
+                    pos,
+                    ModBlocks.FIRE_CAULDRON
+                        .getDefaultState()
+                        .setValue(
+                            LayeredCauldronBlock.LEVEL,
+                            level.getBlockState(pos).getValue(LayeredCauldronBlock.LEVEL)
+                        )
+                );
                 itemEntity.getItem().setCount(itemEntity.getItem().getCount() - 1);
                 return;
             }
             if (itemEntity.getItem().is(ModItemTags.UNBROKEN_FIRE_STARTER)) {
                 level.setBlockAndUpdate(
-                        pos,
-                        ModBlocks.FIRE_CAULDRON
-                                .getDefaultState()
-                                .setValue(
-                                        LayeredCauldronBlock.LEVEL,
-                                        level.getBlockState(pos).getValue(LayeredCauldronBlock.LEVEL)));
+                    pos,
+                    ModBlocks.FIRE_CAULDRON
+                        .getDefaultState()
+                        .setValue(
+                            LayeredCauldronBlock.LEVEL,
+                            level.getBlockState(pos).getValue(LayeredCauldronBlock.LEVEL)
+                        )
+                );
             }
         }
     }
 
     @Override
     protected ItemInteractionResult useItemOn(
-            ItemStack pStack,
-            BlockState pState,
-            Level pLevel,
-            BlockPos pPos,
-            Player pPlayer,
-            InteractionHand pHand,
-            BlockHitResult pHitResult) {
+        ItemStack pStack,
+        BlockState pState,
+        Level pLevel,
+        BlockPos pPos,
+        Player pPlayer,
+        InteractionHand pHand,
+        BlockHitResult pHitResult) {
         return Util.interactionResultConverter().apply(this.use(pState, pLevel, pPos, pPlayer, pHand, pHitResult));
     }
 
     @Override
     protected InteractionResult useWithoutItem(
-            BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, BlockHitResult pHitResult) {
+        BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, BlockHitResult pHitResult) {
         return this.use(pState, pLevel, pPos, pPlayer, InteractionHand.MAIN_HAND, pHitResult);
     }
 
     /**
      *
      */
-    public @NotNull InteractionResult use(
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull Player player,
-            @NotNull InteractionHand hand,
-            @NotNull BlockHitResult hit) {
+    public InteractionResult use(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        InteractionHand hand,
+        BlockHitResult hit
+    ) {
         ItemStack itemStack = player.getItemInHand(hand);
         if (itemStack.is(Items.FLINT_AND_STEEL)) {
             level.setBlockAndUpdate(
-                    pos,
-                    ModBlocks.FIRE_CAULDRON
-                            .getDefaultState()
-                            .setValue(
-                                    LayeredCauldronBlock.LEVEL,
-                                    level.getBlockState(pos).getValue(LayeredCauldronBlock.LEVEL)));
+                pos,
+                ModBlocks.FIRE_CAULDRON
+                    .getDefaultState()
+                    .setValue(
+                        LayeredCauldronBlock.LEVEL,
+                        level.getBlockState(pos).getValue(LayeredCauldronBlock.LEVEL)));
             itemStack.hurtAndBreak(2, player, Util.convertToSlot(hand));
             return InteractionResult.SUCCESS;
         }
         if (itemStack.is(Items.FIRE_CHARGE)) {
             level.setBlockAndUpdate(
-                    pos,
-                    ModBlocks.FIRE_CAULDRON
-                            .getDefaultState()
-                            .setValue(
-                                    LayeredCauldronBlock.LEVEL,
-                                    level.getBlockState(pos).getValue(LayeredCauldronBlock.LEVEL)));
+                pos,
+                ModBlocks.FIRE_CAULDRON
+                    .getDefaultState()
+                    .setValue(
+                        LayeredCauldronBlock.LEVEL,
+                        level.getBlockState(pos).getValue(LayeredCauldronBlock.LEVEL)));
             itemStack.setCount(0);
             return InteractionResult.SUCCESS;
         }

@@ -28,7 +28,8 @@ import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 public class ChargerBlockEntity extends BlockEntity
-        implements IPowerConsumer, IPowerProducer, IFilterBlockEntity, StateListener<Boolean>, ItemHandlerHolder {
+        implements IPowerConsumer, IPowerProducer, IFilterBlockEntity, StateListener<Boolean>, ItemHandlerHolder
+{
 
     @Setter
     private boolean isCharger;
@@ -198,7 +199,7 @@ public class ChargerBlockEntity extends BlockEntity
             locked = false;
             return;
         }
-        if (grid.isWork() && !isCharger) {
+        if (grid.isWorking() && !isCharger) {
             previousDischargeFailed = false;
         }
         if (powered) return;
@@ -215,7 +216,7 @@ public class ChargerBlockEntity extends BlockEntity
             return;
         }
         if (isCharger) {
-            if (grid.isWork()) {
+            if (grid.isWorking()) {
                 if (cd > 0) {
                     cd--;
                     locked = true;
@@ -232,7 +233,7 @@ public class ChargerBlockEntity extends BlockEntity
                 cd--;
                 locked = true;
             } else {
-                if (!grid.isWork() && !previousDischargeFailed) {
+                if (!grid.isWorking() && !previousDischargeFailed) {
                     previousDischargeFailed = true;
                 }
                 cd = 0;

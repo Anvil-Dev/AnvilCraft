@@ -17,7 +17,8 @@ public enum PowerComponentType implements StringRepresentable {
     public static final Codec<PowerComponentType> CODEC = StringRepresentable.fromEnum(PowerComponentType::values);
 
     @Override
-    @NotNull public String getSerializedName() {
+    @NotNull
+    public String getSerializedName() {
         return name();
     }
 }

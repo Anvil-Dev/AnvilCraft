@@ -53,9 +53,9 @@ public class HeliostatsBlockEntity extends BlockEntity {
         if (vec31.hashCode() + vec32.hashCode() == surfaceVec3Hash) return surfaceVec3;
         if (level == null) return vec31;
         if (!level.getBlockState(irritatePos.north()).isAir()
-                && !level.getBlockState(irritatePos.south()).isAir()
-                && !level.getBlockState(irritatePos.east()).isAir()
-                && !level.getBlockState(irritatePos.west()).isAir()) return vec31.add(0, 0, 0);
+            && !level.getBlockState(irritatePos.south()).isAir()
+            && !level.getBlockState(irritatePos.east()).isAir()
+            && !level.getBlockState(irritatePos.west()).isAir()) return vec31.add(0, 0, 0);
         Vec2 vec2 = new Vec2((float) (vec32.z - vec31.z), (float) (vec32.x - vec31.x));
         if (vec2.x == 0) return vec31.add(vec2.y > 0 ? 0.49f : -0.49f, 0, 0);
         if (vec2.y == 0) return vec31.add(0, 0, vec2.x > 0 ? 0.49f : -0.49f);
@@ -85,27 +85,27 @@ public class HeliostatsBlockEntity extends BlockEntity {
         if (irritatePos == null) return WorkResult.UNSPECIFIED_IRRADIATION_BLOCK;
         if (getBlockPos().getCenter().distanceTo(irritatePos.getCenter()) > 16) return WorkResult.TOO_FAR;
         if (level.isRainingAt(getBlockPos().above())
-                || level.getBrightness(LightLayer.SKY, getBlockPos().above()) != 15) return WorkResult.NO_SUN;
+            || level.getBrightness(LightLayer.SKY, getBlockPos().above()) != 15) return WorkResult.NO_SUN;
         Vec3 irritateVec3 =
-                getSurfaceVec3(irritatePos.getCenter(), getBlockPos().getCenter());
+            getSurfaceVec3(irritatePos.getCenter(), getBlockPos().getCenter());
         BlockHitResult blockHitResult = level.clip(new ClipContext(
-                getBlockPos().getCenter().add(0f, 0.34f, 0f),
-                irritateVec3,
-                ClipContext.Block.OUTLINE,
-                ClipContext.Fluid.NONE,
-                level.isClientSide
-                        ? Objects.requireNonNull(Minecraft.getInstance().player)
-                        : AnvilCraftBlockPlacer.anvilCraftBlockPlacer.getPlayer()));
+            getBlockPos().getCenter().add(0f, 0.34f, 0f),
+            irritateVec3,
+            ClipContext.Block.OUTLINE,
+            ClipContext.Fluid.NONE,
+            level.isClientSide
+                ? Objects.requireNonNull(Minecraft.getInstance().player)
+                : AnvilCraftBlockPlacer.anvilCraftBlockPlacer.getPlayer()));
         if (!blockHitResult.getBlockPos().equals(irritatePos)) return WorkResult.OBSCURED;
         double sunAngle = level.getSunAngle(1);
         sunAngle = sunAngle <= Math.PI / 2 * 3 ? sunAngle + Math.PI / 2 : sunAngle - Math.PI / 2 * 3;
         if (sunAngle > Math.PI) return WorkResult.NO_SUN;
         Vector3f sunVector3f = new Vector3f((float) Math.cos(sunAngle), (float) Math.sin(sunAngle), 0).normalize();
         irritateVector3f = new Vector3f(
-                        (float) (irritateVec3.x - getBlockPos().getX()),
-                        (float) (irritateVec3.y - getBlockPos().getY()),
-                        (float) (irritateVec3.z - getBlockPos().getZ()))
-                .normalize();
+            (float) (irritateVec3.x - getBlockPos().getX()),
+            (float) (irritateVec3.y - getBlockPos().getY()),
+            (float) (irritateVec3.z - getBlockPos().getZ()))
+            .normalize();
         normalVector3f = sunVector3f.add(irritateVector3f).div(2);
         if (normalVector3f.y < 0) return WorkResult.NO_ROTATION_ANGLE;
         return WorkResult.SUCCESS;

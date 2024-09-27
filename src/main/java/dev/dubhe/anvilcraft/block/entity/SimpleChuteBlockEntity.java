@@ -61,47 +61,54 @@ public class SimpleChuteBlockEntity extends BlockEntity implements ItemHandlerHo
         if (cooldown <= 0) {
             if (getBlockState().getValue(SimpleChuteBlock.ENABLED)) {
                 IItemHandler target = getLevel()
-                        .getCapability(
-                                Capabilities.ItemHandler.BLOCK,
-                                getBlockPos().relative(getDirection()),
-                                getDirection().getOpposite());
+                    .getCapability(
+                        Capabilities.ItemHandler.BLOCK,
+                        getBlockPos().relative(getDirection()),
+                        getDirection().getOpposite()
+                    );
                 if (target != null) {
                     // 尝试向朝向容器输出
                     ItemHandlerUtil.exportToTarget(this.itemHandler, 64, stack -> true, target);
                 } else {
                     Vec3 center = getBlockPos().relative(getDirection()).getCenter();
                     List<ItemEntity> itemEntities = getLevel()
-                            .getEntitiesOfClass(
-                                    ItemEntity.class,
-                                    new AABB(getBlockPos().relative(getDirection())),
-                                    itemEntity -> !itemEntity.getItem().isEmpty());
-                    AABB aabb = new AABB(center.add(-0.125, -0.125, -0.125), center.add(0.125, 0.125, 0.125));
+                        .getEntitiesOfClass(
+                            ItemEntity.class,
+                            new AABB(getBlockPos().relative(getDirection())),
+                            itemEntity -> !itemEntity.getItem().isEmpty()
+                        );
+                    AABB aabb = new AABB(
+                        center.add(-0.125, -0.125, -0.125),
+                        center.add(0.125, 0.125, 0.125)
+                    );
                     if (getLevel().noCollision(aabb)) {
                         for (int i = 0; i < this.itemHandler.getSlots(); i++) {
                             ItemStack stack = this.itemHandler.getStackInSlot(i);
-                            if (!stack.isEmpty()) {
-                                int sameItemCount = 0;
-                                for (ItemEntity entity : itemEntities) {
-                                    if (entity.getItem().getItem() == stack.getItem()) {
-                                        sameItemCount += entity.getItem().getCount();
-                                    }
-                                }
-                                if (sameItemCount < stack.getItem().getMaxStackSize(stack)) {
-                                    ItemStack droppedItemStack = stack.copy();
-                                    int droppedItemCount =
-                                            Math.min(stack.getCount(), stack.getMaxStackSize() - sameItemCount);
-                                    droppedItemStack.setCount(droppedItemCount);
-                                    stack.setCount(stack.getCount() - droppedItemCount);
-                                    if (stack.getCount() == 0) stack = ItemStack.EMPTY;
-                                    ItemEntity itemEntity = new ItemEntity(
-                                            getLevel(), center.x, center.y, center.z, droppedItemStack, 0, 0, 0);
-                                    itemEntity.setDefaultPickUpDelay();
-                                    getLevel().addFreshEntity(itemEntity);
-                                    this.itemHandler.setStackInSlot(i, stack);
-                                    cooldown = AnvilCraft.config.chuteMaxCooldown;
-                                    break;
+                            if (stack.isEmpty()) {
+                                continue;
+                            }
+                            int sameItemCount = 0;
+                            for (ItemEntity entity : itemEntities) {
+                                if (entity.getItem().getItem() == stack.getItem()) {
+                                    sameItemCount += entity.getItem().getCount();
                                 }
                             }
+                            if (sameItemCount < stack.getItem().getMaxStackSize(stack)) {
+                                ItemStack droppedItemStack = stack.copy();
+                                int droppedItemCount =
+                                    Math.min(stack.getCount(), stack.getMaxStackSize() - sameItemCount);
+                                droppedItemStack.setCount(droppedItemCount);
+                                stack.setCount(stack.getCount() - droppedItemCount);
+                                if (stack.getCount() == 0) stack = ItemStack.EMPTY;
+                                ItemEntity itemEntity = new ItemEntity(
+                                    getLevel(), center.x, center.y, center.z, droppedItemStack, 0, 0, 0);
+                                itemEntity.setDefaultPickUpDelay();
+                                getLevel().addFreshEntity(itemEntity);
+                                this.itemHandler.setStackInSlot(i, stack);
+                                cooldown = AnvilCraft.config.chuteMaxCooldown;
+                                break;
+                            }
+
                         }
                     }
                 }
@@ -117,7 +124,9 @@ public class SimpleChuteBlockEntity extends BlockEntity implements ItemHandlerHo
     private Direction getDirection() {
         if (getLevel() == null) return Direction.DOWN;
         BlockState state = getLevel().getBlockState(getBlockPos());
-        if (state.getBlock() instanceof SimpleChuteBlock) return state.getValue(SimpleChuteBlock.FACING);
+        if (state.getBlock() instanceof SimpleChuteBlock) {
+            return state.getValue(SimpleChuteBlock.FACING);
+        }
         return Direction.DOWN;
     }
 
@@ -128,7 +137,9 @@ public class SimpleChuteBlockEntity extends BlockEntity implements ItemHandlerHo
         int i = 0;
         for (int j = 0; j < itemHandler.getSlots(); ++j) {
             ItemStack itemStack = itemHandler.getStackInSlot(j);
-            if (itemStack.isEmpty()) continue;
+            if (itemStack.isEmpty()) {
+                continue;
+            }
             ++i;
         }
         return i;

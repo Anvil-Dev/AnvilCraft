@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -12,9 +13,13 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@Getter
+@Setter
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class EmberMetalSlabBlock extends SlabBlock implements EmberBlock {
-    @Getter
-    @Setter
     private BlockState checkBlockState;
 
     public EmberMetalSlabBlock(Properties properties) {
@@ -22,16 +27,17 @@ public class EmberMetalSlabBlock extends SlabBlock implements EmberBlock {
     }
 
     @Override
-    public boolean isRandomlyTicking(@NotNull BlockState state) {
+    public boolean isRandomlyTicking(BlockState state) {
         return state.getValue(SlabBlock.WATERLOGGED);
     }
 
     @Override
     public void randomTick(
-            @NotNull BlockState state,
-            @NotNull ServerLevel level,
-            @NotNull BlockPos pos,
-            @NotNull RandomSource random) {
+        BlockState state,
+        ServerLevel level,
+        BlockPos pos,
+        RandomSource random
+    ) {
         if (random.nextDouble() <= 0.1) {
             level.playSound(null, pos, SoundEvents.LAVA_EXTINGUISH, SoundSource.BLOCKS, 1f, 1f);
             level.setBlock(pos, state.setValue(SlabBlock.WATERLOGGED, false), 2);

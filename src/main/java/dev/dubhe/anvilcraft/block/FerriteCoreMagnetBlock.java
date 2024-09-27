@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.init.ModBlocks;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -10,6 +11,10 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class FerriteCoreMagnetBlock extends MagnetBlock {
     public FerriteCoreMagnetBlock(Properties properties) {
         super(properties);
@@ -17,10 +22,11 @@ public class FerriteCoreMagnetBlock extends MagnetBlock {
 
     @Override
     public void randomTick(
-            @NotNull BlockState blockState,
-            @NotNull ServerLevel serverLevel,
-            @NotNull BlockPos blockPos,
-            @NotNull RandomSource randomSource) {
+        BlockState blockState,
+        ServerLevel serverLevel,
+        BlockPos blockPos,
+        RandomSource randomSource
+    ) {
         int times = 0;
         for (Direction face : Direction.values()) {
             if (serverLevel.getBlockState(blockPos.relative(face)).is(ModBlocks.MAGNET_BLOCK.get())) times++;

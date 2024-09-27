@@ -6,16 +6,16 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import org.jetbrains.annotations.NotNull;
 
-public class MobAmberBlockEntity extends HasMobBlockEntity {
-    protected MobAmberBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+public class ResentfulAmberBlockEntity extends MobAmberBlockEntity {
+    private ResentfulAmberBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
 
-    public static @NotNull MobAmberBlockEntity createBlockEntity(
+    public static @NotNull ResentfulAmberBlockEntity createBlockEntity(
         BlockEntityType<?> type,
         BlockPos pos,
         BlockState blockState
     ) {
-        return new MobAmberBlockEntity(type, pos, blockState);
+        return new ResentfulAmberBlockEntity(type, pos, blockState);
     }
 }

@@ -39,7 +39,7 @@ public class MagnetBlock extends Block implements IHammerRemovable {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public void onPlace(
         @NotNull BlockState state,
         @NotNull Level level,
@@ -57,7 +57,7 @@ public class MagnetBlock extends Block implements IHammerRemovable {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public void neighborChanged(
         @NotNull BlockState state,
         @NotNull Level level,
@@ -121,7 +121,7 @@ public class MagnetBlock extends Block implements IHammerRemovable {
         }
     }
 
-    @SuppressWarnings("deprecation")
+    
     @Override
     public void onRemove(
         @NotNull BlockState state,
@@ -148,7 +148,7 @@ public class MagnetBlock extends Block implements IHammerRemovable {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public void tick(
         @NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random
     ) {

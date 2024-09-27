@@ -52,7 +52,7 @@ public class MineralFountainBlockEntity extends BlockEntity {
     }
 
     public static @NotNull MineralFountainBlockEntity createBlockEntity(
-            BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+        BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         return new MineralFountainBlockEntity(type, pos, blockState);
     }
 
@@ -71,8 +71,8 @@ public class MineralFountainBlockEntity extends BlockEntity {
         BlockState aroundState = getAroundBlock();
         // 冷却检查
         if (aroundState.is(Blocks.BLUE_ICE)
-                || aroundHas(Blocks.BEDROCK)
-                || aroundHas(ModBlocks.MINERAL_FOUNTAIN.get())) {
+            || aroundHas(Blocks.BEDROCK)
+            || aroundHas(ModBlocks.MINERAL_FOUNTAIN.get())) {
             level.destroyBlock(getBlockPos(), false);
             level.setBlockAndUpdate(getBlockPos(), Blocks.BEDROCK.defaultBlockState());
             return;
@@ -98,32 +98,32 @@ public class MineralFountainBlockEntity extends BlockEntity {
             level.setBlockAndUpdate(getBlockPos().above(), hotBlock.defaultBlockState());
         } else {
             MineralFountainRecipe.Input input =
-                    new MineralFountainRecipe.Input(aroundState.getBlock(), aboveState.getBlock());
+                new MineralFountainRecipe.Input(aroundState.getBlock(), aboveState.getBlock());
             level.getRecipeManager()
-                    .getRecipeFor(ModRecipeTypes.MINERAL_FOUNTAIN.get(), input, level)
-                    .ifPresent(recipe -> {
-                        var chanceList = level
-                                .getRecipeManager()
-                                .getAllRecipesFor(ModRecipeTypes.MINERAL_FOUNTAIN_CHANCE.get())
-                                .stream()
-                                .filter(r -> r.value()
-                                        .getDimension()
-                                        .equals(level.dimension().location()))
-                                .filter(r -> r.value().getFromBlock() == aboveState.getBlock())
-                                .toList();
-                        for (var changeRecipe : chanceList) {
-                            if (level.getRandom().nextDouble()
-                                    <= changeRecipe.value().getChance()) {
-                                level.setBlockAndUpdate(
-                                        getBlockPos().above(),
-                                        changeRecipe.value().getToBlock().defaultBlockState());
-                                return;
-                            }
-                        }
-                        level.setBlockAndUpdate(
+                .getRecipeFor(ModRecipeTypes.MINERAL_FOUNTAIN.get(), input, level)
+                .ifPresent(recipe -> {
+                    var chanceList = level
+                        .getRecipeManager()
+                        .getAllRecipesFor(ModRecipeTypes.MINERAL_FOUNTAIN_CHANCE.get())
+                        .stream()
+                        .filter(r -> r.value()
+                            .getDimension()
+                            .equals(level.dimension().location()))
+                        .filter(r -> r.value().getFromBlock() == aboveState.getBlock())
+                        .toList();
+                    for (var changeRecipe : chanceList) {
+                        if (level.getRandom().nextDouble()
+                            <= changeRecipe.value().getChance()) {
+                            level.setBlockAndUpdate(
                                 getBlockPos().above(),
-                                recipe.value().getToBlock().defaultBlockState());
-                    });
+                                changeRecipe.value().getToBlock().defaultBlockState());
+                            return;
+                        }
+                    }
+                    level.setBlockAndUpdate(
+                        getBlockPos().above(),
+                        recipe.value().getToBlock().defaultBlockState());
+                });
         }
     }
 
@@ -136,13 +136,13 @@ public class MineralFountainBlockEntity extends BlockEntity {
             return Blocks.AIR.defaultBlockState();
         }
         List<BlockState> blockStates = Arrays.stream(HORIZONTAL_DIRECTION)
-                .map(direction -> level.getBlockState(getBlockPos().relative(direction)))
-                .toList();
+            .map(direction -> level.getBlockState(getBlockPos().relative(direction)))
+            .toList();
         BlockState firstState = blockStates.getFirst();
         long count = blockStates.stream()
-                .filter(s -> s.is(firstState.getBlock())
-                        && (s.getFluidState().isEmpty() || s.getFluidState().isSource()))
-                .count();
+            .filter(s ->
+                s.is(firstState.getBlock()) && (s.getFluidState().isEmpty() || s.getFluidState().isSource())
+            ).count();
         return count == 4 ? firstState : Blocks.AIR.defaultBlockState();
     }
 

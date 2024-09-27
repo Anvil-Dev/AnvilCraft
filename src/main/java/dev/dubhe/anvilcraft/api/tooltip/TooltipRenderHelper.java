@@ -24,32 +24,35 @@ public class TooltipRenderHelper {
      * 渲染外框
      */
     public static void renderOutline(
-            PoseStack poseStack,
-            VertexConsumer consumer,
-            double camX,
-            double camY,
-            double camZ,
-            @NotNull BlockPos offsetPos,
-            @NotNull VoxelShape shape,
-            int color) {
+        PoseStack poseStack,
+        VertexConsumer consumer,
+        double camX,
+        double camY,
+        double camZ,
+        @NotNull BlockPos offsetPos,
+        @NotNull VoxelShape shape,
+        int color
+    ) {
         renderShape(
-                poseStack,
-                consumer,
-                shape,
-                (double) offsetPos.getX() - camX,
-                (double) offsetPos.getY() - camY,
-                (double) offsetPos.getZ() - camZ,
-                color);
+            poseStack,
+            consumer,
+            shape,
+            (double) offsetPos.getX() - camX,
+            (double) offsetPos.getY() - camY,
+            (double) offsetPos.getZ() - camZ,
+            color
+        );
     }
 
     private static void renderShape(
-            @NotNull PoseStack poseStack,
-            VertexConsumer consumer,
-            @NotNull VoxelShape shape,
-            double x,
-            double y,
-            double z,
-            int color) {
+        @NotNull PoseStack poseStack,
+        VertexConsumer consumer,
+        @NotNull VoxelShape shape,
+        double x,
+        double y,
+        double z,
+        int color
+    ) {
         PoseStack.Pose pose = poseStack.last();
         shape.forAllEdges((minX, minY, minZ, maxX, maxY, maxZ) -> {
             float dx = (float) (maxX - minX);
@@ -57,11 +60,11 @@ public class TooltipRenderHelper {
             float dz = (float) (maxZ - minZ);
             float distance = Mth.sqrt(dx * dx + dy * dy + dz * dz);
             consumer.addVertex(pose.pose(), (float) (minX + x), (float) (minY + y), (float) (minZ + z))
-                    .setColor(color)
-                    .setNormal(pose.copy(), dx /= distance, dy /= distance, dz /= distance);
+                .setColor(color)
+                .setNormal(pose.copy(), dx /= distance, dy /= distance, dz /= distance);
             consumer.addVertex(pose.pose(), (float) (maxX + x), (float) (maxY + y), (float) (maxZ + z))
-                    .setColor(color)
-                    .setNormal(pose.copy(), dx, dy, dz);
+                .setColor(color)
+                .setNormal(pose.copy(), dx, dy, dz);
         });
     }
 
@@ -76,20 +79,21 @@ public class TooltipRenderHelper {
      * @param y         y坐标
      */
     public static void renderTooltipWithItemIcon(
-            GuiGraphics thiz,
-            Font font,
-            ItemStack itemStack,
-            @NotNull List<Component> lines,
-            int x,
-            int y,
-            int backgroundColor,
-            int borderTopColor,
-            int borderBottomColor) {
+        GuiGraphics thiz,
+        Font font,
+        ItemStack itemStack,
+        @NotNull List<Component> lines,
+        int x,
+        int y,
+        int backgroundColor,
+        int borderTopColor,
+        int borderBottomColor
+    ) {
         ClientTooltipPositioner tooltipPositioner = DefaultTooltipPositioner.INSTANCE;
         List<ClientTooltipComponent> components = lines.stream()
-                .map(Component::getVisualOrderText)
-                .map(ClientTooltipComponent::create)
-                .toList();
+            .map(Component::getVisualOrderText)
+            .map(ClientTooltipComponent::create)
+            .toList();
         if (components.isEmpty()) return;
         int width = 0;
         int height = components.size() == 1 ? -2 : 0;
@@ -108,7 +112,7 @@ public class TooltipRenderHelper {
         int finalWidth = width;
         int finalHeight = height + 16;
         thiz.drawManaged(() -> renderTooltipBackground(
-                thiz, vx, finalVy, finalWidth, finalHeight, backgroundColor, borderTopColor, borderBottomColor));
+            thiz, vx, finalVy, finalWidth, finalHeight, backgroundColor, borderTopColor, borderBottomColor));
         thiz.pose().translate(0.0F, 0.0F, 400.0F);
 
         thiz.renderFakeItem(itemStack, vx, vy);
@@ -132,14 +136,15 @@ public class TooltipRenderHelper {
     }
 
     private static void renderTooltipBackground(
-            GuiGraphics guiGraphics,
-            int x,
-            int y,
-            int width,
-            int height,
-            int backgroundColor,
-            int borderTopColor,
-            int borderBottomColor) {
+        GuiGraphics guiGraphics,
+        int x,
+        int y,
+        int width,
+        int height,
+        int backgroundColor,
+        int borderTopColor,
+        int borderBottomColor
+    ) {
         int i = x - 3;
         int j = y - 3;
         int k = width + 3 + 3;
@@ -153,7 +158,15 @@ public class TooltipRenderHelper {
     }
 
     private static void renderFrameGradient(
-            GuiGraphics guiGraphics, int x, int y, int width, int height, int z, int topColor, int bottomColor) {
+        GuiGraphics guiGraphics,
+        int x,
+        int y,
+        int width,
+        int height,
+        int z,
+        int topColor,
+        int bottomColor
+    ) {
         renderVerticalLineGradient(guiGraphics, x, y, height - 2, z, topColor, bottomColor);
         renderVerticalLineGradient(guiGraphics, x + width - 1, y, height - 2, z, topColor, bottomColor);
         renderHorizontalLine(guiGraphics, x, y - 1, width, z, topColor);
@@ -165,7 +178,7 @@ public class TooltipRenderHelper {
     }
 
     private static void renderVerticalLineGradient(
-            GuiGraphics guiGraphics, int x, int y, int length, int z, int topColor, int bottomColor) {
+        GuiGraphics guiGraphics, int x, int y, int length, int z, int topColor, int bottomColor) {
         guiGraphics.fillGradient(x, y, x + 1, y + length, z, topColor, bottomColor);
     }
 
@@ -174,7 +187,7 @@ public class TooltipRenderHelper {
     }
 
     private static void renderRectangle(
-            GuiGraphics guiGraphics, int x, int y, int width, int height, int z, int color) {
+        GuiGraphics guiGraphics, int x, int y, int width, int height, int z, int color) {
         guiGraphics.fill(x, y, x + width, y + height, z, color);
     }
 }

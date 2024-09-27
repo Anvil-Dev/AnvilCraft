@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.PowerConverterBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -29,7 +30,10 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public abstract class BasePowerConverterBlock extends BetterBaseEntityBlock implements IHammerRemovable {
     private final int inputPower;
 
@@ -42,7 +46,10 @@ public abstract class BasePowerConverterBlock extends BetterBaseEntityBlock impl
     public BasePowerConverterBlock(Properties properties, int inputPower) {
         super(properties);
         registerDefaultState(
-                stateDefinition.any().setValue(FACING, Direction.DOWN).setValue(OVERLOAD, true));
+            stateDefinition.any()
+                .setValue(FACING, Direction.DOWN)
+                .setValue(OVERLOAD, true)
+        );
         this.inputPower = inputPower;
     }
 
@@ -51,33 +58,39 @@ public abstract class BasePowerConverterBlock extends BetterBaseEntityBlock impl
         builder.add(FACING, OVERLOAD);
     }
 
-    @SuppressWarnings("deprecation")
+    
     @Override
     public @Nonnull BlockState rotate(@Nonnull BlockState state, @Nonnull Rotation rotation) {
         return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
 
-    @SuppressWarnings("deprecation")
+    
     @Override
     public @Nonnull BlockState mirror(@Nonnull BlockState state, @Nonnull Mirror mirror) {
         return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }
 
-    @Nullable @Override
+    @Nullable
+    @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return defaultBlockState().setValue(FACING, context.getClickedFace().getOpposite());
     }
 
-    @Nullable @Override
+    @Nullable
+    @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-            Level level, BlockState state, BlockEntityType<T> type) {
+        Level level,
+        BlockState state,
+        BlockEntityType<T> type
+    ) {
         if (level.isClientSide()) {
             return null;
         }
         return createTickerHelper(
-                type,
-                ModBlockEntities.POWER_CONVERTER.get(),
-                (level1, blockPos, blockState, blockEntity) -> blockEntity.tick());
+            type,
+            ModBlockEntities.POWER_CONVERTER.get(),
+            (level1, blockPos, blockState, blockEntity) -> blockEntity.tick()
+        );
     }
 
     @Override
@@ -85,7 +98,8 @@ public abstract class BasePowerConverterBlock extends BetterBaseEntityBlock impl
         return RenderShape.MODEL;
     }
 
-    @Nullable @Override
+    @Nullable
+    @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new PowerConverterBlockEntity(ModBlockEntities.POWER_CONVERTER.get(), pos, state, inputPower);
     }

@@ -178,7 +178,7 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements IHammer
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    
     public void onPlace(
             @NotNull BlockState state,
             @NotNull Level level,
@@ -220,13 +220,13 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements IHammer
                 .setValue(POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()));
     }
 
-    @SuppressWarnings("deprecation")
+    
     @Override
     public @Nonnull BlockState rotate(@Nonnull BlockState state, @Nonnull Rotation rotation) {
         return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
 
-    @SuppressWarnings("deprecation")
+    
     @Override
     public @Nonnull BlockState mirror(@Nonnull BlockState state, @Nonnull Mirror mirror) {
         return state.rotate(mirror.getRotation(state.getValue(FACING)));

@@ -35,13 +35,14 @@ public class OverNestingShulkerBoxBlock extends BetterBlock {
     /**
      *
      */
-    public @NotNull InteractionResult use(
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull Player player,
-            @NotNull InteractionHand hand,
-            @NotNull BlockHitResult hit) {
+    public InteractionResult use(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        InteractionHand hand,
+        BlockHitResult hit
+    ) {
         if (level.isClientSide && canBeInteracted) {
             level.playSound(player, pos, SoundEvents.SHULKER_BOX_OPEN, SoundSource.BLOCKS, 0.8F, 1.0F);
             lastInteractionPlayer = player;
@@ -52,26 +53,25 @@ public class OverNestingShulkerBoxBlock extends BetterBlock {
         return InteractionResult.SUCCESS;
     }
 
-    @SuppressWarnings("deprecation")
+
     @Override
     public void tick(
-            @NotNull BlockState state,
-            @NotNull ServerLevel level,
-            @NotNull BlockPos pos,
-            @NotNull RandomSource random) {
-        // super.tick(state, level, pos, random);
+        BlockState state,
+        ServerLevel level,
+        BlockPos pos,
+        RandomSource random) {
         switch (soundSetId) {
             case 0:
                 level.playSound(
-                        lastInteractionPlayer, pos, SoundEvents.SHULKER_BOX_OPEN, SoundSource.BLOCKS, 0.8F, 0.95F);
+                    lastInteractionPlayer, pos, SoundEvents.SHULKER_BOX_OPEN, SoundSource.BLOCKS, 0.8F, 0.95F);
                 level.playSound(
-                        lastInteractionPlayer, pos, SoundEvents.SHULKER_BOX_CLOSE, SoundSource.BLOCKS, 0.8F, 0.95F);
+                    lastInteractionPlayer, pos, SoundEvents.SHULKER_BOX_CLOSE, SoundSource.BLOCKS, 0.8F, 0.95F);
                 level.scheduleTick(pos, this, soundDelay);
                 soundSetId = 1;
                 break;
             case 1:
                 level.playSound(
-                        lastInteractionPlayer, pos, SoundEvents.SHULKER_BOX_CLOSE, SoundSource.BLOCKS, 0.8F, 1.0F);
+                    lastInteractionPlayer, pos, SoundEvents.SHULKER_BOX_CLOSE, SoundSource.BLOCKS, 0.8F, 1.0F);
                 level.scheduleTick(pos, this, 2 * soundDelay);
                 soundSetId = 2;
                 break;

@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.entity.AnimateAscendingBlockEntity;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
@@ -24,8 +25,11 @@ import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class MagnetBlock extends Block implements IHammerRemovable {
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
 
@@ -35,36 +39,39 @@ public class MagnetBlock extends Block implements IHammerRemovable {
     }
 
     @Override
-    @Nullable public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
+    @Nullable
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
         return this.defaultBlockState().setValue(LIT, context.getLevel().hasNeighborSignal(context.getClickedPos()));
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+
     public void onPlace(
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull BlockState oldState,
-            boolean movedByPiston) {
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        BlockState oldState,
+        boolean movedByPiston
+    ) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
         this.attract(state, level, pos);
     }
 
     @Override
-    protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(LIT);
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+
     public void neighborChanged(
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull Block neighborBlock,
-            @NotNull BlockPos neighborPos,
-            boolean movedByPiston) {
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block neighborBlock,
+        BlockPos neighborPos,
+        boolean movedByPiston
+    ) {
         if (level.isClientSide) {
             return;
         }
@@ -79,7 +86,7 @@ public class MagnetBlock extends Block implements IHammerRemovable {
         }
     }
 
-    private void attract(BlockState state, @NotNull Level level, @NotNull BlockPos magnetPos) {
+    private void attract(BlockState state, Level level, BlockPos magnetPos) {
         if (level.isClientSide()) return;
         if (!(state.getBlock() instanceof MagnetBlock) || state.getValue(LIT)) return;
         if (level.getBlockState(magnetPos.below()).is(BlockTags.ANVIL)) return;
@@ -99,7 +106,7 @@ public class MagnetBlock extends Block implements IHammerRemovable {
                 break;
             }
             List<FallingBlockEntity> entities =
-                    level.getEntitiesOfClass(FallingBlockEntity.class, new AABB(currentPos));
+                level.getEntitiesOfClass(FallingBlockEntity.class, new AABB(currentPos));
             for (FallingBlockEntity entity : entities) {
                 BlockState state2 = entity.getBlockState();
                 if (state2.is(BlockTags.ANVIL)) {
@@ -118,14 +125,15 @@ public class MagnetBlock extends Block implements IHammerRemovable {
         }
     }
 
-    @SuppressWarnings("deprecation")
+
     @Override
     public void onRemove(
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos magnetPos,
-            @NotNull BlockState newState,
-            boolean movedByPiston) {
+        BlockState state,
+        Level level,
+        BlockPos magnetPos,
+        BlockState newState,
+        boolean movedByPiston
+    ) {
         super.onRemove(state, level, magnetPos, newState, movedByPiston);
         if (level.isClientSide()) return;
         int distance = AnvilCraft.config.magnetAttractsDistance;
@@ -133,7 +141,7 @@ public class MagnetBlock extends Block implements IHammerRemovable {
         for (int i = 0; i < distance; i++) {
             currentPos = currentPos.below();
             List<AnimateAscendingBlockEntity> entities =
-                    level.getEntitiesOfClass(AnimateAscendingBlockEntity.class, new AABB(currentPos));
+                level.getEntitiesOfClass(AnimateAscendingBlockEntity.class, new AABB(currentPos));
             for (AnimateAscendingBlockEntity entity : entities) {
                 entity.discard();
             }
@@ -142,12 +150,11 @@ public class MagnetBlock extends Block implements IHammerRemovable {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public void tick(
-            @NotNull BlockState state,
-            @NotNull ServerLevel level,
-            @NotNull BlockPos pos,
-            @NotNull RandomSource random) {
+        BlockState state,
+        ServerLevel level,
+        BlockPos pos,
+        RandomSource random) {
         if (state.getValue(LIT) && !level.hasNeighborSignal(pos)) {
             level.setBlock(pos, state.cycle(LIT), 2);
         }

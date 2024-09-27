@@ -13,7 +13,13 @@ public interface HandHeldItemTooltipProvider {
     boolean accepts(ItemStack itemStack);
 
     void render(
-            PoseStack poseStack, VertexConsumer consumer, ItemStack itemStack, double camX, double camY, double camZ);
+            PoseStack poseStack,
+            VertexConsumer consumer,
+            ItemStack itemStack,
+            double camX,
+            double camY,
+            double camZ
+    );
 
     void renderTooltip(GuiGraphics guiGraphics, int screenWidth, int screenHeight);
 

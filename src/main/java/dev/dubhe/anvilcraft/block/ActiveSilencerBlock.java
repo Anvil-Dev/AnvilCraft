@@ -57,7 +57,8 @@ public class ActiveSilencerBlock extends BaseEntityBlock implements IHammerRemov
         pBuilder.add(POWERED);
     }
 
-    @Nullable @Override
+    @Nullable
+    @Override
     public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
         return new ActiveSilencerBlockEntity(ModBlockEntities.ACTIVE_SILENCER.get(), pos, state);
     }
@@ -69,32 +70,41 @@ public class ActiveSilencerBlock extends BaseEntityBlock implements IHammerRemov
 
     @Override
     protected void neighborChanged(
-            BlockState pState,
-            Level pLevel,
-            BlockPos pPos,
-            Block pNeighborBlock,
-            BlockPos pNeighborPos,
-            boolean pMovedByPiston) {
+        BlockState pState,
+        Level pLevel,
+        BlockPos pPos,
+        Block pNeighborBlock,
+        BlockPos pNeighborPos,
+        boolean pMovedByPiston
+    ) {
         pLevel.setBlockAndUpdate(pPos, pState.setValue(POWERED, pLevel.hasNeighborSignal(pPos)));
     }
 
     @Override
     protected ItemInteractionResult useItemOn(
-            ItemStack pStack,
-            BlockState pState,
-            Level pLevel,
-            BlockPos pPos,
-            Player pPlayer,
-            InteractionHand pHand,
-            BlockHitResult pHitResult) {
+        ItemStack pStack,
+        BlockState pState,
+        Level pLevel,
+        BlockPos pPos,
+        Player pPlayer,
+        InteractionHand pHand,
+        BlockHitResult pHitResult) {
         if (pLevel.isClientSide) return ItemInteractionResult.SUCCESS;
         if (pPlayer instanceof ServerPlayer serverPlayer) {
             BlockEntity be = pLevel.getBlockEntity(pPos);
             if (be instanceof ActiveSilencerBlockEntity asbe
-                    && pPlayer.getItemInHand(pHand).is(ModItems.DISK.get())) {
+                && pPlayer.getItemInHand(pHand).is(ModItems.DISK.get())
+            ) {
                 return Util.interactionResultConverter()
-                        .apply(asbe.useDisk(
-                                pLevel, serverPlayer, pHand, serverPlayer.getItemInHand(pHand), pHitResult));
+                    .apply(
+                        asbe.useDisk(
+                            pLevel,
+                            serverPlayer,
+                            pHand,
+                            serverPlayer.getItemInHand(pHand),
+                            pHitResult
+                        )
+                    );
             }
         }
         return super.useItemOn(pStack, pState, pLevel, pPos, pPlayer, pHand, pHitResult);
@@ -102,7 +112,12 @@ public class ActiveSilencerBlock extends BaseEntityBlock implements IHammerRemov
 
     @Override
     protected InteractionResult useWithoutItem(
-            BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, BlockHitResult pHitResult) {
+        BlockState pState,
+        Level pLevel,
+        BlockPos pPos,
+        Player pPlayer,
+        BlockHitResult pHitResult
+    ) {
         if (pLevel.isClientSide) {
             return InteractionResult.SUCCESS;
         }

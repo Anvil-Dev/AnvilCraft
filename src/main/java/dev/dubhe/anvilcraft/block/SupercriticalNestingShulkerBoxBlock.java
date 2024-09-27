@@ -27,7 +27,7 @@ public class SupercriticalNestingShulkerBoxBlock extends BetterBlock {
         super(properties);
     }
 
-    @SuppressWarnings("deprecation")
+    
     @Override
     public @NotNull InteractionResult use(
             @NotNull BlockState state,
@@ -46,7 +46,7 @@ public class SupercriticalNestingShulkerBoxBlock extends BetterBlock {
         return InteractionResult.SUCCESS;
     }
 
-    @SuppressWarnings("deprecation")
+    
     @Override
     public void tick(
             @NotNull BlockState state,

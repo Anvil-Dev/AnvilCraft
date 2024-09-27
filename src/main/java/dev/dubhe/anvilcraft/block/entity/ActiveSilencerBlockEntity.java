@@ -38,9 +38,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-public class ActiveSilencerBlockEntity extends BlockEntity implements MenuProvider, SoundEventListener, IDiskCloneable {
+public class ActiveSilencerBlockEntity
+    extends BlockEntity
+    implements MenuProvider, SoundEventListener, IDiskCloneable
+{
     public static final Codec<List<ResourceLocation>> CODEC =
-            ResourceLocation.CODEC.listOf().fieldOf("mutedSound").codec();
+        ResourceLocation.CODEC.listOf().fieldOf("mutedSound").codec();
 
     @Getter
     private final Set<ResourceLocation> mutedSound = new CopyOnWriteArraySet<>();
@@ -66,11 +69,12 @@ public class ActiveSilencerBlockEntity extends BlockEntity implements MenuProvid
     public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
         mutedSound.addAll(CODEC.decode(NbtOps.INSTANCE, tag.get("MutedSound"))
-                .getOrThrow()
-                .getFirst());
+            .getOrThrow()
+            .getFirst());
     }
 
-    @Nullable @Override
+    @Nullable
+    @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
     }
@@ -100,7 +104,8 @@ public class ActiveSilencerBlockEntity extends BlockEntity implements MenuProvid
         return Component.translatable("screen.anvilcraft.active_silencer.title");
     }
 
-    @Nullable @Override
+    @Nullable
+    @Override
     public AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
         return new ActiveSilencerMenu(ModMenuTypes.ACTIVE_SILENCER.get(), i, inventory, this);
     }
@@ -140,7 +145,7 @@ public class ActiveSilencerBlockEntity extends BlockEntity implements MenuProvid
     @Override
     public void applyDiskData(CompoundTag data) {
         mutedSound.addAll(CODEC.decode(NbtOps.INSTANCE, data.get("MutedSound"))
-                .getOrThrow()
-                .getFirst());
+            .getOrThrow()
+            .getFirst());
     }
 }

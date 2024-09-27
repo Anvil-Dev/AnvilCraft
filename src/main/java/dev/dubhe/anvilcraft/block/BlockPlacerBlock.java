@@ -50,29 +50,29 @@ import static dev.dubhe.anvilcraft.api.entity.player.AnvilCraftBlockPlacer.anvil
 public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammerChangeable {
 
     public static final VoxelShape NORTH_UP_SHAPE =
-            Shapes.or(Block.box(0, 13, 4, 16, 16, 16), Block.box(0, 3, 6, 16, 13, 16), Block.box(0, 0, 4, 16, 3, 16));
+        Shapes.or(Block.box(0, 13, 4, 16, 16, 16), Block.box(0, 3, 6, 16, 13, 16), Block.box(0, 0, 4, 16, 3, 16));
     public static final VoxelShape SOUTH_UP_SHAPE =
-            Shapes.or(Block.box(0, 13, 0, 16, 16, 12), Block.box(0, 3, 0, 16, 13, 10), Block.box(0, 0, 0, 16, 3, 12));
+        Shapes.or(Block.box(0, 13, 0, 16, 16, 12), Block.box(0, 3, 0, 16, 13, 10), Block.box(0, 0, 0, 16, 3, 12));
     public static final VoxelShape WEST_UP_SHAPE =
-            Shapes.or(Block.box(4, 13, 0, 16, 16, 16), Block.box(6, 3, 0, 16, 13, 16), Block.box(4, 0, 0, 16, 3, 16));
+        Shapes.or(Block.box(4, 13, 0, 16, 16, 16), Block.box(6, 3, 0, 16, 13, 16), Block.box(4, 0, 0, 16, 3, 16));
     public static final VoxelShape EAST_UP_SHAPE =
-            Shapes.or(Block.box(0, 13, 0, 12, 16, 16), Block.box(0, 3, 0, 10, 13, 16), Block.box(0, 0, 0, 12, 3, 16));
+        Shapes.or(Block.box(0, 13, 0, 12, 16, 16), Block.box(0, 3, 0, 10, 13, 16), Block.box(0, 0, 0, 12, 3, 16));
     public static final VoxelShape UP_NORTH_SHAPE =
-            Shapes.or(Block.box(0, 0, 13, 16, 12, 16), Block.box(0, 0, 3, 16, 10, 13), Block.box(0, 0, 0, 16, 12, 3));
+        Shapes.or(Block.box(0, 0, 13, 16, 12, 16), Block.box(0, 0, 3, 16, 10, 13), Block.box(0, 0, 0, 16, 12, 3));
     public static final VoxelShape UP_SOUTH_SHAPE =
-            Shapes.or(Block.box(0, 0, 13, 16, 12, 16), Block.box(0, 0, 3, 16, 10, 13), Block.box(0, 0, 0, 16, 12, 3));
+        Shapes.or(Block.box(0, 0, 13, 16, 12, 16), Block.box(0, 0, 3, 16, 10, 13), Block.box(0, 0, 0, 16, 12, 3));
     public static final VoxelShape UP_WEST_SHAPE =
-            Shapes.or(Block.box(13, 0, 0, 16, 12, 16), Block.box(3, 0, 0, 13, 10, 16), Block.box(0, 0, 0, 3, 12, 16));
+        Shapes.or(Block.box(13, 0, 0, 16, 12, 16), Block.box(3, 0, 0, 13, 10, 16), Block.box(0, 0, 0, 3, 12, 16));
     public static final VoxelShape UP_EAST_SHAPE =
-            Shapes.or(Block.box(13, 0, 0, 16, 12, 16), Block.box(3, 0, 0, 13, 10, 16), Block.box(0, 0, 0, 3, 12, 16));
+        Shapes.or(Block.box(13, 0, 0, 16, 12, 16), Block.box(3, 0, 0, 13, 10, 16), Block.box(0, 0, 0, 3, 12, 16));
     public static final VoxelShape DOWN_NORTH_SHAPE =
-            Shapes.or(Block.box(0, 4, 13, 16, 16, 16), Block.box(0, 6, 3, 16, 16, 13), Block.box(0, 4, 0, 16, 16, 3));
+        Shapes.or(Block.box(0, 4, 13, 16, 16, 16), Block.box(0, 6, 3, 16, 16, 13), Block.box(0, 4, 0, 16, 16, 3));
     public static final VoxelShape DOWN_SOUTH_SHAPE =
-            Shapes.or(Block.box(0, 4, 13, 16, 16, 16), Block.box(0, 6, 3, 16, 16, 13), Block.box(0, 4, 0, 16, 16, 3));
+        Shapes.or(Block.box(0, 4, 13, 16, 16, 16), Block.box(0, 6, 3, 16, 16, 13), Block.box(0, 4, 0, 16, 16, 3));
     public static final VoxelShape DOWN_WEST_SHAPE =
-            Shapes.or(Block.box(0, 4, 0, 3, 16, 16), Block.box(3, 6, 0, 13, 16, 16), Block.box(13, 4, 0, 16, 16, 16));
+        Shapes.or(Block.box(0, 4, 0, 3, 16, 16), Block.box(3, 6, 0, 13, 16, 16), Block.box(13, 4, 0, 16, 16, 16));
     public static final VoxelShape DOWN_EAST_SHAPE =
-            Shapes.or(Block.box(0, 4, 0, 3, 16, 16), Block.box(3, 6, 0, 13, 16, 16), Block.box(13, 4, 0, 16, 16, 16));
+        Shapes.or(Block.box(0, 4, 0, 3, 16, 16), Block.box(3, 6, 0, 13, 16, 16), Block.box(13, 4, 0, 16, 16, 16));
     public static final EnumProperty<Orientation> ORIENTATION = EnumProperty.create("orientation", Orientation.class);
     public static final BooleanProperty TRIGGERED = BlockStateProperties.TRIGGERED;
 
@@ -82,9 +82,9 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
     public BlockPlacerBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition
-                .any()
-                .setValue(ORIENTATION, Orientation.NORTH_UP)
-                .setValue(TRIGGERED, false));
+            .any()
+            .setValue(ORIENTATION, Orientation.NORTH_UP)
+            .setValue(TRIGGERED, false));
     }
 
     @Override
@@ -94,23 +94,25 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
 
     @Override
     public void tick(
-            @NotNull BlockState state,
-            @NotNull ServerLevel level,
-            @NotNull BlockPos pos,
-            @NotNull RandomSource random) {
+        @NotNull BlockState state,
+        @NotNull ServerLevel level,
+        @NotNull BlockPos pos,
+        @NotNull RandomSource random) {
         super.tick(state, level, pos, random);
         if (!state.getValue(TRIGGERED)) return;
-        if (!level.hasNeighborSignal(pos)) level.setBlock(pos, state.setValue(TRIGGERED, false), 2);
+        if (!level.hasNeighborSignal(pos)) {
+            level.setBlock(pos, state.setValue(TRIGGERED, false), 2);
+        }
     }
 
     @Override
     public void neighborChanged(
-            @NotNull BlockState state,
-            Level level,
-            @NotNull BlockPos pos,
-            @NotNull Block neighborBlock,
-            @NotNull BlockPos neighborPos,
-            boolean movedByPiston) {
+        @NotNull BlockState state,
+        Level level,
+        @NotNull BlockPos pos,
+        @NotNull Block neighborBlock,
+        @NotNull BlockPos neighborPos,
+        boolean movedByPiston) {
         if (level.isClientSide) {
             return;
         }
@@ -132,10 +134,10 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
 
     @Override
     public @NotNull VoxelShape getShape(
-            @NotNull BlockState state,
-            @NotNull BlockGetter level,
-            @NotNull BlockPos pos,
-            @NotNull CollisionContext context) {
+        @NotNull BlockState state,
+        @NotNull BlockGetter level,
+        @NotNull BlockPos pos,
+        @NotNull CollisionContext context) {
         return switch (state.getValue(ORIENTATION)) {
             case NORTH_UP -> NORTH_UP_SHAPE;
             case SOUTH_UP -> SOUTH_UP_SHAPE;
@@ -153,7 +155,8 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
     }
 
     @Override
-    @Nullable public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
+    @Nullable
+    public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
         Orientation orientation;
         Direction horizontalDirection = context.getHorizontalDirection();
         if (context.getNearestLookingDirection() == Direction.UP) {
@@ -203,7 +206,7 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
         // 获取放置方块类型
         ItemStack placeItem = null;
         IItemHandler itemHandler = level.getCapability(
-                Capabilities.ItemHandler.BLOCK, blockPos.relative(direction.getOpposite()), direction);
+            Capabilities.ItemHandler.BLOCK, blockPos.relative(direction.getOpposite()), direction);
         int slot;
         for (slot = 0; itemHandler != null && slot < itemHandler.getSlots(); slot++) {
             ItemStack blockItemStack = itemHandler.extractItem(slot, 1, true);
@@ -217,7 +220,7 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
         if (itemHandler == null) {
             AABB aabb = new AABB(blockPos.relative(direction.getOpposite()));
             List<ItemEntity> entities =
-                    level.getEntities(EntityTypeTest.forClass(ItemEntity.class), aabb, Entity::isAlive);
+                level.getEntities(EntityTypeTest.forClass(ItemEntity.class), aabb, Entity::isAlive);
             if (entities.isEmpty()) {
                 return;
             }
@@ -237,16 +240,22 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
         }
         // 检查海龟蛋，海泡菜，蜡烛是否可以被放置
         BlockItem blockItem = (BlockItem) placeItem.getItem();
-        if ((blockState.is(Blocks.TURTLE_EGG)
-                        || blockState.is(Blocks.SEA_PICKLE)
-                        || (blockState.getBlock() instanceof CandleBlock))
-                && blockState.getBlock() != blockItem.getBlock()) {
+        boolean isInvalidBlock = blockState.is(Blocks.TURTLE_EGG)
+            || blockState.is(Blocks.SEA_PICKLE)
+            || (blockState.getBlock() instanceof CandleBlock);
+        boolean blockMismatch = blockState.getBlock() != blockItem.getBlock();
+        if (isInvalidBlock && blockMismatch) {
             return;
         }
         BlockPos placePos = blockPos.relative(direction, distance);
         // 放置方块
-        if (anvilCraftBlockPlacer.placeBlock(level, placePos, orientation, blockItem, placeItem)
-                == InteractionResult.FAIL) {
+        if (anvilCraftBlockPlacer.placeBlock(
+            level,
+            placePos,
+            orientation,
+            blockItem,
+            placeItem) == InteractionResult.FAIL
+        ) {
             return;
         }
         // 清除消耗的物品
@@ -298,7 +307,9 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
     public boolean change(Player player, BlockPos blockPos, @NotNull Level level, ItemStack anvilHammer) {
         BlockState state = defaultBlockState();
         state = state.setValue(
-                ORIENTATION, level.getBlockState(blockPos).getValue(ORIENTATION).next());
+            ORIENTATION,
+            level.getBlockState(blockPos).getValue(ORIENTATION).next()
+        );
         level.setBlockAndUpdate(blockPos, state);
         return true;
     }

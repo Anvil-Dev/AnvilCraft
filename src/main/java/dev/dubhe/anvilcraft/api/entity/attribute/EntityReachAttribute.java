@@ -14,7 +14,8 @@ import java.util.function.Supplier;
 public class EntityReachAttribute {
 
     public static Supplier<Multimap<Holder<Attribute>, AttributeModifier>> getRangeModifierSupplier(
-            AttributeModifier modifier) {
+        AttributeModifier modifier
+    ) {
         return Suppliers.memoize(() -> ImmutableMultimap.of(Attributes.BLOCK_INTERACTION_RANGE, modifier));
     }
 

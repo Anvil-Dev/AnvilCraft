@@ -26,20 +26,20 @@ public class HeatedBlockRecorder {
 
     static {
         BlockFamily tungstenFamily = new BlockFamily(List.of(
-                ModBlocks.TUNGSTEN_BLOCK.get(),
-                ModBlocks.HEATED_TUNGSTEN.get(),
-                ModBlocks.REDHOT_TUNGSTEN.get(),
-                ModBlocks.GLOWING_TUNGSTEN.get(),
-                ModBlocks.INCANDESCENT_TUNGSTEN.get()));
+            ModBlocks.TUNGSTEN_BLOCK.get(),
+            ModBlocks.HEATED_TUNGSTEN.get(),
+            ModBlocks.REDHOT_TUNGSTEN.get(),
+            ModBlocks.GLOWING_TUNGSTEN.get(),
+            ModBlocks.INCANDESCENT_TUNGSTEN.get()));
         BlockFamily netheriteFamily = new BlockFamily(List.of(
-                Blocks.NETHERITE_BLOCK,
-                ModBlocks.HEATED_NETHERITE.get(),
-                ModBlocks.REDHOT_NETHERITE.get(),
-                ModBlocks.GLOWING_NETHERITE.get(),
-                ModBlocks.INCANDESCENT_NETHERITE.get()));
+            Blocks.NETHERITE_BLOCK,
+            ModBlocks.HEATED_NETHERITE.get(),
+            ModBlocks.REDHOT_NETHERITE.get(),
+            ModBlocks.GLOWING_NETHERITE.get(),
+            ModBlocks.INCANDESCENT_NETHERITE.get()));
 
         BlockFamily emberMetalFamily =
-                new BlockFamily(List.of(ModBlocks.EMBER_METAL_BLOCK.get(), ModBlocks.CUT_EMBER_METAL_BLOCK.get()));
+            new BlockFamily(List.of(ModBlocks.EMBER_METAL_BLOCK.get(), ModBlocks.CUT_EMBER_METAL_BLOCK.get()));
 
         TRANSFORMS.put(Pair.of(ModBlocks.HEATED_TUNGSTEN.get(), 2), tungstenFamily);
         TRANSFORMS.put(Pair.of(ModBlocks.REDHOT_TUNGSTEN.get(), 8), tungstenFamily);
@@ -85,15 +85,14 @@ public class HeatedBlockRecorder {
         int level = record.get(pos).addAndGet(1);
         irritateEntity.add(entity);
         List<Block> blocks = TRANSFORMS.entrySet().stream()
-                .filter(it ->
-                        it.getValue().anyMatch(this.level.getBlockState(pos).getBlock()))
-                .map(Map.Entry::getKey)
-                .sorted(Comparator.comparingInt(Pair::right))
-                .filter(it -> it.right() <= level)
-                .map(Pair::left)
-                .collect(Collectors.toCollection(ArrayList::new));
+            .filter(it -> it.getValue().anyMatch(this.level.getBlockState(pos).getBlock()))
+            .map(Map.Entry::getKey)
+            .sorted(Comparator.comparingInt(Pair::right))
+            .filter(it -> it.right() <= level)
+            .map(Pair::left)
+            .collect(Collectors.toCollection(ArrayList::new));
         if (blocks.isEmpty()) return;
-        Block block = blocks.get(blocks.size() - 1);
+        Block block = blocks.getLast();
         this.level.setBlock(pos, block.defaultBlockState(), 3);
     }
 
@@ -122,14 +121,14 @@ public class HeatedBlockRecorder {
         if (record.containsKey(pos)) {
             int level = record.get(pos).get();
             List<Block> blocks = TRANSFORMS.entrySet().stream()
-                    .filter(it -> it.getValue().anyMatch(newState.getBlock()))
-                    .map(Map.Entry::getKey)
-                    .sorted(Comparator.comparingInt(Pair::right))
-                    .filter(it -> it.right() <= level)
-                    .map(Pair::left)
-                    .collect(Collectors.toCollection(ArrayList::new));
+                .filter(it -> it.getValue().anyMatch(newState.getBlock()))
+                .map(Map.Entry::getKey)
+                .sorted(Comparator.comparingInt(Pair::right))
+                .filter(it -> it.right() <= level)
+                .map(Pair::left)
+                .collect(Collectors.toCollection(ArrayList::new));
             if (blocks.isEmpty()) return;
-            Block block = blocks.get(blocks.size() - 1);
+            Block block = blocks.getLast();
             this.level.setBlock(pos, block.defaultBlockState(), 3);
         }
     }

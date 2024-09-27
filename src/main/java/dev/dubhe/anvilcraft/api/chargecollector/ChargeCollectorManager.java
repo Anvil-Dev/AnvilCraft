@@ -58,17 +58,18 @@ public class ChargeCollectorManager {
         List<Entry> distanceList = new ArrayList<>();
         for (Map.Entry<BlockPos, ChargeCollectorBlockEntity> entry : chargeCollectors.entrySet()) {
             double distance = Vector3f.distance(
-                    entry.getKey().getX(),
-                    entry.getKey().getY(),
-                    entry.getKey().getZ(),
-                    blockPos.getX(),
-                    blockPos.getY(),
-                    blockPos.getZ());
+                entry.getKey().getX(),
+                entry.getKey().getY(),
+                entry.getKey().getZ(),
+                blockPos.getX(),
+                blockPos.getY(),
+                blockPos.getZ()
+            );
             distanceList.add(new Entry(distance, entry.getValue()));
         }
         return distanceList.stream()
-                .sorted(Comparator.comparing(Entry::getDistance))
-                .collect(Collectors.toList());
+            .sorted(Comparator.comparing(Entry::getDistance))
+            .collect(Collectors.toList());
     }
 
     /**
@@ -80,11 +81,11 @@ public class ChargeCollectorManager {
      */
     public boolean canCollect(ChargeCollectorBlockEntity blockEntity, BlockPos blockPos) {
         return blockEntity.getPos().getX() - 2 <= blockPos.getX()
-                && blockEntity.getPos().getY() - 2 <= blockPos.getY()
-                && blockEntity.getPos().getZ() - 2 <= blockPos.getZ()
-                && blockEntity.getPos().getX() + 2 >= blockPos.getX()
-                && blockEntity.getPos().getY() + 2 >= blockPos.getY()
-                && blockEntity.getPos().getZ() + 2 >= blockPos.getZ();
+            && blockEntity.getPos().getY() - 2 <= blockPos.getY()
+            && blockEntity.getPos().getZ() - 2 <= blockPos.getZ()
+            && blockEntity.getPos().getX() + 2 >= blockPos.getX()
+            && blockEntity.getPos().getY() + 2 >= blockPos.getY()
+            && blockEntity.getPos().getZ() + 2 >= blockPos.getZ();
     }
 
     @Getter

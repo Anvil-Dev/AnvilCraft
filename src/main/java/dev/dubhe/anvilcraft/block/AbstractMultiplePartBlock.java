@@ -37,7 +37,7 @@ public abstract class AbstractMultiplePartBlock<P extends Enum<P> & MultiplePart
         super(properties);
     }
 
-    public abstract @NotNull Property<P> getPart();
+    public abstract Property<P> getPart();
 
     public abstract P[] getParts();
 
@@ -47,11 +47,12 @@ public abstract class AbstractMultiplePartBlock<P extends Enum<P> & MultiplePart
 
     @Override
     public final void setPlacedBy(
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull BlockState state,
-            @Nullable LivingEntity placer,
-            @NotNull ItemStack stack) {
+        Level level,
+        BlockPos pos,
+        BlockState state,
+        @Nullable LivingEntity placer,
+        ItemStack stack
+    ) {
         if (!state.hasProperty(this.getPart())) return;
         for (P part : this.getParts()) {
             if (part.getOffset().distSqr(new Vec3i(0, 0, 0)) <= 0) continue;
@@ -61,19 +62,18 @@ public abstract class AbstractMultiplePartBlock<P extends Enum<P> & MultiplePart
         }
     }
 
-    protected BlockState placedState(P part, @NotNull BlockState state) {
+    protected BlockState placedState(P part, BlockState state) {
         return state.setValue(this.getPart(), part);
     }
 
     @Override
-    @SuppressWarnings("deprecation")
-    public @NotNull BlockState updateShape(
-            @NotNull BlockState state,
-            @NotNull Direction direction,
-            @NotNull BlockState neighborState,
-            @NotNull LevelAccessor level,
-            @NotNull BlockPos pos,
-            @NotNull BlockPos neighborPos) {
+    public BlockState updateShape(
+        BlockState state,
+        Direction direction,
+        BlockState neighborState,
+        LevelAccessor level,
+        BlockPos pos,
+        BlockPos neighborPos) {
         if (!state.hasProperty(this.getPart())) {
             return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
         }
@@ -82,8 +82,8 @@ public abstract class AbstractMultiplePartBlock<P extends Enum<P> & MultiplePart
             Vec3i offset = neighborPos.subtract(pos).offset(state1.getOffset()); // 更新来源偏移值
             if (offset.distSqr(part.getOffset()) != 0) continue;
             if (!neighborState.is(this)
-                    || !neighborState.hasProperty(this.getPart())
-                    || neighborState.getValue(this.getPart()) != part) {
+                || !neighborState.hasProperty(this.getPart())
+                || neighborState.getValue(this.getPart()) != part) {
                 return Blocks.AIR.defaultBlockState();
             }
         }
@@ -91,8 +91,12 @@ public abstract class AbstractMultiplePartBlock<P extends Enum<P> & MultiplePart
     }
 
     @Override
-    public @NotNull BlockState playerWillDestroy(
-            @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player) {
+    public BlockState playerWillDestroy(
+        Level level,
+        BlockPos pos,
+        BlockState state,
+        Player player
+    ) {
         if (!level.isClientSide && player.isCreative()) {
             this.preventCreativeDropFromMainPart(level, pos, state, player);
         }
@@ -100,7 +104,11 @@ public abstract class AbstractMultiplePartBlock<P extends Enum<P> & MultiplePart
     }
 
     private void preventCreativeDropFromMainPart(
-            @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player) {
+        Level level,
+        BlockPos pos,
+        BlockState state,
+        Player player
+    ) {
         if (!state.is(this)) return;
         if (!state.hasProperty(this.getPart())) return;
         P value = state.getValue(this.getPart());
@@ -110,8 +118,8 @@ public abstract class AbstractMultiplePartBlock<P extends Enum<P> & MultiplePart
         if (!mainPartState.is(this)) return;
         if (!mainPartState.hasProperty(this.getPart())) return;
         BlockState blockState2 = mainPartState.getFluidState().is(Fluids.WATER)
-                ? Blocks.WATER.defaultBlockState()
-                : Blocks.AIR.defaultBlockState();
+            ? Blocks.WATER.defaultBlockState()
+            : Blocks.AIR.defaultBlockState();
         level.setBlock(mainPartPos, blockState2, 35);
         level.levelEvent(player, 2001, mainPartPos, Block.getId(mainPartState));
     }
@@ -123,7 +131,8 @@ public abstract class AbstractMultiplePartBlock<P extends Enum<P> & MultiplePart
      * @param block    方块
      */
     public static <T extends Enum<T> & MultiplePartBlockState<T>> void loot(
-            BlockLootSubProvider provider, @NotNull AbstractMultiplePartBlock<T> block) {
+        BlockLootSubProvider provider, AbstractMultiplePartBlock<T> block
+    ) {
         for (T part : block.getParts()) {
             if (part.getOffset().distSqr(block.getMainPartOffset()) == 0) {
 
@@ -133,13 +142,15 @@ public abstract class AbstractMultiplePartBlock<P extends Enum<P> & MultiplePart
         }
     }
 
-    @Nullable @Override
-    public final BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
+    @Nullable
+    @Override
+    public final BlockState getStateForPlacement(BlockPlaceContext context) {
         if (!hasEnoughSpace(context.getClickedPos(), context.getLevel())) return null; // 判断是否有足够空间放置方块
         return this.getPlacementState(context);
     }
 
-    @Nullable public BlockState getPlacementState(@NotNull BlockPlaceContext context) {
+    @Nullable
+    public BlockState getPlacementState(BlockPlaceContext context) {
         return super.getStateForPlacement(context);
     }
 
@@ -160,24 +171,24 @@ public abstract class AbstractMultiplePartBlock<P extends Enum<P> & MultiplePart
 
     @Override
     protected ItemInteractionResult useItemOn(
-            ItemStack pStack,
-            BlockState pState,
-            Level pLevel,
-            BlockPos pPos,
-            Player pPlayer,
-            InteractionHand pHand,
-            BlockHitResult pHitResult) {
+        ItemStack pStack,
+        BlockState pState,
+        Level pLevel,
+        BlockPos pPos,
+        Player pPlayer,
+        InteractionHand pHand,
+        BlockHitResult pHitResult) {
         return Util.interactionResultConverter().apply(this.use(pState, pLevel, pPos, pPlayer, pHand, pHitResult));
     }
 
     @Override
     protected InteractionResult useWithoutItem(
-            BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, BlockHitResult pHitResult) {
+        BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, BlockHitResult pHitResult) {
         return this.use(pState, pLevel, pPos, pPlayer, InteractionHand.MAIN_HAND, pHitResult);
     }
 
     public InteractionResult use(
-            BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         return InteractionResult.PASS;
     }
 }

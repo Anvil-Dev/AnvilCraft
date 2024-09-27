@@ -45,7 +45,7 @@ public class HeavyIronBeamBlock extends Block implements IHammerRemovable, IHamm
         builder.add(AXIS);
     }
 
-    @SuppressWarnings("deprecation")
+    
     @Override
     public @Nonnull VoxelShape getShape(
         @Nonnull BlockState blockState,

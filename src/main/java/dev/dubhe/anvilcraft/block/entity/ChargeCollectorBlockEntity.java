@@ -26,7 +26,10 @@ public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerPro
     private int power = 0;
 
     public static @NotNull ChargeCollectorBlockEntity createBlockEntity(
-            BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+        BlockEntityType<?> type,
+        BlockPos pos,
+        BlockState blockState
+    ) {
         return new ChargeCollectorBlockEntity(type, pos, blockState);
     }
 

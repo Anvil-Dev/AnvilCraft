@@ -11,11 +11,12 @@ import net.minecraft.world.level.block.state.BlockState;
 public class WaxingBehavior implements AnvilBehavior {
     @Override
     public boolean handle(
-            Level level,
-            BlockPos hitBlockPos,
-            BlockState hitBlockState,
-            float fallDistance,
-            AnvilFallOnLandEvent event) {
+        Level level,
+        BlockPos hitBlockPos,
+        BlockState hitBlockState,
+        float fallDistance,
+        AnvilFallOnLandEvent event
+    ) {
         BlockPos belowPos = hitBlockPos.below();
         BlockState belowState = level.getBlockState(belowPos);
         HoneycombItem.getWaxed(belowState).ifPresent(state -> level.setBlockAndUpdate(belowPos, state));

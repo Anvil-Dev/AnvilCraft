@@ -24,7 +24,10 @@ public class HeaterBlockEntity extends BlockEntity implements IPowerConsumer {
     }
 
     public static @NotNull HeaterBlockEntity createBlockEntity(
-            BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+        BlockEntityType<?> type,
+        BlockPos pos,
+        BlockState blockState
+    ) {
         return new HeaterBlockEntity(type, pos, blockState);
     }
 

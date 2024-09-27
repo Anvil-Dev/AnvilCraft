@@ -67,7 +67,10 @@ public class PowerGrid {
      */
     public void update() {
         PacketDistributor.sendToPlayersTrackingChunk(
-                (ServerLevel) level, this.level.getChunkAt(this.getPos()).getPos(), new PowerGridSyncPacket(this));
+            (ServerLevel) level,
+            this.level.getChunkAt(this.getPos()).getPos(),
+            new PowerGridSyncPacket(this)
+        );
     }
 
     /**
@@ -98,7 +101,7 @@ public class PowerGrid {
         if (this.level.getGameTime() % GRID_TICK != 0) return;
         if (this.isRemove()) return;
         if (this.flush()) return;
-        if (this.isWork()) {
+        if (this.isWorking()) {
             int remainder = this.generate - this.consume;
             for (IPowerStorage storage : storages) {
                 if (checkRemove(storage)) return;
@@ -162,7 +165,7 @@ public class PowerGrid {
     /**
      * 是否正常工作（未过载）
      */
-    public boolean isWork() {
+    public boolean isWorking() {
         return this.generate >= this.consume;
     }
 
@@ -171,7 +174,7 @@ public class PowerGrid {
      *
      * @param components 元件
      */
-    public void add(IPowerComponent @NotNull ... components) {
+    public void add(IPowerComponent... components) {
         for (IPowerComponent component : components) {
             if (component.getComponentType() == PowerComponentType.INVALID) continue;
             if (component instanceof IPowerStorage storage) {
@@ -202,8 +205,12 @@ public class PowerGrid {
         BlockPos center = this.pos;
         BlockPos vec3 = component.getPos();
         VoxelShape range = component
-                .getShape()
-                .move(vec3.getX() - center.getX(), vec3.getY() - center.getY(), vec3.getZ() - center.getZ());
+            .getShape()
+            .move(
+                vec3.getX() - center.getX(),
+                vec3.getY() - center.getY(),
+                vec3.getZ() - center.getZ()
+            );
         this.shape = Shapes.join(this.shape, range, BooleanOp.OR);
     }
 
@@ -272,7 +279,14 @@ public class PowerGrid {
     public boolean isInRange(@NotNull IPowerComponent component) {
         BlockPos vec3 = component.getPos().subtract(this.getPos());
         VoxelShape range = Shapes.join(
-                this.shape, component.getShape().move(vec3.getX(), vec3.getY(), vec3.getZ()), BooleanOp.AND);
+            this.shape,
+            component.getShape().move(
+                vec3.getX(),
+                vec3.getY(),
+                vec3.getZ()
+            ),
+            BooleanOp.AND
+        );
         return !range.isEmpty();
     }
 
@@ -298,7 +312,8 @@ public class PowerGrid {
         private final Map<Level, Set<PowerGrid>> gridMap = Collections.synchronizedMap(new HashMap<>());
         private final LinkedBlockingQueue<Map.Entry<Level, IPowerComponent>> addQueue = new LinkedBlockingQueue<>();
 
-        public PowerGridData() {}
+        public PowerGridData() {
+        }
 
         public synchronized void addComponent(@NotNull IPowerComponent component) {
             try {

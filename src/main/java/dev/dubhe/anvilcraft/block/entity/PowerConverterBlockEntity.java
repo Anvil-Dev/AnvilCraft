@@ -33,7 +33,7 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
     }
 
     public static PowerConverterBlockEntity createBlockEntity(
-            BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+        BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         return new PowerConverterBlockEntity(type, pos, blockState);
     }
 
@@ -62,8 +62,8 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
             cooldown = AnvilCraft.config.powerConverter.powerConverterCountdown;
             if (getBlockState().getValue(BasePowerConverterBlock.OVERLOAD)) return;
             int amountTick = (int) (inputPower
-                    * AnvilCraft.config.powerConverter.powerConverterEfficiency
-                    * (1 - AnvilCraft.config.powerConverter.powerConverterLoss));
+                * AnvilCraft.config.powerConverter.powerConverterEfficiency
+                * (1 - AnvilCraft.config.powerConverter.powerConverterLoss));
             int amount = amountTick * AnvilCraft.config.powerConverter.powerConverterCountdown;
             Direction face = getBlockState().getValue(BasePowerConverterBlock.FACING);
             EnergyHelper.insertEnergy(getLevel(), getBlockPos().relative(face), face.getOpposite(), amount);

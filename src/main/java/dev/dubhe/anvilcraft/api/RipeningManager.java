@@ -67,19 +67,19 @@ public class RipeningManager {
                     if (ripened.contains(pos1)) continue;
                     BlockState state = level.getBlockState(pos1);
                     if (state.getBlock() instanceof BonemealableBlock growable
-                            && !(growable instanceof GrassBlock)
-                            && !(growable instanceof NyliumBlock)
-                            && growable.isValidBonemealTarget(level, pos1, state)
-                            && level.getBrightness(LightLayer.BLOCK, pos1) >= 10) {
+                        && !(growable instanceof GrassBlock)
+                        && !(growable instanceof NyliumBlock)
+                        && growable.isValidBonemealTarget(level, pos1, state)
+                        && level.getBrightness(LightLayer.BLOCK, pos1) >= 10) {
                         growable.performBonemeal((ServerLevel) level, level.getRandom(), pos1, state);
                         level.addParticle(
-                                ParticleTypes.HAPPY_VILLAGER,
-                                pos1.getX() + 0.5,
-                                pos1.getY() + 0.5,
-                                pos1.getZ() + 0.5,
-                                0.0,
-                                0.0,
-                                0.0);
+                            ParticleTypes.HAPPY_VILLAGER,
+                            pos1.getX() + 0.5,
+                            pos1.getY() + 0.5,
+                            pos1.getZ() + 0.5,
+                            0.0,
+                            0.0,
+                            0.0);
                         ripened.add(pos1);
                     }
                 }
@@ -102,8 +102,9 @@ public class RipeningManager {
                     BlockPos pos = it.next();
                     BlockState lightBlockState = level.getBlockState(pos);
                     if (lightBlockState.getBlock() instanceof InductionLightBlock
-                            && isLit(lightBlockState)
-                            && canCropGrow(lightBlockState)) {
+                        && isLit(lightBlockState)
+                        && canCropGrow(lightBlockState)
+                    ) {
                         doRipen(pos, ripenedBlocks);
                     } else {
                         it.remove();

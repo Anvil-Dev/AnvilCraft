@@ -18,14 +18,16 @@ public class SoundHelper {
     public boolean shouldPlay(ResourceLocation sound, Vec3 pos) {
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) return true;
-        return eventListeners.computeIfAbsent(level, k -> new CopyOnWriteArrayList<>()).stream()
-                .allMatch(it -> it.shouldPlay(sound, pos));
+        return eventListeners.computeIfAbsent(level, k -> new CopyOnWriteArrayList<>())
+            .stream()
+            .allMatch(it -> it.shouldPlay(sound, pos));
     }
 
     public void register(SoundEventListener eventListener) {
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) return;
-        eventListeners.computeIfAbsent(level, k -> new CopyOnWriteArrayList<>()).add(eventListener);
+        eventListeners.computeIfAbsent(level, k -> new CopyOnWriteArrayList<>())
+            .add(eventListener);
     }
 
     public void unregister(SoundEventListener eventListener) {
@@ -34,7 +36,8 @@ public class SoundHelper {
             eventListeners.values().forEach(list -> list.remove(eventListener));
             return;
         }
-        eventListeners.computeIfAbsent(level, k -> new CopyOnWriteArrayList<>()).remove(eventListener);
+        eventListeners.computeIfAbsent(level, k -> new CopyOnWriteArrayList<>())
+            .remove(eventListener);
     }
 
     public void clear() {

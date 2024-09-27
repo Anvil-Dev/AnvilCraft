@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeableBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -20,13 +21,16 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class HeavyIronBeamBlock extends Block implements IHammerRemovable, IHammerChangeableBlock {
 
     public static final VoxelShape AABB_X =
-            Shapes.join(Block.box(0, 12, 0, 16, 16, 16), Block.box(0, 0, 4, 16, 12, 12), BooleanOp.OR);
+        Shapes.join(Block.box(0, 12, 0, 16, 16, 16), Block.box(0, 0, 4, 16, 12, 12), BooleanOp.OR);
     public static final VoxelShape AABB_Z =
-            Shapes.join(Block.box(0, 12, 0, 16, 16, 16), Block.box(4, 0, 0, 12, 12, 16), BooleanOp.OR);
+        Shapes.join(Block.box(0, 12, 0, 16, 16, 16), Block.box(4, 0, 0, 12, 12, 16), BooleanOp.OR);
 
     public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.AXIS;
 
@@ -35,10 +39,11 @@ public class HeavyIronBeamBlock extends Block implements IHammerRemovable, IHamm
         registerDefaultState(getStateDefinition().any().setValue(AXIS, Direction.Axis.X));
     }
 
-    @Nullable @Override
+    @Nullable
+    @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return this.defaultBlockState()
-                .setValue(AXIS, context.getHorizontalDirection().getOpposite().getAxis());
+            .setValue(AXIS, context.getHorizontalDirection().getOpposite().getAxis());
     }
 
     @Override
@@ -46,13 +51,14 @@ public class HeavyIronBeamBlock extends Block implements IHammerRemovable, IHamm
         builder.add(AXIS);
     }
 
-    @SuppressWarnings("deprecation")
+
     @Override
-    public @Nonnull VoxelShape getShape(
-            @Nonnull BlockState blockState,
-            @Nonnull BlockGetter blockGetter,
-            @Nonnull BlockPos blockPos,
-            @Nonnull CollisionContext collisionContext) {
+    public VoxelShape getShape(
+        BlockState blockState,
+        BlockGetter blockGetter,
+        BlockPos blockPos,
+        CollisionContext collisionContext
+    ) {
         return switch (blockState.getValue(AXIS)) {
             case X:
                 yield AABB_X;

@@ -39,7 +39,8 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public abstract class BaseChuteBlockEntity extends BaseMachineBlockEntity
-        implements IFilterBlockEntity, IDiskCloneable, ItemHandlerHolder {
+    implements IFilterBlockEntity, IDiskCloneable, ItemHandlerHolder
+{
     private int cooldown = 0;
     private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(9) {
         @Override
@@ -91,7 +92,8 @@ public abstract class BaseChuteBlockEntity extends BaseMachineBlockEntity
     @Override
     public abstract Component getDisplayName();
 
-    @Nullable @Override
+    @Nullable
+    @Override
     public abstract AbstractContainerMenu createMenu(int i, Inventory inventory, Player player);
 
     @Override
@@ -116,23 +118,23 @@ public abstract class BaseChuteBlockEntity extends BaseMachineBlockEntity
             if (isEnabled()) {
                 // 尝试从上方容器输入
                 IItemHandler source = getLevel()
-                        .getCapability(
-                                Capabilities.ItemHandler.BLOCK,
-                                getBlockPos().relative(getInputDirection()),
-                                getInputDirection().getOpposite());
+                    .getCapability(
+                        Capabilities.ItemHandler.BLOCK,
+                        getBlockPos().relative(getInputDirection()),
+                        getInputDirection().getOpposite());
                 if (source != null) {
                     ItemHandlerUtil.importFromTarget(getItemHandler(), 64, stack -> true, source);
                     cooldown = AnvilCraft.config.chuteMaxCooldown;
                 } else {
                     List<ItemEntity> itemEntities = getLevel()
-                            .getEntitiesOfClass(
-                                    ItemEntity.class,
-                                    new AABB(getBlockPos().relative(getInputDirection())),
-                                    itemEntity -> !itemEntity.getItem().isEmpty());
+                        .getEntitiesOfClass(
+                            ItemEntity.class,
+                            new AABB(getBlockPos().relative(getInputDirection())),
+                            itemEntity -> !itemEntity.getItem().isEmpty());
                     int prevSize = itemEntities.size();
                     for (ItemEntity itemEntity : itemEntities) {
                         ItemStack remaining =
-                                ItemHandlerHelper.insertItem(this.itemHandler, itemEntity.getItem(), true);
+                            ItemHandlerHelper.insertItem(this.itemHandler, itemEntity.getItem(), true);
                         if (!remaining.isEmpty()) continue;
                         ItemHandlerHelper.insertItem(this.itemHandler, itemEntity.getItem(), false);
                         itemEntity.kill();
@@ -144,20 +146,20 @@ public abstract class BaseChuteBlockEntity extends BaseMachineBlockEntity
                 }
                 // 尝试向朝向容器输出
                 IItemHandler target = getLevel()
-                        .getCapability(
-                                Capabilities.ItemHandler.BLOCK,
-                                getBlockPos().relative(getOutputDirection()),
-                                getOutputDirection().getOpposite());
+                    .getCapability(
+                        Capabilities.ItemHandler.BLOCK,
+                        getBlockPos().relative(getOutputDirection()),
+                        getOutputDirection().getOpposite());
                 if (target != null) {
                     ItemHandlerUtil.exportToTarget(getItemHandler(), 64, stack -> true, target);
                     cooldown = AnvilCraft.config.chuteMaxCooldown;
                 } else {
                     Vec3 center = getBlockPos().relative(getOutputDirection()).getCenter();
                     List<ItemEntity> itemEntities = getLevel()
-                            .getEntitiesOfClass(
-                                    ItemEntity.class,
-                                    new AABB(getBlockPos().relative(getOutputDirection())),
-                                    itemEntity -> !itemEntity.getItem().isEmpty());
+                        .getEntitiesOfClass(
+                            ItemEntity.class,
+                            new AABB(getBlockPos().relative(getOutputDirection())),
+                            itemEntity -> !itemEntity.getItem().isEmpty());
                     AABB aabb = new AABB(center.add(-0.125, -0.125, -0.125), center.add(0.125, 0.125, 0.125));
                     if (getLevel().noCollision(aabb)) {
                         for (int i = 0; i < this.itemHandler.getSlots(); i++) {
@@ -172,12 +174,12 @@ public abstract class BaseChuteBlockEntity extends BaseMachineBlockEntity
                                 if (sameItemCount < stack.getItem().getMaxStackSize(stack)) {
                                     ItemStack droppedItemStack = stack.copy();
                                     int droppedItemCount =
-                                            Math.min(stack.getCount(), stack.getMaxStackSize() - sameItemCount);
+                                        Math.min(stack.getCount(), stack.getMaxStackSize() - sameItemCount);
                                     droppedItemStack.setCount(droppedItemCount);
                                     stack.setCount(stack.getCount() - droppedItemCount);
                                     if (stack.getCount() == 0) stack = ItemStack.EMPTY;
                                     ItemEntity itemEntity = new ItemEntity(
-                                            getLevel(), center.x, center.y, center.z, droppedItemStack, 0, 0, 0);
+                                        getLevel(), center.x, center.y, center.z, droppedItemStack, 0, 0, 0);
                                     itemEntity.setDefaultPickUpDelay();
                                     getLevel().addFreshEntity(itemEntity);
                                     this.itemHandler.setStackInSlot(i, stack);
@@ -191,7 +193,7 @@ public abstract class BaseChuteBlockEntity extends BaseMachineBlockEntity
             }
             if (level != null) {
                 level.updateNeighbourForOutputSignal(
-                        getBlockPos(), getBlockState().getBlock());
+                    getBlockPos(), getBlockState().getBlock());
             }
         } else {
             cooldown--;

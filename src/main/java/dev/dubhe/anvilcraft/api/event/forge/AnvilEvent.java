@@ -59,7 +59,13 @@ public class AnvilEvent extends EntityEvent {
          * @param hurtedEntity 被伤害的实体
          * @param damage       伤害
          */
-        public HurtEntity(FallingBlockEntity entity, BlockPos pos, Level level, Entity hurtedEntity, float damage) {
+        public HurtEntity(
+            FallingBlockEntity entity,
+            BlockPos pos,
+            Level level,
+            Entity hurtedEntity,
+            float damage
+        ) {
             super(entity);
             this.pos = pos;
             this.level = level;

@@ -133,7 +133,7 @@ public class GiantAnvilBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf>
         );
     }
 
-    @SuppressWarnings("deprecation")
+    
     @Override
     public @NotNull VoxelShape getShape(
         @NotNull BlockState state,
@@ -247,7 +247,7 @@ public class GiantAnvilBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf>
         return new Vec3i(0, 1, 0);
     }
 
-    @SuppressWarnings("deprecation")
+    
     @Override
     public void tick(
         @NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random
@@ -284,7 +284,7 @@ public class GiantAnvilBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf>
         entity.setHurtsEntities(10.0F, 40);
     }
 
-    @SuppressWarnings("deprecation")
+    
     @Override
     public void onPlace(
         @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos,
@@ -310,7 +310,7 @@ public class GiantAnvilBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf>
         return 2;
     }
 
-    @SuppressWarnings("deprecation")
+    
     @Override
     public @NotNull InteractionResult use(
         @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos,
@@ -325,7 +325,7 @@ public class GiantAnvilBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf>
         }
     }
 
-    @SuppressWarnings("deprecation")
+    
     @Override
     @Nullable
     public MenuProvider getMenuProvider(

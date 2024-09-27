@@ -128,7 +128,7 @@ public class LargeCakeBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf> {
         );
     }
 
-    @SuppressWarnings("deprecation")
+    
     @Override
     public @NotNull VoxelShape getShape(
         @NotNull BlockState state,
@@ -234,7 +234,7 @@ public class LargeCakeBlock extends AbstractMultiplePartBlock<Cube3x3PartHalf> {
         return state;
     }
 
-    @SuppressWarnings("deprecation")
+    
     @Override
     public boolean canSurvive(@NotNull BlockState state, LevelReader level, BlockPos pos) {
         return level.getBlockState(pos.below()).isSolid();

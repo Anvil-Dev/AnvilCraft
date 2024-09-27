@@ -17,11 +17,12 @@ import net.neoforged.neoforge.items.IItemHandler;
 public class HitCrabTrapBehavior implements AnvilBehavior {
     @Override
     public boolean handle(
-            Level level,
-            BlockPos hitBlockPos,
-            BlockState hitBlockState,
-            float fallDistance,
-            AnvilFallOnLandEvent event) {
+        Level level,
+        BlockPos hitBlockPos,
+        BlockState hitBlockState,
+        float fallDistance,
+        AnvilFallOnLandEvent event
+    ) {
         if (!hitBlockState.hasBlockEntity()) return false;
         CrabTrapBlockEntity blockEntity = (CrabTrapBlockEntity) level.getBlockEntity(hitBlockPos);
         Direction face = hitBlockState.getValue(CrabTrapBlock.FACING);

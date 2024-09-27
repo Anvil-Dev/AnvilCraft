@@ -29,11 +29,12 @@ import java.util.Optional;
 public class ItemMeshBehavior implements AnvilBehavior {
     @Override
     public boolean handle(
-            Level level,
-            BlockPos hitBlockPos,
-            BlockState hitBlockState,
-            float fallDistance,
-            AnvilFallOnLandEvent event) {
+        Level level,
+        BlockPos hitBlockPos,
+        BlockState hitBlockState,
+        float fallDistance,
+        AnvilFallOnLandEvent event
+    ) {
         BlockPos pos = hitBlockPos.above();
         List<ItemEntity> entities = level.getEntitiesOfClass(ItemEntity.class, new AABB(pos));
         for (ItemEntity entity : entities) {
@@ -41,8 +42,8 @@ public class ItemMeshBehavior implements AnvilBehavior {
             List<RecipeHolder<MeshRecipe>> cacheMeshRecipes = RecipeCaches.getCacheMeshRecipes(stack);
             if (cacheMeshRecipes != null && !cacheMeshRecipes.isEmpty()) {
                 LootContext context = new LootContext.Builder(
-                                new LootParams((ServerLevel) level, Map.of(), Map.of(), 0))
-                        .create(Optional.empty());
+                    new LootParams((ServerLevel) level, Map.of(), Map.of(), 0)
+                ).create(Optional.empty());
                 Object2IntMap<Item> itemCounts = new Object2IntOpenHashMap<>();
                 for (int i = 0; i < stack.getCount(); i++) {
                     for (RecipeHolder<MeshRecipe> recipe : cacheMeshRecipes) {
@@ -51,8 +52,8 @@ public class ItemMeshBehavior implements AnvilBehavior {
                     }
                 }
                 List<ItemStack> outputs = itemCounts.object2IntEntrySet().stream()
-                        .map(entry -> new ItemStack(entry.getKey(), entry.getIntValue()))
-                        .toList();
+                    .map(entry -> new ItemStack(entry.getKey(), entry.getIntValue()))
+                    .toList();
                 AnvilUtil.dropItems(outputs, level, pos.below().getCenter());
                 entity.remove(Entity.RemovalReason.DISCARDED);
             }
