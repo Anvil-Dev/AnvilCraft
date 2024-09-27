@@ -15,6 +15,8 @@ import dev.dubhe.anvilcraft.recipe.anvil.SqueezingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.StampingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.SuperHeatingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.TimeWarpRecipe;
+import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainChanceRecipe;
+import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
 import dev.dubhe.anvilcraft.recipe.transform.MobTransformRecipe;
 
@@ -108,6 +110,18 @@ public class ModRecipeTypes {
             registerType("mulitblock");
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MultiblockRecipe>> MULITBLOCK_SERIALIZER =
             RECIPE_SERIALIZERS.register("multiblock", MultiblockRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<MineralFountainRecipe>> MINERAL_FOUNTAIN =
+            registerType("mineral_fountain");
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MineralFountainRecipe>>
+            MINERAL_FOUNTAIN_SERIALIZER =
+                    RECIPE_SERIALIZERS.register("mineral_fountain", MineralFountainRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<MineralFountainChanceRecipe>> MINERAL_FOUNTAIN_CHANCE =
+            registerType("mineral_fountain_chance");
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MineralFountainChanceRecipe>>
+            MINERAL_FOUNTAIN_CHANCE_SERIALIZER =
+                    RECIPE_SERIALIZERS.register("mineral_fountain_chance", MineralFountainChanceRecipe.Serializer::new);
 
     private static <T extends Recipe<?>> DeferredHolder<RecipeType<?>, RecipeType<T>> registerType(String name) {
         return RECIPE_TYPES.register(name, () -> new RecipeType<>() {
