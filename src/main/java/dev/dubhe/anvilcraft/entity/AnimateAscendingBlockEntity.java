@@ -5,24 +5,29 @@ import dev.dubhe.anvilcraft.init.ModEntities;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerEntity;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 @Getter
 public class AnimateAscendingBlockEntity extends Entity {
@@ -78,20 +83,25 @@ public class AnimateAscendingBlockEntity extends Entity {
     }
 
     @Override
+    public void onSyncedDataUpdated(List<SynchedEntityData.DataValue<?>> dataValues) {
+        super.onSyncedDataUpdated(dataValues);
+    }
+
+    @Override
     public void tick() {
         if (this.blockState.isAir()) {
             this.discard();
             return;
         }
-        if (!this.isNoGravity()) {
-            this.setDeltaMovement(this.getDeltaMovement().add(0.0, 0.4, 0.0));
-        }
-        this.move(MoverType.SELF, this.getDeltaMovement());
+        Vec3 mov = this.getDeltaMovement().add(0.0, 0.4, 0.0);
+        this.setDeltaMovement(mov);
+        this.setPos(this.getX() + mov.x, this.getY() + mov.y, this.getZ() + mov.z);
         if (this.level().isClientSide) return;
         BlockPos current = this.blockPosition();
         BlockPos eyePos = BlockPos.containing(this.getEyePosition());
         BlockPos up = current.above();
-        if (!this.level().getBlockState(up).isAir()
+        BlockState bs = this.level().getBlockState(up);
+        if (!bs.isAir()
                 || current.getY() >= getEndPos().getY()
                 || eyePos.getY() >= getEndPos().getY()) {
             this.discard();
@@ -124,6 +134,11 @@ public class AnimateAscendingBlockEntity extends Entity {
     }
 
     @Override
+    @NotNull public Packet<ClientGamePacketListener> getAddEntityPacket(@NotNull ServerEntity entity) {
+        return new ClientboundAddEntityPacket(this, entity, Block.getId(this.getBlockState()));
+    }
+
+    @Override
     public void recreateFromPacket(@NotNull ClientboundAddEntityPacket packet) {
         super.recreateFromPacket(packet);
         this.blockState = Block.stateById(packet.getData());
@@ -133,6 +148,11 @@ public class AnimateAscendingBlockEntity extends Entity {
         double f = packet.getZ();
         this.setPos(d, e, f);
         this.setStartPos(this.blockPosition());
+    }
+
+    @Override
+    protected @NotNull AABB makeBoundingBox() {
+        return new AABB(this.blockPosition());
     }
 
     @Override
