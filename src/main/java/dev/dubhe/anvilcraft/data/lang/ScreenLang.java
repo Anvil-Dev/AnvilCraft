@@ -53,8 +53,6 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.grid_information.overloaded2", "Add more sources or remove the components");
         provider.add("tooltip.anvilcraft.grid_information.overloaded3", "with a high stress impact.");
 
-        provider.add("tooltip.anvilcraft.ruby_prism.power", "Laser level: %d");
-
         provider.add("screen.anvilcraft.active_silencer.title", "Active Silencer");
 
         provider.add("block.anvilcraft.heliostats.invalid_placement", "Invalid placement");

@@ -219,6 +219,7 @@
   "block.anvilcraft.zinc_block": "Zinc Block",
   "block.anvilcraft.zinc_pressure_plate": "Zinc Pressure Plate",
   "config.jade.plugin_anvilcraft.power_provider": "Anvil Craft Power",
+  "config.jade.plugin_anvilcraft.ruby_prism": "Ruby Prism",
   "config.waila.plugin_anvilcraft": "Anvil Craft",
   "config.waila.plugin_anvilcraft.power_provider": "Anvil Craft Power",
   "config.waila.plugin_anvilcraft.warning_percent": "Warning Threshold",
@@ -524,5 +525,5 @@
   "tooltip.anvilcraft.item.topaz": "Containing the power of lightning",
   "tooltip.anvilcraft.item.transmission_pole": "Build a power grid with a transmission distance of 8",
   "tooltip.anvilcraft.jade.power_information": "Power Grid: %d/%d kW",
-  "tooltip.anvilcraft.ruby_prism.power": "Laser level: %d"
+  "tooltip.anvilcraft.jade.ruby_prism.power": "Laser level: %d"
 }

@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Util {
+    public static final Lazy<Boolean> jadePresent = new Lazy<>(() -> isLoaded("jade") || isLoaded("wthit"));
     private static final StackWalker STACK_WALKER = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
 
     /**
