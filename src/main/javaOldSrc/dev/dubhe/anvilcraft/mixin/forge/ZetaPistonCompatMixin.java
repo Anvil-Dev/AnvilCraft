@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.mixin.forge;
 
 import dev.dubhe.anvilcraft.event.PistonMoveBlockListener;
-import dev.dubhe.anvilcraft.mixin.forge.accessor.PistonStructorResolverAccessor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Final;

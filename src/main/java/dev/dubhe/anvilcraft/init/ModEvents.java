@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.event.anvil.AnvilHurtVillagerEventListener;
 import dev.dubhe.anvilcraft.event.client.ClientPlayerDisconnectEventListener;
 import dev.dubhe.anvilcraft.event.giantanvil.GiantAnvilLandingEventListener;
 import dev.dubhe.anvilcraft.event.server.ServerEventListener;
+import net.neoforged.neoforge.common.NeoForge;
 
 public class ModEvents {
     /**
@@ -21,7 +22,6 @@ public class ModEvents {
     public static void register() {
         AnvilCraft.EVENT_BUS.register(new AnvilEventListener());
         AnvilCraft.EVENT_BUS.register(new LightningEventListener());
-        AnvilCraft.EVENT_BUS.register(new ServerEventListener());
         AnvilCraft.EVENT_BUS.register(new PlayerEventListener());
         AnvilCraft.EVENT_BUS.register(new AnvilHitPiezoelectricCrystalBlockEventListener());
         AnvilCraft.EVENT_BUS.register(new AnvilHurtVillagerEventListener());
@@ -31,5 +31,7 @@ public class ModEvents {
         AnvilCraft.EVENT_BUS.register(new GiantAnvilLandingEventListener());
         AnvilCraft.EVENT_BUS.register(new ServerBlockEntityEventListener());
         AnvilCraft.EVENT_BUS.register(new ClientPlayerDisconnectEventListener());
+
+        NeoForge.EVENT_BUS.addListener(ServerEventListener::onServerStarted);
     }
 }

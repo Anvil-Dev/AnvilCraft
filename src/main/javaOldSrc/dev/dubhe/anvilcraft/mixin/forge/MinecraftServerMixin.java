@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.mixin.forge;
 
-import dev.dubhe.anvilcraft.api.event.forge.DataPackReloadedEvent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.resources.CloseableResourceManager;
 import net.minecraftforge.common.MinecraftForge;

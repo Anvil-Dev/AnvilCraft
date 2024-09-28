@@ -27,22 +27,18 @@
     "ServerLevelMixin",
     "SolidBucketItemMixin",
     "accessor.BaseSpawnerAccessor",
-    "accessor.LootContextParamSetsAccessor",
     "forge.BucketItemMixin",
     "forge.FallingBlockEntityMixin",
     "forge.LevelChunkMixin",
     "forge.LightningBoltMixin",
-    "forge.MinecraftServerMixin",
-    "forge.PistonMovingBlockEntityMixin",
-    "forge.accessor.PistonStructorResolverAccessor"
+    "forge.PistonMovingBlockEntityMixin"
   ],
   "client": [
     "ClientLevelMixin",
     "ClientPacketListenerMixin",
     "ItemBlockRenderTypesMixin",
     "ItemInHandRendererMixin",
-    "SoundEngineMixin",
-    "accessor.ItemInHandRendererAccessor"
+    "SoundEngineMixin"
   ],
   "plugin": "dev.dubhe.anvilcraft.mixin.plugin.AnvilCraftMixinPlugin",
   "injectors": {
