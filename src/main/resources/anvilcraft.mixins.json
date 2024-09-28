@@ -17,6 +17,7 @@
     "EndPortalBlockMixin",
     "ExplosionMixin",
     "FlyingHitEntityMixin",
+    "HoeItemMixin",
     "IngredientValueAccessor$Item",
     "IngredientValueAccessor$Tag",
     "ItemEntityMixin",

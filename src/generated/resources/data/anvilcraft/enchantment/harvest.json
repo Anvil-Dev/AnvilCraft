@@ -3,6 +3,22 @@
   "description": {
     "translate": "enchantment.anvilcraft.harvest"
   },
+  "effects": {
+    "anvilcraft:use_on_block": [
+      {
+        "effect": {
+          "type": "anvilcraft:harvest",
+          "range": 5
+        },
+        "requirements": {
+          "condition": "minecraft:match_tool",
+          "predicate": {
+            "items": "#minecraft:hoes"
+          }
+        }
+      }
+    ]
+  },
   "max_cost": {
     "base": 15,
     "per_level_above_first": 10

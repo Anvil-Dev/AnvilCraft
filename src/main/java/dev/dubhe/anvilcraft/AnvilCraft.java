@@ -7,10 +7,13 @@ import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModCommands;
 import dev.dubhe.anvilcraft.init.ModComponents;
 import dev.dubhe.anvilcraft.init.ModDispenserBehavior;
+import dev.dubhe.anvilcraft.init.ModEnchantmentEffectComponents;
+import dev.dubhe.anvilcraft.init.ModEnchantmentEffects;
 import dev.dubhe.anvilcraft.init.ModEntities;
 import dev.dubhe.anvilcraft.init.ModEvents;
 import dev.dubhe.anvilcraft.init.ModItemGroups;
 import dev.dubhe.anvilcraft.init.ModItems;
+import dev.dubhe.anvilcraft.init.ModLootContextParamSets;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.ModNetworks;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
@@ -72,6 +75,10 @@ public class AnvilCraft {
         ModComponents.register(modEventBus);
         ModVillagers.register(modEventBus);
         ModRecipeTypes.register(modEventBus);
+
+        ModLootContextParamSets.registerAll();
+        ModEnchantmentEffectComponents.register(modEventBus);
+        ModEnchantmentEffects.register(modEventBus);
         // datagen
         AnvilCraftDatagen.init();
 
