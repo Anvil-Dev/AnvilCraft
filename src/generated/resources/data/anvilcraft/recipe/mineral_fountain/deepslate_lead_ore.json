@@ -1,0 +1,6 @@
+{
+  "type": "anvilcraft:mineral_fountain",
+  "from_block": "minecraft:deepslate",
+  "need_block": "anvilcraft:deepslate_lead_ore",
+  "to_block": "anvilcraft:deepslate_lead_ore"
+}

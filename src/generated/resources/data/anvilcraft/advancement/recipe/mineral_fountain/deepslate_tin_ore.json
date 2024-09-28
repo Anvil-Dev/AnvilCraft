@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:mineral_fountain_chance/void_stone"
+        "recipe": "anvilcraft:mineral_fountain/deepslate_tin_ore"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -15,7 +15,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:mineral_fountain_chance/void_stone"
+      "anvilcraft:mineral_fountain/deepslate_tin_ore"
     ]
   }
 }

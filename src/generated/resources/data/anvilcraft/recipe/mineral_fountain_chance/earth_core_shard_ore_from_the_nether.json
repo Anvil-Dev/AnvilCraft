@@ -1,0 +1,7 @@
+{
+  "type": "anvilcraft:mineral_fountain_chance",
+  "chance": 0.2,
+  "dimension": "minecraft:the_nether",
+  "from_block": "minecraft:deepslate",
+  "to_block": "anvilcraft:earth_core_shard_ore"
+}

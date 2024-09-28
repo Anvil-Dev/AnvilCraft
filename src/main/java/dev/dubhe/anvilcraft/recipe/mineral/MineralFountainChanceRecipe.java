@@ -1,11 +1,14 @@
 package dev.dubhe.anvilcraft.recipe.mineral;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.util.CodecUtil;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -146,6 +149,15 @@ public class MineralFountainChanceRecipe implements Recipe<MineralFountainChance
         @Override
         public MineralFountainChanceRecipe buildRecipe() {
             return new MineralFountainChanceRecipe(dimension, fromBlock, toBlock, chance);
+        }
+
+        @Override
+        public void save(RecipeOutput recipeOutput) {
+            save(
+                    recipeOutput,
+                    AnvilCraft.of(BuiltInRegistries.ITEM.getKey(getResult()).getPath())
+                            .withPrefix(getType() + "/")
+                            .withSuffix("_from_" + dimension.getPath()));
         }
 
         @Override

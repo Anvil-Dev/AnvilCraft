@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:mineral_fountain_chance/earth_core_shard_ore"
+        "recipe": "anvilcraft:mineral_fountain_chance/earth_core_shard_ore_from_overworld"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -15,7 +15,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:mineral_fountain_chance/earth_core_shard_ore"
+      "anvilcraft:mineral_fountain_chance/earth_core_shard_ore_from_overworld"
     ]
   }
 }
