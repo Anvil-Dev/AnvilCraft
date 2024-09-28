@@ -41,6 +41,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
+import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
 import net.minecraft.data.recipes.SmithingTransformRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
@@ -739,6 +740,38 @@ public class ModItems {
                                 AnvilCraftDatagen.hasItem(ModItemTags.TUNGSTEN_NUGGETS),
                                 RegistrateRecipeProvider.has(ModItemTags.TUNGSTEN_NUGGETS))
                         .save(provider);
+                SimpleCookingRecipeBuilder.smelting(
+                                Ingredient.of(ModItems.RAW_TUNGSTEN),
+                                RecipeCategory.MISC,
+                                ctx.get(),
+                                1,
+                                200)
+                        .unlockedBy("has_item", AnvilCraftDatagen.has(ModItems.RAW_TUNGSTEN))
+                        .save(provider, AnvilCraft.of("smelting/" + ctx.getName()));
+                SimpleCookingRecipeBuilder.blasting(
+                                Ingredient.of(ModItems.RAW_TUNGSTEN),
+                                RecipeCategory.MISC,
+                                ctx.get(),
+                                1,
+                                100)
+                        .unlockedBy("has_item", AnvilCraftDatagen.has(ModItems.RAW_TUNGSTEN))
+                        .save(provider, AnvilCraft.of("blasting/" + ctx.getName()));
+                SimpleCookingRecipeBuilder.smelting(
+                        Ingredient.of(ModBlocks.DEEPSLATE_TUNGSTEN_ORE),
+                        RecipeCategory.MISC,
+                        ctx.get(),
+                        1,
+                        200)
+                        .unlockedBy("has_item", AnvilCraftDatagen.has(ModBlocks.DEEPSLATE_TUNGSTEN_ORE))
+                        .save(provider, AnvilCraft.of("smelting/" + ctx.getName() + "_from_ore"));
+                SimpleCookingRecipeBuilder.blasting(
+                                Ingredient.of(ModBlocks.DEEPSLATE_TUNGSTEN_ORE),
+                                RecipeCategory.MISC,
+                                ctx.get(),
+                                1,
+                                100)
+                        .unlockedBy("has_item", AnvilCraftDatagen.has(ModBlocks.DEEPSLATE_TUNGSTEN_ORE))
+                        .save(provider, AnvilCraft.of("blasting/" + ctx.getName() + "_from_ore"));
             })
             .register();
     public static final ItemEntry<Item> TITANIUM_NUGGET = REGISTRATE
@@ -772,6 +805,38 @@ public class ModItems {
                                 AnvilCraftDatagen.hasItem(ModItemTags.TITANIUM_NUGGETS),
                                 RegistrateRecipeProvider.has(ModItemTags.TITANIUM_NUGGETS))
                         .save(provider);
+                SimpleCookingRecipeBuilder.smelting(
+                                Ingredient.of(ModItems.RAW_TITANIUM),
+                                RecipeCategory.MISC,
+                                ctx.get(),
+                                1,
+                                200)
+                        .unlockedBy("has_item", AnvilCraftDatagen.has(ModItems.RAW_TITANIUM))
+                        .save(provider, AnvilCraft.of("smelting/" + ctx.getName()));
+                SimpleCookingRecipeBuilder.blasting(
+                                Ingredient.of(ModItems.RAW_TITANIUM),
+                                RecipeCategory.MISC,
+                                ctx.get(),
+                                1,
+                                100)
+                        .unlockedBy("has_item", AnvilCraftDatagen.has(ModItems.RAW_TITANIUM))
+                        .save(provider, AnvilCraft.of("blasting/" + ctx.getName()));
+                SimpleCookingRecipeBuilder.smelting(
+                                Ingredient.of(ModBlocks.DEEPSLATE_TITANIUM_ORE),
+                                RecipeCategory.MISC,
+                                ctx.get(),
+                                1,
+                                200)
+                        .unlockedBy("has_item", AnvilCraftDatagen.has(ModBlocks.DEEPSLATE_TITANIUM_ORE))
+                        .save(provider, AnvilCraft.of("smelting/" + ctx.getName() + "_from_ore"));
+                SimpleCookingRecipeBuilder.blasting(
+                                Ingredient.of(ModBlocks.DEEPSLATE_TITANIUM_ORE),
+                                RecipeCategory.MISC,
+                                ctx.get(),
+                                1,
+                                100)
+                        .unlockedBy("has_item", AnvilCraftDatagen.has(ModBlocks.DEEPSLATE_TITANIUM_ORE))
+                        .save(provider, AnvilCraft.of("blasting/" + ctx.getName() + "_from_ore"));
             })
             .register();
     public static final ItemEntry<Item> ZINC_NUGGET = REGISTRATE
@@ -805,6 +870,38 @@ public class ModItems {
                                 AnvilCraftDatagen.hasItem(ModItemTags.ZINC_NUGGETS),
                                 RegistrateRecipeProvider.has(ModItemTags.ZINC_NUGGETS))
                         .save(provider);
+                SimpleCookingRecipeBuilder.smelting(
+                                Ingredient.of(ModItems.RAW_ZINC),
+                                RecipeCategory.MISC,
+                                ctx.get(),
+                                1,
+                                200)
+                        .unlockedBy("has_item", AnvilCraftDatagen.has(ModItems.RAW_ZINC))
+                        .save(provider, AnvilCraft.of("smelting/" + ctx.getName()));
+                SimpleCookingRecipeBuilder.blasting(
+                                Ingredient.of(ModItems.RAW_ZINC),
+                                RecipeCategory.MISC,
+                                ctx.get(),
+                                1,
+                                100)
+                        .unlockedBy("has_item", AnvilCraftDatagen.has(ModItems.RAW_ZINC))
+                        .save(provider, AnvilCraft.of("blasting/" + ctx.getName()));
+                SimpleCookingRecipeBuilder.smelting(
+                                Ingredient.of(ModBlocks.DEEPSLATE_ZINC_ORE),
+                                RecipeCategory.MISC,
+                                ctx.get(),
+                                1,
+                                200)
+                        .unlockedBy("has_item", AnvilCraftDatagen.has(ModBlocks.DEEPSLATE_ZINC_ORE))
+                        .save(provider, AnvilCraft.of("smelting/" + ctx.getName() + "_from_ore"));
+                SimpleCookingRecipeBuilder.blasting(
+                                Ingredient.of(ModBlocks.DEEPSLATE_ZINC_ORE),
+                                RecipeCategory.MISC,
+                                ctx.get(),
+                                1,
+                                100)
+                        .unlockedBy("has_item", AnvilCraftDatagen.has(ModBlocks.DEEPSLATE_ZINC_ORE))
+                        .save(provider, AnvilCraft.of("blasting/" + ctx.getName() + "_from_ore"));
             })
             .register();
     public static final ItemEntry<Item> TIN_NUGGET = REGISTRATE
@@ -838,6 +935,38 @@ public class ModItems {
                                 AnvilCraftDatagen.hasItem(ModItemTags.TIN_NUGGETS),
                                 RegistrateRecipeProvider.has(ModItemTags.TIN_NUGGETS))
                         .save(provider);
+                SimpleCookingRecipeBuilder.smelting(
+                                Ingredient.of(ModItems.RAW_TIN),
+                                RecipeCategory.MISC,
+                                ctx.get(),
+                                1,
+                                200)
+                        .unlockedBy("has_item", AnvilCraftDatagen.has(ModItems.RAW_TIN))
+                        .save(provider, AnvilCraft.of("smelting/" + ctx.getName()));
+                SimpleCookingRecipeBuilder.blasting(
+                                Ingredient.of(ModItems.RAW_TIN),
+                                RecipeCategory.MISC,
+                                ctx.get(),
+                                1,
+                                100)
+                        .unlockedBy("has_item", AnvilCraftDatagen.has(ModItems.RAW_TIN))
+                        .save(provider, AnvilCraft.of("blasting/" + ctx.getName()));
+                SimpleCookingRecipeBuilder.smelting(
+                                Ingredient.of(ModBlocks.DEEPSLATE_TIN_ORE),
+                                RecipeCategory.MISC,
+                                ctx.get(),
+                                1,
+                                200)
+                        .unlockedBy("has_item", AnvilCraftDatagen.has(ModBlocks.DEEPSLATE_TIN_ORE))
+                        .save(provider, AnvilCraft.of("smelting/" + ctx.getName() + "_from_ore"));
+                SimpleCookingRecipeBuilder.blasting(
+                                Ingredient.of(ModBlocks.DEEPSLATE_TIN_ORE),
+                                RecipeCategory.MISC,
+                                ctx.get(),
+                                1,
+                                100)
+                        .unlockedBy("has_item", AnvilCraftDatagen.has(ModBlocks.DEEPSLATE_TIN_ORE))
+                        .save(provider, AnvilCraft.of("blasting/" + ctx.getName() + "_from_ore"));
             })
             .register();
     public static final ItemEntry<Item> LEAD_NUGGET = REGISTRATE
@@ -871,6 +1000,38 @@ public class ModItems {
                                 AnvilCraftDatagen.hasItem(ModItemTags.LEAD_NUGGETS),
                                 RegistrateRecipeProvider.has(ModItemTags.LEAD_NUGGETS))
                         .save(provider);
+                SimpleCookingRecipeBuilder.smelting(
+                                Ingredient.of(ModItems.RAW_LEAD),
+                                RecipeCategory.MISC,
+                                ctx.get(),
+                                1,
+                                200)
+                        .unlockedBy("has_item", AnvilCraftDatagen.has(ModItems.RAW_LEAD))
+                        .save(provider, AnvilCraft.of("smelting/" + ctx.getName()));
+                SimpleCookingRecipeBuilder.blasting(
+                                Ingredient.of(ModItems.RAW_LEAD),
+                                RecipeCategory.MISC,
+                                ctx.get(),
+                                1,
+                                100)
+                        .unlockedBy("has_item", AnvilCraftDatagen.has(ModItems.RAW_LEAD))
+                        .save(provider, AnvilCraft.of("blasting/" + ctx.getName()));
+                SimpleCookingRecipeBuilder.smelting(
+                                Ingredient.of(ModBlocks.DEEPSLATE_LEAD_ORE),
+                                RecipeCategory.MISC,
+                                ctx.get(),
+                                1,
+                                200)
+                        .unlockedBy("has_item", AnvilCraftDatagen.has(ModBlocks.DEEPSLATE_LEAD_ORE))
+                        .save(provider, AnvilCraft.of("smelting/" + ctx.getName() + "_from_ore"));
+                SimpleCookingRecipeBuilder.blasting(
+                                Ingredient.of(ModBlocks.DEEPSLATE_LEAD_ORE),
+                                RecipeCategory.MISC,
+                                ctx.get(),
+                                1,
+                                100)
+                        .unlockedBy("has_item", AnvilCraftDatagen.has(ModBlocks.DEEPSLATE_LEAD_ORE))
+                        .save(provider, AnvilCraft.of("blasting/" + ctx.getName() + "_from_ore"));
             })
             .register();
     public static final ItemEntry<Item> SILVER_NUGGET = REGISTRATE
@@ -904,6 +1065,39 @@ public class ModItems {
                                 AnvilCraftDatagen.hasItem(ModItemTags.SILVER_NUGGETS),
                                 RegistrateRecipeProvider.has(ModItemTags.SILVER_NUGGETS))
                         .save(provider);
+                SimpleCookingRecipeBuilder.smelting(
+                                Ingredient.of(ModItems.RAW_SILVER),
+                                RecipeCategory.MISC,
+                                ctx.get(),
+                                1,
+                                200)
+                        .unlockedBy("has_item", AnvilCraftDatagen.has(ModItems.RAW_SILVER))
+                        .save(provider, AnvilCraft.of("smelting/" + ctx.getName()));
+                SimpleCookingRecipeBuilder.blasting(
+                                Ingredient.of(ModItems.RAW_SILVER),
+                                RecipeCategory.MISC,
+                                ctx.get(),
+                                1,
+                                100)
+                        .unlockedBy("has_item", AnvilCraftDatagen.has(ModItems.RAW_SILVER))
+                        .save(provider, AnvilCraft.of("blasting/" + ctx.getName()));
+
+                SimpleCookingRecipeBuilder.smelting(
+                                Ingredient.of(ModBlocks.DEEPSLATE_SILVER_ORE),
+                                RecipeCategory.MISC,
+                                ctx.get(),
+                                1,
+                                200)
+                        .unlockedBy("has_item", AnvilCraftDatagen.has(ModBlocks.DEEPSLATE_SILVER_ORE))
+                        .save(provider, AnvilCraft.of("smelting/" + ctx.getName() + "_from_ore"));
+                SimpleCookingRecipeBuilder.blasting(
+                                Ingredient.of(ModBlocks.DEEPSLATE_SILVER_ORE),
+                                RecipeCategory.MISC,
+                                ctx.get(),
+                                1,
+                                100)
+                        .unlockedBy("has_item", AnvilCraftDatagen.has(ModBlocks.DEEPSLATE_SILVER_ORE))
+                        .save(provider, AnvilCraft.of("blasting/" + ctx.getName() + "_from_ore"));
             })
             .register();
     public static final ItemEntry<Item> URANIUM_NUGGET = REGISTRATE
@@ -937,6 +1131,38 @@ public class ModItems {
                                 AnvilCraftDatagen.hasItem(ModItemTags.URANIUM_NUGGETS),
                                 RegistrateRecipeProvider.has(ModItemTags.URANIUM_NUGGETS))
                         .save(provider);
+                SimpleCookingRecipeBuilder.smelting(
+                                Ingredient.of(ModItems.RAW_URANIUM),
+                                RecipeCategory.MISC,
+                                ctx.get(),
+                                1,
+                                200)
+                        .unlockedBy("has_item", AnvilCraftDatagen.has(ModItems.RAW_URANIUM))
+                        .save(provider, AnvilCraft.of("smelting/" + ctx.getName()));
+                SimpleCookingRecipeBuilder.blasting(
+                                Ingredient.of(ModItems.RAW_URANIUM),
+                                RecipeCategory.MISC,
+                                ctx.get(),
+                                1,
+                                100)
+                        .unlockedBy("has_item", AnvilCraftDatagen.has(ModItems.RAW_URANIUM))
+                        .save(provider, AnvilCraft.of("blasting/" + ctx.getName()));
+                SimpleCookingRecipeBuilder.smelting(
+                                Ingredient.of(ModBlocks.DEEPSLATE_URANIUM_ORE),
+                                RecipeCategory.MISC,
+                                ctx.get(),
+                                1,
+                                200)
+                        .unlockedBy("has_item", AnvilCraftDatagen.has(ModBlocks.DEEPSLATE_URANIUM_ORE))
+                        .save(provider, AnvilCraft.of("smelting/" + ctx.getName() + "_from_ore"));
+                SimpleCookingRecipeBuilder.blasting(
+                                Ingredient.of(ModBlocks.DEEPSLATE_URANIUM_ORE),
+                                RecipeCategory.MISC,
+                                ctx.get(),
+                                1,
+                                100)
+                        .unlockedBy("has_item", AnvilCraftDatagen.has(ModBlocks.DEEPSLATE_URANIUM_ORE))
+                        .save(provider, AnvilCraft.of("blasting/" + ctx.getName() + "_from_ore"));
             })
             .register();
     public static final ItemEntry<Item> COPPER_NUGGET = REGISTRATE

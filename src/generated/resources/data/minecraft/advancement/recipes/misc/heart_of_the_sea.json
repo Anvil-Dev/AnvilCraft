@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "minecraft:heart_of_the_sea"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "hasitem": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:sea_heart_shell"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "hasitem"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "minecraft:heart_of_the_sea"
+    ]
+  }
+}

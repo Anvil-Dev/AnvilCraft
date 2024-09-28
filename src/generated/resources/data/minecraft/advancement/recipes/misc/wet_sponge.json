@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "minecraft:wet_sponge"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "hasitem": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:sponge_gemmule"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "hasitem"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "minecraft:wet_sponge"
+    ]
+  }
+}

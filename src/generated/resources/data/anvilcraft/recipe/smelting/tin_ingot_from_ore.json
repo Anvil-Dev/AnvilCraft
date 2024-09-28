@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "cookingtime": 200,
+  "experience": 1.0,
+  "ingredient": {
+    "item": "anvilcraft:deepslate_tin_ore"
+  },
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:tin_ingot"
+  }
+}

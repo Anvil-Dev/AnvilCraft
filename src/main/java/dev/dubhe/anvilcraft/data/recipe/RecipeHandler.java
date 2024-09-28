@@ -19,7 +19,7 @@ public class RecipeHandler {
         MultiBlockRecipeLoader.init(provider);
         MobTransformRecipeLoader.init(provider);
         ConcreteRecipeLoader.init(provider);
-
         MineralFountainRecipeLoader.init(provider);
+        VanillaRecipesLoader.init(provider);
     }
 }

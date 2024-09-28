@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "anvilcraft:sea_heart_shell"
+    },
+    "B": {
+      "item": "anvilcraft:sapphire"
+    }
+  },
+  "pattern": [
+    "A",
+    "B",
+    "A"
+  ],
+  "result": {
+    "count": 1,
+    "id": "minecraft:heart_of_the_sea"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:smelting",
+  "category": "food",
+  "cookingtime": 600,
+  "experience": 0.35,
+  "ingredient": {
+    "tag": "c:dough"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:bread"
+  }
+}
