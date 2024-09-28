@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.integration.jei;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.BlockCompressCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.BlockCrushCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.BoilingCategory;
@@ -35,7 +36,9 @@ import dev.dubhe.anvilcraft.recipe.anvil.TimeWarpRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 
@@ -102,6 +105,23 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         BulgingCategory.registerRecipes(registration);
         TimeWarpCategory.registerRecipes(registration);
         MultiBlockCraftingCategory.registerRecipes(registration);
+
+        registration.addItemStackInfo(
+                new ItemStack(ModItems.GEODE.get()),
+                Component.translatable("jei.anvilcraft.info.geode_1"),
+                Component.translatable("jei.anvilcraft.info.geode_2"),
+                Component.translatable("jei.anvilcraft.info.geode_3"),
+                Component.translatable("jei.anvilcraft.info.geode_4"));
+        registration.addItemStackInfo(
+                new ItemStack(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE.get()),
+                Component.translatable("jei.anvilcraft.info.royal_steel_upgrade_smithing_template_1"),
+                Component.translatable("jei.anvilcraft.info.royal_steel_upgrade_smithing_template_2"));
+        registration.addItemStackInfo(
+                new ItemStack(ModItems.CRAB_CLAW.get()),
+                Component.translatable("jei.anvilcraft.info.craw_claw"));
+        registration.addItemStackInfo(
+                new ItemStack(ModItems.CAPACITOR.get()),
+                Component.translatable("jei.anvilcraft.info.capacitor"));
     }
 
     @Override

@@ -1,0 +1,26 @@
+{
+  "type": "anvilcraft:stamping",
+  "ingredients": [
+    {
+      "item": "anvilcraft:geode"
+    }
+  ],
+  "result": [
+    {
+      "count": 4,
+      "id": "minecraft:amethyst_shard"
+    },
+    {
+      "count": 1,
+      "id": "anvilcraft:topaz"
+    },
+    {
+      "count": 1,
+      "id": "anvilcraft:sapphire"
+    },
+    {
+      "count": 1,
+      "id": "anvilcraft:ruby"
+    }
+  ]
+}

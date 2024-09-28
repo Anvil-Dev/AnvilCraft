@@ -2543,6 +2543,22 @@ public class ModBlocks {
                     Tags.Blocks.ORES_IN_GROUND_DEEPSLATE)
             .register();
 
+    public static final BlockEntry<Block> EARTH_CORE_SHARD_ORE = REGISTRATE
+            .block("earth_core_shard_ore", Block::new)
+            .initialProperties(() -> Blocks.DIAMOND_BLOCK)
+            .properties(properties -> properties.explosionResistance(1200))
+            .item()
+            .initialProperties(() -> new Item.Properties().fireResistant())
+            .tag(Tags.Items.ORES)
+            .build()
+            .loot((tables, block) -> tables.add(block, tables.createOreDrop(block, ModItems.EARTH_CORE_SHARD.get())))
+            .tag(
+                    BlockTags.MINEABLE_WITH_PICKAXE,
+                    BlockTags.NEEDS_DIAMOND_TOOL,
+                    ModBlockTags.ORES_EARTH_CORE_SHARD,
+                    Tags.Blocks.ORES,
+                    Tags.Blocks.ORES_IN_GROUND_DEEPSLATE)
+            .register();
     public static final BlockEntry<Block> VOID_MATTER_BLOCK = REGISTRATE
             .block("void_matter_block", Block::new)
             .initialProperties(() -> Blocks.DIAMOND_BLOCK)
@@ -2563,24 +2579,6 @@ public class ModBlocks {
             .tag(ModItemTags.VOID_RESISTANT)
             .build()
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_DIAMOND_TOOL, ModBlockTags.STORAGE_BLOCKS_VOID_MATTER)
-            .register();
-    public static final BlockEntry<Block> EARTH_CORE_SHARD_ORE = REGISTRATE
-            .block("earth_core_shard_ore", Block::new)
-            .initialProperties(() -> Blocks.DIAMOND_BLOCK)
-            .properties(properties -> properties.explosionResistance(1200))
-            .item()
-            .tag(Tags.Items.ORES)
-            .build()
-            .item()
-            .initialProperties(() -> new Item.Properties().fireResistant())
-            .build()
-            .loot((tables, block) -> tables.add(block, tables.createOreDrop(block, ModItems.EARTH_CORE_SHARD.get())))
-            .tag(
-                    BlockTags.MINEABLE_WITH_PICKAXE,
-                    BlockTags.NEEDS_DIAMOND_TOOL,
-                    ModBlockTags.ORES_EARTH_CORE_SHARD,
-                    Tags.Blocks.ORES,
-                    Tags.Blocks.ORES_IN_GROUND_DEEPSLATE)
             .register();
 
     public static final BlockEntry<Block> EARTH_CORE_SHARD_BLOCK = REGISTRATE

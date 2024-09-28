@@ -15,8 +15,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import org.jetbrains.annotations.NotNull;
-
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
@@ -53,7 +51,7 @@ public class ImpactPileBlock extends Block implements IHammerRemovable {
      * @param level    世界
      * @param blockPos 位置
      */
-    public void impact(Level level, BlockPos blockPos) {
+    public static void impact(Level level, BlockPos blockPos) {
         level.destroyBlock(blockPos, false);
         level.destroyBlock(blockPos.above(), false);
         for (int x = blockPos.getX() - 1; x <= blockPos.getX() + 1; x++) {

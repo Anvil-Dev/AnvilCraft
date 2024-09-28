@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.event.anvil;
 import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.block.ImpactPileBlock;
 
+import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -24,11 +25,13 @@ public class AnvilHitImpactPileEventListener {
         Level level = event.getLevel();
         BlockPos pos = event.getPos().below();
         BlockState state = level.getBlockState(pos);
+        BlockState belowState = level.getBlockState(pos.below());
         Block block = state.getBlock();
-        if (level.getBlockState(pos).getBlock() instanceof ImpactPileBlock impactPileBlock
+        if (level.getBlockState(pos).is(ModBlocks.IMPACT_PILE)
                 && event.getFallDistance() + 1 >= 20
                 && (level.getMinBuildHeight() <= pos.getY() && pos.getY() <= level.getMinBuildHeight() + 4)
-                && (level.getBlockState(pos.below()).is(Blocks.DEEPSLATE)
-                        || level.getBlockState(pos.below()).is(Blocks.BEDROCK))) impactPileBlock.impact(level, pos);
+                && (belowState.is(Blocks.DEEPSLATE) || belowState.is(Blocks.BEDROCK))) {
+            ImpactPileBlock.impact(level, pos);
+        }
     }
 }

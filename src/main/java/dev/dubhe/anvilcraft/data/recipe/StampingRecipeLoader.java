@@ -22,11 +22,18 @@ public class StampingRecipeLoader {
         stamping(provider, Items.MILK_BUCKET, ModItems.CREAM.get(), 4);
 
         StampingRecipe.builder()
+                .requires(ModItems.GEODE)
+                .result(new ItemStack(Items.AMETHYST_SHARD, 4))
+                .result(new ItemStack(ModItems.TOPAZ.get()))
+                .result(new ItemStack(ModItems.SAPPHIRE.get()))
+                .result(new ItemStack(ModItems.RUBY.get()))
+                .save(provider, AnvilCraft.of("stamping/geode_gems"));
+
+        StampingRecipe.builder()
                 .requires(Tags.Items.CROPS_WHEAT)
                 .result(new ItemStack(ModItems.FLOUR.get()))
                 .result(new ItemStack(Items.WHEAT_SEEDS))
                 .save(provider);
-
         StampingRecipe.builder()
                 .requires(Items.SUGAR_CANE)
                 .result(new ItemStack(Items.PAPER))

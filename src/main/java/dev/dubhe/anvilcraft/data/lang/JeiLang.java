@@ -44,5 +44,17 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.multiblock", "Multiblock Crafting");
         provider.add("gui.anvilcraft.category.multiblock.all_layers", "All Layers Visible");
         provider.add("gui.anvilcraft.category.multiblock.single_layer", "Visible Layer: %d of %d");
+
+        provider.add("jei.anvilcraft.info.geode_1", "Find the surrounding Amethyst Geode when using it.");
+        provider.add("jei.anvilcraft.info.geode_2", "You can obtain this by mining the budding amethyst.");
+        provider.add("jei.anvilcraft.info.geode_3", "Or you can find it in the Bonus Chest");
+        provider.add("jei.anvilcraft.info.geode_4", "Or you can trade it with the jeweler");
+
+        provider.add("jei.anvilcraft.info.royal_steel_upgrade_smithing_template_1", "You can find it in the chest of the village weapons smith.");
+        provider.add("jei.anvilcraft.info.royal_steel_upgrade_smithing_template_2", "Or you can trade with the jeweler.");
+
+        provider.add("jei.anvilcraft.info.craw_claw", "You can obtain this from crab traps placed in the water.");
+
+        provider.add("jei.anvilcraft.info.capacitor", "You can charge the empty capacitor in the charger to obtain it.");
     }
 }
