@@ -81,5 +81,23 @@ public class ItemInjectRecipeLoader {
                 .inputBlock(Blocks.DEEPSLATE)
                 .resultBlock(ModBlocks.DEEPSLATE_URANIUM_ORE.get())
                 .save(provider);
+
+        ItemInjectRecipe.builder()
+                .requires(Items.SHULKER_BOX)
+                .inputBlock(Blocks.SHULKER_BOX)
+                .resultBlock(ModBlocks.NESTING_SHULKER_BOX.get())
+                .save(provider);
+
+        ItemInjectRecipe.builder()
+                .requires(ModBlocks.NESTING_SHULKER_BOX)
+                .inputBlock(Blocks.SHULKER_BOX)
+                .resultBlock(ModBlocks.OVER_NESTING_SHULKER_BOX.get())
+                .save(provider);
+
+        ItemInjectRecipe.builder()
+                .requires(ModBlocks.OVER_NESTING_SHULKER_BOX)
+                .inputBlock(Blocks.SHULKER_BOX)
+                .resultBlock(ModBlocks.SUPERCRITICAL_NESTING_SHULKER_BOX.get())
+                .save(provider);
     }
 }
