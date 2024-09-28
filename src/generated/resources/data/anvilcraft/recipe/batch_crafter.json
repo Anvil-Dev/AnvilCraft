@@ -3,13 +3,10 @@
   "category": "equipment",
   "key": {
     "A": {
-      "item": "minecraft:iron_ingot"
+      "item": "minecraft:glass"
     },
     "B": {
-      "item": "minecraft:crafting_table"
-    },
-    "C": {
-      "item": "minecraft:dropper"
+      "item": "minecraft:crafter"
     },
     "D": {
       "item": "anvilcraft:magnetoelectric_core"
@@ -20,7 +17,7 @@
   },
   "pattern": [
     "ABA",
-    "ADC",
+    "ADA",
     "AEA"
   ],
   "result": {
