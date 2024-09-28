@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(HoeItem.class)
 public class HoeItemMixin {
-    @Inject(method = "useOn", at = @At("HEAD"))
+    @Inject(method = "useOn", at = @At("RETURN"))
     void onUse(UseOnContext context, CallbackInfoReturnable<InteractionResult> cir) {
         if (context.getLevel().isClientSide) return;
         ModEnchantmentHelper.onUseOnBlock(

@@ -11,6 +11,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantedItemInUse;
 import net.minecraft.world.item.enchantment.effects.EnchantmentEntityEffect;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -80,7 +81,7 @@ public record HarvestEffect(int range) implements EnchantmentEntityEffect {
             BlockState newState = block.getStateForAge(0);
             cropBlock.playerWillDestroy(level, pos, targetBlockState, player);
             cropBlock.playerDestroy(level, player, pos, targetBlockState, level.getBlockEntity(currentIterating), tool);
-            level.setBlockAndUpdate(currentIterating, newState);
+            level.setBlock(currentIterating, newState, 11);
         }
     }
 
