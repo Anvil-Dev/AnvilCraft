@@ -758,18 +758,18 @@ public class ModBlocks {
                 .define('D', ModItems.MAGNETOELECTRIC_CORE)
                 .define('E', ModItems.CIRCUIT_BOARD)
                 .unlockedBy(
-                    AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
-                .unlockedBy(
-                    AnvilCraftDatagen.hasItem(Items.CRAFTING_TABLE),
-                    AnvilCraftDatagen.has(Items.CRAFTING_TABLE))
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.DROPPER), AnvilCraftDatagen.has(Items.DROPPER))
-                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(Items.GLASS),
+                    AnvilCraftDatagen.has(Items.GLASS)
+                ).unlockedBy(
+                    AnvilCraftDatagen.hasItem(Items.CRAFTER),
+                    AnvilCraftDatagen.has(Items.CRAFTER)
+                ).unlockedBy(
                     AnvilCraftDatagen.hasItem(ModItems.MAGNETOELECTRIC_CORE),
-                    AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE))
-                .unlockedBy(
+                    AnvilCraftDatagen.has(ModItems.MAGNETOELECTRIC_CORE)
+                ).unlockedBy(
                     AnvilCraftDatagen.hasItem(ModItems.CIRCUIT_BOARD),
-                    AnvilCraftDatagen.has(ModItems.CIRCUIT_BOARD))
-                .save(provider);
+                    AnvilCraftDatagen.has(ModItems.CIRCUIT_BOARD)
+                ).save(provider);
         })
         .register();
 

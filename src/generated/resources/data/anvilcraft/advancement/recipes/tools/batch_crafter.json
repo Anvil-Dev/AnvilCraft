@@ -11,31 +11,21 @@
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_crafting_table": {
+    "has_crafter": {
       "conditions": {
         "items": [
           {
-            "items": "minecraft:crafting_table"
+            "items": "minecraft:crafter"
           }
         ]
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_dropper": {
+    "has_glass": {
       "conditions": {
         "items": [
           {
-            "items": "minecraft:dropper"
-          }
-        ]
-      },
-      "trigger": "minecraft:inventory_changed"
-    },
-    "has_iron_ingot": {
-      "conditions": {
-        "items": [
-          {
-            "items": "minecraft:iron_ingot"
+            "items": "minecraft:glass"
           }
         ]
       },
@@ -61,9 +51,8 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_iron_ingot",
-      "has_crafting_table",
-      "has_dropper",
+      "has_glass",
+      "has_crafter",
       "has_magnetoelectric_core",
       "has_circuit_board"
     ]
