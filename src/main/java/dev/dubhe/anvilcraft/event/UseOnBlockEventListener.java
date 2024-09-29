@@ -1,20 +1,20 @@
-package dev.dubhe.anvilcraft.mixin;
+package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.util.ModEnchantmentHelper;
 import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.item.HoeItem;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.context.UseOnContext;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.player.UseItemOnBlockEvent;
 
-@Mixin(HoeItem.class)
-public class HoeItemMixin {
-    @Inject(method = "useOn", at = @At("RETURN"))
-    void onUse(UseOnContext context, CallbackInfoReturnable<InteractionResult> cir) {
+@EventBusSubscriber
+public class UseOnBlockEventListener {
+    @SubscribeEvent
+    public static void onUseOnBlock(UseItemOnBlockEvent e) {
+        UseOnContext context = e.getUseOnContext();
+        if (!context.getItemInHand().is(ItemTags.HOES)) return;
         if (context.getLevel().isClientSide) return;
         ModEnchantmentHelper.onUseOnBlock(
             (ServerLevel) context.getLevel(),

@@ -30,5 +30,9 @@ public class OtherLang {
         provider.add("message.anvilcraft.no_file_selected", "No file path selected");
         provider.add("message.anvilcraft.file_save_failed", "An issue occurred while saving file %s, %s");
         provider.add("message.anvilcraft.file_saved", "File saved to %s");
+
+        provider.add("enchantment.anvilcraft.beheading", "Beheading");
+        provider.add("enchantment.anvilcraft.felling", "Felling");
+        provider.add("enchantment.anvilcraft.harvest", "Harvest");
     }
 }
