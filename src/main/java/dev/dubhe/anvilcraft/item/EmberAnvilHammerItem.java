@@ -1,5 +1,9 @@
 package dev.dubhe.anvilcraft.item;
 
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.Unbreakable;
+
 public class EmberAnvilHammerItem extends AnvilHammerItem {
     /**
      * 初始化铁砧锤
@@ -7,7 +11,10 @@ public class EmberAnvilHammerItem extends AnvilHammerItem {
      * @param properties 物品属性
      */
     public EmberAnvilHammerItem(Properties properties) {
-        super(properties.durability(0));
+        super(
+            properties.durability(0)
+                .component(DataComponents.UNBREAKABLE, new Unbreakable(true))
+        );
     }
 
     @Override

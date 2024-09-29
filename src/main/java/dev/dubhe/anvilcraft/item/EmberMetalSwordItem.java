@@ -1,7 +1,9 @@
 package dev.dubhe.anvilcraft.item;
 
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.SwordItem;
+import net.minecraft.world.item.component.Unbreakable;
 
 public class EmberMetalSwordItem extends SwordItem {
     /**
@@ -9,7 +11,10 @@ public class EmberMetalSwordItem extends SwordItem {
      */
     public EmberMetalSwordItem(Properties properties) {
         super(
-                ModTiers.EMBER_METAL,
-                properties.durability(0).attributes(AxeItem.createAttributes(ModTiers.EMBER_METAL, 8, -2.4f)));
+            ModTiers.EMBER_METAL,
+            properties.durability(0)
+                .attributes(AxeItem.createAttributes(ModTiers.EMBER_METAL, 8, -2.4f))
+                .component(DataComponents.UNBREAKABLE, new Unbreakable(true))
+        );
     }
 }
