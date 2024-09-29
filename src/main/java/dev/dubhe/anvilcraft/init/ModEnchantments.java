@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.enchantment.FellingEffect;
 import dev.dubhe.anvilcraft.enchantment.HarvestEffect;
 
 import net.minecraft.advancements.critereon.ItemPredicate;
@@ -48,6 +49,13 @@ public class ModEnchantments {
                     2,
                     EquipmentSlotGroup.MAINHAND
                 )
+            ).withEffect(
+                ModEnchantmentEffectComponents.POST_BREAK_BLOCK,
+                new FellingEffect(5),
+                MatchTool.toolMatches(
+                    ItemPredicate.Builder.item()
+                        .of(ItemTags.AXES)
+                )
             )
         );
         register(
@@ -70,7 +78,6 @@ public class ModEnchantments {
                     ItemPredicate.Builder.item()
                         .of(ItemTags.HOES)
                 )
-
             )
         );
         register(

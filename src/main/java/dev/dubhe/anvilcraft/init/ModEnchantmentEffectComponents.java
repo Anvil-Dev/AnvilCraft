@@ -26,6 +26,16 @@ public class ModEnchantmentEffectComponents {
         )
     );
 
+    public static final DataComponentType<List<ConditionalEffect<EnchantmentEntityEffect>>> POST_BREAK_BLOCK = register(
+        "post_break_block",
+        (it) -> it.persistent(
+            ConditionalEffect.codec(
+                EnchantmentEntityEffect.CODEC,
+                ModLootContextParamSets.POST_BREAK_BLOCK
+            ).listOf()
+        )
+    );
+
     private static <T> DataComponentType<T> register(String name, UnaryOperator<DataComponentType.Builder<T>> operator) {
         DataComponentType<T> dct = operator.apply(DataComponentType.builder()).build();
         REGISTER.register(name, () -> dct);

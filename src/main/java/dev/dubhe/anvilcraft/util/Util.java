@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.util;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
@@ -14,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -22,7 +25,20 @@ import java.util.stream.Collectors;
 public class Util {
     public static final Lazy<Boolean> jadePresent = new Lazy<>(() -> isLoaded("jade") || isLoaded("wthit"));
     private static final StackWalker STACK_WALKER = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
-
+    public static final Direction[] HORIZONTAL_DIRECTIONS = new Direction[] {
+        Direction.SOUTH,
+        Direction.WEST,
+        Direction.EAST,
+        Direction.NORTH
+    };
+    public static final Direction[] VERTICAL_DIRECTIONS = new Direction[] {
+        Direction.UP,
+        Direction.DOWN
+    };
+    public static final Direction[][] CORNER_DIRECTIONS = new Direction[][] {
+        {Direction.EAST, Direction.NORTH}, {Direction.EAST, Direction.SOUTH},
+        {Direction.WEST, Direction.NORTH}, {Direction.WEST, Direction.SOUTH},
+    };
     /**
      * @return 模组是否加载
      */
@@ -89,5 +105,26 @@ public class Util {
 
     public static <K, V> Collector<Map.Entry<K, V>, ?, Map<K, V>> toMapCollector() {
         return Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue);
+    }
+
+    public static void acceptDirections(BlockPos blockPos, Consumer<BlockPos> blockPosConsumer) {
+        for (Direction direction : Direction.values()) {
+            blockPosConsumer.accept(blockPos.relative(direction));
+        }
+        for (Direction horizontal : HORIZONTAL_DIRECTIONS) {
+            for (Direction vertical : VERTICAL_DIRECTIONS) {
+                blockPosConsumer.accept(blockPos.relative(horizontal).relative(vertical));
+            }
+        }
+        for (Direction[] corner : CORNER_DIRECTIONS) {
+            BlockPos pos1 = blockPos;
+            for (Direction direction : corner) {
+                pos1 = pos1.relative(direction);
+            }
+            for (Direction verticalDirection : VERTICAL_DIRECTIONS) {
+                pos1 = pos1.relative(verticalDirection);
+                blockPosConsumer.accept(pos1);
+            }
+        }
     }
 }

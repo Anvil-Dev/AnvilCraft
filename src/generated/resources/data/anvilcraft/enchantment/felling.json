@@ -3,6 +3,22 @@
   "description": {
     "translate": "enchantment.anvilcraft.felling"
   },
+  "effects": {
+    "anvilcraft:post_break_block": [
+      {
+        "effect": {
+          "type": "anvilcraft:felling",
+          "range": 5
+        },
+        "requirements": {
+          "condition": "minecraft:match_tool",
+          "predicate": {
+            "items": "#minecraft:axes"
+          }
+        }
+      }
+    ]
+  },
   "max_cost": {
     "base": 15,
     "per_level_above_first": 10
