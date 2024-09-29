@@ -11,15 +11,16 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantedItemInUse;
 import net.minecraft.world.item.enchantment.effects.EnchantmentEntityEffect;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.function.Consumer;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -41,7 +42,8 @@ public record FellingEffect(int range) implements EnchantmentEntityEffect {
             player,
             BlockPos.containing(vec3),
             max,
-            enchantedItemInUse.itemStack()
+            enchantedItemInUse.itemStack(),
+            enchantedItemInUse.onBreak()
         );
     }
 
@@ -57,7 +59,7 @@ public record FellingEffect(int range) implements EnchantmentEntityEffect {
      * @param sourceBlock 源方块坐标
      * @param max         最大采集数量
      */
-    private static void chainMine(Level level, Player player, BlockPos sourceBlock, int max, ItemStack tool) {
+    private static void chainMine(ServerLevel level, Player player, BlockPos sourceBlock, int max, ItemStack tool, Consumer<Item> onBreak) {
         BlockPos.breadthFirstTraversal(
             sourceBlock,
             Integer.MAX_VALUE,
@@ -69,6 +71,9 @@ public record FellingEffect(int range) implements EnchantmentEntityEffect {
                     BlockEntity blockEntity = level.getBlockEntity(blockPos);
                     level.removeBlock(blockPos, false);
                     blockState.getBlock().playerDestroy(level, player, blockPos, blockState, blockEntity, tool);
+                    if (!sourceBlock.equals(blockPos)) {
+                        tool.hurtAndBreak(1, level, player, onBreak);
+                    }
                     return true;
                 }
                 return sourceBlock.equals(blockPos);

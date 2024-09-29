@@ -56,6 +56,7 @@ public record HarvestEffect(int range) implements EnchantmentEntityEffect {
                 cropBlock.playerWillDestroy(level, pos, targetBlockState, player);
                 cropBlock.playerDestroy(level, player, pos, targetBlockState, entity, tool);
                 level.setBlockAndUpdate(pos, cropBlock.getStateForAge(0));
+                tool.hurtAndBreak(1, level, player, enchantedItemInUse.onBreak());
             }
         } else return;
         int max = enchantmentLevel * 2 + 1;
@@ -79,15 +80,8 @@ public record HarvestEffect(int range) implements EnchantmentEntityEffect {
             BlockState newState = block.getStateForAge(0);
             cropBlock.playerWillDestroy(level, currentIterating, targetBlockState, player);
             cropBlock.playerDestroy(level, player, currentIterating, targetBlockState, level.getBlockEntity(currentIterating), tool);
-            level.setBlock(currentIterating, newState, 11);
-            level.markAndNotifyBlock(
-                currentIterating,
-                level.getChunkAt(currentIterating),
-                state,
-                newState,
-                11,
-                512
-            );
+            level.setBlockAndUpdate(currentIterating, newState);
+            tool.hurtAndBreak(1, level, player, enchantedItemInUse.onBreak());
         }
     }
 
