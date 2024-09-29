@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.item;
 
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.Unbreakable;
 
 public class EmberAnvilHammerItem extends AnvilHammerItem {
