@@ -10,6 +10,7 @@
     "BeaconMenuMixin",
     "BlockItemInvoker",
     "BlockMixin",
+    "CraftingMenuMixin",
     "DispenseItemEmptyBottleBehaviorMixin",
     "DispenseItemEmptyBucketBehaviorMixin",
     "DispenseItemWaterBottleBehaviorMixin",

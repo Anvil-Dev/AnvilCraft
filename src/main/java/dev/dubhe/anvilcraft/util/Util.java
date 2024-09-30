@@ -115,4 +115,10 @@ public class Util {
             }
         }
     }
+
+    public static void acceptHorizontalDirections(BlockPos blockPos, Consumer<BlockPos> blockPosConsumer) {
+        for (Direction direction : HORIZONTAL_DIRECTIONS) {
+            blockPosConsumer.accept(blockPos.relative(direction));
+        }
+    }
 }

@@ -23,6 +23,7 @@ import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.block.CrabTrapBlock;
 import dev.dubhe.anvilcraft.block.CreamBlock;
 import dev.dubhe.anvilcraft.block.CreativeGeneratorBlock;
+import dev.dubhe.anvilcraft.block.CrystalCraftingTableBlock;
 import dev.dubhe.anvilcraft.block.DischargerBlock;
 import dev.dubhe.anvilcraft.block.EmberAnvilBlock;
 import dev.dubhe.anvilcraft.block.EmberGrindstone;
@@ -1082,6 +1083,29 @@ public class ModBlocks {
                 .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.GRINDSTONE), AnvilCraftDatagen.has(Blocks.GRINDSTONE))
                 .unlockedBy(
                     AnvilCraftDatagen.hasItem(Blocks.STONECUTTER), AnvilCraftDatagen.has(Blocks.STONECUTTER))
+                .save(provider);
+        })
+        .register();
+    public static final BlockEntry<CrystalCraftingTableBlock> CRYSTAL_CRAFTING_TABLE = REGISTRATE
+        .block("crystal_crafting_table", CrystalCraftingTableBlock::new)
+        .properties(properties -> properties
+            .mapColor(MapColor.COLOR_PURPLE)
+            .strength(1.5F, 3)
+            .sound(SoundType.AMETHYST)
+            .noOcclusion()
+        )
+        .blockstate((ctx, provider) -> {
+        })
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, Tags.Blocks.PLAYER_WORKSTATIONS_CRAFTING_TABLES)
+        .recipe((ctx, provider) -> {
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern(" A ")
+                .pattern("ABA")
+                .pattern(" A ")
+                .define('A', Items.AMETHYST_SHARD)
+                .define('B', Items.CRAFTING_TABLE)
+                .unlockedBy("hasitem", AnvilCraftDatagen.has(Items.AMETHYST_SHARD))
                 .save(provider);
         })
         .register();
