@@ -20,7 +20,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class RoyalAxeItem extends AxeItem implements IHasDefaultEnchantment {
+public class RoyalAxeItem extends AxeItem implements IInherentEnchantment {
     /**
      *
      */
@@ -33,12 +33,12 @@ public class RoyalAxeItem extends AxeItem implements IHasDefaultEnchantment {
         ItemStack pStack, TooltipContext pContext, List<Component> pTooltipComponents, TooltipFlag pTooltipFlag) {
         super.appendHoverText(pStack, pContext, pTooltipComponents, pTooltipFlag);
         if (pContext.level() != null) {
-            pTooltipComponents.addAll(this.getDefaultEnchantmentsTooltip(pContext.level()));
+            pTooltipComponents.addAll(this.getInherentEnchantmentsTooltip(pContext.level()));
         }
     }
 
     @Override
-    public Map<ResourceKey<Enchantment>, Integer> getDefaultEnchantments() {
+    public Map<ResourceKey<Enchantment>, Integer> getInherentEnchantments() {
         return Map.of(Enchantments.UNBREAKING, 3);
     }
 
@@ -46,7 +46,7 @@ public class RoyalAxeItem extends AxeItem implements IHasDefaultEnchantment {
     public ItemEnchantments getAllEnchantments(ItemStack stack, HolderLookup.RegistryLookup<Enchantment> lookup) {
         ItemEnchantments.Mutable enchantments = new ItemEnchantments.Mutable(super.getAllEnchantments(stack, lookup));
 
-        for (var entry : getDefaultEnchantments().entrySet()) {
+        for (var entry : getInherentEnchantments().entrySet()) {
             Holder.Reference<Enchantment> holder = lookup.getOrThrow(entry.getKey());
             enchantments.set(holder, entry.getValue());
         }
