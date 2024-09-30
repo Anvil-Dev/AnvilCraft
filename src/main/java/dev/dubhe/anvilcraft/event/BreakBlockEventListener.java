@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.event;
 
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.util.ModEnchantmentHelper;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -14,10 +13,8 @@ import net.neoforged.neoforge.event.level.BlockEvent;
 public class BreakBlockEventListener {
     @SubscribeEvent
     public static void onBlockRemoved(BlockEvent.BreakEvent event) {
-        AnvilCraft.LOGGER.info("onBlockRemoved");
         Player player = event.getPlayer();
         ItemStack stack = player.getMainHandItem();
-        AnvilCraft.LOGGER.info("{}, {}", player, stack);
         ModEnchantmentHelper.onPostBreakBlock(
             (ServerLevel) player.level(),
             stack,
