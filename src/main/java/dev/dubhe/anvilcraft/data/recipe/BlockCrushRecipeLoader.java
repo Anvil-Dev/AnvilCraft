@@ -27,6 +27,8 @@ public class BlockCrushRecipeLoader {
         blockCrush(provider, Blocks.DEEPSLATE_TILES, Blocks.CRACKED_DEEPSLATE_TILES);
         blockCrush(provider, Blocks.POLISHED_BLACKSTONE_BRICKS, Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS);
         blockCrush(provider, Blocks.SOUL_SOIL, Blocks.SOUL_SAND);
+        blockCrush(provider, Blocks.NETHERRACK, ModBlocks.NETHER_DUST.get());
+        blockCrush(provider, Blocks.END_STONE, ModBlocks.END_DUST.get());
     }
 
     private static void blockCrush(RegistrateRecipeProvider provider, Block input, Block result) {

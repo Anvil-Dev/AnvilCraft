@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.api.event.entity.GiantAnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
+import dev.dubhe.anvilcraft.recipe.anvil.BlockCrushRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockInput;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
 
@@ -158,26 +159,18 @@ public class GiantAnvilLandingEventListener {
                 processChorus(pos, state, level);
             }
         }));
-//        behaviorDefs.add(new ShockBehaviorDefinition.SimpleBlock(Blocks.ANVIL,
-//            (blockPosList, level) -> {
-//                for (BlockPos pos : blockPosList) {
-//                    BlockPos pos1 = pos.mutable();
-//                    AnvilCraftingContext context = new AnvilCraftingContext(level, pos1, null);
-//                    Optional<AnvilRecipe> optional =
-//                        AnvilRecipeManager.getAnvilRecipeList().stream()
-//                            .filter(recipe ->
-//                                recipe.getAnvilRecipeType() ==
-//                                    AnvilRecipeType.BLOCK_SMASH
-//                                    && recipe.matches(context, level)
-//                            ).findFirst();
-//                    if (optional.isPresent()) {
-//                        AnvilRecipe recipe = optional.get();
-//                        recipe.craft(context.clearData());
-//                        level.destroyBlock(pos.below(), true);
-//                    }
-//                }
-//            })
-//        );
+        behaviorDefs.add(new ShockBehaviorDefinition.SimpleBlock(Blocks.ANVIL,
+            (blockPosList, level) -> {
+                for (BlockPos pos : blockPosList) {
+                    BlockState state = level.getBlockState(pos);
+                    BlockCrushRecipe.Input input = new BlockCrushRecipe.Input(state.getBlock());
+                    level.getRecipeManager().getRecipeFor(ModRecipeTypes.BLOCK_CRUSH_TYPE.get(), input, level).ifPresent(recipe -> {
+                        level.setBlockAndUpdate(pos, recipe.value().result.defaultBlockState());
+                        level.destroyBlock(pos, true);
+                    });
+                }
+            })
+        );
     }
 
     private static void processChorus(BlockPos pos, BlockState state, Level level) {
