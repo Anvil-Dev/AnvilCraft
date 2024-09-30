@@ -1,19 +1,30 @@
 package dev.dubhe.anvilcraft.event;
 
-import net.minecraft.world.entity.LivingEntity;
+import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.util.ModEnchantmentHelper;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.entity.living.LivingDestroyBlockEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
 
 @EventBusSubscriber
 public class BreakBlockEventListener {
     @SubscribeEvent
-    public static void onBlockRemoved(LivingDestroyBlockEvent event) {
-        LivingEntity entity = event.getEntity();
-        //if (entity instanceof ServerPlayer serverPlayer && serverPlayer.getAbilities().instabuild) return;
-        ItemStack item = entity.getUseItem();
-        System.out.println("entity = " + entity);
-        System.out.println("item = " + item);
+    public static void onBlockRemoved(BlockEvent.BreakEvent event) {
+        AnvilCraft.LOGGER.info("onBlockRemoved");
+        Player player = event.getPlayer();
+        ItemStack stack = player.getMainHandItem();
+        AnvilCraft.LOGGER.info("{}, {}", player, stack);
+        ModEnchantmentHelper.onPostBreakBlock(
+            (ServerLevel) player.level(),
+            stack,
+            player,
+            EquipmentSlot.MAINHAND,
+            event.getPos().getCenter(),
+            event.getState()
+        );
     }
 }

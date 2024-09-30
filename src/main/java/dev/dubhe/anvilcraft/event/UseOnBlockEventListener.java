@@ -1,9 +1,9 @@
 package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.util.ModEnchantmentHelper;
-import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.context.UseOnContext;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -20,7 +20,7 @@ public class UseOnBlockEventListener {
             (ServerLevel) context.getLevel(),
             context.getItemInHand(),
             context.getPlayer(),
-            Util.convertToSlot(context.getHand()),
+            LivingEntity.getSlotForHand(context.getHand()),
             context.getClickedPos().getCenter(),
             context.getLevel().getBlockState(context.getClickedPos())
         );

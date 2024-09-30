@@ -9,7 +9,6 @@ import dev.dubhe.anvilcraft.block.state.LightColor;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
-import dev.dubhe.anvilcraft.util.Util;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
@@ -20,6 +19,7 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -45,7 +45,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import com.mojang.serialization.MapCodec;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
@@ -172,7 +171,7 @@ public class InductionLightBlock extends BetterBaseEntityBlock implements IHamme
         } else if (itemInHand.is(ItemTags.AXES)) {
             level.setBlockAndUpdate(pos, state.setValue(COLOR, LightColor.PRIMARY));
             itemInHand.hurtAndBreak(1, (ServerLevel) level, (ServerPlayer) player, item -> {
-                player.onEquippedItemBroken(item, Util.convertToSlot(hand));
+                player.onEquippedItemBroken(item, LivingEntity.getSlotForHand(hand));
             });
             return InteractionResult.CONSUME_PARTIAL;
         } else if (itemInHand.is(ModItems.VOID_MATTER.asItem())) {

@@ -30,8 +30,7 @@
     "forge.FallingBlockEntityMixin",
     "forge.LevelChunkMixin",
     "forge.LightningBoltMixin",
-    "forge.PistonMovingBlockEntityMixin",
-    "ItemMixin"
+    "forge.PistonMovingBlockEntityMixin"
   ],
   "client": [
     "ClientLevelMixin",

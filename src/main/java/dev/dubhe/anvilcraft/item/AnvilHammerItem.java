@@ -7,7 +7,6 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.network.RocketJumpPacket;
-import dev.dubhe.anvilcraft.util.Util;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
@@ -109,7 +108,7 @@ public class AnvilHammerItem extends Item implements Equipable, IEngineerGoggles
         level.playSound(null, blockPos, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 1f, 1f);
         ItemStack itemStack = player.getItemInHand(player.getUsedItemHand());
         if (itemStack.getItem() instanceof AnvilHammerItem) {
-            itemStack.hurtAndBreak(1, player, Util.convertToSlot(player.getUsedItemHand()));
+            itemStack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(player.getUsedItemHand()));
         }
     }
 
@@ -185,7 +184,7 @@ public class AnvilHammerItem extends Item implements Equipable, IEngineerGoggles
             @NotNull BlockPos pos,
             @NotNull LivingEntity miningEntity) {
         if (state.getDestroySpeed(level, pos) != 0.0f) {
-            stack.hurtAndBreak(2, miningEntity, Util.convertToSlot(miningEntity.getUsedItemHand()));
+            stack.hurtAndBreak(2, miningEntity, LivingEntity.getSlotForHand(miningEntity.getUsedItemHand()));
         }
         return true;
     }
@@ -196,7 +195,7 @@ public class AnvilHammerItem extends Item implements Equipable, IEngineerGoggles
 
     @Override
     public boolean hurtEnemy(@NotNull ItemStack stack, @NotNull LivingEntity target, @NotNull LivingEntity attacker) {
-        stack.hurtAndBreak(1, attacker, Util.convertToSlot(target.getUsedItemHand()));
+        stack.hurtAndBreak(1, attacker, LivingEntity.getSlotForHand(target.getUsedItemHand()));
         float damageBonus = calculateFallDamageBonus(attacker.fallDistance);
         target.hurt(target.level().damageSources().anvil(attacker), damageBonus);
         if (attacker.fallDistance >= 3) {

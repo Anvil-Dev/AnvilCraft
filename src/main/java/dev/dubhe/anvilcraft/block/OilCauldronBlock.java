@@ -13,6 +13,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -22,8 +23,6 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -114,7 +113,7 @@ public class OilCauldronBlock extends LayeredCauldronBlock implements IHammerRem
                     .setValue(
                         LayeredCauldronBlock.LEVEL,
                         level.getBlockState(pos).getValue(LayeredCauldronBlock.LEVEL)));
-            itemStack.hurtAndBreak(2, player, Util.convertToSlot(hand));
+            itemStack.hurtAndBreak(2, player, LivingEntity.getSlotForHand(hand));
             return InteractionResult.SUCCESS;
         }
         if (itemStack.is(Items.FIRE_CHARGE)) {

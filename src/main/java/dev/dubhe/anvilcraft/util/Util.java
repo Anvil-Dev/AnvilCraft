@@ -2,10 +2,8 @@ package dev.dubhe.anvilcraft.util;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.neoforged.fml.ModList;
 
 import lombok.AccessLevel;
@@ -56,16 +54,6 @@ public class Util {
             case CONSUME_PARTIAL -> ItemInteractionResult.CONSUME_PARTIAL;
             case PASS -> ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
             case FAIL -> ItemInteractionResult.FAIL;
-        };
-    }
-
-    /**
-     *
-     */
-    public static EquipmentSlot convertToSlot(InteractionHand hand) {
-        return switch (hand) {
-            case MAIN_HAND -> EquipmentSlot.MAINHAND;
-            case OFF_HAND -> EquipmentSlot.OFFHAND;
         };
     }
 
