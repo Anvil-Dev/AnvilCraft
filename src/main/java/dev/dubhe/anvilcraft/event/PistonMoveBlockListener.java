@@ -43,7 +43,7 @@ public class PistonMoveBlockListener {
                 for (var floatChargeCollectorBlockEntityEntry : nearestChargeCollect) {
                     ChargeCollectorBlockEntity blockEntity = floatChargeCollectorBlockEntityEntry.getBlockEntity();
                     if (ChargeCollectorManager.getInstance(level).canCollect(blockEntity, pos)) {
-                        double unCharged = blockEntity.incomingCharge(n);
+                        double unCharged = blockEntity.incomingCharge(n, pos);
                         if (unCharged == 0) {
                             break;
                         }

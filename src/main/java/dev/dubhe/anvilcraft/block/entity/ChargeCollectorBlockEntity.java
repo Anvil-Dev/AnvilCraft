@@ -5,13 +5,16 @@ import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IHasAffectRange;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 
+import dev.dubhe.anvilcraft.network.ChargeCollectorIncomingChargePacket;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -90,13 +93,23 @@ public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerPro
      * @param num 添加至收集器的电荷数
      * @return 溢出的电荷数(既未被添加至收集器的电荷数)
      */
-    public double incomingCharge(double num) {
-        double surplus = num - (MAX_POWER_PER_INCOMING - this.chargeNum);
-        if (surplus < 0) {
-            surplus = 0;
+    public double incomingCharge(double num, BlockPos srcPos) {
+        double overflow = num - (MAX_POWER_PER_INCOMING - this.chargeNum);
+        if (overflow < 0) {
+            overflow = 0;
         }
-        this.chargeNum += num - surplus;
-        return surplus;
+        double acceptableChargeCount = num - overflow;
+        PacketDistributor.sendToPlayersTrackingChunk(
+            (ServerLevel) level,
+            level.getChunkAt(worldPosition).getPos(),
+            new ChargeCollectorIncomingChargePacket(
+                srcPos,
+                this.worldPosition,
+                acceptableChargeCount
+            )
+        );
+        this.chargeNum += acceptableChargeCount;
+        return overflow;
     }
 
     @Override
