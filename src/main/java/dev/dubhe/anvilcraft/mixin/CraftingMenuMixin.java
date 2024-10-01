@@ -21,7 +21,7 @@ public class CraftingMenuMixin {
     @Inject(method = "stillValid", at = @At("RETURN"), cancellable = true)
     private void stillValid(Player player, CallbackInfoReturnable<Boolean> cir) {
         if (!cir.getReturnValue()) {
-            cir.setReturnValue(AbstractContainerMenu.stillValid(access, player, ModBlocks.CRYSTAL_CRAFTING_TABLE.get()));
+            cir.setReturnValue(AbstractContainerMenu.stillValid(access, player, ModBlocks.TRANSPARENT_CRAFTING_TABLE.get()));
         }
     }
 }

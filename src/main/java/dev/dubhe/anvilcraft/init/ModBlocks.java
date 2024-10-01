@@ -23,7 +23,7 @@ import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.block.CrabTrapBlock;
 import dev.dubhe.anvilcraft.block.CreamBlock;
 import dev.dubhe.anvilcraft.block.CreativeGeneratorBlock;
-import dev.dubhe.anvilcraft.block.CrystalCraftingTableBlock;
+import dev.dubhe.anvilcraft.block.TransparentCraftingTableBlock;
 import dev.dubhe.anvilcraft.block.DischargerBlock;
 import dev.dubhe.anvilcraft.block.EmberAnvilBlock;
 import dev.dubhe.anvilcraft.block.EmberGrindstone;
@@ -1086,8 +1086,8 @@ public class ModBlocks {
                 .save(provider);
         })
         .register();
-    public static final BlockEntry<CrystalCraftingTableBlock> CRYSTAL_CRAFTING_TABLE = REGISTRATE
-        .block("crystal_crafting_table", CrystalCraftingTableBlock::new)
+    public static final BlockEntry<TransparentCraftingTableBlock> TRANSPARENT_CRAFTING_TABLE = REGISTRATE
+        .block("transparent_crafting_table", TransparentCraftingTableBlock::new)
         .properties(properties -> properties
             .mapColor(MapColor.COLOR_PURPLE)
             .strength(1.5F, 3)

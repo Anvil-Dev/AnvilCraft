@@ -11,12 +11,15 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.CraftingMenu;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.TransparentBlock;
@@ -32,11 +35,11 @@ import java.util.List;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class CrystalCraftingTableBlock extends TransparentBlock implements IHammerRemovable {
+public class TransparentCraftingTableBlock extends TransparentBlock implements IHammerRemovable {
 
     public static final EnumProperty<Type> TYPE = EnumProperty.create("type", Type.class);
 
-    public CrystalCraftingTableBlock(Properties properties) {
+    public TransparentCraftingTableBlock(Properties properties) {
         super(properties);
         registerDefaultState(stateDefinition.any().setValue(TYPE, Type.SINGLE));
     }
@@ -44,6 +47,14 @@ public class CrystalCraftingTableBlock extends TransparentBlock implements IHamm
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(TYPE);
+    }
+
+    @Override
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+        if (stack.is(ModBlocks.TRANSPARENT_CRAFTING_TABLE.asItem())) {
+            return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
+        }
+        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 
     @Override
@@ -84,7 +95,7 @@ public class CrystalCraftingTableBlock extends TransparentBlock implements IHamm
             Util::acceptHorizontalDirections,
             blockPos -> {
                 BlockState blockState = level.getBlockState(blockPos);
-                if (blockState.is(ModBlocks.CRYSTAL_CRAFTING_TABLE)) {
+                if (blockState.is(ModBlocks.TRANSPARENT_CRAFTING_TABLE)) {
                     posList.add(blockPos);
                     return true;
                 }
@@ -122,7 +133,7 @@ public class CrystalCraftingTableBlock extends TransparentBlock implements IHamm
         for (int x = minX; x <= maxX && flag; x++) {
             for (int z = minZ; z <= maxZ && flag; z++) {
                 BlockPos checkPos = new BlockPos(x, posY, z);
-                if (!level.getBlockState(checkPos).is(ModBlocks.CRYSTAL_CRAFTING_TABLE)) {
+                if (!level.getBlockState(checkPos).is(ModBlocks.TRANSPARENT_CRAFTING_TABLE)) {
                     flag = false;
                 }
             }
@@ -137,53 +148,53 @@ public class CrystalCraftingTableBlock extends TransparentBlock implements IHamm
             for (int x = minX + 1; x <= maxX - 1; x++) {
                 for (int z = minZ + 1; z <= maxZ - 1; z++) {
                     BlockPos pos = new BlockPos(x, posY, z);
-                    level.setBlockAndUpdate(pos, ModBlocks.CRYSTAL_CRAFTING_TABLE.getDefaultState().setValue(TYPE, Type.CENTER));
+                    level.setBlockAndUpdate(pos, ModBlocks.TRANSPARENT_CRAFTING_TABLE.getDefaultState().setValue(TYPE, Type.CENTER));
                 }
             }
 
             // corner
             level.setBlockAndUpdate(
                 new BlockPos(minX, posY, minZ),
-                ModBlocks.CRYSTAL_CRAFTING_TABLE.getDefaultState().setValue(TYPE, Type.CORNER_NORTH_WEST)
+                ModBlocks.TRANSPARENT_CRAFTING_TABLE.getDefaultState().setValue(TYPE, Type.CORNER_NORTH_WEST)
             );
             level.setBlockAndUpdate(
                 new BlockPos(maxX, posY, minZ),
-                ModBlocks.CRYSTAL_CRAFTING_TABLE.getDefaultState().setValue(TYPE, Type.CORNER_NORTH_EAST)
+                ModBlocks.TRANSPARENT_CRAFTING_TABLE.getDefaultState().setValue(TYPE, Type.CORNER_NORTH_EAST)
             );
             level.setBlockAndUpdate(
                 new BlockPos(minX, posY, maxZ),
-                ModBlocks.CRYSTAL_CRAFTING_TABLE.getDefaultState().setValue(TYPE, Type.CORNER_SOUTH_WEST)
+                ModBlocks.TRANSPARENT_CRAFTING_TABLE.getDefaultState().setValue(TYPE, Type.CORNER_SOUTH_WEST)
             );
             level.setBlockAndUpdate(
                 new BlockPos(maxX, posY, maxZ),
-                ModBlocks.CRYSTAL_CRAFTING_TABLE.getDefaultState().setValue(TYPE, Type.CORNER_SOUTH_EAST)
+                ModBlocks.TRANSPARENT_CRAFTING_TABLE.getDefaultState().setValue(TYPE, Type.CORNER_SOUTH_EAST)
             );
 
             //side
             for (int z = minZ + 1; z <= maxZ - 1; z++) {
                 level.setBlockAndUpdate(
                     new BlockPos(minX, posY, z),
-                    ModBlocks.CRYSTAL_CRAFTING_TABLE.getDefaultState().setValue(TYPE, Type.SIDE_WEST)
+                    ModBlocks.TRANSPARENT_CRAFTING_TABLE.getDefaultState().setValue(TYPE, Type.SIDE_WEST)
                 );
                 level.setBlockAndUpdate(
                     new BlockPos(maxX, posY, z),
-                    ModBlocks.CRYSTAL_CRAFTING_TABLE.getDefaultState().setValue(TYPE, Type.SIDE_EAST)
+                    ModBlocks.TRANSPARENT_CRAFTING_TABLE.getDefaultState().setValue(TYPE, Type.SIDE_EAST)
                 );
             }
             for (int x = minX + 1; x <= maxX - 1; x++) {
                 level.setBlockAndUpdate(
                     new BlockPos(x, posY, minZ),
-                    ModBlocks.CRYSTAL_CRAFTING_TABLE.getDefaultState().setValue(TYPE, Type.SIDE_NORTH)
+                    ModBlocks.TRANSPARENT_CRAFTING_TABLE.getDefaultState().setValue(TYPE, Type.SIDE_NORTH)
                 );
                 level.setBlockAndUpdate(
                     new BlockPos(x, posY, maxZ),
-                    ModBlocks.CRYSTAL_CRAFTING_TABLE.getDefaultState().setValue(TYPE, Type.SIDE_SOUTH)
+                    ModBlocks.TRANSPARENT_CRAFTING_TABLE.getDefaultState().setValue(TYPE, Type.SIDE_SOUTH)
                 );
             }
         } else {
             // 恢复无连接状态
             for (BlockPos pos : posList) {
-                level.setBlockAndUpdate(pos, ModBlocks.CRYSTAL_CRAFTING_TABLE.getDefaultState());
+                level.setBlockAndUpdate(pos, ModBlocks.TRANSPARENT_CRAFTING_TABLE.getDefaultState());
             }
         }
     }
