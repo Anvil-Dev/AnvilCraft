@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.block.ActiveSilencerBlock;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.ActiveSilencerMenu;
 
+import dev.dubhe.anvilcraft.util.DistExecutor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -30,6 +31,7 @@ import net.minecraft.world.phys.Vec3;
 
 import com.mojang.serialization.Codec;
 import lombok.Getter;
+import net.neoforged.api.distmarker.Dist;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -90,13 +92,13 @@ public class ActiveSilencerBlockEntity
     @Override
     public void setRemoved() {
         super.setRemoved();
-        SoundHelper.INSTANCE.unregister(this);
+        DistExecutor.run(Dist.CLIENT, () -> () -> SoundHelper.INSTANCE.unregister(this));
     }
 
     @Override
     public void setLevel(@NotNull Level level) {
         super.setLevel(level);
-        SoundHelper.INSTANCE.register(this);
+        DistExecutor.run(Dist.CLIENT, () -> () -> SoundHelper.INSTANCE.register(this));
     }
 
     @Override
