@@ -33,7 +33,7 @@ public class CrabClawItem extends Item {
     }
 
     /**
-     * 蟹钳增加交换距离
+     * 蟹钳增加交互距离
      */
     public static void holdingCrabClawIncreasesRange(LivingEntity entity) {
         if (!(entity instanceof Player player)) return;
