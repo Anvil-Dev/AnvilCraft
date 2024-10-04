@@ -38,13 +38,15 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @Getter
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public abstract class BaseChuteBlockEntity extends BaseMachineBlockEntity
-    implements IFilterBlockEntity, IDiskCloneable, ItemHandlerHolder
-{
+public abstract class BaseChuteBlockEntity
+    extends BaseMachineBlockEntity
+    implements IFilterBlockEntity, IDiskCloneable, ItemHandlerHolder {
+
     private int cooldown = 0;
     private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(9) {
         @Override
         public void onContentsChanged(int slot) {
+            if (level.isClientSide) return;
             setChanged();
         }
     };

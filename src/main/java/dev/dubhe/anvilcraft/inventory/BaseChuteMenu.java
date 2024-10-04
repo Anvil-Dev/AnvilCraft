@@ -48,8 +48,14 @@ public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends Base
 
         for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < 3; ++j) {
-                this.addSlot(new SlotItemHandlerWithFilter(
-                        this.blockEntity.getItemHandler(), i * 3 + j, 62 + j * 18, 18 + i * 18));
+                this.addSlot(
+                    new SlotItemHandlerWithFilter(
+                        this.blockEntity.getItemHandler(),
+                        i * 3 + j,
+                        62 + j * 18,
+                        18 + i * 18
+                    )
+                );
             }
         }
     }
@@ -93,24 +99,26 @@ public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends Base
     public @NotNull ItemStack quickMoveStack(@NotNull Player playerIn, int index) {
         Slot sourceSlot = slots.get(index);
         //noinspection ConstantValue
-        if (sourceSlot == null || !sourceSlot.hasItem()) return ItemStack.EMPTY; // EMPTY_ITEM
+        if (sourceSlot == null || !sourceSlot.hasItem()) {
+            return ItemStack.EMPTY;
+        } // EMPTY_ITEM
         ItemStack sourceStack = sourceSlot.getItem();
         final ItemStack copyOfSourceStack = sourceStack.copy();
 
         // Check if the slot clicked is one of the vanilla container slots
         if (index < VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT) {
             // This is a vanilla container slot so merge the stack into the tile inventory
-            if (!moveItemStackTo(
-                    sourceStack,
-                    TE_INVENTORY_FIRST_SLOT_INDEX,
-                    TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT,
-                    false)) {
+            if (moveItemToActiveSlot(sourceStack)) {
                 return ItemStack.EMPTY; // EMPTY_ITEM
             }
         } else if (index < TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT) {
             // This is a TE slot so merge the stack into the players inventory
             if (!moveItemStackTo(
-                    sourceStack, VANILLA_FIRST_SLOT_INDEX, VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT, false)) {
+                    sourceStack,
+                VANILLA_FIRST_SLOT_INDEX,
+                VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT,
+                false
+            )) {
                 return ItemStack.EMPTY;
             }
         } else {
@@ -125,6 +133,37 @@ public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends Base
         }
         sourceSlot.onTake(playerIn, sourceStack);
         return copyOfSourceStack;
+    }
+
+
+    // 移动物品到可用槽位
+    private boolean moveItemToActiveSlot(ItemStack stack) {
+        int count = stack.getCount();
+        for (int index = TE_INVENTORY_FIRST_SLOT_INDEX; index < 45; index++) {
+            // 只有对应槽位可以放入物品时才向槽位里快速移动物品
+            if (canPlace(stack, index)) {
+                moveItemStackTo(stack, index, index + 1, false);
+                if (stack.isEmpty()) {
+                    break;
+                }
+            }
+        }
+        return stack.getCount() >= count;
+    }
+
+    // 是否可以向槽位中放入物品
+    private boolean canPlace(ItemStack stack, int index) {
+        if (this.getSlot(index) instanceof SlotItemHandlerWithFilter depositorySlot) {
+            // 如果当前槽位被禁用，返回false
+            if (depositorySlot.isSlotDisabled(9 - (45 - index))) {
+                return false;
+            }
+            // 当前槽位没有禁用，并且要放入的物品就是当前槽位的过滤器要过滤的物品，返回true
+            // 如果未设置保留物品过滤，即所有槽位都没有被禁用，此时过滤器不会过滤任何物品，所以当前过滤器要过滤的物品为空时也应该返回true
+            ItemStack filterItem = depositorySlot.getFilterItem(9 - (45 - index));
+            return filterItem.isEmpty() || filterItem.is(stack.getItem());
+        }
+        return true;
     }
 
     @Override

@@ -60,8 +60,14 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
 
         for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < 3; ++j) {
-                this.addSlot(new SlotItemHandlerWithFilter(
-                        this.blockEntity.getItemHandler(), i * 3 + j, 26 + j * 18, 18 + i * 18));
+                this.addSlot(
+                    new SlotItemHandlerWithFilter(
+                        this.blockEntity.getItemHandler(),
+                        i * 3 + j,
+                        26 + j * 18,
+                        18 + i * 18
+                    )
+                );
             }
         }
 
@@ -106,7 +112,9 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
     public @NotNull ItemStack quickMoveStack(@NotNull Player playerIn, int index) {
         Slot sourceSlot = slots.get(index);
         //noinspection ConstantValue
-        if (sourceSlot == null || !sourceSlot.hasItem()) return ItemStack.EMPTY; // EMPTY_ITEM
+        if (sourceSlot == null || !sourceSlot.hasItem()) {
+            return ItemStack.EMPTY; // EMPTY_ITEM
+        }
         ItemStack sourceStack = sourceSlot.getItem();
         final ItemStack copyOfSourceStack = sourceStack.copy();
         // Check if the slot clicked is one of the vanilla container slots
@@ -118,7 +126,11 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
         } else if (index < TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT) {
             // This is a TE slot so merge the stack into the players inventory
             if (!moveItemStackTo(
-                    sourceStack, VANILLA_FIRST_SLOT_INDEX, VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT, false)) {
+                    sourceStack,
+                VANILLA_FIRST_SLOT_INDEX,
+                VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT,
+                false
+            )) {
                 return ItemStack.EMPTY;
             }
         } else {
