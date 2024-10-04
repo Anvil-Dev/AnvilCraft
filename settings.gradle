@@ -23,7 +23,7 @@ dependencyResolutionManagement {
         def minecraftVersion = "1.21.1"
 
         // Mod Dependencies Versions
-        def neoForgeVersion = "21.1.47"
+        def neoForgeVersion = "21.1.62"
         def registrateVersion = "MC1.21-1.3.0+55"
         def clothConfigVersion = "15.0.130"
 
