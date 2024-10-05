@@ -315,7 +315,7 @@
     </td>
     <td align="center">
       <a href="https://space.bilibili.com/484142219">
-        <img src="https://i2.hdslb.com/bfs/face/d198e6e711865ae8ba9234b1eafcb05bc1df332b.jpg" width="100px" height="100px" alt=""/><br />
+        <img src="https://i2.hdslb.com/bfs/face/1e3b0122ed1fe6322bb9f3d17195fe25971c28fe.jpg" width="100px" height="100px" alt=""/><br />
         <sub><b>秋水AuU_</b></sub>
       </a><br />
       <a title="Money">💵</a>
