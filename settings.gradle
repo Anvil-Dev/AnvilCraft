@@ -38,7 +38,7 @@ dependencyResolutionManagement {
 
         def parchmentVersion = "2024.07.28" // https://parchmentmc.org/docs/getting-started
 
-        def modDevGradleVersion = "2.0.28-beta"
+        def modDevGradleVersion = "2.0.34-beta"
         def spotlessPluginVersion = "7.0.0.BETA2"
         def lombokPluginVersion = "8.7.1"
         def machetePluginVersion = "1.+"
