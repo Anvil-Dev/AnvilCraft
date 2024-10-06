@@ -57,14 +57,12 @@ public class AnvilCraft {
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
     public static final Gson GSON =
         new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
-    public static IEventBus EVENT_BUS;
     public static AnvilCraftConfig config = AutoConfig.register(AnvilCraftConfig.class, JanksonConfigSerializer::new)
         .getConfig();
 
     public static final Registrate REGISTRATE = Registrate.create(MOD_ID);
 
     public AnvilCraft(IEventBus modEventBus, ModContainer container) {
-        EVENT_BUS = modEventBus;
         ModItemGroups.register(modEventBus);
         ModBlocks.register();
         ModEntities.register();
