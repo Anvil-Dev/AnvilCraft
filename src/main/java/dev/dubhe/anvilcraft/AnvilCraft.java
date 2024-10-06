@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.init.ModDispenserBehavior;
 import dev.dubhe.anvilcraft.init.ModEnchantmentEffectComponents;
 import dev.dubhe.anvilcraft.init.ModEnchantmentEffects;
 import dev.dubhe.anvilcraft.init.ModEntities;
+import dev.dubhe.anvilcraft.init.ModFluids;
 import dev.dubhe.anvilcraft.init.ModItemGroups;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.init.ModLootContextParamSets;
@@ -65,6 +66,7 @@ public class AnvilCraft {
     public AnvilCraft(IEventBus modEventBus, ModContainer container) {
         ModItemGroups.register(modEventBus);
         ModBlocks.register();
+        ModFluids.register(modEventBus);
         ModEntities.register();
         ModItems.register();
         ModBlockEntities.register();
