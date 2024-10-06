@@ -30,10 +30,6 @@ abstract class AbstractCauldronBlockMixin implements BucketPickup {
             level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
             return Items.LAVA_BUCKET.getDefaultInstance();
         }
-        if (state.is(ModBlocks.LAVA_CAULDRON.get()) && state.getValue(LayeredCauldronBlock.LEVEL) == 3) {
-            level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
-            return Items.LAVA_BUCKET.getDefaultInstance();
-        }
         if (state.is(Blocks.WATER_CAULDRON) && state.getValue(LayeredCauldronBlock.LEVEL) == 3) {
             level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
             return Items.WATER_BUCKET.getDefaultInstance();
@@ -42,7 +38,7 @@ abstract class AbstractCauldronBlockMixin implements BucketPickup {
             level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
             return Items.POWDER_SNOW_BUCKET.getDefaultInstance();
         }
-        return Items.BUCKET.getDefaultInstance();
+        return ItemStack.EMPTY;
     }
 
     @Override
