@@ -29,6 +29,7 @@ public class ModFluids {
     public static final DeferredHolder<FluidType, FluidType> OIL_TYPE = FLUID_TYPES.register(
         "oil",
         () -> new FluidType(FluidType.Properties.create()
+            .descriptionId("block.anvilcraft.oil")
             .density(2000)
             .viscosity(4000)
             .fallDistanceModifier(0F)
