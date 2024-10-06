@@ -45,6 +45,7 @@ public class CauldronBucketItem extends BucketItem {
                 hitPos,
                 newState
             );
+            playEmptySound(player, level, hitPos);
             return true;
         }
         return super.emptyContents(player, level, pos, result, container);
