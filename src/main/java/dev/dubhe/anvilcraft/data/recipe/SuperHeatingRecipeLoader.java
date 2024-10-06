@@ -40,12 +40,12 @@ public class SuperHeatingRecipeLoader {
                 .requires(ModBlocks.QUARTZ_SAND, 8)
                 .requires(ModItems.ROYAL_STEEL_INGOT)
                 .result(new ItemStack(ModBlocks.TEMPERING_GLASS, 8))
-                .save(provider, AnvilCraft.of("super_heating/tempering_glass_from_royal_steel_ingot"));
+                .save(provider);
         SuperHeatingRecipe.builder()
                 .requires(ModBlocks.QUARTZ_SAND, 8)
                 .requires(ModItems.EMBER_METAL_INGOT)
-                .result(new ItemStack(ModBlocks.TEMPERING_GLASS, 8))
-                .save(provider, AnvilCraft.of("super_heating/tempering_glass_from_ember_metal_ingot"));
+                .result(new ItemStack(ModBlocks.EMBER_GLASS, 8))
+                .save(provider);
         SuperHeatingRecipe.builder()
                 .requires(ModItems.WOOD_FIBER, 4)
                 .result(new ItemStack(Items.CHARCOAL))

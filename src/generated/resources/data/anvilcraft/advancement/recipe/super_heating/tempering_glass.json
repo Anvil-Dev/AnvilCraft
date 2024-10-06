@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:super_heating/tempering_glass_from_ember_metal_ingot"
+        "recipe": "anvilcraft:super_heating/tempering_glass"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -15,7 +15,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:super_heating/tempering_glass_from_ember_metal_ingot"
+      "anvilcraft:super_heating/tempering_glass"
     ]
   }
 }
