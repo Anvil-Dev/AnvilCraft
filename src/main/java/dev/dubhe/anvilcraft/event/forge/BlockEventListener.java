@@ -24,7 +24,9 @@ public class BlockEventListener {
     public static void anvilHammerAttack(@NotNull PlayerInteractEvent.LeftClickBlock event) {
         InteractionHand hand = event.getHand();
         if (event.getEntity().getItemInHand(hand).getItem() instanceof AnvilHammerItem) {
-            AnvilHammerItem.attackBlock(event.getEntity(), event.getPos(), event.getLevel());
+            if (!AnvilHammerItem.dropAnvil(event.getEntity(), event.getLevel(), event.getPos())) {
+                event.setCanceled(true);
+            }
         }
     }
 

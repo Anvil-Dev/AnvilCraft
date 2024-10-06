@@ -39,7 +39,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public class AnvilHammerItem extends Item implements Equipable, IEngineerGoggles {
-    private static long lastDropAnvilTime = 0;
     private final ItemAttributeModifiers modifiers;
 
     /**
@@ -102,18 +101,21 @@ public class AnvilHammerItem extends Item implements Equipable, IEngineerGoggles
             || player.getOffhandItem().is(Items.FIREWORK_ROCKET);
     }
 
-    private static void dropAnvil(Player player, Level level, BlockPos blockPos) {
-        if (player == null || level.isClientSide) return;
-        if (System.currentTimeMillis() - lastDropAnvilTime <= 150) return;
-        lastDropAnvilTime = System.currentTimeMillis();
+    public static boolean dropAnvil(Player player, Level level, BlockPos blockPos) {
+        if (player == null || level.isClientSide) return false;
+        ItemStack itemStack = player.getItemInHand(player.getUsedItemHand());
+        if (player.getCooldowns().isOnCooldown(itemStack.getItem())) {
+            return false;
+        }
+        player.getCooldowns().addCooldown(itemStack.getItem(), 5);
         AnvilFallOnLandEvent event = new AnvilFallOnLandEvent(
             level, blockPos.above(), new FallingBlockEntity(EntityType.FALLING_BLOCK, level), player.fallDistance);
         AnvilCraft.EVENT_BUS.post(event);
         level.playSound(null, blockPos, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 1f, 1f);
-        ItemStack itemStack = player.getItemInHand(player.getUsedItemHand());
         if (itemStack.getItem() instanceof AnvilHammerItem) {
             itemStack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(player.getUsedItemHand()));
         }
+        return true;
     }
 
     /**
@@ -132,7 +134,7 @@ public class AnvilHammerItem extends Item implements Equipable, IEngineerGoggles
 
     private static boolean rocketJump(ServerPlayer serverPlayer, ServerLevel level, BlockPos blockPos) {
         if (serverPlayer == null) return false;
-        ItemStack itemStack = serverPlayer.getInventory().offhand.get(0);
+        ItemStack itemStack = serverPlayer.getInventory().offhand.getFirst();
         if (!itemStack.is(Items.FIREWORK_ROCKET)) return false;
         if (!itemStack.has(DataComponents.FIREWORKS)) return false;
         int i = itemStack.get(DataComponents.FIREWORKS).flightDuration();
@@ -157,17 +159,6 @@ public class AnvilHammerItem extends Item implements Equipable, IEngineerGoggles
         return false;
     }
 
-    /**
-     * 左键方块
-     *
-     * @param player   玩家
-     * @param blockPos 位置
-     * @param level    世界
-     */
-    public static void attackBlock(Player player, BlockPos blockPos, Level level) {
-        if (player == null || level.isClientSide) return;
-        dropAnvil(player, level, blockPos);
-    }
 
     @Override
     public boolean canAttackBlock(
