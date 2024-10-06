@@ -54,6 +54,7 @@ import net.minecraft.world.item.PickaxeItem;
 import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.neoforged.neoforge.client.model.generators.loaders.DynamicFluidContainerModelBuilder;
 import net.neoforged.neoforge.common.Tags;
 
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
@@ -1408,6 +1409,16 @@ public class ModItems {
     public static final ItemEntry<CauldronBucketItem> OIL_BUCKET = REGISTRATE
         .item("oil_bucket", p -> new CauldronBucketItem(ModFluids.OIL.get(), p, ModBlocks.OIL_CAULDRON.get()))
         .initialProperties(() -> new Item.Properties().stacksTo(1).craftRemainder(Items.BUCKET))
+        .model((ctx, provider) -> {
+            provider.withExistingParent(
+                    ctx.getName(),
+                    ResourceLocation.parse("neoforge:item/bucket_drip"))
+                .texture("cover", ResourceLocation.parse("neoforge:item/mask/bucket_fluid_cover_drip"))
+                .customLoader((builder, helper) -> DynamicFluidContainerModelBuilder.begin(builder, helper)
+                    .fluid(ModFluids.OIL.get())
+                    .coverIsMask(true)
+                );
+        })
         .register();
 
 

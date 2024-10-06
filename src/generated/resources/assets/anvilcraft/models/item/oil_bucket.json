@@ -1,6 +1,9 @@
 {
-  "parent": "minecraft:item/generated",
+  "parent": "neoforge:item/bucket_drip",
+  "cover_is_mask": true,
+  "fluid": "anvilcraft:oil",
+  "loader": "neoforge:fluid_container",
   "textures": {
-    "layer0": "anvilcraft:item/oil_bucket"
+    "cover": "neoforge:item/mask/bucket_fluid_cover_drip"
   }
 }
