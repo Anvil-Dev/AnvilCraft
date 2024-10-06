@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.entity;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.sound.SoundEventListener;
 import dev.dubhe.anvilcraft.api.sound.SoundHelper;
+import dev.dubhe.anvilcraft.api.tooltip.providers.IHasAffectRange;
 import dev.dubhe.anvilcraft.block.ActiveSilencerBlock;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.ActiveSilencerMenu;
@@ -42,7 +43,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 public class ActiveSilencerBlockEntity
     extends BlockEntity
-    implements MenuProvider, SoundEventListener, IDiskCloneable
+    implements MenuProvider, SoundEventListener, IDiskCloneable, IHasAffectRange
 {
     public static final Codec<List<ResourceLocation>> CODEC =
         ResourceLocation.CODEC.listOf().fieldOf("mutedSound").codec();
@@ -149,5 +150,10 @@ public class ActiveSilencerBlockEntity
         mutedSound.addAll(CODEC.decode(NbtOps.INSTANCE, data.get("MutedSound"))
             .getOrThrow()
             .getFirst());
+    }
+
+    @Override
+    public AABB shape() {
+        return range;
     }
 }
