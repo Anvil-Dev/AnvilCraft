@@ -16,7 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.fml.ModLoader;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -31,7 +31,7 @@ public class MagnetItem extends Item implements IChargerChargeable {
         ItemStack item = player.getItemInHand(usedHand);
         double radius = AnvilCraft.config.magnetItemAttractsRadius;
         UseMagnetEvent event = new UseMagnetEvent(level, player, radius);
-        NeoForge.EVENT_BUS.post(event);
+        ModLoader.postEvent(event);
         if (event.isCanceled()) return InteractionResultHolder.pass(item);
         radius = event.getAttractRadius();
         AABB aabb = new AABB(

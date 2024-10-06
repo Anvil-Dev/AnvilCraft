@@ -1,9 +1,10 @@
 package dev.dubhe.anvilcraft.event.anvil;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.IHasMultiBlock;
 import dev.dubhe.anvilcraft.api.anvil.AnvilBehavior;
-import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
-import dev.dubhe.anvilcraft.api.event.entity.AnvilHurtEntityEvent;
+import dev.dubhe.anvilcraft.api.event.anvil.AnvilFallOnLandEvent;
+import dev.dubhe.anvilcraft.api.event.anvil.AnvilHurtEntityEvent;
 import dev.dubhe.anvilcraft.block.EmberAnvilBlock;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.BlockCompressRecipe;
@@ -38,6 +39,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 
+import net.neoforged.fml.common.EventBusSubscriber;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -47,9 +49,10 @@ import java.util.stream.Collectors;
 
 import static dev.dubhe.anvilcraft.util.AnvilUtil.dropItems;
 
+@EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class AnvilEventListener {
 
-    private boolean behaviorRegistered = false;
+    private static boolean behaviorRegistered = false;
 
     /**
      * 侦听铁砧落地事件
@@ -57,7 +60,7 @@ public class AnvilEventListener {
      * @param event 铁砧落地事件
      */
     @SubscribeEvent
-    public void onLand(@NotNull AnvilFallOnLandEvent event) {
+    public static void onLand(@NotNull AnvilFallOnLandEvent event) {
         if (!behaviorRegistered) {
             AnvilBehavior.register();
             behaviorRegistered = true;
@@ -83,94 +86,94 @@ public class AnvilEventListener {
         }
     }
 
-    private void handleBlockCrushRecipe(Level level, final BlockPos pos) {
+    private static void handleBlockCrushRecipe(Level level, final BlockPos pos) {
         BlockState state = level.getBlockState(pos);
         level.getRecipeManager()
-                .getRecipeFor(
-                        ModRecipeTypes.BLOCK_CRUSH_TYPE.get(), new BlockCrushRecipe.Input(state.getBlock()), level)
-                .ifPresent(recipe ->
-                        level.setBlockAndUpdate(pos, recipe.value().result.defaultBlockState()));
+            .getRecipeFor(
+                ModRecipeTypes.BLOCK_CRUSH_TYPE.get(), new BlockCrushRecipe.Input(state.getBlock()), level)
+            .ifPresent(recipe ->
+                level.setBlockAndUpdate(pos, recipe.value().result.defaultBlockState()));
     }
 
-    private void handleBlockCompressRecipe(Level level, final BlockPos pos) {
+    private static void handleBlockCompressRecipe(Level level, final BlockPos pos) {
         List<Block> inputs = new ArrayList<>();
         for (int i = 0; i < 9; i++) {
             inputs.add(level.getBlockState(pos.below(i)).getBlock());
         }
         level.getRecipeManager()
-                .getRecipeFor(ModRecipeTypes.BLOCK_COMPRESS_TYPE.get(), new BlockCompressRecipe.Input(inputs), level)
-                .ifPresent(recipe -> {
-                    for (int i = 0; i < recipe.value().inputs.size(); i++) {
-                        level.setBlockAndUpdate(pos.below(i), Blocks.AIR.defaultBlockState());
-                    }
-                    level.setBlockAndUpdate(
-                            pos.below(recipe.value().inputs.size() - 1),
-                            recipe.value().result.defaultBlockState());
-                });
+            .getRecipeFor(ModRecipeTypes.BLOCK_COMPRESS_TYPE.get(), new BlockCompressRecipe.Input(inputs), level)
+            .ifPresent(recipe -> {
+                for (int i = 0; i < recipe.value().inputs.size(); i++) {
+                    level.setBlockAndUpdate(pos.below(i), Blocks.AIR.defaultBlockState());
+                }
+                level.setBlockAndUpdate(
+                    pos.below(recipe.value().inputs.size() - 1),
+                    recipe.value().result.defaultBlockState());
+            });
     }
 
-    private void handleItemInjectRecipe(Level level, final BlockPos pos, BlockState state) {
+    private static void handleItemInjectRecipe(Level level, final BlockPos pos, BlockState state) {
         Map<ItemEntity, ItemStack> items = level.getEntitiesOfClass(ItemEntity.class, new AABB(pos.above())).stream()
-                .map(it -> Map.entry(it, it.getItem()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            .map(it -> Map.entry(it, it.getItem()))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         ItemInjectRecipe.Input input =
-                new ItemInjectRecipe.Input(items.values().stream().toList(), state.getBlock());
+            new ItemInjectRecipe.Input(items.values().stream().toList(), state.getBlock());
         level.getRecipeManager()
-                .getRecipeFor(ModRecipeTypes.ITEM_INJECT_TYPE.get(), input, level)
-                .ifPresent(recipe -> {
-                    for (Ingredient ingredient : recipe.value().getIngredients()) {
-                        for (ItemStack stack : input.items()) {
-                            if (ingredient.test(stack)) {
-                                stack.shrink(1);
-                                break;
-                            }
+            .getRecipeFor(ModRecipeTypes.ITEM_INJECT_TYPE.get(), input, level)
+            .ifPresent(recipe -> {
+                for (Ingredient ingredient : recipe.value().getIngredients()) {
+                    for (ItemStack stack : input.items()) {
+                        if (ingredient.test(stack)) {
+                            stack.shrink(1);
+                            break;
                         }
                     }
-                    level.setBlockAndUpdate(pos, recipe.value().resultBlock.defaultBlockState());
-                    items.forEach((k, v) -> {
-                        if (v.isEmpty()) {
-                            k.discard();
-                            return;
-                        }
-                        k.setItem(v.copy());
-                    });
+                }
+                level.setBlockAndUpdate(pos, recipe.value().resultBlock.defaultBlockState());
+                items.forEach((k, v) -> {
+                    if (v.isEmpty()) {
+                        k.discard();
+                        return;
+                    }
+                    k.setItem(v.copy());
                 });
+            });
     }
 
-    private void handleSqueezingRecipe(Level level, final BlockPos pos, BlockState state) {
+    private static void handleSqueezingRecipe(Level level, final BlockPos pos, BlockState state) {
         BlockPos belowPos = pos.below();
         BlockState belowState = level.getBlockState(belowPos);
         if (belowState.getBlock() instanceof AbstractCauldronBlock) {
             SqueezingRecipe.Input input = new SqueezingRecipe.Input(state.getBlock(), belowState);
             level.getRecipeManager()
-                    .getRecipeFor(ModRecipeTypes.SQUEEZING_TYPE.get(), input, level)
-                    .ifPresent(recipe -> {
-                        if (belowState.is(Blocks.CAULDRON)) {
-                            level.setBlockAndUpdate(
-                                    belowPos, recipe.value().cauldron.defaultBlockState());
-                        } else {
-                            if (belowState.getBlock() instanceof LayeredCauldronBlock) {
-                                BlockState newState = belowState.setValue(
-                                        LayeredCauldronBlock.LEVEL,
-                                        belowState.getValue(LayeredCauldronBlock.LEVEL) + 1);
-                                level.setBlockAndUpdate(belowPos, newState);
-                            }
+                .getRecipeFor(ModRecipeTypes.SQUEEZING_TYPE.get(), input, level)
+                .ifPresent(recipe -> {
+                    if (belowState.is(Blocks.CAULDRON)) {
+                        level.setBlockAndUpdate(
+                            belowPos, recipe.value().cauldron.defaultBlockState());
+                    } else {
+                        if (belowState.getBlock() instanceof LayeredCauldronBlock) {
+                            BlockState newState = belowState.setValue(
+                                LayeredCauldronBlock.LEVEL,
+                                belowState.getValue(LayeredCauldronBlock.LEVEL) + 1);
+                            level.setBlockAndUpdate(belowPos, newState);
                         }
-                        level.setBlockAndUpdate(pos, recipe.value().resultBlock.defaultBlockState());
-                    });
+                    }
+                    level.setBlockAndUpdate(pos, recipe.value().resultBlock.defaultBlockState());
+                });
         }
     }
 
-    private void brokeBlock(@NotNull Level level, BlockPos pos, AnvilFallOnLandEvent event) {
+    private static void brokeBlock(@NotNull Level level, BlockPos pos, AnvilFallOnLandEvent event) {
         if (!(level instanceof ServerLevel serverLevel)) return;
         BlockState state = level.getBlockState(pos);
         if (state.getBlock().getExplosionResistance() >= 1200.0) event.setAnvilDamage(true);
         if (state.getDestroySpeed(level, pos) < 0) return;
         BlockEntity blockEntity = state.hasBlockEntity() ? level.getBlockEntity(pos) : null;
         LootParams.Builder builder = new LootParams.Builder(serverLevel)
-                .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos))
-                .withParameter(LootContextParams.TOOL, ItemStack.EMPTY)
-                .withOptionalParameter(LootContextParams.BLOCK_ENTITY, blockEntity);
+            .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos))
+            .withParameter(LootContextParams.TOOL, ItemStack.EMPTY)
+            .withOptionalParameter(LootContextParams.BLOCK_ENTITY, blockEntity);
         state.spawnAfterBreak(serverLevel, pos, ItemStack.EMPTY, false);
         if (state.getBlock() instanceof IHasMultiBlock multiBlock) {
             multiBlock.onRemove(level, pos, state);
@@ -178,14 +181,14 @@ public class AnvilEventListener {
         List<ItemStack> drops = state.getDrops(builder);
         if (event.getEntity() != null && event.getEntity().blockState.getBlock() instanceof EmberAnvilBlock) {
             drops = drops.stream()
-                    .map(it -> {
-                        SingleRecipeInput cont = new SingleRecipeInput(it);
-                        return level.getRecipeManager()
-                                .getRecipeFor(RecipeType.SMELTING, cont, level)
-                                .map(smeltingRecipe -> smeltingRecipe.value().assemble(cont, level.registryAccess()))
-                                .orElse(it);
-                    })
-                    .collect(Collectors.toList());
+                .map(it -> {
+                    SingleRecipeInput cont = new SingleRecipeInput(it);
+                    return level.getRecipeManager()
+                        .getRecipeFor(RecipeType.SMELTING, cont, level)
+                        .map(smeltingRecipe -> smeltingRecipe.value().assemble(cont, level.registryAccess()))
+                        .orElse(it);
+                })
+                .collect(Collectors.toList());
         }
         dropItems(drops, level, pos.getCenter());
         level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
@@ -196,9 +199,8 @@ public class AnvilEventListener {
      *
      * @param event 铁砧伤害实体事件
      */
-    @SuppressWarnings("unused")
     @SubscribeEvent
-    public void onAnvilHurtEntity(@NotNull AnvilHurtEntityEvent event) {
+    public static void onAnvilHurtEntity(@NotNull AnvilHurtEntityEvent event) {
         Entity hurtedEntity = event.getHurtedEntity();
         if (!(hurtedEntity instanceof LivingEntity entity)) return;
         if (!(hurtedEntity.level() instanceof ServerLevel serverLevel)) return;

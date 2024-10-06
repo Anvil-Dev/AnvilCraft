@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.event.giantanvil;
 
-import dev.dubhe.anvilcraft.api.event.entity.GiantAnvilFallOnLandEvent;
+import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.event.anvil.GiantAnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
@@ -34,6 +35,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.Tags;
 
 import org.jetbrains.annotations.NotNull;
@@ -44,6 +46,7 @@ import java.util.Optional;
 
 import static dev.dubhe.anvilcraft.util.Util.HORIZONTAL_DIRECTIONS;
 
+@EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class GiantAnvilLandingEventListener {
     private static final List<ShockBehaviorDefinition> behaviorDefs = new ArrayList<>();
 
@@ -257,7 +260,7 @@ public class GiantAnvilLandingEventListener {
      * 撼地
      */
     @SubscribeEvent
-    public void onLand(@NotNull GiantAnvilFallOnLandEvent event) {
+    public static void onLand(@NotNull GiantAnvilFallOnLandEvent event) {
         BlockPos groundPos = event.getPos().below(2);
         if (isValidShockBaseBlock(groundPos, event.getLevel())) {
             Optional<ShockBehaviorDefinition> definitionOpt = behaviorDefs.stream()
@@ -286,7 +289,7 @@ public class GiantAnvilLandingEventListener {
     }
 
     @SubscribeEvent
-    public void handleMultiblock(@NotNull GiantAnvilFallOnLandEvent event) {
+    public static void handleMultiblock(@NotNull GiantAnvilFallOnLandEvent event) {
         Level level = event.getLevel();
         BlockPos landPos = event.getPos().below(2);
 
@@ -336,7 +339,7 @@ public class GiantAnvilLandingEventListener {
             });
     }
 
-    private boolean isValidShockBaseBlock(BlockPos centerPos, Level level) {
+    private static boolean isValidShockBaseBlock(BlockPos centerPos, Level level) {
         BlockState blockState = level.getBlockState(centerPos);
         if (!blockState.is(ModBlocks.HEAVY_IRON_BLOCK.get())) {
             return false;

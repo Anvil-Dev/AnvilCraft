@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.event.forge;
+package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModItems;

@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.api.event.forge;
+package dev.dubhe.anvilcraft.api.event;
 
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;

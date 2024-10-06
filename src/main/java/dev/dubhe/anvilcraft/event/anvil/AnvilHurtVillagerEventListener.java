@@ -1,27 +1,27 @@
 package dev.dubhe.anvilcraft.event.anvil;
 
-import dev.dubhe.anvilcraft.api.event.entity.AnvilHurtEntityEvent;
+import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.event.anvil.AnvilHurtEntityEvent;
 
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.npc.VillagerData;
 import net.minecraft.world.entity.npc.VillagerProfession;
-import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 
+import net.neoforged.fml.common.EventBusSubscriber;
 import org.jetbrains.annotations.NotNull;
 
+@EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class AnvilHurtVillagerEventListener {
     /**
      * 侦听铁砧击中村民事件
      *
      * @param event 铁砧伤害实体事件
      */
-    @SuppressWarnings("unused")
     @SubscribeEvent
-    public void onAnvilHurtEntity(@NotNull AnvilHurtEntityEvent event) {
-        Level level = event.getLevel();
+    public static void onAnvilHurtEntity(@NotNull AnvilHurtEntityEvent event) {
         if (event.getHurtedEntity() instanceof Villager villager) {
             RandomSource random = event.getLevel().random;
             double change = random.nextDouble();

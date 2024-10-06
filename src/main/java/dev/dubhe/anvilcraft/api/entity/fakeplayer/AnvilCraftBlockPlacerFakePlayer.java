@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.api.entity.fakeplayer.forge;
+package dev.dubhe.anvilcraft.api.entity.fakeplayer;
 
 import dev.dubhe.anvilcraft.api.entity.player.IAnvilCraftBlockPlacer;
 

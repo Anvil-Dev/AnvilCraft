@@ -35,7 +35,6 @@
   ],
   "client": [
     "ClientLevelMixin",
-    "ClientPacketListenerMixin",
     "ItemBlockRenderTypesMixin",
     "ItemInHandRendererMixin",
     "SoundEngineMixin"

@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.event.forge;
+package dev.dubhe.anvilcraft.client.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 

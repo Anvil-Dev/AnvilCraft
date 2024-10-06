@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.api.event.forge;
+package dev.dubhe.anvilcraft.api.event.anvil;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;

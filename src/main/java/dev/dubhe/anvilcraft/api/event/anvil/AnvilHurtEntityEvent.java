@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.api.event.entity;
+package dev.dubhe.anvilcraft.api.event.anvil;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
@@ -6,11 +6,15 @@ import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.Level;
 
 import lombok.Getter;
+import net.neoforged.neoforge.event.entity.EntityEvent;
 
 @Getter
-public class AnvilHurtEntityEvent extends EntityEvent<FallingBlockEntity> {
+public class AnvilHurtEntityEvent extends EntityEvent {
+    private final FallingBlockEntity entity;
     private final Entity hurtedEntity;
     private final float damage;
+    private final Level level;
+    private final BlockPos pos;
 
     /**
      * 铁砧伤害实体事件
@@ -28,8 +32,11 @@ public class AnvilHurtEntityEvent extends EntityEvent<FallingBlockEntity> {
             Entity hurtedEntity,
             float damage
     ) {
-        super(entity, pos, level);
+        super(entity);
+        this.entity = entity;
         this.hurtedEntity = hurtedEntity;
         this.damage = damage;
+        this.level = level;
+        this.pos = pos;
     }
 }

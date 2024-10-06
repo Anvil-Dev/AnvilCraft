@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.event;
+package dev.dubhe.anvilcraft.api.tooltip;
 
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItemTags;
@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class TooltipEventListener {
+public class ItemTooltipManager {
 
     private static final Map<Item, String> map = Maps.newHashMap();
 

@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.api.world.load;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -51,10 +52,12 @@ public class LevelLoadManager {
      * @param centerPos 中心坐标
      * @param level     世界
      */
-    public static void unregister(BlockPos centerPos, ServerLevel level) {
+    public static void unregister(BlockPos centerPos, Level level) {
         if (!LEVEL_LOAD_CHUCK_AREA_MAP.containsKey(centerPos)) return;
         LEVEL_LOAD_CHUCK_AREA_MAP.get(centerPos).markRemoved();
-        reload(level);
+        if (level instanceof ServerLevel serverLevel) {
+            reload(serverLevel);
+        }
     }
 
     public static void reload(ServerLevel serverLevel) {

@@ -7,9 +7,10 @@ import net.neoforged.bus.api.ICancellableEvent;
 
 import lombok.Getter;
 import lombok.Setter;
+import net.neoforged.fml.event.IModBusEvent;
 
 @Getter
-public class UseMagnetEvent extends Event implements ICancellableEvent {
+public class UseMagnetEvent extends Event implements ICancellableEvent, IModBusEvent {
     private final Level level;
 
     @Setter

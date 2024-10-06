@@ -1,11 +1,11 @@
 package dev.dubhe.anvilcraft.mixin.forge;
 
-import dev.dubhe.anvilcraft.api.event.forge.BlockEntityEvent;
+import com.llamalad7.mixinextras.sugar.Local;
+import dev.dubhe.anvilcraft.api.event.BlockEntityEvent;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.neoforged.neoforge.common.NeoForge;
 
@@ -17,7 +17,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.Map;
 
@@ -38,16 +37,13 @@ abstract class LevelChunkMixin {
     }
 
     @Inject(
-            method = "setBlockEntity",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/entity/BlockEntity;setRemoved()V"),
-            locals = LocalCapture.CAPTURE_FAILEXCEPTION)
+        method = "setBlockEntity",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/entity/BlockEntity;setRemoved()V")
+    )
     private void onRemoveBlockEntity(
             BlockEntity pBlockEntity,
             CallbackInfo ci,
-            BlockPos blockpos,
-            BlockState blockstate,
-            BlockState blockstate1,
-            BlockEntity blockentity) {
+            @Local(ordinal = 1) BlockEntity blockentity) {
         if (this.getLevel().isClientSide) return;
         NeoForge.EVENT_BUS.post(new BlockEntityEvent.ServerUnload(this.getLevel(), blockentity));
     }
@@ -74,10 +70,10 @@ abstract class LevelChunkMixin {
     }
 
     @Inject(
-            method = "removeBlockEntity",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/entity/BlockEntity;setRemoved()V"),
-            locals = LocalCapture.CAPTURE_FAILEXCEPTION)
-    private void onRemoveBlockEntity(BlockPos pos, CallbackInfo ci, BlockEntity removed) {
+        method = "removeBlockEntity",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/entity/BlockEntity;setRemoved()V")
+    )
+    private void onRemoveBlockEntity(BlockPos pos, CallbackInfo ci, @Local BlockEntity removed) {
         if (this.getLevel().isClientSide) return;
         if (removed != null) {
             NeoForge.EVENT_BUS.post(new BlockEntityEvent.ServerUnload(this.getLevel(), removed));

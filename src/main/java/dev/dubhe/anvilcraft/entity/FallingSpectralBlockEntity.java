@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.entity;
 
-import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.event.entity.AnvilFallOnLandEvent;
+import dev.dubhe.anvilcraft.api.event.anvil.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.block.SpectralAnvilBlock;
 import dev.dubhe.anvilcraft.init.ModEntities;
 
@@ -28,6 +27,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.Tags;
 
 import org.jetbrains.annotations.NotNull;
@@ -113,7 +113,7 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
                     Math.min(40f, fallDistance * 2)
                 )
             );
-            AnvilCraft.EVENT_BUS.post(new AnvilFallOnLandEvent(level(), current, this, fallDistance));
+            NeoForge.EVENT_BUS.post(new AnvilFallOnLandEvent(level(), current, this, fallDistance));
         }
         this.setDeltaMovement(this.getDeltaMovement().scale(0.98));
     }

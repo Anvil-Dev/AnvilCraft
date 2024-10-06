@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft;
 
+import dev.dubhe.anvilcraft.api.tooltip.ItemTooltipManager;
 import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
 import dev.dubhe.anvilcraft.data.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
@@ -10,7 +11,6 @@ import dev.dubhe.anvilcraft.init.ModDispenserBehavior;
 import dev.dubhe.anvilcraft.init.ModEnchantmentEffectComponents;
 import dev.dubhe.anvilcraft.init.ModEnchantmentEffects;
 import dev.dubhe.anvilcraft.init.ModEntities;
-import dev.dubhe.anvilcraft.init.ModEvents;
 import dev.dubhe.anvilcraft.init.ModItemGroups;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.init.ModLootContextParamSets;
@@ -37,6 +37,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
@@ -64,7 +65,6 @@ public class AnvilCraft {
 
     public AnvilCraft(IEventBus modEventBus, ModContainer container) {
         EVENT_BUS = modEventBus;
-        ModEvents.register();
         ModItemGroups.register(modEventBus);
         ModBlocks.register();
         ModEntities.register();
@@ -88,6 +88,7 @@ public class AnvilCraft {
     private static void registerEvents(IEventBus eventBus) {
         NeoForge.EVENT_BUS.addListener(AnvilCraft::registerCommand);
         NeoForge.EVENT_BUS.addListener(AnvilCraft::addReloadListeners);
+        NeoForge.EVENT_BUS.addListener(AnvilCraft::addItemTooltips);
 
         eventBus.addListener(AnvilCraft::registerPayload);
         eventBus.addListener(AnvilCraft::loadComplete);
@@ -105,6 +106,10 @@ public class AnvilCraft {
     public static void registerPayload(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar("1");
         ModNetworks.init(registrar);
+    }
+
+    public static void addItemTooltips(ItemTooltipEvent event) {
+        ItemTooltipManager.addTooltip(event.getItemStack(), event.getToolTip());
     }
 
     public static void addReloadListeners(AddReloadListenerEvent event) {
