@@ -112,7 +112,6 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.util.ColorRGBA;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -134,7 +133,6 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
-import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.loot.LootPool;
@@ -2966,16 +2964,20 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<LiquidBlock> OIL = REGISTRATE
-        .block("oil", it -> new LiquidBlock(ModFluids.OIL.get(), it))
+        .block("oil", p -> new LiquidBlock(ModFluids.OIL.get(), p))
         .properties(it -> it
             .mapColor(MapColor.TERRACOTTA_BLACK)
             .replaceable()
             .noCollission()
             .randomTicks()
+            .noCollission()
+            .noLootTable()
             .strength(100.0F)
         )
-        .blockstate((ctx, provider) -> {
-        })
+        .blockstate((ctx, provider) -> provider.simpleBlock(
+            ctx.get(),
+            provider.models().getBuilder(ctx.getName()).texture("particle", provider.modLoc("block/" + ctx.getName()))
+        ))
         .register();
 
     static {

@@ -24,7 +24,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.block.AbstractCauldronBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
@@ -145,7 +144,7 @@ public class OilCauldronBlock extends LayeredCauldronBlock implements IHammerRem
             level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
             return ModItems.OIL_BUCKET.asStack();
         }
-        return Items.BUCKET.getDefaultInstance();
+        return ItemStack.EMPTY;
     }
 
     @Override

@@ -25,7 +25,7 @@ import dev.dubhe.anvilcraft.item.GuideBookItem;
 import dev.dubhe.anvilcraft.item.LevitationPowderItem;
 import dev.dubhe.anvilcraft.item.MagnetItem;
 import dev.dubhe.anvilcraft.item.ModFoods;
-import dev.dubhe.anvilcraft.item.OilBucketItem;
+import dev.dubhe.anvilcraft.item.CauldronBucketItem;
 import dev.dubhe.anvilcraft.item.RoyalAnvilHammerItem;
 import dev.dubhe.anvilcraft.item.RoyalAxeItem;
 import dev.dubhe.anvilcraft.item.RoyalHoeItem;
@@ -47,7 +47,6 @@ import net.minecraft.data.recipes.SmithingTransformRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.AxeItem;
-import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.HoeItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -1406,9 +1405,9 @@ public class ModItems {
         })
         .register();
 
-    public static final ItemEntry<OilBucketItem> OIL_BUCKET = REGISTRATE
-        .item("oil_bucket", OilBucketItem::new)
-        .initialProperties(() -> new Item.Properties().stacksTo(1))
+    public static final ItemEntry<CauldronBucketItem> OIL_BUCKET = REGISTRATE
+        .item("oil_bucket", p -> new CauldronBucketItem(ModFluids.OIL.get(), p, ModBlocks.OIL_CAULDRON.get()))
+        .initialProperties(() -> new Item.Properties().stacksTo(1).craftRemainder(Items.BUCKET))
         .register();
 
 
