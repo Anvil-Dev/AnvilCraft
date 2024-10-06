@@ -28,11 +28,11 @@ public class ModDispenserBehavior {
         BlockPos blockPos = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
         ServerLevel level = source.level();
         List<IronGolem> entities =
-                level
-                        .getEntities(EntityTypeTest.forClass(IronGolem.class), new AABB(blockPos), Entity::isAlive)
-                        .stream()
-                        .filter(e -> e.getHealth() < e.getMaxHealth())
-                        .toList();
+            level
+                .getEntities(EntityTypeTest.forClass(IronGolem.class), new AABB(blockPos), Entity::isAlive)
+                .stream()
+                .filter(e -> e.getHealth() < e.getMaxHealth())
+                .toList();
         if (entities.isEmpty()) return ModDispenserBehavior.defaultDispenseItemBehavior.dispense(source, stack);
         IronGolem ironGolem = entities.get(level.random.nextInt(0, entities.size()));
         ironGolem.heal(25.0f);

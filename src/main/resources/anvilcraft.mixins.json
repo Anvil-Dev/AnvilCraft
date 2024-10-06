@@ -4,7 +4,6 @@
   "package": "dev.dubhe.anvilcraft.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "AbstractCauldronBlockMixin",
     "AnvilBlockMixin",
     "AnvilMenuMixin",
     "BeaconMenuMixin",
