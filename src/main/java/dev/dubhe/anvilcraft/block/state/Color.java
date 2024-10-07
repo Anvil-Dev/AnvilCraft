@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.state;
 
+import com.mojang.serialization.Codec;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -32,6 +33,8 @@ public enum Color implements StringRepresentable {
 
     @Getter
     private final Item dyeItem;
+
+    public static final Codec<Color> CODEC = StringRepresentable.fromValues(Color::values);
 
     Color(String name, Item dyeItem) {
         this.name = name;

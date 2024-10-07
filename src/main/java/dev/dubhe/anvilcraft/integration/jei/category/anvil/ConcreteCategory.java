@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
-import dev.dubhe.anvilcraft.block.CementCauldronBlock;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
@@ -55,7 +54,7 @@ public class ConcreteCategory implements IRecipeCategory<ColoredConcreteRecipe> 
         background = Lazy.of(() -> helper.createBlankDrawable(WIDTH, HEIGHT));
         icon = new DrawableBlockStateIcon(
                 Blocks.ANVIL.defaultBlockState(),
-                ModBlocks.CEMENT_CAULDRON.getDefaultState().setValue(CementCauldronBlock.COLOR, Color.PINK));
+                ModBlocks.CEMENT_CAULDRONS.get(Color.PINK).getDefaultState());
         slot = helper.getSlotDrawable();
         title = Component.translatable("gui.anvilcraft.category.concrete");
         timer = helper.createTickTimer(30, 60, true);
@@ -108,7 +107,7 @@ public class ConcreteCategory implements IRecipeCategory<ColoredConcreteRecipe> 
                 RenderHelper.SINGLE_BLOCK);
         RenderHelper.renderBlock(
                 guiGraphics,
-                ModBlocks.CEMENT_CAULDRON.getDefaultState().setValue(CementCauldronBlock.COLOR, recipe.color),
+                ModBlocks.CEMENT_CAULDRONS.get(recipe.color).getDefaultState(),
                 81,
                 40,
                 10,
@@ -131,8 +130,7 @@ public class ConcreteCategory implements IRecipeCategory<ColoredConcreteRecipe> 
             double mouseY) {
         if (mouseX >= 72 && mouseX <= 90) {
             if (mouseY >= 34 && mouseY <= 53) {
-                tooltip.add(ModBlocks.CEMENT_CAULDRON.get().getName());
-                tooltip.add(Component.translatable("color.minecraft." + recipe.color.getSerializedName()));
+                tooltip.add(ModBlocks.CEMENT_CAULDRONS.get(recipe.color).get().getName());
             }
         }
     }

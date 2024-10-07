@@ -1758,16 +1758,6 @@ public class ModBlocks {
                 .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName()));
         })
         .register();
-    public static final BlockEntry<? extends Block> LAVA_CAULDRON = REGISTRATE
-        .block("lava_cauldron", LavaCauldronBlock::new)
-        .initialProperties(() -> Blocks.LAVA_CAULDRON)
-        .properties(properties ->
-            properties.lightLevel(blockState -> blockState.getValue(LayeredCauldronBlock.LEVEL) * 5))
-        .blockstate((ctx, provider) -> {
-        })
-        .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .register();
     public static final BlockEntry<? extends Block> CURSED_GOLD_BLOCK = REGISTRATE
         .block("cursed_gold_block", Block::new)
         .initialProperties(() -> Blocks.GOLD_BLOCK)
@@ -2144,34 +2134,6 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_SHOVEL)
         .register();
 
-    public static final BlockEntry<MeltGemCauldron> MELT_GEM_CAULDRON = REGISTRATE
-        .block("melt_gem_cauldron", MeltGemCauldron::new)
-        .initialProperties(() -> Blocks.CAULDRON)
-        .blockstate((ctx, provider) -> {
-        })
-        .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .register();
-
-    public static final BlockEntry<HoneyCauldronBlock> HONEY_CAULDRON = REGISTRATE
-        .block("honey_cauldron", HoneyCauldronBlock::new)
-        .initialProperties(() -> Blocks.CAULDRON)
-        .blockstate((ctx, provider) -> {
-        })
-        .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .register();
-
-    public static final BlockEntry<ObsidianCauldron> OBSIDIDAN_CAULDRON = REGISTRATE
-        .block("obsidian_cauldron", ObsidianCauldron::new)
-        .initialProperties(() -> Blocks.OBSIDIAN)
-        .properties(it -> it.pushReaction(PushReaction.BLOCK))
-        .blockstate((ctx, provider) -> {
-        })
-        .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .register();
-
     public static final BlockEntry<ArrowBlock> ARROW = REGISTRATE
         .block("arrow", ArrowBlock::new)
         .initialProperties(() -> Blocks.STONE)
@@ -2179,15 +2141,6 @@ public class ModBlocks {
         .blockstate((ctx, provider) -> {
         })
         .simpleItem()
-        .register();
-
-    public static final BlockEntry<CementCauldronBlock> CEMENT_CAULDRON = REGISTRATE
-        .block("cement_cauldron", CementCauldronBlock::new)
-        .initialProperties(() -> Blocks.CAULDRON)
-        .blockstate((ctx, provider) -> {
-        })
-        .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
     public static final BlockEntry<CakeBaseBlock> CAKE_BASE_BLOCK = REGISTRATE
@@ -2627,6 +2580,45 @@ public class ModBlocks {
             ModBlockTags.STORAGE_BLOCKS_EARTH_CORE_SHARD)
         .register();
 
+    public static final BlockEntry<? extends Block> LAVA_CAULDRON = REGISTRATE
+        .block("lava_cauldron", LavaCauldronBlock::new)
+        .initialProperties(() -> Blocks.LAVA_CAULDRON)
+        .properties(properties ->
+            properties.lightLevel(blockState -> blockState.getValue(LayeredCauldronBlock.LEVEL) * 5))
+        .blockstate((ctx, provider) -> {
+        })
+        .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<MeltGemCauldron> MELT_GEM_CAULDRON = REGISTRATE
+        .block("melt_gem_cauldron", MeltGemCauldron::new)
+        .initialProperties(() -> Blocks.CAULDRON)
+        .blockstate((ctx, provider) -> {
+        })
+        .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<HoneyCauldronBlock> HONEY_CAULDRON = REGISTRATE
+        .block("honey_cauldron", HoneyCauldronBlock::new)
+        .initialProperties(() -> Blocks.CAULDRON)
+        .blockstate((ctx, provider) -> {
+        })
+        .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<ObsidianCauldron> OBSIDIDAN_CAULDRON = REGISTRATE
+        .block("obsidian_cauldron", ObsidianCauldron::new)
+        .initialProperties(() -> Blocks.OBSIDIAN)
+        .properties(it -> it.pushReaction(PushReaction.BLOCK))
+        .blockstate((ctx, provider) -> {
+        })
+        .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
     public static final BlockEntry<OilCauldronBlock> OIL_CAULDRON = REGISTRATE
         .block("oil_cauldron", OilCauldronBlock::new)
         .initialProperties(() -> Blocks.CAULDRON)
@@ -2645,6 +2637,8 @@ public class ModBlocks {
         .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
+
+    public static final Object2ObjectMap<Color, BlockEntry<CementCauldronBlock>> CEMENT_CAULDRONS = registerAllCementCauldrons();
 
     private static Object2ObjectMap<Color, BlockEntry<ReinforcedConcreteBlock>> registerReinforcedConcretes() {
         Object2ObjectMap<Color, BlockEntry<ReinforcedConcreteBlock>> map = new Object2ObjectOpenHashMap<>();
@@ -2815,6 +2809,37 @@ public class ModBlocks {
                 AnvilCraft.of("block/reinforced_concrete_" + color + "_wall")))
             .tag(ModItemTags.REINFORCED_CONCRETE)
             .build()
+            .register();
+    }
+
+    private static Object2ObjectMap<Color, BlockEntry<CementCauldronBlock>> registerAllCementCauldrons() {
+        Object2ObjectMap<Color, BlockEntry<CementCauldronBlock>> map = new Object2ObjectOpenHashMap<>();
+        for (Color color : Color.values()) {
+            var entry = registerCementCauldron(color);
+            map.put(color, entry);
+        }
+        return map;
+    }
+
+    private static BlockEntry<CementCauldronBlock> registerCementCauldron(Color color) {
+        return REGISTRATE
+            .block("%s_cement_cauldron".formatted(color), p -> new CementCauldronBlock(p, color))
+            .initialProperties(() -> Blocks.CAULDRON)
+            .blockstate((ctx, provider) -> {
+                provider.simpleBlock(
+                    ctx.get(),
+                    provider.models()
+                        .withExistingParent(ctx.getName(), provider.mcLoc("block/template_cauldron_full"))
+                        .texture("bottom", provider.mcLoc("block/cauldron_bottom"))
+                        .texture("inside", provider.mcLoc("block/cauldron_inner"))
+                        .texture("side", provider.mcLoc("block/cauldron_side"))
+                        .texture("top", provider.mcLoc("block/cauldron_top"))
+                        .texture("particle", provider.mcLoc("block/cauldron_side"))
+                        .texture("content", provider.modLoc("block/cement_%s".formatted(color)))
+                );
+            })
+            .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
             .register();
     }
 

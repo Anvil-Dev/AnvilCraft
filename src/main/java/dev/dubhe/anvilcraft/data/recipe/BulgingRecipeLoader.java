@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.recipe.anvil.BulgingRecipe;
@@ -28,7 +29,7 @@ public class BulgingRecipeLoader {
         crystallize(provider, ModItems.SEA_HEART_SHELL_SHARD, ModItems.PRISMARINE_CLUSTER, true);
 
         BulgingRecipe.builder()
-                .cauldron(ModBlocks.CEMENT_CAULDRON.get())
+                .cauldron(ModBlocks.CEMENT_CAULDRONS.get(Color.GRAY).get())
                 .requires(ModItems.LIME_POWDER, 4)
                 .requires(ModBlocks.CINERITE)
                 .fromWater(true)

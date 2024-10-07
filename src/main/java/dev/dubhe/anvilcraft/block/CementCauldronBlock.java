@@ -1,40 +1,43 @@
 package dev.dubhe.anvilcraft.block;
 
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.better.BetterAbstractCauldronBlock;
 import dev.dubhe.anvilcraft.block.state.Color;
 
-import net.minecraft.core.BlockPos;
+import lombok.Getter;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.cauldron.CauldronInteraction;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AbstractCauldronBlock;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.EnumProperty;
 
 import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@Getter
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class CementCauldronBlock extends BetterAbstractCauldronBlock implements IHammerRemovable {
-    public static final EnumProperty<Color> COLOR = EnumProperty.create("color", Color.class);
+
+    public static final MapCodec<CementCauldronBlock> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
+        propertiesCodec(), Color.CODEC.fieldOf("color").forGetter(CementCauldronBlock::getColor)
+    ).apply(ins, CementCauldronBlock::new));
+
+    private final Color color;
 
     /**
      * @param properties 方块属性
      */
-    public CementCauldronBlock(Properties properties) {
+    public CementCauldronBlock(Properties properties, Color color) {
         super(properties, CauldronInteraction.EMPTY);
-        this.registerDefaultState(this.stateDefinition.any().setValue(COLOR, Color.GRAY));
-    }
-
-    @Override
-    protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(COLOR);
+        this.color = color;
     }
 
     @Override
     protected MapCodec<? extends AbstractCauldronBlock> codec() {
-        return simpleCodec(CementCauldronBlock::new);
+        return CODEC;
     }
 
     @Override
@@ -45,10 +48,5 @@ public class CementCauldronBlock extends BetterAbstractCauldronBlock implements 
     @Override
     public boolean isFull(@NotNull BlockState state) {
         return true;
-    }
-
-    @Override
-    public int getAnalogOutputSignal(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos) {
-        return 3;
     }
 }

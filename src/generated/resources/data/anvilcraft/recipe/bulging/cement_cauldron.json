@@ -1,6 +1,6 @@
 {
   "type": "anvilcraft:bulging",
-  "cauldron": "anvilcraft:cement_cauldron",
+  "cauldron": "anvilcraft:gray_cement_cauldron",
   "consume_fluid": false,
   "from_water": true,
   "ingredients": [

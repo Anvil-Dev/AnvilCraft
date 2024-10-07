@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
-import dev.dubhe.anvilcraft.block.CementCauldronBlock;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
@@ -54,7 +53,7 @@ public class CementStainingCategory implements IRecipeCategory<CementStainingRec
         background = Lazy.of(() -> helper.createBlankDrawable(WIDTH, HEIGHT));
         icon = new DrawableBlockStateIcon(
                 Blocks.ANVIL.defaultBlockState(),
-                ModBlocks.CEMENT_CAULDRON.getDefaultState().setValue(CementCauldronBlock.COLOR, Color.PINK));
+                ModBlocks.CEMENT_CAULDRONS.get(Color.PINK).getDefaultState());
         slot = helper.getSlotDrawable();
         title = Component.translatable("gui.anvilcraft.category.cement_staining");
         anvilTimer = helper.createTickTimer(30, 60, true);
@@ -108,7 +107,7 @@ public class CementStainingCategory implements IRecipeCategory<CementStainingRec
                 RenderHelper.SINGLE_BLOCK);
         RenderHelper.renderBlock(
                 guiGraphics,
-                ModBlocks.CEMENT_CAULDRON.getDefaultState().setValue(CementCauldronBlock.COLOR, color),
+                ModBlocks.CEMENT_CAULDRONS.get(color).getDefaultState(),
                 81,
                 40,
                 10,
@@ -119,7 +118,7 @@ public class CementStainingCategory implements IRecipeCategory<CementStainingRec
 
         JeiSlotUtil.drawInputSlots(guiGraphics, slot, recipe.mergedIngredients.size());
 
-        RenderHelper.renderBlock(guiGraphics, recipe.resultState, 133, 30, 0, 12, RenderHelper.SINGLE_BLOCK);
+        RenderHelper.renderBlock(guiGraphics, recipe.resultBlock.defaultBlockState(), 133, 30, 0, 12, RenderHelper.SINGLE_BLOCK);
     }
 
     @Override
@@ -131,16 +130,13 @@ public class CementStainingCategory implements IRecipeCategory<CementStainingRec
             double mouseY) {
         if (mouseX >= 72 && mouseX <= 90) {
             if (mouseY >= 34 && mouseY <= 53) {
-                tooltip.add(ModBlocks.CEMENT_CAULDRON.get().getName());
                 Color color = Color.getColorByIndex(colorTimer.getValue());
-                tooltip.add(Component.translatable("color.minecraft." + color.getSerializedName()));
+                tooltip.add(ModBlocks.CEMENT_CAULDRONS.get(color).get().getName());
             }
         }
         if (mouseX >= 124 && mouseX <= 140) {
             if (mouseY >= 24 && mouseY <= 42) {
-                tooltip.add(ModBlocks.CEMENT_CAULDRON.get().getName());
-                Color color = recipe.resultState.getValue(CementCauldronBlock.COLOR);
-                tooltip.add(Component.translatable("color.minecraft." + color.getSerializedName()));
+                tooltip.add(recipe.resultBlock.getName());
             }
         }
     }

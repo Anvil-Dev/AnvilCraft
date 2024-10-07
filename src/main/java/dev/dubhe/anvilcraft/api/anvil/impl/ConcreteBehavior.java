@@ -42,9 +42,9 @@ public class ConcreteBehavior implements AnvilBehavior {
         ItemProcessInput input = new ItemProcessInput(items.values().stream().toList());
         Optional<RecipeHolder<ConcreteRecipe>> recipeOptional =
             level.getRecipeManager().getRecipeFor(ModRecipeTypes.CONCRETE_TYPE.get(), input, level);
-        if (recipeOptional.isPresent()) {
+        if (recipeOptional.isPresent() && hitBlockState.getBlock() instanceof CementCauldronBlock cauldronBlock) {
             RecipeHolder<ConcreteRecipe> recipe = recipeOptional.get();
-            Color color = hitBlockState.getValue(CementCauldronBlock.COLOR);
+            Color color = cauldronBlock.getColor();
             ItemStack result = new ItemStack(
                 BuiltInRegistries.ITEM.get(
                     ResourceLocation.parse(
