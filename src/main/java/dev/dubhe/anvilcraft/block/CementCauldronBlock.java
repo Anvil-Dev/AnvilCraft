@@ -1,23 +1,19 @@
 package dev.dubhe.anvilcraft.block;
 
-import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.better.BetterAbstractCauldronBlock;
 import dev.dubhe.anvilcraft.block.state.Color;
 
-import dev.dubhe.anvilcraft.init.ModItems;
+import dev.dubhe.anvilcraft.util.ModInteractionMap;
 import lombok.Getter;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.cauldron.CauldronInteraction;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AbstractCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -33,22 +29,6 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 public class CementCauldronBlock extends BetterAbstractCauldronBlock implements IHammerRemovable {
 
-    public static final CauldronInteraction.InteractionMap CEMENT = new CauldronInteraction.InteractionMap(
-        "cement",
-        new ImmutableMap.Builder<Item, CauldronInteraction>()
-            .put(
-                Items.BUCKET,
-                (state, level, pos, player, hand, stack) -> {
-                    if (level.getBlockState(pos).getBlock() instanceof CementCauldronBlock cauldronBlock) {
-                        Color color = cauldronBlock.color;
-                        return CauldronInteraction.fillBucket(state, level, pos, player, hand, stack, ModItems.CEMENT_BUCKETS.get(color).asStack(), (s) -> true, SoundEvents.BUCKET_FILL);
-                    }
-                    return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-                }
-            )
-            .build()
-    );
-
     public static final MapCodec<CementCauldronBlock> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
         propertiesCodec(), Color.CODEC.fieldOf("color").forGetter(CementCauldronBlock::getColor)
     ).apply(ins, CementCauldronBlock::new));
@@ -59,7 +39,7 @@ public class CementCauldronBlock extends BetterAbstractCauldronBlock implements 
      * @param properties 方块属性
      */
     public CementCauldronBlock(Properties properties, Color color) {
-        super(properties, CEMENT);
+        super(properties, ModInteractionMap.CEMENT);
         this.color = color;
     }
 

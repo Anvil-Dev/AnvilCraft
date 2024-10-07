@@ -10,7 +10,6 @@ import dev.dubhe.anvilcraft.item.AmethystShovelItem;
 import dev.dubhe.anvilcraft.item.AmethystSwordItem;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import dev.dubhe.anvilcraft.item.CapacitorItem;
-import dev.dubhe.anvilcraft.item.CementBucketItem;
 import dev.dubhe.anvilcraft.item.CrabClawItem;
 import dev.dubhe.anvilcraft.item.CursedItem;
 import dev.dubhe.anvilcraft.item.DiskItem;
@@ -27,7 +26,6 @@ import dev.dubhe.anvilcraft.item.GuideBookItem;
 import dev.dubhe.anvilcraft.item.LevitationPowderItem;
 import dev.dubhe.anvilcraft.item.MagnetItem;
 import dev.dubhe.anvilcraft.item.ModFoods;
-import dev.dubhe.anvilcraft.item.CauldronBucketItem;
 import dev.dubhe.anvilcraft.item.RoyalAnvilHammerItem;
 import dev.dubhe.anvilcraft.item.RoyalAxeItem;
 import dev.dubhe.anvilcraft.item.RoyalHoeItem;
@@ -52,6 +50,7 @@ import net.minecraft.data.recipes.SmithingTransformRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.AxeItem;
+import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.HoeItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -1410,16 +1409,16 @@ public class ModItems {
         })
         .register();
 
-    public static final ItemEntry<CauldronBucketItem> OIL_BUCKET = REGISTRATE
-        .item("oil_bucket", p -> new CauldronBucketItem(ModFluids.OIL.get(), p, ModBlocks.OIL_CAULDRON.get()))
+    public static final ItemEntry<BucketItem> OIL_BUCKET = REGISTRATE
+        .item("oil_bucket", p -> new BucketItem(ModFluids.OIL.get(), p))
         .initialProperties(() -> new Item.Properties().stacksTo(1).craftRemainder(Items.BUCKET))
         .model(ModelProviderUtil::bucket)
         .register();
 
-    public static final Object2ObjectMap<Color, ItemEntry<CementBucketItem>> CEMENT_BUCKETS = registerAllCementBuckets();
+    public static final Object2ObjectMap<Color, ItemEntry<BucketItem>> CEMENT_BUCKETS = registerAllCementBuckets();
 
-    private static Object2ObjectMap<Color, ItemEntry<CementBucketItem>> registerAllCementBuckets() {
-        Object2ObjectMap<Color, ItemEntry<CementBucketItem>> map = new Object2ObjectOpenHashMap<>();
+    private static Object2ObjectMap<Color, ItemEntry<BucketItem>> registerAllCementBuckets() {
+        Object2ObjectMap<Color, ItemEntry<BucketItem>> map = new Object2ObjectOpenHashMap<>();
         for (Color color : Color.values()) {
             var entry = registerCementBucket(color);
             map.put(color, entry);
@@ -1427,9 +1426,9 @@ public class ModItems {
         return map;
     }
 
-    private static ItemEntry<CementBucketItem> registerCementBucket(Color color) {
+    private static ItemEntry<BucketItem> registerCementBucket(Color color) {
         return REGISTRATE
-            .item("%s_cement_bucket".formatted(color), p -> new CementBucketItem(ModFluids.SOURCE_CEMENTS.get(color).get(), p, color))
+            .item("%s_cement_bucket".formatted(color), p -> new BucketItem(ModFluids.SOURCE_CEMENTS.get(color).get(), p))
             .properties(p -> p.stacksTo(1).craftRemainder(Items.BUCKET))
             .model(ModelProviderUtil::bucket)
             .register();

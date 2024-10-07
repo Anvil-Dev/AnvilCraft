@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.block;
 
-import com.google.common.collect.ImmutableMap;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 
+import dev.dubhe.anvilcraft.util.ModInteractionMap;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.cauldron.CauldronInteraction;
@@ -12,7 +12,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -27,7 +26,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -36,29 +34,8 @@ import java.util.Optional;
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class LavaCauldronBlock extends LayeredCauldronBlock implements IHammerRemovable, BucketPickup {
-    public static final CauldronInteraction.InteractionMap LAYERED_LAVA = new CauldronInteraction.InteractionMap(
-        "layered_lava",
-        new ImmutableMap.Builder<Item, CauldronInteraction>()
-            .put(
-                Items.BUCKET,
-                (blockState, level, blockPos, player, interactionHand, itemStack) -> CauldronInteraction.fillBucket(
-                    blockState,
-                    level,
-                    blockPos,
-                    player,
-                    interactionHand,
-                    itemStack,
-                    Items.LAVA_BUCKET.getDefaultInstance(),
-                    (state) -> state.getValue(LayeredCauldronBlock.LEVEL) == 3,
-                    SoundEvents.BUCKET_FILL
-                )
-            )
-            .build()
-    );
-
-
     public LavaCauldronBlock(Properties properties) {
-        super(Biome.Precipitation.NONE, LAYERED_LAVA, properties);
+        super(Biome.Precipitation.NONE, ModInteractionMap.LAYERED_LAVA, properties);
     }
 
     @Override
