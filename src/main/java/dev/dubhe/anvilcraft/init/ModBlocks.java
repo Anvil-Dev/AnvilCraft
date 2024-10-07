@@ -97,6 +97,7 @@ import dev.dubhe.anvilcraft.item.PlaceInWaterBlockItem;
 import dev.dubhe.anvilcraft.item.ResinBlockItem;
 import dev.dubhe.anvilcraft.util.DangerUtil;
 
+import dev.dubhe.anvilcraft.util.ModelProviderUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -112,6 +113,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.util.ColorRGBA;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -2999,11 +3001,35 @@ public class ModBlocks {
             .noLootTable()
             .strength(100.0F)
         )
-        .blockstate((ctx, provider) -> provider.simpleBlock(
-            ctx.get(),
-            provider.models().getBuilder(ctx.getName()).texture("particle", provider.modLoc("block/" + ctx.getName()))
-        ))
+        .blockstate(ModelProviderUtil::liquid)
         .register();
+
+    public static final Object2ObjectMap<Color, BlockEntry<LiquidBlock>> CEMENTS = registerAllCementLiquidBlock();
+
+    private static Object2ObjectMap<Color, BlockEntry<LiquidBlock>> registerAllCementLiquidBlock() {
+        Object2ObjectMap<Color, BlockEntry<LiquidBlock>> map = new Object2ObjectOpenHashMap<>();
+        for (Color color : Color.values()) {
+            var entry = registerCementLiquidBlock(color);
+            map.put(color, entry);
+        }
+        return map;
+    }
+
+    private static BlockEntry<LiquidBlock> registerCementLiquidBlock(Color color) {
+        return REGISTRATE
+            .block("%s_cement".formatted(color), p -> new LiquidBlock(ModFluids.SOURCE_CEMENTS.get(color).get(), p))
+            .properties(it -> it
+                .mapColor(DyeColor.byName(color.getSerializedName(), DyeColor.GRAY))
+                .replaceable()
+                .noCollission()
+                .randomTicks()
+                .noCollission()
+                .noLootTable()
+                .strength(100.0F)
+            )
+            .blockstate(ModelProviderUtil::liquid)
+            .register();
+    }
 
     static {
         REGISTRATE.defaultCreativeTab(ModItemGroups.ANVILCRAFT_FUNCTION_BLOCK.getKey());
