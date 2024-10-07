@@ -4,10 +4,12 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.event.GuiLayerRegistrationEventListener;
 import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
 
+import dev.dubhe.anvilcraft.init.ModFluids;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 
 import me.shedaniel.autoconfig.AutoConfig;
@@ -20,6 +22,10 @@ public class AnvilCraftClient {
             IConfigScreenFactory.class,
             (c, s) -> AutoConfig.getConfigScreen(AnvilCraftConfig.class, s).get()
         );
+        modBus.addListener(AnvilCraftClient::registerClientFluidExtensions);
+    }
 
+    public static void registerClientFluidExtensions(RegisterClientExtensionsEvent e){
+        ModFluids.onRegisterFluidType(e);
     }
 }
