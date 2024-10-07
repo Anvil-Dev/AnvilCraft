@@ -2835,7 +2835,7 @@ public class ModBlocks {
                         .texture("side", provider.mcLoc("block/cauldron_side"))
                         .texture("top", provider.mcLoc("block/cauldron_top"))
                         .texture("particle", provider.mcLoc("block/cauldron_side"))
-                        .texture("content", provider.modLoc("block/cement_%s".formatted(color)))
+                        .texture("content", provider.modLoc("block/%s_cement".formatted(color)))
                 );
             })
             .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
