@@ -516,6 +516,8 @@
   "text.autoconfig.anvilcraft.option.redstoneEmpRadius.@Tooltip": "金床が追加のブロックを降下するたびに金床によって生成されるレッドストーン EMP の量は、距離の変化に影響します",
   "text.autoconfig.anvilcraft.option.remotePowerTransmitterRange": "遠隔送電柱の範囲",
   "text.autoconfig.anvilcraft.option.remotePowerTransmitterRange.@Tooltip": "電力送電柱は、電力送電柱の範囲を識別できます",
+  "text.autoconfig.anvilcraft.option.renderPowerTransmitterLines": "Render Power Transmitter Lines",
+  "text.autoconfig.anvilcraft.option.renderPowerTransmitterLines.@Tooltip": "Render lines between power transmitters",
   "text.autoconfig.anvilcraft.title": "金床工芸 - 設定",
   "tooltip.anvilcraft.grid_information.consumer_stats": "消費電力統計:",
   "tooltip.anvilcraft.grid_information.input_power": "  消費電力:%d",

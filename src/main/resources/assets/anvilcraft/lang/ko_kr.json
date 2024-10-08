@@ -516,6 +516,8 @@
   "text.autoconfig.anvilcraft.option.redstoneEmpRadius.@Tooltip": "모루가 떨어뜨린 블록당 생성되는 레드스톤 EMP 거리",
   "text.autoconfig.anvilcraft.option.remotePowerTransmitterRange": "전력 송신기의 범위",
   "text.autoconfig.anvilcraft.option.remotePowerTransmitterRange.@Tooltip": "전력 송신기는 전력 송신기의 범위를 식별할 수 있습니다",
+  "text.autoconfig.anvilcraft.option.renderPowerTransmitterLines": "Render Power Transmitter Lines",
+  "text.autoconfig.anvilcraft.option.renderPowerTransmitterLines.@Tooltip": "Render lines between power transmitters",
   "text.autoconfig.anvilcraft.title": "AnvilCraft 구성",
   "tooltip.anvilcraft.grid_information.consumer_stats": "전력 소비자 통계:",
   "tooltip.anvilcraft.grid_information.input_power": "  전력 소비: %d",

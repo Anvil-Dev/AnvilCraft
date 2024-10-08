@@ -516,6 +516,8 @@
   "text.autoconfig.anvilcraft.option.redstoneEmpRadius.@Tooltip": "Radiuszunahme des Einflusses eines Redstone EMP für jeden Block, den ein Amboss fällt",
   "text.autoconfig.anvilcraft.option.remotePowerTransmitterRange": "Reichweite des Fernstromübertragers",
   "text.autoconfig.anvilcraft.option.remotePowerTransmitterRange.@Tooltip": "Reichweite, innerhalb derer ein Fernstromübertrager andere Stromübertrager erkennen kann",
+  "text.autoconfig.anvilcraft.option.renderPowerTransmitterLines": "Render Power Transmitter Lines",
+  "text.autoconfig.anvilcraft.option.renderPowerTransmitterLines.@Tooltip": "Render lines between power transmitters",
   "text.autoconfig.anvilcraft.title": "Anvilcraft - Konfiguration",
   "tooltip.anvilcraft.grid_information.consumer_stats": "Stromverbrauchsstatistik:",
   "tooltip.anvilcraft.grid_information.input_power": "  Stromverbrauch: %d",

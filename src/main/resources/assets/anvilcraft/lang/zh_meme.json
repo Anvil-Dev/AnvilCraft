@@ -516,6 +516,8 @@
   "text.autoconfig.anvilcraft.option.redstoneEmpRadius.@Tooltip": "哐当每下落的一个方块产生的红石 EMP 影响距离增量",
   "text.autoconfig.anvilcraft.option.remotePowerTransmitterRange": "5G路由器天线范围",
   "text.autoconfig.anvilcraft.option.remotePowerTransmitterRange.@Tooltip": "5G路由器天线可以检测到其他路由器天线的范围",
+  "text.autoconfig.anvilcraft.option.renderPowerTransmitterLines": "Render Power Transmitter Lines",
+  "text.autoconfig.anvilcraft.option.renderPowerTransmitterLines.@Tooltip": "Render lines between power transmitters",
   "text.autoconfig.anvilcraft.title": "哐当工艺 - 配置",
   "tooltip.anvilcraft.grid_information.consumer_stats": "耗电统计：",
   "tooltip.anvilcraft.grid_information.input_power": "  耗电量：%d",

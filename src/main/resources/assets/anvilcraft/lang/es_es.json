@@ -516,6 +516,8 @@
   "text.autoconfig.anvilcraft.option.redstoneEmpRadius.@Tooltip": "Distancia EMP de Redstone generada por bloque dejado caer por el yunque",
   "text.autoconfig.anvilcraft.option.remotePowerTransmitterRange": "Rango del transmisor de potencia",
   "text.autoconfig.anvilcraft.option.remotePowerTransmitterRange.@Tooltip": "El transmisor de potencia puede identificar el rango del transmisor de potencia",
+  "text.autoconfig.anvilcraft.option.renderPowerTransmitterLines": "Render Power Transmitter Lines",
+  "text.autoconfig.anvilcraft.option.renderPowerTransmitterLines.@Tooltip": "Render lines between power transmitters",
   "text.autoconfig.anvilcraft.title": "AnvilCraft Config",
   "tooltip.anvilcraft.grid_information.consumer_stats": "Estadísticas de consumo de energía:",
   "tooltip.anvilcraft.grid_information.input_power": "  Consumo de energía: %d",

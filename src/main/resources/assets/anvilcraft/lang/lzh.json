@@ -516,6 +516,8 @@
   "text.autoconfig.anvilcraft.option.redstoneEmpRadius.@Tooltip": "砧落單塊致紅石 EMP 域之增數",
   "text.autoconfig.anvilcraft.option.remotePowerTransmitterRange": "遠電桿之域",
   "text.autoconfig.anvilcraft.option.remotePowerTransmitterRange.@Tooltip": "遠桿輸電之極徑",
+  "text.autoconfig.anvilcraft.option.renderPowerTransmitterLines": "Render Power Transmitter Lines",
+  "text.autoconfig.anvilcraft.option.renderPowerTransmitterLines.@Tooltip": "Render lines between power transmitters",
   "text.autoconfig.anvilcraft.title": "鐵砧匠藝 - 設",
   "tooltip.anvilcraft.grid_information.consumer_stats": "耗能之計：",
   "tooltip.anvilcraft.grid_information.input_power": "  耗能：%d",

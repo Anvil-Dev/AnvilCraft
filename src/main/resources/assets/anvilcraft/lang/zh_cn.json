@@ -516,6 +516,8 @@
   "text.autoconfig.anvilcraft.option.redstoneEmpRadius.@Tooltip": "铁砧每下落的一个方块产生的红石 EMP 影响距离增量",
   "text.autoconfig.anvilcraft.option.remotePowerTransmitterRange": "远程输电杆范围",
   "text.autoconfig.anvilcraft.option.remotePowerTransmitterRange.@Tooltip": "远程输电杆可以检测到其他输电杆的范围",
+  "text.autoconfig.anvilcraft.option.renderPowerTransmitterLines": "Render Power Transmitter Lines",
+  "text.autoconfig.anvilcraft.option.renderPowerTransmitterLines.@Tooltip": "Render lines between power transmitters",
   "text.autoconfig.anvilcraft.title": "铁砧工艺 - 配置",
   "tooltip.anvilcraft.grid_information.consumer_stats": "耗电统计：",
   "tooltip.anvilcraft.grid_information.input_power": "  耗电量：%d",

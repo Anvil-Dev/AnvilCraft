@@ -516,6 +516,8 @@
   "text.autoconfig.anvilcraft.option.redstoneEmpRadius.@Tooltip": "Distance EMP de redstone générée par bloc lâché par l'enclume",
   "text.autoconfig.anvilcraft.option.remotePowerTransmitterRange": "Gamme de transmetteurs de puissance",
   "text.autoconfig.anvilcraft.option.remotePowerTransmitterRange.@Tooltip": "L'émetteur de puissance peut identifier la portée du transmetteur de puissance",
+  "text.autoconfig.anvilcraft.option.renderPowerTransmitterLines": "Render Power Transmitter Lines",
+  "text.autoconfig.anvilcraft.option.renderPowerTransmitterLines.@Tooltip": "Render lines between power transmitters",
   "text.autoconfig.anvilcraft.title": "Configuration d'AnvilCraft",
   "tooltip.anvilcraft.grid_information.consumer_stats": "Statistiques sur les consommateurs d'énergie :",
   "tooltip.anvilcraft.grid_information.input_power": "  Consommation énergie :e: %d",

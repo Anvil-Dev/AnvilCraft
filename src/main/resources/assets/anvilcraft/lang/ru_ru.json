@@ -516,6 +516,8 @@
   "text.autoconfig.anvilcraft.option.redstoneEmpRadius.@Tooltip": "Дистанция EMP красного камня, создаваемая за каждый блок, брошенный наковальней",
   "text.autoconfig.anvilcraft.option.remotePowerTransmitterRange": "Диапазон мощности передатчика",
   "text.autoconfig.anvilcraft.option.remotePowerTransmitterRange.@Tooltip": "Передатчик мощности может определить диапазон передатчика мощности",
+  "text.autoconfig.anvilcraft.option.renderPowerTransmitterLines": "Render Power Transmitter Lines",
+  "text.autoconfig.anvilcraft.option.renderPowerTransmitterLines.@Tooltip": "Render lines between power transmitters",
   "text.autoconfig.anvilcraft.title": "Конфигурация AnvilCraft",
   "tooltip.anvilcraft.grid_information.consumer_stats": "Статистика потребителя электроэнергии:",
   "tooltip.anvilcraft.grid_information.input_power": "  Потребляемая мощность: %d",
