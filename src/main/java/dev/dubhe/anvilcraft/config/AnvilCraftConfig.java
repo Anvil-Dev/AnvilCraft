@@ -128,6 +128,10 @@ public class AnvilCraftConfig implements ConfigData {
     @Comment("Do not render power component tooltip when jade present")
     public boolean doNotShowTooltipWhenJadePresent = true;
 
+    @ConfigEntry.Gui.Tooltip
+    @Comment("Render lines between power transmitters")
+    public boolean renderPowerTransmitterLines = true;
+
     public static class PowerConverter implements ConfigData {
         @Comment("The working interval of power converters")
         @ConfigEntry.Gui.Tooltip

@@ -1,9 +1,11 @@
 package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.item.ResinBlockItem;
 
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -12,6 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
 
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,6 +36,13 @@ public class PlayerEventListener {
                 event.setCancellationResult(result);
                 event.setCanceled(true);
             }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onJoinedLevel(EntityJoinLevelEvent event){
+        if (event.getEntity() instanceof ServerPlayer sp){
+            PowerGrid.MANAGER.onPlayerJoined(event.getLevel(), sp);
         }
     }
 }

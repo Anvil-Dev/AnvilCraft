@@ -1,7 +1,9 @@
 package dev.dubhe.anvilcraft.client.renderer;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.SimplePowerGrid;
 
+import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -35,9 +37,9 @@ public class PowerGridRenderer {
         String level = Minecraft.getInstance().level.dimension().location().toString();
         VertexConsumer consumer = bufferSource.getBuffer(RenderType.lines());
         for (SimplePowerGrid grid : PowerGridRenderer.GRID_MAP.values()) {
-            if (!grid.shouldRender(camera)) return;
+            if (!grid.shouldRender(camera)) continue;
             if (!grid.getLevel().equals(level)) continue;
-            random.setSeed(grid.getHash());
+            random.setSeed(grid.getId());
             PowerGridRenderer.renderOutline(
                 poseStack,
                 consumer,
@@ -53,12 +55,16 @@ public class PowerGridRenderer {
     }
 
     public static void renderTransmitterLine(
-        PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, Vec3 camera) {
+        PoseStack poseStack,
+        MultiBufferSource.BufferSource bufferSource,
+        Vec3 camera
+    ) {
+        if (!AnvilCraft.config.renderPowerTransmitterLines) return;
         if (Minecraft.getInstance().level == null) return;
         String level = Minecraft.getInstance().level.dimension().location().toString();
         VertexConsumer consumer = bufferSource.getBuffer(RenderType.lines());
         for (SimplePowerGrid grid : PowerGridRenderer.GRID_MAP.values()) {
-            if (!grid.shouldRender(camera)) return;
+            if (!grid.shouldRender(camera)) continue;
             if (!grid.getLevel().equals(level)) continue;
             grid.getPowerTransmitterLines().forEach(it -> it.render(poseStack, consumer, camera, 0x9966ccff));
         }

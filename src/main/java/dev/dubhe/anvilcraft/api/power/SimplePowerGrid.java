@@ -33,7 +33,7 @@ import java.util.Set;
 public class SimplePowerGrid {
 
     public static final Codec<SimplePowerGrid> CODEC = RecordCodecBuilder.create(ins -> ins.group(
-            Codec.INT.fieldOf("hash").forGetter(o -> o.hash),
+            Codec.INT.fieldOf("hash").forGetter(o -> o.id),
             Codec.STRING.fieldOf("level").forGetter(o -> o.level),
             BlockPos.CODEC.fieldOf("pos").forGetter(o -> o.pos),
             PowerComponentInfo.CODEC
@@ -45,7 +45,7 @@ public class SimplePowerGrid {
         .apply(ins, SimplePowerGrid::new)
     );
 
-    private final int hash;
+    private final int id;
     private final String level;
     private final BlockPos pos;
     private final List<BlockPos> blocks = new ArrayList<>();
@@ -61,15 +61,16 @@ public class SimplePowerGrid {
      * 简单电网
      */
     public SimplePowerGrid(
-        int hash,
+        int id,
         String level,
         BlockPos pos,
         @NotNull List<PowerComponentInfo> powerComponentInfoList,
         int generate,
-        int consume) {
+        int consume
+    ) {
         this.pos = pos;
         this.level = level;
-        this.hash = hash;
+        this.id = id;
         this.generate = generate;
         this.consume = consume;
         blocks.addAll(powerComponentInfoList.stream().map(PowerComponentInfo::pos).toList());
@@ -101,7 +102,7 @@ public class SimplePowerGrid {
      * @param grid 电网
      */
     public SimplePowerGrid(@NotNull PowerGrid grid) {
-        this.hash = grid.hashCode();
+        this.id = grid.hashCode();
         this.level = grid.getLevel().dimension().location().toString();
         this.pos = grid.getPos();
         Set<IPowerComponent> powerComponents = new HashSet<>();

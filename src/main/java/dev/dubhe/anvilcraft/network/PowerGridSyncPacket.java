@@ -54,6 +54,6 @@ public class PowerGridSyncPacket implements CustomPacketPayload {
     }
 
     public static void clientHandler(PowerGridSyncPacket data, IPayloadContext context) {
-        context.enqueueWork(() -> PowerGridRenderer.getGridMap().put(data.grid.getHash(), data.grid));
+        context.enqueueWork(() -> PowerGridRenderer.getGridMap().put(data.grid.getId(), data.grid));
     }
 }
