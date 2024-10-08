@@ -36,7 +36,7 @@ public class PowerGridRenderer {
             random.setSeed(grid.getHash());
             PowerGridRenderer.renderOutline(
                 poseStack, consumer, camX, camY, camZ,
-                grid.getPos(), grid.getShape(),
+                grid.getPos(), grid.getCachedOutlineShape(),
                 random.nextFloat(), random.nextFloat(), random.nextFloat(), 0.4f
             );
         }

@@ -43,6 +43,9 @@ public class SimplePowerGrid {
     private final int generate; // 发电功率
     private final int consume;  // 耗电功率
 
+    @Getter
+    private final VoxelShape cachedOutlineShape;
+
     /**
      * 简单电网
      */
@@ -61,6 +64,7 @@ public class SimplePowerGrid {
         this.consume = consume;
         blocks.addAll(powerComponentInfoList.stream().map(PowerComponentInfo::pos).toList());
         this.powerComponentInfoList.addAll(powerComponentInfoList);
+        cachedOutlineShape = createMergedOutlineShape();
     }
 
     /**
@@ -161,21 +165,25 @@ public class SimplePowerGrid {
         }
         this.consume = grid.getConsume();
         this.generate = grid.getGenerate();
+        cachedOutlineShape = Shapes.empty();
     }
 
-    /**
-     * @return 获取范围
-     */
-    public VoxelShape getShape() {
-        return this.powerComponentInfoList.stream().map(it -> Shapes
-                .box(
-                        -it.range(), -it.range(), -it.range(),
-                        it.range() + 1, it.range() + 1, it.range() + 1
+    private VoxelShape createMergedOutlineShape() {
+        return this.powerComponentInfoList.stream()
+            .map(it -> Shapes.box(
+                    -it.range(),
+                    -it.range(),
+                    -it.range(),
+                    it.range() + 1,
+                    it.range() + 1,
+                    it.range() + 1
                 ).move(
-                        this.offset(it.pos()).getX(),
-                        this.offset(it.pos()).getY(),
-                        this.offset(it.pos()).getZ()
-                )).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).orElse(Shapes.block());
+                    this.offset(it.pos()).getX(),
+                    this.offset(it.pos()).getY(),
+                    this.offset(it.pos()).getZ()
+                )
+            ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
+            .orElse(Shapes.block());
     }
 
     private @NotNull BlockPos offset(@NotNull BlockPos pos) {
