@@ -23,6 +23,7 @@ public class ModInteractionMap {
     public static final CauldronInteraction.InteractionMap OIL = CauldronInteraction.newInteractionMap("oil");
     public static final CauldronInteraction.InteractionMap CEMENT = CauldronInteraction.newInteractionMap("cement");
     public static final CauldronInteraction.InteractionMap HONEY = CauldronInteraction.newInteractionMap("honey");
+    public static final CauldronInteraction.InteractionMap MELT_GEM = CauldronInteraction.newInteractionMap("melt_gem");
 
     public static void initInteractionMap() {
         var oilInteractionMap = OIL.map();
@@ -126,6 +127,22 @@ public class ModInteractionMap {
             }
         );
 
+        var meltGemInteractionMap = MELT_GEM.map();
+        meltGemInteractionMap.put(
+            Items.BUCKET,
+            (state, level, pos, player, hand, stack) -> CauldronInteraction.fillBucket(
+                state,
+                level,
+                pos,
+                player,
+                hand,
+                stack,
+                ModItems.MELT_GEM_BUCKET.asStack(),
+                s -> true,
+                SoundEvents.BUCKET_FILL
+            )
+        );
+
         var emptyInteractionMap = CauldronInteraction.EMPTY.map();
         ModItems.CEMENT_BUCKETS.forEach((k, v) -> emptyInteractionMap.put(
                 v.get(),
@@ -164,6 +181,18 @@ public class ModInteractionMap {
                 level.playSound(null, pos, SoundEvents.BOTTLE_EMPTY, SoundSource.BLOCKS);
                 return ItemInteractionResult.sidedSuccess(level.isClientSide());
             }
+        );
+        emptyInteractionMap.put(
+            ModItems.MELT_GEM_BUCKET.get(),
+            (state, level, pos, player, hand, stack) -> CauldronInteraction.emptyBucket(
+                level,
+                pos,
+                player,
+                hand,
+                stack,
+                ModBlocks.MELT_GEM_CAULDRON.getDefaultState(),
+                SoundEvents.BUCKET_EMPTY
+            )
         );
     }
 }

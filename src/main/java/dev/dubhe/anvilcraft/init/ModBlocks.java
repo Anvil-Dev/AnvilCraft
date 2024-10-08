@@ -2596,6 +2596,7 @@ public class ModBlocks {
     public static final BlockEntry<MeltGemCauldron> MELT_GEM_CAULDRON = REGISTRATE
         .block("melt_gem_cauldron", MeltGemCauldron::new)
         .initialProperties(() -> Blocks.CAULDRON)
+        .properties(p -> p.lightLevel(s -> 15))
         .blockstate((ctx, provider) -> {
         })
         .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
@@ -3030,6 +3031,21 @@ public class ModBlocks {
             .blockstate(ModelProviderUtil::liquid)
             .register();
     }
+
+    public static BlockEntry<LiquidBlock> MELT_GEM = REGISTRATE
+        .block("melt_gem", p -> new LiquidBlock(ModFluids.MELT_GEM.get(), p))
+        .properties(it -> it
+            .mapColor(MapColor.EMERALD)
+            .lightLevel(s -> 15)
+            .replaceable()
+            .noCollission()
+            .randomTicks()
+            .noCollission()
+            .noLootTable()
+            .strength(100.0F)
+        )
+        .blockstate(ModelProviderUtil::liquid)
+        .register();
 
     static {
         REGISTRATE.defaultCreativeTab(ModItemGroups.ANVILCRAFT_FUNCTION_BLOCK.getKey());

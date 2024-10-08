@@ -1434,6 +1434,12 @@ public class ModItems {
             .register();
     }
 
+    public static ItemEntry<BucketItem> MELT_GEM_BUCKET = REGISTRATE
+        .item("melt_gem_bucket", p -> new BucketItem(ModFluids.MELT_GEM.get(), p))
+        .properties(p -> p.stacksTo(1).craftRemainder(Items.BUCKET))
+        .model(ModelProviderUtil::bucket)
+        .register();
+
     public static void register() {
     }
 }

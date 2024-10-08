@@ -9,6 +9,7 @@ import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.pathfinder.PathType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.common.SoundActions;
@@ -125,6 +126,36 @@ public class ModFluids {
             .explosionResistance(100);
     }
 
+    public static final DeferredHolder<FluidType, FluidType> MELT_GEM_TYPE = FLUID_TYPES.register(
+        "melt_gem",
+        () -> new FluidType(FluidType.Properties.create()
+            .descriptionId("block.anvilcraft.melt_gem")
+            .canSwim(false)
+            .canDrown(false)
+            .pathType(PathType.LAVA)
+            .adjacentPathType(null)
+            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL_LAVA)
+            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY_LAVA)
+            .lightLevel(15)
+            .density(3000)
+            .viscosity(6000)
+            .temperature(1300)
+        )
+    );
+    public static final DeferredHolder<Fluid, BaseFlowingFluid> MELT_GEM = FLUIDS.register(
+        "melt_gem",
+        () -> new BaseFlowingFluid.Source(ModFluids.MELT_GEM_PROPERTIES)
+    );
+    public static final DeferredHolder<Fluid, BaseFlowingFluid> FLOWING_MELT_GEM = FLUIDS.register(
+        "flowing_melt_gem",
+        () -> new BaseFlowingFluid.Flowing(ModFluids.MELT_GEM_PROPERTIES)
+    );
+    public static final BaseFlowingFluid.Properties MELT_GEM_PROPERTIES = new BaseFlowingFluid.Properties(MELT_GEM_TYPE, MELT_GEM, FLOWING_MELT_GEM)
+        .block(ModBlocks.MELT_GEM)
+        .bucket(ModItems.MELT_GEM_BUCKET)
+        .tickRate(20)
+        .explosionResistance(100);
+
     public static void register(IEventBus eventBus) {
         FLUID_TYPES.register(eventBus);
         FLUIDS.register(eventBus);
@@ -138,6 +169,7 @@ public class ModFluids {
                 CEMENT_TYPES.get(color)
             );
         }
+        e.registerFluidType(new ModClientFluidTypeExtensionImpl(AnvilCraft.of("block/melt_gem")), MELT_GEM_TYPE);
     }
 
 }
