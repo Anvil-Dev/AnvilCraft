@@ -27,6 +27,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -192,6 +193,16 @@ public class AnvilHammerItem extends Item implements Equipable, IEngineerGoggles
     public boolean hurtEnemy(@NotNull ItemStack stack, @NotNull LivingEntity target, @NotNull LivingEntity attacker) {
         stack.hurtAndBreak(1, attacker, LivingEntity.getSlotForHand(target.getUsedItemHand()));
         float damageBonus = calculateFallDamageBonus(attacker.fallDistance);
+        Level level = target.level();
+        if (level instanceof ServerLevel serverLevel) {
+            EnchantmentHelper.modifyFallBasedDamage(
+                serverLevel,
+                stack,
+                attacker,
+                level.damageSources().anvil(attacker),
+                damageBonus
+            );
+        }
         target.hurt(target.level().damageSources().anvil(attacker), damageBonus);
         if (attacker.fallDistance >= 3) {
             attacker.level()

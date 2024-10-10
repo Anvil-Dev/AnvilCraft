@@ -15,13 +15,13 @@ import org.jetbrains.annotations.NotNull;
  * 可被锤子改变的方块
  */
 @SuppressWarnings("unused")
-public interface IHammerChangeableBlock extends IHammerChangeable {
+public interface HammerRotateBehavior extends IHammerChangeable {
     DirectionProperty FACING_HOPPER = BlockStateProperties.FACING_HOPPER;
     DirectionProperty FACING = BlockStateProperties.FACING;
     DirectionProperty HORIZONTAL_FACING = BlockStateProperties.HORIZONTAL_FACING;
-    IHammerChangeableBlock DEFAULT = new IHammerChangeableBlock() {
+    HammerRotateBehavior DEFAULT = new HammerRotateBehavior() {
     };
-    IHammerChangeableBlock EMPTY = new IHammerChangeableBlock() {
+    HammerRotateBehavior EMPTY = new HammerRotateBehavior() {
         public boolean change(Player player, BlockPos blockPos, @NotNull Level level, ItemStack anvilHammer) {
             return false;
         }
@@ -31,11 +31,15 @@ public interface IHammerChangeableBlock extends IHammerChangeable {
     default boolean change(Player player, BlockPos blockPos, @NotNull Level level, ItemStack anvilHammer) {
         BlockState state = level.getBlockState(blockPos);
         if (state.hasProperty(FACING)) {
-            state = IHammerChangeableBlock.rotate(state);
-        } else if (state.hasProperty(FACING_HOPPER)) {
-            state = IHammerChangeableBlock.hopperRotate(state);
-        } else if (state.hasProperty(HORIZONTAL_FACING)) {
-            state = IHammerChangeableBlock.horizontalRotate(state);
+            state = HammerRotateBehavior.rotate(state);
+        } else {
+            if (state.hasProperty(FACING_HOPPER)) {
+                state = HammerRotateBehavior.hopperRotate(state);
+            } else {
+                if (state.hasProperty(HORIZONTAL_FACING)) {
+                    state = HammerRotateBehavior.horizontalRotate(state);
+                }
+            }
         }
         level.setBlockAndUpdate(blockPos, state);
         return true;
@@ -63,6 +67,8 @@ public interface IHammerChangeableBlock extends IHammerChangeable {
     @SuppressWarnings("SameParameterValue")
     private static @NotNull BlockState horizontalRotate(@NotNull BlockState state) {
         return state.setValue(
-            HORIZONTAL_FACING, state.getValue(HORIZONTAL_FACING).getClockWise());
+            HORIZONTAL_FACING,
+            state.getValue(HORIZONTAL_FACING).getClockWise()
+        );
     }
 }

@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.init;
 
 import dev.dubhe.anvilcraft.api.hammer.HammerManager;
-import dev.dubhe.anvilcraft.api.hammer.IHammerChangeableBlock;
+import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
@@ -14,7 +14,7 @@ public class ModHammerInits {
     public static void init() {
         for (Block block : BuiltInRegistries.BLOCK) {
             if (!block.builtInRegistryHolder().is(ModBlockTags.HAMMER_CHANGEABLE)) continue;
-            HammerManager.registerChange(() -> block, IHammerChangeableBlock.DEFAULT);
+            HammerManager.registerChange(() -> block, HammerRotateBehavior.DEFAULT);
         }
     }
 }

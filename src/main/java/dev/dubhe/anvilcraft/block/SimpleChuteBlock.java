@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
-import dev.dubhe.anvilcraft.api.hammer.IHammerChangeableBlock;
+import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
@@ -41,10 +41,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.items.IItemHandler;
 
 import com.mojang.serialization.MapCodec;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import static dev.dubhe.anvilcraft.block.ChuteBlock.hasChuteFacing;
@@ -261,7 +259,7 @@ public class SimpleChuteBlock
 
     @Override
     public boolean change(Player player, BlockPos pos, Level level, ItemStack anvilHammer) {
-        IHammerChangeableBlock.DEFAULT.change(player, pos, level, anvilHammer);
+        HammerRotateBehavior.DEFAULT.change(player, pos, level, anvilHammer);
         BlockState state = level.getBlockState(pos);
         BlockState facingState = level.getBlockState(pos.relative(state.getValue(FACING)));
         if (facingState.is(ModBlocks.CHUTE.get()) || facingState.is(ModBlocks.SIMPLE_CHUTE.get())) {
