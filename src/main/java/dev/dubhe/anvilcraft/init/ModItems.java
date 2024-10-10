@@ -327,6 +327,7 @@ public class ModItems {
     public static final ItemEntry<AnvilHammerItem> ANVIL_HAMMER = REGISTRATE
         .item("anvil_hammer", AnvilHammerItem::new)
         .properties(properties -> properties.durability(35))
+        .tag(ItemTags.MACE_ENCHANTABLE)
         .model((ctx, provider) -> {
         })
         .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
@@ -357,6 +358,7 @@ public class ModItems {
                 .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT))
                 .save(provider, AnvilCraft.of("smithing/royal_anvil_hammer"));
         })
+        .tag(ItemTags.MACE_ENCHANTABLE)
         .properties(properties -> properties.durability(150))
         .model((ctx, provider) -> {
         })
@@ -373,6 +375,7 @@ public class ModItems {
                 .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.EMBER_METAL_INGOT))
                 .save(provider, AnvilCraft.of("smithing/ember_anvil_hammer"));
         })
+        .tag(ItemTags.MACE_ENCHANTABLE)
         .model((ctx, provider) -> {
         })
         .register();
