@@ -67,7 +67,6 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
     }
 
     @Override
-
     public boolean hasAnalogOutputSignal(BlockState blockState) {
         return true;
     }
@@ -79,7 +78,6 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
     }
 
     @Override
-
     public void onRemove(
         BlockState state,
         Level level,
@@ -118,7 +116,10 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
     @Override
     @Nullable
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return this.defaultBlockState().setValue(POWERED, false).setValue(OVERLOAD, true);
+        Level level = context.getLevel();
+        return this.defaultBlockState()
+            .setValue(POWERED, level.hasNeighborSignal(context.getClickedPos()))
+            .setValue(OVERLOAD, true);
     }
 
     @Override
@@ -158,7 +159,6 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
     }
 
     @Override
-
     public void neighborChanged(
         BlockState state,
         Level level,
@@ -173,7 +173,6 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
     }
 
     @Override
-
     public void tick(
         BlockState state,
         ServerLevel level,
@@ -190,7 +189,6 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
     }
 
     @Override
-
     public int getAnalogOutputSignal(BlockState blockState, Level level, BlockPos blockPos) {
         BlockEntity blockEntity = level.getBlockEntity(blockPos);
         if (blockEntity instanceof ItemCollectorBlockEntity itemCollectorBlockEntity) {
