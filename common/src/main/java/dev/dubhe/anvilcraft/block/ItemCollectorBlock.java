@@ -103,7 +103,7 @@ public class ItemCollectorBlock extends BaseEntityBlock implements IHammerRemova
     @Nullable
     public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
         return this.defaultBlockState()
-                .setValue(POWERED, false)
+                .setValue(POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()))
                 .setValue(OVERLOAD, true);
     }
 
