@@ -155,13 +155,15 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
     }
 
     protected static boolean shouldIgnoreBlockInMovement(BlockState blockState) {
+        if (blockState.getBlock() instanceof SpectralAnvilBlock) {
+            return false;
+        }
         return blockState.isAir()
                 || blockState.is(ModBlockTags.GLASS_BLOCKS)
                 || blockState.is(ModBlockTags.GLASS_PANES)
                 || blockState.is(ModBlockTags.FORGE_GLASS_BLOCKS)
                 || blockState.is(ModBlockTags.FORGE_GLASS_PANES)
                 || blockState.getBlock() instanceof AbstractGlassBlock
-                || blockState.getBlock() instanceof SpectralAnvilBlock
                 || blockState.canBeReplaced();
     }
 

@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.init;
 import dev.anvilcraft.lib.network.Network;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.network.ClientRecipeManagerSyncPack;
+import dev.dubhe.anvilcraft.network.ClientboundIncomingChargePacket;
 import dev.dubhe.anvilcraft.network.ClientboundMutedSoundSyncPacket;
 import dev.dubhe.anvilcraft.network.ClientboundUpdateDisplayItemPacket;
 import dev.dubhe.anvilcraft.network.HammerUsePack;
@@ -69,13 +70,13 @@ public class ModNetworks {
     );
 
     public static final ResourceLocation MUTED_SOUND_SYNC = Network.register(
-            AnvilCraft.of("muted_sound_sync"),
-            ClientboundMutedSoundSyncPacket.class, ClientboundMutedSoundSyncPacket::new
+        AnvilCraft.of("muted_sound_sync"),
+        ClientboundMutedSoundSyncPacket.class, ClientboundMutedSoundSyncPacket::new
     );
 
     public static final ResourceLocation MUTED_SOUND_ADD = Network.register(
-            AnvilCraft.of("muted_sound_add"),
-            ServerboundAddMutedSoundPacket.class, ServerboundAddMutedSoundPacket::new
+        AnvilCraft.of("muted_sound_add"),
+        ServerboundAddMutedSoundPacket.class, ServerboundAddMutedSoundPacket::new
     );
 
     public static final ResourceLocation MUTED_SOUND_REMOVE = Network.register(
@@ -99,8 +100,14 @@ public class ModNetworks {
     );
 
     public static final ResourceLocation CLIENT_UPDATE_DISPLAY_ITEM = Network.register(
-            AnvilCraft.of("client_update_display_item"),
-            ClientboundUpdateDisplayItemPacket.class, ClientboundUpdateDisplayItemPacket::new
+        AnvilCraft.of("client_update_display_item"),
+        ClientboundUpdateDisplayItemPacket.class, ClientboundUpdateDisplayItemPacket::new
+    );
+
+    public static final ResourceLocation CLIENT_INCOMING_CHARGE = Network.register(
+        AnvilCraft.of("client_incoming_charge"),
+        ClientboundIncomingChargePacket.class,
+        ClientboundIncomingChargePacket::new
     );
 
     public static void register() {
