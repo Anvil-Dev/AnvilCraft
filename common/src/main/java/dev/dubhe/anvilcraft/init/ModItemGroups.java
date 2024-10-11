@@ -140,6 +140,7 @@ public class ModItemGroups {
                 entries.accept(Items.CAMPFIRE.getDefaultInstance());
                 entries.accept(Items.STONECUTTER.getDefaultInstance());
                 entries.accept(Items.SCAFFOLDING.getDefaultInstance());
+                entries.accept(ModBlocks.TRANSPARENT_CRAFTING_TABLE.asStack());
                 entries.accept(ModBlocks.STAMPING_PLATFORM.asStack());
                 entries.accept(ModBlocks.CORRUPTED_BEACON.asStack());
                 entries.accept(ModBlocks.GIANT_ANVIL.asStack());

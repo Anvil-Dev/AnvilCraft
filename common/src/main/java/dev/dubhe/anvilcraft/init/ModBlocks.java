@@ -85,6 +85,7 @@ import dev.dubhe.anvilcraft.block.StampingPlatformBlock;
 import dev.dubhe.anvilcraft.block.SupercriticalNestingShulkerBoxBlock;
 import dev.dubhe.anvilcraft.block.ThermoelectricConverterBlock;
 import dev.dubhe.anvilcraft.block.TransmissionPoleBlock;
+import dev.dubhe.anvilcraft.block.TransparentCraftingTableBlock;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.Vertical3PartHalf;
@@ -3185,6 +3186,30 @@ public class ModBlocks {
             .model((ctx, provider) -> provider.blockItem(ctx))
             .build()
             .register();
+
+    public static final BlockEntry<TransparentCraftingTableBlock> TRANSPARENT_CRAFTING_TABLE = REGISTRATE
+        .block("transparent_crafting_table", TransparentCraftingTableBlock::new)
+        .properties(properties -> properties
+            .mapColor(MapColor.COLOR_PURPLE)
+            .strength(1.5F, 3)
+            .sound(SoundType.AMETHYST)
+            .noOcclusion()
+        )
+        .blockstate((ctx, provider) -> {
+        })
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.PLAYER_WORKSTATIONS_CRAFTING_TABLES)
+        .recipe((ctx, provider) -> {
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern(" A ")
+                .pattern("ABA")
+                .pattern(" A ")
+                .define('A', Items.AMETHYST_SHARD)
+                .define('B', Items.CRAFTING_TABLE)
+                .unlockedBy("hasitem", AnvilCraftDatagen.has(Items.AMETHYST_SHARD))
+                .save(provider);
+        })
+        .register();
 
     public static void register() {
     }

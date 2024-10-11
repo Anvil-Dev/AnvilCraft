@@ -1,0 +1,35 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:transparent_crafting_table"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "hasitem": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "minecraft:amethyst_shard"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "hasitem",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:transparent_crafting_table"
+    ]
+  },
+  "sends_telemetry_event": false
+}

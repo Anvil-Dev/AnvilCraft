@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "anvilcraft:transparent_crafting_table",
+    "minecraft:crafting_table"
+  ]
+}
