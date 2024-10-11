@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.SimplePowerGrid;
+import dev.dubhe.anvilcraft.util.ColorUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
@@ -40,6 +41,7 @@ public class PowerGridRenderer {
             if (!grid.shouldRender(camera)) continue;
             if (!grid.getLevel().equals(level)) continue;
             random.setSeed(grid.getHash());
+            int[] rgb = ColorUtil.hsvToRgb(random.nextInt(360), 80, 80);
             PowerGridRenderer.renderOutline(
                 poseStack,
                 consumer,
@@ -48,9 +50,9 @@ public class PowerGridRenderer {
                 camera.z,
                 grid.getPos(),
                 grid.getCachedOutlineShape(),
-                random.nextFloat(),
-                random.nextFloat(),
-                random.nextFloat(),
+                rgb[0] / 255f,
+                rgb[1] / 255f,
+                rgb[2] / 255f,
                 0.4f
             );
         }
