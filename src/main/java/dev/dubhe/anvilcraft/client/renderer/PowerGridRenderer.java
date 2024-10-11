@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.client.renderer;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.SimplePowerGrid;
 
-import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
+import dev.dubhe.anvilcraft.util.ColorUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -40,15 +40,16 @@ public class PowerGridRenderer {
             if (!grid.shouldRender(camera)) continue;
             if (!grid.getLevel().equals(level)) continue;
             random.setSeed(grid.getId());
+            int[] rgb = ColorUtil.hsvToRgb(random.nextInt(360), 80, 80);
             PowerGridRenderer.renderOutline(
                 poseStack,
                 consumer,
                 camera,
                 grid.getPos(),
                 grid.getCachedOutlineShape(),
-                random.nextFloat(),
-                random.nextFloat(),
-                random.nextFloat(),
+                rgb[0] / 255f,
+                rgb[1] / 255f,
+                rgb[2] / 255f,
                 0.4f
             );
         }
