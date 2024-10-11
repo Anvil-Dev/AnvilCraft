@@ -5,7 +5,9 @@ import dev.dubhe.anvilcraft.entity.FallingSpectralBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleMenuProvider;
@@ -41,13 +43,11 @@ public class SpectralAnvilBlock extends TransparentBlock {
     private static final Component CONTAINER_TITLE = Component.translatable("container.repair");
     private static final VoxelShape BASE = Block.box(2.0, 0.0, 2.0, 14.0, 4.0, 14.0);
     private static final VoxelShape X_LEG1 = Block.box(3.0, 4.0, 4.0, 13.0, 5.0, 12.0);
-    private static final VoxelShape X_LEG2 = Block.box(4.0, 5.0, 6.0, 12.0, 10.0, 10.0);
     private static final VoxelShape X_TOP = Block.box(0.0, 10.0, 3.0, 16.0, 16.0, 13.0);
     private static final VoxelShape Z_LEG1 = Block.box(4.0, 4.0, 3.0, 12.0, 5.0, 13.0);
-    private static final VoxelShape Z_LEG2 = Block.box(6.0, 5.0, 4.0, 10.0, 10.0, 12.0);
     private static final VoxelShape Z_TOP = Block.box(3.0, 10.0, 0.0, 13.0, 16.0, 16.0);
-    private static final VoxelShape X_AXIS_AABB = Shapes.or(BASE, X_LEG1, X_LEG2, X_TOP);
-    private static final VoxelShape Z_AXIS_AABB = Shapes.or(BASE, Z_LEG1, Z_LEG2, Z_TOP);
+    private static final VoxelShape X_AXIS_AABB = Shapes.or(BASE, X_LEG1, X_TOP);
+    private static final VoxelShape Z_AXIS_AABB = Shapes.or(BASE, Z_LEG1, Z_TOP);
 
     /**
      * 幻灵铁砧
@@ -103,6 +103,17 @@ public class SpectralAnvilBlock extends TransparentBlock {
     }
 
     @Override
+    protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        FallingSpectralBlockEntity.fall(
+            level,
+            pos.above(),
+            level.getBlockState(pos).setValue(POWERED, false),
+            false,
+            true
+        );
+    }
+
+    @Override
     public void neighborChanged(
         BlockState state,
         Level level,
@@ -111,12 +122,13 @@ public class SpectralAnvilBlock extends TransparentBlock {
         BlockPos neighborPos,
         boolean movedByPiston
     ) {
-        if (level.isClientSide) return;
-        boolean beforePowered = state.getValue(POWERED);
-        level.setBlockAndUpdate(pos, state.setValue(POWERED, level.hasNeighborSignal(pos)));
-        if (!beforePowered && level.hasNeighborSignal(pos)) {
-            FallingSpectralBlockEntity.fall(
-                level, pos.above(), level.getBlockState(pos).setValue(POWERED, false), false, true);
+        boolean hasNeighborSignal = level.hasNeighborSignal(pos);
+        boolean currentPowered = state.getValue(POWERED);
+        if (hasNeighborSignal && !currentPowered) {
+            level.scheduleTick(pos, this, 4);
+            level.setBlock(pos, state.setValue(POWERED, Boolean.TRUE), 2);
+        } else if (!hasNeighborSignal && currentPowered) {
+            level.setBlock(pos, state.setValue(POWERED, Boolean.FALSE), 2);
         }
     }
 }

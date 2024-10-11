@@ -32,8 +32,10 @@ import net.neoforged.neoforge.common.Tags;
 
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Predicate;
 
+@ParametersAreNonnullByDefault
 public class FallingSpectralBlockEntity extends FallingBlockEntity {
     private boolean isGhostEntity;
     private float fallDistance = 0;
@@ -46,7 +48,8 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
      * @param isGhostEntity 是否为分身
      */
     private FallingSpectralBlockEntity(
-        Level level, double x, double y, double z, BlockState state, boolean isGhostEntity) {
+        Level level, double x, double y, double z, BlockState state, boolean isGhostEntity
+    ) {
         this(ModEntities.FALLING_SPECTRAL_BLOCK.get(), level);
         this.blockState = state;
         this.blocksBuilding = true;
@@ -64,6 +67,11 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
 
     @Override
     public void callOnBrokenAfterFall(@NotNull Block block, @NotNull BlockPos pos) {
+    }
+
+    @Override
+    public void move(MoverType type, Vec3 pos) {
+        this.setPos(this.getX() + pos.x, this.getY() + pos.y, this.getZ() + pos.z);
     }
 
     @Override
