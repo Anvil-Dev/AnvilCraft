@@ -11,6 +11,7 @@
     "BlockItemInvoker",
     "BlockMixin",
     "ClientboundUpdateRecipesPacketMixin",
+    "CraftingMenuMixin",
     "DiggerItemMixin",
     "DispenseItemEmptyBottleBehaviorMixin",
     "DispenseItemEmptyBucketBehaviorMixin",

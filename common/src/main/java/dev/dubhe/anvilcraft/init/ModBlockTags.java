@@ -52,6 +52,10 @@ public class ModBlockTags {
     public static final TagKey<Block> FORGE_BRONZE_BLOCKS = bindForge("storage_blocks/bronze_blocks");
     public static final TagKey<Block> FORGE_BRASS_BLOCKS = bindForge("storage_blocks/brass_blocks");
 
+    public static final TagKey<Block> PLAYER_WORKSTATIONS_CRAFTING_TABLES = bindC(
+        "player_workstations/crafting_tables"
+    );
+
     private static @NotNull TagKey<Block> bindC(String id) {
         return TagKey.create(Registries.BLOCK, new ResourceLocation("c", id));
     }

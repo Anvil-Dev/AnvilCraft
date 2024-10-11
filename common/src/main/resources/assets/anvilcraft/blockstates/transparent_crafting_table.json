@@ -1,7 +1,7 @@
 {
   "variants": {
     "type=single": {
-      "model": "anvilcraft:block/crystal_crafting_table"
+      "model": "anvilcraft:block/transparent_crafting_table"
     },
     "type=center": {
       "model": "anvilcraft:block/crystal_crafting_table_center"
