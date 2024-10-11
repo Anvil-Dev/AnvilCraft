@@ -30,8 +30,10 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Predicate;
 
+@ParametersAreNonnullByDefault
 public class FallingSpectralBlockEntity extends FallingBlockEntity {
     private boolean isGhostEntity;
     private float fallDistance = 0;
@@ -69,6 +71,11 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
     @Override
     public void callOnBrokenAfterFall(@NotNull Block block, @NotNull BlockPos pos) {
 
+    }
+
+    @Override
+    public void move(MoverType type, Vec3 pos) {
+        this.setPos(this.getX() + pos.x, this.getY() + pos.y, this.getZ() + pos.z);
     }
 
     @Override
