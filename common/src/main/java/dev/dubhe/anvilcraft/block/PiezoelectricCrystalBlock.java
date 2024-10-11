@@ -65,7 +65,7 @@ public class PiezoelectricCrystalBlock extends Block implements IHammerRemovable
         for (Entry entry : chargeCollectorCollection) {
             ChargeCollectorBlockEntity chargeCollectorBlockEntity = entry.getBlockEntity();
             if (!ChargeCollectorManager.getInstance(level).canCollect(chargeCollectorBlockEntity, blockPos)) return;
-            surplus = chargeCollectorBlockEntity.incomingCharge(surplus);
+            surplus = chargeCollectorBlockEntity.incomingCharge(surplus, blockPos);
             if (surplus == 0) return;
         }
     }

@@ -129,7 +129,7 @@ public class BatchCrafterBlockEntity
     }
 
     private boolean canCraft() {
-        if (grid == null || !grid.isWork()) return false;
+        if (grid == null || !grid.isWorking()) return false;
         if (!depository.isFilterEnabled()) return true;
         for (int i = 0; i < depository.getSlots(); i++) {
             if (depository.getStack(i).isEmpty() && !depository.getFilter(i).isEmpty()) return false;

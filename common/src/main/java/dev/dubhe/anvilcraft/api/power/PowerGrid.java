@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.network.PowerGridRemovePack;
 import dev.dubhe.anvilcraft.network.PowerGridSyncPack;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.shapes.BooleanOp;
@@ -12,15 +13,10 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 电网
@@ -28,10 +24,11 @@ import java.util.concurrent.TimeUnit;
 @SuppressWarnings("unused")
 public class PowerGrid {
     public static boolean isServerClosing = false;
-    private static final PowerGridData GRID_DATA = new PowerGridData();
+    public static final PowerGridManager MANAGER = new PowerGridManager();
     public static final int GRID_TICK = 20;
     @Getter
-    public boolean remove = false;
+    public boolean markedRemoval = false;
+    private boolean changed = true;
     @Getter
     private int generate = 0; // 发电功率
     @Getter
@@ -51,8 +48,19 @@ public class PowerGrid {
         this.level = level;
     }
 
-    public void update() {
-        new PowerGridSyncPack(this).broadcast(this.level.getChunkAt(this.getPos()));
+    /**
+     * 同步电网至客户端
+
+     * @param forced 强制同步
+     */
+    public void update(boolean forced) {
+        if (forced || changed) {
+            new PowerGridSyncPack(this).broadcast(this.level.getChunkAt(this.getPos()));
+        }
+    }
+
+    public void markChanged() {
+        this.changed = true;
     }
 
     /**
@@ -73,7 +81,7 @@ public class PowerGrid {
      * 总电力刻
      */
     public static void tickGrid() {
-        GRID_DATA.tick();
+        MANAGER.tick();
     }
 
     /**
@@ -81,9 +89,9 @@ public class PowerGrid {
      */
     protected void tick() {
         if (this.level.getGameTime() % GRID_TICK != 0) return;
-        if (this.isRemove()) return;
+        if (this.isMarkedRemoval()) return;
         if (this.flush()) return;
-        if (this.isWork()) {
+        if (this.isWorking()) {
             int remainder = this.generate - this.consume;
             for (IPowerStorage storage : storages) {
                 if (checkRemove(storage)) return;
@@ -99,7 +107,7 @@ public class PowerGrid {
                 if (need <= 0) break;
             }
             if (need > 0) {
-                this.update();
+                this.update(false);
                 return;
             }
             for (IPowerStorage storage : storages) {
@@ -107,7 +115,8 @@ public class PowerGrid {
             }
         }
         this.gridTick();
-        this.update();
+        this.update(false);
+        this.changed = false;
     }
 
     private void gridTick() {
@@ -147,7 +156,7 @@ public class PowerGrid {
     /**
      * 是否正常工作（未过载）
      */
-    public boolean isWork() {
+    public boolean isWorking() {
         return this.generate >= this.consume;
     }
 
@@ -176,6 +185,7 @@ public class PowerGrid {
             this.addRange(component);
         }
         this.flush();
+        this.changed = true;
     }
 
     private void addRange(IPowerComponent component) {
@@ -195,7 +205,7 @@ public class PowerGrid {
     }
 
     /**
-     * 移除除电网元件
+     * 移除电网元件
      *
      * @param components 元件
      */
@@ -218,7 +228,7 @@ public class PowerGrid {
      * @param components 电力元件
      */
     public void remove(IPowerComponent @NotNull ... components) {
-        this.remove = true;
+        this.markedRemoval = true;
         Set<IPowerComponent> set = new LinkedHashSet<>();
         this.transmitters.stream().filter(this::clearGrid).forEach(set::add);
         this.transmitters.clear();
@@ -250,6 +260,7 @@ public class PowerGrid {
         grid.consumers.forEach(this::add);
         grid.storages.forEach(this::add);
         grid.transmitters.forEach(this::add);
+        changed = true;
     }
 
     /**
@@ -273,89 +284,22 @@ public class PowerGrid {
      */
     public static void addComponent(IPowerComponent @NotNull ... components) {
         for (IPowerComponent component : components) {
-            GRID_DATA.addComponent(component);
+            MANAGER.addComponent(component);
         }
+    }
+
+    /**
+     * 同步电网至指定玩家
+     */
+    void syncToPlayer(ServerPlayer player) {
+        new PowerGridSyncPack(this).send(player);
     }
 
     /**
      * 清空电网
      */
     public static void clear() {
-        PowerGrid.GRID_DATA.clear();
+        MANAGER.clear();
     }
 
-    private static class PowerGridData {
-        private final Map<Level, Set<PowerGrid>> gridMap = Collections.synchronizedMap(new HashMap<>());
-        private final LinkedBlockingQueue<Map.Entry<Level, IPowerComponent>> addQueue = new LinkedBlockingQueue<>();
-
-        public PowerGridData() {
-        }
-
-        public synchronized void addComponent(@NotNull IPowerComponent component) {
-            try {
-                addQueue.offer(Map.entry(component.getCurrentLevel(), component), 500, TimeUnit.MICROSECONDS);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        public synchronized void remove(PowerGrid powerGrid) {
-            powerGrid.remove = true;
-        }
-
-        public synchronized void removeAll(Collection<PowerGrid> powerGrids) {
-            powerGrids.forEach(this::remove);
-        }
-
-        public void clear() {
-            gridMap.clear();
-        }
-
-        public synchronized void tick() {
-            for (int i = 0; i < addQueue.size(); i++) {
-                try {
-                    Map.Entry<Level, IPowerComponent> entry = addQueue.poll(500, TimeUnit.MICROSECONDS);
-                    if (entry == null) continue;
-                    IPowerComponent component = entry.getValue();
-                    if (component.getComponentType() == PowerComponentType.INVALID) continue;
-                    final PowerGrid[] grid = {null};
-                    Set<PowerGrid> grids = getGridSet(entry.getKey());
-                    Set<PowerGrid> remove = Collections.synchronizedSet(new HashSet<>());
-                    grids.forEach(powerGrid -> {
-                        if (powerGrid.isRemove() || !powerGrid.isInRange(component)) return;
-                        if (grid[0] == null) grid[0] = powerGrid;
-                        else {
-                            grid[0].merge(powerGrid);
-                            remove.add(powerGrid);
-                            new PowerGridRemovePack(powerGrid).broadcast();
-                        }
-                    });
-                    grids.removeAll(remove);
-                    if (grid[0] == null) grid[0] = new PowerGrid(component.getCurrentLevel());
-                    grid[0].add(component);
-                    grids.add(grid[0]);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            for (Set<PowerGrid> grids : gridMap.values()) {
-                Set<PowerGrid> remove = Collections.synchronizedSet(new HashSet<>());
-                grids.forEach(powerGrid -> {
-                    if (powerGrid.isEmpty() || powerGrid.isRemove()) remove.add(powerGrid);
-                    powerGrid.tick();
-                });
-                grids.removeAll(remove);
-            }
-        }
-
-        private Set<PowerGrid> getGridSet(Level level) {
-            if (gridMap.containsKey(level)) {
-                return gridMap.get(level);
-            } else {
-                Set<PowerGrid> grids = Collections.synchronizedSet(new HashSet<>());
-                gridMap.put(level, grids);
-                return grids;
-            }
-        }
-    }
 }

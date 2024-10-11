@@ -97,9 +97,9 @@ public interface IPowerComponent {
             }
             return;
         }
-        if (this.getGrid().isWork() && state.getValue(OVERLOAD)) {
+        if (this.getGrid().isWorking() && state.getValue(OVERLOAD)) {
             level.setBlockAndUpdate(pos, state.setValue(OVERLOAD, false));
-        } else if (!this.getGrid().isWork() && !state.getValue(OVERLOAD)) {
+        } else if (!this.getGrid().isWorking() && !state.getValue(OVERLOAD)) {
             level.setBlockAndUpdate(pos, state.setValue(OVERLOAD, true));
         }
     }

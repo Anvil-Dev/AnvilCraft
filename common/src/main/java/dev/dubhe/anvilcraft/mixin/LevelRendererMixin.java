@@ -68,6 +68,7 @@ abstract class LevelRendererMixin {
         double camX = vec3.x();
         double camY = vec3.y();
         double camZ = vec3.z();
+        PowerGridRenderer.renderTransmitterLine(poseStack, bufferSource, vec3);
         if (entity instanceof LivingEntity livingEntity) {
             ItemStack mainHandItem = livingEntity.getItemInHand(InteractionHand.MAIN_HAND);
             ItemStack offHandItem = livingEntity.getItemInHand(InteractionHand.OFF_HAND);
@@ -83,6 +84,7 @@ abstract class LevelRendererMixin {
                 );
             }
         }
+
         boolean bl = true;
         for (ItemStack slot : entity.getArmorSlots()) {
             if (slot.getItem() instanceof IEngineerGoggles) {
@@ -92,7 +94,7 @@ abstract class LevelRendererMixin {
         }
         if (bl) return;
         profilerFiller.popPush("grid");
-        PowerGridRenderer.render(poseStack, vertexConsumer3, camX, camY, camZ);
+        PowerGridRenderer.render(poseStack, bufferSource, vec3);
         HitResult hit = minecraft.hitResult;
         if (hit == null || hit.getType() != HitResult.Type.BLOCK) {
             return;

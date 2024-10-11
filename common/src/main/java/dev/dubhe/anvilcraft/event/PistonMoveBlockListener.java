@@ -36,12 +36,12 @@ public class PistonMoveBlockListener {
             if (blockState.getValue(MagnetBlock.LIT)) continue;
             double n = getChargeNum(level, pos);
             if (n > 0) {
-                Collection<Entry> nearestChargeCollect =
-                    ChargeCollectorManager.getInstance(level).getNearestChargeCollect(pos);
-                for (var floatChargeCollectorBlockEntityEntry : nearestChargeCollect) {
+                Collection<Entry> nearestChargeCollect = ChargeCollectorManager.getInstance(level)
+                        .getNearestChargeCollect(pos);
+                for (Entry floatChargeCollectorBlockEntityEntry : nearestChargeCollect) {
                     ChargeCollectorBlockEntity blockEntity = floatChargeCollectorBlockEntityEntry.getBlockEntity();
                     if (ChargeCollectorManager.getInstance(level).canCollect(blockEntity, pos)) {
-                        double unCharged = blockEntity.incomingCharge(n);
+                        double unCharged = blockEntity.incomingCharge(n, pos);
                         if (unCharged == 0) {
                             break;
                         }

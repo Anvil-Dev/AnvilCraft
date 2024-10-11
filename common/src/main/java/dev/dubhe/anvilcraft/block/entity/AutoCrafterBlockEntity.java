@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.depository.DepositoryHolder;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.depository.FilteredItemDepository;
 import dev.dubhe.anvilcraft.api.depository.IItemDepository;
@@ -94,7 +93,7 @@ public class AutoCrafterBlockEntity extends BaseMachineBlockEntity implements
     }
 
     private boolean canCraft() {
-        if (grid == null || !grid.isWork()) return false;
+        if (grid == null || !grid.isWorking()) return false;
         if (cooldown > 0) return false;
         if (!depository.isFilterEnabled()) return true;
         for (int i = 0; i < depository.getSlots(); i++) {

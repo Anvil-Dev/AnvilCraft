@@ -126,6 +126,10 @@ public class AnvilCraftConfig implements ConfigData {
     @SerializedName("Heliostats detection interval")
     public int heliostatsDetectionInterval = 4;
 
+    @ConfigEntry.Gui.Tooltip
+    @Comment("Render lines between power transmitters")
+    public boolean renderPowerTransmitterLines = true;
+
     public static class PowerConverter implements ConfigData {
         @Comment("The working interval of power converters")
         @ConfigEntry.Gui.Tooltip

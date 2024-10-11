@@ -36,11 +36,11 @@ public class RubyLaserBlockEntity extends BaseLaserBlockEntity implements IPower
     @Override
     public void tick(@NotNull Level level) {
         if (getGrid() != null
-                && getBlockState().getValue(RubyLaserBlock.OVERLOAD) == getGrid().isWork())
+                && getBlockState().getValue(RubyLaserBlock.OVERLOAD) == getGrid().isWorking())
             level.setBlock(
                     getPos(),
                     getBlockState()
-                            .setValue(OVERLOAD, !getGrid().isWork()),
+                            .setValue(OVERLOAD, !getGrid().isWorking()),
                     2);
         if (level.hasNeighborSignal(getBlockPos()) == (getBlockState().getValue(SWITCH) == Switch.ON))
             level.setBlock(

@@ -216,7 +216,7 @@ public class ChargerBlockEntity
             locked = false;
             return;
         }
-        if (grid.isWork() && !isCharger) {
+        if (grid.isWorking() && !isCharger) {
             previousDischargeFailed = false;
         }
         if (powered) return;
@@ -233,7 +233,7 @@ public class ChargerBlockEntity
             return;
         }
         if (isCharger) {
-            if (grid.isWork()) {
+            if (grid.isWorking()) {
                 if (cd > 0) {
                     cd--;
                     locked = true;
@@ -250,7 +250,7 @@ public class ChargerBlockEntity
                 cd--;
                 locked = true;
             } else {
-                if (!grid.isWork() && !previousDischargeFailed) {
+                if (!grid.isWorking() && !previousDischargeFailed) {
                     previousDischargeFailed = true;
                 }
                 cd = 0;
