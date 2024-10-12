@@ -8,6 +8,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -59,7 +60,7 @@ public class SpectralBlockRenderer extends EntityRenderer<FallingSpectralBlockEn
                                 blockState,
                                 blockPos,
                                 poseStack,
-                                buffer.getBuffer(ItemBlockRenderTypes.getMovingBlockRenderType(blockState)),
+                                buffer.getBuffer(RenderType.translucent()),
                                 false,
                                 RandomSource.create(),
                                 blockState.getSeed(entity.getStartPos()),

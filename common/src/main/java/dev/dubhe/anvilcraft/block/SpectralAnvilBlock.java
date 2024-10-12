@@ -5,7 +5,9 @@ import dev.dubhe.anvilcraft.entity.FallingSpectralBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -55,8 +57,8 @@ public class SpectralAnvilBlock extends AbstractGlassBlock {
     public SpectralAnvilBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any()
-                .setValue(FACING, Direction.NORTH)
-                .setValue(POWERED, false)
+            .setValue(FACING, Direction.NORTH)
+            .setValue(POWERED, false)
         );
     }
 
@@ -69,8 +71,8 @@ public class SpectralAnvilBlock extends AbstractGlassBlock {
     @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
         return this.defaultBlockState()
-                .setValue(FACING, context.getHorizontalDirection().getClockWise())
-                .setValue(POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()));
+            .setValue(FACING, context.getHorizontalDirection().getClockWise())
+            .setValue(POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()));
     }
 
     @Override
@@ -80,12 +82,12 @@ public class SpectralAnvilBlock extends AbstractGlassBlock {
 
     @Override
     public InteractionResult use(
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            Player player,
-            InteractionHand hand,
-            BlockHitResult hit
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        InteractionHand hand,
+        BlockHitResult hit
     ) {
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
@@ -100,34 +102,41 @@ public class SpectralAnvilBlock extends AbstractGlassBlock {
     @Override
     public MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
         return new SimpleMenuProvider(
-                (syncId, inventory, player) -> new AnvilMenu(
-                        syncId,
-                        inventory,
-                        ContainerLevelAccess.create(level, pos)),
-                CONTAINER_TITLE
+            (syncId, inventory, player) -> new AnvilMenu(
+                syncId,
+                inventory,
+                ContainerLevelAccess.create(level, pos)),
+            CONTAINER_TITLE
+        );
+    }
+
+    @Override
+    public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        FallingSpectralBlockEntity.fall(
+            level,
+            pos.above(),
+            level.getBlockState(pos).setValue(POWERED, false),
+            false,
+            true
         );
     }
 
     @Override
     public void neighborChanged(
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            Block neighborBlock,
-            BlockPos neighborPos,
-            boolean movedByPiston
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block neighborBlock,
+        BlockPos neighborPos,
+        boolean movedByPiston
     ) {
-        if (level.isClientSide) return;
-        boolean beforePowered = state.getValue(POWERED);
-        level.setBlockAndUpdate(pos, state.setValue(POWERED, level.hasNeighborSignal(pos)));
-        if (!beforePowered && level.hasNeighborSignal(pos)) {
-            FallingSpectralBlockEntity.fall(
-                    level,
-                    pos.above(),
-                    level.getBlockState(pos).setValue(POWERED, false),
-                    false,
-                    true
-            );
+        boolean hasNeighborSignal = level.hasNeighborSignal(pos);
+        boolean currentPowered = state.getValue(POWERED);
+        if (hasNeighborSignal && !currentPowered) {
+            level.scheduleTick(pos, this, 4);
+            level.setBlock(pos, state.setValue(POWERED, Boolean.TRUE), 2);
+        } else if (!hasNeighborSignal && currentPowered) {
+            level.setBlock(pos, state.setValue(POWERED, Boolean.FALSE), 2);
         }
     }
 }
