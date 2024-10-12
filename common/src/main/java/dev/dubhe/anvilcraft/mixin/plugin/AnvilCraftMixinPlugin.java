@@ -13,6 +13,19 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
     private static boolean hasZetaPiston = false;
     private static boolean hasCreate = false;
     private static boolean hasReiScreen = false;
+    private static boolean hasApotheosis = false;
+    public static final boolean isFabricEnvironment;
+
+    static {
+        boolean fabricEnvironment;
+        try {
+            Class.forName("net.fabricmc.loader.impl.launch.knot.KnotClassLoader");
+            fabricEnvironment = true;
+        } catch (ClassNotFoundException e) {
+            fabricEnvironment = false;
+        }
+        isFabricEnvironment = fabricEnvironment;
+    }
 
     private boolean isLoaded(String clazz) {
         return AnvilCraftMixinPlugin.class.getClassLoader().getResource(clazz) != null;
@@ -21,9 +34,11 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
     @Override
     public void onLoad(String mixinPackage) {
         hasZetaPiston = AnvilCraftMixinPlugin.class.getClassLoader()
-                .getResource("org/violetmoon/zeta/piston/ZetaPistonStructureResolver.class") != null;
+            .getResource("org/violetmoon/zeta/piston/ZetaPistonStructureResolver.class") != null;
         hasZetaPiston = this.isLoaded("org/violetmoon/zeta/piston/ZetaPistonStructureResolver.class");
         hasReiScreen = this.isLoaded("me/shedaniel/rei/impl/client/gui/screen/DefaultDisplayViewingScreen.class");
+        hasApotheosis = this.isLoaded("dev/shadowsoffire/apotheosis/Apotheosis");
+        hasCreate = this.isLoaded("com/simibubi/create/Create");
     }
 
     @Override
@@ -37,6 +52,9 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
         if (mixinClassName.endsWith("DefaultDisplayViewingScreenMixin")) return hasReiScreen;
         if (mixinClassName.startsWith("dev.dubhe.anvilcraft.mixin.integration.create.")) {
             return hasCreate;
+        }
+        if (mixinClassName.endsWith("EnchantmentHelperVanillaMixin") && !isFabricEnvironment) {
+            return !hasApotheosis;
         }
         return true;
     }

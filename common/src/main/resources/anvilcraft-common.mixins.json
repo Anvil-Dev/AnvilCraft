@@ -18,6 +18,7 @@
     "DispenseItemWaterBottleBehaviorMixin",
     "DoubleBlockIconMixin",
     "EnchantmentHelperMixin",
+    "EnchantmentHelperVanillaMixin",
     "EndPortalBlockMixin",
     "ExplosionMixin",
     "FlyingHitEntityMixin",

@@ -18,7 +18,6 @@ import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.ModNetworks;
 import dev.dubhe.anvilcraft.init.ModResourcePacks;
-import dev.dubhe.anvilcraft.util.EnchantmentDisableUtil;
 import dev.dubhe.anvilcraft.util.Lazy;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
@@ -36,8 +35,6 @@ public class AnvilCraft {
     public static AnvilCraftConfig config = AutoConfig
             .register(AnvilCraftConfig.class, JanksonConfigSerializer::new)
             .getConfig();
-    // EnchantmentDisable
-    public static final Lazy<EnchantmentDisableUtil> enchantmentDisableUtil = new Lazy<>(EnchantmentDisableUtil::new);
 
     public static final AnvilCraftRegistrate REGISTRATE = AnvilCraftRegistrate.create(MOD_ID);
 
@@ -67,9 +64,5 @@ public class AnvilCraft {
 
     public static @NotNull ResourceLocation of(String path) {
         return new ResourceLocation(MOD_ID, path);
-    }
-
-    public static EnchantmentDisableUtil getEnchantmentDisableUtil() {
-        return AnvilCraft.enchantmentDisableUtil.get();
     }
 }

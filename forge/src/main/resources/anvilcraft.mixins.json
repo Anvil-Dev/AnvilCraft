@@ -6,14 +6,15 @@
   "mixins": [
     "BucketItemMixin",
     "CraftingHelperMixin",
+    "EnchantmentHelperApotheosisMixin",
     "FallingBlockEntityMixin",
+    "ForgeGuiMixin",
     "LevelChunkMixin",
     "LightningBoltMixin",
     "MinecraftServerMixin",
     "PistonMovingBlockEntityMixin",
     "ZetaPistonCompatMixin",
-    "accessor.PistonStructorResolverAccessor",
-    "ForgeGuiMixin"
+    "accessor.PistonStructorResolverAccessor"
   ],
   "client": [
   ],
