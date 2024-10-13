@@ -23,6 +23,7 @@ public class AnvilCraftClient {
             (c, s) -> AutoConfig.getConfigScreen(AnvilCraftConfig.class, s).get()
         );
         modBus.addListener(AnvilCraftClient::registerClientFluidExtensions);
+        ModInspectionClient.initializeClient();
     }
 
     public static void registerClientFluidExtensions(RegisterClientExtensionsEvent e){

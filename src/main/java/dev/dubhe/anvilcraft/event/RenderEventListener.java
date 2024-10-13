@@ -1,10 +1,15 @@
 package dev.dubhe.anvilcraft.event;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.api.tooltip.HudTooltipManager;
+import dev.dubhe.anvilcraft.client.ModInspectionClient;
 import dev.dubhe.anvilcraft.client.renderer.PowerGridRenderer;
+import dev.dubhe.anvilcraft.init.ModInspections;
 import dev.dubhe.anvilcraft.item.IEngineerGoggles;
 
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
@@ -24,12 +29,29 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 
 @EventBusSubscriber
 public class RenderEventListener {
+
+    @SubscribeEvent
+    public static void onRenderInspection(RenderLevelStageEvent event) {
+        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_BLOCK_ENTITIES) return;
+        Vec3 camera = event.getCamera().getPosition();
+        PoseStack poseStack = event.getPoseStack();
+        DeltaTracker deltaTracker = event.getPartialTick();
+        LevelRenderer renderer = event.getLevelRenderer();
+        ModInspectionClient.INSTANCE.onRenderInspectionAction(
+            poseStack,
+            renderer,
+            camera,
+            deltaTracker
+        );
+    }
+
+
     @SubscribeEvent
     public static void onRender(RenderLevelStageEvent event) {
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_BLOCK_ENTITIES) return;
         Entity entity = event.getCamera().getEntity();
         MultiBufferSource.BufferSource bufferSource =
-                event.getLevelRenderer().renderBuffers.bufferSource();
+            event.getLevelRenderer().renderBuffers.bufferSource();
         VertexConsumer vertexConsumer3 = bufferSource.getBuffer(RenderType.lines());
         Vec3 vec3 = event.getCamera().getPosition();
         double camX = vec3.x();
@@ -42,7 +64,7 @@ public class RenderEventListener {
             ItemStack handItem = mainHandItem.isEmpty() ? offHandItem : mainHandItem;
             if (!handItem.isEmpty()) {
                 HudTooltipManager.INSTANCE.renderHandItemLevelTooltip(
-                        handItem, event.getPoseStack(), vertexConsumer3, camX, camY, camZ);
+                    handItem, event.getPoseStack(), vertexConsumer3, camX, camY, camZ);
             }
         }
         if (!(entity instanceof LivingEntity le)) return;

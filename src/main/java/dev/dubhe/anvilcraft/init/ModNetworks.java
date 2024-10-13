@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.network.ChargeCollectorIncomingChargePacket;
 import dev.dubhe.anvilcraft.network.CyclingValueSyncPacket;
 import dev.dubhe.anvilcraft.network.HammerUsePacket;
 import dev.dubhe.anvilcraft.network.HeliostatsIrradiationPacket;
+import dev.dubhe.anvilcraft.network.InspectionStateChangedPacket;
 import dev.dubhe.anvilcraft.network.LaserEmitPacket;
 import dev.dubhe.anvilcraft.network.MachineEnableFilterPacket;
 import dev.dubhe.anvilcraft.network.MachineOutputDirectionPacket;
@@ -119,6 +120,11 @@ public class ModNetworks {
             ChargeCollectorIncomingChargePacket.TYPE,
             ChargeCollectorIncomingChargePacket.STREAM_CODEC,
             ChargeCollectorIncomingChargePacket::acceptClient
+        );
+        registrar.playToClient(
+            InspectionStateChangedPacket.TYPE,
+            InspectionStateChangedPacket.STREAM_CODEC,
+            InspectionStateChangedPacket::acceptClient
         );
     }
 }

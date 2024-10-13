@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.api.sound;
 
+import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.resources.ResourceLocation;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+@Getter
 public class SoundHelper {
     public static SoundHelper INSTANCE = new SoundHelper();
 
