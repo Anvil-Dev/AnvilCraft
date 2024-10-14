@@ -5,10 +5,13 @@
       "item": "minecraft:melon"
     }
   ],
-  "result": [
+  "results": [
     {
-      "count": 9,
-      "id": "minecraft:melon_slice"
+      "amount": 1.0,
+      "stack": {
+        "count": 9,
+        "id": "minecraft:melon_slice"
+      }
     }
   ]
 }

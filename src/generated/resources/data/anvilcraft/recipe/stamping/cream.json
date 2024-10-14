@@ -5,10 +5,13 @@
       "item": "minecraft:milk_bucket"
     }
   ],
-  "result": [
+  "results": [
     {
-      "count": 4,
-      "id": "anvilcraft:cream"
+      "amount": 1.0,
+      "stack": {
+        "count": 4,
+        "id": "anvilcraft:cream"
+      }
     }
   ]
 }

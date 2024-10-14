@@ -214,7 +214,7 @@ public class ItemInjectRecipe implements Recipe<ItemInjectRecipe.Input> {
                 throw new IllegalArgumentException("Recipe input block must not be null, RecipeId: " + pId);
             }
             if (resultBlock == null) {
-                throw new IllegalArgumentException("Recipe result block must not be null, RecipeId: " + pId);
+                throw new IllegalArgumentException("Recipe results block must not be null, RecipeId: " + pId);
             }
         }
 

@@ -5,14 +5,20 @@
       "item": "minecraft:cocoa_beans"
     }
   ],
-  "result": [
+  "results": [
     {
-      "count": 1,
-      "id": "anvilcraft:cocoa_butter"
+      "amount": 1.0,
+      "stack": {
+        "count": 1,
+        "id": "anvilcraft:cocoa_butter"
+      }
     },
     {
-      "count": 1,
-      "id": "anvilcraft:cocoa_powder"
+      "amount": 1.0,
+      "stack": {
+        "count": 1,
+        "id": "anvilcraft:cocoa_powder"
+      }
     }
   ]
 }

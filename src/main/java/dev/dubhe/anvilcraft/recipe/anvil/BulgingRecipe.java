@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.recipe.anvil;
 
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
+import dev.dubhe.anvilcraft.recipe.ChanceItemStack;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.input.IItemsInput;
 import dev.dubhe.anvilcraft.util.CodecUtil;
@@ -36,6 +37,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.Contract;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -47,7 +49,7 @@ public class BulgingRecipe implements Recipe<BulgingRecipe.Input> {
     public final NonNullList<Ingredient> ingredients;
     public final List<Object2IntMap.Entry<Ingredient>> mergedIngredients;
     public final Block cauldron;
-    public final ItemStack result;
+    public final List<ChanceItemStack> results;
     public final boolean produceFluid;
     public final boolean consumeFluid;
     public final boolean fromWater;
@@ -56,16 +58,16 @@ public class BulgingRecipe implements Recipe<BulgingRecipe.Input> {
     private int cacheMaxCraftTime;
 
     public BulgingRecipe(
-            NonNullList<Ingredient> ingredients,
-            Block cauldron,
-            ItemStack result,
-            boolean produceFluid,
-            boolean consumeFluid,
-            boolean fromWater) {
+        NonNullList<Ingredient> ingredients,
+        Block cauldron,
+        List<ChanceItemStack> results,
+        boolean produceFluid,
+        boolean consumeFluid,
+        boolean fromWater) {
         this.ingredients = ingredients;
         this.mergedIngredients = RecipeUtil.mergeIngredient(ingredients);
         this.cauldron = cauldron;
-        this.result = result;
+        this.results = results;
         this.produceFluid = produceFluid;
         this.consumeFluid = consumeFluid;
         this.fromWater = fromWater;
@@ -94,12 +96,12 @@ public class BulgingRecipe implements Recipe<BulgingRecipe.Input> {
 
     @Override
     public ItemStack getResultItem(HolderLookup.Provider provider) {
-        return result;
+        return results.isEmpty() ? ItemStack.EMPTY : results.getFirst().getStack();
     }
 
     @Override
     public ItemStack assemble(Input input, HolderLookup.Provider provider) {
-        return result.copy();
+        return results.isEmpty() ? ItemStack.EMPTY : results.getFirst().getStack();
     }
 
     @SuppressWarnings("DuplicatedCode")
@@ -164,19 +166,19 @@ public class BulgingRecipe implements Recipe<BulgingRecipe.Input> {
 
     public static class Serializer implements RecipeSerializer<BulgingRecipe> {
         private static final MapCodec<BulgingRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-                        CodecUtil.createIngredientListCodec("ingredients", 64, "bulging")
-                                .forGetter(BulgingRecipe::getIngredients),
-                        CodecUtil.BLOCK_CODEC.fieldOf("cauldron").forGetter(BulgingRecipe::getCauldron),
-                        ItemStack.OPTIONAL_CODEC
-                                .optionalFieldOf("result", ItemStack.EMPTY)
-                                .forGetter(BulgingRecipe::getResult),
-                        Codec.BOOL.fieldOf("produce_fluid").forGetter(BulgingRecipe::isProduceFluid),
-                        Codec.BOOL.fieldOf("consume_fluid").forGetter(BulgingRecipe::isConsumeFluid),
-                        Codec.BOOL.fieldOf("from_water").forGetter(BulgingRecipe::isFromWater))
-                .apply(ins, BulgingRecipe::new));
+                CodecUtil.createIngredientListCodec("ingredients", 64, "bulging")
+                    .forGetter(BulgingRecipe::getIngredients),
+                CodecUtil.BLOCK_CODEC.fieldOf("cauldron").forGetter(BulgingRecipe::getCauldron),
+                ChanceItemStack.CODEC.listOf()
+                    .optionalFieldOf("results", List.of())
+                    .forGetter(BulgingRecipe::getResults),
+                Codec.BOOL.fieldOf("produce_fluid").forGetter(BulgingRecipe::isProduceFluid),
+                Codec.BOOL.fieldOf("consume_fluid").forGetter(BulgingRecipe::isConsumeFluid),
+                Codec.BOOL.fieldOf("from_water").forGetter(BulgingRecipe::isFromWater))
+            .apply(ins, BulgingRecipe::new));
 
         private static final StreamCodec<RegistryFriendlyByteBuf, BulgingRecipe> STREAM_CODEC =
-                StreamCodec.of(Serializer::encode, Serializer::decode);
+            StreamCodec.of(Serializer::encode, Serializer::decode);
 
         @Override
         public MapCodec<BulgingRecipe> codec() {
@@ -194,7 +196,10 @@ public class BulgingRecipe implements Recipe<BulgingRecipe.Input> {
                 Ingredient.CONTENTS_STREAM_CODEC.encode(buf, ingredient);
             }
             CodecUtil.BLOCK_STREAM_CODEC.encode(buf, recipe.getCauldron());
-            ItemStack.OPTIONAL_STREAM_CODEC.encode(buf, recipe.result);
+            buf.writeVarInt(recipe.results.size());
+            for (ChanceItemStack stack : recipe.results) {
+                ChanceItemStack.STREAM_CODEC.encode(buf, stack);
+            }
             buf.writeBoolean(recipe.produceFluid);
             buf.writeBoolean(recipe.consumeFluid);
             buf.writeBoolean(recipe.fromWater);
@@ -205,11 +210,15 @@ public class BulgingRecipe implements Recipe<BulgingRecipe.Input> {
             NonNullList<Ingredient> ingredients = NonNullList.withSize(size, Ingredient.EMPTY);
             ingredients.replaceAll(i -> Ingredient.CONTENTS_STREAM_CODEC.decode(buf));
             Block cauldron = CodecUtil.BLOCK_STREAM_CODEC.decode(buf);
-            ItemStack result = ItemStack.OPTIONAL_STREAM_CODEC.decode(buf);
+            size = buf.readVarInt();
+            List<ChanceItemStack> results = new ArrayList<>();
+            for (int i = 0; i < size; i++) {
+                results.add(ChanceItemStack.STREAM_CODEC.decode(buf));
+            }
             boolean produceFluid = buf.readBoolean();
             boolean consumeFluid = buf.readBoolean();
             boolean fromWater = buf.readBoolean();
-            return new BulgingRecipe(ingredients, cauldron, result, produceFluid, consumeFluid, fromWater);
+            return new BulgingRecipe(ingredients, cauldron, results, produceFluid, consumeFluid, fromWater);
         }
     }
 
@@ -219,7 +228,7 @@ public class BulgingRecipe implements Recipe<BulgingRecipe.Input> {
 
         private NonNullList<Ingredient> ingredients = NonNullList.create();
         private Block cauldron = Blocks.CAULDRON;
-        private ItemStack result;
+        private List<ChanceItemStack> results = new ArrayList<>();
         private boolean produceFluid = false;
         private boolean consumeFluid = false;
         private boolean fromWater = false;
@@ -251,12 +260,14 @@ public class BulgingRecipe implements Recipe<BulgingRecipe.Input> {
             return requires(pTag, 1);
         }
 
+        public Builder result(ItemStack stack) {
+            results.add(ChanceItemStack.of(stack));
+            return this;
+        }
+
         @Override
         public BulgingRecipe buildRecipe() {
-            if (result == null) {
-                result = ItemStack.EMPTY;
-            }
-            return new BulgingRecipe(ingredients, cauldron, result, produceFluid, consumeFluid, fromWater);
+            return new BulgingRecipe(ingredients, cauldron, results, produceFluid, consumeFluid, fromWater);
         }
 
         @Override
@@ -267,9 +278,9 @@ public class BulgingRecipe implements Recipe<BulgingRecipe.Input> {
             if (cauldron == null) {
                 throw new IllegalArgumentException("Recipe cauldron must not be null, RecipeId: " + pId);
             }
-            if (result == null && (!produceFluid && !fromWater)) {
+            if (results.isEmpty() && (!produceFluid && !fromWater)) {
                 throw new IllegalArgumentException(
-                        "Recipe result must not be null when need fluid is false, RecipeId: " + pId);
+                    "Recipe results must not be null when need fluid is false, RecipeId: " + pId);
             }
         }
 
@@ -280,10 +291,10 @@ public class BulgingRecipe implements Recipe<BulgingRecipe.Input> {
 
         @Override
         public Item getResult() {
-            if (result == null) {
+            if (results.isEmpty()) {
                 return cauldron.asItem();
             }
-            return result.getItem();
+            return results.getFirst().getStack().getItem();
         }
     }
 }

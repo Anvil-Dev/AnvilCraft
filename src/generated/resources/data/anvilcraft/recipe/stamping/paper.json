@@ -5,10 +5,13 @@
       "item": "anvilcraft:wood_fiber"
     }
   ],
-  "result": [
+  "results": [
     {
-      "count": 1,
-      "id": "minecraft:paper"
+      "amount": 1.0,
+      "stack": {
+        "count": 1,
+        "id": "minecraft:paper"
+      }
     }
   ]
 }

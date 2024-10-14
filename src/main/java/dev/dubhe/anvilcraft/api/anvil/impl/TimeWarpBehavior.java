@@ -5,11 +5,17 @@ import dev.dubhe.anvilcraft.api.event.anvil.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
+import dev.dubhe.anvilcraft.recipe.ChanceItemStack;
 import dev.dubhe.anvilcraft.recipe.anvil.TimeWarpRecipe;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
 
+import dev.dubhe.anvilcraft.util.RecipeUtil;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -17,9 +23,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.phys.AABB;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -44,9 +50,14 @@ public class TimeWarpBehavior implements AnvilBehavior {
                 .getRecipeFor(ModRecipeTypes.TIME_WARP_TYPE.get(), input, level);
             if (recipeOptional.isPresent()) {
                 RecipeHolder<TimeWarpRecipe> recipe = recipeOptional.get();
-                ItemStack result = recipe.value().getResult().copy();
                 int times = recipe.value().getMaxCraftTime(input);
-                result.setCount(times * result.getCount());
+                Object2IntMap<Item> results = new Object2IntOpenHashMap<>();
+                LootContext context;
+                if (level instanceof ServerLevel serverLevel) {
+                    context = RecipeUtil.emptyLootContext(serverLevel);
+                } else {
+                    return false;
+                }
                 for (int i = 0; i < times; i++) {
                     for (Ingredient ingredient : recipe.value().getIngredients()) {
                         for (ItemStack stack : items.values()) {
@@ -56,8 +67,18 @@ public class TimeWarpBehavior implements AnvilBehavior {
                             }
                         }
                     }
+                    for (ChanceItemStack stack : recipe.value().getResults()) {
+                        int amount = stack.getStack().getCount() * stack.getAmount().getInt(context);
+                        results.mergeInt(stack.getStack().getItem(), amount, Integer::sum);
+                    }
                 }
-                AnvilUtil.dropItems(List.of(result), level, hitBlockPos.getCenter());
+                AnvilUtil.dropItems(
+                    results.object2IntEntrySet().stream()
+                        .map(entry -> new ItemStack(entry.getKey(), entry.getIntValue()))
+                        .toList(),
+                    level,
+                    hitBlockPos.getCenter()
+                );
                 if (recipe.value().isFromWater()) {
                     level.setBlockAndUpdate(hitBlockPos, recipe.value().cauldron.defaultBlockState());
                 } else {

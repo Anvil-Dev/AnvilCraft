@@ -5,10 +5,13 @@
       "item": "anvilcraft:crab_claw"
     }
   ],
-  "result": [
+  "results": [
     {
-      "count": 1,
-      "id": "anvilcraft:lime_powder"
+      "amount": 1.0,
+      "stack": {
+        "count": 1,
+        "id": "anvilcraft:lime_powder"
+      }
     }
   ]
 }

@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.recipe.anvil;
 
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
+import dev.dubhe.anvilcraft.recipe.ChanceItemStack;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractItemProcessBuilder;
 import dev.dubhe.anvilcraft.util.CodecUtil;
 
@@ -8,7 +9,6 @@ import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -25,7 +25,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class BoilingRecipe extends AbstractItemProcessRecipe {
-    public BoilingRecipe(NonNullList<Ingredient> ingredients, List<ItemStack> results) {
+    public BoilingRecipe(NonNullList<Ingredient> ingredients, List<ChanceItemStack> results) {
         super(ingredients, results);
     }
 
@@ -46,13 +46,13 @@ public class BoilingRecipe extends AbstractItemProcessRecipe {
 
     public static class Serializer implements RecipeSerializer<BoilingRecipe> {
         private static final MapCodec<BoilingRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-                        CodecUtil.createIngredientListCodec("ingredients", 9, "boiling")
-                                .forGetter(BoilingRecipe::getIngredients),
-                        ItemStack.CODEC.listOf().fieldOf("result").forGetter(BoilingRecipe::getResults))
-                .apply(ins, BoilingRecipe::new));
+                CodecUtil.createIngredientListCodec("ingredients", 9, "boiling")
+                    .forGetter(BoilingRecipe::getIngredients),
+                ChanceItemStack.CODEC.listOf().fieldOf("results").forGetter(BoilingRecipe::getResults))
+            .apply(ins, BoilingRecipe::new));
 
         private static final StreamCodec<RegistryFriendlyByteBuf, BoilingRecipe> STREAM_CODEC =
-                StreamCodec.of(Serializer::encode, Serializer::decode);
+            StreamCodec.of(Serializer::encode, Serializer::decode);
 
         @Override
         public MapCodec<BoilingRecipe> codec() {
@@ -65,10 +65,10 @@ public class BoilingRecipe extends AbstractItemProcessRecipe {
         }
 
         private static BoilingRecipe decode(RegistryFriendlyByteBuf buf) {
-            List<ItemStack> results = new ArrayList<>();
+            List<ChanceItemStack> results = new ArrayList<>();
             int size = buf.readVarInt();
             for (int i = 0; i < size; i++) {
-                results.add(ItemStack.STREAM_CODEC.decode(buf));
+                results.add(ChanceItemStack.STREAM_CODEC.decode(buf));
             }
             size = buf.readVarInt();
             NonNullList<Ingredient> ingredients = NonNullList.withSize(size, Ingredient.EMPTY);
@@ -78,8 +78,8 @@ public class BoilingRecipe extends AbstractItemProcessRecipe {
 
         private static void encode(RegistryFriendlyByteBuf buf, BoilingRecipe recipe) {
             buf.writeVarInt(recipe.results.size());
-            for (ItemStack stack : recipe.results) {
-                ItemStack.STREAM_CODEC.encode(buf, stack);
+            for (ChanceItemStack stack : recipe.results) {
+                ChanceItemStack.STREAM_CODEC.encode(buf, stack);
             }
             buf.writeVarInt(recipe.ingredients.size());
             for (Ingredient ingredient : recipe.ingredients) {

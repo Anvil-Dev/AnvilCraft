@@ -5,10 +5,13 @@
       "item": "minecraft:glowstone"
     }
   ],
-  "result": [
+  "results": [
     {
-      "count": 4,
-      "id": "minecraft:glowstone_dust"
+      "amount": 1.0,
+      "stack": {
+        "count": 4,
+        "id": "minecraft:glowstone_dust"
+      }
     }
   ]
 }

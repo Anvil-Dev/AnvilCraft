@@ -5,10 +5,13 @@
       "item": "minecraft:honeycomb_block"
     }
   ],
-  "result": [
+  "results": [
     {
-      "count": 4,
-      "id": "minecraft:honeycomb"
+      "amount": 1.0,
+      "stack": {
+        "count": 4,
+        "id": "minecraft:honeycomb"
+      }
     }
   ]
 }

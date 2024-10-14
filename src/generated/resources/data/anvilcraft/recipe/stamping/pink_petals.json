@@ -5,10 +5,13 @@
       "item": "minecraft:cherry_leaves"
     }
   ],
-  "result": [
+  "results": [
     {
-      "count": 1,
-      "id": "minecraft:pink_petals"
+      "amount": 1.0,
+      "stack": {
+        "count": 1,
+        "id": "minecraft:pink_petals"
+      }
     }
   ]
 }

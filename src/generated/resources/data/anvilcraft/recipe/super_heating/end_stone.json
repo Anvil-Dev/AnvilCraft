@@ -5,10 +5,13 @@
       "item": "anvilcraft:end_dust"
     }
   ],
-  "result": [
+  "results": [
     {
-      "count": 1,
-      "id": "minecraft:end_stone"
+      "amount": 1.0,
+      "stack": {
+        "count": 1,
+        "id": "minecraft:end_stone"
+      }
     }
   ]
 }

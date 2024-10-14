@@ -29,10 +29,13 @@
       "item": "anvilcraft:ember_metal_ingot"
     }
   ],
-  "result": [
+  "results": [
     {
-      "count": 8,
-      "id": "anvilcraft:ember_glass"
+      "amount": 1.0,
+      "stack": {
+        "count": 8,
+        "id": "anvilcraft:ember_glass"
+      }
     }
   ]
 }

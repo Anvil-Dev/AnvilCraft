@@ -5,10 +5,13 @@
       "item": "minecraft:snow_block"
     }
   ],
-  "result": [
+  "results": [
     {
-      "count": 4,
-      "id": "minecraft:snowball"
+      "amount": 1.0,
+      "stack": {
+        "count": 4,
+        "id": "minecraft:snowball"
+      }
     }
   ]
 }

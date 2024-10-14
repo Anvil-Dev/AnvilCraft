@@ -37,8 +37,6 @@ import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
@@ -94,8 +92,8 @@ public class TimeWarpCategory implements IRecipeCategory<RecipeHolder<TimeWarpRe
             IRecipeLayoutBuilder builder, RecipeHolder<TimeWarpRecipe> recipeHolder, IFocusGroup focuses) {
         TimeWarpRecipe recipe = recipeHolder.value();
         JeiSlotUtil.addInputSlots(builder, recipe.mergedIngredients);
-        if (!recipe.result.isEmpty()) {
-            JeiSlotUtil.addOutputSlots(builder, List.of(recipe.result));
+        if (!recipe.results.isEmpty()) {
+            JeiSlotUtil.addOutputSlots(builder, recipe.results);
         }
     }
 
@@ -144,8 +142,8 @@ public class TimeWarpCategory implements IRecipeCategory<RecipeHolder<TimeWarpRe
         arrowOut.draw(guiGraphics, 92, 31);
 
         JeiSlotUtil.drawInputSlots(guiGraphics, slot, recipe.mergedIngredients.size());
-        if (!recipe.result.isEmpty()) {
-            JeiSlotUtil.drawOutputSlots(guiGraphics, slot, 1);
+        if (!recipe.results.isEmpty()) {
+            JeiSlotUtil.drawOutputSlots(guiGraphics, slot, recipe.results.size());
             if (recipe.isConsumeFluid()) {
                 guiGraphics.drawString(
                         Minecraft.getInstance().font,
@@ -216,7 +214,7 @@ public class TimeWarpCategory implements IRecipeCategory<RecipeHolder<TimeWarpRe
         if (mouseX >= 124 && mouseX <= 140) {
             if (mouseY >= 24 && mouseY <= 42) {
                 Component text;
-                if (recipe.result.isEmpty()) {
+                if (recipe.results.isEmpty()) {
                     if (recipe.isConsumeFluid()) {
                         if (recipe.cauldron instanceof LayeredCauldronBlock) {
                             text = recipe.cauldron.getName();

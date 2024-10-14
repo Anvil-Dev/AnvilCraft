@@ -8,10 +8,13 @@
       "item": "anvilcraft:ember_metal_ingot"
     }
   ],
-  "result": [
+  "results": [
     {
-      "count": 1,
-      "id": "anvilcraft:ember_metal_upgrade_smithing_template"
+      "amount": 1.0,
+      "stack": {
+        "count": 1,
+        "id": "anvilcraft:ember_metal_upgrade_smithing_template"
+      }
     }
   ]
 }

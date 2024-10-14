@@ -96,19 +96,19 @@ public class MeshRecipe implements Recipe<MeshRecipe.Input> {
 
     public static class Serializer implements RecipeSerializer<MeshRecipe> {
         private static final MapCodec<MeshRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-                        Ingredient.CODEC_NONEMPTY.fieldOf("input").forGetter(MeshRecipe::getInput),
-                        ItemStack.CODEC.fieldOf("result").forGetter(MeshRecipe::getResult),
-                        NumberProviders.CODEC.fieldOf("result_amount").forGetter(MeshRecipe::getResultAmount))
-                .apply(ins, MeshRecipe::new));
+                Ingredient.CODEC_NONEMPTY.fieldOf("input").forGetter(MeshRecipe::getInput),
+                ItemStack.CODEC.fieldOf("result").forGetter(MeshRecipe::getResult),
+                NumberProviders.CODEC.fieldOf("result_amount").forGetter(MeshRecipe::getResultAmount))
+            .apply(ins, MeshRecipe::new));
 
         private static final StreamCodec<RegistryFriendlyByteBuf, MeshRecipe> STREAM_CODEC = StreamCodec.composite(
-                Ingredient.CONTENTS_STREAM_CODEC,
-                MeshRecipe::getInput,
-                ItemStack.STREAM_CODEC,
-                MeshRecipe::getResult,
-                StreamCodec.of(RecipeUtil::toNetwork, RecipeUtil::fromNetwork),
-                MeshRecipe::getResultAmount,
-                MeshRecipe::new);
+            Ingredient.CONTENTS_STREAM_CODEC,
+            MeshRecipe::getInput,
+            ItemStack.STREAM_CODEC,
+            MeshRecipe::getResult,
+            RecipeUtil.NUMBER_PROVIDER_STREAM_CODEC,
+            MeshRecipe::getResultAmount,
+            MeshRecipe::new);
 
         @Override
         public MapCodec<MeshRecipe> codec() {

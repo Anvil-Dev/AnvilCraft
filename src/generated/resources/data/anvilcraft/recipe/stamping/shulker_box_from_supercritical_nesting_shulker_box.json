@@ -5,22 +5,34 @@
       "item": "anvilcraft:supercritical_nesting_shulker_box"
     }
   ],
-  "result": [
+  "results": [
     {
-      "count": 1,
-      "id": "minecraft:shulker_box"
+      "amount": 1.0,
+      "stack": {
+        "count": 1,
+        "id": "minecraft:shulker_box"
+      }
     },
     {
-      "count": 1,
-      "id": "minecraft:shulker_box"
+      "amount": 1.0,
+      "stack": {
+        "count": 1,
+        "id": "minecraft:shulker_box"
+      }
     },
     {
-      "count": 1,
-      "id": "minecraft:shulker_box"
+      "amount": 1.0,
+      "stack": {
+        "count": 1,
+        "id": "minecraft:shulker_box"
+      }
     },
     {
-      "count": 1,
-      "id": "minecraft:shulker_box"
+      "amount": 1.0,
+      "stack": {
+        "count": 1,
+        "id": "minecraft:shulker_box"
+      }
     }
   ]
 }

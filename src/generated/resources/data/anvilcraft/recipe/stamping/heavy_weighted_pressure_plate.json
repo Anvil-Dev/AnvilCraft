@@ -5,10 +5,13 @@
       "item": "minecraft:iron_ingot"
     }
   ],
-  "result": [
+  "results": [
     {
-      "count": 1,
-      "id": "minecraft:heavy_weighted_pressure_plate"
+      "amount": 1.0,
+      "stack": {
+        "count": 1,
+        "id": "minecraft:heavy_weighted_pressure_plate"
+      }
     }
   ]
 }

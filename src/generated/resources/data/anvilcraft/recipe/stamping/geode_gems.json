@@ -5,22 +5,46 @@
       "item": "anvilcraft:geode"
     }
   ],
-  "result": [
+  "results": [
     {
-      "count": 4,
-      "id": "minecraft:amethyst_shard"
+      "amount": 1.0,
+      "stack": {
+        "count": 4,
+        "id": "minecraft:amethyst_shard"
+      }
     },
     {
-      "count": 1,
-      "id": "anvilcraft:topaz"
+      "amount": {
+        "type": "minecraft:binomial",
+        "n": 1.0,
+        "p": 0.25
+      },
+      "stack": {
+        "count": 1,
+        "id": "anvilcraft:topaz"
+      }
     },
     {
-      "count": 1,
-      "id": "anvilcraft:sapphire"
+      "amount": {
+        "type": "minecraft:binomial",
+        "n": 1.0,
+        "p": 0.25
+      },
+      "stack": {
+        "count": 1,
+        "id": "anvilcraft:sapphire"
+      }
     },
     {
-      "count": 1,
-      "id": "anvilcraft:ruby"
+      "amount": {
+        "type": "minecraft:binomial",
+        "n": 1.0,
+        "p": 0.25
+      },
+      "stack": {
+        "count": 1,
+        "id": "anvilcraft:ruby"
+      }
     }
   ]
 }

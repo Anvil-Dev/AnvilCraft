@@ -5,14 +5,20 @@
       "item": "minecraft:sugar_cane"
     }
   ],
-  "result": [
+  "results": [
     {
-      "count": 1,
-      "id": "minecraft:paper"
+      "amount": 1.0,
+      "stack": {
+        "count": 1,
+        "id": "minecraft:paper"
+      }
     },
     {
-      "count": 1,
-      "id": "minecraft:sugar"
+      "amount": 1.0,
+      "stack": {
+        "count": 1,
+        "id": "minecraft:sugar"
+      }
     }
   ]
 }

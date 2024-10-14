@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.recipe.anvil.builder;
 
+import dev.dubhe.anvilcraft.recipe.ChanceItemStack;
 import dev.dubhe.anvilcraft.recipe.anvil.AbstractItemProcessRecipe;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -25,7 +26,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 public abstract class AbstractItemProcessBuilder<T extends AbstractItemProcessRecipe> extends AbstractRecipeBuilder<T> {
     protected NonNullList<Ingredient> ingredients = NonNullList.create();
-    protected List<ItemStack> results = new ArrayList<>();
+    protected List<ChanceItemStack> results = new ArrayList<>();
 
     public AbstractItemProcessBuilder<T> requires(Ingredient ingredient, int count) {
         for (int i = 0; i < count; i++) {
@@ -54,8 +55,13 @@ public abstract class AbstractItemProcessBuilder<T extends AbstractItemProcessRe
         return requires(pTag, 1);
     }
 
-    public AbstractItemProcessBuilder<T> result(ItemStack stack) {
+    public AbstractItemProcessBuilder<T> result(ChanceItemStack stack) {
         results.add(stack);
+        return this;
+    }
+
+    public AbstractItemProcessBuilder<T> result(ItemStack stack) {
+        results.add(ChanceItemStack.of(stack));
         return this;
     }
 
@@ -71,6 +77,6 @@ public abstract class AbstractItemProcessBuilder<T extends AbstractItemProcessRe
 
     @Override
     public Item getResult() {
-        return results.getFirst().getItem();
+        return results.getFirst().getStack().getItem();
     }
 }

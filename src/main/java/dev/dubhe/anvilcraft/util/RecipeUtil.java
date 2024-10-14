@@ -8,6 +8,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -17,6 +19,8 @@ import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.providers.number.BinomialDistributionGenerator;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
@@ -35,6 +39,8 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RecipeUtil {
@@ -42,6 +48,11 @@ public class RecipeUtil {
     private static final byte UNIFORM_TYPE = 2;
     private static final byte BINOMIAL_TYPE = 3;
     private static final byte UNKNOWN_TYPE = -1;
+
+    public static StreamCodec<RegistryFriendlyByteBuf, NumberProvider> NUMBER_PROVIDER_STREAM_CODEC = StreamCodec.of(
+        RecipeUtil::toNetwork,
+        RecipeUtil::fromNetwork
+    );
 
     public static void toNetwork(RegistryFriendlyByteBuf buf, NumberProvider numberProvider) {
         switch (numberProvider) {
@@ -72,15 +83,19 @@ public class RecipeUtil {
         };
     }
 
+    public static LootContext emptyLootContext(ServerLevel level) {
+        return new LootContext.Builder(new LootParams(level, Map.of(), Map.of(), 0)).create(Optional.empty());
+    }
+
     public static double getExpectedValue(NumberProvider numberProvider) {
         return switch (numberProvider) {
             case ConstantValue constantValue -> constantValue.value();
             case UniformGenerator uniformGenerator -> (getExpectedValue(uniformGenerator.min())
-                            + getExpectedValue(uniformGenerator.max()))
-                    / 2;
+                + getExpectedValue(uniformGenerator.max()))
+                / 2;
             case BinomialDistributionGenerator binomialDistributionGenerator -> getExpectedValue(
-                            binomialDistributionGenerator.n())
-                    * getExpectedValue(binomialDistributionGenerator.p());
+                binomialDistributionGenerator.n())
+                * getExpectedValue(binomialDistributionGenerator.p());
             default -> -1;
         };
     }
@@ -121,7 +136,7 @@ public class RecipeUtil {
         if (firstKlass == secondKlass) {
             if (firstKlass == Ingredient.ItemValue.class) {
                 return ItemStack.matches(
-                        ((Ingredient.ItemValue) firstValue).item(), ((Ingredient.ItemValue) secondValue).item());
+                    ((Ingredient.ItemValue) firstValue).item(), ((Ingredient.ItemValue) secondValue).item());
             } else if (firstKlass == Ingredient.TagValue.class) {
                 return ((Ingredient.TagValue) firstValue).tag() == ((Ingredient.TagValue) secondValue).tag();
             } else {
@@ -188,7 +203,7 @@ public class RecipeUtil {
                 }
             }
             if (ingredientFlags.values().stream().anyMatch(flag -> !flag)
-                    || flags.values().stream().anyMatch(flag -> !flag)) {
+                || flags.values().stream().anyMatch(flag -> !flag)) {
                 return 0;
             }
             if (contents.values().intStream().allMatch(i -> i >= 0)) {
@@ -210,7 +225,7 @@ public class RecipeUtil {
                     BlockPredicateWithState predicate = pattern.getPredicate(x, y, z);
                     BlockState state = predicate.getBlock().defaultBlockState();
                     for (Property<?> property :
-                            predicate.getBlock().getStateDefinition().getProperties()) {
+                        predicate.getBlock().getStateDefinition().getProperties()) {
                         if (predicate.hasProperty(property)) {
                             switch (property) {
                                 case IntegerProperty integerProperty -> {
@@ -234,14 +249,15 @@ public class RecipeUtil {
                                 case EnumProperty<?> enumProperty -> {
                                     if (enumProperty.getValueClass() == Direction.Axis.class) {
                                         EnumProperty<Direction.Axis> axisProperty =
-                                                (EnumProperty<Direction.Axis>) enumProperty;
+                                            (EnumProperty<Direction.Axis>) enumProperty;
                                         Direction.Axis value = predicate.getPropertyValue(axisProperty);
                                         if (value != null) {
                                             state = state.setValue(axisProperty, value);
                                         }
                                     }
                                 }
-                                default -> {}
+                                default -> {
+                                }
                             }
                         }
                     }

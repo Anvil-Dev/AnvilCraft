@@ -8,14 +8,20 @@
       "item": "anvilcraft:capacitor"
     }
   ],
-  "result": [
+  "results": [
     {
-      "count": 1,
-      "id": "anvilcraft:magnet_ingot"
+      "amount": 1.0,
+      "stack": {
+        "count": 1,
+        "id": "anvilcraft:magnet_ingot"
+      }
     },
     {
-      "count": 1,
-      "id": "anvilcraft:capacitor_empty"
+      "amount": 1.0,
+      "stack": {
+        "count": 1,
+        "id": "anvilcraft:capacitor_empty"
+      }
     }
   ]
 }

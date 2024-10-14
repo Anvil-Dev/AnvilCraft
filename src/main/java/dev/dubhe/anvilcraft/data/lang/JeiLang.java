@@ -4,11 +4,12 @@ import com.tterrag.registrate.providers.RegistrateLangProvider;
 
 public class JeiLang {
     public static void init(RegistrateLangProvider provider) {
+        provider.add("gui.anvilcraft.category.chance", "Chance: %s%%");
+        provider.add("gui.anvilcraft.category.average_output", "Average: %s");
+        provider.add("gui.anvilcraft.category.min_output", "Min: %s");
+        provider.add("gui.anvilcraft.category.max_output", "Max: %s");
+
         provider.add("gui.anvilcraft.category.mesh", "Mesh");
-        provider.add("gui.anvilcraft.category.mesh.chance", "Chance: %s%%");
-        provider.add("gui.anvilcraft.category.mesh.average_output", "Average: %s");
-        provider.add("gui.anvilcraft.category.mesh.min_output", "Min: %s");
-        provider.add("gui.anvilcraft.category.mesh.max_output", "Max: %s");
 
         provider.add("gui.anvilcraft.category.block_compress", "Block Compress");
         provider.add("gui.anvilcraft.category.block_crush", "Block Crush");

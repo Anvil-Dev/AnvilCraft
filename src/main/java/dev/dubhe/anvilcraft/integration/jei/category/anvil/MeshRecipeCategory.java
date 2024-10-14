@@ -4,25 +4,19 @@ import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MeshRecipeGroup;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.TextureConstants;
-import dev.dubhe.anvilcraft.util.RecipeUtil;
 import dev.dubhe.anvilcraft.util.RenderHelper;
 
-import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.storage.loot.providers.number.BinomialDistributionGenerator;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
-import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import net.neoforged.neoforge.common.util.Lazy;
 
-import com.google.common.collect.ImmutableList;
 import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
@@ -37,14 +31,12 @@ import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import org.jetbrains.annotations.Nullable;
 
-import java.text.DecimalFormat;
-
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
-    private static final DecimalFormat FORMATTER = new DecimalFormat();
+
 
     public static final int WIDTH = 162;
     public static final int ROW_START = 44;
@@ -97,7 +89,7 @@ public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
             IRecipeSlotBuilder slot = builder.addSlot(
                             RecipeIngredientRole.OUTPUT, 1 + (i % 9) * 18, 1 + ROW_START + 18 * (i / 9))
                     .addItemStack(result.item);
-            addTooltips(slot, result.provider);
+            JeiRecipeUtil.addTooltips(slot, result.provider);
         }
     }
 
@@ -128,64 +120,6 @@ public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
                 slot.draw(guiGraphics, column * 18, ROW_START + row * 18);
             }
         }
-    }
-
-    public static void addTooltips(IRecipeSlotBuilder slot, NumberProvider provider) {
-        ImmutableList.Builder<Component> tooltipLines = new ImmutableList.Builder<>();
-
-        if (provider instanceof BinomialDistributionGenerator binomial) {
-            if (binomial.n() instanceof ConstantValue constantValue && constantValue.value() == 1) {
-                String chance = FORMATTER.format(RecipeUtil.getExpectedValue(binomial.p()) * 100);
-                tooltipLines.add(Component.translatable("gui.anvilcraft.category.mesh.chance", chance)
-                        .withStyle(ChatFormatting.GRAY));
-            } else {
-                addAvgOutput(tooltipLines, RecipeUtil.getExpectedValue(provider));
-            }
-            addMinMax(tooltipLines, 0, getMax(binomial.n()));
-        } else if (provider.getClass() != ConstantValue.class) {
-            double val = RecipeUtil.getExpectedValue(provider);
-            if (val != -1) {
-                addAvgOutput(tooltipLines, val);
-                if (provider instanceof UniformGenerator) {
-                    addMinMax(tooltipLines, getMin(provider), getMax(provider));
-                }
-            }
-        }
-
-        slot.addRichTooltipCallback((slotView, tooltip) -> tooltip.addAll(tooltipLines.build()));
-    }
-
-    private static double getMin(NumberProvider provider) {
-        return switch (provider) {
-            case ConstantValue value -> value.value();
-            case UniformGenerator uniform -> getMin(uniform.min());
-            default -> 0;
-        };
-    }
-
-    private static double getMax(NumberProvider provider) {
-        return switch (provider) {
-            case ConstantValue value -> value.value();
-            case UniformGenerator uniform -> getMax(uniform.max());
-            case BinomialDistributionGenerator binomial -> getMax(binomial.n());
-            default -> 0;
-        };
-    }
-
-    private static void addAvgOutput(ImmutableList.Builder<Component> tooltipLines, double avgValue) {
-        String avgOutput = FORMATTER.format(avgValue);
-        tooltipLines.add(Component.translatable("gui.anvilcraft.category.mesh.average_output", avgOutput)
-                .withStyle(ChatFormatting.GRAY));
-    }
-
-    private static void addMinMax(ImmutableList.Builder<Component> tooltipLines, double min, double max) {
-        String minOutput = FORMATTER.format(min);
-        String maxOutput = FORMATTER.format(max);
-
-        tooltipLines.add(Component.translatable("gui.anvilcraft.category.mesh.min_output", minOutput)
-                .withStyle(ChatFormatting.GRAY));
-        tooltipLines.add(Component.translatable("gui.anvilcraft.category.mesh.max_output", maxOutput)
-                .withStyle(ChatFormatting.GRAY));
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {

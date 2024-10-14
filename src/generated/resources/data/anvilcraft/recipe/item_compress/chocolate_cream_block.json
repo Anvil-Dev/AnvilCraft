@@ -20,10 +20,13 @@
       "item": "anvilcraft:chocolate"
     }
   ],
-  "result": [
+  "results": [
     {
-      "count": 1,
-      "id": "anvilcraft:chocolate_cream_block"
+      "amount": 1.0,
+      "stack": {
+        "count": 1,
+        "id": "anvilcraft:chocolate_cream_block"
+      }
     }
   ]
 }

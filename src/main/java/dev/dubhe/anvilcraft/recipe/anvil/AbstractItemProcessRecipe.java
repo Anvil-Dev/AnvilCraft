@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.recipe.anvil;
 
+import dev.dubhe.anvilcraft.recipe.ChanceItemStack;
 import dev.dubhe.anvilcraft.recipe.anvil.input.ItemProcessInput;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
 
@@ -24,12 +25,12 @@ import javax.annotation.ParametersAreNonnullByDefault;
 public abstract class AbstractItemProcessRecipe implements Recipe<ItemProcessInput> {
     public final NonNullList<Ingredient> ingredients;
     public final List<Object2IntMap.Entry<Ingredient>> mergedIngredients;
-    public final List<ItemStack> results;
+    public final List<ChanceItemStack> results;
     public final boolean isSimple;
     protected ItemProcessInput cacheInput;
     protected int cacheMaxCraftTime = -1;
 
-    public AbstractItemProcessRecipe(NonNullList<Ingredient> ingredients, List<ItemStack> results) {
+    public AbstractItemProcessRecipe(NonNullList<Ingredient> ingredients, List<ChanceItemStack> results) {
         this.ingredients = ingredients;
         this.mergedIngredients = RecipeUtil.mergeIngredient(ingredients);
         this.results = results;
@@ -43,7 +44,7 @@ public abstract class AbstractItemProcessRecipe implements Recipe<ItemProcessInp
 
     @Override
     public ItemStack getResultItem(HolderLookup.Provider pRegistries) {
-        return results.isEmpty() ? ItemStack.EMPTY : results.getFirst();
+        return results.isEmpty() ? ItemStack.EMPTY : results.getFirst().getStack();
     }
 
     @Override
@@ -53,7 +54,7 @@ public abstract class AbstractItemProcessRecipe implements Recipe<ItemProcessInp
 
     @Override
     public ItemStack assemble(ItemProcessInput pInput, HolderLookup.Provider pRegistries) {
-        return results.isEmpty() ? ItemStack.EMPTY : results.getFirst();
+        return results.isEmpty() ? ItemStack.EMPTY : results.getFirst().getStack();
     }
 
     public int getMaxCraftTime(ItemProcessInput pInput) {

@@ -5,10 +5,13 @@
       "item": "anvilcraft:hollow_magnet_block"
     }
   ],
-  "result": [
+  "results": [
     {
-      "count": 8,
-      "id": "anvilcraft:magnet_ingot"
+      "amount": 1.0,
+      "stack": {
+        "count": 8,
+        "id": "anvilcraft:magnet_ingot"
+      }
     }
   ]
 }

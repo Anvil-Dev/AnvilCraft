@@ -93,17 +93,17 @@ public class BlockCrushRecipe implements Recipe<BlockCrushRecipe.Input> {
 
     public static class Serializer implements RecipeSerializer<BlockCrushRecipe> {
         private static final MapCodec<BlockCrushRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-                        CodecUtil.BLOCK_CODEC.fieldOf("input").forGetter(BlockCrushRecipe::getInput),
-                        CodecUtil.BLOCK_CODEC.fieldOf("result").forGetter(BlockCrushRecipe::getResult))
-                .apply(ins, BlockCrushRecipe::new));
+                CodecUtil.BLOCK_CODEC.fieldOf("input").forGetter(BlockCrushRecipe::getInput),
+                CodecUtil.BLOCK_CODEC.fieldOf("result").forGetter(BlockCrushRecipe::getResult))
+            .apply(ins, BlockCrushRecipe::new));
 
         private static final StreamCodec<RegistryFriendlyByteBuf, BlockCrushRecipe> STREAM_CODEC =
-                StreamCodec.composite(
-                        CodecUtil.BLOCK_STREAM_CODEC,
-                        BlockCrushRecipe::getInput,
-                        CodecUtil.BLOCK_STREAM_CODEC,
-                        BlockCrushRecipe::getResult,
-                        BlockCrushRecipe::new);
+            StreamCodec.composite(
+                CodecUtil.BLOCK_STREAM_CODEC,
+                BlockCrushRecipe::getInput,
+                CodecUtil.BLOCK_STREAM_CODEC,
+                BlockCrushRecipe::getResult,
+                BlockCrushRecipe::new);
 
         @Override
         public MapCodec<BlockCrushRecipe> codec() {

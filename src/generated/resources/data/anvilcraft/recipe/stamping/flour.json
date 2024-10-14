@@ -5,14 +5,20 @@
       "tag": "c:crops/wheat"
     }
   ],
-  "result": [
+  "results": [
     {
-      "count": 1,
-      "id": "anvilcraft:flour"
+      "amount": 1.0,
+      "stack": {
+        "count": 1,
+        "id": "anvilcraft:flour"
+      }
     },
     {
-      "count": 1,
-      "id": "minecraft:wheat_seeds"
+      "amount": 1.0,
+      "stack": {
+        "count": 1,
+        "id": "minecraft:wheat_seeds"
+      }
     }
   ]
 }

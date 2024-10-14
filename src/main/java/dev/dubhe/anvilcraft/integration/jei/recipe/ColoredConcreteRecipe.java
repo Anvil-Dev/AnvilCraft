@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.integration.jei.recipe;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
+import dev.dubhe.anvilcraft.recipe.ChanceItemStack;
 import dev.dubhe.anvilcraft.recipe.anvil.ConcreteRecipe;
 
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -20,13 +21,13 @@ public class ColoredConcreteRecipe {
     public final Color color;
     public final List<Ingredient> ingredients;
     public final List<Object2IntMap.Entry<Ingredient>> mergedIngredients;
-    public final ItemStack result;
+    public final ChanceItemStack result;
 
     public ColoredConcreteRecipe(
             Color color,
             List<Ingredient> ingredients,
             List<Object2IntMap.Entry<Ingredient>> mergedIngredients,
-            ItemStack result) {
+            ChanceItemStack result) {
         this.color = color;
         this.ingredients = ingredients;
         this.mergedIngredients = mergedIngredients;
@@ -43,7 +44,7 @@ public class ColoredConcreteRecipe {
                         color,
                         concreteRecipe.ingredients,
                         concreteRecipe.mergedIngredients,
-                        new ItemStack(resultItem, concreteRecipe.resultCount)));
+                        ChanceItemStack.of(new ItemStack(resultItem, concreteRecipe.resultCount))));
             }
         }
         return builder.build();

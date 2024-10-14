@@ -36,8 +36,6 @@ import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
@@ -92,8 +90,8 @@ public class BulgingCategory implements IRecipeCategory<RecipeHolder<BulgingReci
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<BulgingRecipe> recipeHolder, IFocusGroup focuses) {
         BulgingRecipe recipe = recipeHolder.value();
         JeiSlotUtil.addInputSlots(builder, recipe.mergedIngredients);
-        if (!recipe.result.isEmpty()) {
-            JeiSlotUtil.addOutputSlots(builder, List.of(recipe.result));
+        if (!recipe.results.isEmpty()) {
+            JeiSlotUtil.addOutputSlots(builder, recipe.results);
         }
     }
 
@@ -140,7 +138,7 @@ public class BulgingCategory implements IRecipeCategory<RecipeHolder<BulgingReci
         arrowOut.draw(guiGraphics, 92, 31);
 
         JeiSlotUtil.drawInputSlots(guiGraphics, slot, recipe.mergedIngredients.size());
-        if (!recipe.result.isEmpty()) {
+        if (!recipe.results.isEmpty()) {
             JeiSlotUtil.drawOutputSlots(guiGraphics, slot, 1);
             if (recipe.isConsumeFluid()) {
                 guiGraphics.drawString(
@@ -207,7 +205,7 @@ public class BulgingCategory implements IRecipeCategory<RecipeHolder<BulgingReci
         if (mouseX >= 124 && mouseX <= 140) {
             if (mouseY >= 24 && mouseY <= 42) {
                 Component text;
-                if (recipe.result.isEmpty()) {
+                if (recipe.results.isEmpty()) {
                     if (recipe.isConsumeFluid()) {
                         if (recipe.cauldron instanceof LayeredCauldronBlock) {
                             text = recipe.cauldron.getName();

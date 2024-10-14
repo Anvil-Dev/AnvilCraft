@@ -5,10 +5,13 @@
       "item": "minecraft:wet_sponge"
     }
   ],
-  "result": [
+  "results": [
     {
-      "count": 4,
-      "id": "anvilcraft:sponge_gemmule"
+      "amount": 1.0,
+      "stack": {
+        "count": 4,
+        "id": "anvilcraft:sponge_gemmule"
+      }
     }
   ]
 }

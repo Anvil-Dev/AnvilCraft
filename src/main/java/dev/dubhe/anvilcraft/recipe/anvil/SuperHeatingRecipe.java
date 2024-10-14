@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.recipe.anvil;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
+import dev.dubhe.anvilcraft.recipe.ChanceItemStack;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractItemProcessBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.input.ItemProcessInput;
 import dev.dubhe.anvilcraft.util.CodecUtil;
@@ -13,7 +14,6 @@ import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -40,7 +40,7 @@ public class SuperHeatingRecipe extends AbstractItemProcessRecipe {
 
     public final Block blockResult;
 
-    public SuperHeatingRecipe(NonNullList<Ingredient> ingredients, List<ItemStack> results, Block blockResult) {
+    public SuperHeatingRecipe(NonNullList<Ingredient> ingredients, List<ChanceItemStack> results, Block blockResult) {
         super(ingredients, results);
         this.blockResult = blockResult;
     }
@@ -75,19 +75,19 @@ public class SuperHeatingRecipe extends AbstractItemProcessRecipe {
     public static class Serializer implements RecipeSerializer<SuperHeatingRecipe> {
 
         private static final MapCodec<SuperHeatingRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-                        CodecUtil.createIngredientListCodec("ingredients", 64, "super_heating")
-                                .forGetter(SuperHeatingRecipe::getIngredients),
-                        ItemStack.OPTIONAL_CODEC
-                                .listOf()
-                                .optionalFieldOf("result", List.of())
-                                .forGetter(SuperHeatingRecipe::getResults),
-                        CodecUtil.BLOCK_CODEC
-                                .optionalFieldOf("block_result", Blocks.AIR)
-                                .forGetter(SuperHeatingRecipe::getBlockResult))
-                .apply(ins, SuperHeatingRecipe::new));
+                CodecUtil.createIngredientListCodec("ingredients", 64, "super_heating")
+                    .forGetter(SuperHeatingRecipe::getIngredients),
+                ChanceItemStack.CODEC
+                    .listOf()
+                    .optionalFieldOf("results", List.of())
+                    .forGetter(SuperHeatingRecipe::getResults),
+                CodecUtil.BLOCK_CODEC
+                    .optionalFieldOf("block_result", Blocks.AIR)
+                    .forGetter(SuperHeatingRecipe::getBlockResult))
+            .apply(ins, SuperHeatingRecipe::new));
 
         private static final StreamCodec<RegistryFriendlyByteBuf, SuperHeatingRecipe> STREAM_CODEC =
-                StreamCodec.of(Serializer::encode, Serializer::decode);
+            StreamCodec.of(Serializer::encode, Serializer::decode);
 
         @Override
         public MapCodec<SuperHeatingRecipe> codec() {
@@ -100,10 +100,10 @@ public class SuperHeatingRecipe extends AbstractItemProcessRecipe {
         }
 
         private static SuperHeatingRecipe decode(RegistryFriendlyByteBuf buf) {
-            List<ItemStack> results = new ArrayList<>();
+            List<ChanceItemStack> results = new ArrayList<>();
             int size = buf.readVarInt();
             for (int i = 0; i < size; i++) {
-                results.add(ItemStack.OPTIONAL_STREAM_CODEC.decode(buf));
+                results.add(ChanceItemStack.STREAM_CODEC.decode(buf));
             }
             size = buf.readVarInt();
             NonNullList<Ingredient> ingredients = NonNullList.withSize(size, Ingredient.EMPTY);
@@ -114,8 +114,8 @@ public class SuperHeatingRecipe extends AbstractItemProcessRecipe {
 
         private static void encode(RegistryFriendlyByteBuf buf, SuperHeatingRecipe recipe) {
             buf.writeVarInt(recipe.results.size());
-            for (ItemStack stack : recipe.results) {
-                ItemStack.OPTIONAL_STREAM_CODEC.encode(buf, stack);
+            for (ChanceItemStack stack : recipe.results) {
+                ChanceItemStack.STREAM_CODEC.encode(buf, stack);
             }
             buf.writeVarInt(recipe.ingredients.size());
             for (Ingredient ingredient : recipe.ingredients) {
@@ -137,10 +137,10 @@ public class SuperHeatingRecipe extends AbstractItemProcessRecipe {
                 if (blockResult != null) {
                     id = BuiltInRegistries.BLOCK.getKey(blockResult);
                 } else {
-                    throw new IllegalArgumentException("Recipe either result or blockResult must not be null");
+                    throw new IllegalArgumentException("Recipe either results or blockResult must not be null");
                 }
             } else {
-                id = BuiltInRegistries.ITEM.getKey(results.getFirst().getItem());
+                id = BuiltInRegistries.ITEM.getKey(results.getFirst().getStack().getItem());
             }
             save(recipeOutput, AnvilCraft.of(id.getPath()).withPrefix(getType() + "/"));
         }
@@ -152,7 +152,7 @@ public class SuperHeatingRecipe extends AbstractItemProcessRecipe {
             }
             if (results.isEmpty() && blockResult == null) {
                 throw new IllegalArgumentException(
-                        "Recipe either result or blockResult must not be null, RecipeId: " + pId);
+                    "Recipe either results or blockResult must not be null, RecipeId: " + pId);
             }
         }
 

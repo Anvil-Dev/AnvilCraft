@@ -9,8 +9,13 @@
     }
   ],
   "produce_fluid": false,
-  "result": {
-    "count": 3,
-    "id": "anvilcraft:raw_tin"
-  }
+  "results": [
+    {
+      "amount": 1.0,
+      "stack": {
+        "count": 3,
+        "id": "anvilcraft:raw_tin"
+      }
+    }
+  ]
 }

@@ -17,10 +17,13 @@
       "item": "minecraft:glass_bottle"
     }
   ],
-  "result": [
+  "results": [
     {
-      "count": 4,
-      "id": "minecraft:honey_bottle"
+      "amount": 1.0,
+      "stack": {
+        "count": 4,
+        "id": "minecraft:honey_bottle"
+      }
     }
   ]
 }

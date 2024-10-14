@@ -5,18 +5,27 @@
       "item": "anvilcraft:prismarine_cluster"
     }
   ],
-  "result": [
+  "results": [
     {
-      "count": 2,
-      "id": "minecraft:prismarine_crystals"
+      "amount": 1.0,
+      "stack": {
+        "count": 2,
+        "id": "minecraft:prismarine_crystals"
+      }
     },
     {
-      "count": 1,
-      "id": "anvilcraft:prismarine_blade"
+      "amount": 1.0,
+      "stack": {
+        "count": 1,
+        "id": "anvilcraft:prismarine_blade"
+      }
     },
     {
-      "count": 1,
-      "id": "minecraft:prismarine_shard"
+      "amount": 1.0,
+      "stack": {
+        "count": 1,
+        "id": "minecraft:prismarine_shard"
+      }
     }
   ]
 }

@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.integration.jei;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.BlockCompressCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.BlockCrushCategory;
@@ -35,6 +36,7 @@ import dev.dubhe.anvilcraft.recipe.anvil.SuperHeatingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.TimeWarpRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
 
+import mezz.jei.api.constants.RecipeTypes;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -142,6 +144,8 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         BulgingCategory.registerRecipeCatalysts(registration);
         TimeWarpCategory.registerRecipeCatalysts(registration);
         MultiBlockCraftingCategory.registerRecipeCatalysts(registration);
+
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.BATCH_CRAFTER), RecipeTypes.CRAFTING);
     }
 
     @Override

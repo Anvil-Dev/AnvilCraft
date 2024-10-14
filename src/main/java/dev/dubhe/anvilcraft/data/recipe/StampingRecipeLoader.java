@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.data.recipe;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
+import dev.dubhe.anvilcraft.recipe.ChanceItemStack;
 import dev.dubhe.anvilcraft.recipe.anvil.StampingRecipe;
 
 import net.minecraft.tags.ItemTags;
@@ -24,9 +25,9 @@ public class StampingRecipeLoader {
         StampingRecipe.builder()
                 .requires(ModItems.GEODE)
                 .result(new ItemStack(Items.AMETHYST_SHARD, 4))
-                .result(new ItemStack(ModItems.TOPAZ.get()))
-                .result(new ItemStack(ModItems.SAPPHIRE.get()))
-                .result(new ItemStack(ModItems.RUBY.get()))
+                .result(ChanceItemStack.of(new ItemStack(ModItems.TOPAZ.get())).withChance(0.25f))
+                .result(ChanceItemStack.of(new ItemStack(ModItems.SAPPHIRE.get())).withChance(0.25f))
+                .result(ChanceItemStack.of(new ItemStack(ModItems.RUBY.get())).withChance(0.25f))
                 .save(provider, AnvilCraft.of("stamping/geode_gems"));
 
         StampingRecipe.builder()

@@ -1,15 +1,21 @@
 package dev.dubhe.anvilcraft.util;
 
+import dev.dubhe.anvilcraft.recipe.ChanceItemStack;
 import dev.dubhe.anvilcraft.recipe.anvil.AbstractItemProcessRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.input.ItemProcessInput;
 
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -25,19 +31,24 @@ import java.util.stream.Collectors;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AnvilUtil {
     public static <T extends AbstractItemProcessRecipe> boolean itemProcess(
-            RecipeType<T> recipeType, Level level, final BlockPos itemPos, final Vec3 resultPos) {
+        RecipeType<T> recipeType, Level level, final BlockPos itemPos, final Vec3 resultPos) {
         Map<ItemEntity, ItemStack> items = level.getEntitiesOfClass(ItemEntity.class, new AABB(itemPos)).stream()
-                .map(it -> Map.entry(it, it.getItem()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            .map(it -> Map.entry(it, it.getItem()))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         ItemProcessInput input = new ItemProcessInput(items.values().stream().toList());
         Optional<RecipeHolder<T>> recipeOptional = level.getRecipeManager().getRecipeFor(recipeType, input, level);
         if (recipeOptional.isPresent()) {
             RecipeHolder<T> recipe = recipeOptional.get();
             int times = recipe.value().getMaxCraftTime(input);
-            List<ItemStack> results =
-                    recipe.value().results.stream().map(ItemStack::copy).toList();
-            results.forEach(s -> s.setCount(s.getCount() * times));
+            Object2IntMap<Item> results = new Object2IntOpenHashMap<>();
+            LootContext context;
+            if (level instanceof ServerLevel serverLevel) {
+                context = RecipeUtil.emptyLootContext(serverLevel);
+            } else {
+                return false;
+            }
+
             for (int i = 0; i < times; i++) {
                 for (Ingredient ingredient : recipe.value().getIngredients()) {
                     for (ItemStack stack : items.values()) {
@@ -47,8 +58,18 @@ public class AnvilUtil {
                         }
                     }
                 }
+                for (ChanceItemStack stack : recipe.value().getResults()) {
+                    int amount = stack.getStack().getCount() * stack.getAmount().getInt(context);
+                    results.mergeInt(stack.getStack().getItem(), amount, Integer::sum);
+                }
             }
-            dropItems(results, level, resultPos);
+            dropItems(
+                results.object2IntEntrySet().stream()
+                    .map(entry -> new ItemStack(entry.getKey(), entry.getIntValue()))
+                    .toList(),
+                level,
+                resultPos
+            );
             items.forEach((k, v) -> {
                 if (v.isEmpty()) {
                     k.discard();

@@ -5,14 +5,20 @@
       "tag": "minecraft:logs"
     }
   ],
-  "result": [
+  "results": [
     {
-      "count": 1,
-      "id": "anvilcraft:wood_fiber"
+      "amount": 1.0,
+      "stack": {
+        "count": 1,
+        "id": "anvilcraft:wood_fiber"
+      }
     },
     {
-      "count": 1,
-      "id": "anvilcraft:resin"
+      "amount": 1.0,
+      "stack": {
+        "count": 1,
+        "id": "anvilcraft:resin"
+      }
     }
   ]
 }
