@@ -146,6 +146,7 @@ dependencies {
     modRuntimeOnly "dev.architectury:architectury-forge:9.2.14"
     modCompileOnly(forge.rei.plugin) { transitive = false }
     modCompileOnly(forge.rei.api) { transitive = false }
+    modCompileOnly("curse.maven:apotheosis-313970:5753183")//Apotheosis-1.20.1-7.4.3
     modRuntimeOnly(forge.rei.forge) { transitive = false }
 
     // EMI
