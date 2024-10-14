@@ -156,17 +156,7 @@ public class HeliostatsItem extends BlockItem {
             }
             return InteractionResult.SUCCESS;
         } else {
-            InteractionResult result = super.useOn(context);
-            if (result != InteractionResult.FAIL) {
-                level.playSound(
-                    context.getPlayer(),
-                    context.getClickedPos(),
-                    blockState.getSoundType(context.getLevel(), context.getClickedPos(), context.getPlayer())
-                        .getPlaceSound(),
-                    SoundSource.BLOCKS
-                );
-            }
-            return result;
+            return super.useOn(context);
         }
     }
 
