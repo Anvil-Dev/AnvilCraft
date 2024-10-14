@@ -4,10 +4,12 @@ import dev.dubhe.anvilcraft.block.RedhotMetalBlock;
 import dev.dubhe.anvilcraft.block.entity.HeliostatsBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.ChatFormatting;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -25,8 +27,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class HeliostatsItem extends BlockItem {
     public HeliostatsItem(Block block, Properties properties) {
         super(block, properties);
@@ -135,9 +140,13 @@ public class HeliostatsItem extends BlockItem {
     }
 
     @Override
+    public SoundEvent getPlaceSound(BlockState state) {
+        return ModBlocks.HELIOSTATS.getDefaultState().getSoundType().getPlaceSound();
+    }
+
+    @Override
     public @NotNull InteractionResult useOn(@NotNull UseOnContext context) {
         Level level = context.getLevel();
-        if (level.isClientSide) return InteractionResult.PASS;
         if (context.getPlayer() != null && context.getPlayer().isShiftKeyDown()) {
             if (hasDataStored(context.getItemInHand())) {
                 deleteData(context.getItemInHand());
@@ -173,14 +182,6 @@ public class HeliostatsItem extends BlockItem {
             return InteractionResult.SUCCESS;
         } else {
             InteractionResult result = super.useOn(context);
-            if (result != InteractionResult.FAIL) {
-                level.playSound(
-                        context.getPlayer(),
-                        context.getClickedPos(),
-                        blockState.getSoundType().getPlaceSound(),
-                        SoundSource.BLOCKS
-                );
-            }
             return result;
         }
     }
