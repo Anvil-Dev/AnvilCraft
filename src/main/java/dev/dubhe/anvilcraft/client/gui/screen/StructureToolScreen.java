@@ -236,6 +236,7 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
                 font, Component.translatable("screen.anvilcraft.structure_tool.to_json"), 177, 83, 0xFFFFFFFF, true);
 
         pose.popPose();
+        renderTooltip(guiGraphics, mouseX, mouseY);
     }
 
     @Override
