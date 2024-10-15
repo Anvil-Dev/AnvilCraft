@@ -17,14 +17,29 @@
       "amount": 1.0,
       "stack": {
         "count": 1,
-        "id": "anvilcraft:prismarine_blade"
+        "id": "minecraft:prismarine_shard"
       }
     },
     {
-      "amount": 1.0,
+      "amount": {
+        "type": "minecraft:binomial",
+        "n": 1.0,
+        "p": 0.5
+      },
       "stack": {
         "count": 1,
-        "id": "minecraft:prismarine_shard"
+        "id": "minecraft:prismarine_crystals"
+      }
+    },
+    {
+      "amount": {
+        "type": "minecraft:binomial",
+        "n": 1.0,
+        "p": 0.15
+      },
+      "stack": {
+        "count": 1,
+        "id": "anvilcraft:prismarine_blade"
       }
     }
   ]

@@ -14,7 +14,11 @@
       }
     },
     {
-      "amount": 1.0,
+      "amount": {
+        "type": "minecraft:binomial",
+        "n": 1.0,
+        "p": 0.25
+      },
       "stack": {
         "count": 1,
         "id": "anvilcraft:resin"

@@ -23,76 +23,79 @@ public class StampingRecipeLoader {
         stamping(provider, Items.MILK_BUCKET, ModItems.CREAM.get(), 4);
 
         StampingRecipe.builder()
-                .requires(ModItems.GEODE)
-                .result(new ItemStack(Items.AMETHYST_SHARD, 4))
-                .result(ChanceItemStack.of(new ItemStack(ModItems.TOPAZ.get())).withChance(0.25f))
-                .result(ChanceItemStack.of(new ItemStack(ModItems.SAPPHIRE.get())).withChance(0.25f))
-                .result(ChanceItemStack.of(new ItemStack(ModItems.RUBY.get())).withChance(0.25f))
-                .save(provider, AnvilCraft.of("stamping/geode_gems"));
+            .requires(ModItems.GEODE)
+            .result(new ItemStack(Items.AMETHYST_SHARD, 4))
+            .result(ChanceItemStack.of(new ItemStack(ModItems.TOPAZ.get())).withChance(0.25f))
+            .result(ChanceItemStack.of(new ItemStack(ModItems.SAPPHIRE.get())).withChance(0.25f))
+            .result(ChanceItemStack.of(new ItemStack(ModItems.RUBY.get())).withChance(0.25f))
+            .save(provider, AnvilCraft.of("stamping/geode_gems"));
 
         StampingRecipe.builder()
-                .requires(Tags.Items.CROPS_WHEAT)
-                .result(new ItemStack(ModItems.FLOUR.get()))
-                .result(new ItemStack(Items.WHEAT_SEEDS))
-                .save(provider);
+            .requires(Tags.Items.CROPS_WHEAT)
+            .result(new ItemStack(ModItems.FLOUR.get()))
+            .result(new ItemStack(Items.WHEAT_SEEDS))
+            .save(provider);
         StampingRecipe.builder()
-                .requires(Items.SUGAR_CANE)
-                .result(new ItemStack(Items.PAPER))
-                .result(new ItemStack(Items.SUGAR))
-                .save(provider, AnvilCraft.of("stamping/paper_from_sugar_cane"));
+            .requires(Items.SUGAR_CANE)
+            .result(new ItemStack(Items.PAPER))
+            .result(ChanceItemStack.of(new ItemStack(Items.SUGAR)).withChance(0.25f))
+            .save(provider, AnvilCraft.of("stamping/paper_from_sugar_cane"));
         StampingRecipe.builder()
-                .requires(Items.COCOA_BEANS)
-                .result(new ItemStack(ModItems.COCOA_BUTTER.asItem()))
-                .result(new ItemStack(ModItems.COCOA_POWDER.asItem()))
-                .save(provider);
+            .requires(Items.COCOA_BEANS)
+            .result(new ItemStack(ModItems.COCOA_BUTTER.asItem()))
+            .result(new ItemStack(ModItems.COCOA_POWDER.asItem()))
+            .save(provider);
         StampingRecipe.builder()
-                .requires(Items.HEART_OF_THE_SEA)
-                .result(new ItemStack(ModItems.SEA_HEART_SHELL_SHARD.asItem(), 3))
-                .result(new ItemStack(ModItems.SAPPHIRE.asItem()))
-                .save(provider);
+            .requires(Items.HEART_OF_THE_SEA)
+            .result(new ItemStack(ModItems.SEA_HEART_SHELL_SHARD.asItem(), 3))
+            .result(ChanceItemStack.of(new ItemStack(ModItems.SEA_HEART_SHELL_SHARD.asItem())).withChance(0.5f))
+            .result(ChanceItemStack.of(new ItemStack(ModItems.SEA_HEART_SHELL_SHARD.asItem())).withChance(0.5f))
+            .result(new ItemStack(ModItems.SAPPHIRE.asItem()))
+            .save(provider);
         StampingRecipe.builder()
-                .requires(ModItems.PRISMARINE_CLUSTER)
-                .result(new ItemStack(Items.PRISMARINE_CRYSTALS, 2))
-                .result(new ItemStack(ModItems.PRISMARINE_BLADE.asItem()))
-                .result(new ItemStack(Items.PRISMARINE_SHARD))
-                .save(provider);
+            .requires(ModItems.PRISMARINE_CLUSTER)
+            .result(new ItemStack(Items.PRISMARINE_CRYSTALS, 2))
+            .result(new ItemStack(Items.PRISMARINE_SHARD))
+            .result(ChanceItemStack.of(new ItemStack(Items.PRISMARINE_CRYSTALS)).withChance(0.5f))
+            .result(ChanceItemStack.of(new ItemStack(ModItems.PRISMARINE_BLADE.asItem())).withChance(0.15f))
+            .save(provider);
         StampingRecipe.builder()
-                .requires(ItemTags.LOGS)
-                .result(new ItemStack(ModItems.WOOD_FIBER.asItem()))
-                .result(new ItemStack(ModItems.RESIN.get()))
-                .save(provider);
+            .requires(ItemTags.LOGS)
+            .result(new ItemStack(ModItems.WOOD_FIBER.asItem()))
+            .result(ChanceItemStack.of(new ItemStack(ModItems.RESIN.get())).withChance(0.25f))
+            .save(provider);
         stamping(provider, Items.CHERRY_LEAVES, Items.PINK_PETALS);
         StampingRecipe.builder()
-                .requires(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE)
-                .requires(ModItems.EMBER_METAL_INGOT)
-                .result(new ItemStack(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE.asItem()))
-                .save(provider);
+            .requires(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE)
+            .requires(ModItems.EMBER_METAL_INGOT)
+            .result(new ItemStack(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE.asItem()))
+            .save(provider);
 
         StampingRecipe.builder()
-                .requires(ModBlocks.NESTING_SHULKER_BOX)
-                .result(new ItemStack(Items.SHULKER_BOX))
-                .result(new ItemStack(Items.SHULKER_BOX))
-                .save(provider, AnvilCraft.of("stamping/shulker_box_from_nesting_shulker_box"));
+            .requires(ModBlocks.NESTING_SHULKER_BOX)
+            .result(new ItemStack(Items.SHULKER_BOX))
+            .result(new ItemStack(Items.SHULKER_BOX))
+            .save(provider, AnvilCraft.of("stamping/shulker_box_from_nesting_shulker_box"));
         StampingRecipe.builder()
-                .requires(ModBlocks.OVER_NESTING_SHULKER_BOX)
-                .result(new ItemStack(Items.SHULKER_BOX))
-                .result(new ItemStack(Items.SHULKER_BOX))
-                .result(new ItemStack(Items.SHULKER_BOX))
-                .save(provider, AnvilCraft.of("stamping/shulker_box_from_over_nesting_shulker_box"));
+            .requires(ModBlocks.OVER_NESTING_SHULKER_BOX)
+            .result(new ItemStack(Items.SHULKER_BOX))
+            .result(new ItemStack(Items.SHULKER_BOX))
+            .result(new ItemStack(Items.SHULKER_BOX))
+            .save(provider, AnvilCraft.of("stamping/shulker_box_from_over_nesting_shulker_box"));
         StampingRecipe.builder()
-                .requires(ModBlocks.SUPERCRITICAL_NESTING_SHULKER_BOX)
-                .result(new ItemStack(Items.SHULKER_BOX))
-                .result(new ItemStack(Items.SHULKER_BOX))
-                .result(new ItemStack(Items.SHULKER_BOX))
-                .result(new ItemStack(Items.SHULKER_BOX))
-                .save(provider, AnvilCraft.of("stamping/shulker_box_from_supercritical_nesting_shulker_box"));
+            .requires(ModBlocks.SUPERCRITICAL_NESTING_SHULKER_BOX)
+            .result(new ItemStack(Items.SHULKER_BOX))
+            .result(new ItemStack(Items.SHULKER_BOX))
+            .result(new ItemStack(Items.SHULKER_BOX))
+            .result(new ItemStack(Items.SHULKER_BOX))
+            .save(provider, AnvilCraft.of("stamping/shulker_box_from_supercritical_nesting_shulker_box"));
     }
 
     private static void stamping(RegistrateRecipeProvider provider, ItemLike input, ItemLike result, int count) {
         StampingRecipe.builder()
-                .requires(input)
-                .result(new ItemStack(result, count))
-                .save(provider);
+            .requires(input)
+            .result(new ItemStack(result, count))
+            .save(provider);
     }
 
     private static void stamping(RegistrateRecipeProvider provider, ItemLike input, ItemLike result) {
