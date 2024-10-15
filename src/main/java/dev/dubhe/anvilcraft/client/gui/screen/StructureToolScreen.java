@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.recipe.multiblock.BlockPredicateWithState;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
@@ -34,6 +35,7 @@ import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.util.tinyfd.TinyFileDialogs;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -45,12 +47,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class StructureToolScreen extends AbstractContainerScreen<StructureToolMenu> {
     private final ResourceLocation CONTAINER_LOCATION =
-            AnvilCraft.of("textures/gui/container/structure_tool/background.png");
+        AnvilCraft.of("textures/gui/container/structure_tool/background.png");
 
     private static final WidgetSprites SPRITES = new WidgetSprites(
-            AnvilCraft.of("widget/structure_tool/button"), AnvilCraft.of("widget/structure_tool/button_highlighted"));
+        AnvilCraft.of("widget/structure_tool/button"), AnvilCraft.of("widget/structure_tool/button_highlighted"));
 
     private static char currentSymbol;
 
@@ -65,6 +69,7 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
         super(menu, playerInventory, title);
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @Override
     protected void init() {
         super.init();
@@ -76,7 +81,7 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
             if (recipe != null) {
                 ItemStack result = recipe.getResult();
                 StringBuilder codeBuilder = new StringBuilder("MultiblockRecipe.builder(\"%s\", %d)"
-                        .formatted(BuiltInRegistries.ITEM.getKey(result.getItem()), result.getCount()));
+                    .formatted(BuiltInRegistries.ITEM.getKey(result.getItem()), result.getCount()));
                 codeBuilder.append("\n");
 
                 for (List<String> layer : recipe.pattern.getLayers()) {
@@ -96,7 +101,9 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
                         codeBuilder.append(")");
                     } else {
                         codeBuilder.append("BlockPredicateWithState.of(");
+                        codeBuilder.append("\"");
                         codeBuilder.append(BuiltInRegistries.BLOCK.getKey(predicate.getBlock()));
+                        codeBuilder.append("\"");
                         codeBuilder.append(")");
                         codeBuilder.append("\n");
                         predicate.getProperties().forEach((stateName, stateValue) -> {
@@ -104,6 +111,7 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
                             codeBuilder.append("\"").append(stateName).append("\"");
                             codeBuilder.append(", ");
                             codeBuilder.append("\"").append(stateValue).append("\"");
+                            codeBuilder.append(")");
                             codeBuilder.append("\n");
                         });
                         codeBuilder.append("    )");
@@ -113,16 +121,18 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
                 codeBuilder.append("    .save(provider);");
                 minecraft.keyboardHandler.setClipboard(codeBuilder.toString());
                 minecraft.player.displayClientMessage(
-                        Component.translatable("message.anvilcraft.copied_to_clipboard"), false);
+                    Component.translatable("message.anvilcraft.copied_to_clipboard"),
+                    false
+                );
             } else {
                 minecraft.player.displayClientMessage(
-                        Component.translatable("message.anvilcraft.code_gen_filed")
-                                .withStyle(ChatFormatting.RED),
-                        false);
+                    Component.translatable("message.anvilcraft.code_gen_filed").withStyle(ChatFormatting.RED),
+                    false
+                );
                 minecraft.player.displayClientMessage(
-                        Component.translatable("message.anvilcraft.code_gen_check")
-                                .withStyle(ChatFormatting.RED),
-                        false);
+                    Component.translatable("message.anvilcraft.code_gen_check").withStyle(ChatFormatting.RED),
+                    false
+                );
             }
 
             minecraft.player.closeContainer();
@@ -134,45 +144,47 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
             MultiblockRecipe recipe = toRecipe();
             if (recipe != null) {
                 ItemStack result = recipe.getResult();
-                String pathString = getFilePath(
-                        BuiltInRegistries.ITEM.getKey(result.getItem()).getPath(), "*.json");
+                String pathString = getFilePath(BuiltInRegistries.ITEM.getKey(result.getItem()).getPath(), "*.json");
                 if (pathString != null) {
                     Path path = Paths.get(pathString);
-                    JsonElement json =
-                            Recipe.CODEC.encodeStart(JsonOps.INSTANCE, recipe).getOrThrow();
+                    JsonElement json = Recipe.CODEC.encodeStart(JsonOps.INSTANCE, recipe).getOrThrow();
                     try {
                         String jsonString = AnvilCraft.GSON.toJson(json);
                         Files.writeString(
-                                path,
-                                jsonString,
-                                StandardCharsets.UTF_8,
-                                StandardOpenOption.CREATE,
-                                StandardOpenOption.WRITE);
+                            path,
+                            jsonString,
+                            StandardCharsets.UTF_8,
+                            StandardOpenOption.CREATE,
+                            StandardOpenOption.WRITE);
                         minecraft.player.displayClientMessage(
-                                Component.translatable("message.anvilcraft.file_saved", pathString), false);
+                            Component.translatable("message.anvilcraft.file_saved", pathString),
+                            false
+                        );
                     } catch (IOException e) {
                         AnvilCraft.LOGGER.error("Saving {} has error", path, e);
                         minecraft.player.displayClientMessage(
-                                Component.translatable(
-                                                "message.anvilcraft.file_save_failed", pathString, e.getMessage())
-                                        .withStyle(ChatFormatting.RED),
-                                false);
+                            Component.translatable("message.anvilcraft.file_save_failed", pathString, e.getMessage())
+                                .withStyle(ChatFormatting.RED),
+                            false
+                        );
                     }
                 } else {
-                    minecraft.player.displayClientMessage(
-                            Component.translatable("message.anvilcraft.no_file_selected")
-                                    .withStyle(ChatFormatting.RED),
-                            false);
+                    minecraft.player.displayClientMessage(Component.translatable("message.anvilcraft.no_file_selected")
+                            .withStyle(ChatFormatting.RED),
+                        false
+                    );
                 }
             } else {
                 minecraft.player.displayClientMessage(
-                        Component.translatable("message.anvilcraft.code_gen_filed")
-                                .withStyle(ChatFormatting.RED),
-                        false);
+                    Component.translatable("message.anvilcraft.code_gen_filed")
+                        .withStyle(ChatFormatting.RED),
+                    false
+                );
                 minecraft.player.displayClientMessage(
-                        Component.translatable("message.anvilcraft.code_gen_check")
-                                .withStyle(ChatFormatting.RED),
-                        false);
+                    Component.translatable("message.anvilcraft.code_gen_check")
+                        .withStyle(ChatFormatting.RED),
+                    false
+                );
             }
             minecraft.player.closeContainer();
         }));
@@ -192,7 +204,7 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
             pose.scale(0.75F, 0.75F, 0.75F);
 
             guiGraphics.drawString(
-                    font, Component.translatable("screen.anvilcraft.structure_tool.size"), 18, 30, 0xFFFFFFFF, true);
+                font, Component.translatable("screen.anvilcraft.structure_tool.size"), 18, 30, 0xFFFFFFFF, true);
             guiGraphics.drawString(font, "X: " + structureData.getSizeX(), 24, 40, 0xFFFFFFFF, true);
             guiGraphics.drawString(font, "Y: " + structureData.getSizeY(), 24, 50, 0xFFFFFFFF, true);
             guiGraphics.drawString(font, "Z: " + structureData.getSizeZ(), 24, 60, 0xFFFFFFFF, true);
@@ -209,12 +221,12 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
             }
 
             guiGraphics.drawString(
-                    font,
-                    Component.translatable("screen.anvilcraft.structure_tool.count", blockCount),
-                    18,
-                    72,
-                    0xFFFFFFFF,
-                    true);
+                font,
+                Component.translatable("screen.anvilcraft.structure_tool.count", blockCount),
+                18,
+                72,
+                0xFFFFFFFF,
+                true);
             pose.popPose();
         }
         // button text render
@@ -224,16 +236,16 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
         pose.scale(0.7F, 0.7F, 0.7F);
 
         guiGraphics.drawString(
-                font,
-                Component.translatable("screen.anvilcraft.structure_tool.to_data_gen"),
-                177,
-                37,
-                0xFFFFFFFF,
-                true);
+            font,
+            Component.translatable("screen.anvilcraft.structure_tool.to_data_gen"),
+            177,
+            37,
+            0xFFFFFFFF,
+            true);
         guiGraphics.drawString(
-                font, Component.translatable("screen.anvilcraft.structure_tool.to_kubejs"), 177, 60, 0xFFFFFFFF, true);
+            font, Component.translatable("screen.anvilcraft.structure_tool.to_kubejs"), 177, 60, 0xFFFFFFFF, true);
         guiGraphics.drawString(
-                font, Component.translatable("screen.anvilcraft.structure_tool.to_json"), 177, 83, 0xFFFFFFFF, true);
+            font, Component.translatable("screen.anvilcraft.structure_tool.to_json"), 177, 83, 0xFFFFFFFF, true);
 
         pose.popPose();
         renderTooltip(guiGraphics, mouseX, mouseY);
@@ -246,7 +258,8 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
         guiGraphics.blit(CONTAINER_LOCATION, i, j, 0, 0, this.imageWidth, this.imageHeight);
     }
 
-    @Nullable private static String getFilePath(String defaultName, String filter) {
+    @Nullable
+    private static String getFilePath(String defaultName, String filter) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             PointerBuffer filterBuffer = stack.mallocPointer(1);
             filterBuffer.put(stack.UTF8(filter));
@@ -255,7 +268,8 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
         }
     }
 
-    @Nullable private MultiblockRecipe toRecipe() {
+    @Nullable
+    private MultiblockRecipe toRecipe() {
         BlockPattern pattern = toBlockPattern();
         ItemStack result = menu.slots.get(4 * 9).getItem().copy();
         if (pattern != null && !result.isEmpty()) {
@@ -264,7 +278,9 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
         return null;
     }
 
-    @Nullable private BlockPattern toBlockPattern() {
+    @SuppressWarnings("DataFlowIssue")
+    @Nullable
+    private BlockPattern toBlockPattern() {
         ClientLevel level = minecraft.level;
         if (structureData != null && level != null) {
             BlockPattern pattern = BlockPattern.create();
@@ -282,24 +298,24 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
                         BlockPredicateWithState predicate = BlockPredicateWithState.of(state.getBlock());
                         if (state.hasProperty(BlockStateProperties.FACING)) {
                             predicate.hasState(
-                                    BlockStateProperties.FACING, state.getValue(BlockStateProperties.FACING));
+                                BlockStateProperties.FACING, state.getValue(BlockStateProperties.FACING));
                         }
                         if (state.hasProperty(BlockStateProperties.FACING_HOPPER)) {
                             predicate.hasState(
-                                    BlockStateProperties.FACING_HOPPER,
-                                    state.getValue(BlockStateProperties.FACING_HOPPER));
+                                BlockStateProperties.FACING_HOPPER,
+                                state.getValue(BlockStateProperties.FACING_HOPPER));
                         }
                         if (state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
                             predicate.hasState(
-                                    BlockStateProperties.HORIZONTAL_FACING,
-                                    state.getValue(BlockStateProperties.HORIZONTAL_FACING));
+                                BlockStateProperties.HORIZONTAL_FACING,
+                                state.getValue(BlockStateProperties.HORIZONTAL_FACING));
                         }
                         if (state.hasProperty(BlockStateProperties.AXIS)) {
                             predicate.hasState(BlockStateProperties.AXIS, state.getValue(BlockStateProperties.AXIS));
                         }
                         if (state.hasProperty(BlockStateProperties.SLAB_TYPE)) {
                             predicate.hasState(
-                                    BlockStateProperties.SLAB_TYPE, state.getValue(BlockStateProperties.SLAB_TYPE));
+                                BlockStateProperties.SLAB_TYPE, state.getValue(BlockStateProperties.SLAB_TYPE));
                         }
                         if (state.hasProperty(BlockStateProperties.HALF)) {
                             predicate.hasState(BlockStateProperties.HALF, state.getValue(BlockStateProperties.HALF));
