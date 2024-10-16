@@ -53,30 +53,23 @@ public abstract class BaseMachineScreen<T extends AbstractContainerMenu> extends
 
     @Contract(pure = true)
     protected static @NotNull BiFunction<Integer, Integer, OutputDirectionButton> getDirectionButtonSupplier(
-            int x, int y, Direction... skip) {
+        int x, int y, Direction... skip) {
         return (i, j) -> new OutputDirectionButton(
-                i + x,
-                j + y,
-                button -> {
-                    if (button instanceof OutputDirectionButton button1) {
-                        Arrays.stream(skip).forEach(button1::skip);
-                        MachineOutputDirectionPacket packet = new MachineOutputDirectionPacket(button1.next());
-                        PacketDistributor.sendToServer(packet);
-                    }
-                },
-                Direction.DOWN);
+            i + x,
+            j + y,
+            button -> {
+                if (button instanceof OutputDirectionButton button1) {
+                    Arrays.stream(skip).forEach(button1::skip);
+                    MachineOutputDirectionPacket packet = new MachineOutputDirectionPacket(button1.next());
+                    PacketDistributor.sendToServer(packet);
+                }
+            },
+            Direction.DOWN);
     }
 
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
-    }
-
-    @Override
-    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBlurredBackground(partialTick);
-        this.renderBg(guiGraphics, partialTick, mouseX, mouseY);
     }
 }

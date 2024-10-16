@@ -100,12 +100,6 @@ public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
     }
 
     @Override
-    public void renderBackground(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBlurredBackground(partialTick);
-        renderBg(guiGraphics, partialTick, mouseX, mouseY);
-    }
-
-    @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderOnboardingTooltips(guiGraphics, mouseX, mouseY);

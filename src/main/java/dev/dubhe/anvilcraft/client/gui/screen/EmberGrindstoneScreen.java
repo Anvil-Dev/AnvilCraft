@@ -28,8 +28,6 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
 
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBlurredBackground(partialTick);
-        this.renderBg(guiGraphics, partialTick, mouseX, mouseY);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
         this.renderLabels(guiGraphics);

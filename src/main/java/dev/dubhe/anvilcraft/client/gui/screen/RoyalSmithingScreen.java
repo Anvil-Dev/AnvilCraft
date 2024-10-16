@@ -185,12 +185,6 @@ public class RoyalSmithingScreen extends ItemCombinerScreen<RoyalSmithingMenu> {
                 component -> guiGraphics.renderTooltip(this.font, this.font.split(component, 115), mouseX, mouseY));
     }
 
-    @Override
-    public void renderBackground(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBlurredBackground(partialTick);
-        renderBg(guiGraphics, partialTick, mouseX, mouseY);
-    }
-
     private boolean hasRecipeError() {
         return this.menu.getSlot(0).hasItem()
                 && this.menu.getSlot(1).hasItem()

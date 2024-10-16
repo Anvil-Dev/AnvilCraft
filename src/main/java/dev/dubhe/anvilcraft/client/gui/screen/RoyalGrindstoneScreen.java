@@ -28,8 +28,6 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
 
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
-        this.renderBg(guiGraphics, partialTick, mouseX, mouseY);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
         this.renderLabels(guiGraphics);
@@ -44,7 +42,7 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
     protected void renderLabels(GuiGraphics guiGraphics) {
         if (this.menu.getSlot(2).hasItem()) {
             drawLabel(
-                    (int) (92 + 4.5 - (this.font.width(Component.literal("" + this.menu.usedGold)) / 2)),
+                    (int) (92 + 4.5 - (this.font.width(Component.literal("" + this.menu.usedGold)) / 2f)),
                     38,
                     Component.literal("" + this.menu.usedGold),
                     guiGraphics);
@@ -63,12 +61,6 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
                             .replace("%i", "" + this.menu.removeRepairCostNumber)),
                     guiGraphics);
         }
-    }
-
-    @Override
-    public void renderBackground(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBlurredBackground(partialTick);
-        renderBg(guiGraphics, partialTick, mouseX, mouseY);
     }
 
     private void drawLabel(int x, int y, Component component, @NotNull GuiGraphics guiGraphics) {
