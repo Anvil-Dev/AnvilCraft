@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.recipe.anvil;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.input.ItemProcessInput;
@@ -96,9 +97,9 @@ public class ConcreteRecipe implements Recipe<ItemProcessInput> {
             return cacheMaxCraftTime;
         }
         int times = RecipeUtil.getMaxCraftTime(pInput, ingredients);
-        cacheMaxCraftTime = times;
         cacheInput = pInput;
-        return times;
+        cacheMaxCraftTime = times <= AnvilCraft.config.anvilEfficiency ? times : AnvilCraft.config.anvilEfficiency;
+        return cacheMaxCraftTime;
     }
 
     public static class Serializer implements RecipeSerializer<ConcreteRecipe> {

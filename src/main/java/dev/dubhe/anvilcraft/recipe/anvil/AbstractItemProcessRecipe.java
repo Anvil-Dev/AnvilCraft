@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.recipe.anvil;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.recipe.ChanceItemStack;
 import dev.dubhe.anvilcraft.recipe.anvil.input.ItemProcessInput;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
@@ -62,8 +63,8 @@ public abstract class AbstractItemProcessRecipe implements Recipe<ItemProcessInp
             return cacheMaxCraftTime;
         }
         int times = RecipeUtil.getMaxCraftTime(pInput, ingredients);
-        cacheMaxCraftTime = times;
         cacheInput = pInput;
-        return times;
+        cacheMaxCraftTime = times <= AnvilCraft.config.anvilEfficiency ? times : AnvilCraft.config.anvilEfficiency;
+        return cacheMaxCraftTime;
     }
 }

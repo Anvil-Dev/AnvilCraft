@@ -58,7 +58,9 @@ public class SuperHeatingRecipe extends AbstractItemProcessRecipe {
             cacheMaxCraftTime = 1;
             return 1;
         } else {
-            return times;
+            cacheInput = pInput;
+            cacheMaxCraftTime = times <= AnvilCraft.config.anvilEfficiency ? times : AnvilCraft.config.anvilEfficiency;
+            return cacheMaxCraftTime;
         }
     }
 

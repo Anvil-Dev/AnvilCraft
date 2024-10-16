@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.api.anvil.impl;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.anvil.AnvilBehavior;
 import dev.dubhe.anvilcraft.api.event.anvil.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.recipe.anvil.MeshRecipe;
@@ -9,7 +10,6 @@ import dev.dubhe.anvilcraft.util.AnvilUtil;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -23,6 +23,8 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ItemMeshBehavior implements AnvilBehavior {
     @Override
@@ -34,26 +36,43 @@ public class ItemMeshBehavior implements AnvilBehavior {
         AnvilFallOnLandEvent event
     ) {
         BlockPos pos = hitBlockPos.above();
-        List<ItemEntity> entities = level.getEntitiesOfClass(ItemEntity.class, new AABB(pos));
-        for (ItemEntity entity : entities) {
-            ItemStack stack = entity.getItem();
+        Map<ItemEntity, ItemStack> items = level.getEntitiesOfClass(ItemEntity.class, new AABB(pos)).stream()
+            .map(it -> Map.entry(it, it.getItem()))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        int processed = 0;
+        for (ItemStack stack : items.values()) {
             List<RecipeHolder<MeshRecipe>> cacheMeshRecipes = RecipeCaches.getCacheMeshRecipes(stack);
             if (cacheMeshRecipes != null && !cacheMeshRecipes.isEmpty()) {
                 LootContext context = RecipeUtil.emptyLootContext((ServerLevel) level);
                 Object2IntMap<Item> itemCounts = new Object2IntOpenHashMap<>();
-                for (int i = 0; i < stack.getCount(); i++) {
+                int times = stack.getCount();
+                for (int i = 0; i < times; i++) {
                     for (RecipeHolder<MeshRecipe> recipe : cacheMeshRecipes) {
                         int amount = recipe.value().resultAmount.getInt(context);
                         itemCounts.mergeInt(recipe.value().result.getItem(), amount, Integer::sum);
+                    }
+                    stack.shrink(1);
+                    processed++;
+                    if (processed >= AnvilCraft.config.anvilEfficiency) {
+                        break;
                     }
                 }
                 List<ItemStack> outputs = itemCounts.object2IntEntrySet().stream()
                     .map(entry -> new ItemStack(entry.getKey(), entry.getIntValue()))
                     .toList();
                 AnvilUtil.dropItems(outputs, level, pos.below().getCenter());
-                entity.remove(Entity.RemovalReason.DISCARDED);
+            }
+            if (processed >= AnvilCraft.config.anvilEfficiency) {
+                break;
             }
         }
+        items.forEach((k, v) -> {
+            if (v.isEmpty()) {
+                k.discard();
+                return;
+            }
+            k.setItem(v.copy());
+        });
         return false;
     }
 }

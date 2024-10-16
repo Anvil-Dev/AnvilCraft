@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.recipe.anvil;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.ChanceItemStack;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
@@ -147,8 +148,8 @@ public class BulgingRecipe implements Recipe<BulgingRecipe.Input> {
             times = times >= 1 ? 1 : 0;
         }
         cacheInput = pInput;
-        cacheMaxCraftTime = times;
-        return times;
+        cacheMaxCraftTime = times <= AnvilCraft.config.anvilEfficiency ? times : AnvilCraft.config.anvilEfficiency;
+        return cacheMaxCraftTime;
     }
 
     public record Input(List<ItemStack> items, BlockState cauldronState) implements RecipeInput, IItemsInput {
