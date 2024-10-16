@@ -468,8 +468,6 @@
   "screen.anvilcraft.structure_tool.to_kubejs": "Vers KubeJS",
   "text.autoconfig.anvilcraft.option.anvilEfficiency": "Insérer l'outil",
   "text.autoconfig.anvilcraft.option.anvilEfficiency.@Tooltip": "Nombre maximum d'éléments traités par l'enclume en même temps",
-  "text.autoconfig.anvilcraft.option.autoCrafterCooldown": "Temps de recharge automatique de Crafter",
-  "text.autoconfig.anvilcraft.option.autoCrafterCooldown.@Tooltip": "Temps de recharge maximum de l'artisan automatique (en tics)",
   "text.autoconfig.anvilcraft.option.batchCrafterCooldown": "Temps de recharge de l'artisan par lots",
   "text.autoconfig.anvilcraft.option.batchCrafterCooldown.@Tooltip": "Temps de refroidissement maximal de l'artisan du lot (en tics)",
   "text.autoconfig.anvilcraft.option.chuteMaxCooldown": "Temps de recharge maximum de la chute",

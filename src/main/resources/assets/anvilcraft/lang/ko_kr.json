@@ -468,8 +468,6 @@
   "screen.anvilcraft.structure_tool.to_kubejs": "To KubeJS",
   "text.autoconfig.anvilcraft.option.anvilEfficiency": "앤빌 효율",
   "text.autoconfig.anvilcraft.option.anvilEfficiency.@Tooltip": "모루가 동시에 처리하는 최대 항목 수",
-  "text.autoconfig.anvilcraft.option.autoCrafterCooldown": "자동 크래프터 쿨다운",
-  "text.autoconfig.anvilcraft.option.autoCrafterCooldown.@Tooltip": "자동 제작자의 최대 재사용 대기시간(틱 단위)",
   "text.autoconfig.anvilcraft.option.batchCrafterCooldown": "배치 크래프터 쿨다운",
   "text.autoconfig.anvilcraft.option.batchCrafterCooldown.@Tooltip": "배치 크래프터의 최대 재사용 대기시간(틱 단위)",
   "text.autoconfig.anvilcraft.option.chuteMaxCooldown": "슈트 최대 쿨다운",

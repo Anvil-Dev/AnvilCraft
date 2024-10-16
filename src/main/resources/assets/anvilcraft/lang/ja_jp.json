@@ -468,8 +468,6 @@
   "screen.anvilcraft.structure_tool.to_kubejs": "To KubeJS",
   "text.autoconfig.anvilcraft.option.anvilEfficiency": "アンビルの効率",
   "text.autoconfig.anvilcraft.option.anvilEfficiency.@Tooltip": "金床が同時に処理できるアイテムの最大数",
-  "text.autoconfig.anvilcraft.option.autoCrafterCooldown": "自動シンセサイザー合成のクールダウン",
-  "text.autoconfig.anvilcraft.option.autoCrafterCooldown.@Tooltip": "自動合成装置によってクラフトされた各アイテム間の時間間隔(単位:ティック)",
   "text.autoconfig.anvilcraft.option.batchCrafterCooldown": "バッチクラフタークールダウン",
   "text.autoconfig.anvilcraft.option.batchCrafterCooldown.@Tooltip": "バッチクラフターの最大クールダウン時間(単位:ティック)",
   "text.autoconfig.anvilcraft.option.chuteMaxCooldown": "シュート搬送冷却",

@@ -468,8 +468,6 @@
   "screen.anvilcraft.structure_tool.to_kubejs": "To KubeJS",
   "text.autoconfig.anvilcraft.option.anvilEfficiency": "Amboss-Arbeitseffizienz",
   "text.autoconfig.anvilcraft.option.anvilEfficiency.@Tooltip": "Maximale Anzahl an Gegenständen, die ein Amboss gleichzeitig bearbeiten kann",
-  "text.autoconfig.anvilcraft.option.autoCrafterCooldown": "Abkühlzeit des automatischen Handwerkers",
-  "text.autoconfig.anvilcraft.option.autoCrafterCooldown.@Tooltip": "Zeitintervall zwischen jeder Handwerksaktion des automatischen Handwerkers (in Ticks)",
   "text.autoconfig.anvilcraft.option.batchCrafterCooldown": "Abklingzeit des Chargenverarbeiters",
   "text.autoconfig.anvilcraft.option.batchCrafterCooldown.@Tooltip": "Maximale Abklingzeit des Batch-Crafters (in Ticks)",
   "text.autoconfig.anvilcraft.option.chuteMaxCooldown": "Maximale Abkühlzeit der Rutsche",

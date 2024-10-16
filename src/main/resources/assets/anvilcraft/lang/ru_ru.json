@@ -468,8 +468,6 @@
   "screen.anvilcraft.structure_tool.to_kubejs": "To KubeJS",
   "text.autoconfig.anvilcraft.option.anvilEfficiency": "Эффективность наковальни",
   "text.autoconfig.anvilcraft.option.anvilEfficiency.@Tooltip": "Максимальное количество предметов, обрабатываемых наковальней одновременно",
-  "text.autoconfig.anvilcraft.option.autoCrafterCooldown": "Перезарядка Auto Crafter",
-  "text.autoconfig.anvilcraft.option.autoCrafterCooldown.@Tooltip": "Максимальное время перезарядки автомастера (в тиках)",
   "text.autoconfig.anvilcraft.option.batchCrafterCooldown": "Перезарядка сборщика партий",
   "text.autoconfig.anvilcraft.option.batchCrafterCooldown.@Tooltip": "Максимальное время перезарядки сборщика партии (в тактах)",
   "text.autoconfig.anvilcraft.option.chuteMaxCooldown": "Максимальная перезарядка парашюта",
