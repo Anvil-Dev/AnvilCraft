@@ -105,4 +105,27 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
             }
         }
     }
+
+    @Override
+    protected void renderSlotContents(GuiGraphics guiGraphics, ItemStack itemstack, Slot slot, @Nullable String countString) {
+        if (slot instanceof JewelInputSlot inputSlot) {
+            if (itemstack.getCount() < inputSlot.getHintCount()) {
+                int seed = slot.x + slot.y * imageWidth;
+                if (slot.isFake()) {
+                    guiGraphics.renderFakeItem(itemstack, slot.x, slot.y, seed);
+                } else {
+                    guiGraphics.renderItem(itemstack, slot.x, slot.y, seed);
+                }
+                if (!itemstack.isEmpty()) {
+                    guiGraphics.pose().pushPose();
+                    String s = String.valueOf(itemstack.getCount());
+                    guiGraphics.pose().translate(0.0F, 0.0F, 200.0F);
+                    guiGraphics.drawString(font, s, slot.x + 19 - 2 - font.width(s), slot.y + 6 + 3, 0xFFFF5555, true);
+                    guiGraphics.pose().popPose();
+                }
+                return;
+            }
+        }
+        super.renderSlotContents(guiGraphics, itemstack, slot, countString);
+    }
 }
