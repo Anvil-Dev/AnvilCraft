@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.inventory.component.jewel.JewelResultSlot;
 import dev.dubhe.anvilcraft.inventory.container.JewelSourceContainer;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
-import lombok.Getter;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
@@ -42,7 +41,6 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
     public static final int USE_ROW_SLOT_START = 33;
     public static final int USE_ROW_SLOT_END = 42;
 
-    @Getter
     private final JewelSourceContainer sourceContainer = new JewelSourceContainer(this);
     private final CraftingContainer craftingContainer = new TransientCraftingContainer(this, 4, 1);
     private final ResultContainer resultContainer = new ResultContainer();

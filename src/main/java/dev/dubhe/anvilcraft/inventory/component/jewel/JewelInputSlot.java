@@ -17,6 +17,8 @@ public class JewelInputSlot extends Slot {
     private Ingredient ingredient;
     @Getter
     private ItemStack @Nullable [] ingredientItems;
+    @Getter
+    private int hintCount;
 
     public JewelInputSlot(JewelSourceContainer sourceContainer, Container container, int slot, int x, int y) {
         super(container, slot, x, y);
@@ -44,8 +46,10 @@ public class JewelInputSlot extends Slot {
                 ingredient = null;
                 ingredientItems = null;
             } else {
-                ingredient = mergedIngredients.get(getSlotIndex()).getKey();
+                var entry = mergedIngredients.get(getSlotIndex());
+                ingredient = entry.getKey();
                 ingredientItems = ingredient.getItems();
+                hintCount = entry.getIntValue();
             }
         } else {
             ingredient = null;
