@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.inventory.JewelCraftingMenu;
 import dev.dubhe.anvilcraft.inventory.component.jewel.JewelInputSlot;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderType;
@@ -14,6 +15,10 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMenu> {
 
     private final ResourceLocation CONTAINER_LOCATION = AnvilCraft.of("textures/gui/container/jewelcrafting/background.png");
@@ -48,7 +53,7 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
                 int count = inputSlot.getHintCount();
                 ItemStack @Nullable [] ingredientItems = inputSlot.getIngredientItems();
                 if (ingredientItems != null) {
-                    int index = Math.round(minecraft.getTimer().getGameTimeDeltaTicks() / 20) % ingredientItems.length;
+                    int index = (int) ((System.currentTimeMillis() / 1000) % ingredientItems.length);
                     ItemStack stack = ingredientItems[index];
                     guiGraphics.renderItem(stack, slot.x, slot.y);
                     guiGraphics.fill(
@@ -76,7 +81,7 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
             } else if (this.hoveredSlot instanceof JewelInputSlot inputSlot) {
                 ItemStack @Nullable [] ingredientItems = inputSlot.getIngredientItems();
                 if (ingredientItems != null) {
-                    int index = Math.round(minecraft.getTimer().getGameTimeDeltaTicks() / 20) % ingredientItems.length;
+                    int index = (int) ((System.currentTimeMillis() / 1000) % ingredientItems.length);
                     itemstack = ingredientItems[index];
                 }
             }
