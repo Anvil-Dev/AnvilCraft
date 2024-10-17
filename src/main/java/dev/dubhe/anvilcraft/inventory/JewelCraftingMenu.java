@@ -32,8 +32,8 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class JewelCraftingMenu extends AbstractContainerMenu {
-    public static final int SOURCE_SLOT = 0;
-    public static final int RESULT_SLOT = 1;
+    public static final int RESULT_SLOT = 0;
+    public static final int SOURCE_SLOT = 1;
     public static final int CRAFT_SLOT_START = 2;
     public static final int CRAFT_SLOT_END = 6;
     public static final int INV_SLOT_START = 6;
@@ -56,6 +56,9 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
         this.access = access;
         this.player = inventory.player;
 
+        // result
+        addSlot(new JewelResultSlot(sourceContainer, craftingContainer, resultContainer, 0, 134, 51));
+
         // source
         addSlot(new Slot(sourceContainer, 0, 80, 19) {
             @Override
@@ -63,9 +66,6 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
                 return RecipeCaches.getAllJewelResultItem().contains(stack.getItem());
             }
         });
-
-        // result
-        addSlot(new JewelResultSlot(sourceContainer, craftingContainer, resultContainer, 0, 134, 51));
 
         // craft
         for (int i = 0; i < 4; i++) {
@@ -104,7 +104,7 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
 
         //noinspection ConstantValue
         if (sourceSlot != null && sourceSlot.hasItem()) {
-            if (index >= SOURCE_SLOT && index < CRAFT_SLOT_END) {
+            if (index >= RESULT_SLOT && index < CRAFT_SLOT_END) {
                 if (!moveItemStackTo(copyOfSourceStack, INV_SLOT_START, USE_ROW_SLOT_END, true)) {
                     return ItemStack.EMPTY;
                 }

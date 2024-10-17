@@ -46,6 +46,8 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.multiblock.all_layers", "All Layers Visible");
         provider.add("gui.anvilcraft.category.multiblock.single_layer", "Visible Layer: %d of %d");
 
+        provider.add("gui.anvilcraft.category.jewel_crafting", "Jewel Crafting");
+
         provider.add("jei.anvilcraft.info.geode_1", "Finds Amethyst Geodes nearby when using.");
         provider.add("jei.anvilcraft.info.geode_2", "Dropped by Budding Amethyst blocks.");
         provider.add("jei.anvilcraft.info.geode_3", "You can also find it in the Bonus Chest");
