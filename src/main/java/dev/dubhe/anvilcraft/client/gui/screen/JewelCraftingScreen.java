@@ -36,7 +36,6 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         renderHintItemSlot(guiGraphics);
-        renderHintItemDecorations(guiGraphics);
         renderTooltip(guiGraphics, mouseX, mouseY);
     }
 
@@ -52,6 +51,7 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
         for (int i = JewelCraftingMenu.CRAFT_SLOT_START; i <= JewelCraftingMenu.CRAFT_SLOT_END; i++) {
             Slot slot = menu.getSlot(i);
             if (!slot.hasItem() && slot instanceof JewelInputSlot inputSlot) {
+                int count = inputSlot.getHintCount();
                 ItemStack @Nullable [] ingredientItems = inputSlot.getIngredientItems();
                 if (ingredientItems != null) {
                     int index = Math.round(minecraft.getTimer().getGameTimeDeltaTicks() / 20) % ingredientItems.length;
@@ -65,32 +65,12 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
                         slot.y + 16,
                         0x808B8B8B
                     );
+                    guiGraphics.renderItemDecorations(font, stack.copyWithCount(count), slot.x, slot.y);
                 }
             }
         }
 
         RenderSystem.disableBlend();
-        poseStack.popPose();
-    }
-
-    private void renderHintItemDecorations(GuiGraphics guiGraphics) {
-        PoseStack poseStack = guiGraphics.pose();
-        poseStack.pushPose();
-        poseStack.translate(leftPos, topPos, 0);
-
-        for (int i = JewelCraftingMenu.CRAFT_SLOT_START; i <= JewelCraftingMenu.CRAFT_SLOT_END; i++) {
-            Slot slot = menu.getSlot(i);
-            if (!slot.hasItem() && slot instanceof JewelInputSlot inputSlot) {
-                int count = inputSlot.getHintCount();
-                ItemStack @Nullable [] ingredientItems = inputSlot.getIngredientItems();
-                if (ingredientItems != null) {
-                    int index = Math.round(minecraft.getTimer().getGameTimeDeltaTicks() / 20) % ingredientItems.length;
-                    ItemStack stack = ingredientItems[index];
-                    stack.setCount(count);
-                    guiGraphics.renderItemDecorations(font, stack, slot.x, slot.y);
-                }
-            }
-        }
         poseStack.popPose();
     }
 
