@@ -1,13 +1,11 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.inventory.JewelCraftingMenu;
 import dev.dubhe.anvilcraft.inventory.component.jewel.JewelInputSlot;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -44,10 +42,6 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
         poseStack.pushPose();
         poseStack.translate(leftPos, topPos, 0);
 
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-
         for (int i = JewelCraftingMenu.CRAFT_SLOT_START; i <= JewelCraftingMenu.CRAFT_SLOT_END; i++) {
             Slot slot = menu.getSlot(i);
             if (!slot.hasItem() && slot instanceof JewelInputSlot inputSlot) {
@@ -70,7 +64,6 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
             }
         }
 
-        RenderSystem.disableBlend();
         poseStack.popPose();
     }
 
