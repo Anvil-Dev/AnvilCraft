@@ -86,4 +86,23 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
         }
         poseStack.popPose();
     }
+
+    @Override
+    protected void renderTooltip(GuiGraphics guiGraphics, int x, int y) {
+        if (this.menu.getCarried().isEmpty() && this.hoveredSlot != null) {
+            ItemStack itemstack = null;
+            if (this.hoveredSlot.hasItem()) {
+                itemstack = this.hoveredSlot.getItem();
+            } else if (this.hoveredSlot instanceof JewelInputSlot inputSlot) {
+                ItemStack @Nullable [] ingredientItems = inputSlot.getIngredientItems();
+                if (ingredientItems != null) {
+                    int index = Math.round(minecraft.getTimer().getGameTimeDeltaTicks() / 20) % ingredientItems.length;
+                    itemstack = ingredientItems[index];
+                }
+            }
+            if (itemstack != null) {
+                guiGraphics.renderTooltip(this.font, this.getTooltipFromContainerItem(itemstack), itemstack.getTooltipImage(), itemstack, x, y);
+            }
+        }
+    }
 }
