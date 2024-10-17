@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.recipe.anvil.input.IItemsInput;
 import dev.dubhe.anvilcraft.recipe.multiblock.BlockPattern;
 import dev.dubhe.anvilcraft.recipe.multiblock.BlockPredicateWithState;
 
+import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -164,7 +165,7 @@ public class RecipeUtil {
     }
 
     public static List<Object2IntMap.Entry<Ingredient>> mergeIngredient(List<Ingredient> ingredients) {
-        Object2IntMap<Ingredient> margeIngredients = new Object2IntOpenHashMap<>();
+        Object2IntMap<Ingredient> margeIngredients = new Object2IntLinkedOpenHashMap<>();
         for (Ingredient ingredient : ingredients) {
             boolean flag = false;
             for (Ingredient key : margeIngredients.keySet()) {
@@ -188,6 +189,7 @@ public class RecipeUtil {
             ingredientFlags.put(ingredient, false);
         }
         for (ItemStack stack : input.items()) {
+            if (stack.isEmpty()) continue;
             contents.mergeInt(stack.getItem(), stack.getCount(), Integer::sum);
             flags.put(stack.getItem(), false);
         }

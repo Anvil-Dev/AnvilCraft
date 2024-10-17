@@ -1,13 +1,14 @@
 package dev.dubhe.anvilcraft.inventory;
 
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.component.jewel.JewelInputSlot;
 import dev.dubhe.anvilcraft.inventory.component.jewel.JewelResultSlot;
 import dev.dubhe.anvilcraft.inventory.container.JewelSourceContainer;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
+import lombok.Getter;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
@@ -22,11 +23,12 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.inventory.TransientCraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.List;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -40,6 +42,7 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
     public static final int USE_ROW_SLOT_START = 33;
     public static final int USE_ROW_SLOT_END = 42;
 
+    @Getter
     private final JewelSourceContainer sourceContainer = new JewelSourceContainer(this);
     private final CraftingContainer craftingContainer = new TransientCraftingContainer(this, 4, 1);
     private final ResultContainer resultContainer = new ResultContainer();
@@ -169,7 +172,6 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
         ResultContainer resultContainer
     ) {
         if (!level.isClientSide()) {
-            AnvilCraft.LOGGER.info("changedCraftingSlots");
             ItemStack itemStack = ItemStack.EMPTY;
             ServerPlayer serverPlayer = (ServerPlayer) player;
             RecipeHolder<JewelCraftingRecipe> recipeHolder = sourceContainer.getRecipe();
@@ -181,11 +183,13 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
                         ItemStack result = recipe.assemble(input, level.registryAccess());
                         if (result.isItemEnabled(level.enabledFeatures())) {
                             itemStack = result;
+                            ItemEnchantments.Mutable enchantments = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
+                            enchantments.set(level.registryAccess().holderOrThrow(Enchantments.VANISHING_CURSE), 1);
+                            itemStack.set(DataComponents.ENCHANTMENTS, enchantments.toImmutable());
                         }
                     }
                 }
             }
-            AnvilCraft.LOGGER.info("changedCraftingSlots: {}", itemStack);
             resultContainer.setItem(0, itemStack);
             menu.setRemoteSlot(RESULT_SLOT, itemStack);
             serverPlayer.connection.send(new ClientboundContainerSetSlotPacket(
@@ -195,5 +199,14 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
                 itemStack
             ));
         }
+    }
+
+    @Override
+    public void removed(Player player) {
+        super.removed(player);
+        access.execute((level, pos) -> {
+            clearContainer(player, sourceContainer);
+            clearContainer(player, craftingContainer);
+        });
     }
 }
