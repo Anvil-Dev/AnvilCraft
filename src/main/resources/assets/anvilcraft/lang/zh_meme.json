@@ -279,6 +279,7 @@
   "gui.anvilcraft.category.item_compress": "物品压缩",
   "gui.anvilcraft.category.item_crush": "物品粉碎",
   "gui.anvilcraft.category.item_inject": "物品压入方块",
+  "gui.anvilcraft.category.jewel_crafting": "Jewel Crafting",
   "gui.anvilcraft.category.max_output": "最大：%s",
   "gui.anvilcraft.category.mesh": "物品过筛",
   "gui.anvilcraft.category.min_output": "最小：%s",
