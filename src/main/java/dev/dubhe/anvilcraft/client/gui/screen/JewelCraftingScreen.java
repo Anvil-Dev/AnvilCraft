@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.inventory.component.jewel.JewelInputSlot;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -47,7 +48,6 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 0.5F);
 
         for (int i = JewelCraftingMenu.CRAFT_SLOT_START; i <= JewelCraftingMenu.CRAFT_SLOT_END; i++) {
             Slot slot = menu.getSlot(i);
@@ -57,12 +57,19 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
                     int index = Math.round(minecraft.getTimer().getGameTimeDeltaTicks() / 20) % ingredientItems.length;
                     ItemStack stack = ingredientItems[index];
                     guiGraphics.renderItem(stack, slot.x, slot.y);
+                    guiGraphics.fill(
+                        RenderType.guiGhostRecipeOverlay(),
+                        slot.x,
+                        slot.y,
+                        slot.x + 16,
+                        slot.y + 16,
+                        0x808B8B8B
+                    );
                 }
             }
         }
 
         RenderSystem.disableBlend();
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         poseStack.popPose();
     }
 
