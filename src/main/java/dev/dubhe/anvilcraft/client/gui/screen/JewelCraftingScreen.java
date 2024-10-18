@@ -1,10 +1,13 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.inventory.JewelCraftingMenu;
 import dev.dubhe.anvilcraft.inventory.component.jewel.JewelInputSlot;
+import dev.dubhe.anvilcraft.util.RenderHelper;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderType;
@@ -38,15 +41,14 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
-        renderHintItemSlot(guiGraphics);
         renderTooltip(guiGraphics, mouseX, mouseY);
+        renderHintItemSlot(guiGraphics);
     }
 
     private void renderHintItemSlot(GuiGraphics guiGraphics) {
         PoseStack poseStack = guiGraphics.pose();
         poseStack.pushPose();
         poseStack.translate(leftPos, topPos, 0);
-
         for (int i = JewelCraftingMenu.CRAFT_SLOT_START; i <= JewelCraftingMenu.CRAFT_SLOT_END; i++) {
             Slot slot = menu.getSlot(i);
             if (!slot.hasItem() && slot instanceof JewelInputSlot inputSlot) {
@@ -55,21 +57,17 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
                 if (ingredientItems != null) {
                     int index = (int) ((System.currentTimeMillis() / 1000) % ingredientItems.length);
                     ItemStack stack = ingredientItems[index];
-                    guiGraphics.renderItem(stack, slot.x, slot.y);
-                    guiGraphics.fill(
-                        RenderType.guiGhostRecipeOverlay(),
-                        slot.x,
-                        slot.y,
-                        slot.x + 16,
-                        slot.y + 16,
-                        0x808B8B8B
-                    );
+                    RenderHelper.renderItemWithTransparency(stack, poseStack, slot.x, slot.y, 0.52f);
                     guiGraphics.renderItemDecorations(font, stack.copyWithCount(count), slot.x, slot.y);
                 }
             }
         }
-
         poseStack.popPose();
+    }
+
+    @Override
+    protected void renderSlotHighlight(GuiGraphics guiGraphics, Slot slot, int mouseX, int mouseY, float partialTick) {
+        super.renderSlotHighlight(guiGraphics, slot, mouseX, mouseY, partialTick);
     }
 
     @Override
