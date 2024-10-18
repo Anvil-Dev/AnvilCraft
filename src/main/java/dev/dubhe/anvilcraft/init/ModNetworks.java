@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.network.MachineOutputDirectionPacket;
 import dev.dubhe.anvilcraft.network.MutedSoundSyncPacket;
 import dev.dubhe.anvilcraft.network.PowerGridRemovePacket;
 import dev.dubhe.anvilcraft.network.PowerGridSyncPacket;
+import dev.dubhe.anvilcraft.network.RecipeCacheSyncPacket;
 import dev.dubhe.anvilcraft.network.RemoveMutedSoundPacket;
 import dev.dubhe.anvilcraft.network.RocketJumpPacket;
 import dev.dubhe.anvilcraft.network.SliderInitPacket;
@@ -125,6 +126,11 @@ public class ModNetworks {
             InspectionStateChangedPacket.TYPE,
             InspectionStateChangedPacket.STREAM_CODEC,
             InspectionStateChangedPacket::acceptClient
+        );
+        registrar.playToClient(
+            RecipeCacheSyncPacket.TYPE,
+            RecipeCacheSyncPacket.STREAM_CODEC,
+            RecipeCacheSyncPacket::acceptClient
         );
     }
 }

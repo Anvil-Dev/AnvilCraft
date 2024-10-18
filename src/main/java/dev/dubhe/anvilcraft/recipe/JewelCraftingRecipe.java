@@ -113,7 +113,7 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
             ItemStack.CODEC.fieldOf("result").forGetter(JewelCraftingRecipe::getResult)
         ).apply(ins, JewelCraftingRecipe::new));
 
-        private static final StreamCodec<RegistryFriendlyByteBuf, JewelCraftingRecipe> STREAM_CODEC = StreamCodec.of(
+        public static final StreamCodec<RegistryFriendlyByteBuf, JewelCraftingRecipe> STREAM_CODEC = StreamCodec.of(
             Serializer::encode, Serializer::decode
         );
 
