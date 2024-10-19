@@ -47,24 +47,23 @@ abstract class LevelRendererMixin {
     private Minecraft minecraft;
 
     @Inject(
-            method = "renderLevel",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/renderer/debug/DebugRenderer;"
-                            + "render(Lcom/mojang/blaze3d/vertex/PoseStack;"
-                            + "Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;DDD)V"
-            ),
-            locals = LocalCapture.CAPTURE_FAILEXCEPTION
+        method = "renderLevel",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/renderer/debug/DebugRenderer;"
+                + "render(Lcom/mojang/blaze3d/vertex/PoseStack;"
+                + "Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;DDD)V"
+        ),
+        locals = LocalCapture.CAPTURE_FAILEXCEPTION
     )
     private void renderLevel(
-            PoseStack poseStack, float partialTick, long finishNanoTime,
-            boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer,
-            LightTexture lightTexture, Matrix4f projectionMatrix, CallbackInfo ci,
-            @NotNull ProfilerFiller profilerFiller, @NotNull Vec3 vec3
+        PoseStack poseStack, float partialTick, long finishNanoTime,
+        boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer,
+        LightTexture lightTexture, Matrix4f projectionMatrix, CallbackInfo ci,
+        @NotNull ProfilerFiller profilerFiller, @NotNull Vec3 vec3
     ) {
         Entity entity = camera.getEntity();
         MultiBufferSource.BufferSource bufferSource = this.renderBuffers.bufferSource();
-        VertexConsumer vertexConsumer3 = bufferSource.getBuffer(RenderType.lines());
         double camX = vec3.x();
         double camY = vec3.y();
         double camZ = vec3.z();
@@ -75,12 +74,12 @@ abstract class LevelRendererMixin {
             ItemStack handItem = mainHandItem.isEmpty() ? offHandItem : mainHandItem;
             if (!handItem.isEmpty()) {
                 HudTooltipManager.INSTANCE.renderHandItemLevelTooltip(
-                        handItem,
-                        poseStack,
-                        vertexConsumer3,
-                        camX,
-                        camY,
-                        camZ
+                    handItem,
+                    poseStack,
+                    bufferSource.getBuffer(RenderType.lines()),
+                    camX,
+                    camY,
+                    camZ
                 );
             }
         }
@@ -104,7 +103,14 @@ abstract class LevelRendererMixin {
             if (minecraft.level == null) return;
             BlockEntity e = minecraft.level.getBlockEntity(blockPos);
             if (e == null) return;
-            HudTooltipManager.INSTANCE.renderAffectRange(e, poseStack, vertexConsumer3, camX, camY, camZ);
+            HudTooltipManager.INSTANCE.renderAffectRange(
+                e,
+                poseStack,
+                bufferSource.getBuffer(RenderType.lines()),
+                camX,
+                camY,
+                camZ
+            );
         }
     }
 }
