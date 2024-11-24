@@ -124,7 +124,7 @@ public class HeliostatsBlockEntity extends BlockEntity {
         Vec3 irritateVec3 =
             getSurfaceVec3(irritatePos.getCenter(), getBlockPos().getCenter());
         BlockHitResult blockHitResult = level.clip(new ClipContext(
-            getBlockPos().getCenter().add(0f, 0.34f, 0f),
+            getBlockPos().getCenter().add(0f, 0.9f, 0f),
             irritateVec3,
             ClipContext.Block.OUTLINE,
             ClipContext.Fluid.NONE,
