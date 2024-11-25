@@ -159,7 +159,7 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
         }
         if (!neighborPos.equals(pos.relative(state.getValue(FACING)))) return;
         BlockState blockState = level.getBlockState(neighborPos);
-        if (!blockState.is(ModBlocks.CHUTE.get())) return;
+        if (!blockState.is(ModBlocks.CHUTE.get()) || !blockState.is(ModBlocks.MAGNETIC_CHUTE)) return;
         if (hasChuteFacing(level, neighborPos)) {
             BlockState newState = ModBlocks.SIMPLE_CHUTE.getDefaultState();
             newState = newState.setValue(SimpleChuteBlock.FACING, blockState.getValue(FACING))
@@ -310,7 +310,6 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
     }
 
     @Override
-
     public void onPlace(
         @NotNull BlockState state,
         @NotNull Level level,
@@ -347,17 +346,22 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
                 .setValue(SimpleChuteBlock.TALL, true);
             level.setBlockAndUpdate(pos, newState);
         }
+        if (hasChuteFacing(level, pos)) {
+            BlockState newState = ModBlocks.SIMPLE_CHUTE.getDefaultState();
+            newState = newState.setValue(SimpleChuteBlock.FACING, state.getValue(FACING))
+                .setValue(SimpleChuteBlock.ENABLED, state.getValue(ENABLED))
+                .setValue(SimpleChuteBlock.TALL, false);
+            level.setBlockAndUpdate(pos, newState);
+        }
         super.onPlace(state, level, pos, oldState, movedByPiston);
     }
 
     @Override
-
     public boolean hasAnalogOutputSignal(@NotNull BlockState blockState) {
         return true;
     }
 
     @Override
-
     public int getAnalogOutputSignal(@NotNull BlockState blockState, @NotNull Level level, @NotNull BlockPos blockPos) {
         BlockEntity blockEntity = level.getBlockEntity(blockPos);
         if (blockEntity instanceof ChuteBlockEntity chuteBlockEntity) {

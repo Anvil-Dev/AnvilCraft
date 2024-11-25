@@ -1,7 +1,10 @@
 package dev.dubhe.anvilcraft.mixin;
 
+import dev.dubhe.anvilcraft.block.SlidingRailBlock;
+import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.piston.PistonMovingBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -20,6 +23,8 @@ abstract class PistonMovingBlockEntityMixin {
 
     @Shadow public abstract Direction getDirection();
 
+    @Shadow private boolean extending;
+
     @Inject(
             method = "tick",
             at = @At(
@@ -32,21 +37,19 @@ abstract class PistonMovingBlockEntityMixin {
     )
     private static void slidingRail(Level level, BlockPos pos, BlockState state, PistonMovingBlockEntity blockEntity, CallbackInfo ci) {
         if (level.isClientSide) return;
-        /*
+
         if (level.getBlockState(pos.below()).is(ModBlocks.SLIDING_RAIL)) {
             MinecraftServer server = level.getServer();
             if (server == null) return;
-            TimerQueue<MinecraftServer> timerqueue = server.getWorldData().overworldData().getScheduledEvents();
-            timerqueue.schedule(
-                    String.valueOf(level.getGameTime()),
-                    (level.getGameTime() + 1),
-                    new SlidingRailBlock.PushBlockTimeCallback(
-                            new SlidingRailBlock.PushBlockData(
-                                    pos, level, blockEntity.getMovementDirection()
-                            )
-                    )
-            );
+            BlockPos p0 = pos.below();
+            SlidingRailBlock.PistonPushInfo p = new SlidingRailBlock.PistonPushInfo(pos, blockEntity.getDirection());
+            p.extending = blockEntity.isExtending();
+            if(SlidingRailBlock.MOVING_PISTON_MAP.containsKey(p0)){
+                SlidingRailBlock.MOVING_PISTON_MAP.get(p0).extending = p.extending;
+            }
+            else SlidingRailBlock.MOVING_PISTON_MAP.put(p0, p);
+            SlidingRailBlock.MOVING_PISTON_MAP.get(p0).isSourcePiston = blockEntity.isSourcePiston();
         }
-         */
+
     }
 }
