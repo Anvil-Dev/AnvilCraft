@@ -33,7 +33,7 @@ public class HeliostatsBlock extends BaseEntityBlock implements IHammerRemovable
             Stream.of(
                     Block.box(0, 0, 0, 16, 4, 16),
                     Block.box(4, 4, 4, 12, 6, 12),
-                    Block.box(6, 6, 6, 10, 22, 10)
+                    Block.box(6, 6, 6, 10, 13, 10)
             ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
 
     public HeliostatsBlock(Properties properties) {
