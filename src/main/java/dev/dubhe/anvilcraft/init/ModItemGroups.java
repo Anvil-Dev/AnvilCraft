@@ -48,7 +48,6 @@ public class ModItemGroups {
                         generateGearWithEnchants(entries, ModItems.EMBER_METAL_HOE, new EnchantmentInstance(lookup.getOrThrow(Enchantments.UNBREAKING), 5));
                         generateGearWithEnchants(entries, ModItems.EMBER_METAL_SWORD, new EnchantmentInstance(lookup.getOrThrow(Enchantments.UNBREAKING), 5));
 
-                        entries.accept(ModItems.ANVIL_HAMMER);
                         generateGearWithEnchants(entries, ModItems.ROYAL_ANVIL_HAMMER, new EnchantmentInstance(lookup.getOrThrow(Enchantments.UNBREAKING), 3));
                         generateGearWithEnchants(entries, ModItems.EMBER_ANVIL_HAMMER, new EnchantmentInstance(lookup.getOrThrow(Enchantments.UNBREAKING), 5));
                     })

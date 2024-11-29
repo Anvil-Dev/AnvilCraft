@@ -271,28 +271,6 @@ public class ModItems {
             .tag(ItemTags.SWORDS)
             .register();
 
-    public static final ItemEntry<AnvilHammerItem> ANVIL_HAMMER = REGISTRATE
-            .item("anvil_hammer", AnvilHammerItem::new)
-            .properties(properties -> properties.durability(35))
-            .tag(ItemTags.MACE_ENCHANTABLE)
-            .model((ctx, provider) -> {
-            })
-            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
-                    .pattern("A")
-                    .pattern("B")
-                    .pattern("C")
-                    .define('A', Items.ANVIL)
-                    .define('B', Items.LIGHTNING_ROD)
-                    .define('C', Items.IRON_INGOT)
-                    .unlockedBy(AnvilCraftDatagen.hasItem(Items.ANVIL), RegistrateRecipeProvider.has(Items.ANVIL))
-                    .unlockedBy(
-                            AnvilCraftDatagen.hasItem(Items.LIGHTNING_ROD),
-                            RegistrateRecipeProvider.has(Items.LIGHTNING_ROD))
-                    .unlockedBy(
-                            AnvilCraftDatagen.hasItem(Items.IRON_INGOT), RegistrateRecipeProvider.has(Items.IRON_INGOT))
-                    .save(provider))
-            .register();
-
     public static final ItemEntry<RoyalAnvilHammerItem> ROYAL_ANVIL_HAMMER = REGISTRATE
             .item("royal_anvil_hammer", RoyalAnvilHammerItem::new)
             .recipe((ctx, provider) -> {
@@ -359,6 +337,28 @@ public class ModItems {
         .register();
     public static final ItemEntry<GeodeItem> GEODE =
         REGISTRATE.item("geode", GeodeItem::new).register();
+
+    public static final ItemEntry<AnvilHammerItem> ANVIL_HAMMER = REGISTRATE
+            .item("anvil_hammer", AnvilHammerItem::new)
+            .properties(properties -> properties.durability(35))
+            .tag(ItemTags.MACE_ENCHANTABLE)
+            .model((ctx, provider) -> {
+            })
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
+                    .pattern("A")
+                    .pattern("B")
+                    .pattern("C")
+                    .define('A', Items.ANVIL)
+                    .define('B', Items.LIGHTNING_ROD)
+                    .define('C', Items.IRON_INGOT)
+                    .unlockedBy(AnvilCraftDatagen.hasItem(Items.ANVIL), RegistrateRecipeProvider.has(Items.ANVIL))
+                    .unlockedBy(
+                            AnvilCraftDatagen.hasItem(Items.LIGHTNING_ROD),
+                            RegistrateRecipeProvider.has(Items.LIGHTNING_ROD))
+                    .unlockedBy(
+                            AnvilCraftDatagen.hasItem(Items.IRON_INGOT), RegistrateRecipeProvider.has(Items.IRON_INGOT))
+                    .save(provider))
+            .register();
 
     // 升级模板
     public static final ItemEntry<RoyalUpgradeTemplateItem> ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE = REGISTRATE
