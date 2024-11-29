@@ -3,10 +3,16 @@ package dev.dubhe.anvilcraft.init;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.state.Color;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentInstance;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.ItemLike;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -21,7 +27,31 @@ public class ModItemGroups {
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> ANVILCRAFT_TOOL =
             DF.register("tools", () -> CreativeModeTab.builder()
                     .icon(ModItems.ANVIL_HAMMER::asStack)
-                    .displayItems((ctx, entries) -> {})
+                    .displayItems((ctx, entries) -> {
+                        HolderLookup.RegistryLookup<Enchantment> lookup = ctx.holders().lookupOrThrow(Registries.ENCHANTMENT);
+
+                        generateGearWithEnchants(entries, ModItems.AMETHYST_PICKAXE, new EnchantmentInstance(lookup.getOrThrow(Enchantments.FORTUNE), 3));
+                        generateGearWithEnchants(entries, ModItems.AMETHYST_AXE, new EnchantmentInstance(lookup.getOrThrow(ModEnchantments.FELLING_KEY), 1));
+                        generateGearWithEnchants(entries, ModItems.AMETHYST_SHOVEL, new EnchantmentInstance(lookup.getOrThrow(Enchantments.EFFICIENCY), 3));
+                        generateGearWithEnchants(entries, ModItems.AMETHYST_HOE, new EnchantmentInstance(lookup.getOrThrow(ModEnchantments.HARVEST_KEY), 1));
+                        generateGearWithEnchants(entries, ModItems.AMETHYST_SWORD, new EnchantmentInstance(lookup.getOrThrow(ModEnchantments.BEHEADING_KEY), 1));
+
+                        generateGearWithEnchants(entries, ModItems.ROYAL_STEEL_PICKAXE, new EnchantmentInstance(lookup.getOrThrow(Enchantments.UNBREAKING), 3));
+                        generateGearWithEnchants(entries, ModItems.ROYAL_STEEL_AXE, new EnchantmentInstance(lookup.getOrThrow(Enchantments.UNBREAKING), 3));
+                        generateGearWithEnchants(entries, ModItems.ROYAL_STEEL_SHOVEL, new EnchantmentInstance(lookup.getOrThrow(Enchantments.UNBREAKING), 3));
+                        generateGearWithEnchants(entries, ModItems.ROYAL_STEEL_HOE, new EnchantmentInstance(lookup.getOrThrow(Enchantments.UNBREAKING), 3));
+                        generateGearWithEnchants(entries, ModItems.ROYAL_STEEL_SWORD, new EnchantmentInstance(lookup.getOrThrow(Enchantments.UNBREAKING), 3));
+
+                        generateGearWithEnchants(entries, ModItems.EMBER_METAL_PICKAXE, new EnchantmentInstance(lookup.getOrThrow(Enchantments.UNBREAKING), 5));
+                        generateGearWithEnchants(entries, ModItems.EMBER_METAL_AXE, new EnchantmentInstance(lookup.getOrThrow(Enchantments.UNBREAKING), 5));
+                        generateGearWithEnchants(entries, ModItems.EMBER_METAL_SHOVEL, new EnchantmentInstance(lookup.getOrThrow(Enchantments.UNBREAKING), 5));
+                        generateGearWithEnchants(entries, ModItems.EMBER_METAL_HOE, new EnchantmentInstance(lookup.getOrThrow(Enchantments.UNBREAKING), 5));
+                        generateGearWithEnchants(entries, ModItems.EMBER_METAL_SWORD, new EnchantmentInstance(lookup.getOrThrow(Enchantments.UNBREAKING), 5));
+
+                        entries.accept(ModItems.ANVIL_HAMMER);
+                        generateGearWithEnchants(entries, ModItems.ROYAL_ANVIL_HAMMER, new EnchantmentInstance(lookup.getOrThrow(Enchantments.UNBREAKING), 3));
+                        generateGearWithEnchants(entries, ModItems.EMBER_ANVIL_HAMMER, new EnchantmentInstance(lookup.getOrThrow(Enchantments.UNBREAKING), 5));
+                    })
                     .title(REGISTRATE.addLang("itemGroup", AnvilCraft.of("tools"), "AnvilCraft: Utilities"))
                     .withTabsAfter(
                             AnvilCraft.of("ingredients"),
@@ -67,6 +97,14 @@ public class ModItemGroups {
                     .withTabsBefore(
                             ANVILCRAFT_TOOL.getId(), ANVILCRAFT_INGREDIENTS.getId(), ANVILCRAFT_FUNCTION_BLOCK.getId())
                     .build());
+
+    private static void generateGearWithEnchants(CreativeModeTab.Output output, ItemLike item, EnchantmentInstance... instances) {
+        ItemStack stack = new ItemStack(item);
+        for (EnchantmentInstance enchant : instances) {
+            stack.enchant(enchant.enchantment, enchant.level);
+        }
+        output.accept(stack);
+    }
 
     public static void register(IEventBus modEventBus) {
         DF.register(modEventBus);

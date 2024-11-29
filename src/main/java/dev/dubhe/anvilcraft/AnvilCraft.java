@@ -7,7 +7,6 @@ import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModCommands;
 import dev.dubhe.anvilcraft.init.ModComponents;
-import dev.dubhe.anvilcraft.init.ModDamageTypes;
 import dev.dubhe.anvilcraft.init.ModDispenserBehavior;
 import dev.dubhe.anvilcraft.init.ModEnchantmentEffectComponents;
 import dev.dubhe.anvilcraft.init.ModEnchantmentEffects;
@@ -69,10 +68,10 @@ public class AnvilCraft {
 
     public AnvilCraft(IEventBus modEventBus, ModContainer container) {
         ModItemGroups.register(modEventBus);
+        ModItems.register();
         ModBlocks.register();
         ModFluids.register(modEventBus);
         ModEntities.register();
-        ModItems.register();
         ModBlockEntities.register();
         ModMenuTypes.register();
         ModDispenserBehavior.register();

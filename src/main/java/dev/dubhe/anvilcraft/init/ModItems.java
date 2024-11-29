@@ -5,40 +5,7 @@ import com.tterrag.registrate.util.entry.ItemEntry;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.data.AnvilCraftDatagen;
-import dev.dubhe.anvilcraft.item.AmethystAxeItem;
-import dev.dubhe.anvilcraft.item.AmethystHoeItem;
-import dev.dubhe.anvilcraft.item.AmethystPickaxeItem;
-import dev.dubhe.anvilcraft.item.AmethystShovelItem;
-import dev.dubhe.anvilcraft.item.AmethystSwordItem;
-import dev.dubhe.anvilcraft.item.AnvilHammerItem;
-import dev.dubhe.anvilcraft.item.CapacitorItem;
-import dev.dubhe.anvilcraft.item.CrabClawItem;
-import dev.dubhe.anvilcraft.item.CursedItem;
-import dev.dubhe.anvilcraft.item.DiskItem;
-import dev.dubhe.anvilcraft.item.EmberAnvilHammerItem;
-import dev.dubhe.anvilcraft.item.EmberMetalAxeItem;
-import dev.dubhe.anvilcraft.item.EmberMetalHoeItem;
-import dev.dubhe.anvilcraft.item.EmberMetalPickaxeItem;
-import dev.dubhe.anvilcraft.item.EmberMetalShovelItem;
-import dev.dubhe.anvilcraft.item.EmberMetalSwordItem;
-import dev.dubhe.anvilcraft.item.EmberMetalUpgradeTemplateItem;
-import dev.dubhe.anvilcraft.item.EmptyCapacitorItem;
-import dev.dubhe.anvilcraft.item.GeodeItem;
-import dev.dubhe.anvilcraft.item.GuideBookItem;
-import dev.dubhe.anvilcraft.item.LevitationPowderItem;
-import dev.dubhe.anvilcraft.item.MagnetItem;
-import dev.dubhe.anvilcraft.item.ModFoods;
-import dev.dubhe.anvilcraft.item.RoyalAnvilHammerItem;
-import dev.dubhe.anvilcraft.item.RoyalAxeItem;
-import dev.dubhe.anvilcraft.item.RoyalHoeItem;
-import dev.dubhe.anvilcraft.item.RoyalPickaxeItem;
-import dev.dubhe.anvilcraft.item.RoyalShovelItem;
-import dev.dubhe.anvilcraft.item.RoyalSwordItem;
-import dev.dubhe.anvilcraft.item.RoyalUpgradeTemplateItem;
-import dev.dubhe.anvilcraft.item.SeedsPackItem;
-import dev.dubhe.anvilcraft.item.StructureToolItem;
-import dev.dubhe.anvilcraft.item.TopazItem;
-import dev.dubhe.anvilcraft.item.UtusanItem;
+import dev.dubhe.anvilcraft.item.*;
 import dev.dubhe.anvilcraft.util.ModelProviderUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -50,14 +17,7 @@ import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
 import net.minecraft.data.recipes.SmithingTransformRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.world.item.AxeItem;
-import net.minecraft.world.item.BucketItem;
-import net.minecraft.world.item.HoeItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.PickaxeItem;
-import net.minecraft.world.item.ShovelItem;
-import net.minecraft.world.item.SwordItem;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.neoforge.common.Tags;
 
@@ -65,6 +25,312 @@ import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 
 @SuppressWarnings({"unused", "CodeBlock2Expr"})
 public class ModItems {
+    // 默认附魔物品
+
+    public static final ItemEntry<? extends PickaxeItem> AMETHYST_PICKAXE = REGISTRATE
+            .item("amethyst_pickaxe", AmethystPickaxeItem::new)
+            .recipe((ctx, provider) -> {
+                ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
+                        .pattern("AAA")
+                        .pattern(" B ")
+                        .pattern(" B ")
+                        .define('A', Items.AMETHYST_SHARD)
+                        .define('B', Items.STICK)
+                        .unlockedBy("hasitem", RegistrateRecipeProvider.has(Items.AMETHYST_SHARD))
+                        .save(provider);
+            })
+            .model((ctx, provider) -> provider.handheld(ctx))
+            .tag(ItemTags.PICKAXES, ItemTags.CLUSTER_MAX_HARVESTABLES)
+            .register();
+
+    public static final ItemEntry<? extends AxeItem> AMETHYST_AXE = REGISTRATE
+            .item("amethyst_axe", AmethystAxeItem::new)
+            .recipe((ctx, provider) -> {
+                ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
+                        .pattern("AA ")
+                        .pattern("AB ")
+                        .pattern(" B ")
+                        .define('A', Items.AMETHYST_SHARD)
+                        .define('B', Items.STICK)
+                        .unlockedBy("hasitem", RegistrateRecipeProvider.has(Items.AMETHYST_SHARD))
+                        .save(provider);
+            })
+            .model((ctx, provider) -> provider.handheld(ctx))
+            .tag(ItemTags.AXES)
+            .register();
+
+    public static final ItemEntry<? extends HoeItem> AMETHYST_HOE = REGISTRATE
+            .item("amethyst_hoe", AmethystHoeItem::new)
+            .recipe((ctx, provider) -> {
+                ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
+                        .pattern("AA ")
+                        .pattern(" B ")
+                        .pattern(" B ")
+                        .define('A', Items.AMETHYST_SHARD)
+                        .define('B', Items.STICK)
+                        .unlockedBy("hasitem", RegistrateRecipeProvider.has(Items.AMETHYST_SHARD))
+                        .save(provider);
+            })
+            .model((ctx, provider) -> provider.handheld(ctx))
+            .tag(ItemTags.HOES)
+            .register();
+
+    public static final ItemEntry<? extends SwordItem> AMETHYST_SWORD = REGISTRATE
+            .item("amethyst_sword", AmethystSwordItem::new)
+            .recipe((ctx, provider) -> {
+                ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
+                        .pattern(" A ")
+                        .pattern(" A ")
+                        .pattern(" B ")
+                        .define('A', Items.AMETHYST_SHARD)
+                        .define('B', Items.STICK)
+                        .unlockedBy("hasitem", RegistrateRecipeProvider.has(Items.AMETHYST_SHARD))
+                        .save(provider);
+            })
+            .model((ctx, provider) -> provider.handheld(ctx))
+            .tag(ItemTags.SWORDS)
+            .register();
+
+    public static final ItemEntry<? extends ShovelItem> AMETHYST_SHOVEL = REGISTRATE
+            .item("amethyst_shovel", AmethystShovelItem::new)
+            .recipe((ctx, provider) -> {
+                ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
+                        .pattern(" A ")
+                        .pattern(" B ")
+                        .pattern(" B ")
+                        .define('A', Items.AMETHYST_SHARD)
+                        .define('B', Items.STICK)
+                        .unlockedBy("hasitem", RegistrateRecipeProvider.has(Items.AMETHYST_SHARD))
+                        .save(provider);
+            })
+            .model((ctx, provider) -> provider.handheld(ctx))
+            .tag(ItemTags.SHOVELS)
+            .register();
+
+    public static final ItemEntry<? extends Item> ROYAL_STEEL_PICKAXE = REGISTRATE
+            .item("royal_steel_pickaxe", RoyalPickaxeItem::new)
+            .recipe((ctx, provider) -> {
+                SmithingTransformRecipeBuilder.smithing(
+                                Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
+                                Ingredient.of(ModItemTags.ROYAL_STEEL_PICKAXE_BASE),
+                                Ingredient.of(ModItems.ROYAL_STEEL_INGOT),
+                                RecipeCategory.TOOLS, ctx.get())
+                        .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT))
+                        .save(provider, AnvilCraft.of("smithing/royal_steel_pickaxe"));
+            })
+            .properties(properties -> properties.durability(1561))
+            .model((ctx, provider) -> provider.handheld(ctx))
+            .tag(ItemTags.PICKAXES)
+            .register();
+
+    public static final ItemEntry<? extends Item> ROYAL_STEEL_AXE = REGISTRATE
+            .item("royal_steel_axe", RoyalAxeItem::new)
+            .recipe((ctx, provider) -> {
+                SmithingTransformRecipeBuilder.smithing(
+                                Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
+                                Ingredient.of(ModItemTags.ROYAL_STEEL_AXE_BASE),
+                                Ingredient.of(ModItems.ROYAL_STEEL_INGOT),
+                                RecipeCategory.TOOLS,
+                                ctx.get())
+                        .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT))
+                        .save(provider, AnvilCraft.of("smithing/royal_steel_axe"));
+            })
+            .properties(properties -> properties.durability(1561))
+            .model((ctx, provider) -> provider.handheld(ctx))
+            .tag(ItemTags.AXES)
+            .register();
+
+    public static final ItemEntry<? extends Item> ROYAL_STEEL_SHOVEL = REGISTRATE
+            .item("royal_steel_shovel", RoyalShovelItem::new)
+            .recipe((ctx, provider) -> {
+                SmithingTransformRecipeBuilder.smithing(
+                                Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
+                                Ingredient.of(ModItemTags.ROYAL_STEEL_SHOVEL_BASE),
+                                Ingredient.of(ModItems.ROYAL_STEEL_INGOT),
+                                RecipeCategory.TOOLS,
+                                ctx.get())
+                        .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT))
+                        .save(provider, AnvilCraft.of("smithing/royal_steel_shovel"));
+            })
+            .properties(properties -> properties.durability(1561))
+            .model((ctx, provider) -> provider.handheld(ctx))
+            .tag(ItemTags.SHOVELS)
+            .register();
+
+    public static final ItemEntry<? extends Item> ROYAL_STEEL_HOE = REGISTRATE
+            .item("royal_steel_hoe", RoyalHoeItem::new)
+            .recipe((ctx, provider) -> {
+                SmithingTransformRecipeBuilder.smithing(
+                                Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
+                                Ingredient.of(ModItemTags.ROYAL_STEEL_HOE_BASE),
+                                Ingredient.of(ModItems.ROYAL_STEEL_INGOT),
+                                RecipeCategory.TOOLS,
+                                ctx.get())
+                        .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT))
+                        .save(provider, AnvilCraft.of("smithing/royal_steel_hoe"));
+            })
+            .properties(properties -> properties.durability(1561))
+            .model((ctx, provider) -> provider.handheld(ctx))
+            .tag(ItemTags.HOES)
+            .register();
+
+    public static final ItemEntry<? extends Item> ROYAL_STEEL_SWORD = REGISTRATE
+            .item("royal_steel_sword", RoyalSwordItem::new)
+            .recipe((ctx, provider) -> {
+                SmithingTransformRecipeBuilder.smithing(
+                                Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
+                                Ingredient.of(ModItemTags.ROYAL_STEEL_SWORD_BASE),
+                                Ingredient.of(ModItems.ROYAL_STEEL_INGOT),
+                                RecipeCategory.TOOLS,
+                                ctx.get())
+                        .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT))
+                        .save(provider, AnvilCraft.of("smithing/royal_steel_sword"));
+            })
+            .properties(properties -> properties.durability(1561))
+            .model((ctx, provider) -> provider.handheld(ctx))
+            .tag(ItemTags.SWORDS)
+            .register();
+
+    public static final ItemEntry<EmberMetalPickaxeItem> EMBER_METAL_PICKAXE = REGISTRATE
+            .item("ember_metal_pickaxe", EmberMetalPickaxeItem::new)
+            .recipe((ctx, provider) -> {
+                SmithingTransformRecipeBuilder.smithing(
+                                Ingredient.of(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE),
+                                Ingredient.of(ModItems.ROYAL_STEEL_PICKAXE),
+                                Ingredient.of(ModItems.EMBER_METAL_INGOT),
+                                RecipeCategory.TOOLS,
+                                ctx.get())
+                        .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.EMBER_METAL_INGOT))
+                        .save(provider, AnvilCraft.of("smithing/ember_metal_pickaxe"));
+            })
+            .model((ctx, provider) -> provider.handheld(ctx))
+            .tag(ItemTags.PICKAXES)
+            .register();
+
+    public static final ItemEntry<EmberMetalAxeItem> EMBER_METAL_AXE = REGISTRATE
+            .item("ember_metal_axe", EmberMetalAxeItem::new)
+            .recipe((ctx, provider) -> {
+                SmithingTransformRecipeBuilder.smithing(
+                                Ingredient.of(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE),
+                                Ingredient.of(ModItems.ROYAL_STEEL_AXE),
+                                Ingredient.of(ModItems.EMBER_METAL_INGOT),
+                                RecipeCategory.TOOLS,
+                                ctx.get())
+                        .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.EMBER_METAL_INGOT))
+                        .save(provider, AnvilCraft.of("smithing/ember_metal_axe"));
+            })
+            .model((ctx, provider) -> provider.handheld(ctx))
+            .tag(ItemTags.AXES)
+            .register();
+
+    public static final ItemEntry<EmberMetalShovelItem> EMBER_METAL_SHOVEL = REGISTRATE
+            .item("ember_metal_shovel", EmberMetalShovelItem::new)
+            .recipe((ctx, provider) -> {
+                SmithingTransformRecipeBuilder.smithing(
+                                Ingredient.of(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE),
+                                Ingredient.of(ModItems.ROYAL_STEEL_SHOVEL),
+                                Ingredient.of(ModItems.EMBER_METAL_INGOT),
+                                RecipeCategory.TOOLS,
+                                ctx.get())
+                        .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.EMBER_METAL_INGOT))
+                        .save(provider, AnvilCraft.of("smithing/ember_metal_shovel"));
+            })
+            .model((ctx, provider) -> provider.handheld(ctx))
+            .tag(ItemTags.SHOVELS)
+            .register();
+
+    public static final ItemEntry<EmberMetalHoeItem> EMBER_METAL_HOE = REGISTRATE
+            .item("ember_metal_hoe", EmberMetalHoeItem::new)
+            .recipe((ctx, provider) -> {
+                SmithingTransformRecipeBuilder.smithing(
+                                Ingredient.of(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE),
+                                Ingredient.of(ModItems.ROYAL_STEEL_HOE),
+                                Ingredient.of(ModItems.EMBER_METAL_INGOT),
+                                RecipeCategory.TOOLS,
+                                ctx.get())
+                        .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.EMBER_METAL_INGOT))
+                        .save(provider, AnvilCraft.of("smithing/ember_metal_hoe"));
+            })
+            .model((ctx, provider) -> provider.handheld(ctx))
+            .tag(ItemTags.HOES)
+            .register();
+
+    public static final ItemEntry<EmberMetalSwordItem> EMBER_METAL_SWORD = REGISTRATE
+            .item("ember_metal_sword", EmberMetalSwordItem::new)
+            .recipe((ctx, provider) -> {
+                SmithingTransformRecipeBuilder.smithing(
+                                Ingredient.of(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE),
+                                Ingredient.of(ModItems.ROYAL_STEEL_SWORD),
+                                Ingredient.of(ModItems.EMBER_METAL_INGOT),
+                                RecipeCategory.TOOLS,
+                                ctx.get())
+                        .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.EMBER_METAL_INGOT))
+                        .save(provider, AnvilCraft.of("smithing/ember_metal_sword"));
+            })
+            .model((ctx, provider) -> provider.handheld(ctx))
+            .tag(ItemTags.SWORDS)
+            .register();
+
+    public static final ItemEntry<AnvilHammerItem> ANVIL_HAMMER = REGISTRATE
+            .item("anvil_hammer", AnvilHammerItem::new)
+            .properties(properties -> properties.durability(35))
+            .tag(ItemTags.MACE_ENCHANTABLE)
+            .model((ctx, provider) -> {
+            })
+            .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
+                    .pattern("A")
+                    .pattern("B")
+                    .pattern("C")
+                    .define('A', Items.ANVIL)
+                    .define('B', Items.LIGHTNING_ROD)
+                    .define('C', Items.IRON_INGOT)
+                    .unlockedBy(AnvilCraftDatagen.hasItem(Items.ANVIL), RegistrateRecipeProvider.has(Items.ANVIL))
+                    .unlockedBy(
+                            AnvilCraftDatagen.hasItem(Items.LIGHTNING_ROD),
+                            RegistrateRecipeProvider.has(Items.LIGHTNING_ROD))
+                    .unlockedBy(
+                            AnvilCraftDatagen.hasItem(Items.IRON_INGOT), RegistrateRecipeProvider.has(Items.IRON_INGOT))
+                    .save(provider))
+            .register();
+
+    public static final ItemEntry<RoyalAnvilHammerItem> ROYAL_ANVIL_HAMMER = REGISTRATE
+            .item("royal_anvil_hammer", RoyalAnvilHammerItem::new)
+            .recipe((ctx, provider) -> {
+                SmithingTransformRecipeBuilder.smithing(
+                                Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
+                                Ingredient.of(ModItems.ANVIL_HAMMER),
+                                Ingredient.of(ModItems.ROYAL_STEEL_INGOT),
+                                RecipeCategory.TOOLS,
+                                ctx.get())
+                        .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT))
+                        .save(provider, AnvilCraft.of("smithing/royal_anvil_hammer"));
+            })
+            .tag(ItemTags.MACE_ENCHANTABLE)
+            .properties(properties -> properties.durability(150))
+            .model((ctx, provider) -> {
+            })
+            .register();
+
+    public static final ItemEntry<EmberAnvilHammerItem> EMBER_ANVIL_HAMMER = REGISTRATE
+            .item("ember_anvil_hammer", EmberAnvilHammerItem::new)
+            .recipe((ctx, provider) -> {
+                SmithingTransformRecipeBuilder.smithing(
+                                Ingredient.of(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE),
+                                Ingredient.of(ModItems.ANVIL_HAMMER),
+                                Ingredient.of(ModItems.EMBER_METAL_INGOT),
+                                RecipeCategory.TOOLS,
+                                ctx.get())
+                        .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.EMBER_METAL_INGOT))
+                        .save(provider, AnvilCraft.of("smithing/ember_anvil_hammer"));
+            })
+            .tag(ItemTags.MACE_ENCHANTABLE)
+            .properties(properties -> properties.durability(2031))
+            .model((ctx, provider) -> {
+            })
+            .register();
+
+    // ======================
+
     static {
         REGISTRATE.defaultCreativeTab(ModItemGroups.ANVILCRAFT_TOOL.getKey());
     }
@@ -93,291 +359,7 @@ public class ModItems {
         .register();
     public static final ItemEntry<GeodeItem> GEODE =
         REGISTRATE.item("geode", GeodeItem::new).register();
-    public static final ItemEntry<? extends PickaxeItem> AMETHYST_PICKAXE = REGISTRATE
-        .item("amethyst_pickaxe", AmethystPickaxeItem::new)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
-                .pattern("AAA")
-                .pattern(" B ")
-                .pattern(" B ")
-                .define('A', Items.AMETHYST_SHARD)
-                .define('B', Items.STICK)
-                .unlockedBy("hasitem", RegistrateRecipeProvider.has(Items.AMETHYST_SHARD))
-                .save(provider);
-        })
-        .model((ctx, provider) -> provider.handheld(ctx))
-        .tag(ItemTags.PICKAXES, ItemTags.CLUSTER_MAX_HARVESTABLES)
-        .register();
-    public static final ItemEntry<? extends AxeItem> AMETHYST_AXE = REGISTRATE
-        .item("amethyst_axe", AmethystAxeItem::new)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
-                .pattern("AA ")
-                .pattern("AB ")
-                .pattern(" B ")
-                .define('A', Items.AMETHYST_SHARD)
-                .define('B', Items.STICK)
-                .unlockedBy("hasitem", RegistrateRecipeProvider.has(Items.AMETHYST_SHARD))
-                .save(provider);
-        })
-        .model((ctx, provider) -> provider.handheld(ctx))
-        .tag(ItemTags.AXES)
-        .register();
-    public static final ItemEntry<? extends HoeItem> AMETHYST_HOE = REGISTRATE
-        .item("amethyst_hoe", AmethystHoeItem::new)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
-                .pattern("AA ")
-                .pattern(" B ")
-                .pattern(" B ")
-                .define('A', Items.AMETHYST_SHARD)
-                .define('B', Items.STICK)
-                .unlockedBy("hasitem", RegistrateRecipeProvider.has(Items.AMETHYST_SHARD))
-                .save(provider);
-        })
-        .model((ctx, provider) -> provider.handheld(ctx))
-        .tag(ItemTags.HOES)
-        .register();
-    public static final ItemEntry<? extends SwordItem> AMETHYST_SWORD = REGISTRATE
-        .item("amethyst_sword", AmethystSwordItem::new)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
-                .pattern(" A ")
-                .pattern(" A ")
-                .pattern(" B ")
-                .define('A', Items.AMETHYST_SHARD)
-                .define('B', Items.STICK)
-                .unlockedBy("hasitem", RegistrateRecipeProvider.has(Items.AMETHYST_SHARD))
-                .save(provider);
-        })
-        .model((ctx, provider) -> provider.handheld(ctx))
-        .tag(ItemTags.SWORDS)
-        .register();
-    public static final ItemEntry<? extends ShovelItem> AMETHYST_SHOVEL = REGISTRATE
-        .item("amethyst_shovel", AmethystShovelItem::new)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
-                .pattern(" A ")
-                .pattern(" B ")
-                .pattern(" B ")
-                .define('A', Items.AMETHYST_SHARD)
-                .define('B', Items.STICK)
-                .unlockedBy("hasitem", RegistrateRecipeProvider.has(Items.AMETHYST_SHARD))
-                .save(provider);
-        })
-        .model((ctx, provider) -> provider.handheld(ctx))
-        .tag(ItemTags.SHOVELS)
-        .register();
-    public static final ItemEntry<? extends Item> ROYAL_STEEL_PICKAXE = REGISTRATE
-        .item("royal_steel_pickaxe", RoyalPickaxeItem::new)
-        .recipe((ctx, provider) -> {
-            SmithingTransformRecipeBuilder.smithing(
-                    Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
-                    Ingredient.of(ModItemTags.ROYAL_STEEL_PICKAXE_BASE),
-                    Ingredient.of(ModItems.ROYAL_STEEL_INGOT),
-                    RecipeCategory.TOOLS, ctx.get())
-                .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT))
-                .save(provider, AnvilCraft.of("smithing/royal_steel_pickaxe"));
-        })
-        .properties(properties -> properties.durability(1561))
-        .model((ctx, provider) -> provider.handheld(ctx))
-        .tag(ItemTags.PICKAXES)
-        .register();
-    public static final ItemEntry<? extends Item> ROYAL_STEEL_AXE = REGISTRATE
-        .item("royal_steel_axe", RoyalAxeItem::new)
-        .recipe((ctx, provider) -> {
-            SmithingTransformRecipeBuilder.smithing(
-                    Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
-                    Ingredient.of(ModItemTags.ROYAL_STEEL_AXE_BASE),
-                    Ingredient.of(ModItems.ROYAL_STEEL_INGOT),
-                    RecipeCategory.TOOLS,
-                    ctx.get())
-                .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT))
-                .save(provider, AnvilCraft.of("smithing/royal_steel_axe"));
-        })
-        .properties(properties -> properties.durability(1561))
-        .model((ctx, provider) -> provider.handheld(ctx))
-        .tag(ItemTags.AXES)
-        .register();
-    public static final ItemEntry<? extends Item> ROYAL_STEEL_SHOVEL = REGISTRATE
-        .item("royal_steel_shovel", RoyalShovelItem::new)
-        .recipe((ctx, provider) -> {
-            SmithingTransformRecipeBuilder.smithing(
-                    Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
-                    Ingredient.of(ModItemTags.ROYAL_STEEL_SHOVEL_BASE),
-                    Ingredient.of(ModItems.ROYAL_STEEL_INGOT),
-                    RecipeCategory.TOOLS,
-                    ctx.get())
-                .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT))
-                .save(provider, AnvilCraft.of("smithing/royal_steel_shovel"));
-        })
-        .properties(properties -> properties.durability(1561))
-        .model((ctx, provider) -> provider.handheld(ctx))
-        .tag(ItemTags.SHOVELS)
-        .register();
-    public static final ItemEntry<? extends Item> ROYAL_STEEL_HOE = REGISTRATE
-        .item("royal_steel_hoe", RoyalHoeItem::new)
-        .recipe((ctx, provider) -> {
-            SmithingTransformRecipeBuilder.smithing(
-                    Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
-                    Ingredient.of(ModItemTags.ROYAL_STEEL_HOE_BASE),
-                    Ingredient.of(ModItems.ROYAL_STEEL_INGOT),
-                    RecipeCategory.TOOLS,
-                    ctx.get())
-                .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT))
-                .save(provider, AnvilCraft.of("smithing/royal_steel_hoe"));
-        })
-        .properties(properties -> properties.durability(1561))
-        .model((ctx, provider) -> provider.handheld(ctx))
-        .tag(ItemTags.HOES)
-        .register();
-    public static final ItemEntry<? extends Item> ROYAL_STEEL_SWORD = REGISTRATE
-        .item("royal_steel_sword", RoyalSwordItem::new)
-        .recipe((ctx, provider) -> {
-            SmithingTransformRecipeBuilder.smithing(
-                    Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
-                    Ingredient.of(ModItemTags.ROYAL_STEEL_SWORD_BASE),
-                    Ingredient.of(ModItems.ROYAL_STEEL_INGOT),
-                    RecipeCategory.TOOLS,
-                    ctx.get())
-                .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT))
-                .save(provider, AnvilCraft.of("smithing/royal_steel_sword"));
-        })
-        .properties(properties -> properties.durability(1561))
-        .model((ctx, provider) -> provider.handheld(ctx))
-        .tag(ItemTags.SWORDS)
-        .register();
-    public static final ItemEntry<EmberMetalPickaxeItem> EMBER_METAL_PICKAXE = REGISTRATE
-        .item("ember_metal_pickaxe", EmberMetalPickaxeItem::new)
-        .recipe((ctx, provider) -> {
-            SmithingTransformRecipeBuilder.smithing(
-                    Ingredient.of(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE),
-                    Ingredient.of(ModItems.ROYAL_STEEL_PICKAXE),
-                    Ingredient.of(ModItems.EMBER_METAL_INGOT),
-                    RecipeCategory.TOOLS,
-                    ctx.get())
-                .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.EMBER_METAL_INGOT))
-                .save(provider, AnvilCraft.of("smithing/ember_metal_pickaxe"));
-        })
-        .model((ctx, provider) -> provider.handheld(ctx))
-        .tag(ItemTags.PICKAXES)
-        .register();
-    public static final ItemEntry<EmberMetalAxeItem> EMBER_METAL_AXE = REGISTRATE
-        .item("ember_metal_axe", EmberMetalAxeItem::new)
-        .recipe((ctx, provider) -> {
-            SmithingTransformRecipeBuilder.smithing(
-                    Ingredient.of(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE),
-                    Ingredient.of(ModItems.ROYAL_STEEL_AXE),
-                    Ingredient.of(ModItems.EMBER_METAL_INGOT),
-                    RecipeCategory.TOOLS,
-                    ctx.get())
-                .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.EMBER_METAL_INGOT))
-                .save(provider, AnvilCraft.of("smithing/ember_metal_axe"));
-        })
-        .model((ctx, provider) -> provider.handheld(ctx))
-        .tag(ItemTags.AXES)
-        .register();
-    public static final ItemEntry<EmberMetalShovelItem> EMBER_METAL_SHOVEL = REGISTRATE
-        .item("ember_metal_shovel", EmberMetalShovelItem::new)
-        .recipe((ctx, provider) -> {
-            SmithingTransformRecipeBuilder.smithing(
-                    Ingredient.of(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE),
-                    Ingredient.of(ModItems.ROYAL_STEEL_SHOVEL),
-                    Ingredient.of(ModItems.EMBER_METAL_INGOT),
-                    RecipeCategory.TOOLS,
-                    ctx.get())
-                .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.EMBER_METAL_INGOT))
-                .save(provider, AnvilCraft.of("smithing/ember_metal_shovel"));
-        })
-        .model((ctx, provider) -> provider.handheld(ctx))
-        .tag(ItemTags.SHOVELS)
-        .register();
-    public static final ItemEntry<EmberMetalHoeItem> EMBER_METAL_HOE = REGISTRATE
-        .item("ember_metal_hoe", EmberMetalHoeItem::new)
-        .recipe((ctx, provider) -> {
-            SmithingTransformRecipeBuilder.smithing(
-                    Ingredient.of(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE),
-                    Ingredient.of(ModItems.ROYAL_STEEL_HOE),
-                    Ingredient.of(ModItems.EMBER_METAL_INGOT),
-                    RecipeCategory.TOOLS,
-                    ctx.get())
-                .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.EMBER_METAL_INGOT))
-                .save(provider, AnvilCraft.of("smithing/ember_metal_hoe"));
-        })
-        .model((ctx, provider) -> provider.handheld(ctx))
-        .tag(ItemTags.HOES)
-        .register();
-    public static final ItemEntry<EmberMetalSwordItem> EMBER_METAL_SWORD = REGISTRATE
-        .item("ember_metal_sword", EmberMetalSwordItem::new)
-        .recipe((ctx, provider) -> {
-            SmithingTransformRecipeBuilder.smithing(
-                    Ingredient.of(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE),
-                    Ingredient.of(ModItems.ROYAL_STEEL_SWORD),
-                    Ingredient.of(ModItems.EMBER_METAL_INGOT),
-                    RecipeCategory.TOOLS,
-                    ctx.get())
-                .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.EMBER_METAL_INGOT))
-                .save(provider, AnvilCraft.of("smithing/ember_metal_sword"));
-        })
-        .model((ctx, provider) -> provider.handheld(ctx))
-        .tag(ItemTags.SWORDS)
-        .register();
-    public static final ItemEntry<AnvilHammerItem> ANVIL_HAMMER = REGISTRATE
-        .item("anvil_hammer", AnvilHammerItem::new)
-        .properties(properties -> properties.durability(35))
-        .tag(ItemTags.MACE_ENCHANTABLE)
-        .model((ctx, provider) -> {
-        })
-        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
-            .pattern("A")
-            .pattern("B")
-            .pattern("C")
-            .define('A', Items.ANVIL)
-            .define('B', Items.LIGHTNING_ROD)
-            .define('C', Items.IRON_INGOT)
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.ANVIL), RegistrateRecipeProvider.has(Items.ANVIL))
-            .unlockedBy(
-                AnvilCraftDatagen.hasItem(Items.LIGHTNING_ROD),
-                RegistrateRecipeProvider.has(Items.LIGHTNING_ROD))
-            .unlockedBy(
-                AnvilCraftDatagen.hasItem(Items.IRON_INGOT), RegistrateRecipeProvider.has(Items.IRON_INGOT))
-            .save(provider))
-        .register();
 
-    public static final ItemEntry<RoyalAnvilHammerItem> ROYAL_ANVIL_HAMMER = REGISTRATE
-        .item("royal_anvil_hammer", RoyalAnvilHammerItem::new)
-        .recipe((ctx, provider) -> {
-            SmithingTransformRecipeBuilder.smithing(
-                    Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
-                    Ingredient.of(ModItems.ANVIL_HAMMER),
-                    Ingredient.of(ModItems.ROYAL_STEEL_INGOT),
-                    RecipeCategory.TOOLS,
-                    ctx.get())
-                .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT))
-                .save(provider, AnvilCraft.of("smithing/royal_anvil_hammer"));
-        })
-        .tag(ItemTags.MACE_ENCHANTABLE)
-        .properties(properties -> properties.durability(150))
-        .model((ctx, provider) -> {
-        })
-        .register();
-    public static final ItemEntry<EmberAnvilHammerItem> EMBER_ANVIL_HAMMER = REGISTRATE
-        .item("ember_anvil_hammer", EmberAnvilHammerItem::new)
-        .recipe((ctx, provider) -> {
-            SmithingTransformRecipeBuilder.smithing(
-                    Ingredient.of(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE),
-                    Ingredient.of(ModItems.ANVIL_HAMMER),
-                    Ingredient.of(ModItems.EMBER_METAL_INGOT),
-                    RecipeCategory.TOOLS,
-                    ctx.get())
-                .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.EMBER_METAL_INGOT))
-                .save(provider, AnvilCraft.of("smithing/ember_anvil_hammer"));
-        })
-        .tag(ItemTags.MACE_ENCHANTABLE)
-        .properties(properties -> properties.durability(2031))
-        .model((ctx, provider) -> {
-        })
-        .register();
     // 升级模板
     public static final ItemEntry<RoyalUpgradeTemplateItem> ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE = REGISTRATE
         .item("royal_steel_upgrade_smithing_template", RoyalUpgradeTemplateItem::new)
