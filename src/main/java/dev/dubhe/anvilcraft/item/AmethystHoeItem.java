@@ -8,11 +8,10 @@ import net.minecraft.world.item.ItemStack;
 
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.NotNull;
 
 public class AmethystHoeItem extends HoeItem {
     public AmethystHoeItem(Properties properties) {
-        super(ModTiers.AMETHYST, properties.attributes(AxeItem.createAttributes(ModTiers.AMETHYST, -1, -2.0f)));
+        super(ModTiers.AMETHYST, properties.attributes(HoeItem.createAttributes(ModTiers.AMETHYST, -1, -2.0f)));
     }
 
     @Override
