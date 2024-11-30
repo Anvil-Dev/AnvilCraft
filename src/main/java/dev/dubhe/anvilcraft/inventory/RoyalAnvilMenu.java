@@ -1,8 +1,10 @@
 package dev.dubhe.anvilcraft.inventory;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.item.ICursed;
 
+import dev.dubhe.anvilcraft.item.IInherentEnchantment;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
@@ -20,12 +22,15 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.CommonHooks;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.stream.Stream;
 
 public class RoyalAnvilMenu extends AnvilMenu {
 
@@ -224,6 +229,15 @@ public class RoyalAnvilMenu extends AnvilMenu {
 
                 if (repairCostT != totalCost || repairCostT == 0) {
                     repairItemCountCost = calculateIncreasedRepairCost(repairItemCountCost);
+                }
+
+                if (inputItemLeftCopy.getItem() instanceof IInherentEnchantment inherentEnchantment) {
+                    Stream<Holder<Enchantment>> holderStream = enchantmentsOnLeft.keySet().stream().filter((enchantmentHolder) -> enchantmentHolder.is(Enchantments.UNBREAKING));
+                    holderStream.forEach((enchantmentHolder) -> {
+                        AnvilCraft.LOGGER.debug(String.valueOf(enchantmentHolder.is(Enchantments.UNBREAKING)));
+                        AnvilCraft.LOGGER.debug(String.valueOf(inherentEnchantment.getInherentEnchantments().get(Enchantments.UNBREAKING)));
+                        enchantmentsOnLeft.set(enchantmentHolder, inherentEnchantment.getInherentEnchantments().get(Enchantments.UNBREAKING));
+                    });
                 }
 
                 inputItemLeftCopy.set(DataComponents.REPAIR_COST, repairItemCountCost);

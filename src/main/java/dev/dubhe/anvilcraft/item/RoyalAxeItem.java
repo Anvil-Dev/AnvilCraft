@@ -3,6 +3,8 @@ package dev.dubhe.anvilcraft.item;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.AxeItem;
@@ -12,6 +14,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
+import net.minecraft.world.level.Level;
 
 import java.util.List;
 import java.util.Map;
@@ -21,9 +24,6 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class RoyalAxeItem extends AxeItem implements IInherentEnchantment {
-    /**
-     *
-     */
     public RoyalAxeItem(Properties properties) {
         super(Tiers.DIAMOND, properties.attributes(AxeItem.createAttributes(ModTiers.AMETHYST, 5, -3.0f)));
     }
@@ -45,12 +45,16 @@ public class RoyalAxeItem extends AxeItem implements IInherentEnchantment {
     @Override
     public ItemEnchantments getAllEnchantments(ItemStack stack, HolderLookup.RegistryLookup<Enchantment> lookup) {
         ItemEnchantments.Mutable enchantments = new ItemEnchantments.Mutable(super.getAllEnchantments(stack, lookup));
-
         for (var entry : getInherentEnchantments().entrySet()) {
             Holder.Reference<Enchantment> holder = lookup.getOrThrow(entry.getKey());
             enchantments.set(holder, entry.getValue());
         }
-
         return enchantments.toImmutable();
+    }
+
+    @Override
+    public void onCraftedPostProcess(ItemStack stack, Level level) {
+        stack.set(DataComponents.ENCHANTMENTS,
+                new ItemEnchantments.Mutable(getAllEnchantments(stack, level.registryAccess().lookup(Registries.ENCHANTMENT).get())).toImmutable());
     }
 }
