@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.mixin;
 
 import dev.dubhe.anvilcraft.item.IInherentEnchantment;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.world.inventory.AnvilMenu;
 import net.minecraft.world.inventory.GrindstoneMenu;
 import net.minecraft.world.item.ItemStack;
@@ -90,7 +91,7 @@ abstract class GrindstoneMenuMixin {
     @Unique
     private ItemStack anvilcraft$removeNonInherentFrom(ItemStack item) {
         ItemEnchantments itemenchantments = EnchantmentHelper.updateEnchantments(item, (p_330066_) -> {
-            p_330066_.removeIf((p_344368_) -> !p_344368_.is(Enchantments.UNBREAKING));
+            p_330066_.removeIf((p_344368_) -> !p_344368_.is(EnchantmentTags.CURSE) && !p_344368_.is(Enchantments.UNBREAKING));
         });
         if (item.is(Items.ENCHANTED_BOOK) && itemenchantments.isEmpty()) {
             item = item.transmuteCopy(Items.BOOK);
