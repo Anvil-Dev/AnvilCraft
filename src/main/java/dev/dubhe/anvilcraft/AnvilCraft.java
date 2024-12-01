@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft;
 
+import dev.dubhe.anvilcraft.api.taslatower.TeslaFilter;
 import dev.dubhe.anvilcraft.api.tooltip.ItemTooltipManager;
 import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
 import dev.dubhe.anvilcraft.data.AnvilCraftDatagen;
@@ -83,11 +84,14 @@ public class AnvilCraft {
         ModLootContextParamSets.registerAll();
         ModEnchantmentEffectComponents.register(modEventBus);
         ModEnchantmentEffects.register(modEventBus);
+
+        TeslaFilter.init();
         // datagen
         AnvilCraftDatagen.init();
 
         registerEvents(modEventBus);
         logger.info("Ciallo～(∠・ω< )⌒★");
+        logger.info("let's 0721!");
     }
 
     private static void registerEvents(IEventBus eventBus) {

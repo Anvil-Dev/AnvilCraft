@@ -72,7 +72,6 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect, Keybo
     private long displayTime = System.currentTimeMillis();
     private boolean animationStarted = false;
     private boolean closingAnimationStarted = false;
-    private boolean shouldClose = false;
 
     public AnvilHammerScreen(BlockPos targetBlockPos, BlockState initialBlockState, Property<?> property, List<BlockState> possibleStates) {
         super(Component.translatable("screen.anvilcraft.anvil_hammer.title"));
@@ -247,7 +246,6 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect, Keybo
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        RenderSystem.setShaderColor(1, 1, 1, 1);
         float centerX = this.width / 2f;
         float centerY = this.height / 2f;
         renderClosingAnimation(guiGraphics, mouseX, mouseY, partialTick);
@@ -268,7 +266,6 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect, Keybo
             renderProgressAnimation(guiGraphics, progress, centerX, centerY);
             return;
         }
-        RenderSystem.setShaderColor(1, 1, 1, 1);
         guiGraphics.blit(
             BACKGROUND,
             (this.width - BACKGROUND_WIDTH) / 2,

@@ -1,37 +1,34 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.client.gui.component.SilencerButton;
-import dev.dubhe.anvilcraft.inventory.ActiveSilencerMenu;
-import dev.dubhe.anvilcraft.network.AddMutedSoundPacket;
-import dev.dubhe.anvilcraft.network.RemoveMutedSoundPacket;
-
+import dev.dubhe.anvilcraft.api.taslatower.TeslaFilter;
+import dev.dubhe.anvilcraft.client.gui.component.TeslaTowerButton;
+import dev.dubhe.anvilcraft.inventory.TeslaTowerMenu;
+import dev.dubhe.anvilcraft.network.AddTeslaFilterPacket;
+import dev.dubhe.anvilcraft.network.RemoveTeslaFilterPacket;
+import it.unimi.dsi.fastutil.Pair;
+import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.sounds.SoundManager;
-import net.minecraft.client.sounds.WeighedSoundEvents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.network.PacketDistributor;
-
-import it.unimi.dsi.fastutil.Pair;
-import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-@SuppressWarnings("DuplicatedCode")
-public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencerMenu> {
+@SuppressWarnings({"MismatchedReadAndWriteOfArray", "FieldCanBeLocal"})
+public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
 
     private static final ResourceLocation CONTAINER_LOCATION =
-            AnvilCraft.of("textures/gui/container/machine/background/active_silencer.png");
+            AnvilCraft.of("textures/gui/container/machine/background/tesla_tower.png");
 
     public static final ResourceLocation ACTIVE_SILENCER_SLIDER =
             AnvilCraft.of("textures/gui/container/machine/active_silencer_slider.png");
@@ -45,12 +42,12 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     private static final int SCROLL_BAR_WIDTH = 5;
     private static final int SCROLLER_HEIGHT = 9;
 
-    public static final int SOUND_FILTERED = 0;
+    public static final int FILTER_FILTERED = 0;
     public static final int SOUND_MUTED = 1;
 
-    private final ActiveSilencerMenu menu;
-    private final SilencerButton[] allSoundButtons = new SilencerButton[8];
-    private final SilencerButton[] mutedSoundButtons = new SilencerButton[8];
+    private final TeslaTowerMenu menu;
+    private final TeslaTowerButton[] allFilterButtons = new TeslaTowerButton[8];
+    private final TeslaTowerButton[] mutedSoundButtons = new TeslaTowerButton[8];
     private EditBox editBox;
     private int leftScrollOff;
     private int rightScrollOff;
@@ -60,17 +57,17 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
 
     private boolean isDraggingLeft;
     private boolean isDraggingRight;
-    private final List<Pair<ResourceLocation, Component>> allSounds = new ArrayList<>();
-    private final List<Pair<ResourceLocation, Component>> filteredSounds = new ArrayList<>();
-    private final List<Pair<ResourceLocation, Component>> mutedSounds = new ArrayList<>();
+    private final List<Pair<TeslaFilter, String>> allFilter = new ArrayList<>();
+    private final List<Pair<TeslaFilter, String>> filteredFilters = new ArrayList<>();
+    private final List<Pair<TeslaFilter, String>> whiteFilters = new ArrayList<>();
 
     private void onSearchTextChange(String text) {
         leftScrollOff = 0;
-        filteredSounds.clear();
+        filteredFilters.clear();
         if (text == null || text.isEmpty()) {
             this.filterText = "";
-            filteredSounds.addAll(allSounds);
-            filteredSounds.removeAll(mutedSounds);
+            filteredFilters.addAll(allFilter);
+            filteredFilters.removeIf(it -> whiteFilters.stream().anyMatch(it2 -> it.left().getId().equals(it2.left().getId()) && it.right().equals(it2.right())));
             return;
         } else {
             this.filterText = text;
@@ -78,29 +75,27 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
 
         if (text.startsWith("#")) {
             String search = text.replaceFirst("#", "");
-            allSounds.stream()
-                    .filter(it -> it.left().toString().contains(search))
-                    .filter(it ->
-                            mutedSounds.stream().noneMatch(it1 -> it1.left().equals(it.first())))
-                    .forEach(filteredSounds::add);
+            allFilter.stream()
+                    .filter(it -> it.right().contains(search))
+                    .filter(it -> whiteFilters.stream().anyMatch(it2 -> it.left().getId().equals(it2.left().getId()) && it.right().equals(it2.right())))
+                    .forEach(filteredFilters::add);
         } else {
             if (text.startsWith("~")) {
                 try {
                     Pattern search = Pattern.compile(text.replaceFirst("~", ""));
-                    allSounds.stream()
-                            .filter(it -> search.matcher(it.left().toString()).matches())
-                            .filter(it -> mutedSounds.stream()
-                                    .noneMatch(it1 -> it1.left().equals(it.first())))
-                            .forEach(filteredSounds::add);
+                    allFilter.stream()
+                            .filter(it -> search.matcher(it.left().getId()).matches())
+                            .filter(it -> whiteFilters.stream().anyMatch(it2 -> it.left().getId().equals(it2.left().getId()) && it.right().equals(it2.right())))
+                            .forEach(filteredFilters::add);
                 } catch (Exception ignored) {
                     // intentionally empty
                 }
             }
-            allSounds.stream()
-                    .filter(it -> it.right().getString().contains(filterText))
+            allFilter.stream()
+                    .filter(it -> it.left().title().getString().contains(filterText))
                     .filter(it ->
-                            mutedSounds.stream().noneMatch(it1 -> it1.left().equals(it.first())))
-                    .forEach(filteredSounds::add);
+                            whiteFilters.stream().noneMatch(it1 -> it1.left().equals(it.first())))
+                    .forEach(filteredFilters::add);
         }
     }
 
@@ -114,118 +109,114 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         }
     }
 
-    private void refreshSoundList() {
+    private void refreshFilterList() {
         onSearchTextChange(filterText);
     }
 
-    private void onAllSoundButtonClick(int selectedIndex) {
+    private void onAllFilterButtonClick(int selectedIndex) {
         int actualIndex = selectedIndex;
         actualIndex += leftScrollOff;
-        if (filteredSounds.isEmpty() || actualIndex >= filteredSounds.size()) return;
-        ResourceLocation sound = filteredSounds.get(actualIndex).left();
-        addMutedSound(sound);
-        PacketDistributor.sendToServer(new AddMutedSoundPacket(sound));
-        refreshSoundList();
+        if (filteredFilters.isEmpty() || actualIndex >= filteredFilters.size()) return;
+        String id = filteredFilters.get(actualIndex).left().getId();
+        String arg = filteredFilters.get(actualIndex).right();
+        addWhiteFilter(id, arg);
+        PacketDistributor.sendToServer(new AddTeslaFilterPacket(id, arg));
+        refreshFilterList();
     }
 
-    private void onMutedSoundButtonClick(int selectedIndex) {
+    private void onWhiteListFilterButtonClick(int selectedIndex) {
         int actualIndex = selectedIndex;
         actualIndex += rightScrollOff;
-        if (mutedSounds.isEmpty() || actualIndex >= mutedSounds.size()) return;
-        ResourceLocation sound = mutedSounds.get(actualIndex).left();
-        removeMutedSound(sound);
-        PacketDistributor.sendToServer(new RemoveMutedSoundPacket(sound));
-        refreshSoundList();
+        if (whiteFilters.isEmpty() || actualIndex >= whiteFilters.size()) return;
+        String id = whiteFilters.get(actualIndex).left().getId();
+        String arg = whiteFilters.get(actualIndex).right();
+        removeWhiteFilter(id, arg);
+        PacketDistributor.sendToServer(new RemoveTeslaFilterPacket(id, arg));
+        refreshFilterList();
     }
 
-    void addMutedSound(ResourceLocation sound) {
-        this.menu.addSound(sound);
-        SoundManager manager = Minecraft.getInstance().getSoundManager();
-        WeighedSoundEvents event = manager.getSoundEvent(sound);
-        if (event == null) return;
-        this.mutedSounds.add(Pair.of(sound, event.getSubtitle() == null ? Component.empty() : event.getSubtitle()));
+    void addWhiteFilter(String id, String arg) {
+        this.menu.addFilter(id, arg);
+        this.whiteFilters.add(Pair.of(TeslaFilter.getFilter(id), arg));
     }
 
-    void removeMutedSound(ResourceLocation sound) {
-        this.menu.removeSound(sound);
-        this.mutedSounds.removeIf(it -> it.left().equals(sound));
+    void removeWhiteFilter(String id, String arg) {
+        this.menu.removeFilter(id, arg);
+        this.whiteFilters.removeIf(it -> it.left().getId().equals(id) && it.right().equals(arg));
     }
 
-    /**
-     * 获取屏幕上某一项的声音字幕
-     */
-    public Component getSoundTextAt(int index, int variant) {
+    public Component getFilterTitle(int index, int variant) {
         int actualIndex = index;
-        if (variant == SOUND_FILTERED) {
+        if (variant == FILTER_FILTERED) {
             actualIndex += leftScrollOff;
-            if (filteredSounds.isEmpty() || actualIndex >= filteredSounds.size()) return Component.empty();
-            return filteredSounds.get(actualIndex).right();
+            if (filteredFilters.isEmpty() || actualIndex >= filteredFilters.size()) return Component.empty();
+            return filteredFilters.get(actualIndex).left().title();
         } else {
             actualIndex += rightScrollOff;
-            if (mutedSounds.isEmpty() || actualIndex >= mutedSounds.size()) return Component.empty();
-            return mutedSounds.get(actualIndex).right();
+            if (whiteFilters.isEmpty() || actualIndex >= whiteFilters.size()) return Component.empty();
+            return whiteFilters.get(actualIndex).left().title();
         }
     }
 
-    /**
-     * 获取屏幕上某一项的声音id
-     */
-    public ResourceLocation getSoundIdAt(int index, int variant) {
+    public String getFilterToolTipAt(int index, int variant) {
         int actualIndex = index;
-        if (variant == SOUND_FILTERED) {
+        if (variant == FILTER_FILTERED) {
             actualIndex += leftScrollOff;
-            if (filteredSounds.isEmpty() || actualIndex >= filteredSounds.size()) return null;
-            return filteredSounds.get(actualIndex).left();
+            if (filteredFilters.isEmpty() || actualIndex >= filteredFilters.size()) return null;
+            Pair<TeslaFilter, String> filter = filteredFilters.get(actualIndex);
+            return filter.left().tooltip(filter.right());
         } else {
             actualIndex += rightScrollOff;
-            if (mutedSounds.isEmpty() || actualIndex >= mutedSounds.size()) return null;
-            return mutedSounds.get(actualIndex).left();
+            if (whiteFilters.isEmpty() || actualIndex >= whiteFilters.size()) return null;
+            Pair<TeslaFilter, String> filter = whiteFilters.get(actualIndex);
+            return filter.left().tooltip(filter.right());
         }
     }
 
     /**
      * 主动消音器gui
      */
-    public ActiveSilencerScreen(ActiveSilencerMenu menu, Inventory playerInventory, Component title) {
+    public TeslaTowerScreen(TeslaTowerMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.menu = menu;
         this.imageWidth = 256;
         this.imageHeight = 166;
     }
 
+    @SuppressWarnings("ExtractMethodRecommender")
     @Override
     protected void init() {
         super.init();
 
         int buttonTop = topPos + 35;
         for (int l = 0; l < 8; ++l) {
-            SilencerButton button = new SilencerButton(
+            TeslaTowerButton button = new TeslaTowerButton(
                     leftPos + START_LEFT_X,
                     buttonTop,
                     l,
-                    SOUND_FILTERED,
+                    FILTER_FILTERED,
                     b -> {
-                        if (b instanceof SilencerButton silencerButton) {
-                            onAllSoundButtonClick(silencerButton.getIndex());
+                        if (b instanceof TeslaTowerButton silencerButton) {
+                            onAllFilterButtonClick(silencerButton.getIndex());
                         }
                     },
                     this,
                     "add");
             button.setWidth(112);
-            this.allSoundButtons[l] = this.addRenderableWidget(button);
+            this.allFilterButtons[l] = this.addRenderableWidget(button);
             buttonTop += 15;
         }
 
         buttonTop = topPos + 35;
         for (int l = 0; l < 8; ++l) {
-            SilencerButton button = new SilencerButton(
+            TeslaTowerButton button = new TeslaTowerButton(
                     leftPos + START_RIGHT_X,
                     buttonTop,
                     l,
                     SOUND_MUTED,
                     b -> {
-                        if (b instanceof SilencerButton silencerButton) {
-                            onMutedSoundButtonClick(silencerButton.getIndex());
+                        if (b instanceof TeslaTowerButton silencerButton) {
+                            onWhiteListFilterButtonClick(silencerButton.getIndex());
                         }
                     },
                     this,
@@ -234,6 +225,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
             buttonTop += 15;
         }
 
+        assert this.minecraft != null;
         editBox = new EditBox(
                 this.minecraft.font,
                 leftPos + 78,
@@ -244,13 +236,22 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         editBox.setResponder(this::onSearchTextChange);
         addRenderableWidget(editBox);
 
-        SoundManager manager = Minecraft.getInstance().getSoundManager();
-        BuiltInRegistries.SOUND_EVENT.stream()
-                .map(it -> Pair.of(it.getLocation(), manager.getSoundEvent(it.getLocation())))
-                .filter(it -> it.second() != null)
-                .filter(it -> it.second().getSubtitle() != null)
-                .forEach(it -> allSounds.add(Pair.of(it.first(), it.second().getSubtitle())));
-        filteredSounds.addAll(allSounds);
+        allFilter.addAll(TeslaFilter.all()
+                .stream()
+                .filter(it -> !it.needArg())
+                .map(it -> Pair.of(it, ""))
+                .toList()
+        );
+        assert Minecraft.getInstance().player != null;
+        allFilter.addAll(Minecraft.getInstance().player.connection.getOnlinePlayers().stream()
+                .map(it -> Pair.of(TeslaFilter.getFilter("IsPlayerIdFilter"), it.getProfile().getName()))
+                .toList()
+        );
+        allFilter.addAll(BuiltInRegistries.ENTITY_TYPE.stream()
+                .map(it -> Pair.of(TeslaFilter.getFilter("IsEntityIdFilter"), it.getDescriptionId()))
+                .toList()
+        );
+        filteredFilters.addAll(allFilter);
     }
 
     private boolean mouseInLeft(double mouseX, double mouseY, int leftPos, int topPos) {
@@ -286,14 +287,14 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         int leftPos = (this.width - this.imageWidth) / 2;
         int topPos = (this.height - this.imageHeight) / 2;
         if (mouseInLeft(mouseX, mouseY, leftPos, topPos)) {
-            if (this.filteredSounds.size() > 8) {
-                this.leftScrollOff = (int) Mth.clamp(this.leftScrollOff - pScrollY, 0, this.filteredSounds.size() - 7);
+            if (this.filteredFilters.size() > 8) {
+                this.leftScrollOff = (int) Mth.clamp(this.leftScrollOff - pScrollY, 0, this.filteredFilters.size() - 7);
             }
         } else {
             if (mouseInRight(mouseX, mouseY, leftPos, topPos)) {
-                if (this.mutedSounds.size() > 8) {
+                if (this.whiteFilters.size() > 8) {
                     this.rightScrollOff =
-                            (int) Mth.clamp(this.rightScrollOff - pScrollY, 0, this.mutedSounds.size() - 7);
+                            (int) Mth.clamp(this.rightScrollOff - pScrollY, 0, this.whiteFilters.size() - 7);
                 }
             }
         }
@@ -303,11 +304,12 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     /**
      * 鼠标拖动事件
      */
+    @SuppressWarnings("DuplicatedCode")
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
         int leftPos = (this.width - this.imageWidth) / 2;
         int topPos = (this.height - this.imageHeight) / 2;
         if (mouseInLeftSlider(mouseX, mouseY, leftPos, topPos)) {
-            int i = filteredSounds.size();
+            int i = filteredFilters.size();
             if (this.isDraggingLeft) {
                 int j = this.topPos + SCROLL_BAR_TOP_POS_Y;
                 int k = j + SCROLL_BAR_HEIGHT;
@@ -321,7 +323,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
             }
         } else {
             if (mouseInRightSlider(mouseX, mouseY, leftPos, topPos)) {
-                int i = mutedSounds.size();
+                int i = whiteFilters.size();
                 if (this.isDraggingRight) {
                     int j = this.topPos + SCROLL_BAR_TOP_POS_Y;
                     int k = j + SCROLL_BAR_HEIGHT;
@@ -346,10 +348,10 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         isDraggingRight = false;
         int leftPos = (this.width - this.imageWidth) / 2;
         int topPos = (this.height - this.imageHeight) / 2;
-        if (mouseInLeftSlider(mouseX, mouseY, leftPos, topPos) && filteredSounds.size() > 8) {
+        if (mouseInLeftSlider(mouseX, mouseY, leftPos, topPos) && filteredFilters.size() > 8) {
             this.isDraggingLeft = true;
         }
-        if (mouseInRightSlider(mouseX, mouseY, leftPos, topPos) && mutedSounds.size() > 8) {
+        if (mouseInRightSlider(mouseX, mouseY, leftPos, topPos) && whiteFilters.size() > 8) {
             this.isDraggingRight = true;
         }
         return super.mouseClicked(mouseX, mouseY, button);
@@ -376,27 +378,22 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         int topPos = (this.height - this.imageHeight) / 2;
 
         super.render(guiGraphics, mouseX, mouseY, partialTick);
-        this.renderScroller(guiGraphics, leftPos + 119, topPos + 35, filteredSounds.size(), leftScrollOff);
+        this.renderScroller(guiGraphics, leftPos + 119, topPos + 35, filteredFilters.size(), leftScrollOff);
 
-        this.renderScroller(guiGraphics, leftPos + 245, topPos + 35, mutedSounds.size(), rightScrollOff);
+        this.renderScroller(guiGraphics, leftPos + 245, topPos + 35, whiteFilters.size(), rightScrollOff);
 
         this.renderTooltip(guiGraphics, mouseX, mouseY);
     }
 
     /**
-     * 处理静音同步包
+     * 处理同步包
      */
-    public void handleSync(List<ResourceLocation> sounds) {
+    public void handleSync(List<Pair<TeslaFilter, String>> filters) {
         rightScrollOff = 0;
-        mutedSounds.clear();
-        SoundManager manager = Minecraft.getInstance().getSoundManager();
-        for (ResourceLocation sound : sounds) {
-            WeighedSoundEvents events = manager.getSoundEvent(sound);
-            if (events == null || events.getSubtitle() == null) return;
-            mutedSounds.add(Pair.of(sound, events.getSubtitle()));
-        }
+        whiteFilters.clear();
+        whiteFilters.addAll(filters);
         onSearchTextChange("");
-        menu.handleSync(sounds);
+        menu.handleSync(filters);
     }
 
     @Override

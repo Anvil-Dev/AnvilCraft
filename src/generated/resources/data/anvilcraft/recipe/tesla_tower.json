@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "anvilcraft:royal_steel_ingot"
+    },
+    "B": {
+      "item": "anvilcraft:topaz_block"
+    },
+    "C": {
+      "item": "anvilcraft:transmission_pole"
+    },
+    "D": {
+      "item": "anvilcraft:circuit_board"
+    }
+  },
+  "pattern": [
+    "ABA",
+    "ACA",
+    "ADA"
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:tesla_tower"
+  }
+}

@@ -14,6 +14,7 @@ import dev.dubhe.anvilcraft.client.gui.screen.RoyalGrindstoneScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.RoyalSmithingScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.SliderScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.StructureToolScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.TeslaTowerScreen;
 import dev.dubhe.anvilcraft.inventory.ActiveSilencerMenu;
 import dev.dubhe.anvilcraft.inventory.BatchCrafterMenu;
 import dev.dubhe.anvilcraft.inventory.ChuteMenu;
@@ -29,15 +30,16 @@ import dev.dubhe.anvilcraft.inventory.RoyalSmithingMenu;
 import dev.dubhe.anvilcraft.inventory.SliderMenu;
 import dev.dubhe.anvilcraft.inventory.StructureToolMenu;
 
+import dev.dubhe.anvilcraft.inventory.TeslaTowerMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 
 import com.tterrag.registrate.util.entry.MenuEntry;
-import net.minecraft.world.level.GameType;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 
+@SuppressWarnings("DataFlowIssue")
 public class ModMenuTypes {
     @SuppressWarnings("DataFlowIssue")
     public static final MenuEntry<BatchCrafterMenu> BATCH_CRAFTER = REGISTRATE
@@ -103,6 +105,10 @@ public class ModMenuTypes {
     public static final MenuEntry<JewelCraftingMenu> JEWEL_CRAFTING = REGISTRATE
         .menu("jewel_crafting", (type, id, inv) -> new JewelCraftingMenu(type, id, inv), () -> JewelCraftingScreen::new)
         .register();
+
+    public static final MenuEntry<TeslaTowerMenu> TESLA_TOWER = REGISTRATE
+            .menu("tesla_tower", TeslaTowerMenu::new, () -> TeslaTowerScreen::new)
+            .register();
 
     public static void register() {
     }

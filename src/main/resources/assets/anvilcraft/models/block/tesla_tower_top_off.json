@@ -1,7 +1,7 @@
 {
 	"parent": "anvilcraft:block/tesla_tower_top",
 	"textures": {
-		"particle": "anvilcraft:block/tesla_tower_head_off",
-		"head": "anvilcraft:block/tesla_tower_head_off"
+		"particle": "anvilcraft:block/tesla_tower_head_overload_off",
+		"head": "anvilcraft:block/tesla_tower_head_overload_off"
 	}
 }

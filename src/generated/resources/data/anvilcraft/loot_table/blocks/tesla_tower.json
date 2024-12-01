@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "block": "anvilcraft:tesla_tower",
+              "condition": "minecraft:block_state_property",
+              "properties": {
+                "half": "bottom"
+              }
+            }
+          ],
+          "name": "anvilcraft:tesla_tower"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "anvilcraft:blocks/tesla_tower"
+}

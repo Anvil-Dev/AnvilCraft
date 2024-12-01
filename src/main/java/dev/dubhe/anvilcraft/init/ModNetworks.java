@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.init;
 
 import dev.dubhe.anvilcraft.network.AddMutedSoundPacket;
+import dev.dubhe.anvilcraft.network.AddTeslaFilterPacket;
 import dev.dubhe.anvilcraft.network.ChargeCollectorIncomingChargePacket;
 import dev.dubhe.anvilcraft.network.CyclingValueSyncPacket;
 import dev.dubhe.anvilcraft.network.HammerChangeBlockPacket;
@@ -15,12 +16,14 @@ import dev.dubhe.anvilcraft.network.PowerGridRemovePacket;
 import dev.dubhe.anvilcraft.network.PowerGridSyncPacket;
 import dev.dubhe.anvilcraft.network.RecipeCacheSyncPacket;
 import dev.dubhe.anvilcraft.network.RemoveMutedSoundPacket;
+import dev.dubhe.anvilcraft.network.RemoveTeslaFilterPacket;
 import dev.dubhe.anvilcraft.network.RocketJumpPacket;
 import dev.dubhe.anvilcraft.network.SliderInitPacket;
 import dev.dubhe.anvilcraft.network.SliderUpdatePacket;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePacket;
 import dev.dubhe.anvilcraft.network.SlotFilterChangePacket;
 import dev.dubhe.anvilcraft.network.StructureDataSyncPacket;
+import dev.dubhe.anvilcraft.network.TeslaFilterSyncPacket;
 import dev.dubhe.anvilcraft.network.UpdateDisplayItemPacket;
 
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -137,6 +140,21 @@ public class ModNetworks {
             RecipeCacheSyncPacket.TYPE,
             RecipeCacheSyncPacket.STREAM_CODEC,
             RecipeCacheSyncPacket::acceptClient
+        );
+        registrar.playToClient(
+                TeslaFilterSyncPacket.TYPE,
+                TeslaFilterSyncPacket.STREAM_CODEC,
+                TeslaFilterSyncPacket.HANDLER
+        );
+        registrar.playToServer(
+                AddTeslaFilterPacket.TYPE,
+                AddTeslaFilterPacket.STREAM_CODEC,
+                AddTeslaFilterPacket.HANDLER
+        );
+        registrar.playToServer(
+                RemoveTeslaFilterPacket.TYPE,
+                RemoveTeslaFilterPacket.STREAM_CODEC,
+                RemoveTeslaFilterPacket.HANDLER
         );
     }
 }

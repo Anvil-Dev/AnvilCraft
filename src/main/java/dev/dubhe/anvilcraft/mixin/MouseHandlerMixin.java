@@ -28,7 +28,6 @@ public abstract class MouseHandlerMixin implements IMouseHandlerExtension {
             if (!Minecraft.ON_OSX) {
                 KeyMapping.setAll();
             }
-
             this.mouseGrabbed = true;
             this.xpos = (double) this.minecraft.getWindow().getScreenWidth() / 2;
             this.ypos = (double) this.minecraft.getWindow().getScreenHeight() / 2;

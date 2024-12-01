@@ -1,7 +1,9 @@
 package dev.dubhe.anvilcraft.client;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.client.event.ClientBlockEventListener;
 import dev.dubhe.anvilcraft.client.event.GuiLayerRegistrationEventListener;
+import dev.dubhe.anvilcraft.client.event.HammerEffectRenderEventListener;
 import dev.dubhe.anvilcraft.client.init.ModShaders;
 import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
 
@@ -14,6 +16,7 @@ import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsE
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 
 import me.shedaniel.autoconfig.AutoConfig;
+import net.neoforged.neoforge.common.NeoForge;
 
 @Mod(value = AnvilCraft.MOD_ID, dist = Dist.CLIENT)
 public class AnvilCraftClient {

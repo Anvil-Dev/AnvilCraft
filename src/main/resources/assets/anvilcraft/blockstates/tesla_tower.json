@@ -3,10 +3,10 @@
     "half=bottom,overload=false,switch=on": {
       "model": "anvilcraft:block/tesla_tower_base"
     },
-    "half=middown,overload=false,switch=on": {
+    "half=lower,overload=false,switch=on": {
       "model": "anvilcraft:block/tesla_tower_middown"
     },
-    "half=midup,overload=false,switch=on": {
+    "half=upper,overload=false,switch=on": {
       "model": "anvilcraft:block/tesla_tower_midup"
     },
     "half=top,overload=false,switch=on": {
@@ -15,10 +15,10 @@
     "half=bottom,overload=true,switch=on": {
       "model": "anvilcraft:block/tesla_tower_base"
     },
-    "half=middown,overload=true,switch=on": {
+    "half=lower,overload=true,switch=on": {
       "model": "anvilcraft:block/tesla_tower_middown"
     },
-    "half=midup,overload=true,switch=on": {
+    "half=upper,overload=true,switch=on": {
       "model": "anvilcraft:block/tesla_tower_midup"
     },
     "half=top,overload=true,switch=on": {
@@ -27,10 +27,10 @@
     "half=bottom,overload=false,switch=off": {
       "model": "anvilcraft:block/tesla_tower_base"
     },
-    "half=middown,overload=false,switch=off": {
+    "half=lower,overload=false,switch=off": {
       "model": "anvilcraft:block/tesla_tower_middown"
     },
-    "half=midup,overload=false,switch=off": {
+    "half=upper,overload=false,switch=off": {
       "model": "anvilcraft:block/tesla_tower_midup"
     },
     "half=top,overload=false,switch=off": {
@@ -39,10 +39,10 @@
     "half=bottom,overload=true,switch=off": {
       "model": "anvilcraft:block/tesla_tower_base"
     },
-    "half=middown,overload=true,switch=off": {
+    "half=lower,overload=true,switch=off": {
       "model": "anvilcraft:block/tesla_tower_middown"
     },
-    "half=midup,overload=true,switch=off": {
+    "half=upper,overload=true,switch=off": {
       "model": "anvilcraft:block/tesla_tower_midup"
     },
     "half=top,overload=true,switch=off": {

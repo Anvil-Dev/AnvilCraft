@@ -27,6 +27,7 @@ import dev.dubhe.anvilcraft.block.HeavyIronTrapdoorBlock;
 import dev.dubhe.anvilcraft.block.HeavyIronWallBlock;
 import dev.dubhe.anvilcraft.block.SlidingRailBlock;
 import dev.dubhe.anvilcraft.block.SlidingRailStopBlock;
+import dev.dubhe.anvilcraft.block.TeslaTowerBlock;
 import dev.dubhe.anvilcraft.block.TransparentCraftingTableBlock;
 import dev.dubhe.anvilcraft.block.DischargerBlock;
 import dev.dubhe.anvilcraft.block.EmberAnvilBlock;
@@ -99,6 +100,7 @@ import dev.dubhe.anvilcraft.item.HasMobBlockItem;
 import dev.dubhe.anvilcraft.item.HeliostatsItem;
 import dev.dubhe.anvilcraft.item.PlaceInWaterBlockItem;
 import dev.dubhe.anvilcraft.item.ResinBlockItem;
+import dev.dubhe.anvilcraft.item.TeslaTowerItem;
 import dev.dubhe.anvilcraft.util.DangerUtil;
 
 import dev.dubhe.anvilcraft.util.ModelProviderUtil;
@@ -503,6 +505,43 @@ public class ModBlocks {
                 .save(provider);
         })
         .register();
+    public static final BlockEntry<TeslaTowerBlock> TESLA_TOWER = REGISTRATE
+            .block("tesla_tower", TeslaTowerBlock::new)
+            .initialProperties(ModBlocks.MAGNET_BLOCK)
+            .loot(AbstractMultiplePartBlock::loot)
+            .properties(properties -> properties.noOcclusion().lightLevel(state -> {
+                if (state.getValue(TeslaTowerBlock.HALF) != Vertical4PartHalf.TOP) return 0;
+                if (state.getValue(SWITCH) == Switch.OFF) return 0;
+                if (state.getValue(OVERLOAD)) return 6;
+                return 15;
+            }))
+            .blockstate((ctx, provider) -> {
+            })
+            .item(TeslaTowerItem::new)
+            .model((ctx, provider) -> { provider.blockItem(ctx, "_overall"); })
+            .build()
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+            .recipe((ctx, provider) -> {
+                ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                        .pattern("ABA")
+                        .pattern("ACA")
+                        .pattern("ADA")
+                        .define('A', ModItems.ROYAL_STEEL_INGOT)
+                        .define('B', ModBlocks.TOPAZ_BLOCK)
+                        .define('C', ModBlocks.TRANSMISSION_POLE)
+                        .define('D', ModItems.CIRCUIT_BOARD)
+                        .unlockedBy(
+                                AnvilCraftDatagen.hasItem(ModItems.CIRCUIT_BOARD),
+                                AnvilCraftDatagen.has(ModItems.CIRCUIT_BOARD))
+                        .unlockedBy(
+                                AnvilCraftDatagen.hasItem(ModBlocks.TRANSMISSION_POLE),
+                                AnvilCraftDatagen.has(ModBlocks.TRANSMISSION_POLE))
+                        .unlockedBy(
+                                AnvilCraftDatagen.hasItem(ModBlocks.TOPAZ_BLOCK),
+                                AnvilCraftDatagen.has(ModBlocks.TOPAZ_BLOCK))
+                        .save(provider);
+            })
+            .register();
     public static final BlockEntry<InductionLightBlock> INDUCTION_LIGHT = REGISTRATE
         .block("induction_light", InductionLightBlock::new)
         .initialProperties(ModBlocks.MAGNET_BLOCK)

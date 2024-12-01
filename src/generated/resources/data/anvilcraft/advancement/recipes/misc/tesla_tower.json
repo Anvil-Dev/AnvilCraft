@@ -1,0 +1,54 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_circuit_board": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:circuit_board"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:tesla_tower"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "has_topaz_block": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:topaz_block"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_transmission_pole": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:transmission_pole"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_circuit_board",
+      "has_transmission_pole",
+      "has_topaz_block"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:tesla_tower"
+    ]
+  }
+}

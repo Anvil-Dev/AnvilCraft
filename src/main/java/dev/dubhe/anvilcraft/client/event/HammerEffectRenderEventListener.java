@@ -1,7 +1,8 @@
-package dev.dubhe.anvilcraft.event;
+package dev.dubhe.anvilcraft.client.event;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.hammer.IHasHammerEffect;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -14,11 +15,12 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 
-@EventBusSubscriber
+@EventBusSubscriber(value = Dist.CLIENT, bus = EventBusSubscriber.Bus.GAME, modid = AnvilCraft.MOD_ID)
 public class HammerEffectRenderEventListener {
 
     @SubscribeEvent

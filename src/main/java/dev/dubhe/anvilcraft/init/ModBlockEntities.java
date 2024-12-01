@@ -23,6 +23,7 @@ import dev.dubhe.anvilcraft.block.entity.ResentfulAmberBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RubyLaserBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RubyPrismBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.TeslaTowerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ThermoelectricConverterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.BatchCrafterRenderer;
@@ -170,6 +171,11 @@ public class ModBlockEntities {
         .validBlocks(ModBlocks.HELIOSTATS)
         .renderer(() -> HeliostatsRenderer::new)
         .register();
+
+    public static final BlockEntityEntry<TeslaTowerBlockEntity> TESLA_TOWER = REGISTRATE
+            .blockEntity("tesla_tower", TeslaTowerBlockEntity::createBlockEntity)
+            .validBlocks(ModBlocks.TESLA_TOWER)
+            .register();
 
     public static void register() {
     }
