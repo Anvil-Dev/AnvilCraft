@@ -2,6 +2,8 @@ package dev.dubhe.anvilcraft.mixin;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.client.init.ModRenderTargets;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
@@ -138,7 +140,9 @@ public abstract class LevelRendererMixin {
             0f
         );
         mcInput.clear(Minecraft.ON_OSX);
+        int oldTexture = GlStateManager._getActiveTexture();
         ModShaders.getBloomChain().process(RenderHelper.getPartialTick());
+        RenderSystem.activeTexture(oldTexture);
         minecraft.getMainRenderTarget().bindWrite(false);
     }
 
