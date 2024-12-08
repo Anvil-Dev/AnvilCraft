@@ -132,6 +132,7 @@ public abstract class LevelRendererMixin {
     ) {
         if (!RenderState.isEnhancedRenderingAvailable()) return;
         if (!RenderState.isBloomEffectEnabled()) return;
+
         RenderTarget mcInput = ModShaders.getBloomChain().getTempTarget("mcinput");
         mcInput.setClearColor(
             FogRenderer.fogRed,
@@ -141,8 +142,11 @@ public abstract class LevelRendererMixin {
         );
         mcInput.clear(Minecraft.ON_OSX);
         int oldTexture = GlStateManager._getActiveTexture();
+        ModRenderTargets.getTempTarget().copyDepthFrom(Minecraft.getInstance().getMainRenderTarget());
         ModShaders.getBloomChain().process(RenderHelper.getPartialTick());
+        Minecraft.getInstance().getMainRenderTarget().copyDepthFrom(ModRenderTargets.getTempTarget());
         RenderSystem.activeTexture(oldTexture);
+        RenderSystem.enableDepthTest();
         minecraft.getMainRenderTarget().bindWrite(false);
     }
 
