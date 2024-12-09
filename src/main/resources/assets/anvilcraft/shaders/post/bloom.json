@@ -3,14 +3,10 @@
     "mcinput",
     "input",
     "swap1",
-    "swap2"
+    "swap2",
+    "result"
   ],
   "passes": [
-    {
-      "name": "anvilcraft:blit",
-      "intarget": "minecraft:main",
-      "outtarget": "mcinput"
-    },
     {
       "name": "anvilcraft:blur",
       "intarget": "input",
@@ -69,8 +65,8 @@
     },
     {
       "name": "anvilcraft:apply_bloom",
-      "intarget": "mcinput",
-      "outtarget": "minecraft:main",
+      "intarget": "minecraft:main",
+      "outtarget": "result",
       "uniforms": [
         {
           "name": "BloomIntensity",

@@ -4,11 +4,13 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.EffectInstance;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceProvider;
 import net.neoforged.neoforge.client.event.RegisterShadersEvent;
+import org.joml.Matrix4f;
 
 import java.io.IOException;
 
@@ -28,6 +30,10 @@ public class ModShaders {
     static ShaderInstance ringShader;
     @Getter
     static ShaderInstance selectionShader;
+    @Getter
+    static ShaderInstance blitShader;
+    @Getter
+    static Matrix4f orthoMatrix = new Matrix4f();
 
 
     public static void register(RegisterShadersEvent event) {
@@ -64,6 +70,14 @@ public class ModShaders {
                 ),
                 it -> selectionShader = it
             );
+            event.registerShader(
+                new ShaderInstance(
+                    event.getResourceProvider(),
+                    AnvilCraft.of("blit"),
+                    DefaultVertexFormat.POSITION
+                ),
+                it -> blitShader = it
+            );
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -73,6 +87,15 @@ public class ModShaders {
         if (bloomChain != null) {
             bloomChain.resize(width, height);
         }
+        orthoMatrix = new Matrix4f()
+            .setOrtho(
+                0f,
+                width,
+                0f,
+                height,
+                0.1f,
+                1000f
+            );
     }
 
     public static void loadBloomEffect(ResourceProvider resourceProvider) throws IOException {

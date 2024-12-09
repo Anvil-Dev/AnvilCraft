@@ -3,8 +3,14 @@ package dev.dubhe.anvilcraft.mixin;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.shaders.ProgramManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.dubhe.anvilcraft.client.init.ModRenderTargets;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.init.ModShaders;
@@ -20,8 +26,10 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
+import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -134,16 +142,40 @@ public abstract class LevelRendererMixin {
         if (!RenderState.isBloomEffectEnabled()) return;
 
         RenderTarget mcInput = ModShaders.getBloomChain().getTempTarget("mcinput");
-        mcInput.setClearColor(
+        mcInput.setClearColor(0, 0, 0, 0);
+        mcInput.clear(Minecraft.ON_OSX);
+        int oldTexture = GlStateManager._getActiveTexture();
+        ModRenderTargets.getTempTarget().copyDepthFrom(Minecraft.getInstance().getMainRenderTarget());
+        ModShaders.getBloomChain().process(RenderHelper.getPartialTick());
+        RenderSystem.clearColor(
             FogRenderer.fogRed,
             FogRenderer.fogGreen,
             FogRenderer.fogBlue,
             0f
         );
-        mcInput.clear(Minecraft.ON_OSX);
-        int oldTexture = GlStateManager._getActiveTexture();
-        ModRenderTargets.getTempTarget().copyDepthFrom(Minecraft.getInstance().getMainRenderTarget());
-        ModShaders.getBloomChain().process(RenderHelper.getPartialTick());
+        RenderTarget result = ModShaders.getBloomChain().getTempTarget("result");
+        RenderTarget main = Minecraft.getInstance().getMainRenderTarget();
+        result.unbindRead();
+        float width = main.width;
+        float height = main.height;
+        ShaderInstance blitShader = ModShaders.getBlitShader();
+        RenderSystem.viewport(0, 0, (int) width, (int) height);
+        blitShader.setSampler("DiffuseSampler", result);
+        blitShader.safeGetUniform("ProjMat").set(ModShaders.getOrthoMatrix());
+        blitShader.safeGetUniform("OutSize").set(width, height);
+        RenderSystem.depthFunc(GL11.GL_ALWAYS);
+        BufferBuilder bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
+        bufferbuilder.addVertex(0.0F, 0.0F, 500.0F);
+        bufferbuilder.addVertex(width, 0.0F, 500.0F);
+        bufferbuilder.addVertex(width, height, 500.0F);
+        bufferbuilder.addVertex(0.0F, height, 500.0F);
+        blitShader.apply();
+        main.bindWrite(false);
+        BufferUploader.draw(bufferbuilder.buildOrThrow());
+        main.unbindWrite();
+        result.unbindRead();
+        RenderSystem.depthFunc(GL11.GL_LEQUAL);
+        ProgramManager.glUseProgram(0);
         Minecraft.getInstance().getMainRenderTarget().copyDepthFrom(ModRenderTargets.getTempTarget());
         RenderSystem.activeTexture(oldTexture);
         RenderSystem.enableDepthTest();
