@@ -303,6 +303,7 @@ public class ModBlocks {
                 .save(provider, AnvilCraft.of("smithing/royal_anvil"));
         })
         .initialProperties(() -> Blocks.ANVIL)
+        .properties(p -> p.strength(5.0f, 1200f))
         .blockstate((ctx, provider) -> {
         })
         .simpleItem()
@@ -324,7 +325,7 @@ public class ModBlocks {
                 .save(provider, AnvilCraft.of("smithing/royal_grindstone"));
         })
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(properties -> properties.explosionResistance(15.0F))
+        .properties(p -> p.strength(5.0f, 1200f))
         .blockstate((ctx, provider) -> {
         })
         .simpleItem()
@@ -344,7 +345,7 @@ public class ModBlocks {
                 .save(provider, AnvilCraft.of("smithing/royal_smithing_table"));
         })
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(properties -> properties.explosionResistance(15.0F))
+        .properties(p -> p.strength(5.0f, 1200f))
         .blockstate((ctx, provider) -> {
         })
         .simpleItem()
@@ -371,12 +372,14 @@ public class ModBlocks {
             ModBlockTags.CANT_BROKEN_ANVIL,
             BlockTags.MINEABLE_WITH_PICKAXE,
             BlockTags.NEEDS_DIAMOND_TOOL)
-        .properties(properties -> properties.lightLevel(state -> 9))
-        .properties(BlockBehaviour.Properties::noOcclusion)
+        .properties(properties -> properties.lightLevel(state -> 9)
+            .noOcclusion()
+            .strength(50.0f, 1200f))
         .blockstate((ctx, provider) -> {
         })
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
+        .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
         .register();
     public static final BlockEntry<EmberGrindstone> EMBER_GRINDSTONE = REGISTRATE
@@ -395,13 +398,14 @@ public class ModBlocks {
             BlockTags.DRAGON_IMMUNE,
             BlockTags.MINEABLE_WITH_PICKAXE,
             BlockTags.NEEDS_DIAMOND_TOOL)
-        .properties(properties -> properties.lightLevel(state -> 9))
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .properties(BlockBehaviour.Properties::noOcclusion)
+        .properties(properties -> properties.lightLevel(state -> 9)
+            .noOcclusion())
         .blockstate((ctx, provider) -> {
         })
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
+        .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
         .register();
     public static final BlockEntry<EmberSmithingTableBlock> EMBER_SMITHING_TABLE = REGISTRATE
@@ -420,13 +424,14 @@ public class ModBlocks {
             BlockTags.DRAGON_IMMUNE,
             BlockTags.MINEABLE_WITH_PICKAXE,
             BlockTags.NEEDS_DIAMOND_TOOL)
-        .properties(properties -> properties.lightLevel(state -> 9))
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .properties(BlockBehaviour.Properties::noOcclusion)
+        .properties(properties -> properties.lightLevel(state -> 9)
+            .noOcclusion())
         .blockstate((ctx, provider) -> {
         })
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
+        .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
         .register();
 
@@ -1383,7 +1388,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> ROYAL_STEEL_BLOCK = REGISTRATE
         .block("royal_steel_block", Block::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(properties -> properties.explosionResistance(15.0F))
+        .properties(p -> p.strength(5.0f, 1200f))
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE,
             BlockTags.NEEDS_IRON_TOOL,
@@ -1405,7 +1410,7 @@ public class ModBlocks {
             BlockTags.NEEDS_IRON_TOOL,
             ModBlockTags.OVERSEER_BASE)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(properties -> properties.explosionResistance(15.0F))
+        .properties(p -> p.strength(5.0f, 1200f))
         .simpleItem()
         .recipe((ctx, provider) -> {
             SingleItemRecipeBuilder.stonecutting(
@@ -1424,7 +1429,7 @@ public class ModBlocks {
             BlockTags.NEEDS_IRON_TOOL,
             ModBlockTags.OVERSEER_BASE)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(properties -> properties.explosionResistance(15.0F))
+        .properties(p -> p.strength(5.0f, 1200f))
         .simpleItem()
         .recipe((ctx, provider) -> {
             ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 4)
@@ -1451,7 +1456,7 @@ public class ModBlocks {
             BlockTags.NEEDS_IRON_TOOL,
             ModBlockTags.OVERSEER_BASE)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(properties -> properties.explosionResistance(15.0F))
+        .properties(p -> p.strength(5.0f, 1200f))
         .blockstate((ctx, provider) -> {
         })
         .simpleItem()
@@ -1479,7 +1484,7 @@ public class ModBlocks {
             BlockTags.NEEDS_IRON_TOOL,
             ModBlockTags.OVERSEER_BASE)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(properties -> properties.explosionResistance(15.0F))
+        .properties(p -> p.strength(5.0f, 1200f))
         .blockstate((ctx, provider) -> provider.slabBlock(
             ctx.get(),
             AnvilCraft.of("block/cut_royal_steel_block"),
@@ -1520,7 +1525,7 @@ public class ModBlocks {
             BlockTags.NEEDS_IRON_TOOL,
             ModBlockTags.OVERSEER_BASE)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(properties -> properties.explosionResistance(15.0F))
+        .properties(p -> p.strength(5.0f, 1200f))
         .blockstate(
             (ctx, provider) -> provider.stairsBlock(ctx.get(), AnvilCraft.of("block/cut_royal_steel_block")))
         .simpleItem()
@@ -1566,6 +1571,7 @@ public class ModBlocks {
             DangerUtil.genConfiguredModel("block/ember_metal_block").get()))
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
+        .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
         .recipe((ctx, provider) -> {
             ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
@@ -1588,13 +1594,13 @@ public class ModBlocks {
             BlockTags.WITHER_IMMUNE,
             BlockTags.DRAGON_IMMUNE)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .properties(properties -> properties.lightLevel(state -> 9))
-        .properties(BlockBehaviour.Properties::noOcclusion)
+        .properties(properties -> properties.lightLevel(state -> 9).noOcclusion())
         .blockstate((context, provider) -> provider.simpleBlock(
             context.get(),
             DangerUtil.genConfiguredModel("block/cut_ember_metal_block").get()))
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
+        .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
         .recipe((ctx, provider) -> {
             ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 4)
@@ -1623,12 +1629,12 @@ public class ModBlocks {
             BlockTags.WITHER_IMMUNE,
             BlockTags.DRAGON_IMMUNE)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .properties(properties -> properties.lightLevel(state -> 9))
-        .properties(BlockBehaviour.Properties::noOcclusion)
+        .properties(properties -> properties.lightLevel(state -> 9).noOcclusion())
         .blockstate((ctx, provider) -> {
         })
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
+        .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe((ctx, provider) -> {
@@ -1655,12 +1661,12 @@ public class ModBlocks {
             BlockTags.WITHER_IMMUNE,
             BlockTags.DRAGON_IMMUNE)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .properties(properties -> properties.lightLevel(state -> 9))
-        .properties(BlockBehaviour.Properties::noOcclusion)
+        .properties(properties -> properties.lightLevel(state -> 9).noOcclusion())
         .blockstate((ctx, provider) -> {
         })
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
+        .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
         .loot((tables, block) -> tables.add(block, tables.createSlabItemTable(block)))
         .recipe((ctx, provider) -> {
@@ -1700,12 +1706,12 @@ public class ModBlocks {
             BlockTags.WITHER_IMMUNE,
             BlockTags.DRAGON_IMMUNE)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .properties(properties -> properties.lightLevel(state -> 9))
-        .properties(BlockBehaviour.Properties::noOcclusion)
+        .properties(properties -> properties.lightLevel(state -> 9).noOcclusion())
         .blockstate((ctx, provider) -> {
         })
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
+        .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
         .recipe((ctx, provider) -> {
             ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 4)
@@ -1738,7 +1744,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> HEAVY_IRON_BLOCK = REGISTRATE
         .block("heavy_iron_block", Block::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .properties(BlockBehaviour.Properties::noOcclusion)
+        .properties(p -> p.noOcclusion().strength(5.0f, 1200f))
         .blockstate((context, provider) -> provider.simpleBlock(
             context.get(),
             DangerUtil.genConfiguredModel("block/heavy_iron_block").get()))
@@ -1758,6 +1764,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> POLISHED_HEAVY_IRON_BLOCK = REGISTRATE
         .block("polished_heavy_iron_block", Block::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.strength(5.0f, 1200f))
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE,
             BlockTags.NEEDS_IRON_TOOL)
@@ -1773,6 +1780,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> POLISHED_HEAVY_IRON_SLAB = REGISTRATE
         .block("polished_heavy_iron_slab", SlabBlock::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.strength(5.0f, 1200f))
         .blockstate((ctx, provider) -> provider.slabBlock(
             ctx.get(),
             AnvilCraft.of("block/polished_heavy_iron_block"),
@@ -1803,6 +1811,7 @@ public class ModBlocks {
             "polished_heavy_iron_stairs",
             (properties) -> new StairBlock(ModBlocks.POLISHED_HEAVY_IRON_BLOCK.getDefaultState(), properties))
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.strength(5.0f, 1200f))
         .blockstate((ctx, provider) ->
             provider.stairsBlock(ctx.get(), AnvilCraft.of("block/polished_heavy_iron_block")))
         .simpleItem()
@@ -1826,6 +1835,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> CUT_HEAVY_IRON_BLOCK = REGISTRATE
         .block("cut_heavy_iron_block", Block::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.strength(5.0f, 1200f))
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE,
             BlockTags.NEEDS_IRON_TOOL)
@@ -1842,6 +1852,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> CUT_HEAVY_IRON_SLAB = REGISTRATE
         .block("cut_heavy_iron_slab", SlabBlock::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.strength(5.0f, 1200f))
         .blockstate((ctx, provider) -> provider.slabBlock(
             ctx.get(),
             AnvilCraft.of("block/cut_heavy_iron_block"),
@@ -1870,6 +1881,7 @@ public class ModBlocks {
             "cut_heavy_iron_stairs",
             (properties) -> new StairBlock(ModBlocks.CUT_HEAVY_IRON_BLOCK.getDefaultState(), properties))
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.strength(5.0f, 1200f))
         .blockstate((ctx, provider) -> provider.stairsBlock(ctx.get(), AnvilCraft.of("block/cut_heavy_iron_block")))
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE,
@@ -1892,6 +1904,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> HEAVY_IRON_PLATE = REGISTRATE
         .block("heavy_iron_plate", HeavyIronPlateBlock::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.strength(5.0f, 1200f))
         .blockstate((ctx, provider) -> {
         })
         .simpleItem()
@@ -1909,6 +1922,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> HEAVY_IRON_COLUMN = REGISTRATE
         .block("heavy_iron_column", Block::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.strength(5.0f, 1200f))
         .blockstate((ctx, provider) -> {
         })
         .simpleItem()
@@ -1926,6 +1940,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> HEAVY_IRON_BEAM = REGISTRATE
         .block("heavy_iron_beam", HeavyIronBeamBlock::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.strength(5.0f, 1200f))
         .blockstate((ctx, provider) -> {
         })
         .item()
@@ -1946,7 +1961,7 @@ public class ModBlocks {
     public static final BlockEntry<HeavyIronWallBlock> HEAVY_IRON_WALL = REGISTRATE
         .block("heavy_iron_wall", HeavyIronWallBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(properties -> properties.explosionResistance(1200f).noOcclusion())
+        .properties(properties -> properties.strength(5.0f, 1200f).noOcclusion())
         .blockstate((ctx, provider) -> {
         })
         .tag(BlockTags.MINEABLE_WITH_PICKAXE,
@@ -1964,7 +1979,7 @@ public class ModBlocks {
     public static final BlockEntry<HeavyIronDoorBlock> HEAVY_IRON_DOOR = REGISTRATE
         .block("heavy_iron_door", HeavyIronDoorBlock::new)
         .initialProperties(() -> Blocks.IRON_DOOR)
-        .properties(properties -> properties.explosionResistance(1200f))
+        .properties(properties -> properties.strength(5.0f, 1200f))
         .loot((l, b) -> {
             l.add(b, l.createDoorTable(b));
         })
@@ -1982,7 +1997,7 @@ public class ModBlocks {
     public static final BlockEntry<HeavyIronTrapdoorBlock> HEAVY_IRON_TRAPDOOR = REGISTRATE
         .block("heavy_iron_trapdoor", HeavyIronTrapdoorBlock::new)
         .initialProperties(() -> Blocks.IRON_TRAPDOOR)
-        .properties(properties -> properties.explosionResistance(1200f))
+        .properties(properties -> properties.strength(5.0f, 1200f))
         .defaultLoot()
         .blockstate((ctx, provider) -> {
         })
@@ -2322,7 +2337,7 @@ public class ModBlocks {
         .block("tempering_glass", TransparentBlock::new)
         .initialProperties(() -> Blocks.GLASS)
         .properties(properties -> properties
-            .explosionResistance(15.0F)
+            .explosionResistance(1200.0F)
             .noOcclusion()
             .isValidSpawn(ModBlocks::never)
             .isRedstoneConductor(ModBlocks::never)
@@ -2358,6 +2373,7 @@ public class ModBlocks {
         .tag(Tags.Blocks.GLASS_BLOCKS)
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
+        .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
         .register();
     public static final BlockEntry<? extends Block> CINERITE = REGISTRATE
@@ -2853,9 +2869,10 @@ public class ModBlocks {
 
     public static final BlockEntry<NegativeMatterBlock> NEGATIVE_MATTER_BLOCK = REGISTRATE
             .block("negative_matter_block", NegativeMatterBlock::new)
-            .initialProperties(VOID_MATTER_BLOCK::get)
-            .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-            .properties(properties -> properties.lightLevel(state -> 0).noOcclusion())
+            .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE,
+                    BlockTags.NEEDS_DIAMOND_TOOL)
+            .properties(properties -> properties.lightLevel(state -> 1).noOcclusion())
             .blockstate((context, provider) -> provider.simpleBlock(
                     context.get(),
                     DangerUtil.genConfiguredModel("block/negative_matter_block").get()))
@@ -2951,7 +2968,7 @@ public class ModBlocks {
         return REGISTRATE
             .block("reinforced_concrete_" + color, ReinforcedConcreteBlock::new)
             .initialProperties(() -> Blocks.TERRACOTTA)
-            .properties(properties -> properties.explosionResistance(15.0f))
+            .properties(properties -> properties.destroyTime(2.0f).explosionResistance(15.0f))
             .item()
             .tag(ModItemTags.REINFORCED_CONCRETE)
             .build()
@@ -3001,7 +3018,7 @@ public class ModBlocks {
         return REGISTRATE
             .block("reinforced_concrete_" + color + "_slab", SlabBlock::new)
             .initialProperties(() -> Blocks.TERRACOTTA)
-            .properties(properties -> properties.explosionResistance(15.0f))
+            .properties(properties -> properties.destroyTime(2.0f).explosionResistance(15.0f))
             .item()
             .tag(ModItemTags.REINFORCED_CONCRETE)
             .build()
@@ -3044,7 +3061,7 @@ public class ModBlocks {
                 "reinforced_concrete_" + color + "_stair",
                 (properties) -> new StairBlock(parent.getDefaultState(), properties))
             .initialProperties(() -> Blocks.TERRACOTTA)
-            .properties(properties -> properties.explosionResistance(15.0f))
+            .properties(properties -> properties.destroyTime(2.0f).explosionResistance(15.0f))
             .item()
             .tag(ModItemTags.REINFORCED_CONCRETE)
             .build()
@@ -3083,7 +3100,7 @@ public class ModBlocks {
         return REGISTRATE
             .block("reinforced_concrete_" + color + "_wall", WallBlock::new)
             .initialProperties(() -> Blocks.TERRACOTTA)
-            .properties(properties -> properties.explosionResistance(15.0f))
+            .properties(properties -> properties.destroyTime(2.0f).explosionResistance(15.0f))
             .blockstate((ctx, provider) ->
                 provider.wallBlock(ctx.get(), AnvilCraft.of("block/reinforced_concrete_" + color + "_wall")))
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.WALLS)

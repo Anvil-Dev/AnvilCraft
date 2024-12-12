@@ -1,5 +1,22 @@
 {
   "values": [
+    "anvilcraft:ember_anvil",
+    "anvilcraft:ember_grindstone",
+    "anvilcraft:ember_smithing_table",
+    "anvilcraft:ember_metal_block",
+    "anvilcraft:cut_ember_metal_block",
+    "anvilcraft:cut_ember_metal_pillar",
+    "anvilcraft:cut_ember_metal_slab",
+    "anvilcraft:cut_ember_metal_stairs",
+    "anvilcraft:ember_glass",
+    "anvilcraft:ember_metal_pickaxe",
+    "anvilcraft:ember_metal_axe",
+    "anvilcraft:ember_metal_shovel",
+    "anvilcraft:ember_metal_hoe",
+    "anvilcraft:ember_metal_sword",
+    "anvilcraft:ember_anvil_hammer",
+    "anvilcraft:ember_metal_ingot",
+    "anvilcraft:ember_metal_nugget",
     "anvilcraft:earth_core_shard_block",
     "anvilcraft:earth_core_shard_ore",
     "anvilcraft:earth_core_shard"

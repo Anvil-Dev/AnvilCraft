@@ -16,6 +16,7 @@
     "anvilcraft:void_stone",
     "anvilcraft:earth_core_shard_ore",
     "anvilcraft:void_matter_block",
-    "anvilcraft:earth_core_shard_block"
+    "anvilcraft:earth_core_shard_block",
+    "anvilcraft:negative_matter_block"
   ]
 }

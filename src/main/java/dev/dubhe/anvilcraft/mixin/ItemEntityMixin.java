@@ -98,9 +98,19 @@ abstract class ItemEntityMixin extends Entity {
 
     @Inject(method = "tick", at = @At(value = "HEAD"))
     private void voidResistant(CallbackInfo ci) {
-        if (this.getServer() == null) return;
-        if (this.getItem().is(ModItemTags.VOID_RESISTANT)
-                && this.getY() < this.level().getMinBuildHeight()) this.setDeltaMovement(0, 0.6f, 0);
+//        if (this.getServer() == null) return;
+        if (!this.getItem().is(ModItemTags.VOID_RESISTANT)) return;
+        if(this.getY() < this.level().getMinBuildHeight() + 1) {
+            double dy = (this.level().getMinBuildHeight() - this.getY()) * 0.01;
+//            if(this.getDeltaMovement().y > 0) {
+                dy += this.getDeltaMovement().y * -0.1;
+//            }
+            this.addDeltaMovement(new Vec3(0, 0.04 + dy, 0));
+        }
+//        else if(this.getY() < this.level().getMinBuildHeight() + 1){
+//            double dy = -0.01 - this.getDeltaMovement().y;
+//            this.addDeltaMovement(new Vec3(0, 0.04 + dy, 0));
+//        }
     }
 
     @Unique private static final Map<Block, Integer> REPAIR_EFFICIENCY = new HashMap<>();

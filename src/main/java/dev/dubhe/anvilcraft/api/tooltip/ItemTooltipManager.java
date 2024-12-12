@@ -33,8 +33,8 @@ public class ItemTooltipManager {
         map.put(ModBlocks.CRAB_TRAP.asItem(), "Placing it in the water to help you catch aquatic products");
         map.put(ModItems.CRAB_CLAW.get(), "Increase touch length when holding");
         map.put(ModBlocks.ROYAL_ANVIL.asItem(), "Unbreakable and powerful compatibility");
-        map.put(ModBlocks.ROYAL_GRINDSTONE.asItem(), "Creeper proof, Eliminating Curses and Punishing");
-        map.put(ModBlocks.ROYAL_SMITHING_TABLE.asItem(), "Creeper proof, Saving your Smithing Template");
+        map.put(ModBlocks.ROYAL_GRINDSTONE.asItem(), "Explosion proof, Eliminating Curses and Punishing");
+        map.put(ModBlocks.ROYAL_SMITHING_TABLE.asItem(), "Explosion proof, Saving your Smithing Template");
         map.put(ModBlocks.HEATER.asItem(), "Heating the block above, consumes 16 kW");
         map.put(ModBlocks.TRANSMISSION_POLE.asItem(), "Build a power grid with a transmission length of 8");
         map.put(ModBlocks.CHARGE_COLLECTOR.asItem(), "Collecting charges to generate power");
@@ -55,12 +55,12 @@ public class ItemTooltipManager {
                 "Attracting the anvil below, "
                         + "when pushed and pulled by the piston, causes adjacent copper blocks to generate charges");
         map.put(ModBlocks.BATCH_CRAFTER.asItem(), "consumes 1 kW");
-        map.put(ModBlocks.ROYAL_STEEL_BLOCK.asItem(), "Creeper proof");
-        map.put(ModBlocks.SMOOTH_ROYAL_STEEL_BLOCK.asItem(), "Creeper proof");
-        map.put(ModBlocks.CUT_ROYAL_STEEL_BLOCK.asItem(), "Creeper proof");
-        map.put(ModBlocks.CUT_ROYAL_STEEL_STAIRS.asItem(), "Creeper proof");
-        map.put(ModBlocks.CUT_ROYAL_STEEL_SLAB.asItem(), "Creeper proof");
-        map.put(ModBlocks.TEMPERING_GLASS.asItem(), "Creeper proof, No tools required on collect");
+        map.put(ModBlocks.ROYAL_STEEL_BLOCK.asItem(), "Explosion proof");
+        map.put(ModBlocks.SMOOTH_ROYAL_STEEL_BLOCK.asItem(), "Explosion proof");
+        map.put(ModBlocks.CUT_ROYAL_STEEL_BLOCK.asItem(), "Explosion proof");
+        map.put(ModBlocks.CUT_ROYAL_STEEL_STAIRS.asItem(), "Explosion proof");
+        map.put(ModBlocks.CUT_ROYAL_STEEL_SLAB.asItem(), "Explosion proof");
+        map.put(ModBlocks.TEMPERING_GLASS.asItem(), "Explosion proof, No tools required on collect");
         map.put(ModBlocks.REMOTE_TRANSMISSION_POLE.asItem(), "Build a power grid with a transmission length of 8");
         map.put(ModBlocks.HEAVY_IRON_BLOCK.asItem(), "Explosion proof");
         map.put(ModBlocks.POLISHED_HEAVY_IRON_BLOCK.asItem(), "Explosion proof");
@@ -72,19 +72,30 @@ public class ItemTooltipManager {
         map.put(ModBlocks.HEAVY_IRON_PLATE.asItem(), "Explosion proof");
         map.put(ModBlocks.HEAVY_IRON_COLUMN.asItem(), "Explosion proof");
         map.put(ModBlocks.HEAVY_IRON_BEAM.asItem(), "Explosion proof");
+        map.put(ModBlocks.HEAVY_IRON_WALL.asItem(), "Explosion proof");
+        map.put(ModBlocks.HEAVY_IRON_DOOR.asItem(), "Explosion proof");
+        map.put(ModBlocks.HEAVY_IRON_TRAPDOOR.asItem(), "Explosion proof");
         map.put(ModBlocks.INDUCTION_LIGHT.asItem(), "Catalyze crop growth, consumes 1 kW");
         map.put(
                 ModBlocks.ITEM_COLLECTOR.asItem(),
                 "Adjust power consumption based on range and cooling" + ", from 30kW to 150kW");
+        map.put(ModBlocks.EMBER_ANVIL.asItem(), "Wither proof");
+        map.put(ModBlocks.EMBER_GRINDSTONE.asItem(), "Wither proof");
+        map.put(ModBlocks.EMBER_SMITHING_TABLE.asItem(), "Wither proof");
+        map.put(ModBlocks.EMBER_METAL_BLOCK.asItem(), "Wither proof");
+        map.put(ModBlocks.CUT_EMBER_METAL_BLOCK.asItem(), "Wither proof");
+        map.put(ModBlocks.CUT_EMBER_METAL_PILLAR.asItem(), "Wither proof");
+        map.put(ModBlocks.CUT_EMBER_METAL_SLAB.asItem(), "Wither proof");
+        map.put(ModBlocks.CUT_EMBER_METAL_STAIRS.asItem(), "Wither proof");
     }
 
     public static final Map<Item, String> NEED_TOOLTIP_ITEM = Collections.unmodifiableMap(map);
 
     /**
-     * 添加工具提示
+     * 为模组物品添加工具提示
      *
-     * @param stack 物品堆
-     * @param tooltip 提示类容
+     * @param stack 需要添加工具提示的物品堆叠
+     * @param tooltip 提示内容
      */
     public static void addTooltip(ItemStack stack, List<Component> tooltip) {
         Item item = stack.getItem();

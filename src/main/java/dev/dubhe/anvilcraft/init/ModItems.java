@@ -260,7 +260,8 @@ public class ModItems {
                 .save(provider, AnvilCraft.of("smithing/ember_metal_pickaxe"));
         })
         .model((ctx, provider) -> provider.handheld(ctx))
-        .tag(ItemTags.PICKAXES)
+        .tag(ItemTags.PICKAXES,
+            ModItemTags.EXPLOSION_PROOF)
         .register();
     public static final ItemEntry<EmberMetalAxeItem> EMBER_METAL_AXE = REGISTRATE
         .item("ember_metal_axe", EmberMetalAxeItem::new)
@@ -275,7 +276,8 @@ public class ModItems {
                 .save(provider, AnvilCraft.of("smithing/ember_metal_axe"));
         })
         .model((ctx, provider) -> provider.handheld(ctx))
-        .tag(ItemTags.AXES)
+        .tag(ItemTags.AXES,
+            ModItemTags.EXPLOSION_PROOF)
         .register();
     public static final ItemEntry<EmberMetalShovelItem> EMBER_METAL_SHOVEL = REGISTRATE
         .item("ember_metal_shovel", EmberMetalShovelItem::new)
@@ -290,7 +292,8 @@ public class ModItems {
                 .save(provider, AnvilCraft.of("smithing/ember_metal_shovel"));
         })
         .model((ctx, provider) -> provider.handheld(ctx))
-        .tag(ItemTags.SHOVELS)
+        .tag(ItemTags.SHOVELS,
+            ModItemTags.EXPLOSION_PROOF)
         .register();
     public static final ItemEntry<EmberMetalHoeItem> EMBER_METAL_HOE = REGISTRATE
         .item("ember_metal_hoe", EmberMetalHoeItem::new)
@@ -305,7 +308,8 @@ public class ModItems {
                 .save(provider, AnvilCraft.of("smithing/ember_metal_hoe"));
         })
         .model((ctx, provider) -> provider.handheld(ctx))
-        .tag(ItemTags.HOES)
+        .tag(ItemTags.HOES,
+            ModItemTags.EXPLOSION_PROOF)
         .register();
     public static final ItemEntry<EmberMetalSwordItem> EMBER_METAL_SWORD = REGISTRATE
         .item("ember_metal_sword", EmberMetalSwordItem::new)
@@ -320,7 +324,8 @@ public class ModItems {
                 .save(provider, AnvilCraft.of("smithing/ember_metal_sword"));
         })
         .model((ctx, provider) -> provider.handheld(ctx))
-        .tag(ItemTags.SWORDS)
+        .tag(ItemTags.SWORDS,
+            ModItemTags.EXPLOSION_PROOF)
         .register();
     public static final ItemEntry<AnvilHammerItem> ANVIL_HAMMER = REGISTRATE
         .item("anvil_hammer", AnvilHammerItem::new)
@@ -373,7 +378,8 @@ public class ModItems {
                 .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.EMBER_METAL_INGOT))
                 .save(provider, AnvilCraft.of("smithing/ember_anvil_hammer"));
         })
-        .tag(ItemTags.MACE_ENCHANTABLE)
+        .tag(ItemTags.MACE_ENCHANTABLE,
+            ModItemTags.EXPLOSION_PROOF)
         .properties(properties -> properties.durability(2031))
         .model((ctx, provider) -> {
         })
@@ -1376,9 +1382,10 @@ public class ModItems {
         })
         .register();
 
-    public static final ItemEntry<Item> EMBER_METAL_INGOT = REGISTRATE
+    public static final ItemEntry<? extends Item> EMBER_METAL_INGOT = REGISTRATE
         .item("ember_metal_ingot", Item::new)
         .initialProperties(() -> new Item.Properties().fireResistant())
+        .tag(ModItemTags.EXPLOSION_PROOF)
         .recipe((ctx, provider) -> {
             ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
                 .requires(ModBlocks.EMBER_METAL_BLOCK)
@@ -1398,9 +1405,10 @@ public class ModItems {
         })
         .register();
 
-    public static final ItemEntry<Item> EMBER_METAL_NUGGET = REGISTRATE
+    public static final ItemEntry<? extends Item> EMBER_METAL_NUGGET = REGISTRATE
         .item("ember_metal_nugget", Item::new)
         .initialProperties(() -> new Item.Properties().fireResistant())
+        .tag(ModItemTags.EXPLOSION_PROOF)
         .recipe((ctx, provider) -> {
             ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
                 .requires(ModItems.EMBER_METAL_INGOT)
