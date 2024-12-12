@@ -2,11 +2,10 @@
 	"credit": "Made by XeKr with Blockbench",
 	"parent": "minecraft:block/block",
 	"textures": {
-		"particle": "anvilcraft:block/charge_collector_side",
-		"base": "anvilcraft:block/charge_collector_side",
-		"top": "anvilcraft:block/charge_collector_top",
-		"bottom": "anvilcraft:block/charge_collector_bottom",
-		"head": "anvilcraft:block/charge_collector_head"
+		"particle": "anvilcraft:block/thermoelectric_collector_side",
+		"base": "anvilcraft:block/thermoelectric_collector_side",
+		"top": "anvilcraft:block/thermoelectric_collector_top",
+		"bottom": "anvilcraft:block/thermoelectric_collector_bottom"
 	},
 	"elements": [
 		{
@@ -59,19 +58,6 @@
 				"north": {"uv": [3, 12, 13, 14], "texture": "#base"},
 				"south": {"uv": [3, 0, 13, 2], "texture": "#base"},
 				"up": {"uv": [3, 0, 13, 3], "texture": "#top"}
-			}
-		},
-		{
-			"from": [3, 6, 3],
-			"to": [13, 16, 13],
-			"rotation": {"angle": 0, "axis": "y", "origin": [8, 11, 8]},
-			"faces": {
-				"north": {"uv": [3, 3, 13, 13], "texture": "#head"},
-				"east": {"uv": [3, 3, 13, 13], "texture": "#head"},
-				"south": {"uv": [3, 3, 13, 13], "texture": "#head"},
-				"west": {"uv": [3, 3, 13, 13], "texture": "#head"},
-				"up": {"uv": [3, 3, 13, 13], "texture": "#head"},
-				"down": {"uv": [3, 3, 13, 13], "texture": "#head"}
 			}
 		}
 	]

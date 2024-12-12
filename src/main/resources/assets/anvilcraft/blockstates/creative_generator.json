@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "anvilcraft:block/creative_generator"
+      "model": "anvilcraft:block/creative_generator_base"
     }
   }
 }
