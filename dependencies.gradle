@@ -25,4 +25,7 @@ dependencies {
     implementation(libs.jade)
     implementation(libs.theoneprobe)
     implementation(libs.kubejs)
+
+    compileOnly("curse.maven:easy-npc-559312:6009031")
+    //runtimeOnly("curse.maven:easy-npc-559312:6009031")
 }

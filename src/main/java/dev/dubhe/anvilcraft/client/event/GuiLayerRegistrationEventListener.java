@@ -1,15 +1,7 @@
 package dev.dubhe.anvilcraft.client.event;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.tooltip.HudTooltipManager;
-import dev.dubhe.anvilcraft.client.init.ModShaders;
 import dev.dubhe.anvilcraft.item.IEngineerGoggles;
 
 import net.minecraft.client.DeltaTracker;
@@ -25,7 +17,6 @@ import net.minecraft.world.phys.HitResult;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 
 import com.mojang.blaze3d.platform.Window;
-import org.joml.Matrix4f;
 
 public class GuiLayerRegistrationEventListener {
 
