@@ -38,8 +38,7 @@
     "MouseHandlerMixin",
     "RenderTypeMixin",
     "SectionCompilerMixin",
-    "SoundEngineMixin",
-    "teacon.PlayerTextureManagerMixin"
+    "SoundEngineMixin"
   ],
   "plugin": "dev.dubhe.anvilcraft.mixin.plugin.AnvilCraftMixinPlugin",
   "injectors": {
