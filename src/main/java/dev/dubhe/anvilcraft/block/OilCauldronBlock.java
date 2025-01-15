@@ -31,41 +31,17 @@ public class OilCauldronBlock extends Layered4LevelCauldronBlock implements IHam
     @Override
     public void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
         if (entity.getType().equals(EntityType.ARROW) && entity.isOnFire()) {
-            level.setBlockAndUpdate(
-                pos,
-                ModBlocks.FIRE_CAULDRON
-                    .getDefaultState()
-                    .setValue(
-                        Layered4LevelCauldronBlock.LEVEL,
-                        level.getBlockState(pos).getValue(Layered4LevelCauldronBlock.LEVEL)
-                    )
-            );
+            igniteOilCauldron(level, pos);
             return;
         }
         if (entity instanceof ItemEntity itemEntity) {
             if (itemEntity.getItem().is(ModItemTags.FIRE_STARTER)) {
-                level.setBlockAndUpdate(
-                    pos,
-                    ModBlocks.FIRE_CAULDRON
-                        .getDefaultState()
-                        .setValue(
-                                Layered4LevelCauldronBlock.LEVEL,
-                            level.getBlockState(pos).getValue(Layered4LevelCauldronBlock.LEVEL)
-                        )
-                );
+                igniteOilCauldron(level, pos);
                 itemEntity.getItem().setCount(itemEntity.getItem().getCount() - 1);
                 return;
             }
             if (itemEntity.getItem().is(ModItemTags.UNBROKEN_FIRE_STARTER)) {
-                level.setBlockAndUpdate(
-                    pos,
-                    ModBlocks.FIRE_CAULDRON
-                        .getDefaultState()
-                        .setValue(
-                                Layered4LevelCauldronBlock.LEVEL,
-                            level.getBlockState(pos).getValue(Layered4LevelCauldronBlock.LEVEL)
-                        )
-                );
+                igniteOilCauldron(level, pos);
             }
         }
     }
@@ -85,5 +61,17 @@ public class OilCauldronBlock extends Layered4LevelCauldronBlock implements IHam
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
         return interaction.interact(state, level, pos, player, hand, stack);
+    }
+
+    private void igniteOilCauldron(Level level, BlockPos blockPos) {
+        level.setBlockAndUpdate(
+                blockPos,
+                ModBlocks.FIRE_CAULDRON
+                        .getDefaultState()
+                        .setValue(
+                                Layered4LevelCauldronBlock.LEVEL,
+                                level.getBlockState(blockPos).getValue(Layered4LevelCauldronBlock.LEVEL)
+                        )
+        );
     }
 }
