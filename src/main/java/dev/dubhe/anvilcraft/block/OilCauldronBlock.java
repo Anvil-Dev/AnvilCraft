@@ -37,8 +37,8 @@ public class OilCauldronBlock extends Layered4LevelCauldronBlock implements IHam
                 ModBlocks.FIRE_CAULDRON
                     .getDefaultState()
                     .setValue(
-                        LayeredCauldronBlock.LEVEL,
-                        level.getBlockState(pos).getValue(LayeredCauldronBlock.LEVEL)
+                        Layered4LevelCauldronBlock.LEVEL,
+                        level.getBlockState(pos).getValue(Layered4LevelCauldronBlock.LEVEL)
                     )
             );
             return;
@@ -50,8 +50,8 @@ public class OilCauldronBlock extends Layered4LevelCauldronBlock implements IHam
                     ModBlocks.FIRE_CAULDRON
                         .getDefaultState()
                         .setValue(
-                            LayeredCauldronBlock.LEVEL,
-                            level.getBlockState(pos).getValue(LayeredCauldronBlock.LEVEL)
+                                Layered4LevelCauldronBlock.LEVEL,
+                            level.getBlockState(pos).getValue(Layered4LevelCauldronBlock.LEVEL)
                         )
                 );
                 itemEntity.getItem().setCount(itemEntity.getItem().getCount() - 1);
@@ -63,8 +63,8 @@ public class OilCauldronBlock extends Layered4LevelCauldronBlock implements IHam
                     ModBlocks.FIRE_CAULDRON
                         .getDefaultState()
                         .setValue(
-                            LayeredCauldronBlock.LEVEL,
-                            level.getBlockState(pos).getValue(LayeredCauldronBlock.LEVEL)
+                                Layered4LevelCauldronBlock.LEVEL,
+                            level.getBlockState(pos).getValue(Layered4LevelCauldronBlock.LEVEL)
                         )
                 );
             }
