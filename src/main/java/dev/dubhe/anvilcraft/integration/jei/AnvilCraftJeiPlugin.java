@@ -1,5 +1,14 @@
 package dev.dubhe.anvilcraft.integration.jei;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
+
+import javax.annotation.ParametersAreNonnullByDefault;
+
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.gui.screen.JewelCraftingScreen;
 import dev.dubhe.anvilcraft.init.ModBlocks;
@@ -18,13 +27,12 @@ import dev.dubhe.anvilcraft.integration.jei.category.anvil.CookingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.ItemCompressCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.ItemCrushCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.ItemInjectCategory;
-import dev.dubhe.anvilcraft.integration.jei.category.anvil.MassInjectCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.MeshRecipeCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.SqueezingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.StampingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.SuperHeatingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.TimeWarpCategory;
-import dev.dubhe.anvilcraft.integration.jei.category.multiblock.MultiBlockConversionCategory;
+import dev.dubhe.anvilcraft.integration.jei.category.anvil.UnpackCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.multiblock.MultiBlockCraftingCategory;
 import dev.dubhe.anvilcraft.integration.jei.recipe.BeaconConversionRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.CementStainingRecipe;
@@ -46,28 +54,19 @@ import dev.dubhe.anvilcraft.recipe.anvil.SqueezingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.StampingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.SuperHeatingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.TimeWarpRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.UnpackRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockConversionRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
-
-import mezz.jei.api.constants.RecipeTypes;
-import mezz.jei.api.registration.IGuiHandlerRegistration;
-import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeHolder;
-
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
+import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.helpers.IJeiHelpers;
 import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.registration.IGuiHandlerRegistration;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-
-import javax.annotation.ParametersAreNonnullByDefault;
 
 @JeiPlugin
 @MethodsReturnNonnullByDefault
@@ -94,6 +93,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
     public static final RecipeType<RecipeHolder<ItemCompressRecipe>> ITEM_COMPRESS =
         createRecipeHolderType("item_compress");
     public static final RecipeType<RecipeHolder<ItemCrushRecipe>> ITEM_CRUSH = createRecipeHolderType("item_crush");
+    public static final RecipeType<RecipeHolder<UnpackRecipe>> UNPACK = createRecipeHolderType("unpack");
     public static final RecipeType<RecipeHolder<CookingRecipe>> COOKING = createRecipeHolderType("cooking");
     public static final RecipeType<RecipeHolder<BoilingRecipe>> BOILING = createRecipeHolderType("boiling");
     public static final RecipeType<RecipeHolder<StampingRecipe>> STAMPING = createRecipeHolderType("stamping");
@@ -104,12 +104,11 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
     public static final RecipeType<RecipeHolder<TimeWarpRecipe>> TIME_WARP = createRecipeHolderType("time_warp");
 
     public static final RecipeType<RecipeHolder<MultiblockRecipe>> MULTI_BLOCK =
-        createRecipeHolderType("multiblock");
+            createRecipeHolderType("multiblock");
     public static final RecipeType<RecipeHolder<MultiblockConversionRecipe>> MULTIBLOCK_CONVERSION =
-        createRecipeHolderType("multiblock_conversion");
+            createRecipeHolderType("multiblock_conversion");
 
-    public static final RecipeType<RecipeHolder<JewelCraftingRecipe>> JEWEL_CRAFTING =
-        createRecipeHolderType("jewel_crafting");
+    public static final RecipeType<RecipeHolder<JewelCraftingRecipe>> JEWEL_CRAFTING = createRecipeHolderType("jewel_crafting");
 
     @Override
     public ResourceLocation getPluginUid() {
@@ -123,9 +122,9 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         BlockCrushCategory.registerRecipes(registration);
         SqueezingCategory.registerRecipes(registration);
         ItemInjectCategory.registerRecipes(registration);
-        MassInjectCategory.registerRecipes(registration);
         ItemCompressCategory.registerRecipes(registration);
         ItemCrushCategory.registerRecipes(registration);
+        UnpackCategory.registerRecipes(registration);
         CookingCategory.registerRecipes(registration);
         BoilingCategory.registerRecipes(registration);
         StampingCategory.registerRecipes(registration);
@@ -135,7 +134,6 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         BulgingCategory.registerRecipes(registration);
         TimeWarpCategory.registerRecipes(registration);
         MultiBlockCraftingCategory.registerRecipes(registration);
-        MultiBlockConversionCategory.registerRecipes(registration);
         JewelCraftingCategory.registerRecipes(registration);
         EndPortalConversionCategory.registerRecipes(registration);
         BeaconConversionCategory.registerRecipes(registration);
@@ -169,9 +167,9 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         BlockCrushCategory.registerRecipeCatalysts(registration);
         SqueezingCategory.registerRecipeCatalysts(registration);
         ItemInjectCategory.registerRecipeCatalysts(registration);
-        MassInjectCategory.registerRecipeCatalysts(registration);
         ItemCompressCategory.registerRecipeCatalysts(registration);
         ItemCrushCategory.registerRecipeCatalysts(registration);
+        UnpackCategory.registerRecipeCatalysts(registration);
         CookingCategory.registerRecipeCatalysts(registration);
         BoilingCategory.registerRecipeCatalysts(registration);
         StampingCategory.registerRecipeCatalysts(registration);
@@ -181,7 +179,6 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         BulgingCategory.registerRecipeCatalysts(registration);
         TimeWarpCategory.registerRecipeCatalysts(registration);
         MultiBlockCraftingCategory.registerRecipeCatalysts(registration);
-        MultiBlockConversionCategory.registerRecipeCatalysts(registration);
         JewelCraftingCategory.registerRecipeCatalysts(registration);
         EndPortalConversionCategory.registerRecipeCatalysts(registration);
         BeaconConversionCategory.registerRecipeCatalysts(registration);
@@ -206,11 +203,11 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         registration.addRecipeCategories(new MeshRecipeCategory(guiHelper));
         registration.addRecipeCategories(new BlockCompressCategory(guiHelper));
         registration.addRecipeCategories(new BlockCrushCategory(guiHelper));
+        registration.addRecipeCategories(new ItemCrushCategory(guiHelper));
         registration.addRecipeCategories(new SqueezingCategory(guiHelper));
         registration.addRecipeCategories(new ItemInjectCategory(guiHelper));
-        registration.addRecipeCategories(new MassInjectCategory(guiHelper));
         registration.addRecipeCategories(new ItemCompressCategory(guiHelper));
-        registration.addRecipeCategories(new ItemCrushCategory(guiHelper));
+        registration.addRecipeCategories(new UnpackCategory(guiHelper));
         registration.addRecipeCategories(new CookingCategory(guiHelper));
         registration.addRecipeCategories(new BoilingCategory(guiHelper));
         registration.addRecipeCategories(new StampingCategory(guiHelper));
@@ -220,7 +217,6 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         registration.addRecipeCategories(new BulgingCategory(guiHelper));
         registration.addRecipeCategories(new TimeWarpCategory(guiHelper));
         registration.addRecipeCategories(new MultiBlockCraftingCategory(guiHelper));
-        registration.addRecipeCategories(new MultiBlockConversionCategory(guiHelper));
         registration.addRecipeCategories(new JewelCraftingCategory(guiHelper));
         registration.addRecipeCategories(new EndPortalConversionCategory(guiHelper));
         registration.addRecipeCategories(new BeaconConversionCategory(guiHelper));

@@ -5,7 +5,7 @@ import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 public class RecipeHandler {
     public static void init(RegistrateRecipeProvider provider) {
         BlockCrushRecipeLoader.init(provider);
-        ItemCrushRecipeLoader.init(provider);
+        UnpackRecipeLoader.init(provider);
         BlockCompressRecipeLoader.init(provider);
         ItemCompressRecipeLoader.init(provider);
         MeshRecipeLoader.init(provider);
@@ -15,6 +15,7 @@ public class RecipeHandler {
         CookingRecipeLoader.init(provider);
         BulgingRecipeLoader.init(provider);
         ItemInjectRecipeLoader.init(provider);
+        ItemCrushRecipeloader.init(provider);
         MassInjectRecipeLoader.init(provider);
         SqueezingRecipeLoader.init(provider);
         MultiBlockRecipeLoader.init(provider);

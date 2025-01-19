@@ -4,7 +4,7 @@ import com.mojang.logging.LogUtils;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.recipe.anvil.CookingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.ItemCompressRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.ItemCrushRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.UnpackRecipe;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
@@ -19,8 +19,6 @@ import net.minecraft.world.item.crafting.SmokingRecipe;
 import org.slf4j.Logger;
 
 import java.util.Optional;
-
-import static dev.dubhe.anvilcraft.util.Util.generateUniqueRecipeSuffix;
 
 public class RecipeGenerator {
 
@@ -114,7 +112,7 @@ public class RecipeGenerator {
                 if (recipe instanceof ShapelessRecipe shapelessRecipe) {
                     NonNullList<Ingredient> ingredients = shapelessRecipe.getIngredients();
                     if (ingredients.size() == 1) {
-                        ItemCrushRecipe newRecipe = ItemCrushRecipe.builder()
+                        UnpackRecipe newRecipe = UnpackRecipe.builder()
                             .result(shapelessRecipe.result)
                             .requires(ingredients.getFirst())
                             .buildRecipe();

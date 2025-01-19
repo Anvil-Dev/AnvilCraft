@@ -1,5 +1,5 @@
 {
-  "type": "anvilcraft:item_crush",
+  "type": "anvilcraft:unpack",
   "ingredients": [
     {
       "item": "anvilcraft:magnet_block"

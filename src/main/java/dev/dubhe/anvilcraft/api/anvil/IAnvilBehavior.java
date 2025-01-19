@@ -12,10 +12,10 @@ import dev.dubhe.anvilcraft.api.anvil.impl.ItemCompressBehavior;
 import dev.dubhe.anvilcraft.api.anvil.impl.ItemCrushBehavior;
 import dev.dubhe.anvilcraft.api.anvil.impl.ItemMeshBehavior;
 import dev.dubhe.anvilcraft.api.anvil.impl.ItemStampingBehavior;
-import dev.dubhe.anvilcraft.api.anvil.impl.MassInjectBehavior;
 import dev.dubhe.anvilcraft.api.anvil.impl.RedstoneEMPBehavior;
 import dev.dubhe.anvilcraft.api.anvil.impl.SuperHeatingBehavior;
 import dev.dubhe.anvilcraft.api.anvil.impl.TimeWarpBehavior;
+import dev.dubhe.anvilcraft.api.anvil.impl.UnpackBehavior;
 import dev.dubhe.anvilcraft.api.anvil.impl.WaxingBehavior;
 import dev.dubhe.anvilcraft.api.event.anvil.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.block.CementCauldronBlock;
@@ -80,7 +80,7 @@ public interface IAnvilBehavior {
             state -> state.is(Blocks.IRON_TRAPDOOR)
                 && state.getValue(TrapDoorBlock.HALF) == Half.TOP
                 && !state.getValue(TrapDoorBlock.OPEN),
-            new ItemCrushBehavior()
+            new UnpackBehavior()
         );
         registerBehavior(state -> state.getBlock() instanceof CementCauldronBlock, new CementStainingBehavior());
         registerBehavior(state -> state.getBlock() instanceof CementCauldronBlock, new ConcreteBehavior());
@@ -91,7 +91,7 @@ public interface IAnvilBehavior {
         registerBehavior(Blocks.CAULDRON, new ItemCompressBehavior());
         registerBehavior(Blocks.WATER_CAULDRON, new BoilingBehavior());
         registerBehavior(ModBlocks.STAMPING_PLATFORM.get(), new ItemStampingBehavior());
-        registerBehavior(ModBlocks.SPACE_OVERCOMPRESSOR.get(), new MassInjectBehavior());
+        registerBehavior(ModBlocks.CRUSHING_TABLE.get(), new ItemCrushBehavior());
         registerBehavior(Blocks.SCAFFOLDING, new ItemMeshBehavior());
     }
 }

@@ -7,6 +7,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.TrapDoorBlock;
+import net.minecraft.world.level.block.state.properties.Half;
 import net.neoforged.neoforge.common.util.Lazy;
 
 import org.jetbrains.annotations.Nullable;
@@ -21,7 +23,7 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.TextureConstants;
-import dev.dubhe.anvilcraft.recipe.anvil.ItemCrushRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.UnpackRecipe;
 import dev.dubhe.anvilcraft.util.RenderHelper;
 import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
@@ -36,7 +38,7 @@ import mezz.jei.api.registration.IRecipeRegistration;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class ItemCrushCategory implements IRecipeCategory<RecipeHolder<ItemCrushRecipe>> {
+public class UnpackCategory implements IRecipeCategory<RecipeHolder<UnpackRecipe>> {
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
 
@@ -49,13 +51,13 @@ public class ItemCrushCategory implements IRecipeCategory<RecipeHolder<ItemCrush
     private final IDrawable arrowIn;
     private final IDrawable arrowOut;
 
-    public ItemCrushCategory(IGuiHelper helper) {
+    public UnpackCategory(IGuiHelper helper) {
         background = Lazy.of(() -> helper.createBlankDrawable(WIDTH, HEIGHT));
         icon = new DrawableBlockStateIcon(
                 Blocks.ANVIL.defaultBlockState(),
-                ModBlocks.CRUSHING_TABLE.getDefaultState());
+                Blocks.IRON_TRAPDOOR.defaultBlockState().setValue(TrapDoorBlock.HALF, Half.TOP));
         slot = helper.getSlotDrawable();
-        title = Component.translatable("gui.anvilcraft.category.item_crush");
+        title = Component.translatable("gui.anvilcraft.category.unpack");
         timer = helper.createTickTimer(30, 60, true);
 
         arrowIn = helper.createDrawable(TextureConstants.ANVIL_CRAFT_SPRITES, 0, 31, 16, 8);
@@ -63,8 +65,8 @@ public class ItemCrushCategory implements IRecipeCategory<RecipeHolder<ItemCrush
     }
 
     @Override
-    public RecipeType<RecipeHolder<ItemCrushRecipe>> getRecipeType() {
-        return AnvilCraftJeiPlugin.ITEM_CRUSH;
+    public RecipeType<RecipeHolder<UnpackRecipe>> getRecipeType() {
+        return AnvilCraftJeiPlugin.UNPACK;
     }
 
     @Override
@@ -84,20 +86,20 @@ public class ItemCrushCategory implements IRecipeCategory<RecipeHolder<ItemCrush
 
     @Override
     public void setRecipe(
-            IRecipeLayoutBuilder builder, RecipeHolder<ItemCrushRecipe> recipeHolder, IFocusGroup focuses) {
-        ItemCrushRecipe recipe = recipeHolder.value();
+            IRecipeLayoutBuilder builder, RecipeHolder<UnpackRecipe> recipeHolder, IFocusGroup focuses) {
+        UnpackRecipe recipe = recipeHolder.value();
         JeiSlotUtil.addInputSlots(builder, recipe.mergedIngredients);
         JeiSlotUtil.addOutputSlots(builder, recipe.results);
     }
 
     @Override
     public void draw(
-            RecipeHolder<ItemCrushRecipe> recipeHolder,
+            RecipeHolder<UnpackRecipe> recipeHolder,
             IRecipeSlotsView recipeSlotsView,
             GuiGraphics guiGraphics,
             double mouseX,
             double mouseY) {
-        ItemCrushRecipe recipe = recipeHolder.value();
+        UnpackRecipe recipe = recipeHolder.value();
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
         RenderHelper.renderBlock(
                 guiGraphics,
@@ -109,7 +111,7 @@ public class ItemCrushCategory implements IRecipeCategory<RecipeHolder<ItemCrush
                 RenderHelper.SINGLE_BLOCK);
         RenderHelper.renderBlock(
                 guiGraphics,
-                ModBlocks.CRUSHING_TABLE.getDefaultState(),
+                Blocks.IRON_TRAPDOOR.defaultBlockState().setValue(TrapDoorBlock.HALF, Half.TOP),
                 81,
                 40,
                 10,
@@ -127,16 +129,16 @@ public class ItemCrushCategory implements IRecipeCategory<RecipeHolder<ItemCrush
 
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
-                AnvilCraftJeiPlugin.ITEM_CRUSH,
-                JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.ITEM_CRUSH_TYPE.get()));
+                AnvilCraftJeiPlugin.UNPACK,
+                JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.UNPACK_TYPE.get()));
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(new ItemStack(Items.ANVIL), AnvilCraftJeiPlugin.ITEM_CRUSH);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.ROYAL_ANVIL), AnvilCraftJeiPlugin.ITEM_CRUSH);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.EMBER_ANVIL), AnvilCraftJeiPlugin.ITEM_CRUSH);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.GIANT_ANVIL), AnvilCraftJeiPlugin.ITEM_CRUSH);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.SPECTRAL_ANVIL), AnvilCraftJeiPlugin.ITEM_CRUSH);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.CRUSHING_TABLE), AnvilCraftJeiPlugin.ITEM_CRUSH);
+        registration.addRecipeCatalyst(new ItemStack(Items.ANVIL), AnvilCraftJeiPlugin.UNPACK);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.ROYAL_ANVIL), AnvilCraftJeiPlugin.UNPACK);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.EMBER_ANVIL), AnvilCraftJeiPlugin.UNPACK);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.GIANT_ANVIL), AnvilCraftJeiPlugin.UNPACK);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.SPECTRAL_ANVIL), AnvilCraftJeiPlugin.UNPACK);
+        registration.addRecipeCatalyst(new ItemStack(Items.IRON_TRAPDOOR), AnvilCraftJeiPlugin.UNPACK);
     }
 }

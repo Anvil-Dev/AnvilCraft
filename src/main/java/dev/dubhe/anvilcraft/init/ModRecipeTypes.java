@@ -10,8 +10,9 @@ import dev.dubhe.anvilcraft.recipe.anvil.ConcreteRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.CookingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.ItemCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.ItemCrushRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.ItemInjectRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.MassInjectRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.UnpackRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.ItemInjectRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.MeshRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.SqueezingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.StampingRecipe;
@@ -47,6 +48,11 @@ public class ModRecipeTypes {
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<ItemCrushRecipe>> ITEM_CRUSH_SERIALIZERS =
             RECIPE_SERIALIZERS.register("item_crush", ItemCrushRecipe.Serializer::new);
 
+    public static final DeferredHolder<RecipeType<?>, RecipeType<UnpackRecipe>> UNPACK_TYPE =
+            registerType("unpack");
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<UnpackRecipe>> UNPACK_SERIALIZERS =
+            RECIPE_SERIALIZERS.register("unpack", UnpackRecipe.Serializer::new);
+
     public static final DeferredHolder<RecipeType<?>, RecipeType<BlockCompressRecipe>> BLOCK_COMPRESS_TYPE =
             registerType("block_compress");
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<BlockCompressRecipe>>
@@ -74,9 +80,9 @@ public class ModRecipeTypes {
             RECIPE_SERIALIZERS.register("item_inject", ItemInjectRecipe.Serializer::new);
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<MassInjectRecipe>> MASS_INJECT_TYPE =
-        registerType("mass_inject");
+            registerType("mass_inject");
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MassInjectRecipe>> MASS_INJECT_SERIALIZER =
-        RECIPE_SERIALIZERS.register("mass_inject", MassInjectRecipe.Serializer::new);
+            RECIPE_SERIALIZERS.register("mass_inject", MassInjectRecipe.Serializer::new);
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<SqueezingRecipe>> SQUEEZING_TYPE =
             registerType("squeezing");
@@ -117,12 +123,12 @@ public class ModRecipeTypes {
     public static final DeferredHolder<RecipeType<?>, RecipeType<MultiblockRecipe>> MULTIBLOCK_TYPE =
             registerType("multiblock");
     public static final DeferredHolder<RecipeType<?>, RecipeType<MultiblockConversionRecipe>> MULTIBLOCK_CONVERSION_TYPE =
-        registerType("multiblock_conversion");
+            registerType("multiblock_conversion");
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MultiblockRecipe>> MULTIBLOCK_SERIALIZER =
             RECIPE_SERIALIZERS.register("multiblock", MultiblockRecipe.Serializer::new);
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MultiblockConversionRecipe>>
-        MULTIBLOCK_CONVERSION_SERIALIZER =
-        RECIPE_SERIALIZERS.register("multiblock_conversion", MultiblockConversionRecipe.Serializer::new);
+            MULTIBLOCK_CONVERSION_SERIALIZER =
+            RECIPE_SERIALIZERS.register("multiblock_conversion", MultiblockConversionRecipe.Serializer::new);
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<MineralFountainRecipe>> MINERAL_FOUNTAIN =
             registerType("mineral_fountain");
