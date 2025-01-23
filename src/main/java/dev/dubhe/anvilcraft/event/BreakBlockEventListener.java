@@ -4,9 +4,7 @@ import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModComponents;
 import dev.dubhe.anvilcraft.item.HasMobBlockItem;
 import dev.dubhe.anvilcraft.util.ModEnchantmentHelper;
-import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -24,6 +22,7 @@ import net.neoforged.neoforge.event.level.BlockEvent;
 @EventBusSubscriber
 public class BreakBlockEventListener {
     @SubscribeEvent
+    @SuppressWarnings({"resource", "ConstantConditions"})
     public static void onBlockRemoved(BlockEvent.BreakEvent event) {
         LevelAccessor level = event.getLevel();
         Player player = event.getPlayer();
