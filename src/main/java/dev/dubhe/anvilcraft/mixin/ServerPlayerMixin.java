@@ -4,9 +4,8 @@ import com.mojang.authlib.GameProfile;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.DynamicPowerComponent;
 import dev.dubhe.anvilcraft.api.power.IDynamicPowerComponentHolder;
-import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.init.ModItems;
-import dev.dubhe.anvilcraft.item.IonocraftBackpackItem;
+import dev.dubhe.anvilcraft.item.IonoCraftBackpackItem;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
@@ -14,8 +13,6 @@ import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -55,44 +52,16 @@ public abstract class ServerPlayerMixin extends Player implements IDynamicPowerC
         return this.getBoundingBox().inflate(0.5);
     }
 
-    @Inject(method = "tick", at = @At("RETURN"))
-    void tickFlight(CallbackInfo ci) {
-        PowerGrid powerGrid = PowerGrid.findPowerGridContains(
-            level(),
-            anvilCraft$getPowerSupplyingBoundingBox()
-        ).orElse(null);
-        anvilCraft$component.switchTo(powerGrid);
-        if (this.getAbilities().flying) {
-            ItemStack itemStack = this.getItemBySlot(EquipmentSlot.CHEST);
-            if (itemStack.is(ModItems.IONOCRAFT_BACKPACK)) {
-                int flightTime = IonocraftBackpackItem.getFlightTime(itemStack);
-                flightTime--;
-                if (!(anvilCraft$component.getPowerGrid() != null && anvilCraft$component.getPowerGrid().isWorking())) {
-                    if (flightTime <= AnvilCraft.config.ionoCraftBackpackMaxFlightTime / 2) {
-                        Inventory inventory = getInventory();
-                        int slot = inventory.findSlotMatchingItem(ModItems.CAPACITOR.asStack());
-                        if (slot != -1) {
-                            inventory.removeItem(slot, 1);
-                            inventory.placeItemBackInInventory(ModItems.CAPACITOR_EMPTY.asStack());
-                            flightTime = flightTime + AnvilCraft.config.ionoCraftBackpackMaxFlightTime / 2;
-                        }
-                    }
-                }
-                IonocraftBackpackItem.setFlightTime(itemStack, flightTime);
-            }
-        }
-    }
-
     @Override
     public void anvilCraft$gridTick() {
-        ItemStack itemStack = this.getItemBySlot(EquipmentSlot.CHEST);
+        ItemStack itemStack = IonoCraftBackpackItem.getByPlayer(this);
         if (itemStack.is(ModItems.IONOCRAFT_BACKPACK)
             && anvilCraft$component.getPowerGrid() != null
             && anvilCraft$component.getPowerGrid().isWorking()
         ) {
-            int flightTime = IonocraftBackpackItem.getFlightTime(itemStack);
+            int flightTime = IonoCraftBackpackItem.getFlightTime(itemStack);
             flightTime = flightTime + AnvilCraft.config.ionoCraftBackpackMaxFlightTime / 120;
-            IonocraftBackpackItem.setFlightTime(itemStack, flightTime);
+            IonoCraftBackpackItem.setFlightTime(itemStack, flightTime);
         }
     }
 

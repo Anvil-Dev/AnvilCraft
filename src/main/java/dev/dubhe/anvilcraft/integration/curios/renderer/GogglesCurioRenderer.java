@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.integration.curios;
+package dev.dubhe.anvilcraft.integration.curios.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;

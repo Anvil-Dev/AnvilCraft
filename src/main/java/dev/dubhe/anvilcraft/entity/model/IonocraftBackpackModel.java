@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.entity.model;
 
 
+import lombok.Getter;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -13,11 +14,14 @@ import net.minecraft.world.entity.LivingEntity;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
+@Getter
 @ParametersAreNonnullByDefault
 public class IonocraftBackpackModel extends HumanoidModel<LivingEntity> {
+    private final ModelPart root;
 
     public IonocraftBackpackModel(ModelPart root) {
         super(root);
+        this.root = root.getChild("body");
     }
 
     public static LayerDefinition createBodyLayer() {

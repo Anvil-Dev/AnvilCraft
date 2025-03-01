@@ -271,6 +271,7 @@
   "config.waila.plugin_anvilcraft": "Anvil Craft",
   "config.waila.plugin_anvilcraft.power_provider": "Anvil Craft Power",
   "config.waila.plugin_anvilcraft.warning_percent": "Warning Threshold",
+  "curios.identifier.ionocraft_backpack": "Ionocraft Backpack",
   "death.attack.anvilcraft.laser": "%1$s was pierced by laser",
   "death.attack.anvilcraft.lost_in_time": "%1$s was lost in the river of time",
   "enchantment.anvilcraft.beheading": "Beheading",

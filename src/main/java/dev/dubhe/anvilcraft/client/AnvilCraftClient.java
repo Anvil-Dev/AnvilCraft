@@ -4,7 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.event.GuiLayerRegistrationEventListener;
 import dev.dubhe.anvilcraft.client.init.ModModelLayers;
 import dev.dubhe.anvilcraft.client.init.ModShaders;
-import dev.dubhe.anvilcraft.client.renderer.item.decoration.IonocraftBackpackDecoration;
+import dev.dubhe.anvilcraft.client.renderer.item.decoration.IonoCraftBackpackDecoration;
 import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
 
 import dev.dubhe.anvilcraft.init.ModFluids;
@@ -56,7 +56,7 @@ public class AnvilCraftClient {
     }
 
     public static void registerCustomItemDecorations(RegisterItemDecorationsEvent e) {
-        e.register(ModItems.IONOCRAFT_BACKPACK, new IonocraftBackpackDecoration());
+        e.register(ModItems.IONOCRAFT_BACKPACK, new IonoCraftBackpackDecoration());
     }
 
     @ParametersAreNonnullByDefault
