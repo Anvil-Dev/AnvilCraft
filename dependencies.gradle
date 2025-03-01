@@ -42,8 +42,8 @@ dependencies {
     compileOnly(libs.theoneprobe)
     compileOnly(libs.kubejs)
 
-    // Create
-    compileOnly(libs.create)
+    // Create, 必须为implementation
+    implementation(libs.create)
 
 //    compileOnly("org.sinytra.forgified-fabric-api:fabric-api-base:0.4.42+d1308ded19")
 //    compileOnly("org.sinytra.forgified-fabric-api:fabric-renderer-api-v1:3.4.0+acb05a3919")

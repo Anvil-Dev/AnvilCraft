@@ -4,6 +4,8 @@
     "minecraft:player"
   ],
   "slots": [
-    "head"
+    "head",
+    "necklace",
+    "ionocraft_backpack"
   ]
 }

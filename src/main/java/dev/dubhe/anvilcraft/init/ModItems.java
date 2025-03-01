@@ -547,9 +547,25 @@ public class ModItems {
         BooleanSupplier loadCondition
     ) {
         if (loadCondition.getAsBoolean()) {
-            return createAmuletItem(type, factory, builderConsumer);
+            return REGISTRATE
+                .item(type + "_amulet", factory)
+                .properties(properties -> properties.stacksTo(1))
+                .recipe((ctx, provider) -> {
+                    JewelCraftingRecipe.Builder builder = JewelCraftingRecipe.builder()
+                        .requires(ModBlocks.SILVER_BLOCK, 4);
+
+                    builderConsumer.accept(builder);
+
+                    builder.requires(ModItems.ROYAL_STEEL_INGOT)
+                        .result(new ItemStack(ctx.get()))
+                        .save(provider);
+                })
+                .register();
         } else {
-            return null;
+            return REGISTRATE
+                .item(type + "_amulet", factory)
+                .properties(properties -> properties.stacksTo(1))
+                .register();
         }
     }
 

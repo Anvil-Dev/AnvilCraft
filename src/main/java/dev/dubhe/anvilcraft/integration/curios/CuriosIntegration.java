@@ -11,6 +11,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.loading.LoadingModList;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import org.jetbrains.annotations.NotNull;
@@ -46,8 +47,25 @@ public class CuriosIntegration {
             ModItems.ANVIL_HAMMER,
             ModItems.ROYAL_ANVIL_HAMMER,
             ModItems.EMBER_ANVIL_HAMMER,
-            ModItems.IONOCRAFT_BACKPACK
+            ModItems.IONOCRAFT_BACKPACK,
+            ModItems.ANVIL_AMULET,
+            ModItems.CAT_AMULET,
+            ModItems.COMRADE_AMULET,
+            ModItems.DOG_AMULET,
+            ModItems.EMERALD_AMULET,
+            ModItems.FEATHER_AMULET,
+            ModItems.RUBY_AMULET,
+            ModItems.SAPPHIRE_AMULET,
+            ModItems.SILENCE_AMULET,
+            ModItems.TOPAZ_AMULET
         );
+        if (LoadingModList.get().getModFileById("create") != null) {
+            event.registerItem(
+                CuriosCapability.ITEM,
+                (stack, context) -> () -> stack,
+                ModItems.COGWHEEL_AMULET
+            );
+        }
     }
 
     private boolean isAnvilHammerWearing(ICuriosItemHandler itemHandler) {
