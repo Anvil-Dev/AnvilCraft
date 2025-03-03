@@ -111,16 +111,14 @@ public class TimeWarpRecipe implements Recipe<TimeWarpRecipe.Input> {
     @SuppressWarnings("DuplicatedCode")
     @Override
     public boolean matches(Input input, Level level) {
-        if (this.requiredFluidLevel > 0 &&
-            !CauldronUtil.compatibleForDrain(input.cauldronState, this.cauldron, this.requiredFluidLevel)) {
-                return false;
+        if (this.requiredFluidLevel > 0 && !CauldronUtil.compatibleForDrain(input.cauldronState, this.cauldron, this.requiredFluidLevel)) {
+            return false;
         }
-        if (this.produceFluid &&
-            !CauldronUtil.compatibleForFill(input.cauldronState, this.cauldron, this.requiredFluidLevel)) {
-                return false;
+        if (this.produceFluid && !CauldronUtil.compatibleForFill(input.cauldronState, this.cauldron, this.requiredFluidLevel)) {
+            return false;
         }
         int normalCraftCount = getMaxCraftTime(input);
-        if (exactIngredients.isEmpty()){
+        if (exactIngredients.isEmpty()) {
             return normalCraftCount >= 1;
         }
         int exactCraftCount = getMaxCraftTime(input, exactIngredients);
@@ -183,16 +181,6 @@ public class TimeWarpRecipe implements Recipe<TimeWarpRecipe.Input> {
         private static final StreamCodec<RegistryFriendlyByteBuf, TimeWarpRecipe> STREAM_CODEC =
             StreamCodec.of(Serializer::encode, Serializer::decode);
 
-        @Override
-        public MapCodec<TimeWarpRecipe> codec() {
-            return CODEC;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, TimeWarpRecipe> streamCodec() {
-            return STREAM_CODEC;
-        }
-
         private static void encode(RegistryFriendlyByteBuf buf, TimeWarpRecipe recipe) {
             buf.writeVarInt(recipe.ingredients.size());
             for (Ingredient ingredient : recipe.ingredients) {
@@ -240,6 +228,16 @@ public class TimeWarpRecipe implements Recipe<TimeWarpRecipe.Input> {
                 requiredFluidLevel
             );
         }
+
+        @Override
+        public MapCodec<TimeWarpRecipe> codec() {
+            return CODEC;
+        }
+
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, TimeWarpRecipe> streamCodec() {
+            return STREAM_CODEC;
+        }
     }
 
     @Setter
@@ -281,14 +279,14 @@ public class TimeWarpRecipe implements Recipe<TimeWarpRecipe.Input> {
             return requires(pTag, 1);
         }
 
-        public Builder requiresExactly(ItemLike item, int count){
+        public Builder requiresExactly(ItemLike item, int count) {
             for (int i = 0; i < count; i++) {
                 exactIngredients.add(Ingredient.of(item));
             }
             return this;
         }
 
-        public Builder requiresExactly(TagKey<Item> item, int count){
+        public Builder requiresExactly(TagKey<Item> item, int count) {
             for (int i = 0; i < count; i++) {
                 exactIngredients.add(Ingredient.of(item));
             }
@@ -296,12 +294,12 @@ public class TimeWarpRecipe implements Recipe<TimeWarpRecipe.Input> {
         }
 
 
-        public Builder requiresExactly(ItemLike item){
+        public Builder requiresExactly(ItemLike item) {
             exactIngredients.add(Ingredient.of(item));
             return this;
         }
 
-        public Builder requiresExactly(TagKey<Item> item){
+        public Builder requiresExactly(TagKey<Item> item) {
             exactIngredients.add(Ingredient.of(item));
             return this;
         }

@@ -18,8 +18,7 @@ public class AbstractPiglinMixin {
         method = "finishConversion",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/monster/piglin/AbstractPiglin;convertTo" +
-                "(Lnet/minecraft/world/entity/EntityType;Z)Lnet/minecraft/world/entity/Mob;"
+            target = "Lnet/minecraft/world/entity/monster/piglin/AbstractPiglin;convertTo(Lnet/minecraft/world/entity/EntityType;Z)Lnet/minecraft/world/entity/Mob;"
         )
     )
     private Mob punishmentForGreed(

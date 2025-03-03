@@ -106,6 +106,40 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
         );
     }
 
+    /**
+     * 判断是否有溜槽指向
+     *
+     * @param level 世界
+     * @param pos   位置
+     * @return 是否有溜槽指向
+     */
+    public static boolean hasChuteFacing(Level level, BlockPos pos) {
+        for (Direction face : Direction.values()) {
+            if (face == Direction.DOWN) continue;
+            BlockState facingState = level.getBlockState(pos.relative(face));
+            if (facingState.is(ModBlocks.SIMPLE_CHUTE.get())
+                || facingState.is(ModBlocks.CHUTE.get())
+                || facingState.is(ModBlocks.MAGNETIC_CHUTE.get())
+            ) {
+                if (facingState.is(ModBlocks.MAGNETIC_CHUTE.get())
+                    && facingState.getValue(MagneticChuteBlock.FACING) == face.getOpposite()) {
+                    return true;
+                }
+                if ((facingState.is(ModBlocks.SIMPLE_CHUTE)
+                    || facingState.is(ModBlocks.CHUTE))
+                    && facingState.getValue(FACING) == face.getOpposite()
+                ) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public static boolean isMagneticChute(Level level, BlockPos pos) {
+        return level.getBlockState(pos).is(ModBlocks.MAGNETIC_CHUTE.get());
+    }
+
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
         return simpleCodec(ChuteBlock::new);
@@ -125,20 +159,18 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
         BlockState result = this.defaultBlockState()
             .setValue(FACING, (direction.getAxis() == Direction.Axis.Y ? Direction.DOWN : direction))
             .setValue(ENABLED, !context.getLevel().hasNeighborSignal(context.getClickedPos()));
-        if (blockState.is(ModBlocks.CHUTE) || blockState.is(ModBlocks.SIMPLE_CHUTE)){
-            if (blockState.getValue(FACING) == context.getClickedFace()){
+        if (blockState.is(ModBlocks.CHUTE) || blockState.is(ModBlocks.SIMPLE_CHUTE)) {
+            if (blockState.getValue(FACING) == context.getClickedFace()) {
                 result = result.setValue(FACING, context.getClickedFace());
             }
         }
         return result;
     }
 
-
     @Override
     public BlockState rotate(BlockState state, Rotation rotation) {
         return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
-
 
     @Override
     public BlockState mirror(BlockState state, Mirror mirror) {
@@ -149,7 +181,6 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING, ENABLED);
     }
-
 
     @Override
     public void neighborChanged(
@@ -292,7 +323,6 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
         return InteractionResult.SUCCESS;
     }
 
-
     @Override
     public void onRemove(
         BlockState state,
@@ -393,39 +423,5 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
             return chuteBlockEntity.getRedstoneSignal();
         }
         return 0;
-    }
-
-    /**
-     * 判断是否有溜槽指向
-     *
-     * @param level 世界
-     * @param pos   位置
-     * @return 是否有溜槽指向
-     */
-    public static boolean hasChuteFacing(Level level, BlockPos pos) {
-        for (Direction face : Direction.values()) {
-            if (face == Direction.DOWN) continue;
-            BlockState facingState = level.getBlockState(pos.relative(face));
-            if (facingState.is(ModBlocks.SIMPLE_CHUTE.get())
-                || facingState.is(ModBlocks.CHUTE.get())
-                || facingState.is(ModBlocks.MAGNETIC_CHUTE.get())
-            ) {
-                if (facingState.is(ModBlocks.MAGNETIC_CHUTE.get())
-                    && facingState.getValue(MagneticChuteBlock.FACING) == face.getOpposite()) {
-                    return true;
-                }
-                if ((facingState.is(ModBlocks.SIMPLE_CHUTE)
-                    || facingState.is(ModBlocks.CHUTE))
-                    && facingState.getValue(FACING) == face.getOpposite()
-                ) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    public static boolean isMagneticChute(Level level, BlockPos pos) {
-        return level.getBlockState(pos).is(ModBlocks.MAGNETIC_CHUTE.get());
     }
 }

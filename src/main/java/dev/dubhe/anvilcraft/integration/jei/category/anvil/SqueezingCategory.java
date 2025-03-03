@@ -44,11 +44,26 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
 
     public SqueezingCategory(IGuiHelper helper) {
         progress = helper.drawableBuilder(TextureConstants.PROGRESS, 0, 0, 24, 16)
-                .setTextureSize(24, 16)
-                .build();
+            .setTextureSize(24, 16)
+            .build();
         icon = helper.createDrawableItemStack(new ItemStack(Items.ANVIL));
         title = Component.translatable("gui.anvilcraft.category.squeezing");
         timer = helper.createTickTimer(30, 60, true);
+    }
+
+    public static void registerRecipes(IRecipeRegistration registration) {
+        registration.addRecipes(
+            AnvilCraftJeiPlugin.SQUEEZING,
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.SQUEEZING_TYPE.get()));
+    }
+
+    public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
+        registration.addRecipeCatalyst(new ItemStack(Items.ANVIL), AnvilCraftJeiPlugin.SQUEEZING);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.ROYAL_ANVIL), AnvilCraftJeiPlugin.SQUEEZING);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.EMBER_ANVIL), AnvilCraftJeiPlugin.SQUEEZING);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.GIANT_ANVIL), AnvilCraftJeiPlugin.SQUEEZING);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.SPECTRAL_ANVIL), AnvilCraftJeiPlugin.SQUEEZING);
+        registration.addRecipeCatalyst(new ItemStack(Items.CAULDRON), AnvilCraftJeiPlugin.SQUEEZING);
     }
 
     @Override
@@ -78,7 +93,7 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
 
     @Override
     public void setRecipe(
-            IRecipeLayoutBuilder builder, RecipeHolder<SqueezingRecipe> recipeHolder, IFocusGroup focuses) {
+        IRecipeLayoutBuilder builder, RecipeHolder<SqueezingRecipe> recipeHolder, IFocusGroup focuses) {
         SqueezingRecipe recipe = recipeHolder.value();
         builder.addInvisibleIngredients(RecipeIngredientRole.INPUT).addItemStack(new ItemStack(recipe.inputBlock));
         builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT).addItemStack(new ItemStack(recipe.resultBlock));
@@ -86,11 +101,11 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
 
     @Override
     public void getTooltip(
-            ITooltipBuilder tooltip,
-            RecipeHolder<SqueezingRecipe> recipeHolder,
-            IRecipeSlotsView recipeSlotsView,
-            double mouseX,
-            double mouseY) {
+        ITooltipBuilder tooltip,
+        RecipeHolder<SqueezingRecipe> recipeHolder,
+        IRecipeSlotsView recipeSlotsView,
+        double mouseX,
+        double mouseY) {
         SqueezingRecipe recipe = recipeHolder.value();
         if (mouseX >= 40 && mouseX <= 58) {
             if (mouseY >= 24 && mouseY <= 42) {
@@ -112,48 +127,33 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
 
     @Override
     public void draw(
-            RecipeHolder<SqueezingRecipe> recipeHolder,
-            IRecipeSlotsView recipeSlotsView,
-            GuiGraphics guiGraphics,
-            double mouseX,
-            double mouseY) {
+        RecipeHolder<SqueezingRecipe> recipeHolder,
+        IRecipeSlotsView recipeSlotsView,
+        GuiGraphics guiGraphics,
+        double mouseX,
+        double mouseY) {
         SqueezingRecipe recipe = recipeHolder.value();
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
         RenderHelper.renderBlock(
-                guiGraphics,
-                Blocks.ANVIL.defaultBlockState(),
-                50,
-                12 + anvilYOffset,
-                20,
-                12,
-                RenderHelper.SINGLE_BLOCK);
+            guiGraphics,
+            Blocks.ANVIL.defaultBlockState(),
+            50,
+            12 + anvilYOffset,
+            20,
+            12,
+            RenderHelper.SINGLE_BLOCK);
         RenderHelper.renderBlock(
-                guiGraphics, recipe.inputBlock.defaultBlockState(), 50, 30, 10, 12, RenderHelper.SINGLE_BLOCK);
+            guiGraphics, recipe.inputBlock.defaultBlockState(), 50, 30, 10, 12, RenderHelper.SINGLE_BLOCK);
         RenderHelper.renderBlock(
-                guiGraphics, Blocks.CAULDRON.defaultBlockState(), 50, 40, 0, 12, RenderHelper.SINGLE_BLOCK);
+            guiGraphics, Blocks.CAULDRON.defaultBlockState(), 50, 40, 0, 12, RenderHelper.SINGLE_BLOCK);
 
         progress.draw(guiGraphics, 69, 30);
 
         RenderHelper.renderBlock(
-                guiGraphics, Blocks.ANVIL.defaultBlockState(), 110, 20, 20, 12, RenderHelper.SINGLE_BLOCK);
+            guiGraphics, Blocks.ANVIL.defaultBlockState(), 110, 20, 20, 12, RenderHelper.SINGLE_BLOCK);
         RenderHelper.renderBlock(
-                guiGraphics, recipe.resultBlock.defaultBlockState(), 110, 30, 10, 12, RenderHelper.SINGLE_BLOCK);
+            guiGraphics, recipe.resultBlock.defaultBlockState(), 110, 30, 10, 12, RenderHelper.SINGLE_BLOCK);
         RenderHelper.renderBlock(
-                guiGraphics, recipe.cauldron.defaultBlockState(), 110, 40, 0, 12, RenderHelper.SINGLE_BLOCK);
-    }
-
-    public static void registerRecipes(IRecipeRegistration registration) {
-        registration.addRecipes(
-                AnvilCraftJeiPlugin.SQUEEZING,
-                JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.SQUEEZING_TYPE.get()));
-    }
-
-    public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(new ItemStack(Items.ANVIL), AnvilCraftJeiPlugin.SQUEEZING);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.ROYAL_ANVIL), AnvilCraftJeiPlugin.SQUEEZING);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.EMBER_ANVIL), AnvilCraftJeiPlugin.SQUEEZING);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.GIANT_ANVIL), AnvilCraftJeiPlugin.SQUEEZING);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.SPECTRAL_ANVIL), AnvilCraftJeiPlugin.SQUEEZING);
-        registration.addRecipeCatalyst(new ItemStack(Items.CAULDRON), AnvilCraftJeiPlugin.SQUEEZING);
+            guiGraphics, recipe.cauldron.defaultBlockState(), 110, 40, 0, 12, RenderHelper.SINGLE_BLOCK);
     }
 }

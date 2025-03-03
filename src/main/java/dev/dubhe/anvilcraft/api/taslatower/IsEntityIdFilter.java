@@ -4,15 +4,19 @@ import lombok.Getter;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
 
-public class IsEntityIdFilter extends TeslaFilter{
+public class IsEntityIdFilter extends TeslaFilter {
     @Getter
     private final String id = "IsEntityIdFilter";
 
     @Override
-    public boolean match(LivingEntity entity, String arg) { return entity.getType().getDescriptionId().equals(arg); }
+    public boolean match(LivingEntity entity, String arg) {
+        return entity.getType().getDescriptionId().equals(arg);
+    }
 
     @Override
-    public boolean needArg() { return true; }
+    public boolean needArg() {
+        return true;
+    }
 
     @Override
     public Component title() {

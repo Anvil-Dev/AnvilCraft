@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.api.tooltip.impl;
 
 import dev.dubhe.anvilcraft.api.tooltip.providers.IBlockEntityTooltipProvider;
 import dev.dubhe.anvilcraft.block.entity.HeliostatsBlockEntity;
-
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -11,12 +10,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HeliostatsTooltipProvider implements IBlockEntityTooltipProvider {
-    public HeliostatsTooltipProvider() {}
+    public HeliostatsTooltipProvider() {
+    }
 
     @Override
     public boolean accepts(BlockEntity entity) {
         return entity instanceof HeliostatsBlockEntity heliostatsBlockEntity
-                && !heliostatsBlockEntity.getWorkResult().isWorking();
+            && !heliostatsBlockEntity.getWorkResult().isWorking();
     }
 
     @Override

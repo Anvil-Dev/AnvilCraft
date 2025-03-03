@@ -31,6 +31,13 @@ public class JewelCraftingRecipeCache {
             .collect(Util.toMap());
     }
 
+    public void buildJewelCraftingCache(Map<ItemStack, RecipeHolder<JewelCraftingRecipe>> data) {
+        jewelCraftingCache = data.entrySet()
+            .stream()
+            .map(it -> Map.entry(it.getKey().getItem(), it.getValue()))
+            .collect(Util.toMap());
+    }
+
     public RecipeCacheSyncPacket intoPacket() {
         return new RecipeCacheSyncPacket(
             jewelCraftingCache.entrySet()
@@ -38,12 +45,5 @@ public class JewelCraftingRecipeCache {
                 .map(it -> Map.entry(it.getKey().getDefaultInstance(), it.getValue()))
                 .collect(Util.toMap())
         );
-    }
-
-    public void buildJewelCraftingCache(Map<ItemStack, RecipeHolder<JewelCraftingRecipe>> data) {
-        jewelCraftingCache = data.entrySet()
-            .stream()
-            .map(it -> Map.entry(it.getKey().getItem(), it.getValue()))
-            .collect(Util.toMap());
     }
 }

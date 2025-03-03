@@ -47,9 +47,75 @@ public class ModRenderTypes {
             RenderSystem.defaultBlendFunc();
         }
     );
-
+    public static final RenderType TRANSLUCENT_COLORED_OVERLAY = RenderType.create(
+        "translucent",
+        DefaultVertexFormat.BLOCK,
+        VertexFormat.Mode.QUADS,
+        786432,
+        true,
+        true,
+        RenderType.CompositeState.builder()
+            .setLightmapState(LIGHTMAP)
+            .setShaderState(createRenderTypeColoredOverlayShader(0xDD66CCFF))
+            .setTextureState(BLOCK_SHEET_MIPPED)
+            .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+            .setOutputState(TRANSLUCENT_TARGET)
+            .createCompositeState(true)
+    );
+    public static final RenderType LINE_BLOOM = RenderType.create(
+        "anvilcraft:line_bloom",
+        DefaultVertexFormat.POSITION_COLOR_NORMAL,
+        VertexFormat.Mode.LINES,
+        1536,
+        RenderType.CompositeState.builder()
+            .setShaderState(RENDERTYPE_LINES_SHADER)
+            .setLineState(new RenderStateShard.LineStateShard(OptionalDouble.empty()))
+            .setLayeringState(VIEW_OFFSET_Z_LAYERING)
+            .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+            .setOutputState(LINE_BLOOM_TARGET)
+            .setWriteMaskState(COLOR_DEPTH_WRITE)
+            .setCullState(NO_CULL)
+            .createCompositeState(false)
+    );
+    public static final RenderType BEACON_GLASS = RenderType.create(
+        "anvilcraft:beacon_glass",
+        DefaultVertexFormat.BLOCK,
+        VertexFormat.Mode.QUADS,
+        786432,
+        true,
+        true,
+        RenderType.CompositeState.builder()
+            .setLightmapState(LIGHTMAP)
+            .setShaderState(RENDERTYPE_TRANSLUCENT_SHADER)
+            .setTextureState(BLOCK_SHEET_MIPPED)
+            .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+            .setOutputState(TRANSLUCENT_TARGET)
+            .setWriteMaskState(COLOR_WRITE)
+            .createCompositeState(true)
+    );
     public static RenderStateShard.ShaderStateShard RENDERTYPE_LASER_SHADER = new RenderStateShard.ShaderStateShard(
         () -> renderTypeLaserShader
+    );
+    public static final RenderType LASER = RenderType.create(
+        "anvilcraft:laser",
+        DefaultVertexFormat.BLOCK,
+        VertexFormat.Mode.QUADS,
+        1536,
+        true,
+        true,
+        RenderType.CompositeState.builder()
+            .setLightmapState(LIGHTMAP)
+            .setShaderState(RENDERTYPE_LASER_SHADER)
+            .setTextureState(new RenderStateShard.TextureStateShard(
+                TextureAtlas.LOCATION_BLOCKS,
+                false,
+                false
+            )).setTransparencyState(LASER_TRANSPARENCY)
+            .setCullState(CULL)
+            .setWriteMaskState(COLOR_DEPTH_WRITE)
+            .setOverlayState(OVERLAY)
+            .setOutputState(LASER_TARGET)
+            .createCompositeState(true)
     );
 
     private static RenderStateShard.ShaderStateShard createRenderTypeColoredOverlayShader(int color) {
@@ -79,78 +145,6 @@ public class ModRenderTypes {
             }
         };
     }
-
-    public static final RenderType TRANSLUCENT_COLORED_OVERLAY = RenderType.create(
-        "translucent",
-        DefaultVertexFormat.BLOCK,
-        VertexFormat.Mode.QUADS,
-        786432,
-        true,
-        true,
-        RenderType.CompositeState.builder()
-            .setLightmapState(LIGHTMAP)
-            .setShaderState(createRenderTypeColoredOverlayShader(0xDD66CCFF))
-            .setTextureState(BLOCK_SHEET_MIPPED)
-            .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-            .setOutputState(TRANSLUCENT_TARGET)
-            .createCompositeState(true)
-    );
-
-
-    public static final RenderType LINE_BLOOM = RenderType.create(
-        "anvilcraft:line_bloom",
-        DefaultVertexFormat.POSITION_COLOR_NORMAL,
-        VertexFormat.Mode.LINES,
-        1536,
-        RenderType.CompositeState.builder()
-            .setShaderState(RENDERTYPE_LINES_SHADER)
-            .setLineState(new RenderStateShard.LineStateShard(OptionalDouble.empty()))
-            .setLayeringState(VIEW_OFFSET_Z_LAYERING)
-            .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-            .setOutputState(LINE_BLOOM_TARGET)
-            .setWriteMaskState(COLOR_DEPTH_WRITE)
-            .setCullState(NO_CULL)
-            .createCompositeState(false)
-    );
-
-    public static final RenderType LASER = RenderType.create(
-        "anvilcraft:laser",
-        DefaultVertexFormat.BLOCK,
-        VertexFormat.Mode.QUADS,
-        1536,
-        true,
-        true,
-        RenderType.CompositeState.builder()
-            .setLightmapState(LIGHTMAP)
-            .setShaderState(RENDERTYPE_LASER_SHADER)
-            .setTextureState(new RenderStateShard.TextureStateShard(
-                TextureAtlas.LOCATION_BLOCKS,
-                false,
-                false
-            )).setTransparencyState(LASER_TRANSPARENCY)
-            .setCullState(CULL)
-            .setWriteMaskState(COLOR_DEPTH_WRITE)
-            .setOverlayState(OVERLAY)
-            .setOutputState(LASER_TARGET)
-            .createCompositeState(true)
-    );
-
-    public static final RenderType BEACON_GLASS = RenderType.create(
-        "anvilcraft:beacon_glass",
-        DefaultVertexFormat.BLOCK,
-        VertexFormat.Mode.QUADS,
-        786432,
-        true,
-        true,
-        RenderType.CompositeState.builder()
-            .setLightmapState(LIGHTMAP)
-            .setShaderState(RENDERTYPE_TRANSLUCENT_SHADER)
-            .setTextureState(BLOCK_SHEET_MIPPED)
-            .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-            .setOutputState(TRANSLUCENT_TARGET)
-            .setWriteMaskState(COLOR_WRITE)
-            .createCompositeState(true)
-    );
 
     private static <T> T supplyNothing() {
         return null;

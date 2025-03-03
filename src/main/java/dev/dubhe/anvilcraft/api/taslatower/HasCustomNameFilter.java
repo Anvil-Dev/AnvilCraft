@@ -4,12 +4,14 @@ import lombok.Getter;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
 
-public class HasCustomNameFilter extends TeslaFilter{
+public class HasCustomNameFilter extends TeslaFilter {
     @Getter
     private final String id = "HasCustomNameFilter";
 
     @Override
-    public boolean match(LivingEntity entity, String arg) { return entity.getCustomName() != null;}
+    public boolean match(LivingEntity entity, String arg) {
+        return entity.getCustomName() != null;
+    }
 
     @Override
     public Component title() {

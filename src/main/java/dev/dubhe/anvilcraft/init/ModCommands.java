@@ -1,9 +1,8 @@
 package dev.dubhe.anvilcraft.init;
 
-import net.minecraft.commands.CommandSourceStack;
-
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import net.minecraft.commands.CommandSourceStack;
 import org.jetbrains.annotations.NotNull;
 
 import static net.minecraft.commands.Commands.literal;

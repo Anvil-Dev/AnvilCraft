@@ -1,12 +1,10 @@
 package dev.dubhe.anvilcraft.api.entity.fakeplayer;
 
+import com.mojang.authlib.GameProfile;
 import dev.dubhe.anvilcraft.api.entity.player.IAnvilCraftBlockPlacer;
-
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.common.util.FakePlayerFactory;
-
-import com.mojang.authlib.GameProfile;
 
 import java.util.UUID;
 

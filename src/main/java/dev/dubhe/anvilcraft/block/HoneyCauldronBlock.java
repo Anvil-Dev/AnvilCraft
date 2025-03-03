@@ -30,13 +30,13 @@ public class HoneyCauldronBlock extends Layered4LevelCauldronBlock implements IH
 
     @Override
     public ItemInteractionResult useItemOn(
-            ItemStack stack,
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            Player player,
-            InteractionHand hand,
-            BlockHitResult hitResult
+        ItemStack stack,
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        InteractionHand hand,
+        BlockHitResult hitResult
     ) {
         CauldronInteraction interaction = this.interactions.map().get(stack.getItem());
         if (interaction == null) {

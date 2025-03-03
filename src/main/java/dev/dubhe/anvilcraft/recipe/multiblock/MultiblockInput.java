@@ -12,24 +12,6 @@ import java.util.List;
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public record MultiblockInput(List<List<List<BlockState>>> blocks, int size) implements RecipeInput {
-    @Override
-    public ItemStack getItem(int i) {
-        return ItemStack.EMPTY;
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return false;
-    }
-
-    public BlockState getBlockState(int x, int y, int z) {
-        return blocks.get(y).get(z).get(x);
-    }
-
-    public void setBlockState(int x, int y, int z, BlockState state) {
-        blocks.get(y).get(z).set(x, state);
-    }
-
     private static Direction rotateHorizontal(Direction direction) {
         return switch (direction) {
             case NORTH -> Direction.EAST;
@@ -46,5 +28,23 @@ public record MultiblockInput(List<List<List<BlockState>>> blocks, int size) imp
             case Z -> Direction.Axis.X;
             default -> axis;
         };
+    }
+
+    @Override
+    public ItemStack getItem(int i) {
+        return ItemStack.EMPTY;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return false;
+    }
+
+    public BlockState getBlockState(int x, int y, int z) {
+        return blocks.get(y).get(z).get(x);
+    }
+
+    public void setBlockState(int x, int y, int z, BlockState state) {
+        blocks.get(y).get(z).set(x, state);
     }
 }

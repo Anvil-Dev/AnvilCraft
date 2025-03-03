@@ -8,9 +8,11 @@ public class WatchablePropertyDelegate<T> {
         this.value = value;
     }
 
-    public WatchablePropertyDelegate() {}
+    public WatchablePropertyDelegate() {
+    }
 
-    protected void onChanged(T oldValue, T newValue) {}
+    protected void onChanged(T oldValue, T newValue) {
+    }
 
     public T get() {
         return value;

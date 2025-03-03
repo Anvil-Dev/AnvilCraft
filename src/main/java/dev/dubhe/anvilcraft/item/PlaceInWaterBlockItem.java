@@ -11,7 +11,6 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.BlockHitResult;
-
 import org.jetbrains.annotations.NotNull;
 
 public class PlaceInWaterBlockItem extends BlockItem {
@@ -27,15 +26,15 @@ public class PlaceInWaterBlockItem extends BlockItem {
 
     @Override
     public @NotNull InteractionResultHolder<ItemStack> use(
-            @NotNull Level level,
-            @NotNull Player player,
-            @NotNull InteractionHand usedHand
+        @NotNull Level level,
+        @NotNull Player player,
+        @NotNull InteractionHand usedHand
     ) {
         BlockHitResult fluidHit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY);
         BlockHitResult blockHitResult2 = fluidHit.withPosition(fluidHit.getBlockPos());
         if (blockHitResult2.miss) return InteractionResultHolder.pass(player.getItemInHand(usedHand));
         InteractionResult interactionResult = super.useOn(new UseOnContext(player, usedHand, blockHitResult2));
-        if (!interactionResult.indicateItemUse()){
+        if (!interactionResult.indicateItemUse()) {
             blockHitResult2 = fluidHit.withPosition(fluidHit.getBlockPos().relative(player.getDirection()));
             interactionResult = super.useOn(new UseOnContext(player, usedHand, blockHitResult2));
         }

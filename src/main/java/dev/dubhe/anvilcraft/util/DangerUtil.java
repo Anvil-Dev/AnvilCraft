@@ -1,13 +1,11 @@
 package dev.dubhe.anvilcraft.util;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
-
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
@@ -16,7 +14,7 @@ import java.util.function.Supplier;
 public final class DangerUtil {
 
     public static @NotNull Supplier<ConfiguredModel[]> genConfiguredModel(String path) {
-        return () -> new ConfiguredModel[] {new ConfiguredModel(new ModelFile.UncheckedModelFile(AnvilCraft.of(path)))};
+        return () -> new ConfiguredModel[]{new ConfiguredModel(new ModelFile.UncheckedModelFile(AnvilCraft.of(path)))};
     }
 
     public static @NotNull Supplier<ModelFile> genModModelFile(String path) {

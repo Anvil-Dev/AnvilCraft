@@ -18,8 +18,6 @@ import java.util.List;
 import java.util.Optional;
 
 public class OutputDirectionButton extends Button {
-    private Direction direction;
-    private final List<Direction> skip = new ArrayList<>();
     private static final ResourceLocation UP = AnvilCraft.of("textures/gui/container/machine/button_u.png");
     private static final ResourceLocation DOWN = AnvilCraft.of("textures/gui/container/machine/button_d.png");
     private static final ResourceLocation EAST = AnvilCraft.of("textures/gui/container/machine/button_e.png");
@@ -28,6 +26,8 @@ public class OutputDirectionButton extends Button {
     private static final ResourceLocation NORTH = AnvilCraft.of("textures/gui/container/machine/button_n.png");
     private static final MutableComponent DEFAULT_MESSAGE = Component.translatable(
         "screen.anvilcraft.button.direction", Component.translatable("screen.anvilcraft.button.direction.up"));
+    private final List<Direction> skip = new ArrayList<>();
+    private Direction direction;
 
     public OutputDirectionButton(int x, int y, OnPress onPress, Direction direction) {
         super(x, y, 16, 16, DEFAULT_MESSAGE, onPress, (var) -> DEFAULT_MESSAGE);

@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.HashMap;
 
 public abstract class TeslaFilter {
+    private static final HashMap<String, TeslaFilter> FILTER_MAP = new HashMap<>();
     static TeslaFilter emptyFilter = new TeslaFilter() {
         @Override
         public String getId() {
@@ -23,7 +24,6 @@ public abstract class TeslaFilter {
             return Component.translatable("screen.anvilcraft.tesla_tower.filter.unknown");
         }
     };
-    private static final HashMap<String, TeslaFilter> FILTER_MAP = new HashMap<>();
 
     public static void register(TeslaFilter filter) {
         FILTER_MAP.put(filter.getId(), filter);
@@ -37,20 +37,6 @@ public abstract class TeslaFilter {
         return FILTER_MAP.values();
     }
 
-    abstract public String getId();
-
-    abstract public boolean match(LivingEntity entity, String arg);
-
-    public boolean needArg() {
-        return false;
-    }
-
-    abstract public Component title();
-
-    public String tooltip(String arg) {
-        return "";
-    }
-
     public static void init() {
         FILTER_MAP.clear();
         register(new IsPlayerFilter());
@@ -61,5 +47,19 @@ public abstract class TeslaFilter {
         register(new IsEntityIdFilter());
         register(new IsBabyFriendlyFilter());
         register(new HasCustomNameFilter());
+    }
+
+    public abstract String getId();
+
+    public abstract boolean match(LivingEntity entity, String arg);
+
+    public boolean needArg() {
+        return false;
+    }
+
+    public abstract Component title();
+
+    public String tooltip(String arg) {
+        return "";
     }
 }

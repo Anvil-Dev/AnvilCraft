@@ -21,14 +21,12 @@ import java.util.Arrays;
 import java.util.function.BiFunction;
 
 public abstract class BaseMachineScreen<T extends AbstractContainerMenu> extends AbstractContainerScreen<T> {
-    @Setter
-    private BiFunction<Integer, Integer, OutputDirectionButton> directionButtonSupplier;
-
-    @Getter
-    private OutputDirectionButton directionButton = null;
-
     @Getter
     private final Player player;
+    @Setter
+    private BiFunction<Integer, Integer, OutputDirectionButton> directionButtonSupplier;
+    @Getter
+    private OutputDirectionButton directionButton = null;
 
     /**
      * 基本机器 GUI
@@ -41,14 +39,6 @@ public abstract class BaseMachineScreen<T extends AbstractContainerMenu> extends
         super(menu, inventory, title);
         this.directionButtonSupplier = BaseMachineScreen.getDirectionButtonSupplier(134, 18);
         this.player = inventory.player;
-    }
-
-    @Override
-    protected void init() {
-        super.init();
-        this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
-        this.directionButton = directionButtonSupplier.apply(this.leftPos, this.topPos);
-        this.addRenderableWidget(directionButton);
     }
 
     @Contract(pure = true)
@@ -65,6 +55,14 @@ public abstract class BaseMachineScreen<T extends AbstractContainerMenu> extends
                 }
             },
             Direction.DOWN);
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+        this.directionButton = directionButtonSupplier.apply(this.leftPos, this.topPos);
+        this.addRenderableWidget(directionButton);
     }
 
     @Override

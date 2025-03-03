@@ -12,14 +12,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Inventory.class)
 abstract class InventoryMixin {
-    @Shadow @Final public Player player;
+    @Shadow
+    @Final
+    public Player player;
 
     @Inject(
-            method = "tick",
-            at = @At(value = "HEAD"),
-            cancellable = true
+        method = "tick",
+        at = @At(value = "HEAD"),
+        cancellable = true
     )
-    private void PreInventoryTick(CallbackInfo ci){
+    private void PreInventoryTick(CallbackInfo ci) {
         AbstractAmuletItem.resetWorkingAmuletData(this.player);
     }
 }

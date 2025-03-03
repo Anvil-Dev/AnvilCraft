@@ -8,8 +8,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
-
-import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,24 +26,6 @@ public interface HammerRotateBehavior extends IHammerChangeable {
             return false;
         }
     };
-
-    @Override
-    default boolean change(Player player, BlockPos blockPos, @NotNull Level level, ItemStack anvilHammer) {
-        BlockState state = level.getBlockState(blockPos);
-        if (state.hasProperty(FACING)) {
-            state = HammerRotateBehavior.rotate(state);
-        } else {
-            if (state.hasProperty(FACING_HOPPER)) {
-                state = HammerRotateBehavior.hopperRotate(state);
-            } else {
-                if (state.hasProperty(HORIZONTAL_FACING)) {
-                    state = HammerRotateBehavior.horizontalRotate(state);
-                }
-            }
-        }
-        level.setBlockAndUpdate(blockPos, state);
-        return true;
-    }
 
     private static @NotNull BlockState rotate(@NotNull BlockState state) {
         Direction direction = state.getValue(FACING);
@@ -75,7 +55,25 @@ public interface HammerRotateBehavior extends IHammerChangeable {
     }
 
     @Override
-    default Property<?> getChangeableProperty(BlockState state){
+    default boolean change(Player player, BlockPos blockPos, @NotNull Level level, ItemStack anvilHammer) {
+        BlockState state = level.getBlockState(blockPos);
+        if (state.hasProperty(FACING)) {
+            state = HammerRotateBehavior.rotate(state);
+        } else {
+            if (state.hasProperty(FACING_HOPPER)) {
+                state = HammerRotateBehavior.hopperRotate(state);
+            } else {
+                if (state.hasProperty(HORIZONTAL_FACING)) {
+                    state = HammerRotateBehavior.horizontalRotate(state);
+                }
+            }
+        }
+        level.setBlockAndUpdate(blockPos, state);
+        return true;
+    }
+
+    @Override
+    default Property<?> getChangeableProperty(BlockState state) {
         if (state.hasProperty(FACING)) {
             return FACING;
         } else if (state.hasProperty(FACING_HOPPER)) {

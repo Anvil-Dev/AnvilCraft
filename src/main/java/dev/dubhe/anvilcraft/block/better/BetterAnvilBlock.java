@@ -19,8 +19,8 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public abstract class BetterAnvilBlock extends AnvilBlock {
-    public BetterAnvilBlock(Properties p_48777_) {
-        super(p_48777_);
+    public BetterAnvilBlock(Properties properties) {
+        super(properties);
     }
 
     @Override

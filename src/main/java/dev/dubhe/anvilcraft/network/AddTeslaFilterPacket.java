@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 public class AddTeslaFilterPacket implements CustomPacketPayload {
     public static final Type<AddTeslaFilterPacket> TYPE = new Type<>(AnvilCraft.of("tesla_filter_add"));
     public static final StreamCodec<RegistryFriendlyByteBuf, AddTeslaFilterPacket> STREAM_CODEC =
-            StreamCodec.ofMember(AddTeslaFilterPacket::encode, AddTeslaFilterPacket::new);
+        StreamCodec.ofMember(AddTeslaFilterPacket::encode, AddTeslaFilterPacket::new);
     public static final IPayloadHandler<AddTeslaFilterPacket> HANDLER = AddTeslaFilterPacket::serverHandler;
 
     private final String id;
@@ -29,16 +29,6 @@ public class AddTeslaFilterPacket implements CustomPacketPayload {
         this.arg = buf.readUtf();
     }
 
-    public void encode(@NotNull RegistryFriendlyByteBuf buf) {
-        buf.writeUtf(id);
-        buf.writeUtf(arg);
-    }
-
-    @Override
-    public @NotNull Type<? extends CustomPacketPayload> type() {
-        return TYPE;
-    }
-
     /**
      *
      */
@@ -49,5 +39,15 @@ public class AddTeslaFilterPacket implements CustomPacketPayload {
                 menu.addFilter(data.id, data.arg);
             }
         });
+    }
+
+    public void encode(@NotNull RegistryFriendlyByteBuf buf) {
+        buf.writeUtf(id);
+        buf.writeUtf(arg);
+    }
+
+    @Override
+    public @NotNull Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

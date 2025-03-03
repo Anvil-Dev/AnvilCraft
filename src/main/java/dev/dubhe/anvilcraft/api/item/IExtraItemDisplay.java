@@ -10,7 +10,6 @@ import net.minecraft.world.item.ItemStack;
 /**
  * 继承该接口的物品可用于在GUI内部，于自身上方额外渲染另一个物品。<br/>
  * 注意：额外渲染嵌套层数过深时不会继续渲染。
- *
  */
 
 @MethodsReturnNonnullByDefault
@@ -55,8 +54,8 @@ public interface IExtraItemDisplay {
      * 由于 {@link DataComponentType} 要求存储的数值必须继承 {@code hashCode}与 {@code equals}方法，
      * 我们需要一个记录类存储用于展示的物品。
      *
-     * @apiNote {@code stored}中的物品仅用于展示，不要尝试修改它。
      * @param stored 被储存的用于展示的物品
+     * @apiNote {@code stored}中的物品仅用于展示，不要尝试修改它。
      */
     record StoredItem(ItemStack stored) {
 

@@ -52,7 +52,7 @@ public class ModEnchantmentHelper {
         BlockState state,
         LootContextParamSet paramSet,
         DataComponentType<List<ConditionalEffect<EnchantmentEntityEffect>>> effectType
-    ){
+    ) {
         EnchantmentHelper.runIterationOnItem(stack, (holder, enchantmentLevel) -> {
             LootParams lootParams = new LootParams.Builder(level)
                 .withParameter(LootContextParams.THIS_ENTITY, entity)

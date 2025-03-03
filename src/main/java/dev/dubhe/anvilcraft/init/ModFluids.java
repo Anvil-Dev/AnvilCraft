@@ -4,8 +4,8 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.util.ColorUtil;
 import dev.dubhe.anvilcraft.util.ModClientFluidTypeExtensionImpl;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.sounds.SoundEvents;
@@ -43,27 +43,33 @@ public class ModFluids {
             .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
             .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
         ));
+    public static final Object2ObjectMap<Color, DeferredHolder<FluidType, FluidType>> CEMENT_TYPES = registerAllCementTypes();
     public static final DeferredHolder<Fluid, BaseFlowingFluid> OIL = FLUIDS
         .register(
             "oil",
             () -> new BaseFlowingFluid.Source(ModFluids.OIL_PROPERTIES)
         );
+    public static final DeferredHolder<FluidType, FluidType> MELT_GEM_TYPE = FLUID_TYPES.register(
+        "melt_gem",
+        () -> new FluidType(FluidType.Properties.create()
+            .descriptionId("block.anvilcraft.melt_gem")
+            .canSwim(false)
+            .canDrown(false)
+            .pathType(PathType.LAVA)
+            .adjacentPathType(null)
+            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL_LAVA)
+            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY_LAVA)
+            .lightLevel(15)
+            .density(3000)
+            .viscosity(6000)
+            .temperature(1300)
+        )
+    );
     public static final DeferredHolder<Fluid, BaseFlowingFluid> FLOWING_OIL = FLUIDS
         .register(
             "flowing_oil",
             () -> new BaseFlowingFluid.Flowing(ModFluids.OIL_PROPERTIES)
         );
-    public static final BaseFlowingFluid.Properties OIL_PROPERTIES = new BaseFlowingFluid.Properties(OIL_TYPE, OIL, FLOWING_OIL)
-        .bucket(ModItems.OIL_BUCKET)
-        .block(ModBlocks.OIL)
-        .tickRate(10)
-        .slopeFindDistance(3)
-        .explosionResistance(100);
-
-    public static final Object2ObjectMap<Color, DeferredHolder<FluidType, FluidType>> CEMENT_TYPES = registerAllCementTypes();
-    public static final Object2ObjectMap<Color, DeferredHolder<Fluid, BaseFlowingFluid>> SOURCE_CEMENTS = registerAllSourceCement();
-    public static final Object2ObjectMap<Color, DeferredHolder<Fluid, BaseFlowingFluid>> FLOWING_CEMENTS = registerAllFlowingCement();
-    public static final Object2ObjectMap<Color, BaseFlowingFluid.Properties> CEMENT_PROPERTIES = createAllCementProperties();
 
     private static Object2ObjectMap<Color, DeferredHolder<FluidType, FluidType>> registerAllCementTypes() {
         Object2ObjectMap<Color, DeferredHolder<FluidType, FluidType>> map = new Object2ObjectLinkedOpenHashMap<>();
@@ -73,6 +79,13 @@ public class ModFluids {
         }
         return map;
     }
+
+    public static final BaseFlowingFluid.Properties OIL_PROPERTIES = new BaseFlowingFluid.Properties(OIL_TYPE, OIL, FLOWING_OIL)
+        .bucket(ModItems.OIL_BUCKET)
+        .block(ModBlocks.OIL)
+        .tickRate(10)
+        .slopeFindDistance(3)
+        .explosionResistance(100);
 
     private static DeferredHolder<FluidType, FluidType> registerCementType(Color color) {
         return FLUID_TYPES.register("%s_cement".formatted(color), () -> new FluidType(FluidType.Properties.create()
@@ -95,10 +108,13 @@ public class ModFluids {
         return map;
     }
 
+    public static final Object2ObjectMap<Color, DeferredHolder<Fluid, BaseFlowingFluid>> SOURCE_CEMENTS = registerAllSourceCement();
+
     private static DeferredHolder<Fluid, BaseFlowingFluid> registerSourceCement(Color color) {
         return FLUIDS.register("%s_cement".formatted(color), () -> new BaseFlowingFluid.Source(ModFluids.CEMENT_PROPERTIES.get(color)));
     }
 
+    public static final Object2ObjectMap<Color, DeferredHolder<Fluid, BaseFlowingFluid>> FLOWING_CEMENTS = registerAllFlowingCement();
 
     private static Object2ObjectMap<Color, DeferredHolder<Fluid, BaseFlowingFluid>> registerAllFlowingCement() {
         Object2ObjectMap<Color, DeferredHolder<Fluid, BaseFlowingFluid>> map = new Object2ObjectLinkedOpenHashMap<>();
@@ -108,6 +124,8 @@ public class ModFluids {
         }
         return map;
     }
+
+    public static final Object2ObjectMap<Color, BaseFlowingFluid.Properties> CEMENT_PROPERTIES = createAllCementProperties();
 
     private static DeferredHolder<Fluid, BaseFlowingFluid> registerFlowingCement(Color color) {
         return FLUIDS.register("flowing_%s_cement".formatted(color), () -> new BaseFlowingFluid.Flowing(ModFluids.CEMENT_PROPERTIES.get(color)));
@@ -128,36 +146,6 @@ public class ModFluids {
             .block(ModBlocks.CEMENTS.get(color))
             .explosionResistance(100);
     }
-
-    public static final DeferredHolder<FluidType, FluidType> MELT_GEM_TYPE = FLUID_TYPES.register(
-        "melt_gem",
-        () -> new FluidType(FluidType.Properties.create()
-            .descriptionId("block.anvilcraft.melt_gem")
-            .canSwim(false)
-            .canDrown(false)
-            .pathType(PathType.LAVA)
-            .adjacentPathType(null)
-            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL_LAVA)
-            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY_LAVA)
-            .lightLevel(15)
-            .density(3000)
-            .viscosity(6000)
-            .temperature(1300)
-        )
-    );
-    public static final DeferredHolder<Fluid, BaseFlowingFluid> MELT_GEM = FLUIDS.register(
-        "melt_gem",
-        () -> new BaseFlowingFluid.Source(ModFluids.MELT_GEM_PROPERTIES)
-    );
-    public static final DeferredHolder<Fluid, BaseFlowingFluid> FLOWING_MELT_GEM = FLUIDS.register(
-        "flowing_melt_gem",
-        () -> new BaseFlowingFluid.Flowing(ModFluids.MELT_GEM_PROPERTIES)
-    );
-    public static final BaseFlowingFluid.Properties MELT_GEM_PROPERTIES = new BaseFlowingFluid.Properties(MELT_GEM_TYPE, MELT_GEM, FLOWING_MELT_GEM)
-        .block(ModBlocks.MELT_GEM)
-        .bucket(ModItems.MELT_GEM_BUCKET)
-        .tickRate(20)
-        .explosionResistance(100);
 
     public static void register(IEventBus eventBus) {
         FLUID_TYPES.register(eventBus);
@@ -186,5 +174,21 @@ public class ModFluids {
             2.0f
         ), MELT_GEM_TYPE);
     }
+
+
+    public static final DeferredHolder<Fluid, BaseFlowingFluid> MELT_GEM = FLUIDS.register(
+        "melt_gem",
+        () -> new BaseFlowingFluid.Source(ModFluids.MELT_GEM_PROPERTIES)
+    );
+    public static final DeferredHolder<Fluid, BaseFlowingFluid> FLOWING_MELT_GEM = FLUIDS.register(
+        "flowing_melt_gem",
+        () -> new BaseFlowingFluid.Flowing(ModFluids.MELT_GEM_PROPERTIES)
+    );
+    public static final BaseFlowingFluid.Properties MELT_GEM_PROPERTIES = new BaseFlowingFluid.Properties(MELT_GEM_TYPE, MELT_GEM, FLOWING_MELT_GEM)
+        .block(ModBlocks.MELT_GEM)
+        .bucket(ModItems.MELT_GEM_BUCKET)
+        .tickRate(20)
+        .explosionResistance(100);
+
 
 }

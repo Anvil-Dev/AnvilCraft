@@ -32,15 +32,20 @@ abstract class AnvilBlockMixin extends FallingBlock {
         super(properties);
     }
 
+    @Inject(method = "damage", at = @At("RETURN"), cancellable = true)
+    private static void damage(@NotNull BlockState state, CallbackInfoReturnable<BlockState> cir) {
+        if (state.is(ModBlockTags.CANT_BROKEN_ANVIL)) cir.setReturnValue(state);
+    }
+
     @Override
     public void tick(
-            @NotNull BlockState state,
-            @NotNull ServerLevel level,
-            @NotNull BlockPos pos,
-            @NotNull RandomSource random) {
+        @NotNull BlockState state,
+        @NotNull ServerLevel level,
+        @NotNull BlockPos pos,
+        @NotNull RandomSource random) {
         if (anvilCraft$isAttracts(level.getBlockState(pos.above()))
-                || !FallingBlock.isFree(level.getBlockState(pos.below()))
-                || pos.getY() < level.getMinBuildHeight()) {
+            || !FallingBlock.isFree(level.getBlockState(pos.below()))
+            || pos.getY() < level.getMinBuildHeight()) {
             return;
         }
         FallingBlockEntity fallingBlockEntity = FallingBlockEntity.fall(level, pos, state);
@@ -49,33 +54,36 @@ abstract class AnvilBlockMixin extends FallingBlock {
 
     @Override
     public void neighborChanged(
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull Block neighborBlock,
-            @NotNull BlockPos neighborPos,
-            boolean movedByPiston) {
+        @NotNull BlockState state,
+        @NotNull Level level,
+        @NotNull BlockPos pos,
+        @NotNull Block neighborBlock,
+        @NotNull BlockPos neighborPos,
+        boolean movedByPiston) {
         super.neighborChanged(state, level, pos, neighborBlock, neighborPos, movedByPiston);
         this.anvilCraft$wasAttracted(state, level, pos);
     }
 
-    @Unique private boolean anvilCraft$isAttracts(@NotNull BlockState state) {
+    @Unique
+    private boolean anvilCraft$isAttracts(@NotNull BlockState state) {
         return state.is(ModBlockTags.MAGNET) && !state.getValue(LIT);
     }
 
     @Override
     public void onPlace(
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull BlockState oldState,
-            boolean movedByPiston) {
+        @NotNull BlockState state,
+        @NotNull Level level,
+        @NotNull BlockPos pos,
+        @NotNull BlockState oldState,
+        boolean movedByPiston) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
         BlockState state1 = level.getBlockState(pos.above());
         if (!this.anvilCraft$isAttracts(state1)) this.anvilCraft$wasAttracted(state, level, pos);
     }
+
     // -1 -56 7, -1 -57 7
-    @Unique private void anvilCraft$wasAttracted(BlockState state, @NotNull Level level, @NotNull BlockPos anvil) {
+    @Unique
+    private void anvilCraft$wasAttracted(BlockState state, @NotNull Level level, @NotNull BlockPos anvil) {
         BlockPos magnet = anvil;
         BlockState aboveState = level.getBlockState(anvil.above());
         if (aboveState.is(ModBlockTags.MAGNET) || aboveState.getBlock() instanceof MagnetBlock) return;
@@ -93,10 +101,5 @@ abstract class AnvilBlockMixin extends FallingBlock {
             AnimateAscendingBlockEntity.animate(level, anvil, state, magnet.below());
             return;
         }
-    }
-
-    @Inject(method = "damage", at = @At("RETURN"), cancellable = true)
-    private static void damage(@NotNull BlockState state, CallbackInfoReturnable<BlockState> cir) {
-        if (state.is(ModBlockTags.CANT_BROKEN_ANVIL)) cir.setReturnValue(state);
     }
 }

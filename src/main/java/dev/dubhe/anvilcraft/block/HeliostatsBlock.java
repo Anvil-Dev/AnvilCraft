@@ -30,11 +30,11 @@ import java.util.stream.Stream;
 @MethodsReturnNonnullByDefault
 public class HeliostatsBlock extends BaseEntityBlock implements IHammerRemovable {
     public static final VoxelShape SHAPE =
-            Stream.of(
-                    Block.box(0, 0, 0, 16, 4, 16),
-                    Block.box(4, 4, 4, 12, 6, 12),
-                    Block.box(6, 6, 6, 10, 22, 10)
-            ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+        Stream.of(
+            Block.box(0, 0, 0, 16, 4, 16),
+            Block.box(4, 4, 4, 12, 6, 12),
+            Block.box(6, 6, 6, 10, 22, 10)
+        ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
 
     public static final VoxelShape COLLISION_SHAPE =
         Stream.of(

@@ -13,6 +13,16 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 
 public interface MineralFountainChanceRecipeSchema {
+    RecipeKey<ResourceLocation> DIMENSION = AnvilCraftRecipeComponents.RESOURCE_LOCATION.otherKey("dimension");
+    RecipeKey<Block> FROM_BLOCK = BlockComponent.BLOCK.inputKey("from_block").defaultOptional();
+    RecipeKey<Block> TO_BLOCK = BlockComponent.BLOCK.inputKey("to_block").defaultOptional();
+    RecipeKey<Double> CHANCE = NumberComponent.DOUBLE.otherKey("chance").optional(1d);
+    RecipeSchema SCHEMA = new RecipeSchema(DIMENSION, FROM_BLOCK, TO_BLOCK, CHANCE)
+        .factory(new KubeRecipeFactory(AnvilCraft.of("mineral_fountain_chance"), MineralFountainChanceKubeRecipe.class, MineralFountainChanceKubeRecipe::new))
+        .constructor(DIMENSION, FROM_BLOCK, TO_BLOCK, CHANCE)
+        .constructor(new IDRecipeConstructor())
+        .constructor();
+
     @SuppressWarnings("unused")
     class MineralFountainChanceKubeRecipe extends KubeRecipe {
         public MineralFountainChanceKubeRecipe dimension(ResourceLocation dimension) {
@@ -39,15 +49,4 @@ public interface MineralFountainChanceRecipeSchema {
             return this;
         }
     }
-
-    RecipeKey<ResourceLocation> DIMENSION = AnvilCraftRecipeComponents.RESOURCE_LOCATION.otherKey("dimension");
-    RecipeKey<Block> FROM_BLOCK = BlockComponent.BLOCK.inputKey("from_block").defaultOptional();
-    RecipeKey<Block> TO_BLOCK = BlockComponent.BLOCK.inputKey("to_block").defaultOptional();
-    RecipeKey<Double> CHANCE = NumberComponent.DOUBLE.otherKey("chance").optional(1d);
-
-    RecipeSchema SCHEMA = new RecipeSchema(DIMENSION, FROM_BLOCK, TO_BLOCK, CHANCE)
-        .factory(new KubeRecipeFactory(AnvilCraft.of("mineral_fountain_chance"), MineralFountainChanceKubeRecipe.class, MineralFountainChanceKubeRecipe::new))
-        .constructor(DIMENSION, FROM_BLOCK, TO_BLOCK, CHANCE)
-        .constructor(new IDRecipeConstructor())
-        .constructor();
 }

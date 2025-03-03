@@ -20,9 +20,9 @@ import org.jetbrains.annotations.NotNull;
 public class SlotFilterChangePacket implements CustomPacketPayload {
     public static final Type<SlotFilterChangePacket> TYPE = new Type<>(AnvilCraft.of("slot_filter_change"));
     public static final StreamCodec<RegistryFriendlyByteBuf, SlotFilterChangePacket> STREAM_CODEC =
-            StreamCodec.ofMember(SlotFilterChangePacket::encode, SlotFilterChangePacket::decode);
+        StreamCodec.ofMember(SlotFilterChangePacket::encode, SlotFilterChangePacket::decode);
     public static final IPayloadHandler<SlotFilterChangePacket> HANDLER = new DirectionalPayloadHandler<>(
-            SlotFilterChangePacket::clientHandler, SlotFilterChangePacket::serverHandler);
+        SlotFilterChangePacket::clientHandler, SlotFilterChangePacket::serverHandler);
 
     private final int index;
     private final ItemStack filter;
@@ -49,17 +49,6 @@ public class SlotFilterChangePacket implements CustomPacketPayload {
         return new SlotFilterChangePacket(index, filter, false);
     }
 
-    public void encode(@NotNull RegistryFriendlyByteBuf buf) {
-        buf.writeInt(this.index);
-        ItemStack.OPTIONAL_STREAM_CODEC.encode(buf, this.filter);
-    }
-
-    @Override
-    @NotNull
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
-    }
-
     public static void serverHandler(SlotFilterChangePacket data, IPayloadContext context) {
         ServerPlayer player = (ServerPlayer) context.player();
         context.enqueueWork(() -> {
@@ -77,5 +66,16 @@ public class SlotFilterChangePacket implements CustomPacketPayload {
             if (!(client.screen instanceof IFilterScreen<?> screen)) return;
             screen.setFilter(data.index, data.filter);
         });
+    }
+
+    public void encode(@NotNull RegistryFriendlyByteBuf buf) {
+        buf.writeInt(this.index);
+        ItemStack.OPTIONAL_STREAM_CODEC.encode(buf, this.filter);
+    }
+
+    @Override
+    @NotNull
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

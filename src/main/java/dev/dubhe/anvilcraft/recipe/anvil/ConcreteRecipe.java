@@ -104,24 +104,14 @@ public class ConcreteRecipe implements Recipe<ItemProcessInput> {
 
     public static class Serializer implements RecipeSerializer<ConcreteRecipe> {
         private static final MapCodec<ConcreteRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-                        CodecUtil.createIngredientListCodec("ingredients", 16, "concrete")
-                                .forGetter(ConcreteRecipe::getIngredients),
-                        Codec.STRING.fieldOf("result").forGetter(ConcreteRecipe::getResult),
-                        Codec.INT.fieldOf("resultCount").forGetter(ConcreteRecipe::getResultCount))
-                .apply(ins, ConcreteRecipe::new));
+                CodecUtil.createIngredientListCodec("ingredients", 16, "concrete")
+                    .forGetter(ConcreteRecipe::getIngredients),
+                Codec.STRING.fieldOf("result").forGetter(ConcreteRecipe::getResult),
+                Codec.INT.fieldOf("resultCount").forGetter(ConcreteRecipe::getResultCount))
+            .apply(ins, ConcreteRecipe::new));
 
         private static final StreamCodec<RegistryFriendlyByteBuf, ConcreteRecipe> STREAM_CODEC =
-                StreamCodec.of(Serializer::encode, Serializer::decode);
-
-        @Override
-        public MapCodec<ConcreteRecipe> codec() {
-            return CODEC;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, ConcreteRecipe> streamCodec() {
-            return STREAM_CODEC;
-        }
+            StreamCodec.of(Serializer::encode, Serializer::decode);
 
         private static ConcreteRecipe decode(RegistryFriendlyByteBuf buf) {
             int size = buf.readVarInt();
@@ -139,6 +129,16 @@ public class ConcreteRecipe implements Recipe<ItemProcessInput> {
             }
             buf.writeUtf(recipe.result);
             buf.writeVarInt(recipe.resultCount);
+        }
+
+        @Override
+        public MapCodec<ConcreteRecipe> codec() {
+            return CODEC;
+        }
+
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, ConcreteRecipe> streamCodec() {
+            return STREAM_CODEC;
         }
     }
 

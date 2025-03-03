@@ -18,6 +18,21 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public interface MobTransformRecipeSchema {
+    RecipeKey<EntityType<?>> INPUT = AnvilCraftRecipeComponents.ENTITY_TYPE.inputKey("input").defaultOptional();
+    RecipeKey<List<TransformResult>> RESULTS = AnvilCraftRecipeComponents.TRANSFORM_RESULT
+        .asList().outputKey("results").defaultOptional();
+    RecipeKey<List<NumericTagValuePredicate>> NUMERIC_TAG_VALUE_PREDICATES = AnvilCraftRecipeComponents.NUMERIC_TAG_VALUE_PREDICATE
+        .asList().otherKey("tagPredicates").defaultOptional();
+    RecipeKey<List<TagModification>> TAG_MODIFICATIONS = AnvilCraftRecipeComponents.TAG_MODIFICATION
+        .asList().outputKey("tagModifications").defaultOptional();
+    RecipeKey<List<TransformOptions>> TRANSFORM_OPTIONS = AnvilCraftRecipeComponents.TRANSFORM_OPTIONS
+        .asList().outputKey("transformOptions").defaultOptional();
+    RecipeSchema SCHEMA = new RecipeSchema(INPUT, RESULTS, NUMERIC_TAG_VALUE_PREDICATES, TAG_MODIFICATIONS, TRANSFORM_OPTIONS)
+        .factory(new KubeRecipeFactory(AnvilCraft.of("mob_transform"), MobTransformKubeRecipe.class, MobTransformKubeRecipe::new))
+        .constructor(INPUT, RESULTS, NUMERIC_TAG_VALUE_PREDICATES, TAG_MODIFICATIONS, TRANSFORM_OPTIONS)
+        .constructor(new IDRecipeConstructor())
+        .constructor();
+
     @SuppressWarnings({"DataFlowIssue", "unused"})
     class MobTransformKubeRecipe extends KubeRecipe {
         public MobTransformKubeRecipe input(EntityType<?> entityType) {
@@ -38,7 +53,8 @@ public interface MobTransformRecipeSchema {
         }
 
         public MobTransformKubeRecipe predicate(Consumer<NumericTagValuePredicate.Builder> consumer) {
-            if (getValue(NUMERIC_TAG_VALUE_PREDICATES) == null) setValue(NUMERIC_TAG_VALUE_PREDICATES, new ArrayList<>());
+            if (getValue(NUMERIC_TAG_VALUE_PREDICATES) == null)
+                setValue(NUMERIC_TAG_VALUE_PREDICATES, new ArrayList<>());
             var builder = NumericTagValuePredicate.builder();
             consumer.accept(builder);
             getValue(NUMERIC_TAG_VALUE_PREDICATES).add(builder.build());
@@ -62,20 +78,4 @@ public interface MobTransformRecipeSchema {
             return this;
         }
     }
-
-    RecipeKey<EntityType<?>> INPUT = AnvilCraftRecipeComponents.ENTITY_TYPE.inputKey("input").defaultOptional();
-    RecipeKey<List<TransformResult>> RESULTS = AnvilCraftRecipeComponents.TRANSFORM_RESULT
-        .asList().outputKey("results").defaultOptional();
-    RecipeKey<List<NumericTagValuePredicate>> NUMERIC_TAG_VALUE_PREDICATES = AnvilCraftRecipeComponents.NUMERIC_TAG_VALUE_PREDICATE
-        .asList().otherKey("tagPredicates").defaultOptional();
-    RecipeKey<List<TagModification>> TAG_MODIFICATIONS = AnvilCraftRecipeComponents.TAG_MODIFICATION
-        .asList().outputKey("tagModifications").defaultOptional();
-    RecipeKey<List<TransformOptions>> TRANSFORM_OPTIONS = AnvilCraftRecipeComponents.TRANSFORM_OPTIONS
-        .asList().outputKey("transformOptions").defaultOptional();
-
-    RecipeSchema SCHEMA = new RecipeSchema(INPUT, RESULTS, NUMERIC_TAG_VALUE_PREDICATES, TAG_MODIFICATIONS, TRANSFORM_OPTIONS)
-        .factory(new KubeRecipeFactory(AnvilCraft.of("mob_transform"), MobTransformKubeRecipe.class, MobTransformKubeRecipe::new))
-        .constructor(INPUT, RESULTS, NUMERIC_TAG_VALUE_PREDICATES, TAG_MODIFICATIONS, TRANSFORM_OPTIONS)
-        .constructor(new IDRecipeConstructor())
-        .constructor();
 }

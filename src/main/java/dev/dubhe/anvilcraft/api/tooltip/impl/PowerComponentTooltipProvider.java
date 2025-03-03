@@ -7,7 +7,6 @@ import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.SimplePowerGrid;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IBlockEntityTooltipProvider;
 import dev.dubhe.anvilcraft.util.Util;
-
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -63,7 +62,7 @@ public class PowerComponentTooltipProvider implements IBlockEntityTooltipProvide
         if (type == PowerComponentType.PRODUCER) {
             lines.add(
                 Component.translatable("tooltip.anvilcraft.grid_information.producer_stats")
-                .setStyle(Style.EMPTY.applyFormat(ChatFormatting.BLUE))
+                    .setStyle(Style.EMPTY.applyFormat(ChatFormatting.BLUE))
             );
             lines.add(
                 Component.translatable(

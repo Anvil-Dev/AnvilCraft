@@ -19,22 +19,18 @@ import org.jetbrains.annotations.NotNull;
 
 public class Slider extends AbstractWidget {
     public static final ResourceLocation SLIDER = AnvilCraft.of("textures/gui/container/slider/slider.png");
-
-    @Setter
-    @Getter
-    private int min;
-
-    @Setter
-    @Getter
-    private int max;
-
-    @Getter
-    private int value;
-
+    public final Callback<Integer> callback;
     private final int posX;
     private final int posY;
     private final int length;
-    public final Callback<Integer> callback;
+    @Setter
+    @Getter
+    private int min;
+    @Setter
+    @Getter
+    private int max;
+    @Getter
+    private int value;
     private int tooltipMsDelay;
     private long hoverOrFocusedStartTime;
     private boolean wasHoveredOrFocused;

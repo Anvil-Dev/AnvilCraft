@@ -4,12 +4,14 @@ import lombok.Getter;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
 
-public class IsFriendlyFilter extends TeslaFilter{
+public class IsFriendlyFilter extends TeslaFilter {
     @Getter
     private final String id = "IsFriendlyFilter";
 
     @Override
-    public boolean match(LivingEntity entity, String arg) { return entity.getType().getCategory().isFriendly();}
+    public boolean match(LivingEntity entity, String arg) {
+        return entity.getType().getCategory().isFriendly();
+    }
 
     @Override
     public Component title() {

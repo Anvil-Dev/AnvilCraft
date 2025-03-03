@@ -20,22 +20,12 @@ public class EntityTypePressurePlateBlock extends PowerLevelPressurePlateBlock {
         super(BlockSetType.IRON, properties);
     }
 
-    @Override
-    protected Set<Class<? extends Entity>> getEntityClasses() {
-        return ImmutableSet.of(LivingEntity.class);
-    }
-
-    @Override
-    protected int getSignalStrength(Level level, AABB box, Set<Class<? extends Entity>> entityClasses) {
-        return Math.clamp(getEntityTypes(level, box, entityClasses), 0, 15);
-    }
-
     protected static int getEntityTypes(Level level, AABB box, Set<Class<? extends Entity>> entityClasses) {
         Set<Entity> entities = Sets.newHashSet();
         for (Class<? extends Entity> entityClass : entityClasses) {
             entities.addAll(level.getEntitiesOfClass(
-                    entityClass, box,
-                    EntitySelector.NO_SPECTATORS.and(entity -> !entity.isIgnoringBlockTriggers())
+                entityClass, box,
+                EntitySelector.NO_SPECTATORS.and(entity -> !entity.isIgnoringBlockTriggers())
             ));
         }
 
@@ -45,5 +35,15 @@ public class EntityTypePressurePlateBlock extends PowerLevelPressurePlateBlock {
         }
 
         return entityClassez.size();
+    }
+
+    @Override
+    protected Set<Class<? extends Entity>> getEntityClasses() {
+        return ImmutableSet.of(LivingEntity.class);
+    }
+
+    @Override
+    protected int getSignalStrength(Level level, AABB box, Set<Class<? extends Entity>> entityClasses) {
+        return Math.clamp(getEntityTypes(level, box, entityClasses), 0, 15);
     }
 }

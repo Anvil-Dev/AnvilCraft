@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.init;
 
+import com.tterrag.registrate.util.entry.MenuEntry;
 import dev.dubhe.anvilcraft.client.gui.screen.ActiveSilencerScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.BatchCrafterScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.ChuteScreen;
@@ -31,13 +32,10 @@ import dev.dubhe.anvilcraft.inventory.RoyalGrindstoneMenu;
 import dev.dubhe.anvilcraft.inventory.RoyalSmithingMenu;
 import dev.dubhe.anvilcraft.inventory.SliderMenu;
 import dev.dubhe.anvilcraft.inventory.StructureToolMenu;
-
 import dev.dubhe.anvilcraft.inventory.TeslaTowerMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
-
-import com.tterrag.registrate.util.entry.MenuEntry;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 
@@ -112,8 +110,8 @@ public class ModMenuTypes {
         .register();
 
     public static final MenuEntry<TeslaTowerMenu> TESLA_TOWER = REGISTRATE
-            .menu("tesla_tower", TeslaTowerMenu::new, () -> TeslaTowerScreen::new)
-            .register();
+        .menu("tesla_tower", TeslaTowerMenu::new, () -> TeslaTowerScreen::new)
+        .register();
 
     public static void register() {
     }

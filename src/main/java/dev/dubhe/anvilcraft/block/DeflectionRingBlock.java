@@ -40,28 +40,28 @@ public class DeflectionRingBlock extends FlexibleMultiPartBlock<DirectionCube3x3
     public DeflectionRingBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition
-                .any()
-                .setValue(HALF, DirectionCube3x3PartHalf.BOTTOM_CENTER)
-                .setValue(FACING, Direction.NORTH)
-                .setValue(OVERLOAD, true)
-                .setValue(SWITCH, IPowerComponent.Switch.ON));
+            .any()
+            .setValue(HALF, DirectionCube3x3PartHalf.BOTTOM_CENTER)
+            .setValue(FACING, Direction.NORTH)
+            .setValue(OVERLOAD, true)
+            .setValue(SWITCH, IPowerComponent.Switch.ON));
     }
 
     @Override
     public final void setPlacedBy(
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            BlockState state,
-            @Nullable LivingEntity placer,
-            @NotNull ItemStack stack
+        @NotNull Level level,
+        @NotNull BlockPos pos,
+        BlockState state,
+        @Nullable LivingEntity placer,
+        @NotNull ItemStack stack
     ) {
         if (!state.hasProperty(this.getPart())) return;
         for (DirectionCube3x3PartHalf part : this.getParts()) {
             BlockPos blockPos = pos.offset(part.getOffset(state.getValue(getAdditionalProperty())));
             if (pos.equals(blockPos)) continue;
             BlockState newState = placer == null ? placedState(part, state) :
-                    placedState(part, state)
-                            .setValue(FACING, placer.isShiftKeyDown() ? Direction.orderedByNearest(placer)[0].getOpposite() : Direction.orderedByNearest(placer)[0]);
+                placedState(part, state)
+                    .setValue(FACING, placer.isShiftKeyDown() ? Direction.orderedByNearest(placer)[0].getOpposite() : Direction.orderedByNearest(placer)[0]);
             level.setBlockAndUpdate(blockPos, newState);
         }
     }
@@ -88,23 +88,23 @@ public class DeflectionRingBlock extends FlexibleMultiPartBlock<DirectionCube3x3
     @Override
     protected @NotNull BlockState placedState(@NotNull DirectionCube3x3PartHalf part, BlockState state) {
         return state
-                .setValue(this.getPart(), part);
+            .setValue(this.getPart(), part);
     }
 
     @Override
     public @Nullable BlockState getPlacementState(BlockPlaceContext context) {
         return this.defaultBlockState()
-                .setValue(FACING, context.getPlayer() != null && context.getPlayer().isShiftKeyDown() ? context.getNearestLookingDirection().getOpposite() : context.getNearestLookingDirection());
+            .setValue(FACING, context.getPlayer() != null && context.getPlayer().isShiftKeyDown() ? context.getNearestLookingDirection().getOpposite() : context.getNearestLookingDirection());
     }
 
     @Override
     public void neighborChanged(
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull Block neighborBlock,
-            @NotNull BlockPos neighborPos,
-            boolean movedByPiston
+        @NotNull BlockState state,
+        @NotNull Level level,
+        @NotNull BlockPos pos,
+        @NotNull Block neighborBlock,
+        @NotNull BlockPos neighborPos,
+        boolean movedByPiston
     ) {
         boolean isSignal = Arrays.stream(getParts()).anyMatch(it -> level.hasNeighborSignal(pos.subtract(state.getValue(getPart()).getOffset()).offset(it.getOffset())));
         if (isSignal && state.getValue(SWITCH) == IPowerComponent.Switch.ON) {

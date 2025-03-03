@@ -31,6 +31,14 @@ public class ChuteBlockEntity extends BaseChuteBlockEntity {
         super(type, pos, blockState);
     }
 
+    public static ChuteBlockEntity createBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+        return new ChuteBlockEntity(type, pos, blockState);
+    }
+
+    public static void onBlockEntityRegister(BlockEntityType<ChuteBlockEntity> type) {
+
+    }
+
     @Override
     protected boolean shouldSkipDirection(@NotNull Direction direction) {
         return Direction.UP == direction;
@@ -61,18 +69,13 @@ public class ChuteBlockEntity extends BaseChuteBlockEntity {
         return getBlockState().getValue(ChuteBlock.ENABLED);
     }
 
-    public static ChuteBlockEntity createBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
-        return new ChuteBlockEntity(type, pos, blockState);
-    }
-
-    public static void onBlockEntityRegister(BlockEntityType<ChuteBlockEntity> type) {}
-
     @Override
     public @NotNull Component getDisplayName() {
         return Component.translatable("block.anvilcraft.chute");
     }
 
-    @Nullable @Override
+    @Nullable
+    @Override
     public AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
         if (player.isSpectator()) return null;
         return new ChuteMenu(ModMenuTypes.CHUTE.get(), i, inventory, this);

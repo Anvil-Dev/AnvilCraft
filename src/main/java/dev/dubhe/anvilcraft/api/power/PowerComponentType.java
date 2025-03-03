@@ -1,8 +1,7 @@
 package dev.dubhe.anvilcraft.api.power;
 
-import net.minecraft.util.StringRepresentable;
-
 import com.mojang.serialization.Codec;
+import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.NotNull;
 
 /**

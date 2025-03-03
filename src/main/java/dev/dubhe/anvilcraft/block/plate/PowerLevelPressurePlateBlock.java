@@ -30,13 +30,12 @@ import java.util.Set;
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class PowerLevelPressurePlateBlock extends BasePressurePlateBlock {
-    public static final MapCodec<PowerLevelPressurePlateBlock> CODEC = RecordCodecBuilder.mapCodec(
-            instance -> instance.group(
-                    BlockSetType.CODEC.fieldOf("block_set_type").forGetter(block -> block.type), propertiesCodec()
-            ).apply(instance, PowerLevelPressurePlateBlock::new)
-    );
-
     public static final IntegerProperty POWER = BlockStateProperties.POWER;
+    public static final MapCodec<PowerLevelPressurePlateBlock> CODEC = RecordCodecBuilder.mapCodec(
+        instance -> instance.group(
+            BlockSetType.CODEC.fieldOf("block_set_type").forGetter(block -> block.type), propertiesCodec()
+        ).apply(instance, PowerLevelPressurePlateBlock::new)
+    );
 
     public PowerLevelPressurePlateBlock(BlockSetType type, Properties properties) {
         super(properties, type);
@@ -89,6 +88,19 @@ public class PowerLevelPressurePlateBlock extends BasePressurePlateBlock {
         return getSignalStrength(level, TOUCH_AABB.move(pos), getEntityClasses());
     }
 
+    protected int getSignalStrength(Level level, AABB box, Set<Class<? extends Entity>> entityClasses) {
+        int count = 0;
+
+        for (Class<? extends Entity> entityClass : entityClasses) {
+            count += level.getEntitiesOfClass(
+                entityClass, box,
+                EntitySelector.NO_SPECTATORS.and(entity -> !entity.isIgnoringBlockTriggers())
+            ).size();
+        }
+
+        return count > 0 ? 15 : 0;
+    }
+
     protected Set<Class<? extends Entity>> getEntityClasses() {
         Class<? extends Entity> entityClass = switch (this.type.pressurePlateSensitivity()) {
             case EVERYTHING -> Entity.class;
@@ -97,19 +109,6 @@ public class PowerLevelPressurePlateBlock extends BasePressurePlateBlock {
         HashSet<Class<? extends Entity>> newSet = Sets.newHashSet();
         newSet.add(entityClass);
         return newSet;
-    }
-
-    protected int getSignalStrength(Level level, AABB box, Set<Class<? extends Entity>> entityClasses) {
-        int count = 0;
-
-        for (Class<? extends Entity> entityClass : entityClasses) {
-            count += level.getEntitiesOfClass(
-                    entityClass, box,
-                    EntitySelector.NO_SPECTATORS.and(entity -> !entity.isIgnoringBlockTriggers())
-            ).size();
-        }
-
-        return count > 0 ? 15 : 0;
     }
 
     protected void updateSignal(Level level, BlockPos pos, BlockState state, int currentSignal, int expectedSignal) {

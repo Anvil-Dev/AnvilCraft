@@ -10,7 +10,6 @@ import dev.dubhe.anvilcraft.recipe.ChanceItemStack;
 import dev.dubhe.anvilcraft.recipe.anvil.SuperHeatingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.input.ItemProcessInput;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
-
 import dev.dubhe.anvilcraft.util.CauldronUtil;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -74,7 +73,7 @@ public class SuperHeatingBehavior implements IAnvilBehavior {
                 for (int i = 0; i < times; i++) {
                     for (Ingredient ingredient : recipe.getIngredients()) {
                         for (ItemStack stack : items.values()) {
-                            if (stack.is(ModItemTags.RAW_ORES) || stack.is(ModItemTags.ORES)){
+                            if (stack.is(ModItemTags.RAW_ORES) || stack.is(ModItemTags.ORES)) {
                                 needDoubleResult = true;
                             }
                             if (ingredient.test(stack)) {
@@ -97,7 +96,7 @@ public class SuperHeatingBehavior implements IAnvilBehavior {
                     results.object2IntEntrySet().stream()
                         .map(entry -> new ItemStack(entry.getKey(), entry.getIntValue()))
                         .peek(it -> {
-                            if (finalNeedDoubleResult && recipe.isGenerated()){
+                            if (finalNeedDoubleResult && recipe.isGenerated()) {
                                 it.setCount(it.getCount() * 2);
                             }
                         })
@@ -150,7 +149,7 @@ public class SuperHeatingBehavior implements IAnvilBehavior {
                     itemEntity.discard();
                 }
             }
-            if (!resultStacks.isEmpty()){
+            if (!resultStacks.isEmpty()) {
                 AnvilUtil.dropItems(resultStacks, level, hitBlockPos.getCenter());
             }
         }

@@ -106,7 +106,7 @@ public class TeslaTowerBlock
         BlockGetter level,
         BlockPos pos,
         CollisionContext context) {
-        return switch (state.getValue(HALF)){
+        return switch (state.getValue(HALF)) {
             case BOTTOM -> BOTTOM_SHAPE;
             case MID_LOWER -> LOWER_SHAPE;
             case MID_UPPER -> UPPER_SHAPE;
@@ -190,11 +190,11 @@ public class TeslaTowerBlock
 
     @Override
     protected InteractionResult useWithoutItem(
-            BlockState pState,
-            Level pLevel,
-            BlockPos pPos,
-            Player pPlayer,
-            BlockHitResult pHitResult
+        BlockState pState,
+        Level pLevel,
+        BlockPos pPos,
+        Player pPlayer,
+        BlockHitResult pHitResult
     ) {
         if (pLevel.isClientSide) {
             return InteractionResult.SUCCESS;

@@ -32,15 +32,15 @@ import javax.annotation.ParametersAreNonnullByDefault;
 public class CorruptedBeaconBlock extends BeaconBlock implements IHammerRemovable {
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
 
+    public CorruptedBeaconBlock(Properties properties) {
+        super(properties);
+        this.registerDefaultState(this.stateDefinition.any().setValue(LIT, false));
+    }
+
     @Override
     public @Nullable Integer getBeaconColorMultiplier(
         BlockState state, LevelReader level, BlockPos pos, BlockPos beaconPos) {
         return 0xffffff;
-    }
-
-    public CorruptedBeaconBlock(Properties properties) {
-        super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(LIT, false));
     }
 
     @Override

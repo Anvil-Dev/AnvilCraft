@@ -58,6 +58,24 @@ public class TeslaTowerButton extends Button {
         this.variant = variant;
     }
 
+    private static Component highlighted(
+        String original,
+        String hightlighted,
+        ChatFormatting originalFormatting
+    ) {
+        try {
+            String[] parts = original.split(Pattern.quote(hightlighted), -1);
+            List<Component> components = new ArrayList<>();
+            for (String s : parts) {
+                components.add(Component.literal(s).copy().setStyle(Style.EMPTY.applyFormat(originalFormatting)));
+            }
+            return ComponentUtils.formatList(
+                components, Component.literal(hightlighted).withStyle(ChatFormatting.YELLOW));
+        } catch (Throwable e) {
+            return Component.literal(original);
+        }
+    }
+
     @Override
     public void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         String searchText = parent.getFilterText();
@@ -84,24 +102,6 @@ public class TeslaTowerButton extends Button {
                 filterText.getString().isEmpty() ? List.of(message.getVisualOrderText()) : List.of(message.getVisualOrderText(), filterText.getVisualOrderText()),
                 mouseX,
                 mouseY);
-        }
-    }
-
-    private static Component highlighted(
-        String original,
-        String hightlighted,
-        ChatFormatting originalFormatting
-    ) {
-        try {
-            String[] parts = original.split(Pattern.quote(hightlighted), -1);
-            List<Component> components = new ArrayList<>();
-            for (String s : parts) {
-                components.add(Component.literal(s).copy().setStyle(Style.EMPTY.applyFormat(originalFormatting)));
-            }
-            return ComponentUtils.formatList(
-                components, Component.literal(hightlighted).withStyle(ChatFormatting.YELLOW));
-        } catch (Throwable e) {
-            return Component.literal(original);
         }
     }
 

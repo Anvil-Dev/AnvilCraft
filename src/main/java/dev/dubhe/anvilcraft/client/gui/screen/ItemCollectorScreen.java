@@ -26,16 +26,14 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.BiFunction;
 
 public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMenu>
-        implements IFilterScreen<ItemCollectorMenu> {
+    implements IFilterScreen<ItemCollectorMenu> {
     private static final ResourceLocation CONTAINER_LOCATION =
-            AnvilCraft.of("textures/gui/container/machine/background/item_collector.png");
+        AnvilCraft.of("textures/gui/container/machine/background/item_collector.png");
+    private final ItemCollectorMenu menu;
     BiFunction<Integer, Integer, EnableFilterButton> enableFilterButtonSupplier =
-            this.getEnableFilterButtonSupplier(75, 54);
-
+        this.getEnableFilterButtonSupplier(75, 54);
     @Getter
     private EnableFilterButton enableFilterButton = null;
-
-    private final ItemCollectorMenu menu;
 
     /**
      * 物品收集器 Screen
@@ -53,30 +51,30 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
         this.addRenderableWidget(this.enableFilterButton);
         // range
         this.addRenderableWidget(new TextWidget(
-                leftPos + 57,
-                topPos + 24,
-                20,
-                8,
-                minecraft.font,
-                () -> Component.literal(
-                        menu.getBlockEntity().getRangeRadius().get().toString())));
+            leftPos + 57,
+            topPos + 24,
+            20,
+            8,
+            minecraft.font,
+            () -> Component.literal(
+                menu.getBlockEntity().getRangeRadius().get().toString())));
         // cooldown
         this.addRenderableWidget(new TextWidget(
-                leftPos + 57,
-                topPos + 38,
-                20,
-                8,
-                minecraft.font,
-                () -> Component.literal(
-                        menu.getBlockEntity().getCooldown().get().toString())));
+            leftPos + 57,
+            topPos + 38,
+            20,
+            8,
+            minecraft.font,
+            () -> Component.literal(
+                menu.getBlockEntity().getCooldown().get().toString())));
         // power cost
         this.addRenderableWidget(new TextWidget(
-                leftPos + 43,
-                topPos + 51,
-                20,
-                8,
-                minecraft.font,
-                () -> Component.literal(Integer.toString(menu.getBlockEntity().getInputPower()))));
+            leftPos + 43,
+            topPos + 51,
+            20,
+            8,
+            minecraft.font,
+            () -> Component.literal(Integer.toString(menu.getBlockEntity().getInputPower()))));
         // range - +
         this.addRenderableWidget(new ItemCollectorButton(leftPos + 43, topPos + 23, "minus", (b) -> {
             menu.getBlockEntity().getRangeRadius().previous();
@@ -155,7 +153,7 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
                 } else {
                     if (carriedItem.isEmpty()) {
                         PacketDistributor.sendToServer(
-                                new SlotDisableChangePacket(realSlotId, !this.menu.isSlotDisabled(realSlotId)));
+                            new SlotDisableChangePacket(realSlotId, !this.menu.isSlotDisabled(realSlotId)));
                     } else {
                         PacketDistributor.sendToServer(new SlotDisableChangePacket(realSlotId, false));
                     }

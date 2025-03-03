@@ -1,10 +1,10 @@
 package dev.dubhe.anvilcraft.item;
 
+import com.google.common.collect.Multimap;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.entity.EntityHelper;
 import dev.dubhe.anvilcraft.api.entity.attribute.EntityReachAttribute;
 import dev.dubhe.anvilcraft.init.ModItems;
-
 import dev.dubhe.anvilcraft.util.EntityUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -21,8 +21,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Shulker;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
-
-import com.google.common.collect.Multimap;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
@@ -40,11 +38,10 @@ public class CrabClawItem extends Item {
         3,
         AttributeModifier.Operation.ADD_VALUE
     );
-    private static final Supplier<Multimap<Holder<Attribute>, AttributeModifier>> RANGE_MODIFIER_SUPPLIER =
-        EntityReachAttribute.getRangeModifierSupplier(RANGE_ATTRIBUTE_MODIFIER);
     public static final String CRAB_CLAW_MARKER = "crabClaw";
     public static final String DUAL_CRAB_CLAW_MARKER = "dualCrabClaw";
-
+    private static final Supplier<Multimap<Holder<Attribute>, AttributeModifier>> RANGE_MODIFIER_SUPPLIER =
+        EntityReachAttribute.getRangeModifierSupplier(RANGE_ATTRIBUTE_MODIFIER);
 
 
     public CrabClawItem(Properties properties) {

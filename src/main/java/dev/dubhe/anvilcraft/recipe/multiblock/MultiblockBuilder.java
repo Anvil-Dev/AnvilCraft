@@ -24,7 +24,8 @@ public class MultiblockBuilder extends AbstractRecipeBuilder<MultiblockRecipe> {
     private BlockPattern pattern = BlockPattern.create();
     private ItemStack result;
 
-    public MultiblockBuilder() {}
+    public MultiblockBuilder() {
+    }
 
     public MultiblockBuilder(ItemLike item, int count) {
         this.result = new ItemStack(item, count);

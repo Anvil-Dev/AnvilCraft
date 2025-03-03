@@ -1,10 +1,9 @@
 package dev.dubhe.anvilcraft.util;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.AABB;
-
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.AABB;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AabbUtil {

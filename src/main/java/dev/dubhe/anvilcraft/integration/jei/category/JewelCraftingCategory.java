@@ -47,6 +47,16 @@ public class JewelCraftingCategory implements IRecipeCategory<RecipeHolder<Jewel
         title = Component.translatable("gui.anvilcraft.category.jewel_crafting");
     }
 
+    public static void registerRecipes(IRecipeRegistration registration) {
+        registration.addRecipes(
+            AnvilCraftJeiPlugin.JEWEL_CRAFTING,
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.JEWEL_CRAFTING_TYPE.get()));
+    }
+
+    public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.JEWEL_CRAFTING_TABLE), AnvilCraftJeiPlugin.JEWEL_CRAFTING);
+    }
+
     @Override
     public RecipeType<RecipeHolder<JewelCraftingRecipe>> getRecipeType() {
         return AnvilCraftJeiPlugin.JEWEL_CRAFTING;
@@ -97,15 +107,5 @@ public class JewelCraftingCategory implements IRecipeCategory<RecipeHolder<Jewel
             slot.draw(guiGraphics, 4 + i * 18, 36);
         }
         progress.draw(guiGraphics, 95, 24);
-    }
-
-    public static void registerRecipes(IRecipeRegistration registration) {
-        registration.addRecipes(
-            AnvilCraftJeiPlugin.JEWEL_CRAFTING,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.JEWEL_CRAFTING_TYPE.get()));
-    }
-
-    public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.JEWEL_CRAFTING_TABLE), AnvilCraftJeiPlugin.JEWEL_CRAFTING);
     }
 }

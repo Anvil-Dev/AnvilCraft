@@ -7,13 +7,29 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-
 import org.jetbrains.annotations.NotNull;
 
 /**
  * 诅咒物品
  */
 public interface ICursed {
+    /**
+     * 统计诅咒物品数量
+     *
+     * @param player 玩家
+     * @return 诅咒物品数量
+     */
+    static int hasCursedNumber(@NotNull Player player) {
+        Inventory inventory = player.getInventory();
+        int i = 0;
+        for (int j = 0; j < inventory.getContainerSize(); ++j) {
+            ItemStack itemStack = inventory.getItem(j);
+            if (!(itemStack.getItem() instanceof ICursed)) continue;
+            i += itemStack.getCount();
+        }
+        return i;
+    }
+
     /**
      * 执行效果
      *
@@ -41,22 +57,5 @@ public interface ICursed {
 
     default boolean isPiglinCurrency(ItemStack stack) {
         return true;
-    }
-
-    /**
-     * 统计诅咒物品数量
-     *
-     * @param player 玩家
-     * @return 诅咒物品数量
-     */
-    static int hasCursedNumber(@NotNull Player player) {
-        Inventory inventory = player.getInventory();
-        int i = 0;
-        for (int j = 0; j < inventory.getContainerSize(); ++j) {
-            ItemStack itemStack = inventory.getItem(j);
-            if (!(itemStack.getItem() instanceof ICursed)) continue;
-            i += itemStack.getCount();
-        }
-        return i;
     }
 }

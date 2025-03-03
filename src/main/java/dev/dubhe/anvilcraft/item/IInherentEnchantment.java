@@ -19,6 +19,15 @@ import java.util.Map;
  * 有默认附魔
  */
 public interface IInherentEnchantment {
+    static Component getFullname(Holder<Enchantment> enchantment, int level) {
+        MutableComponent component = enchantment.value().description().copy();
+        ComponentUtils.mergeStyles(component, Style.EMPTY.withColor(ChatFormatting.LIGHT_PURPLE));
+        if (level != 1 || enchantment.value().getMaxLevel() != 1) {
+            component.append(CommonComponents.SPACE).append(Component.translatable("enchantment.level." + level));
+        }
+        return component;
+    }
+
     Map<ResourceKey<Enchantment>, Integer> getInherentEnchantments();
 
     /**
@@ -40,14 +49,5 @@ public interface IInherentEnchantment {
         }
 
         return list;
-    }
-
-    static Component getFullname(Holder<Enchantment> enchantment, int level) {
-        MutableComponent component = enchantment.value().description().copy();
-        ComponentUtils.mergeStyles(component, Style.EMPTY.withColor(ChatFormatting.LIGHT_PURPLE));
-        if (level != 1 || enchantment.value().getMaxLevel() != 1) {
-            component.append(CommonComponents.SPACE).append(Component.translatable("enchantment.level." + level));
-        }
-        return component;
     }
 }

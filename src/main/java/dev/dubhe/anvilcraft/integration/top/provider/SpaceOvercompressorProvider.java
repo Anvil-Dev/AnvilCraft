@@ -25,19 +25,19 @@ public enum SpaceOvercompressorProvider implements IProbeInfoProvider {
 
     @Override
     public void addProbeInfo(
-            ProbeMode probeMode,
-            IProbeInfo iProbeInfo,
-            Player player,
-            Level level,
-            BlockState blockState,
-            IProbeHitData hitData) {
+        ProbeMode probeMode,
+        IProbeInfo iProbeInfo,
+        Player player,
+        Level level,
+        BlockState blockState,
+        IProbeHitData hitData) {
         Optional.ofNullable(level.getBlockEntity(hitData.getPos()))
             .filter(b -> b instanceof SpaceOvercompressorBlockEntity)
             .ifPresent(b -> {
                 SpaceOvercompressorBlockEntity blockEntity = (SpaceOvercompressorBlockEntity) b;
                 long mass = blockEntity.getStoredMass();
                 iProbeInfo.text(Component.translatable("tooltip.anvilcraft.space_overcompressor.stored_mass",
-                        MassInjectRecipe.displayMassValue(mass)));
+                    MassInjectRecipe.displayMassValue(mass)));
             });
     }
 }

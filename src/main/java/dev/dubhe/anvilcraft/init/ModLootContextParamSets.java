@@ -32,7 +32,7 @@ public class ModLootContextParamSets {
         return paramSet;
     }
 
-    public static void registerAll(){
+    public static void registerAll() {
         //intentionally empty
     }
 }

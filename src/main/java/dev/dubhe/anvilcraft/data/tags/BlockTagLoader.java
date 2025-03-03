@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.data.tags;
 
+import com.tterrag.registrate.providers.RegistrateTagsProvider;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.init.ModBlocks;
-
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -10,8 +10,6 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.Tags;
-
-import com.tterrag.registrate.providers.RegistrateTagsProvider;
 import org.jetbrains.annotations.NotNull;
 
 public class BlockTagLoader {
@@ -163,17 +161,17 @@ public class BlockTagLoader {
 
         //mekanism integration
         provider.addTag(ModBlockTags.MEKANISM_CARDBOARD_BOX_BLACKLIST)
-                .add(ModBlocks.GIANT_ANVIL.getKey())
-                .add(ModBlocks.TRANSMISSION_POLE.getKey())
-                .add(ModBlocks.REMOTE_TRANSMISSION_POLE.getKey())
-                .add(ModBlocks.TESLA_TOWER.getKey())
-                .add(ModBlocks.OVERSEER_BLOCK.getKey());
+            .add(ModBlocks.GIANT_ANVIL.getKey())
+            .add(ModBlocks.TRANSMISSION_POLE.getKey())
+            .add(ModBlocks.REMOTE_TRANSMISSION_POLE.getKey())
+            .add(ModBlocks.TESLA_TOWER.getKey())
+            .add(ModBlocks.OVERSEER_BLOCK.getKey());
 
         provider.addTag(ModBlockTags.MEKANISM_CARDBOARD_BOX_BLACKLIST)
-                .add(ModBlocks.GIANT_ANVIL.getKey())
-                .add(ModBlocks.TRANSMISSION_POLE.getKey())
-                .add(ModBlocks.REMOTE_TRANSMISSION_POLE.getKey())
-                .add(ModBlocks.TESLA_TOWER.getKey())
-                .add(ModBlocks.OVERSEER_BLOCK.getKey());
+            .add(ModBlocks.GIANT_ANVIL.getKey())
+            .add(ModBlocks.TRANSMISSION_POLE.getKey())
+            .add(ModBlocks.REMOTE_TRANSMISSION_POLE.getKey())
+            .add(ModBlocks.TESLA_TOWER.getKey())
+            .add(ModBlocks.OVERSEER_BLOCK.getKey());
     }
 }

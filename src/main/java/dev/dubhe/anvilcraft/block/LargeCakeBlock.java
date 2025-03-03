@@ -146,6 +146,26 @@ public class LargeCakeBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> {
         this.registerDefaultState(this.stateDefinition.any().setValue(HALF, Cube3x3PartHalf.BOTTOM_CENTER));
     }
 
+    private static InteractionResult eat(Level level, BlockPos pos, Player player) {
+        if (!player.canEat(false)) {
+            return InteractionResult.PASS;
+        } else {
+            player.getFoodData().eat(15, 0.8f);
+            removeFromTop(level, pos, player);
+            return InteractionResult.SUCCESS;
+        }
+    }
+
+    private static void removeFromTop(Level level, BlockPos pos, Player player) {
+        BlockState aboveState = level.getBlockState(pos.above());
+        if (aboveState.getBlock() instanceof LargeCakeBlock
+            && aboveState.getValue(HALF).getOffsetY() != 0) {
+            removeFromTop(level, pos.above(), player);
+            return;
+        }
+        level.removeBlock(pos, false);
+        level.gameEvent(player, GameEvent.BLOCK_DESTROY, pos);
+    }
 
     @Override
     public VoxelShape getShape(
@@ -254,7 +274,6 @@ public class LargeCakeBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> {
         return state;
     }
 
-
     @Override
     public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
         return level.getBlockState(pos.below()).isSolid();
@@ -281,27 +300,6 @@ public class LargeCakeBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> {
         }
 
         return eat(level, pos, player);
-    }
-
-    private static InteractionResult eat(Level level, BlockPos pos, Player player) {
-        if (!player.canEat(false)) {
-            return InteractionResult.PASS;
-        } else {
-            player.getFoodData().eat(15, 0.8f);
-            removeFromTop(level, pos, player);
-            return InteractionResult.SUCCESS;
-        }
-    }
-
-    private static void removeFromTop(Level level, BlockPos pos, Player player) {
-        BlockState aboveState = level.getBlockState(pos.above());
-        if (aboveState.getBlock() instanceof LargeCakeBlock
-            && aboveState.getValue(HALF).getOffsetY() != 0) {
-            removeFromTop(level, pos.above(), player);
-            return;
-        }
-        level.removeBlock(pos, false);
-        level.gameEvent(player, GameEvent.BLOCK_DESTROY, pos);
     }
 
     @Override

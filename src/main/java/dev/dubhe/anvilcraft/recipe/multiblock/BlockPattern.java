@@ -31,22 +31,20 @@ import java.util.Set;
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class BlockPattern {
+    public static final Codec<BlockPattern> CODEC = RecordCodecBuilder.create(ins -> ins.group(
+            Codec.STRING.listOf().listOf().fieldOf("layers").forGetter(o -> o.layers),
+            Codec.unboundedMap(CodecUtil.CHAR_CODEC, BlockPredicateWithState.CODEC)
+                .fieldOf("symbols")
+                .forGetter(BlockPattern::getSymbols))
+        .apply(ins, BlockPattern::new));
+    public static final StreamCodec<RegistryFriendlyByteBuf, BlockPattern> STREAM_CODEC = StreamCodec.composite(
+        ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()).apply(ByteBufCodecs.list()),
+        BlockPattern::getLayers,
+        ByteBufCodecs.map(HashMap::new, CodecUtil.CHAR_STREAM_CODEC, BlockPredicateWithState.STREAM_CODEC),
+        BlockPattern::getSymbols,
+        BlockPattern::new);
     private final List<List<String>> layers;
     private final Map<Character, BlockPredicateWithState> symbols;
-
-    public static final Codec<BlockPattern> CODEC = RecordCodecBuilder.create(ins -> ins.group(
-                    Codec.STRING.listOf().listOf().fieldOf("layers").forGetter(o -> o.layers),
-                    Codec.unboundedMap(CodecUtil.CHAR_CODEC, BlockPredicateWithState.CODEC)
-                            .fieldOf("symbols")
-                            .forGetter(BlockPattern::getSymbols))
-            .apply(ins, BlockPattern::new));
-
-    public static final StreamCodec<RegistryFriendlyByteBuf, BlockPattern> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()).apply(ByteBufCodecs.list()),
-            BlockPattern::getLayers,
-            ByteBufCodecs.map(HashMap::new, CodecUtil.CHAR_STREAM_CODEC, BlockPredicateWithState.STREAM_CODEC),
-            BlockPattern::getSymbols,
-            BlockPattern::new);
 
     private BlockPattern(List<List<String>> layers, Map<Character, BlockPredicateWithState> symbols) {
         this.layers = layers;
@@ -74,7 +72,7 @@ public class BlockPattern {
         for (String line : layer) {
             if (line.length() != layer.size()) {
                 throw new IllegalArgumentException(
-                        "The number of squares in each row must be equal to the number of rows.");
+                    "The number of squares in each row must be equal to the number of rows.");
             }
         }
         layers.add(layer);
@@ -110,7 +108,8 @@ public class BlockPattern {
         return symbols.get(c);
     }
 
-    @Nullable public BlockPredicateWithState getBySymbol(char symbol) {
+    @Nullable
+    public BlockPredicateWithState getBySymbol(char symbol) {
         return symbols.get(symbol);
     }
 
@@ -136,12 +135,12 @@ public class BlockPattern {
         states.forEach((state, stateCount) -> {
             BlockStateUtil.ingredientsForPlacement(state)
                 .forEach(stack -> {
-                int stackCount = stack.getCount();
-                if (stackCount <= 0) return;
-                stack.setCount(1);
-                Integer totalCount = ingredients.computeIfAbsent(stack, $ -> 0);
-                ingredients.put(stack, totalCount + stateCount * stackCount);
-            });
+                    int stackCount = stack.getCount();
+                    if (stackCount <= 0) return;
+                    stack.setCount(1);
+                    int totalCount = ingredients.computeIfAbsent(stack, ignore -> 0);
+                    ingredients.put(stack, totalCount + stateCount * stackCount);
+                });
         });
         List<ItemStack> resultList = new ArrayList<>();
         ingredients.forEach((stack, count) -> {

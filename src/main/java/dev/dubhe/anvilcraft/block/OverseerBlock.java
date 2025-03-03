@@ -37,12 +37,12 @@ import javax.annotation.ParametersAreNonnullByDefault;
 public class OverseerBlock
     extends SimpleMultiPartBlock<Vertical3PartHalf>
     implements IHammerRemovable, IHasMultiBlock, EntityBlock {
+    public static final EnumProperty<Vertical3PartHalf> HALF = EnumProperty.create("half", Vertical3PartHalf.class);
+    public static final IntegerProperty LEVEL = IntegerProperty.create("level", 0, 3);
     private static final VoxelShape OVERSEER_BASE =
         Shapes.or(Block.box(0, 0, 0, 16, 4, 16), Block.box(2, 8, 2, 14, 16, 14));
     private static final VoxelShape OVERSEER_MID = Block.box(2, 0, 2, 14, 16, 14);
     private static final VoxelShape OVERSEER_TOP = Block.box(2, 0, 2, 14, 16, 14);
-    public static final EnumProperty<Vertical3PartHalf> HALF = EnumProperty.create("half", Vertical3PartHalf.class);
-    public static final IntegerProperty LEVEL = IntegerProperty.create("level", 0, 3);
 
     /**
      * @param properties 属性

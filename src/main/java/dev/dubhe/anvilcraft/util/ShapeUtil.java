@@ -23,6 +23,24 @@ public class ShapeUtil {
         return executor.submit(new ThreadedJoinTask(shapes, function, executor));
     }
 
+    private static <T> void spinWait(List<Future<T>> futures) {
+        boolean completed = false;
+        while (!completed) {
+            completed = true;
+            for (Future<T> future : futures) {
+                if (!future.isDone()) completed = false;
+            }
+        }
+    }
+
+    private static List<Pair<VoxelShape, VoxelShape>> slice2(List<VoxelShape> input) {
+        List<Pair<VoxelShape, VoxelShape>> result = new ArrayList<>();
+        for (int i = 0; i < input.size(); i += 2) {
+            result.add(Pair.of(input.get(i), input.get(i + 1)));
+        }
+        return result;
+    }
+
     private record ThreadedJoinTask(
         List<VoxelShape> input,
         BooleanOp function,
@@ -40,7 +58,7 @@ public class ShapeUtil {
                     shapes.add(Shapes.empty());
                 }
                 List<Future<VoxelShape>> futures = new ArrayList<>(shapes.size() / 2);
-                List<Pair<VoxelShape,VoxelShape>> slices = slice2(shapes);
+                List<Pair<VoxelShape, VoxelShape>> slices = slice2(shapes);
                 log.debug("Grouped merging into {} groups.", slices.size());
                 for (Pair<VoxelShape, VoxelShape> slice : slices) {
                     futures.add(executorService.submit(new ShapeJoinTask(slice, function)));
@@ -75,23 +93,5 @@ public class ShapeUtil {
             }
             return Shapes.join(input.getFirst(), input.getSecond(), function);
         }
-    }
-
-    private static <T> void spinWait(List<Future<T>> futures) {
-        boolean completed = false;
-        while (!completed) {
-            completed = true;
-            for (Future<T> future : futures) {
-                if (!future.isDone()) completed = false;
-            }
-        }
-    }
-
-    private static List<Pair<VoxelShape, VoxelShape>> slice2(List<VoxelShape> input) {
-        List<Pair<VoxelShape, VoxelShape>> result = new ArrayList<>();
-        for (int i = 0; i < input.size(); i += 2) {
-            result.add(Pair.of(input.get(i), input.get(i + 1)));
-        }
-        return result;
     }
 }

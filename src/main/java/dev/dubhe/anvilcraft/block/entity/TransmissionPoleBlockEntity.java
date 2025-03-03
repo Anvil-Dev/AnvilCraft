@@ -25,16 +25,16 @@ public class TransmissionPoleBlockEntity extends AbstractTransmissionPoleBlockEn
         this(ModBlockEntities.TRANSMISSION_POLE.get(), pos, blockState);
     }
 
+    private TransmissionPoleBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+        super(type, pos, blockState);
+    }
+
     public static @NotNull TransmissionPoleBlockEntity createBlockEntity(
         BlockEntityType<?> type,
         BlockPos pos,
         BlockState blockState
     ) {
         return new TransmissionPoleBlockEntity(type, pos, blockState);
-    }
-
-    private TransmissionPoleBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
-        super(type, pos, blockState);
     }
 
     @Override

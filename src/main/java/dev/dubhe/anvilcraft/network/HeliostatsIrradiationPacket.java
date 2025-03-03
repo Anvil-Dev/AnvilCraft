@@ -18,11 +18,11 @@ import org.jetbrains.annotations.NotNull;
 
 public class HeliostatsIrradiationPacket implements CustomPacketPayload {
     public static final Type<HeliostatsIrradiationPacket> TYPE =
-            new Type<>(AnvilCraft.of("heliostats_irradiation_pack"));
+        new Type<>(AnvilCraft.of("heliostats_irradiation_pack"));
     public static final StreamCodec<RegistryFriendlyByteBuf, HeliostatsIrradiationPacket> STREAM_CODEC =
-            StreamCodec.ofMember(HeliostatsIrradiationPacket::encode, HeliostatsIrradiationPacket::new);
+        StreamCodec.ofMember(HeliostatsIrradiationPacket::encode, HeliostatsIrradiationPacket::new);
     public static final IPayloadHandler<HeliostatsIrradiationPacket> HANDLER = new DirectionalPayloadHandler<>(
-            HeliostatsIrradiationPacket::clientHandler, HeliostatsIrradiationPacket::serverHandler);
+        HeliostatsIrradiationPacket::clientHandler, HeliostatsIrradiationPacket::serverHandler);
 
     private final BlockPos blockPos;
     private final BlockPos irritatePos;
@@ -43,24 +43,14 @@ public class HeliostatsIrradiationPacket implements CustomPacketPayload {
         this.irritatePos = buf.readNullable(RegistryFriendlyByteBuf::readBlockPos);
     }
 
-    public void encode(@NotNull RegistryFriendlyByteBuf buf) {
-        buf.writeBlockPos(blockPos);
-        buf.writeNullable(irritatePos, RegistryFriendlyByteBuf::writeBlockPos);
-    }
-
-    @Override
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
-    }
-
     /**
      *
      */
     public static void clientHandler(HeliostatsIrradiationPacket data, IPayloadContext context) {
         context.enqueueWork(() -> {
             if (Minecraft.getInstance().level != null
-                    && Minecraft.getInstance().level.getBlockEntity(data.blockPos)
-                            instanceof HeliostatsBlockEntity heliostatsBlockEntity) {
+                && Minecraft.getInstance().level.getBlockEntity(data.blockPos)
+                instanceof HeliostatsBlockEntity heliostatsBlockEntity) {
                 heliostatsBlockEntity.setIrritatePos(data.irritatePos);
             }
         });
@@ -77,5 +67,15 @@ public class HeliostatsIrradiationPacket implements CustomPacketPayload {
                 PacketDistributor.sendToPlayer(player, pack);
             }
         });
+    }
+
+    public void encode(@NotNull RegistryFriendlyByteBuf buf) {
+        buf.writeBlockPos(blockPos);
+        buf.writeNullable(irritatePos, RegistryFriendlyByteBuf::writeBlockPos);
+    }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

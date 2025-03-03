@@ -22,8 +22,8 @@ import java.util.stream.Collectors;
 
 public class BreakBlockUtil {
 
-    private static ItemStack DUMMY_SILK_TOUCH_TOOL = null;
     private static final ItemStack SHEARS_INSTANCE = Items.SHEARS.getDefaultInstance();
+    private static ItemStack DUMMY_SILK_TOUCH_TOOL = null;
 
     public static ItemStack getDummySilkTouchTool(ServerLevel level) {
         if (DUMMY_SILK_TOUCH_TOOL == null) {

@@ -13,6 +13,10 @@ public class FastShape {
         this.shapes = new ArrayList<>(shapes);
     }
 
+    public static FastShape create(List<AABB> shapes) {
+        return new FastShape(shapes);
+    }
+
     public boolean inRange(Vec3 pos) {
         for (AABB aabb : shapes) {
             if (aabb.contains(pos)) {
@@ -33,9 +37,5 @@ public class FastShape {
 
     public void add(AABB shape) {
         shapes.add(shape);
-    }
-
-    public static FastShape create(List<AABB> shapes) {
-        return new FastShape(shapes);
     }
 }

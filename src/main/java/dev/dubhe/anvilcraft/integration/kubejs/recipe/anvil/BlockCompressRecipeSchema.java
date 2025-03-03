@@ -20,6 +20,16 @@ import java.util.List;
 
 public interface BlockCompressRecipeSchema {
 
+    RecipeKey<List<Either<TagKey<Block>, Block>>> INPUTS = AnvilCraftRecipeComponents.EITHER_BLOCK
+        .asList().key("inputs", ComponentRole.INPUT).defaultOptional();
+    RecipeKey<Block> RESULT = BlockComponent.BLOCK
+        .key("result", ComponentRole.OUTPUT).defaultOptional();
+    RecipeSchema SCHEMA = new RecipeSchema(INPUTS, RESULT)
+        .factory(new KubeRecipeFactory(AnvilCraft.of("block_compress"), BlockCompressKubeRecipe.class, BlockCompressKubeRecipe::new))
+        .constructor(INPUTS, RESULT)
+        .constructor(new IDRecipeConstructor())
+        .constructor();
+
     @SuppressWarnings({"DataFlowIssue", "unused"})
     class BlockCompressKubeRecipe extends AnvilCraftKubeRecipe {
 
@@ -54,15 +64,4 @@ public interface BlockCompressRecipeSchema {
             }
         }
     }
-
-    RecipeKey<List<Either<TagKey<Block>, Block>>> INPUTS = AnvilCraftRecipeComponents.EITHER_BLOCK
-        .asList().key("inputs", ComponentRole.INPUT).defaultOptional();
-    RecipeKey<Block> RESULT = BlockComponent.BLOCK
-        .key("result", ComponentRole.OUTPUT).defaultOptional();
-
-    RecipeSchema SCHEMA = new RecipeSchema(INPUTS, RESULT)
-        .factory(new KubeRecipeFactory(AnvilCraft.of("block_compress"), BlockCompressKubeRecipe.class, BlockCompressKubeRecipe::new))
-        .constructor(INPUTS, RESULT)
-        .constructor(new IDRecipeConstructor())
-        .constructor();
 }

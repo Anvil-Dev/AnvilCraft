@@ -1,18 +1,16 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
+import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.recipe.anvil.MeshRecipe;
-
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.storage.loot.providers.number.BinomialDistributionGenerator;
-
-import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 
 public class MeshRecipeLoader {
     public static void init(RegistrateRecipeProvider provider) {
@@ -55,18 +53,18 @@ public class MeshRecipeLoader {
 
     private static void mesh(RegistrateRecipeProvider provider, ItemLike input, ItemLike result, float chance) {
         MeshRecipe.builder()
-                .input(Ingredient.of(input))
-                .result(new ItemStack(result))
-                .resultAmount(BinomialDistributionGenerator.binomial(1, chance))
-                .save(
-                        provider,
-                        AnvilCraft.of("mesh/%s/%s"
-                                .formatted(
-                                        BuiltInRegistries.ITEM
-                                                .getKey(input.asItem())
-                                                .getPath(),
-                                        BuiltInRegistries.ITEM
-                                                .getKey(result.asItem())
-                                                .getPath())));
+            .input(Ingredient.of(input))
+            .result(new ItemStack(result))
+            .resultAmount(BinomialDistributionGenerator.binomial(1, chance))
+            .save(
+                provider,
+                AnvilCraft.of("mesh/%s/%s"
+                    .formatted(
+                        BuiltInRegistries.ITEM
+                            .getKey(input.asItem())
+                            .getPath(),
+                        BuiltInRegistries.ITEM
+                            .getKey(result.asItem())
+                            .getPath())));
     }
 }

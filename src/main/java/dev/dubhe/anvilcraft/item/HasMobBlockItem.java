@@ -1,8 +1,10 @@
 package dev.dubhe.anvilcraft.item;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.block.entity.HasMobBlockEntity;
 import dev.dubhe.anvilcraft.init.ModComponents;
-
+import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -30,10 +32,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -47,32 +45,6 @@ import java.util.Optional;
 public class HasMobBlockItem extends BlockItem {
     public HasMobBlockItem(Block block, Properties properties) {
         super(block, properties);
-    }
-
-    @Override
-    public void appendHoverText(
-            ItemStack stack,
-            Item.TooltipContext context,
-            List<Component> tooltipComponents,
-            TooltipFlag isAdvanced
-    ) {
-        super.appendHoverText(stack, context, tooltipComponents, isAdvanced);
-        if (!HasMobBlockItem.hasMob(stack)) return;
-        Optional.ofNullable(context.level())
-            .map(level -> HasMobBlockItem.getMobFromItem(level, stack))
-            .ifPresent(entity -> tooltipComponents.add(
-                Component.literal("- ").append(entity.getDisplayName()).withStyle(ChatFormatting.DARK_GRAY)));
-    }
-
-    @Override
-    protected boolean updateCustomBlockEntityTag(BlockPos pos, Level level, @Nullable Player player, ItemStack stack, BlockState state) {
-        if (hasMob(stack)){
-            BlockEntity be = level.getBlockEntity(pos);
-            if (be instanceof HasMobBlockEntity hmbe){
-                hmbe.setEntity(getMobFromItem(level, stack));
-            }
-        }
-        return super.updateCustomBlockEntityTag(pos, level, player, stack, state);
     }
 
     public static boolean hasMob(@NotNull ItemStack stack) {
@@ -103,12 +75,12 @@ public class HasMobBlockItem extends BlockItem {
                 BlockState blockState = item1.getBlock().defaultBlockState();
                 SoundType soundType = blockState.getSoundType();
                 level.playSound(
-                        player,
-                        blockPos,
-                        item1.getPlaceSound(blockState),
-                        SoundSource.BLOCKS,
-                        (soundType.getVolume() + 1.0f) / 2.0f,
-                        soundType.getPitch() * 0.8f);
+                    player,
+                    blockPos,
+                    item1.getPlaceSound(blockState),
+                    SoundSource.BLOCKS,
+                    (soundType.getVolume() + 1.0f) / 2.0f,
+                    soundType.getPitch() * 0.8f);
             }
             return;
         }
@@ -128,14 +100,40 @@ public class HasMobBlockItem extends BlockItem {
         entity.remove(Entity.RemovalReason.DISCARDED);
     }
 
+    @Override
+    public void appendHoverText(
+        ItemStack stack,
+        Item.TooltipContext context,
+        List<Component> tooltipComponents,
+        TooltipFlag isAdvanced
+    ) {
+        super.appendHoverText(stack, context, tooltipComponents, isAdvanced);
+        if (!HasMobBlockItem.hasMob(stack)) return;
+        Optional.ofNullable(context.level())
+            .map(level -> HasMobBlockItem.getMobFromItem(level, stack))
+            .ifPresent(entity -> tooltipComponents.add(
+                Component.literal("- ").append(entity.getDisplayName()).withStyle(ChatFormatting.DARK_GRAY)));
+    }
+
+    @Override
+    protected boolean updateCustomBlockEntityTag(BlockPos pos, Level level, @Nullable Player player, ItemStack stack, BlockState state) {
+        if (hasMob(stack)) {
+            BlockEntity be = level.getBlockEntity(pos);
+            if (be instanceof HasMobBlockEntity hmbe) {
+                hmbe.setEntity(getMobFromItem(level, stack));
+            }
+        }
+        return super.updateCustomBlockEntityTag(pos, level, player, stack, state);
+    }
+
     public static class SavedEntity {
         public static final Codec<SavedEntity> CODEC = RecordCodecBuilder.create(ins -> ins.group(
-                        CompoundTag.CODEC.fieldOf("tag").forGetter(o -> o.tag),
-                        Codec.BOOL.fieldOf("isMonster").forGetter(o -> o.isMonster))
-                .apply(ins, SavedEntity::new));
+                CompoundTag.CODEC.fieldOf("tag").forGetter(o -> o.tag),
+                Codec.BOOL.fieldOf("isMonster").forGetter(o -> o.isMonster))
+            .apply(ins, SavedEntity::new));
 
         public static final StreamCodec<ByteBuf, SavedEntity> STREAM_CODEC = StreamCodec.composite(
-                ByteBufCodecs.COMPOUND_TAG, o -> o.tag, ByteBufCodecs.BOOL, o -> o.isMonster, SavedEntity::new);
+            ByteBufCodecs.COMPOUND_TAG, o -> o.tag, ByteBufCodecs.BOOL, o -> o.isMonster, SavedEntity::new);
 
         @Getter
         private final CompoundTag tag;
@@ -144,6 +142,13 @@ public class HasMobBlockItem extends BlockItem {
         public SavedEntity(CompoundTag tag, boolean isMonster) {
             this.tag = tag;
             this.isMonster = isMonster;
+        }
+
+        public static SavedEntity fromMob(Mob entity) {
+            CompoundTag entityTag = new CompoundTag();
+            entity.saveAsPassenger(entityTag);
+            entityTag.remove(Entity.UUID_TAG);
+            return new SavedEntity(entityTag, entity instanceof Monster);
         }
 
         @Nullable
@@ -155,13 +160,6 @@ public class HasMobBlockItem extends BlockItem {
             if (entity == null) return null;
             entity.load(tag);
             return entity;
-        }
-
-        public static SavedEntity fromMob(Mob entity) {
-            CompoundTag entityTag = new CompoundTag();
-            entity.saveAsPassenger(entityTag);
-            entityTag.remove(Entity.UUID_TAG);
-            return new SavedEntity(entityTag, entity instanceof Monster);
         }
 
         @Override

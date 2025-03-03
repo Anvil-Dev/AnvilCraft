@@ -21,7 +21,8 @@ public class MobAmberBlock extends HasMobBlock {
         return simpleCodec(MobAmberBlock::new);
     }
 
-    @Nullable @Override
+    @Nullable
+    @Override
     public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
         return ModBlockEntities.MOB_AMBER_BLOCK.create(pos, state);
     }

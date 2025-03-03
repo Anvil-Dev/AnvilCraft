@@ -19,13 +19,13 @@ public class ModDamageTypeProvider extends DatapackBuiltinEntriesProvider {
     private static final RegistrySetBuilder BUILDER = new RegistrySetBuilder()
         .add(Registries.DAMAGE_TYPE, ModDamageTypeProvider::bootstrap);
 
+    public ModDamageTypeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
+        super(output, registries, BUILDER, Set.of(AnvilCraft.MOD_ID));
+    }
+
     public static void bootstrap(BootstrapContext<DamageType> ctx) {
         ctx.register(ModDamageTypes.LASER, new DamageType("anvilcraft.laser", 0.1f, DamageEffects.BURNING));
         ctx.register(ModDamageTypes.LOST_IN_TIME, new DamageType("anvilcraft.lost_in_time", 0.1f));
-    }
-
-    public ModDamageTypeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
-        super(output, registries, BUILDER, Set.of(AnvilCraft.MOD_ID));
     }
 
     @Override

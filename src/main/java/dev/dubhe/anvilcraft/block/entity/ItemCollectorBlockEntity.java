@@ -47,11 +47,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
     IPowerConsumer,
     IDiskCloneable,
     IHasAffectRange,
-    IItemHandlerHolder
-{
-    @Setter
-    private PowerGrid grid;
-
+    IItemHandlerHolder {
     private final WatchableCyclingValue<Integer> rangeRadius = new WatchableCyclingValue<>(
         "rangeRadius",
         thiz -> {
@@ -62,6 +58,14 @@ public class ItemCollectorBlockEntity extends BlockEntity
         4,
         8
     );
+    private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(9) {
+        @Override
+        public void onContentsChanged(int slot) {
+            ItemCollectorBlockEntity.this.setChanged();
+        }
+    };
+    @Setter
+    private PowerGrid grid;
     private final WatchableCyclingValue<Integer> cooldown = new WatchableCyclingValue<>(
         "cooldown",
         thiz -> {
@@ -74,18 +78,12 @@ public class ItemCollectorBlockEntity extends BlockEntity
         15,
         60
     );
-    private int cd = cooldown.get();
-
-    private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(9) {
-        @Override
-        public void onContentsChanged(int slot) {
-            ItemCollectorBlockEntity.this.setChanged();
-        }
-    };
 
     public ItemCollectorBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
+
+    private int cd = cooldown.get();
 
     @Override
     public Level getCurrentLevel() {
@@ -222,4 +220,6 @@ public class ItemCollectorBlockEntity extends BlockEntity
             rangeRadius.get() * 2.0 + 1
         );
     }
+
+
 }

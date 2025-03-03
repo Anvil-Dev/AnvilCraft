@@ -17,13 +17,13 @@ import lombok.Getter;
 public class SliderInitPacket implements CustomPacketPayload {
     public static final Type<SliderInitPacket> TYPE = new Type<>(AnvilCraft.of("slider_init"));
     public static final StreamCodec<RegistryFriendlyByteBuf, SliderInitPacket> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.INT,
-            SliderInitPacket::getValue,
-            ByteBufCodecs.INT,
-            SliderInitPacket::getMin,
-            ByteBufCodecs.INT,
-            SliderInitPacket::getMax,
-            SliderInitPacket::new);
+        ByteBufCodecs.INT,
+        SliderInitPacket::getValue,
+        ByteBufCodecs.INT,
+        SliderInitPacket::getMin,
+        ByteBufCodecs.INT,
+        SliderInitPacket::getMax,
+        SliderInitPacket::new);
     public static final IPayloadHandler<SliderInitPacket> HANDLER = SliderInitPacket::clientHandler;
 
     private final int value;
@@ -32,18 +32,13 @@ public class SliderInitPacket implements CustomPacketPayload {
 
     /**
      * @param value 当前值
-     * @param min 最小值
-     * @param max 最大值
+     * @param min   最小值
+     * @param max   最大值
      */
     public SliderInitPacket(int value, int min, int max) {
         this.value = value;
         this.min = min;
         this.max = max;
-    }
-
-    @Override
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
     }
 
     public static void clientHandler(SliderInitPacket data, IPayloadContext context) {
@@ -54,5 +49,10 @@ public class SliderInitPacket implements CustomPacketPayload {
             screen.setMax(data.max);
             screen.setValue(data.value);
         });
+    }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

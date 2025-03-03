@@ -12,11 +12,11 @@ import org.lwjgl.system.MemoryUtil;
 @EqualsAndHashCode
 final class CompileResult {
     private static final MemoryUtil.MemoryAllocator ALLOCATOR = MemoryUtil.getAllocator(false);
+    final int indexCount;
     private final RenderType renderType;
     private final int vertexCount;
     private final int vertexSize;
     private final long vertexBufferPtr;
-    final int indexCount;
     private boolean freed = false;
 
     CompileResult(

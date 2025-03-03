@@ -12,9 +12,6 @@ import static dev.dubhe.anvilcraft.client.init.ModShaders.MINECRAFT;
 public class ModRenderTargets {
     @Getter
     static RenderTarget bloomTarget;
-    @Getter
-    static RenderTarget tempTarget;
-
     public static final RenderStateShard.OutputStateShard LASER_TARGET = new RenderStateShard.OutputStateShard(
         "anvilcraft:laser",
         () -> {
@@ -31,7 +28,6 @@ public class ModRenderTargets {
             MINECRAFT.getMainRenderTarget().bindWrite(false);
         }
     );
-
     public static final RenderStateShard.OutputStateShard LINE_BLOOM_TARGET = new RenderStateShard.OutputStateShard(
         "anvilcraft:line_bloom",
         () -> {
@@ -48,6 +44,8 @@ public class ModRenderTargets {
             MINECRAFT.getMainRenderTarget().bindWrite(false);
         }
     );
+    @Getter
+    static RenderTarget tempTarget;
 
     public static void clear() {
         bloomTarget.clear(Minecraft.ON_OSX);
@@ -56,7 +54,7 @@ public class ModRenderTargets {
 
     public static void renderTargetLoaded(
         RenderTarget laserTarget
-    ){
+    ) {
         ModRenderTargets.bloomTarget = laserTarget;
         ModRenderTargets.tempTarget = new TextureTarget(
             laserTarget.width,

@@ -52,45 +52,45 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
         this.value.setResponder(this::onValueInput);
         this.value.setValue("");
         TexturedButton max = new TexturedButton(
-                152 + offsetX,
-                43 + offsetY,
-                16,
-                16,
-                BUTTON_MAX,
-                16,
-                16,
-                32,
-                (btn) -> this.slider.setValueWithUpdate(slider.getMax()));
+            152 + offsetX,
+            43 + offsetY,
+            16,
+            16,
+            BUTTON_MAX,
+            16,
+            16,
+            32,
+            (btn) -> this.slider.setValueWithUpdate(slider.getMax()));
         TexturedButton add = new TexturedButton(
-                134 + offsetX,
-                43 + offsetY,
-                16,
-                16,
-                BUTTON_ADD,
-                16,
-                16,
-                32,
-                (btn) -> this.slider.setValueWithUpdate(Math.min(slider.getMax(), slider.getValue() + 1)));
+            134 + offsetX,
+            43 + offsetY,
+            16,
+            16,
+            BUTTON_ADD,
+            16,
+            16,
+            32,
+            (btn) -> this.slider.setValueWithUpdate(Math.min(slider.getMax(), slider.getValue() + 1)));
         TexturedButton min = new TexturedButton(
-                8 + offsetX,
-                43 + offsetY,
-                16,
-                16,
-                BUTTON_MIN,
-                16,
-                16,
-                32,
-                (btn) -> this.slider.setValueWithUpdate(slider.getMin()));
+            8 + offsetX,
+            43 + offsetY,
+            16,
+            16,
+            BUTTON_MIN,
+            16,
+            16,
+            32,
+            (btn) -> this.slider.setValueWithUpdate(slider.getMin()));
         TexturedButton minus = new TexturedButton(
-                26 + offsetX,
-                43 + offsetY,
-                16,
-                16,
-                BUTTON_MINUS,
-                16,
-                16,
-                32,
-                (btn) -> this.slider.setValueWithUpdate(Math.max(slider.getMin(), slider.getValue() - 1)));
+            26 + offsetX,
+            43 + offsetY,
+            16,
+            16,
+            BUTTON_MINUS,
+            16,
+            16,
+            32,
+            (btn) -> this.slider.setValueWithUpdate(Math.max(slider.getMin(), slider.getValue() - 1)));
         this.addRenderableWidget(max);
         this.addRenderableWidget(add);
         this.addRenderableWidget(min);

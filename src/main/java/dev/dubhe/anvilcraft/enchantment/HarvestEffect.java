@@ -26,6 +26,12 @@ import java.util.concurrent.CompletableFuture;
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public record HarvestEffect(int range) implements EnchantmentEntityEffect {
+    public static final MapCodec<HarvestEffect> CODEC = RecordCodecBuilder.mapCodec(it ->
+        it.group(
+            Codec.INT.optionalFieldOf("range", 3)
+                .forGetter(HarvestEffect::range)
+        ).apply(it, HarvestEffect::new)
+    );
     private static final List<BlockPos> ITERATING_OFFSET = new ArrayList<>();
 
     static {
@@ -35,13 +41,6 @@ public record HarvestEffect(int range) implements EnchantmentEntityEffect {
             }
         }
     }
-
-    public static final MapCodec<HarvestEffect> CODEC = RecordCodecBuilder.mapCodec(it ->
-        it.group(
-            Codec.INT.optionalFieldOf("range", 3)
-                .forGetter(HarvestEffect::range)
-        ).apply(it, HarvestEffect::new)
-    );
 
     @Override
     public void apply(ServerLevel level, int enchantmentLevel, EnchantedItemInUse enchantedItemInUse, Entity owner, Vec3 vec3) {

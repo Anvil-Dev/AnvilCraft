@@ -17,13 +17,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import javax.annotation.Nullable;
 
 @Mixin(GuiGraphics.class)
-public abstract class GuiGraphicsMixin{
+public abstract class GuiGraphicsMixin {
 
-    @Unique
-    private static int ANVILCRAFT$RECURSION = 0;
     @Unique
     private static final int ANVILCRAFT$MAX_RECURSION = 3;
-
+    @Unique
+    private static int ANVILCRAFT$RECURSION = 0;
     @Final
     @Shadow
     private PoseStack pose;
@@ -31,16 +30,16 @@ public abstract class GuiGraphicsMixin{
     @Shadow
     private void renderItem(
         @Nullable LivingEntity entity, @Nullable Level level, ItemStack stack, int x, int y, int seed, int guiOffset
-    ) {}
+    ) {
+    }
 
     @Inject(
-        method = "renderItem(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/level/Level;" +
-            "Lnet/minecraft/world/item/ItemStack;IIII)V",
+        method = "renderItem(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/level/Level;Lnet/minecraft/world/item/ItemStack;IIII)V",
         at = @At(
             value = "RETURN"
         )
     )
-    private void renderExtra(LivingEntity entity, Level level, ItemStack stack, int x, int y, int seed, int guiOffset, CallbackInfo ci){
+    private void renderExtra(LivingEntity entity, Level level, ItemStack stack, int x, int y, int seed, int guiOffset, CallbackInfo ci) {
         if (ANVILCRAFT$RECURSION >= ANVILCRAFT$MAX_RECURSION) return;
         if (!(stack.getItem() instanceof IExtraItemDisplay item)) return;
         ItemStack innerStack = item.getDisplayedItem(stack);

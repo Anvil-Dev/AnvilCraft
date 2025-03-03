@@ -55,10 +55,6 @@ public class MassInjectRecipe extends SingleItemRecipe {
         return new Builder();
     }
 
-    public Component displayMassValue() {
-        return displayMassValue(this.mass);
-    }
-
     public static Component displayMassValue(long mass) {
         if (mass <= 0) return Component.literal("0");
         if (mass % 100 == 0) return Component.literal(String.valueOf(mass / 100));
@@ -67,7 +63,11 @@ public class MassInjectRecipe extends SingleItemRecipe {
         return Component.literal((mass / 100) + (rem < 10 ? ".0" : ".") + (mass % 100));
     }
 
-    public Ingredient getIngredient(){
+    public Component displayMassValue() {
+        return displayMassValue(this.mass);
+    }
+
+    public Ingredient getIngredient() {
         return this.ingredient;
     }
 

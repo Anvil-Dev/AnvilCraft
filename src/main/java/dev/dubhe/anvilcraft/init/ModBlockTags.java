@@ -13,7 +13,6 @@ import net.minecraft.world.level.block.Block;
 @MethodsReturnNonnullByDefault
 public class ModBlockTags {
 
-    private static final String MEKANISM_MODID = "mekanism";
     // mod tags
     public static final TagKey<Block> UNDER_CAULDRON = bind("under_cauldron");
     public static final TagKey<Block> MAGNET = bind("magnet");
@@ -29,7 +28,6 @@ public class ModBlockTags {
     public static final TagKey<Block> END_PORTAL_UNABLE_CHANGE = bind("end_portal_unable_change");
     public static final TagKey<Block> NEUTRONIUM_CANNOT_PASS_THROUGH = bind("neutronium_cannot_pass_through");
     public static final TagKey<Block> VOID_DECAY_PRODUCTS = bind("void_decay_products");
-
     // common tags
     public static final TagKey<Block> ORES_TUNGSTEN = bindC("ores/tungsten");
     public static final TagKey<Block> ORES_TITANIUM = bindC("ores/titanium");
@@ -40,7 +38,6 @@ public class ModBlockTags {
     public static final TagKey<Block> ORES_URANIUM = bindC("ores/uranium");
     public static final TagKey<Block> ORES_VOID_MATTER = bindC("ores/void_matter");
     public static final TagKey<Block> ORES_EARTH_CORE_SHARD = bindC("ores/earth_core_shard");
-
     public static final TagKey<Block> STORAGE_BLOCKS_RAW_TUNGSTEN = bindC("storage_blocks/raw_tungsten");
     public static final TagKey<Block> STORAGE_BLOCKS_RAW_TITANIUM = bindC("storage_blocks/raw_titanium");
     public static final TagKey<Block> STORAGE_BLOCKS_RAW_ZINC = bindC("storage_blocks/raw_zinc");
@@ -48,10 +45,8 @@ public class ModBlockTags {
     public static final TagKey<Block> STORAGE_BLOCKS_RAW_LEAD = bindC("storage_blocks/raw_lead");
     public static final TagKey<Block> STORAGE_BLOCKS_RAW_SILVER = bindC("storage_blocks/raw_silver");
     public static final TagKey<Block> STORAGE_BLOCKS_RAW_URANIUM = bindC("storage_blocks/raw_uranium");
-
     public static final TagKey<Block> STORAGE_BLOCKS_VOID_MATTER = bindC("storage_blocks/void_matter");
     public static final TagKey<Block> STORAGE_BLOCKS_EARTH_CORE_SHARD = bindC("storage_blocks/earth_core_shard");
-
     public static final TagKey<Block> STORAGE_BLOCKS_TUNGSTEN = bindC("storage_blocks/tungsten");
     public static final TagKey<Block> STORAGE_BLOCKS_TITANIUM = bindC("storage_blocks/titanium");
     public static final TagKey<Block> STORAGE_BLOCKS_ZINC = bindC("storage_blocks/zinc");
@@ -67,10 +62,10 @@ public class ModBlockTags {
     public static final TagKey<Block> STORAGE_BLOCKS_RUBY = bindC("storage_blocks/ruby");
     public static final TagKey<Block> STORAGE_BLOCKS_AMBER = bindC("storage_blocks/amber");
     public static final TagKey<Block> STORAGE_BLOCKS_RESIN = bindC("storage_blocks/resin");
-
     public static final TagKey<Block> INCORRECT_FOR_AMETHYST_TOOL = bind("incorrect_for_amethyst_tool");
     public static final TagKey<Block> INCORRECT_FOR_EMBER_TOOL = bind("incorrect_for_ember_tool");
-
+    public static final Object2ObjectMap<Color, TagKey<Block>> DYED_COLORS = initDyedTags();
+    private static final String MEKANISM_MODID = "mekanism";
     //mekanism tags
     public static final TagKey<Block> MEKANISM_CARDBOARD_BOX_BLACKLIST = bindMekanism("cardboard_blacklist");
 
@@ -78,7 +73,7 @@ public class ModBlockTags {
         return TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("c", id));
     }
 
-    private static TagKey<Block> bindMekanism(String id){
+    private static TagKey<Block> bindMekanism(String id) {
         return TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath(MEKANISM_MODID, id));
     }
 
@@ -86,9 +81,7 @@ public class ModBlockTags {
         return TagKey.create(Registries.BLOCK, AnvilCraft.of(id));
     }
 
-    public static final Object2ObjectMap<Color, TagKey<Block>> DYED_COLORS = initDyedTags();
-
-    public static Object2ObjectMap<Color, TagKey<Block>> initDyedTags(){
+    public static Object2ObjectMap<Color, TagKey<Block>> initDyedTags() {
         Object2ObjectMap<Color, TagKey<Block>> map = new Object2ObjectOpenHashMap<>();
         for (Color color : Color.values()) {
             map.put(color, bindC("dyed/" + color));

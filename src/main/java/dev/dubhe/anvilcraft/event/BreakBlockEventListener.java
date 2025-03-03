@@ -14,7 +14,7 @@ public class BreakBlockEventListener {
     @SubscribeEvent
     public static void onBlockRemoved(BlockEvent.BreakEvent event) {
         Player player = event.getPlayer();
-        if(!(player.level() instanceof ServerLevel serverLevel)) return;
+        if (!(player.level() instanceof ServerLevel serverLevel)) return;
         ItemStack stack = player.getMainHandItem();
         ModEnchantmentHelper.onPostBreakBlock(
             serverLevel,

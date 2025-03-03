@@ -32,11 +32,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ItemInHandRenderer.class)
 abstract class ItemInHandRendererMixin {
 
-    @Unique private static final ModelResourceLocation anvilCraft$HOLDING_ITEM =
-            ModelResourceLocation.standalone(AnvilCraft.of("item/crab_claw_holding_item"));
+    @Unique
+    private static final ModelResourceLocation anvilCraft$HOLDING_ITEM =
+        ModelResourceLocation.standalone(AnvilCraft.of("item/crab_claw_holding_item"));
 
-    @Unique private static final ModelResourceLocation anvilCraft$HOLDING_BLOCK =
-            ModelResourceLocation.standalone(AnvilCraft.of("item/crab_claw_holding_block"));
+    @Unique
+    private static final ModelResourceLocation anvilCraft$HOLDING_BLOCK =
+        ModelResourceLocation.standalone(AnvilCraft.of("item/crab_claw_holding_block"));
 
     @Shadow
     private ItemStack offHandItem;
@@ -50,46 +52,46 @@ abstract class ItemInHandRendererMixin {
 
     @Shadow
     public abstract void renderItem(
-            LivingEntity entity,
-            ItemStack itemStack,
-            ItemDisplayContext displayContext,
-            boolean leftHand,
-            PoseStack poseStack,
-            MultiBufferSource buffer,
-            int seed);
+        LivingEntity entity,
+        ItemStack itemStack,
+        ItemDisplayContext displayContext,
+        boolean leftHand,
+        PoseStack poseStack,
+        MultiBufferSource buffer,
+        int seed);
 
     @Redirect(
-            method = "renderArmWithItem",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;isEmpty()Z", ordinal = 0))
+        method = "renderArmWithItem",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;isEmpty()Z", ordinal = 0))
     private boolean isEmpty(ItemStack instance) {
         if (this.offHandItem.is(ModItems.CRAB_CLAW.get())) return false;
         return instance.isEmpty();
     }
 
     @Inject(
-            method = "renderArmWithItem",
-            at =
-                    @At(
-                            value = "INVOKE",
-                            ordinal = 1,
-                            target = "Lnet/minecraft/client/renderer/ItemInHandRenderer;"
-                                    + "renderItem(Lnet/minecraft/world/entity/LivingEntity;"
-                                    + "Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;"
-                                    + "ZLcom/mojang/blaze3d/vertex/PoseStack;"
-                                    + "Lnet/minecraft/client/renderer/MultiBufferSource;I)V"),
-            cancellable = true)
+        method = "renderArmWithItem",
+        at =
+        @At(
+            value = "INVOKE",
+            ordinal = 1,
+            target = "Lnet/minecraft/client/renderer/ItemInHandRenderer;"
+                + "renderItem(Lnet/minecraft/world/entity/LivingEntity;"
+                + "Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;"
+                + "ZLcom/mojang/blaze3d/vertex/PoseStack;"
+                + "Lnet/minecraft/client/renderer/MultiBufferSource;I)V"),
+        cancellable = true)
     private void renderOffHandCrabClaw(
-            AbstractClientPlayer player,
-            float partialTicks,
-            float pitch,
-            InteractionHand hand,
-            float swingProgress,
-            ItemStack stack,
-            float equippedProgress,
-            PoseStack poseStack,
-            MultiBufferSource buffer,
-            int combinedLight,
-            CallbackInfo ci) {
+        AbstractClientPlayer player,
+        float partialTicks,
+        float pitch,
+        InteractionHand hand,
+        float swingProgress,
+        ItemStack stack,
+        float equippedProgress,
+        PoseStack poseStack,
+        MultiBufferSource buffer,
+        int combinedLight,
+        CallbackInfo ci) {
         if (this.offHandItem.is(ModItems.CRAB_CLAW.get()) && !this.mainHandItem.is(ModItems.CRAB_CLAW.get())) {
             if (hand == InteractionHand.OFF_HAND) {
                 poseStack.popPose();
@@ -102,25 +104,25 @@ abstract class ItemInHandRendererMixin {
             int i = flag2 ? -1 : 1;
             if (this.mainHandItem.isEmpty()) {
                 this.renderItem(
-                        player,
-                        this.offHandItem,
-                        ItemDisplayContext.FIRST_PERSON_RIGHT_HAND,
-                        flag2,
-                        poseStack,
-                        buffer,
-                        combinedLight);
+                    player,
+                    this.offHandItem,
+                    ItemDisplayContext.FIRST_PERSON_RIGHT_HAND,
+                    flag2,
+                    poseStack,
+                    buffer,
+                    combinedLight);
                 return;
             }
             boolean isBlockItem = this.itemRenderer
-                            .getModel(this.mainHandItem, player.level(), player, combinedLight)
-                            .isGui3d()
-                    && this.mainHandItem.getItem() instanceof BlockItem;
+                .getModel(this.mainHandItem, player.level(), player, combinedLight)
+                .isGui3d()
+                && this.mainHandItem.getItem() instanceof BlockItem;
             switch (stack.getUseAnimation()) {
                 case EAT:
                 case DRINK:
                     if (player.isUsingItem()
-                            && player.getUseItemRemainingTicks() > 0
-                            && player.getUsedItemHand() == hand) {
+                        && player.getUseItemRemainingTicks() > 0
+                        && player.getUsedItemHand() == hand) {
                         poseStack.translate(0, -0.25f, 0.05f);
                     }
                     break;
@@ -129,19 +131,19 @@ abstract class ItemInHandRendererMixin {
                 default:
                     return;
             }
-            if(stack.getItem() instanceof FishingRodItem) return;
+            if (stack.getItem() instanceof FishingRodItem) return;
             this.itemRenderer.render(
-                    this.offHandItem,
-                    ItemDisplayContext.FIRST_PERSON_RIGHT_HAND,
-                    flag2,
-                    poseStack,
-                    buffer,
-                    combinedLight,
-                    OverlayTexture.NO_OVERLAY,
-                    this.itemRenderer
-                            .getItemModelShaper()
-                            .getModelManager()
-                            .getModel(isBlockItem ? anvilCraft$HOLDING_BLOCK : anvilCraft$HOLDING_ITEM));
+                this.offHandItem,
+                ItemDisplayContext.FIRST_PERSON_RIGHT_HAND,
+                flag2,
+                poseStack,
+                buffer,
+                combinedLight,
+                OverlayTexture.NO_OVERLAY,
+                this.itemRenderer
+                    .getItemModelShaper()
+                    .getModelManager()
+                    .getModel(isBlockItem ? anvilCraft$HOLDING_BLOCK : anvilCraft$HOLDING_ITEM));
             if (isBlockItem) {
                 poseStack.mulPose(Axis.YP.rotationDegrees(60f * i));
                 poseStack.mulPose(Axis.XP.rotationDegrees(25f));
@@ -151,7 +153,7 @@ abstract class ItemInHandRendererMixin {
                 poseStack.mulPose(Axis.ZP.rotationDegrees(5f * i));
                 poseStack.scale(0.75f, 0.75f, 0.75f);
                 poseStack.translate(0, 0.45f, 0.02f);
-                if(stack.getItem() instanceof MaceItem) {
+                if (stack.getItem() instanceof MaceItem) {
                     poseStack.mulPose(Axis.YP.rotationDegrees(-10f * i));
                     poseStack.translate(0.08f * i, -0.1f, 0);
                 }

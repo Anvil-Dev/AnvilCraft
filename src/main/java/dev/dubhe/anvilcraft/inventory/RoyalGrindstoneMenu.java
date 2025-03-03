@@ -62,10 +62,10 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
      * @param access          检查
      */
     public RoyalGrindstoneMenu(
-            MenuType<RoyalGrindstoneMenu> type,
-            int containerId,
-            Inventory playerInventory,
-            ContainerLevelAccess access) {
+        MenuType<RoyalGrindstoneMenu> type,
+        int containerId,
+        Inventory playerInventory,
+        ContainerLevelAccess access) {
         super(type, containerId);
         this.repairToolSlots = new SimpleContainer(1) {
             public void setChanged() {
@@ -105,14 +105,14 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
                 player.playSound(SoundEvents.GRINDSTONE_USE);
                 repairToolSlots.setItem(0, ItemStack.EMPTY);
                 repairMaterialSlots.setItem(
-                        0,
-                        new ItemStack(
-                                REPAIR_MATERIAL, repairMaterialSlots.getItem(0).getCount() - usedGold));
+                    0,
+                    new ItemStack(
+                        REPAIR_MATERIAL, repairMaterialSlots.getItem(0).getCount() - usedGold));
                 resultMaterialSlots.setItem(
-                        2,
-                        new ItemStack(
-                                RESULT_MATERIAL,
-                                usedGold + resultMaterialSlots.getItem(2).getCount()));
+                    2,
+                    new ItemStack(
+                        RESULT_MATERIAL,
+                        usedGold + resultMaterialSlots.getItem(2).getCount()));
             }
         });
         this.addSlot(new Slot(this.resultMaterialSlots, 2, 89, 47) {
@@ -152,8 +152,7 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
             result.remove(DataComponents.REPAIR_COST);
         }
         int removedCurseCount = 0;
-        DataComponentType<ItemEnchantments> enchantmentComponent = result.is(Items.ENCHANTED_BOOK) ?
-            DataComponents.STORED_ENCHANTMENTS : DataComponents.ENCHANTMENTS;
+        DataComponentType<ItemEnchantments> enchantmentComponent = result.is(Items.ENCHANTED_BOOK) ? DataComponents.STORED_ENCHANTMENTS : DataComponents.ENCHANTMENTS;
         ItemEnchantments enchantments = result.get(enchantmentComponent);
         this.totalCurseCount = 0;
         if (enchantments != null) {
@@ -214,7 +213,7 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
                         this.getSlot(1).setByPlayer(itemStack);
                         this.getSlot(index).setByPlayer(ItemStack.EMPTY);
                     } else if ((gold = this.getSlot(1).getItem()).is(REPAIR_MATERIAL)
-                            && gold.getCount() < gold.getMaxStackSize()) {
+                        && gold.getCount() < gold.getMaxStackSize()) {
                         int canSet = gold.getMaxStackSize() - gold.getCount();
                         canSet = Math.min(itemStack.getCount(), canSet);
                         gold.grow(canSet);

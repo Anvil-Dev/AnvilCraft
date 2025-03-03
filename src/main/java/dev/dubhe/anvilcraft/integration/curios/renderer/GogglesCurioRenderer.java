@@ -32,6 +32,13 @@ public class GogglesCurioRenderer implements ICurioRenderer {
         this.model = new HumanoidModel<>(part);
     }
 
+    public static @NotNull MeshDefinition mesh() {
+        CubeListBuilder builder = new CubeListBuilder();
+        MeshDefinition mesh = HumanoidModel.createMesh(CubeDeformation.NONE, 0);
+        mesh.getRoot().addOrReplaceChild("head", builder, PartPose.ZERO);
+        return mesh;
+    }
+
     @Override
     public <T extends LivingEntity, M extends EntityModel<T>> void render(
         ItemStack stack,
@@ -74,12 +81,5 @@ public class GogglesCurioRenderer implements ICurioRenderer {
             .renderStatic(stack, ItemDisplayContext.HEAD, light, OverlayTexture.NO_OVERLAY, matrixStack,
                 renderTypeBuffer, mc.level, 0);
         matrixStack.popPose();
-    }
-
-    public static @NotNull MeshDefinition mesh() {
-        CubeListBuilder builder = new CubeListBuilder();
-        MeshDefinition mesh = HumanoidModel.createMesh(CubeDeformation.NONE, 0);
-        mesh.getRoot().addOrReplaceChild("head", builder, PartPose.ZERO);
-        return mesh;
     }
 }

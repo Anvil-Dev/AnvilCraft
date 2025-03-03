@@ -44,6 +44,7 @@ import java.util.List;
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class BulgingRecipe implements Recipe<BulgingRecipe.Input> {
+    private static final BlockState FULL_WATER_CAULDRON = CauldronUtil.fullState(Blocks.WATER_CAULDRON);
     public final NonNullList<Ingredient> ingredients;
     public final List<Object2IntMap.Entry<Ingredient>> mergedIngredients;
     public final Block cauldron;
@@ -54,8 +55,6 @@ public class BulgingRecipe implements Recipe<BulgingRecipe.Input> {
     public final boolean isSimple;
     private Input cacheInput;
     private int cacheMaxCraftTime;
-
-    private static final BlockState FULL_WATER_CAULDRON = CauldronUtil.fullState(Blocks.WATER_CAULDRON);
 
     public BulgingRecipe(
         NonNullList<Ingredient> ingredients,
@@ -163,16 +162,6 @@ public class BulgingRecipe implements Recipe<BulgingRecipe.Input> {
         private static final StreamCodec<RegistryFriendlyByteBuf, BulgingRecipe> STREAM_CODEC =
             StreamCodec.of(Serializer::encode, Serializer::decode);
 
-        @Override
-        public MapCodec<BulgingRecipe> codec() {
-            return CODEC;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, BulgingRecipe> streamCodec() {
-            return STREAM_CODEC;
-        }
-
         private static void encode(RegistryFriendlyByteBuf buf, BulgingRecipe recipe) {
             buf.writeVarInt(recipe.ingredients.size());
             for (Ingredient ingredient : recipe.ingredients) {
@@ -202,6 +191,16 @@ public class BulgingRecipe implements Recipe<BulgingRecipe.Input> {
             boolean consumeFluid = buf.readBoolean();
             boolean fromWater = buf.readBoolean();
             return new BulgingRecipe(ingredients, cauldron, results, produceFluid, consumeFluid, fromWater);
+        }
+
+        @Override
+        public MapCodec<BulgingRecipe> codec() {
+            return CODEC;
+        }
+
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, BulgingRecipe> streamCodec() {
+            return STREAM_CODEC;
         }
     }
 
@@ -248,7 +247,7 @@ public class BulgingRecipe implements Recipe<BulgingRecipe.Input> {
             return this;
         }
 
-        public Builder result(ItemStack stack, float chance){
+        public Builder result(ItemStack stack, float chance) {
             results.add(ChanceItemStack.of(stack).withChance(chance));
             return this;
         }

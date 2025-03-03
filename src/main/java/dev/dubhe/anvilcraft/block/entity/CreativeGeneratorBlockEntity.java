@@ -39,18 +39,18 @@ public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerP
     private int time = 0;
     private boolean previousSyncFailed = false;
 
-    public static @NotNull CreativeGeneratorBlockEntity createBlockEntity(
-        BlockEntityType<?> type, BlockPos pos, BlockState blockState
-    ) {
-        return new CreativeGeneratorBlockEntity(type, pos, blockState);
-    }
-
     public CreativeGeneratorBlockEntity(BlockPos pos, BlockState blockState) {
         this(ModBlockEntities.CREATIVE_GENERATOR.get(), pos, blockState);
     }
 
     private CreativeGeneratorBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
+    }
+
+    public static @NotNull CreativeGeneratorBlockEntity createBlockEntity(
+        BlockEntityType<?> type, BlockPos pos, BlockState blockState
+    ) {
+        return new CreativeGeneratorBlockEntity(type, pos, blockState);
     }
 
     @Override
@@ -104,7 +104,7 @@ public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerP
 
     public void setPower(int power) {
         this.power = power;
-        if (level instanceof ServerLevel serverLevel){
+        if (level instanceof ServerLevel serverLevel) {
             if (grid != null) {
                 this.grid.markChanged();
                 return;
@@ -115,7 +115,7 @@ public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerP
 
     public void tick() {
         if (level instanceof ServerLevel) {
-            if (previousSyncFailed && grid != null){
+            if (previousSyncFailed && grid != null) {
                 previousSyncFailed = false;
                 grid.markChanged();
             }

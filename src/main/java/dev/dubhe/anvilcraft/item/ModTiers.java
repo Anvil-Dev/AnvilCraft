@@ -37,12 +37,12 @@ public enum ModTiers implements Tier {
     private final TagKey<Block> incorrectBlockTags;
 
     ModTiers(
-            int uses,
-            float speed,
-            float damage,
-            int enchantmentValue,
-            @NotNull Supplier<Ingredient> supplier,
-            TagKey<Block> incorrectBlockTags) {
+        int uses,
+        float speed,
+        float damage,
+        int enchantmentValue,
+        @NotNull Supplier<Ingredient> supplier,
+        TagKey<Block> incorrectBlockTags) {
         this.uses = uses;
         this.speed = speed;
         this.damage = damage;

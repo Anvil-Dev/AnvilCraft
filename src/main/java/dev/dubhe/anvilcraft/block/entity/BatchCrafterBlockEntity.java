@@ -67,12 +67,12 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
 
     @Getter
     private final int inputPower = 1;
+    private final Deque<AutoCrafterCache> cache = new ArrayDeque<>();
+    @Getter
+    private final int id;
     @Getter
     @Setter
-    private PowerGrid grid;
-
-    private final Deque<AutoCrafterCache> cache = new ArrayDeque<>();
-    private final FilteredItemStackHandler itemHandler = new PollableFilteredItemStackHandler(9) {
+    private PowerGrid grid;    private final FilteredItemStackHandler itemHandler = new PollableFilteredItemStackHandler(9) {
         @Override
         public void onContentsChanged(int slot) {
             if (level != null) {
@@ -89,15 +89,11 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
             setChanged();
         }
     };
-
     @Getter
     private ItemStack displayItemStack = null;
 
     private boolean poweredBefore = false;
     private int cooldown = 0;
-
-    @Getter
-    private final int id;
 
     public BatchCrafterBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -326,6 +322,33 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
         this.displayItemStack = stack;
     }
 
+    private void spawnItemEntity0(ItemStack stack) {
+        Vec3 center = getBlockPos().relative(getDirection()).getCenter();
+        Vector3f step = getDirection().step();
+        Level level = this.getLevel();
+        if (level == null) return;
+        ItemEntity itemEntity =
+            new ItemEntity(level, center.x, center.y, center.z, stack, 0.25 * step.x, 0.25 * step.y, 0.25 * step.z);
+        itemEntity.setDefaultPickUpDelay();
+        level.addFreshEntity(itemEntity);
+    }
+
+    private void spawnItemEntity(@NotNull ItemStack stack) {
+        int maxStackSize = stack.getMaxStackSize();
+        int stackSize = stack.getCount();
+        for (; stackSize > maxStackSize; stackSize -= maxStackSize) {
+            spawnItemEntity0(stack.copyWithCount(maxStackSize));
+        }
+        if (stackSize != 0) {
+            spawnItemEntity0(stack.copyWithCount(stackSize));
+        }
+    }
+
+    @Override
+    public Level getCurrentLevel() {
+        return this.getLevel();
+    }
+
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     public static class AutoCrafterCache implements Predicate<Container> {
         private final Container container;
@@ -367,32 +390,7 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
         }
     }
 
-    private void spawnItemEntity0(ItemStack stack) {
-        Vec3 center = getBlockPos().relative(getDirection()).getCenter();
-        Vector3f step = getDirection().step();
-        Level level = this.getLevel();
-        if (level == null) return;
-        ItemEntity itemEntity =
-            new ItemEntity(level, center.x, center.y, center.z, stack, 0.25 * step.x, 0.25 * step.y, 0.25 * step.z);
-        itemEntity.setDefaultPickUpDelay();
-        level.addFreshEntity(itemEntity);
-    }
 
-    private void spawnItemEntity(@NotNull ItemStack stack) {
-        int maxStackSize = stack.getMaxStackSize();
-        int stackSize = stack.getCount();
-        for (; stackSize > maxStackSize; stackSize -= maxStackSize) {
-            spawnItemEntity0(stack.copyWithCount(maxStackSize));
-        }
-        if (stackSize != 0) {
-            spawnItemEntity0(stack.copyWithCount(stackSize));
-        }
-    }
-
-    @Override
-    public Level getCurrentLevel() {
-        return this.getLevel();
-    }
 
     @Getter
     private final CraftingContainer craftingContainer = new CraftingContainer() {

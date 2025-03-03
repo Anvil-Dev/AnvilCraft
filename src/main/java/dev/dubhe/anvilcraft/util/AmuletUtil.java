@@ -26,6 +26,79 @@ import java.util.function.BiPredicate;
 
 @ParametersAreNonnullByDefault
 public class AmuletUtil {
+    public static @Nullable Type getType(Player player, DamageSource source) {
+        DamageSources sources = player.damageSources();
+        for (Type type : Type.values()) {
+            if (type.isValid(sources, source)) {
+                return type;
+            }
+        }
+
+        return null;
+    }
+
+    public static int getRaffleProbability(Player player, DamageSource source, boolean isConsumeAmuletBox) {
+        DamageSources sources = player.damageSources();
+        for (Type type : Type.values()) {
+            if (type.isValid(sources, source)) {
+                return getRaffleProbability(player, type, isConsumeAmuletBox);
+            }
+        }
+
+        return 0;
+    }
+
+    public static int getRaffleProbability(Player player, Type type, boolean isConsumeAmuletBox) {
+        if (!hasAmuletInInventory(player, type)) {
+            return getStoredRaffleProbability(player, type) + (isConsumeAmuletBox ? 20 : 5);
+        } else {
+            return 0;
+        }
+    }
+
+    public static int getStoredRaffleProbability(Player player, Type type) {
+        return player.getData(ModDataAttachments.AMULET_RAFFLE_PROBABILITY).getInt(type.getTypeId());
+    }
+
+    public static void setRaffleProbability(Player player, DamageSource source, NonNullUnaryOperator<Integer> modifier) {
+        DamageSources sources = player.damageSources();
+        for (Type type : Type.values()) {
+            if (type.isValid(sources, source)) {
+                setRaffleProbability(player, type, modifier);
+            }
+        }
+    }
+
+    public static void setRaffleProbability(Player player, Type type, NonNullUnaryOperator<Integer> modifier) {
+        CompoundTag root = player.getData(ModDataAttachments.AMULET_RAFFLE_PROBABILITY);
+        if (!hasAmuletInInventory(player, type)) {
+            root.putInt(type.getTypeId(), modifier.apply(root.getInt(type.getTypeId())));
+        } else {
+            root.putInt(type.getTypeId(), 0);
+        }
+    }
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public static boolean hasAmuletInInventory(Player player, Type type) {
+        return player.getInventory().hasAnyOf(Collections.singleton(type.getEntry().asItem()));
+    }
+
+    public static void startRaffle(ServerPlayer player, DamageSource source, boolean isConsumeAmuletBox) {
+        RandomSource random = player.getRandom();
+        int raffleProbability = Math.min(getRaffleProbability(player, source, isConsumeAmuletBox), 50);
+
+        if (raffleProbability > random.nextIntBetweenInclusive(0, 100)) {
+            AmuletUtil.setRaffleProbability(player, source, value -> 0);
+
+            Type type = getType(player, source);
+            if (type != null) {
+                player.getInventory().add(type.getEntry().asStack());
+            }
+        } else {
+            AmuletUtil.setRaffleProbability(player, source, value -> Math.min(value + 5, 50));
+        }
+    }
+
     public enum Type {
         EMERALD(
             "emerald", (sources, source) ->
@@ -48,14 +121,14 @@ public class AmuletUtil {
         SAPPHIRE(
             "sapphire", (sources, source) ->
             DamageSourceUtil.isMatchTypes(source, sources, DamageTypes.DROWN, DamageTypes.DRY_OUT)
-            || DamageSourceUtil.isEntityMatchTypes(source, EntityType.GUARDIAN, EntityType.ELDER_GUARDIAN),
+                || DamageSourceUtil.isEntityMatchTypes(source, EntityType.GUARDIAN, EntityType.ELDER_GUARDIAN),
             ModItems.SAPPHIRE_AMULET
         ),
         ANVIL(
             "anvil", (sources, source) ->
             DamageSourceUtil.isMatchTypes(source, sources, DamageTypes.FALLING_ANVIL)
-            || (source.type().equals(sources.damageTypes.get(DamageTypes.FALLING_BLOCK)) && source.getEntity() instanceof FallingGiantAnvilEntity)
-            || Optional.ofNullable(source.getWeaponItem())
+                || (source.type().equals(sources.damageTypes.get(DamageTypes.FALLING_BLOCK)) && source.getEntity() instanceof FallingGiantAnvilEntity)
+                || Optional.ofNullable(source.getWeaponItem())
                 .filter(item -> item.is(ModItemTags.ANVIL_HAMMER))
                 .isPresent(),
             ModItems.ANVIL_AMULET
@@ -75,14 +148,14 @@ public class AmuletUtil {
         //),
         COMRADE(
             "comrade", (sources, source) -> {
-                if (source.getEntity() instanceof Player murder && source.getDirectEntity() instanceof Player victim) {
-                    return Optional.ofNullable(victim.getTeam())
-                        .map(team -> team.getPlayers().contains(murder.getScoreboardName()))
-                        .orElse(true);
-                }
+            if (source.getEntity() instanceof Player murder && source.getDirectEntity() instanceof Player victim) {
+                return Optional.ofNullable(victim.getTeam())
+                    .map(team -> team.getPlayers().contains(murder.getScoreboardName()))
+                    .orElse(true);
+            }
 
-                return false;
-            },
+            return false;
+        },
             ModItems.COMRADE_AMULET
         ),
         FEATHER(
@@ -125,80 +198,11 @@ public class AmuletUtil {
         public boolean isValid(DamageSources sources, DamageSource source) {
             try {
                 return this.predicate.test(sources, source);
-            } catch (Throwable ignored) {}
+            } catch (Throwable ignored) {
+
+            }
 
             return false;
-        }
-    }
-
-    public static @Nullable Type getType(Player player, DamageSource source) {
-        DamageSources sources = player.damageSources();
-        for (Type type : Type.values()) {
-            if (type.isValid(sources, source)) {
-                return type;
-            }
-        }
-
-        return null;
-    }
-
-    public static int getRaffleProbability(Player player, DamageSource source, boolean isConsumeAmuletBox) {
-        DamageSources sources = player.damageSources();
-        for (Type type : Type.values()) {
-            if (type.isValid(sources, source)) {
-                return getRaffleProbability(player, type, isConsumeAmuletBox);
-            }
-        }
-
-        return 0;
-    }
-
-    public static int getStoredRaffleProbability(Player player, Type type) {
-        return player.getData(ModDataAttachments.AMULET_RAFFLE_PROBABILITY).getInt(type.getTypeId());
-    }
-    public static int getRaffleProbability(Player player, Type type, boolean isConsumeAmuletBox) {
-        if (!hasAmuletInInventory(player, type)) {
-            return getStoredRaffleProbability(player, type) + (isConsumeAmuletBox ? 20 : 5);
-        } else {
-            return 0;
-        }
-    }
-
-    public static void setRaffleProbability(Player player, DamageSource source, NonNullUnaryOperator<Integer> modifier) {
-        DamageSources sources = player.damageSources();
-        for (Type type : Type.values()) {
-            if (type.isValid(sources, source)) {
-                setRaffleProbability(player, type, modifier);
-            }
-        }
-    }
-    public static void setRaffleProbability(Player player, Type type, NonNullUnaryOperator<Integer> modifier) {
-        CompoundTag root = player.getData(ModDataAttachments.AMULET_RAFFLE_PROBABILITY);
-        if (!hasAmuletInInventory(player, type)) {
-            root.putInt(type.getTypeId(), modifier.apply(root.getInt(type.getTypeId())));
-        } else {
-            root.putInt(type.getTypeId(), 0);
-        }
-    }
-
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public static boolean hasAmuletInInventory(Player player, Type type) {
-        return player.getInventory().hasAnyOf(Collections.singleton(type.getEntry().asItem()));
-    }
-
-    public static void startRaffle(ServerPlayer player, DamageSource source, boolean isConsumeAmuletBox) {
-        RandomSource random = player.getRandom();
-        int raffleProbability = Math.min(getRaffleProbability(player, source, isConsumeAmuletBox), 50);
-
-        if (raffleProbability > random.nextIntBetweenInclusive(0, 100)) {
-            AmuletUtil.setRaffleProbability(player, source, value -> 0);
-
-            Type type = getType(player, source);
-            if (type != null) {
-                player.getInventory().add(type.getEntry().asStack());
-            }
-        } else {
-            AmuletUtil.setRaffleProbability(player, source, value -> Math.min(value + 5, 50));
         }
     }
 }

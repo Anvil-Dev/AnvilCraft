@@ -31,7 +31,9 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin extends Player implements IDynamicPowerComponentHolder {
-    @Shadow @Final public MinecraftServer server;
+    @Shadow
+    @Final
+    public MinecraftServer server;
     @Unique
     private DynamicPowerComponent anvilCraft$component;
 

@@ -1,11 +1,10 @@
 package dev.dubhe.anvilcraft.data.lang;
 
+import com.google.gson.annotations.SerializedName;
+import com.tterrag.registrate.providers.RegistrateLangProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
 import dev.dubhe.anvilcraft.util.FormattingUtil;
-
-import com.google.gson.annotations.SerializedName;
-import com.tterrag.registrate.providers.RegistrateLangProvider;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.Comment;
 import org.jetbrains.annotations.NotNull;
@@ -29,12 +28,12 @@ public class ConfigScreenLang {
 
     @SuppressWarnings("SameParameterValue")
     private static void readConfigClass(
-            @NotNull Class<?> configClass, RegistrateLangProvider provider, @Nullable String parent) {
+        @NotNull Class<?> configClass, RegistrateLangProvider provider, @Nullable String parent) {
         for (Field field : configClass.getDeclaredFields()) {
             String fieldName = field.getName();
             String name;
             if (field.isAnnotationPresent(ConfigEntry.Gui.CollapsibleObject.class)
-                    || field.isAnnotationPresent(ConfigEntry.Gui.TransitiveObject.class)) {
+                || field.isAnnotationPresent(ConfigEntry.Gui.TransitiveObject.class)) {
                 readConfigClass(field.getType(), provider, fieldName);
             }
             if (field.isAnnotationPresent(SerializedName.class)) {

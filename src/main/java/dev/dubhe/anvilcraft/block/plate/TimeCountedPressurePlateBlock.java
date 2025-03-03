@@ -23,8 +23,8 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class TimeCountedPressurePlateBlock extends PressurePlateBlock implements EntityBlock {
-    public final int needTick;
     public static final IntegerProperty POWER = BlockStateProperties.POWER;
+    public final int needTick;
 
     public TimeCountedPressurePlateBlock(BlockSetType type, Properties properties, int needTick) {
         super(type, properties);

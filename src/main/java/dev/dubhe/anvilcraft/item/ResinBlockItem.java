@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.item;
 
 import dev.dubhe.anvilcraft.init.ModComponents;
 import dev.dubhe.anvilcraft.init.ModItems;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
@@ -17,7 +16,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
-
 import org.jetbrains.annotations.NotNull;
 
 public class ResinBlockItem extends HasMobBlockItem {
@@ -25,25 +23,14 @@ public class ResinBlockItem extends HasMobBlockItem {
         super(block, properties);
     }
 
-    @Override
-    public @NotNull InteractionResult useOn(@NotNull UseOnContext context) {
-        ItemStack stack = context.getItemInHand();
-        if (!ResinBlockItem.hasMob(stack)) return super.useOn(context);
-        Level level = context.getLevel();
-        BlockPos pos = context.getClickedPos().relative(context.getClickedFace());
-        Player player = context.getPlayer();
-        ResinBlockItem.spawnMobFromItem(level, player, pos, stack);
-        return InteractionResult.SUCCESS;
-    }
-
     /**
      * 右键实体
      */
     public static InteractionResult useEntity(Player player, @NotNull Entity target, ItemStack stack) {
         if (!(target instanceof Mob mob)
-                || target.getBbHeight() > 2.0
-                || target.getBbWidth() > 1.5
-                || ResinBlockItem.hasMob(stack)) {
+            || target.getBbHeight() > 2.0
+            || target.getBbWidth() > 1.5
+            || ResinBlockItem.hasMob(stack)) {
             return InteractionResult.PASS;
         }
         ResinBlockItem.saveMobInItem(player.level(), mob, player, stack);
@@ -60,12 +47,12 @@ public class ResinBlockItem extends HasMobBlockItem {
                 BlockState blockState = item1.getBlock().defaultBlockState();
                 SoundType soundType = blockState.getSoundType();
                 level.playSound(
-                        player,
-                        pos,
-                        item1.getPlaceSound(blockState),
-                        SoundSource.BLOCKS,
-                        (soundType.getVolume() + 1.0f) / 2.0f,
-                        soundType.getPitch() * 0.8f);
+                    player,
+                    pos,
+                    item1.getPlaceSound(blockState),
+                    SoundSource.BLOCKS,
+                    (soundType.getVolume() + 1.0f) / 2.0f,
+                    soundType.getPitch() * 0.8f);
             }
             return;
         }
@@ -78,5 +65,16 @@ public class ResinBlockItem extends HasMobBlockItem {
         if (!player.getAbilities().instabuild) {
             player.getInventory().placeItemBackInInventory(back);
         }
+    }
+
+    @Override
+    public @NotNull InteractionResult useOn(@NotNull UseOnContext context) {
+        ItemStack stack = context.getItemInHand();
+        if (!ResinBlockItem.hasMob(stack)) return super.useOn(context);
+        Level level = context.getLevel();
+        BlockPos pos = context.getClickedPos().relative(context.getClickedFace());
+        Player player = context.getPlayer();
+        ResinBlockItem.spawnMobFromItem(level, player, pos, stack);
+        return InteractionResult.SUCCESS;
     }
 }

@@ -13,7 +13,7 @@ public class SuperHeavyItem extends Item implements ISuperHeavy {
 
     @Override
     public void inventoryTick(
-            @NotNull ItemStack stack, @NotNull Level level, @NotNull Entity entity, int slotId, boolean isSelected) {
+        @NotNull ItemStack stack, @NotNull Level level, @NotNull Entity entity, int slotId, boolean isSelected) {
         super.inventoryTick(stack, level, entity, slotId, isSelected);
         ISuperHeavy.super.inventoryTick(stack, level, entity, slotId, isSelected);
     }

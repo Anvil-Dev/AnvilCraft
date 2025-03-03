@@ -232,7 +232,8 @@ public class RecipeUtil {
                 for (int z = size - 1; z >= 0; z--) {
                     BlockPredicateWithState predicate = pattern.getPredicate(x, y, z);
                     BlockState state = predicate.getDefaultState();
-                    if (state.isAir() && Math.max(levelLike.horizontalSize(), levelLike.verticalSize()) >= size) continue;
+                    if (state.isAir() && Math.max(levelLike.horizontalSize(), levelLike.verticalSize()) >= size)
+                        continue;
                     levelLike.setBlockState(new BlockPos(x, y, z), state);
                 }
             }

@@ -21,22 +21,12 @@ public class FireImmunePressurePlateBlock extends PowerLevelPressurePlateBlock {
         super(BlockSetType.IRON, properties);
     }
 
-    @Override
-    protected Set<Class<? extends Entity>> getEntityClasses() {
-        return ImmutableSet.of(LivingEntity.class, ItemEntity.class);
-    }
-
-    @Override
-    protected int getSignalStrength(Level level, AABB box, Set<Class<? extends Entity>> entityClasses) {
-        return Math.clamp(getFireImmuneEntityCount(level, box, entityClasses), 0, 15);
-    }
-
     protected static int getFireImmuneEntityCount(Level level, AABB box, Set<Class<? extends Entity>> entityClasses) {
         Set<Entity> entities = Sets.newHashSet();
         for (Class<? extends Entity> entityClass : entityClasses) {
             entities.addAll(level.getEntitiesOfClass(
-                    entityClass, box,
-                    EntitySelector.NO_SPECTATORS.and(entity -> !entity.isIgnoringBlockTriggers())
+                entityClass, box,
+                EntitySelector.NO_SPECTATORS.and(entity -> !entity.isIgnoringBlockTriggers())
             ));
         }
 
@@ -45,7 +35,7 @@ public class FireImmunePressurePlateBlock extends PowerLevelPressurePlateBlock {
             if (entity.fireImmune()) {
                 result++;
             } else if (
-                    entity instanceof ItemEntity item && item.fireImmune()
+                entity instanceof ItemEntity item && item.fireImmune()
                     && item.getItem().getCount() >= item.getItem().getMaxStackSize()
             ) {
                 result++;
@@ -53,5 +43,15 @@ public class FireImmunePressurePlateBlock extends PowerLevelPressurePlateBlock {
         }
 
         return result;
+    }
+
+    @Override
+    protected Set<Class<? extends Entity>> getEntityClasses() {
+        return ImmutableSet.of(LivingEntity.class, ItemEntity.class);
+    }
+
+    @Override
+    protected int getSignalStrength(Level level, AABB box, Set<Class<? extends Entity>> entityClasses) {
+        return Math.clamp(getFireImmuneEntityCount(level, box, entityClasses), 0, 15);
     }
 }

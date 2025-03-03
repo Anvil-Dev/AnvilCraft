@@ -18,7 +18,8 @@ import java.util.List;
 @Mixin(Phantom.PhantomSweepAttackGoal.class)
 public abstract class PhantomGoalMixin {
 
-    @Shadow @Final
+    @Shadow
+    @Final
     Phantom this$0;
 
     @Redirect(

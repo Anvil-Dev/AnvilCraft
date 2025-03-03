@@ -86,17 +86,17 @@ public class TransformRecipeBuilder {
 
     public void save(RecipeOutput recipeOutput) {
         save(
-                recipeOutput,
-                AnvilCraft.of(BuiltInRegistries.ENTITY_TYPE.getKey(inputType).getPath())
-                        .withPrefix("mob_transform/"));
+            recipeOutput,
+            AnvilCraft.of(BuiltInRegistries.ENTITY_TYPE.getKey(inputType).getPath())
+                .withPrefix("mob_transform/"));
     }
 
     public void save(RecipeOutput pRecipeOutput, ResourceLocation pId) {
         Advancement.Builder advancement = pRecipeOutput
-                .advancement()
-                .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(pId))
-                .rewards(AdvancementRewards.Builder.recipe(pId))
-                .requirements(AdvancementRequirements.Strategy.OR);
+            .advancement()
+            .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(pId))
+            .rewards(AdvancementRewards.Builder.recipe(pId))
+            .requirements(AdvancementRequirements.Strategy.OR);
         criteria.forEach(advancement::addCriterion);
         MobTransformRecipe recipe = create();
         pRecipeOutput.accept(pId, recipe, advancement.build(pId.withPrefix("recipe/")));

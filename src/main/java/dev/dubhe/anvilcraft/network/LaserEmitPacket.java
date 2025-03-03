@@ -19,7 +19,7 @@ import java.util.Optional;
 public class LaserEmitPacket implements CustomPacketPayload {
     public static final Type<LaserEmitPacket> TYPE = new Type<>(AnvilCraft.of("laser_emit"));
     public static final StreamCodec<RegistryFriendlyByteBuf, LaserEmitPacket> STREAM_CODEC =
-            StreamCodec.ofMember(LaserEmitPacket::encode, LaserEmitPacket::new);
+        StreamCodec.ofMember(LaserEmitPacket::encode, LaserEmitPacket::new);
     public static final IPayloadHandler<LaserEmitPacket> HANDLER = LaserEmitPacket::clientHandler;
 
     private final int laserLevel;
@@ -48,6 +48,26 @@ public class LaserEmitPacket implements CustomPacketPayload {
     /**
      *
      */
+    public static void clientHandler(LaserEmitPacket data, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            if (Minecraft.getInstance().level != null
+                && Minecraft.getInstance().level.getBlockEntity(data.laserBlockPos)
+                instanceof BaseLaserBlockEntity baseLaserBlockEntity) {
+                baseLaserBlockEntity.clientUpdate(
+                    data.irradiateBlockPos,
+                    data.laserLevel
+                );
+                Minecraft.getInstance().levelRenderer.setBlockDirty(
+                    data.laserBlockPos,
+                    false
+                );
+            }
+        });
+    }
+
+    /**
+     *
+     */
     public void encode(RegistryFriendlyByteBuf buf) {
         buf.writeVarInt(laserLevel);
         NetworkUtil.writeVarIntBlockPos(buf, laserBlockPos);
@@ -60,25 +80,5 @@ public class LaserEmitPacket implements CustomPacketPayload {
     @Override
     public @NotNull Type<? extends CustomPacketPayload> type() {
         return TYPE;
-    }
-
-    /**
-     *
-     */
-    public static void clientHandler(LaserEmitPacket data, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            if (Minecraft.getInstance().level != null
-                    && Minecraft.getInstance().level.getBlockEntity(data.laserBlockPos)
-                            instanceof BaseLaserBlockEntity baseLaserBlockEntity) {
-                baseLaserBlockEntity.clientUpdate(
-                    data.irradiateBlockPos,
-                    data.laserLevel
-                );
-                Minecraft.getInstance().levelRenderer.setBlockDirty(
-                    data.laserBlockPos,
-                    false
-                );
-            }
-        });
     }
 }

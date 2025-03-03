@@ -48,7 +48,7 @@ public record MeshRecipeGroup(Ingredient ingredient, List<Result> results) {
 
         ImmutableList.Builder<MeshRecipeGroup> jeiRecipes = ImmutableList.builder();
         Comparator<Result> resultSorter =
-                Comparator.comparingDouble(Result::getExpectedCount).reversed();
+            Comparator.comparingDouble(Result::getExpectedCount).reversed();
 
         for (Ingredient ingredient : ingredientGrouper.keySet()) {
             Collection<MeshRecipe> values = ingredientGrouper.get(ingredient);
@@ -57,8 +57,8 @@ public record MeshRecipeGroup(Ingredient ingredient, List<Result> results) {
 
             for (MeshRecipe recipe : values) {
                 int resultCount = recipe.getResultAmount() instanceof ConstantValue constantValue
-                        ? Math.round(constantValue.value())
-                        : 1;
+                    ? Math.round(constantValue.value())
+                    : 1;
                 results.add(new Result(recipe.getResult().copyWithCount(resultCount), recipe.getResultAmount()));
             }
 

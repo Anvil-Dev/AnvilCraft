@@ -24,12 +24,12 @@ public enum RubyPrismProvider implements IProbeInfoProvider {
 
     @Override
     public void addProbeInfo(
-            ProbeMode probeMode,
-            IProbeInfo iProbeInfo,
-            Player player,
-            Level level,
-            BlockState blockState,
-            IProbeHitData hitData) {
+        ProbeMode probeMode,
+        IProbeInfo iProbeInfo,
+        Player player,
+        Level level,
+        BlockState blockState,
+        IProbeHitData hitData) {
         if (level.getBlockEntity(hitData.getPos()) instanceof RubyPrismBlockEntity blockEntity) {
             iProbeInfo.text(Component.translatable("tooltip.anvilcraft.jade.ruby_prism.power", blockEntity.getLaserLevel()));
         }

@@ -61,6 +61,16 @@ public class BeaconConversionCategory implements IRecipeCategory<BeaconConversio
         arrowIn = helper.createDrawable(TextureConstants.ANVIL_CRAFT_SPRITES, 0, 31, 16, 8);
     }
 
+    public static void registerRecipes(IRecipeRegistration registration) {
+        registration.addRecipes(
+            AnvilCraftJeiPlugin.BEACON_CONVERSION,
+            BeaconConversionRecipe.getAllRecipes());
+    }
+
+    public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
+        registration.addRecipeCatalyst(ModBlocks.CURSED_GOLD_BLOCK.asStack(), AnvilCraftJeiPlugin.BEACON_CONVERSION);
+    }
+
     @Override
     public RecipeType<BeaconConversionRecipe> getRecipeType() {
         return AnvilCraftJeiPlugin.BEACON_CONVERSION;
@@ -145,15 +155,5 @@ public class BeaconConversionCategory implements IRecipeCategory<BeaconConversio
 
         arrowIn.draw(guiGraphics, 66, 14);
         progressArrow.draw(guiGraphics, 60, 96);
-    }
-
-    public static void registerRecipes(IRecipeRegistration registration) {
-        registration.addRecipes(
-            AnvilCraftJeiPlugin.BEACON_CONVERSION,
-            BeaconConversionRecipe.getAllRecipes());
-    }
-
-    public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(ModBlocks.CURSED_GOLD_BLOCK.asStack(), AnvilCraftJeiPlugin.BEACON_CONVERSION);
     }
 }

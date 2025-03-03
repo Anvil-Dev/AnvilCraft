@@ -15,18 +15,19 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(DamageSources.class)
 public abstract class DamageSourcesMixin implements ModDamageTypes.DamageSourceExtra {
-    @Shadow public abstract DamageSource source(ResourceKey<DamageType> damageTypeKey);
-
     @Unique
     private DamageSource anvilCraft$laser;
     @Unique
     private DamageSource anvilCraft$lostInTime;
 
+    @Shadow
+    public abstract DamageSource source(ResourceKey<DamageType> damageTypeKey);
+
     @Inject(
         method = "<init>",
         at = @At("RETURN")
     )
-    void initModDamageSources(RegistryAccess registry, CallbackInfo ci){
+    void initModDamageSources(RegistryAccess registry, CallbackInfo ci) {
         anvilCraft$laser = this.source(ModDamageTypes.LASER);
         anvilCraft$lostInTime = this.source(ModDamageTypes.LOST_IN_TIME);
     }
@@ -37,7 +38,7 @@ public abstract class DamageSourcesMixin implements ModDamageTypes.DamageSourceE
     }
 
     @Override
-    public DamageSource lostInTime(){
+    public DamageSource lostInTime() {
         return anvilCraft$lostInTime;
     }
 }

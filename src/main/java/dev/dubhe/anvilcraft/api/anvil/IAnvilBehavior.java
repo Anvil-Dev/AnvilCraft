@@ -10,18 +10,17 @@ import dev.dubhe.anvilcraft.api.anvil.impl.HitCrabTrapBehavior;
 import dev.dubhe.anvilcraft.api.anvil.impl.HitSpawnerBehavior;
 import dev.dubhe.anvilcraft.api.anvil.impl.ItemCompressBehavior;
 import dev.dubhe.anvilcraft.api.anvil.impl.ItemCrushBehavior;
-import dev.dubhe.anvilcraft.api.anvil.impl.UnpackBehavior;
 import dev.dubhe.anvilcraft.api.anvil.impl.ItemMeshBehavior;
 import dev.dubhe.anvilcraft.api.anvil.impl.ItemStampingBehavior;
 import dev.dubhe.anvilcraft.api.anvil.impl.MassInjectBehavior;
 import dev.dubhe.anvilcraft.api.anvil.impl.RedstoneEMPBehavior;
 import dev.dubhe.anvilcraft.api.anvil.impl.SuperHeatingBehavior;
 import dev.dubhe.anvilcraft.api.anvil.impl.TimeWarpBehavior;
+import dev.dubhe.anvilcraft.api.anvil.impl.UnpackBehavior;
 import dev.dubhe.anvilcraft.api.anvil.impl.WaxingBehavior;
 import dev.dubhe.anvilcraft.api.event.anvil.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.block.CementCauldronBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AbstractCauldronBlock;
@@ -39,18 +38,6 @@ import java.util.function.Predicate;
 @FunctionalInterface
 public interface IAnvilBehavior {
     Map<Predicate<BlockState>, IAnvilBehavior> BEHAVIORS = new LinkedHashMap<>();
-
-    boolean handle(
-        Level level,
-        BlockPos hitBlockPos,
-        BlockState hitBlockState,
-        float fallDistance,
-        AnvilFallOnLandEvent event
-    );
-
-    default int priority() {
-        return 100;
-    }
 
     static void registerBehavior(Block matchingBlock, IAnvilBehavior behavior) {
         BEHAVIORS.put(it -> it.is(matchingBlock), behavior);
@@ -95,5 +82,17 @@ public interface IAnvilBehavior {
         registerBehavior(ModBlocks.CRUSHING_TABLE.get(), new ItemCrushBehavior());
         registerBehavior(ModBlocks.SPACE_OVERCOMPRESSOR.get(), new MassInjectBehavior());
         registerBehavior(Blocks.SCAFFOLDING, new ItemMeshBehavior());
+    }
+
+    boolean handle(
+        Level level,
+        BlockPos hitBlockPos,
+        BlockState hitBlockState,
+        float fallDistance,
+        AnvilFallOnLandEvent event
+    );
+
+    default int priority() {
+        return 100;
     }
 }

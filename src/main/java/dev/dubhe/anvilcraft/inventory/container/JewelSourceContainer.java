@@ -10,9 +10,9 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import org.jetbrains.annotations.Nullable;
 
 public class JewelSourceContainer extends SimpleContainer {
+    private final JewelCraftingMenu menu;
     @Getter
     private @Nullable RecipeHolder<JewelCraftingRecipe> recipe;
-    private final JewelCraftingMenu menu;
 
     public JewelSourceContainer(JewelCraftingMenu menu) {
         super(1);

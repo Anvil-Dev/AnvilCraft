@@ -56,9 +56,9 @@ public class TimeWarpBehavior implements IAnvilBehavior {
             LivingEntity.class,
             new AABB(hitBlockPos),
             LivingEntity::isAlive);
-        if(!damagedEntities.isEmpty()){
+        if (!damagedEntities.isEmpty()) {
             damagedEntities.forEach(it -> it.hurt(ModDamageTypes.lostInTime(level), Float.MAX_VALUE));
-            if(level instanceof ServerLevel serverLevel && damagedEntities.stream().anyMatch(LivingEntity::isDeadOrDying)){
+            if (level instanceof ServerLevel serverLevel && damagedEntities.stream().anyMatch(LivingEntity::isDeadOrDying)) {
                 Vec3 particleCenter = hitBlockPos.above().getCenter();
                 serverLevel.sendParticles(ParticleTypes.SOUL,
                     particleCenter.x,

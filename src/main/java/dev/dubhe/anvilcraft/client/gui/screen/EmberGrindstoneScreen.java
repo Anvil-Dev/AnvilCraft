@@ -13,10 +13,10 @@ import org.jetbrains.annotations.NotNull;
 
 public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindstoneMenu> {
     private static final ResourceLocation GRINDSTONE_LOCATION =
-            AnvilCraft.of("textures/gui/container/smithing/background/ember_grindstone.png");
+        AnvilCraft.of("textures/gui/container/smithing/background/ember_grindstone.png");
 
     public EmberGrindstoneScreen(
-            EmberGrindstoneMenu menu, Inventory playerInventory, @SuppressWarnings("unused") Component title) {
+        EmberGrindstoneMenu menu, Inventory playerInventory, @SuppressWarnings("unused") Component title) {
         super(menu, playerInventory, Component.translatable("screen.anvilcraft.royal_grindstone.title"));
     }
 
@@ -42,24 +42,24 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
     protected void renderLabels(GuiGraphics guiGraphics) {
         if (this.menu.getSlot(2).hasItem()) {
             drawLabel(
-                    (int) (92 + 4.5 - (this.font.width(Component.literal("" + this.menu.usedGold)) / 2f)),
-                    38,
-                    Component.literal("" + this.menu.usedGold),
-                    guiGraphics);
+                (int) (92 + 4.5 - (this.font.width(Component.literal("" + this.menu.usedGold)) / 2f)),
+                38,
+                Component.literal("" + this.menu.usedGold),
+                guiGraphics);
             drawLabel(
-                    112,
-                    19,
-                    Component.literal(Component.translatable("screen.anvilcraft.royal_grindstone.remove_curse_count")
-                            .getString()
-                            .replace("%i", "" + this.menu.removedCurseCount)),
-                    guiGraphics);
+                112,
+                19,
+                Component.literal(Component.translatable("screen.anvilcraft.royal_grindstone.remove_curse_count")
+                    .getString()
+                    .replace("%i", "" + this.menu.removedCurseCount)),
+                guiGraphics);
             drawLabel(
-                    112,
-                    58,
-                    Component.literal(Component.translatable("screen.anvilcraft.royal_grindstone.remove_repair_cost")
-                            .getString()
-                            .replace("%i", "" + this.menu.removedRepairCost)),
-                    guiGraphics);
+                112,
+                58,
+                Component.literal(Component.translatable("screen.anvilcraft.royal_grindstone.remove_repair_cost")
+                    .getString()
+                    .replace("%i", "" + this.menu.removedRepairCost)),
+                guiGraphics);
         }
     }
 

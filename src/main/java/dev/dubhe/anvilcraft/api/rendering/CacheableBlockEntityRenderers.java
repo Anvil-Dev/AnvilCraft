@@ -11,6 +11,12 @@ import java.util.Map;
 public class CacheableBlockEntityRenderers {
     private static final Map<BlockEntityType<?>, CacheableBlockEntityRenderer<?>> RENDERERS = new HashMap<>();
 
+    static {
+        LaserRenderer laserRenderer = new LaserRenderer();
+        RENDERERS.put(ModBlockEntities.RUBY_LASER.get(), laserRenderer);
+        RENDERERS.put(ModBlockEntities.RUBY_PRISM.get(), laserRenderer);
+    }
+
     public static <T extends BlockEntity> void register(
         BlockEntityType<? extends T> type,
         CacheableBlockEntityRenderer<T> renderProvider
@@ -18,13 +24,7 @@ public class CacheableBlockEntityRenderers {
         RENDERERS.put(type, renderProvider);
     }
 
-    public static CacheableBlockEntityRenderer<?> get(BlockEntityType<?> type){
+    public static CacheableBlockEntityRenderer<?> get(BlockEntityType<?> type) {
         return RENDERERS.get(type);
-    }
-
-    static {
-        LaserRenderer laserRenderer = new LaserRenderer();
-        RENDERERS.put(ModBlockEntities.RUBY_LASER.get(), laserRenderer);
-        RENDERERS.put(ModBlockEntities.RUBY_PRISM.get(), laserRenderer);
     }
 }

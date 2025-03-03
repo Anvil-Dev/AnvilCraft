@@ -23,15 +23,12 @@ public record ChargeCollectorIncomingChargePacket(
     BlockPos dstPos,
     double count
 ) implements CustomPacketPayload {
-    private static final Random RANDOM = new Random(System.nanoTime());
     public static final Type<ChargeCollectorIncomingChargePacket> TYPE = new Type<>(AnvilCraft.of("incoming_charge"));
-
     public static final Codec<ChargeCollectorIncomingChargePacket> CODEC = RecordCodecBuilder.create(ins -> ins.group(
         BlockPos.CODEC.fieldOf("srcPos").forGetter(o -> o.srcPos),
         BlockPos.CODEC.fieldOf("dstPos").forGetter(o -> o.dstPos),
         Codec.DOUBLE.fieldOf("count").forGetter(o -> o.count)
     ).apply(ins, ChargeCollectorIncomingChargePacket::new));
-
     public static final StreamCodec<? super RegistryFriendlyByteBuf, ChargeCollectorIncomingChargePacket> STREAM_CODEC =
         StreamCodec.composite(
             net.minecraft.core.BlockPos.STREAM_CODEC,
@@ -42,11 +39,7 @@ public record ChargeCollectorIncomingChargePacket(
             ChargeCollectorIncomingChargePacket::count,
             ChargeCollectorIncomingChargePacket::new
         );
-
-    @Override
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
-    }
+    private static final Random RANDOM = new Random(System.nanoTime());
 
     public static void acceptClient(ChargeCollectorIncomingChargePacket packet, IPayloadContext ctx) {
         ClientLevel level = Minecraft.getInstance().level;
@@ -54,15 +47,20 @@ public record ChargeCollectorIncomingChargePacket(
         Vec3 dstPos = packet.dstPos.getCenter();
         Vec3 offset = dstPos.subtract(srcPos);
         RANDOM.setSeed(System.nanoTime());
-        double dRandom = Math.clamp(RANDOM.nextGaussian() + 1, 1, 1.5);
+        double random = Math.clamp(RANDOM.nextGaussian() + 1, 1, 1.5);
         level.addParticle(
             ParticleTypes.END_ROD,
             srcPos.x + Math.clamp(RANDOM.nextGaussian(), 0, 0.3),
             srcPos.y + Math.clamp(RANDOM.nextGaussian(), 0, 0.3),
             srcPos.z + Math.clamp(RANDOM.nextGaussian(), 0, 0.3),
-            (offset.x / 20d) * dRandom,
-            (offset.y / 20d) * dRandom,
-            (offset.z / 20d) * dRandom
+            (offset.x / 20d) * random,
+            (offset.y / 20d) * random,
+            (offset.z / 20d) * random
         );
+    }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

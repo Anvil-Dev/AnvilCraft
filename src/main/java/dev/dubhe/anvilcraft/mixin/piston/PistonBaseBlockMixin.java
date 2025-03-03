@@ -72,7 +72,8 @@ abstract class PistonBaseBlockMixin {
         boolean isSourcePiston
     ) {
         BlockEntity blockEntity = MovingPistonBlock.newMovingBlockEntity(pos, blockState, movedState, direction, extending, isSourcePiston);
-        if (blockEntity instanceof PistonMovingBlockEntityInjector entity) entity.anvilcraft$setData(this.anvilcraft$nbt);
+        if (blockEntity instanceof PistonMovingBlockEntityInjector entity)
+            entity.anvilcraft$setData(this.anvilcraft$nbt);
         return blockEntity;
     }
 }

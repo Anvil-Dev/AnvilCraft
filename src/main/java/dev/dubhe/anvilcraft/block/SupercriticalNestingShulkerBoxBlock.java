@@ -27,9 +27,9 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @MethodsReturnNonnullByDefault
 public class SupercriticalNestingShulkerBoxBlock extends BetterBlock {
 
-    private static final int SOUND_DELAY = 8;
     public static final BooleanProperty COOLDOWN = BooleanProperty.create("cooldown");
-    public static final IntegerProperty SOUNDSETID = IntegerProperty.create("soundsetid",0,4);
+    public static final IntegerProperty SOUNDSETID = IntegerProperty.create("soundsetid", 0, 4);
+    private static final int SOUND_DELAY = 8;
 
     public SupercriticalNestingShulkerBoxBlock(Properties properties) {
         super(properties);
@@ -67,21 +67,21 @@ public class SupercriticalNestingShulkerBoxBlock extends BetterBlock {
                 break;
             case 1:
                 level.playSound(
-                        null, pos, SoundEvents.SHULKER_BOX_OPEN, SoundSource.BLOCKS, 0.8F, 0.9F);
+                    null, pos, SoundEvents.SHULKER_BOX_OPEN, SoundSource.BLOCKS, 0.8F, 0.9F);
                 level.playSound(
-                        null, pos, SoundEvents.SHULKER_BOX_CLOSE, SoundSource.BLOCKS, 0.8F, 0.9F);
+                    null, pos, SoundEvents.SHULKER_BOX_CLOSE, SoundSource.BLOCKS, 0.8F, 0.9F);
                 level.setBlockAndUpdate(pos, state.setValue(COOLDOWN, true).setValue(SOUNDSETID, 2));
                 level.scheduleTick(pos, this, SOUND_DELAY);
                 break;
             case 2:
                 level.playSound(
-                        null, pos, SoundEvents.SHULKER_BOX_CLOSE, SoundSource.BLOCKS, 0.8F, 0.95F);
+                    null, pos, SoundEvents.SHULKER_BOX_CLOSE, SoundSource.BLOCKS, 0.8F, 0.95F);
                 level.setBlockAndUpdate(pos, state.setValue(COOLDOWN, true).setValue(SOUNDSETID, 3));
                 level.scheduleTick(pos, this, SOUND_DELAY);
                 break;
             case 3:
                 level.playSound(
-                        null, pos, SoundEvents.SHULKER_BOX_CLOSE, SoundSource.BLOCKS, 0.8F, 1.0F);
+                    null, pos, SoundEvents.SHULKER_BOX_CLOSE, SoundSource.BLOCKS, 0.8F, 1.0F);
                 level.setBlockAndUpdate(pos, state.setValue(COOLDOWN, true).setValue(SOUNDSETID, 4));
                 level.scheduleTick(pos, this, 2 * SOUND_DELAY);
                 break;

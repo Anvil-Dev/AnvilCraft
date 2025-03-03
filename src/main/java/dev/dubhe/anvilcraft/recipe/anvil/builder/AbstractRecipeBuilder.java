@@ -41,10 +41,10 @@ public abstract class AbstractRecipeBuilder<T extends Recipe<?>> implements Reci
     public void save(RecipeOutput pRecipeOutput, ResourceLocation pId) {
         validate(pId);
         Advancement.Builder advancement = pRecipeOutput
-                .advancement()
-                .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(pId))
-                .rewards(AdvancementRewards.Builder.recipe(pId))
-                .requirements(AdvancementRequirements.Strategy.OR);
+            .advancement()
+            .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(pId))
+            .rewards(AdvancementRewards.Builder.recipe(pId))
+            .requirements(AdvancementRequirements.Strategy.OR);
         criteria.forEach(advancement::addCriterion);
         T recipe = buildRecipe();
         pRecipeOutput.accept(pId, recipe, advancement.build(pId.withPrefix("recipe/")));
@@ -53,9 +53,9 @@ public abstract class AbstractRecipeBuilder<T extends Recipe<?>> implements Reci
     @Override
     public void save(RecipeOutput recipeOutput) {
         save(
-                recipeOutput,
-                AnvilCraft.of(BuiltInRegistries.ITEM.getKey(getResult()).getPath())
-                        .withPrefix(getType() + "/"));
+            recipeOutput,
+            AnvilCraft.of(BuiltInRegistries.ITEM.getKey(getResult()).getPath())
+                .withPrefix(getType() + "/"));
     }
 
     public abstract T buildRecipe();

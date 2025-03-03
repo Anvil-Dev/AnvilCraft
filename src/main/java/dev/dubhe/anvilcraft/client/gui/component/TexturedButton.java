@@ -8,7 +8,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 public class TexturedButton extends Button {
-    private final int yDiffTex;
+    private final int diffTex;
     private final int textureWidth;
     private final int textureHeight;
     private final ResourceLocation texture;
@@ -26,7 +26,7 @@ public class TexturedButton extends Button {
     ) {
         super(pX, pY, pWidth, pHeight, Component.empty(), pOnPress, DEFAULT_NARRATION);
 
-        this.yDiffTex = yDiffTex;
+        this.diffTex = yDiffTex;
         this.textureWidth = textureWidth;
         this.textureHeight = textureHeight;
         this.texture = texture;
@@ -36,7 +36,7 @@ public class TexturedButton extends Button {
     public void render(@NotNull GuiGraphics gg, int pMouseX, int pMouseY, float pPartialTick) {
         int pVOffset = 0;
         if (this.isHovered) {
-            pVOffset = yDiffTex;
+            pVOffset = diffTex;
         }
         gg.blit(texture, this.getX(), this.getY(), 0, pVOffset, width, height, textureWidth, textureHeight);
     }

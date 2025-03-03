@@ -12,15 +12,21 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(MouseHandler.class)
 public abstract class MouseHandlerMixin implements IMouseHandlerExtension {
 
-    @Shadow @Final private Minecraft minecraft;
+    @Shadow
+    @Final
+    private Minecraft minecraft;
 
-    @Shadow private boolean mouseGrabbed;
+    @Shadow
+    private boolean mouseGrabbed;
 
-    @Shadow private double xpos;
+    @Shadow
+    private double xpos;
 
-    @Shadow private double ypos;
+    @Shadow
+    private double ypos;
 
-    @Shadow private boolean ignoreFirstMove;
+    @Shadow
+    private boolean ignoreFirstMove;
 
     @Override
     public void anvilCraft$grabMouseWithScreen() {

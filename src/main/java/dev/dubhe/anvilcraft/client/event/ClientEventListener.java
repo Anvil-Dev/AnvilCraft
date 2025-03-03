@@ -31,10 +31,10 @@ public class ClientEventListener {
     }
 
     @SubscribeEvent
-    public static void onRenderBlockOverlay(RenderBlockScreenEffectEvent event){
+    public static void onRenderBlockOverlay(RenderBlockScreenEffectEvent event) {
         if (event.getOverlayType() == RenderBlockScreenEffectEvent.OverlayType.BLOCK
             && (event.getBlockState().is(ModBlocks.ACCELERATION_RING) || event.getBlockState().is(ModBlocks.DEFLECTION_RING))
-        ){
+        ) {
             event.setCanceled(true);
         }
     }

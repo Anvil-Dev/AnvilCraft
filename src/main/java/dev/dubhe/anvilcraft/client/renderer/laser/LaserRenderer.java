@@ -14,7 +14,7 @@ public class LaserRenderer implements CacheableBlockEntityRenderer<BaseLaserBloc
         PoseStack poseStack
     ) {
         LaserState laserState = LaserState.create(blockEntity, poseStack);
-        if (laserState != null){
+        if (laserState != null) {
             LaserCompiler.compile(
                 laserState,
                 buffer::getBuffer

@@ -1,12 +1,17 @@
 package dev.dubhe.anvilcraft.item;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IHandHeldItemTooltipProvider;
 import dev.dubhe.anvilcraft.init.ModComponents;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.StructureToolMenu;
 import dev.dubhe.anvilcraft.network.StructureDataSyncPacket;
-
+import io.netty.buffer.ByteBuf;
+import lombok.Getter;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.GuiGraphics;
@@ -29,26 +34,14 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
-
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.netty.buffer.ByteBuf;
-import lombok.Getter;
 import org.jetbrains.annotations.Contract;
 
-import java.util.List;
-
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.List;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class StructureToolItem extends Item implements IHandHeldItemTooltipProvider {
-    public StructureToolItem(Properties properties) {
-        super(properties);
-    }
-
     private static final Component DEVELOPER_TOOLTIP =
         Component.translatable("tooltip.anvilcraft.item.structure_tool.line_1").withStyle(ChatFormatting.LIGHT_PURPLE);
     private static final Component SELECT_TOOLTIP =
@@ -57,6 +50,10 @@ public class StructureToolItem extends Item implements IHandHeldItemTooltipProvi
         Component.translatable("tooltip.anvilcraft.item.structure_tool.line_3").withStyle(ChatFormatting.GOLD);
     private static final Component SHIFT_TO_CLEAR_TOOLTIP =
         Component.translatable("tooltip.anvilcraft.item.structure_tool.shift_to_clear");
+
+    public StructureToolItem(Properties properties) {
+        super(properties);
+    }
 
     @Override
     public InteractionResult useOn(UseOnContext context) {
@@ -73,12 +70,12 @@ public class StructureToolItem extends Item implements IHandHeldItemTooltipProvi
             StructureData newData = data.addPos(pos);
             if (player != null) {
                 player.displayClientMessage(
-                        Component.translatable(
-                                "tooltip.anvilcraft.item.structure_tool.size",
-                                newData.getSizeX(),
-                                newData.getSizeY(),
-                                newData.getSizeZ()),
-                        true);
+                    Component.translatable(
+                        "tooltip.anvilcraft.item.structure_tool.size",
+                        newData.getSizeX(),
+                        newData.getSizeY(),
+                        newData.getSizeZ()),
+                    true);
             }
             itemstack.set(ModComponents.STRUCTURE_DATA, newData);
             return InteractionResult.SUCCESS;
@@ -93,7 +90,7 @@ public class StructureToolItem extends Item implements IHandHeldItemTooltipProvi
             if (itemstack.has(ModComponents.STRUCTURE_DATA)) {
                 itemstack.remove(ModComponents.STRUCTURE_DATA);
                 player.displayClientMessage(
-                        Component.translatable("tooltip.anvilcraft.item.structure_tool.data_removed"), true);
+                    Component.translatable("tooltip.anvilcraft.item.structure_tool.data_removed"), true);
                 return InteractionResultHolder.success(itemstack);
             }
         } else {
@@ -101,25 +98,25 @@ public class StructureToolItem extends Item implements IHandHeldItemTooltipProvi
             if (data != null && !level.isClientSide) {
                 if (!data.isCube()) {
                     player.displayClientMessage(
-                            Component.translatable("tooltip.anvilcraft.item.structure_tool.must_cube")
-                                    .withStyle(ChatFormatting.RED),
-                            false);
+                        Component.translatable("tooltip.anvilcraft.item.structure_tool.must_cube")
+                            .withStyle(ChatFormatting.RED),
+                        false);
                     return InteractionResultHolder.fail(itemstack);
                 }
                 if (!data.isOddCubeWithinSize(15)) {
                     player.displayClientMessage(
-                            Component.translatable("tooltip.anvilcraft.item.structure_tool.must_odd")
-                                    .withStyle(ChatFormatting.RED),
-                            false);
+                        Component.translatable("tooltip.anvilcraft.item.structure_tool.must_odd")
+                            .withStyle(ChatFormatting.RED),
+                        false);
                     return InteractionResultHolder.fail(itemstack);
                 }
                 if (player instanceof ServerPlayer serverPlayer) {
                     ModMenuTypes.open(
-                            serverPlayer,
-                            new SimpleMenuProvider(
-                                    (invId, inv, p) ->
-                                            new StructureToolMenu(ModMenuTypes.STRUCTURE_TOOL.get(), invId, inv),
-                                    getDescription()));
+                        serverPlayer,
+                        new SimpleMenuProvider(
+                            (invId, inv, p) ->
+                                new StructureToolMenu(ModMenuTypes.STRUCTURE_TOOL.get(), invId, inv),
+                            getDescription()));
                     PacketDistributor.sendToPlayer(serverPlayer, new StructureDataSyncPacket(data));
                 }
                 return InteractionResultHolder.success(itemstack);
@@ -130,13 +127,13 @@ public class StructureToolItem extends Item implements IHandHeldItemTooltipProvi
 
     @Override
     public void appendHoverText(
-            ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+        ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         StructureData data = stack.get(ModComponents.STRUCTURE_DATA);
         if (data != null) {
             tooltipComponents.add(Component.translatable(
-                    "tooltip.anvilcraft.item.structure_tool.min_pos", data.minX, data.minY, data.minZ));
+                "tooltip.anvilcraft.item.structure_tool.min_pos", data.minX, data.minY, data.minZ));
             tooltipComponents.add(Component.translatable(
-                    "tooltip.anvilcraft.item.structure_tool.max_pos", data.maxX, data.maxY, data.maxZ));
+                "tooltip.anvilcraft.item.structure_tool.max_pos", data.maxX, data.maxY, data.maxZ));
             tooltipComponents.add(SHIFT_TO_CLEAR_TOOLTIP);
         } else {
             tooltipComponents.add(DEVELOPER_TOOLTIP);
@@ -152,7 +149,7 @@ public class StructureToolItem extends Item implements IHandHeldItemTooltipProvi
 
     @Override
     public void render(
-            PoseStack poseStack, VertexConsumer consumer, ItemStack itemStack, double camX, double camY, double camZ) {
+        PoseStack poseStack, VertexConsumer consumer, ItemStack itemStack, double camX, double camY, double camZ) {
         StructureData data = itemStack.get(ModComponents.STRUCTURE_DATA);
         if (data != null) {
             BlockPos minPos = data.getMinPos();
@@ -163,7 +160,8 @@ public class StructureToolItem extends Item implements IHandHeldItemTooltipProvi
     }
 
     @Override
-    public void renderTooltip(GuiGraphics guiGraphics, int screenWidth, int screenHeight) {}
+    public void renderTooltip(GuiGraphics guiGraphics, int screenWidth, int screenHeight) {
+    }
 
     @Override
     public int priority() {
@@ -173,28 +171,28 @@ public class StructureToolItem extends Item implements IHandHeldItemTooltipProvi
     @Getter
     public static class StructureData {
         public static final Codec<StructureData> CODEC = RecordCodecBuilder.create(ins -> ins.group(
-                        Codec.INT.fieldOf("minX").forGetter(StructureData::getMinX),
-                        Codec.INT.fieldOf("minY").forGetter(StructureData::getMinY),
-                        Codec.INT.fieldOf("minZ").forGetter(StructureData::getMinZ),
-                        Codec.INT.fieldOf("maxX").forGetter(StructureData::getMaxX),
-                        Codec.INT.fieldOf("maxY").forGetter(StructureData::getMaxY),
-                        Codec.INT.fieldOf("maxZ").forGetter(StructureData::getMaxZ))
-                .apply(ins, StructureData::new));
+                Codec.INT.fieldOf("minX").forGetter(StructureData::getMinX),
+                Codec.INT.fieldOf("minY").forGetter(StructureData::getMinY),
+                Codec.INT.fieldOf("minZ").forGetter(StructureData::getMinZ),
+                Codec.INT.fieldOf("maxX").forGetter(StructureData::getMaxX),
+                Codec.INT.fieldOf("maxY").forGetter(StructureData::getMaxY),
+                Codec.INT.fieldOf("maxZ").forGetter(StructureData::getMaxZ))
+            .apply(ins, StructureData::new));
 
         public static final StreamCodec<ByteBuf, StructureData> STREAM_CODEC = StreamCodec.composite(
-                ByteBufCodecs.VAR_INT,
-                StructureData::getMinX,
-                ByteBufCodecs.VAR_INT,
-                StructureData::getMinY,
-                ByteBufCodecs.VAR_INT,
-                StructureData::getMinZ,
-                ByteBufCodecs.VAR_INT,
-                StructureData::getMaxX,
-                ByteBufCodecs.VAR_INT,
-                StructureData::getMaxY,
-                ByteBufCodecs.VAR_INT,
-                StructureData::getMaxZ,
-                StructureData::new);
+            ByteBufCodecs.VAR_INT,
+            StructureData::getMinX,
+            ByteBufCodecs.VAR_INT,
+            StructureData::getMinY,
+            ByteBufCodecs.VAR_INT,
+            StructureData::getMinZ,
+            ByteBufCodecs.VAR_INT,
+            StructureData::getMaxX,
+            ByteBufCodecs.VAR_INT,
+            StructureData::getMaxY,
+            ByteBufCodecs.VAR_INT,
+            StructureData::getMaxZ,
+            StructureData::new);
 
         final int minX, minY, minZ;
         final int maxX, maxY, maxZ;
@@ -275,11 +273,11 @@ public class StructureToolItem extends Item implements IHandHeldItemTooltipProvi
             if (obj == this) return true;
             if (obj instanceof StructureData data) {
                 return minX == data.minX
-                        && minY == data.minY
-                        && minZ == data.minZ
-                        && maxX == data.maxX
-                        && maxY == data.maxY
-                        && maxZ == data.maxZ;
+                    && minY == data.minY
+                    && minZ == data.minZ
+                    && maxX == data.maxX
+                    && maxY == data.maxY
+                    && maxZ == data.maxZ;
             }
             return false;
         }

@@ -4,7 +4,6 @@ import dev.dubhe.anvilcraft.init.ModEnchantments;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
-
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.Level;
 

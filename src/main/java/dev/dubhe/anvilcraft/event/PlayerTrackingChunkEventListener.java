@@ -10,10 +10,10 @@ import net.neoforged.neoforge.event.level.ChunkWatchEvent;
 @EventBusSubscriber
 public class PlayerTrackingChunkEventListener {
     @SubscribeEvent
-    public static void onChunkSent(ChunkWatchEvent.Sent event){
+    public static void onChunkSent(ChunkWatchEvent.Sent event) {
         LevelChunk chunk = event.getChunk();
         for (BlockEntity value : chunk.getBlockEntities().values()) {
-            if (value instanceof BaseLaserBlockEntity laserBE){
+            if (value instanceof BaseLaserBlockEntity laserBE) {
                 laserBE.syncTo(event.getPlayer());
             }
         }

@@ -117,6 +117,14 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
     public static final RecipeType<RecipeHolder<JewelCraftingRecipe>> JEWEL_CRAFTING =
         createRecipeHolderType("jewel_crafting");
 
+    public static <T> RecipeType<T> createRecipeType(String name, Class<T> clazz) {
+        return new RecipeType<>(AnvilCraft.of(name), clazz);
+    }
+
+    public static <R extends Recipe<?>> RecipeType<RecipeHolder<R>> createRecipeHolderType(String name) {
+        return RecipeType.createRecipeHolderType(AnvilCraft.of(name));
+    }
+
     @Override
     public ResourceLocation getPluginUid() {
         return AnvilCraft.of("jei_plugin");
@@ -252,13 +260,5 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
     public void registerVanillaCategoryExtensions(IVanillaCategoryExtensionRegistration registration) {
         registration.getCraftingCategory().addExtension(CanningFoodRecipe.class,
             CanningFoodExtension.INSTANCE);
-    }
-
-    public static <T> RecipeType<T> createRecipeType(String name, Class<T> clazz) {
-        return new RecipeType<>(AnvilCraft.of(name), clazz);
-    }
-
-    public static <R extends Recipe<?>> RecipeType<RecipeHolder<R>> createRecipeHolderType(String name) {
-        return RecipeType.createRecipeHolderType(AnvilCraft.of(name));
     }
 }

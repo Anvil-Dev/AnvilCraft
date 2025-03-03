@@ -28,6 +28,23 @@ public class AbstractCakeBlock extends Block {
         super(properties.pushReaction(PushReaction.NORMAL));
     }
 
+    private static <T> T eat(
+        LevelAccessor level,
+        BlockPos pos,
+        Player player,
+        int foodLevel,
+        float saturationLevel,
+        Function<InteractionResult, T> converter) {
+        if (!player.canEat(false)) {
+            return converter.apply(InteractionResult.PASS);
+        } else {
+            player.getFoodData().eat(foodLevel, saturationLevel);
+            level.removeBlock(pos, false);
+            level.gameEvent(player, GameEvent.BLOCK_DESTROY, pos);
+            return converter.apply(InteractionResult.SUCCESS);
+        }
+    }
+
     @Override
     protected InteractionResult useWithoutItem(
         BlockState pState,
@@ -73,27 +90,10 @@ public class AbstractCakeBlock extends Block {
             ItemInteractionResult itemInteractionResult =
                 eat(pLevel, pPos, pPlayer, getFoodLevel(), getSaturationLevel(), Util.interactionResultConverter());
             if (itemInteractionResult == ItemInteractionResult.SUCCESS)
-                itemStack.hurtAndBreak(1,  pPlayer, PlayerUtil.handToSlot(pHand));
+                itemStack.hurtAndBreak(1, pPlayer, PlayerUtil.handToSlot(pHand));
             return itemInteractionResult;
         }
         return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-    }
-
-    private static <T> T eat(
-        LevelAccessor level,
-        BlockPos pos,
-        Player player,
-        int foodLevel,
-        float saturationLevel,
-        Function<InteractionResult, T> converter) {
-        if (!player.canEat(false)) {
-            return converter.apply(InteractionResult.PASS);
-        } else {
-            player.getFoodData().eat(foodLevel, saturationLevel);
-            level.removeBlock(pos, false);
-            level.gameEvent(player, GameEvent.BLOCK_DESTROY, pos);
-            return converter.apply(InteractionResult.SUCCESS);
-        }
     }
 
     public int getFoodLevel() {

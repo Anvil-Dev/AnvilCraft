@@ -23,14 +23,12 @@ import java.util.function.BiFunction;
 
 public class BatchCrafterScreen extends BaseMachineScreen<BatchCrafterMenu> implements IFilterScreen<BatchCrafterMenu> {
     private static final ResourceLocation CONTAINER_LOCATION =
-            AnvilCraft.of("textures/gui/container/machine/background/auto_crafter.png");
+        AnvilCraft.of("textures/gui/container/machine/background/auto_crafter.png");
+    private final BatchCrafterMenu menu;
     BiFunction<Integer, Integer, EnableFilterButton> enableFilterButtonSupplier =
-            this.getEnableFilterButtonSupplier(116, 18);
-
+        this.getEnableFilterButtonSupplier(116, 18);
     @Getter
     private EnableFilterButton enableFilterButton = null;
-
-    private final BatchCrafterMenu menu;
 
     public BatchCrafterScreen(BatchCrafterMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -97,7 +95,7 @@ public class BatchCrafterScreen extends BaseMachineScreen<BatchCrafterMenu> impl
                 } else {
                     if (carriedItem.isEmpty()) {
                         PacketDistributor.sendToServer(
-                                new SlotDisableChangePacket(realSlotId, !this.menu.isSlotDisabled(realSlotId)));
+                            new SlotDisableChangePacket(realSlotId, !this.menu.isSlotDisabled(realSlotId)));
                     } else {
                         PacketDistributor.sendToServer(new SlotDisableChangePacket(realSlotId, false));
                     }

@@ -20,6 +20,20 @@ public class PlayerHungerPressurePlateBlock extends PowerLevelPressurePlateBlock
         super(BlockSetType.IRON, properties);
     }
 
+    protected static float getMaxHungerPercent(Level level, AABB box) {
+        float result = 0;
+
+        for (Player player : level.getEntitiesOfClass(
+            Player.class, box,
+            EntitySelector.NO_SPECTATORS.and(entity -> !entity.isIgnoringBlockTriggers())
+        )) {
+            FoodData foodData = player.getFoodData();
+            result = Math.max(result, (float) foodData.getFoodLevel() / 20);
+        }
+
+        return result;
+    }
+
     @Override
     protected Set<Class<? extends Entity>> getEntityClasses() {
         return ImmutableSet.of(Player.class);
@@ -28,19 +42,5 @@ public class PlayerHungerPressurePlateBlock extends PowerLevelPressurePlateBlock
     @Override
     protected int getSignalStrength(Level level, net.minecraft.world.phys.AABB box, Set<Class<? extends Entity>> entityClasses) {
         return (int) Math.clamp(getMaxHungerPercent(level, box) * 15, 0, 15);
-    }
-
-    protected static float getMaxHungerPercent(Level level, AABB box) {
-        float result = 0;
-
-        for (Player player : level.getEntitiesOfClass(
-                Player.class, box,
-                EntitySelector.NO_SPECTATORS.and(entity -> !entity.isIgnoringBlockTriggers())
-        )) {
-            FoodData foodData = player.getFoodData();
-            result = Math.max(result, (float) foodData.getFoodLevel() / 20);
-        }
-
-        return result;
     }
 }

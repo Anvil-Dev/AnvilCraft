@@ -62,14 +62,12 @@ public class AnvilCraft {
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
     public static final Gson GSON =
         new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
+    public static final Registrate REGISTRATE = Registrate.create(MOD_ID);
+    @Getter
+    private static final IntegrationManager integrationManager = new IntegrationManager();
     public static IEventBus MOD_BUS = null;
     public static AnvilCraftConfig config = AutoConfig.register(AnvilCraftConfig.class, JanksonConfigSerializer::new)
         .getConfig();
-
-    @Getter
-    private static final IntegrationManager integrationManager = new IntegrationManager();
-
-    public static final Registrate REGISTRATE = Registrate.create(MOD_ID);
 
     public AnvilCraft(IEventBus modEventBus) {
         MOD_BUS = modEventBus;

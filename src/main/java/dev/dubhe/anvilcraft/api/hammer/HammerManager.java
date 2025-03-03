@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.api.hammer;
 
 import dev.dubhe.anvilcraft.init.ModBlockTags;
-
 import net.minecraft.world.level.block.Block;
 
 import java.util.HashMap;

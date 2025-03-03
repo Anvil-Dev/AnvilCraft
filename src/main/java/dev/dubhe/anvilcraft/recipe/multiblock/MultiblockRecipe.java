@@ -198,17 +198,17 @@ public class MultiblockRecipe implements Recipe<MultiblockInput>, IDatagen {
     public static class Serializer implements RecipeSerializer<MultiblockRecipe> {
 
         private static final MapCodec<MultiblockRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-                        BlockPattern.CODEC.fieldOf("pattern").forGetter(MultiblockRecipe::getPattern),
-                        ItemStack.CODEC.fieldOf("result").forGetter(MultiblockRecipe::getResult))
-                .apply(ins, MultiblockRecipe::new));
+                BlockPattern.CODEC.fieldOf("pattern").forGetter(MultiblockRecipe::getPattern),
+                ItemStack.CODEC.fieldOf("result").forGetter(MultiblockRecipe::getResult))
+            .apply(ins, MultiblockRecipe::new));
 
         private static final StreamCodec<RegistryFriendlyByteBuf, MultiblockRecipe> STREAM_CODEC =
-                StreamCodec.composite(
-                        BlockPattern.STREAM_CODEC,
-                        MultiblockRecipe::getPattern,
-                        ItemStack.STREAM_CODEC,
-                        MultiblockRecipe::getResult,
-                        MultiblockRecipe::new);
+            StreamCodec.composite(
+                BlockPattern.STREAM_CODEC,
+                MultiblockRecipe::getPattern,
+                ItemStack.STREAM_CODEC,
+                MultiblockRecipe::getResult,
+                MultiblockRecipe::new);
 
         @Override
         public MapCodec<MultiblockRecipe> codec() {

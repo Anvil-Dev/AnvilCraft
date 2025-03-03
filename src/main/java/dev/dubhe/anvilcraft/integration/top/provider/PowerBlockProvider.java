@@ -25,12 +25,12 @@ public enum PowerBlockProvider implements IProbeInfoProvider {
 
     @Override
     public void addProbeInfo(
-            ProbeMode probeMode,
-            IProbeInfo probeInfo,
-            Player player,
-            Level level,
-            BlockState blockState,
-            IProbeHitData hitData) {
+        ProbeMode probeMode,
+        IProbeInfo probeInfo,
+        Player player,
+        Level level,
+        BlockState blockState,
+        IProbeHitData hitData) {
         if (level.getBlockEntity(hitData.getPos()) instanceof IPowerComponent powerComponent) {
             PowerGrid grid = powerComponent.getGrid();
             if (grid != null) {
@@ -46,15 +46,15 @@ public enum PowerBlockProvider implements IProbeInfoProvider {
                 }
 
                 probeInfo.progress(
-                        consume,
-                        generate,
-                        probeInfo
-                                .defaultProgressStyle()
-                                .alignment(ElementAlignment.ALIGN_CENTER)
-                                .suffix(" / " + generate + " kW")
-                                .backgroundColor(0xFF32CD32)
-                                .alternateFilledColor(color)
-                                .filledColor(color));
+                    consume,
+                    generate,
+                    probeInfo
+                        .defaultProgressStyle()
+                        .alignment(ElementAlignment.ALIGN_CENTER)
+                        .suffix(" / " + generate + " kW")
+                        .backgroundColor(0xFF32CD32)
+                        .alternateFilledColor(color)
+                        .filledColor(color));
             }
         }
     }

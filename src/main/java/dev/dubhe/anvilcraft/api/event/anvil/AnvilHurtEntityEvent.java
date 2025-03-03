@@ -1,11 +1,10 @@
 package dev.dubhe.anvilcraft.api.event.anvil;
 
+import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.Level;
-
-import lombok.Getter;
 import net.neoforged.neoforge.event.entity.EntityEvent;
 
 @Getter
@@ -26,11 +25,11 @@ public class AnvilHurtEntityEvent extends EntityEvent {
      * @param damage       伤害
      */
     public AnvilHurtEntityEvent(
-            FallingBlockEntity entity,
-            BlockPos pos,
-            Level level,
-            Entity hurtedEntity,
-            float damage
+        FallingBlockEntity entity,
+        BlockPos pos,
+        Level level,
+        Entity hurtedEntity,
+        float damage
     ) {
         super(entity);
         this.entity = entity;

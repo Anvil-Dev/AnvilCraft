@@ -28,11 +28,11 @@ public abstract class DefaultDispenseItemBehaviorMixin {
         cancellable = true
     )
     public void betterDispense(BlockSource blockSource, ItemStack item, CallbackInfoReturnable<ItemStack> cir) {
-        if (!(item.getItem() instanceof BucketItem) &&
-                !item.is(Items.POWDER_SNOW_BUCKET) &&
-                !item.is(Items.GLASS_BOTTLE) &&
-                !item.is(Items.HONEY_BOTTLE) &&
-                !item.is(Items.POTION)) return;
+        if (!(item.getItem() instanceof BucketItem)
+            && !item.is(Items.POWDER_SNOW_BUCKET)
+            && !item.is(Items.GLASS_BOTTLE)
+            && !item.is(Items.HONEY_BOTTLE)
+            && !item.is(Items.POTION)) return;
         Direction direction = blockSource.state().getValue(DispenserBlock.FACING);
         BlockPos targetBlockPos = blockSource.pos().relative(direction);
         BlockState targetState = blockSource.level().getBlockState(targetBlockPos);

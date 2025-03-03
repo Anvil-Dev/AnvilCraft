@@ -45,17 +45,41 @@ import java.util.UUID;
 
 @Mixin(ItemEntity.class)
 abstract class ItemEntityMixin extends Entity {
-    @Shadow
-    public abstract ItemStack getItem();
+    @Unique
+    private static final Map<Block, Integer> REPAIR_EFFICIENCY = new HashMap<>();
+
+    static {
+        REPAIR_EFFICIENCY.put(Blocks.FIRE, 2);
+        REPAIR_EFFICIENCY.put(Blocks.SOUL_FIRE, 5);
+        REPAIR_EFFICIENCY.put(Blocks.LAVA, 10);
+        REPAIR_EFFICIENCY.put(Blocks.LAVA_CAULDRON, 10);
+    }
 
     @Shadow
-    @Nullable public abstract Entity getOwner();
+    public int lifespan;
+    @Shadow
+    @javax.annotation.Nullable
+    private UUID target;
+    @Shadow
+    private int pickupDelay;
+    @Shadow
+    private int age;
+    @Unique
+    private boolean anvilcraft$needMagnetization = true;
+
+    public ItemEntityMixin(EntityType<?> entityType, Level level) {
+        super(entityType, level);
+    }
+
+    @Shadow
+    public abstract ItemStack getItem();
 
     @Shadow
     public abstract void setItem(ItemStack stack);
 
     @Shadow
-    @javax.annotation.Nullable private UUID target;
+    @Nullable
+    public abstract Entity getOwner();
 
     @Shadow
     protected abstract void setUnderwaterMovement();
@@ -66,43 +90,29 @@ abstract class ItemEntityMixin extends Entity {
     @Shadow
     protected abstract void mergeWithNeighbours();
 
-    @Shadow
-    private int pickupDelay;
-
-    @Shadow
-    private int age;
-
-    @Shadow
-    public int lifespan;
-
-    public ItemEntityMixin(EntityType<?> entityType, Level level) {
-        super(entityType, level);
-    }
-
     @Redirect(
-            method = "tick",
-            at = @At(
-                            value = "INVOKE",
-                            target =
-                                    "Lnet/minecraft/world/entity/item/ItemEntity;"
-                                    + "getDeltaMovement()Lnet/minecraft/world/phys/Vec3;"
-                    )
+        method = "tick",
+        at = @At(
+            value = "INVOKE",
+            target =
+                "Lnet/minecraft/world/entity/item/ItemEntity;"
+                    + "getDeltaMovement()Lnet/minecraft/world/phys/Vec3;"
+        )
     )
     private @NotNull Vec3 slowDown(ItemEntity instance) {
         Vec3 vec3 = instance.getDeltaMovement();
         double dy = 1;
         if (this.getItem().is(ModItems.LEVITATION_POWDER.get())) dy *= -0.005;
         if (this.level().getBlockState(this.blockPosition()).is(ModBlocks.HOLLOW_MAGNET_BLOCK.get())) dy *= 0.2;
-        if (this.getItem().is(ModItems.NEGATIVE_MATTER_NUGGET.get()) ||
-                this.getItem().is(ModItems.NEGATIVE_MATTER.get()) ||
-                this.getItem().is(ModBlocks.NEGATIVE_MATTER_BLOCK.asItem())){
-            if (this.position().y <= this.level().getMaxBuildHeight())
+        if (this.getItem().is(ModItems.NEGATIVE_MATTER_NUGGET.get())
+            || this.getItem().is(ModItems.NEGATIVE_MATTER.get())
+            || this.getItem().is(ModBlocks.NEGATIVE_MATTER_BLOCK.asItem())) {
+            if (this.position().y <= this.level().getMaxBuildHeight()) {
                 if (vec3.y < 0) dy *= -1;
+            }
         }
         return new Vec3(vec3.x, vec3.y * dy, vec3.z);
     }
-
-    @Unique private boolean anvilcraft$needMagnetization = true;
 
     @Inject(method = "tick", at = @At(value = "HEAD"))
     private void magnetization(CallbackInfo ci) {
@@ -123,20 +133,11 @@ abstract class ItemEntityMixin extends Entity {
     @Inject(method = "tick", at = @At(value = "HEAD"))
     private void voidResistant(CallbackInfo ci) {
         if (!this.getItem().is(ModItemTags.VOID_RESISTANT)) return;
-        if(this.getY() < this.level().getMinBuildHeight() + 1) {
+        if (this.getY() < this.level().getMinBuildHeight() + 1) {
             double dy = (this.level().getMinBuildHeight() - this.getY()) * 0.01;
             dy += this.getDeltaMovement().y * -0.1;
             this.addDeltaMovement(new Vec3(0, 0.04 + dy, 0));
         }
-    }
-
-    @Unique private static final Map<Block, Integer> REPAIR_EFFICIENCY = new HashMap<>();
-
-    static {
-        REPAIR_EFFICIENCY.put(Blocks.FIRE, 2);
-        REPAIR_EFFICIENCY.put(Blocks.SOUL_FIRE, 5);
-        REPAIR_EFFICIENCY.put(Blocks.LAVA, 10);
-        REPAIR_EFFICIENCY.put(Blocks.LAVA_CAULDRON, 10);
     }
 
     @Inject(method = "tick", at = @At("HEAD"))
@@ -154,8 +155,8 @@ abstract class ItemEntityMixin extends Entity {
     @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
     private void explosionProof(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         if (!this.getItem().isEmpty()
-                && this.getItem().is(ModItemTags.EXPLOSION_PROOF)
-                && source.is(DamageTypeTags.IS_EXPLOSION)) {
+            && this.getItem().is(ModItemTags.EXPLOSION_PROOF)
+            && source.is(DamageTypeTags.IS_EXPLOSION)) {
             cir.setReturnValue(false);
         }
     }
@@ -171,7 +172,7 @@ abstract class ItemEntityMixin extends Entity {
     // 以下是中子锭运动相关mixin
 
     @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
-    private void anvilcraft$neutroniumTick(CallbackInfo ci){
+    private void anvilcraft$neutroniumTick(CallbackInfo ci) {
         ItemStack item = this.getItem();
         if (!item.is(ModItems.NEUTRONIUM_INGOT)) return;
         if (item.onEntityItemUpdate((ItemEntity) (Object) this)) {
@@ -208,7 +209,7 @@ abstract class ItemEntityMixin extends Entity {
         Vec3 vec3 = this.getDeltaMovement();
         this.applyGravity();
         this.noPhysics = false;
-        if (!this.onGround() || this.getDeltaMovement().horizontalDistanceSqr() > (double)1.0E-5F || (this.tickCount + this.getId()) % 4 == 0) {
+        if (!this.onGround() || this.getDeltaMovement().horizontalDistanceSqr() > (double) 1.0E-5F || (this.tickCount + this.getId()) % 4 == 0) {
             this.anvilCraft$neutroniumMove(MoverType.SELF, this.getDeltaMovement());
             float f = 0.98F;
             if (this.onGround()) {
@@ -218,7 +219,7 @@ abstract class ItemEntityMixin extends Entity {
             this.setDeltaMovement(this.getDeltaMovement().multiply(f, 0.98, f));
             if (this.onGround()) {
                 Vec3 vec31 = this.getDeltaMovement();
-                if (vec31.y < (double)0.0F) {
+                if (vec31.y < (double) 0.0F) {
                     this.setDeltaMovement(vec31.multiply(1.0, -0.5, 1.0));
                 }
             }
@@ -239,7 +240,7 @@ abstract class ItemEntityMixin extends Entity {
         }
         item = this.getItem();
         if (!this.level().isClientSide && this.age >= this.lifespan) {
-            this.lifespan = Mth.clamp(this.lifespan + EventHooks.onItemExpire((ItemEntity) (Object)this), 0, 32766);
+            this.lifespan = Mth.clamp(this.lifespan + EventHooks.onItemExpire((ItemEntity) (Object) this), 0, 32766);
             if (this.age >= this.lifespan) {
                 this.discard();
             }
@@ -252,8 +253,8 @@ abstract class ItemEntityMixin extends Entity {
 
     @Override
     @NotNull
-    public PushReaction getPistonPushReaction(){
-        if(this.getItem().is(ModItems.NEUTRONIUM_INGOT)) return PushReaction.IGNORE;
+    public PushReaction getPistonPushReaction() {
+        if (this.getItem().is(ModItems.NEUTRONIUM_INGOT)) return PushReaction.IGNORE;
         return super.getPistonPushReaction();
     }
 
@@ -277,7 +278,7 @@ abstract class ItemEntityMixin extends Entity {
                     pos.set(x, y, z);
                     BlockState blockState = this.level().getBlockState(pos);
                     //只检测带有特定标签的方块的碰撞
-                    if(blockState.is(ModBlockTags.NEUTRONIUM_CANNOT_PASS_THROUGH)) {
+                    if (blockState.is(ModBlockTags.NEUTRONIUM_CANNOT_PASS_THROUGH)) {
                         shapes.add(blockState.getCollisionShape(this.level(), pos).move(x, y, z));
                     }
                 }
@@ -294,7 +295,7 @@ abstract class ItemEntityMixin extends Entity {
         boolean collisionZ = !Mth.equal(motion2.z, motion.z);
         this.horizontalCollision = collisionX || collisionZ;
         this.verticalCollision = motion2.y != motion.y;
-        this.verticalCollisionBelow = this.verticalCollision && motion.y < (double)0.0F;
+        this.verticalCollisionBelow = this.verticalCollision && motion.y < (double) 0.0F;
         this.minorHorizontalCollision = false;
         this.setOnGroundWithMovement(this.verticalCollisionBelow, motion2);
         BlockPos blockpos = this.getOnPosLegacy();

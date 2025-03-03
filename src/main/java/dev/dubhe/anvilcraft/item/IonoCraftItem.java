@@ -25,6 +25,7 @@ import java.util.function.Predicate;
 @MethodsReturnNonnullByDefault
 public class IonoCraftItem extends Item {
     private static final Predicate<Entity> ENTITY_PREDICATE = EntitySelector.NO_SPECTATORS.and(Entity::isPickable);
+
     public IonoCraftItem(Properties properties) {
         super(properties);
     }

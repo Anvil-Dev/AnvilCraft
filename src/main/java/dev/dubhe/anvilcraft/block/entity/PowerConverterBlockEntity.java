@@ -88,12 +88,12 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
     }
 
     @Override
-    public void setGrid(@Nullable PowerGrid grid) {
-        this.grid = grid;
+    public @Nullable PowerGrid getGrid() {
+        return grid;
     }
 
     @Override
-    public @Nullable PowerGrid getGrid() {
-        return grid;
+    public void setGrid(@Nullable PowerGrid grid) {
+        this.grid = grid;
     }
 }

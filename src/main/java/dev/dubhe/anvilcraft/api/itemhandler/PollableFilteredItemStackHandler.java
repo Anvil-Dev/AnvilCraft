@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.api.itemhandler;
 
 import dev.dubhe.anvilcraft.util.Util;
-
 import net.minecraft.world.item.ItemStack;
 
 public class PollableFilteredItemStackHandler extends FilteredItemStackHandler {

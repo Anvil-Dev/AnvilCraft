@@ -105,7 +105,7 @@ public class AnvilUtil {
                 );
                 level.addFreshEntity(entity);
             }
-            if (count <= 0)continue;
+            if (count <= 0) continue;
             ItemEntity entity = new ItemEntity(
                 level,
                 pos.x,

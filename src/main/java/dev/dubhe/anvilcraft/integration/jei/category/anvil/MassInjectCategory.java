@@ -46,9 +46,9 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
 
-    private final String KEY_MASS_VALUE = "gui.anvilcraft.category.mass_inject.mass_value";
-    private final String KEY_MASS_NEEDED = "gui.anvilcraft.category.mass_inject.mass_needed";
-    private final String KEY_ITEMS_NEEDED = "gui.anvilcraft.category.mass_inject.items_needed";
+    private static final String KEY_MASS_VALUE = "gui.anvilcraft.category.mass_inject.mass_value";
+    private static final String KEY_MASS_NEEDED = "gui.anvilcraft.category.mass_inject.mass_needed";
+    private static final String KEY_ITEMS_NEEDED = "gui.anvilcraft.category.mass_inject.items_needed";
 
     private final IDrawable icon;
     private final IDrawable slot;
@@ -67,6 +67,22 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
 
         arrowIn = helper.createDrawable(TextureConstants.ANVIL_CRAFT_SPRITES, 0, 31, 16, 8);
         arrowOut = helper.createDrawable(TextureConstants.ANVIL_CRAFT_SPRITES, 0, 40, 16, 10);
+    }
+
+    public static void registerRecipes(IRecipeRegistration registration) {
+        List<RecipeHolder<MassInjectRecipe>> recipes =
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.MASS_INJECT_TYPE.get());
+        recipes.sort(Comparator.comparingInt(recipe -> recipe.value().getMass()));
+        registration.addRecipes(AnvilCraftJeiPlugin.MASS_INJECT, recipes.reversed());
+    }
+
+    public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
+        registration.addRecipeCatalyst(ModBlocks.SPACE_OVERCOMPRESSOR.asStack(), AnvilCraftJeiPlugin.MASS_INJECT);
+        registration.addRecipeCatalyst(new ItemStack(Items.ANVIL), AnvilCraftJeiPlugin.MASS_INJECT);
+        registration.addRecipeCatalyst(ModBlocks.ROYAL_ANVIL.asStack(), AnvilCraftJeiPlugin.MASS_INJECT);
+        registration.addRecipeCatalyst(ModBlocks.EMBER_ANVIL.asStack(), AnvilCraftJeiPlugin.MASS_INJECT);
+        registration.addRecipeCatalyst(ModBlocks.GIANT_ANVIL.asStack(), AnvilCraftJeiPlugin.MASS_INJECT);
+        registration.addRecipeCatalyst(ModBlocks.SPECTRAL_ANVIL.asStack(), AnvilCraftJeiPlugin.MASS_INJECT);
     }
 
     @Override
@@ -96,7 +112,7 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
 
     @Override
     public void setRecipe(
-            IRecipeLayoutBuilder builder, RecipeHolder<MassInjectRecipe> recipeHolder, IFocusGroup focuses) {
+        IRecipeLayoutBuilder builder, RecipeHolder<MassInjectRecipe> recipeHolder, IFocusGroup focuses) {
         MassInjectRecipe recipe = recipeHolder.value();
         builder.addSlot(RecipeIngredientRole.INPUT, 21, 24)
             .addIngredients(recipe.getIngredient());
@@ -109,21 +125,21 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
 
     @Override
     public void draw(
-            RecipeHolder<MassInjectRecipe> recipeHolder,
-            IRecipeSlotsView recipeSlotsView,
-            GuiGraphics guiGraphics,
-            double mouseX,
-            double mouseY) {
+        RecipeHolder<MassInjectRecipe> recipeHolder,
+        IRecipeSlotsView recipeSlotsView,
+        GuiGraphics guiGraphics,
+        double mouseX,
+        double mouseY) {
         MassInjectRecipe recipe = recipeHolder.value();
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
         RenderHelper.renderBlock(
-                guiGraphics,
-                Blocks.ANVIL.defaultBlockState(),
-                81,
-                22 + anvilYOffset,
-                20,
-                12,
-                RenderHelper.SINGLE_BLOCK);
+            guiGraphics,
+            Blocks.ANVIL.defaultBlockState(),
+            81,
+            22 + anvilYOffset,
+            20,
+            12,
+            RenderHelper.SINGLE_BLOCK);
         RenderHelper.renderBlock(guiGraphics, ModBlocks.SPACE_OVERCOMPRESSOR.getDefaultState(),
             81, 40, 10, 12, RenderHelper.SINGLE_BLOCK);
 
@@ -143,21 +159,5 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
             Component.translatable(KEY_ITEMS_NEEDED, Math.ceilDiv(NEUTRONIUM_INGOT_MASS, recipe.getMass())),
             0, 70, 0xFF000000, false);
         pose.popPose();
-    }
-
-    public static void registerRecipes(IRecipeRegistration registration) {
-        List<RecipeHolder<MassInjectRecipe>> recipes =
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.MASS_INJECT_TYPE.get());
-        recipes.sort(Comparator.comparingInt(recipe -> recipe.value().getMass()));
-        registration.addRecipes(AnvilCraftJeiPlugin.MASS_INJECT, recipes.reversed());
-    }
-
-    public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(ModBlocks.SPACE_OVERCOMPRESSOR.asStack(), AnvilCraftJeiPlugin.MASS_INJECT);
-        registration.addRecipeCatalyst(new ItemStack(Items.ANVIL), AnvilCraftJeiPlugin.MASS_INJECT);
-        registration.addRecipeCatalyst(ModBlocks.ROYAL_ANVIL.asStack(), AnvilCraftJeiPlugin.MASS_INJECT);
-        registration.addRecipeCatalyst(ModBlocks.EMBER_ANVIL.asStack(), AnvilCraftJeiPlugin.MASS_INJECT);
-        registration.addRecipeCatalyst(ModBlocks.GIANT_ANVIL.asStack(), AnvilCraftJeiPlugin.MASS_INJECT);
-        registration.addRecipeCatalyst(ModBlocks.SPECTRAL_ANVIL.asStack(), AnvilCraftJeiPlugin.MASS_INJECT);
     }
 }

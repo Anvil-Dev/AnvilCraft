@@ -17,7 +17,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 abstract class CraftingMenuMixin {
 
 
-    @Shadow @Final private ContainerLevelAccess access;
+    @Shadow
+    @Final
+    private ContainerLevelAccess access;
 
     @Inject(method = "stillValid", at = @At("RETURN"), cancellable = true)
     private void stillValid(Player player, @NotNull CallbackInfoReturnable<Boolean> cir) {

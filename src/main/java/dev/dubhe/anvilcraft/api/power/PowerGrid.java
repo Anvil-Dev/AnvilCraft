@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.api.power;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.network.PowerGridRemovePacket;
 import dev.dubhe.anvilcraft.network.PowerGridSyncPacket;
-
+import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -12,64 +12,110 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.BooleanOp;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
-
-import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * 电网
  */
 @SuppressWarnings("unused")
 public class PowerGrid {
-    public static boolean isServerClosing = false;
     public static final PowerGridManager MANAGER = new PowerGridManager();
     public static final int GRID_TICK = 20;
-
-    @Getter
-    public boolean markedRemoval = false;
-
-    private boolean changed = true;
-
-    @Getter
-    private int generate = 0; // 发电功率
-
-    @Getter
-    private int consume = 0; // 耗电功率
+    public static boolean isServerClosing = false;
     @Getter
     final Set<IPowerComponent> components = Collections.synchronizedSet(new HashSet<>());
     final Set<IPowerProducer> producers = Collections.synchronizedSet(new HashSet<>()); // 发电机
     final Set<IPowerConsumer> consumers = Collections.synchronizedSet(new HashSet<>()); // 用电器
     final Set<IPowerStorage> storages = Collections.synchronizedSet(new HashSet<>()); // 储电
     final Set<IPowerTransmitter> transmitters = Collections.synchronizedSet(new HashSet<>()); // 中继
-
     final Set<DynamicPowerComponent> dynamicComponents = Collections.synchronizedSet(new HashSet<>());
-
+    @Getter
+    private final Level level;
+    @Getter
+    public boolean markedRemoval = false;
+    private boolean changed = true;
+    @Getter
+    private int generate = 0; // 发电功率
+    @Getter
+    private int consume = 0; // 耗电功率
     @Getter
     private FastShape shape = null;
-
     @Getter
     private BlockPos pos = null;
 
-    @Getter
-    private final Level level;
-
     public PowerGrid(Level level) {
         this.level = level;
+    }
+
+    /**
+     * 总电力刻
+     */
+    public static void tickGrid() {
+        MANAGER.tick();
+    }
+
+    /**
+     * 移除电网元件
+     *
+     * @param components 元件
+     */
+    public static void removeComponent(IPowerComponent @NotNull ... components) {
+        try {
+            if (PowerGrid.isServerClosing) return;
+            for (IPowerComponent component : components) {
+                PowerGrid grid = component.getGrid();
+                if (grid == null) return;
+                grid.remove(component);
+            }
+        } catch (Exception e) {
+            AnvilCraft.LOGGER.error(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 增加电力元件
+     *
+     * @param components 元件
+     */
+    public static void addComponent(IPowerComponent @NotNull ... components) {
+        for (IPowerComponent component : components) {
+            MANAGER.addComponent(component);
+        }
+    }
+
+    public static Optional<PowerGrid> findPowerGridContains(Level level, Vec3 vec3) {
+        Optional<PowerGrid> powerGrid = Optional.empty();
+        for (PowerGrid it : MANAGER.getGridSet(level)) {
+            if (it.inRangeFast(vec3)) {
+                return Optional.of(it);
+            }
+        }
+        return Optional.empty();
+    }
+
+    public static Optional<PowerGrid> findPowerGridContains(Level level, AABB vec3) {
+        Optional<PowerGrid> powerGrid = Optional.empty();
+        for (PowerGrid it : MANAGER.getGridSet(level)) {
+            if (it.collideFast(vec3)) {
+                return Optional.of(it);
+            }
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * 清空电网
+     */
+    public static void clear() {
+        MANAGER.clear();
     }
 
     /**
@@ -101,13 +147,6 @@ public class PowerGrid {
 
     public void markChanged() {
         this.changed = true;
-    }
-
-    /**
-     * 总电力刻
-     */
-    public static void tickGrid() {
-        MANAGER.tick();
     }
 
     /**
@@ -261,24 +300,6 @@ public class PowerGrid {
     }
 
     /**
-     * 移除电网元件
-     *
-     * @param components 元件
-     */
-    public static void removeComponent(IPowerComponent @NotNull ... components) {
-        try {
-            if (PowerGrid.isServerClosing) return;
-            for (IPowerComponent component : components) {
-                PowerGrid grid = component.getGrid();
-                if (grid == null) return;
-                grid.remove(component);
-            }
-        } catch (Exception e) {
-            AnvilCraft.LOGGER.error(e.getMessage(), e);
-        }
-    }
-
-    /**
      * 移除电力元件
      *
      * @param components 电力元件
@@ -327,46 +348,8 @@ public class PowerGrid {
         return collideFast(component.getShape());
     }
 
-    /**
-     * 增加电力元件
-     *
-     * @param components 元件
-     */
-    public static void addComponent(IPowerComponent @NotNull ... components) {
-        for (IPowerComponent component : components) {
-            MANAGER.addComponent(component);
-        }
-    }
-
     void syncToPlayer(ServerPlayer player) {
         PacketDistributor.sendToPlayer(player, new PowerGridSyncPacket(this));
-    }
-
-    public static Optional<PowerGrid> findPowerGridContains(Level level, Vec3 vec3) {
-        Optional<PowerGrid> powerGrid = Optional.empty();
-        for (PowerGrid it : MANAGER.getGridSet(level)) {
-            if (it.inRangeFast(vec3)) {
-                return Optional.of(it);
-            }
-        }
-        return Optional.empty();
-    }
-
-    public static Optional<PowerGrid> findPowerGridContains(Level level, AABB vec3) {
-        Optional<PowerGrid> powerGrid = Optional.empty();
-        for (PowerGrid it : MANAGER.getGridSet(level)) {
-            if (it.collideFast(vec3)) {
-                return Optional.of(it);
-            }
-        }
-        return Optional.empty();
-    }
-
-    /**
-     * 清空电网
-     */
-    public static void clear() {
-        MANAGER.clear();
     }
 
 }

@@ -16,16 +16,16 @@ public class EndPortalConversionRecipe {
     public final List<Object2IntMap.Entry<Ingredient>> ingredients;
     public final List<ChanceItemStack> results;
 
-    public EndPortalConversionRecipe(Block blockInput, float chance){
+    public EndPortalConversionRecipe(Block blockInput, float chance) {
         this.ingredients = ImmutableList.of(new AbstractObject2IntMap.BasicEntry<>(
             Ingredient.of(blockInput),
             1
         ));
         ImmutableList.Builder<ChanceItemStack> builder = ImmutableList.builder();
-        if(chance > 0.0){
+        if (chance > 0.0) {
             builder.add(ChanceItemStack.of(ModBlocks.SPECTRAL_ANVIL.asStack()).withChance(chance));
         }
-        if(chance < 1.0){
+        if (chance < 1.0) {
             builder.add(ChanceItemStack.of(ModBlocks.END_DUST.asStack()).withChance(1.0f - chance));
         }
         this.results = builder.build();

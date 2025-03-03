@@ -23,16 +23,16 @@ public class HeaterBlockEntity extends BlockEntity implements IPowerConsumer {
         this(ModBlockEntities.HEATER.get(), pos, blockState);
     }
 
+    private HeaterBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+        super(type, pos, blockState);
+    }
+
     public static @NotNull HeaterBlockEntity createBlockEntity(
         BlockEntityType<?> type,
         BlockPos pos,
         BlockState blockState
     ) {
         return new HeaterBlockEntity(type, pos, blockState);
-    }
-
-    private HeaterBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
-        super(type, pos, blockState);
     }
 
     @Override

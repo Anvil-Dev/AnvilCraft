@@ -12,6 +12,16 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
 public interface SqueezingRecipeSchema {
+    RecipeKey<Block> INPUT_BLOCK = BlockComponent.BLOCK.inputKey("input_block").defaultOptional();
+    RecipeKey<Block> RESULT_BLOCK = BlockComponent.BLOCK.outputKey("result_block").defaultOptional();
+    RecipeKey<Block> CAULDRON = BlockComponent.BLOCK.outputKey("cauldron").defaultOptional();
+    RecipeSchema SCHEMA = new RecipeSchema(INPUT_BLOCK, RESULT_BLOCK, CAULDRON)
+        .factory(new KubeRecipeFactory(AnvilCraft.of("squeezing"), SqueezingKubeRecipe.class, SqueezingKubeRecipe::new))
+        .constructor(INPUT_BLOCK, RESULT_BLOCK, CAULDRON)
+        .constructor(INPUT_BLOCK, RESULT_BLOCK)
+        .constructor(new IDRecipeConstructor())
+        .constructor();
+
     @SuppressWarnings("unused")
     class SqueezingKubeRecipe extends AnvilCraftKubeRecipe {
         public SqueezingKubeRecipe inputBlock(Block block) {
@@ -45,15 +55,4 @@ public interface SqueezingRecipeSchema {
             }
         }
     }
-
-    RecipeKey<Block> INPUT_BLOCK = BlockComponent.BLOCK.inputKey("input_block").defaultOptional();
-    RecipeKey<Block> RESULT_BLOCK = BlockComponent.BLOCK.outputKey("result_block").defaultOptional();
-    RecipeKey<Block> CAULDRON = BlockComponent.BLOCK.outputKey("cauldron").defaultOptional();
-
-    RecipeSchema SCHEMA = new RecipeSchema(INPUT_BLOCK, RESULT_BLOCK, CAULDRON)
-        .factory(new KubeRecipeFactory(AnvilCraft.of("squeezing"), SqueezingKubeRecipe.class, SqueezingKubeRecipe::new))
-        .constructor(INPUT_BLOCK, RESULT_BLOCK, CAULDRON)
-        .constructor(INPUT_BLOCK, RESULT_BLOCK)
-        .constructor(new IDRecipeConstructor())
-        .constructor();
 }

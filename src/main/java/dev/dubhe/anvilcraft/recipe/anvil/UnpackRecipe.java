@@ -55,16 +55,6 @@ public class UnpackRecipe extends AbstractItemProcessRecipe {
         private static final StreamCodec<RegistryFriendlyByteBuf, UnpackRecipe> STREAM_CODEC =
             StreamCodec.of(Serializer::encode, Serializer::decode);
 
-        @Override
-        public MapCodec<UnpackRecipe> codec() {
-            return CODEC;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, UnpackRecipe> streamCodec() {
-            return STREAM_CODEC;
-        }
-
         private static UnpackRecipe decode(RegistryFriendlyByteBuf buf) {
             List<ChanceItemStack> results = new ArrayList<>();
             int size = buf.readVarInt();
@@ -86,6 +76,16 @@ public class UnpackRecipe extends AbstractItemProcessRecipe {
             for (Ingredient ingredient : recipe.ingredients) {
                 Ingredient.CONTENTS_STREAM_CODEC.encode(buf, ingredient);
             }
+        }
+
+        @Override
+        public MapCodec<UnpackRecipe> codec() {
+            return CODEC;
+        }
+
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, UnpackRecipe> streamCodec() {
+            return STREAM_CODEC;
         }
     }
 

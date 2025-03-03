@@ -5,7 +5,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Animal;
 
-public class IsBabyFriendlyFilter extends TeslaFilter{
+public class IsBabyFriendlyFilter extends TeslaFilter {
     @Getter
     private final String id = "IsBabyFriendlyFilter";
 

@@ -10,6 +10,7 @@ import net.minecraft.world.item.ItemStack;
 public class JewelResultSlot extends Slot {
     private final JewelSourceContainer sourceContainer;
     private final CraftingContainer craftSlots;
+
     public JewelResultSlot(JewelSourceContainer sourceContainer, CraftingContainer craftSlots, Container container, int slot, int x, int y) {
         super(container, slot, x, y);
         this.sourceContainer = sourceContainer;

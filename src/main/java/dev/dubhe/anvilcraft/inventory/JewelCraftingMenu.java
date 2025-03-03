@@ -77,6 +77,44 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
         addPlayerHotbar(inventory);
     }
 
+    private static void changedCraftingSlots(
+        JewelCraftingMenu menu,
+        Level level,
+        Player player,
+        JewelSourceContainer sourceContainer,
+        CraftingContainer craftingContainer,
+        ResultContainer resultContainer
+    ) {
+        if (!level.isClientSide()) {
+            ItemStack itemStack = ItemStack.EMPTY;
+            ServerPlayer serverPlayer = (ServerPlayer) player;
+            RecipeHolder<JewelCraftingRecipe> recipeHolder = sourceContainer.getRecipe();
+            if (recipeHolder != null) {
+                JewelCraftingRecipe recipe = recipeHolder.value();
+                var input = new JewelCraftingRecipe.Input(sourceContainer.getItem(0), craftingContainer.getItems());
+                if (recipe.matches(input, level)) {
+                    if (resultContainer.setRecipeUsed(level, serverPlayer, recipeHolder)) {
+                        ItemStack result = recipe.assemble(input, level.registryAccess());
+                        if (result.isItemEnabled(level.enabledFeatures())) {
+                            itemStack = result;
+                            ItemEnchantments.Mutable enchantments = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
+                            enchantments.set(level.registryAccess().holderOrThrow(Enchantments.VANISHING_CURSE), 1);
+                            itemStack.set(DataComponents.ENCHANTMENTS, enchantments.toImmutable());
+                        }
+                    }
+                }
+            }
+            resultContainer.setItem(0, itemStack);
+            menu.setRemoteSlot(RESULT_SLOT, itemStack);
+            serverPlayer.connection.send(new ClientboundContainerSetSlotPacket(
+                menu.containerId,
+                menu.incrementStateId(),
+                RESULT_SLOT,
+                itemStack
+            ));
+        }
+    }
+
     @SuppressWarnings("DuplicatedCode")
     private void addPlayerInventory(Inventory playerInventory) {
         for (int i = 0; i < 3; ++i) {
@@ -144,7 +182,6 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
         return sourceStack;
     }
 
-
     @Override
     public boolean stillValid(Player player) {
         return stillValid(access, player, ModBlocks.JEWEL_CRAFTING_TABLE.get());
@@ -159,44 +196,6 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
             }
         }
         access.execute((level, pos) -> changedCraftingSlots(this, level, player, sourceContainer, craftingContainer, resultContainer));
-    }
-
-    private static void changedCraftingSlots(
-        JewelCraftingMenu menu,
-        Level level,
-        Player player,
-        JewelSourceContainer sourceContainer,
-        CraftingContainer craftingContainer,
-        ResultContainer resultContainer
-    ) {
-        if (!level.isClientSide()) {
-            ItemStack itemStack = ItemStack.EMPTY;
-            ServerPlayer serverPlayer = (ServerPlayer) player;
-            RecipeHolder<JewelCraftingRecipe> recipeHolder = sourceContainer.getRecipe();
-            if (recipeHolder != null) {
-                JewelCraftingRecipe recipe = recipeHolder.value();
-                var input = new JewelCraftingRecipe.Input(sourceContainer.getItem(0), craftingContainer.getItems());
-                if (recipe.matches(input, level)) {
-                    if (resultContainer.setRecipeUsed(level, serverPlayer, recipeHolder)) {
-                        ItemStack result = recipe.assemble(input, level.registryAccess());
-                        if (result.isItemEnabled(level.enabledFeatures())) {
-                            itemStack = result;
-                            ItemEnchantments.Mutable enchantments = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
-                            enchantments.set(level.registryAccess().holderOrThrow(Enchantments.VANISHING_CURSE), 1);
-                            itemStack.set(DataComponents.ENCHANTMENTS, enchantments.toImmutable());
-                        }
-                    }
-                }
-            }
-            resultContainer.setItem(0, itemStack);
-            menu.setRemoteSlot(RESULT_SLOT, itemStack);
-            serverPlayer.connection.send(new ClientboundContainerSetSlotPacket(
-                menu.containerId,
-                menu.incrementStateId(),
-                RESULT_SLOT,
-                itemStack
-            ));
-        }
     }
 
     @Override

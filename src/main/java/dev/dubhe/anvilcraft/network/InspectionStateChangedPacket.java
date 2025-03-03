@@ -21,13 +21,12 @@ public record InspectionStateChangedPacket(ResourceLocation id, boolean state) i
         InspectionStateChangedPacket::new
     );
 
+    public static void acceptClient(InspectionStateChangedPacket packet, IPayloadContext ctx) {
+        ModInspectionClient.INSTANCE.changeStateClient(packet.id, packet.state);
+    }
 
     @Override
     public @NotNull Type<? extends CustomPacketPayload> type() {
         return TYPE;
-    }
-
-    public static void acceptClient(InspectionStateChangedPacket packet, IPayloadContext ctx) {
-        ModInspectionClient.INSTANCE.changeStateClient(packet.id, packet.state);
     }
 }

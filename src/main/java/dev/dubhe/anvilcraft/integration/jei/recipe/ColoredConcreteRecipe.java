@@ -24,10 +24,10 @@ public class ColoredConcreteRecipe {
     public final ChanceItemStack result;
 
     public ColoredConcreteRecipe(
-            Color color,
-            List<Ingredient> ingredients,
-            List<Object2IntMap.Entry<Ingredient>> mergedIngredients,
-            ChanceItemStack result) {
+        Color color,
+        List<Ingredient> ingredients,
+        List<Object2IntMap.Entry<Ingredient>> mergedIngredients,
+        ChanceItemStack result) {
         this.color = color;
         this.ingredients = ingredients;
         this.mergedIngredients = mergedIngredients;
@@ -39,12 +39,12 @@ public class ColoredConcreteRecipe {
         for (ConcreteRecipe concreteRecipe : JeiRecipeUtil.getRecipesFromType(ModRecipeTypes.CONCRETE_TYPE.get())) {
             for (Color color : Color.values()) {
                 Item resultItem = BuiltInRegistries.ITEM.get(
-                        ResourceLocation.parse(concreteRecipe.result.formatted(color.getSerializedName())));
+                    ResourceLocation.parse(concreteRecipe.result.formatted(color.getSerializedName())));
                 builder.add(new ColoredConcreteRecipe(
-                        color,
-                        concreteRecipe.ingredients,
-                        concreteRecipe.mergedIngredients,
-                        ChanceItemStack.of(new ItemStack(resultItem, concreteRecipe.resultCount))));
+                    color,
+                    concreteRecipe.ingredients,
+                    concreteRecipe.mergedIngredients,
+                    ChanceItemStack.of(new ItemStack(resultItem, concreteRecipe.resultCount))));
             }
         }
         return builder.build();

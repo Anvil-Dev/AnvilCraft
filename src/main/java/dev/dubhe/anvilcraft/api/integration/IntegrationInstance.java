@@ -82,10 +82,10 @@ public final class IntegrationInstance {
         if (obj == this) return true;
         if (obj == null || obj.getClass() != this.getClass()) return false;
         var that = (IntegrationInstance) obj;
-        return Objects.equals(this.modid, that.modid) &&
-            Objects.equals(this.instance, that.instance) &&
-            Objects.equals(this.loader, that.loader) &&
-            Objects.equals(this.clientLoader, that.clientLoader);
+        return Objects.equals(this.modid, that.modid)
+            && Objects.equals(this.instance, that.instance)
+            && Objects.equals(this.loader, that.loader)
+            && Objects.equals(this.clientLoader, that.clientLoader);
     }
 
     @Override
@@ -95,11 +95,12 @@ public final class IntegrationInstance {
 
     @Override
     public String toString() {
-        return "IntegrationInstance[" +
-            "modid=" + modid + ", " +
-            "instance=" + instance + ", " +
-            "loader=" + loader + ", " +
-            "clientLoader=" + clientLoader + ']';
+        return "IntegrationInstance["
+            + "modid=" + modid + ", "
+            + "instance=" + instance + ", "
+            + "loader=" + loader + ", "
+            + "clientLoader=" + clientLoader
+            + ']';
     }
 
 }

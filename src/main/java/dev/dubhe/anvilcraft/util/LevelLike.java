@@ -47,25 +47,25 @@ public class LevelLike implements BlockAndTintGetter {
     public int horizontalSize() {
         Set<BlockPos> keys = blocks.keySet();
         return Math.max(
-                keys.stream()
-                        .map(BlockPos::getX)
-                        .max(Integer::compare)
-                        .map(it -> it + 1)
-                        .orElse(0),
-                keys.stream()
-                        .map(BlockPos::getZ)
-                        .max(Integer::compare)
-                        .map(it -> it + 1)
-                        .orElse(0));
+            keys.stream()
+                .map(BlockPos::getX)
+                .max(Integer::compare)
+                .map(it -> it + 1)
+                .orElse(0),
+            keys.stream()
+                .map(BlockPos::getZ)
+                .max(Integer::compare)
+                .map(it -> it + 1)
+                .orElse(0));
     }
 
     public int verticalSize() {
         Set<BlockPos> keys = blocks.keySet();
         return keys.stream()
-                .map(BlockPos::getY)
-                .max(Integer::compare)
-                .map(it -> it + 1)
-                .orElse(0);
+            .map(BlockPos::getY)
+            .max(Integer::compare)
+            .map(it -> it + 1)
+            .orElse(0);
     }
 
     @Override
@@ -160,7 +160,7 @@ public class LevelLike implements BlockAndTintGetter {
         }
     }
 
-    public static class AirLevelLike extends LevelLike{
+    public static class AirLevelLike extends LevelLike {
 
         public AirLevelLike(ClientLevel parent) {
             super(parent);

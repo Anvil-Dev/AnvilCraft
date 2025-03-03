@@ -45,7 +45,7 @@ public class RecipeGenerator {
         StringBuilder hashedId = new StringBuilder(rl.getPath());
         hashedId.append("_generated_");
         for (int i = 0; i < 13; i++) {
-            hashedId.append(HASH_TO_CHAR.charAt((int)(hash >>> (5 * i)) & 31));
+            hashedId.append(HASH_TO_CHAR.charAt((int) (hash >>> (5 * i)) & 31));
         }
         return AnvilCraft.of(hashedId.toString());
     }

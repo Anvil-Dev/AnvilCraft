@@ -104,27 +104,27 @@ public class MineralFountainChanceRecipe implements Recipe<MineralFountainChance
 
     public static class Serializer implements RecipeSerializer<MineralFountainChanceRecipe> {
         private static final MapCodec<MineralFountainChanceRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-                        ResourceLocation.CODEC
-                                .fieldOf("dimension")
-                                .forGetter(MineralFountainChanceRecipe::getDimension),
-                        CodecUtil.BLOCK_CODEC
-                                .fieldOf("from_block")
-                                .forGetter(MineralFountainChanceRecipe::getFromBlock),
-                        CodecUtil.BLOCK_CODEC.fieldOf("to_block").forGetter(MineralFountainChanceRecipe::getToBlock),
-                        Codec.DOUBLE.fieldOf("chance").forGetter(MineralFountainChanceRecipe::getChance))
-                .apply(ins, MineralFountainChanceRecipe::new));
+                ResourceLocation.CODEC
+                    .fieldOf("dimension")
+                    .forGetter(MineralFountainChanceRecipe::getDimension),
+                CodecUtil.BLOCK_CODEC
+                    .fieldOf("from_block")
+                    .forGetter(MineralFountainChanceRecipe::getFromBlock),
+                CodecUtil.BLOCK_CODEC.fieldOf("to_block").forGetter(MineralFountainChanceRecipe::getToBlock),
+                Codec.DOUBLE.fieldOf("chance").forGetter(MineralFountainChanceRecipe::getChance))
+            .apply(ins, MineralFountainChanceRecipe::new));
 
         private static final StreamCodec<RegistryFriendlyByteBuf, MineralFountainChanceRecipe> STREAM_CODEC =
-                StreamCodec.composite(
-                        ResourceLocation.STREAM_CODEC,
-                        MineralFountainChanceRecipe::getDimension,
-                        CodecUtil.BLOCK_STREAM_CODEC,
-                        MineralFountainChanceRecipe::getFromBlock,
-                        CodecUtil.BLOCK_STREAM_CODEC,
-                        MineralFountainChanceRecipe::getToBlock,
-                        ByteBufCodecs.DOUBLE,
-                        MineralFountainChanceRecipe::getChance,
-                        MineralFountainChanceRecipe::new);
+            StreamCodec.composite(
+                ResourceLocation.STREAM_CODEC,
+                MineralFountainChanceRecipe::getDimension,
+                CodecUtil.BLOCK_STREAM_CODEC,
+                MineralFountainChanceRecipe::getFromBlock,
+                CodecUtil.BLOCK_STREAM_CODEC,
+                MineralFountainChanceRecipe::getToBlock,
+                ByteBufCodecs.DOUBLE,
+                MineralFountainChanceRecipe::getChance,
+                MineralFountainChanceRecipe::new);
 
         @Override
         public MapCodec<MineralFountainChanceRecipe> codec() {
@@ -154,10 +154,10 @@ public class MineralFountainChanceRecipe implements Recipe<MineralFountainChance
         @Override
         public void save(RecipeOutput recipeOutput) {
             save(
-                    recipeOutput,
-                    AnvilCraft.of(BuiltInRegistries.ITEM.getKey(getResult()).getPath())
-                            .withPrefix(getType() + "/")
-                            .withSuffix("_from_" + dimension.getPath()));
+                recipeOutput,
+                AnvilCraft.of(BuiltInRegistries.ITEM.getKey(getResult()).getPath())
+                    .withPrefix(getType() + "/")
+                    .withSuffix("_from_" + dimension.getPath()));
         }
 
         @Override

@@ -44,7 +44,6 @@ public abstract class BaseChuteBlockEntity
     extends BaseMachineBlockEntity
     implements IFilterBlockEntity, IDiskCloneable, IItemHandlerHolder {
 
-    private int cooldown = 0;
     private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(9) {
         @Override
         public void onContentsChanged(int slot) {
@@ -52,6 +51,7 @@ public abstract class BaseChuteBlockEntity
             setChanged();
         }
     };
+    private int cooldown = 0;
 
     protected BaseChuteBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -65,6 +65,17 @@ public abstract class BaseChuteBlockEntity
         return Direction.UP;
     }
 
+    @Override
+    public void setDirection(Direction direction) {
+        if (shouldSkipDirection(direction)) return;
+        BlockPos pos = this.getBlockPos();
+        Level level = this.getLevel();
+        if (null == level) return;
+        BlockState state = level.getBlockState(pos);
+        if (!validateBlockState(state)) return;
+        level.setBlockAndUpdate(pos, state.setValue(getFacingProperty(), direction));
+    }
+
     protected abstract boolean shouldSkipDirection(Direction direction);
 
     protected abstract boolean validateBlockState(BlockState state);
@@ -76,17 +87,6 @@ public abstract class BaseChuteBlockEntity
     protected abstract Direction getInputDirection();
 
     protected abstract boolean isEnabled();
-
-    @Override
-    public void setDirection(Direction direction) {
-        if (shouldSkipDirection(direction)) return;
-        BlockPos pos = this.getBlockPos();
-        Level level = this.getLevel();
-        if (null == level) return;
-        BlockState state = level.getBlockState(pos);
-        if (!validateBlockState(state)) return;
-        level.setBlockAndUpdate(pos, state.setValue(getFacingProperty(), direction));
-    }
 
     @Override
     public FilteredItemStackHandler getFilteredItemDepository() {
@@ -122,7 +122,7 @@ public abstract class BaseChuteBlockEntity
                 inputBlockPos,
                 context
             );
-        if (input != null){
+        if (input != null) {
             return input;
         }
         AABB aabb = new AABB(inputBlockPos);

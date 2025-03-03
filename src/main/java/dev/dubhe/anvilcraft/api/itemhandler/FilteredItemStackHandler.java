@@ -1,7 +1,9 @@
 package dev.dubhe.anvilcraft.api.itemhandler;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.util.CodecUtil;
-
+import lombok.Getter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -10,10 +12,6 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.ItemStackHandler;
-
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -38,10 +36,6 @@ public class FilteredItemStackHandler extends ItemStackHandler {
     private NonNullList<ItemStack> filteredItems;
     private NonNullList<Boolean> disabled;
 
-    public NonNullList<ItemStack> getStacks() {
-        return stacks;
-    }
-
     /**
      *
      */
@@ -65,6 +59,10 @@ public class FilteredItemStackHandler extends ItemStackHandler {
         super(size);
         this.filteredItems = NonNullList.withSize(size, ItemStack.EMPTY);
         this.disabled = NonNullList.withSize(size, false);
+    }
+
+    public NonNullList<ItemStack> getStacks() {
+        return stacks;
     }
 
     /**

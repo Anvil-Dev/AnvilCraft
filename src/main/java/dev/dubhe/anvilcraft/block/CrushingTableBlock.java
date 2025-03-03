@@ -26,14 +26,14 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class CrushingTableBlock extends Block
-        implements SimpleWaterloggedBlock, IHammerRemovable {
+    implements SimpleWaterloggedBlock, IHammerRemovable {
 
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     private static final VoxelShape REDUCE_AABB = Shapes.or(
-            Block.box(2.0, 12.0, 2.0, 14.0, 16.0, 14.0),
-            Block.box(2.0, 0.0, 2.0, 14.0, 10.0, 14.0),
-            Block.box(4.0, 0.0, 0.0, 12.0, 10.0, 16.0),
-            Block.box(0.0, 0.0, 4.0, 16.0, 10.0, 12.0));
+        Block.box(2.0, 12.0, 2.0, 14.0, 16.0, 14.0),
+        Block.box(2.0, 0.0, 2.0, 14.0, 10.0, 14.0),
+        Block.box(4.0, 0.0, 0.0, 12.0, 10.0, 16.0),
+        Block.box(0.0, 0.0, 4.0, 16.0, 10.0, 12.0));
     private static final VoxelShape AABB = Shapes.join(Shapes.block(), REDUCE_AABB, BooleanOp.ONLY_FIRST);
 
     public CrushingTableBlock(Properties properties) {
@@ -49,10 +49,10 @@ public class CrushingTableBlock extends Block
 
     @Override
     public VoxelShape getShape(
-            BlockState blockState,
-            BlockGetter blockGetter,
-            BlockPos blockPos,
-            CollisionContext collisionContext
+        BlockState blockState,
+        BlockGetter blockGetter,
+        BlockPos blockPos,
+        CollisionContext collisionContext
     ) {
         return AABB;
     }
@@ -71,7 +71,7 @@ public class CrushingTableBlock extends Block
     public BlockState getStateForPlacement(BlockPlaceContext blockPlaceContext) {
         BlockPos blockPos = blockPlaceContext.getClickedPos();
         FluidState
-                fluidState = blockPlaceContext.getLevel().getFluidState(blockPos);
+            fluidState = blockPlaceContext.getLevel().getFluidState(blockPos);
         BlockState state = super.getStateForPlacement(blockPlaceContext);
         state = null != state ? state : this.defaultBlockState();
         return state.setValue(WATERLOGGED, fluidState.getType() == Fluids.WATER);
@@ -84,12 +84,12 @@ public class CrushingTableBlock extends Block
 
     @Override
     public BlockState updateShape(
-            BlockState blockState,
-            Direction direction,
-            BlockState blockState2,
-            LevelAccessor levelAccessor,
-            BlockPos blockPos,
-            BlockPos blockPos2
+        BlockState blockState,
+        Direction direction,
+        BlockState blockState2,
+        LevelAccessor levelAccessor,
+        BlockPos blockPos,
+        BlockPos blockPos2
     ) {
         if (blockState.getValue(WATERLOGGED)) {
             levelAccessor.scheduleTick(blockPos, Fluids.WATER, Fluids.WATER.getTickDelay(levelAccessor));

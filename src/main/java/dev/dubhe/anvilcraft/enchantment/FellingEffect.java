@@ -32,27 +32,6 @@ public record FellingEffect(int range) implements EnchantmentEntityEffect {
         ).apply(it, FellingEffect::new)
     );
 
-    @Override
-    public void apply(ServerLevel level, int i, EnchantedItemInUse enchantedItemInUse, Entity entity, Vec3 vec3) {
-        if (!level.getBlockState(BlockPos.containing(vec3)).is(BlockTags.LOGS)) return;
-        if (entity.isShiftKeyDown()) return;
-        int max = (i * AnvilCraft.config.fellingBlockPerLevel) + 1;
-        if (!(entity instanceof Player player)) return;
-        chainMine(
-            level,
-            player,
-            BlockPos.containing(vec3),
-            max,
-            enchantedItemInUse.itemStack(),
-            enchantedItemInUse.onBreak()
-        );
-    }
-
-    @Override
-    public MapCodec<? extends EnchantmentEntityEffect> codec() {
-        return CODEC;
-    }
-
     /**
      * 连锁破坏
      *
@@ -82,5 +61,26 @@ public record FellingEffect(int range) implements EnchantmentEntityEffect {
                 return sourceBlock.equals(blockPos);
             }
         );
+    }
+
+    @Override
+    public void apply(ServerLevel level, int i, EnchantedItemInUse enchantedItemInUse, Entity entity, Vec3 vec3) {
+        if (!level.getBlockState(BlockPos.containing(vec3)).is(BlockTags.LOGS)) return;
+        if (entity.isShiftKeyDown()) return;
+        int max = (i * AnvilCraft.config.fellingBlockPerLevel) + 1;
+        if (!(entity instanceof Player player)) return;
+        chainMine(
+            level,
+            player,
+            BlockPos.containing(vec3),
+            max,
+            enchantedItemInUse.itemStack(),
+            enchantedItemInUse.onBreak()
+        );
+    }
+
+    @Override
+    public MapCodec<? extends EnchantmentEntityEffect> codec() {
+        return CODEC;
     }
 }

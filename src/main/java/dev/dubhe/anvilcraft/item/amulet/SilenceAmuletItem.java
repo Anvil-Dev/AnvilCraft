@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.item.amulet;
 
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.monster.warden.Warden;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;

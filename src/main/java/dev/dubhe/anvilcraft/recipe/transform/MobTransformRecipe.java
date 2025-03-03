@@ -100,6 +100,18 @@ public class MobTransformRecipe implements Recipe<MobTransformInput> {
         this.options = options;
     }
 
+    public static MobTransformRecipe fromTag(Tag tag) {
+        return CODEC.decode(NbtOps.INSTANCE, tag).getOrThrow().getFirst();
+    }
+
+    public static Tag intoTag(MobTransformRecipe recipe) {
+        return CODEC.encodeStart(NbtOps.INSTANCE, recipe).getOrThrow();
+    }
+
+    public static TransformRecipeBuilder from(EntityType<?> type) {
+        return new TransformRecipeBuilder(type);
+    }
+
     @Override
     public boolean matches(MobTransformInput in, Level level) {
         boolean typeMatches = in.getInputEntity().getType() == input;
@@ -189,18 +201,6 @@ public class MobTransformRecipe implements Recipe<MobTransformInput> {
         newEntity.load(compoundTag);
         newEntity.setUUID(uuid);
         return newEntity;
-    }
-
-    public static MobTransformRecipe fromTag(Tag tag) {
-        return CODEC.decode(NbtOps.INSTANCE, tag).getOrThrow().getFirst();
-    }
-
-    public static Tag intoTag(MobTransformRecipe recipe) {
-        return CODEC.encodeStart(NbtOps.INSTANCE, recipe).getOrThrow();
-    }
-
-    public static TransformRecipeBuilder from(EntityType<?> type) {
-        return new TransformRecipeBuilder(type);
     }
 
     public static final class Serializer implements RecipeSerializer<MobTransformRecipe> {

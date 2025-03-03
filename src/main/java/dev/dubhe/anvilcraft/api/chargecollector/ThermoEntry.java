@@ -1,9 +1,8 @@
 package dev.dubhe.anvilcraft.api.chargecollector;
 
+import lombok.Getter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-
-import lombok.Getter;
 
 import java.util.function.Function;
 
@@ -17,10 +16,6 @@ public abstract class ThermoEntry {
         this.canIrritated = canIrritated;
     }
 
-    public int ttl() {
-        return 2;
-    }
-
     public static ThermoEntry predicate(
         int charge,
         java.util.function.Predicate<BlockState> predicate,
@@ -28,10 +23,6 @@ public abstract class ThermoEntry {
         boolean canIrritated) {
         return new Predicate(charge, predicate, transformer, canIrritated);
     }
-
-    public abstract int accepts(BlockState state);
-
-    public abstract BlockState transform(BlockState state);
 
     public static ThermoEntry simple(int charge, Block input, Block output, boolean canIrritated) {
         return new Simple(charge, input, output, canIrritated);
@@ -43,6 +34,14 @@ public abstract class ThermoEntry {
     public static ThermoEntry forever(int charge, Block block, boolean canIrritated) {
         return new Always(charge, block, canIrritated);
     }
+
+    public int ttl() {
+        return 2;
+    }
+
+    public abstract int accepts(BlockState state);
+
+    public abstract BlockState transform(BlockState state);
 
     static class Predicate extends ThermoEntry {
         private final java.util.function.Predicate<BlockState> input;

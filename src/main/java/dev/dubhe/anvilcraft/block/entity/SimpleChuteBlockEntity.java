@@ -27,13 +27,13 @@ import java.util.List;
 
 @Getter
 public class SimpleChuteBlockEntity extends BlockEntity implements IItemHandlerHolder {
-    private int cooldown = 0;
     private final ItemStackHandler itemHandler = new ItemStackHandler(1) {
         @Override
         public void onContentsChanged(int slot) {
             setChanged();
         }
     };
+    private int cooldown = 0;
 
     public SimpleChuteBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);

@@ -54,16 +54,6 @@ public class BoilingRecipe extends AbstractItemProcessRecipe {
         private static final StreamCodec<RegistryFriendlyByteBuf, BoilingRecipe> STREAM_CODEC =
             StreamCodec.of(Serializer::encode, Serializer::decode);
 
-        @Override
-        public MapCodec<BoilingRecipe> codec() {
-            return CODEC;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, BoilingRecipe> streamCodec() {
-            return STREAM_CODEC;
-        }
-
         private static BoilingRecipe decode(RegistryFriendlyByteBuf buf) {
             List<ChanceItemStack> results = new ArrayList<>();
             int size = buf.readVarInt();
@@ -85,6 +75,16 @@ public class BoilingRecipe extends AbstractItemProcessRecipe {
             for (Ingredient ingredient : recipe.ingredients) {
                 Ingredient.CONTENTS_STREAM_CODEC.encode(buf, ingredient);
             }
+        }
+
+        @Override
+        public MapCodec<BoilingRecipe> codec() {
+            return CODEC;
+        }
+
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, BoilingRecipe> streamCodec() {
+            return STREAM_CODEC;
         }
     }
 

@@ -39,8 +39,8 @@ public class LightningEventListener {
                     BlockPos offset = pos.offset(x, -y, z);
                     state = event.getLevel().getBlockState(offset);
                     if (!state.is(Blocks.IRON_BLOCK)
-                            && !state.is(ModBlocks.FERRITE_CORE_MAGNET_BLOCK.get())
-                            && !state.is(ModBlocks.MAGNET_BLOCK.get())) continue;
+                        && !state.is(ModBlocks.FERRITE_CORE_MAGNET_BLOCK.get())
+                        && !state.is(ModBlocks.MAGNET_BLOCK.get())) continue;
                     BlockState state1 = ModBlocks.HOLLOW_MAGNET_BLOCK.get().defaultBlockState();
                     event.getLevel().setBlockAndUpdate(offset, state1);
                 }
@@ -52,7 +52,7 @@ public class LightningEventListener {
         if (state.is(Blocks.COPPER_BLOCK) || state.is(Blocks.LIGHTNING_ROD)) {
             double unCharged = 32;
             Collection<Entry> nearestChargeCollect =
-                    ChargeCollectorManager.getInstance(level).getNearestChargeCollect(pos);
+                ChargeCollectorManager.getInstance(level).getNearestChargeCollect(pos);
             for (var floatChargeCollectorBlockEntityEntry : nearestChargeCollect) {
                 ChargeCollectorBlockEntity blockEntity = floatChargeCollectorBlockEntityEntry.getBlockEntity();
                 if (ChargeCollectorManager.getInstance(level).canCollect(blockEntity, pos)) {

@@ -12,6 +12,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 public class ModEnchantmentEffects {
     public static final DeferredRegister<MapCodec<? extends EnchantmentEntityEffect>> REGISTER =
         DeferredRegister.create(Registries.ENCHANTMENT_ENTITY_EFFECT_TYPE, AnvilCraft.MOD_ID);
+
     static {
         REGISTER.register(
             "harvest",
@@ -23,7 +24,7 @@ public class ModEnchantmentEffects {
         );
     }
 
-    public static void register(IEventBus eventBus){
+    public static void register(IEventBus eventBus) {
         REGISTER.register(eventBus);
     }
 }

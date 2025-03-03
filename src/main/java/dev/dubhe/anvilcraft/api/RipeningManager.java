@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.api;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.InductionLightBlock;
 import dev.dubhe.anvilcraft.block.state.LightColor;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.MinecraftServer;
@@ -18,7 +17,6 @@ import net.minecraft.world.level.block.GrassBlock;
 import net.minecraft.world.level.block.NetherWartBlock;
 import net.minecraft.world.level.block.NyliumBlock;
 import net.minecraft.world.level.block.state.BlockState;
-
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -35,6 +33,10 @@ public class RipeningManager {
     private final Level level;
     private final Set<BlockPos> lightBlocks = Collections.synchronizedSet(new HashSet<>());
 
+    public RipeningManager(Level level) {
+        this.level = level;
+    }
+
     /**
      * 获取当前维度催熟实例
      */
@@ -43,10 +45,6 @@ public class RipeningManager {
             INSTANCES.put(level, new RipeningManager(level));
         }
         return INSTANCES.get(level);
-    }
-
-    public RipeningManager(Level level) {
-        this.level = level;
     }
 
     public static void tickAll() {
@@ -59,6 +57,14 @@ public class RipeningManager {
 
     private static boolean canCropGrow(@NotNull BlockState state) {
         return state.getValue(InductionLightBlock.COLOR).equals(LightColor.PINK);
+    }
+
+    /**
+     *
+     */
+    public static void addLightBlock(BlockPos pos, Level level) {
+        RipeningManager inst = RipeningManager.getInstance(level);
+        inst.lightBlocks.add(pos);
     }
 
     private void doRipen(@NotNull BlockPos pos, @NotNull HashSet<BlockPos> ripened) {
@@ -100,9 +106,9 @@ public class RipeningManager {
                     }
                     if (state.is(Blocks.NETHER_WART) && state.getValue(NetherWartBlock.AGE) != NetherWartBlock.MAX_AGE) {
                         level.setBlock(pos1,
-                                Blocks.NETHER_WART.defaultBlockState().setValue(NetherWartBlock.AGE,
-                                        state.getValue(NetherWartBlock.AGE) + 1),
-                                Block.UPDATE_ALL_IMMEDIATE);
+                            Blocks.NETHER_WART.defaultBlockState().setValue(NetherWartBlock.AGE,
+                                state.getValue(NetherWartBlock.AGE) + 1),
+                            Block.UPDATE_ALL_IMMEDIATE);
                     }
                 }
             }
@@ -135,13 +141,5 @@ public class RipeningManager {
             }));
             cooldown = AnvilCraft.config.inductionLightBlockRipeningCooldown;
         }
-    }
-
-    /**
-     *
-     */
-    public static void addLightBlock(BlockPos pos, Level level) {
-        RipeningManager inst = RipeningManager.getInstance(level);
-        inst.lightBlocks.add(pos);
     }
 }

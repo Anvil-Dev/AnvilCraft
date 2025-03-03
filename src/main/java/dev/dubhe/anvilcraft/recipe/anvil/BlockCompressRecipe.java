@@ -76,12 +76,12 @@ public class BlockCompressRecipe implements Recipe<BlockCompressRecipe.Input> {
             boolean[] result = new boolean[]{true};
             int finalI = i;
             either.ifLeft(tag -> {
-                    if (!pInput.inputs.get(finalI).defaultBlockState().is(tag)){
+                    if (!pInput.inputs.get(finalI).defaultBlockState().is(tag)) {
                         result[0] = false;
                     }
                 })
                 .ifRight(block -> {
-                    if (!block.equals(pInput.inputs.get(finalI))){
+                    if (!block.equals(pInput.inputs.get(finalI))) {
                         result[0] = false;
                     }
                 });
@@ -95,6 +95,10 @@ public class BlockCompressRecipe implements Recipe<BlockCompressRecipe.Input> {
     @Override
     public ItemStack assemble(Input pInput, HolderLookup.Provider pRegistries) {
         return ItemStack.EMPTY;
+    }
+
+    public BlockCompressRecipe self() {
+        return this;
     }
 
     public record Input(List<Block> inputs) implements RecipeInput {
@@ -116,10 +120,6 @@ public class BlockCompressRecipe implements Recipe<BlockCompressRecipe.Input> {
             }
             return false;
         }
-    }
-
-    public BlockCompressRecipe self(){
-        return this;
     }
 
     public static class Serializer implements RecipeSerializer<BlockCompressRecipe> {
@@ -155,7 +155,7 @@ public class BlockCompressRecipe implements Recipe<BlockCompressRecipe.Input> {
     @Accessors(fluent = true, chain = true)
     public static class Builder extends AbstractRecipeBuilder<BlockCompressRecipe> {
 
-        private List<Either<TagKey<Block>,Block>> inputs = new ArrayList<>();
+        private List<Either<TagKey<Block>, Block>> inputs = new ArrayList<>();
         private Block result;
 
         public Builder input(Block block) {

@@ -30,7 +30,7 @@ public class IonocraftRenderer extends EntityRenderer<IonocraftEntity> {
 
     @Override
     public void render(
-        IonocraftEntity p_entity,
+        IonocraftEntity pEntity,
         float entityYaw,
         float partialTick,
         PoseStack poseStack,
@@ -40,8 +40,8 @@ public class IonocraftRenderer extends EntityRenderer<IonocraftEntity> {
         poseStack.pushPose();
         poseStack.scale(1, -1, 1);
         poseStack.translate(0, -1.5f, 0);
-        model.setupAnim(p_entity, 0, 0, 0, 0, 0);
-        VertexConsumer consumer = bufferSource.getBuffer(model.renderType(this.getTextureLocation(p_entity)));
+        model.setupAnim(pEntity, 0, 0, 0, 0, 0);
+        VertexConsumer consumer = bufferSource.getBuffer(model.renderType(this.getTextureLocation(pEntity)));
         model.renderToBuffer(poseStack, consumer, packedLight, OverlayTexture.NO_OVERLAY);
         poseStack.popPose();
     }

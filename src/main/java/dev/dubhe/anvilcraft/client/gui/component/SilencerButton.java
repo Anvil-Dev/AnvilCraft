@@ -62,6 +62,25 @@ public class SilencerButton extends Button {
         this.variant = variant;
     }
 
+    private static Component highlighted(
+        String original,
+        String hightlighted,
+        ChatFormatting originalFormatting,
+        ChatFormatting highlightFormatting
+    ) {
+        try {
+            String[] parts = original.split(Pattern.quote(hightlighted), -1);
+            List<Component> components = new ArrayList<>();
+            for (String s : parts) {
+                components.add(Component.literal(s).copy().setStyle(Style.EMPTY.applyFormat(originalFormatting)));
+            }
+            return ComponentUtils.formatList(
+                components, Component.literal(hightlighted).withStyle(highlightFormatting));
+        } catch (Throwable e) {
+            return Component.literal(original);
+        }
+    }
+
     @Override
     public void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         String searchText = parent.getFilterText();
@@ -89,25 +108,6 @@ public class SilencerButton extends Button {
                 mouseX,
                 mouseY
             );
-        }
-    }
-
-    private static Component highlighted(
-        String original,
-        String hightlighted,
-        ChatFormatting originalFormatting,
-        ChatFormatting highlightFormatting
-    ) {
-        try {
-            String[] parts = original.split(Pattern.quote(hightlighted), -1);
-            List<Component> components = new ArrayList<>();
-            for (String s : parts) {
-                components.add(Component.literal(s).copy().setStyle(Style.EMPTY.applyFormat(originalFormatting)));
-            }
-            return ComponentUtils.formatList(
-                components, Component.literal(hightlighted).withStyle(highlightFormatting));
-        } catch (Throwable e) {
-            return Component.literal(original);
         }
     }
 

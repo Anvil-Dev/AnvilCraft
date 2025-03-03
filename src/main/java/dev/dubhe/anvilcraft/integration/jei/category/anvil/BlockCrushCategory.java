@@ -44,11 +44,25 @@ public class BlockCrushCategory implements IRecipeCategory<RecipeHolder<BlockCru
 
     public BlockCrushCategory(IGuiHelper helper) {
         progress = helper.drawableBuilder(TextureConstants.PROGRESS, 0, 0, 24, 16)
-                .setTextureSize(24, 16)
-                .build();
+            .setTextureSize(24, 16)
+            .build();
         icon = helper.createDrawableItemStack(new ItemStack(Items.ANVIL));
         title = Component.translatable("gui.anvilcraft.category.block_crush");
         timer = helper.createTickTimer(30, 60, true);
+    }
+
+    public static void registerRecipes(IRecipeRegistration registration) {
+        registration.addRecipes(
+            AnvilCraftJeiPlugin.BLOCK_CRUSH,
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.BLOCK_CRUSH_TYPE.get()));
+    }
+
+    public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
+        registration.addRecipeCatalyst(new ItemStack(Items.ANVIL), AnvilCraftJeiPlugin.BLOCK_CRUSH);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.ROYAL_ANVIL), AnvilCraftJeiPlugin.BLOCK_CRUSH);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.EMBER_ANVIL), AnvilCraftJeiPlugin.BLOCK_CRUSH);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.GIANT_ANVIL), AnvilCraftJeiPlugin.BLOCK_CRUSH);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.SPECTRAL_ANVIL), AnvilCraftJeiPlugin.BLOCK_CRUSH);
     }
 
     @Override
@@ -84,38 +98,38 @@ public class BlockCrushCategory implements IRecipeCategory<RecipeHolder<BlockCru
 
     @Override
     public void draw(
-            RecipeHolder<BlockCrushRecipe> recipe,
-            IRecipeSlotsView recipeSlotsView,
-            GuiGraphics guiGraphics,
-            double mouseX,
-            double mouseY) {
+        RecipeHolder<BlockCrushRecipe> recipe,
+        IRecipeSlotsView recipeSlotsView,
+        GuiGraphics guiGraphics,
+        double mouseX,
+        double mouseY) {
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
         progress.draw(guiGraphics, 69, 30);
 
         RenderHelper.renderBlock(
-                guiGraphics,
-                Blocks.ANVIL.defaultBlockState(),
-                50,
-                22 + anvilYOffset,
-                20,
-                12,
-                RenderHelper.SINGLE_BLOCK);
+            guiGraphics,
+            Blocks.ANVIL.defaultBlockState(),
+            50,
+            22 + anvilYOffset,
+            20,
+            12,
+            RenderHelper.SINGLE_BLOCK);
         RenderHelper.renderBlock(
-                guiGraphics, recipe.value().input.defaultBlockState(), 50, 40, 10, 12, RenderHelper.SINGLE_BLOCK);
+            guiGraphics, recipe.value().input.defaultBlockState(), 50, 40, 10, 12, RenderHelper.SINGLE_BLOCK);
 
         RenderHelper.renderBlock(
-                guiGraphics, Blocks.ANVIL.defaultBlockState(), 110, 30, 10, 12, RenderHelper.SINGLE_BLOCK);
+            guiGraphics, Blocks.ANVIL.defaultBlockState(), 110, 30, 10, 12, RenderHelper.SINGLE_BLOCK);
         RenderHelper.renderBlock(
-                guiGraphics, recipe.value().result.defaultBlockState(), 110, 40, 0, 12, RenderHelper.SINGLE_BLOCK);
+            guiGraphics, recipe.value().result.defaultBlockState(), 110, 40, 0, 12, RenderHelper.SINGLE_BLOCK);
     }
 
     @Override
     public void getTooltip(
-            ITooltipBuilder tooltip,
-            RecipeHolder<BlockCrushRecipe> recipe,
-            IRecipeSlotsView recipeSlotsView,
-            double mouseX,
-            double mouseY) {
+        ITooltipBuilder tooltip,
+        RecipeHolder<BlockCrushRecipe> recipe,
+        IRecipeSlotsView recipeSlotsView,
+        double mouseX,
+        double mouseY) {
         IRecipeCategory.super.getTooltip(tooltip, recipe, recipeSlotsView, mouseX, mouseY);
         if (mouseX >= 40 && mouseX <= 58) {
             if (mouseY >= 42 && mouseY <= 52) {
@@ -127,19 +141,5 @@ public class BlockCrushCategory implements IRecipeCategory<RecipeHolder<BlockCru
                 tooltip.add(recipe.value().result.getName());
             }
         }
-    }
-
-    public static void registerRecipes(IRecipeRegistration registration) {
-        registration.addRecipes(
-                AnvilCraftJeiPlugin.BLOCK_CRUSH,
-                JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.BLOCK_CRUSH_TYPE.get()));
-    }
-
-    public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(new ItemStack(Items.ANVIL), AnvilCraftJeiPlugin.BLOCK_CRUSH);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.ROYAL_ANVIL), AnvilCraftJeiPlugin.BLOCK_CRUSH);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.EMBER_ANVIL), AnvilCraftJeiPlugin.BLOCK_CRUSH);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.GIANT_ANVIL), AnvilCraftJeiPlugin.BLOCK_CRUSH);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.SPECTRAL_ANVIL), AnvilCraftJeiPlugin.BLOCK_CRUSH);
     }
 }

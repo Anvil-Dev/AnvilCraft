@@ -66,9 +66,51 @@ import static dev.dubhe.anvilcraft.item.StructureToolItem.StructureData;
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class StructureToolScreen extends AbstractContainerScreen<StructureToolMenu> {
-    private final ResourceLocation CONTAINER_LOCATION =
-        AnvilCraft.of("textures/gui/container/structure_tool/background.png");
-
+    public static final Set<Property<?>> DEFAULT_RECORDED_PROPERTIES = ImmutableSet.of(
+        // about block's orientation
+        BlockStateProperties.FACING,
+        BlockStateProperties.FACING_HOPPER,
+        BlockStateProperties.HORIZONTAL_FACING,
+        BlockStateProperties.VERTICAL_DIRECTION,
+        BlockStateProperties.ROTATION_16,
+        BlockStateProperties.ORIENTATION,
+        BlockStateProperties.AXIS,
+        BlockStateProperties.HORIZONTAL_AXIS,
+        BlockStateProperties.RAIL_SHAPE,
+        BlockStateProperties.RAIL_SHAPE_STRAIGHT,
+        BlockStateProperties.HALF,
+        // about block's attachment
+        BlockStateProperties.ATTACH_FACE,
+        BlockStateProperties.BELL_ATTACHMENT,
+        BlockStateProperties.HANGING,
+        // about fluid state
+        BlockStateProperties.WATERLOGGED,
+        // about piston state
+        BlockStateProperties.EXTENDED,
+        BlockStateProperties.PISTON_TYPE,
+        // about doors and trapdoors' openness
+        BlockStateProperties.OPEN,
+        // about count of items need for place
+        BlockStateProperties.FLOWER_AMOUNT,
+        BlockStateProperties.CANDLES,
+        BlockStateProperties.EGGS,
+        BlockStateProperties.PICKLES,
+        BlockStateProperties.LAYERS,
+        BlockStateProperties.LIT,
+        BlockStateProperties.LEVEL_CAULDRON,
+        BlockStateProperties.SLAB_TYPE,
+        // about part of multipart blocks
+        BlockStateProperties.BED_PART,
+        BlockStateProperties.DOUBLE_BLOCK_HALF,
+        GiantAnvilBlock.CUBE,
+        GiantAnvilBlock.HALF,
+        RemoteTransmissionPoleBlock.HALF,
+        TransmissionPoleBlock.HALF,
+        TeslaTowerBlock.HALF,
+        OverseerBlock.HALF,
+        LargeCakeBlock.HALF,
+        AccelerationRingBlock.HALF
+    );
     private static final WidgetSprites SPRITES = new WidgetSprites(
         AnvilCraft.of("widget/structure_tool/button"), AnvilCraft.of("widget/structure_tool/button_highlighted"));
 
@@ -83,19 +125,27 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
         CONVERSION_RECIPE_TOOLTIP,
         CONVERSION_OUTPUT_TOOLTIP
     );
-
+    private static final int SLOT_ID_RESULT = 36;
     private static char currentSymbol;
-
+    private static final ResourceLocation CONTAINER_LOCATION = AnvilCraft.of("textures/gui/container/structure_tool/background.png");
     private ImageButton dataGenButton;
     private ImageButton kubejsButton;
     private ImageButton jsonButton;
-    private static final int SLOT_ID_RESULT = 36;
-
     @Setter
     private StructureData structureData;
 
     public StructureToolScreen(StructureToolMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
+    }
+
+    @Nullable
+    private static String getFilePath(String defaultName, String filter) {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            PointerBuffer filterBuffer = stack.mallocPointer(1);
+            filterBuffer.put(stack.UTF8(filter));
+            filterBuffer.flip();
+            return TinyFileDialogs.tinyfd_saveFileDialog("Save", defaultName, filterBuffer, null);
+        }
     }
 
     @SuppressWarnings("DataFlowIssue")
@@ -245,9 +295,9 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
 
     @Override
     protected void renderTooltip(GuiGraphics guiGraphics, int x, int y) {
-        if (this.hoveredSlot != null &&
-            this.hoveredSlot.index == SLOT_ID_RESULT  &&
-            !this.hoveredSlot.hasItem()) {
+        if (this.hoveredSlot != null
+            && this.hoveredSlot.index == SLOT_ID_RESULT
+            && !this.hoveredSlot.hasItem()) {
             guiGraphics.renderComponentTooltip(font, RESULT_SLOT_TOOLTIPS, x, y);
         }
         super.renderTooltip(guiGraphics, x, y);
@@ -258,16 +308,6 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
         int i = (this.width - this.imageWidth) / 2;
         int j = (this.height - this.imageHeight) / 2;
         guiGraphics.blit(CONTAINER_LOCATION, i, j, 0, 0, this.imageWidth, this.imageHeight);
-    }
-
-    @Nullable
-    private static String getFilePath(String defaultName, String filter) {
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            PointerBuffer filterBuffer = stack.mallocPointer(1);
-            filterBuffer.put(stack.UTF8(filter));
-            filterBuffer.flip();
-            return TinyFileDialogs.tinyfd_saveFileDialog("Save", defaultName, filterBuffer, null);
-        }
     }
 
     @SuppressWarnings("DataFlowIssue")
@@ -309,60 +349,14 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
         return null;
     }
 
-    public static final Set<Property<?>> DEFAULT_RECORDED_PROPERTIES = ImmutableSet.of(
-        // about block's orientation
-        BlockStateProperties.FACING,
-        BlockStateProperties.FACING_HOPPER,
-        BlockStateProperties.HORIZONTAL_FACING,
-        BlockStateProperties.VERTICAL_DIRECTION,
-        BlockStateProperties.ROTATION_16,
-        BlockStateProperties.ORIENTATION,
-        BlockStateProperties.AXIS,
-        BlockStateProperties.HORIZONTAL_AXIS,
-        BlockStateProperties.RAIL_SHAPE,
-        BlockStateProperties.RAIL_SHAPE_STRAIGHT,
-        BlockStateProperties.HALF,
-        // about block's attachment
-        BlockStateProperties.ATTACH_FACE,
-        BlockStateProperties.BELL_ATTACHMENT,
-        BlockStateProperties.HANGING,
-        // about fluid state
-        BlockStateProperties.WATERLOGGED,
-        // about piston state
-        BlockStateProperties.EXTENDED,
-        BlockStateProperties.PISTON_TYPE,
-        // about doors and trapdoors' openness
-        BlockStateProperties.OPEN,
-        // about count of items need for place
-        BlockStateProperties.FLOWER_AMOUNT,
-        BlockStateProperties.CANDLES,
-        BlockStateProperties.EGGS,
-        BlockStateProperties.PICKLES,
-        BlockStateProperties.LAYERS,
-        BlockStateProperties.LIT,
-        BlockStateProperties.LEVEL_CAULDRON,
-        BlockStateProperties.SLAB_TYPE,
-        // about part of multipart blocks
-        BlockStateProperties.BED_PART,
-        BlockStateProperties.DOUBLE_BLOCK_HALF,
-        GiantAnvilBlock.CUBE,
-        GiantAnvilBlock.HALF,
-        RemoteTransmissionPoleBlock.HALF,
-        TransmissionPoleBlock.HALF,
-        TeslaTowerBlock.HALF,
-        OverseerBlock.HALF,
-        LargeCakeBlock.HALF,
-        AccelerationRingBlock.HALF
-    );
-
     private BlockPredicateWithState buildPredicate(BlockState state, boolean recordAllStates) {
         Block block = state.getBlock();
         BlockPredicateWithState predicate = BlockPredicateWithState.of(block);
         state.getProperties().stream()
             .filter(p -> recordAllStates || DEFAULT_RECORDED_PROPERTIES.contains(p)
-                || (BlockStateUtil.isMultifaceLike(block) &&
-                    p instanceof BooleanProperty &&
-                    PipeBlock.PROPERTY_BY_DIRECTION.containsValue(p)))
+                || (BlockStateUtil.isMultifaceLike(block)
+                && p instanceof BooleanProperty
+                && PipeBlock.PROPERTY_BY_DIRECTION.containsValue(p)))
             .forEach(p -> predicate.copyPropertyFrom(state, p));
         return predicate;
     }

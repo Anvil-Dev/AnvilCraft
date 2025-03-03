@@ -1,15 +1,13 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
-
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.ItemLike;
-
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItemTags;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.recipe.anvil.StampingRecipe;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ItemLike;
 
 public class StampingRecipeLoader {
     public static void init(RegistrateRecipeProvider provider) {

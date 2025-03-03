@@ -99,20 +99,20 @@ public class MineralFountainRecipe implements Recipe<MineralFountainRecipe.Input
     public static class Serializer implements RecipeSerializer<MineralFountainRecipe> {
 
         private static final MapCodec<MineralFountainRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-                        CodecUtil.BLOCK_CODEC.fieldOf("need_block").forGetter(MineralFountainRecipe::getNeedBlock),
-                        CodecUtil.BLOCK_CODEC.fieldOf("from_block").forGetter(MineralFountainRecipe::getFromBlock),
-                        CodecUtil.BLOCK_CODEC.fieldOf("to_block").forGetter(MineralFountainRecipe::getToBlock))
-                .apply(ins, MineralFountainRecipe::new));
+                CodecUtil.BLOCK_CODEC.fieldOf("need_block").forGetter(MineralFountainRecipe::getNeedBlock),
+                CodecUtil.BLOCK_CODEC.fieldOf("from_block").forGetter(MineralFountainRecipe::getFromBlock),
+                CodecUtil.BLOCK_CODEC.fieldOf("to_block").forGetter(MineralFountainRecipe::getToBlock))
+            .apply(ins, MineralFountainRecipe::new));
 
         private static final StreamCodec<RegistryFriendlyByteBuf, MineralFountainRecipe> STREAM_CODEC =
-                StreamCodec.composite(
-                        CodecUtil.BLOCK_STREAM_CODEC,
-                        MineralFountainRecipe::getNeedBlock,
-                        CodecUtil.BLOCK_STREAM_CODEC,
-                        MineralFountainRecipe::getFromBlock,
-                        CodecUtil.BLOCK_STREAM_CODEC,
-                        MineralFountainRecipe::getToBlock,
-                        MineralFountainRecipe::new);
+            StreamCodec.composite(
+                CodecUtil.BLOCK_STREAM_CODEC,
+                MineralFountainRecipe::getNeedBlock,
+                CodecUtil.BLOCK_STREAM_CODEC,
+                MineralFountainRecipe::getFromBlock,
+                CodecUtil.BLOCK_STREAM_CODEC,
+                MineralFountainRecipe::getToBlock,
+                MineralFountainRecipe::new);
 
         @Override
         public MapCodec<MineralFountainRecipe> codec() {

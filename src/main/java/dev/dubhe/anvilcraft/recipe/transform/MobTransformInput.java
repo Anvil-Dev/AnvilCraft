@@ -14,6 +14,10 @@ public class MobTransformInput implements RecipeInput {
         this.inputEntity = inputEntity;
     }
 
+    public static MobTransformInput of(LivingEntity entity) {
+        return new MobTransformInput(entity);
+    }
+
     @Override
     public ItemStack getItem(int i) {
         return ItemStack.EMPTY;
@@ -27,9 +31,5 @@ public class MobTransformInput implements RecipeInput {
     @Override
     public boolean isEmpty() {
         return false;
-    }
-
-    public static MobTransformInput of(LivingEntity entity) {
-        return new MobTransformInput(entity);
     }
 }

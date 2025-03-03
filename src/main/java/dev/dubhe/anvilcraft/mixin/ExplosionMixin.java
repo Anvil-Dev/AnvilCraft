@@ -29,21 +29,21 @@ abstract class ExplosionMixin {
     private Level level;
 
     @Inject(
-            method = "finalizeExplosion",
-            at =
-                    @At(
-                            value = "INVOKE",
-                            target =
-                                    "Lnet/minecraft/world/level/block/state/BlockState;onExplosionHit(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/Explosion;Ljava/util/function/BiConsumer;)V",
-                            shift = At.Shift.AFTER),
-            locals = LocalCapture.CAPTURE_FAILSOFT)
+        method = "finalizeExplosion",
+        at =
+        @At(
+            value = "INVOKE",
+            target =
+                "Lnet/minecraft/world/level/block/state/BlockState;onExplosionHit(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/Explosion;Ljava/util/function/BiConsumer;)V",
+            shift = At.Shift.AFTER),
+        locals = LocalCapture.CAPTURE_FAILSOFT)
     private void finalizeExplosion(
-            boolean pSpawnParticles,
-            CallbackInfo ci,
-            boolean flag,
-            List<Pair<ItemStack, BlockPos>> list,
-            ObjectListIterator<BlockPos> var4,
-            BlockPos blockpos) {
+        boolean pSpawnParticles,
+        CallbackInfo ci,
+        boolean flag,
+        List<Pair<ItemStack, BlockPos>> list,
+        ObjectListIterator<BlockPos> var4,
+        BlockPos blockpos) {
         BlockState state = this.level.getBlockState(blockpos);
         Block block = state.getBlock();
         if (block instanceof IHasMultiBlock multiBlock) {

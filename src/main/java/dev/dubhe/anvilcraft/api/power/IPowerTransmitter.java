@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.api.power;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-
 import org.jetbrains.annotations.NotNull;
 
 /**

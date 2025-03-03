@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import java.util.UUID;
 
 @Mixin(ZombieVillager.class)
-abstract public class ZombieVillagerMixin extends Zombie {
+public abstract class ZombieVillagerMixin extends Zombie {
 
     @Shadow
     private UUID conversionStarter;
@@ -33,14 +33,14 @@ abstract public class ZombieVillagerMixin extends Zombie {
             target = "Lnet/minecraft/world/entity/npc/Villager;refreshBrain(Lnet/minecraft/server/level/ServerLevel;)V"
         )
     )
-    private void discountForALlPlayers(Villager villager, ServerLevel serverLevel, Operation<Void> original){
+    private void discountForALlPlayers(Villager villager, ServerLevel serverLevel, Operation<Void> original) {
         if (this.conversionStarter.equals(ModDispenserBehavior.ANVILCRAFT_DISPENSER)) {
-                serverLevel.getServer()
-                    .getPlayerList()
-                    .getPlayers()
-                    .forEach(p -> {
-                        serverLevel.onReputationEvent(ReputationEventType.ZOMBIE_VILLAGER_CURED, p, villager);
-                    });
+            serverLevel.getServer()
+                .getPlayerList()
+                .getPlayers()
+                .forEach(p -> {
+                    serverLevel.onReputationEvent(ReputationEventType.ZOMBIE_VILLAGER_CURED, p, villager);
+                });
             this.conversionStarter = null;
         }
         original.call(villager, serverLevel);

@@ -148,7 +148,7 @@ public class ModItemTags {
         return TagKey.create(Registries.ITEM, AnvilCraft.of(id));
     }
 
-    public static Object2ObjectMap<Color, TagKey<Item>> initDyedTags(){
+    public static Object2ObjectMap<Color, TagKey<Item>> initDyedTags() {
         Object2ObjectMap<Color, TagKey<Item>> map = new Object2ObjectOpenHashMap<>();
         for (Color color : Color.values()) {
             map.put(color, bindC("dyed/" + color));

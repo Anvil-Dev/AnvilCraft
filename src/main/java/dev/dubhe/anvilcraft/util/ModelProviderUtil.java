@@ -29,10 +29,10 @@ public class ModelProviderUtil {
      */
     public static void bucket(DataGenContext<Item, ? extends BucketItem> ctx, RegistrateItemModelProvider provider) {
         provider.withExistingParent(
-                        ctx.getName(),
-                        ResourceLocation.parse("neoforge:item/bucket_drip"))
-                .customLoader((builder, helper) -> DynamicFluidContainerModelBuilder.begin(builder, helper)
-                        .fluid(ctx.get().content)
+                ctx.getName(),
+                ResourceLocation.parse("neoforge:item/bucket_drip"))
+            .customLoader((builder, helper) -> DynamicFluidContainerModelBuilder.begin(builder, helper)
+                .fluid(ctx.get().content)
             );
     }
 }

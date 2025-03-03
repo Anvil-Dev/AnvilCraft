@@ -10,7 +10,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-
 import org.jetbrains.annotations.NotNull;
 
 public class LevitationPowderItem extends Item {
@@ -19,9 +18,13 @@ public class LevitationPowderItem extends Item {
         super(properties);
     }
 
+    private static MobEffectInstance getEffectInstance(Holder<MobEffect> effect, int amplifier) {
+        return new MobEffectInstance(effect, 200, amplifier, true, true);
+    }
+
     @Override
     public void inventoryTick(
-            @NotNull ItemStack stack, @NotNull Level level, @NotNull Entity entity, int slotId, boolean isSelected) {
+        @NotNull ItemStack stack, @NotNull Level level, @NotNull Entity entity, int slotId, boolean isSelected) {
         super.inventoryTick(stack, level, entity, slotId, isSelected);
         if (!(entity instanceof Player player)) return;
         int curedNumber = this.hasItemNumber(player);
@@ -37,10 +40,6 @@ public class LevitationPowderItem extends Item {
         } else {
             player.addEffect(getEffectInstance(MobEffects.LEVITATION, 1));
         }
-    }
-
-    private static MobEffectInstance getEffectInstance(Holder<MobEffect> effect, int amplifier) {
-        return new MobEffectInstance(effect, 200, amplifier, true, true);
     }
 
     /**

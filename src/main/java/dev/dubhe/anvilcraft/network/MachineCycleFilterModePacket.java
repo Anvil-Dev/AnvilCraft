@@ -30,12 +30,6 @@ public class MachineCycleFilterModePacket implements CustomPacketPayload {
         this.filterMode = filterMode;
     }
 
-    @Override
-    @NotNull
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
-    }
-
     public static void serverHandler(MachineCycleFilterModePacket data, IPayloadContext context) {
         ServerPlayer player = (ServerPlayer) context.player();
         context.enqueueWork(() -> {
@@ -44,5 +38,11 @@ public class MachineCycleFilterModePacket implements CustomPacketPayload {
             menu.setFilterMode(data.filterMode);
             menu.flush();
         });
+    }
+
+    @Override
+    @NotNull
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

@@ -20,12 +20,12 @@ import static dev.dubhe.anvilcraft.block.entity.ItemDetectorBlockEntity.Mode;
 @MethodsReturnNonnullByDefault
 public class CycleFilterModeButton extends Button {
 
-    private final Supplier<Mode> filterMode;
     private static final String LOCATION_PREFIX = "textures/gui/container/machine/button_";
     private static final String LOCATION_SUFFIX = ".png";
     private static final MutableComponent DEFAULT_MESSAGE = Component.translatable(
         "screen.anvilcraft.button.filter_mode",
         Component.translatable("screen.anvilcraft.button.filter_mode_any"));
+    private final Supplier<Mode> filterMode;
 
     public CycleFilterModeButton(int x, int y, OnPress onPress, Supplier<Mode> filterMode) {
         super(x, y, 16, 16, DEFAULT_MESSAGE, onPress, Button.DEFAULT_NARRATION);
@@ -41,7 +41,7 @@ public class CycleFilterModeButton extends Button {
         }
     }
 
-    private String buttonPath(){
+    private String buttonPath() {
         return this.filterMode.get().buttonPath;
     }
 
@@ -78,7 +78,7 @@ public class CycleFilterModeButton extends Button {
         guiGraphics.blit(texture, x, y, puOffset, i, width, height, textureWidth, textureHeight);
     }
 
-    public Mode cycle(){
+    public Mode cycle() {
         return this.filterMode.get().cycle();
     }
 }

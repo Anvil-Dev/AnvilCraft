@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 public class RemoveTeslaFilterPacket implements CustomPacketPayload {
     public static final Type<RemoveTeslaFilterPacket> TYPE = new Type<>(AnvilCraft.of("tesla_filter_remove"));
     public static final StreamCodec<RegistryFriendlyByteBuf, RemoveTeslaFilterPacket> STREAM_CODEC =
-            StreamCodec.ofMember(RemoveTeslaFilterPacket::encode, RemoveTeslaFilterPacket::new);
+        StreamCodec.ofMember(RemoveTeslaFilterPacket::encode, RemoveTeslaFilterPacket::new);
     public static final IPayloadHandler<RemoveTeslaFilterPacket> HANDLER = RemoveTeslaFilterPacket::serverHandler;
 
     private final String id;
@@ -29,6 +29,15 @@ public class RemoveTeslaFilterPacket implements CustomPacketPayload {
         this.arg = buf.readUtf();
     }
 
+    public static void serverHandler(RemoveTeslaFilterPacket data, IPayloadContext context) {
+        ServerPlayer player = (ServerPlayer) context.player();
+        context.enqueueWork(() -> {
+            if (player.containerMenu instanceof TeslaTowerMenu menu) {
+                menu.removeFilter(data.id, data.arg);
+            }
+        });
+    }
+
     public void encode(@NotNull RegistryFriendlyByteBuf buf) {
         buf.writeUtf(id);
         buf.writeUtf(arg);
@@ -37,14 +46,5 @@ public class RemoveTeslaFilterPacket implements CustomPacketPayload {
     @Override
     public @NotNull Type<? extends CustomPacketPayload> type() {
         return TYPE;
-    }
-
-    public static void serverHandler(RemoveTeslaFilterPacket data, IPayloadContext context) {
-        ServerPlayer player = (ServerPlayer) context.player();
-        context.enqueueWork(() -> {
-            if (player.containerMenu instanceof TeslaTowerMenu menu) {
-                menu.removeFilter(data.id, data.arg);
-            }
-        });
     }
 }

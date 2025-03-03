@@ -35,7 +35,8 @@ abstract class FallingBlockEntityMixin extends Entity {
     @Shadow
     public boolean cancelDrop;
 
-    @Unique private float anvilcraft$fallDistance;
+    @Unique
+    private float anvilcraft$fallDistance;
 
     public FallingBlockEntityMixin(EntityType<?> entityType, Level level) {
         super(entityType, level);
@@ -73,8 +74,8 @@ abstract class FallingBlockEntityMixin extends Entity {
         NeoForge.EVENT_BUS.post(event);
         if (event.isAnvilDamage()) {
             BlockState state = this.blockState.is(ModBlocks.ROYAL_ANVIL.get())
-                    ? this.blockState
-                    : AnvilBlock.damage(this.blockState);
+                ? this.blockState
+                : AnvilBlock.damage(this.blockState);
             if (state != null) this.level().setBlockAndUpdate(blockPos, state);
             else {
                 this.level().setBlockAndUpdate(blockPos, Blocks.AIR.defaultBlockState());
@@ -94,12 +95,12 @@ abstract class FallingBlockEntityMixin extends Entity {
                 + "Lnet/minecraft/world/phys/AABB;Ljava/util/function/Predicate;)Ljava/util/List;")
     )
     private void anvilHurtEntity(
-            float pFallDistance,
-            float pMultiplier,
-            DamageSource pSource,
-            CallbackInfoReturnable<Boolean> cir,
-            @Local Predicate<Entity> predicate,
-            @Local(ordinal = 2) float f) {
+        float pFallDistance,
+        float pMultiplier,
+        DamageSource pSource,
+        CallbackInfoReturnable<Boolean> cir,
+        @Local Predicate<Entity> predicate,
+        @Local(ordinal = 2) float f) {
         FallingBlockEntity anvil = (FallingBlockEntity) (Object) this;
         Level level = this.level();
         List<Entity> entities = level.getEntities(this, this.getBoundingBox(), predicate);

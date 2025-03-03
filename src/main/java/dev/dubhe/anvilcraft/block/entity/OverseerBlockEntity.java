@@ -25,16 +25,16 @@ public class OverseerBlockEntity extends BlockEntity {
         this(ModBlockEntities.OVERSEER.get(), pos, blockState);
     }
 
+    private OverseerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+        super(type, pos, blockState);
+    }
+
     public static @NotNull OverseerBlockEntity createBlockEntity(
         BlockEntityType<?> type,
         BlockPos pos,
         BlockState blockState
     ) {
         return new OverseerBlockEntity(type, pos, blockState);
-    }
-
-    private OverseerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
-        super(type, pos, blockState);
     }
 
     /**

@@ -75,13 +75,13 @@ public class BatchCrafterBlock extends BetterBaseEntityBlock implements HammerRo
     }
 
     @Override
-    
+
     public boolean hasAnalogOutputSignal(@NotNull BlockState blockState) {
         return true;
     }
 
     @Override
-    
+
     public int getAnalogOutputSignal(@NotNull BlockState blockState, @NotNull Level level, @NotNull BlockPos blockPos) {
         BlockEntity blockEntity = level.getBlockEntity(blockPos);
         if (blockEntity instanceof BatchCrafterBlockEntity crafterBlockEntity) {
@@ -127,7 +127,7 @@ public class BatchCrafterBlock extends BetterBaseEntityBlock implements HammerRo
     }
 
     @Override
-    
+
     public void onRemove(
         @NotNull BlockState state,
         @NotNull Level level,
@@ -213,7 +213,7 @@ public class BatchCrafterBlock extends BetterBaseEntityBlock implements HammerRo
     }
 
     @Override
-    
+
     public void neighborChanged(
         @NotNull BlockState state,
         @NotNull Level level,
@@ -228,7 +228,7 @@ public class BatchCrafterBlock extends BetterBaseEntityBlock implements HammerRo
     }
 
     @Override
-    
+
     public void tick(
         @NotNull BlockState state,
         @NotNull ServerLevel level,

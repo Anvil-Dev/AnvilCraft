@@ -20,6 +20,17 @@ public class CacheableBERenderingPipeline {
     private final Map<ChunkPos, RenderRegion> renderRegions = new HashMap<>();
     private boolean valid = true;
 
+    public CacheableBERenderingPipeline(ClientLevel level) {
+        this.level = level;
+    }
+
+    public static void updateLevel(ClientLevel level) {
+        if (instance != null) {
+            instance.releaseBuffers();
+        }
+        instance = new CacheableBERenderingPipeline(level);
+    }
+
     public RenderRegion getRenderRegion(ChunkPos chunkPos) {
         if (renderRegions.containsKey(chunkPos)) {
             return renderRegions.get(chunkPos);
@@ -27,10 +38,6 @@ public class CacheableBERenderingPipeline {
         RenderRegion renderRegion = new RenderRegion(chunkPos, this);
         renderRegions.put(chunkPos, renderRegion);
         return renderRegion;
-    }
-
-    public CacheableBERenderingPipeline(ClientLevel level) {
-        this.level = level;
     }
 
     public void runTasks() {
@@ -42,19 +49,12 @@ public class CacheableBERenderingPipeline {
         }
     }
 
-    public static void updateLevel(ClientLevel level) {
-        if (instance != null) {
-            instance.releaseBuffers();
-        }
-        instance = new CacheableBERenderingPipeline(level);
-    }
-
-    public void blockRemoved(BlockEntity be){
+    public void blockRemoved(BlockEntity be) {
         ChunkPos chunkPos = new ChunkPos(be.getBlockPos());
         getRenderRegion(chunkPos).blockRemoved(be);
     }
 
-    public void update(BlockEntity be){
+    public void update(BlockEntity be) {
         ChunkPos chunkPos = new ChunkPos(be.getBlockPos());
         getRenderRegion(chunkPos).update(be);
     }

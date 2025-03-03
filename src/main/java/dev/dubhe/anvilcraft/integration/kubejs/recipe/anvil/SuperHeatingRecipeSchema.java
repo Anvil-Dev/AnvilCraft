@@ -21,6 +21,16 @@ import java.util.Arrays;
 import java.util.List;
 
 public interface SuperHeatingRecipeSchema {
+    RecipeKey<List<Ingredient>> INGREDIENTS = IngredientComponent.INGREDIENT.asList().inputKey("ingredients").defaultOptional();
+    RecipeKey<List<ChanceItemStack>> RESULTS = AnvilCraftRecipeComponents.CHANCE_ITEM_STACK.asList().inputKey("results").defaultOptional();
+    RecipeKey<Block> BLOCK_RESULT = BlockComponent.BLOCK.outputKey("block_result").optional(Blocks.AIR);
+    RecipeSchema SCHEMA = new RecipeSchema(INGREDIENTS, RESULTS, BLOCK_RESULT)
+        .factory(new KubeRecipeFactory(AnvilCraft.of("super_heating"), SuperHeatingRecipeSchema.class, SuperHeatingKubeRecipe::new))
+        .constructor(INGREDIENTS, RESULTS, BLOCK_RESULT)
+        .constructor(INGREDIENTS, RESULTS)
+        .constructor(new IDRecipeConstructor())
+        .constructor();
+
     @SuppressWarnings({"DataFlowIssue", "unused"})
     class SuperHeatingKubeRecipe extends AnvilCraftKubeRecipe {
         public SuperHeatingKubeRecipe requires(Ingredient... ingredient) {
@@ -57,23 +67,12 @@ public interface SuperHeatingRecipeSchema {
 
         @Override
         protected void validate() {
-            if (computeIfAbsent(INGREDIENTS, ArrayList::new).isEmpty()){
+            if (computeIfAbsent(INGREDIENTS, ArrayList::new).isEmpty()) {
                 throw new KubeRuntimeException("Inputs is Empty!").source(sourceLine);
             }
-            if (computeIfAbsent(RESULTS, ArrayList::new).isEmpty()){
+            if (computeIfAbsent(RESULTS, ArrayList::new).isEmpty()) {
                 throw new KubeRuntimeException("Result is Empty!").source(sourceLine);
             }
         }
     }
-
-    RecipeKey<List<Ingredient>> INGREDIENTS = IngredientComponent.INGREDIENT.asList().inputKey("ingredients").defaultOptional();
-    RecipeKey<List<ChanceItemStack>> RESULTS = AnvilCraftRecipeComponents.CHANCE_ITEM_STACK.asList().inputKey("results").defaultOptional();
-    RecipeKey<Block> BLOCK_RESULT = BlockComponent.BLOCK.outputKey("block_result").optional(Blocks.AIR);
-
-    RecipeSchema SCHEMA = new RecipeSchema(INGREDIENTS, RESULTS, BLOCK_RESULT)
-        .factory(new KubeRecipeFactory(AnvilCraft.of("super_heating"), SuperHeatingRecipeSchema.class, SuperHeatingKubeRecipe::new))
-        .constructor(INGREDIENTS, RESULTS, BLOCK_RESULT)
-        .constructor(INGREDIENTS, RESULTS)
-        .constructor(new IDRecipeConstructor())
-        .constructor();
 }

@@ -17,10 +17,12 @@ import javax.annotation.ParametersAreNonnullByDefault;
 public class HoneyCauldronWrapper implements IItemHandler {
     private final Level level;
     private final BlockPos pos;
+
     public HoneyCauldronWrapper(Level level, BlockPos pos) {
         this.level = level;
         this.pos = pos;
     }
+
     @Override
     public int getSlots() {
         return 1;

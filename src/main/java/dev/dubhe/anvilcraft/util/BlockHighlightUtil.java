@@ -32,20 +32,20 @@ import java.util.concurrent.atomic.AtomicReference;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BlockHighlightUtil {
     public static final RenderType NO_DEPTH = RenderType.create(
-            AnvilCraft.MOD_ID + "_no_depth",
-            DefaultVertexFormat.POSITION_COLOR_NORMAL,
-            VertexFormat.Mode.LINES,
-            256,
-            true,
-            true,
-            RenderType.CompositeState.builder()
-                    .setShaderState(RenderStateShard.RENDERTYPE_LINES_SHADER)
-                    .setWriteMaskState(RenderStateShard.COLOR_WRITE)
-                    .setCullState(RenderStateShard.NO_CULL)
-                    .setDepthTestState(RenderStateShard.NO_DEPTH_TEST)
-                    .setLayeringState(RenderStateShard.VIEW_OFFSET_Z_LAYERING)
-                    .setLineState(new RenderStateShard.LineStateShard(OptionalDouble.of(2)))
-                    .createCompositeState(true));
+        AnvilCraft.MOD_ID + "_no_depth",
+        DefaultVertexFormat.POSITION_COLOR_NORMAL,
+        VertexFormat.Mode.LINES,
+        256,
+        true,
+        true,
+        RenderType.CompositeState.builder()
+            .setShaderState(RenderStateShard.RENDERTYPE_LINES_SHADER)
+            .setWriteMaskState(RenderStateShard.COLOR_WRITE)
+            .setCullState(RenderStateShard.NO_CULL)
+            .setDepthTestState(RenderStateShard.NO_DEPTH_TEST)
+            .setLayeringState(RenderStateShard.VIEW_OFFSET_Z_LAYERING)
+            .setLineState(new RenderStateShard.LineStateShard(OptionalDouble.of(2)))
+            .createCompositeState(true));
     public static final Map<Vector3ic, Long> SUBCHUNKS = new HashMap<>();
 
     private static final AtomicReference<Level> LEVEL_REF = new AtomicReference<>();
@@ -63,9 +63,9 @@ public class BlockHighlightUtil {
         }
         if (level == null) return;
         SUBCHUNKS.put(
-                new Vector3i(
-                        Math.floorDiv(pos.getX(), 16), Math.floorDiv(pos.getY(), 16), Math.floorDiv(pos.getZ(), 16)),
-                level.getGameTime());
+            new Vector3i(
+                Math.floorDiv(pos.getX(), 16), Math.floorDiv(pos.getY(), 16), Math.floorDiv(pos.getZ(), 16)),
+            level.getGameTime());
     }
 
     /**
@@ -77,7 +77,7 @@ public class BlockHighlightUtil {
      * @param camera    相机
      */
     public static void render(
-            Level level, @NotNull MultiBufferSource consumers, @NotNull PoseStack poseStack, @NotNull Camera camera) {
+        Level level, @NotNull MultiBufferSource consumers, @NotNull PoseStack poseStack, @NotNull Camera camera) {
         VertexConsumer consumer = consumers.getBuffer(NO_DEPTH);
         Vec3 cameraPos = camera.getPosition();
         int color = 0xFF8932B8;
@@ -94,27 +94,27 @@ public class BlockHighlightUtil {
             Vector3ic pos1 = subchunk.mul(16, new Vector3i());
             Vector3ic pos2 = pos1.add(16, 16, 16, new Vector3i());
             LevelRenderer.renderLineBox(
-                    poseStack,
-                    consumer,
-                    pos1.x(),
-                    pos1.y(),
-                    pos1.z(),
-                    pos2.x(),
-                    pos2.y(),
-                    pos2.z(),
-                    (color >> 16 & 0xFF) / 255f,
-                    (color >> 8 & 0xFF) / 255f,
-                    (color & 0xFF) / 255f,
-                    (color >> 24) / 255f);
+                poseStack,
+                consumer,
+                pos1.x(),
+                pos1.y(),
+                pos1.z(),
+                pos2.x(),
+                pos2.y(),
+                pos2.z(),
+                (color >> 16 & 0xFF) / 255f,
+                (color >> 8 & 0xFF) / 255f,
+                (color & 0xFF) / 255f,
+                (color >> 24) / 255f);
         }
         poseStack.popPose();
     }
 
-    static void setLevel(Level level) {
-        LEVEL_REF.set(level);
-    }
-
     static Level getLevel() {
         return LEVEL_REF.get();
+    }
+
+    static void setLevel(Level level) {
+        LEVEL_REF.set(level);
     }
 }

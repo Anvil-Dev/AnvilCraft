@@ -16,7 +16,7 @@ import lombok.Getter;
 public class RocketJumpPacket implements CustomPacketPayload {
     public static final Type<RocketJumpPacket> TYPE = new Type<>(AnvilCraft.of("rocket_jump"));
     public static final StreamCodec<RegistryFriendlyByteBuf, RocketJumpPacket> STREAM_CODEC =
-            StreamCodec.composite(ByteBufCodecs.DOUBLE, RocketJumpPacket::getPower, RocketJumpPacket::new);
+        StreamCodec.composite(ByteBufCodecs.DOUBLE, RocketJumpPacket::getPower, RocketJumpPacket::new);
     public static final IPayloadHandler<RocketJumpPacket> HANDLER = RocketJumpPacket::clientHandler;
     private final double power;
 
@@ -24,13 +24,13 @@ public class RocketJumpPacket implements CustomPacketPayload {
         this.power = power;
     }
 
-    @Override
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
-    }
-
     public static void clientHandler(RocketJumpPacket data, IPayloadContext context) {
         LocalPlayer player = (LocalPlayer) context.player();
         context.enqueueWork(() -> player.setDeltaMovement(0, data.power, 0));
+    }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

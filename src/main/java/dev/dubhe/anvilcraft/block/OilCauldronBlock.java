@@ -28,7 +28,7 @@ public class OilCauldronBlock extends Layered4LevelCauldronBlock implements IHam
         super(properties, ModInteractionMap.OIL);
     }
 
-    public static void ignite(Level level, BlockPos pos, BlockState beforeConvert){
+    public static void ignite(Level level, BlockPos pos, BlockState beforeConvert) {
         level.setBlockAndUpdate(pos, ModBlocks.FIRE_CAULDRON.get().copyLevelFrom(beforeConvert));
     }
 
@@ -52,13 +52,13 @@ public class OilCauldronBlock extends Layered4LevelCauldronBlock implements IHam
 
     @Override
     public ItemInteractionResult useItemOn(
-            ItemStack stack,
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            Player player,
-            InteractionHand hand,
-            BlockHitResult hitResult
+        ItemStack stack,
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        InteractionHand hand,
+        BlockHitResult hitResult
     ) {
         CauldronInteraction interaction = this.interactions.map().get(stack.getItem());
         if (interaction == null) {

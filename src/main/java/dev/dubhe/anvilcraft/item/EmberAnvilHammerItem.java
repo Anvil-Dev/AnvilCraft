@@ -35,7 +35,7 @@ public class EmberAnvilHammerItem extends AnvilHammerItem implements IInherentEn
     }
 
     @Override
-    public Block getAnvil(){
+    public Block getAnvil() {
         return ModBlocks.EMBER_ANVIL.get();
     }
 

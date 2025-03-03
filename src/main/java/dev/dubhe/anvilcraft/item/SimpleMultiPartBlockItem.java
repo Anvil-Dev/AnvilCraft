@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.item;
 
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.ISimpleMultiPartBlockState;
-
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -35,7 +34,7 @@ public class SimpleMultiPartBlockItem<P extends Enum<P> & ISimpleMultiPartBlockS
         for (P part : this.block.getParts()) {
             BlockPos offset = pos.offset(part.getOffset());
             BlockState blockState =
-                    level.isWaterAt(offset) ? Blocks.WATER.defaultBlockState() : Blocks.AIR.defaultBlockState();
+                level.isWaterAt(offset) ? Blocks.WATER.defaultBlockState() : Blocks.AIR.defaultBlockState();
             level.setBlock(offset, blockState, 27);
         }
         return super.placeBlock(context, state);
@@ -46,8 +45,8 @@ public class SimpleMultiPartBlockItem<P extends Enum<P> & ISimpleMultiPartBlockS
         int i = 0;
         for (P part : this.block.getParts()) {
             int x = part.getOffsetX() * normal.getX()
-                    + part.getOffsetY() * normal.getY()
-                    + part.getOffsetZ() * normal.getZ();
+                + part.getOffsetY() * normal.getY()
+                + part.getOffsetZ() * normal.getZ();
             i = Math.max(x, i);
         }
         return ++i;
@@ -59,15 +58,15 @@ public class SimpleMultiPartBlockItem<P extends Enum<P> & ISimpleMultiPartBlockS
         Direction clickedFace = context.getClickedFace();
         if (result == InteractionResult.FAIL) {
             return super.useOn(new UseOnContext(
-                    context.getLevel(),
-                    context.getPlayer(),
-                    context.getHand(),
-                    context.getItemInHand(),
-                    new BlockHitResult(
-                            context.getClickLocation().relative(clickedFace, this.getMaxOffsetDistance(clickedFace)),
-                            clickedFace,
-                            context.getClickedPos().relative(clickedFace, this.getMaxOffsetDistance(clickedFace)),
-                            false)));
+                context.getLevel(),
+                context.getPlayer(),
+                context.getHand(),
+                context.getItemInHand(),
+                new BlockHitResult(
+                    context.getClickLocation().relative(clickedFace, this.getMaxOffsetDistance(clickedFace)),
+                    clickedFace,
+                    context.getClickedPos().relative(clickedFace, this.getMaxOffsetDistance(clickedFace)),
+                    false)));
         }
         return result;
     }

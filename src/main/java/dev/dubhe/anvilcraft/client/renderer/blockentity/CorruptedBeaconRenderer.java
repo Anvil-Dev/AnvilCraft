@@ -42,61 +42,6 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
         blockRenderer = context.getBlockRenderDispatcher();
     }
 
-    @Override
-    public void render(
-        @NotNull CorruptedBeaconBlockEntity blockEntity,
-        float partialTick,
-        @NotNull PoseStack poseStack,
-        @NotNull MultiBufferSource buffer,
-        int packedLight,
-        int packedOverlay
-    ) {
-        poseStack.pushPose();
-        if (blockEntity.getLevel() == null) return;
-        long l = blockEntity.getLevel().getGameTime();
-        List<CorruptedBeaconBlockEntity.BeaconBeamSection> list = blockEntity.getBeamSections();
-        int i = 0;
-        for (int j = 0; j < list.size(); ++j) {
-            CorruptedBeaconBlockEntity.BeaconBeamSection beaconBeamSection = list.get(j);
-            CorruptedBeaconRenderer.renderBeaconBeam(
-                poseStack,
-                buffer,
-                partialTick,
-                l,
-                i,
-                j == list.size() - 1 ? MAX_RENDER_Y : beaconBeamSection.getHeight(),
-                beaconBeamSection.getColor());
-            i += beaconBeamSection.getHeight();
-        }
-
-        BakedModel model = blockRenderer.getBlockModel(defaultLightState);
-        poseStack.translate(0.005f, 0.005f, 0.005f);
-        poseStack.scale(0.99f, 0.99f, 0.99f);
-        VertexConsumer vertexConsumer = buffer.getBuffer(ModRenderTypes.BEACON_GLASS);
-        for (Direction value : Direction.values()) {
-            List<BakedQuad> quads = model.getQuads(
-                null,
-                value,
-                blockEntity.getLevel().random,
-                ModelData.EMPTY,
-                null
-            );
-            for (BakedQuad quad : quads) {
-                vertexConsumer.putBulkData(
-                    poseStack.last(),
-                    quad,
-                    109 / 255f,
-                    1 / 255f,
-                    206 / 255f,
-                    0.3f,
-                    packedLight,
-                    packedOverlay
-                );
-            }
-        }
-        poseStack.popPose();
-    }
-
     private static void renderBeaconBeam(
         PoseStack pPoseStack,
         MultiBufferSource pBufferSource,
@@ -253,6 +198,61 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
             .setLight(15728880)
             .setUv2(0xF000F0 & '\uffff', 0xF000F0 & '\uffff')
             .setNormal(pPose, 0.0F, 1.0F, 0.0F);
+    }
+
+    @Override
+    public void render(
+        @NotNull CorruptedBeaconBlockEntity blockEntity,
+        float partialTick,
+        @NotNull PoseStack poseStack,
+        @NotNull MultiBufferSource buffer,
+        int packedLight,
+        int packedOverlay
+    ) {
+        poseStack.pushPose();
+        if (blockEntity.getLevel() == null) return;
+        long l = blockEntity.getLevel().getGameTime();
+        List<CorruptedBeaconBlockEntity.BeaconBeamSection> list = blockEntity.getBeamSections();
+        int i = 0;
+        for (int j = 0; j < list.size(); ++j) {
+            CorruptedBeaconBlockEntity.BeaconBeamSection beaconBeamSection = list.get(j);
+            CorruptedBeaconRenderer.renderBeaconBeam(
+                poseStack,
+                buffer,
+                partialTick,
+                l,
+                i,
+                j == list.size() - 1 ? MAX_RENDER_Y : beaconBeamSection.getHeight(),
+                beaconBeamSection.getColor());
+            i += beaconBeamSection.getHeight();
+        }
+
+        BakedModel model = blockRenderer.getBlockModel(defaultLightState);
+        poseStack.translate(0.005f, 0.005f, 0.005f);
+        poseStack.scale(0.99f, 0.99f, 0.99f);
+        VertexConsumer vertexConsumer = buffer.getBuffer(ModRenderTypes.BEACON_GLASS);
+        for (Direction value : Direction.values()) {
+            List<BakedQuad> quads = model.getQuads(
+                null,
+                value,
+                blockEntity.getLevel().random,
+                ModelData.EMPTY,
+                null
+            );
+            for (BakedQuad quad : quads) {
+                vertexConsumer.putBulkData(
+                    poseStack.last(),
+                    quad,
+                    109 / 255f,
+                    1 / 255f,
+                    206 / 255f,
+                    0.3f,
+                    packedLight,
+                    packedOverlay
+                );
+            }
+        }
+        poseStack.popPose();
     }
 
     @Override

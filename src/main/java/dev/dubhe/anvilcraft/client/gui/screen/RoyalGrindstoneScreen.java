@@ -11,10 +11,10 @@ import org.jetbrains.annotations.NotNull;
 
 public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindstoneMenu> {
     private static final ResourceLocation GRINDSTONE_LOCATION =
-            AnvilCraft.of("textures/gui/container/smithing/background/royal_grindstone.png");
+        AnvilCraft.of("textures/gui/container/smithing/background/royal_grindstone.png");
 
     public RoyalGrindstoneScreen(
-            RoyalGrindstoneMenu menu, Inventory playerInventory, @SuppressWarnings("unused") Component title) {
+        RoyalGrindstoneMenu menu, Inventory playerInventory, @SuppressWarnings("unused") Component title) {
         super(menu, playerInventory, Component.translatable("screen.anvilcraft.royal_grindstone.title"));
     }
 
@@ -52,15 +52,15 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
                 usedGoldText,
                 guiGraphics);
             drawLabel(
-                    170 - this.font.width(removedCurseCountText),
-                    13,
-                    removedCurseCountText,
-                    guiGraphics);
+                170 - this.font.width(removedCurseCountText),
+                13,
+                removedCurseCountText,
+                guiGraphics);
             drawLabel(
-                    170 - this.font.width(removedRepairCostText),
-                    58,
-                    removedRepairCostText,
-                    guiGraphics);
+                170 - this.font.width(removedRepairCostText),
+                58,
+                removedRepairCostText,
+                guiGraphics);
         }
     }
 

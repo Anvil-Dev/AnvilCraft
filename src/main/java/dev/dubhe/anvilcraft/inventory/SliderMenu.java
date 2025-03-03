@@ -32,7 +32,7 @@ public class SliderMenu extends AbstractContainerMenu {
 
     /**
      * @param containerId 容器ID
-     * @param callback      更新回调
+     * @param callback    更新回调
      */
     public SliderMenu(int containerId, int min, int max, Callback<Integer> callback) {
         super(ModMenuTypes.SLIDER.get(), containerId);

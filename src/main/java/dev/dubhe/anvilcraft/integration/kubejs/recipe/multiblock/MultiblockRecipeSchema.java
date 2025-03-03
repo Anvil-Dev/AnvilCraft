@@ -13,6 +13,14 @@ import dev.latvian.mods.kubejs.recipe.schema.RecipeSchema;
 import net.minecraft.world.item.ItemStack;
 
 public interface MultiblockRecipeSchema {
+    RecipeKey<BlockPattern> BLOCK_PATTERN = AnvilCraftRecipeComponents.BLOCK_PATTERN.inputKey("pattern").defaultOptional();
+    RecipeKey<ItemStack> RESULT = ItemStackComponent.STRICT_ITEM_STACK.outputKey("result").defaultOptional();
+    RecipeSchema SCHEMA = new RecipeSchema(BLOCK_PATTERN, RESULT)
+        .factory(new KubeRecipeFactory(AnvilCraft.of("mulitblock"), MultiblockKubeRecipe.class, MultiblockKubeRecipe::new))
+        .constructor(BLOCK_PATTERN, RESULT)
+        .constructor(new IDRecipeConstructor())
+        .constructor();
+
     @SuppressWarnings({"DataFlowIssue", "unused"})
     class MultiblockKubeRecipe extends KubeRecipe {
         public MultiblockKubeRecipe layer(String... layers) {
@@ -35,13 +43,4 @@ public interface MultiblockRecipeSchema {
             return this;
         }
     }
-
-    RecipeKey<BlockPattern> BLOCK_PATTERN = AnvilCraftRecipeComponents.BLOCK_PATTERN.inputKey("pattern").defaultOptional();
-    RecipeKey<ItemStack> RESULT = ItemStackComponent.STRICT_ITEM_STACK.outputKey("result").defaultOptional();
-
-    RecipeSchema SCHEMA = new RecipeSchema(BLOCK_PATTERN, RESULT)
-        .factory(new KubeRecipeFactory(AnvilCraft.of("mulitblock"), MultiblockKubeRecipe.class, MultiblockKubeRecipe::new))
-        .constructor(BLOCK_PATTERN, RESULT)
-        .constructor(new IDRecipeConstructor())
-        .constructor();
 }

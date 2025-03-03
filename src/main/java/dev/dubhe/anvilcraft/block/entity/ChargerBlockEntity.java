@@ -27,9 +27,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
-public class ChargerBlockEntity extends BlockEntity
-        implements IPowerConsumer, IPowerProducer, IFilterBlockEntity, StateListener<Boolean>, IItemHandlerHolder
-{
+public class ChargerBlockEntity extends BlockEntity implements IPowerConsumer, IPowerProducer, IFilterBlockEntity, StateListener<Boolean>, IItemHandlerHolder {
 
     @Setter
     private boolean isCharger;
@@ -37,9 +35,6 @@ public class ChargerBlockEntity extends BlockEntity
     private boolean previousDischargeFailed = false;
     private int cd;
     private boolean locked = false;
-    private boolean powered = false;
-    private boolean jumpOver = false;
-
     @Getter
     private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(1) {
 
@@ -76,7 +71,8 @@ public class ChargerBlockEntity extends BlockEntity
             return !locked ? super.extractItem(slot, amount, simulate) : ItemStack.EMPTY;
         }
     };
-
+    private boolean powered = false;
+    private boolean jumpOver = false;
     @Getter
     @Setter
     private PowerGrid grid;

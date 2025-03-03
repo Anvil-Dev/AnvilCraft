@@ -5,7 +5,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 
-public class IsPlayerIdFilter extends TeslaFilter{
+public class IsPlayerIdFilter extends TeslaFilter {
     @Getter
     private final String id = "IsPlayerIdFilter";
 
@@ -15,7 +15,9 @@ public class IsPlayerIdFilter extends TeslaFilter{
     }
 
     @Override
-    public boolean needArg() { return true; }
+    public boolean needArg() {
+        return true;
+    }
 
     @Override
     public Component title() {

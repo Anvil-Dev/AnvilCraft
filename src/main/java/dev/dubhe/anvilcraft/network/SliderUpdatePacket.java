@@ -18,18 +18,13 @@ import lombok.Getter;
 public class SliderUpdatePacket implements CustomPacketPayload {
     public static final Type<SliderUpdatePacket> TYPE = new Type<>(AnvilCraft.of("slider_update"));
     public static final StreamCodec<RegistryFriendlyByteBuf, SliderUpdatePacket> STREAM_CODEC =
-            StreamCodec.composite(ByteBufCodecs.INT, SliderUpdatePacket::getValue, SliderUpdatePacket::new);
+        StreamCodec.composite(ByteBufCodecs.INT, SliderUpdatePacket::getValue, SliderUpdatePacket::new);
     public static final IPayloadHandler<SliderUpdatePacket> HANDLER = SliderUpdatePacket::serverHandler;
 
     private final int value;
 
     public SliderUpdatePacket(int value) {
         this.value = value;
-    }
-
-    @Override
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
     }
 
     public static void serverHandler(SliderUpdatePacket data, IPayloadContext context) {
@@ -42,5 +37,10 @@ public class SliderUpdatePacket implements CustomPacketPayload {
                 callback.onValueChange(data.value);
             }
         });
+    }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

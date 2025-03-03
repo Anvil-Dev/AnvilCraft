@@ -46,11 +46,11 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
     protected int tickCount = 0;
 
     protected HashSet<BaseLaserBlockEntity> irradiateSelfLaserBlockSet = new HashSet<>();
-    private boolean changed = false;
     @Getter
     protected BlockPos irradiateBlockPos = null;
     @Getter
     protected int laserLevel = 0;
+    private boolean changed = false;
 
     public BaseLaserBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -305,8 +305,8 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         }
     }
 
-    public void updateLaserLevel(int value){
-        if (laserLevel != value){
+    public void updateLaserLevel(int value) {
+        if (laserLevel != value) {
             markChanged();
         }
         laserLevel = value;

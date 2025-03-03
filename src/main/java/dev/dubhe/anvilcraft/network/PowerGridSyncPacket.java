@@ -44,15 +44,6 @@ public class PowerGridSyncPacket implements CustomPacketPayload {
             SimplePowerGrid.CODEC.decode(NbtOps.INSTANCE, data).getOrThrow().getFirst();
     }
 
-    public void encode(@NotNull FriendlyByteBuf buf) {
-        this.grid.encode(buf);
-    }
-
-    @Override
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
-    }
-
     public static void clientHandler(PowerGridSyncPacket data, IPayloadContext context) {
         context.enqueueWork(() -> PowerGridClient.getGridMap().compute(
             data.grid.getId(),
@@ -61,5 +52,14 @@ public class PowerGridSyncPacket implements CustomPacketPayload {
                 return data.grid;
             }
         ));
+    }
+
+    public void encode(@NotNull FriendlyByteBuf buf) {
+        this.grid.encode(buf);
+    }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

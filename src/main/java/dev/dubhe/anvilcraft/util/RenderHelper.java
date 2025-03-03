@@ -208,7 +208,6 @@ public class RenderHelper {
     }
 
 
-
     public static void renderBlock(
         GuiGraphics guiGraphics,
         BlockState block,
@@ -232,12 +231,12 @@ public class RenderHelper {
     }
 
     public static void renderLevelLike(
-            LevelLike level,
-            GuiGraphics guiGraphics,
-            int xPos,
-            int yPos,
-            float scaleFactor,
-            float rotationSpeed) {
+        LevelLike level,
+        GuiGraphics guiGraphics,
+        int xPos,
+        int yPos,
+        float scaleFactor,
+        float rotationSpeed) {
         RenderSystem.enableBlend();
         Minecraft minecraft = Minecraft.getInstance();
         DeltaTracker tracker = minecraft.getTimer();
@@ -310,7 +309,7 @@ public class RenderHelper {
         GuiGraphics guiGraphics,
         int xPos,
         int yPos,
-        float scale){
+        float scale) {
         renderLevelLike(level, guiGraphics, xPos, yPos, scale, 0.0f);
     }
 
@@ -319,7 +318,7 @@ public class RenderHelper {
         if (BLOCK_ENTITY_CACHE.containsKey(state)) return Optional.of(BLOCK_ENTITY_CACHE.get(state));
         Optional<BlockEntity> opt = Optional.of(state.getBlock())
             .filter(b -> b instanceof EntityBlock)
-            .map(b -> ((EntityBlock)b).newBlockEntity(BlockPos.ZERO, state));
+            .map(b -> ((EntityBlock) b).newBlockEntity(BlockPos.ZERO, state));
         opt.ifPresent(be -> {
             BLOCK_ENTITY_CACHE.put(state, be);
             if (BLOCK_ENTITY_CACHE.size() > MAX_CACHE_SIZE) {
@@ -401,7 +400,7 @@ public class RenderHelper {
         MultiBufferSource bufferSource,
         int combinedLight,
         int combinedOverlay,
-        BakedModel p_model,
+        BakedModel pModel,
         float alpha
     ) {
         if (!itemStack.isEmpty()) {
@@ -409,15 +408,15 @@ public class RenderHelper {
             boolean flag = displayContext == ItemDisplayContext.GUI || displayContext == ItemDisplayContext.GROUND || displayContext == ItemDisplayContext.FIXED;
             if (flag) {
                 if (itemStack.is(Items.TRIDENT)) {
-                    p_model = itemRenderer.getItemModelShaper().getModelManager().getModel(TRIDENT_MODEL);
+                    pModel = itemRenderer.getItemModelShaper().getModelManager().getModel(TRIDENT_MODEL);
                 } else if (itemStack.is(Items.SPYGLASS)) {
-                    p_model = itemRenderer.getItemModelShaper().getModelManager().getModel(SPYGLASS_MODEL);
+                    pModel = itemRenderer.getItemModelShaper().getModelManager().getModel(SPYGLASS_MODEL);
                 }
             }
 
-            p_model = net.neoforged.neoforge.client.ClientHooks.handleCameraTransforms(poseStack, p_model, displayContext, leftHand);
+            pModel = net.neoforged.neoforge.client.ClientHooks.handleCameraTransforms(poseStack, pModel, displayContext, leftHand);
             poseStack.translate(-0.5F, -0.5F, -0.5F);
-            if (!p_model.isCustomRenderer() && (!itemStack.is(Items.TRIDENT) || flag)) {
+            if (!pModel.isCustomRenderer() && (!itemStack.is(Items.TRIDENT) || flag)) {
                 boolean flag1;
                 if (displayContext != ItemDisplayContext.GUI && !displayContext.firstPerson() && itemStack.getItem() instanceof BlockItem blockitem) {
                     Block block = blockitem.getBlock();
@@ -426,7 +425,7 @@ public class RenderHelper {
                     flag1 = true;
                 }
 
-                for (BakedModel model : p_model.getRenderPasses(itemStack, flag1)) {
+                for (BakedModel model : pModel.getRenderPasses(itemStack, flag1)) {
                     for (RenderType rendertype : model.getRenderTypes(itemStack, flag1)) {
                         VertexConsumer vertexconsumer;
                         if (hasAnimatedTexture(itemStack) && itemStack.hasFoil()) {

@@ -103,7 +103,7 @@ public class RemoteTransmissionPoleBlock
         BlockGetter level,
         BlockPos pos,
         CollisionContext context) {
-        return switch (state.getValue(HALF)){
+        return switch (state.getValue(HALF)) {
             case BOTTOM -> TRANSMISSION_POLE_BASE;
             case MID_UPPER, MID_LOWER -> TRANSMISSION_POLE_MID;
             case TOP -> TRANSMISSION_POLE_TOP;

@@ -32,18 +32,17 @@ import javax.annotation.ParametersAreNonnullByDefault;
 public class PiezoelectricCrystalBlock extends Block implements IHammerRemovable {
 
     private static final Map<Block, List<Integer>> ANVIL_TYPES = new HashMap<>();
-
-    static {
-        ANVIL_TYPES.put(ModBlocks.SPECTRAL_ANVIL.get(),List.of(1,2,3,4));
-        ANVIL_TYPES.put(ModBlocks.ROYAL_ANVIL.get(),List.of(1,2,4,8));
-        ANVIL_TYPES.put(Blocks.ANVIL,List.of(1,2,4,8));
-        ANVIL_TYPES.put(Blocks.CHIPPED_ANVIL,List.of(1,2,4,8));
-        ANVIL_TYPES.put(Blocks.DAMAGED_ANVIL,List.of(1,2,4,8));
-        ANVIL_TYPES.put(ModBlocks.EMBER_ANVIL.get(),List.of(1,2,5,12));
-    }
-
     public static VoxelShape SHAPE =
         Shapes.or(Block.box(0, 14, 0, 16, 16, 16), Block.box(2, 2, 2, 14, 14, 14), Block.box(0, 0, 0, 16, 2, 16));
+
+    static {
+        ANVIL_TYPES.put(ModBlocks.SPECTRAL_ANVIL.get(), List.of(1, 2, 3, 4));
+        ANVIL_TYPES.put(ModBlocks.ROYAL_ANVIL.get(), List.of(1, 2, 4, 8));
+        ANVIL_TYPES.put(Blocks.ANVIL, List.of(1, 2, 4, 8));
+        ANVIL_TYPES.put(Blocks.CHIPPED_ANVIL, List.of(1, 2, 4, 8));
+        ANVIL_TYPES.put(Blocks.DAMAGED_ANVIL, List.of(1, 2, 4, 8));
+        ANVIL_TYPES.put(ModBlocks.EMBER_ANVIL.get(), List.of(1, 2, 5, 12));
+    }
 
     public PiezoelectricCrystalBlock(Properties properties) {
         super(properties);
@@ -73,7 +72,7 @@ public class PiezoelectricCrystalBlock extends Block implements IHammerRemovable
      */
     public void onHitByAnvil(FallingBlockEntity entity, float fallDistance, Level level, BlockPos blockPos) {
         List<Integer> chargeNums = ANVIL_TYPES.get(entity.blockState.getBlock());
-        if(chargeNums == null) return;
+        if (chargeNums == null) return;
         int distance = (int) Math.min(chargeNums.size() - 1, fallDistance);
         int chargeNum = chargeNums.get(distance);
         this.charge(chargeNum, level, blockPos);

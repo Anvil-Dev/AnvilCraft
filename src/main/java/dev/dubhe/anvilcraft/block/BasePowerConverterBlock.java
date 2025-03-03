@@ -33,10 +33,9 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public abstract class BasePowerConverterBlock extends BetterBaseEntityBlock implements IHammerRemovable {
-    private final int inputPower;
-
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
+    private final int inputPower;
 
     /**
      * 基本电源转换器模块
@@ -56,13 +55,13 @@ public abstract class BasePowerConverterBlock extends BetterBaseEntityBlock impl
         builder.add(FACING, OVERLOAD);
     }
 
-    
+
     @Override
     public BlockState rotate(BlockState state, Rotation rotation) {
         return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
 
-    
+
     @Override
     public BlockState mirror(BlockState state, Mirror mirror) {
         return state.rotate(mirror.getRotation(state.getValue(FACING)));

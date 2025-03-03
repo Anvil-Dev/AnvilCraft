@@ -49,6 +49,16 @@ public class EndPortalConversionCategory implements IRecipeCategory<EndPortalCon
         arrowOut = helper.createDrawable(TextureConstants.ANVIL_CRAFT_SPRITES, 0, 40, 16, 10);
     }
 
+    public static void registerRecipes(IRecipeRegistration registration) {
+        registration.addRecipes(
+            AnvilCraftJeiPlugin.END_PORTAL_CONVERSION,
+            EndPortalConversionRecipe.getAllRecipes());
+    }
+
+    public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
+        registration.addRecipeCatalyst(new ItemStack(Blocks.END_PORTAL_FRAME), AnvilCraftJeiPlugin.END_PORTAL_CONVERSION);
+    }
+
     @Override
     public RecipeType<EndPortalConversionRecipe> getRecipeType() {
         return AnvilCraftJeiPlugin.END_PORTAL_CONVERSION;
@@ -76,7 +86,7 @@ public class EndPortalConversionCategory implements IRecipeCategory<EndPortalCon
 
     @Override
     public void setRecipe(
-            IRecipeLayoutBuilder builder, EndPortalConversionRecipe recipe, IFocusGroup focuses) {
+        IRecipeLayoutBuilder builder, EndPortalConversionRecipe recipe, IFocusGroup focuses) {
         JeiSlotUtil.addInputSlots(builder, recipe.ingredients);
         JeiSlotUtil.addOutputSlots(builder, recipe.results);
     }
@@ -112,15 +122,5 @@ public class EndPortalConversionCategory implements IRecipeCategory<EndPortalCon
                 tooltip.add(fallThroughTooltip);
             }
         }
-    }
-
-    public static void registerRecipes(IRecipeRegistration registration) {
-        registration.addRecipes(
-            AnvilCraftJeiPlugin.END_PORTAL_CONVERSION,
-            EndPortalConversionRecipe.getAllRecipes());
-    }
-
-    public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(new ItemStack(Blocks.END_PORTAL_FRAME), AnvilCraftJeiPlugin.END_PORTAL_CONVERSION);
     }
 }

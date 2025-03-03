@@ -1,8 +1,7 @@
 package dev.dubhe.anvilcraft.data.lang;
 
-import dev.dubhe.anvilcraft.api.tooltip.ItemTooltipManager;
-
 import com.tterrag.registrate.providers.RegistrateLangProvider;
+import dev.dubhe.anvilcraft.api.tooltip.ItemTooltipManager;
 import org.jetbrains.annotations.NotNull;
 
 public class ItemTooltipLang {
@@ -13,7 +12,7 @@ public class ItemTooltipLang {
      */
     public static void init(@NotNull RegistrateLangProvider provider) {
         ItemTooltipManager.NEED_TOOLTIP_ITEM.forEach(
-                (item, s) -> provider.add(ItemTooltipManager.getTranslationKey(item), s));
+            (item, s) -> provider.add(ItemTooltipManager.getTranslationKey(item), s));
         provider.add("tooltip.anvilcraft.item.reinforced_concrete", "Creeper proof");
         provider.add("tooltip.anvilcraft.item.recipe.processing.chance", "%1$s%% Chance");
 
@@ -28,8 +27,8 @@ public class ItemTooltipLang {
         provider.add("tooltip.anvilcraft.item.structure_tool.data_removed", "Cleared selected area");
         provider.add("tooltip.anvilcraft.item.structure_tool.must_cube", "The selected area must be a cube");
         provider.add(
-                "tooltip.anvilcraft.item.structure_tool.must_odd",
-                "The side length of the selected area must be odd and cannot exceed 15");
+            "tooltip.anvilcraft.item.structure_tool.must_odd",
+            "The side length of the selected area must be odd and cannot exceed 15");
         provider.add(
             "tooltip.anvilcraft.item.structure_tool.inconsistent_size",
             "The size of input pattern must be same as output pattern");

@@ -102,16 +102,6 @@ public class SuperHeatingRecipe extends AbstractItemProcessRecipe {
         private static final StreamCodec<RegistryFriendlyByteBuf, SuperHeatingRecipe> STREAM_CODEC =
             StreamCodec.of(Serializer::encode, Serializer::decode);
 
-        @Override
-        public MapCodec<SuperHeatingRecipe> codec() {
-            return CODEC;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, SuperHeatingRecipe> streamCodec() {
-            return STREAM_CODEC;
-        }
-
         private static SuperHeatingRecipe decode(RegistryFriendlyByteBuf buf) {
             List<ChanceItemStack> results = new ArrayList<>();
             int size = buf.readVarInt();
@@ -135,6 +125,16 @@ public class SuperHeatingRecipe extends AbstractItemProcessRecipe {
                 Ingredient.CONTENTS_STREAM_CODEC.encode(buf, ingredient);
             }
             CodecUtil.BLOCK_STREAM_CODEC.encode(buf, recipe.blockResult);
+        }
+
+        @Override
+        public MapCodec<SuperHeatingRecipe> codec() {
+            return CODEC;
+        }
+
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, SuperHeatingRecipe> streamCodec() {
+            return STREAM_CODEC;
         }
     }
 

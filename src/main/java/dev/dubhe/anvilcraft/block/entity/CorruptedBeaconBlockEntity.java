@@ -52,17 +52,9 @@ import java.util.Optional;
 @MethodsReturnNonnullByDefault
 public class CorruptedBeaconBlockEntity extends BlockEntity {
     List<BeaconBeamSection> beamSections = Lists.newArrayList();
-    private List<BeaconBeamSection> checkingBeamSections = Lists.newArrayList();
     int levels;
+    private List<BeaconBeamSection> checkingBeamSections = Lists.newArrayList();
     private int lastCheckY;
-
-    public static @NotNull CorruptedBeaconBlockEntity createBlockEntity(
-        BlockEntityType<?> type,
-        BlockPos pos,
-        BlockState blockState
-    ) {
-        return new CorruptedBeaconBlockEntity(type, pos, blockState);
-    }
 
     public CorruptedBeaconBlockEntity(BlockPos pos, BlockState blockState) {
         this(ModBlockEntities.CORRUPTED_BEACON.get(), pos, blockState);
@@ -70,6 +62,14 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
 
     private CorruptedBeaconBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
+    }
+
+    public static @NotNull CorruptedBeaconBlockEntity createBlockEntity(
+        BlockEntityType<?> type,
+        BlockPos pos,
+        BlockState blockState
+    ) {
+        return new CorruptedBeaconBlockEntity(type, pos, blockState);
     }
 
     /**
@@ -185,13 +185,6 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
         return i;
     }
 
-    @Override
-    public void setRemoved() {
-        if (this.level == null) return;
-        playSound(this.level, this.worldPosition, SoundEvents.BEACON_DEACTIVATE);
-        super.setRemoved();
-    }
-
     private static void tryTransformEntity(LivingEntity livingEntity, ServerLevel level, RecipeManager manager) {
         MobTransformInput input = MobTransformInput.of(livingEntity);
         Optional<RecipeHolder<MobTransformRecipe>> optionalRecipeHolder =
@@ -229,6 +222,13 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
 
     public static void playSound(@NotNull Level level, BlockPos pos, SoundEvent sound) {
         level.playSound(null, pos, sound, SoundSource.BLOCKS, 1.0f, 1.0f);
+    }
+
+    @Override
+    public void setRemoved() {
+        if (this.level == null) return;
+        playSound(this.level, this.worldPosition, SoundEvents.BEACON_DEACTIVATE);
+        super.setRemoved();
     }
 
     public List<BeaconBeamSection> getBeamSections() {

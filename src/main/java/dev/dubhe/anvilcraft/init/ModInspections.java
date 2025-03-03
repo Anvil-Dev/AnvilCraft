@@ -48,15 +48,15 @@ public class ModInspections {
         LiteralArgumentBuilder<CommandSourceStack> commandRoot = literal("inspection");
         for (ResourceLocation option : inspectionOptions) {
             commandRoot.then(
-                literal(option.toString()).
-                    then(literal("enable").
-                        executes(ctx -> ctx.getSource().isPlayer()
+                literal(option.toString())
+                    .then(literal("enable")
+                        .executes(ctx -> ctx.getSource().isPlayer()
                             ? changeStateServer(ctx.getSource().getPlayer(), option, true)
                             : 0
                         )
-                    ).
-                    then(literal("disable").
-                        executes(ctx -> ctx.getSource().isPlayer()
+                    )
+                    .then(literal("disable")
+                        .executes(ctx -> ctx.getSource().isPlayer()
                             ? changeStateServer(ctx.getSource().getPlayer(), option, false)
                             : 0
                         )

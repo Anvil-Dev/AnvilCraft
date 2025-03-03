@@ -43,7 +43,7 @@ public class LaserBlockRenderer implements BlockEntityRenderer<BaseLaserBlockEnt
                 buffer::getBuffer
             );
         }
-        if (buffer instanceof MultiBufferSource.BufferSource bs){
+        if (buffer instanceof MultiBufferSource.BufferSource bs) {
             bs.endBatch(RenderType.translucent());
         }
         poseStack.popPose();

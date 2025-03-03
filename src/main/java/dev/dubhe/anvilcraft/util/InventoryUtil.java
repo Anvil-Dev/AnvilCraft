@@ -18,6 +18,7 @@ public class InventoryUtil {
 
         return ItemStack.EMPTY;
     }
+
     public static ItemStack getFirstItem(Inventory inventory, Supplier<Item> item) {
         for (ItemStack stack : inventory.items) {
             if (stack.getItem().equals(item.get())) {
@@ -27,6 +28,7 @@ public class InventoryUtil {
 
         return ItemStack.EMPTY;
     }
+
     public static ItemStack getFirstItem(Inventory inventory, ItemEntry<? extends Item> item) {
         for (ItemStack stack : inventory.items) {
             if (item.isIn(stack)) {
@@ -52,9 +54,11 @@ public class InventoryUtil {
     public static boolean hasItem(Inventory inventory, Item item) {
         return !getFirstItem(inventory, item).equals(ItemStack.EMPTY);
     }
+
     public static boolean hasItem(Inventory inventory, Supplier<Item> item) {
         return !getFirstItem(inventory, item).equals(ItemStack.EMPTY);
     }
+
     public static boolean hasItem(Inventory inventory, ItemEntry<? extends Item> item) {
         return !getFirstItem(inventory, item).equals(ItemStack.EMPTY);
     }

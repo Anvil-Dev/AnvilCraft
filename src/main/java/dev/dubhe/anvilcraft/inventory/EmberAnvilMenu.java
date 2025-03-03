@@ -52,13 +52,13 @@ public class EmberAnvilMenu extends AnvilMenu {
             ItemStack inputItemLeftCopy = inputItemLeft.copy();
             ItemStack inputItemRight = this.inputSlots.getItem(1);
             ItemEnchantments.Mutable enchantmentsOnLeft =
-                    new ItemEnchantments.Mutable(EnchantmentHelper.getEnchantmentsForCrafting(inputItemLeftCopy));
+                new ItemEnchantments.Mutable(EnchantmentHelper.getEnchantmentsForCrafting(inputItemLeftCopy));
             repairCost += (long) inputItemLeft.getOrDefault(DataComponents.REPAIR_COST, 0)
-                    + (long) inputItemRight.getOrDefault(DataComponents.REPAIR_COST, 0);
+                + (long) inputItemRight.getOrDefault(DataComponents.REPAIR_COST, 0);
             this.repairItemCountCost = 0;
             boolean hasStoredEnchantmentsOnInput2 = false;
             if (!CommonHooks.onAnvilChange(
-                    this, inputItemLeft, inputItemRight, this.resultSlots, this.itemName, repairCost, this.player)) {
+                this, inputItemLeft, inputItemRight, this.resultSlots, this.itemName, repairCost, this.player)) {
                 return;
             }
 
@@ -81,7 +81,7 @@ public class EmberAnvilMenu extends AnvilMenu {
                 String format = formattingText.getString();
                 if (format.startsWith("&") && format.length() >= 2) {
                     extraFormat =
-                            ChatFormatting.getByCode(format.substring(1, 2).charAt(0));
+                        ChatFormatting.getByCode(format.substring(1, 2).charAt(0));
                 } else {
                     this.resultSlots.setItem(0, ItemStack.EMPTY);
                     this.cost.set(0);
@@ -91,7 +91,7 @@ public class EmberAnvilMenu extends AnvilMenu {
                 hasStoredEnchantmentsOnInput2 = inputItemRight.has(DataComponents.STORED_ENCHANTMENTS);
                 int damageValue;
                 if ((inputItemLeftCopy.isDamageableItem()
-                        && inputItemLeftCopy.getItem().isValidRepairItem(inputItemLeft, inputItemRight))) {
+                    && inputItemLeftCopy.getItem().isValidRepairItem(inputItemLeft, inputItemRight))) {
                     damage = Math.min(inputItemLeftCopy.getDamageValue(), inputItemLeftCopy.getMaxDamage() / 4);
                     if (damage <= 0) {
                         this.resultSlots.setItem(0, ItemStack.EMPTY);
@@ -100,8 +100,8 @@ public class EmberAnvilMenu extends AnvilMenu {
                     }
 
                     for (repairItemCountCost = 0;
-                            damage > 0 && repairItemCountCost < inputItemRight.getCount();
-                            ++repairItemCountCost) {
+                         damage > 0 && repairItemCountCost < inputItemRight.getCount();
+                         ++repairItemCountCost) {
                         damageValue = inputItemLeftCopy.getDamageValue() - damage;
                         inputItemLeftCopy.setDamageValue(damageValue);
                         ++totalCost;
@@ -111,8 +111,8 @@ public class EmberAnvilMenu extends AnvilMenu {
                     this.repairItemCountCost = repairItemCountCost;
                 } else {
                     if (!hasStoredEnchantmentsOnInput2
-                            && (!inputItemLeftCopy.is(inputItemRight.getItem())
-                                    || !inputItemLeftCopy.isDamageableItem())) {
+                        && (!inputItemLeftCopy.is(inputItemRight.getItem())
+                        || !inputItemLeftCopy.isDamageableItem())) {
                         this.resultSlots.setItem(0, ItemStack.EMPTY);
                         this.cost.set(0);
                         return;
@@ -159,9 +159,9 @@ public class EmberAnvilMenu extends AnvilMenu {
                         }
 
                         long t = anvilCost
-                                * enchantmentsOnRightLevel
-                                * inputItemLeft.getCount()
-                                * (repairCost == 0 ? 1 : repairCost);
+                            * enchantmentsOnRightLevel
+                            * inputItemLeft.getCount()
+                            * (repairCost == 0 ? 1 : repairCost);
                         totalCost += Math.clamp(t, 0, Integer.MAX_VALUE);
                     }
                 }
@@ -171,21 +171,21 @@ public class EmberAnvilMenu extends AnvilMenu {
                 repairCostT = 1;
                 Integer baseRepairCost = inputItemLeft.get(DataComponents.REPAIR_COST);
                 totalCost += repairCostT
-                        * inputItemLeft.getCount()
-                        * inputItemRight.getCount()
-                        * (baseRepairCost == null ? 1 : baseRepairCost);
+                    * inputItemLeft.getCount()
+                    * inputItemRight.getCount()
+                    * (baseRepairCost == null ? 1 : baseRepairCost);
                 Component currentName = inputItemLeft.getHoverName();
                 if (!this.itemName.equals(currentName.getString())
-                        && this.itemName != null
-                        && !this.itemName.isBlank()) {
+                    && this.itemName != null
+                    && !this.itemName.isBlank()) {
                     currentName = Component.literal(this.itemName);
                 }
                 inputItemLeftCopy.set(
-                        DataComponents.CUSTOM_NAME, currentName.copy().withStyle(extraFormat));
+                    DataComponents.CUSTOM_NAME, currentName.copy().withStyle(extraFormat));
             } else {
                 if (this.itemName != null && !StringUtil.isBlank(this.itemName)) {
                     boolean nameChanged =
-                            !this.itemName.equals(inputItemLeft.getHoverName().getString());
+                        !this.itemName.equals(inputItemLeft.getHoverName().getString());
                     if (nameChanged) {
                         repairCostT = 1;
                         totalCost += repairCostT;

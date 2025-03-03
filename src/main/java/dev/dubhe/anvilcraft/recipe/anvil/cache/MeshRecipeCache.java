@@ -23,7 +23,8 @@ public class MeshRecipeCache {
         this.recipeManager = recipeManager;
     }
 
-    @Nullable public List<RecipeHolder<MeshRecipe>> getMeshRecipes(ItemStack stack) {
+    @Nullable
+    public List<RecipeHolder<MeshRecipe>> getMeshRecipes(ItemStack stack) {
         if (meshCaches == null) {
             buildRecipeCache();
         }
@@ -36,8 +37,8 @@ public class MeshRecipeCache {
             MeshRecipe recipe = recipeHolder.value();
             for (ItemStack stack : recipe.getInput().getItems()) {
                 meshCaches
-                        .computeIfAbsent(stack.getItem(), k -> new ArrayList<>())
-                        .add(recipeHolder);
+                    .computeIfAbsent(stack.getItem(), k -> new ArrayList<>())
+                    .add(recipeHolder);
             }
         }
     }

@@ -20,9 +20,9 @@ interface IShockBehaviorDefinition {
 
     // spotless:off
     abstract class Simple<T> implements IShockBehaviorDefinition {
-        private final int[] dt = {-1, 1};
         final BiConsumer<List<BlockPos>, Level> rangeAcceptor;
         final T cornerBlock;
+        private final int[] dt = {-1, 1};
 
         public Simple(T cornerBlock, BiConsumer<List<BlockPos>, Level> rangeAcceptor) {
             this.rangeAcceptor = rangeAcceptor;
@@ -34,7 +34,7 @@ interface IShockBehaviorDefinition {
             for (int dx : dt) {
                 for (int dz : dt) {
                     BlockPos pos =
-                            new BlockPos(dx + centerPos.getX(), centerPos.getY(), dz + centerPos.getZ());
+                        new BlockPos(dx + centerPos.getX(), centerPos.getY(), dz + centerPos.getZ());
                     BlockState state = level.getBlockState(pos);
                     if (!blockMatches(state)) return false;
                 }

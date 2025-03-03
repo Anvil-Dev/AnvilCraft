@@ -28,15 +28,15 @@ import java.util.List;
 import java.util.Map;
 
 public class RenderRegion {
-    public final List<RenderType> BLOOM_RENDERTYPES = List.of(
+    public static final List<RenderType> BLOOM_RENDERTYPES = List.of(
         ModRenderTypes.LASER
     );
     private final ChunkPos chunkPos;
     private final Map<RenderType, VertexBuffer> buffers = new HashMap<>();
-    private Reference2IntMap<RenderType> indexCountMap = new Reference2IntOpenHashMap<>();
     private final List<BlockEntity> blockEntityList = new ArrayList<>();
     private final CacheableBERenderingPipeline pipeline;
     private final Minecraft minecraft = Minecraft.getInstance();
+    private Reference2IntMap<RenderType> indexCountMap = new Reference2IntOpenHashMap<>();
     private RebuildTask lastRebuildTask;
 
     private boolean isEmpty = true;

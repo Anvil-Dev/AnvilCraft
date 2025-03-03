@@ -1,10 +1,9 @@
 package dev.dubhe.anvilcraft.data.tags;
 
+import com.tterrag.registrate.providers.RegistrateTagsProvider;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
-
-import com.tterrag.registrate.providers.RegistrateTagsProvider;
 
 public class TagsHandler {
     public static void initItem(RegistrateTagsProvider<Item> provider) {

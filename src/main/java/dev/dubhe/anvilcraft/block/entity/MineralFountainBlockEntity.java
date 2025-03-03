@@ -20,19 +20,22 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MineralFountainBlockEntity extends BlockEntity {
+    private static final Direction[] HORIZONTAL_DIRECTION = {
+        Direction.NORTH, Direction.WEST, Direction.EAST, Direction.SOUTH
+    };
     private int tickCount = 0;
 
     public MineralFountainBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.MINERAL_FOUNTAIN.get(), pos, blockState);
     }
 
+    private MineralFountainBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+        super(type, pos, blockState);
+    }
+
     public static @NotNull MineralFountainBlockEntity createBlockEntity(
         BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         return new MineralFountainBlockEntity(type, pos, blockState);
-    }
-
-    private MineralFountainBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
-        super(type, pos, blockState);
     }
 
     /**
@@ -63,7 +66,7 @@ public class MineralFountainBlockEntity extends BlockEntity {
             Block hotBlock = HeatableBlockManager.getHotBlock(aboveState.getBlock());
             if (hotBlock == null) return;
             level.setBlockAndUpdate(getBlockPos().above(), hotBlock.defaultBlockState());
-        } else if(aboveState.is(Blocks.AIR)){
+        } else if (aboveState.is(Blocks.AIR)) {
             level.setBlockAndUpdate(getBlockPos().above(), ModBlocks.CINERITE.getDefaultState());
         } else {
             MineralFountainRecipe.Input input =
@@ -95,10 +98,6 @@ public class MineralFountainBlockEntity extends BlockEntity {
                 });
         }
     }
-
-    private static final Direction[] HORIZONTAL_DIRECTION = {
-        Direction.NORTH, Direction.WEST, Direction.EAST, Direction.SOUTH
-    };
 
     private BlockState getAroundBlock() {
         if (level == null) {

@@ -1,15 +1,12 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
+import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.recipe.anvil.BlockCompressRecipe;
-
 import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-
-import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 
 public class BlockCompressRecipeLoader {
     public static void init(RegistrateRecipeProvider provider) {
@@ -21,17 +18,17 @@ public class BlockCompressRecipeLoader {
         blockCompress(provider, Blocks.WARPED_WART_BLOCK, Blocks.NETHERRACK, Blocks.WARPED_NYLIUM);
         blockCompress(provider, Blocks.BASALT, Blocks.BASALT, Blocks.BLACKSTONE);
         blockCompress(
-                provider, ModBlocks.CREAM_BLOCK.get(), ModBlocks.CAKE_BASE_BLOCK.get(), ModBlocks.CAKE_BLOCK.get());
+            provider, ModBlocks.CREAM_BLOCK.get(), ModBlocks.CAKE_BASE_BLOCK.get(), ModBlocks.CAKE_BLOCK.get());
         blockCompress(
-                provider,
-                ModBlocks.BERRY_CREAM_BLOCK.get(),
-                ModBlocks.CAKE_BASE_BLOCK.get(),
-                ModBlocks.BERRY_CAKE_BLOCK.get());
+            provider,
+            ModBlocks.BERRY_CREAM_BLOCK.get(),
+            ModBlocks.CAKE_BASE_BLOCK.get(),
+            ModBlocks.BERRY_CAKE_BLOCK.get());
         blockCompress(
-                provider,
-                ModBlocks.CHOCOLATE_CREAM_BLOCK.get(),
-                ModBlocks.CAKE_BASE_BLOCK.get(),
-                ModBlocks.CHOCOLATE_CAKE_BLOCK.get());
+            provider,
+            ModBlocks.CHOCOLATE_CREAM_BLOCK.get(),
+            ModBlocks.CAKE_BASE_BLOCK.get(),
+            ModBlocks.CHOCOLATE_CAKE_BLOCK.get());
         blockCompress(provider, Blocks.MOSS_BLOCK, Blocks.COBBLESTONE, Blocks.MOSSY_COBBLESTONE);
         blockCompress(provider, Blocks.MOSS_BLOCK, Blocks.STONE_BRICKS, Blocks.MOSSY_STONE_BRICKS);
         BlockCompressRecipe.builder()

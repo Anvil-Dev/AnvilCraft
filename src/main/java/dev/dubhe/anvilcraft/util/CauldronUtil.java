@@ -4,10 +4,10 @@ import dev.dubhe.anvilcraft.block.Layered4LevelCauldronBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AbstractCauldronBlock;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.neoforged.neoforge.fluids.CauldronFluidContent;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -64,10 +64,10 @@ public class CauldronUtil {
     }
 
     /**
-     *  测试我们是否可以对一个炼药锅方块状态<b>存入或取出</b>一种炼药锅内容物。
-     *  在一般情况下，我们测试的是该方块状态是否与炼药锅内容物是同种方快，或为空炼药锅。
+     * 测试我们是否可以对一个炼药锅方块状态<b>存入或取出</b>一种炼药锅内容物。
+     * 在一般情况下，我们测试的是该方块状态是否与炼药锅内容物是同种方快，或为空炼药锅。
      *
-     * @param state 需判断的方块状态。
+     * @param state           需判断的方块状态。
      * @param cauldronContent 需存入或取出判断的炼药锅内容物
      * @return 若可以存入或取出，返回 {@code true}
      */
@@ -80,7 +80,7 @@ public class CauldronUtil {
      * 对一个方块状态，测试它还能容纳多少层指定的炼药锅内容物。
      * 若不能容纳，返回0。
      *
-     * @param state 需判断的方块状态
+     * @param state           需判断的方块状态
      * @param cauldronContent 待存入的炼药锅内容物
      * @return 还能容纳的层数
      */
@@ -94,11 +94,11 @@ public class CauldronUtil {
      * 根据一种炼药锅内容物，获取到它在特定层数下的方块状态。若{@code cauldronContent} 方法参数不是一种炼药锅，
      * 返回其默认方块状态。
      *
+     * @param cauldronContent 需获取方块状态的炼药锅内容物
+     * @param cauldronLevel   需获取的方块状态的层数
+     * @return 炼药锅内容物在对应层数下的方块状态
      * @apiNote 此方法不检测 {@code cauldronLevel} 参数的合法性，而是将其钳制在 {@code 0}与最大层数之间。
      * 此外，此方法暂时不考虑炼药锅有除了 {@code level}以外的方块状态。<s>等出现兼容性问题以后再改</s>
-     * @param cauldronContent 需获取方块状态的炼药锅内容物
-     * @param cauldronLevel 需获取的方块状态的层数
-     * @return 炼药锅内容物在对应层数下的方块状态
      */
     public static BlockState getStateFromContentAndLevel(Block cauldronContent, int cauldronLevel) {
         if (!(cauldronContent instanceof AbstractCauldronBlock cauldron)) return cauldronContent.defaultBlockState();
@@ -145,11 +145,11 @@ public class CauldronUtil {
     /**
      * 在指定的维度中的指定位置，将其方块设定为一种炼药锅内容物在特定层数下的方块状态。
      *
-     * @apiNote 本方法不会对被替换的方块状态进行任何检查。
-     * @param level 指定的维度
-     * @param pos 指定的方块位置
+     * @param level           指定的维度
+     * @param pos             指定的方块位置
      * @param cauldronContent 需设定的炼药锅内容物
-     * @param cauldronLevel 需设定的层数
+     * @param cauldronLevel   需设定的层数
+     * @apiNote 本方法不会对被替换的方块状态进行任何检查。
      */
     public static void setContentLevel(Level level, BlockPos pos, Block cauldronContent, int cauldronLevel) {
         level.setBlockAndUpdate(pos, getStateFromContentAndLevel(cauldronContent, cauldronLevel));
@@ -159,14 +159,14 @@ public class CauldronUtil {
      * 模仿 {@link net.neoforged.neoforge.fluids.capability.IFluidHandler#fill}方法的设定，此方法用于
      * 向炼药锅中添加内容物。
      *
+     * @param level           指定的维度
+     * @param pos             指定的方块位置
+     * @param cauldronContent 要添加的炼药锅内容物
+     * @param fillLevel       要添加的层数
+     * @param simulate        本次添加是否为模拟（若为模拟，则不会对维度内的方块状态产生实际影响）
+     * @return 成功添加的炼药锅内容物的层数
      * @apiNote 此方法会检查炼药锅内容物的合法性，若无法放入则不会添加。
      * @see net.neoforged.neoforge.fluids.capability.IFluidHandler#fill
-     * @param level 指定的维度
-     * @param pos 指定的方块位置
-     * @param cauldronContent 要添加的炼药锅内容物
-     * @param fillLevel 要添加的层数
-     * @param simulate 本次添加是否为模拟（若为模拟，则不会对维度内的方块状态产生实际影响）
-     * @return 成功添加的炼药锅内容物的层数
      */
     public static int fill(Level level, BlockPos pos, Block cauldronContent, int fillLevel, boolean simulate) {
         if (fillLevel <= 0) return 0;
@@ -184,14 +184,14 @@ public class CauldronUtil {
      * 模仿 {@link net.neoforged.neoforge.fluids.capability.IFluidHandler#drain(FluidStack, IFluidHandler.FluidAction)}
      * 方法的设定，此方法用于从炼药锅中提取内容物。
      *
+     * @param level           指定的维度
+     * @param pos             指定的方块位置
+     * @param cauldronContent 要提取的炼药锅内容物
+     * @param drainLevel      要提取的层数
+     * @param simulate        本次提取是否为模拟（若为模拟，则不会对维度内的方块状态产生实际影响）
+     * @return 提取到的炼药锅内容物的层数
      * @apiNote 此方法会检查炼药锅内容物的合法性，若无法提取则不会提取到内容物。
      * @see net.neoforged.neoforge.fluids.capability.IFluidHandler#fill
-     * @param level 指定的维度
-     * @param pos 指定的方块位置
-     * @param cauldronContent 要提取的炼药锅内容物
-     * @param drainLevel 要提取的层数
-     * @param simulate 本次提取是否为模拟（若为模拟，则不会对维度内的方块状态产生实际影响）
-     * @return 提取到的炼药锅内容物的层数
      */
     public static int drain(Level level, BlockPos pos, Block cauldronContent, int drainLevel, boolean simulate) {
         if (drainLevel <= 0) return 0;
@@ -209,11 +209,11 @@ public class CauldronUtil {
     /**
      * 检测是否能从指定的方块状态中提取出指定层数的炼药锅内容物。<br/>
      * 原则上，若 {@code level.getBlockState(pos) == state}，此方法的调用结果应等价于
-     *  {@code drain(level, pos, cauldronContent, drainLevel, true) == drainLevel}。
+     * {@code drain(level, pos, cauldronContent, drainLevel, true) == drainLevel}。
      *
-     * @param state 被提取的方块状态
+     * @param state           被提取的方块状态
      * @param cauldronContent 要提取的炼药锅内容物
-     * @param drainLevel 要提取的层数
+     * @param drainLevel      要提取的层数
      * @return 若能提取出指定层数的炼药锅内容物，返回 {@code true}
      */
     public static boolean compatibleForDrain(BlockState state, Block cauldronContent, int drainLevel) {
@@ -224,11 +224,11 @@ public class CauldronUtil {
     /**
      * 检测是否能向指定的方块状态完整地、没有剩余地添加指定层数的炼药锅内容物。<br/>
      * 原则上，若 {@code level.getBlockState(pos) == state}，此方法的调用结果应等价于
-     *  {@code fill(level, pos, cauldronContent, fillLevel, true) == fillLevel}。
+     * {@code fill(level, pos, cauldronContent, fillLevel, true) == fillLevel}。
      *
-     * @param state 被添加的方块状态
+     * @param state           被添加的方块状态
      * @param cauldronContent 要添加的炼药锅内容物
-     * @param fillLevel 要添加的层数
+     * @param fillLevel       要添加的层数
      * @return 若能完整地添加指定层数的炼药锅内容物，返回 {@code true}
      */
     public static boolean compatibleForFill(BlockState state, Block cauldronContent, int fillLevel) {

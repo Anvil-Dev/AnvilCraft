@@ -14,6 +14,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public interface JewelCraftingRecipeSchema {
+    RecipeKey<List<Ingredient>> INGREDIENTS = IngredientComponent.INGREDIENT.asList().inputKey("ingredients").defaultOptional();
+    RecipeKey<ItemStack> RESULT = ItemStackComponent.STRICT_ITEM_STACK.inputKey("result").defaultOptional();
+    RecipeSchema SCHEMA = new RecipeSchema(INGREDIENTS, RESULT)
+        .factory(new KubeRecipeFactory(AnvilCraft.of("jewel_crafting"), JewelCraftingKubeRecipe.class, JewelCraftingKubeRecipe::new))
+        .constructor(INGREDIENTS, RESULT)
+        .constructor(new IDRecipeConstructor())
+        .constructor();
+
     @SuppressWarnings({"DataFlowIssue", "unused"})
     class JewelCraftingKubeRecipe extends KubeRecipe {
         public JewelCraftingKubeRecipe requires(Ingredient ingredient, int count) {
@@ -35,13 +43,4 @@ public interface JewelCraftingRecipeSchema {
             return this;
         }
     }
-
-    RecipeKey<List<Ingredient>> INGREDIENTS = IngredientComponent.INGREDIENT.asList().inputKey("ingredients").defaultOptional();
-    RecipeKey<ItemStack> RESULT = ItemStackComponent.STRICT_ITEM_STACK.inputKey("result").defaultOptional();
-
-    RecipeSchema SCHEMA = new RecipeSchema(INGREDIENTS, RESULT)
-        .factory(new KubeRecipeFactory(AnvilCraft.of("jewel_crafting"), JewelCraftingKubeRecipe.class, JewelCraftingKubeRecipe::new))
-        .constructor(INGREDIENTS, RESULT)
-        .constructor(new IDRecipeConstructor())
-        .constructor();
 }

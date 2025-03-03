@@ -13,7 +13,8 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public class SpaceOvercompressorTooltipProvider implements IBlockEntityTooltipProvider {
-    public SpaceOvercompressorTooltipProvider() {}
+    public SpaceOvercompressorTooltipProvider() {
+    }
 
     @Override
     public boolean accepts(BlockEntity entity) {

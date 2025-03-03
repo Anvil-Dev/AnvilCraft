@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 public class HammerUsePacket implements CustomPacketPayload {
     public static final Type<HammerUsePacket> TYPE = new Type<>(AnvilCraft.of("hammer_use"));
     public static final StreamCodec<RegistryFriendlyByteBuf, HammerUsePacket> STREAM_CODEC =
-            StreamCodec.ofMember(HammerUsePacket::encode, HammerUsePacket::new);
+        StreamCodec.ofMember(HammerUsePacket::encode, HammerUsePacket::new);
     public static final IPayloadHandler<HammerUsePacket> HANDLER = HammerUsePacket::serverHandler;
 
     private final BlockPos pos;
@@ -35,6 +35,15 @@ public class HammerUsePacket implements CustomPacketPayload {
         this.hand = buf.readEnum(InteractionHand.class);
     }
 
+    public static void serverHandler(HammerUsePacket data, IPayloadContext context) {
+        ServerPlayer player = (ServerPlayer) context.player();
+        context.enqueueWork(() -> {
+            ItemStack itemInHand = player.getItemInHand(data.hand);
+            if (!(player.level() instanceof ServerLevel level)) return;
+            AnvilHammerItem.useBlock(player, data.pos, level, itemInHand);
+        });
+    }
+
     public void encode(@NotNull RegistryFriendlyByteBuf buf) {
         buf.writeBlockPos(this.pos);
         buf.writeEnum(this.hand);
@@ -43,16 +52,5 @@ public class HammerUsePacket implements CustomPacketPayload {
     @Override
     public Type<? extends CustomPacketPayload> type() {
         return TYPE;
-    }
-    /**
-     *
-     */
-    public static void serverHandler(HammerUsePacket data, IPayloadContext context) {
-        ServerPlayer player = (ServerPlayer) context.player();
-        context.enqueueWork(() -> {
-            ItemStack itemInHand = player.getItemInHand(data.hand);
-            if (!(player.level() instanceof ServerLevel level)) return;
-            AnvilHammerItem.useBlock(player, data.pos, level, itemInHand);
-        });
     }
 }

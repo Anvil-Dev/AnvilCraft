@@ -54,11 +54,12 @@ import static dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior.HORIZONTAL_FA
 @MethodsReturnNonnullByDefault
 public class AnvilHammerItem extends Item implements Equipable {
     private static final List<Predicate<Player>> isWearingPredicates = new ArrayList<>();
-    private final ItemAttributeModifiers modifiers;
 
     static {
         isWearingPredicates.add(player -> player.getItemBySlot(EquipmentSlot.HEAD).getItem() instanceof AnvilHammerItem);
     }
+
+    private final ItemAttributeModifiers modifiers;
 
     /**
      * 初始化铁砧锤
@@ -86,14 +87,6 @@ public class AnvilHammerItem extends Item implements Equipable {
             ).build();
     }
 
-    protected float getAttackDamageModifierAmount() {
-        return 5;
-    }
-
-    public Block getAnvil() {
-        return Blocks.ANVIL;
-    }
-
     private static void breakBlock(ServerPlayer player, BlockPos pos, ServerLevel level, ItemStack tool) {
         BlockState state = level.getBlockState(pos);
         Block block = state.getBlock();
@@ -105,8 +98,8 @@ public class AnvilHammerItem extends Item implements Equipable {
                 pos = posMainPart;
                 state = stateMainPart;
             }
-        } else if (state.hasProperty(BlockStateProperties.DOUBLE_BLOCK_HALF) &&
-            state.getValue(BlockStateProperties.DOUBLE_BLOCK_HALF) == DoubleBlockHalf.UPPER) {
+        } else if (state.hasProperty(BlockStateProperties.DOUBLE_BLOCK_HALF)
+            && state.getValue(BlockStateProperties.DOUBLE_BLOCK_HALF) == DoubleBlockHalf.UPPER) {
             BlockPos posMainPart = pos.below();
             BlockState stateMainPart = level.getBlockState(posMainPart);
             if (stateMainPart.is(block)) {
@@ -224,6 +217,26 @@ public class AnvilHammerItem extends Item implements Equipable {
         return false;
     }
 
+    public static void addIsWearingPredicate(Predicate<Player> predicate) {
+        isWearingPredicates.add(predicate);
+    }
+
+    public static boolean isWearing(Player player) {
+        for (Predicate<Player> it : isWearingPredicates) {
+            if (it.test(player)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected float getAttackDamageModifierAmount() {
+        return 5;
+    }
+
+    public Block getAnvil() {
+        return Blocks.ANVIL;
+    }
 
     @Override
     public boolean canAttackBlock(
@@ -294,18 +307,5 @@ public class AnvilHammerItem extends Item implements Equipable {
     @Override
     public EquipmentSlot getEquipmentSlot() {
         return EquipmentSlot.HEAD;
-    }
-
-    public static void addIsWearingPredicate(Predicate<Player> predicate) {
-        isWearingPredicates.add(predicate);
-    }
-
-    public static boolean isWearing(Player player) {
-        for (Predicate<Player> it : isWearingPredicates) {
-            if (it.test(player)) {
-                return true;
-            }
-        }
-        return false;
     }
 }

@@ -29,22 +29,22 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.royal_grindstone.remove_repair_cost", "Removed repair cost: %s / %s");
         provider.add("screen.anvilcraft.royal_grindstone.title", "Remove curse and repair cost");
         provider.add(
-                "screen.anvilcraft.royal_steel_upgrade_smithing_template", "Royal Steel Upgrade");
+            "screen.anvilcraft.royal_steel_upgrade_smithing_template", "Royal Steel Upgrade");
         provider.add(
-                "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template"
-                        + ".additions_slot_description",
-                "Put the Royal Steel Ingot or Royal Steel Block");
+            "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template"
+                + ".additions_slot_description",
+            "Put the Royal Steel Ingot or Royal Steel Block");
         provider.add(
-                "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template" + ".applies_to",
-                "Anvil, Smithing Table, Grindstone, Anvil Hammer, Amethyst Tools, Golden Tools, Iron Tools, Diamond Tools");
+            "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template" + ".applies_to",
+            "Anvil, Smithing Table, Grindstone, Anvil Hammer, Amethyst Tools, Golden Tools, Iron Tools, Diamond Tools");
         provider.add(
-                "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template" + ".base_slot_description",
-                "Put upgradable item");
+            "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template" + ".base_slot_description",
+            "Put upgradable item");
         provider.add("screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template"
-            + ".upgrade_ingredients",
+                + ".upgrade_ingredients",
             "Royal Steel Ingot or Royal Steel Block");
         provider.add("screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template"
-            + ".upgrade_ingredients",
+                + ".upgrade_ingredients",
             "Ember Metal Ingot or Ember Metal Block");
 
         provider.add("screen.anvilcraft.item_collector.title", "Item Collector");
@@ -80,17 +80,17 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.space_overcompressor.stored_mass", "Stored Mass: %s");
 
         provider.add(
-                "screen.anvilcraft.ember_metal_upgrade_smithing_template", "Ember Metal Upgrade");
+            "screen.anvilcraft.ember_metal_upgrade_smithing_template", "Ember Metal Upgrade");
         provider.add(
-                "screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template"
-                        + ".additions_slot_description",
-                "Put the Ember Metal Ingot or Ember Metal Block");
+            "screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template"
+                + ".additions_slot_description",
+            "Put the Ember Metal Ingot or Ember Metal Block");
         provider.add(
-                "screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template" + ".applies_to",
-                "Royal Steel Anvil Hammer, Netherite Tools, Royal Steel Tools, Royal Steel WorkStations");
+            "screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template" + ".applies_to",
+            "Royal Steel Anvil Hammer, Netherite Tools, Royal Steel Tools, Royal Steel WorkStations");
         provider.add(
-                "screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template" + ".base_slot_description",
-                "Put upgradable item");
+            "screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template" + ".base_slot_description",
+            "Put upgradable item");
 
         provider.add("screen.anvilcraft.structure_tool.size", "Size:");
         provider.add("screen.anvilcraft.structure_tool.count", "Count: %d");

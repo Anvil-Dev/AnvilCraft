@@ -28,6 +28,24 @@ public abstract class SimpleMultiPartBlock<P extends Enum<P> & ISimpleMultiPartB
         super(properties);
     }
 
+    /**
+     * 获取多方块战利品表
+     *
+     * @param provider 提供器
+     * @param block    方块
+     */
+    public static <T extends Enum<T> & ISimpleMultiPartBlockState<T>> void loot(
+        BlockLootSubProvider provider, SimpleMultiPartBlock<T> block
+    ) {
+        for (T part : block.getParts()) {
+            if (part.getOffset().distSqr(block.getMainPartOffset()) == 0) {
+
+                provider.add(block, provider.createSinglePropConditionTable(block, block.getPart(), part));
+                break;
+            }
+        }
+    }
+
     public Vec3i getMainPartOffset() {
         return new Vec3i(0, 0, 0);
     }
@@ -50,24 +68,6 @@ public abstract class SimpleMultiPartBlock<P extends Enum<P> & ISimpleMultiPartB
     @Override
     public BlockPos getMainPartPos(BlockPos pos, BlockState state) {
         return pos.subtract(this.getOffset(state)).offset(this.getMainPartOffset());
-    }
-
-    /**
-     * 获取多方块战利品表
-     *
-     * @param provider 提供器
-     * @param block    方块
-     */
-    public static <T extends Enum<T> & ISimpleMultiPartBlockState<T>> void loot(
-        BlockLootSubProvider provider, SimpleMultiPartBlock<T> block
-    ) {
-        for (T part : block.getParts()) {
-            if (part.getOffset().distSqr(block.getMainPartOffset()) == 0) {
-
-                provider.add(block, provider.createSinglePropConditionTable(block, block.getPart(), part));
-                break;
-            }
-        }
     }
 
     @Nullable

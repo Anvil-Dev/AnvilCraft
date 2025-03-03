@@ -24,7 +24,7 @@ public class VanillaConstants {
         (ConcretePowderBlock) Blocks.RED_CONCRETE_POWDER,
         (ConcretePowderBlock) Blocks.BLACK_CONCRETE_POWDER
     );
-    
+
     public static final ImmutableList<WeatheringCopper> WEATHERING_COPPERS = ImmutableList.of(
         (WeatheringCopper) Blocks.COPPER_BLOCK,
         (WeatheringCopper) Blocks.EXPOSED_COPPER,

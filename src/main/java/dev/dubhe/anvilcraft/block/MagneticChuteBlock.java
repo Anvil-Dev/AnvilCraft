@@ -87,6 +87,27 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
             this.stateDefinition.any().setValue(FACING, Direction.DOWN).setValue(POWERED, false));
     }
 
+    public static DirectionProperty determineProperty(BlockState blockState) {
+        if (blockState.is(ModBlocks.CHUTE) || blockState.is(ModBlocks.SIMPLE_CHUTE)) {
+            return ChuteBlock.FACING;
+        }
+        return FACING;
+    }
+
+    /**
+     * 是朝下的溜槽
+     */
+    public static boolean isFacingDownChute(BlockState blockState) {
+        if (!blockState.is(ModBlocks.MAGNETIC_CHUTE.get())
+            && !blockState.is(ModBlocks.SIMPLE_CHUTE.get())
+            && !blockState.is(ModBlocks.CHUTE.get())) {
+            return false;
+        }
+        if (blockState.is(ModBlocks.SIMPLE_CHUTE.get()) || blockState.is(ModBlocks.CHUTE.get()))
+            return blockState.getValue(ChuteBlock.FACING) == Direction.DOWN;
+        return blockState.getValue(FACING) == Direction.DOWN;
+    }
+
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
         return simpleCodec(MagneticChuteBlock::new);
@@ -166,13 +187,6 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
-    public static DirectionProperty determineProperty(BlockState blockState) {
-        if (blockState.is(ModBlocks.CHUTE) || blockState.is(ModBlocks.SIMPLE_CHUTE)) {
-            return ChuteBlock.FACING;
-        }
-        return FACING;
-    }
-
     @Override
     public void onPlace(
         BlockState state,
@@ -214,12 +228,10 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
             .setValue(POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()));
     }
 
-
     @Override
     public BlockState rotate(BlockState state, Rotation rotation) {
         return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
-
 
     @Override
     public BlockState mirror(BlockState state, Mirror mirror) {
@@ -287,19 +299,5 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
             }
         }
         return InteractionResult.SUCCESS;
-    }
-
-    /**
-     * 是朝下的溜槽
-     */
-    public static boolean isFacingDownChute(BlockState blockState) {
-        if (!blockState.is(ModBlocks.MAGNETIC_CHUTE.get())
-            && !blockState.is(ModBlocks.SIMPLE_CHUTE.get())
-            && !blockState.is(ModBlocks.CHUTE.get())) {
-            return false;
-        }
-        if (blockState.is(ModBlocks.SIMPLE_CHUTE.get()) || blockState.is(ModBlocks.CHUTE.get()))
-            return blockState.getValue(ChuteBlock.FACING) == Direction.DOWN;
-        return blockState.getValue(FACING) == Direction.DOWN;
     }
 }

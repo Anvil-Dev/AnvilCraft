@@ -28,17 +28,17 @@ public class ItemCollectorButton extends Button {
     }
 
     public void renderTexture(
-            @NotNull GuiGraphics guiGraphics,
-            @NotNull ResourceLocation texture,
-            int x,
-            int y,
-            int puOffset,
-            int pvOffset,
-            int textureDifference,
-            int width,
-            int height,
-            int textureWidth,
-            int textureHeight
+        @NotNull GuiGraphics guiGraphics,
+        @NotNull ResourceLocation texture,
+        int x,
+        int y,
+        int puOffset,
+        int pvOffset,
+        int textureDifference,
+        int width,
+        int height,
+        int textureWidth,
+        int textureHeight
     ) {
         int i = pvOffset;
         if (this.isHovered()) {

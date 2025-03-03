@@ -29,25 +29,14 @@ public enum Color implements StringRepresentable {
     WHITE("white", Items.WHITE_DYE),
     YELLOW("yellow", Items.YELLOW_DYE);
 
+    public static final Codec<Color> CODEC = StringRepresentable.fromValues(Color::values);
     private final String name;
-
     @Getter
     private final Item dyeItem;
-
-    public static final Codec<Color> CODEC = StringRepresentable.fromValues(Color::values);
 
     Color(String name, Item dyeItem) {
         this.name = name;
         this.dyeItem = dyeItem;
-    }
-
-    public String toString() {
-        return this.name;
-    }
-
-    @Override
-    public @NotNull String getSerializedName() {
-        return this.name;
     }
 
     @Nullable
@@ -95,5 +84,14 @@ public enum Color implements StringRepresentable {
             return values[index];
         }
         return values[0];
+    }
+
+    public String toString() {
+        return this.name;
+    }
+
+    @Override
+    public @NotNull String getSerializedName() {
+        return this.name;
     }
 }

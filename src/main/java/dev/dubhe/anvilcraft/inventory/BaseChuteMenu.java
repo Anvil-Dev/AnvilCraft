@@ -22,11 +22,27 @@ import org.jetbrains.annotations.Nullable;
 @Getter
 public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends BaseMachineMenu implements IFilterMenu {
 
+    // 致谢： diesieben07 |https://github.com/diesieben07/SevenCommons
+    // 必须为 GUI 使用的每个插槽分配一个插槽编号。
+    // 对于这个容器，我们可以看到瓷砖库存的插槽以及玩家库存插槽和快捷栏。
+    // 每次我们向容器添加 Slot 时，它都会自动增加 slotIndex，这意味着
+    // 0 - 8 = 快捷栏插槽（将映射到 InventoryPlayer 插槽编号 0 - 8）
+    // 9 - 35 = 玩家库存槽（映射到 InventoryPlayer 槽位编号 9 - 35）
+    // 36 - 44 = TileInventory 插槽，映射到我们的 TileEntity 插槽编号 0 - 8）
+    private static final int HOTBAR_SLOT_COUNT = 9;
+    private static final int PLAYER_INVENTORY_ROW_COUNT = 3;
+    private static final int PLAYER_INVENTORY_COLUMN_COUNT = 9;
+    private static final int PLAYER_INVENTORY_SLOT_COUNT = PLAYER_INVENTORY_COLUMN_COUNT * PLAYER_INVENTORY_ROW_COUNT;
+    private static final int VANILLA_SLOT_COUNT = HOTBAR_SLOT_COUNT + PLAYER_INVENTORY_SLOT_COUNT;
+    private static final int TE_INVENTORY_FIRST_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
+    private static final int VANILLA_FIRST_SLOT_INDEX = 0;
+    // THIS YOU HAVE TO DEFINE!
+    private static final int TE_INVENTORY_SLOT_COUNT = 9; // must be the number of slots you have!
     public final T blockEntity;
     private final Level level;
 
     public BaseChuteMenu(
-            @Nullable MenuType<?> menuType, int containerId, Inventory inventory, @NotNull FriendlyByteBuf extraData) {
+        @Nullable MenuType<?> menuType, int containerId, Inventory inventory, @NotNull FriendlyByteBuf extraData) {
         this(menuType, containerId, inventory, inventory.player.level().getBlockEntity(extraData.readBlockPos()));
     }
 
@@ -76,24 +92,6 @@ public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends Base
         }
     }
 
-    // 致谢： diesieben07 |https://github.com/diesieben07/SevenCommons
-    // 必须为 GUI 使用的每个插槽分配一个插槽编号。
-    // 对于这个容器，我们可以看到瓷砖库存的插槽以及玩家库存插槽和快捷栏。
-    // 每次我们向容器添加 Slot 时，它都会自动增加 slotIndex，这意味着
-    // 0 - 8 = 快捷栏插槽（将映射到 InventoryPlayer 插槽编号 0 - 8）
-    // 9 - 35 = 玩家库存槽（映射到 InventoryPlayer 槽位编号 9 - 35）
-    // 36 - 44 = TileInventory 插槽，映射到我们的 TileEntity 插槽编号 0 - 8）
-    private static final int HOTBAR_SLOT_COUNT = 9;
-    private static final int PLAYER_INVENTORY_ROW_COUNT = 3;
-    private static final int PLAYER_INVENTORY_COLUMN_COUNT = 9;
-    private static final int PLAYER_INVENTORY_SLOT_COUNT = PLAYER_INVENTORY_COLUMN_COUNT * PLAYER_INVENTORY_ROW_COUNT;
-    private static final int VANILLA_SLOT_COUNT = HOTBAR_SLOT_COUNT + PLAYER_INVENTORY_SLOT_COUNT;
-    private static final int VANILLA_FIRST_SLOT_INDEX = 0;
-    private static final int TE_INVENTORY_FIRST_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
-
-    // THIS YOU HAVE TO DEFINE!
-    private static final int TE_INVENTORY_SLOT_COUNT = 9; // must be the number of slots you have!
-
     @SuppressWarnings("DuplicatedCode")
     @Override
     public @NotNull ItemStack quickMoveStack(@NotNull Player playerIn, int index) {
@@ -114,7 +112,7 @@ public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends Base
         } else if (index < TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT) {
             // This is a TE slot so merge the stack into the players inventory
             if (!moveItemStackTo(
-                    sourceStack,
+                sourceStack,
                 VANILLA_FIRST_SLOT_INDEX,
                 VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT,
                 false

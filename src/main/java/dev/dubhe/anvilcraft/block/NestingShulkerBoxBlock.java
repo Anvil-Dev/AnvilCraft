@@ -30,8 +30,8 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @MethodsReturnNonnullByDefault
 public class NestingShulkerBoxBlock extends Block {
 
-    private static final int soundDelay = 8;
     public static final BooleanProperty COOLDOWN = BooleanProperty.create("cooldown");
+    private static final int soundDelay = 8;
 
     public NestingShulkerBoxBlock(Properties properties) {
         super(properties);

@@ -45,17 +45,6 @@ public class VoidDecayCategory implements IRecipeCategory<VoidDecayRecipe> {
     public static final int MAX_SHOWN_ROW = 7;
     public static final int MAX_SHOWN_COLUMN = 5;
     public static final int MAX_SHOWN_COUNT = MAX_SHOWN_ROW * MAX_SHOWN_COLUMN;
-
-    private final IDrawable slot;
-    private final Component title;
-    private final IDrawable progressArrow;
-    private final Component randomTickTooltip;
-    private final Component centerTooltip;
-    private final Component aroundTooltip;
-    private final Component notConsumedTooltip;
-
-    private final Map<VoidDecayRecipe, LevelLike> cache = new HashMap<>();
-
     private static final ImmutableList<BlockPos> CATALYST_POS = ImmutableList.of(
         new BlockPos(1, 0, 1),
         new BlockPos(1, 1, 0),
@@ -64,6 +53,14 @@ public class VoidDecayCategory implements IRecipeCategory<VoidDecayRecipe> {
         new BlockPos(0, 1, 1)
     );
     private static final BlockPos CENTER_POS = new BlockPos(1, 1, 1);
+    private final IDrawable slot;
+    private final Component title;
+    private final IDrawable progressArrow;
+    private final Component randomTickTooltip;
+    private final Component centerTooltip;
+    private final Component aroundTooltip;
+    private final Component notConsumedTooltip;
+    private final Map<VoidDecayRecipe, LevelLike> cache = new HashMap<>();
 
     public VoidDecayCategory(IGuiHelper helper) {
         slot = helper.getSlotDrawable();
@@ -78,6 +75,16 @@ public class VoidDecayCategory implements IRecipeCategory<VoidDecayRecipe> {
         progressArrow = helper.drawableBuilder(TextureConstants.PROGRESS, 0, 0, 24, 16)
             .setTextureSize(24, 16)
             .build();
+    }
+
+    public static void registerRecipes(IRecipeRegistration registration) {
+        registration.addRecipes(
+            AnvilCraftJeiPlugin.VOID_DECAY,
+            VoidDecayRecipe.getAllRecipes());
+    }
+
+    public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
+        registration.addRecipeCatalyst(ModBlocks.VOID_MATTER_BLOCK.asStack(), AnvilCraftJeiPlugin.VOID_DECAY);
     }
 
     @Override
@@ -175,15 +182,5 @@ public class VoidDecayCategory implements IRecipeCategory<VoidDecayRecipe> {
         if (mouseX >= 5 && mouseX <= 45 && mouseY >= 15 && mouseY <= 65) {
             tooltip.add(randomTickTooltip);
         }
-    }
-
-    public static void registerRecipes(IRecipeRegistration registration) {
-        registration.addRecipes(
-            AnvilCraftJeiPlugin.VOID_DECAY,
-            VoidDecayRecipe.getAllRecipes());
-    }
-
-    public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(ModBlocks.VOID_MATTER_BLOCK.asStack(), AnvilCraftJeiPlugin.VOID_DECAY);
     }
 }

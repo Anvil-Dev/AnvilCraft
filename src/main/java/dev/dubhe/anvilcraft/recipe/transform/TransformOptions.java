@@ -37,21 +37,21 @@ public enum TransformOptions implements StringRepresentable {
                 for (InteractionHand value : InteractionHand.values()) {
                     ItemStack itemStack = o.getItemInHand(value);
                     if (itemStack.is(Items.ANVIL)
-                            || itemStack.is(Items.CHIPPED_ANVIL)
-                            || itemStack.is(Items.DAMAGED_ANVIL)) {
+                        || itemStack.is(Items.CHIPPED_ANVIL)
+                        || itemStack.is(Items.DAMAGED_ANVIL)) {
                         if (newEntity instanceof Giant) {
                             o.setItemInHand(
-                                    value, ModBlocks.GIANT_ANVIL.asItem().getDefaultInstance());
+                                value, ModBlocks.GIANT_ANVIL.asItem().getDefaultInstance());
                         }
                         if (n instanceof Mob mob) {
                             mob.setDropChance(
-                                    value == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND,
-                                    1.0f);
+                                value == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND,
+                                1.0f);
                         }
                         if (o instanceof Mob mob) {
                             mob.setDropChance(
-                                    value == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND,
-                                    1.0f);
+                                value == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND,
+                                1.0f);
                         }
                     }
                 }

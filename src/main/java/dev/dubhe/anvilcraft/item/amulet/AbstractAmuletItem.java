@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.item.amulet;
 
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
-import dev.dubhe.anvilcraft.init.ModItems;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -26,20 +25,7 @@ public abstract class AbstractAmuletItem extends Item {
         super(properties);
     }
 
-    abstract void UpdateAccessory(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected);
-
-    @Override
-    public void inventoryTick(@NotNull ItemStack stack, @NotNull Level level, @NotNull Entity entity, int slotId, boolean isSelected) {
-        super.inventoryTick(stack, level, entity, slotId, isSelected);
-        if(!(stack.getItem() instanceof AbstractAmuletItem)) return;
-        if(!(entity instanceof Player)) return;
-        if (entity.getData(AMULET_COUNT) < entity.getData(AMULET_MAX)){
-            UpdateAccessory(stack, level, entity, slotId, isSelected);
-            entity.setData(AMULET_COUNT, entity.getData(AMULET_COUNT) + 1);
-        }
-    }
-
-    public static void resetWorkingAmuletData(@NotNull LivingEntity entity){
+    public static void resetWorkingAmuletData(@NotNull LivingEntity entity) {
         if (entity.hasData(AMULET_COUNT)) {
             entity.setData(AMULET_COUNT, 0);
         }
@@ -63,6 +49,19 @@ public abstract class AbstractAmuletItem extends Item {
             root.putBoolean("skeletons", false);
             root.putBoolean("creepers", false);
             root.putBoolean("phantoms", false);
+        }
+    }
+
+    abstract void UpdateAccessory(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected);
+
+    @Override
+    public void inventoryTick(@NotNull ItemStack stack, @NotNull Level level, @NotNull Entity entity, int slotId, boolean isSelected) {
+        super.inventoryTick(stack, level, entity, slotId, isSelected);
+        if (!(stack.getItem() instanceof AbstractAmuletItem)) return;
+        if (!(entity instanceof Player)) return;
+        if (entity.getData(AMULET_COUNT) < entity.getData(AMULET_MAX)) {
+            UpdateAccessory(stack, level, entity, slotId, isSelected);
+            entity.setData(AMULET_COUNT, entity.getData(AMULET_COUNT) + 1);
         }
     }
 }

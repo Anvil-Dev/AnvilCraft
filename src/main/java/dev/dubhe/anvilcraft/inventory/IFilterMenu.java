@@ -87,5 +87,6 @@ public interface IFilterMenu {
     /**
      * 刷新
      */
-    default void flush() {}
+    default void flush() {
+    }
 }

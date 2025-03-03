@@ -16,6 +16,10 @@ public class InputRefusingItemHandlerWrapper implements IItemHandler {
         this.delegate = delegate;
     }
 
+    public static IItemHandler wrap(IItemHandler ih) {
+        return new InputRefusingItemHandlerWrapper(ih);
+    }
+
     @Override
     public int getSlots() {
         return delegate.getSlots();
@@ -44,9 +48,5 @@ public class InputRefusingItemHandlerWrapper implements IItemHandler {
     @Override
     public boolean isItemValid(int i, ItemStack itemStack) {
         return false;
-    }
-
-    public static IItemHandler wrap(IItemHandler ih){
-        return new InputRefusingItemHandlerWrapper(ih);
     }
 }

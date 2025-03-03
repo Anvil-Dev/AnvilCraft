@@ -19,12 +19,12 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 public class FilterOnlyContainer implements Container {
 
-    private int size;
-    @Getter
-    private NonNullList<ItemStack> filterList;
     @Getter
     @Nullable
     private final BlockEntity blockEntity;
+    private int size;
+    @Getter
+    private NonNullList<ItemStack> filterList;
 
     public FilterOnlyContainer(@Nullable BlockEntity blockEntity, int size) {
         this.blockEntity = blockEntity;

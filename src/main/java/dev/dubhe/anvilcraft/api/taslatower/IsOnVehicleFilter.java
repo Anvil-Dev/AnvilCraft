@@ -4,12 +4,14 @@ import lombok.Getter;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
 
-public class IsOnVehicleFilter extends TeslaFilter{
+public class IsOnVehicleFilter extends TeslaFilter {
     @Getter
     private final String id = "IsOnVehicleFilter";
 
     @Override
-    public boolean match(LivingEntity entity, String arg) { return entity.getVehicle() != null;}
+    public boolean match(LivingEntity entity, String arg) {
+        return entity.getVehicle() != null;
+    }
 
     @Override
     public Component title() {

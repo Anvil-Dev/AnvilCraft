@@ -5,7 +5,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
 
-public class IsPetFilter extends TeslaFilter{
+public class IsPetFilter extends TeslaFilter {
     @Getter
     private final String id = "IsPetFilter";
 

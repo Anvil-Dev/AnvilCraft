@@ -1,11 +1,10 @@
 package dev.dubhe.anvilcraft.api.event;
 
+import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.event.entity.EntityEvent;
-
-import lombok.Getter;
 
 @Getter
 public class LightningBoltStrikeEvent extends EntityEvent {

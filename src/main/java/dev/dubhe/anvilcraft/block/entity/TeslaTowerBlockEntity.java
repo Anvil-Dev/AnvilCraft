@@ -49,7 +49,7 @@ import java.util.Optional;
 
 @Slf4j
 public class TeslaTowerBlockEntity extends BlockEntity
-        implements IPowerConsumer, MenuProvider {
+    implements IPowerConsumer, MenuProvider {
     private final Comparator<Entity> ENTITY_SORTER = new Comparator<>() {
         private final Vec3 blockPosVec = getBlockPos().getCenter();
 
@@ -100,12 +100,11 @@ public class TeslaTowerBlockEntity extends BlockEntity
             return PowerComponentType.INVALID;
         return PowerComponentType.CONSUMER;
     }
-                                 
+
     @Override
     public int getInputPower() {
         if (level == null) return 0;
-        return level.getBlockState(getBlockPos()).getValue(TeslaTowerBlock.HALF) == Vertical4PartHalf.BOTTOM ?
-                128 : 0;
+        return level.getBlockState(getBlockPos()).getValue(TeslaTowerBlock.HALF) == Vertical4PartHalf.BOTTOM ? 128 : 0;
     }
 
     @Override
@@ -122,7 +121,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
     protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider provider) {
         int index = 0;
         for (Pair<TeslaFilter, String> entry : whiteList) {
-            tag.putString(entry.first().getId()+"_-_"+index, entry.second());
+            tag.putString(entry.first().getId() + "_-_" + index, entry.second());
             index++;
         }
     }
@@ -164,21 +163,21 @@ public class TeslaTowerBlockEntity extends BlockEntity
         BlockPos pos2 = pos.above(8).east(8).south(8);
         AABB aabb = new AABB(pos1.getX(), pos1.getY(), pos1.getZ(), pos2.getX() + 1, pos2.getY() + 1, pos2.getZ() + 1);
         Optional<LivingEntity> target = level.getEntitiesOfClass(LivingEntity.class, aabb)
-                .stream()
-                .filter(it -> whiteList.stream().noneMatch(it2 -> it2.left().match(it, it2.right()))).min(ENTITY_SORTER);
+            .stream()
+            .filter(it -> whiteList.stream().noneMatch(it2 -> it2.left().match(it, it2.right()))).min(ENTITY_SORTER);
         Vec3 targetPos;
         if (target.isPresent()) {
             targetPos = target.get().position();
         } else {
             ArrayList<BlockPos> lightingRods = new ArrayList<>();
             BlockPos.betweenClosedStream(aabb)
-                    .forEach(it -> {
-                        if (level.getBlockState(it).is(Blocks.LIGHTNING_ROD))
-                            lightingRods.add(it.above(0));
-                    });
+                .forEach(it -> {
+                    if (level.getBlockState(it).is(Blocks.LIGHTNING_ROD))
+                        lightingRods.add(it.above(0));
+                });
             Optional<BlockPos> targetBlock = lightingRods.stream().min(BLOCK_SORTED);
             if (targetBlock.isPresent())
-                 targetPos = targetBlock.get().getCenter();
+                targetPos = targetBlock.get().getCenter();
             else
                 return;
         }

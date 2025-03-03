@@ -8,7 +8,7 @@ public class TextureConstants {
     public static final String BASE_PATH = "textures/gui/";
 
     public static final ResourceLocation PROGRESS =
-            ResourceLocation.parse(BASE_PATH + "sprites/container/furnace/burn_progress.png");
+        ResourceLocation.parse(BASE_PATH + "sprites/container/furnace/burn_progress.png");
 
     public static final ResourceLocation ANVIL_CRAFT_SPRITES = AnvilCraft.of(BASE_PATH + "sprites/jei.png");
 

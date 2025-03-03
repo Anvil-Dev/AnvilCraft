@@ -1,13 +1,12 @@
 package dev.dubhe.anvilcraft.util;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
 import net.neoforged.fml.ModList;
-
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -22,21 +21,22 @@ import java.util.stream.Collectors;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Util {
     public static final Lazy<Boolean> jadePresent = new Lazy<>(() -> isLoaded("jade") || isLoaded("wthit"));
-    private static final StackWalker STACK_WALKER = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
-    public static final Direction[] HORIZONTAL_DIRECTIONS = new Direction[] {
+    public static final Direction[] HORIZONTAL_DIRECTIONS = new Direction[]{
         Direction.SOUTH,
         Direction.WEST,
         Direction.EAST,
         Direction.NORTH
     };
-    public static final Direction[] VERTICAL_DIRECTIONS = new Direction[] {
+    public static final Direction[] VERTICAL_DIRECTIONS = new Direction[]{
         Direction.UP,
         Direction.DOWN
     };
-    public static final Direction[][] CORNER_DIRECTIONS = new Direction[][] {
+    public static final Direction[][] CORNER_DIRECTIONS = new Direction[][]{
         {Direction.EAST, Direction.NORTH}, {Direction.EAST, Direction.SOUTH},
         {Direction.WEST, Direction.NORTH}, {Direction.WEST, Direction.SOUTH},
     };
+    private static final StackWalker STACK_WALKER = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
+
     /**
      * @return 模组是否加载
      */
@@ -72,7 +72,7 @@ public class Util {
 
     public static @NotNull String generateRandomString(int len, boolean hasInteger, boolean hasUpperLetter) {
         String ch = "abcdefghijklmnopqrstuvwxyz" + (hasUpperLetter ? "ABCDEFGHIGKLMNOPQRSTUVWXYZ" : "")
-                + (hasInteger ? "0123456789" : "");
+            + (hasInteger ? "0123456789" : "");
         StringBuilder stringBuffer = new StringBuilder();
         for (int i = 0; i < len; i++) {
             Random random = new Random(System.nanoTime());
@@ -88,7 +88,7 @@ public class Util {
 
     public static boolean findCaller(String caller) {
         return STACK_WALKER.walk(
-                it -> it.anyMatch(frame -> frame.getMethodName().equals(caller)));
+            it -> it.anyMatch(frame -> frame.getMethodName().equals(caller)));
     }
 
     public static <K, V> Collector<Map.Entry<K, V>, ?, Map<K, V>> toMapCollector() {

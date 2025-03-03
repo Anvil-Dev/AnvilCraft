@@ -7,8 +7,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,13 +43,6 @@ public interface IPowerComponent extends Comparable<IPowerComponent> {
     }
 
     /**
-     * 设置电网
-     *
-     * @param grid 电网
-     */
-    void setGrid(@Nullable PowerGrid grid);
-
-    /**
      * 获取电网
      *
      * @return 电网
@@ -59,28 +50,16 @@ public interface IPowerComponent extends Comparable<IPowerComponent> {
     @Nullable PowerGrid getGrid();
 
     /**
+     * 设置电网
+     *
+     * @param grid 电网
+     */
+    void setGrid(@Nullable PowerGrid grid);
+
+    /**
      * @return 元件类型
      */
     @NotNull PowerComponentType getComponentType();
-
-    enum Switch implements StringRepresentable {
-        ON("on"),
-        OFF("off");
-        private final String name;
-
-        Switch(String name) {
-            this.name = name;
-        }
-
-        public @NotNull String toString() {
-            return this.getSerializedName();
-        }
-
-        @Override
-        public @NotNull String getSerializedName() {
-            return this.name;
-        }
-    }
 
     /**
      * @param level 世界
@@ -111,5 +90,24 @@ public interface IPowerComponent extends Comparable<IPowerComponent> {
 
     default boolean isGridWorking() {
         return Optional.ofNullable(this.getGrid()).map(PowerGrid::isWorking).orElse(false);
+    }
+
+    enum Switch implements StringRepresentable {
+        ON("on"),
+        OFF("off");
+        private final String name;
+
+        Switch(String name) {
+            this.name = name;
+        }
+
+        public @NotNull String toString() {
+            return this.getSerializedName();
+        }
+
+        @Override
+        public @NotNull String getSerializedName() {
+            return this.name;
+        }
     }
 }

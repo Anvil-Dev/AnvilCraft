@@ -11,6 +11,14 @@ import dev.latvian.mods.kubejs.recipe.schema.RecipeSchema;
 import net.minecraft.world.level.block.Block;
 
 public interface BlockCrushRecipeSchema {
+    RecipeKey<Block> INPUT = BlockComponent.BLOCK.inputKey("input").defaultOptional();
+    RecipeKey<Block> RESULT = BlockComponent.BLOCK.outputKey("result").defaultOptional();
+    RecipeSchema SCHEMA = new RecipeSchema(INPUT, RESULT)
+        .factory(new KubeRecipeFactory(AnvilCraft.of("block_crush"), BlockCrushKubeRecipe.class, BlockCrushKubeRecipe::new))
+        .constructor(INPUT, RESULT)
+        .constructor(new IDRecipeConstructor())
+        .constructor();
+
     @SuppressWarnings("unused")
     class BlockCrushKubeRecipe extends AnvilCraftKubeRecipe {
         public BlockCrushKubeRecipe input(Block block) {
@@ -27,21 +35,12 @@ public interface BlockCrushRecipeSchema {
 
         @Override
         protected void validate() {
-            if (getValue(INPUT) == null){
+            if (getValue(INPUT) == null) {
                 throw new KubeRuntimeException("Inputs is Empty!").source(sourceLine);
             }
-            if (getValue(RESULT) == null){
+            if (getValue(RESULT) == null) {
                 throw new KubeRuntimeException("Result is Empty!").source(sourceLine);
             }
         }
     }
-
-    RecipeKey<Block> INPUT = BlockComponent.BLOCK.inputKey("input").defaultOptional();
-    RecipeKey<Block> RESULT = BlockComponent.BLOCK.outputKey("result").defaultOptional();
-
-    RecipeSchema SCHEMA = new RecipeSchema(INPUT, RESULT)
-        .factory(new KubeRecipeFactory(AnvilCraft.of("block_crush"), BlockCrushKubeRecipe.class, BlockCrushKubeRecipe::new))
-        .constructor(INPUT, RESULT)
-        .constructor(new IDRecipeConstructor())
-        .constructor();
 }

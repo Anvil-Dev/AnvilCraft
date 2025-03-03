@@ -18,6 +18,18 @@ import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 
 public interface MeshRecipeSchema {
+    RecipeKey<Ingredient> INPUT = IngredientComponent.INGREDIENT.inputKey("input").defaultOptional();
+    RecipeKey<ItemStack> RESULT = ItemStackComponent.STRICT_ITEM_STACK.outputKey("result").defaultOptional();
+    RecipeKey<NumberProvider> RESULT_AMOUNT = AnvilCraftRecipeComponents.NUMBER_PROVIDER.outputKey("result_amount")
+        .optional(ConstantValue.exactly(1))
+        .alwaysWrite();
+    RecipeSchema SCHEMA = new RecipeSchema(INPUT, RESULT, RESULT_AMOUNT)
+        .factory(new KubeRecipeFactory(AnvilCraft.of("mesh"), MeshKubeRecipe.class, MeshKubeRecipe::new))
+        .constructor(INPUT, RESULT, RESULT_AMOUNT)
+        .constructor(INPUT, RESULT)
+        .constructor(new IDRecipeConstructor())
+        .constructor();
+
     @SuppressWarnings({"unused"})
     class MeshKubeRecipe extends AnvilCraftKubeRecipe {
         public MeshKubeRecipe input(Ingredient ingredient) {
@@ -63,17 +75,4 @@ public interface MeshRecipeSchema {
             }
         }
     }
-
-    RecipeKey<Ingredient> INPUT = IngredientComponent.INGREDIENT.inputKey("input").defaultOptional();
-    RecipeKey<ItemStack> RESULT = ItemStackComponent.STRICT_ITEM_STACK.outputKey("result").defaultOptional();
-    RecipeKey<NumberProvider> RESULT_AMOUNT = AnvilCraftRecipeComponents.NUMBER_PROVIDER.outputKey("result_amount")
-        .optional(ConstantValue.exactly(1))
-        .alwaysWrite();
-
-    RecipeSchema SCHEMA = new RecipeSchema(INPUT, RESULT, RESULT_AMOUNT)
-        .factory(new KubeRecipeFactory(AnvilCraft.of("mesh"), MeshKubeRecipe.class, MeshKubeRecipe::new))
-        .constructor(INPUT, RESULT, RESULT_AMOUNT)
-        .constructor(INPUT, RESULT)
-        .constructor(new IDRecipeConstructor())
-        .constructor();
 }

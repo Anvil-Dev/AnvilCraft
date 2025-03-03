@@ -26,11 +26,11 @@ abstract class LevelChunkMixin {
     public abstract Level getLevel();
 
     @Inject(
-            method = "setBlockEntity",
-            at =
-                    @At(
-                            value = "INVOKE",
-                            target = "Ljava/util/Map;put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;"))
+        method = "setBlockEntity",
+        at =
+        @At(
+            value = "INVOKE",
+            target = "Ljava/util/Map;put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;"))
     private void onLoadBlockEntity(BlockEntity entity, CallbackInfo ci) {
         if (this.getLevel().isClientSide) return;
         NeoForge.EVENT_BUS.post(new BlockEntityEvent.ServerLoad(this.getLevel(), entity));
@@ -41,24 +41,24 @@ abstract class LevelChunkMixin {
         at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/entity/BlockEntity;setRemoved()V")
     )
     private void onRemoveBlockEntity(
-            BlockEntity pBlockEntity,
-            CallbackInfo ci,
-            @Local(ordinal = 1) BlockEntity blockentity) {
+        BlockEntity pBlockEntity,
+        CallbackInfo ci,
+        @Local(ordinal = 1) BlockEntity blockentity) {
         if (this.getLevel().isClientSide) return;
         NeoForge.EVENT_BUS.post(new BlockEntityEvent.ServerUnload(this.getLevel(), blockentity));
     }
 
     @Redirect(
-            method = "getBlockEntity("
-                    + "Lnet/minecraft/core/BlockPos;"
-                    + "Lnet/minecraft/world/level/chunk/LevelChunk$EntityCreationType;"
-                    + ")"
-                    + "Lnet/minecraft/world/level/block/entity/BlockEntity;",
-            at =
-                    @At(
-                            value = "INVOKE",
-                            target = "Ljava/util/Map;remove(Ljava/lang/Object;)Ljava/lang/Object;",
-                            ordinal = 1))
+        method = "getBlockEntity("
+            + "Lnet/minecraft/core/BlockPos;"
+            + "Lnet/minecraft/world/level/chunk/LevelChunk$EntityCreationType;"
+            + ")"
+            + "Lnet/minecraft/world/level/block/entity/BlockEntity;",
+        at =
+        @At(
+            value = "INVOKE",
+            target = "Ljava/util/Map;remove(Ljava/lang/Object;)Ljava/lang/Object;",
+            ordinal = 1))
     private <K, V> V onRemoveBlockEntity(@NotNull Map<K, V> map, K key) {
         @Nullable final V removed = map.remove(key);
         if (!this.getLevel().isClientSide && removed != null) {

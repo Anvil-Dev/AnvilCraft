@@ -20,17 +20,17 @@ import java.util.function.Supplier;
 abstract class ClientLevelMixin {
     @Inject(method = "<init>", at = @At("RETURN"))
     void onLevelLoad(
-            ClientPacketListener connection,
-            ClientLevel.ClientLevelData clientLevelData,
-            ResourceKey<?> dimension,
-            Holder<?> dimensionType,
-            int viewDistance,
-            int serverSimulationDistance,
-            Supplier<?> profiler,
-            LevelRenderer levelRenderer,
-            boolean isDebug,
-            long biomeZoomSeed,
-            CallbackInfo ci) {
+        ClientPacketListener connection,
+        ClientLevel.ClientLevelData clientLevelData,
+        ResourceKey<?> dimension,
+        Holder<?> dimensionType,
+        int viewDistance,
+        int serverSimulationDistance,
+        Supplier<?> profiler,
+        LevelRenderer levelRenderer,
+        boolean isDebug,
+        long biomeZoomSeed,
+        CallbackInfo ci) {
         PowerGridClient.clearAllGrid();
         HeatedBlockRecorder.clear();
     }

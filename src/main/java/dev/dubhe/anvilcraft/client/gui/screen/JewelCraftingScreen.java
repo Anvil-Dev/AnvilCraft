@@ -24,7 +24,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMenu> {
 
-    private final ResourceLocation CONTAINER_LOCATION = AnvilCraft.of("textures/gui/container/jewelcrafting/background.png");
+    private static final ResourceLocation CONTAINER_LOCATION = AnvilCraft.of("textures/gui/container/jewelcrafting/background.png");
 
 
     public JewelCraftingScreen(JewelCraftingMenu menu, Inventory playerInventory, Component title) {

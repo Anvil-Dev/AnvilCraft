@@ -22,20 +22,15 @@ import lombok.Getter;
 public class MachineEnableFilterPacket implements CustomPacketPayload {
     public static final Type<MachineEnableFilterPacket> TYPE = new Type<>(AnvilCraft.of("machine_record_material"));
     public static final StreamCodec<RegistryFriendlyByteBuf, MachineEnableFilterPacket> STREAM_CODEC =
-            StreamCodec.composite(
-                    ByteBufCodecs.BOOL, MachineEnableFilterPacket::isFilterEnabled, MachineEnableFilterPacket::new);
+        StreamCodec.composite(
+            ByteBufCodecs.BOOL, MachineEnableFilterPacket::isFilterEnabled, MachineEnableFilterPacket::new);
     public static final IPayloadHandler<MachineEnableFilterPacket> HANDLER = new DirectionalPayloadHandler<>(
-            MachineEnableFilterPacket::clientHandler, MachineEnableFilterPacket::serverHandler);
+        MachineEnableFilterPacket::clientHandler, MachineEnableFilterPacket::serverHandler);
 
     private final boolean filterEnabled;
 
     public MachineEnableFilterPacket(boolean filterEnabled) {
         this.filterEnabled = filterEnabled;
-    }
-
-    @Override
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
     }
 
     /**
@@ -71,5 +66,10 @@ public class MachineEnableFilterPacket implements CustomPacketPayload {
                 screen.flush();
             }
         });
+    }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

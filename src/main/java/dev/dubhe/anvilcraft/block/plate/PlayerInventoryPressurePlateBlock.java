@@ -21,22 +21,12 @@ public class PlayerInventoryPressurePlateBlock extends PowerLevelPressurePlateBl
         super(BlockSetType.IRON, properties);
     }
 
-    @Override
-    protected Set<Class<? extends Entity>> getEntityClasses() {
-        return ImmutableSet.of(Player.class);
-    }
-
-    @Override
-    protected int getSignalStrength(Level level, net.minecraft.world.phys.AABB box, Set<Class<? extends Entity>> entityClasses) {
-        return (int) Math.clamp(getInventoryOccupiedCapacityMaxPercent(level, box) * 15, 0, 15);
-    }
-
     protected static float getInventoryOccupiedCapacityMaxPercent(Level level, AABB box) {
         float result = 0F;
 
         for (Player player : level.getEntitiesOfClass(
-                Player.class, box,
-                EntitySelector.NO_SPECTATORS.and(entity -> !entity.isIgnoringBlockTriggers())
+            Player.class, box,
+            EntitySelector.NO_SPECTATORS.and(entity -> !entity.isIgnoringBlockTriggers())
         )) {
             Inventory inventory = player.getInventory();
 
@@ -52,5 +42,15 @@ public class PlayerInventoryPressurePlateBlock extends PowerLevelPressurePlateBl
         }
 
         return result;
+    }
+
+    @Override
+    protected Set<Class<? extends Entity>> getEntityClasses() {
+        return ImmutableSet.of(Player.class);
+    }
+
+    @Override
+    protected int getSignalStrength(Level level, net.minecraft.world.phys.AABB box, Set<Class<? extends Entity>> entityClasses) {
+        return (int) Math.clamp(getInventoryOccupiedCapacityMaxPercent(level, box) * 15, 0, 15);
     }
 }

@@ -51,11 +51,25 @@ public class BlockCompressCategory implements IRecipeCategory<RecipeHolder<Block
 
     public BlockCompressCategory(IGuiHelper helper) {
         progress = helper.drawableBuilder(TextureConstants.PROGRESS, 0, 0, 24, 16)
-                .setTextureSize(24, 16)
-                .build();
+            .setTextureSize(24, 16)
+            .build();
         icon = helper.createDrawableItemStack(new ItemStack(Items.ANVIL));
         title = Component.translatable("gui.anvilcraft.category.block_compress");
         timer = helper.createTickTimer(30, 60, true);
+    }
+
+    public static void registerRecipes(IRecipeRegistration registration) {
+        registration.addRecipes(
+            AnvilCraftJeiPlugin.BLOCK_COMPRESS,
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.BLOCK_COMPRESS_TYPE.get()));
+    }
+
+    public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
+        registration.addRecipeCatalyst(new ItemStack(Items.ANVIL), AnvilCraftJeiPlugin.BLOCK_COMPRESS);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.ROYAL_ANVIL), AnvilCraftJeiPlugin.BLOCK_COMPRESS);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.EMBER_ANVIL), AnvilCraftJeiPlugin.BLOCK_COMPRESS);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.GIANT_ANVIL), AnvilCraftJeiPlugin.BLOCK_COMPRESS);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.SPECTRAL_ANVIL), AnvilCraftJeiPlugin.BLOCK_COMPRESS);
     }
 
     @Override
@@ -85,9 +99,9 @@ public class BlockCompressCategory implements IRecipeCategory<RecipeHolder<Block
 
     @Override
     public void setRecipe(
-            IRecipeLayoutBuilder builder,
-            RecipeHolder<BlockCompressRecipe> recipeHolder,
-            IFocusGroup focuses
+        IRecipeLayoutBuilder builder,
+        RecipeHolder<BlockCompressRecipe> recipeHolder,
+        IFocusGroup focuses
     ) {
         BlockCompressRecipe recipe = recipeHolder.value();
         for (Either<TagKey<Block>, Block> input : recipe.inputs) {
@@ -104,24 +118,24 @@ public class BlockCompressCategory implements IRecipeCategory<RecipeHolder<Block
 
     @Override
     public void draw(
-            RecipeHolder<BlockCompressRecipe> recipeHolder,
-            IRecipeSlotsView recipeSlotsView,
-            GuiGraphics guiGraphics,
-            double mouseX,
-            double mouseY) {
+        RecipeHolder<BlockCompressRecipe> recipeHolder,
+        IRecipeSlotsView recipeSlotsView,
+        GuiGraphics guiGraphics,
+        double mouseX,
+        double mouseY) {
         BlockCompressRecipe recipe = recipeHolder.value();
 
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
         progress.draw(guiGraphics, 69, 30);
 
         RenderHelper.renderBlock(
-                guiGraphics,
-                Blocks.ANVIL.defaultBlockState(),
-                50,
-                12 + anvilYOffset,
-                20,
-                12,
-                RenderHelper.SINGLE_BLOCK
+            guiGraphics,
+            Blocks.ANVIL.defaultBlockState(),
+            50,
+            12 + anvilYOffset,
+            20,
+            12,
+            RenderHelper.SINGLE_BLOCK
         );
 
         for (int i = recipe.inputs.size() - 1; i >= 0; i--) {
@@ -130,7 +144,7 @@ public class BlockCompressCategory implements IRecipeCategory<RecipeHolder<Block
             input.ifRight(r -> renderedState.set(r.defaultBlockState()))
                 .ifLeft(tag -> BlockTagUtil.getDisplay(tag)
                     .ifPresent(block -> renderedState.set(block.defaultBlockState())));
-            if(renderedState.get() != null){
+            if (renderedState.get() != null) {
                 RenderHelper.renderBlock(
                     guiGraphics,
                     renderedState.get(),
@@ -143,18 +157,18 @@ public class BlockCompressCategory implements IRecipeCategory<RecipeHolder<Block
         }
 
         RenderHelper.renderBlock(
-                guiGraphics, Blocks.ANVIL.defaultBlockState(), 110, 30, 10, 12, RenderHelper.SINGLE_BLOCK);
+            guiGraphics, Blocks.ANVIL.defaultBlockState(), 110, 30, 10, 12, RenderHelper.SINGLE_BLOCK);
         RenderHelper.renderBlock(
-                guiGraphics, recipe.result.defaultBlockState(), 110, 40, 0, 12, RenderHelper.SINGLE_BLOCK);
+            guiGraphics, recipe.result.defaultBlockState(), 110, 40, 0, 12, RenderHelper.SINGLE_BLOCK);
     }
 
     @Override
     public void getTooltip(
-            ITooltipBuilder tooltip,
-            RecipeHolder<BlockCompressRecipe> recipeHolder,
-            IRecipeSlotsView recipeSlotsView,
-            double mouseX,
-            double mouseY
+        ITooltipBuilder tooltip,
+        RecipeHolder<BlockCompressRecipe> recipeHolder,
+        IRecipeSlotsView recipeSlotsView,
+        double mouseX,
+        double mouseY
     ) {
         IRecipeCategory.super.getTooltip(tooltip, recipeHolder, recipeSlotsView, mouseX, mouseY);
         BlockCompressRecipe recipe = recipeHolder.value();
@@ -172,19 +186,5 @@ public class BlockCompressCategory implements IRecipeCategory<RecipeHolder<Block
                 tooltip.add(recipe.result.getName());
             }
         }
-    }
-
-    public static void registerRecipes(IRecipeRegistration registration) {
-        registration.addRecipes(
-                AnvilCraftJeiPlugin.BLOCK_COMPRESS,
-                JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.BLOCK_COMPRESS_TYPE.get()));
-    }
-
-    public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(new ItemStack(Items.ANVIL), AnvilCraftJeiPlugin.BLOCK_COMPRESS);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.ROYAL_ANVIL), AnvilCraftJeiPlugin.BLOCK_COMPRESS);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.EMBER_ANVIL), AnvilCraftJeiPlugin.BLOCK_COMPRESS);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.GIANT_ANVIL), AnvilCraftJeiPlugin.BLOCK_COMPRESS);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.SPECTRAL_ANVIL), AnvilCraftJeiPlugin.BLOCK_COMPRESS);
     }
 }

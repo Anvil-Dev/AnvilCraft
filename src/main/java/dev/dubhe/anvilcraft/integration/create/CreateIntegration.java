@@ -21,15 +21,15 @@ public class CreateIntegration {
     private static final BoilerHeater GLOWING_METAL = new ConstantValueHeater(2);
     private static final BoilerHeater INCANDESCENT_METAL = new ConstantValueHeater(3);
 
-    public void apply() {
-        BoilerHeater.REGISTRY.registerProvider(new MyProvider());
-    }
-
     private static float heater(Level level, BlockPos blockPos, BlockState blockState) {
         if (blockState.is(ModBlocks.HEATER) && !blockState.getValue(HeaterBlock.OVERLOAD)) {
             return 1;
         }
         return -1;
+    }
+
+    public void apply() {
+        BoilerHeater.REGISTRY.registerProvider(new MyProvider());
     }
 
     private static class MyProvider implements SimpleRegistry.Provider<Block, BoilerHeater> {
@@ -42,7 +42,7 @@ public class CreateIntegration {
             if (block instanceof IncandescentMetalBlock) {
                 return INCANDESCENT_METAL;
             }
-            if (block instanceof GlowingMetalBlock){
+            if (block instanceof GlowingMetalBlock) {
                 return GLOWING_METAL;
             }
             if (block instanceof RedhotMetalBlock) {

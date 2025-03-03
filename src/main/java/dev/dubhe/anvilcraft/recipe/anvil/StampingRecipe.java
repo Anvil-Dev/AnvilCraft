@@ -55,16 +55,6 @@ public class StampingRecipe extends AbstractItemProcessRecipe {
         private static final StreamCodec<RegistryFriendlyByteBuf, StampingRecipe> STREAM_CODEC =
             StreamCodec.of(Serializer::encode, Serializer::decode);
 
-        @Override
-        public MapCodec<StampingRecipe> codec() {
-            return CODEC;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, StampingRecipe> streamCodec() {
-            return STREAM_CODEC;
-        }
-
         private static StampingRecipe decode(RegistryFriendlyByteBuf buf) {
             List<ChanceItemStack> results = new ArrayList<>();
             int size = buf.readVarInt();
@@ -86,6 +76,16 @@ public class StampingRecipe extends AbstractItemProcessRecipe {
             for (Ingredient ingredient : recipe.ingredients) {
                 Ingredient.CONTENTS_STREAM_CODEC.encode(buf, ingredient);
             }
+        }
+
+        @Override
+        public MapCodec<StampingRecipe> codec() {
+            return CODEC;
+        }
+
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, StampingRecipe> streamCodec() {
+            return STREAM_CODEC;
         }
     }
 

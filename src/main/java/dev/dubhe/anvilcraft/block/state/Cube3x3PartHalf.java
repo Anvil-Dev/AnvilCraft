@@ -38,28 +38,8 @@ public enum Cube3x3PartHalf implements ISimpleMultiPartBlockState<Cube3x3PartHal
     TOP_EN("top_en", 1, 2, -1),
     TOP_ES("top_es", 1, 2, 1);
 
-    private final String name;
-    private final int offsetX;
-    private final int offsetY;
-    private final int offsetZ;
-    private Cube3x3PartHalf clockwise90;
-    private Cube3x3PartHalf clockwise180;
-    private Cube3x3PartHalf clockwise270;
-    private Cube3x3PartHalf mirrorX;
-    private Cube3x3PartHalf mirrorZ;
-
-    @Nullable
-    public static Cube3x3PartHalf findByOffset(int offsetX, int offsetY, int offsetZ) {
-        return Arrays.stream(Cube3x3PartHalf.values())
-            .filter(part -> part.offsetX == offsetX)
-            .filter(part -> part.offsetY == offsetY)
-            .filter(part -> part.offsetZ == offsetZ)
-            .findFirst()
-            .orElse(null);
-    }
-
     static {
-        for (Cube3x3PartHalf half: Cube3x3PartHalf.values()) {
+        for (Cube3x3PartHalf half : Cube3x3PartHalf.values()) {
             int x = half.offsetX;
             int y = half.offsetY;
             int z = half.offsetZ;
@@ -71,11 +51,31 @@ public enum Cube3x3PartHalf implements ISimpleMultiPartBlockState<Cube3x3PartHal
         }
     }
 
+    private final String name;
+    private final int offsetX;
+    private final int offsetY;
+    private final int offsetZ;
+    private Cube3x3PartHalf clockwise90;
+    private Cube3x3PartHalf clockwise180;
+    private Cube3x3PartHalf clockwise270;
+    private Cube3x3PartHalf mirrorX;
+    private Cube3x3PartHalf mirrorZ;
+
     Cube3x3PartHalf(String name, int offsetX, int offsetY, int offsetZ) {
         this.name = name;
         this.offsetX = offsetX;
         this.offsetY = offsetY;
         this.offsetZ = offsetZ;
+    }
+
+    @Nullable
+    public static Cube3x3PartHalf findByOffset(int offsetX, int offsetY, int offsetZ) {
+        return Arrays.stream(Cube3x3PartHalf.values())
+            .filter(part -> part.offsetX == offsetX)
+            .filter(part -> part.offsetY == offsetY)
+            .filter(part -> part.offsetZ == offsetZ)
+            .findFirst()
+            .orElse(null);
     }
 
     public String toString() {

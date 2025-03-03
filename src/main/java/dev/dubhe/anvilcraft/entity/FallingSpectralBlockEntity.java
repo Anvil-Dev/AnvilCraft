@@ -65,6 +65,38 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
         this.noPhysics = true;
     }
 
+    protected static boolean shouldIgnoreBlockInMovement(BlockState blockState) {
+        return (blockState.isAir()
+            || blockState.is(Tags.Blocks.GLASS_BLOCKS)
+            || blockState.is(Tags.Blocks.GLASS_PANES)
+            || blockState.getBlock() instanceof TransparentBlock
+            || blockState.canBeReplaced()
+            || !blockState.getBlock().properties().hasCollision
+        ) && !(blockState.getBlock() instanceof SpectralAnvilBlock);
+    }
+
+    /**
+     * 落下幻灵实体
+     */
+    public static @NotNull FallingSpectralBlockEntity fall(
+        Level level, BlockPos pos, BlockState blockState, boolean updateBlock, boolean isGhostEntity
+    ) {
+        FallingSpectralBlockEntity fallingBlockEntity = new FallingSpectralBlockEntity(
+            level,
+            (double) pos.getX() + 0.5,
+            (double) pos.getY() - 0.96,
+            (double) pos.getZ() + 0.5,
+            blockState.hasProperty(BlockStateProperties.WATERLOGGED)
+                ? blockState.setValue(BlockStateProperties.WATERLOGGED, false)
+                : blockState,
+            isGhostEntity);
+        if (updateBlock) {
+            level.setBlock(pos, blockState.getFluidState().createLegacyBlock(), 3);
+        }
+        level.addFreshEntity(fallingBlockEntity);
+        return fallingBlockEntity;
+    }
+
     @Override
     public void callOnBrokenAfterFall(@NotNull Block block, @NotNull BlockPos pos) {
     }
@@ -156,37 +188,5 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
             }
         }
         return false;
-    }
-
-    protected static boolean shouldIgnoreBlockInMovement(BlockState blockState) {
-        return (blockState.isAir()
-            || blockState.is(Tags.Blocks.GLASS_BLOCKS)
-            || blockState.is(Tags.Blocks.GLASS_PANES)
-            || blockState.getBlock() instanceof TransparentBlock
-            || blockState.canBeReplaced()
-            || !blockState.getBlock().properties().hasCollision
-        ) && !(blockState.getBlock() instanceof SpectralAnvilBlock);
-    }
-
-    /**
-     * 落下幻灵实体
-     */
-    public static @NotNull FallingSpectralBlockEntity fall(
-        Level level, BlockPos pos, BlockState blockState, boolean updateBlock, boolean isGhostEntity
-    ) {
-        FallingSpectralBlockEntity fallingBlockEntity = new FallingSpectralBlockEntity(
-            level,
-            (double) pos.getX() + 0.5,
-            (double) pos.getY() - 0.96,
-            (double) pos.getZ() + 0.5,
-            blockState.hasProperty(BlockStateProperties.WATERLOGGED)
-                ? blockState.setValue(BlockStateProperties.WATERLOGGED, false)
-                : blockState,
-            isGhostEntity);
-        if (updateBlock) {
-            level.setBlock(pos, blockState.getFluidState().createLegacyBlock(), 3);
-        }
-        level.addFreshEntity(fallingBlockEntity);
-        return fallingBlockEntity;
     }
 }

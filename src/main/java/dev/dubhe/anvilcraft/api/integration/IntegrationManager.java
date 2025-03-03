@@ -14,9 +14,8 @@ import java.lang.annotation.ElementType;
 @Slf4j
 public class IntegrationManager {
 
-    private final Multimap<String, IntegrationInstance> instances = MultimapBuilder.hashKeys().hashSetValues().build();
-
     public static final String INTEGRATION_NAME = "L" + Integration.class.getName().replace(".", "/") + ";";
+    private final Multimap<String, IntegrationInstance> instances = MultimapBuilder.hashKeys().hashSetValues().build();
 
     public void compileContent() {
         ProgressMeter meter = StartupNotificationManager.addProgressBar("Load Integrations", LoadingModList.get().getModFiles().size());

@@ -55,16 +55,6 @@ public class ItemCompressRecipe extends AbstractItemProcessRecipe {
         private static final StreamCodec<RegistryFriendlyByteBuf, ItemCompressRecipe> STREAM_CODEC =
             StreamCodec.of(Serializer::encode, Serializer::decode);
 
-        @Override
-        public MapCodec<ItemCompressRecipe> codec() {
-            return CODEC;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, ItemCompressRecipe> streamCodec() {
-            return STREAM_CODEC;
-        }
-
         private static ItemCompressRecipe decode(RegistryFriendlyByteBuf buf) {
             List<ChanceItemStack> results = new ArrayList<>();
             int size = buf.readVarInt();
@@ -86,6 +76,16 @@ public class ItemCompressRecipe extends AbstractItemProcessRecipe {
             for (Ingredient ingredient : recipe.ingredients) {
                 Ingredient.CONTENTS_STREAM_CODEC.encode(buf, ingredient);
             }
+        }
+
+        @Override
+        public MapCodec<ItemCompressRecipe> codec() {
+            return CODEC;
+        }
+
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, ItemCompressRecipe> streamCodec() {
+            return STREAM_CODEC;
         }
     }
 

@@ -115,7 +115,7 @@ public class RubyPrismBlock extends BaseLaserBlock implements IHammerRemovable, 
         return createTickerHelper(
             type, ModBlockEntities.RUBY_PRISM.get(), (level1, pos, state1, entity) -> entity.tick(level1));
     }
-    
+
     @Override
     protected BlockState rotate(BlockState state, Rotation rot) {
         return state.setValue(FACING, rot.rotate(state.getValue(FACING)));

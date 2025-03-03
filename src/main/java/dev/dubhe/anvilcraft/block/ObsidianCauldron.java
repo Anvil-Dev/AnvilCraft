@@ -29,17 +29,17 @@ public class ObsidianCauldron extends BetterAbstractCauldronBlock implements IHa
     }
 
     @Override
-    protected double getContentHeight( BlockState state) {
+    protected double getContentHeight(BlockState state) {
         return 0.9375;
     }
 
     @Override
-    public boolean isFull( BlockState state) {
+    public boolean isFull(BlockState state) {
         return true;
     }
 
     @Override
-    public int getAnalogOutputSignal( BlockState state,  Level level,  BlockPos pos) {
+    public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
         return 3;
     }
 }

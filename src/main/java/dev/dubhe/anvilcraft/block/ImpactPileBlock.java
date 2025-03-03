@@ -32,25 +32,6 @@ public class ImpactPileBlock extends Block implements IHammerRemovable {
         super(properties);
     }
 
-    @Override
-    public  VoxelShape getShape(
-         BlockState state,
-         BlockGetter level,
-         BlockPos pos,
-         CollisionContext context) {
-        return SHAPE;
-    }
-
-    @Override
-    protected boolean isPathfindable(BlockState state, PathComputationType pathComputationType) {
-        return false;
-    }
-
-    @Override
-    public  RenderShape getRenderShape( BlockState state) {
-        return RenderShape.MODEL;
-    }
-
     /**
      * 冲击
      *
@@ -88,8 +69,27 @@ public class ImpactPileBlock extends Block implements IHammerRemovable {
             ModBlocks.MINERAL_FOUNTAIN.getDefaultState());
     }
 
-    private static void setSturdyDeepslate(Level level, BlockPos pos){
-        if(level.getBlockState(pos).is(Blocks.BEDROCK)) return;
+    private static void setSturdyDeepslate(Level level, BlockPos pos) {
+        if (level.getBlockState(pos).is(Blocks.BEDROCK)) return;
         level.setBlockAndUpdate(pos, ModBlocks.STURDY_DEEPSLATE.getDefaultState());
+    }
+
+    @Override
+    public VoxelShape getShape(
+        BlockState state,
+        BlockGetter level,
+        BlockPos pos,
+        CollisionContext context) {
+        return SHAPE;
+    }
+
+    @Override
+    protected boolean isPathfindable(BlockState state, PathComputationType pathComputationType) {
+        return false;
+    }
+
+    @Override
+    public RenderShape getRenderShape(BlockState state) {
+        return RenderShape.MODEL;
     }
 }

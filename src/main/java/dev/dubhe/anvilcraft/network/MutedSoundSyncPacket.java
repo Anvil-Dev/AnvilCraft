@@ -19,7 +19,7 @@ import java.util.List;
 public class MutedSoundSyncPacket implements CustomPacketPayload {
     public static final Type<MutedSoundSyncPacket> TYPE = new Type<>(AnvilCraft.of("muted_sound_sync"));
     public static final StreamCodec<RegistryFriendlyByteBuf, MutedSoundSyncPacket> STREAM_CODEC =
-            StreamCodec.ofMember(MutedSoundSyncPacket::encode, MutedSoundSyncPacket::new);
+        StreamCodec.ofMember(MutedSoundSyncPacket::encode, MutedSoundSyncPacket::new);
     public static final IPayloadHandler<MutedSoundSyncPacket> HANDLER = MutedSoundSyncPacket::clientHandler;
 
     private final List<ResourceLocation> sounds;
@@ -32,15 +32,6 @@ public class MutedSoundSyncPacket implements CustomPacketPayload {
         sounds = buf.readList(FriendlyByteBuf::readResourceLocation);
     }
 
-    public void encode(@NotNull FriendlyByteBuf buf) {
-        buf.writeCollection(sounds, FriendlyByteBuf::writeResourceLocation);
-    }
-
-    @Override
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
-    }
-
     /**
      *
      */
@@ -50,5 +41,14 @@ public class MutedSoundSyncPacket implements CustomPacketPayload {
                 screen.handleSync(data.sounds);
             }
         });
+    }
+
+    public void encode(@NotNull FriendlyByteBuf buf) {
+        buf.writeCollection(sounds, FriendlyByteBuf::writeResourceLocation);
+    }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

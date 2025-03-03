@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.init;
 
+import com.tterrag.registrate.util.entry.BlockEntityEntry;
 import dev.dubhe.anvilcraft.block.entity.AccelerationRingBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ActiveSilencerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.BatchCrafterBlockEntity;
@@ -38,8 +39,6 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeGeneratorRendere
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HasMobBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeliostatsRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LaserBlockRenderer;
-
-import com.tterrag.registrate.util.entry.BlockEntityEntry;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 
@@ -210,9 +209,9 @@ public class ModBlockEntities {
         .register();
 
     public static final BlockEntityEntry<DeflectionRingBlockEntity> DEFLECTION_RING = REGISTRATE
-            .blockEntity("deflection_ring", DeflectionRingBlockEntity::createBlockEntity)
-            .validBlocks(ModBlocks.DEFLECTION_RING)
-            .register();
+        .blockEntity("deflection_ring", DeflectionRingBlockEntity::createBlockEntity)
+        .validBlocks(ModBlocks.DEFLECTION_RING)
+        .register();
 
     public static void register() {
     }

@@ -15,7 +15,7 @@ public class ModModelLayers {
     @Getter
     private static IonocraftBackpackModel ionocraftBackpackModel;
 
-    public static void register(EntityRenderersEvent.RegisterLayerDefinitions event){
+    public static void register(EntityRenderersEvent.RegisterLayerDefinitions event) {
         event.registerLayerDefinition(
             IONOCRAFT,
             IonocraftModel::createBodyLayer
@@ -26,7 +26,7 @@ public class ModModelLayers {
         );
     }
 
-    public static void createModel(EntityRenderersEvent.AddLayers event){
+    public static void createModel(EntityRenderersEvent.AddLayers event) {
         ionocraftBackpackModel = new IonocraftBackpackModel(event.getContext().bakeLayer(IONOCRAFT_BACKPACK));
     }
 }

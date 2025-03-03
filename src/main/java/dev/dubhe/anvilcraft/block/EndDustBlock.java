@@ -24,6 +24,11 @@ public class EndDustBlock extends Block {
         super(properties);
     }
 
+    public static boolean isEligible(Level level, @NotNull BlockPos pos, @NotNull BlockPos neighborPos) {
+        return level.getFluidState(neighborPos).is(FluidTags.WATER)
+            || level.getBlockState(pos.above()).getBlock() instanceof FallingBlock;
+    }
+
     @Override
     public void onPlace(
         BlockState state,
@@ -67,10 +72,5 @@ public class EndDustBlock extends Block {
 
     protected int getDelayAfterPlace() {
         return 2;
-    }
-
-    public static boolean isEligible(Level level, @NotNull BlockPos pos, @NotNull BlockPos neighborPos) {
-        return level.getFluidState(neighborPos).is(FluidTags.WATER)
-            || level.getBlockState(pos.above()).getBlock() instanceof FallingBlock;
     }
 }

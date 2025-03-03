@@ -1,22 +1,21 @@
 package dev.dubhe.anvilcraft.api.event.anvil;
 
+import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.Level;
-
-import lombok.Getter;
-import lombok.Setter;
 import net.neoforged.neoforge.event.entity.EntityEvent;
 
 
 @Getter
 public class AnvilFallOnLandEvent extends EntityEvent {
-    @Setter
-    private boolean isAnvilDamage;
     private final FallingBlockEntity entity;
     private final float fallDistance;
     private final Level level;
     private final BlockPos pos;
+    @Setter
+    private boolean isAnvilDamage;
 
     /**
      * 铁砧落地事件

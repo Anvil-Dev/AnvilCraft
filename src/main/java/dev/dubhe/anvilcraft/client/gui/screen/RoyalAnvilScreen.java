@@ -21,13 +21,13 @@ import org.jetbrains.annotations.NotNull;
 
 public class RoyalAnvilScreen extends ItemCombinerScreen<RoyalAnvilMenu> {
     private static final ResourceLocation ANVIL_LOCATION =
-            AnvilCraft.of("textures/gui/container/smithing/background/royal_anvil.png");
+        AnvilCraft.of("textures/gui/container/smithing/background/royal_anvil.png");
     private static final ResourceLocation TEXT_LOCATION =
-            AnvilCraft.of("textures/gui/container/smithing/text_field.png");
+        AnvilCraft.of("textures/gui/container/smithing/text_field.png");
     private static final ResourceLocation TEXT_DISABLE_LOCATION =
-            AnvilCraft.of("textures/gui/container/smithing/text_field_disabled.png");
-    private EditBox name;
+        AnvilCraft.of("textures/gui/container/smithing/text_field_disabled.png");
     private final Player player;
+    private EditBox name;
 
     /**
      * 皇家铁砧 GUI
@@ -89,7 +89,7 @@ public class RoyalAnvilScreen extends ItemCombinerScreen<RoyalAnvilMenu> {
         }
         String string = name;
         if (!slot.getItem().has(DataComponents.CUSTOM_NAME)
-                && string.equals(slot.getItem().getHoverName().getString())) {
+            && string.equals(slot.getItem().getHoverName().getString())) {
             string = "";
         }
         if (this.menu.setItemName(string) && this.minecraft != null && this.minecraft.player != null) {
@@ -133,11 +133,12 @@ public class RoyalAnvilScreen extends ItemCombinerScreen<RoyalAnvilMenu> {
     }
 
     @Override
-    protected void renderErrorIcon(@NotNull GuiGraphics guiGraphics, int x, int y) {}
+    protected void renderErrorIcon(@NotNull GuiGraphics guiGraphics, int x, int y) {
+    }
 
     @Override
     public void slotChanged(
-            @NotNull AbstractContainerMenu containerToSend, int dataSlotIndex, @NotNull ItemStack stack) {
+        @NotNull AbstractContainerMenu containerToSend, int dataSlotIndex, @NotNull ItemStack stack) {
         if (dataSlotIndex == 0) {
             this.name.setValue(stack.isEmpty() ? "" : stack.getHoverName().getString());
             this.name.setEditable(!stack.isEmpty());

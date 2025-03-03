@@ -1,11 +1,9 @@
 package dev.dubhe.anvilcraft.api.chargecollector;
 
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
-
+import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
-
-import lombok.Getter;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;

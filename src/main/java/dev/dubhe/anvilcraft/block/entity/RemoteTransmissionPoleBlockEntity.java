@@ -26,16 +26,16 @@ public class RemoteTransmissionPoleBlockEntity extends AbstractTransmissionPoleB
         this(ModBlockEntities.REMOTE_TRANSMISSION_POLE.get(), pos, blockState);
     }
 
+    private RemoteTransmissionPoleBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+        super(type, pos, blockState);
+    }
+
     public static @NotNull RemoteTransmissionPoleBlockEntity createBlockEntity(
         BlockEntityType<?> type,
         BlockPos pos,
         BlockState blockState
     ) {
         return new RemoteTransmissionPoleBlockEntity(type, pos, blockState);
-    }
-
-    private RemoteTransmissionPoleBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
-        super(type, pos, blockState);
     }
 
     @Override

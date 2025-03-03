@@ -26,18 +26,18 @@ public record RecipeCacheSyncPacket(
         ByteBufCodecs.map(
             HashMap::new,
             net.minecraft.world.item.ItemStack.STREAM_CODEC,
-            (StreamCodec<RegistryFriendlyByteBuf,RecipeHolder<JewelCraftingRecipe>>) (Object) RecipeHolder.STREAM_CODEC
+            (StreamCodec<RegistryFriendlyByteBuf, RecipeHolder<JewelCraftingRecipe>>) (Object) RecipeHolder.STREAM_CODEC
         ),
         RecipeCacheSyncPacket::data,
         RecipeCacheSyncPacket::new
     );
 
+    public static void acceptClient(RecipeCacheSyncPacket packet, IPayloadContext ctx) {
+        RecipeCaches.networkSynced(packet.data);
+    }
+
     @Override
     public @NotNull Type<? extends CustomPacketPayload> type() {
         return TYPE;
-    }
-
-    public static void acceptClient(RecipeCacheSyncPacket packet, IPayloadContext ctx) {
-        RecipeCaches.networkSynced(packet.data);
     }
 }

@@ -14,26 +14,26 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import static dev.dubhe.anvilcraft.init.ModDataAttachments.DISCOUNT_RATE;
 
 @Mixin(Villager.class)
-abstract public class VillagerMixin extends AbstractVillager {
+public abstract class VillagerMixin extends AbstractVillager {
     public VillagerMixin(EntityType<? extends AbstractVillager> entityType, Level level) {
         super(entityType, level);
     }
 
     @Inject(
-            method = "updateSpecialPrices",
-            at =
-            @At(
-                    value = "TAIL"),
-                            //"INVOKE",
-                    //target = "Lnet/minecraft/world/entity/npc/Villager;getPlayerReputation(Lnet/minecraft/world/entity/player/Player;)I"),
-            cancellable = true)
-    private void updateAmuletSpecialPrices(Player player, CallbackInfo ci){
+        method = "updateSpecialPrices",
+        at =
+        @At(
+            value = "TAIL"),
+        //"INVOKE",
+        //target = "Lnet/minecraft/world/entity/npc/Villager;getPlayerReputation(Lnet/minecraft/world/entity/player/Player;)I"),
+        cancellable = true)
+    private void updateAmuletSpecialPrices(Player player, CallbackInfo ci) {
         //如果需要不叠加，就加上&& !player.hasEffect(MobEffects.HERO_OF_THE_VILLAGE)
-        if(player.hasData(DISCOUNT_RATE)){
+        if (player.hasData(DISCOUNT_RATE)) {
             double d = player.getData(DISCOUNT_RATE);
-            if(d == 0f) return;
+            if (d == 0f) return;
             for (MerchantOffer merchantOffer : this.getOffers()) {
-                int k = (int)Math.floor(d * merchantOffer.getBaseCostA().getCount());
+                int k = (int) Math.floor(d * merchantOffer.getBaseCostA().getCount());
                 merchantOffer.addToSpecialPriceDiff(-Math.max(k, 1));
             }
         }

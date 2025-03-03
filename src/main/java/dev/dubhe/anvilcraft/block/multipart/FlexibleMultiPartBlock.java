@@ -28,15 +28,32 @@ import java.util.Arrays;
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public abstract class FlexibleMultiPartBlock<
-        P extends Enum<P> & IFlexibleMultiPartBlockState<P, E>,
-        T extends Property<E>,
-        E extends Comparable<E>
+    P extends Enum<P> & IFlexibleMultiPartBlockState<P, E>,
+    T extends Property<E>,
+    E extends Comparable<E>
     > extends AbstractMultiPartBlock<P> {
     final P mainPart;
 
     public FlexibleMultiPartBlock(Properties properties) {
         super(properties);
         this.mainPart = Arrays.stream(getParts()).filter(IFlexibleMultiPartBlockState::isMain).findFirst().orElse(null);
+    }
+
+    /**
+     * 获取多方块战利品表
+     *
+     * @param provider 提供器
+     * @param block    方块
+     */
+    public static <P extends Enum<P> & IFlexibleMultiPartBlockState<P, E>, T extends Property<E>, E extends Comparable<E>> void loot(
+        BlockLootSubProvider provider, FlexibleMultiPartBlock<P, T, E> block
+    ) {
+        for (P part : block.getParts()) {
+            if (part.isMain()) {
+                provider.add(block, provider.createSinglePropConditionTable(block, block.getPart(), part));
+                break;
+            }
+        }
     }
 
     public abstract Property<P> getPart();
@@ -47,7 +64,7 @@ public abstract class FlexibleMultiPartBlock<
 
     public <J extends Property<H>, H extends Comparable<H>> void updateState(Level level, BlockPos pos, J property, H value, int flag) {
         BlockState state = level.getBlockState(pos);
-        if(!state.is(this)) return;
+        if (!state.is(this)) return;
         state = state.setValue(property, value);
         for (P part : getParts()) {
             level.setBlock(pos.offset(this.offsetFrom(state, part)), state.setValue(getPart(), part), flag);
@@ -78,23 +95,6 @@ public abstract class FlexibleMultiPartBlock<
     public BlockPos getMainPartPos(BlockPos pos, BlockState state) {
         return pos.subtract(this.getOffset(state))
             .offset(this.mainPart.getOffset(state.getValue(this.getAdditionalProperty())));
-    }
-
-    /**
-     * 获取多方块战利品表
-     *
-     * @param provider 提供器
-     * @param block    方块
-     */
-    public static <P extends Enum<P> & IFlexibleMultiPartBlockState<P, E>, T extends Property<E>, E extends Comparable<E>> void loot(
-        BlockLootSubProvider provider, FlexibleMultiPartBlock<P, T, E> block
-    ) {
-        for (P part : block.getParts()) {
-            if (part.isMain()) {
-                provider.add(block, provider.createSinglePropConditionTable(block, block.getPart(), part));
-                break;
-            }
-        }
     }
 
     @Nullable

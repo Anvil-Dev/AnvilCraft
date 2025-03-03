@@ -86,7 +86,8 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> {
     /**
      * 刷新
      */
-    default void flush() {}
+    default void flush() {
+    }
 
     /**
      * 获取一个生成启用过滤按钮的生成器
@@ -97,15 +98,15 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> {
      */
     default BiFunction<Integer, Integer, EnableFilterButton> getEnableFilterButtonSupplier(int x, int y) {
         return (i, j) -> new EnableFilterButton(
-                i + x,
-                j + y,
-                button -> {
-                    if (button instanceof EnableFilterButton enableFilterButton) {
-                        MachineEnableFilterPacket packet = new MachineEnableFilterPacket(enableFilterButton.next());
-                        PacketDistributor.sendToServer(packet);
-                    }
-                },
-                this::isFilterEnabled);
+            i + x,
+            j + y,
+            button -> {
+                if (button instanceof EnableFilterButton enableFilterButton) {
+                    MachineEnableFilterPacket packet = new MachineEnableFilterPacket(enableFilterButton.next());
+                    PacketDistributor.sendToServer(packet);
+                }
+            },
+            this::isFilterEnabled);
     }
 
     /**

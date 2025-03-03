@@ -35,7 +35,7 @@ public class RoyalAnvilHammerItem extends AnvilHammerItem implements IInherentEn
     }
 
     @Override
-    public Block getAnvil(){
+    public Block getAnvil() {
         return ModBlocks.ROYAL_ANVIL.get();
     }
 
@@ -46,7 +46,7 @@ public class RoyalAnvilHammerItem extends AnvilHammerItem implements IInherentEn
 
     @Override
     public void appendHoverText(
-            ItemStack pStack, TooltipContext pContext, List<Component> pTooltipComponents, TooltipFlag pTooltipFlag) {
+        ItemStack pStack, TooltipContext pContext, List<Component> pTooltipComponents, TooltipFlag pTooltipFlag) {
         super.appendHoverText(pStack, pContext, pTooltipComponents, pTooltipFlag);
         if (pContext.level() != null) {
             pTooltipComponents.addAll(this.getInherentEnchantmentsTooltip(pContext.level()));
@@ -62,7 +62,7 @@ public class RoyalAnvilHammerItem extends AnvilHammerItem implements IInherentEn
     public ItemEnchantments getAllEnchantments(ItemStack stack, HolderLookup.RegistryLookup<Enchantment> lookup) {
         ItemEnchantments.Mutable enchantments = new ItemEnchantments.Mutable(super.getAllEnchantments(stack, lookup));
 
-        for (var entry: getInherentEnchantments().entrySet()) {
+        for (var entry : getInherentEnchantments().entrySet()) {
             Holder.Reference<Enchantment> holder = lookup.getOrThrow(entry.getKey());
             enchantments.set(holder, entry.getValue());
         }

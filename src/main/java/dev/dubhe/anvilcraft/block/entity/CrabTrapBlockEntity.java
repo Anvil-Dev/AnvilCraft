@@ -19,11 +19,11 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class CrabTrapBlockEntity extends BlockEntity implements IItemHandlerHolder {
+    private final ItemStackHandler itemHandler = new ItemStackHandler(9);
+
     public CrabTrapBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
-
-    private final ItemStackHandler itemHandler = new ItemStackHandler(9);
 
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {

@@ -13,11 +13,11 @@ import java.util.function.Supplier;
 public class DynamicPowerComponent {
     private final Entity owner;
     @Getter
-    @Setter
-    private PowerGrid powerGrid;
-    @Getter
     private final Set<PowerConsumption> powerConsumptions = Sets.newConcurrentHashSet();
     private final Supplier<AABB> aabbSupplier;
+    @Getter
+    @Setter
+    private PowerGrid powerGrid;
 
     public DynamicPowerComponent(Entity owner, Supplier<AABB> aabbSupplier) {
         this.owner = owner;
@@ -53,6 +53,6 @@ public class DynamicPowerComponent {
         }
     }
 
-    public record PowerConsumption(int amount){
+    public record PowerConsumption(int amount) {
     }
 }

@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.item;
 
 import dev.dubhe.anvilcraft.api.item.IChargerDischargeable;
 import dev.dubhe.anvilcraft.init.ModItems;
-
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 

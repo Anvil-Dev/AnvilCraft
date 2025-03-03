@@ -31,12 +31,28 @@ import java.util.Optional;
 
 @Getter
 public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, ContainerListener {
+    // 功劳归于：: diesieben07 | https://github.com/diesieben07/SevenCommons
+    // 必须为 GUI 使用的每个插槽分配一个插槽编号.
+    // 对于这个容器，我们可以看到瓷砖库存的插槽以及玩家库存插槽和快捷栏.
+    // 每次我们向容器添加 Slot 时，它都会自动增加 slotIndex，这意味着
+    //  0 - 8 = 快捷栏插槽（将映射到 InventoryPlayer 插槽编号 0 - 8）
+    //  9 - 35 = 玩家物品栏（映射到 InventoryPlayer 插槽编号 9 - 35）
+    //  36 - 44 = TileInventory 插槽，映射到我们的 TileEntity 插槽编号 0 - 8）
+    private static final int HOTBAR_SLOT_COUNT = 9;
+    private static final int PLAYER_INVENTORY_ROW_COUNT = 3;
+    private static final int PLAYER_INVENTORY_COLUMN_COUNT = 9;
+    private static final int PLAYER_INVENTORY_SLOT_COUNT = PLAYER_INVENTORY_COLUMN_COUNT * PLAYER_INVENTORY_ROW_COUNT;
+    private static final int VANILLA_SLOT_COUNT = HOTBAR_SLOT_COUNT + PLAYER_INVENTORY_SLOT_COUNT;
+    private static final int TE_INVENTORY_FIRST_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
+    private static final int VANILLA_FIRST_SLOT_INDEX = 0;
+    // THIS YOU HAVE TO DEFINE!
+    private static final int TE_INVENTORY_SLOT_COUNT = 9; // must be the number of slots you have!
     public final BatchCrafterBlockEntity blockEntity;
     private final Slot resultSlot;
     private final Level level;
 
     public BatchCrafterMenu(
-            @Nullable MenuType<?> menuType, int containerId, Inventory inventory, @NotNull FriendlyByteBuf extraData) {
+        @Nullable MenuType<?> menuType, int containerId, Inventory inventory, @NotNull FriendlyByteBuf extraData) {
         this(menuType, containerId, inventory, inventory.player.level().getBlockEntity(extraData.readBlockPos()));
     }
 
@@ -90,24 +106,6 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
         }
     }
 
-    // 功劳归于：: diesieben07 | https://github.com/diesieben07/SevenCommons
-    // 必须为 GUI 使用的每个插槽分配一个插槽编号.
-    // 对于这个容器，我们可以看到瓷砖库存的插槽以及玩家库存插槽和快捷栏.
-    // 每次我们向容器添加 Slot 时，它都会自动增加 slotIndex，这意味着
-    //  0 - 8 = 快捷栏插槽（将映射到 InventoryPlayer 插槽编号 0 - 8）
-    //  9 - 35 = 玩家物品栏（映射到 InventoryPlayer 插槽编号 9 - 35）
-    //  36 - 44 = TileInventory 插槽，映射到我们的 TileEntity 插槽编号 0 - 8）
-    private static final int HOTBAR_SLOT_COUNT = 9;
-    private static final int PLAYER_INVENTORY_ROW_COUNT = 3;
-    private static final int PLAYER_INVENTORY_COLUMN_COUNT = 9;
-    private static final int PLAYER_INVENTORY_SLOT_COUNT = PLAYER_INVENTORY_COLUMN_COUNT * PLAYER_INVENTORY_ROW_COUNT;
-    private static final int VANILLA_SLOT_COUNT = HOTBAR_SLOT_COUNT + PLAYER_INVENTORY_SLOT_COUNT;
-    private static final int VANILLA_FIRST_SLOT_INDEX = 0;
-    private static final int TE_INVENTORY_FIRST_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
-
-    // THIS YOU HAVE TO DEFINE!
-    private static final int TE_INVENTORY_SLOT_COUNT = 9; // must be the number of slots you have!
-
     @Override
     public @NotNull ItemStack quickMoveStack(@NotNull Player playerIn, int index) {
         Slot sourceSlot = slots.get(index);
@@ -126,7 +124,7 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
         } else if (index < TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT) {
             // This is a TE slot so merge the stack into the players inventory
             if (!moveItemStackTo(
-                    sourceStack,
+                sourceStack,
                 VANILLA_FIRST_SLOT_INDEX,
                 VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT,
                 false
@@ -180,7 +178,7 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
     @Override
     public boolean stillValid(@NotNull Player player) {
         return stillValid(
-                ContainerLevelAccess.create(level, blockEntity.getBlockPos()), player, ModBlocks.BATCH_CRAFTER.get());
+            ContainerLevelAccess.create(level, blockEntity.getBlockPos()), player, ModBlocks.BATCH_CRAFTER.get());
     }
 
     @Override
@@ -203,7 +201,7 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
         // if (!level.isClientSide) return;
         RecipeManager recipeManager = level.getRecipeManager();
         Optional<RecipeHolder<CraftingRecipe>> recipe = recipeManager.getRecipeFor(
-                RecipeType.CRAFTING, blockEntity.getDummyCraftingContainer().asCraftInput(), level);
+            RecipeType.CRAFTING, blockEntity.getDummyCraftingContainer().asCraftInput(), level);
         if (recipe.isPresent()) {
             ItemStack resultItem = recipe.get().value().getResultItem(level.registryAccess());
             this.resultSlot.set(resultItem);
@@ -214,12 +212,14 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
 
     @Override
     public void slotChanged(
-            @NotNull AbstractContainerMenu containerToSend, int dataSlotIndex, @NotNull ItemStack stack) {
+        @NotNull AbstractContainerMenu containerToSend, int dataSlotIndex, @NotNull ItemStack stack) {
         onChanged();
     }
 
     @Override
-    public void dataChanged(@NotNull AbstractContainerMenu containerMenu, int dataSlotIndex, int value) {}
+    public void dataChanged(@NotNull AbstractContainerMenu containerMenu, int dataSlotIndex, int value) {
+
+    }
 
     @Override
     public void flush() {

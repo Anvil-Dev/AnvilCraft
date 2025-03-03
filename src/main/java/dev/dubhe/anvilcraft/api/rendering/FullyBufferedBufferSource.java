@@ -22,9 +22,9 @@ import java.util.function.Function;
 @MethodsReturnNonnullByDefault
 public class FullyBufferedBufferSource extends MultiBufferSource.BufferSource implements AutoCloseable {
     private static final MemoryUtil.MemoryAllocator ALLOCATOR = MemoryUtil.getAllocator(false);
+    final Reference2IntMap<RenderType> indexCountMap = new Reference2IntOpenHashMap<>();
     private final Map<RenderType, ByteBufferBuilder> byteBuffers = new HashMap<>();
     private final Map<RenderType, BufferBuilder> bufferBuilders = new HashMap<>();
-    final Reference2IntMap<RenderType> indexCountMap = new Reference2IntOpenHashMap<>();
 
     public FullyBufferedBufferSource() {
         super(null, null);

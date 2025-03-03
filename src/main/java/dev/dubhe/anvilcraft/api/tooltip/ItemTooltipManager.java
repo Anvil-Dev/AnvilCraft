@@ -19,6 +19,7 @@ import java.util.Map;
 public class ItemTooltipManager {
 
     private static final Map<Item, String> map = Maps.newHashMap();
+    public static final Map<Item, String> NEED_TOOLTIP_ITEM = Collections.unmodifiableMap(map);
 
     static {
         map.put(ModItems.MAGNET.get(), "Attract surrounding items when use");
@@ -90,12 +91,10 @@ public class ItemTooltipManager {
         map.put(ModBlocks.CUT_EMBER_METAL_STAIRS.asItem(), "Wither proof");
     }
 
-    public static final Map<Item, String> NEED_TOOLTIP_ITEM = Collections.unmodifiableMap(map);
-
     /**
      * 为模组物品添加工具提示
      *
-     * @param stack 需要添加工具提示的物品堆叠
+     * @param stack   需要添加工具提示的物品堆叠
      * @param tooltip 提示内容
      */
     public static void addTooltip(ItemStack stack, List<Component> tooltip) {

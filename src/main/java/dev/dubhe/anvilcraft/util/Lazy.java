@@ -3,8 +3,8 @@ package dev.dubhe.anvilcraft.util;
 import java.util.function.Supplier;
 
 public class Lazy<T> {
-    private T instance;
     public final Supplier<T> supplier;
+    private T instance;
 
     public Lazy(Supplier<T> supplier) {
         this.supplier = supplier;

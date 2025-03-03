@@ -24,19 +24,19 @@ public class IonoCraftBackpackCurioRenderer implements ICurioRenderer {
 
     @Override
     public <T extends LivingEntity, M extends EntityModel<T>> void render(ItemStack stack, SlotContext slotContext, PoseStack matrixStack, RenderLayerParent<T, M> renderLayerParent, MultiBufferSource renderTypeBuffer, int light, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-       ModelPart modelPart = ModModelLayers.getIonocraftBackpackModel().getRoot();
-       VertexConsumer buffer = renderTypeBuffer.getBuffer(RenderType.entityCutoutNoCull(texture(stack)));
-       matrixStack.pushPose();
-       modelPart.render(
-           matrixStack,
-           buffer,
-           light,
-           OverlayTexture.NO_OVERLAY
-       );
-       matrixStack.popPose();
+        ModelPart modelPart = ModModelLayers.getIonocraftBackpackModel().getRoot();
+        VertexConsumer buffer = renderTypeBuffer.getBuffer(RenderType.entityCutoutNoCull(texture(stack)));
+        matrixStack.pushPose();
+        modelPart.render(
+            matrixStack,
+            buffer,
+            light,
+            OverlayTexture.NO_OVERLAY
+        );
+        matrixStack.popPose();
     }
 
-    private ResourceLocation texture(ItemStack itemStack){
+    private ResourceLocation texture(ItemStack itemStack) {
         if (getFlightTime(itemStack) > 0) {
             return TEXTURE;
         }

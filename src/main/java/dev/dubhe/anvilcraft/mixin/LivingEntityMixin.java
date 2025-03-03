@@ -31,8 +31,7 @@ public abstract class LivingEntityMixin extends Entity {
         method = "dropFromLootTable",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/level/storage/loot/LootTable;getRandomItems" +
-                "(Lnet/minecraft/world/level/storage/loot/LootParams;JLjava/util/function/Consumer;)V"
+            target = "Lnet/minecraft/world/level/storage/loot/LootTable;getRandomItems(Lnet/minecraft/world/level/storage/loot/LootParams;JLjava/util/function/Consumer;)V"
         )
     )
     private void dropBeheadingLoot(
@@ -72,9 +71,7 @@ public abstract class LivingEntityMixin extends Entity {
         method = "checkTotemDeathProtection",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/advancements/critereon/UsedTotemTrigger;" +
-                     "trigger(Lnet/minecraft/server/level/ServerPlayer;" +
-                     "Lnet/minecraft/world/item/ItemStack;)V"
+            target = "Lnet/minecraft/advancements/critereon/UsedTotemTrigger;trigger(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/item/ItemStack;)V"
         ),
         index = 1
     )

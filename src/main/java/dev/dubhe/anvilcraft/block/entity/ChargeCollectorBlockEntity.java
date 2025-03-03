@@ -35,20 +35,20 @@ public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerPro
     @Getter
     private float rotation = 0;
 
-    public static @NotNull ChargeCollectorBlockEntity createBlockEntity(
-        BlockEntityType<?> type,
-        BlockPos pos,
-        BlockState blockState
-    ) {
-        return new ChargeCollectorBlockEntity(type, pos, blockState);
-    }
-
     public ChargeCollectorBlockEntity(BlockPos pos, BlockState blockState) {
         this(ModBlockEntities.CHARGE_COLLECTOR.get(), pos, blockState);
     }
 
     private ChargeCollectorBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
+    }
+
+    public static @NotNull ChargeCollectorBlockEntity createBlockEntity(
+        BlockEntityType<?> type,
+        BlockPos pos,
+        BlockState blockState
+    ) {
+        return new ChargeCollectorBlockEntity(type, pos, blockState);
     }
 
     @Override
@@ -67,13 +67,13 @@ public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerPro
     }
 
     @Override
-    public void setGrid(@Nullable PowerGrid grid) {
-        this.grid = grid;
+    public @Nullable PowerGrid getGrid() {
+        return this.grid;
     }
 
     @Override
-    public @Nullable PowerGrid getGrid() {
-        return this.grid;
+    public void setGrid(@Nullable PowerGrid grid) {
+        this.grid = grid;
     }
 
     @Override

@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.api.chargecollector;
 
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlocks;
-
+import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
@@ -11,8 +11,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
-
-import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,48 +29,6 @@ public class ThermoManager {
     private final Set<ThermoBlock> thermoBlocks = new CopyOnWriteArraySet<>();
     private final List<ThermoEntry> thermoEntries = new ArrayList<>();
     private final Level level;
-
-    public static void clear() {
-        instances.clear();
-    }
-
-    /**
-     * 获取当前维度的ThermoManager
-     */
-    public static ThermoManager getInstance(Level level) {
-        synchronized (instances) {
-            if (instances.get(level) == null) {
-                ThermoManager.instances.put(level, new ThermoManager(level));
-            }
-            return ThermoManager.instances.get(level);
-        }
-    }
-
-    private void register(ThermoEntry entry) {
-        thermoEntries.add(entry);
-    }
-
-    /**
-     * 移除热方块
-     */
-    public void removeThermalBlock(BlockPos pos) {
-        List<ThermoBlock> b = thermoBlocks.stream()
-            .filter(it -> it.getPos().equals(pos)).toList();
-        b.forEach(thermoBlocks::remove);
-    }
-
-    /**
-     * 添加新的热方块
-     */
-    public void addThermoBlock(BlockPos blockPos, BlockState state) {
-        Optional<ThermoEntry> op = thermoEntries.stream()
-            .filter(it -> it.accepts(state) > 0)
-            .findFirst();
-        if (op.isPresent()) {
-            thermoBlocks.removeIf(it -> blockPos.equals(it.pos));
-            thermoBlocks.add(new ThermoBlock(blockPos, state.getBlock(), op.get().ttl()));
-        }
-    }
 
     ThermoManager(Level level) {
         this.level = level;
@@ -106,8 +62,50 @@ public class ThermoManager {
         ));
     }
 
+    public static void clear() {
+        instances.clear();
+    }
+
+    /**
+     * 获取当前维度的ThermoManager
+     */
+    public static ThermoManager getInstance(Level level) {
+        synchronized (instances) {
+            if (instances.get(level) == null) {
+                ThermoManager.instances.put(level, new ThermoManager(level));
+            }
+            return ThermoManager.instances.get(level);
+        }
+    }
+
     public static void tick() {
         instances.values().forEach(ThermoManager::tickThis);
+    }
+
+    private void register(ThermoEntry entry) {
+        thermoEntries.add(entry);
+    }
+
+    /**
+     * 移除热方块
+     */
+    public void removeThermalBlock(BlockPos pos) {
+        List<ThermoBlock> b = thermoBlocks.stream()
+            .filter(it -> it.getPos().equals(pos)).toList();
+        b.forEach(thermoBlocks::remove);
+    }
+
+    /**
+     * 添加新的热方块
+     */
+    public void addThermoBlock(BlockPos blockPos, BlockState state) {
+        Optional<ThermoEntry> op = thermoEntries.stream()
+            .filter(it -> it.accepts(state) > 0)
+            .findFirst();
+        if (op.isPresent()) {
+            thermoBlocks.removeIf(it -> blockPos.equals(it.pos));
+            thermoBlocks.add(new ThermoBlock(blockPos, state.getBlock(), op.get().ttl()));
+        }
     }
 
     private void tickThis() {
@@ -117,7 +115,7 @@ public class ThermoManager {
             BlockPos blockPos = block.pos;
             BlockState state = this.level.getBlockState(blockPos);
             Optional<ThermoEntry> optional =
-                    thermoEntries.stream().filter(it -> it.accepts(state) > 0).findFirst();
+                thermoEntries.stream().filter(it -> it.accepts(state) > 0).findFirst();
             if (optional.isPresent()) {
                 ThermoEntry entry = optional.get();
                 if (block.ttl % 2 == 0) {

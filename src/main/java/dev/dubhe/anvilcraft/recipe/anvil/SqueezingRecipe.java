@@ -70,8 +70,7 @@ public class SqueezingRecipe implements Recipe<SqueezingRecipe.Input> {
 
     @Override
     public boolean matches(Input input, Level level) {
-        return input.inputBlock == inputBlock &&
-            CauldronUtil.compatibleForFill(input.cauldronState, this.cauldron, 1);
+        return input.inputBlock == inputBlock && CauldronUtil.compatibleForFill(input.cauldronState, this.cauldron, 1);
     }
 
     @Override
@@ -98,19 +97,19 @@ public class SqueezingRecipe implements Recipe<SqueezingRecipe.Input> {
 
     public static class Serializer implements RecipeSerializer<SqueezingRecipe> {
         private static final MapCodec<SqueezingRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-                        CodecUtil.BLOCK_CODEC.fieldOf("input_block").forGetter(SqueezingRecipe::getInputBlock),
-                        CodecUtil.BLOCK_CODEC.fieldOf("result_block").forGetter(SqueezingRecipe::getResultBlock),
-                        CodecUtil.BLOCK_CODEC.fieldOf("cauldron").forGetter(SqueezingRecipe::getCauldron))
-                .apply(ins, SqueezingRecipe::new));
+                CodecUtil.BLOCK_CODEC.fieldOf("input_block").forGetter(SqueezingRecipe::getInputBlock),
+                CodecUtil.BLOCK_CODEC.fieldOf("result_block").forGetter(SqueezingRecipe::getResultBlock),
+                CodecUtil.BLOCK_CODEC.fieldOf("cauldron").forGetter(SqueezingRecipe::getCauldron))
+            .apply(ins, SqueezingRecipe::new));
 
         private static final StreamCodec<RegistryFriendlyByteBuf, SqueezingRecipe> STREAM_CODEC = StreamCodec.composite(
-                CodecUtil.BLOCK_STREAM_CODEC,
-                SqueezingRecipe::getInputBlock,
-                CodecUtil.BLOCK_STREAM_CODEC,
-                SqueezingRecipe::getResultBlock,
-                CodecUtil.BLOCK_STREAM_CODEC,
-                SqueezingRecipe::getCauldron,
-                SqueezingRecipe::new);
+            CodecUtil.BLOCK_STREAM_CODEC,
+            SqueezingRecipe::getInputBlock,
+            CodecUtil.BLOCK_STREAM_CODEC,
+            SqueezingRecipe::getResultBlock,
+            CodecUtil.BLOCK_STREAM_CODEC,
+            SqueezingRecipe::getCauldron,
+            SqueezingRecipe::new);
 
         @Override
         public MapCodec<SqueezingRecipe> codec() {

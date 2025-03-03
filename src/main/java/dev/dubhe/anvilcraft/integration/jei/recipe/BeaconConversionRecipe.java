@@ -12,7 +12,7 @@ public class BeaconConversionRecipe {
     public final ChanceItemStack corruptedBeaconOutput;
     public final ChanceItemStack beaconOutput;
 
-    public BeaconConversionRecipe(int cursedGoldBlockLayers, float chance){
+    public BeaconConversionRecipe(int cursedGoldBlockLayers, float chance) {
         this.cursedGoldBlockLayers = cursedGoldBlockLayers;
         this.chance = chance;
         int count = 0;

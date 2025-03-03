@@ -98,10 +98,10 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
 
     @Override
     protected void onPlace(BlockState state,
-        Level level,
-        BlockPos pos,
-        BlockState oldState,
-        boolean movedByPiston) {
+                           Level level,
+                           BlockPos pos,
+                           BlockState oldState,
+                           boolean movedByPiston) {
         if (!level.isClientSide) {
             checkIfTriggered(level, state, pos);
         }
@@ -244,7 +244,7 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
                     .map(it -> (ContainerEntity) it)
                     .toList();
             if (!entities.isEmpty()) {
-                itemHandler = ((Entity)entities.getFirst()).getCapability(
+                itemHandler = ((Entity) entities.getFirst()).getCapability(
                     Capabilities.ItemHandler.ENTITY,
                     null
                 );

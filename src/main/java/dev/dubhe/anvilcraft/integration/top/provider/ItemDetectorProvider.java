@@ -24,12 +24,12 @@ public enum ItemDetectorProvider implements IProbeInfoProvider {
 
     @Override
     public void addProbeInfo(
-            ProbeMode probeMode,
-            IProbeInfo iProbeInfo,
-            Player player,
-            Level level,
-            BlockState blockState,
-            IProbeHitData hitData) {
+        ProbeMode probeMode,
+        IProbeInfo iProbeInfo,
+        Player player,
+        Level level,
+        BlockState blockState,
+        IProbeHitData hitData) {
         if (!player.isShiftKeyDown()) return;
         Optional.ofNullable(level.getBlockEntity(hitData.getPos()))
             .filter(b -> b instanceof ItemDetectorBlockEntity)

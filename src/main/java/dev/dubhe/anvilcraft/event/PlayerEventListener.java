@@ -100,9 +100,9 @@ public class PlayerEventListener {
 
             if (
                 (source.type().equals(sources.damageTypes.get(DamageTypes.FALLING_ANVIL))
-                || (source.type().equals(sources.damageTypes.get(DamageTypes.FALLING_BLOCK)) && source.getEntity() instanceof FallingGiantAnvilEntity)
-                || Optional.ofNullable(source.getWeaponItem()).filter(item -> item.is(ModItemTags.ANVIL_HAMMER)).isPresent())
-                && player.getData(ModDataAttachments.STEEL_HEAD)
+                    || (source.type().equals(sources.damageTypes.get(DamageTypes.FALLING_BLOCK)) && source.getEntity() instanceof FallingGiantAnvilEntity)
+                    || Optional.ofNullable(source.getWeaponItem()).filter(item -> item.is(ModItemTags.ANVIL_HAMMER)).isPresent())
+                    && player.getData(ModDataAttachments.STEEL_HEAD)
             ) {
                 event.getContainer().setNewDamage(0);
             }
@@ -113,11 +113,12 @@ public class PlayerEventListener {
                 if (!comrade.equals(ItemStack.EMPTY) && ComradeAmuletItem.canIgnorePlayer(comrade, causingEntityUUID)) {
                     event.getContainer().setNewDamage(0);
                 }
-            } catch (NullPointerException ignored) {}
+            } catch (NullPointerException ignored) {
+            }
 
             if (
                 source.type().equals(sources.damageTypes.get(DamageTypes.FALL))
-                && player.getData(ModDataAttachments.NO_FALL_DAMAGE)
+                    && player.getData(ModDataAttachments.NO_FALL_DAMAGE)
             ) {
                 event.getContainer().setNewDamage(0);
             }

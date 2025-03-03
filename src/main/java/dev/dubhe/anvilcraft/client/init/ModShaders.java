@@ -19,11 +19,7 @@ public class ModShaders {
         "anvilcraft",
         "shaders/post/bloom.json"
     );
-
-    @Getter
-    private static PostChain bloomChain;
     static final Minecraft MINECRAFT = Minecraft.getInstance();
-
     @Getter
     static ShaderInstance renderTypeLaserShader;
     static ShaderInstance renderTypeColoredOverlayShader;
@@ -35,7 +31,8 @@ public class ModShaders {
     static ShaderInstance blitShader;
     @Getter
     static Matrix4f orthoMatrix = new Matrix4f();
-
+    @Getter
+    private static PostChain bloomChain;
 
     public static void register(RegisterShadersEvent event) {
         try {

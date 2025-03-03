@@ -23,15 +23,10 @@ import org.jetbrains.annotations.NotNull;
 public class MachineOutputDirectionPacket implements CustomPacketPayload {
     public static final Type<MachineOutputDirectionPacket> TYPE = new Type<>(AnvilCraft.of("machine_output_direction"));
     public static final StreamCodec<RegistryFriendlyByteBuf, MachineOutputDirectionPacket> STREAM_CODEC =
-            StreamCodec.ofMember(MachineOutputDirectionPacket::encode, MachineOutputDirectionPacket::new);
+        StreamCodec.ofMember(MachineOutputDirectionPacket::encode, MachineOutputDirectionPacket::new);
     public static final IPayloadHandler<MachineOutputDirectionPacket> HANDLER = new DirectionalPayloadHandler<>(
-            MachineOutputDirectionPacket::clientHandler, MachineOutputDirectionPacket::serverHandler);
+        MachineOutputDirectionPacket::clientHandler, MachineOutputDirectionPacket::serverHandler);
     private final Direction direction;
-
-    @Override
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
-    }
 
     public MachineOutputDirectionPacket(Direction direction) {
         this.direction = direction;
@@ -39,10 +34,6 @@ public class MachineOutputDirectionPacket implements CustomPacketPayload {
 
     public MachineOutputDirectionPacket(@NotNull FriendlyByteBuf buf) {
         this(buf.readEnum(Direction.class));
-    }
-
-    public void encode(@NotNull RegistryFriendlyByteBuf buf) {
-        buf.writeEnum(this.getDirection());
     }
 
     /**
@@ -69,5 +60,14 @@ public class MachineOutputDirectionPacket implements CustomPacketPayload {
             if (screen.getDirectionButton() == null) return;
             screen.getDirectionButton().setDirection(data.direction);
         });
+    }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
+    }
+
+    public void encode(@NotNull RegistryFriendlyByteBuf buf) {
+        buf.writeEnum(this.getDirection());
     }
 }

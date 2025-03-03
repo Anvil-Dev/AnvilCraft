@@ -77,7 +77,8 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
     @Override
     public @NotNull PowerComponentType getComponentType() {
         if (level == null) return PowerComponentType.INVALID;
-        if (!level.getBlockState(getBlockPos()).hasProperty(DeflectionRingBlock.HALF)) return PowerComponentType.INVALID;
+        if (!level.getBlockState(getBlockPos()).hasProperty(DeflectionRingBlock.HALF))
+            return PowerComponentType.INVALID;
         if (level.getBlockState(getBlockPos()).getValue(DeflectionRingBlock.HALF).equals(DirectionCube3x3PartHalf.MID_CENTER))
             return PowerComponentType.CONSUMER;
         else
@@ -118,8 +119,8 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
     public void accelerate() {
         if (level == null) return;
         List<Entity> entities = level.getEntitiesOfClass(Entity.class, new AABB(getBlockPos()),
-                entity -> (entity instanceof FallingBlockEntity fallingBlockEntity && fallingBlockEntity.getBlockState().is(BlockTags.ANVIL) && !fallingBlockEntity.getBlockState().is(ModBlockTags.NON_MAGNETIC)
-                        || entity instanceof Projectile)
+            entity -> (entity instanceof FallingBlockEntity fallingBlockEntity && fallingBlockEntity.getBlockState().is(BlockTags.ANVIL) && !fallingBlockEntity.getBlockState().is(ModBlockTags.NON_MAGNETIC)
+                || entity instanceof Projectile)
         );
         for (Entity entity : entities) {
             Vec3 deltaMovement = entity.getDeltaMovement();
@@ -131,7 +132,8 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
     @SuppressWarnings("DuplicatedCode")
     public void attractGianAnvil() {
         assert level != null;
-        if (level.getBlockState(getBlockPos().below(2)).hasProperty(GiantAnvilBlock.HALF) && level.getBlockState(getBlockPos().below(2)).getValue(GiantAnvilBlock.HALF) == Cube3x3PartHalf.TOP_CENTER) return;
+        if (level.getBlockState(getBlockPos().below(2)).hasProperty(GiantAnvilBlock.HALF) && level.getBlockState(getBlockPos().below(2)).getValue(GiantAnvilBlock.HALF) == Cube3x3PartHalf.TOP_CENTER)
+            return;
         BlockPos giantAnvilPos = null;
         BlockPos.MutableBlockPos checkPos = new BlockPos.MutableBlockPos();
         checkPos.set(getBlockPos().below(2));
@@ -156,17 +158,16 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
                 getBlockPos().getX() + 1,
                 getBlockPos().getY() - 12,
                 getBlockPos().getZ() + 1
-        )).stream()
-                .sorted(ENTITY_SORTER)
-                .filter(entity -> vector2d.distance(entity.position().x,entity.position().z) <= 0.25)
-                .findFirst();
+            )).stream()
+            .sorted(ENTITY_SORTER)
+            .filter(entity -> vector2d.distance(entity.position().x, entity.position().z) <= 0.25)
+            .findFirst();
         boolean isFallingGiantAnvil = false;
         if (fallingGiantAnvilEntity.isPresent()) {
             if (giantAnvilPos != null && fallingGiantAnvilEntity.get().position().distanceTo(getBlockPos().getCenter()) < giantAnvilPos.getCenter().distanceTo(getBlockPos().getCenter())) {
                 isFallingGiantAnvil = true;
                 giantAnvilPos = BlockPos.containing(fallingGiantAnvilEntity.get().position());
-            }
-            else if(giantAnvilPos == null) {
+            } else if (giantAnvilPos == null) {
                 isFallingGiantAnvil = true;
                 giantAnvilPos = BlockPos.containing(fallingGiantAnvilEntity.get().position());
             }
@@ -193,8 +194,8 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
         }
         for (Cube3x3PartHalf part : Cube3x3PartHalf.values()) {
             level.setBlockAndUpdate(newPos.offset(part.getOffset()), ModBlocks.GIANT_ANVIL.getDefaultState()
-                    .setValue(GiantAnvilBlock.HALF, part)
-                    .setValue(GiantAnvilBlock.CUBE, part.equals(Cube3x3PartHalf.MID_CENTER) ? GiantAnvilCube.CENTER : GiantAnvilCube.CORNER)
+                .setValue(GiantAnvilBlock.HALF, part)
+                .setValue(GiantAnvilBlock.CUBE, part.equals(Cube3x3PartHalf.MID_CENTER) ? GiantAnvilCube.CENTER : GiantAnvilCube.CORNER)
             );
         }
         fallingGiantAnvilEntity.ifPresent(Entity::kill);

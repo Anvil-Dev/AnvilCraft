@@ -35,14 +35,14 @@ public class AnvilHitBlockDevourerEventListener {
             range = Math.min(range, 4);
             level.setBlock(pos, state.setValue(BlockDevourerBlock.TRIGGERED, true), 2);
             if (state.getValue(BlockDevourerBlock.FACING) == Direction.DOWN
-                    && level.isOutsideBuildHeight(pos.below())) {
+                && level.isOutsideBuildHeight(pos.below())) {
                 level.scheduleTick(pos, devourerBlock, 4);
                 return;
             }
             devourerBlock.devourBlock(serverLevel, pos, state.getValue(BlockDevourerBlock.FACING),
                 range, event.getEntity().getBlockState().getBlock());
             if (state.getValue(BlockDevourerBlock.FACING) == Direction.DOWN
-                    && level.getBlockState(pos.below()).getBlock().defaultDestroyTime() >= 0) {
+                && level.getBlockState(pos.below()).getBlock().defaultDestroyTime() >= 0) {
                 level.setBlock(pos, Blocks.AIR.defaultBlockState(), 2);
                 level.setBlock(pos.below(), state.setValue(BlockDevourerBlock.TRIGGERED, true), 2);
                 level.scheduleTick(pos.below(), devourerBlock, 4);

@@ -91,9 +91,9 @@ public class PowerGridManager {
         }
     }
 
-    public void onPlayerJoined(Level level,ServerPlayer player) {
+    public void onPlayerJoined(Level level, ServerPlayer player) {
         Set<PowerGrid> grids = this.gridMap.get(level);
-        if (grids == null)return;
+        if (grids == null) return;
         grids.forEach(it -> it.syncToPlayer(player));
     }
 }

@@ -19,7 +19,7 @@ import java.util.List;
 public class TeslaFilterSyncPacket implements CustomPacketPayload {
     public static final Type<TeslaFilterSyncPacket> TYPE = new Type<>(AnvilCraft.of("tesla_filter_sync"));
     public static final StreamCodec<RegistryFriendlyByteBuf, TeslaFilterSyncPacket> STREAM_CODEC =
-            StreamCodec.ofMember(TeslaFilterSyncPacket::encode, TeslaFilterSyncPacket::new);
+        StreamCodec.ofMember(TeslaFilterSyncPacket::encode, TeslaFilterSyncPacket::new);
     public static final IPayloadHandler<TeslaFilterSyncPacket> HANDLER = TeslaFilterSyncPacket::clientHandler;
 
     private final List<Pair<TeslaFilter, String>> filters;
@@ -38,16 +38,6 @@ public class TeslaFilterSyncPacket implements CustomPacketPayload {
         this.filters = filters;
     }
 
-    public void encode(@NotNull FriendlyByteBuf buf) {
-        buf.writeCollection(filters.stream().map(it -> it.left().getId()).toList(), FriendlyByteBuf::writeUtf);
-        buf.writeCollection(filters.stream().map(Pair::right).toList(), FriendlyByteBuf::writeUtf);
-    }
-
-    @Override
-    public @NotNull Type<? extends CustomPacketPayload> type() {
-        return TYPE;
-    }
-
     /**
      *
      */
@@ -57,5 +47,15 @@ public class TeslaFilterSyncPacket implements CustomPacketPayload {
                 screen.handleSync(data.filters);
             }
         });
+    }
+
+    public void encode(@NotNull FriendlyByteBuf buf) {
+        buf.writeCollection(filters.stream().map(it -> it.left().getId()).toList(), FriendlyByteBuf::writeUtf);
+        buf.writeCollection(filters.stream().map(Pair::right).toList(), FriendlyByteBuf::writeUtf);
+    }
+
+    @Override
+    public @NotNull Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

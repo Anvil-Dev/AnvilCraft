@@ -81,6 +81,98 @@ public class SlidingRailBlock extends Block implements IHammerChangeable, IHamme
         registerDefaultState(getStateDefinition().any().setValue(AXIS, Axis.X));
     }
 
+    /**
+     * 滑轨推动上方方块
+     *
+     * @param pos       推动的方块位置
+     * @param level     世界
+     * @param direction 推动方向
+     */
+    public static void pushBlock(BlockPos pos, Level level, Direction direction) {
+        moveBlocks(level, pos, direction);
+    }
+
+    private static boolean moveBlocks(Level level, BlockPos pos, Direction facing) {
+        PistonStructureResolver pistonstructureresolver = new PistonStructureResolver(level, pos.relative(facing.getOpposite()), facing, true);
+        if (!pistonstructureresolver.resolve()) return false;
+        Map<BlockPos, BlockState> map = Maps.newHashMap();
+        List<BlockPos> list = pistonstructureresolver.getToPush();
+        List<BlockState> list1 = Lists.newArrayList();
+
+        for (BlockPos blockPos1 : list) {
+            BlockState blockstate = level.getBlockState(blockPos1);
+            list1.add(blockstate);
+            map.put(blockPos1, blockstate);
+        }
+
+        List<BlockPos> list2 = pistonstructureresolver.getToDestroy();
+        BlockState[] ablockstate = new BlockState[list.size() + list2.size()];
+        Direction direction = facing; //facing.getOpposite();
+        int i = 0;
+
+        for (int j = list2.size() - 1; j >= 0; j--) {
+            BlockPos blockPos2 = list2.get(j);
+            BlockState blockstate1 = level.getBlockState(blockPos2);
+            BlockEntity blockentity = blockstate1.hasBlockEntity() ? level.getBlockEntity(blockPos2) : null;
+            dropResources(blockstate1, level, blockPos2, blockentity);
+            blockstate1.onDestroyedByPushReaction(level, blockPos2, direction, level.getFluidState(blockPos2));
+            if (!blockstate1.is(BlockTags.FIRE)) {
+                level.addDestroyBlockEffect(blockPos2, blockstate1);
+            }
+
+            ablockstate[i++] = blockstate1;
+        }
+
+        for (int k = list.size() - 1; k >= 0; k--) {
+            BlockPos blockpos3 = list.get(k);
+            blockpos3 = blockpos3.relative(direction);
+            BlockState blockstate5 = level.getBlockState(blockpos3);
+            map.remove(blockpos3);
+            BlockState blockstate8 = Blocks.MOVING_PISTON.defaultBlockState().setValue(FACING, facing);
+            level.setBlock(blockpos3, blockstate8, 68);
+            level.setBlockEntity(
+                MovingPistonBlock.newMovingBlockEntity(
+                    blockpos3,
+                    blockstate8,
+                    list1.get(k),
+                    facing,
+                    true,
+                    false
+                )
+            );
+            ablockstate[i++] = blockstate5;
+        }
+
+        BlockState blockState3 = Blocks.AIR.defaultBlockState();
+
+        for (BlockPos blockpos4 : map.keySet()) {
+            level.setBlock(blockpos4, blockState3, 82);
+        }
+
+        for (Map.Entry<BlockPos, BlockState> entry : map.entrySet()) {
+            BlockPos blockpos5 = entry.getKey();
+            BlockState blockstate2 = entry.getValue();
+            blockstate2.updateIndirectNeighbourShapes(level, blockpos5, 2);
+            blockState3.updateNeighbourShapes(level, blockpos5, 2);
+            blockState3.updateIndirectNeighbourShapes(level, blockpos5, 2);
+        }
+
+        i = 0;
+
+        for (int l = list2.size() - 1; l >= 0; l--) {
+            BlockState blockstate7 = ablockstate[i++];
+            BlockPos blockpos6 = list2.get(l);
+            blockstate7.updateIndirectNeighbourShapes(level, blockpos6, 2);
+            level.updateNeighborsAt(blockpos6, blockstate7.getBlock());
+        }
+
+        for (int i1 = list.size() - 1; i1 >= 0; i1--) {
+            level.updateNeighborsAt(list.get(i1), ablockstate[i++].getBlock());
+        }
+
+        return true;
+    }
+
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
@@ -179,98 +271,6 @@ public class SlidingRailBlock extends Block implements IHammerChangeable, IHamme
     protected boolean triggerEvent(BlockState state, Level level, BlockPos pos, int id, int param) {
         Direction direction = Direction.from3DDataValue(param);
         return moveBlocks(level, pos.above(), direction);
-    }
-
-    /**
-     * 滑轨推动上方方块
-     *
-     * @param pos       推动的方块位置
-     * @param level     世界
-     * @param direction 推动方向
-     */
-    public static void pushBlock(BlockPos pos, Level level, Direction direction) {
-        moveBlocks(level, pos, direction);
-    }
-
-    private static boolean moveBlocks(Level level, BlockPos pos, Direction facing) {
-        PistonStructureResolver pistonstructureresolver = new PistonStructureResolver(level, pos.relative(facing.getOpposite()), facing, true);
-        if (!pistonstructureresolver.resolve()) return false;
-        Map<BlockPos, BlockState> map = Maps.newHashMap();
-        List<BlockPos> list = pistonstructureresolver.getToPush();
-        List<BlockState> list1 = Lists.newArrayList();
-
-        for (BlockPos blockPos1 : list) {
-            BlockState blockstate = level.getBlockState(blockPos1);
-            list1.add(blockstate);
-            map.put(blockPos1, blockstate);
-        }
-
-        List<BlockPos> list2 = pistonstructureresolver.getToDestroy();
-        BlockState[] ablockstate = new BlockState[list.size() + list2.size()];
-        Direction direction = facing;//facing.getOpposite();
-        int i = 0;
-
-        for (int j = list2.size() - 1; j >= 0; j--) {
-            BlockPos blockPos2 = list2.get(j);
-            BlockState blockstate1 = level.getBlockState(blockPos2);
-            BlockEntity blockentity = blockstate1.hasBlockEntity() ? level.getBlockEntity(blockPos2) : null;
-            dropResources(blockstate1, level, blockPos2, blockentity);
-            blockstate1.onDestroyedByPushReaction(level, blockPos2, direction, level.getFluidState(blockPos2));
-            if (!blockstate1.is(BlockTags.FIRE)) {
-                level.addDestroyBlockEffect(blockPos2, blockstate1);
-            }
-
-            ablockstate[i++] = blockstate1;
-        }
-
-        for (int k = list.size() - 1; k >= 0; k--) {
-            BlockPos blockpos3 = list.get(k);
-            blockpos3 = blockpos3.relative(direction);
-            BlockState blockstate5 = level.getBlockState(blockpos3);
-            map.remove(blockpos3);
-            BlockState blockstate8 = Blocks.MOVING_PISTON.defaultBlockState().setValue(FACING, facing);
-            level.setBlock(blockpos3, blockstate8, 68);
-            level.setBlockEntity(
-                MovingPistonBlock.newMovingBlockEntity(
-                    blockpos3,
-                    blockstate8,
-                    list1.get(k),
-                    facing,
-                    true,
-                    false
-                )
-            );
-            ablockstate[i++] = blockstate5;
-        }
-
-        BlockState blockState3 = Blocks.AIR.defaultBlockState();
-
-        for (BlockPos blockpos4 : map.keySet()) {
-            level.setBlock(blockpos4, blockState3, 82);
-        }
-
-        for (Map.Entry<BlockPos, BlockState> entry : map.entrySet()) {
-            BlockPos blockpos5 = entry.getKey();
-            BlockState blockstate2 = entry.getValue();
-            blockstate2.updateIndirectNeighbourShapes(level, blockpos5, 2);
-            blockState3.updateNeighbourShapes(level, blockpos5, 2);
-            blockState3.updateIndirectNeighbourShapes(level, blockpos5, 2);
-        }
-
-        i = 0;
-
-        for (int l = list2.size() - 1; l >= 0; l--) {
-            BlockState blockstate7 = ablockstate[i++];
-            BlockPos blockpos6 = list2.get(l);
-            blockstate7.updateIndirectNeighbourShapes(level, blockpos6, 2);
-            level.updateNeighborsAt(blockpos6, blockstate7.getBlock());
-        }
-
-        for (int i1 = list.size() - 1; i1 >= 0; i1--) {
-            level.updateNeighborsAt(list.get(i1), ablockstate[i++].getBlock());
-        }
-
-        return true;
     }
 
     @Override

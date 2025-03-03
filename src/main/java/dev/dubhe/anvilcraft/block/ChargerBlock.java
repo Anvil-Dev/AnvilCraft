@@ -79,7 +79,7 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
     }
 
     @Override
-    
+
     public void neighborChanged(
         @NotNull BlockState state,
         @NotNull Level level,
@@ -110,7 +110,7 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
     }
 
     @Override
-    
+
     public void onRemove(
         @NotNull BlockState state,
         @NotNull Level level,
@@ -130,7 +130,7 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
     }
 
     @Override
-    
+
     public void tick(
         @NotNull BlockState state,
         @NotNull ServerLevel level,

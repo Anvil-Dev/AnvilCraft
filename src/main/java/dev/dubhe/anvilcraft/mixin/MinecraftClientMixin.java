@@ -14,7 +14,7 @@ public class MinecraftClientMixin {
         method = "updateLevelInEngines",
         at = @At("HEAD")
     )
-    void updateLevel(ClientLevel level, CallbackInfo ci){
+    void updateLevel(ClientLevel level, CallbackInfo ci) {
         CacheableBERenderingPipeline.updateLevel(level);
     }
 }

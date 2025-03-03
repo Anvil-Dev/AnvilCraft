@@ -50,12 +50,10 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
     private static final Component TITLE = Component.translatable("gui.anvilcraft.category.multiblock_conversion");
     private static final Component ALL_LAYERS =
         Component.translatable("gui.anvilcraft.category.multiblock.all_layers");
+    private static final Comparator<ItemStack> BY_COUNT_DECREASING =
+        Comparator.comparing(ItemStack::getCount).thenComparing(ItemStack::getDescriptionId).reversed();
     private final Map<RecipeHolder<MultiblockConversionRecipe>, LevelLike> cacheInput = new HashMap<>();
     private final Map<RecipeHolder<MultiblockConversionRecipe>, LevelLike> cacheOutput = new HashMap<>();
-
-    private final static Comparator<ItemStack> BY_COUNT_DECREASING =
-        Comparator.comparing(ItemStack::getCount).thenComparing(ItemStack::getDescriptionId).reversed();
-
     private final IDrawable icon;
     private final IDrawable slot;
     private final IDrawable layerUp;

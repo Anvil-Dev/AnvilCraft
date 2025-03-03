@@ -30,6 +30,7 @@ public class SpaceOvercompressorBlockEntity extends BlockEntity {
     public static long NEUTRONIUM_INGOT_MASS = 30_000_000;
     public static long DISPLAYED_MASS = NEUTRONIUM_INGOT_MASS / 100;
     public static int MAX_OUTPUT_PER_TIME = 640;
+    private final ItemStackHandler itemHandler = new ItemStackHandler(9);
     private long storedMass = 0;
 
     public SpaceOvercompressorBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
@@ -43,8 +44,6 @@ public class SpaceOvercompressorBlockEntity extends BlockEntity {
     public static SpaceOvercompressorBlockEntity createBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         return new SpaceOvercompressorBlockEntity(type, pos, state);
     }
-
-    private final ItemStackHandler itemHandler = new ItemStackHandler(9);
 
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {

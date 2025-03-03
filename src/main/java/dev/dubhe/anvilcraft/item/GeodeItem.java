@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.item;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.util.BlockHighlightUtil;
-
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.ClickEvent;
@@ -20,7 +19,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
-
 import org.jetbrains.annotations.NotNull;
 
 public class GeodeItem extends Item {
@@ -30,7 +28,7 @@ public class GeodeItem extends Item {
 
     @Override
     public @NotNull InteractionResultHolder<ItemStack> use(
-            @NotNull Level level, @NotNull Player player, @NotNull InteractionHand usedHand) {
+        @NotNull Level level, @NotNull Player player, @NotNull InteractionHand usedHand) {
         ItemStack itemStack = player.getItemInHand(usedHand);
         BlockPos pos = player.getOnPos().below();
         player.getCooldowns().addCooldown(itemStack.getItem(), AnvilCraft.config.geodeCooldown * 20);
@@ -46,19 +44,19 @@ public class GeodeItem extends Item {
                     BlockState state = level.getBlockState(offsetPos);
                     if (!state.is(BlockTags.CRYSTAL_SOUND_BLOCKS)) continue;
                     MutableComponent component = ComponentUtils.wrapInSquareBrackets(Component.translatable(
-                                    "chat.coordinates", offsetPos.getX(), offsetPos.getY(), offsetPos.getZ()))
-                            .withStyle(text -> text.withColor(ChatFormatting.GREEN)
-                                    .withClickEvent(new ClickEvent(
-                                            ClickEvent.Action.SUGGEST_COMMAND,
-                                            "/tp @s "
-                                                    + offsetPos.getX()
-                                                    + " "
-                                                    + offsetPos.getY()
-                                                    + " "
-                                                    + offsetPos.getZ()))
-                                    .withHoverEvent(new HoverEvent(
-                                            HoverEvent.Action.SHOW_TEXT,
-                                            Component.translatable("chat.coordinates.tooltip"))));
+                            "chat.coordinates", offsetPos.getX(), offsetPos.getY(), offsetPos.getZ()))
+                        .withStyle(text -> text.withColor(ChatFormatting.GREEN)
+                            .withClickEvent(new ClickEvent(
+                                ClickEvent.Action.SUGGEST_COMMAND,
+                                "/tp @s "
+                                    + offsetPos.getX()
+                                    + " "
+                                    + offsetPos.getY()
+                                    + " "
+                                    + offsetPos.getZ()))
+                            .withHoverEvent(new HoverEvent(
+                                HoverEvent.Action.SHOW_TEXT,
+                                Component.translatable("chat.coordinates.tooltip"))));
                     player.sendSystemMessage(Component.translatable("item.anvilcraft.geode.find", component));
                     BlockHighlightUtil.highlightBlock(level, offsetPos);
                     break block;

@@ -48,7 +48,7 @@ public class ServerBlockEntityEventListener {
         }
         if (event.getEntity() instanceof HeliostatsBlockEntity heliostatsBlockEntity) {
             HeatedBlockRecorder.getInstance(event.getLevel())
-                    .remove(heliostatsBlockEntity.getIrritatePos(), heliostatsBlockEntity);
+                .remove(heliostatsBlockEntity.getIrritatePos(), heliostatsBlockEntity);
         }
     }
 }

@@ -21,7 +21,7 @@ import java.util.List;
 public class CurseLootItemFunction extends LootItemConditionalFunction {
 
     public static final MapCodec<CurseLootItemFunction> CODEC = RecordCodecBuilder.mapCodec(
-        p_298746_ -> commonFields(p_298746_).apply(p_298746_, CurseLootItemFunction::new)
+        ins -> commonFields(ins).apply(ins, CurseLootItemFunction::new)
     );
 
     public CurseLootItemFunction(List<LootItemCondition> predicates) {

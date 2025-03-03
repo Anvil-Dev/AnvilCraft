@@ -117,7 +117,7 @@ public class HeliostatsItem extends BlockItem {
     }
 
     @Override
-    protected SoundEvent getPlaceSound(BlockState p_state, Level world, BlockPos pos, Player entity) {
+    protected SoundEvent getPlaceSound(BlockState pState, Level world, BlockPos pos, Player entity) {
         return ModBlocks.HELIOSTATS.getDefaultState().getSoundType(world, pos, entity).getPlaceSound();
     }
 

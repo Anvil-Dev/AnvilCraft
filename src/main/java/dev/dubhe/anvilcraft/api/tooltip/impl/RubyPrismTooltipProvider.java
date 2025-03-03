@@ -4,7 +4,6 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IBlockEntityTooltipProvider;
 import dev.dubhe.anvilcraft.block.entity.RubyPrismBlockEntity;
 import dev.dubhe.anvilcraft.util.Util;
-
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -12,7 +11,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import java.util.List;
 
 public class RubyPrismTooltipProvider implements IBlockEntityTooltipProvider {
-    public RubyPrismTooltipProvider() {}
+    public RubyPrismTooltipProvider() {
+    }
 
     @Override
     public boolean accepts(BlockEntity entity) {
@@ -26,7 +26,7 @@ public class RubyPrismTooltipProvider implements IBlockEntityTooltipProvider {
         }
         if (e instanceof RubyPrismBlockEntity rubyPrismBlockEntity) {
             return List.of(Component.translatable(
-                    "tooltip.anvilcraft.jade.ruby_prism.power", rubyPrismBlockEntity.getLaserLevel()));
+                "tooltip.anvilcraft.jade.ruby_prism.power", rubyPrismBlockEntity.getLaserLevel()));
         }
         return null;
     }

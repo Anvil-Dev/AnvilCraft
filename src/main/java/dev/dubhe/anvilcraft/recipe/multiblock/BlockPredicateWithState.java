@@ -33,10 +33,17 @@ import java.util.function.Predicate;
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class BlockPredicateWithState implements Predicate<BlockState> {
-    private final Block block;
-    private final Map<Property<?>, Comparable<?>> properties;
-    private BlockState defaultState;
-
+    public static final Codec<BlockPredicateWithState> CODEC = Raw.CODEC_RAW
+        .comapFlatMap(raw -> {
+            try {
+                return DataResult.success(new BlockPredicateWithState(raw));
+            } catch (Exception e) {
+                return DataResult.error(() -> "invalid property names or values");
+            }
+        }, BlockPredicateWithState::toRaw);
+    public static final StreamCodec<RegistryFriendlyByteBuf, BlockPredicateWithState> STREAM_CODEC =
+        Raw.STREAM_CODEC_RAW
+            .map(BlockPredicateWithState::new, BlockPredicateWithState::toRaw);
     private static Method setValueMethod = null;
 
     static {
@@ -47,18 +54,9 @@ public class BlockPredicateWithState implements Predicate<BlockState> {
         }
     }
 
-    public static final Codec<BlockPredicateWithState> CODEC = Raw.CODEC_RAW
-        .comapFlatMap(raw -> {
-            try {
-                return DataResult.success(new BlockPredicateWithState(raw));
-            } catch (Exception e) {
-                return DataResult.error(() -> "invalid property names or values");
-            }
-        }, BlockPredicateWithState::toRaw);
-
-    public static final StreamCodec<RegistryFriendlyByteBuf, BlockPredicateWithState> STREAM_CODEC =
-        Raw.STREAM_CODEC_RAW
-            .map(BlockPredicateWithState::new, BlockPredicateWithState::toRaw);
+    private final Block block;
+    private final Map<Property<?>, Comparable<?>> properties;
+    private BlockState defaultState;
 
     private BlockPredicateWithState(final Block block, final Map<Property<?>, Comparable<?>> properties) {
         this.block = block;
@@ -76,32 +74,6 @@ public class BlockPredicateWithState implements Predicate<BlockState> {
         this.properties = new HashMap<>();
     }
 
-    public <T extends Comparable<T>> BlockPredicateWithState hasState(Property<T> property, T value) {
-        properties.put(property, value);
-        return this;
-    }
-
-    public <T extends Comparable<T>> BlockPredicateWithState copyPropertyFrom(BlockState state, Property<T> property) {
-        return this.hasState(property, state.getValue(property));
-    }
-
-    public BlockPredicateWithState hasState(String stateName, String stateValue) {
-        Property<?> property = this.block.getStateDefinition().getProperty(stateName);
-        this.properties.put(property, Optional.ofNullable(property)
-            .flatMap(p -> p.getValue(stateValue))
-            .orElseThrow());
-        return this;
-    }
-
-    public <T extends Comparable<T>> boolean hasProperty(Property<T> property) {
-        return properties.containsKey(property);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Nullable public <T extends Comparable<T>> T getPropertyValue(Property<T> property) {
-        return (T) properties.getOrDefault(property, null);
-    }
-
     @Contract("_ -> new")
     public static @NotNull BlockPredicateWithState of(Block block) {
         return new BlockPredicateWithState(block);
@@ -114,6 +86,37 @@ public class BlockPredicateWithState implements Predicate<BlockState> {
 
     public static BlockPredicateWithState of(String blockName) {
         return of(BuiltInRegistries.BLOCK.get(ResourceLocation.parse(blockName)));
+    }
+
+    public static String getNameOf(Object value) {
+        return value instanceof StringRepresentable representable ? representable.getSerializedName() : value.toString();
+    }
+
+    public <T extends Comparable<T>> BlockPredicateWithState hasState(Property<T> property, T value) {
+        properties.put(property, value);
+        return this;
+    }
+
+    public BlockPredicateWithState hasState(String stateName, String stateValue) {
+        Property<?> property = this.block.getStateDefinition().getProperty(stateName);
+        this.properties.put(property, Optional.ofNullable(property)
+            .flatMap(p -> p.getValue(stateValue))
+            .orElseThrow());
+        return this;
+    }
+
+    public <T extends Comparable<T>> BlockPredicateWithState copyPropertyFrom(BlockState state, Property<T> property) {
+        return this.hasState(property, state.getValue(property));
+    }
+
+    public <T extends Comparable<T>> boolean hasProperty(Property<T> property) {
+        return properties.containsKey(property);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Nullable
+    public <T extends Comparable<T>> T getPropertyValue(Property<T> property) {
+        return (T) properties.getOrDefault(property, null);
     }
 
     @Override
@@ -142,17 +145,11 @@ public class BlockPredicateWithState implements Predicate<BlockState> {
                 try {
                     this.defaultState = (BlockState) setValueMethod.invoke(this.defaultState, property, value);
                 } catch (Exception e) {
-                    AnvilCraft.LOGGER.warn("Invalid property or value: " +
-                        "property:{}, value:{}", property, value);
+                    AnvilCraft.LOGGER.warn("Invalid property or value: property:{}, value:{}", property, value);
                 }
             });
         }
         return this.defaultState;
-    }
-
-    public static String getNameOf(Object value) {
-        return value instanceof StringRepresentable representable ?
-            representable.getSerializedName() : value.toString();
     }
 
     private Raw toRaw() {

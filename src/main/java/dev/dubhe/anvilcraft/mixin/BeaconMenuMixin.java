@@ -35,45 +35,8 @@ public abstract class BeaconMenuMixin {
     @Final
     private ContainerLevelAccess access;
 
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    @Inject(
-            method = "updateEffects",
-            at =
-                    @At(
-                            value = "INVOKE",
-                            target = "Lnet/minecraft/world/inventory/BeaconMenu$PaymentSlot;"
-                                    + "remove(I)Lnet/minecraft/world/item/ItemStack;"))
-    private void updateEffects(
-            Optional<MobEffect> primaryEffect, Optional<MobEffect> secondaryEffect, CallbackInfo ci) {
-        ItemStack item = this.paymentSlot.getItem();
-        if (!item.is(ModItems.CURSED_GOLD_INGOT.get())) return;
-        this.access.execute((level, pos) -> {
-            if (!(level instanceof ServerLevel serverLevel)) return;
-            if (this.anvilcraft$toCorrupted(level, pos)) {
-                serverLevel.setBlockAndUpdate(pos, ModBlocks.CORRUPTED_BEACON.getDefaultState());
-                MinecraftServer server = serverLevel.getServer();
-                GameRules.BooleanValue rule = server.getGameRules().getRule(GameRules.RULE_WEATHER_CYCLE);
-                if (!rule.get()) return;
-                serverLevel.setWeatherParameters(
-                        0, ServerLevel.THUNDER_DURATION.sample(serverLevel.getRandom()), true, true);
-            }
-        });
-    }
-
-    @Unique private boolean anvilcraft$toCorrupted(@NotNull Level level, @NotNull BlockPos pos) {
-        RandomSource random = level.getRandom();
-        double chance = random.nextDouble();
-        int levels = anvilcraft$updateBase(level, pos.getX(), pos.getY(), pos.getZ());
-        return switch (levels) {
-            case 1 -> chance < 0.02;
-            case 2 -> chance < 0.05;
-            case 3 -> chance < 0.2;
-            case 4 -> true;
-            default -> false;
-        };
-    }
-
-    @Unique private static int anvilcraft$updateBase(Level level, int x, int y, int z) {
+    @Unique
+    private static int anvilcraft$updateBase(Level level, int x, int y, int z) {
         int k;
         int i = 0;
         int j = 1;
@@ -91,5 +54,44 @@ public abstract class BeaconMenuMixin {
             i = j++;
         }
         return i;
+    }
+
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    @Inject(
+        method = "updateEffects",
+        at =
+        @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/inventory/BeaconMenu$PaymentSlot;"
+                + "remove(I)Lnet/minecraft/world/item/ItemStack;"))
+    private void updateEffects(
+        Optional<MobEffect> primaryEffect, Optional<MobEffect> secondaryEffect, CallbackInfo ci) {
+        ItemStack item = this.paymentSlot.getItem();
+        if (!item.is(ModItems.CURSED_GOLD_INGOT.get())) return;
+        this.access.execute((level, pos) -> {
+            if (!(level instanceof ServerLevel serverLevel)) return;
+            if (this.anvilcraft$toCorrupted(level, pos)) {
+                serverLevel.setBlockAndUpdate(pos, ModBlocks.CORRUPTED_BEACON.getDefaultState());
+                MinecraftServer server = serverLevel.getServer();
+                GameRules.BooleanValue rule = server.getGameRules().getRule(GameRules.RULE_WEATHER_CYCLE);
+                if (!rule.get()) return;
+                serverLevel.setWeatherParameters(
+                    0, ServerLevel.THUNDER_DURATION.sample(serverLevel.getRandom()), true, true);
+            }
+        });
+    }
+
+    @Unique
+    private boolean anvilcraft$toCorrupted(@NotNull Level level, @NotNull BlockPos pos) {
+        RandomSource random = level.getRandom();
+        double chance = random.nextDouble();
+        int levels = anvilcraft$updateBase(level, pos.getX(), pos.getY(), pos.getZ());
+        return switch (levels) {
+            case 1 -> chance < 0.02;
+            case 2 -> chance < 0.05;
+            case 3 -> chance < 0.2;
+            case 4 -> true;
+            default -> false;
+        };
     }
 }

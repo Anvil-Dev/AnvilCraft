@@ -17,23 +17,23 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(PistonMovingBlockEntity.class)
 abstract class PistonMovingBlockEntityMixin {
 
-    @Shadow private Direction direction;
+    @Shadow
+    private Direction direction;
 
-    @Shadow private int deathTicks;
-
-    @Shadow public abstract Direction getDirection();
-
-    @Shadow private boolean extending;
+    @Shadow
+    private int deathTicks;
+    @Shadow
+    private boolean extending;
 
     @Inject(
-            method = "tick",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/world/level/Level;"
-                            + "neighborChanged(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;"
-                            + "Lnet/minecraft/core/BlockPos;)V",
-                    shift = At.Shift.AFTER
-            )
+        method = "tick",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/level/Level;"
+                + "neighborChanged(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;"
+                + "Lnet/minecraft/core/BlockPos;)V",
+            shift = At.Shift.AFTER
+        )
     )
     private static void slidingRail(Level level, BlockPos pos, BlockState state, PistonMovingBlockEntity blockEntity, CallbackInfo ci) {
         if (level.isClientSide) return;
@@ -44,12 +44,14 @@ abstract class PistonMovingBlockEntityMixin {
             BlockPos p0 = pos.below();
             SlidingRailBlock.PistonPushInfo p = new SlidingRailBlock.PistonPushInfo(pos, blockEntity.getDirection());
             p.extending = blockEntity.isExtending();
-            if(SlidingRailBlock.MOVING_PISTON_MAP.containsKey(p0)){
+            if (SlidingRailBlock.MOVING_PISTON_MAP.containsKey(p0)) {
                 SlidingRailBlock.MOVING_PISTON_MAP.get(p0).extending = p.extending;
-            }
-            else SlidingRailBlock.MOVING_PISTON_MAP.put(p0, p);
+            } else SlidingRailBlock.MOVING_PISTON_MAP.put(p0, p);
             SlidingRailBlock.MOVING_PISTON_MAP.get(p0).isSourcePiston = blockEntity.isSourcePiston();
         }
 
     }
+
+    @Shadow
+    public abstract Direction getDirection();
 }

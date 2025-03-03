@@ -37,7 +37,7 @@ abstract class GameRendererMixin {
             target = "Lnet/minecraft/client/renderer/LevelRenderer;resize(II)V"
         )
     )
-    void resize(int width, int height, CallbackInfo ci){
+    void resize(int width, int height, CallbackInfo ci) {
         if (!RenderState.hasIncompatibleMods()) {
             ModShaders.resize(width, height);
             if (ModRenderTargets.getTempTarget() != null) {

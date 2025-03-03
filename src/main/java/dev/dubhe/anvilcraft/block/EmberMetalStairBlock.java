@@ -29,10 +29,10 @@ public class EmberMetalStairBlock extends StairBlock implements IEmberBlock {
 
     @Override
     public void randomTick(
-            @NotNull BlockState state,
-            @NotNull ServerLevel level,
-            @NotNull BlockPos pos,
-            @NotNull RandomSource random) {
+        @NotNull BlockState state,
+        @NotNull ServerLevel level,
+        @NotNull BlockPos pos,
+        @NotNull RandomSource random) {
         if (random.nextDouble() <= 0.1) {
             level.playSound(null, pos, SoundEvents.LAVA_EXTINGUISH, SoundSource.BLOCKS, 1f, 1f);
             level.setBlock(pos, state.setValue(SlabBlock.WATERLOGGED, false), 2);

@@ -23,24 +23,6 @@ abstract class PistonMovingBlockEntityMixin implements PistonMovingBlockEntityIn
     @Unique
     private CompoundTag anvilcraft$nbt = new CompoundTag();
 
-    @Override
-    public CompoundTag anvilcraft$clearData() {
-        CompoundTag nbt = this.anvilcraft$nbt;
-        this.anvilcraft$nbt = new CompoundTag();
-        return nbt;
-    }
-
-    @Override
-    public void anvilcraft$setData(CompoundTag nbt) {
-        if(nbt == null) return;
-        this.anvilcraft$nbt.merge(nbt);
-    }
-
-    @Override
-    public BlockState anvilcraft$getMoveState() {
-        return this.movedState;
-    }
-
     @Inject(
         method = "tick",
         at = @At(
@@ -62,5 +44,23 @@ abstract class PistonMovingBlockEntityMixin implements PistonMovingBlockEntityIn
         if (!(blockEntity instanceof PistonMovingBlockEntityInjector blockEntity1)) return;
         if (!(moveState.getBlock() instanceof IMoveableEntityBlock entityBlock)) return;
         entityBlock.setData(level, pos, blockEntity1.anvilcraft$clearData());
+    }
+
+    @Override
+    public CompoundTag anvilcraft$clearData() {
+        CompoundTag nbt = this.anvilcraft$nbt;
+        this.anvilcraft$nbt = new CompoundTag();
+        return nbt;
+    }
+
+    @Override
+    public void anvilcraft$setData(CompoundTag nbt) {
+        if (nbt == null) return;
+        this.anvilcraft$nbt.merge(nbt);
+    }
+
+    @Override
+    public BlockState anvilcraft$getMoveState() {
+        return this.movedState;
     }
 }

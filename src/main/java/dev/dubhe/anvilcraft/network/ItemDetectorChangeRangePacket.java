@@ -21,12 +21,6 @@ public record ItemDetectorChangeRangePacket(int range) implements CustomPacketPa
             ItemDetectorChangeRangePacket::new);
     public static final IPayloadHandler<ItemDetectorChangeRangePacket> HANDLER = ItemDetectorChangeRangePacket::serverHandler;
 
-    @Override
-    @NotNull
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
-    }
-
     public static void serverHandler(ItemDetectorChangeRangePacket data, IPayloadContext context) {
         context.enqueueWork(() -> {
             ServerPlayer player = (ServerPlayer) context.player();
@@ -34,6 +28,12 @@ public record ItemDetectorChangeRangePacket(int range) implements CustomPacketPa
                 menu.setRange(data.range);
             }
         });
+    }
+
+    @Override
+    @NotNull
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 
 //    public static void clientHandler(ItemDetectorChangeRangePacket data, IPayloadContext context) {

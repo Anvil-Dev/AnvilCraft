@@ -44,9 +44,9 @@ import java.util.List;
 @ParametersAreNonnullByDefault
 public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
     public static final int RADIUS = 80;
-    public static final int DELAY = 150;//ms
-    public static final int ANIMATION_T = 300;//ms
-    public static final int CLOSING_ANIMATION_T = 150;//ms
+    public static final int DELAY = 150; //ms
+    public static final int ANIMATION_T = 300; //ms
+    public static final int CLOSING_ANIMATION_T = 150; //ms
     public static final float ZOOM = 13.5f;
     public static final int IGNORE_CURSOR_MOVE_LENGTH = 15;
 
@@ -89,9 +89,8 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
     private final Property<?> property;
     private final List<BlockState> possibleStates;
     private final Camera camera;
-
-    private BlockState currentBlockState;
     private final List<SelectionItem> items = new ArrayList<>();
+    private BlockState currentBlockState;
     private long displayTime = System.currentTimeMillis();
     private boolean animationStarted = false;
     private boolean closingAnimationStarted = false;
@@ -108,6 +107,89 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
         this.property = property;
         this.possibleStates = possibleStates;
         this.camera = Minecraft.getInstance().gameRenderer.getMainCamera();
+    }
+
+    private static void renderSelectionEffect(
+        GuiGraphics guiGraphics,
+        float centerX,
+        float centerY,
+        int color,
+        float radius
+    ) {
+        PoseStack poseStack = guiGraphics.pose();
+        Matrix4f matrix4f = poseStack.last().pose();
+        Tesselator tesselator = Tesselator.getInstance();
+        BufferBuilder bufferBuilder = tesselator.begin(
+            VertexFormat.Mode.QUADS,
+            DefaultVertexFormat.POSITION_COLOR
+        );
+        float x1 = centerX - radius - 5;
+        float y1 = centerY - radius - 5;
+        float x2 = centerX + radius + 5;
+        float y2 = centerY + radius + 5;
+        bufferBuilder.addVertex(matrix4f, x1, y1, -200).setColor(color);
+        bufferBuilder.addVertex(matrix4f, x1, y2, -200).setColor(color);
+        bufferBuilder.addVertex(matrix4f, x2, y2, -200).setColor(color);
+        bufferBuilder.addVertex(matrix4f, x2, y1, -200).setColor(color);
+
+        Window window = Minecraft.getInstance().getWindow();
+        float guiScale = (float) window.getGuiScale();
+        RenderSystem.setShader(ModShaders::getSelectionShader);
+
+        ModShaders.getSelectionShader()
+            .safeGetUniform("Center")
+            .set(centerX * guiScale, centerY * guiScale);
+        ModShaders.getSelectionShader()
+            .safeGetUniform("FramebufferSize")
+            .set((float) window.getWidth(), (float) window.getHeight());
+        ModShaders.getSelectionShader()
+            .safeGetUniform("Radius")
+            .set(radius * guiScale);
+
+        RenderSystem.setShaderColor(1, 1, 1, 1);
+        BufferUploader.drawWithShader(bufferBuilder.build());
+    }
+
+    private static void renderRing(
+        GuiGraphics guiGraphics,
+        float centerX,
+        float centerY,
+        int color,
+        float innerDiameter,
+        float outerDiameter
+    ) {
+        PoseStack poseStack = guiGraphics.pose();
+        Matrix4f matrix4f = poseStack.last().pose();
+        Tesselator tesselator = Tesselator.getInstance();
+        BufferBuilder bufferBuilder = tesselator.begin(
+            VertexFormat.Mode.QUADS,
+            DefaultVertexFormat.POSITION_COLOR
+        );
+        float x1 = centerX - outerDiameter - 5;
+        float y1 = centerY - outerDiameter - 5;
+        float x2 = centerX + outerDiameter + 5;
+        float y2 = centerY + outerDiameter + 5;
+        bufferBuilder.addVertex(matrix4f, x1, y1, -300).setColor(color);
+        bufferBuilder.addVertex(matrix4f, x1, y2, -300).setColor(color);
+        bufferBuilder.addVertex(matrix4f, x2, y2, -300).setColor(color);
+        bufferBuilder.addVertex(matrix4f, x2, y1, -300).setColor(color);
+
+        Window window = Minecraft.getInstance().getWindow();
+        float guiScale = (float) window.getGuiScale();
+        RenderSystem.setShader(ModShaders::getRingShader);
+
+        ModShaders.getRingShader()
+            .safeGetUniform("Center")
+            .set(centerX * guiScale, centerY * guiScale);
+        ModShaders.getRingShader()
+            .safeGetUniform("InnerDiameter")
+            .set(innerDiameter * guiScale);
+        ModShaders.getRingShader()
+            .safeGetUniform("OuterDiameter")
+            .set(outerDiameter * guiScale);
+
+        RenderSystem.setShaderColor(1, 1, 1, 1);
+        BufferUploader.drawWithShader(bufferBuilder.build());
     }
 
     @Override
@@ -446,48 +528,6 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
         );
     }
 
-    private static void renderSelectionEffect(
-        GuiGraphics guiGraphics,
-        float centerX,
-        float centerY,
-        int color,
-        float radius
-    ) {
-        PoseStack poseStack = guiGraphics.pose();
-        Matrix4f matrix4f = poseStack.last().pose();
-        Tesselator tesselator = Tesselator.getInstance();
-        BufferBuilder bufferBuilder = tesselator.begin(
-            VertexFormat.Mode.QUADS,
-            DefaultVertexFormat.POSITION_COLOR
-        );
-        float x1 = centerX - radius - 5;
-        float y1 = centerY - radius - 5;
-        float x2 = centerX + radius + 5;
-        float y2 = centerY + radius + 5;
-        bufferBuilder.addVertex(matrix4f, x1, y1, -200).setColor(color);
-        bufferBuilder.addVertex(matrix4f, x1, y2, -200).setColor(color);
-        bufferBuilder.addVertex(matrix4f, x2, y2, -200).setColor(color);
-        bufferBuilder.addVertex(matrix4f, x2, y1, -200).setColor(color);
-
-        Window window = Minecraft.getInstance().getWindow();
-        float guiScale = (float) window.getGuiScale();
-        RenderSystem.setShader(ModShaders::getSelectionShader);
-
-        ModShaders.getSelectionShader()
-            .safeGetUniform("Center")
-            .set(centerX * guiScale, centerY * guiScale);
-        ModShaders.getSelectionShader()
-            .safeGetUniform("FramebufferSize")
-            .set((float) window.getWidth(), (float) window.getHeight());
-        ModShaders.getSelectionShader()
-            .safeGetUniform("Radius")
-            .set(radius * guiScale);
-
-        RenderSystem.setShaderColor(1, 1, 1, 1);
-        BufferUploader.drawWithShader(bufferBuilder.build());
-    }
-
-
     @Override
     public boolean isPauseScreen() {
         return false;
@@ -545,48 +585,6 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
     @Override
     public boolean shouldSkipRebuildBlock() {
         return !shouldRebuildChunk;
-    }
-
-    private static void renderRing(
-        GuiGraphics guiGraphics,
-        float centerX,
-        float centerY,
-        int color,
-        float innerDiameter,
-        float outerDiameter
-    ) {
-        PoseStack poseStack = guiGraphics.pose();
-        Matrix4f matrix4f = poseStack.last().pose();
-        Tesselator tesselator = Tesselator.getInstance();
-        BufferBuilder bufferBuilder = tesselator.begin(
-            VertexFormat.Mode.QUADS,
-            DefaultVertexFormat.POSITION_COLOR
-        );
-        float x1 = centerX - outerDiameter - 5;
-        float y1 = centerY - outerDiameter - 5;
-        float x2 = centerX + outerDiameter + 5;
-        float y2 = centerY + outerDiameter + 5;
-        bufferBuilder.addVertex(matrix4f, x1, y1, -300).setColor(color);
-        bufferBuilder.addVertex(matrix4f, x1, y2, -300).setColor(color);
-        bufferBuilder.addVertex(matrix4f, x2, y2, -300).setColor(color);
-        bufferBuilder.addVertex(matrix4f, x2, y1, -300).setColor(color);
-
-        Window window = Minecraft.getInstance().getWindow();
-        float guiScale = (float) window.getGuiScale();
-        RenderSystem.setShader(ModShaders::getRingShader);
-
-        ModShaders.getRingShader()
-            .safeGetUniform("Center")
-            .set(centerX * guiScale, centerY * guiScale);
-        ModShaders.getRingShader()
-            .safeGetUniform("InnerDiameter")
-            .set(innerDiameter * guiScale);
-        ModShaders.getRingShader()
-            .safeGetUniform("OuterDiameter")
-            .set(outerDiameter * guiScale);
-
-        RenderSystem.setShaderColor(1, 1, 1, 1);
-        BufferUploader.drawWithShader(bufferBuilder.build());
     }
 
     @Override

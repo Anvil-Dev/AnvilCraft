@@ -143,29 +143,29 @@ public class ModNetworks {
             RecipeCacheSyncPacket::acceptClient
         );
         registrar.playToClient(
-                TeslaFilterSyncPacket.TYPE,
-                TeslaFilterSyncPacket.STREAM_CODEC,
-                TeslaFilterSyncPacket.HANDLER
+            TeslaFilterSyncPacket.TYPE,
+            TeslaFilterSyncPacket.STREAM_CODEC,
+            TeslaFilterSyncPacket.HANDLER
         );
         registrar.playToServer(
-                AddTeslaFilterPacket.TYPE,
-                AddTeslaFilterPacket.STREAM_CODEC,
-                AddTeslaFilterPacket.HANDLER
+            AddTeslaFilterPacket.TYPE,
+            AddTeslaFilterPacket.STREAM_CODEC,
+            AddTeslaFilterPacket.HANDLER
         );
         registrar.playToServer(
-                RemoveTeslaFilterPacket.TYPE,
-                RemoveTeslaFilterPacket.STREAM_CODEC,
-                RemoveTeslaFilterPacket.HANDLER
+            RemoveTeslaFilterPacket.TYPE,
+            RemoveTeslaFilterPacket.STREAM_CODEC,
+            RemoveTeslaFilterPacket.HANDLER
         );
         registrar.playBidirectional(
-                ItemDetectorChangeRangePacket.TYPE,
-                ItemDetectorChangeRangePacket.STREAM_CODEC,
-                ItemDetectorChangeRangePacket.HANDLER
+            ItemDetectorChangeRangePacket.TYPE,
+            ItemDetectorChangeRangePacket.STREAM_CODEC,
+            ItemDetectorChangeRangePacket.HANDLER
         );
         registrar.playToServer(
-                MachineCycleFilterModePacket.TYPE,
-                MachineCycleFilterModePacket.STREAM_CODEC,
-                MachineCycleFilterModePacket.HANDLER
+            MachineCycleFilterModePacket.TYPE,
+            MachineCycleFilterModePacket.STREAM_CODEC,
+            MachineCycleFilterModePacket.HANDLER
         );
     }
 }

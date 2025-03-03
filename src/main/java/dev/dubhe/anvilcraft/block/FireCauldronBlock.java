@@ -27,7 +27,7 @@ public class FireCauldronBlock extends Layered4LevelCauldronBlock implements IHa
 
     @Override
     public void entityInside(
-            @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Entity entity) {
+        @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Entity entity) {
         if (this.isEntityInsideContent(state, pos, entity)) {
             entity.lavaHurt();
         }
@@ -35,7 +35,7 @@ public class FireCauldronBlock extends Layered4LevelCauldronBlock implements IHa
 
     @Override
     public ItemStack getCloneItemStack(
-            BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
+        BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
         return new ItemStack(Items.CAULDRON);
     }
 }

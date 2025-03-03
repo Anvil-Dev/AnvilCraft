@@ -96,8 +96,7 @@ public class ItemDetectorBlock extends BetterBaseEntityBlock implements EntityBl
 
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
-        if (level.isClientSide ||
-            (oldState.is(this) && state.getValue(FACING) == oldState.getValue(FACING))) return;
+        if (level.isClientSide || (oldState.is(this) && state.getValue(FACING) == oldState.getValue(FACING))) return;
         if (level.getBlockEntity(pos) instanceof ItemDetectorBlockEntity blockEntity) {
             blockEntity.recalcDetectionRange();
         }
@@ -107,8 +106,8 @@ public class ItemDetectorBlock extends BetterBaseEntityBlock implements EntityBl
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
         super.onRemove(state, level, pos, newState, isMoving);
-        if (level.isClientSide ||
-            (state.is(newState.getBlock()) && state.getValue(FACING) == newState.getValue(FACING))
+        if (level.isClientSide
+            || (state.is(newState.getBlock()) && state.getValue(FACING) == newState.getValue(FACING))
             || !state.getValue(POWERED)) {
             return;
         }

@@ -10,11 +10,10 @@ import java.util.function.Consumer;
 
 public class WatchableCyclingValue<T> {
     public final T[] values;
-    private int index = 0;
     private final Consumer<WatchableCyclingValue<T>> onChangedCallback;
-
     @Getter
     private final String name;
+    private int index = 0;
 
     /**
      * 可监听的循环值选择器

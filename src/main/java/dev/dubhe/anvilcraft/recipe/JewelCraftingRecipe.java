@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.recipe;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
-import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractItemProcessBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.input.IItemsInput;
 import dev.dubhe.anvilcraft.util.CodecUtil;
@@ -41,7 +40,7 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
     public final ItemStack result;
     public final List<Object2IntMap.Entry<Ingredient>> mergedIngredients;
     public Input cache;
-    public int cache_times;
+    public int cacheTimes;
 
     public JewelCraftingRecipe(NonNullList<Ingredient> ingredients, ItemStack result) {
         this.ingredients = ingredients;
@@ -85,12 +84,12 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
     @Override
     public boolean matches(Input input, Level level) {
         if (input == cache) {
-            return cache_times >= 1;
+            return cacheTimes >= 1;
         }
         int times = RecipeUtil.getMaxCraftTime(input, ingredients);
         cache = input;
-        cache_times = times;
-        return cache_times >= 1;
+        cacheTimes = times;
+        return cacheTimes >= 1;
     }
 
     public record Input(ItemStack source, List<ItemStack> items) implements RecipeInput, IItemsInput {
@@ -108,24 +107,13 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
 
     public static class Serializer implements RecipeSerializer<JewelCraftingRecipe> {
 
+        public static final StreamCodec<RegistryFriendlyByteBuf, JewelCraftingRecipe> STREAM_CODEC = StreamCodec.of(
+            Serializer::encode, Serializer::decode
+        );
         private static final MapCodec<JewelCraftingRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
             CodecUtil.createIngredientListCodec("ingredients", 256, "jewel_crafting").forGetter(JewelCraftingRecipe::getIngredients),
             ItemStack.CODEC.fieldOf("result").forGetter(JewelCraftingRecipe::getResult)
         ).apply(ins, JewelCraftingRecipe::new));
-
-        public static final StreamCodec<RegistryFriendlyByteBuf, JewelCraftingRecipe> STREAM_CODEC = StreamCodec.of(
-            Serializer::encode, Serializer::decode
-        );
-
-        @Override
-        public MapCodec<JewelCraftingRecipe> codec() {
-            return CODEC;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, JewelCraftingRecipe> streamCodec() {
-            return STREAM_CODEC;
-        }
 
         private static void encode(RegistryFriendlyByteBuf buf, JewelCraftingRecipe recipe) {
             buf.writeVarInt(recipe.ingredients.size());
@@ -142,8 +130,18 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
             ItemStack result = ItemStack.STREAM_CODEC.decode(buf);
             return new JewelCraftingRecipe(ingredients, result);
         }
+
+        @Override
+        public MapCodec<JewelCraftingRecipe> codec() {
+            return CODEC;
+        }
+
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, JewelCraftingRecipe> streamCodec() {
+            return STREAM_CODEC;
+        }
     }
-    
+
     @Setter
     @Accessors(fluent = true, chain = true)
     public static class Builder extends AbstractRecipeBuilder<JewelCraftingRecipe> {
@@ -176,7 +174,7 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
         public Builder requires(TagKey<Item> pTag) {
             return requires(pTag, 1);
         }
-        
+
         @Override
         public JewelCraftingRecipe buildRecipe() {
             return new JewelCraftingRecipe(ingredients, result);

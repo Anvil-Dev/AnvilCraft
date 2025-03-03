@@ -33,15 +33,6 @@ public class ReinforcedConcreteBlock extends Block {
         this.registerDefaultState(this.stateDefinition.any().setValue(HALF, SINGLE));
     }
 
-    @Override
-    protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(HALF);
-    }
-
-    private boolean checkHalf(BlockState state, ReinforcedConcreteHalf half) {
-        return state.is(this) && state.getValue(HALF) == half;
-    }
-
     /**
      * When piston finished a block movement, this block will receive an NC update where neighborPos is
      * same as pos. So we cannot ignore the update when <code>neighborPos.equals(pos)</code>.
@@ -53,6 +44,15 @@ public class ReinforcedConcreteBlock extends Block {
      */
     private static boolean shouldIgnoreUpdate(BlockPos pos, BlockPos fromPos) {
         return pos.getY() == fromPos.getY() && (pos.getX() != fromPos.getX() || pos.getZ() != fromPos.getZ());
+    }
+
+    @Override
+    protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(HALF);
+    }
+
+    private boolean checkHalf(BlockState state, ReinforcedConcreteHalf half) {
+        return state.is(this) && state.getValue(HALF) == half;
     }
 
     @Override
