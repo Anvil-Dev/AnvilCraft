@@ -156,4 +156,6 @@ public class AnvilCraft {
             false,
             Pack.Position.TOP);
     }
+
+    public static void test_bad_format(){}
 }
