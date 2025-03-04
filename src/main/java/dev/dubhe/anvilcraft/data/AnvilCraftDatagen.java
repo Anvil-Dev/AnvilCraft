@@ -62,19 +62,15 @@ public class AnvilCraftDatagen {
         REGISTRATE.addDataGenerator(ProviderType.RECIPE, RecipeHandler::init);
         REGISTRATE.addDataGenerator(ProviderType.ADVANCEMENT, AdvancementHandler::init);
     }
-
     public static @NotNull Criterion<InventoryChangeTrigger.TriggerInstance> has(ItemLike itemLike) {
         return RegistrateRecipeProvider.has(itemLike);
     }
-
     public static @NotNull Criterion<InventoryChangeTrigger.TriggerInstance> has(TagKey<Item> tag) {
         return RegistrateRecipeProvider.has(tag);
     }
-
     public static @NotNull String hasItem(@NotNull TagKey<Item> item) {
         return "has_" + item.location().getPath();
     }
-
     public static @NotNull String hasItem(@NotNull ItemLike item) {
         return "has_" + BuiltInRegistries.ITEM.getKey(item.asItem()).getPath();
     }
