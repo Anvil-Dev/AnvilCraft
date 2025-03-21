@@ -139,7 +139,7 @@ public class EmberAnvilMenu extends AnvilMenu {
                         Holder<Enchantment> holder = entry.getKey();
                         int enchantmentsOnLeftLevel = enchantmentsOnLeft.getLevel(holder);
                         int enchantmentsOnRightLevel = entry.getIntValue();
-                        enchantmentsOnRightLevel = Math.max(enchantmentsOnRightLevel, enchantmentsOnLeftLevel);
+                        enchantmentsOnRightLevel = enchantmentsOnLeftLevel == enchantmentsOnRightLevel ? enchantmentsOnRightLevel + 1 : Math.max(enchantmentsOnRightLevel, enchantmentsOnLeftLevel);
                         Enchantment enchantment = holder.value();
 
                         for (Holder<Enchantment> holder1 : enchantmentsOnLeft.keySet()) {

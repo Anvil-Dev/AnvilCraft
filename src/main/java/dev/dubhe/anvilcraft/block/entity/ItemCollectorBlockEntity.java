@@ -19,7 +19,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.util.Mth;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -65,11 +64,10 @@ public class ItemCollectorBlockEntity extends BlockEntity
             cd = thiz.get();
             this.setChanged();
         },
-        1,
+        60,
+        10,
         2,
-        5,
-        15,
-        60
+        0
     );
     private int cd = cooldown.get();
 
@@ -96,7 +94,9 @@ public class ItemCollectorBlockEntity extends BlockEntity
 
     @Override
     public int getInputPower() {
-        int power = Mth.floor(30.0 + (15.0 * rangeRadius.get() / cooldown.get()));
+        int[] pList = {2, 3, 5, 8, 12, 20, 32};
+        int tmp = rangeRadius.index() + cooldown.index();
+        int power = pList[tmp];
         if (level == null) return power;
         return getBlockState().getValue(ItemCollectorBlock.POWERED) ? 0 : power;
     }
@@ -112,7 +112,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
     }
 
     @Override
-    public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
+    public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider provider) {
         super.loadAdditional(tag, provider);
         itemHandler.deserializeNBT(provider, tag.getCompound("Inventory"));
         cooldown.fromIndex(tag.getInt("Cooldown"));
@@ -121,7 +121,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
     }
 
     @Override
-    public void saveAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
+    public void saveAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider provider) {
         super.saveAdditional(tag, provider);
         tag.put("Inventory", this.itemHandler.serializeNBT(provider));
         tag.putInt("Cooldown", cooldown.index());
@@ -143,7 +143,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider provider) {
+    public @NotNull CompoundTag getUpdateTag(HolderLookup.@NotNull Provider provider) {
         CompoundTag tag = new CompoundTag();
         tag.put("Inventory", this.itemHandler.serializeNBT(provider));
         tag.putInt("Cooldown", cooldown.index());
@@ -153,14 +153,32 @@ public class ItemCollectorBlockEntity extends BlockEntity
 
     @Override
     public void gridTick() {
-        if (level == null || level.isClientSide) return;
+        if (this.level == null || this.level.isClientSide) return;
+        if (cooldown.get() == 0) return;
         if (cd > 1) {
             cd--;
             return;
         }
         if (!this.isGridWorking()) return;
-        BlockState state = level.getBlockState(getBlockPos());
+        BlockState state = this.level.getBlockState(getBlockPos());
         if (state.hasProperty(ItemCollectorBlock.POWERED) && state.getValue(ItemCollectorBlock.POWERED)) return;
+        collectItems();
+        cd = cooldown.get();
+    }
+
+    public void tick(Level level, BlockPos blockPos) {
+        this.flushState(level, blockPos);
+        if (this.level == null || this.level.isClientSide) return;
+        if (cooldown.get() != 0) return;
+        if (!this.isGridWorking()) return;
+        BlockState state = this.level.getBlockState(getBlockPos());
+        if (state.hasProperty(ItemCollectorBlock.POWERED) && state.getValue(ItemCollectorBlock.POWERED)) return;
+        collectItems();
+        cd = cooldown.get();
+    }
+
+    public void collectItems() {
+        if (level == null || level.isClientSide) return;
         AABB box = AABB.ofSize(
             Vec3.atCenterOf(getBlockPos()),
             rangeRadius.get() * 2.0 + 1,
@@ -180,11 +198,6 @@ public class ItemCollectorBlockEntity extends BlockEntity
                 itemEntity.remove(Entity.RemovalReason.DISCARDED);
             }
         }
-        cd = cooldown.get();
-    }
-
-    public void tick(Level level, BlockPos blockPos) {
-        this.flushState(level, blockPos);
     }
 
     /**

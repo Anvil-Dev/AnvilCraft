@@ -78,7 +78,7 @@ public class ItemTooltipManager {
         map.put(ModBlocks.HEAVY_IRON_TRAPDOOR.asItem(), "Explosion proof");
         map.put(
             ModBlocks.ITEM_COLLECTOR.asItem(),
-            "Adjust power consumption based on range and cooling" + ", from 30kW to 150kW");
+            "Adjust power consumption based on range and cooling" + ", from 2kW to 32kW");
         map.put(ModBlocks.EMBER_ANVIL.asItem(), "Wither proof");
         map.put(ModBlocks.EMBER_GRINDSTONE.asItem(), "Wither proof");
         map.put(ModBlocks.EMBER_SMITHING_TABLE.asItem(), "Wither proof");
