@@ -23,10 +23,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 
 public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowerProducer, IHasAffectRange {
-    private static final int COOLDOWN = 1;
+    private static final int COOLDOWN = 2;
     private static final int DECAY_COOLDOWN = 60;
 
-    private int cooldownCount = 1;
+    private int cooldownCount = 2;
     //注意：这里的decayCooldownCount初始值为1会让机器第一次发电（2秒后）时同时衰变一次空气
     //这是为了防止放下来之后在“发电了”之后，在“衰变空气”之前破坏方块，来稳定白嫖电力
     private int decayCooldownCount = 1;
