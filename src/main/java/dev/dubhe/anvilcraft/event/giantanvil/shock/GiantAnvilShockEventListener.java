@@ -15,6 +15,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -99,8 +100,18 @@ public class GiantAnvilShockEventListener {
                 for (BlockPos pos : it.unwrap().rangePosList()) {
                     BlockState state = level.getBlockState(pos);
                     if (state.getBlock() instanceof AnvilBlock) {
-                        FallingBlockEntity entity = FallingBlockEntity.fall(level, pos, state);
-                        entity.setDeltaMovement(0, 1, 0);
+                        FallingBlockEntity entity = new FallingBlockEntity(
+                            level,
+                            pos.getX() + 0.5,
+                            pos.getY(),
+                            pos.getZ() + 0.5,
+                            state.hasProperty(BlockStateProperties.WATERLOGGED)
+                                ? state.setValue(BlockStateProperties.WATERLOGGED, false)
+                                : state
+                        );
+                        level.setBlock(pos, state.getFluidState().createLegacyBlock(), 3);
+                        entity.setDeltaMovement(0, 0.31, 0);
+                        level.addFreshEntity(entity);
                     }
                 }
                 it.putAttachment(NO_HURT, true);
