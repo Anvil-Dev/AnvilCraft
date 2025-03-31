@@ -16,7 +16,7 @@ public class ExecutionContext<T> {
         attachment.put(key, item);
     }
 
-    public <Ty> Ty getAttachment(String key, Class<Ty> ty) {
+    public <T1> T1 getAttachment(String key, Class<T1> ty) {
         Object item = attachment.get(key);
         if (ty.isInstance(item)) {
             return ty.cast(item);

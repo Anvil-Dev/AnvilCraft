@@ -9,7 +9,7 @@ public class SetTreeNode<T> implements TreeNode<T> {
 
     private final Set<TreeNode<T>> childrens;
 
-    public SetTreeNode(Supplier<Set<TreeNode<T>>> factory){
+    public SetTreeNode(Supplier<Set<TreeNode<T>>> factory) {
         this.childrens = factory.get();
     }
 
@@ -18,7 +18,7 @@ public class SetTreeNode<T> implements TreeNode<T> {
         return true;
     }
 
-    public SetTreeNode<T> then(TreeNode<T> node){
+    public SetTreeNode<T> then(TreeNode<T> node) {
         this.childrens.add(node);
         return this;
     }
@@ -28,7 +28,7 @@ public class SetTreeNode<T> implements TreeNode<T> {
         return childrens;
     }
 
-    public SetTreeNode<T> executes(Consumer<ExecutionContext<T>> consumer){
+    public SetTreeNode<T> executes(Consumer<ExecutionContext<T>> consumer) {
         return then(TreeNode.executes(consumer));
     }
 }
