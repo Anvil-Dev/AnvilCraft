@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.util.StateUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -17,6 +18,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
@@ -35,7 +37,11 @@ public class ClientBlockEventListener {
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void anvilHammerUse(@NotNull PlayerInteractEvent.RightClickBlock event) {
         InteractionHand hand = event.getHand();
-        if (event.getEntity().getItemInHand(hand).getItem() instanceof AnvilHammerItem) {
+        ItemStack itemStack = event.getEntity().getItemInHand(hand);
+        BlockState targetBlockState = event.getLevel().getBlockState(event.getPos());
+        if (itemStack.getItem() instanceof AnvilHammerItem
+            || (itemStack.is(Tags.Items.TOOLS_WRENCH) && targetBlockState.getBlock() instanceof IHammerChangeable)
+        ) {
             if (AnvilHammerItem.ableToUseAnvilHammer(event.getLevel(), event.getPos(), event.getEntity())) {
                 Block b = event.getLevel().getBlockState(event.getPos()).getBlock();
                 if ((b instanceof IHammerRemovable || b.defaultBlockState().is(ModBlockTags.HAMMER_REMOVABLE))
@@ -44,7 +50,6 @@ public class ClientBlockEventListener {
                 ) {
                     return;
                 }
-                BlockState targetBlockState = event.getLevel().getBlockState(event.getPos());
                 if (event.getLevel().isClientSide()) {
                     clientHandle(event, targetBlockState, hand);
                 }
