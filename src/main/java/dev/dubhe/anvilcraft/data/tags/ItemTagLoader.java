@@ -147,7 +147,10 @@ public class ItemTagLoader {
             .add(ModItems.EMBER_METAL_PICKAXE.getKey())
             .add(ModItems.NEUTRONIUM_INGOT.getKey())
             .add(ModItems.STABLE_NEUTRONIUM_INGOT.getKey())
-            .add(ModItems.CHARGED_NEUTRONIUM_INGOT.getKey());
+            .add(ModItems.CHARGED_NEUTRONIUM_INGOT.getKey())
+            .add(ModItems.TRANSCENDIUM_NUGGET.getKey())
+            .add(ModItems.TRANSCENDIUM_INGOT.getKey())
+            .add(findResourceKey(ModBlocks.TRANSCENDIUM_BLOCK.asItem()));
     }
 
     private static ResourceKey<Item> findResourceKey(Item item) {

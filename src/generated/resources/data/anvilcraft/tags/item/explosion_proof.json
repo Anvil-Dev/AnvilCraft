@@ -23,6 +23,9 @@
     "anvilcraft:ember_metal_pickaxe",
     "anvilcraft:neutronium_ingot",
     "anvilcraft:stable_neutronium_ingot",
-    "anvilcraft:charged_neutronium_ingot"
+    "anvilcraft:charged_neutronium_ingot",
+    "anvilcraft:transcendium_nugget",
+    "anvilcraft:transcendium_ingot",
+    "anvilcraft:transcendium_block"
   ]
 }

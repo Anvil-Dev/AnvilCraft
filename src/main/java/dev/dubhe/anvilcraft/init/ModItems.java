@@ -1772,6 +1772,38 @@ public class ModItems {
         .properties((properties) -> properties.stacksTo(1))
         .register();
 
+    public static final ItemEntry<Item> TRANSCENDIUM_NUGGET = REGISTRATE
+        .item("transcendium_nugget", Item::new)
+        .properties(Item.Properties::fireResistant)
+        .tag(Tags.Items.NUGGETS)
+        .recipe((ctx, provider) -> {
+            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+                .requires(ModItems.TRANSCENDIUM_INGOT)
+                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModItems.TRANSCENDIUM_INGOT))
+                .save(provider);
+        })
+        .register();
+
+    public static final ItemEntry<Item> TRANSCENDIUM_INGOT = REGISTRATE
+        .item("transcendium_ingot", Item::new)
+        .properties(Item.Properties::fireResistant)
+        .tag(Tags.Items.INGOTS)
+        .recipe((ctx, provider) -> {
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItems.TRANSCENDIUM_NUGGET)
+                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModItems.TRANSCENDIUM_NUGGET))
+                .save(provider, "shaped/transcendium_ingot_from_transcendium_nugget");
+
+            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+                .requires(ModBlocks.TRANSCENDIUM_BLOCK)
+                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.TRANSCENDIUM_BLOCK))
+                .save(provider, "shapeless/transcendium_ingot_from_transcendium_block");
+        })
+        .register();
+
     public static final ItemEntry<BucketItem> OIL_BUCKET = REGISTRATE
         .item("oil_bucket", p -> new BucketItem(ModFluids.OIL.get(), p))
         .tag(ModItemTags.BUCKETS,

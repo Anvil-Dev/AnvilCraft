@@ -67,6 +67,7 @@ public class ModBlockTags {
     public static final TagKey<Block> STORAGE_BLOCKS_RUBY = bindC("storage_blocks/ruby");
     public static final TagKey<Block> STORAGE_BLOCKS_AMBER = bindC("storage_blocks/amber");
     public static final TagKey<Block> STORAGE_BLOCKS_RESIN = bindC("storage_blocks/resin");
+    public static final TagKey<Block> STORAGE_BLOCKS_TRANSCENDIUM = bindC("storage_blocks/transcendium");
 
     public static final TagKey<Block> INCORRECT_FOR_AMETHYST_TOOL = bind("incorrect_for_amethyst_tool");
     public static final TagKey<Block> INCORRECT_FOR_EMBER_TOOL = bind("incorrect_for_ember_tool");

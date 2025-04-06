@@ -51,6 +51,7 @@ import dev.dubhe.anvilcraft.block.HeavyIronWallBlock;
 import dev.dubhe.anvilcraft.block.HeliostatsBlock;
 import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
 import dev.dubhe.anvilcraft.block.HoneyCauldronBlock;
+import dev.dubhe.anvilcraft.block.ITranscendiumBlock;
 import dev.dubhe.anvilcraft.block.ImpactPileBlock;
 import dev.dubhe.anvilcraft.block.IncandescentMetalBlock;
 import dev.dubhe.anvilcraft.block.InductionLightBlock;
@@ -99,6 +100,7 @@ import dev.dubhe.anvilcraft.block.StepEffectStairBlock;
 import dev.dubhe.anvilcraft.block.SupercriticalNestingShulkerBoxBlock;
 import dev.dubhe.anvilcraft.block.TeslaTowerBlock;
 import dev.dubhe.anvilcraft.block.ThermoelectricConverterBlock;
+import dev.dubhe.anvilcraft.block.TranscendiumBlock;
 import dev.dubhe.anvilcraft.block.TransmissionPoleBlock;
 import dev.dubhe.anvilcraft.block.TransparentCraftingTableBlock;
 import dev.dubhe.anvilcraft.block.VoidEnergyCollectorBlock;
@@ -4136,6 +4138,33 @@ public class ModBlocks {
             .strength(100.0F)
         )
         .blockstate(ModelProviderUtil::liquid)
+        .register();
+
+    public static final BlockEntry<? extends ITranscendiumBlock> TRANSCENDIUM_BLOCK = REGISTRATE
+        .block("transcendium_block", TranscendiumBlock::new)
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .tag(Tags.Blocks.STORAGE_BLOCKS,
+            ModBlockTags.STORAGE_BLOCKS_TRANSCENDIUM,
+            BlockTags.MINEABLE_WITH_PICKAXE,
+            Tags.Blocks.NEEDS_NETHERITE_TOOL,
+            BlockTags.WITHER_IMMUNE,
+            BlockTags.DRAGON_IMMUNE)
+        .blockstate((ctx, provider) -> {
+            provider.simpleBlock(ctx.get(), provider.models().getExistingFile(provider.modLoc("block/transcendium_block")));
+        })
+        .item()
+        .properties(Item.Properties::fireResistant)
+        .tag(Tags.Items.STORAGE_BLOCKS, ModItemTags.STORAGE_BLOCKS_TRANSCENDIUM)
+        .build()
+        .recipe((ctx, provider) -> {
+            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItems.TRANSCENDIUM_INGOT)
+                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModItems.TRANSCENDIUM_INGOT))
+                .save(provider);
+        })
         .register();
 
     static {
