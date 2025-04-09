@@ -1,10 +1,12 @@
 package dev.dubhe.anvilcraft.event.giantanvil.shock;
 
 import dev.dubhe.anvilcraft.init.ModBlockTags;
+import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -14,9 +16,15 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CocoaBlock;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.block.NetherWartBlock;
+import net.minecraft.world.level.block.PitcherCropBlock;
 import net.minecraft.world.level.block.SweetBerryBushBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.block.state.properties.Half;
 
+import java.util.ArrayList;
 import java.util.List;
 
 enum DestroyType {
@@ -50,18 +58,8 @@ enum DestroyType {
         }
 
         private static boolean isFellingApplicableBlock(BlockState blockState) {
-            return blockState.is(BlockTags.LOGS)
-                || (blockState.is(BlockTags.LEAVES) && !blockState.getValue(LeavesBlock.PERSISTENT))
-                || blockState.is(Blocks.MANGROVE_ROOTS)
-                || blockState.is(ModBlockTags.MUSHROOM_BLOCK)
-                || blockState.is(BlockTags.WART_BLOCKS)
-                || blockState.is(Blocks.SHROOMLIGHT)
-                || blockState.is(Blocks.MUSHROOM_STEM)
-                || blockState.is(Blocks.SUGAR_CANE)
-                || blockState.is(Blocks.BAMBOO_BLOCK)
-                || blockState.is(Blocks.CHORUS_PLANT)
-                || blockState.is(Blocks.CHORUS_FLOWER)
-                || blockState.is(BlockTags.BEEHIVES);
+            return (blockState.is(BlockTags.LEAVES) && !blockState.getValue(LeavesBlock.PERSISTENT))
+                || blockState.is(ModBlockTags.FELLING_APPLICABLE);
         }
     }, HARVESTING {
         @Override
@@ -74,6 +72,11 @@ enum DestroyType {
                 if (state.getBlock() instanceof CropBlock cropBlock && cropBlock.isMaxAge(state)) {
                     Block.dropResources(state, level, destroyLayer);
                     level.setBlockAndUpdate(destroyLayer, cropBlock.getStateForAge(0));
+                    continue;
+                }
+                if (state.is(Blocks.NETHER_WART_BLOCK) && state.getValue(NetherWartBlock.AGE) == 3) {
+                    Block.dropResources(state, level, destroyLayer);
+                    level.setBlockAndUpdate(destroyLayer, state.setValue(NetherWartBlock.AGE, 0));
                     continue;
                 }
                 if (state.is(Blocks.SWEET_BERRY_BUSH) && state.getValue(SweetBerryBushBlock.AGE) >= 2) {
@@ -92,7 +95,7 @@ enum DestroyType {
                             BlockState blockState = level.getBlockState(it);
                             if (blockState.is(Blocks.COCOA) && blockState.getValue(CocoaBlock.AGE) == 2) {
                                 List<ItemStack> itemStack = mode.apply(blockState, it, context);
-                                level.setBlockAndUpdate(it, Blocks.AIR.defaultBlockState());
+                                level.setBlockAndUpdate(it, blockState.setValue(CocoaBlock.AGE, 0));
                                 DestroyType.dropItems(itemStack, it, level);
                                 return true;
                             }
@@ -102,6 +105,38 @@ enum DestroyType {
                             return false;
                         }
                     );
+                }
+                if (state.is(Blocks.MELON) || state.is(Blocks.PUMPKIN)) {
+                    List<ItemStack> itemStack = mode.apply(state, pos, context);
+                    DestroyType.dropItems(itemStack, pos, level);
+                    level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
+                }
+                if (state.is(Blocks.PITCHER_CROP) && state.getValue(PitcherCropBlock.AGE) == 4) {
+                    List<ItemStack> itemStack = new ArrayList<>();
+                    if (state.getValue(PitcherCropBlock.HALF) == DoubleBlockHalf.UPPER) {
+                        level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS, 0);
+                        level.setBlock(pos.below(), Blocks.PITCHER_CROP.defaultBlockState(), Block.UPDATE_CLIENTS, 0);
+                        itemStack = mode.apply(
+                            state.setValue(PitcherCropBlock.HALF, DoubleBlockHalf.LOWER),
+                            pos.below(),
+                            context
+                        );
+                    }
+                    if (state.getValue(PitcherCropBlock.HALF) == DoubleBlockHalf.LOWER) {
+                        level.setBlock(pos.above(), Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS, 0);
+                        level.setBlock(pos, Blocks.PITCHER_CROP.defaultBlockState(), Block.UPDATE_CLIENTS, 0);
+                        itemStack = mode.apply(
+                            state.setValue(PitcherCropBlock.HALF, DoubleBlockHalf.LOWER),
+                            pos,
+                            context
+                        );
+                    }
+                    DestroyType.dropItems(itemStack, pos, level);
+                }
+                if (state.is(Blocks.TORCHFLOWER)) {
+                    List<ItemStack> itemStack = mode.apply(state, pos.below(), context);
+                    level.setBlockAndUpdate(pos, Blocks.TORCHFLOWER_CROP.defaultBlockState());
+                    DestroyType.dropItems(itemStack, pos, level);
                 }
                 boolean found = false;
                 for (int i = 0; i < 2; i++) {
@@ -143,15 +178,7 @@ enum DestroyType {
             for (BlockPos pos : list) {
                 BlockState state = level.getBlockState(pos);
                 if (state.isAir()) continue;
-                if (state.is(Blocks.GRASS_BLOCK)
-                    || state.is(Blocks.TALL_GRASS)
-                    || state.is(Blocks.SHORT_GRASS)
-                    || state.is(Blocks.FERN)
-                    || state.is(Blocks.LARGE_FERN)
-                    || state.is(BlockTags.FLOWERS)
-                    || state.is(Blocks.DEAD_BUSH)
-                    || state.getBlock() instanceof CropBlock
-                ) {
+                if (state.getBlock() instanceof CropBlock || state.is(ModBlockTags.CLEANING_APPLICABLE)) {
                     List<ItemStack> drops = mode.apply(state, pos, context, TOOL);
                     DestroyType.dropItems(drops, pos, level);
                     level.destroyBlock(pos, false);
@@ -165,12 +192,8 @@ enum DestroyType {
             for (BlockPos pos : list) {
                 BlockState state = level.getBlockState(pos);
                 if (state.isAir()) continue;
-                if (state.is(Blocks.BEDROCK)
-                    || state.is(Blocks.REINFORCED_DEEPSLATE)
-                    || state.is(Blocks.END_GATEWAY)
-                    || state.is(Blocks.END_PORTAL)
-                    || state.is(Blocks.END_PORTAL_FRAME)
-                ) continue;
+                if (pos.distSqr(context.centerPos().above()) <= 2) continue;
+                if (state.getBlock().defaultDestroyTime() < 0) continue;
                 List<ItemStack> drops = mode.apply(state, pos, context);
                 DestroyType.dropItems(drops, pos, level);
                 level.destroyBlock(pos, false);
