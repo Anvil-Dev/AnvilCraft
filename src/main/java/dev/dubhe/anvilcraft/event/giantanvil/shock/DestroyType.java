@@ -13,6 +13,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CaveVinesPlantBlock;
 import net.minecraft.world.level.block.CocoaBlock;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.LeavesBlock;
@@ -154,12 +155,14 @@ enum DestroyType {
                         VISIT_LIMIT,
                         (it, c) -> c.accept(it.below()),
                         it -> {
-                            if (it.getY() < pos.getY()) return false;
+                            if (it.getY() > pos.getY()) return false;
                             BlockState blockState = level.getBlockState(it);
                             if (blockState.is(Blocks.CAVE_VINES) || blockState.is(Blocks.CAVE_VINES_PLANT)) {
                                 List<ItemStack> itemStack = mode.apply(blockState, it, context);
-                                level.setBlockAndUpdate(it, Blocks.AIR.defaultBlockState());
-                                DestroyType.dropItems(itemStack, it, level);
+                                if (blockState.hasProperty(CaveVinesPlantBlock.BERRIES)) {
+                                    level.setBlockAndUpdate(it, blockState.setValue(CaveVinesPlantBlock.BERRIES, false));
+                                    DestroyType.dropItems(itemStack, it, level);
+                                }
                                 return true;
                             }
                             return false;
