@@ -18,6 +18,7 @@ import dev.dubhe.anvilcraft.network.SlotFilterChangePacket;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
@@ -52,14 +53,12 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import static dev.dubhe.anvilcraft.block.ChuteBlock.ENABLED;
-import static dev.dubhe.anvilcraft.block.ChuteBlock.hasChuteFacing;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerRotateBehavior, IHammerRemovable {
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
-    public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
+    public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
 
     public static final VoxelShape SHAPE_UP =
         Shapes.join(Block.box(4, 8, 4, 12, 16, 12), Block.box(0, 0, 0, 16, 8, 16), BooleanOp.OR);
@@ -82,7 +81,7 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
     public MagneticChuteBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(
-            this.stateDefinition.any().setValue(FACING, Direction.DOWN).setValue(POWERED, false));
+            this.stateDefinition.any().setValue(FACING, Direction.DOWN).setValue(ENABLED, true));
     }
 
     @Override
@@ -123,12 +122,7 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
     }
 
     @Override
-    public void onRemove(
-        BlockState state,
-        Level level,
-        BlockPos pos,
-        BlockState newState,
-        boolean movedByPiston) {
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (!state.is(newState.getBlock())) {
             if (level.getBlockEntity(pos) instanceof BaseChuteBlockEntity entity) {
                 Vec3 vec3 = entity.getBlockPos().getCenter();
@@ -139,77 +133,48 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
                 level.updateNeighbourForOutputSignal(pos, this);
             }
         }
-        BlockState facingState = level.getBlockState(pos.relative(state.getValue(FACING)));
-        if (facingState.is(ModBlocks.SIMPLE_CHUTE.get())
-            && !newState.is(ModBlocks.SIMPLE_CHUTE.get())
-            && !hasChuteFacing(level, pos.relative(state.getValue(FACING)))) {
-            BlockState newBlockState = ModBlocks.CHUTE.getDefaultState();
-            newBlockState = newBlockState
-                .setValue(ChuteBlock.FACING, facingState.getValue(SimpleChuteBlock.FACING))
-                .setValue(ENABLED, facingState.getValue(SimpleChuteBlock.ENABLED));
-            level.setBlockAndUpdate(pos.relative(state.getValue(FACING)), newBlockState);
-        }
-        BlockState downState = level.getBlockState(pos.relative(Direction.DOWN));
-
-        if (state.getValue(FACING) == Direction.DOWN
-            && downState.is(ModBlocks.SIMPLE_CHUTE.get())
-            && !newState.is(ModBlocks.SIMPLE_CHUTE.get())) {
-            BlockState newBlockState = ModBlocks.SIMPLE_CHUTE.getDefaultState();
-            newBlockState = newBlockState
-                .setValue(ChuteBlock.FACING, downState.getValue(determineProperty(downState)))
-                .setValue(ENABLED, downState.getValue(ENABLED))
-                .setValue(SimpleChuteBlock.TALL, false);
-            level.setBlockAndUpdate(pos.relative(Direction.DOWN), newBlockState);
-        }
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
-    public static DirectionProperty determineProperty(BlockState blockState) {
-        if (blockState.is(ModBlocks.CHUTE) || blockState.is(ModBlocks.SIMPLE_CHUTE)) {
-            return ChuteBlock.FACING;
-        }
-        return FACING;
+    @Override
+    public boolean hasAnalogOutputSignal(BlockState blockState) {
+        return true;
     }
 
     @Override
-    public void onPlace(
-        BlockState state,
-        Level level,
-        BlockPos pos,
-        BlockState oldState,
-        boolean movedByPiston) {
-        BlockState facingState = level.getBlockState(pos.relative(state.getValue(FACING)));
-        if (facingState.is(ModBlocks.CHUTE.get()) || facingState.is(ModBlocks.SIMPLE_CHUTE.get())) {
-            if (facingState.getValue(ChuteBlock.FACING).getOpposite() == state.getValue(FACING)) {
-                level.destroyBlock(pos, true);
-                return;
-            }
-            BlockState newState = ModBlocks.SIMPLE_CHUTE.getDefaultState();
-            newState = newState.setValue(SimpleChuteBlock.FACING, facingState.getValue(ChuteBlock.FACING))
-                .setValue(SimpleChuteBlock.ENABLED, facingState.getValue(SimpleChuteBlock.ENABLED));
-            if (facingState.hasProperty(SimpleChuteBlock.TALL))
-                newState = newState.setValue(SimpleChuteBlock.TALL, facingState.getValue(SimpleChuteBlock.TALL));
-            BlockState facingUpState =
-                level.getBlockState(pos.relative(state.getValue(FACING)).relative(Direction.UP));
-            if (state.getValue(FACING) == Direction.DOWN || isFacingDownChute(facingUpState)) {
-                newState = newState.setValue(SimpleChuteBlock.TALL, true);
-            } else {
-                newState = newState.setValue(SimpleChuteBlock.TALL, false);
-            }
-            level.setBlockAndUpdate(pos.relative(state.getValue(FACING)), newState);
+    public int getAnalogOutputSignal(BlockState blockState, Level level, BlockPos blockPos) {
+        BlockEntity blockEntity = level.getBlockEntity(blockPos);
+        if (blockEntity instanceof MagneticChuteBlockEntity magneticChuteBlockEntity) {
+            return magneticChuteBlockEntity.getRedstoneSignal();
         }
-        super.onPlace(state, level, pos, oldState, movedByPiston);
+        return 0;
     }
 
+    @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
+        Level level = context.getLevel();
+        BlockPos pos = context.getClickedPos();
+        Player player = context.getPlayer();
         Direction facing = context.getNearestLookingDirection();
         if (context.getPlayer() != null && context.getPlayer().isShiftKeyDown()) {
             facing = facing.getOpposite();
         }
-        return this.defaultBlockState()
+        BlockState result = this.defaultBlockState()
             .setValue(FACING, facing)
-            .setValue(POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()));
+            .setValue(ENABLED, !context.getLevel().hasNeighborSignal(context.getClickedPos()));
+        if (facing == Direction.UP) {
+            BlockState neighborState = level.getBlockState(pos.relative(facing));
+            if ((neighborState.is(ModBlocks.SIMPLE_CHUTE)
+                || neighborState.is(ModBlocks.CHUTE))
+                && neighborState.getValue(FACING_HOPPER) == Direction.DOWN) {
+                if (player != null) {
+                    player.displayClientMessage(Component.translatable("message.anvilcraft.chute.cannot_place"), true);
+                }
+                return null;
+            }
+        }
+        return result;
     }
 
 
@@ -226,19 +191,19 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, POWERED);
+        builder.add(FACING, ENABLED);
     }
 
     @Override
-    public void neighborChanged(
-        BlockState state,
-        Level level,
-        BlockPos pos,
-        Block neighborBlock,
-        BlockPos neighborPos,
-        boolean movedByPiston
-    ) {
-        level.setBlock(pos, state.setValue(POWERED, level.hasNeighborSignal(pos)), 2);
+    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving) {
+        this.checkPoweredState(level, pos, state);
+    }
+
+    private void checkPoweredState(Level level, BlockPos pos, BlockState state) {
+        boolean flag = !level.hasNeighborSignal(pos);
+        if (flag != state.getValue(ENABLED)) {
+            level.setBlock(pos, state.setValue(ENABLED, flag), 2);
+        }
     }
 
     @Override
@@ -285,19 +250,5 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
             }
         }
         return InteractionResult.SUCCESS;
-    }
-
-    /**
-     * 是朝下的溜槽
-     */
-    public static boolean isFacingDownChute(BlockState blockState) {
-        if (!blockState.is(ModBlocks.MAGNETIC_CHUTE.get())
-            && !blockState.is(ModBlocks.SIMPLE_CHUTE.get())
-            && !blockState.is(ModBlocks.CHUTE.get())) {
-            return false;
-        }
-        if (blockState.is(ModBlocks.SIMPLE_CHUTE.get()) || blockState.is(ModBlocks.CHUTE.get()))
-            return blockState.getValue(ChuteBlock.FACING) == Direction.DOWN;
-        return blockState.getValue(FACING) == Direction.DOWN;
     }
 }

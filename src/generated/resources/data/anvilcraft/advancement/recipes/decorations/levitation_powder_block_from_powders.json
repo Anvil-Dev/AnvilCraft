@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_levitation_powder": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:levitation_powder"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:levitation_powder_block_from_powders"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_levitation_powder"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:levitation_powder_block_from_powders"
+    ]
+  }
+}

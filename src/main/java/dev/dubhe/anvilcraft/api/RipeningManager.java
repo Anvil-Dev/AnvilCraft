@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.api;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.InductionLightBlock;
-import dev.dubhe.anvilcraft.block.state.LightColor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.MinecraftServer;
@@ -49,14 +48,6 @@ public class RipeningManager {
 
     public static void tickAll() {
         INSTANCES.values().forEach(RipeningManager::tick);
-    }
-
-    private static boolean isLit(@NotNull BlockState state) {
-        return !(state.getValue(InductionLightBlock.POWERED) || state.getValue(InductionLightBlock.OVERLOAD));
-    }
-
-    private static boolean canCropGrow(@NotNull BlockState state) {
-        return state.getValue(InductionLightBlock.COLOR).equals(LightColor.PINK);
     }
 
     private void doRipen(@NotNull BlockPos pos, @NotNull HashSet<BlockPos> ripened) {
@@ -122,8 +113,8 @@ public class RipeningManager {
                     BlockPos pos = it.next();
                     BlockState lightBlockState = level.getBlockState(pos);
                     if (lightBlockState.getBlock() instanceof InductionLightBlock
-                        && isLit(lightBlockState)
-                        && canCropGrow(lightBlockState)
+                        && InductionLightBlock.isLit(lightBlockState)
+                        && InductionLightBlock.canCropGrow(lightBlockState)
                     ) {
                         doRipen(pos, ripenedBlocks);
                     } else {

@@ -1,0 +1,37 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "anvilcraft:levitation_powder"
+    },
+    {
+      "item": "anvilcraft:levitation_powder"
+    },
+    {
+      "item": "anvilcraft:levitation_powder"
+    },
+    {
+      "item": "anvilcraft:levitation_powder"
+    },
+    {
+      "item": "anvilcraft:levitation_powder"
+    },
+    {
+      "item": "anvilcraft:levitation_powder"
+    },
+    {
+      "item": "anvilcraft:levitation_powder"
+    },
+    {
+      "item": "anvilcraft:levitation_powder"
+    },
+    {
+      "item": "anvilcraft:levitation_powder"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:levitation_powder_block"
+  }
+}

@@ -46,6 +46,7 @@ import dev.dubhe.anvilcraft.item.SuperHeavyItem;
 import dev.dubhe.anvilcraft.item.TopazItem;
 import dev.dubhe.anvilcraft.item.UtusanItem;
 import dev.dubhe.anvilcraft.item.amulet.AbstractAmuletItem;
+import dev.dubhe.anvilcraft.item.amulet.AmuletBoxItem;
 import dev.dubhe.anvilcraft.item.amulet.AnvilAmuletItem;
 import dev.dubhe.anvilcraft.item.amulet.CatAmuletItem;
 import dev.dubhe.anvilcraft.item.amulet.ComradeAmuletItem;
@@ -512,12 +513,12 @@ public class ModItems {
         })
         .register();
 
-    public static final ItemEntry<Item> AMULET_BOX =
-        REGISTRATE.item("amulet_box", Item::new)
-            .properties((properties) -> properties.stacksTo(1))
-            .register();
+    public static final ItemEntry<AmuletBoxItem> AMULET_BOX = REGISTRATE
+        .item("amulet_box", AmuletBoxItem::new)
+        .properties((properties) -> properties.stacksTo(1))
+        .register();
 
-    public static <T extends AbstractAmuletItem> ItemEntry<T> createAmuletItem(
+    private static <T extends AbstractAmuletItem> ItemEntry<T> createAmuletItem(
         String type, NonNullFunction<Item.Properties, T> factory,
         NonNullConsumer<JewelCraftingRecipe.Builder> builderConsumer
     ) {
@@ -527,13 +528,12 @@ public class ModItems {
             .tag(ModItemTags.AMULET)
             .recipe((ctx, provider) -> {
                 JewelCraftingRecipe.Builder builder = JewelCraftingRecipe.builder()
-                    .requires(ModBlocks.SILVER_BLOCK, 4);
+                    .requires(ModItems.SILVER_INGOT, 1)
+                    .result(new ItemStack(ctx.get()));
 
                 builderConsumer.accept(builder);
 
-                builder.requires(ModItems.ROYAL_STEEL_INGOT)
-                    .result(new ItemStack(ctx.get()))
-                    .save(provider);
+                builder.save(provider);
             })
             .register();
     }
@@ -563,11 +563,6 @@ public class ModItems {
             "anvil", AnvilAmuletItem::new,
             builder -> builder.requires(Items.ANVIL)
         );
-    //public static final ItemEntry<CogwheelAmuletItem> COGWHEEL_AMULET =
-    //    createAmuletItem(
-    //        "cogwheel", CogwheelAmuletItem::new,
-    //        builder -> builder.requires(AllItems.PRECISION_MECHANISM, 16)
-    //    );
     public static final ItemEntry<ComradeAmuletItem> COMRADE_AMULET =
         createAmuletItem(
             "comrade", ComradeAmuletItem::new,
@@ -1560,7 +1555,17 @@ public class ModItems {
         REGISTRATE.item("lime_powder", Item::new).register();
 
     public static final ItemEntry<LevitationPowderItem> LEVITATION_POWDER =
-        REGISTRATE.item("levitation_powder", LevitationPowderItem::new).register();
+        REGISTRATE
+            .item("levitation_powder", LevitationPowderItem::new)
+            .recipe((ctx, provider) -> {
+                ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+                    .requires(ModBlocks.LEVITATION_POWDER_BLOCK)
+                    .unlockedBy(
+                        AnvilCraftDatagen.hasItem(ModBlocks.LEVITATION_POWDER_BLOCK),
+                        AnvilCraftDatagen.has(ModBlocks.LEVITATION_POWDER_BLOCK))
+                    .save(provider, ctx.getId().withSuffix("_from_block"));
+            })
+            .register();
 
     public static final ItemEntry<Item> RAW_ZINC = REGISTRATE
         .item("raw_zinc", Item::new)

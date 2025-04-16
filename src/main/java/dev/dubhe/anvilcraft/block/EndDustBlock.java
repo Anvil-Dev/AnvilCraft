@@ -10,7 +10,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -40,13 +39,9 @@ public class EndDustBlock extends Block {
         BlockPos pos,
         RandomSource random
     ) {
-        boolean isWater = level.getFluidState(pos.above()).is(FluidTags.WATER);
-        if (
-            (isWater && FallingBlock.isFree(level.getBlockState(pos.above())))
-                || level.getBlockState(pos.above()).getBlock() instanceof FallingBlock
-        ) {
-            FloatingBlockEntity._float(level, pos, state, isWater);
-        }
+        if (!level.getFluidState(pos.above()).is(FluidTags.WATER)) return;
+        if (!FallingBlock.isFree(level.getBlockState(pos.above()))) return;
+        FloatingBlockEntity._float(level, pos, state);
     }
 
     @Override
@@ -58,17 +53,12 @@ public class EndDustBlock extends Block {
         BlockPos neighborPos,
         boolean movedByPiston
     ) {
-        if (isEligible(level, pos, neighborPos)) {
+        if (level.getFluidState(neighborPos).is(FluidTags.WATER)) {
             level.scheduleTick(pos, this, this.getDelayAfterPlace());
         }
     }
 
     protected int getDelayAfterPlace() {
         return 2;
-    }
-
-    public static boolean isEligible(Level level, @NotNull BlockPos pos, @NotNull BlockPos neighborPos) {
-        return level.getFluidState(neighborPos).is(FluidTags.WATER)
-            || level.getBlockState(pos.above()).getBlock() instanceof FallingBlock;
     }
 }

@@ -11,7 +11,7 @@
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:polished_heavy_iron_block"
+            "items": "anvilcraft:cut_heavy_iron_block"
           }
         ]
       },

@@ -38,5 +38,9 @@ public class ItemTooltipLang {
         provider.add("tooltip.anvilcraft.heliostats.adjacent_heliostats", "Adjacent heliostats detected.");
 
         provider.add("item.anvilcraft.ionocraft_backpack.flight_time", "Flight Time: %ds");
+
+        provider.add("tooltip.anvilcraft.item.amulet_box.line_1", "Right click to store the Totems of Undying on your inventory, and shift-right-click to retrieve the totems;");
+        provider.add("tooltip.anvilcraft.item.amulet_box.line_2", "When holding, consume the totems in the box when needed, and after consuming the totem, you may receive a secret gift.");
+        provider.add("tooltip.anvilcraft.item.amulet_box.totem_count", "Totem count: %d");
     }
 }

@@ -1,0 +1,8 @@
+{
+  "net/minecraft/world/level/block/RedStoneWireBlock": [
+    "dev/dubhe/anvilcraft/api/injection/tooltip/IInjectedTooltipProducer"
+  ],
+  "net/minecraft/world/level/block/entity/ComparatorBlockEntity": [
+    "dev/dubhe/anvilcraft/api/injection/tooltip/IInjectedTooltipProducer"
+  ]
+}

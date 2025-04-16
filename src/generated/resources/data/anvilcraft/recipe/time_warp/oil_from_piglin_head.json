@@ -1,0 +1,11 @@
+{
+  "type": "anvilcraft:time_warp",
+  "cauldron": "anvilcraft:oil_cauldron",
+  "consume_fluid": false,
+  "ingredients": [
+    {
+      "item": "minecraft:piglin_head"
+    }
+  ],
+  "produce_fluid": true
+}

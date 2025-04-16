@@ -46,6 +46,16 @@ public class ItemCrushRecipeLoader {
             .result(ChanceItemStack.of(new ItemStack(ModItems.PRISMARINE_BLADE.asItem())).withChance(0.15f))
             .save(provider);
 
+        ItemCrushRecipe.builder()
+            .requires(Items.CREEPER_HEAD)
+            .result(Items.GUNPOWDER, 64)
+            .save(provider);
+
+        ItemCrushRecipe.builder()
+            .requires(Items.SKELETON_SKULL)
+            .result(Items.BONE_MEAL, 64)
+            .save(provider);
+
         armor(provider, Items.CHAINMAIL_HELMET, Items.CHAIN);
         armor(provider, Items.CHAINMAIL_CHESTPLATE, Items.CHAIN);
         armor(provider, Items.CHAINMAIL_LEGGINGS, Items.CHAIN);

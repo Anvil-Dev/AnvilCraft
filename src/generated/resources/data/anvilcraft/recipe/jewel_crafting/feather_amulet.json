@@ -2,16 +2,7 @@
   "type": "anvilcraft:jewel_crafting",
   "ingredients": [
     {
-      "item": "anvilcraft:silver_block"
-    },
-    {
-      "item": "anvilcraft:silver_block"
-    },
-    {
-      "item": "anvilcraft:silver_block"
-    },
-    {
-      "item": "anvilcraft:silver_block"
+      "item": "anvilcraft:silver_ingot"
     },
     {
       "item": "minecraft:feather"
@@ -72,9 +63,6 @@
     },
     {
       "item": "minecraft:phantom_membrane"
-    },
-    {
-      "item": "anvilcraft:royal_steel_ingot"
     }
   ],
   "result": {

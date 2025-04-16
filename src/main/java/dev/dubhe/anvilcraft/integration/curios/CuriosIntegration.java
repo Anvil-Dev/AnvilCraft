@@ -8,6 +8,8 @@ import dev.dubhe.anvilcraft.integration.curios.renderer.GogglesCurioRenderer;
 import dev.dubhe.anvilcraft.integration.curios.renderer.IonoCraftBackpackCurioRenderer;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import dev.dubhe.anvilcraft.item.IonoCraftBackpackItem;
+import dev.dubhe.anvilcraft.util.AmuletUtil;
+import dev.dubhe.anvilcraft.util.InventoryUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.world.item.ItemStack;
@@ -39,6 +41,20 @@ public class CuriosIntegration {
         IonoCraftBackpackItem.addStackProvider(player ->
             CuriosApi.getCuriosInventory(player).map(this::getIonoCraftBackpackWearing).orElse(ItemStack.EMPTY)
         );
+        InventoryUtil.compatConsumer = InventoryUtil.compatConsumer.andThen(
+            (items, living) -> CuriosApi.getCuriosInventory(living).ifPresent(
+                handler -> handler.findCurios(stack -> true)
+                    .forEach(result -> items.add(result.stack()))
+            )
+        );
+        AmuletUtil.hasAmuletInInventory = AmuletUtil.hasAmuletInInventory.or((player, type) -> {
+            if (CuriosApi.getCuriosInventory(player).isPresent()) {
+                return CuriosApi.getCuriosInventory(player).get()
+                    .isEquipped(type.getEntry().asItem());
+            }
+
+            return false;
+        });
         if (ModList.get().isLoaded("create")) {
             GogglesItem.addIsWearingPredicate(player ->
                 CuriosApi.getCuriosInventory(player).map(this::isAnvilHammerWearing).orElse(false)

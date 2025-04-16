@@ -93,6 +93,7 @@ public abstract class HasMobBlockEntity extends BlockEntity {
     }
 
     private void getEntity(Level level) {
+        if (this.entity == null) return;
         Optional<EntityType<?>> optional = EntityType.by(this.entity);
         if (optional.isEmpty()) return;
         EntityType<?> type = optional.get();

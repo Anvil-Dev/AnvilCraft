@@ -9,9 +9,12 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
@@ -53,7 +56,12 @@ public class GuiLayerRegistrationEventListener {
                 BlockPos blockPos = ((BlockHitResult) hit).getBlockPos();
                 if (minecraft.level == null) return;
                 BlockEntity e = minecraft.level.getBlockEntity(blockPos);
-                if (e == null) return;
+                if (e == null) {
+                    BlockState s = minecraft.level.getBlockState(blockPos);
+                    if (s.is(BlockTags.AIR)) return;
+                    HudTooltipManager.INSTANCE.renderTooltip(guiGraphics, s, partialTick, screenWidth, screenHeight);
+                    return;
+                }
                 HudTooltipManager.INSTANCE.renderTooltip(guiGraphics, e, partialTick, screenWidth, screenHeight);
             }
         });

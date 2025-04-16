@@ -16,12 +16,13 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+
+import static dev.dubhe.anvilcraft.util.ItemHandlerUtil.getTargetItemHandler;
 
 @Getter
 public class SimpleChuteBlockEntity extends BlockEntity implements IItemHandlerHolder {
@@ -58,12 +59,11 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemHandlerH
     public void tick() {
         if (cooldown <= 0) {
             if (getBlockState().getValue(SimpleChuteBlock.ENABLED)) {
-                IItemHandler target = getLevel()
-                    .getCapability(
-                        Capabilities.ItemHandler.BLOCK,
-                        getBlockPos().relative(getDirection()),
-                        getDirection().getOpposite()
-                    );
+                IItemHandler target = getTargetItemHandler(
+                    getBlockPos().relative(getOutputDirection()),
+                    getOutputDirection().getOpposite(),
+                    level
+                );
                 if (target != null) {
                     // 尝试向朝向容器输出
                     ItemHandlerUtil.exportToTarget(this.itemHandler, 64, stack -> true, target);
@@ -141,5 +141,9 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemHandlerH
             ++i;
         }
         return i;
+    }
+
+    protected Direction getOutputDirection() {
+        return getDirection();
     }
 }

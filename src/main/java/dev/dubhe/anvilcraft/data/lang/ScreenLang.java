@@ -64,6 +64,13 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.grid_information.overloaded2", "Add more sources or remove the components");
         provider.add("tooltip.anvilcraft.grid_information.overloaded3", "with a high stress impact.");
 
+        provider.add("tooltip.anvilcraft.redstone.title", "Redstone Stats:");
+        provider.add("tooltip.anvilcraft.redstone.power", "  Power: %d");
+        provider.add("tooltip.anvilcraft.redstone.output_power", "  Output Power: %d");
+        provider.add("tooltip.anvilcraft.redstone.output_mode", "  Output Mode: %s");
+        provider.add("tooltip.anvilcraft.redstone.output_mode.compare", "Compare");
+        provider.add("tooltip.anvilcraft.redstone.output_mode.subtract", "Subtract");
+
         provider.add("screen.anvilcraft.active_silencer.title", "Active Silencer");
 
         provider.add("block.anvilcraft.heliostats.invalid_placement", "Invalid placement");

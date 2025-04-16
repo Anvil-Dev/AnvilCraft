@@ -42,7 +42,7 @@ public class MagneticChuteBlockEntity extends BaseChuteBlockEntity {
 
     @Override
     protected boolean isEnabled() {
-        return !getBlockState().getValue(MagneticChuteBlock.POWERED);
+        return getBlockState().getValue(MagneticChuteBlock.ENABLED);
     }
 
     @Override

@@ -136,6 +136,7 @@ public class AnvilHammerItem extends Item implements Equipable {
      * 检查是否可以使用铁砧锤
      */
     public static boolean ableToUseAnvilHammer(Level level, BlockPos blockPos, Player player) {
+        if (player.isShiftKeyDown()) return true;
         BlockState state = level.getBlockState(blockPos);
         if (state.is(ModBlockTags.ANVIL_HAMMER_BLACKLIST)) return false;
         if (state.getBlock() instanceof IHammerChangeable hammerChangeable) {
@@ -173,7 +174,8 @@ public class AnvilHammerItem extends Item implements Equipable {
         FallingBlockEntity dummyAnvilEntity = new FallingBlockEntity(EntityType.FALLING_BLOCK, level);
         dummyAnvilEntity.blockState = anvilHammerItem.getAnvil().defaultBlockState();
         AnvilFallOnLandEvent event = new AnvilFallOnLandEvent(
-            level, blockPos.above(), dummyAnvilEntity, player.fallDistance);
+            level, blockPos.above(), dummyAnvilEntity, player.fallDistance
+        );
         NeoForge.EVENT_BUS.post(event);
         level.playSound(null, blockPos, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 1f, 1f);
         itemStack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(player.getUsedItemHand()));

@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.entity;
 
 import dev.dubhe.anvilcraft.api.event.anvil.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.block.SpectralAnvilBlock;
+import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.init.ModEntities;
 
 import net.minecraft.core.BlockPos;
@@ -21,6 +22,7 @@ import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.TransparentBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -160,11 +162,10 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
 
     protected static boolean shouldIgnoreBlockInMovement(BlockState blockState) {
         return (blockState.isAir()
-            || blockState.is(Tags.Blocks.GLASS_BLOCKS)
-            || blockState.is(Tags.Blocks.GLASS_PANES)
+            || blockState.is(ModBlockTags.SPECTRAL_CAN_THROUGH)
             || blockState.getBlock() instanceof TransparentBlock
             || blockState.canBeReplaced()
-            || !blockState.getBlock().properties().hasCollision
+            || (!blockState.getBlock().properties().hasCollision && !blockState.is(Blocks.SCAFFOLDING))
         ) && !(blockState.getBlock() instanceof SpectralAnvilBlock);
     }
 

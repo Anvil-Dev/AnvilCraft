@@ -103,6 +103,10 @@ public class BlockTagLoader {
             .add(ModBlocks.HEATER.getKey())
             .add(ModBlocks.CORRUPTED_BEACON.getKey());
 
+        provider.addTag(ModBlockTags.BLOCK_DEVOURER_CHAIN_DEVOURING)
+            .addTag(Tags.Blocks.SANDS)
+            .addTag(Tags.Blocks.GRAVELS);
+
         provider.addTag(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)
             .add(findResourceKey(Blocks.STONE))
             .add(findResourceKey(Blocks.DEEPSLATE))
@@ -182,7 +186,6 @@ public class BlockTagLoader {
             .addTag(Tags.Blocks.CHESTS_ENDER)
             .addTag(Tags.Blocks.CHESTS_TRAPPED)
             .addTag(Tags.Blocks.CHESTS_WOODEN);
-
         provider.addTag(ModBlockTags.FELLING_APPLICABLE)
             .addTag(BlockTags.LOGS)
             .addTag(BlockTags.WART_BLOCKS)
@@ -221,7 +224,11 @@ public class BlockTagLoader {
             .add(findResourceKey(Blocks.VINE))
             .add(findResourceKey(Blocks.SNOW))
             .add(findResourceKey(Blocks.MOSS_CARPET))
-            .add(findResourceKey(Blocks.LILY_PAD))
-        ;
+            .add(findResourceKey(Blocks.LILY_PAD));
+      
+        provider.addTag(ModBlockTags.SPECTRAL_CAN_THROUGH)
+            .addTag(Tags.Blocks.GLASS_BLOCKS)
+            .addTag(Tags.Blocks.GLASS_PANES)
+            .addTag(BlockTags.LEAVES);
     }
 }

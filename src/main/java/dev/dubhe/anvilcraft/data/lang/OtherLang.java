@@ -36,6 +36,7 @@ public class OtherLang {
         provider.add("message.anvilcraft.disk.data_incompatible", "This block is incompatible with data stored in disk");
         provider.add("message.anvilcraft.disk.data_cleared", "Cleared data stored in disk");
         provider.add("message.anvilcraft.disk.data_stored", "Stored setting of block into disk");
+        provider.add("message.anvilcraft.chute.cannot_place", "Chute cannot face this direction");
 
         provider.add("enchantment.anvilcraft.beheading", "Beheading");
         provider.add("enchantment.anvilcraft.felling", "Felling");

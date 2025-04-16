@@ -65,7 +65,7 @@ import static dev.dubhe.anvilcraft.util.Util.HORIZONTAL_DIRECTIONS;
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class GiantAnvilLandingEventListener {
     private static final int MIN_MULTIBLOCK_SIZE = 3;
-    private static final int MAX_MULTIBLOCK_SIZE = 3;
+    private static final int MAX_MULTIBLOCK_SIZE = 15;
 
     /**
      * 在一个边长为 {@code size} 的立方体区域中，绕着中心将 {@code pos} 旋转到对应位置。

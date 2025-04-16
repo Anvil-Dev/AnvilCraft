@@ -1,15 +1,14 @@
 package dev.dubhe.anvilcraft.api.tooltip.impl;
 
-import dev.dubhe.anvilcraft.api.tooltip.providers.IBlockEntityTooltipProvider;
+import dev.dubhe.anvilcraft.api.tooltip.providers.ITooltipProvider;
 import dev.dubhe.anvilcraft.block.entity.HeliostatsBlockEntity;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class HeliostatsTooltipProvider implements IBlockEntityTooltipProvider {
+public class HeliostatsTooltipProvider extends ITooltipProvider.BlockEntityTooltipProvider {
     public HeliostatsTooltipProvider() {
     }
 
@@ -26,11 +25,6 @@ public class HeliostatsTooltipProvider implements IBlockEntityTooltipProvider {
         lines.add(Component.translatable("tooltip.anvilcraft.heliostats.not_work"));
         lines.add(Component.translatable(heliostatsBlockEntity.getWorkResult().getTranslateKey()));
         return lines;
-    }
-
-    @Override
-    public ItemStack icon(BlockEntity entity) {
-        return entity.getBlockState().getBlock().asItem().getDefaultInstance();
     }
 
     @Override

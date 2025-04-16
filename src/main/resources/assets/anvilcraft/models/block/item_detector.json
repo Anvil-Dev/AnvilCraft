@@ -5,7 +5,7 @@
 	"textures": {
 		"0": "anvilcraft:block/item_detector",
 		"1": "anvilcraft:block/item_detector_side",
-		"2": "anvilcraft:block/item_detector_bottom",
+		"2": "anvilcraft:block/advanced_diode_bottom",
 		"3": "anvilcraft:block/redstone_torch_unified",
 		"particle": "anvilcraft:block/item_detector"
 	},
@@ -19,7 +19,7 @@
 				"south": {"uv": [0, 12, 16, 16], "texture": "#1", "cullface": "south"},
 				"west": {"uv": [0, 12, 16, 16], "texture": "#1", "cullface": "west"},
 				"up": {"uv": [0, 0, 16, 16], "texture": "#0"},
-				"down": {"uv": [0, 0, 16, 16], "texture": "#2", "cullface": "down"}
+				"down": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#2", "cullface": "down"}
 			}
 		},
 		{
