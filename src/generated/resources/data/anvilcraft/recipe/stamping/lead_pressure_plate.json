@@ -2,7 +2,7 @@
   "type": "anvilcraft:stamping",
   "ingredients": [
     {
-      "item": "anvilcraft:lead_ingot"
+      "tag": "c:ingots/lead"
     }
   ],
   "results": [

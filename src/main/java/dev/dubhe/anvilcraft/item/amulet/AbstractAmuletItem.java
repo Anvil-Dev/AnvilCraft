@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.item.amulet;
 
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
+import dev.dubhe.anvilcraft.init.ModItems;
+import dev.dubhe.anvilcraft.util.AmuletUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -13,11 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import static dev.dubhe.anvilcraft.init.ModDataAttachments.AMULET_COUNT;
 import static dev.dubhe.anvilcraft.init.ModDataAttachments.AMULET_MAX;
 import static dev.dubhe.anvilcraft.init.ModDataAttachments.DISCOUNT_RATE;
-import static dev.dubhe.anvilcraft.init.ModDataAttachments.IMMUNE_TO_LIGHTNING;
-import static dev.dubhe.anvilcraft.init.ModDataAttachments.NO_FALL_DAMAGE;
-import static dev.dubhe.anvilcraft.init.ModDataAttachments.QUIETER;
 import static dev.dubhe.anvilcraft.init.ModDataAttachments.SCARE_ENTITIES;
-import static dev.dubhe.anvilcraft.init.ModDataAttachments.STEEL_HEAD;
 
 public abstract class AbstractAmuletItem extends Item {
 
@@ -42,26 +40,19 @@ public abstract class AbstractAmuletItem extends Item {
         if (entity.hasData(AMULET_COUNT)) {
             entity.setData(AMULET_COUNT, 0);
         }
-        if (entity.hasData(DISCOUNT_RATE)) {
-            entity.setData(DISCOUNT_RATE, 0f);
-        }
-        if (entity.hasData(IMMUNE_TO_LIGHTNING)) {
-            entity.setData(IMMUNE_TO_LIGHTNING, false);
-        }
-        if (entity.hasData(NO_FALL_DAMAGE)) {
-            entity.setData(NO_FALL_DAMAGE, false);
-        }
-        if (entity.hasData(QUIETER)) {
-            entity.setData(QUIETER, false);
-        }
-        if (entity.hasData(STEEL_HEAD)) {
-            entity.setData(STEEL_HEAD, false);
-        }
-        if (entity.hasData(SCARE_ENTITIES)) {
-            CompoundTag root = entity.getData(ModDataAttachments.SCARE_ENTITIES);
-            root.putBoolean("skeletons", false);
-            root.putBoolean("creepers", false);
-            root.putBoolean("phantoms", false);
+        if (entity instanceof Player player) {
+            if (!AmuletUtil.hasAmuletInInventory(player, ModItems.EMERALD_AMULET) && entity.hasData(DISCOUNT_RATE)) {
+                entity.setData(DISCOUNT_RATE, 0f);
+            }
+            if (entity.hasData(SCARE_ENTITIES)) {
+                CompoundTag root = entity.getData(ModDataAttachments.SCARE_ENTITIES);
+                if (!AmuletUtil.hasAmuletInInventory(player, ModItems.DOG_AMULET)) {
+                    root.putBoolean("skeletons", false);
+                } else if (!AmuletUtil.hasAmuletInInventory(player, ModItems.CAT_AMULET)) {
+                    root.putBoolean("creepers", false);
+                    root.putBoolean("phantoms", false);
+                }
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import com.llamalad7.mixinextras.sugar.Local;
+import dev.dubhe.anvilcraft.init.ModComponents;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.init.ModLootTables;
 import net.minecraft.world.damagesource.DamageSource;
@@ -14,6 +15,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
@@ -22,6 +24,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity {
+    @Shadow public abstract ItemStack getOffhandItem();
 
     private LivingEntityMixin(EntityType<?> entityType, Level level) {
         super(entityType, level);
@@ -45,6 +48,7 @@ public abstract class LivingEntityMixin extends Entity {
         beheadingLoot.getRandomItems(lootParams, thiz.getLootTableSeed(), thiz::spawnAtLocation);
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @Redirect(
         method = "checkTotemDeathProtection",
         at = @At(
@@ -53,18 +57,7 @@ public abstract class LivingEntityMixin extends Entity {
         )
     )
     private boolean alsoCheckAmuletBox(ItemStack instance, Item item) {
-        return instance.is(item) || instance.is(ModItems.AMULET_BOX);
-    }
-
-    @ModifyArg(
-        method = "checkTotemDeathProtection",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/stats/StatType;get(Ljava/lang/Object;)Lnet/minecraft/stats/Stat;"
-        )
-    )
-    private Object alsoAwardAmuletBoxStat(Object value, @Local ItemStack stack) {
-        return stack.getItem();
+        return instance.is(item) || (instance.is(ModItems.AMULET_BOX) && instance.get(ModComponents.TOTEM_COUNT) > 0);
     }
 
     @ModifyArg(
@@ -77,5 +70,18 @@ public abstract class LivingEntityMixin extends Entity {
     )
     private ItemStack onlyUseTotemToTrigger(ItemStack stack) {
         return Items.TOTEM_OF_UNDYING.getDefaultInstance();
+    }
+
+    @SuppressWarnings("DataFlowIssue")
+    @Redirect(
+        method = "checkTotemDeathProtection",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;shrink(I)V")
+    )
+    private void shrinkCorrect(ItemStack instance, int decrement) {
+        if (instance.is(ModItems.AMULET_BOX)) {
+            instance.set(ModComponents.TOTEM_COUNT, Math.max(instance.get(ModComponents.TOTEM_COUNT) - 1, 0));
+        } else {
+            instance.shrink(decrement);
+        }
     }
 }

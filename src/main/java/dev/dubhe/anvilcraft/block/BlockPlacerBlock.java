@@ -43,6 +43,8 @@ import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import static dev.dubhe.anvilcraft.api.entity.player.AnvilCraftBlockPlacer.anvilCraftBlockPlacer;
@@ -114,7 +116,7 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
         RandomSource random) {
         super.tick(state, level, pos, random);
         if (!state.getValue(TRIGGERED)) return;
-        if (!level.hasNeighborSignal(pos)) {
+        if (!hasNeighborSignal(level, pos, state.getValue(ORIENTATION).getDirection())) {
             level.setBlock(pos, state.setValue(TRIGGERED, false), 2);
         }
     }
@@ -134,14 +136,25 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
 
     private void checkIfTriggered(Level level, BlockState blockState, BlockPos blockPos) {
         boolean triggered = blockState.getValue(TRIGGERED);
-        BlockState changedState = blockState.setValue(TRIGGERED, !triggered);
-        if (triggered != level.hasNeighborSignal(blockPos)) {
+        if (triggered != hasNeighborSignal(level, blockPos, blockState.getValue(ORIENTATION).getDirection())) {
+            BlockState changedState = blockState.setValue(TRIGGERED, !triggered);
             level.setBlock(blockPos, changedState, 2);
             if (triggered) {
                 return;
             }
             placeBlock(1, level, blockPos, blockState.getValue(ORIENTATION));
         }
+    }
+
+    public static boolean hasNeighborSignal(Level level, BlockPos pos, Direction ignored) {
+        EnumSet<Direction> directions = EnumSet.allOf(Direction.class);
+        directions.remove(ignored);
+        for (Direction direction : directions) {
+            if (level.hasSignal(pos.relative(direction), direction)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

@@ -2,16 +2,7 @@
   "type": "anvilcraft:jewel_crafting",
   "ingredients": [
     {
-      "item": "anvilcraft:silver_block"
-    },
-    {
-      "item": "anvilcraft:silver_block"
-    },
-    {
-      "item": "anvilcraft:silver_block"
-    },
-    {
-      "item": "anvilcraft:silver_block"
+      "item": "anvilcraft:silver_ingot"
     },
     {
       "item": "minecraft:echo_shard"
@@ -60,9 +51,6 @@
     },
     {
       "item": "minecraft:echo_shard"
-    },
-    {
-      "item": "anvilcraft:royal_steel_ingot"
     }
   ],
   "result": {

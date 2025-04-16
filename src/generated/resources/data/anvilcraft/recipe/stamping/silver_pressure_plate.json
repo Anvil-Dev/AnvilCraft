@@ -2,7 +2,7 @@
   "type": "anvilcraft:stamping",
   "ingredients": [
     {
-      "item": "anvilcraft:silver_ingot"
+      "tag": "c:ingots/silver"
     }
   ],
   "results": [

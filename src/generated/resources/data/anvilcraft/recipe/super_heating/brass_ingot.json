@@ -1,0 +1,23 @@
+{
+  "type": "anvilcraft:super_heating",
+  "ingredients": [
+    {
+      "item": "minecraft:copper_ingot"
+    },
+    {
+      "item": "minecraft:copper_ingot"
+    },
+    {
+      "tag": "c:ingots/zinc"
+    }
+  ],
+  "results": [
+    {
+      "amount": 1.0,
+      "stack": {
+        "count": 3,
+        "id": "anvilcraft:brass_ingot"
+      }
+    }
+  ]
+}

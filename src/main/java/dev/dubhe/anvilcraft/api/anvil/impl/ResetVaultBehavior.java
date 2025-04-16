@@ -23,12 +23,12 @@ public class ResetVaultBehavior implements IAnvilBehavior {
     ) {
         if (!level.getBlockState(hitBlockPos).is(ModBlockTags.STORAGE_BLOCKS_LEAD)) return false;
         BlockPos vaultPos = hitBlockPos.below();
-        level.setBlockAndUpdate(hitBlockPos, Blocks.AIR.defaultBlockState());
         Optional.ofNullable(level.getBlockEntity(vaultPos))
             .filter(VaultBlockEntity.class::isInstance)
             .map(VaultBlockEntity.class::cast)
             .map(VaultBlockEntity::getServerData)
             .ifPresent(vaultServerData -> {
+                level.setBlockAndUpdate(hitBlockPos, Blocks.AIR.defaultBlockState());
                 VaultServerDataAccessor vaultServerDataAccessor = (VaultServerDataAccessor) vaultServerData;
                 vaultServerDataAccessor.getRewardedPlayers().clear();
                 vaultServerDataAccessor.invoker$markChanged();

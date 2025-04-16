@@ -63,16 +63,9 @@ public interface IAnvilCraftBlockPlacer {
                 blockHitResult
             );
         BlockState blockState = ((BlockItemInvoker) blockItem).invokerGetPlacementState(blockPlaceContext);
-        if (blockState == null) {
-            return InteractionResult.FAIL;
-        }
-        if (!blockItem.canPlace(blockPlaceContext, blockState) || !blockState.canSurvive(level, pos)) {
-            return InteractionResult.FAIL;
-        }
-        level.setBlockAndUpdate(pos, blockState);
-        blockItem.getBlock().setPlacedBy(level, pos, blockState, getPlayer(), itemStack);
-        // 使放置的方块实体有NBT
-        BlockItem.updateCustomBlockEntityTag(level, null, pos, itemStack);
+        //实际上，如果需要nbt的话，直接用NeoForge自带的就行
+        InteractionResult ir = blockItem.place(blockPlaceContext);
+        if (ir == InteractionResult.FAIL) return ir;
         SoundType soundType = blockState.getSoundType(level, pos, getPlayer());
         level.playSound(
             getPlayer(),

@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.entity.FallingGiantAnvilEntity;
 import dev.dubhe.anvilcraft.entity.FallingSpectralBlockEntity;
 import dev.dubhe.anvilcraft.entity.FloatingBlockEntity;
 import dev.dubhe.anvilcraft.entity.IonocraftEntity;
+import dev.dubhe.anvilcraft.entity.LevitatingBlockEntity;
 import net.minecraft.client.renderer.entity.FallingBlockRenderer;
 import net.minecraft.world.entity.MobCategory;
 
@@ -32,6 +33,11 @@ public class ModEntities {
 
     public static final EntityEntry<? extends FloatingBlockEntity> FLOATING_BLOCK = AnvilCraft.REGISTRATE
         .entity("floating_block", FloatingBlockEntity::new, MobCategory.MISC)
+        .renderer(() -> FallingBlockRenderer::new)
+        .register();
+
+    public static final EntityEntry<? extends LevitatingBlockEntity> LEVITATING_BLOCK = AnvilCraft.REGISTRATE
+        .entity("levitating_block", LevitatingBlockEntity::new, MobCategory.MISC)
         .renderer(() -> FallingBlockRenderer::new)
         .register();
 

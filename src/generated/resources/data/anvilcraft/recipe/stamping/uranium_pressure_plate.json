@@ -2,7 +2,7 @@
   "type": "anvilcraft:stamping",
   "ingredients": [
     {
-      "item": "anvilcraft:uranium_ingot"
+      "tag": "c:ingots/uranium"
     }
   ],
   "results": [

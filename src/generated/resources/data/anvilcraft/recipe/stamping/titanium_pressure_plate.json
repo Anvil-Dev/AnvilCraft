@@ -2,7 +2,7 @@
   "type": "anvilcraft:stamping",
   "ingredients": [
     {
-      "item": "anvilcraft:titanium_ingot"
+      "tag": "c:ingots/titanium"
     }
   ],
   "results": [

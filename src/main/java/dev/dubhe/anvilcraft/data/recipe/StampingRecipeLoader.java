@@ -6,6 +6,8 @@ import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItemTags;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.recipe.anvil.StampingRecipe;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 
@@ -14,15 +16,15 @@ public class StampingRecipeLoader {
         stamping(provider, Items.IRON_INGOT, Items.HEAVY_WEIGHTED_PRESSURE_PLATE);
         stamping(provider, Items.GOLD_INGOT, Items.LIGHT_WEIGHTED_PRESSURE_PLATE);
         stamping(provider, Items.COPPER_INGOT, ModBlocks.COPPER_PRESSURE_PLATE);
-        stamping(provider, ModItems.TUNGSTEN_INGOT, ModBlocks.TUNGSTEN_PRESSURE_PLATE);
-        stamping(provider, ModItems.TITANIUM_INGOT, ModBlocks.TITANIUM_PRESSURE_PLATE);
-        stamping(provider, ModItems.ZINC_INGOT, ModBlocks.ZINC_PRESSURE_PLATE);
-        stamping(provider, ModItems.TIN_INGOT, ModBlocks.TIN_PRESSURE_PLATE);
-        stamping(provider, ModItems.LEAD_INGOT, ModBlocks.LEAD_PRESSURE_PLATE);
-        stamping(provider, ModItems.SILVER_INGOT, ModBlocks.SILVER_PRESSURE_PLATE);
-        stamping(provider, ModItems.URANIUM_INGOT, ModBlocks.URANIUM_PRESSURE_PLATE);
-        stamping(provider, ModItems.BRONZE_INGOT, ModBlocks.BRONZE_PRESSURE_PLATE);
-        stamping(provider, ModItems.BRASS_INGOT, ModBlocks.BRASS_PRESSURE_PLATE);
+        stamping(provider, ModItemTags.TUNGSTEN_INGOTS, ModBlocks.TUNGSTEN_PRESSURE_PLATE);
+        stamping(provider, ModItemTags.TITANIUM_INGOTS, ModBlocks.TITANIUM_PRESSURE_PLATE);
+        stamping(provider, ModItemTags.ZINC_INGOTS, ModBlocks.ZINC_PRESSURE_PLATE);
+        stamping(provider, ModItemTags.TIN_INGOTS, ModBlocks.TIN_PRESSURE_PLATE);
+        stamping(provider, ModItemTags.LEAD_INGOTS, ModBlocks.LEAD_PRESSURE_PLATE);
+        stamping(provider, ModItemTags.SILVER_INGOTS, ModBlocks.SILVER_PRESSURE_PLATE);
+        stamping(provider, ModItemTags.URANIUM_INGOTS, ModBlocks.URANIUM_PRESSURE_PLATE);
+        stamping(provider, ModItemTags.BRONZE_INGOTS, ModBlocks.BRONZE_PRESSURE_PLATE);
+        stamping(provider, ModItemTags.BRASS_INGOTS, ModBlocks.BRASS_PRESSURE_PLATE);
         stamping(provider, Items.SNOWBALL, Items.SNOW);
         stamping(provider, Items.CHERRY_LEAVES, Items.PINK_PETALS);
         StampingRecipe.builder()
@@ -88,5 +90,12 @@ public class StampingRecipeLoader {
 
     private static void stamping(RegistrateRecipeProvider provider, ItemLike input, ItemLike result) {
         stamping(provider, input, result, 1);
+    }
+
+    private static void stamping(RegistrateRecipeProvider provider, TagKey<Item> input, ItemLike result) {
+        StampingRecipe.builder()
+            .requires(input)
+            .result(result, 1)
+            .save(provider);
     }
 }

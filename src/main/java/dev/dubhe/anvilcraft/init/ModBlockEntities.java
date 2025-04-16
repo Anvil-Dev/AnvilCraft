@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.init;
 import com.tterrag.registrate.util.entry.BlockEntityEntry;
 import dev.dubhe.anvilcraft.block.entity.AccelerationRingBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ActiveSilencerBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.AdvancedRepeaterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.BatchCrafterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChargerBlockEntity;
@@ -219,6 +220,11 @@ public class ModBlockEntities {
         .blockEntity("void_energy_collector", VoidEnergyCollectorBlockEntity::createBlockEntity)
         .validBlocks(ModBlocks.VOID_ENERGY_COLLECTOR)
         .renderer(() -> VoidEnergyCollectorRenderer::new)
+        .register();
+
+    public static final BlockEntityEntry<AdvancedRepeaterBlockEntity> ADVANCED_REPEATER = REGISTRATE
+        .blockEntity("advanced_repeater", AdvancedRepeaterBlockEntity::createBlockEntity)
+        .validBlocks(ModBlocks.ADVANCED_REPEATER)
         .register();
 
     public static void register() {

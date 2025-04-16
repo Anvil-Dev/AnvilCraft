@@ -106,6 +106,11 @@ public class CrabClawItem extends Item {
             ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(RANGE_ATTRIBUTE_MODIFIER.amount()),
             Component.translatable(Attributes.BLOCK_INTERACTION_RANGE.value().getDescriptionId())
         ).withStyle(Attributes.BLOCK_INTERACTION_RANGE.value().getStyle(true)));
+        tooltipComponents.add(Component.translatable(
+            "attribute.modifier.plus." + RANGE_ATTRIBUTE_MODIFIER.operation().id(),
+            ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(RANGE_ATTRIBUTE_MODIFIER.amount()),
+            Component.translatable(Attributes.ENTITY_INTERACTION_RANGE.value().getDescriptionId())
+        ).withStyle(Attributes.ENTITY_INTERACTION_RANGE.value().getStyle(true)));
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
     }
 }

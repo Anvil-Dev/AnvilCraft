@@ -4,6 +4,7 @@
     "minecraft:player"
   ],
   "slots": [
-    "head"
+    "head",
+    "necklace"
   ]
 }

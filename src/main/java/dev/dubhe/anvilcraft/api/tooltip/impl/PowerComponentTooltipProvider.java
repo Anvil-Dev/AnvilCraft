@@ -5,21 +5,19 @@ import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.api.power.PowerComponentInfo;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.SimplePowerGrid;
-import dev.dubhe.anvilcraft.api.tooltip.providers.IBlockEntityTooltipProvider;
+import dev.dubhe.anvilcraft.api.tooltip.providers.ITooltipProvider;
 import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class PowerComponentTooltipProvider implements IBlockEntityTooltipProvider {
-
+public class PowerComponentTooltipProvider extends ITooltipProvider.BlockEntityTooltipProvider {
     public PowerComponentTooltipProvider() {
     }
 
@@ -91,11 +89,6 @@ public class PowerComponentTooltipProvider implements IBlockEntityTooltipProvide
                 .setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
         lines.addAll(tooltipLines);
         return lines;
-    }
-
-    @Override
-    public ItemStack icon(BlockEntity entity) {
-        return entity.getBlockState().getBlock().asItem().getDefaultInstance();
     }
 
     @Override

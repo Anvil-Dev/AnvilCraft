@@ -24,11 +24,13 @@ public class ModBlockTags {
     public static final TagKey<Block> HAMMER_REMOVABLE = bind("hammer_removable");
     public static final TagKey<Block> HAMMER_CHANGEABLE = bind("hammer_changeable");
     public static final TagKey<Block> OVERSEER_BASE = bind("overseer_base");
+    public static final TagKey<Block> BLOCK_DEVOURER_CHAIN_DEVOURING = bind("block_devourer_chain_devouring");
     public static final TagKey<Block> BLOCK_DEVOURER_PROBABILITY_DROPPING = bind("block_devourer_probability_dropping");
     public static final TagKey<Block> LASER_CAN_PASS_THROUGH = bind("laser_can_pass_though");
     public static final TagKey<Block> END_PORTAL_UNABLE_CHANGE = bind("end_portal_unable_change");
     public static final TagKey<Block> NEUTRONIUM_CANNOT_PASS_THROUGH = bind("neutronium_cannot_pass_through");
     public static final TagKey<Block> VOID_DECAY_PRODUCTS = bind("void_decay_products");
+    public static final TagKey<Block> SPECTRAL_CAN_THROUGH = bind("spectral_can_through");
 
     // common tags
     public static final TagKey<Block> ORES_TUNGSTEN = bindC("ores/tungsten");

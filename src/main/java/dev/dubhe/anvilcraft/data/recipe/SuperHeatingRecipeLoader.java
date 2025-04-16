@@ -48,6 +48,18 @@ public class SuperHeatingRecipeLoader {
             .requires(ModItems.EMBER_METAL_INGOT)
             .result(new ItemStack(ModBlocks.EMBER_GLASS, 8))
             .save(provider);
+
+        SuperHeatingRecipe.builder()
+            .requires(Items.COPPER_INGOT, 2)
+            .requires(ModItemTags.ZINC_INGOTS)
+            .result(ModItems.BRASS_INGOT, 3)
+            .save(provider);
+        SuperHeatingRecipe.builder()
+            .requires(Items.COPPER_INGOT, 2)
+            .requires(ModItemTags.TIN_INGOTS)
+            .result(ModItems.BRONZE_INGOT, 3)
+            .save(provider);
+
         SuperHeatingRecipe.builder()
             .requires(ModItems.WOOD_FIBER, 2)
             .result(new ItemStack(Items.CHARCOAL))

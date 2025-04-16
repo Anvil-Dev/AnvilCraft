@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.mixin;
 
-import dev.dubhe.anvilcraft.init.ModDataAttachments;
+import dev.dubhe.anvilcraft.init.ModItems;
+import dev.dubhe.anvilcraft.util.AmuletUtil;
 import net.minecraft.core.Holder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -18,7 +19,7 @@ public interface VibrationSystemUserMixin {
         cancellable = true
     )
     private void addPlayerHasSilenceAmulet(Holder<GameEvent> gameEvent, GameEvent.Context context, CallbackInfoReturnable<Boolean> cir) {
-        if (context.sourceEntity() instanceof Player player && player.getData(ModDataAttachments.QUIETER)) {
+        if (context.sourceEntity() instanceof Player player && AmuletUtil.hasAmuletInInventory(player, ModItems.SILENCE_AMULET)) {
             cir.setReturnValue(false);
         }
     }

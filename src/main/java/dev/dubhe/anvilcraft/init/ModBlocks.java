@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent.Switch;
 import dev.dubhe.anvilcraft.block.AccelerationRingBlock;
 import dev.dubhe.anvilcraft.block.ActiveSilencerBlock;
+import dev.dubhe.anvilcraft.block.AdvancedRepeaterBlock;
 import dev.dubhe.anvilcraft.block.AmberBlock;
 import dev.dubhe.anvilcraft.block.ArrowBlock;
 import dev.dubhe.anvilcraft.block.BatchCrafterBlock;
@@ -59,6 +60,7 @@ import dev.dubhe.anvilcraft.block.ItemDetectorBlock;
 import dev.dubhe.anvilcraft.block.JewelCraftingTable;
 import dev.dubhe.anvilcraft.block.LargeCakeBlock;
 import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
+import dev.dubhe.anvilcraft.block.LevitationPowderBlock;
 import dev.dubhe.anvilcraft.block.LoadMonitorBlock;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
 import dev.dubhe.anvilcraft.block.MagneticChuteBlock;
@@ -125,6 +127,7 @@ import dev.dubhe.anvilcraft.item.EndDustBlockItem;
 import dev.dubhe.anvilcraft.item.FlexibleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.item.HasMobBlockItem;
 import dev.dubhe.anvilcraft.item.HeliostatsItem;
+import dev.dubhe.anvilcraft.item.LevitationPowderBlockItem;
 import dev.dubhe.anvilcraft.item.PlaceInWaterBlockItem;
 import dev.dubhe.anvilcraft.item.ResinBlockItem;
 import dev.dubhe.anvilcraft.item.SimpleMultiPartBlockItem;
@@ -330,7 +333,7 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.ANVIL)
         .loot(SimpleMultiPartBlock::loot)
         .properties(
-            p -> p.noOcclusion().strength(4.0F).sound(SoundType.ANVIL).explosionResistance(1200))
+            p -> p.noOcclusion().strength(4.0F).sound(GiantAnvilBlock.SOUND_TYPE).explosionResistance(1200))
         .item(SimpleMultiPartBlockItem<Cube3x3PartHalf>::new)
         .build()
         .blockstate((ctx, provider) -> {
@@ -2819,6 +2822,20 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_SHOVEL)
         .register();
 
+    public static final BlockEntry<LevitationPowderBlock> LEVITATION_POWDER_BLOCK = REGISTRATE
+        .block("levitation_powder_block", LevitationPowderBlock::new)
+        .initialProperties(() -> Blocks.SAND)
+        .item(LevitationPowderBlockItem::new)
+        .recipe((ctx, provider) ->
+            ShapelessRecipeBuilder.shapeless(RecipeCategory.DECORATIONS, ctx.get())
+                .requires(ModItems.LEVITATION_POWDER, 9)
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItems.LEVITATION_POWDER), AnvilCraftDatagen.has(ModItems.LEVITATION_POWDER))
+                .save(provider, ctx.getId().withSuffix("_from_powders"))
+        )
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_SHOVEL)
+        .register();
     public static final BlockEntry<ColoredFallingBlock> NETHER_DUST = REGISTRATE
         .block("nether_dust", (b) -> new ColoredFallingBlock(new ColorRGBA(0x8B0000), b))
         .simpleItem()
@@ -4141,6 +4158,29 @@ public class ModBlocks {
     static {
         REGISTRATE.defaultCreativeTab(ModItemGroups.ANVILCRAFT_FUNCTION_BLOCK.getKey());
     }
+
+    public static final BlockEntry<AdvancedRepeaterBlock> ADVANCED_REPEATER = REGISTRATE
+        .block("advanced_repeater", AdvancedRepeaterBlock::new)
+        .properties(properties -> properties
+            .strength(3.0F, 3.5F)
+            .sound(SoundType.STONE)
+            .noOcclusion()
+        )
+        .blockstate((ctx, provider) -> DataGenUtil.diodeBlock(
+            provider, ctx.getId(), ctx.get()
+        ))
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .simpleItem()
+        .recipe((ctx, provider) ->
+            ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get())
+                .pattern("BCR")
+                .pattern("III")
+                .define('B', ModItems.CIRCUIT_BOARD)
+                .define('C', Items.CLOCK)
+                .define('I', Items.IRON_INGOT)
+                .define('R', Items.REDSTONE_TORCH)
+        )
+        .register();
 
     public static final BlockEntry<? extends TimeCountedPressurePlateBlock> COPPER_PRESSURE_PLATE = REGISTRATE
         .block("copper_pressure_plate", properties -> new TimeCountedPressurePlateBlock(BlockSetType.IRON, properties, 10))

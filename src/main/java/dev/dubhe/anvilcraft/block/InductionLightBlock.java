@@ -45,6 +45,7 @@ import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -75,6 +76,22 @@ public class InductionLightBlock extends BetterBaseEntityBlock implements IHamme
             .setValue(AXIS, Direction.Axis.Y)
             .setValue(WATERLOGGED, false)
             .setValue(COLOR, LightColor.PRIMARY));
+    }
+
+    public static boolean isLit(@NotNull BlockState state) {
+        return !(state.getValue(POWERED) || state.getValue(OVERLOAD));
+    }
+
+    public static boolean canCropGrow(@NotNull BlockState state) {
+        return state.getValue(COLOR).equals(LightColor.PINK);
+    }
+
+    public static boolean canBlockMobSummoning(@NotNull BlockState state) {
+        return state.getValue(COLOR).equals(LightColor.YELLOW);
+    }
+
+    public static boolean canBlockAnimalSummoning(@NotNull BlockState state) {
+        return state.getValue(COLOR).equals(LightColor.DARK);
     }
 
     @Override

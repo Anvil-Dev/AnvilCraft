@@ -1,0 +1,49 @@
+{
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/cube_all",
+	"render_type": "minecraft:cutout",
+	"textures": {
+		"1": "anvilcraft:block/controllable_sand_inner",
+		"particle": "anvilcraft:block/controllable_sand_inner",
+		"all": "anvilcraft:block/controllable_sand"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 0],
+			"to": [16, 16, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#all", "cullface": "north"},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#all", "cullface": "east"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#all", "cullface": "south"},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#all", "cullface": "west"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#all", "cullface": "up"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#all", "cullface": "down"}
+			}
+		},
+		{
+			"name": "cube inverted",
+			"from": [15.95, 15.95, 15.95],
+			"to": [0.05, 0.05, 0.05],
+			"faces": {
+				"north": {"uv": [0, 16, 16, 0], "texture": "#all"},
+				"east": {"uv": [0, 16, 16, 0], "texture": "#all"},
+				"south": {"uv": [0, 16, 16, 0], "texture": "#all"},
+				"west": {"uv": [0, 16, 16, 0], "texture": "#all"},
+				"up": {"uv": [16, 0, 0, 16], "texture": "#all"},
+				"down": {"uv": [16, 0, 0, 16], "texture": "#all"}
+			}
+		},
+		{
+			"from": [0.2, 0.2, 0.2],
+			"to": [15.8, 15.8, 15.8],
+			"faces": {
+				"north": {"uv": [0.2, 0.2, 15.8, 15.8], "texture": "#1"},
+				"east": {"uv": [0.2, 0.2, 15.8, 15.8], "texture": "#1"},
+				"south": {"uv": [0.2, 0.2, 15.8, 15.8], "texture": "#1"},
+				"west": {"uv": [0.2, 0.2, 15.8, 15.8], "texture": "#1"},
+				"up": {"uv": [0.2, 0.2, 15.8, 15.8], "texture": "#1"},
+				"down": {"uv": [0.2, 0.2, 15.8, 15.8], "texture": "#1"}
+			}
+		}
+	]
+}

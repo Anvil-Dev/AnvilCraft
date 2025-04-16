@@ -19,8 +19,8 @@
     {
       "amount": 1.0,
       "stack": {
-        "count": 12,
-        "id": "anvilcraft:ember_metal_nugget"
+        "count": 5,
+        "id": "anvilcraft:ember_metal_ingot"
       }
     }
   ]

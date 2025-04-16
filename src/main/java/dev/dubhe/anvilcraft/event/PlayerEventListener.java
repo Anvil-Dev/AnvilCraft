@@ -2,10 +2,8 @@ package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
-import dev.dubhe.anvilcraft.entity.FallingGiantAnvilEntity;
 import dev.dubhe.anvilcraft.init.ModBlocks;
-import dev.dubhe.anvilcraft.init.ModDataAttachments;
-import dev.dubhe.anvilcraft.init.ModItemTags;
+import dev.dubhe.anvilcraft.init.ModComponents;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.item.ResinBlockItem;
 
@@ -17,13 +15,10 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageSources;
-import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.SubscribeEvent;
 
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -35,7 +30,6 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 
@@ -73,21 +67,18 @@ public class PlayerEventListener {
         }
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @SubscribeEvent
     public static void onPlayerUsingTotem(LivingUseTotemEvent event) {
-        if (event.getEntity() instanceof ServerPlayer player && player.getInventory().contains(ModItems.AMULET_BOX.asStack())) {
+        if (
+            event.getEntity() instanceof ServerPlayer player
+            && InventoryUtil.hasItem(player.getInventory(), ModItems.AMULET_BOX.asItem())
+        ) {
             Inventory inventory = player.getInventory();
-
-            boolean isConsumeAmuletBox;
-            if (inventory.contains(Items.TOTEM_OF_UNDYING.getDefaultInstance())) {
-                inventory.removeItem(Items.TOTEM_OF_UNDYING.getDefaultInstance());
-                isConsumeAmuletBox = false;
-            } else {
-                inventory.removeItem(ModItems.AMULET_BOX.asStack());
-                isConsumeAmuletBox = true;
-            }
-
-            AmuletUtil.startRaffle(player, event.getSource(), isConsumeAmuletBox);
+            AmuletUtil.startRaffle(
+                player, event.getSource(),
+                InventoryUtil.getFirstItem(inventory, ModItems.AMULET_BOX).get(ModComponents.TOTEM_COUNT) >= 0
+            );
         }
     }
 
@@ -95,32 +86,18 @@ public class PlayerEventListener {
     public static void onPlayerHurt(LivingIncomingDamageEvent event) {
         if (event.getEntity() instanceof Player player) {
             DamageSource source = event.getSource();
-            DamageSources sources = player.damageSources();
-            Inventory inventory = player.getInventory();
 
-            if (
-                (source.type().equals(sources.damageTypes.get(DamageTypes.FALLING_ANVIL))
-                    || (source.type().equals(sources.damageTypes.get(DamageTypes.FALLING_BLOCK)) && source.getEntity() instanceof FallingGiantAnvilEntity)
-                    || Optional.ofNullable(source.getWeaponItem()).filter(item -> item.is(ModItemTags.ANVIL_HAMMER)).isPresent())
-                    && player.getData(ModDataAttachments.STEEL_HEAD)
-            ) {
-                event.getContainer().setNewDamage(0);
-            }
-
-            ItemStack comrade = InventoryUtil.getFirstItem(inventory, ModItems.COMRADE_AMULET);
             try {
+                ItemStack comrade = AmuletUtil.getEffectiveAmulet(player, ModItems.COMRADE_AMULET);
                 UUID causingEntityUUID = Objects.requireNonNull(source.getEntity()).getUUID();
                 if (!comrade.equals(ItemStack.EMPTY) && ComradeAmuletItem.canIgnorePlayer(comrade, causingEntityUUID)) {
-                    event.getContainer().setNewDamage(0);
+                    event.setCanceled(true);
                 }
             } catch (NullPointerException ignored) {
             }
 
-            if (
-                source.type().equals(sources.damageTypes.get(DamageTypes.FALL))
-                    && player.getData(ModDataAttachments.NO_FALL_DAMAGE)
-            ) {
-                event.getContainer().setNewDamage(0);
+            if (AmuletUtil.shouldIgnoreDamage(player, source)) {
+                event.setCanceled(true);
             }
         }
     }

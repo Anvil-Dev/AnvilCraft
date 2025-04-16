@@ -1,10 +1,13 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.api.SpawningManager;
 import dev.dubhe.anvilcraft.api.RipeningManager;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.InductionLightBlock;
 import dev.dubhe.anvilcraft.block.state.LightColor;
+import dev.dubhe.anvilcraft.util.AabbUtil;
+import dev.dubhe.anvilcraft.util.Lazy;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
@@ -12,11 +15,13 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
 
 @Setter
 @Getter
 public class InductionLightBlockEntity extends BlockEntity implements IPowerConsumer {
+    public final Lazy<AABB> blockingArea = new Lazy<>(() -> AabbUtil.centerSectionTo3x3x3(this.getBlockPos()));
 
     private PowerGrid grid;
 
@@ -39,8 +44,11 @@ public class InductionLightBlockEntity extends BlockEntity implements IPowerCons
      */
     public void tick(Level level1) {
         flushState(level1, getBlockPos());
-        if (getBlockState().getValue(InductionLightBlock.COLOR) == LightColor.PINK) {
+        LightColor color = getBlockState().getValue(InductionLightBlock.COLOR);
+        if (color == LightColor.PINK) {
             RipeningManager.addLightBlock(getBlockPos(), level);
+        } else if (color == LightColor.YELLOW || color == LightColor.DARK) {
+            SpawningManager.addLightBlock(getBlockPos(), level);
         }
     }
 

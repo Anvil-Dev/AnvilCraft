@@ -2,7 +2,7 @@
   "type": "anvilcraft:stamping",
   "ingredients": [
     {
-      "item": "anvilcraft:zinc_ingot"
+      "tag": "c:ingots/zinc"
     }
   ],
   "results": [

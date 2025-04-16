@@ -9,6 +9,8 @@ neoForge {
     // This line is optional. Access Transformers are automatically detected
     accessTransformers = project.files('src/main/resources/META-INF/accesstransformer.cfg')
 
+    interfaceInjectionData.from 'src/main/resources/interface_injections.json'
+
     runs {
         // applies to all the run configs below
         configureEach {

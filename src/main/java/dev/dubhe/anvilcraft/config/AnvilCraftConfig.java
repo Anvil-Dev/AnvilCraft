@@ -152,6 +152,20 @@ public class AnvilCraftConfig implements ConfigData {
     @ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
     public IonoCraftBackpackHud ionoCraftBackpackHud = new IonoCraftBackpackHud();
 
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(max = 100, min = 0)
+    @Comment("Giant anvil max fall damage")
+    public int giantAnvilFallDamageMax = 40;
+
+    @ConfigEntry.Gui.Tooltip
+    @Comment("Block Devourer upward chain devouring blocks within tag #anvilcraft:block_devourer_chain_devouring")
+    public boolean blockDevourerUpwardChainDevouring = true;
+
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(max = 15, min = 0)
+    @Comment("Block Devourer upward chain devouring max distance")
+    public int blockDevourerUpwardChainDevouringDistance = 8;
+
     public static class PowerConverter implements ConfigData {
         @Comment("The working interval of power converters")
         @ConfigEntry.Gui.Tooltip

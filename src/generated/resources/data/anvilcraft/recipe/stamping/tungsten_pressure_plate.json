@@ -2,7 +2,7 @@
   "type": "anvilcraft:stamping",
   "ingredients": [
     {
-      "item": "anvilcraft:tungsten_ingot"
+      "tag": "c:ingots/tungsten"
     }
   ],
   "results": [

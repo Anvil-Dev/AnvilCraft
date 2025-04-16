@@ -2,16 +2,7 @@
   "type": "anvilcraft:jewel_crafting",
   "ingredients": [
     {
-      "item": "anvilcraft:silver_block"
-    },
-    {
-      "item": "anvilcraft:silver_block"
-    },
-    {
-      "item": "anvilcraft:silver_block"
-    },
-    {
-      "item": "anvilcraft:silver_block"
+      "item": "anvilcraft:silver_ingot"
     },
     {
       "item": "minecraft:salmon"
@@ -108,9 +99,6 @@
     },
     {
       "item": "minecraft:cod"
-    },
-    {
-      "item": "anvilcraft:royal_steel_ingot"
     }
   ],
   "result": {

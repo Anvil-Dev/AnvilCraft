@@ -52,6 +52,11 @@ public class ModComponents {
             .networkSynchronized(ByteBufCodecs.INT)
     );
 
+    public static final DataComponentType<Integer> TOTEM_COUNT = register(
+        "totem_count", b -> b.persistent(Codec.INT)
+            .networkSynchronized(ByteBufCodecs.INT)
+    );
+
     private static <T> DataComponentType<T> register(String name, Consumer<DataComponentType.Builder<T>> customizer) {
         var builder = DataComponentType.<T>builder();
         customizer.accept(builder);

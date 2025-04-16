@@ -2,7 +2,7 @@
   "type": "anvilcraft:stamping",
   "ingredients": [
     {
-      "item": "anvilcraft:bronze_ingot"
+      "tag": "c:ingots/bronze"
     }
   ],
   "results": [
