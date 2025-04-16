@@ -8,14 +8,14 @@
         "AAA"
       ],
       [
-        "BBB",
-        "BCB",
-        "BBB"
+        "   ",
+        " B ",
+        "   "
       ],
       [
-        "DDD",
-        "DDD",
-        "DDD"
+        "CCC",
+        "CCC",
+        "CCC"
       ]
     ],
     "symbols": {
@@ -23,12 +23,9 @@
         "block": "anvilcraft:cut_heavy_iron_block"
       },
       "B": {
-        "block": "anvilcraft:heavy_iron_plate"
-      },
-      "C": {
         "block": "anvilcraft:heavy_iron_column"
       },
-      "D": {
+      "C": {
         "block": "anvilcraft:polished_heavy_iron_block"
       }
     }

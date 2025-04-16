@@ -18,11 +18,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.level.block.state.properties.SlabType;
-
-import static net.minecraft.core.Direction.Axis;
 
 public class MultiBlockConversionRecipeLoader {
     public static void init(RegistrateRecipeProvider provider) {
@@ -150,41 +147,48 @@ public class MultiBlockConversionRecipeLoader {
 
         MultiblockConversionRecipe.builder()
             .inputLayer("ABA", "CDE", "AFA")
-            .inputLayer("GGG", "GDG", "GGG")
-            .inputLayer("HIH", "JHJ", "HIH")
-            .inputSymbol('A', BlockPredicateWithState.of(ModBlocks.CUT_HEAVY_IRON_SLAB)
-                .hasState(BlockStateProperties.WATERLOGGED, false)
-                .hasState(SlabBlock.TYPE, SlabType.BOTTOM)
-            )
-            .inputSymbol('B', BlockPredicateWithState.of(ModBlocks.CUT_HEAVY_IRON_STAIRS)
-                .hasState(StairBlock.FACING, Direction.SOUTH)
-                .hasState(BlockStateProperties.WATERLOGGED, false)
-                .hasState(StairBlock.HALF, Half.BOTTOM)
-            )
-            .inputSymbol('C', BlockPredicateWithState.of(ModBlocks.CUT_HEAVY_IRON_STAIRS)
-                .hasState(StairBlock.FACING, Direction.EAST)
-                .hasState(BlockStateProperties.WATERLOGGED, false)
-                .hasState(StairBlock.HALF, Half.BOTTOM)
-            )
+            .inputLayer("   ", " D ", "   ")
+            .inputLayer("GHG", "IGI", "GHG")
+            .inputSymbol(
+                'A',
+                BlockPredicateWithState.of(ModBlocks.CUT_HEAVY_IRON_SLAB)
+                    .hasState(SlabBlock.TYPE, SlabType.BOTTOM)
+                    .hasState(SlabBlock.WATERLOGGED, false))
+            .inputSymbol(
+                'B',
+                BlockPredicateWithState.of(ModBlocks.CUT_HEAVY_IRON_STAIRS)
+                    .hasState(StairBlock.FACING, Direction.SOUTH)
+                    .hasState(StairBlock.HALF, Half.BOTTOM)
+                    .hasState(StairBlock.WATERLOGGED, false))
+            .inputSymbol(
+                'C',
+                BlockPredicateWithState.of(ModBlocks.CUT_HEAVY_IRON_STAIRS)
+                    .hasState(StairBlock.FACING, Direction.EAST)
+                    .hasState(StairBlock.HALF, Half.BOTTOM)
+                    .hasState(StairBlock.WATERLOGGED, false))
             .inputSymbol('D', ModBlocks.HEAVY_IRON_COLUMN)
-            .inputSymbol('E', BlockPredicateWithState.of(ModBlocks.CUT_HEAVY_IRON_STAIRS)
-                .hasState(StairBlock.FACING, Direction.WEST)
-                .hasState(BlockStateProperties.WATERLOGGED, false)
-                .hasState(StairBlock.HALF, Half.BOTTOM)
+            .inputSymbol(
+                'E',
+                BlockPredicateWithState.of(ModBlocks.CUT_HEAVY_IRON_STAIRS)
+                    .hasState(StairBlock.FACING, Direction.WEST)
+                    .hasState(StairBlock.HALF, Half.BOTTOM)
+                    .hasState(StairBlock.WATERLOGGED, false))
+            .inputSymbol(
+                'F',
+                BlockPredicateWithState.of(ModBlocks.CUT_HEAVY_IRON_STAIRS)
+                    .hasState(StairBlock.FACING, Direction.NORTH)
+                    .hasState(StairBlock.HALF, Half.BOTTOM)
+                    .hasState(StairBlock.WATERLOGGED, false))
+            .inputSymbol('G', ModBlocks.POLISHED_HEAVY_IRON_BLOCK)
+            .inputSymbol(
+                'H',
+                BlockPredicateWithState.of(ModBlocks.HEAVY_IRON_BEAM)
+                    .hasState(HeavyIronBeamBlock.AXIS, Direction.Axis.Z)
             )
-            .inputSymbol('F', BlockPredicateWithState.of(ModBlocks.CUT_HEAVY_IRON_STAIRS)
-                .hasState(StairBlock.FACING, Direction.NORTH)
-                .hasState(BlockStateProperties.WATERLOGGED, false)
-                .hasState(StairBlock.HALF, Half.BOTTOM)
-            )
-            .inputSymbol('G', ModBlocks.HEAVY_IRON_PLATE)
-            .inputSymbol('H', ModBlocks.POLISHED_HEAVY_IRON_BLOCK)
-            .inputSymbol('I', BlockPredicateWithState.of(ModBlocks.HEAVY_IRON_BEAM)
-                .hasState(HeavyIronBeamBlock.AXIS, Axis.Z)
-            )
-            .inputSymbol('J', BlockPredicateWithState.of(ModBlocks.HEAVY_IRON_BEAM)
-                .hasState(HeavyIronBeamBlock.AXIS, Axis.X)
-            )
+            .inputSymbol(
+                'I',
+                BlockPredicateWithState.of(ModBlocks.HEAVY_IRON_BEAM)
+                    .hasState(HeavyIronBeamBlock.AXIS, Direction.Axis.X))
             .outputLayer("ABC", "DEF", "GHI")
             .outputLayer("JKL", "MNO", "PQR")
             .outputLayer("STU", "VWX", "YZ[")
@@ -300,12 +304,11 @@ public class MultiBlockConversionRecipeLoader {
 
         MultiblockConversionRecipe.builder()
             .inputLayer("AAA", "AAA", "AAA")
-            .inputLayer("BBB", "BCB", "BBB")
-            .inputLayer("DDD", "DDD", "DDD")
+            .inputLayer("   ", " B ", "   ")
+            .inputLayer("CCC", "CCC", "CCC")
             .inputSymbol('A', ModBlocks.CUT_HEAVY_IRON_BLOCK)
-            .inputSymbol('B', ModBlocks.HEAVY_IRON_PLATE)
-            .inputSymbol('C', ModBlocks.HEAVY_IRON_COLUMN)
-            .inputSymbol('D', ModBlocks.POLISHED_HEAVY_IRON_BLOCK)
+            .inputSymbol('B', ModBlocks.HEAVY_IRON_COLUMN)
+            .inputSymbol('C', ModBlocks.POLISHED_HEAVY_IRON_BLOCK)
             .outputLayer("ABC", "DEF", "GHI")
             .outputLayer("JKL", "MNO", "PQR")
             .outputLayer("STU", "VWX", "YZ[")

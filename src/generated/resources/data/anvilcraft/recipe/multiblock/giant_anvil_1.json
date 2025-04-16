@@ -3,75 +3,77 @@
   "pattern": {
     "layers": [
       [
-        "JGJ",
-        "HDI",
-        "JFJ"
+        "ABA",
+        "CDE",
+        "AFA"
       ],
       [
-        "EEE",
-        "EDE",
-        "EEE"
+        "   ",
+        " D ",
+        "   "
       ],
       [
-        "ACA",
-        "BAB",
-        "ACA"
+        "GHG",
+        "IGI",
+        "GHG"
       ]
     ],
     "symbols": {
       "A": {
-        "block": "anvilcraft:polished_heavy_iron_block"
+        "block": "anvilcraft:cut_heavy_iron_slab",
+        "properties": {
+          "type": "bottom",
+          "waterlogged": "false"
+        }
       },
       "B": {
-        "block": "anvilcraft:heavy_iron_beam",
+        "block": "anvilcraft:cut_heavy_iron_stairs",
         "properties": {
-          "axis": "x"
+          "facing": "south",
+          "half": "bottom",
+          "waterlogged": "false"
         }
       },
       "C": {
-        "block": "anvilcraft:heavy_iron_beam",
+        "block": "anvilcraft:cut_heavy_iron_stairs",
         "properties": {
-          "axis": "z"
+          "facing": "east",
+          "half": "bottom",
+          "waterlogged": "false"
         }
       },
       "D": {
         "block": "anvilcraft:heavy_iron_column"
       },
       "E": {
-        "block": "anvilcraft:heavy_iron_plate"
+        "block": "anvilcraft:cut_heavy_iron_stairs",
+        "properties": {
+          "facing": "west",
+          "half": "bottom",
+          "waterlogged": "false"
+        }
       },
       "F": {
         "block": "anvilcraft:cut_heavy_iron_stairs",
         "properties": {
           "facing": "north",
-          "half": "bottom"
+          "half": "bottom",
+          "waterlogged": "false"
         }
       },
       "G": {
-        "block": "anvilcraft:cut_heavy_iron_stairs",
-        "properties": {
-          "facing": "south",
-          "half": "bottom"
-        }
+        "block": "anvilcraft:polished_heavy_iron_block"
       },
       "H": {
-        "block": "anvilcraft:cut_heavy_iron_stairs",
+        "block": "anvilcraft:heavy_iron_beam",
         "properties": {
-          "facing": "east",
-          "half": "bottom"
+          "axis": "z"
         }
       },
       "I": {
-        "block": "anvilcraft:cut_heavy_iron_stairs",
+        "block": "anvilcraft:heavy_iron_beam",
         "properties": {
-          "facing": "west",
-          "half": "bottom"
-        }
-      },
-      "J": {
-        "block": "anvilcraft:cut_heavy_iron_slab",
-        "properties": {
-          "type": "bottom"
+          "axis": "x"
         }
       }
     }
