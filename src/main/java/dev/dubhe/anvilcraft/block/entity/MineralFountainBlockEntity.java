@@ -7,6 +7,8 @@ import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainRecipe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -33,26 +35,29 @@ public class MineralFountainBlockEntity extends BlockEntity {
         return new MineralFountainBlockEntity(type, pos, blockState);
     }
 
+    @Override
+    public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
+        super.loadAdditional(tag, registries);
+        this.tickCount = tag.getInt("tickCount");
+    }
+
+    @Override
+    public void saveAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
+        super.loadAdditional(tag, registries);
+        tag.putInt("tickCount", this.tickCount);
+    }
+
     /**
-     * 矿物泉涌tick
+     * 矿物涌泉tick
      */
     public void tick() {
         if (level == null) return;
-        tickCount++;
-        if (tickCount < 20) return;
-        tickCount = 0;
+        if (tickCount > -1) tickCount--;
+        if (tickCount != 0) return;
         BlockState aroundState = getAroundBlock();
-        // 冷却检查
-        if (aroundHas(Blocks.BEDROCK) || aroundHas(ModBlocks.MINERAL_FOUNTAIN.get())) {
-            level.destroyBlock(getBlockPos(), false);
-            level.setBlockAndUpdate(getBlockPos(), ModBlocks.STURDY_DEEPSLATE.getDefaultState());
-            return;
-        }
-        // 高度检查
         if (level.getMinBuildHeight() > getBlockPos().getY() || getBlockPos().getY() > level.getMinBuildHeight() + 8)
             return;
         BlockState aboveState = level.getBlockState(getBlockPos().above());
-        // 岩浆处理
         if (aroundState.is(Blocks.LAVA)) {
             if (aboveState.is(Blocks.AIR)) {
                 level.setBlockAndUpdate(getBlockPos().above(), Blocks.LAVA.defaultBlockState());
@@ -113,15 +118,7 @@ public class MineralFountainBlockEntity extends BlockEntity {
         return count == 4 ? firstState : Blocks.AIR.defaultBlockState();
     }
 
-    private boolean aroundHas(Block block) {
-        if (level == null) {
-            return false;
-        }
-        for (Direction direction : HORIZONTAL_DIRECTION) {
-            if (level.getBlockState(getBlockPos().relative(direction)).is(block)) {
-                return true;
-            }
-        }
-        return false;
+    public void resetTickCount() {
+        if (tickCount <= 0) tickCount = 20;
     }
 }

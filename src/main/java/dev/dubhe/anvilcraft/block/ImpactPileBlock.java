@@ -57,20 +57,22 @@ public class ImpactPileBlock extends Block implements IHammerRemovable {
      * @param blockPos 位置
      */
     public static void impact(Level level, BlockPos blockPos) {
+        int Ymin = level.getMinBuildHeight();
+
         level.destroyBlock(blockPos, false);
         level.destroyBlock(blockPos.above(), false);
         for (int x = blockPos.getX() - 1; x <= blockPos.getX() + 1; x++) {
             for (int z = blockPos.getZ() - 1; z <= blockPos.getZ() + 1; z++) {
-                for (int y = level.getMinBuildHeight(); y <= level.getMinBuildHeight() + 5; y++) {
+                for (int y = Ymin; y <= Ymin + 5; y++) {
                     BlockPos pos = new BlockPos(x, y, z);
-                    if (y <= level.getMinBuildHeight() + 1)
+                    if (y <= Ymin + 2)
                         setSturdyDeepslate(level, pos);
                 }
             }
         }
-        for (int y = level.getMinBuildHeight() + 2; y <= level.getMinBuildHeight() + 3; y++) {
+        for (int y = Ymin + 3; y <= Ymin + 4; y++) {
             BlockPos pos = new BlockPos(blockPos.getX(), y, blockPos.getZ());
-            if (y == level.getMinBuildHeight() + 2) {
+            if (y == Ymin + 3) {
                 level.setBlockAndUpdate(pos.north().west(), Blocks.LAVA.defaultBlockState());
                 level.setBlockAndUpdate(pos.north().east(), Blocks.LAVA.defaultBlockState());
                 level.setBlockAndUpdate(pos.south().west(), Blocks.LAVA.defaultBlockState());
@@ -83,7 +85,7 @@ public class ImpactPileBlock extends Block implements IHammerRemovable {
             setSturdyDeepslate(level, pos.east());
         }
         level.setBlockAndUpdate(
-            new BlockPos(blockPos.getX(), level.getMinBuildHeight() + 4, blockPos.getZ()),
+            new BlockPos(blockPos.getX(), Ymin + 5, blockPos.getZ()),
             ModBlocks.MINERAL_FOUNTAIN.getDefaultState());
     }
 
