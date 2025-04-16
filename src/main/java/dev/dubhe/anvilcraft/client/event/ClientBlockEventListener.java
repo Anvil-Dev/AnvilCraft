@@ -43,30 +43,32 @@ public class ClientBlockEventListener {
             || (itemStack.is(Tags.Items.TOOLS_WRENCH) && targetBlockState.getBlock() instanceof IHammerChangeable)
         ) {
             if (AnvilHammerItem.ableToUseAnvilHammer(event.getLevel(), event.getPos(), event.getEntity())) {
-                Block b = event.getLevel().getBlockState(event.getPos()).getBlock();
-                if ((b instanceof IHammerRemovable || b.defaultBlockState().is(ModBlockTags.HAMMER_REMOVABLE))
-                    && !(b instanceof IHammerChangeable || b.defaultBlockState().is(ModBlockTags.HAMMER_CHANGEABLE))
-                    && !event.getEntity().isShiftKeyDown()
-                ) {
-                    return;
+                BlockState b = event.getLevel().getBlockState(event.getPos());
+                if (event.getEntity().isShiftKeyDown()) {
+                    if (!b.is(ModBlockTags.HAMMER_REMOVABLE) && !(b.getBlock() instanceof IHammerRemovable)) {
+                        return;
+                    }
                 }
-                if (event.getLevel().isClientSide()) {
-                    clientHandle(event, targetBlockState, hand);
+                if (event.getLevel().isClientSide() && clientHandle(event, targetBlockState, hand)) {
+                    event.setCancellationResult(InteractionResult.SUCCESS);
+                    event.setCanceled(true);
                 }
-                event.setCancellationResult(InteractionResult.SUCCESS);
-                event.setCanceled(true);
             }
         }
     }
 
 
-    private static void clientHandle(PlayerInteractEvent.@NotNull RightClickBlock event, BlockState targetBlockState, InteractionHand hand) {
+    private static boolean clientHandle(PlayerInteractEvent.@NotNull RightClickBlock event, BlockState targetBlockState, InteractionHand hand) {
         Property<?> property = AnvilHammerItem.findModifyableProperty(targetBlockState);
         if (!event.getEntity().isShiftKeyDown() && property != null) {
             if (event.getEntity().getAbilities().mayBuild) {
                 List<BlockState> possibleStates = StateUtil.findPossibleStatesForProperty(targetBlockState, property);
                 if (possibleStates.isEmpty()) {
-                    PacketDistributor.sendToServer(new HammerUsePacket(event.getPos(), hand));
+                    if (event.getEntity().isShiftKeyDown()) {
+                        PacketDistributor.sendToServer(new HammerUsePacket(event.getPos(), hand));
+                        return true;
+                    }
+                    return false;
                 } else {
                     Minecraft.getInstance().setScreen(new AnvilHammerScreen(
                         event.getPos(),
@@ -75,9 +77,14 @@ public class ClientBlockEventListener {
                         possibleStates
                     ));
                 }
+                return true;
             }
         } else {
-            PacketDistributor.sendToServer(new HammerUsePacket(event.getPos(), hand));
+            if (event.getEntity().isShiftKeyDown()) {
+                PacketDistributor.sendToServer(new HammerUsePacket(event.getPos(), hand));
+                return true;
+            }
         }
+        return false;
     }
 }

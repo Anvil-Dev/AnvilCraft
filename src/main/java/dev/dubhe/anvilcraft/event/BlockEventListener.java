@@ -51,12 +51,11 @@ public class BlockEventListener {
             || (itemStack.is(Tags.Items.TOOLS_WRENCH) && targetBlockState.getBlock() instanceof IHammerChangeable)
         ) {
             if (AnvilHammerItem.ableToUseAnvilHammer(event.getLevel(), event.getPos(), event.getEntity())) {
-                Block b = event.getLevel().getBlockState(event.getPos()).getBlock();
-                if ((b instanceof IHammerRemovable || b.defaultBlockState().is(ModBlockTags.HAMMER_REMOVABLE))
-                    && !(b instanceof IHammerChangeable || b.defaultBlockState().is(ModBlockTags.HAMMER_CHANGEABLE))
-                    && !event.getEntity().isShiftKeyDown()
-                ) {
-                    return;
+                BlockState b = event.getLevel().getBlockState(event.getPos());
+                if (event.getEntity().isShiftKeyDown()) {
+                    if (!b.is(ModBlockTags.HAMMER_REMOVABLE) && !(b.getBlock() instanceof IHammerRemovable)) {
+                        return;
+                    }
                 }
                 event.setCancellationResult(InteractionResult.SUCCESS);
                 event.setCanceled(true);
