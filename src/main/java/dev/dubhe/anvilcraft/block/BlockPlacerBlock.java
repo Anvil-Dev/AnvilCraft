@@ -253,38 +253,36 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
         }
 
         ItemEntity itemEntity = null;
-        int i = 1;
+        int i = 0;
         // 从放置器背后的掉落物中获取物品
-        if (itemHandler == null) while (itemEntity == null) {
-            if (i < AnvilCraft.config.blockPlacerRecursiveRetrievalDistanceMax
-                && level.getBlockState(inputPos).is(this)
-            ) {
-                i++;
-                inputPos = inputPos.relative(direction.getOpposite());
-                continue;
-            }
-            AABB aabb = new AABB(inputPos);
-            List<ItemEntity> entities =
-                level.getEntities(
-                    EntityTypeTest.forClass(ItemEntity.class),
-                    aabb,
-                    Entity::isAlive
-                );
-            if (entities.isEmpty()) {
-                continue;
-            }
-            for (ItemEntity entity : entities) {
-                if (entity.getItem().getItem() instanceof BlockItem) {
-                    itemEntity = entity;
-                    placeItem = entity.getItem();
-                    break;
+        if (itemHandler == null) {
+            do {
+                if (level.getBlockState(inputPos).is(this)) {
+                    i++;
+                    inputPos = inputPos.relative(direction.getOpposite());
+                    continue;
                 }
-            }
-            if (i >= AnvilCraft.config.blockPlacerRecursiveRetrievalDistanceMax && itemEntity == null) return;
+                AABB aabb = new AABB(inputPos);
+                List<ItemEntity> entities =
+                    level.getEntities(
+                        EntityTypeTest.forClass(ItemEntity.class),
+                        aabb,
+                        Entity::isAlive
+                    );
+                if (entities.isEmpty()) {
+                    continue;
+                }
+                for (ItemEntity entity : entities) {
+                    if (entity.getItem().getItem() instanceof BlockItem) {
+                        itemEntity = entity;
+                        placeItem = entity.getItem();
+                        break;
+                    }
+                }
+            } while (itemEntity == null && i < AnvilCraft.config.blockPlacerRecursiveRetrievalDistanceMax);
+            if (itemEntity == null) return;
         }
-        if (placeItem == null) {
-            return;
-        }
+        if (placeItem == null) return;
         // 检查海龟蛋，海泡菜，蜡烛是否可以被放置
         BlockItem blockItem = (BlockItem) placeItem.getItem();
         boolean isInvalidBlock = blockState.is(Blocks.TURTLE_EGG)
