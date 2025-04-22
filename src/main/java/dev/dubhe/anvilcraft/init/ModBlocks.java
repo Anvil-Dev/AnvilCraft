@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent.Switch;
 import dev.dubhe.anvilcraft.block.AccelerationRingBlock;
 import dev.dubhe.anvilcraft.block.ActiveSilencerBlock;
+import dev.dubhe.anvilcraft.block.AdvancedRepeaterBlock;
 import dev.dubhe.anvilcraft.block.AmberBlock;
 import dev.dubhe.anvilcraft.block.ArrowBlock;
 import dev.dubhe.anvilcraft.block.BatchCrafterBlock;
@@ -4158,6 +4159,31 @@ public class ModBlocks {
     static {
         REGISTRATE.defaultCreativeTab(ModItemGroups.ANVILCRAFT_FUNCTION_BLOCK.getKey());
     }
+
+    public static final BlockEntry<AdvancedRepeaterBlock> ADVANCED_REPEATER = REGISTRATE
+        .block("advanced_repeater", AdvancedRepeaterBlock::new)
+        .properties(properties -> properties
+            .strength(3.0F, 3.5F)
+            .sound(SoundType.STONE)
+            .noOcclusion()
+        )
+        .blockstate((ctx, provider) -> DataGenUtil.diodeBlock(
+            provider, ctx.getId(), ctx.get()
+        ))
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .simpleItem()
+        .recipe((ctx, provider) ->
+            ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get())
+                .pattern("BCR")
+                .pattern("III")
+                .define('B', ModItems.CIRCUIT_BOARD)
+                .define('C', Items.CLOCK)
+                .define('I', Items.IRON_INGOT)
+                .define('R', Items.REDSTONE_TORCH)
+                .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
+                .save(provider)
+        )
+        .register();
 
     public static final BlockEntry<? extends TimeCountedPressurePlateBlock> COPPER_PRESSURE_PLATE = REGISTRATE
         .block("copper_pressure_plate", properties -> new TimeCountedPressurePlateBlock(BlockSetType.IRON, properties, 10))

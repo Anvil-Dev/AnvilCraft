@@ -1,0 +1,7 @@
+{
+  "type": "anvilcraft:charger_charging",
+  "ingredient": "anvilcraft:charged_neutronium_ingot",
+  "power": 3200,
+  "result": "anvilcraft:neutronium_ingot",
+  "time": 6000
+}

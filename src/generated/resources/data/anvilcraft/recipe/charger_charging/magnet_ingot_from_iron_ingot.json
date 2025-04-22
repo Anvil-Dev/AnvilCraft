@@ -1,0 +1,7 @@
+{
+  "type": "anvilcraft:charger_charging",
+  "ingredient": "minecraft:iron_ingot",
+  "power": -4,
+  "result": "anvilcraft:magnet_ingot",
+  "time": 40
+}

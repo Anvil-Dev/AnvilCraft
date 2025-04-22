@@ -61,7 +61,7 @@ import static dev.dubhe.anvilcraft.util.Util.HORIZONTAL_DIRECTIONS;
 public class GiantAnvilLandingEventListener {
     private static final List<IShockBehaviorDefinition> behaviorDefs = new ArrayList<>();
     private static final int MIN_MULTIBLOCK_SIZE = 3;
-    private static final int MAX_MULTIBLOCK_SIZE = 3;
+    private static final int MAX_MULTIBLOCK_SIZE = 15;
 
     static {
         behaviorDefs.add(new IShockBehaviorDefinition.MatchAll((blockPosList, level) -> {
