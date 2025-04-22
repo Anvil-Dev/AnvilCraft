@@ -16,6 +16,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+import static dev.dubhe.anvilcraft.block.BlockPlacerBlock.ORIENTATION;
+
 public class ItemHandlerUtil implements IItemHandler {
     @Override
     public int getSlots() {
@@ -77,39 +79,42 @@ public class ItemHandlerUtil implements IItemHandler {
     }
 
     @Nullable
-    public static IItemHandler getSourceItemHandlerRecursive(Block source, BlockPos inputBlockPos, Direction from, Level level) {
-        return getSourceItemHandlerRecursive(source, inputBlockPos, from, level, 1);
-    }
-
-    @Nullable
-    public static IItemHandler getSourceItemHandlerRecursive(Block source, BlockPos inputBlockPos, Direction context, Level level, int times) {
-        if (level == null) return null;
-        if (times < AnvilCraft.config.blockPlacerRecursiveRetrievalDistanceMax
-            && level.getBlockState(inputBlockPos).is(source)
-        ) return getSourceItemHandlerRecursive(source, inputBlockPos.relative(context.getOpposite()), context, level, ++times);
-        IItemHandler input = level.getCapability(
-            Capabilities.ItemHandler.BLOCK,
-            inputBlockPos,
-            context
-        );
-        if (input != null) {
-            return input;
-        }
-        AABB aabb = new AABB(inputBlockPos);
-        List<ContainerEntity> entities =
-            level.getEntitiesOfClass(
-                    Entity.class,
-                    aabb,
-                    e -> e instanceof ContainerEntity && !((ContainerEntity) e).isEmpty()
-                ).stream()
-                .map(it -> (ContainerEntity) it)
-                .toList();
-        if (!entities.isEmpty()) {
-            input = ((Entity) entities.getFirst()).getCapability(
-                Capabilities.ItemHandler.ENTITY,
-                null
-            );
-        }
-        return input;
+    public static IItemHandler getSourceItemHandlerRecursive(Block source, BlockPos inputBlockPos, Direction context, Level level) {
+        int i = 0;
+        do {
+            if (level == null) return null;
+            if (level.getBlockState(inputBlockPos).is(source)
+                && level.getBlockState(inputBlockPos).getValue(ORIENTATION).getDirection() == context
+            ) {
+                i++;
+                inputBlockPos = inputBlockPos.relative(context.getOpposite());
+            } else {
+                IItemHandler input = level.getCapability(
+                    Capabilities.ItemHandler.BLOCK,
+                    inputBlockPos,
+                    context
+                );
+                if (input != null) {
+                    return input;
+                }
+                AABB aabb = new AABB(inputBlockPos);
+                List<ContainerEntity> entities =
+                    level.getEntitiesOfClass(
+                            Entity.class,
+                            aabb,
+                            e -> e instanceof ContainerEntity && !((ContainerEntity) e).isEmpty()
+                        ).stream()
+                        .map(it -> (ContainerEntity) it)
+                        .toList();
+                if (!entities.isEmpty()) {
+                    input = ((Entity) entities.getFirst()).getCapability(
+                        Capabilities.ItemHandler.ENTITY,
+                        null
+                    );
+                }
+                return input;
+            }
+        } while (i < AnvilCraft.config.blockPlacerRecursiveRetrievalDistanceMax);
+        return null;
     }
 }
