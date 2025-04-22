@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.init;
 
 import com.tterrag.registrate.util.entry.MenuEntry;
 import dev.dubhe.anvilcraft.client.gui.screen.ActiveSilencerScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.AdvancedRepeaterScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.BatchCrafterScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.ChuteScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.EmberAnvilScreen;
@@ -18,6 +19,7 @@ import dev.dubhe.anvilcraft.client.gui.screen.SliderScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.StructureToolScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.TeslaTowerScreen;
 import dev.dubhe.anvilcraft.inventory.ActiveSilencerMenu;
+import dev.dubhe.anvilcraft.inventory.AdvancedRepeaterMenu;
 import dev.dubhe.anvilcraft.inventory.BatchCrafterMenu;
 import dev.dubhe.anvilcraft.inventory.ChuteMenu;
 import dev.dubhe.anvilcraft.inventory.EmberAnvilMenu;
@@ -111,6 +113,10 @@ public class ModMenuTypes {
 
     public static final MenuEntry<TeslaTowerMenu> TESLA_TOWER = REGISTRATE
         .menu("tesla_tower", TeslaTowerMenu::new, () -> TeslaTowerScreen::new)
+        .register();
+
+    public static final MenuEntry<AdvancedRepeaterMenu> ADVANCED_REPEATER = REGISTRATE
+        .menu("advanced_repeater", AdvancedRepeaterMenu::new, () -> AdvancedRepeaterScreen::new)
         .register();
 
     public static void register() {

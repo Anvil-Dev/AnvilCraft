@@ -1,7 +1,5 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import dev.dubhe.anvilcraft.api.item.IChargerChargeable;
-import dev.dubhe.anvilcraft.api.item.IChargerDischargeable;
 import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
@@ -10,52 +8,48 @@ import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.ChargerBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
-import dev.dubhe.anvilcraft.init.ModItems;
+import dev.dubhe.anvilcraft.init.ModRecipeTypes;
+import dev.dubhe.anvilcraft.recipe.ChargerChargingRecipe;
 import dev.dubhe.anvilcraft.util.StateListener;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 public class ChargerBlockEntity extends BlockEntity
     implements IPowerConsumer, IPowerProducer, IFilterBlockEntity, StateListener<Boolean>, IItemHandlerHolder {
 
     @Setter
     private boolean isCharger;
-
-    private boolean previousDischargeFailed = false;
-    private int cd;
-    private boolean locked = false;
+    private int timeLeft = 0;
+    private int powerValue = 0;
     private boolean powered = false;
-    private boolean jumpOver = false;
 
     @Getter
-    private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(1) {
+    private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(3) {
 
         @Override
-        public ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
-            if (!locked && !previousDischargeFailed) {
+        public @NotNull ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
+            if (slot == 0 && itemHandler.getStackInSlot(0).isEmpty()) {
                 ItemStack original = stack.copy();
                 original.shrink(1);
                 if (original.isEmpty()) {
-                    ItemStack left = super.insertItem(slot, stack.copyWithCount(1), simulate);
-                    if (left.isEmpty() && !simulate) {
-                        locked = true;
-                    }
-                    return left;
+                    return super.insertItem(slot, stack.copyWithCount(1), simulate);
                 } else {
                     ItemStack left = super.insertItem(slot, stack.copyWithCount(1), simulate);
-                    if (left.isEmpty() && !simulate) {
-                        locked = true;
-                    }
                     return stack.copyWithCount(stack.getCount() - 1 + left.getCount());
                 }
             } else {
@@ -69,8 +63,8 @@ public class ChargerBlockEntity extends BlockEntity
         }
 
         @Override
-        public ItemStack extractItem(int slot, int amount, boolean simulate) {
-            return !locked ? super.extractItem(slot, amount, simulate) : ItemStack.EMPTY;
+        public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
+            return slot == 2 ? super.extractItem(2, amount, simulate) : ItemStack.EMPTY;
         }
     };
 
@@ -84,28 +78,78 @@ public class ChargerBlockEntity extends BlockEntity
     }
 
     private boolean containsValidItem(ItemStack stack) {
-        if (isCharger) {
-            return stack.getItem() instanceof IChargerChargeable || stack.is(Items.IRON_INGOT);
+        ChargerChargingRecipe.Input input =
+            new ChargerChargingRecipe.Input(stack);
+        if (level != null) {
+            Optional<RecipeHolder<ChargerChargingRecipe>> x = level.getRecipeManager()
+                .getRecipeFor(ModRecipeTypes.CHARGER_CHARGING_TYPE.get(), input, level);
+            if (x.isPresent()) {
+                if (x.get().value().power == 0) return false;
+                return isCharger == x.get().value().power < 0;
+                // (isCharger && isRecipePowerCharging) || (isDisCharger && RecipePowerDischarging)
+            }
         }
-        return stack.getItem() instanceof IChargerDischargeable;
+        return false;
     }
 
-    private void processItemTransform() {
-        ItemStack stack = itemHandler.getStackInSlot(0).copy();
-        if (stack.isEmpty() || !containsValidItem(stack)) return;
-        if (isCharger) {
-            if (stack.getItem() instanceof IChargerChargeable chargeable) {
-                itemHandler.setStackInSlot(0, chargeable.charge(stack));
-                return;
-            }
-            if (stack.is(Items.IRON_INGOT.asItem())) {
-                itemHandler.setStackInSlot(0, ModItems.MAGNET_INGOT.asStack(1));
-            }
-        } else {
-            if (stack.getItem() instanceof IChargerDischargeable dischargeable) {
-                itemHandler.setStackInSlot(0, dischargeable.discharge(stack));
+    @Nullable
+    private ChargerChargingRecipe getItemRecipe(ItemStack stack) {
+        ChargerChargingRecipe.Input input =
+            new ChargerChargingRecipe.Input(stack);
+        if (level != null) {
+            Optional<RecipeHolder<ChargerChargingRecipe>> x = level.getRecipeManager()
+                .getRecipeFor(ModRecipeTypes.CHARGER_CHARGING_TYPE.get(), input, level);
+            if (x.isPresent())  {
+                return x.get().value();
             }
         }
+        return null;
+    }
+
+    private boolean checkRecipeItemNotValid(@Nullable ChargerChargingRecipe recipe, ItemStack stack) {
+        if (recipe != null) {
+            if (recipe.power == 0) return true;
+            return isCharger != recipe.power < 0;
+        }
+        return true;
+    }
+
+    private void moveItemToTransformingSlot() {
+        ItemStack stack = itemHandler.getStackInSlot(0).copy();
+        if (stack.isEmpty()) return;
+        if (!itemHandler.getStackInSlot(1).isEmpty()) return;
+        ChargerChargingRecipe recipe = getItemRecipe(stack);
+        if (checkRecipeItemNotValid(recipe, stack)) return;
+        itemHandler.setStackInSlot(0, ItemStack.EMPTY);
+        if (isCharger) {
+            itemHandler.setStackInSlot(1, stack);
+        } else {
+            ItemStack transformed = recipe.getResult().getDefaultInstance();
+            transformed.setCount(1);
+            itemHandler.setStackInSlot(1, transformed);
+        }
+        timeLeft = recipe.time + 1; //since there is a "timeLeft--" after this, here +1 to negate
+        powerValue = recipe.power;
+    }
+
+    private void moveItemToTransformedOverSlot() {
+        ItemStack stack = itemHandler.getStackInSlot(1).copy();
+        if (stack.isEmpty()) return;
+        if (!itemHandler.getStackInSlot(2).isEmpty()) {
+            powerValue = 0;
+            return;
+        }
+        if (isCharger) {
+            ChargerChargingRecipe recipe = getItemRecipe(stack);
+            if (checkRecipeItemNotValid(recipe, stack)) return;
+            ItemStack transformed = recipe.getResult().getDefaultInstance();
+            transformed.setCount(1);
+            itemHandler.setStackInSlot(2, transformed);
+        } else {
+            itemHandler.setStackInSlot(2, stack);
+        }
+        itemHandler.setStackInSlot(1, ItemStack.EMPTY);
+        powerValue = 0;
     }
 
     @Override
@@ -119,28 +163,25 @@ public class ChargerBlockEntity extends BlockEntity
     }
 
     @Override
-    protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
+    protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider provider) {
         super.saveAdditional(tag, provider);
-        tag.putInt("Cooldown", cd);
+        tag.putInt("TimeLeft", timeLeft);
         tag.put("Depository", itemHandler.serializeNBT(provider));
         tag.putBoolean("Mode", isCharger);
-        tag.putBoolean("PreviousDischargeFailed", previousDischargeFailed);
-        tag.putBoolean("Locked", locked);
     }
 
     @Override
-    public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
+    public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider provider) {
         super.loadAdditional(tag, provider);
-        cd = tag.getInt("Cooldown");
+        timeLeft = tag.getInt("TimeLeft");
         itemHandler.deserializeNBT(provider, tag.getCompound("Depository"));
         isCharger = tag.getBoolean("Mode");
-        locked = tag.getBoolean("Locked");
-        previousDischargeFailed = tag.getBoolean("PreviousDischargeFailed");
     }
 
     @Override
     public int getInputPower() {
-        return locked && isCharger && !powered ? 32 : 0;
+        return isCharger ? -powerValue : 0;
+        //return locked && isCharger && !powered ? 32 : 0;
     }
 
     @Override
@@ -150,7 +191,8 @@ public class ChargerBlockEntity extends BlockEntity
 
     @Override
     public int getOutputPower() {
-        return locked && !isCharger && !powered ? 24 : 0;
+        return !isCharger ? powerValue : 0;
+        //return locked && !isCharger && !powered ? 24 : 0;
     }
 
     @Override
@@ -165,7 +207,7 @@ public class ChargerBlockEntity extends BlockEntity
 
     @Override
     public boolean isSlotDisabled(int slot) {
-        return cd != 0;
+        return timeLeft > 0;
     }
 
     @Override
@@ -176,11 +218,28 @@ public class ChargerBlockEntity extends BlockEntity
     @Override
     public void notifyStateChanged(Boolean newState) {
         isCharger = newState;
-        if (isCharger) {
-            previousDischargeFailed = true;
+        ItemStack stack0 = itemHandler.getStackInSlot(0).copy();
+        ItemStack stack1 = itemHandler.getStackInSlot(1).copy();
+        ItemStack stack2 = itemHandler.getStackInSlot(2).copy();
+        dropItemStack(stack0);
+        dropItemStack(stack1);
+        dropItemStack(stack2);
+        itemHandler.setStackInSlot(0, ItemStack.EMPTY);
+        itemHandler.setStackInSlot(1, ItemStack.EMPTY);
+        itemHandler.setStackInSlot(2, ItemStack.EMPTY);
+        timeLeft = 0;
+        powerValue = 0;
+    }
+
+    private void dropItemStack(ItemStack stack1) {
+        if (!stack1.isEmpty()) {
+            if (level != null) {
+                Vec3 dropPos = getBlockPos().above().getBottomCenter();
+                ItemEntity itemEntity = new ItemEntity(level, dropPos.x, dropPos.y, dropPos.z,
+                    stack1, 0, 0, 0);
+                itemEntity.setDefaultPickUpDelay();
+            }
         }
-        locked = false;
-        cd = 0;
     }
 
     /**
@@ -191,51 +250,18 @@ public class ChargerBlockEntity extends BlockEntity
         BlockState state = level1.getBlockState(blockPos);
         powered = state.getValue(ChargerBlock.POWERED);
         if (grid == null) return;
-        if (level1.getGameTime() % 21 != 0) return;
-        if (itemHandler.getStackInSlot(0).isEmpty()) {
-            locked = false;
-            return;
-        }
-        if (grid.isWorking() && !isCharger) {
-            previousDischargeFailed = false;
-        }
         if (powered) return;
-        if (cd == 0 && containsValidItem(itemHandler.getStackInSlot(0)) && !jumpOver) {
-            locked = true;
-            cd = 7;
-            if (!isCharger) processItemTransform();
-            return;
+        if (timeLeft == 0) {
+            moveItemToTransformingSlot();
         }
-        if (previousDischargeFailed) {
-            if (cd <= 0) {
-                locked = false;
+        if (timeLeft > 0) {
+            if (!isCharger || isGridWorking()) {
+                //if isDisCharger or (isCharger and isGridWorking)
+                timeLeft--;
             }
-            return;
         }
-        if (isCharger) {
-            if (grid.isWorking()) {
-                if (cd > 0) {
-                    cd--;
-                    locked = true;
-                    jumpOver = true;
-                } else {
-                    processItemTransform();
-                    cd = 0;
-                    locked = false;
-                    jumpOver = false;
-                }
-            }
-        } else {
-            if (cd > 0) {
-                cd--;
-                locked = true;
-            } else {
-                if (!grid.isWorking() && !previousDischargeFailed) {
-                    previousDischargeFailed = true;
-                }
-                cd = 0;
-                locked = false;
-            }
+        if (timeLeft == 0) {
+            moveItemToTransformedOverSlot();
         }
     }
 }
