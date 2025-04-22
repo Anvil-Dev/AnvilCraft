@@ -218,9 +218,9 @@ public class InductionLightBlock extends BetterBaseEntityBlock implements IHamme
         Block neighborBlock,
         BlockPos neighborPos,
         boolean movedByPiston) {
-        if (level.isClientSide) {
-            return;
-        }
+        if (level.isClientSide) return;
+        if (state.getValue(WATERLOGGED)) level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+        if (state.getValue(OVERLOAD)) return;
         level.setBlock(pos, state.setValue(POWERED, level.hasNeighborSignal(pos)), 2);
     }
 
