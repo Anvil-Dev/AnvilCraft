@@ -139,18 +139,12 @@ public class EmberAnvilMenu extends AnvilMenu {
                         Holder<Enchantment> holder = entry.getKey();
                         int enchantmentsOnLeftLevel = enchantmentsOnLeft.getLevel(holder);
                         int enchantmentsOnRightLevel = entry.getIntValue();
-                        enchantmentsOnRightLevel = Math.max(enchantmentsOnRightLevel, enchantmentsOnLeftLevel);
                         Enchantment enchantment = holder.value();
-
-                        for (Holder<Enchantment> holder1 : enchantmentsOnLeft.keySet()) {
-                            if (!holder1.equals(holder) && !Enchantment.areCompatible(holder, holder1)) {
-                                ++totalCost;
-                            }
-                        }
-                        enchantmentsOnRightLevel = Math.clamp(enchantmentsOnRightLevel, 0, enchantment.getMaxLevel());
-                        if (enchantmentsOnRightLevel > enchantment.getMaxLevel()) {
-                            enchantmentsOnRightLevel = enchantment.getMaxLevel();
-                        }
+                        enchantmentsOnRightLevel =
+                            enchantmentsOnLeftLevel == enchantmentsOnRightLevel
+                            && enchantmentsOnLeftLevel < enchantment.getMaxLevel()
+                            ? enchantmentsOnRightLevel + 1
+                            : Math.max(enchantmentsOnRightLevel, enchantmentsOnLeftLevel);
 
                         enchantmentsOnLeft.set(holder, enchantmentsOnRightLevel);
                         int anvilCost = enchantment.getAnvilCost();
@@ -170,10 +164,10 @@ public class EmberAnvilMenu extends AnvilMenu {
             if (extraFormat != null) {
                 repairCostT = 1;
                 Integer baseRepairCost = inputItemLeft.get(DataComponents.REPAIR_COST);
-                totalCost += repairCostT
+                totalCost = totalCost + repairCostT
                     * inputItemLeft.getCount()
                     * inputItemRight.getCount()
-                    * (baseRepairCost == null ? 1 : baseRepairCost);
+                    * (baseRepairCost == null || baseRepairCost == 0 ? 1 : baseRepairCost);
                 Component currentName = inputItemLeft.getHoverName();
                 if (!this.itemName.equals(currentName.getString())
                     && this.itemName != null

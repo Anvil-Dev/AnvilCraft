@@ -136,35 +136,53 @@ public class RoyalAnvilMenu extends AnvilMenu {
                     }
 
                     ItemEnchantments enchantmentsOnRight = EnchantmentHelper.getEnchantmentsForCrafting(inputItemRight);
+                    boolean flag2 = false;
+                    boolean flag3 = false;
+
                     for (Object2IntMap.Entry<Holder<Enchantment>> entry : enchantmentsOnRight.entrySet()) {
                         Holder<Enchantment> holder = entry.getKey();
                         int i2 = enchantmentsOnLeft.getLevel(holder);
                         int j2 = entry.getIntValue();
                         j2 = i2 == j2 ? j2 + 1 : Math.max(j2, i2);
                         Enchantment enchantment = holder.value();
+                        boolean flag1 = inputItemLeft.supportsEnchantment(holder);
+                        if (this.player.getAbilities().instabuild) {
+                            flag1 = true;
+                        }
 
                         for (Holder<Enchantment> holder1 : enchantmentsOnLeft.keySet()) {
                             if (!holder1.equals(holder) && !Enchantment.areCompatible(holder, holder1)) {
-                                ++totalCost;
+                                flag1 = false;
+                                totalCost++;
                             }
                         }
 
-                        if (j2 > enchantment.getMaxLevel()) {
-                            j2 = enchantment.getMaxLevel();
-                        }
+                        if (!flag1) {
+                            flag3 = true;
+                        } else {
+                            flag2 = true;
+                            if (j2 > enchantment.getMaxLevel()) {
+                                j2 = enchantment.getMaxLevel();
+                            }
 
-                        enchantmentsOnLeft.set(holder, j2);
-                        int l3 = enchantment.getAnvilCost();
-                        if (hasStoredEnchantmentsOnInput2) {
-                            l3 = Math.max(1, l3 / 2);
-                        }
+                            enchantmentsOnLeft.set(holder, j2);
+                            int l3 = enchantment.getAnvilCost();
+                            if (hasStoredEnchantmentsOnInput2) {
+                                l3 = Math.max(1, l3 / 2);
+                            }
 
-                        totalCost += l3 * j2;
-                        if (inputItemLeft.getCount() > 1) {
-                            totalCost = 40;
+                            totalCost += l3 * j2;
+                            if (inputItemLeft.getCount() > 1) {
+                                totalCost = 40;
+                            }
                         }
                     }
 
+                    if (flag3 && !flag2) {
+                        this.resultSlots.setItem(0, ItemStack.EMPTY);
+                        this.cost.set(0);
+                        return;
+                    }
                 }
             }
 
@@ -174,7 +192,7 @@ public class RoyalAnvilMenu extends AnvilMenu {
                 totalCost += repairCostT
                     * inputItemLeft.getCount()
                     * inputItemRight.getCount()
-                    * (baseRepairCost == null ? 1 : baseRepairCost);
+                    * (baseRepairCost == null || baseRepairCost == 0 ? 1 : baseRepairCost);
                 Component currentName = inputItemLeft.getHoverName();
                 if (!this.itemName.equals(currentName.getString())
                     && this.itemName != null
