@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.state.Orientation;
@@ -43,12 +44,12 @@ import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
 import static dev.dubhe.anvilcraft.api.entity.player.AnvilCraftBlockPlacer.anvilCraftBlockPlacer;
-import static dev.dubhe.anvilcraft.util.ItemHandlerUtil.getTargetItemHandler;
+import static dev.dubhe.anvilcraft.util.ItemHandlerUtil.getSourceItemHandler;
+import static dev.dubhe.anvilcraft.util.ItemHandlerUtil.getSourceItemHandlerRecursive;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -238,13 +239,10 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
             // 不能放置方块，方法直接结束
             return;
         }
+        BlockPos inputPos = blockPos.relative(direction.getOpposite());
         // 获取放置方块类型
         ItemStack placeItem = null;
-        IItemHandler itemHandler = getTargetItemHandler(
-            blockPos.relative(direction.getOpposite()),
-            direction,
-            level
-        );
+        IItemHandler itemHandler = getSourceItemHandlerRecursive(this, inputPos, direction, level);
         int slot;
         for (slot = 0; itemHandler != null && slot < itemHandler.getSlots(); slot++) {
             ItemStack blockItemStack = itemHandler.extractItem(slot, 1, true);
@@ -255,9 +253,17 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
         }
 
         ItemEntity itemEntity = null;
+        int i = 1;
         // 从放置器背后的掉落物中获取物品
-        if (itemHandler == null) {
-            AABB aabb = new AABB(blockPos.relative(direction.getOpposite()));
+        if (itemHandler == null) while (itemEntity == null) {
+            if (i < AnvilCraft.config.blockPlacerRecursiveRetrievalDistanceMax
+                && level.getBlockState(inputPos).is(this)
+            ) {
+                i++;
+                inputPos = inputPos.relative(direction.getOpposite());
+                continue;
+            }
+            AABB aabb = new AABB(inputPos);
             List<ItemEntity> entities =
                 level.getEntities(
                     EntityTypeTest.forClass(ItemEntity.class),
@@ -265,7 +271,7 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
                     Entity::isAlive
                 );
             if (entities.isEmpty()) {
-                return;
+                continue;
             }
             for (ItemEntity entity : entities) {
                 if (entity.getItem().getItem() instanceof BlockItem) {
@@ -274,9 +280,7 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
                     break;
                 }
             }
-            if (itemEntity == null) {
-                return;
-            }
+            if (i >= AnvilCraft.config.blockPlacerRecursiveRetrievalDistanceMax && itemEntity == null) return;
         }
         if (placeItem == null) {
             return;
@@ -303,15 +307,10 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
         }
         // 清除消耗的物品
         if (itemHandler == null) {
-            if (itemEntity == null) {
-                return;
-            }
             int count = itemEntity.getItem().getCount();
             // 处理细雪桶
             if (itemEntity.getItem().is(Items.POWDER_SNOW_BUCKET)) {
                 itemEntity.setItem(new ItemStack(Items.BUCKET, count));
-            } else {
-                itemEntity.getItem().shrink(1);
             }
         } else {
             if (itemHandler.getStackInSlot(slot).is(Items.POWDER_SNOW_BUCKET)) {

@@ -31,7 +31,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
-import static dev.dubhe.anvilcraft.util.ItemHandlerUtil.getTargetItemHandler;
+import static dev.dubhe.anvilcraft.util.ItemHandlerUtil.getSourceItemHandler;
 
 @Getter
 @MethodsReturnNonnullByDefault
@@ -119,7 +119,7 @@ public abstract class BaseChuteBlockEntity
         if (cooldown <= 0) {
             if (isEnabled()) {
                 // 尝试从上方容器输入
-                IItemHandler source = getTargetItemHandler(
+                IItemHandler source = getSourceItemHandler(
                     getBlockPos().relative(getInputDirection()),
                     getInputDirection().getOpposite(),
                     level
@@ -144,7 +144,7 @@ public abstract class BaseChuteBlockEntity
                         resetCD = prevSize > itemEntities.size();
                 }
                 // 尝试向朝向容器输出
-                IItemHandler target = getTargetItemHandler(
+                IItemHandler target = getSourceItemHandler(
                     getBlockPos().relative(getOutputDirection()),
                     getOutputDirection().getOpposite(),
                     level
