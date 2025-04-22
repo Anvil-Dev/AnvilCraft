@@ -1,14 +1,15 @@
 package dev.dubhe.anvilcraft.item;
 
+import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.capabilities.Capabilities;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -21,7 +22,10 @@ public class ChuteBlockItem extends BlockItem {
 
     @Override
     public InteractionResult onItemUseFirst(ItemStack stack, UseOnContext context) {
-        BlockState state = context.getLevel().getBlockState(context.getClickedPos());
-        return state.getBlock() instanceof IItemHandler ? this.useOn(context) : super.onItemUseFirst(stack, context);
+        Level level = context.getLevel();
+        BlockPos pos = context.getClickedPos();
+        return level.getBlockEntity(pos) instanceof IItemHandlerHolder || level.getCapability(
+            Capabilities.ItemHandler.BLOCK, context.getClickedPos(), context.getClickedFace()
+        ) != null ? this.useOn(context) : super.onItemUseFirst(stack, context);
     }
 }
