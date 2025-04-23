@@ -146,6 +146,10 @@ public class EmberAnvilMenu extends AnvilMenu {
                             ? enchantmentsOnRightLevel + 1
                             : Math.max(enchantmentsOnRightLevel, enchantmentsOnLeftLevel);
 
+                        if (enchantmentsOnRightLevel > enchantment.getMaxLevel()) {
+                            enchantmentsOnRightLevel = enchantment.getMaxLevel();
+                        }
+
                         enchantmentsOnLeft.set(holder, enchantmentsOnRightLevel);
                         int anvilCost = enchantment.getAnvilCost();
                         if (hasStoredEnchantmentsOnInput2) {
