@@ -13,7 +13,7 @@ enum HurtType {
 
         @Override
         public void postApply(Level level, LivingEntity l, float fallDistance) {
-            if (!l.fireImmune()){
+            if (!l.fireImmune()) {
                 l.setRemainingFireTicks((int) (Math.floor(fallDistance) * 10));
                 l.setRemainingFireTicks((int) (Math.floor(fallDistance) * 10));
             }
