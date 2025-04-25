@@ -71,7 +71,8 @@ enum DestroyType {
                 BlockState state = level.getBlockState(destroyLayer);
                 if (state.isAir()) continue;
                 if (state.getBlock() instanceof CropBlock cropBlock && cropBlock.isMaxAge(state)) {
-                    Block.dropResources(state, level, destroyLayer);
+                    List<ItemStack> itemStack = mode.apply(state, pos, context);
+                    DestroyType.dropItems(itemStack, pos, level);
                     level.setBlockAndUpdate(destroyLayer, cropBlock.getStateForAge(0));
                     continue;
                 }
@@ -182,7 +183,13 @@ enum DestroyType {
                 BlockState state = level.getBlockState(pos);
                 if (state.isAir()) continue;
                 if (state.getBlock() instanceof CropBlock || state.is(ModBlockTags.CLEANING_APPLICABLE)) {
-                    List<ItemStack> drops = mode.apply(state, pos, context, TOOL);
+                    List<ItemStack> drops;
+                    if (state.is(Blocks.SNOW)) {
+                        drops = mode.apply(state, pos, context);
+                    }else {
+                        drops = mode.apply(state, pos, context, TOOL);
+                    }
+
                     DestroyType.dropItems(drops, pos, level);
                     level.destroyBlock(pos, false);
                 }
