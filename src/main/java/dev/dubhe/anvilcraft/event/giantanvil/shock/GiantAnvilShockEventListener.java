@@ -117,8 +117,6 @@ public class GiantAnvilShockEventListener {
                 it.putAttachment(NO_HURT, true);
             })
         ).executes(it -> {
-            //hurts
-            if (it.has(NO_HURT)) return;
             int radius = (int) Math.min(Math.ceil(it.unwrap().fallDistance()), AnvilCraft.config.giantAnvilMaxShockRadius);
             AABB aabb = AABB.ofSize(
                 Vec3.atCenterOf(it.unwrap().centerPos().above()),
@@ -128,14 +126,8 @@ public class GiantAnvilShockEventListener {
             );
             List<LivingEntity> e = it.unwrap().level().getEntitiesOfClass(LivingEntity.class, aabb);
             for (LivingEntity l : e) {
-                if (it.has(HURT_TYPE)) {
-                    HurtType hurtType = it.getAttachment(HURT_TYPE, HurtType.class);
-                    l.hurt(hurtType.damageSource(it.unwrap().level()), it.unwrap().fallDistance() * 2);
-                    hurtType.postApply(it.unwrap().level(), l, it.unwrap().fallDistance());
-                } else {
-                    if (l.getItemBySlot(EquipmentSlot.FEET).is(Items.AIR)) {
-                        l.hurt(it.unwrap().level().damageSources().fall(), it.unwrap().fallDistance() * 2);
-                    }
+                if (l.getItemBySlot(EquipmentSlot.FEET).is(Items.AIR)) {
+                    l.hurt(it.unwrap().level().damageSources().fall(), it.unwrap().fallDistance() * 2);
                 }
             }
         });
