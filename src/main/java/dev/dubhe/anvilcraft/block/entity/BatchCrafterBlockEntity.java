@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.BatchCrafterMenu;
 import dev.dubhe.anvilcraft.network.UpdateDisplayItemPacket;
+import dev.dubhe.anvilcraft.util.Util;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
@@ -87,6 +88,17 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
                 }
             }
             setChanged();
+        }
+
+        @Override
+        public boolean isItemValid(int slot, ItemStack stack) {
+            // 临时解决方案
+            if (Util.findCaller("craft")) {
+                if (!this.isFilterEnabled()) return !this.isSlotDisabled(slot);
+                return !this.isSlotDisabled(slot) && this.isFiltered(slot, stack);
+            } else {
+                return super.isItemValid(slot, stack);
+            }
         }
     };
 
