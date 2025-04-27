@@ -66,18 +66,15 @@ public class SimpleChuteBlock
 
     public static final VoxelShape AABB = Block.box(2, 0, 2, 14, 12, 14);
     public static final VoxelShape AABB_TALL = Block.box(2, 0, 2, 14, 16, 14);
-    public static final VoxelShape AABB_N = Block.box(4, 4, 0, 12, 12, 12);
-    public static final VoxelShape AABB_TALL_N =
-        Shapes.join(Block.box(4, 4, 0, 12, 12, 12), Block.box(2, 8, 2, 14, 16, 14), BooleanOp.OR);
-    public static final VoxelShape AABB_E = Block.box(4, 4, 4, 16, 12, 12);
-    public static final VoxelShape AABB_TALL_E =
-        Shapes.join(Block.box(4, 4, 4, 16, 12, 12), Block.box(2, 8, 2, 14, 16, 14), BooleanOp.OR);
-    public static final VoxelShape AABB_S = Block.box(4, 4, 4, 12, 12, 16);
-    public static final VoxelShape AABB_TALL_S =
-        Shapes.join(Block.box(4, 4, 4, 12, 12, 16), Block.box(2, 8, 2, 14, 16, 14), BooleanOp.OR);
-    public static final VoxelShape AABB_W = Block.box(0, 4, 4, 12, 12, 12);
-    public static final VoxelShape AABB_TALL_W =
-        Shapes.join(Block.box(0, 4, 4, 12, 12, 12), Block.box(2, 8, 2, 14, 16, 14), BooleanOp.OR);
+    public static final VoxelShape AABB_TALL_BASE = Block.box(2, 8, 2, 14, 16, 14);
+    public static final VoxelShape AABB_N = Block.box(4, 4, -4, 12, 12, 12);
+    public static final VoxelShape AABB_TALL_N = Shapes.join(AABB_N, AABB_TALL_BASE, BooleanOp.OR);
+    public static final VoxelShape AABB_E = Block.box(4, 4, 4, 20, 12, 12);
+    public static final VoxelShape AABB_TALL_E = Shapes.join(AABB_E, AABB_TALL_BASE, BooleanOp.OR);
+    public static final VoxelShape AABB_S = Block.box(4, 4, 4, 12, 12, 20);
+    public static final VoxelShape AABB_TALL_S = Shapes.join(AABB_S, AABB_TALL_BASE, BooleanOp.OR);
+    public static final VoxelShape AABB_W = Block.box(-4, 4, 4, 12, 12, 12);
+    public static final VoxelShape AABB_TALL_W = Shapes.join(AABB_W, AABB_TALL_BASE, BooleanOp.OR);
 
     /**
      * @param properties 方块属性
@@ -198,13 +195,10 @@ public class SimpleChuteBlock
 
 
     @Override
-    public VoxelShape getShape(
-        BlockState blockState,
-        BlockGetter blockGetter,
-        BlockPos blockPos,
-        CollisionContext collisionContext) {
-        if (!blockState.getValue(TALL)) {
-            return switch (blockState.getValue(FACING)) {
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        Direction facing = state.getValue(FACING);
+        if (!state.getValue(TALL)) {
+            return switch (facing) {
                 case NORTH -> AABB_N;
                 case EAST -> AABB_E;
                 case SOUTH -> AABB_S;
@@ -212,7 +206,7 @@ public class SimpleChuteBlock
                 default -> AABB;
             };
         } else {
-            return switch (blockState.getValue(FACING)) {
+            return switch (facing) {
                 case NORTH -> AABB_TALL_N;
                 case EAST -> AABB_TALL_E;
                 case SOUTH -> AABB_TALL_S;
@@ -220,6 +214,11 @@ public class SimpleChuteBlock
                 default -> AABB_TALL;
             };
         }
+    }
+
+    @Override
+    protected VoxelShape getVisualShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return this.getShape(state, level, pos, context);
     }
 
     @Override
