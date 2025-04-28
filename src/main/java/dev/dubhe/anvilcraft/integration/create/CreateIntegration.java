@@ -88,6 +88,7 @@ public class CreateIntegration {
     public static final ItemEntry<CogwheelAmuletItem> COGWHEEL_AMULET = REGISTRATE
         .item("cogwheel_amulet", CogwheelAmuletItem::new)
         .properties(properties -> properties.stacksTo(1))
+        .removeTab(ModItemGroups.ANVILCRAFT_INGREDIENTS.getKey())
         .recipe((ctx, provider) -> JewelCraftingRecipe.builder()
             .requires(ModItems.SILVER_INGOT, 1)
             .requires(AllItems.PRECISION_MECHANISM, 16)
