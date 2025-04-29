@@ -218,6 +218,12 @@ remapJar {
     from(root_project.file("ASSETS_LICENSE")) {
         rename { "${it}_${mod_id}" }
     }
+    from(root_project.file("README.md")) {
+        rename { "${it}_${mod_id}" }
+    }
+    from(root_project.file("README_en.md")) {
+        rename { "${it}_${mod_id}" }
+    }
     inputFile.set(shadowJar.archiveFile)
     dependsOn shadowJar
     archiveClassifier.set(null)
