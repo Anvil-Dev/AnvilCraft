@@ -57,4 +57,19 @@ public class MathUtil {
         if (a == b) return 1;
         return a / b;
     }
+
+    public static boolean isInRange(double valueX, double valueY, double minX, double minY, double maxX, double maxY) {
+        if (minX > maxX) {
+            double minX1 = minX;
+            minX = maxX;
+            maxX = minX1;
+        }
+        if (minY > maxY) {
+            double minY1 = minY;
+            minY = maxY;
+            maxY = minY1;
+        }
+
+        return valueX > minX && valueX < maxX && valueY > minY && valueY < maxY;
+    }
 }

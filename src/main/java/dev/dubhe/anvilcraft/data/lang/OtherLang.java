@@ -13,7 +13,6 @@ public class OtherLang {
         provider.add("item.anvilcraft.inherent_enchantment.tooltip", "Inherent enchantments:");
         provider.add(
             "item.anvilcraft.amethyst_pickaxe.tooltip", "Stone pickaxe quality, can mine iron ore, not diamonds!");
-        provider.add("item.anvilcraft.fire_reforging.tooltip", "Reforging: mending in fire or lava");
         provider.add("item.anvilcraft.comrade_amulet.tooltip", "Signed players:");
 
         provider.add("item.anvilcraft.geode.find", "Suspected amethyst geode, located %s");
@@ -43,5 +42,15 @@ public class OtherLang {
         provider.add("enchantment.anvilcraft.harvest", "Harvest");
         provider.add("death.attack.anvilcraft.laser", "%1$s was pierced by laser");
         provider.add("death.attack.anvilcraft.lost_in_time", "%1$s was lost in the river of time");
+
+        provider.add("tooltip.anvilcraft.property.fire_reforging", "Reforging: mending in fire or lava");
+        provider.add("tooltip.anvilcraft.property.multiphase", "Multiphase: press [%s] to switch phases");
+        provider.add("tooltip.anvilcraft.property.multiphase.suffix.alpha", "-α");
+        provider.add("tooltip.anvilcraft.property.multiphase.suffix.beta", "-β");
+        provider.add("tooltip.anvilcraft.property.merciless", "Merciless: treat everyone equally, greatness in simplicity");
+
+        provider.add("key.categories.anvilcraft", "AnvilCraft");
+        provider.add("key.anvilcraft.switch_phase", "Switch Phase");
+        provider.add("key.anvilcraft.toggle_goggle", "Toggle Goggle Mode");
     }
 }

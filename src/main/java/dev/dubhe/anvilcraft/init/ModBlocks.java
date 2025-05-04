@@ -2,12 +2,13 @@ package dev.dubhe.anvilcraft.init;
 
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.entry.BlockEntry;
+import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
 import com.tterrag.registrate.util.nullness.NonNullFunction;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent.Switch;
 import dev.dubhe.anvilcraft.block.AccelerationRingBlock;
 import dev.dubhe.anvilcraft.block.ActiveSilencerBlock;
-import dev.dubhe.anvilcraft.block.AdvancedRepeaterBlock;
+import dev.dubhe.anvilcraft.block.PulseGeneratorBlock;
 import dev.dubhe.anvilcraft.block.AmberBlock;
 import dev.dubhe.anvilcraft.block.ArrowBlock;
 import dev.dubhe.anvilcraft.block.BatchCrafterBlock;
@@ -32,7 +33,7 @@ import dev.dubhe.anvilcraft.block.CrushingTableBlock;
 import dev.dubhe.anvilcraft.block.DeflectionRingBlock;
 import dev.dubhe.anvilcraft.block.DischargerBlock;
 import dev.dubhe.anvilcraft.block.EmberAnvilBlock;
-import dev.dubhe.anvilcraft.block.EmberGrindstone;
+import dev.dubhe.anvilcraft.block.EmberGrindstoneBlock;
 import dev.dubhe.anvilcraft.block.EmberMetalBlock;
 import dev.dubhe.anvilcraft.block.EmberMetalPillarBlock;
 import dev.dubhe.anvilcraft.block.EmberMetalSlabBlock;
@@ -163,6 +164,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ColoredFallingBlock;
+import net.minecraft.world.level.block.DiodeBlock;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SlabBlock;
@@ -183,6 +185,7 @@ import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
+import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.common.Tags;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -455,8 +458,8 @@ public class ModBlocks {
         .tag(ItemTags.ANVIL)
         .build()
         .register();
-    public static final BlockEntry<EmberGrindstone> EMBER_GRINDSTONE = REGISTRATE
-        .block("ember_grindstone", EmberGrindstone::new)
+    public static final BlockEntry<EmberGrindstoneBlock> EMBER_GRINDSTONE = REGISTRATE
+        .block("ember_grindstone", EmberGrindstoneBlock::new)
         .recipe((ctx, provider) -> {
             SmithingTransformRecipeBuilder.smithing(
                     Ingredient.of(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE),
@@ -1758,15 +1761,41 @@ public class ModBlocks {
                 .save(provider, AnvilCraft.of("stonecutting/cut_royal_steel_stairs_from_cut_royal_steel_block"));
         })
         .register();
+    public static final BlockEntry<Block> FROST_METAL_BLOCK = REGISTRATE
+        .block("frost_metal_block", Block::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE,
+            BlockTags.NEEDS_IRON_TOOL,
+            BlockTags.BEACON_BASE_BLOCKS,
+            ModBlockTags.OVERSEER_BASE,
+            Tags.Blocks.STORAGE_BLOCKS)
+        .blockstate((context, provider) -> provider.simpleBlock(
+            context.get()))
+        .item()
+        .tag(Tags.Items.STORAGE_BLOCKS)
+        .build()
+        .recipe((ctx, provider) -> {
+            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItems.FROST_METAL_INGOT)
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItems.FROST_METAL_INGOT),
+                    RegistrateRecipeProvider.has(ModItems.FROST_METAL_INGOT))
+                .save(provider);
+        })
+        .defaultLoot()
+        .register();
     public static final BlockEntry<EmberMetalBlock> EMBER_METAL_BLOCK = REGISTRATE
         .block("ember_metal_block", properties -> new EmberMetalBlock(properties, 0.5d))
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
         .tag(BlockTags.BEACON_BASE_BLOCKS,
-            BlockTags.MINEABLE_WITH_PICKAXE,
-            BlockTags.NEEDS_DIAMOND_TOOL,
-            BlockTags.WITHER_IMMUNE,
-            BlockTags.DRAGON_IMMUNE,
-            Tags.Blocks.STORAGE_BLOCKS)
+             BlockTags.MINEABLE_WITH_PICKAXE,
+             BlockTags.NEEDS_DIAMOND_TOOL,
+             BlockTags.WITHER_IMMUNE,
+             BlockTags.DRAGON_IMMUNE,
+             Tags.Blocks.STORAGE_BLOCKS)
         .properties(properties -> properties.lightLevel(state -> 9).noOcclusion())
         .blockstate((context, provider) -> provider.simpleBlock(
             context.get(),
@@ -3606,6 +3635,30 @@ public class ModBlocks {
             Tags.Blocks.STORAGE_BLOCKS)
         .register();
 
+
+    public static final BlockEntry<? extends Block> MULTIPHASE_MATTER_BLOCK = REGISTRATE
+        .block("multiphase_matter_block", Block::new)
+        .initialProperties(() -> Blocks.DIAMOND_BLOCK)
+        .blockstate((ctx, provider) -> provider.simpleBlock(
+            ctx.get(),
+            DangerUtil.genConfiguredModel("block/multiphase_matter_block").get()))
+        .item()
+        .tag(Tags.Items.STORAGE_BLOCKS,
+             ModItemTags.STORAGE_BLOCKS_MULTIPHASE_MATTER)
+        .build()
+        .tag(Tags.Blocks.STORAGE_BLOCKS,
+             ModBlockTags.STORAGE_BLOCKS_MULTIPHASE_MATTER)
+        .recipe((ctx, provider) -> {
+            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
+                .pattern("AAA")
+                .pattern("AAA")
+                .pattern("AAA")
+                .define('A', ModItems.MULTIPHASE_MATTER)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.MULTIPHASE_MATTER), AnvilCraftDatagen.has(ModItems.MULTIPHASE_MATTER))
+                .save(provider);
+        })
+        .register();
+
     public static final BlockEntry<NegativeMatterBlock> NEGATIVE_MATTER_BLOCK = REGISTRATE
         .block("negative_matter_block", NegativeMatterBlock::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
@@ -4157,16 +4210,37 @@ public class ModBlocks {
         REGISTRATE.defaultCreativeTab(ModItemGroups.ANVILCRAFT_FUNCTION_BLOCK.getKey());
     }
 
-    public static final BlockEntry<AdvancedRepeaterBlock> ADVANCED_REPEATER = REGISTRATE
-        .block("advanced_repeater", AdvancedRepeaterBlock::new)
+    public static final BlockEntry<PulseGeneratorBlock> PULSE_GENERATOR = REGISTRATE
+        .block("pulse_generator", PulseGeneratorBlock::new)
         .properties(properties -> properties
             .strength(3.0F, 3.5F)
             .sound(SoundType.STONE)
             .noOcclusion()
         )
-        .blockstate((ctx, provider) -> DataGenUtil.diodeBlock(
-            provider, ctx.getId(), ctx.get()
-        ))
+        .blockstate((ctx, provider) -> {
+            ModelFile pulseGenerator = new ModelFile.ExistingModelFile(
+                ctx.getId().withPrefix("block/"), provider.models().existingFileHelper);
+            ModelFile pulseGeneratorOn = new ModelFile.ExistingModelFile(
+                ctx.getId().withPrefix("block/").withSuffix("_on"), provider.models().existingFileHelper);
+
+            provider.getVariantBuilder(ctx.get())
+                .partialState().with(PulseGeneratorBlock.FACING, Direction.SOUTH).with(PulseGeneratorBlock.POWERED, false).addModels(
+                    new ConfiguredModel(pulseGenerator))
+                .partialState().with(PulseGeneratorBlock.FACING, Direction.WEST).with(PulseGeneratorBlock.POWERED, false).addModels(
+                    new ConfiguredModel(pulseGenerator, 0, 90, false))
+                .partialState().with(PulseGeneratorBlock.FACING, Direction.NORTH).with(PulseGeneratorBlock.POWERED, false).addModels(
+                    new ConfiguredModel(pulseGenerator, 0, 180, false))
+                .partialState().with(PulseGeneratorBlock.FACING, Direction.EAST).with(PulseGeneratorBlock.POWERED, false).addModels(
+                    new ConfiguredModel(pulseGenerator, 0, 270, false))
+                .partialState().with(PulseGeneratorBlock.FACING, Direction.SOUTH).with(PulseGeneratorBlock.POWERED, true).addModels(
+                    new ConfiguredModel(pulseGeneratorOn))
+                .partialState().with(PulseGeneratorBlock.FACING, Direction.WEST).with(PulseGeneratorBlock.POWERED, true).addModels(
+                    new ConfiguredModel(pulseGeneratorOn, 0, 90, false))
+                .partialState().with(PulseGeneratorBlock.FACING, Direction.NORTH).with(PulseGeneratorBlock.POWERED, true).addModels(
+                    new ConfiguredModel(pulseGeneratorOn, 0, 180, false))
+                .partialState().with(PulseGeneratorBlock.FACING, Direction.EAST).with(PulseGeneratorBlock.POWERED, true).addModels(
+                    new ConfiguredModel(pulseGeneratorOn, 0, 270, false));
+        })
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .simpleItem()
         .recipe((ctx, provider) ->

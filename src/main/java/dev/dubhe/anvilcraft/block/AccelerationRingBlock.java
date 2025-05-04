@@ -27,6 +27,7 @@ import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -142,5 +143,10 @@ public class AccelerationRingBlock extends FlexibleMultiPartBlock<DirectionCube3
         return (level1, pos, state1, entity) -> {
             if (entity instanceof AccelerationRingBlockEntity be) be.tick();
         };
+    }
+
+    @Override
+    protected float getShadeBrightness(@NotNull BlockState state, @NotNull BlockGetter getter, @NotNull BlockPos pos) {
+        return 1.0F;
     }
 }

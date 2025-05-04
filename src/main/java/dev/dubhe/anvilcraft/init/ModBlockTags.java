@@ -53,6 +53,7 @@ public class ModBlockTags {
 
     public static final TagKey<Block> STORAGE_BLOCKS_VOID_MATTER = bindC("storage_blocks/void_matter");
     public static final TagKey<Block> STORAGE_BLOCKS_EARTH_CORE_SHARD = bindC("storage_blocks/earth_core_shard");
+    public static final TagKey<Block> STORAGE_BLOCKS_MULTIPHASE_MATTER = bindC("storage_blocks/multiphase_matter");
 
     public static final TagKey<Block> STORAGE_BLOCKS_TUNGSTEN = bindC("storage_blocks/tungsten");
     public static final TagKey<Block> STORAGE_BLOCKS_TITANIUM = bindC("storage_blocks/titanium");
@@ -72,6 +73,8 @@ public class ModBlockTags {
 
     public static final TagKey<Block> INCORRECT_FOR_AMETHYST_TOOL = bind("incorrect_for_amethyst_tool");
     public static final TagKey<Block> INCORRECT_FOR_EMBER_TOOL = bind("incorrect_for_ember_tool");
+    public static final TagKey<Block> INCORRECT_FOR_MULTIPHASE_TOOL = bind("incorrect_for_multiphase_tool");
+    public static final TagKey<Block> INCORRECT_FOR_FROST_METAL_TOOL = bind("incorrect_for_frost_metal_tool");
 
     public static final TagKey<Block> ANVIL_HAMMER_BLACKLIST = bind("anvil_hammer_blacklist");
 

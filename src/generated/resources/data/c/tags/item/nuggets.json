@@ -1,6 +1,8 @@
 {
   "values": [
     "anvilcraft:royal_steel_nugget",
+    "anvilcraft:frost_metal_nugget",
+    "anvilcraft:ember_metal_nugget",
     "anvilcraft:cursed_gold_nugget",
     "anvilcraft:tungsten_nugget",
     "anvilcraft:titanium_nugget",
@@ -12,7 +14,6 @@
     "anvilcraft:copper_nugget",
     "anvilcraft:bronze_nugget",
     "anvilcraft:brass_nugget",
-    "anvilcraft:ember_metal_nugget",
     "anvilcraft:negative_matter_nugget"
   ]
 }

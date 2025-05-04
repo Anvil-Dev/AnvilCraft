@@ -42,6 +42,7 @@ public class ModItemTags {
     public static final TagKey<Item> STORAGE_BLOCKS_BRASS = bindC("storage_blocks/brass");
     public static final TagKey<Item> STORAGE_BLOCKS_VOID_MATTER = bindC("storage_blocks/void_matter");
     public static final TagKey<Item> STORAGE_BLOCKS_EARTH_CORE_SHARD = bindC("storage_blocks/earth_core_shard");
+    public static final TagKey<Item> STORAGE_BLOCKS_MULTIPHASE_MATTER = bindC("storage_blocks/multiphase_matter");
     public static final TagKey<Item> STORAGE_BLOCKS_MAGNET = bindC("storage_blocks/magnet");
     public static final TagKey<Item> STORAGE_BLOCKS_TOPAZ = bindC("storage_blocks/topaz");
     public static final TagKey<Item> STORAGE_BLOCKS_SAPPHIRE = bindC("storage_blocks/sapphire");
@@ -119,6 +120,11 @@ public class ModItemTags {
     public static final TagKey<Item> ROYAL_STEEL_HOE_BASE = bind("royal_steel_hoe_base");
     public static final TagKey<Item> ROYAL_STEEL_SHOVEL_BASE = bind("royal_steel_shovel_base");
     public static final TagKey<Item> ROYAL_STEEL_SWORD_BASE = bind("royal_steel_sword_base");
+    public static final TagKey<Item> FROST_METAL_PICKAXE_BASE = bind("frost_metal_pickaxe_base");
+    public static final TagKey<Item> FROST_METAL_AXE_BASE = bind("frost_metal_axe_base");
+    public static final TagKey<Item> FROST_METAL_HOE_BASE = bind("frost_metal_hoe_base");
+    public static final TagKey<Item> FROST_METAL_SHOVEL_BASE = bind("frost_metal_shovel_base");
+    public static final TagKey<Item> FROST_METAL_SWORD_BASE = bind("frost_metal_sword_base");
     public static final TagKey<Item> EMBER_METAL_PICKAXE_BASE = bind("ember_metal_pickaxe_base");
     public static final TagKey<Item> EMBER_METAL_AXE_BASE = bind("ember_metal_axe_base");
     public static final TagKey<Item> EMBER_METAL_HOE_BASE = bind("ember_metal_hoe_base");
@@ -137,6 +143,7 @@ public class ModItemTags {
     public static final TagKey<Item> EXPLOSION_PROOF = bind("explosion_proof");
     public static final TagKey<Item> AMULET = bind("amulet");
     public static final TagKey<Item> ANVIL_HAMMER = bind("tools/anvil_hammer");
+    public static final TagKey<Item> TEMPLATES = bind("templates");
 
     public static final Object2ObjectMap<Color, TagKey<Item>> DYED_COLORS = initDyedTags();
 

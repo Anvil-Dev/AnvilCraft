@@ -28,6 +28,8 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.royal_grindstone.remove_curse_count", "Removed curses: %s / %s");
         provider.add("screen.anvilcraft.royal_grindstone.remove_repair_cost", "Removed repair cost: %s / %s");
         provider.add("screen.anvilcraft.royal_grindstone.title", "Remove curse and repair cost");
+        provider.add("screen.anvilcraft.ember_grindstone.title", "Extract enchantment");
+        provider.add("screen.anvilcraft.ember_grindstone.cost", "Exp. Cost: %d");
         provider.add(
             "screen.anvilcraft.royal_steel_upgrade_smithing_template", "Royal Steel Upgrade");
         provider.add(
@@ -44,8 +46,8 @@ public class ScreenLang {
                 + ".upgrade_ingredients",
             "Royal Steel Ingot or Royal Steel Block");
         provider.add("screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template"
-                + ".upgrade_ingredients",
-            "Ember Metal Ingot or Ember Metal Block");
+                     + ".upgrade_ingredients",
+                     "Ember Metal Ingot or Ember Metal Block");
 
         provider.add("screen.anvilcraft.item_collector.title", "Item Collector");
         provider.add("screen.anvilcraft.item_collector.range", "Range");
@@ -126,5 +128,25 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.tesla_tower.filter.has_custom_name", "Custom Named Entity Filter");
 
         provider.add("hud.anvilcraft.ionocraft_backpack_power", "Ionocraft Backpack Power: %d%%");
+
+        provider.add(
+            "screen.anvilcraft.frost_metal_upgrade_smithing_template", "Frost Metal Upgrade");
+        provider.add(
+            "screen.anvilcraft.smithing_template.frost_metal_upgrade_smithing_template.additions_slot_description",
+            "Put the Frost Metal Ingot");
+        provider.add(
+            "screen.anvilcraft.smithing_template.frost_metal_upgrade_smithing_template.applies_to",
+            "Royal Steel Tools");
+        provider.add(
+            "screen.anvilcraft.smithing_template.frost_metal_upgrade_smithing_template.base_slot_description",
+            "Put upgradable item");
+        provider.add(
+            "screen.anvilcraft.smithing_template.frost_metal_upgrade_smithing_template.upgrade_ingredients",
+            "Frost Metal Ingot");
+
+        provider.add("screen.anvilcraft.ember_smithing.tooltip.missing_template", "Add Multiple to One Template");
+        provider.add("screen.anvilcraft.ember_smithing.tooltip.two_missing_multiphase_matter", "Add Multiphase Matter");
+        provider.add(
+            "screen.anvilcraft.ember_smithing.tooltip.two_multiphase_matter_missing_tool", "Add same Ember Metal tools or weapons");
     }
 }

@@ -1,0 +1,26 @@
+{
+  "type": "anvilcraft:stamping_unique_items",
+  "ingredients": [
+    {
+      "tag": "anvilcraft:templates"
+    },
+    {
+      "tag": "anvilcraft:templates"
+    },
+    {
+      "tag": "anvilcraft:templates"
+    },
+    {
+      "tag": "anvilcraft:templates"
+    }
+  ],
+  "results": [
+    {
+      "amount": 1.0,
+      "stack": {
+        "count": 1,
+        "id": "anvilcraft:four_to_one_smithing_template"
+      }
+    }
+  ]
+}

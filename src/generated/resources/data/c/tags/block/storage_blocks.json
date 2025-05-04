@@ -2,6 +2,7 @@
   "values": [
     "anvilcraft:magnet_block",
     "anvilcraft:royal_steel_block",
+    "anvilcraft:frost_metal_block",
     "anvilcraft:ember_metal_block",
     "anvilcraft:zinc_block",
     "anvilcraft:tin_block",
@@ -20,6 +21,7 @@
     "anvilcraft:raw_zinc_block",
     "anvilcraft:void_matter_block",
     "anvilcraft:earth_core_shard_block",
+    "anvilcraft:multiphase_matter_block",
     "anvilcraft:negative_matter_block"
   ]
 }

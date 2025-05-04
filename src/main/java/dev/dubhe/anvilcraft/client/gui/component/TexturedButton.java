@@ -34,6 +34,7 @@ public class TexturedButton extends Button {
 
     @Override
     public void render(@NotNull GuiGraphics gg, int pMouseX, int pMouseY, float pPartialTick) {
+        this.isHovered = this.isMouseOver(pMouseX, pMouseY);
         int pVOffset = 0;
         if (this.isHovered) {
             pVOffset = yDiffTex;

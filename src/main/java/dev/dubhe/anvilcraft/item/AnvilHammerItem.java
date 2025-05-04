@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.item;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.anvil.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.api.hammer.HammerManager;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
@@ -58,6 +59,7 @@ public class AnvilHammerItem extends Item implements Equipable {
         BlockStateProperties.HORIZONTAL_AXIS
     };
     private static final List<Predicate<Player>> isWearingPredicates = new ArrayList<>();
+    public static boolean goggleEnabled = false;
     private final ItemAttributeModifiers modifiers;
 
     static {
@@ -301,11 +303,14 @@ public class AnvilHammerItem extends Item implements Equipable {
     }
 
     public static boolean isWearing(Player player) {
-        for (Predicate<Player> it : isWearingPredicates) {
-            if (it.test(player)) {
-                return true;
+        return switch (AnvilCraft.config.goggleMode) {
+            case ALWAYS_SHOW -> true;
+            case WEARING_HAMMER -> {
+                for (var it : isWearingPredicates) if (it.test(player)) yield true;
+                yield false;
             }
-        }
-        return false;
+            case HOLDING_HAMMER -> player.getMainHandItem().getItem() instanceof AnvilHammerItem;
+            case TOGGLE_WITH_KEY -> goggleEnabled;
+        };
     }
 }

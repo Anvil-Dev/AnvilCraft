@@ -7,6 +7,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
 
 public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindstoneMenu> {
@@ -35,6 +36,12 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
         int i = (this.width - this.imageWidth) / 2;
         int j = (this.height - this.imageHeight) / 2;
         guiGraphics.blit(GRINDSTONE_LOCATION, i, j, 0, 0, this.imageWidth, this.imageHeight);
+        guiGraphics.setColor(1, 1, 1, 0.5F);
+        guiGraphics.renderItem(
+            RoyalGrindstoneMenu.REPAIR_MATERIAL.getDefaultInstance(), i + 89, j + 22, (int) (partialTick * 100));
+        guiGraphics.renderItem(
+            RoyalGrindstoneMenu.RESULT_MATERIAL.getDefaultInstance(), i + 89, j + 47, (int) (partialTick * 100));
+        guiGraphics.setColor(1, 1, 1, 1);
     }
 
     protected void renderLabels(GuiGraphics guiGraphics) {

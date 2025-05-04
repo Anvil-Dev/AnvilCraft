@@ -1,0 +1,8 @@
+{
+  "values": [
+    {
+      "id": "anvilcraft:harvest",
+      "required": false
+    }
+  ]
+}

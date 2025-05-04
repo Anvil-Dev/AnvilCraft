@@ -2,6 +2,8 @@
   "values": [
     "anvilcraft:magnet_ingot",
     "anvilcraft:royal_steel_ingot",
+    "anvilcraft:frost_metal_ingot",
+    "anvilcraft:ember_metal_ingot",
     "anvilcraft:cursed_gold_ingot",
     "anvilcraft:tungsten_ingot",
     "anvilcraft:titanium_ingot",
@@ -12,7 +14,6 @@
     "anvilcraft:uranium_ingot",
     "anvilcraft:bronze_ingot",
     "anvilcraft:brass_ingot",
-    "anvilcraft:ember_metal_ingot",
     "anvilcraft:neutronium_ingot",
     "anvilcraft:stable_neutronium_ingot",
     "anvilcraft:charged_neutronium_ingot"

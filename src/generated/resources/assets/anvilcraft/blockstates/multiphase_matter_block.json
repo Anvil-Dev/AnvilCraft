@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "anvilcraft:block/multiphase_matter_block"
+    }
+  }
+}

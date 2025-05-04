@@ -1,10 +1,11 @@
 package dev.dubhe.anvilcraft.api.tooltip;
 
 import com.google.common.collect.Maps;
+import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.init.ModBlocks;
+import dev.dubhe.anvilcraft.init.ModComponents;
 import dev.dubhe.anvilcraft.init.ModItemTags;
 import dev.dubhe.anvilcraft.init.ModItems;
-import dev.dubhe.anvilcraft.item.IFireReforging;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -45,15 +46,17 @@ public class ItemTooltipManager {
         map.put(
             ModBlocks.MAGNET_BLOCK.asItem(),
             "Attracting the anvil below, when pushed and pulled by the piston, "
-                + "causes adjacent copper blocks to generate charges");
+            + "causes adjacent copper blocks to generate charges"
+        );
         map.put(
             ModBlocks.HOLLOW_MAGNET_BLOCK.asItem(),
             "Attracting the anvil below, "
-                + "when pushed and pulled by the piston, causes adjacent copper blocks to generate charges");
+            + "when pushed and pulled by the piston, causes adjacent copper blocks to generate charges"
+        );
         map.put(
             ModBlocks.FERRITE_CORE_MAGNET_BLOCK.asItem(),
             "Attracting the anvil below, "
-                + "when pushed and pulled by the piston, causes adjacent copper blocks to generate charges");
+            + "when pushed and pulled by the piston, causes adjacent copper blocks to generate charges");
         map.put(ModBlocks.BATCH_CRAFTER.asItem(), "Received a redstone signal and synthesized all internal items at once, with a power consumption of 4 kW");
         map.put(ModBlocks.ROYAL_STEEL_BLOCK.asItem(), "Explosion proof");
         map.put(ModBlocks.SMOOTH_ROYAL_STEEL_BLOCK.asItem(), "Explosion proof");
@@ -78,7 +81,8 @@ public class ItemTooltipManager {
         map.put(ModBlocks.HEAVY_IRON_TRAPDOOR.asItem(), "Explosion proof");
         map.put(
             ModBlocks.ITEM_COLLECTOR.asItem(),
-            "Adjust power consumption based on range and cooling" + ", from 30kW to 150kW");
+            "Adjust power consumption based on range and cooling" + ", from 30kW to 150kW"
+        );
         map.put(ModBlocks.EMBER_ANVIL.asItem(), "Wither proof");
         map.put(ModBlocks.EMBER_GRINDSTONE.asItem(), "Wither proof");
         map.put(ModBlocks.EMBER_SMITHING_TABLE.asItem(), "Wither proof");
@@ -149,17 +153,25 @@ public class ItemTooltipManager {
      */
     public static void addTooltip(ItemStack stack, List<Component> tooltip) {
         Item item = stack.getItem();
-        if (item instanceof IFireReforging) {
-            reforgingTooltip(tooltip);
+        if (stack.has(ModComponents.FIRE_REFORGING)) {
+            propertyTooltip("fire_reforging", tooltip);
+        }
+        if (stack.has(ModComponents.MULTIPHASE)) {
+            propertyTooltip("multiphase", tooltip, ModKeyMappings.SWITCH_PHASE.get().getKey().getDisplayName());
+        }
+        if (stack.has(ModComponents.MERCILESS)) {
+            propertyTooltip("merciless", tooltip);
         }
         if (NEED_TOOLTIP_ITEM.containsKey(item)) {
             tooltip.add(1, getItemTooltip(item));
         }
         if (stack.is(ModItemTags.REINFORCED_CONCRETE)) {
             ResourceLocation key = BuiltInRegistries.ITEM.getKey(item);
-            tooltip.add(1,
+            tooltip.add(
+                1,
                 Component.translatable("tooltip.%s.item.reinforced_concrete".formatted(key.getNamespace()))
-                    .withStyle(ChatFormatting.GRAY));
+                    .withStyle(ChatFormatting.GRAY)
+            );
         }
     }
 
@@ -172,7 +184,7 @@ public class ItemTooltipManager {
         return "tooltip.%s.item.%s".formatted(key.getNamespace(), key.getPath());
     }
 
-    private static void reforgingTooltip(List<Component> tooltip) {
+    private static void propertyTooltip(String propertyName, List<Component> tooltip) {
         int i = 0;
         for (int j = 0; j < tooltip.size(); j++) {
             if (tooltip.get(j).toString().contains("enchantment") && !tooltip.get(j + 1).toString().contains("enchantment")) {
@@ -182,7 +194,21 @@ public class ItemTooltipManager {
         }
         tooltip.add(
             1 + i,
-            Component.translatable("item.anvilcraft.fire_reforging.tooltip").withStyle(ChatFormatting.GOLD)
+            Component.translatable("tooltip.anvilcraft.property.%s".formatted(propertyName)).withStyle(ChatFormatting.GOLD)
+        );
+    }
+
+    private static void propertyTooltip(String propertyName, List<Component> tooltip, Object... args) {
+        int i = 0;
+        for (int j = 0; j < tooltip.size(); j++) {
+            if (tooltip.get(j).toString().contains("enchantment") && !tooltip.get(j + 1).toString().contains("enchantment")) {
+                i = j;
+                break;
+            }
+        }
+        tooltip.add(
+            1 + i,
+            Component.translatable("tooltip.anvilcraft.property.%s".formatted(propertyName), args).withStyle(ChatFormatting.GOLD)
         );
     }
 }

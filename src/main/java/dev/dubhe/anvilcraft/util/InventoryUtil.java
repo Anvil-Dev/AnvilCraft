@@ -46,8 +46,14 @@ public class InventoryUtil {
         return ItemStack.EMPTY;
     }
 
+    public static List<ItemStack> getItems(Inventory inventory, Predicate<ItemStack> filter) {
+        List<ItemStack> items = getItems(inventory);
+        items.removeIf(stack -> !filter.test(stack));
+        return items;
+    }
+
     public static List<ItemStack> getItems(Inventory inventory) {
-        ArrayList<ItemStack> items = new ArrayList<>();
+        List<ItemStack> items = new ArrayList<>();
 
         items.addAll(inventory.items);
         items.addAll(inventory.armor);

@@ -15,6 +15,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.Tags;
 
 import java.util.List;
@@ -139,6 +140,24 @@ public class TimeWarpRecipeLoader {
             .requires(Items.SKELETON_SKULL)
             .requires(Items.COAL, 4)
             .result(Items.WITHER_SKELETON_SKULL.getDefaultInstance())
+            .save(provider);
+
+        TimeWarpRecipe.builder()
+            .requires(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE)
+            .requiredFluidLevel(3)
+            .consumeFluid(true)
+            .cauldron(Blocks.POWDER_SNOW_CAULDRON)
+            .result(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE.asStack())
+            .save(provider);
+
+        TimeWarpRecipe.builder()
+            .requires(ModItems.TITANIUM_INGOT)
+            .requires(ModItems.SILVER_INGOT)
+            .requires(Items.IRON_INGOT)
+            .requiredFluidLevel(3)
+            .consumeFluid(true)
+            .cauldron(Blocks.POWDER_SNOW_CAULDRON)
+            .result(ModItems.FROST_METAL_INGOT.asStack())
             .save(provider);
     }
 

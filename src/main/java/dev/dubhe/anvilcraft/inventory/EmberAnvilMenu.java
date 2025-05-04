@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.inventory;
 
+import dev.dubhe.anvilcraft.api.item.property.Multiphase;
+import dev.dubhe.anvilcraft.init.ModComponents;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.item.ICursed;
 
@@ -25,6 +27,8 @@ import net.neoforged.neoforge.common.CommonHooks;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
 
 public class EmberAnvilMenu extends AnvilMenu {
 
@@ -178,8 +182,7 @@ public class EmberAnvilMenu extends AnvilMenu {
                     && !this.itemName.isBlank()) {
                     currentName = Component.literal(this.itemName);
                 }
-                inputItemLeftCopy.set(
-                    DataComponents.CUSTOM_NAME, currentName.copy().withStyle(extraFormat));
+                inputItemLeftCopy.set(DataComponents.CUSTOM_NAME, currentName.copy().withStyle(extraFormat));
             } else {
                 if (this.itemName != null && !StringUtil.isBlank(this.itemName)) {
                     boolean nameChanged =

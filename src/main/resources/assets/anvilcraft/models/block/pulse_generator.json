@@ -1,0 +1,55 @@
+{
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/cube",
+	"ambientocclusion": false,
+	"textures": {
+		"0": "anvilcraft:block/pulse_generator",
+		"1": "anvilcraft:block/pulse_generator_side",
+		"2": "anvilcraft:block/advanced_diode_bottom",
+		"3": "anvilcraft:block/redstone_torch_unified",
+		"particle": "anvilcraft:block/pulse_generator"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 0],
+			"to": [16, 4, 16],
+			"faces": {
+				"north": {"uv": [0, 12, 16, 16], "texture": "#1", "cullface": "north"},
+				"east": {"uv": [0, 12, 16, 16], "texture": "#1", "cullface": "east"},
+				"south": {"uv": [0, 12, 16, 16], "texture": "#1", "cullface": "south"},
+				"west": {"uv": [0, 12, 16, 16], "texture": "#1", "cullface": "west"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#0"},
+				"down": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#2", "cullface": "down"}
+			}
+		},
+		{
+			"from": [4, 4, 5],
+			"to": [12, 8, 13],
+			"rotation": {"angle": 22.5, "axis": "x", "origin": [8, 4, 5]},
+			"faces": {
+				"north": {"uv": [4, 8, 12, 12], "texture": "#1"},
+				"east": {"uv": [4, 8, 12, 12], "texture": "#1"},
+				"south": {"uv": [4, 8, 12, 12], "texture": "#1"},
+				"west": {"uv": [12, 8, 4, 12], "texture": "#1"},
+				"up": {"uv": [4, 1, 12, 9], "texture": "#1"}
+			}
+		},
+		{
+			"from": [7, 4, 1],
+			"to": [9, 9, 3],
+			"faces": {
+				"north": {"uv": [11, 6, 13, 11], "texture": "#3"},
+				"east": {"uv": [11, 6, 13, 11], "texture": "#3"},
+				"south": {"uv": [11, 6, 13, 11], "texture": "#3"},
+				"west": {"uv": [11, 6, 13, 11], "texture": "#3"},
+				"up": {"uv": [11, 6, 13, 8], "texture": "#3"}
+			}
+		}
+	],
+	"display": {
+		"head": {
+			"translation": [0, 6, 0],
+			"scale": [1.5, 1.5, 1.5]
+		}
+	}
+}

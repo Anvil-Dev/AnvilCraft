@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": {
+    "item": "anvilcraft:frost_metal_ingot"
+  },
+  "base": {
+    "tag": "anvilcraft:frost_metal_hoe_base"
+  },
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:frost_metal_hoe"
+  },
+  "template": {
+    "item": "anvilcraft:frost_metal_upgrade_smithing_template"
+  }
+}

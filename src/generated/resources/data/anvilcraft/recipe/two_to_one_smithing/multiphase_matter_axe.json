@@ -1,0 +1,17 @@
+{
+  "type": "anvilcraft:two_to_one_smithing",
+  "input0": {
+    "item": "anvilcraft:ember_metal_axe"
+  },
+  "input1": {
+    "item": "anvilcraft:ember_metal_axe"
+  },
+  "material": {
+    "item": "anvilcraft:multiphase_matter"
+  },
+  "recipeId": 0,
+  "result": "anvilcraft:multiphase_matter_axe",
+  "template": {
+    "item": "anvilcraft:two_to_one_smithing_template"
+  }
+}

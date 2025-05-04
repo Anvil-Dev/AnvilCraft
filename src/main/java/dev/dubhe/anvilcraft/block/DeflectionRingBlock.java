@@ -139,4 +139,9 @@ public class DeflectionRingBlock extends FlexibleMultiPartBlock<DirectionCube3x3
             if (entity instanceof DeflectionRingBlockEntity be) be.tick();
         };
     }
+
+    @Override
+    protected float getShadeBrightness(@NotNull BlockState state, @NotNull BlockGetter getter, @NotNull BlockPos pos) {
+        return 1.0F;
+    }
 }

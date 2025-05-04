@@ -23,7 +23,7 @@
 ## 使用许可
 
 * 除非另有说明，否则代码默认许可为 [LICENSE 文件(LGPL-3.0)](./LICENSE)
-* 除非另有说明，否则非代码资产默认许可为 [ASSET_LICENSE 文件(CC-BY-NC-ND 4.0)](./ASSETS_LICENSE)
+* 除非另有说明，否则非代码资产默认许可为 [ASSET_LICENSE 文件(ARR)](./ASSETS_LICENSE)
 
 ## 使用方法
 
@@ -315,7 +315,7 @@
     </td>
     <td align="center">
       <a href="https://space.bilibili.com/484142219">
-        <img src="https://i2.hdslb.com/bfs/face/d198e6e711865ae8ba9234b1eafcb05bc1df332b.jpg" width="100px" height="100px" alt=""/><br />
+        <img src="https://i2.hdslb.com/bfs/face/1e3b0122ed1fe6322bb9f3d17195fe25971c28fe.jpg" width="100px" height="100px" alt=""/><br />
         <sub><b>秋水AuU_</b></sub>
       </a><br />
       <a title="Money">💵</a>

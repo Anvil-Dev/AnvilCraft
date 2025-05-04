@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "anvilcraft:frost_metal_ingot"
+    }
+  ],
+  "result": {
+    "count": 9,
+    "id": "anvilcraft:frost_metal_nugget"
+  }
+}

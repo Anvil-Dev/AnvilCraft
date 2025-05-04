@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_multiphase_matter": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:multiphase_matter"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:multiphase_matter_block"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_multiphase_matter"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:multiphase_matter_block"
+    ]
+  }
+}

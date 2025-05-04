@@ -1,0 +1,12 @@
+{
+  "values": [
+    "anvilcraft:royal_steel_upgrade_smithing_template",
+    "anvilcraft:frost_metal_upgrade_smithing_template",
+    "anvilcraft:ember_metal_upgrade_smithing_template",
+    "anvilcraft:two_to_one_smithing_template",
+    "anvilcraft:four_to_one_smithing_template",
+    "anvilcraft:eight_to_one_smithing_template",
+    "#minecraft:trim_templates",
+    "minecraft:netherite_upgrade_smithing_template"
+  ]
+}

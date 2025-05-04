@@ -22,6 +22,7 @@ import dev.dubhe.anvilcraft.init.ModInspections;
 import dev.dubhe.anvilcraft.init.ModItemGroups;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.init.ModLootContextParamSets;
+import dev.dubhe.anvilcraft.init.ModLootItemConditions;
 import dev.dubhe.anvilcraft.init.ModLootItemFunctions;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.ModNetworks;
@@ -91,6 +92,7 @@ public class AnvilCraft {
         ModEnchantmentEffectComponents.register(modEventBus);
         ModEnchantmentEffects.register(modEventBus);
         ModLootItemFunctions.LOOT_FUNCTION_TYPES.register(modEventBus);
+        ModLootItemConditions.LOOT_CONDITION_TYPES.register(modEventBus);
         TeslaFilter.init();
         // datagen
         AnvilCraftDatagen.init();

@@ -1,0 +1,21 @@
+{
+  "type": "anvilcraft:time_warp",
+  "cauldron": "minecraft:powder_snow_cauldron",
+  "consume_fluid": true,
+  "ingredients": [
+    {
+      "item": "anvilcraft:royal_steel_upgrade_smithing_template"
+    }
+  ],
+  "produce_fluid": false,
+  "requiredFluidLevel": 3,
+  "results": [
+    {
+      "amount": 1.0,
+      "stack": {
+        "count": 1,
+        "id": "anvilcraft:frost_metal_upgrade_smithing_template"
+      }
+    }
+  ]
+}

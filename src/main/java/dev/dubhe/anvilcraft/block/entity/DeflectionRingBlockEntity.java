@@ -22,7 +22,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -248,11 +248,11 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
             }
             checkPos.move(-3, 1, 0);
         }
-        BlockPos newPos = getBlockPos().below(4);
-        for (Cube3x3PartHalf part : Cube3x3PartHalf.values()) {
-            if (!isFallingGiantAnvil)
-                level.setBlock(giantAnvilPos.offset(part.getOffset()), Blocks.AIR.defaultBlockState(), 2);
+        Block block = level.getBlockState(giantAnvilPos.below()).getBlock();
+        if (block instanceof GiantAnvilBlock giantAnvilBlock) {
+            giantAnvilBlock.removePartsAndUpdate(level, giantAnvilPos.below());
         }
+        BlockPos newPos = getBlockPos().below(4);
         for (Cube3x3PartHalf part : Cube3x3PartHalf.values()) {
             level.setBlockAndUpdate(newPos.offset(part.getOffset()), ModBlocks.GIANT_ANVIL.getDefaultState()
                 .setValue(GiantAnvilBlock.HALF, part)
