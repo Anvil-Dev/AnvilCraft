@@ -1,12 +1,10 @@
 package dev.dubhe.anvilcraft.event.giantanvil.shock;
 
 import dev.dubhe.anvilcraft.init.ModBlockTags;
-import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -21,9 +19,7 @@ import net.minecraft.world.level.block.NetherWartBlock;
 import net.minecraft.world.level.block.PitcherCropBlock;
 import net.minecraft.world.level.block.SweetBerryBushBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraft.world.level.block.state.properties.Half;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -186,7 +182,7 @@ enum DestroyType {
                     List<ItemStack> drops;
                     if (state.is(Blocks.SNOW)) {
                         drops = mode.apply(state, pos, context);
-                    }else {
+                    } else {
                         drops = mode.apply(state, pos, context, TOOL);
                     }
 
