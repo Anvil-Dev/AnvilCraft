@@ -4,6 +4,7 @@ import com.google.common.collect.Collections2;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 
+import dev.dubhe.anvilcraft.util.EnchantmentUtil;
 import dev.dubhe.anvilcraft.util.ListUtil;
 import lombok.Getter;
 import net.minecraft.core.component.DataComponentType;
@@ -33,6 +34,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -127,6 +129,7 @@ public class EmberGrindstoneMenu extends AbstractContainerMenu {
 
                 selectedIndex = -1;
 
+                resultBook.setItem(0, ItemStack.EMPTY);
             }
         });
         int i;
@@ -161,6 +164,7 @@ public class EmberGrindstoneMenu extends AbstractContainerMenu {
             entry -> new EnchantmentInstance(entry.getKey(), entry.getIntValue())));
         this.enchantments.removeIf(
             inst -> inst.enchantment.is(EnchantmentTags.CURSE));
+        this.enchantments.sort(EnchantmentUtil::compareEnchantmentInstance);
     }
 
     public int getCost() {
