@@ -126,8 +126,12 @@ public class GiantAnvilShockEventListener {
             );
             List<LivingEntity> e = it.unwrap().level().getEntitiesOfClass(LivingEntity.class, aabb);
             for (LivingEntity l : e) {
-                if (l.getItemBySlot(EquipmentSlot.FEET).is(Items.AIR)) {
-                    l.hurt(it.unwrap().level().damageSources().fall(), it.unwrap().fallDistance() * 2);
+                if (it.has(HURT_TYPE)) {
+                    l.hurt(it.getAttachment(HURT_TYPE, HurtType.class).damageSource(l.level()), it.unwrap().fallDistance() * 2);
+                } else {
+                    if (l.getItemBySlot(EquipmentSlot.FEET).is(Items.AIR)) {
+                        l.hurt(it.unwrap().level().damageSources().fall(), it.unwrap().fallDistance() * 2);
+                    }
                 }
             }
         });
