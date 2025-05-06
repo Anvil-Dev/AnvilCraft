@@ -94,7 +94,6 @@ public class HasMobBlockItem extends BlockItem {
      */
     @SuppressWarnings("deprecation")
     public static void saveMobInItem(Level level, Mob entity, Player player, ItemStack stack) {
-        stack = stack.split(1);
         if (level.isClientSide()) {
             Item item = stack.getItem();
             if (item instanceof ResinBlockItem item1) {
@@ -116,6 +115,7 @@ public class HasMobBlockItem extends BlockItem {
             MobEffectInstance instance = monster.getEffect(MobEffects.WEAKNESS);
             if (instance == null && !player.getAbilities().instabuild) return;
         }
+        stack = stack.split(1);
         stack.set(ModComponents.SAVED_ENTITY, savedEntity);
         player.getInventory().placeItemBackInInventory(stack);
         if (entity instanceof Villager villager) {
