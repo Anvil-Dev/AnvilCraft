@@ -72,7 +72,7 @@ enum DestroyType {
                     level.setBlockAndUpdate(destroyLayer, cropBlock.getStateForAge(0));
                     continue;
                 }
-                if (state.is(Blocks.NETHER_WART_BLOCK) && state.getValue(NetherWartBlock.AGE) == 3) {
+                if (state.is(Blocks.NETHER_WART) && state.getValue(NetherWartBlock.AGE) == 3) {
                     Block.dropResources(state, level, destroyLayer);
                     level.setBlockAndUpdate(destroyLayer, state.setValue(NetherWartBlock.AGE, 0));
                     continue;
