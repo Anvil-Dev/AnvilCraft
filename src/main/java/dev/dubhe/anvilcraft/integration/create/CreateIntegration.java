@@ -100,7 +100,7 @@ public class CreateIntegration {
         AmuletUtil.registerCustomType(new AmuletUtil.Type(
             "cogwheel", (sources, source) ->
             ModList.get().isLoaded("create")
-            && Objects.requireNonNull(sources.damageTypes.getKey(source.type())).getNamespace().contains("create"),
+                && Objects.requireNonNull(sources.damageTypes.getKey(source.type())).getNamespace().contains("create"),
             COGWHEEL_AMULET
         ));
     }

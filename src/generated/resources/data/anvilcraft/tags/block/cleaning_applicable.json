@@ -1,0 +1,25 @@
+{
+  "values": [
+    "minecraft:grass_block",
+    "minecraft:tall_grass",
+    "minecraft:short_grass",
+    "minecraft:fern",
+    "minecraft:large_fern",
+    "#minecraft:flowers",
+    "minecraft:dead_bush",
+    "minecraft:red_mushroom",
+    "minecraft:brown_mushroom",
+    "minecraft:crimson_fungus",
+    "minecraft:warped_fungus",
+    "minecraft:crimson_roots",
+    "minecraft:warped_roots",
+    "minecraft:nether_sprouts",
+    "minecraft:sculk_vein",
+    "minecraft:cobweb",
+    "minecraft:glow_lichen",
+    "minecraft:vine",
+    "minecraft:snow",
+    "minecraft:moss_carpet",
+    "minecraft:lily_pad"
+  ]
+}

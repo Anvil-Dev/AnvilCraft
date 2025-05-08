@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.entity;
 
 import dev.dubhe.anvilcraft.init.ModEntities;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
@@ -23,7 +22,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
-
 import org.jetbrains.annotations.NotNull;
 
 public class FloatingBlockEntity extends FallingBlockEntity {
@@ -64,8 +62,8 @@ public class FloatingBlockEntity extends FallingBlockEntity {
             pos.getY(),
             (double) pos.getZ() + 0.5,
             blockState.hasProperty(BlockStateProperties.WATERLOGGED)
-            ? blockState.setValue(BlockStateProperties.WATERLOGGED, false)
-            : blockState
+                ? blockState.setValue(BlockStateProperties.WATERLOGGED, false)
+                : blockState
         );
         level.setBlock(pos, blockState.getFluidState().createLegacyBlock(), 3);
         level.addFreshEntity(floatingBlockEntity);
@@ -96,7 +94,7 @@ public class FloatingBlockEntity extends FallingBlockEntity {
                             if (canBeReplaced && canSurvive) {
                                 if (
                                     this.blockState.hasProperty(BlockStateProperties.WATERLOGGED)
-                                    && this.level().getFluidState(blockPos).getType() == Fluids.WATER
+                                        && this.level().getFluidState(blockPos).getType() == Fluids.WATER
                                 ) {
                                     this.blockState = this.blockState.setValue(BlockStateProperties.WATERLOGGED, true);
                                 }
@@ -118,8 +116,8 @@ public class FloatingBlockEntity extends FallingBlockEntity {
                                     }
                                 } else if (
                                     !(this.level().getBlockState(blockPos).getBlock() instanceof Fallable)
-                                    && this.position().y - Math.floor(this.position().y) < 0.5
-                                    && this.dropItem && this.level().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)
+                                        && this.position().y - Math.floor(this.position().y) < 0.5
+                                        && this.dropItem && this.level().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)
                                 ) {
                                     this.discard();
                                     this.callOnBrokenAfterFall(block, blockPos);

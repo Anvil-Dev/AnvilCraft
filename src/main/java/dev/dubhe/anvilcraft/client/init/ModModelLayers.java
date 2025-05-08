@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.client.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.entity.model.IonocraftModel;
 import dev.dubhe.anvilcraft.entity.model.IonocraftBackpackModel;
+import dev.dubhe.anvilcraft.entity.model.IonocraftModel;
 import lombok.Getter;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;

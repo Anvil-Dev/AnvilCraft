@@ -1,5 +1,10 @@
 {
   "values": [
+    "anvilcraft:confined_time_anvilon",
+    "anvilcraft:confined_space_anvilon",
+    "anvilcraft:confined_mass_anvilon",
+    "anvilcraft:confined_energy_anvilon",
+    "anvilcraft:confinement_chamber",
     "anvilcraft:ember_metal_pickaxe",
     "anvilcraft:multiphase_matter_pickaxe",
     "anvilcraft:earth_core_shard_block",

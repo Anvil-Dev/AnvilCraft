@@ -2,15 +2,10 @@ package dev.dubhe.anvilcraft.util;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Pair;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.mixin.accessor.CropBlockAccessor;
 import dev.dubhe.anvilcraft.mixin.accessor.GrowingPlantAccessor;
-import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderOwner;
@@ -18,7 +13,6 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -48,10 +42,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static net.minecraft.world.level.block.state.StateHolder.PROPERTY_ENTRY_TO_STRING_FUNCTION;
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.BED_PART;
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.DOUBLE_BLOCK_HALF;
 
@@ -59,53 +51,6 @@ import static net.minecraft.world.level.block.state.properties.BlockStatePropert
  * 方块状态注入
  */
 public class BlockStateUtil {
-    /**
-     * 从 Json 读取
-     *
-     * @param stateJson json
-     * @return 方块状态
-     */
-    public static @NotNull BlockState fromJson(@NotNull JsonElement stateJson) {
-        if (!stateJson.isJsonObject()) throw new JsonSyntaxException("Expected item to be object");
-        JsonObject object = stateJson.getAsJsonObject();
-        if (!object.has("block")) throw new JsonSyntaxException("The field block is missing");
-        JsonElement blockElement = object.get("block");
-        if (!blockElement.isJsonPrimitive()) throw new JsonSyntaxException("Expected item to be string");
-        StringBuilder block = new StringBuilder(blockElement.getAsString());
-        if (object.has("state")) {
-            block.append(GsonHelper.getAsString(object, "state"));
-        }
-        HolderLookup<Block> blocks = new BlockHolderLookup();
-        BlockStateParser.BlockResult blockResult;
-        try {
-            blockResult = BlockStateParser.parseForBlock(blocks, block.toString(), true);
-        } catch (CommandSyntaxException e) {
-            throw new RuntimeException(e);
-        }
-        return blockResult.blockState();
-    }
-
-    /**
-     * 序列化方块状态
-     *
-     * @param state 方块状态
-     * @return 序列化JSON
-     */
-    public static @NotNull JsonElement toJson(@NotNull BlockState state) {
-        JsonObject object = new JsonObject();
-        object.addProperty(
-            "block", BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString());
-        if (!state.getValues().isEmpty()) {
-            String stringBuilder = '['
-                + state.getValues().entrySet().stream()
-                .map(PROPERTY_ENTRY_TO_STRING_FUNCTION)
-                .collect(Collectors.joining(","))
-                + ']';
-            object.addProperty("state", stringBuilder);
-        }
-        return object;
-    }
-
     /**
      * 硬编码一些通过Block#asItem方法获取不到的物品。。。。
      * 这些物品通常可以通过Block#getCloneItemStack方法获取到，但是需要LevelReader实例

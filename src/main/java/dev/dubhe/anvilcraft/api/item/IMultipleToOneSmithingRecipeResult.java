@@ -11,7 +11,7 @@ public interface IMultipleToOneSmithingRecipeResult {
     /**
      * 定义多合一时对输入物品的操作逻辑
      *
-     * @param id 配方对于该结果的id，在配方构建时设置
+     * @param id    配方对于该结果的id，在配方构建时设置
      * @param input 配方输入，包含模板、材料和其它输入
      * @return 结果
      */

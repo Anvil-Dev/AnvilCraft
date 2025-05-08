@@ -1,0 +1,35 @@
+{
+  "type": "anvilcraft:anvil_collision",
+  "anvil": {
+    "tag": "minecraft:anvil"
+  },
+  "consume": true,
+  "hitBlock": {
+    "id": "anvilcraft:space_overcompressor"
+  },
+  "output_items": [],
+  "transform_blocks": [
+    {
+      "chance": 1.0,
+      "input": {
+        "id": "anvilcraft:confinement_chamber"
+      },
+      "max_count": 8,
+      "output": {
+        "chance": 1.0,
+        "id": "anvilcraft:confined_space_anvilon"
+      }
+    },
+    {
+      "chance": 1.0,
+      "input": {
+        "id": "anvilcraft:confinement_chamber"
+      },
+      "max_count": 4,
+      "output": {
+        "chance": 1.0,
+        "id": "anvilcraft:confined_energy_anvilon"
+      }
+    }
+  ]
+}

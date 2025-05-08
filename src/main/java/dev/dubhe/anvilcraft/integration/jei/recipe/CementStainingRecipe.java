@@ -1,14 +1,12 @@
 package dev.dubhe.anvilcraft.integration.jei.recipe;
 
+import com.google.common.collect.ImmutableList;
 import dev.dubhe.anvilcraft.block.CementCauldronBlock;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
-
-import net.minecraft.world.item.crafting.Ingredient;
-
-import com.google.common.collect.ImmutableList;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.List;
 

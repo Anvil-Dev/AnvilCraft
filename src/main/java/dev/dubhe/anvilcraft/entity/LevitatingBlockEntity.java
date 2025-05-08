@@ -51,8 +51,8 @@ public class LevitatingBlockEntity extends FallingBlockEntity {
             pos.getY(),
             (double) pos.getZ() + 0.5,
             blockState.hasProperty(BlockStateProperties.WATERLOGGED)
-            ? blockState.setValue(BlockStateProperties.WATERLOGGED, false)
-            : blockState
+                ? blockState.setValue(BlockStateProperties.WATERLOGGED, false)
+                : blockState
         );
         level.setBlock(pos, blockState.getFluidState().createLegacyBlock(), 3);
         level.addFreshEntity(levitating);
@@ -73,7 +73,7 @@ public class LevitatingBlockEntity extends FallingBlockEntity {
                 this.discard();
             } else if (
                 this.level().getBlockState(blockPos.above()).isAir()
-                || (this.level().getBlockState(blockPos).getBlock() instanceof Fallable
+                    || (this.level().getBlockState(blockPos).getBlock() instanceof Fallable
                     || this.level().getBlockState(blockPos.above()).getBlock() instanceof Fallable
                     || !this.level().getEntitiesOfClass(
                     FallingBlockEntity.class,

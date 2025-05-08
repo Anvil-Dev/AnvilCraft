@@ -220,7 +220,7 @@ public class TransparentCraftingTableBlock extends TransparentBlock implements I
     /**
      * 判断是否是通透工作台或其它允许参与形成矩阵的方块（目前仅包含空间超压器）。
      *
-     * @param block 需要进行判断的方块
+     * @param block      需要进行判断的方块
      * @param isSelfOnly 是否只匹配通透工作台
      * @return 判断结果
      */

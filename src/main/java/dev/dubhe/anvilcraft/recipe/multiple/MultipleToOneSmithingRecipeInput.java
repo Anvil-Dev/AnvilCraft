@@ -5,7 +5,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeInput;
 
 @MethodsReturnNonnullByDefault
-public record MultipleToOneSmithingRecipeInput(ItemStack template, ItemStack material, ItemStack[] inputs, int inputSize)
+public record MultipleToOneSmithingRecipeInput(ItemStack template, ItemStack material, ItemStack[] inputs,
+                                               int inputSize)
     implements RecipeInput {
 
     public MultipleToOneSmithingRecipeInput(ItemStack template, ItemStack material, int inputSize, ItemStack... inputs) {

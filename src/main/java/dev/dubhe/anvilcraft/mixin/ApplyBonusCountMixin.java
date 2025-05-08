@@ -17,7 +17,9 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 @Mixin(ApplyBonusCount.class)
 public class ApplyBonusCountMixin {
-    @Shadow @Final private Holder<Enchantment> enchantment;
+    @Shadow
+    @Final
+    private Holder<Enchantment> enchantment;
 
     @ModifyVariable(method = "run", at = @At("STORE"), ordinal = 0)
     private int cancelWhenMercilessAndIncreaseDrop(

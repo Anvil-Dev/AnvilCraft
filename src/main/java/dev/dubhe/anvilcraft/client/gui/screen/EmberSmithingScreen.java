@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.client.gui.screen;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.inventory.EmberSmithingMenu;
-
 import dev.dubhe.anvilcraft.item.template.MultipleToOneTemplateItem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.CyclingSlotBackground;
@@ -13,7 +12,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -215,23 +213,23 @@ public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
             if (templateItem.getSize() == 2) {
                 hasInput =
                     this.menu.getSlot(2).hasItem()
-                    && this.menu.getSlot(3).hasItem();
+                        && this.menu.getSlot(3).hasItem();
             } else if (templateItem.getSize() == 4) {
                 hasInput =
                     this.menu.getSlot(2).hasItem()
-                    && this.menu.getSlot(3).hasItem()
-                    && this.menu.getSlot(4).hasItem()
-                    && this.menu.getSlot(5).hasItem();
+                        && this.menu.getSlot(3).hasItem()
+                        && this.menu.getSlot(4).hasItem()
+                        && this.menu.getSlot(5).hasItem();
             } else if (templateItem.getSize() == 8) {
                 hasInput =
                     this.menu.getSlot(2).hasItem()
-                    && this.menu.getSlot(3).hasItem()
-                    && this.menu.getSlot(4).hasItem()
-                    && this.menu.getSlot(5).hasItem()
-                    && this.menu.getSlot(6).hasItem()
-                    && this.menu.getSlot(7).hasItem()
-                    && this.menu.getSlot(8).hasItem()
-                    && this.menu.getSlot(9).hasItem();
+                        && this.menu.getSlot(3).hasItem()
+                        && this.menu.getSlot(4).hasItem()
+                        && this.menu.getSlot(5).hasItem()
+                        && this.menu.getSlot(6).hasItem()
+                        && this.menu.getSlot(7).hasItem()
+                        && this.menu.getSlot(8).hasItem()
+                        && this.menu.getSlot(9).hasItem();
             }
         }
 

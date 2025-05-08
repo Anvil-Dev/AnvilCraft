@@ -3,15 +3,13 @@ package dev.dubhe.anvilcraft.network;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.gui.screen.StructureToolScreen;
 import dev.dubhe.anvilcraft.item.StructureToolItem;
-
+import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
-
-import lombok.Getter;
 
 public class StructureDataSyncPacket implements CustomPacketPayload {
     public static final Type<StructureDataSyncPacket> TYPE = new Type<>(AnvilCraft.of("structure_data_sync"));

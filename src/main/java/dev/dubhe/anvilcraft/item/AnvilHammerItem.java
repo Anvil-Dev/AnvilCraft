@@ -144,7 +144,7 @@ public class AnvilHammerItem extends Item implements Equipable {
         if (state.getBlock() instanceof IHammerChangeable hammerChangeable) {
             return hammerChangeable.checkBlockState(state);
         }
-        return true;
+        return AnvilHammerItem.findModifyableProperty(state) != null;
     }
 
     @Nullable

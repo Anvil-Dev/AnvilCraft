@@ -64,14 +64,14 @@ public class SpawningManager {
             BlockState lightBlockState = level.getBlockState(pos);
             if (
                 lightBlockState.getBlock() instanceof InductionLightBlock
-                && InductionLightBlock.isLit(lightBlockState)
-                && (InductionLightBlock.canBlockMobSummoning(lightBlockState)
+                    && InductionLightBlock.isLit(lightBlockState)
+                    && (InductionLightBlock.canBlockMobSummoning(lightBlockState)
                     || InductionLightBlock.canBlockAnimalSummoning(lightBlockState))
             ) {
                 if (level.getBlockEntity(pos) instanceof InductionLightBlockEntity blockEntity
                     && blockEntity.blockingArea.get().contains(entity.position())
                     && ((InductionLightBlock.canBlockMobSummoning(lightBlockState) && entity instanceof Monster)
-                        || (InductionLightBlock.canBlockAnimalSummoning(lightBlockState) && entity instanceof Animal))
+                    || (InductionLightBlock.canBlockAnimalSummoning(lightBlockState) && entity instanceof Animal))
                 ) {
                     event.setResult(MobSpawnEvent.PositionCheck.Result.FAIL);
                 }

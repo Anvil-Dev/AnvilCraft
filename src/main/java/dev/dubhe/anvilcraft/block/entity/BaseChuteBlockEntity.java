@@ -30,6 +30,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
+import java.util.Objects;
 
 import static dev.dubhe.anvilcraft.util.ItemHandlerUtil.getSourceItemHandler;
 
@@ -44,6 +45,7 @@ public abstract class BaseChuteBlockEntity
     private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(9) {
         @Override
         public void onContentsChanged(int slot) {
+            assert level != null;
             if (level.isClientSide) return;
             setChanged();
         }
@@ -127,21 +129,21 @@ public abstract class BaseChuteBlockEntity
                 if (source != null) {
                     resetCD = ItemHandlerUtil.importFromTarget(getItemHandler(), 64, stack -> true, source);
                 } else {
-                    List<ItemEntity> itemEntities = getLevel()
+                    List<ItemEntity> itemEntities = Objects.requireNonNull(getLevel())
                         .getEntitiesOfClass(
                             ItemEntity.class,
                             new AABB(getBlockPos().relative(getInputDirection())),
                             itemEntity -> !itemEntity.getItem().isEmpty());
-                        int prevSize = itemEntities.size();
-                        for (ItemEntity itemEntity : itemEntities) {
-                            ItemStack remaining =
-                                ItemHandlerHelper.insertItem(this.itemHandler, itemEntity.getItem(), true);
-                            if (!remaining.isEmpty()) continue;
-                            ItemHandlerHelper.insertItem(this.itemHandler, itemEntity.getItem(), false);
-                            itemEntity.discard();
-                            break;
-                        }
-                        resetCD = prevSize > itemEntities.size();
+                    int prevSize = itemEntities.size();
+                    for (ItemEntity itemEntity : itemEntities) {
+                        ItemStack remaining =
+                            ItemHandlerHelper.insertItem(this.itemHandler, itemEntity.getItem(), true);
+                        if (!remaining.isEmpty()) continue;
+                        ItemHandlerHelper.insertItem(this.itemHandler, itemEntity.getItem(), false);
+                        itemEntity.discard();
+                        break;
+                    }
+                    resetCD = prevSize > itemEntities.size();
                 }
                 // 尝试向朝向容器输出
                 IItemHandler target = getSourceItemHandler(
@@ -154,7 +156,7 @@ public abstract class BaseChuteBlockEntity
                     resetCD |= ItemHandlerUtil.exportToTarget(getItemHandler(), 64, stack -> true, target);
                 } else {
                     Vec3 center = getBlockPos().relative(getOutputDirection()).getCenter();
-                    List<ItemEntity> itemEntities = getLevel()
+                    List<ItemEntity> itemEntities = Objects.requireNonNull(getLevel())
                         .getEntitiesOfClass(
                             ItemEntity.class,
                             new AABB(getBlockPos().relative(getOutputDirection())),
@@ -191,7 +193,7 @@ public abstract class BaseChuteBlockEntity
                                     itemEntity.setDefaultPickUpDelay();
                                     getLevel().addFreshEntity(itemEntity);
                                     this.itemHandler.setStackInSlot(i, stack);
-                                    resetCD = true;
+                                    cooldown = AnvilCraft.config.chuteMaxCooldown;
                                     break;
                                 }
                             }

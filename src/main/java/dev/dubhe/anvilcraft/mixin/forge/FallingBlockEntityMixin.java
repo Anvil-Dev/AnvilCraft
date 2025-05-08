@@ -3,19 +3,20 @@ package dev.dubhe.anvilcraft.mixin.forge;
 import com.llamalad7.mixinextras.sugar.Local;
 import dev.dubhe.anvilcraft.api.event.anvil.AnvilEvent;
 import dev.dubhe.anvilcraft.init.ModBlocks;
-
+import dev.dubhe.anvilcraft.util.DeflectionEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.FallingBlockEntity;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.EntityHitResult;
 import net.neoforged.neoforge.common.NeoForge;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -29,6 +30,9 @@ import java.util.function.Predicate;
 
 @Mixin(FallingBlockEntity.class)
 abstract class FallingBlockEntityMixin extends Entity {
+    @Unique
+    private static final float DAMAGE_FACTOR = 40 / 1.7444f;
+
     @Shadow
     public BlockState blockState;
 
@@ -100,12 +104,44 @@ abstract class FallingBlockEntityMixin extends Entity {
         DamageSource pSource,
         CallbackInfoReturnable<Boolean> cir,
         @Local Predicate<Entity> predicate,
-        @Local(ordinal = 2) float f) {
+        @Local(ordinal = 2) float f
+    ) {
         FallingBlockEntity anvil = (FallingBlockEntity) (Object) this;
         Level level = this.level();
         List<Entity> entities = level.getEntities(this, this.getBoundingBox(), predicate);
         for (Entity entity : entities) {
             NeoForge.EVENT_BUS.post(new AnvilEvent.HurtEntity(anvil, this.getOnPos(), level, entity, f));
         }
+    }
+
+    @Inject(
+        method = "tick",
+        at =
+        @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/item/FallingBlockEntity;setDeltaMovement(Lnet/minecraft/world/phys/Vec3;)V",
+            ordinal = 1
+        )
+    )
+    private void hurtEntity(CallbackInfo ci) {
+        if (
+            this.getDeltaMovement().multiply(1, 0, 1).length() < 0.75
+                && this.getDeltaMovement().y < 2.5
+        ) return;
+        if (!this.blockState.is(BlockTags.ANVIL)) return;
+        EntityHitResult hitResult = ProjectileUtil.getEntityHitResult(
+            this.level(),
+            this,
+            this.position().subtract(0, 0.5, 0).subtract(
+                ((DeflectionEntity) this).isDeflected() ? ((DeflectionEntity) this).getFixedDeltaMovement() : this.getDeltaMovement()
+            ),
+            this.position().subtract(0, 0.5, 0),
+            this.getBoundingBox().expandTowards((((DeflectionEntity) this).isDeflected() ? ((DeflectionEntity) this).getFixedDeltaMovement() : this.getDeltaMovement()).multiply(-1, -1, -1)).inflate(1.0),
+            Entity::isAttackable
+        );
+        if (hitResult == null) return;
+        if (hitResult.getType() != EntityHitResult.Type.ENTITY) return;
+        float hurtAmount = (float) (this.getDeltaMovement().length() * DAMAGE_FACTOR);
+        hitResult.getEntity().hurt(damageSources().anvil(this), hurtAmount);
     }
 }

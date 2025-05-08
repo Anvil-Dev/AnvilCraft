@@ -227,9 +227,9 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
 
     public static boolean canStart(@Nullable BlockEntity blockEntity, boolean nowInputting) {
         return blockEntity instanceof PulseGeneratorBlockEntity repeater
-               && ((repeater.getStartMode() == 0 && !repeater.isInputtingSignal() && nowInputting)
-                   || (repeater.getStartMode() == 1 && repeater.isInputtingSignal() && !nowInputting)
-                   || (repeater.getStartMode() == 2 && (repeater.isDeadlock || repeater.mode == Mode.DEFAULT)));
+            && ((repeater.getStartMode() == 0 && !repeater.isInputtingSignal() && nowInputting)
+            || (repeater.getStartMode() == 1 && repeater.isInputtingSignal() && !nowInputting)
+            || (repeater.getStartMode() == 2 && (repeater.isDeadlock || repeater.mode == Mode.DEFAULT)));
     }
 
     public enum Mode {

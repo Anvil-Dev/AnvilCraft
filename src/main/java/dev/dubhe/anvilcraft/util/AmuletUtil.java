@@ -53,15 +53,15 @@ public class AmuletUtil {
         new Type(
             "sapphire", (sources, source) ->
             DamageSourceUtil.isMatchTypes(source, sources, DamageTypes.DROWN, DamageTypes.DRY_OUT)
-            || DamageSourceUtil.isEntityMatchTypes(source, EntityType.GUARDIAN, EntityType.ELDER_GUARDIAN),
+                || DamageSourceUtil.isEntityMatchTypes(source, EntityType.GUARDIAN, EntityType.ELDER_GUARDIAN),
             ModItems.SAPPHIRE_AMULET
         ),
         new Type(
             "anvil", (sources, source) ->
             DamageSourceUtil.isMatchTypes(source, sources, DamageTypes.FALLING_ANVIL)
-            || (source.type().equals(sources.damageTypes.get(DamageTypes.FALLING_BLOCK))
+                || (source.type().equals(sources.damageTypes.get(DamageTypes.FALLING_BLOCK))
                 && source.getEntity() instanceof FallingGiantAnvilEntity)
-            || Optional.ofNullable(source.getWeaponItem())
+                || Optional.ofNullable(source.getWeaponItem())
                 .filter(item -> item.is(ModItemTags.ANVIL_HAMMER))
                 .isPresent(),
             ModItems.ANVIL_AMULET
@@ -209,6 +209,15 @@ public class AmuletUtil {
         }
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public static boolean hasAmuletInInventory(Player player, Type type) {
+        try {
+            return hasAmuletInInventory.test(player, type);
+        } catch (NullPointerException ignored) {
+            return false;
+        }
+    }
+
     public static ItemStack getEffectiveAmulet(Player player, ItemEntry<? extends AbstractAmuletItem> entry) {
         try {
             ItemStack stack = InventoryUtil.getFirstItem(player.getInventory(), stack1 -> stack1.getItem() instanceof AbstractAmuletItem);
@@ -219,15 +228,6 @@ public class AmuletUtil {
             }
         } catch (NullPointerException ignored) {
             return ItemStack.EMPTY;
-        }
-    }
-
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public static boolean hasAmuletInInventory(Player player, Type type) {
-        try {
-            return hasAmuletInInventory.test(player, type);
-        } catch (NullPointerException ignored) {
-            return false;
         }
     }
 

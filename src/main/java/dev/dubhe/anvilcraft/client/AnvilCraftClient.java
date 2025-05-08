@@ -7,9 +7,9 @@ import dev.dubhe.anvilcraft.client.init.ModModelLayers;
 import dev.dubhe.anvilcraft.client.init.ModShaders;
 import dev.dubhe.anvilcraft.client.renderer.item.decoration.IonoCraftBackpackDecoration;
 import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
-
 import dev.dubhe.anvilcraft.init.ModFluids;
 import dev.dubhe.anvilcraft.init.ModItems;
+import me.shedaniel.autoconfig.AutoConfig;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -24,8 +24,6 @@ import net.neoforged.neoforge.client.event.RegisterItemDecorationsEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
-
-import me.shedaniel.autoconfig.AutoConfig;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 

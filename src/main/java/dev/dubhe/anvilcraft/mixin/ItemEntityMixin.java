@@ -1,11 +1,14 @@
 package dev.dubhe.anvilcraft.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModComponents;
 import dev.dubhe.anvilcraft.init.ModItemTags;
 import dev.dubhe.anvilcraft.init.ModItems;
+import dev.dubhe.anvilcraft.util.MergeCooldownItemEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
@@ -15,14 +18,14 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.level.material.PushReaction;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.event.EventHooks;
@@ -41,10 +44,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 @Mixin(ItemEntity.class)
-abstract class ItemEntityMixin extends Entity {
+abstract class ItemEntityMixin extends Entity implements MergeCooldownItemEntity {
     @Shadow
     public abstract ItemStack getItem();
 
@@ -76,6 +80,9 @@ abstract class ItemEntityMixin extends Entity {
 
     @Shadow
     public int lifespan;
+
+    @Unique
+    public int anvilCraft$mergeCooldown = 0;
 
     public ItemEntityMixin(EntityType<?> entityType, Level level) {
         super(entityType, level);
@@ -174,6 +181,7 @@ abstract class ItemEntityMixin extends Entity {
 
     // 以下是中子锭运动相关mixin
 
+    @SuppressWarnings("DataFlowIssue")
     @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
     private void anvilcraft$neutroniumTick(CallbackInfo ci) {
         ItemStack item = this.getItem();
@@ -186,7 +194,7 @@ abstract class ItemEntityMixin extends Entity {
         this.level().getProfiler().push("entityBaseTick");
 
         this.inBlockState = null;
-        if (this.isPassenger() && this.getVehicle().isRemoved()) {
+        if (this.isPassenger() && Objects.requireNonNull(this.getVehicle()).isRemoved()) {
             this.stopRiding();
         }
         if (this.boardingCooldown > 0) {
@@ -261,6 +269,7 @@ abstract class ItemEntityMixin extends Entity {
         return super.getPistonPushReaction();
     }
 
+    @SuppressWarnings({"unused", "SameParameterValue", "SuspiciousNameCombination"})
     @Unique
     private void anvilCraft$neutroniumMove(MoverType moverType, Vec3 motion) {
 
@@ -317,5 +326,19 @@ abstract class ItemEntityMixin extends Entity {
         this.tryCheckInsideBlocks();
 
         this.level().getProfiler().pop();
+    }
+
+    @WrapOperation(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/item/ItemEntity;isMergable()Z"))
+    public boolean preventMerge(ItemEntity instance, Operation<Boolean> original) {
+        if (!original.call(instance)) return false;
+        if (anvilCraft$mergeCooldown <= 0) return true;
+        anvilCraft$mergeCooldown--;
+        return false;
+    }
+
+    @SuppressWarnings("AddedMixinMembersNamePattern")
+    @Override
+    public void setMergeCooldown(int cooldown) {
+        anvilCraft$mergeCooldown = cooldown;
     }
 }

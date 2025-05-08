@@ -12,8 +12,8 @@ import dev.dubhe.anvilcraft.item.StructureToolItem;
 import dev.dubhe.anvilcraft.item.amulet.ComradeAmuletItem;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -48,7 +48,7 @@ public class ModComponents {
     public static final DataComponentType<ComradeAmuletItem.SignedPlayers> SIGNED_PLAYERS =
         register("signed_player", b -> b.persistent(ComradeAmuletItem.SignedPlayers.CODEC)
             .networkSynchronized(ComradeAmuletItem.SignedPlayers.STREAM_CODEC));
-  
+
     public static final DataComponentType<Integer> FLIGHT_TIME = register(
         "flight_time",
         it -> it.persistent(Codec.INT)
@@ -76,12 +76,12 @@ public class ModComponents {
         return componentType;
     }
 
+    public static void register(IEventBus bus) {
+        DR.register(bus);
+    }
+
     private static DataComponentType<Unit> registerEmpty(String name) {
         return register(name, b -> b.persistent(Codec.EMPTY.codec())
             .networkSynchronized(StreamCodec.unit(Unit.INSTANCE)));
-    }
-
-    public static void register(IEventBus bus) {
-        DR.register(bus);
     }
 }

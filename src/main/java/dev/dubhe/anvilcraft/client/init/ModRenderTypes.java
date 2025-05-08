@@ -11,8 +11,6 @@ import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.util.FastColor;
 
 import java.util.OptionalDouble;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 import static dev.dubhe.anvilcraft.client.init.ModRenderTargets.LASER_TARGET;
 import static dev.dubhe.anvilcraft.client.init.ModRenderTargets.LINE_BLOOM_TARGET;

@@ -25,7 +25,7 @@ import java.util.Optional;
  * 多相
  *
  * @param alpha α相
- * @param beta β相
+ * @param beta  β相
  */
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -47,7 +47,6 @@ public record Multiphase(Phase alpha, Phase beta) {
      * 该方法目前仅用于多相工具
      *
      * @param name 原始名称，不含后缀
-     *
      * @return 一个全新的多相
      */
     public static Multiphase make(Component name) {
@@ -61,9 +60,8 @@ public record Multiphase(Phase alpha, Phase beta) {
     /**
      * 构建一个全新的多相<br>
      *
-     * @param name   原始名称，不含后缀
+     * @param name         原始名称，不含后缀
      * @param enchantments 初始附魔，用于α相
-     *
      * @return 一个全新的多相
      */
     public static Multiphase make(Component name, @Nullable ItemEnchantments enchantments) {
@@ -78,8 +76,7 @@ public record Multiphase(Phase alpha, Phase beta) {
      * 使用输入的数据构建一个全新的多相，并传入物品
      *
      * @param original 原始物品
-     * @param dataS 数据组，只取前两个非null数据作α相和β相
-     *
+     * @param dataS    数据组，只取前两个非null数据作α相和β相
      * @return 一个全新的多相
      */
     public static Multiphase make(Item original, PhaseData... dataS) {

@@ -1,7 +1,8 @@
 package dev.dubhe.anvilcraft.recipe.multiblock;
 
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
-
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
@@ -9,9 +10,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
-
-import lombok.Setter;
-import lombok.experimental.Accessors;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 

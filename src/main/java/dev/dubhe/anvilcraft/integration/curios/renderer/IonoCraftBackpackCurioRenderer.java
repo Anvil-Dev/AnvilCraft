@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.integration.curios.renderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.dubhe.anvilcraft.client.init.ModModelLayers;
-import dev.dubhe.anvilcraft.item.IonoCraftBackpackItem;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;

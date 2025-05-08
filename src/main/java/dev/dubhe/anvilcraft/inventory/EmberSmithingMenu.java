@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.inventory;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
-
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.item.template.MultipleToOneTemplateItem;
 import dev.dubhe.anvilcraft.recipe.multiple.BaseMultipleToOneSmithingRecipe;
@@ -18,12 +17,10 @@ import net.minecraft.world.inventory.ItemCombinerMenu;
 import net.minecraft.world.inventory.ItemCombinerMenuSlotDefinition;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
@@ -74,7 +71,7 @@ public class EmberSmithingMenu extends ItemCombinerMenu {
                 .anyMatch(smithingRecipe -> smithingRecipe.value().isTemplateIngredient(itemStack)))
             .withSlot(1, 80, 36, itemStack ->
                 !this.inputSlots.getItem(0).isEmpty() && this.recipes.stream()
-                .anyMatch(smithingRecipe -> smithingRecipe.value().isMaterialIngredient(itemStack)))
+                    .anyMatch(smithingRecipe -> smithingRecipe.value().isMaterialIngredient(itemStack)))
             .withSlot(2, 80, 18, itemStack ->
                 !this.inputSlots.getItem(0).isEmpty() && this.recipes.stream()
                     .anyMatch(smithingRecipe -> smithingRecipe.value().isInputIngredient(0, itemStack)))
@@ -84,33 +81,33 @@ public class EmberSmithingMenu extends ItemCombinerMenu {
             .withSlot(4, 62, 36, itemStack ->
                 !this.inputSlots.getItem(0).is(ModItems.TWO_TO_ONE_SMITHING_TEMPLATE) && this.recipes.stream()
                     .anyMatch(smithingRecipe ->
-                                  !(smithingRecipe.value() instanceof TwoToOneSmithingRecipe<?>)
-                                  && smithingRecipe.value().isInputIngredient(2, itemStack)))
+                        !(smithingRecipe.value() instanceof TwoToOneSmithingRecipe<?>)
+                            && smithingRecipe.value().isInputIngredient(2, itemStack)))
             .withSlot(5, 98, 36, itemStack ->
                 !this.inputSlots.getItem(0).is(ModItems.TWO_TO_ONE_SMITHING_TEMPLATE) && this.recipes.stream()
                     .anyMatch(smithingRecipe ->
-                                  !(smithingRecipe.value() instanceof TwoToOneSmithingRecipe<?>)
-                                  && smithingRecipe.value().isInputIngredient(3, itemStack)))
+                        !(smithingRecipe.value() instanceof TwoToOneSmithingRecipe<?>)
+                            && smithingRecipe.value().isInputIngredient(3, itemStack)))
             .withSlot(6, 62, 18, itemStack ->
                 this.inputSlots.getItem(0).is(ModItems.EIGHT_TO_ONE_SMITHING_TEMPLATE) && this.recipes.stream()
                     .anyMatch(smithingRecipe ->
-                                  smithingRecipe.value() instanceof EightToOneSmithingRecipe<?>
-                                  && smithingRecipe.value().isInputIngredient(4, itemStack)))
+                        smithingRecipe.value() instanceof EightToOneSmithingRecipe<?>
+                            && smithingRecipe.value().isInputIngredient(4, itemStack)))
             .withSlot(7, 98, 18, itemStack ->
                 this.inputSlots.getItem(0).is(ModItems.EIGHT_TO_ONE_SMITHING_TEMPLATE) && this.recipes.stream()
                     .anyMatch(smithingRecipe ->
-                                  smithingRecipe.value() instanceof EightToOneSmithingRecipe<?>
-                                  && smithingRecipe.value().isInputIngredient(5, itemStack)))
+                        smithingRecipe.value() instanceof EightToOneSmithingRecipe<?>
+                            && smithingRecipe.value().isInputIngredient(5, itemStack)))
             .withSlot(8, 62, 54, itemStack ->
                 this.inputSlots.getItem(0).is(ModItems.EIGHT_TO_ONE_SMITHING_TEMPLATE) && this.recipes.stream()
                     .anyMatch(smithingRecipe ->
-                                  smithingRecipe.value() instanceof EightToOneSmithingRecipe<?>
-                                  && smithingRecipe.value().isInputIngredient(6, itemStack)))
+                        smithingRecipe.value() instanceof EightToOneSmithingRecipe<?>
+                            && smithingRecipe.value().isInputIngredient(6, itemStack)))
             .withSlot(9, 98, 54, itemStack ->
                 this.inputSlots.getItem(0).is(ModItems.EIGHT_TO_ONE_SMITHING_TEMPLATE) && this.recipes.stream()
                     .anyMatch(smithingRecipe ->
-                                  smithingRecipe.value() instanceof EightToOneSmithingRecipe<?>
-                                  && smithingRecipe.value().isInputIngredient(7, itemStack)))
+                        smithingRecipe.value() instanceof EightToOneSmithingRecipe<?>
+                            && smithingRecipe.value().isInputIngredient(7, itemStack)))
             .withResultSlot(10, 151, 48)
             .build();
     }

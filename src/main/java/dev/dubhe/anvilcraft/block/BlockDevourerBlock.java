@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.block;
 
-import com.google.common.collect.Lists;
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
@@ -12,7 +11,6 @@ import dev.dubhe.anvilcraft.util.BreakBlockUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
@@ -43,7 +41,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 import static dev.dubhe.anvilcraft.api.entity.player.AnvilCraftBlockPlacer.anvilCraftBlockPlacer;
@@ -226,7 +223,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
         for (BlockPos devourBlockPos : devourBlockPosList) {
             if (
                 AnvilCraft.config.blockDevourerUpwardChainDevouring
-                && devourBlockPos.getY() == devourBlockBoundingBox.maxY
+                    && devourBlockPos.getY() == devourBlockBoundingBox.maxY
             ) {
                 for (BlockPos chainDevourBlockPos : BlockPos.betweenClosed(
                     devourBlockPos.above(), devourBlockPos.above(AnvilCraft.config.blockDevourerUpwardChainDevouringDistance)
@@ -238,7 +235,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
                     }
                 }
             }
-            
+
             devourSingleBlockInternalLogic(
                 level, anvil, devourBlockPos, filteredBlockPosList, insertEnabled, itemHandler, dropOriginalPlace, center
             );

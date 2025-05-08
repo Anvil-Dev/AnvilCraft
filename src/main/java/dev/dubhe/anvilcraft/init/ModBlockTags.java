@@ -78,6 +78,9 @@ public class ModBlockTags {
 
     public static final TagKey<Block> ANVIL_HAMMER_BLACKLIST = bind("anvil_hammer_blacklist");
 
+    public static final TagKey<Block> FELLING_APPLICABLE = bind("felling_applicable");
+    public static final TagKey<Block> CLEANING_APPLICABLE = bind("cleaning_applicable");
+
     //mekanism tags
     public static final TagKey<Block> MEKANISM_CARDBOARD_BOX_BLACKLIST = bindMekanism("cardboard_blacklist");
 

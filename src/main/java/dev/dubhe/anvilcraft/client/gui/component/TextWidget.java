@@ -1,8 +1,6 @@
 package dev.dubhe.anvilcraft.client.gui.component;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import lombok.Setter;
-import me.shedaniel.rei.impl.client.gui.config.REIConfigScreen;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;

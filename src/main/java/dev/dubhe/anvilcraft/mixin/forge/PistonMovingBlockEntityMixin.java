@@ -1,12 +1,10 @@
 package dev.dubhe.anvilcraft.mixin.forge;
 
 import dev.dubhe.anvilcraft.block.ResinBlock;
-
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SlimeBlock;
 import net.minecraft.world.level.block.piston.PistonMovingBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

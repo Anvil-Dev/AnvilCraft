@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModComponents;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.item.ResinBlockItem;
-
 import dev.dubhe.anvilcraft.item.amulet.ComradeAmuletItem;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
 import dev.dubhe.anvilcraft.util.AmuletUtil;
@@ -20,7 +19,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
-
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
@@ -72,7 +70,7 @@ public class PlayerEventListener {
     public static void onPlayerUsingTotem(LivingUseTotemEvent event) {
         if (
             event.getEntity() instanceof ServerPlayer player
-            && InventoryUtil.hasItem(player.getInventory(), ModItems.AMULET_BOX.asItem())
+                && InventoryUtil.hasItem(player.getInventory(), ModItems.AMULET_BOX.asItem())
         ) {
             Inventory inventory = player.getInventory();
             AmuletUtil.startRaffle(

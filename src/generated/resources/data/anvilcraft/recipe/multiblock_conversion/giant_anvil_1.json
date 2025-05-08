@@ -8,14 +8,14 @@
         "AFA"
       ],
       [
-        "GGG",
-        "GDG",
-        "GGG"
+        "   ",
+        " D ",
+        "   "
       ],
       [
-        "HIH",
-        "JHJ",
-        "HIH"
+        "GHG",
+        "IGI",
+        "GHG"
       ]
     ],
     "symbols": {
@@ -62,18 +62,15 @@
         }
       },
       "G": {
-        "block": "anvilcraft:heavy_iron_plate"
-      },
-      "H": {
         "block": "anvilcraft:polished_heavy_iron_block"
       },
-      "I": {
+      "H": {
         "block": "anvilcraft:heavy_iron_beam",
         "properties": {
           "axis": "z"
         }
       },
-      "J": {
+      "I": {
         "block": "anvilcraft:heavy_iron_beam",
         "properties": {
           "axis": "x"

@@ -24,7 +24,7 @@ public class PowerConverterBigBlock extends BasePowerConverterBlock implements I
     public static final VoxelShape SHAPE_WEST = Block.box(0, 5, 5, 8, 11, 11);
 
     public PowerConverterBigBlock(Properties properties) {
-        super(properties, 9);
+        super(properties, 36);
     }
 
     @Override

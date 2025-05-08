@@ -20,7 +20,8 @@ public class CapabilitiesEventListener {
             ModBlockEntities.CHUTE.get(),
             ModBlockEntities.SIMPLE_CHUTE.get(),
             ModBlockEntities.ITEM_COLLECTOR.get(),
-            ModBlockEntities.MAGNETIC_CHUTE.get()
+            ModBlockEntities.MAGNETIC_CHUTE.get(),
+            ModBlockEntities.CONFINEMENT_CHAMBER.get()
         ).forEach(type -> event.registerBlockEntity(
             Capabilities.ItemHandler.BLOCK,
             type,

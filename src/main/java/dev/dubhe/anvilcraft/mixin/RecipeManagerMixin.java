@@ -1,13 +1,15 @@
 package dev.dubhe.anvilcraft.mixin;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.JsonElement;
+import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
 import dev.dubhe.anvilcraft.recipe.RecipeGenerator;
-
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -17,10 +19,6 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.neoforged.neoforge.common.conditions.WithConditions;
-
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMultimap;
-import com.llamalad7.mixinextras.sugar.Local;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -35,11 +33,15 @@ import java.util.Optional;
 @Mixin(RecipeManager.class)
 abstract class RecipeManagerMixin {
 
-    @Shadow @Final private HolderLookup.Provider registries;
+    @Shadow
+    @Final
+    private HolderLookup.Provider registries;
 
-    @Shadow private Map<ResourceLocation, RecipeHolder<?>> byName;
+    @Shadow
+    private Map<ResourceLocation, RecipeHolder<?>> byName;
 
-    @Shadow private Multimap<RecipeType<?>, RecipeHolder<?>> byType;
+    @Shadow
+    private Multimap<RecipeType<?>, RecipeHolder<?>> byType;
 
     @Inject(
         method = "lambda$apply$0",
@@ -67,7 +69,7 @@ abstract class RecipeManagerMixin {
 
     @Inject(
         method = "apply(Ljava/util/Map;Lnet/minecraft/server/packs/resources/ResourceManager;"
-                 + "Lnet/minecraft/util/profiling/ProfilerFiller;)V",
+            + "Lnet/minecraft/util/profiling/ProfilerFiller;)V",
         at = @At(value = "INVOKE", target = "Ljava/util/Map;entrySet()Ljava/util/Set;")
     )
     private void beforeBuildRecipe(
@@ -81,7 +83,7 @@ abstract class RecipeManagerMixin {
     @SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "CodeBlock2Expr"})
     @Inject(
         method = "apply(Ljava/util/Map;Lnet/minecraft/server/packs/resources/ResourceManager;"
-                 + "Lnet/minecraft/util/profiling/ProfilerFiller;)V",
+            + "Lnet/minecraft/util/profiling/ProfilerFiller;)V",
         at = @At(
             value = "INVOKE",
             target = "Ljava/util/Optional;ifPresentOrElse(Ljava/util/function/Consumer;Ljava/lang/Runnable;)V"
@@ -102,9 +104,9 @@ abstract class RecipeManagerMixin {
 
     @Inject(
         method = "apply(Ljava/util/Map;Lnet/minecraft/server/packs/resources/ResourceManager;"
-                 + "Lnet/minecraft/util/profiling/ProfilerFiller;)V",
+            + "Lnet/minecraft/util/profiling/ProfilerFiller;)V",
         at = @At(value = "INVOKE_ASSIGN", target = "Lcom/google/common/collect/ImmutableMap$Builder;build()"
-                                                   + "Lcom/google/common/collect/ImmutableMap;")
+            + "Lcom/google/common/collect/ImmutableMap;")
     )
     private void afterBuildRecipe(
         Map<ResourceLocation, JsonElement> object, ResourceManager resourceManager, ProfilerFiller profiler, CallbackInfo ci,

@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.client.gui.screen;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.inventory.EmberGrindstoneMenu;
-
 import dev.dubhe.anvilcraft.network.SyncEmberGrindstonePacket;
 import dev.dubhe.anvilcraft.util.ListUtil;
 import dev.dubhe.anvilcraft.util.MathUtil;
@@ -14,7 +13,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
-
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
@@ -84,27 +82,28 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
     protected void renderEnchantmentSelectingArea(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.renderingTooltipEnchantedBook = null;
         int scrollOver = this.lastRowIndex * 3;
-        if (!this.menu.getEnchantments().isEmpty()) for (int i = 0; i < Math.min(this.menu.getEnchantments().size() + scrollOver, 6); i++) {
-            int x = this.leftPos + 65 + 18 * (i % 3);
-            int y = this.topPos + 23 + 18 * (i / 3);
+        if (!this.menu.getEnchantments().isEmpty())
+            for (int i = 0; i < Math.min(this.menu.getEnchantments().size() + scrollOver, 6); i++) {
+                int x = this.leftPos + 65 + 18 * (i % 3);
+                int y = this.topPos + 23 + 18 * (i / 3);
 
-            EnchantmentInstance enchantment = ListUtil.safelyGet(this.menu.getEnchantments(), i + scrollOver);
-            if (enchantment == null) continue;
-            ItemStack willRender = EnchantedBookItem.createForEnchantment(enchantment);
-            boolean selected = false;
-            int vOffset = 0;
-            if (MathUtil.isInRange(mouseX, mouseY, x, y, x + 18, y + 18)) {
-                vOffset = 36;
-                this.renderingTooltipEnchantedBook = willRender;
-            }
-            if (this.menu.getSelectedIndex() - scrollOver == i) {
-                vOffset = 18;
-                selected = true;
-            }
-            guiGraphics.blit(BUTTON, x, y, 0, vOffset, 18, 18, 18, 54);
+                EnchantmentInstance enchantment = ListUtil.safelyGet(this.menu.getEnchantments(), i + scrollOver);
+                if (enchantment == null) continue;
+                ItemStack willRender = EnchantedBookItem.createForEnchantment(enchantment);
+                boolean selected = false;
+                int vOffset = 0;
+                if (MathUtil.isInRange(mouseX, mouseY, x, y, x + 18, y + 18)) {
+                    vOffset = 36;
+                    this.renderingTooltipEnchantedBook = willRender;
+                }
+                if (this.menu.getSelectedIndex() - scrollOver == i) {
+                    vOffset = 18;
+                    selected = true;
+                }
+                guiGraphics.blit(BUTTON, x, y, 0, vOffset, 18, 18, 18, 54);
 
-            guiGraphics.renderItem(willRender, x + 1, y + (selected ? 1 : 0), (int) (partialTick * 100));
-        }
+                guiGraphics.renderItem(willRender, x + 1, y + (selected ? 1 : 0), (int) (partialTick * 100));
+            }
     }
 
     protected void renderLabels(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY) {

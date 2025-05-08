@@ -3,13 +3,9 @@ package dev.dubhe.anvilcraft.client.renderer.laser;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
-import dev.dubhe.anvilcraft.client.renderer.RenderState;
-import dev.dubhe.anvilcraft.util.Callback;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.neoforged.fml.common.Mod;
 
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class LaserCompiler {

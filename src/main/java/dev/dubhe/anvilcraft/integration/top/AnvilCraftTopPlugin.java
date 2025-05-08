@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.integration.top;
 import dev.dubhe.anvilcraft.integration.top.provider.ItemDetectorProvider;
 import dev.dubhe.anvilcraft.integration.top.provider.PowerBlockProvider;
 import dev.dubhe.anvilcraft.integration.top.provider.RubyPrismProvider;
-
 import dev.dubhe.anvilcraft.integration.top.provider.SpaceOvercompressorProvider;
 import mcjty.theoneprobe.TheOneProbe;
 import mcjty.theoneprobe.api.ITheOneProbe;

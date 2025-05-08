@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.block;
 
-import dev.dubhe.anvilcraft.entity.FloatingBlockEntity;
 import dev.dubhe.anvilcraft.entity.LevitatingBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;

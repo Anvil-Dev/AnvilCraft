@@ -11,6 +11,8 @@ import dev.dubhe.anvilcraft.entity.FallingSpectralBlockEntity;
 import dev.dubhe.anvilcraft.entity.FloatingBlockEntity;
 import dev.dubhe.anvilcraft.entity.IonocraftEntity;
 import dev.dubhe.anvilcraft.entity.LevitatingBlockEntity;
+import dev.dubhe.anvilcraft.entity.StandableFallingBlockEntity;
+import dev.dubhe.anvilcraft.entity.StandableLevitatingBlockEntity;
 import net.minecraft.client.renderer.entity.FallingBlockRenderer;
 import net.minecraft.world.entity.MobCategory;
 
@@ -38,6 +40,16 @@ public class ModEntities {
 
     public static final EntityEntry<? extends LevitatingBlockEntity> LEVITATING_BLOCK = AnvilCraft.REGISTRATE
         .entity("levitating_block", LevitatingBlockEntity::new, MobCategory.MISC)
+        .renderer(() -> FallingBlockRenderer::new)
+        .register();
+
+    public static final EntityEntry<? extends StandableFallingBlockEntity> STANDABLE_FALLING_BLOCK = AnvilCraft.REGISTRATE
+        .entity("standable_falling_block", StandableFallingBlockEntity::new, MobCategory.MISC)
+        .renderer(() -> FallingBlockRenderer::new)
+        .register();
+
+    public static final EntityEntry<? extends StandableLevitatingBlockEntity> STANDABLE_LEVITATING_BLOCK = AnvilCraft.REGISTRATE
+        .entity("standable_levitating_block", StandableLevitatingBlockEntity::new, MobCategory.MISC)
         .renderer(() -> FallingBlockRenderer::new)
         .register();
 

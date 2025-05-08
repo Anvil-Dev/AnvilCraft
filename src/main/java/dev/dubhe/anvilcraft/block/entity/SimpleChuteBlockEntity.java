@@ -103,7 +103,7 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemHandlerH
                                 itemEntity.setDefaultPickUpDelay();
                                 getLevel().addFreshEntity(itemEntity);
                                 this.itemHandler.setStackInSlot(i, stack);
-                                cooldown = AnvilCraft.config.chuteMaxCooldown;
+                                cooldown = AnvilCraft.config.chuteMaxCooldown - 1;
                                 break;
                             }
 

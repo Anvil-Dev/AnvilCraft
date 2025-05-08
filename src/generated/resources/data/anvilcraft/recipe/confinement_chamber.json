@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "anvilcraft:ember_metal_nugget"
+    },
+    "B": {
+      "item": "anvilcraft:magnet_ingot"
+    }
+  },
+  "pattern": [
+    "ABA",
+    "B B",
+    "ABA"
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:confinement_chamber"
+  }
+}

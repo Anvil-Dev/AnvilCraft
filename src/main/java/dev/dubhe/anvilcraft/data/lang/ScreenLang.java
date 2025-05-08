@@ -46,8 +46,8 @@ public class ScreenLang {
                 + ".upgrade_ingredients",
             "Royal Steel Ingot or Royal Steel Block");
         provider.add("screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template"
-                     + ".upgrade_ingredients",
-                     "Ember Metal Ingot or Ember Metal Block");
+                + ".upgrade_ingredients",
+            "Ember Metal Ingot or Ember Metal Block");
 
         provider.add("screen.anvilcraft.item_collector.title", "Item Collector");
         provider.add("screen.anvilcraft.item_collector.range", "Range");

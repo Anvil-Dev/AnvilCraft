@@ -1,0 +1,294 @@
+{
+  "type": "anvilcraft:multiblock_conversion",
+  "inputPattern": {
+    "layers": [
+      [
+        "ABA",
+        "BAB",
+        "ABA"
+      ],
+      [
+        "   ",
+        "   ",
+        "   "
+      ],
+      [
+        "ABA",
+        "BAB",
+        "ABA"
+      ]
+    ],
+    "symbols": {
+      "A": {
+        "block": "anvilcraft:magnetoelectric_core"
+      },
+      "B": {
+        "block": "anvilcraft:heavy_iron_block"
+      }
+    }
+  },
+  "outputPattern": {
+    "layers": [
+      [
+        "ABC",
+        "DEF",
+        "GHI"
+      ],
+      [
+        "JKL",
+        "MNO",
+        "PQR"
+      ],
+      [
+        "STU",
+        "VWX",
+        "YZ["
+      ]
+    ],
+    "symbols": {
+      "A": {
+        "block": "anvilcraft:deflection_ring",
+        "properties": {
+          "facing": "down",
+          "half": "bottom_wn",
+          "overload": "false",
+          "switch": "on"
+        }
+      },
+      "B": {
+        "block": "anvilcraft:deflection_ring",
+        "properties": {
+          "facing": "down",
+          "half": "bottom_n",
+          "overload": "false",
+          "switch": "on"
+        }
+      },
+      "C": {
+        "block": "anvilcraft:deflection_ring",
+        "properties": {
+          "facing": "down",
+          "half": "bottom_en",
+          "overload": "false",
+          "switch": "on"
+        }
+      },
+      "D": {
+        "block": "anvilcraft:deflection_ring",
+        "properties": {
+          "facing": "down",
+          "half": "bottom_w",
+          "overload": "false",
+          "switch": "on"
+        }
+      },
+      "E": {
+        "block": "anvilcraft:deflection_ring",
+        "properties": {
+          "facing": "down",
+          "half": "bottom_center",
+          "overload": "false",
+          "switch": "on"
+        }
+      },
+      "F": {
+        "block": "anvilcraft:deflection_ring",
+        "properties": {
+          "facing": "down",
+          "half": "bottom_e",
+          "overload": "false",
+          "switch": "on"
+        }
+      },
+      "G": {
+        "block": "anvilcraft:deflection_ring",
+        "properties": {
+          "facing": "down",
+          "half": "bottom_ws",
+          "overload": "false",
+          "switch": "on"
+        }
+      },
+      "H": {
+        "block": "anvilcraft:deflection_ring",
+        "properties": {
+          "facing": "down",
+          "half": "bottom_s",
+          "overload": "false",
+          "switch": "on"
+        }
+      },
+      "I": {
+        "block": "anvilcraft:deflection_ring",
+        "properties": {
+          "facing": "down",
+          "half": "bottom_es",
+          "overload": "false",
+          "switch": "on"
+        }
+      },
+      "J": {
+        "block": "anvilcraft:deflection_ring",
+        "properties": {
+          "facing": "down",
+          "half": "mid_wn",
+          "overload": "false",
+          "switch": "on"
+        }
+      },
+      "K": {
+        "block": "anvilcraft:deflection_ring",
+        "properties": {
+          "facing": "down",
+          "half": "mid_n",
+          "overload": "false",
+          "switch": "on"
+        }
+      },
+      "L": {
+        "block": "anvilcraft:deflection_ring",
+        "properties": {
+          "facing": "down",
+          "half": "mid_en",
+          "overload": "false",
+          "switch": "on"
+        }
+      },
+      "M": {
+        "block": "anvilcraft:deflection_ring",
+        "properties": {
+          "facing": "down",
+          "half": "mid_w",
+          "overload": "false",
+          "switch": "on"
+        }
+      },
+      "N": {
+        "block": "anvilcraft:deflection_ring",
+        "properties": {
+          "facing": "down",
+          "half": "mid_center",
+          "overload": "false",
+          "switch": "on"
+        }
+      },
+      "O": {
+        "block": "anvilcraft:deflection_ring",
+        "properties": {
+          "facing": "down",
+          "half": "mid_e",
+          "overload": "false",
+          "switch": "on"
+        }
+      },
+      "P": {
+        "block": "anvilcraft:deflection_ring",
+        "properties": {
+          "facing": "down",
+          "half": "mid_ws",
+          "overload": "false",
+          "switch": "on"
+        }
+      },
+      "Q": {
+        "block": "anvilcraft:deflection_ring",
+        "properties": {
+          "facing": "down",
+          "half": "mid_s",
+          "overload": "false",
+          "switch": "on"
+        }
+      },
+      "R": {
+        "block": "anvilcraft:deflection_ring",
+        "properties": {
+          "facing": "down",
+          "half": "mid_es",
+          "overload": "false",
+          "switch": "on"
+        }
+      },
+      "S": {
+        "block": "anvilcraft:deflection_ring",
+        "properties": {
+          "facing": "down",
+          "half": "top_wn",
+          "overload": "false",
+          "switch": "on"
+        }
+      },
+      "T": {
+        "block": "anvilcraft:deflection_ring",
+        "properties": {
+          "facing": "down",
+          "half": "top_n",
+          "overload": "false",
+          "switch": "on"
+        }
+      },
+      "U": {
+        "block": "anvilcraft:deflection_ring",
+        "properties": {
+          "facing": "down",
+          "half": "top_en",
+          "overload": "false",
+          "switch": "on"
+        }
+      },
+      "V": {
+        "block": "anvilcraft:deflection_ring",
+        "properties": {
+          "facing": "down",
+          "half": "top_w",
+          "overload": "false",
+          "switch": "on"
+        }
+      },
+      "W": {
+        "block": "anvilcraft:deflection_ring",
+        "properties": {
+          "facing": "down",
+          "half": "top_center",
+          "overload": "false",
+          "switch": "on"
+        }
+      },
+      "X": {
+        "block": "anvilcraft:deflection_ring",
+        "properties": {
+          "facing": "down",
+          "half": "top_e",
+          "overload": "false",
+          "switch": "on"
+        }
+      },
+      "Y": {
+        "block": "anvilcraft:deflection_ring",
+        "properties": {
+          "facing": "down",
+          "half": "top_ws",
+          "overload": "false",
+          "switch": "on"
+        }
+      },
+      "Z": {
+        "block": "anvilcraft:deflection_ring",
+        "properties": {
+          "facing": "down",
+          "half": "top_s",
+          "overload": "false",
+          "switch": "on"
+        }
+      },
+      "[": {
+        "block": "anvilcraft:deflection_ring",
+        "properties": {
+          "facing": "down",
+          "half": "top_es",
+          "overload": "false",
+          "switch": "on"
+        }
+      }
+    }
+  }
+}

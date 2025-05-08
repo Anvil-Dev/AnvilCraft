@@ -1,61 +1,108 @@
 package dev.dubhe.anvilcraft.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
+import com.llamalad7.mixinextras.sugar.ref.LocalRef;
+import dev.dubhe.anvilcraft.api.event.FallingBlockCollisionEvent;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
+import dev.dubhe.anvilcraft.util.DeflectionEntity;
 import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.item.FallingBlockEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.NeoForge;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.ArrayList;
 
 @SuppressWarnings("DuplicatedCode")
 @Mixin(Entity.class)
-public abstract class EntityMixin {
+public abstract class EntityMixin implements DeflectionEntity {
+    @Unique
+    public Vec3 anvil$fixedDeltaMovement;
+    @Unique
+    public Boolean anvil$isDeflected;
 
-    @Shadow private Vec3 deltaMovement;
+    @Shadow
+    private Vec3 deltaMovement;
 
-    @Shadow private Level level;
+    @Shadow
+    private Level level;
 
-    @Shadow public abstract Vec3 position();
+    @Shadow
+    public abstract Vec3 position();
 
-    @Shadow public abstract void setPos(Vec3 pos);
+    @Shadow
+    public abstract void setPos(Vec3 pos);
 
-    @Shadow public abstract void setPos(double x, double y, double z);
+    @Shadow
+    public abstract void setPos(double x, double y, double z);
 
-    @Shadow public abstract double getX();
+    @Shadow
+    public abstract double getX();
 
-    @Shadow public abstract double getY();
+    @Shadow
+    public abstract double getY();
 
-    @Shadow public abstract double getZ();
+    @Shadow
+    public abstract double getZ();
 
-    @Shadow public abstract Vec3 getDeltaMovement();
+    @Shadow
+    public abstract Vec3 getDeltaMovement();
 
-    @Shadow public abstract void setPosRaw(double x, double y, double z);
+    @Shadow
+    public abstract void setPosRaw(double x, double y, double z);
 
-    @Shadow public abstract void setBoundingBox(AABB bb);
+    @Shadow
+    public abstract void setBoundingBox(AABB bb);
 
-    @Shadow protected abstract AABB makeBoundingBox();
+    @Shadow
+    protected abstract AABB makeBoundingBox();
 
-    @Shadow public abstract float distanceTo(Entity entity);
+    @Shadow
+    public abstract float distanceTo(Entity entity);
 
-    @Redirect(method = "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;setPos(DDD)V", ordinal = 1))
-    public void anvilcraft$fixFallingBlockEntity(Entity instance, double x, double y, double z, @Share("isFixed") LocalBooleanRef isFixed) {
+    @Shadow
+    public boolean horizontalCollision;
+
+    @Shadow
+    public abstract Pose getPose();
+
+    @Shadow
+    private Vec3 position;
+
+    @SuppressWarnings("AddedMixinMembersNamePattern")
+    @Override
+    public boolean isDeflected() {
+        return anvil$isDeflected;
+    }
+
+    @SuppressWarnings("AddedMixinMembersNamePattern")
+    @Override
+    public Vec3 getFixedDeltaMovement() {
+        return anvil$fixedDeltaMovement;
+    }
+
+    @WrapOperation(method = "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;setPos(DDD)V", ordinal = 1))
+    public void anvilcraft$fixFallingBlockEntity(Entity instance, double x, double y, double z, Operation<Void> original, @Share("isFixed") LocalBooleanRef isFixed) {
         isFixed.set(false);
         Vec3 vec3 = new Vec3(x - getX(), y - getY(), z - getZ());
-        if (((Object) this instanceof Projectile || (Object) this instanceof FallingBlockEntity) && vec3.length() > 0.98) {
+        if (((Object) this instanceof Projectile || (Object) this instanceof FallingBlockEntity
+            || (Object) this instanceof Player) && vec3.length() > 0.98) {
             Vec3 s = position();
             Vec3 e = vec3.add(s);
             ArrayList<Pair<BlockPos, Double>> blockPosList = new ArrayList<>();
@@ -78,30 +125,35 @@ public abstract class EntityMixin {
                 }
             }
             if (blockPos == null) {
+                anvil$isDeflected = false;
                 setPos(e);
                 return;
             }
             double a = distance / vec3.length();
 
             if (a > 1) {
+                anvil$isDeflected = false;
                 setPos(e);
                 return;
             }
             setPos(vec3.multiply(a, a, a).add(s));
             isFixed.set(true);
+            anvil$fixedDeltaMovement = vec3.multiply(a, a, a);
+            anvil$isDeflected = true;
             return;
         }
-        setPos(x, y, z);
+        anvil$isDeflected = false;
+        original.call(instance, x, y, z);
     }
 
-    @Redirect(method = "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;equal(DD)Z", ordinal = 0))
-    public boolean anvilcraft$cancelCollision1(double x, double y, @Share("isFixed") LocalBooleanRef isFixed) {
-        return isFixed.get() || Mth.equal(x, y);
+    @WrapOperation(method = "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;equal(DD)Z", ordinal = 0))
+    public boolean anvilcraft$cancelCollision1(double x, double y, Operation<Boolean> original, @Share("isFixed") LocalBooleanRef isFixed) {
+        return isFixed.get() || original.call(x, y);
     }
 
-    @Redirect(method = "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;equal(DD)Z", ordinal = 1))
-    public boolean anvilcraft$cancelCollision2(double x, double y, @Share("isFixed") LocalBooleanRef isFixed) {
-        return isFixed.get() || Mth.equal(x, y);
+    @WrapOperation(method = "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;equal(DD)Z", ordinal = 1))
+    public boolean anvilcraft$cancelCollision2(double x, double y, Operation<Boolean> original, @Share("isFixed") LocalBooleanRef isFixed) {
+        return isFixed.get() || original.call(x, y);
     }
 
     @Inject(method = "setPos(DDD)V", at = @At("HEAD"), cancellable = true)
@@ -140,5 +192,17 @@ public abstract class EntityMixin {
             setBoundingBox(makeBoundingBox());
             ci.cancel();
         }
+    }
+
+    @Inject(method = "move", at = @At("HEAD"))
+    public void anvil$recordMovement(MoverType type, Vec3 pos, CallbackInfo ci, @Share("beforeBoundingMovement") LocalRef<Vec3> beforeBoundingMovement) {
+        beforeBoundingMovement.set(this.getDeltaMovement());
+    }
+
+    @Inject(method = "move", at = @At("RETURN"))
+    public void anvil$collisionCraft(MoverType type, Vec3 pos, CallbackInfo ci, @Share("beforeBoundingMovement") LocalRef<Vec3> beforeBoundingMovement) {
+        if (!((Object) this instanceof FallingBlockEntity) || !this.horizontalCollision) return;
+        BlockPos blockPos = BlockPos.containing(this.position.add(beforeBoundingMovement.get().scale(0.55 / beforeBoundingMovement.get().length()).multiply(1, 0, 1)));
+        NeoForge.EVENT_BUS.post(new FallingBlockCollisionEvent((FallingBlockEntity) (Object) this, blockPos, level, beforeBoundingMovement.get().length()));
     }
 }

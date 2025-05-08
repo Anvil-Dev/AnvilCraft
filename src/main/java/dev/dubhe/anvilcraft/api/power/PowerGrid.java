@@ -147,7 +147,7 @@ public class PowerGrid {
         return false;
     }
 
-    private boolean flush() {
+    public boolean flush() {
         int oldGenerate = this.generate;
         int oldConsume = this.consume;
         this.generate = 0;

@@ -1,7 +1,5 @@
 package dev.dubhe.anvilcraft.item;
 
-import com.mojang.datafixers.util.Unit;
-import dev.dubhe.anvilcraft.init.ModComponents;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ShovelItem;

@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.util;
+package dev.dubhe.anvilcraft.util.registrater;
 
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;

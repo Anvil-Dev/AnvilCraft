@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "L": {
+      "item": "anvilcraft:levitation_powder"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "S": {
+      "tag": "minecraft:sand"
+    }
+  },
+  "pattern": [
+    "LRL",
+    "RSR",
+    "LRL"
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:controllable_sand"
+  }
+}

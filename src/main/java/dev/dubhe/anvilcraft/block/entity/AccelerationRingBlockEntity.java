@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
@@ -14,6 +15,7 @@ import dev.dubhe.anvilcraft.entity.FallingGiantAnvilEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.init.ModBlocks;
+import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import dev.dubhe.anvilcraft.util.DistanceComparator;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,7 +24,10 @@ import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -38,6 +43,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@SuppressWarnings("LombokSetterMayBeUsed")
 public class AccelerationRingBlockEntity extends BlockEntity implements IPowerConsumer {
     @Getter
     @Setter
@@ -153,17 +159,14 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
             end.getY(),
             end.getZ()
         );
-        List<Entity> entities = level.getEntitiesOfClass(Entity.class, aabb,
-            entity -> (entity instanceof FallingBlockEntity fallingBlockEntity && fallingBlockEntity.getBlockState().is(BlockTags.ANVIL) && !fallingBlockEntity.getBlockState().is(ModBlockTags.NON_MAGNETIC)
-                || entity instanceof Projectile)
-        );
+        List<Entity> entities = level.getEntitiesOfClass(Entity.class, aabb, AccelerationRingBlockEntity::canBeAccelerated);
         for (Entity entity : entities) {
-            if (Math.abs(entity.getDeltaMovement().get(direction.getAxis())) > 16) {
+            if (Math.abs(entity.getDeltaMovement().get(direction.getAxis())) > AnvilCraft.config.maxAccelerationSpeed) {
                 entity.setDeltaMovement(entity.getDeltaMovement().add(0, entity.getGravity(), 0));
                 continue;
             }
             Vec3 fixMovement = getBlockPos().getCenter().subtract(
-                entity instanceof FallingBlockEntity ? entity.position().add(0, 0.5, 0) : entity.position()
+                entity instanceof FallingBlockEntity || entity instanceof Player ? entity.position().add(0, 0.5, 0) : entity.position()
             );
             Vec3 deltaMovement = entity.getDeltaMovement();
             fixMovement = switch (direction.getAxis()) {
@@ -259,5 +262,24 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
     @Override
     public int getInputPower() {
         return getBlockState().getValue(AccelerationRingBlock.SWITCH) == Switch.ON ? 256 : 0;
+    }
+
+    public static boolean canBeAccelerated(Entity entity) {
+        return entity instanceof FallingBlockEntity fallingBlockEntity && fallingBlockEntity.getBlockState().is(BlockTags.ANVIL) && !fallingBlockEntity.getBlockState().is(ModBlockTags.NON_MAGNETIC)
+            || entity instanceof Projectile
+            || (entity instanceof Player player && isPlayerCanBeAccelerated(player));
+    }
+
+    private static boolean isPlayerCanBeAccelerated(Player player) {
+        Iterable<ItemStack> armorSlots = player.getArmorSlots();
+        boolean hasHammer = false;
+        int count = 0;
+        for (ItemStack stack : armorSlots) {
+            if (stack.getItem() instanceof AnvilHammerItem)
+                hasHammer = true;
+            if (stack.getItem() instanceof ArmorItem)
+                count++;
+        }
+        return count >= 2 && hasHammer;
     }
 }

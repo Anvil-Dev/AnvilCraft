@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.integration.jei.util;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-
 import net.minecraft.resources.ResourceLocation;
 
 public class TextureConstants {

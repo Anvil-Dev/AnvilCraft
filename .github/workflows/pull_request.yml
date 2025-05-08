@@ -23,9 +23,6 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
 
-      - name: validate gradle wrapper
-        uses: gradle/actions/wrapper-validation@v3
-
       - name: Read Properties
         id: 'properties'
         uses: christian-draeger/read-properties@1.1.1
@@ -44,7 +41,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build with Gradle
-        uses: gradle/actions/setup-gradle@v3
+        uses: gradle/actions/setup-gradle@v4.3.1
 
       - name: Build
         run: ./gradlew build

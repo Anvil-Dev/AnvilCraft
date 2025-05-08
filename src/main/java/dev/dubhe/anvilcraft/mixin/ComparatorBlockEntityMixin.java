@@ -24,7 +24,8 @@ public abstract class ComparatorBlockEntityMixin extends BlockEntity implements 
         super(type, pos, blockState);
     }
 
-    @Shadow public abstract int getOutputSignal();
+    @Shadow
+    public abstract int getOutputSignal();
 
     @Override
     public List<Component> anvilcraft$getTooltip() {

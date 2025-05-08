@@ -24,7 +24,6 @@ import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;

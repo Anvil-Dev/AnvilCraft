@@ -34,7 +34,7 @@ public class AmuletBoxItem extends Item {
             if (!player.isShiftKeyDown()) {
                 while (
                     !this.isFullTotem(box)
-                    && inventory.contains(stack -> stack.getItem().equals(Items.TOTEM_OF_UNDYING))
+                        && inventory.contains(stack -> stack.getItem().equals(Items.TOTEM_OF_UNDYING))
                 ) {
                     ItemStack totem = InventoryUtil.getFirstItem(inventory, Items.TOTEM_OF_UNDYING);
                     box.set(ModComponents.TOTEM_COUNT, box.get(ModComponents.TOTEM_COUNT) + 1);

@@ -17,7 +17,9 @@ import java.util.List;
 @MethodsReturnNonnullByDefault
 @Mixin(RedStoneWireBlock.class)
 public abstract class RedstoneWireBlockMixin implements IInjectedTooltipProducer {
-    @Shadow @Final public static IntegerProperty POWER;
+    @Shadow
+    @Final
+    public static IntegerProperty POWER;
 
     @Override
     public List<Component> anvilcraft$getTooltip(BlockState state) {

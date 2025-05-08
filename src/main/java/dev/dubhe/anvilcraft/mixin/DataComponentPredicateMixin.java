@@ -17,14 +17,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(DataComponentPredicate.class)
 public abstract class DataComponentPredicateMixin {
-    @Shadow public abstract boolean equals(Object other);
+    @Shadow
+    public abstract boolean equals(Object other);
 
     @Inject(
         method = "test(Lnet/minecraft/core/component/DataComponentMap;)Z",
         at = @At(
             value = "INVOKE_ASSIGN",
             target = "Lnet/minecraft/core/component/DataComponentMap;get("
-                     + "Lnet/minecraft/core/component/DataComponentType;)Ljava/lang/Object;"),
+                + "Lnet/minecraft/core/component/DataComponentType;)Ljava/lang/Object;"),
         cancellable = true)
     private void cancelWhenMerciless(
         DataComponentMap components, CallbackInfoReturnable<Boolean> cir, @Local TypedDataComponent<?> component

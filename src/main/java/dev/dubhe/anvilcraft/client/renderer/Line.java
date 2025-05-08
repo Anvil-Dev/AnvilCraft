@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.client.renderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Matrix4f;
 
 public record Line(Vec3 start, Vec3 end, float length) {
 

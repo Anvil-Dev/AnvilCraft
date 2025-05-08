@@ -1,7 +1,8 @@
 package dev.dubhe.anvilcraft.recipe.transform;
 
+import com.mojang.serialization.Codec;
 import dev.dubhe.anvilcraft.init.ModBlocks;
-
+import lombok.Getter;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
@@ -11,9 +12,6 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.monster.Giant;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-
-import com.mojang.serialization.Codec;
-import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 public enum TransformOptions implements StringRepresentable {

@@ -8,7 +8,6 @@ import dev.dubhe.anvilcraft.api.hammer.IHasHammerEffect;
 import lombok.extern.slf4j.Slf4j;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -26,7 +25,6 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-import org.spongepowered.asm.mixin.injection.Coerce;
 
 @Slf4j
 @EventBusSubscriber(Dist.CLIENT)

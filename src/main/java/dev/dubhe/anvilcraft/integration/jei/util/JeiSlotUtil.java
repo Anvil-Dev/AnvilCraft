@@ -1,15 +1,14 @@
 package dev.dubhe.anvilcraft.integration.jei.util;
 
 import dev.dubhe.anvilcraft.recipe.ChanceItemStack;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.world.item.crafting.Ingredient;
-
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.common.gui.elements.DrawableText;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.List;
 

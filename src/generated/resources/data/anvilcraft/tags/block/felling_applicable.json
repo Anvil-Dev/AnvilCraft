@@ -1,0 +1,19 @@
+{
+  "values": [
+    "#minecraft:logs",
+    "#minecraft:wart_blocks",
+    "#minecraft:beehives",
+    "#anvilcraft:mushroom_block",
+    "minecraft:mangrove_roots",
+    "minecraft:shroomlight",
+    "minecraft:mushroom_stem",
+    "minecraft:sugar_cane",
+    "minecraft:bamboo_block",
+    "minecraft:chorus_plant",
+    "minecraft:chorus_flower",
+    "minecraft:cactus",
+    "minecraft:kelp_plant",
+    "minecraft:bamboo",
+    "minecraft:bamboo_sapling"
+  ]
+}

@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.client.renderer.entity;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.entity.AnimateAscendingBlockEntity;
-
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
@@ -15,9 +15,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
-
-import com.mojang.blaze3d.vertex.PoseStack;
-import org.jetbrains.annotations.NotNull;
 
 public class AscendingBlockRenderer extends EntityRenderer<AnimateAscendingBlockEntity> {
     private final BlockRenderDispatcher dispatcher;

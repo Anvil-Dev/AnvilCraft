@@ -1,0 +1,18 @@
+{
+  "type": "anvilcraft:anvil_collision",
+  "anvil": {
+    "id": "anvilcraft:ember_anvil"
+  },
+  "consume": true,
+  "hitBlock": {
+    "id": "anvilcraft:frost_metal_block"
+  },
+  "output_items": [
+    {
+      "chance": 1.0,
+      "count": 4,
+      "id": "anvilcraft:multiphase_matter"
+    }
+  ],
+  "transform_blocks": []
+}

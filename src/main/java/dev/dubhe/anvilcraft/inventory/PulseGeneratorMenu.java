@@ -37,7 +37,7 @@ public class PulseGeneratorMenu extends AbstractContainerMenu {
             menuType, containerId, inventory,
             Objects.requireNonNull(
                 inventory.player.level().getBlockEntity(extraData.readBlockPos()) instanceof PulseGeneratorBlockEntity repeater
-                ? repeater.readDataNbt(Objects.requireNonNull(extraData.readNbt())) : null
+                    ? repeater.readDataNbt(Objects.requireNonNull(extraData.readNbt())) : null
             ));
     }
 

@@ -21,6 +21,7 @@ import dev.dubhe.anvilcraft.recipe.anvil.StampingUniqueItemsRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.SuperHeatingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.TimeWarpRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.UnpackRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.collision.AnvilCollisionCraftRecipe;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainChanceRecipe;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockConversionRecipe;
@@ -183,6 +184,11 @@ public class ModRecipeTypes {
             }
         });
     }
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<AnvilCollisionCraftRecipe>> ANVIL_COLLISION_CRAFT =
+        registerType("anvil_collision");
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<AnvilCollisionCraftRecipe>> ANVIL_COLLISION_CRAFT_SERIALIZER =
+        RECIPE_SERIALIZERS.register("anvil_collision", AnvilCollisionCraftRecipe.Serializer::new);
 
     public static void register(IEventBus bus) {
         RECIPE_TYPES.register(bus);

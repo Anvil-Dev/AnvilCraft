@@ -99,7 +99,7 @@ public class ChargerBlockEntity extends BlockEntity
         if (level != null) {
             Optional<RecipeHolder<ChargerChargingRecipe>> x = level.getRecipeManager()
                 .getRecipeFor(ModRecipeTypes.CHARGER_CHARGING_TYPE.get(), input, level);
-            if (x.isPresent())  {
+            if (x.isPresent()) {
                 return x.get().value();
             }
         }

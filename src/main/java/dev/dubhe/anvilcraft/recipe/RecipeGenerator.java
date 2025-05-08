@@ -14,7 +14,6 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.BannerItem;
 import net.minecraft.world.item.BannerPatternItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -184,7 +183,7 @@ public class RecipeGenerator {
                     this.musicDiscs.add(holder.value());
                 } else if (
                     DecoratedPotPatterns.getPatternFromItem(holder.value()) != null
-                    && !holder.value().equals(Items.BRICK)
+                        && !holder.value().equals(Items.BRICK)
                 ) {
                     logger.debug(
                         "Add a pottery sherd {} for building jewel crafting recipes", BuiltInRegistries.ITEM.getKey(holder.value()));
