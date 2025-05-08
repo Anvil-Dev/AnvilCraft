@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.inventory;
 import com.google.common.collect.Collections2;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
+import dev.dubhe.anvilcraft.util.EnchantmentUtil;
 import dev.dubhe.anvilcraft.util.ListUtil;
 import lombok.Getter;
 import net.minecraft.core.component.DataComponentType;
