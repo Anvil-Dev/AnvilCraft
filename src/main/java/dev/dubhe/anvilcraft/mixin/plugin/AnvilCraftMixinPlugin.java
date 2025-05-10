@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.mixin.plugin;
 
+import net.neoforged.fml.loading.LoadingModList;
 import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -13,6 +14,7 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
     private static boolean hasZetaPiston = false;
     private static boolean hasCreate = false;
     private static boolean hasReiScreen = false;
+    public static boolean hasAE2 = false;
 
     private boolean isLoaded(String clazz) {
         return AnvilCraftMixinPlugin.class.getClassLoader().getResource(clazz) != null;
@@ -23,6 +25,7 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
         hasZetaPiston = this.isLoaded("org/violetmoon/zeta/piston/ZetaPistonStructureResolver.class");
         hasReiScreen = this.isLoaded("me/shedaniel/rei/impl/client/gui/screen/DefaultDisplayViewingScreen.class");
         hasCreate = this.isLoaded("com/simibubi/create/Create.class");
+        hasAE2 = LoadingModList.get().getMods().stream().anyMatch(it -> it.getModId().equals("ae2"));
     }
 
     @Override
@@ -36,6 +39,9 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
         if (mixinClassName.endsWith("DefaultDisplayViewingScreenMixin")) return hasReiScreen;
         if (mixinClassName.contains("Create")) {
             return hasCreate;
+        }
+        if (mixinClassName.contains("BatchCrafterBlockMixin") || mixinClassName.contains("BatchCrafterBlockEntityMixin")) {
+            return hasAE2;
         }
         return true;
     }

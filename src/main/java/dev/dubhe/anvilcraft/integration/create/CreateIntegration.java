@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.integration.create;
 
 import com.simibubi.create.AllItems;
 import com.simibubi.create.api.boiler.BoilerHeater;
+import com.simibubi.create.api.packager.unpacking.UnpackingHandler;
 import com.simibubi.create.api.registry.SimpleRegistry;
 import com.tterrag.registrate.util.entry.ItemEntry;
 import dev.dubhe.anvilcraft.AnvilCraft;
@@ -40,6 +41,7 @@ public class CreateIntegration {
     public void apply() {
         BoilerHeater.REGISTRY.registerProvider(new MyProvider());
         AnvilCraft.MOD_BUS.addListener(this::registerToTab);
+        UnpackingHandler.REGISTRY.registerProvider(new BatchCrafterUnpackingHandler.Provider());
     }
 
     private static float heater(Level level, BlockPos blockPos, BlockState blockState) {

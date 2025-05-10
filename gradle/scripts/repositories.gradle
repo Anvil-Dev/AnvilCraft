@@ -68,4 +68,11 @@ repositories {
         name = "ForgeConfigAPIPort Maven"
         url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/"
     }
+    maven {
+        url "https://maven.latvian.dev/releases"
+        content {
+            includeGroup "dev.latvian.mods"
+            includeGroup "dev.latvian.apps"
+        }
+    }
 }

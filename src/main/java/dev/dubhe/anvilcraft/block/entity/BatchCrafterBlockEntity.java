@@ -72,7 +72,7 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
     private PowerGrid grid;
 
     private final Deque<AutoCrafterCache> cache = new ArrayDeque<>();
-    private final FilteredItemStackHandler itemHandler = new PollableFilteredItemStackHandler(9) {
+    private final PollableFilteredItemStackHandler itemHandler = new PollableFilteredItemStackHandler(9) {
         @Override
         public void onContentsChanged(int slot) {
             if (level != null) {
@@ -175,15 +175,24 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
                 .map(stack -> stack.copyWithCount(stack.getCount() * times))
                 .collect(Collectors.toList());
         }
+        if (ejectItems(result, craftRemaining, getDirection())) return false;
+        for (int i = 0; i < itemHandler.getSlots(); i++) {
+            itemHandler.extractItem(i, times, false);
+        }
+        level.updateNeighborsAt(getBlockPos(), ModBlocks.BATCH_CRAFTER.get());
+        return true;
+    }
+
+    private boolean ejectItems(ItemStack result, List<ItemStack> craftRemaining, Direction direction) {
         IItemHandler cap = getLevel()
             .getCapability(
                 Capabilities.ItemHandler.BLOCK,
-                getBlockPos().relative(getDirection()),
-                getDirection().getOpposite());
+                getBlockPos().relative(direction),
+                direction.getOpposite());
         if (cap != null) {
             // 尝试向容器插入物品
             ItemStack remained = ItemHandlerHelper.insertItem(cap, result, true);
-            if (!remained.isEmpty()) return false;
+            if (!remained.isEmpty()) return true;
             remained = ItemHandlerHelper.insertItem(cap, result, false);
             spawnItemEntity(remained);
             for (ItemStack stack : craftRemaining) {
@@ -194,18 +203,14 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
             // 尝试向世界喷出物品
             Vec3 center = getBlockPos().relative(getDirection()).getCenter();
             AABB aabb = new AABB(center.add(-0.125, -0.125, -0.125), center.add(0.125, 0.125, 0.125));
-            if (!getLevel().noCollision(aabb)) return false;
+            if (!getLevel().noCollision(aabb)) return true;
 
             spawnItemEntity(result);
             for (ItemStack stack : craftRemaining) {
                 spawnItemEntity(stack);
             }
         }
-        for (int i = 0; i < itemHandler.getSlots(); i++) {
-            itemHandler.extractItem(i, times, false);
-        }
-        level.updateNeighborsAt(getBlockPos(), ModBlocks.BATCH_CRAFTER.get());
-        return true;
+        return false;
     }
 
     @Nullable
