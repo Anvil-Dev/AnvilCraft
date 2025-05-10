@@ -43,7 +43,7 @@ public abstract class BatchCrafterBlockEntityMixin
     private PollableFilteredItemStackHandler itemHandler;
 
     @Shadow
-    public abstract boolean ejectItems(ItemStack result, List<ItemStack> craftRemaining, Direction direction);
+    protected abstract boolean ejectItems(ItemStack result, List<ItemStack> craftRemaining, Direction direction);
 
     @Shadow
     @Final
