@@ -2,13 +2,10 @@ package dev.dubhe.anvilcraft.integration.create;
 
 import com.simibubi.create.api.packager.unpacking.UnpackingHandler;
 import com.simibubi.create.api.registry.SimpleRegistry;
-import com.simibubi.create.content.kinetics.crafter.MechanicalCrafterBlockEntity;
 import com.simibubi.create.content.logistics.BigItemStack;
 import com.simibubi.create.content.logistics.stockTicker.PackageOrderWithCrafts;
-import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.PollableFilteredItemStackHandler;
 import dev.dubhe.anvilcraft.block.entity.BatchCrafterBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -46,26 +43,38 @@ public class BatchCrafterUnpackingHandler implements UnpackingHandler {
             }
             List<BigItemStack> craftingContext = orderContext.getCraftingInformation();
             int max = Math.min(itemHandler.getSlots(), craftingContext.size());
-            outer:
-            for (int i = 0; i < max; i++) {
-                BigItemStack targetStack = craftingContext.get(i);
-                if (targetStack.stack.isEmpty()) continue;
+            while (true) {
+                outer:
+                for (int i = 0; i < max; i++) {
+                    BigItemStack targetStack = craftingContext.get(i);
+                    if (targetStack.stack.isEmpty()) continue;
 
-                // if there's already an item here, no point in trying
-                if (!itemHandler.getStackInSlot(i).isEmpty()) continue;
-
-                // go through each item in the box and try insert if it matches the target
-                for (ItemStack stack : items) {
-                    if (ItemStack.isSameItemSameComponents(stack, targetStack.stack)) {
-                        ItemStack toInsert = stack.copyWithCount(1);
-                        if (itemHandler.insertItemNoPolling(i, toInsert, simulate).isEmpty()) {
-                            stack.shrink(1);
-                            continue outer;
+                    // go through each item in the box and try insert if it matches the target
+                    for (ItemStack stack : items) {
+                        if (ItemStack.isSameItemSameComponents(stack, targetStack.stack)) {
+                            ItemStack toInsert = stack.copyWithCount(targetStack.count);
+                            if (itemHandler.insertItemNoPolling(i, toInsert, simulate).isEmpty()) {
+                                stack.shrink(targetStack.count);
+                                continue outer;
+                            }
                         }
                     }
                 }
+                boolean finished = true;
+                for (ItemStack item : items) {
+                    if (!item.isEmpty()) {
+                        finished = false;
+                        break;
+                    }
+                }
+                if (finished) {
+                    break;
+                }
             }
-            batchCrafter.craft(level);
+            if (!simulate) {
+                batchCrafter.craft(level);
+            }
+
             return true;
         }
         return false;
