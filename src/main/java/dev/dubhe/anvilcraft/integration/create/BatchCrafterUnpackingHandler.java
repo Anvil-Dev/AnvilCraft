@@ -44,6 +44,7 @@ public class BatchCrafterUnpackingHandler implements UnpackingHandler {
             List<BigItemStack> craftingContext = orderContext.getCraftingInformation();
             int max = Math.min(itemHandler.getSlots(), craftingContext.size());
             while (true) {
+                boolean allInsertFailed = true;
                 outer:
                 for (int i = 0; i < max; i++) {
                     BigItemStack targetStack = craftingContext.get(i);
@@ -55,9 +56,15 @@ public class BatchCrafterUnpackingHandler implements UnpackingHandler {
                             ItemStack toInsert = stack.copyWithCount(targetStack.count);
                             if (itemHandler.insertItemNoPolling(i, toInsert, simulate).isEmpty()) {
                                 stack.shrink(targetStack.count);
+                                allInsertFailed = false;
                                 continue outer;
                             }
                         }
+                    }
+                }
+                if (allInsertFailed) {
+                    if (!simulate) {
+                        batchCrafter.craft(level);
                     }
                 }
                 boolean finished = true;
