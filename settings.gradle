@@ -21,5 +21,3 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-
-include("coremod")

@@ -2,12 +2,19 @@ package dev.dubhe.anvilcraft.mixin.plugin;
 
 import net.neoforged.fml.loading.LoadingModList;
 import org.jetbrains.annotations.NotNull;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.LdcInsnNode;
+import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.VarInsnNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Set;
 
 public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
@@ -61,10 +68,48 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public void postApply(@NotNull String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
-        if (!targetClassName.contains("dev.dubhe.anvilcraft.integration.emi.DoubleBlockIcon")) return;
-        for (MethodNode methodNode : targetClass.methods) {
-            if (methodNode.name.equals("method_25394")) {
-                methodNode.name = "render";
+        if (targetClassName.equals("net.minecraft.client.renderer.entity.ItemRenderer")) {
+            for (MethodNode method : targetClass.methods) {
+                if (method.name.equals("writeQuadVertices")) {
+                    ListIterator<AbstractInsnNode> it = method.instructions.iterator();
+                    while (it.hasNext()) {
+                        AbstractInsnNode insn = it.next();
+                        if (insn instanceof MethodInsnNode methodInsnNode
+                            && methodInsnNode.owner.equals("Lnet/caffeinemc/mods/sodium/client/render/immediate/model/BakedModelEncoder;")
+                            && methodInsnNode.name.equals("writeQuadVertices")
+                            && methodInsnNode.desc.equals("(Lnet/caffeinemc/mods/sodium/api/vertex/buffer/VertexBufferWriter;Lcom/mojang/blaze3d/vertex/PoseStack$Pose;Lnet/caffeinemc/mods/sodium/client/model/quad/ModelQuadView;IIIZ)V")
+                        ) {
+                            // light = SodiumHooks.modifyLightForEmissiveItems(bakedQuad, light)
+                            it.add(
+                                new VarInsnNode(
+                                    Opcodes.ALOAD,
+                                    8
+                                )
+                            );
+                            it.add(
+                                new VarInsnNode(
+                                    Opcodes.ILOAD,
+                                    5
+                                )
+                            );
+                            it.add(
+                                new MethodInsnNode(
+                                    Opcodes.INVOKESTATIC,
+                                    "Ldev/dubhe/anvilcraft/integration/sodium/SodiumHooks;",
+                                    "modifyLightForEmissiveItems",
+                                    "(Lnet/minecraft/client/renderer/block/model/BakedQuad;I)V"
+                                )
+                            );
+                            it.add(
+                                new VarInsnNode(
+                                    Opcodes.ISTORE,
+                                    5
+                                )
+                            );
+                            break;
+                        }
+                    }
+                }
             }
         }
     }
