@@ -6,6 +6,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.LdcInsnNode;
+import org.objectweb.asm.tree.LineNumberNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
@@ -66,44 +67,60 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
     public void preApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
     }
 
+    //checkstyle:off
+    private static boolean isSodium_writeQuadVertices(MethodInsnNode methodInsnNode) {
+        return methodInsnNode.owner.equals("net/caffeinemc/mods/sodium/client/render/immediate/model/BakedModelEncoder")
+            && methodInsnNode.name.equals("writeQuadVertices")
+            && methodInsnNode.desc.equals("(Lnet/caffeinemc/mods/sodium/api/vertex/buffer/VertexBufferWriter;Lcom/mojang/blaze3d/vertex/PoseStack$Pose;Lnet/caffeinemc/mods/sodium/client/model/quad/ModelQuadView;IIIZ)V");
+    }
+
+    private static boolean isEmbeddium_writeQuadVertices(MethodInsnNode methodInsnNode) {
+        return methodInsnNode.owner.equals("org/embeddedt/embeddium/impl/render/immediate/model/BakedModelEncoder")
+            && methodInsnNode.name.equals("writeQuadVertices")
+            && methodInsnNode.desc.equals("(Lorg/embeddedt/embeddium/api/vertex/buffer/VertexBufferWriter;Lcom/mojang/blaze3d/vertex/PoseStack$Pose;Lorg/embeddedt/embeddium/impl/model/quad/ModelQuadView;IIIZ)V");
+    }
+    //checkstyle:on
+
     @Override
     public void postApply(@NotNull String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
         if (targetClassName.equals("net.minecraft.client.renderer.entity.ItemRenderer")) {
             for (MethodNode method : targetClass.methods) {
-                if (method.name.equals("writeQuadVertices")) {
+                if (method.name.equals("renderBakedItemQuads")) {
                     ListIterator<AbstractInsnNode> it = method.instructions.iterator();
                     while (it.hasNext()) {
                         AbstractInsnNode insn = it.next();
-                        if (insn instanceof MethodInsnNode methodInsnNode
-                            && methodInsnNode.owner.equals("Lnet/caffeinemc/mods/sodium/client/render/immediate/model/BakedModelEncoder;")
-                            && methodInsnNode.name.equals("writeQuadVertices")
-                            && methodInsnNode.desc.equals("(Lnet/caffeinemc/mods/sodium/api/vertex/buffer/VertexBufferWriter;Lcom/mojang/blaze3d/vertex/PoseStack$Pose;Lnet/caffeinemc/mods/sodium/client/model/quad/ModelQuadView;IIIZ)V")
-                        ) {
-                            // light = SodiumHooks.modifyLightForEmissiveItems(bakedQuad, light)
+                        if (insn instanceof MethodInsnNode methodInsnNode) {
+                            boolean isSodium = isSodium_writeQuadVertices(methodInsnNode);
+                            boolean isEmbeddium = isEmbeddium_writeQuadVertices(methodInsnNode);
+                            if (!isSodium && !isEmbeddium) continue;
+                            it.previous();
+                            //light = SodiumHooks.modifyLightForEmissiveItems(bakedQuad, light)
+                            int lightIndex = isSodium ? 5 : 6;
+                            int quadIndex = isSodium ? 8 : 9;
                             it.add(
                                 new VarInsnNode(
                                     Opcodes.ALOAD,
-                                    8
+                                    quadIndex
                                 )
                             );
                             it.add(
                                 new VarInsnNode(
                                     Opcodes.ILOAD,
-                                    5
+                                    lightIndex
                                 )
                             );
                             it.add(
                                 new MethodInsnNode(
                                     Opcodes.INVOKESTATIC,
-                                    "Ldev/dubhe/anvilcraft/integration/sodium/SodiumHooks;",
+                                    "dev/dubhe/anvilcraft/integration/sodium/SodiumHooks",
                                     "modifyLightForEmissiveItems",
-                                    "(Lnet/minecraft/client/renderer/block/model/BakedQuad;I)V"
+                                    "(Lnet/minecraft/client/renderer/block/model/BakedQuad;I)I"
                                 )
                             );
                             it.add(
                                 new VarInsnNode(
                                     Opcodes.ISTORE,
-                                    5
+                                    lightIndex
                                 )
                             );
                             break;
