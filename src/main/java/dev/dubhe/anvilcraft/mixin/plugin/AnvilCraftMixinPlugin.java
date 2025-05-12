@@ -67,20 +67,6 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
     public void preApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
     }
 
-    //checkstyle:off
-    private static boolean isSodium_writeQuadVertices(MethodInsnNode methodInsnNode) {
-        return methodInsnNode.owner.equals("net/caffeinemc/mods/sodium/client/render/immediate/model/BakedModelEncoder")
-            && methodInsnNode.name.equals("writeQuadVertices")
-            && methodInsnNode.desc.equals("(Lnet/caffeinemc/mods/sodium/api/vertex/buffer/VertexBufferWriter;Lcom/mojang/blaze3d/vertex/PoseStack$Pose;Lnet/caffeinemc/mods/sodium/client/model/quad/ModelQuadView;IIIZ)V");
-    }
-
-    private static boolean isEmbeddium_writeQuadVertices(MethodInsnNode methodInsnNode) {
-        return methodInsnNode.owner.equals("org/embeddedt/embeddium/impl/render/immediate/model/BakedModelEncoder")
-            && methodInsnNode.name.equals("writeQuadVertices")
-            && methodInsnNode.desc.equals("(Lorg/embeddedt/embeddium/api/vertex/buffer/VertexBufferWriter;Lcom/mojang/blaze3d/vertex/PoseStack$Pose;Lorg/embeddedt/embeddium/impl/model/quad/ModelQuadView;IIIZ)V");
-    }
-    //checkstyle:on
-
     @Override
     public void postApply(@NotNull String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
         if (targetClassName.equals("net.minecraft.client.renderer.entity.ItemRenderer")) {
@@ -90,8 +76,12 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
                     while (it.hasNext()) {
                         AbstractInsnNode insn = it.next();
                         if (insn instanceof MethodInsnNode methodInsnNode) {
-                            boolean isSodium = isSodium_writeQuadVertices(methodInsnNode);
-                            boolean isEmbeddium = isEmbeddium_writeQuadVertices(methodInsnNode);
+                            boolean isSodium = methodInsnNode.owner.equals("net/caffeinemc/mods/sodium/client/render/immediate/model/BakedModelEncoder")
+                                && methodInsnNode.name.equals("writeQuadVertices")
+                                && methodInsnNode.desc.equals("(Lnet/caffeinemc/mods/sodium/api/vertex/buffer/VertexBufferWriter;Lcom/mojang/blaze3d/vertex/PoseStack$Pose;Lnet/caffeinemc/mods/sodium/client/model/quad/ModelQuadView;IIIZ)V");
+                            boolean isEmbeddium = methodInsnNode.owner.equals("org/embeddedt/embeddium/impl/render/immediate/model/BakedModelEncoder")
+                                && methodInsnNode.name.equals("writeQuadVertices")
+                                && methodInsnNode.desc.equals("(Lorg/embeddedt/embeddium/api/vertex/buffer/VertexBufferWriter;Lcom/mojang/blaze3d/vertex/PoseStack$Pose;Lorg/embeddedt/embeddium/impl/model/quad/ModelQuadView;IIIZ)V");
                             if (!isSodium && !isEmbeddium) continue;
                             it.previous();
                             //light = SodiumHooks.modifyLightForEmissiveItems(bakedQuad, light)
