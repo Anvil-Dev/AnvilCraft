@@ -27,16 +27,22 @@ neoForge {
             logLevel = org.slf4j.event.Level.DEBUG
         }
 
+        var isJbr = System.getProperty('java.vm.vendor').contains('JetBrains')
+
         client {
             client()
-            jvmArgument "-XX:+AllowEnhancedClassRedefinition"
+            if (isJbr) {
+                jvmArgument "-XX:+AllowEnhancedClassRedefinition"
+            }
             // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         }
 
         server {
             server()
-            jvmArgument "-XX:+AllowEnhancedClassRedefinition"
+            if (isJbr) {
+                jvmArgument "-XX:+AllowEnhancedClassRedefinition"
+            }
             programArgument '--nogui'
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         }
