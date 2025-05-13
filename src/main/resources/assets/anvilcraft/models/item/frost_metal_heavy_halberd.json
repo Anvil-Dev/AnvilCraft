@@ -1,0 +1,7 @@
+{
+	"parent": "anvilcraft:item/ember_metal_heavy_halberd",
+	"textures": {
+		"0": "anvilcraft:item/frost_metal_heavy_halberd",
+		"particle": "anvilcraft:item/frost_metal_heavy_halberd"
+	}
+}

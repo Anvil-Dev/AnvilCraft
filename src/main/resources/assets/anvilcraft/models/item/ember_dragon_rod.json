@@ -1,0 +1,7 @@
+{
+	"parent": "anvilcraft:item/dragon_rod",
+	"textures": {
+		"0": "anvilcraft:item/ember_dragon_rod",
+		"particle": "anvilcraft:item/ember_dragon_rod"
+	}
+}
