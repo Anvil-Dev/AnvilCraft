@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:frost_metal_nugget_from_ingot"
+        "recipe": "anvilcraft:frost_metal_nugget"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -26,7 +26,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:frost_metal_nugget_from_ingot"
+      "anvilcraft:frost_metal_nugget"
     ]
   }
 }

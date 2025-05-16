@@ -1,0 +1,6 @@
+{
+  "name": "进阶特性",
+  "description": "AnvilCraft的进阶特性，主要包括通过铁砧落地（也许不仅是落地？）进行更复杂的制作工艺。",
+  "sortnum": 4,
+  "icon": "anvilcraft:ember_anvil"
+}

@@ -170,6 +170,11 @@ public class AnvilCraftConfig implements ConfigData {
     @Comment("Block Devourer upward chain devouring maxCount distance")
     public int blockDevourerUpwardChainDevouringDistance = 8;
 
+    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.BoundedDiscrete(max = 20, min = 0)
+    @Comment("Block Placer recursive retrieval of container max distance")
+    public int blockPlacerRecursiveRetrievalDistanceMax = 7;
+
     public static class PowerConverter implements ConfigData {
         @Comment("The working interval of power converters")
         @ConfigEntry.Gui.Tooltip

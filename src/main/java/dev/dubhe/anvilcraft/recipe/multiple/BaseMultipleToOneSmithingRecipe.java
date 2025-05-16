@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.util.CodecUtil;
+import lombok.Getter;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -40,7 +41,9 @@ public abstract class BaseMultipleToOneSmithingRecipe<T extends Item & IMultiple
         );
     }
 
+    @Getter
     protected final Ingredient template;
+    @Getter
     protected final Ingredient material;
     protected final T result;
     protected final int recipeId;

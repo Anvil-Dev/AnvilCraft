@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:time_warp/ember_metal_nugget_0"
+        "recipe": "anvilcraft:time_warp/ember_metal_ingot_0"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -15,7 +15,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:time_warp/ember_metal_nugget_0"
+      "anvilcraft:time_warp/ember_metal_ingot_0"
     ]
   }
 }

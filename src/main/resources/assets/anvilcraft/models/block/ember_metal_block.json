@@ -26,6 +26,7 @@
 			"from": [15.975, 15.975, 15.975],
 			"to": [0.025, 0.025, 0.025],
 			"shade": false,
+			"light_emission": 15,
 			"faces": {
 				"north": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#1", "cullface": "south"},
 				"east": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#1", "cullface": "west"},

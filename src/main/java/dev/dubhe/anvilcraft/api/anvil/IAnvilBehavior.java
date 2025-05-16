@@ -18,7 +18,6 @@ import dev.dubhe.anvilcraft.api.anvil.impl.ResetVaultBehavior;
 import dev.dubhe.anvilcraft.api.anvil.impl.SuperHeatingBehavior;
 import dev.dubhe.anvilcraft.api.anvil.impl.TimeWarpBehavior;
 import dev.dubhe.anvilcraft.api.anvil.impl.UnpackBehavior;
-import dev.dubhe.anvilcraft.api.anvil.impl.WaxingBehavior;
 import dev.dubhe.anvilcraft.api.event.anvil.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.block.CementCauldronBlock;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
@@ -69,7 +68,6 @@ public interface IAnvilBehavior {
     }
 
     static void register() {
-        registerBehavior(Blocks.HONEY_BLOCK, new WaxingBehavior());
         registerBehavior(Blocks.REDSTONE_BLOCK, new RedstoneEMPBehavior());
         registerBehavior(
             state -> state.is(Blocks.BEEHIVE) || state.is(Blocks.BEE_NEST),

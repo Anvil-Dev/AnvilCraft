@@ -90,10 +90,10 @@ public class HasMobBlockItem extends BlockItem {
 
     /**
      * 向物品中存入实体
+     * 适用于来自玩家的请求
      */
     @SuppressWarnings("deprecation")
     public static void saveMobInItem(Level level, Mob entity, Player player, ItemStack stack) {
-        stack = stack.split(1);
         if (level.isClientSide()) {
             Item item = stack.getItem();
             if (item instanceof ResinBlockItem item1) {
@@ -115,6 +115,7 @@ public class HasMobBlockItem extends BlockItem {
             MobEffectInstance instance = monster.getEffect(MobEffects.WEAKNESS);
             if (instance == null && !player.getAbilities().instabuild) return;
         }
+        stack = stack.split(1);
         stack.set(ModComponents.SAVED_ENTITY, savedEntity);
         player.getInventory().placeItemBackInInventory(stack);
         if (entity instanceof Villager villager) {
@@ -124,6 +125,45 @@ public class HasMobBlockItem extends BlockItem {
             villager.releasePoi(MemoryModuleType.MEETING_POINT);
         }
         entity.remove(Entity.RemovalReason.DISCARDED);
+    }
+
+    /**
+     * 向物品中存入实体<br>
+     * 适用于不来自玩家的请求
+     */
+    @SuppressWarnings("deprecation")
+    public static ItemStack saveMobInItem(Level level, Mob entity, ItemStack stack) {
+        if (level.isClientSide()) {
+            Item item = stack.getItem();
+            if (item instanceof ResinBlockItem item1) {
+                BlockPos blockPos = entity.getOnPos();
+                BlockState blockState = item1.getBlock().defaultBlockState();
+                SoundType soundType = blockState.getSoundType();
+                level.playSound(
+                    null,
+                    blockPos,
+                    item1.getPlaceSound(blockState),
+                    SoundSource.BLOCKS,
+                    (soundType.getVolume() + 1.0f) / 2.0f,
+                    soundType.getPitch() * 0.8f);
+            }
+            return stack;
+        }
+        SavedEntity savedEntity = SavedEntity.fromMob(entity);
+        if (entity instanceof Monster monster) {
+            MobEffectInstance instance = monster.getEffect(MobEffects.WEAKNESS);
+            if (instance == null) return stack;
+        }
+        stack = stack.split(1);
+        stack.set(ModComponents.SAVED_ENTITY, savedEntity);
+        if (entity instanceof Villager villager) {
+            villager.releasePoi(MemoryModuleType.HOME);
+            villager.releasePoi(MemoryModuleType.JOB_SITE);
+            villager.releasePoi(MemoryModuleType.POTENTIAL_JOB_SITE);
+            villager.releasePoi(MemoryModuleType.MEETING_POINT);
+        }
+        entity.remove(Entity.RemovalReason.DISCARDED);
+        return stack;
     }
 
     public static class SavedEntity {

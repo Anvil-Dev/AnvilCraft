@@ -1,9 +1,0 @@
-{
-  "values": [
-    "#c:increase_entity_drops",
-    {
-      "id": "anvilcraft:beheading",
-      "required": false
-    }
-  ]
-}

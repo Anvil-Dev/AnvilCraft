@@ -2,24 +2,17 @@ package dev.dubhe.anvilcraft.mixin;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import dev.dubhe.anvilcraft.init.ModComponents;
-import dev.dubhe.anvilcraft.init.ModEnchantmentTags;
-import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponentPredicate;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.component.TypedDataComponent;
-import net.minecraft.world.item.enchantment.Enchantment;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(DataComponentPredicate.class)
 public abstract class DataComponentPredicateMixin {
-    @Shadow
-    public abstract boolean equals(Object other);
-
     @Inject(
         method = "test(Lnet/minecraft/core/component/DataComponentMap;)Z",
         at = @At(
@@ -33,8 +26,8 @@ public abstract class DataComponentPredicateMixin {
         if (components.has(ModComponents.MERCILESS)
             && component.type().equals(DataComponents.ENCHANTMENTS)
         ) {
-            Holder<Enchantment> enchantmentHolder = Holder.direct((Enchantment) component.value());
-            cir.setReturnValue(enchantmentHolder.is(ModEnchantmentTags.MERCILESS_PASSED));
+            // TODO: 找到一种方式在现有条件下判断附魔是否在MERCILESS_PASSED标签内
+            cir.setReturnValue(false);
         }
     }
 }

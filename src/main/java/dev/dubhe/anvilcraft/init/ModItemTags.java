@@ -134,6 +134,7 @@ public class ModItemTags {
     public static final TagKey<Item> GEMS = bind("gems");
     public static final TagKey<Item> GEM_BLOCKS = bind("gem_blocks");
     public static final TagKey<Item> DEAD_CORALS = bind("dead_corals");
+    public static final TagKey<Item> DEAD_CORAL_BLOCKS = bind("dead_coral_blocks");
     public static final TagKey<Item> VOID_RESISTANT = bind("void_resistant");
     public static final TagKey<Item> REINFORCED_CONCRETE = bind("reinforced_concrete");
     public static final TagKey<Item> SEEDS_PACK_CONTENT = bind("seeds_pack_content");
@@ -144,6 +145,7 @@ public class ModItemTags {
     public static final TagKey<Item> AMULET = bind("amulet");
     public static final TagKey<Item> ANVIL_HAMMER = bind("tools/anvil_hammer");
     public static final TagKey<Item> TEMPLATES = bind("templates");
+    public static final TagKey<Item> MULTIPLE_TO_ONE_SMITHING_TEMPLATES = bind("multiple_to_one_smithing_templates");
 
     public static final Object2ObjectMap<Color, TagKey<Item>> DYED_COLORS = initDyedTags();
 

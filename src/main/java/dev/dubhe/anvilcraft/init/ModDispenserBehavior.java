@@ -1,7 +1,9 @@
 package dev.dubhe.anvilcraft.init;
 
+import dev.dubhe.anvilcraft.item.ResinBlockItem;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
@@ -10,6 +12,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.animal.MushroomCow;
 import net.minecraft.world.entity.monster.ZombieVillager;
@@ -81,6 +84,29 @@ public class ModDispenserBehavior {
                     zombieVillager.getRandom().nextInt(2401) + 3600);
                 goldenAppleItem.shrink(1);
                 return goldenAppleItem;
+            }
+        });
+        DispenserBlock.registerBehavior(ModBlocks.RESIN_BLOCK, new DefaultDispenseItemBehavior() {
+            @Override
+            protected ItemStack execute(BlockSource blockSource, ItemStack resinBlockItem) {
+                Level level = blockSource.level();
+                BlockPos pos = blockSource.pos();
+                BlockState state = blockSource.state();
+                if (ResinBlockItem.hasMob(resinBlockItem)) {
+                    ItemStack result = ResinBlockItem.spawnMobFromItem(
+                        level, pos.relative(state.getValue(DirectionalBlock.FACING)), resinBlockItem);
+                    Direction direction = blockSource.state().getValue(DispenserBlock.FACING);
+                    spawnItem(blockSource.level(), result, 6, direction, DispenserBlock.getDispensePosition(blockSource));
+                } else {
+                    List<Mob> entities = level.getEntitiesOfClass(
+                        Mob.class, new AABB(pos.relative(state.getValue(DirectionalBlock.FACING))));
+                    if (entities.isEmpty() || entities.getFirst() == null) return super.execute(blockSource, resinBlockItem);
+                    Mob entity = entities.getFirst();
+                    ItemStack result = ResinBlockItem.saveMobInItem(level, entity, resinBlockItem);
+                    Direction direction = blockSource.state().getValue(DispenserBlock.FACING);
+                    spawnItem(blockSource.level(), result, 6, direction, DispenserBlock.getDispensePosition(blockSource));
+                }
+                return resinBlockItem;
             }
         });
     }

@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.api.item.IMultipleToOneSmithingRecipeResult;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.core.NonNullList;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
@@ -60,6 +61,14 @@ public class TwoToOneSmithingRecipe<T extends Item & IMultipleToOneSmithingRecip
             case 1 -> this.input1.test(input);
             default -> throw new IllegalStateException("Recipe does not contain input " + id);
         };
+    }
+
+    @Override
+    public NonNullList<Ingredient> getIngredients() {
+        NonNullList<Ingredient> ingredients = super.getIngredients();
+        ingredients.add(input0);
+        ingredients.add(input1);
+        return ingredients;
     }
 
     @Override

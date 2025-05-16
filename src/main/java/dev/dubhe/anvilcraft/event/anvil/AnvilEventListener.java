@@ -79,6 +79,7 @@ public class AnvilEventListener {
 
         handleBlockCompressRecipe(level, hitBlockPos);
         handleBlockCrushRecipe(level, hitBlockPos);
+        handleBlockSmearRecipe(level, hitBlockPos);
         handleItemInjectRecipe(level, hitBlockPos, hitBlockState);
         handleSqueezingRecipe(level, hitBlockPos, hitBlockState);
 
@@ -108,6 +109,23 @@ public class AnvilEventListener {
             .getRecipeFor(ModRecipeTypes.BLOCK_COMPRESS_TYPE.get(), new BlockCompressRecipe.Input(inputs), level)
             .ifPresent(recipe -> {
                 for (int i = 0; i < recipe.value().inputs.size(); i++) {
+                    level.setBlockAndUpdate(pos.below(i), Blocks.AIR.defaultBlockState());
+                }
+                level.setBlockAndUpdate(
+                    pos.below(recipe.value().inputs.size() - 1),
+                    recipe.value().result.defaultBlockState());
+            });
+    }
+
+    private static void handleBlockSmearRecipe(Level level, final BlockPos pos) {
+        List<Block> inputs = new ArrayList<>();
+        for (int i = 0; i < 9; i++) {
+            inputs.add(level.getBlockState(pos.below(i)).getBlock());
+        }
+        level.getRecipeManager()
+            .getRecipeFor(ModRecipeTypes.BLOCK_COMPRESS_TYPE.get(), new BlockCompressRecipe.Input(inputs), level)
+            .ifPresent(recipe -> {
+                for (int i = 1; i < recipe.value().inputs.size(); i++) {
                     level.setBlockAndUpdate(pos.below(i), Blocks.AIR.defaultBlockState());
                 }
                 level.setBlockAndUpdate(

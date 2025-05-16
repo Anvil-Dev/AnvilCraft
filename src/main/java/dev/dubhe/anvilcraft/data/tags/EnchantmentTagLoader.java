@@ -28,13 +28,5 @@ public class EnchantmentTagLoader {
 
         provider.addTag(Tags.Enchantments.INCREASE_BLOCK_DROPS)
             .addOptional(ModEnchantments.HARVEST_KEY.location());
-
-        provider.addTag(ModEnchantmentTags.MODIFY_BLOCK_DROPS)
-            .addTag(Tags.Enchantments.INCREASE_BLOCK_DROPS)
-            .add(Enchantments.SILK_TOUCH);
-
-        provider.addTag(ModEnchantmentTags.MODIFY_ENTITY_DROPS)
-            .addTag(Tags.Enchantments.INCREASE_ENTITY_DROPS)
-            .addOptional(ModEnchantments.BEHEADING_KEY.location());
     }
 }

@@ -124,6 +124,7 @@ import dev.dubhe.anvilcraft.block.state.DirectionCube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.Vertical3PartHalf;
 import dev.dubhe.anvilcraft.block.state.Vertical4PartHalf;
 import dev.dubhe.anvilcraft.data.AnvilCraftDatagen;
+import dev.dubhe.anvilcraft.item.ChuteBlockItem;
 import dev.dubhe.anvilcraft.item.CursedBlockItem;
 import dev.dubhe.anvilcraft.item.EndDustBlockItem;
 import dev.dubhe.anvilcraft.item.FlexibleMultiPartBlockItem;
@@ -1322,7 +1323,7 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(BlockBehaviour.Properties::noOcclusion)
         .blockstate(BlockStatProviderUtil::none)
-        .item(BlockItem::new)
+        .item(ChuteBlockItem::new)
         .onRegister(blockItem -> Item.BY_BLOCK.put(ModBlocks.SIMPLE_CHUTE.get(), blockItem))
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -1343,7 +1344,7 @@ public class ModBlocks {
         .initialProperties(ModBlocks.CHUTE)
         .properties(BlockBehaviour.Properties::noOcclusion)
         .blockstate(BlockStatProviderUtil::none)
-        .item(BlockItem::new)
+        .item(ChuteBlockItem::new)
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe((ctx, provider) -> {
@@ -3950,7 +3951,6 @@ public class ModBlocks {
         return REGISTRATE
             .block(id, properties -> new TimeCountedPressurePlateBlock(BlockSetType.IRON, properties, tickCount))
             .tag(BlockTags.MINEABLE_WITH_PICKAXE,
-                ModBlockTags.HAMMER_REMOVABLE,
                 BlockTags.PRESSURE_PLATES)
             .initialProperties(() -> block)
             .properties(properties -> properties
@@ -3983,7 +3983,6 @@ public class ModBlocks {
         return REGISTRATE
             .block(id, plateBlockFactory)
             .tag(BlockTags.MINEABLE_WITH_PICKAXE,
-                ModBlockTags.HAMMER_REMOVABLE,
                 BlockTags.PRESSURE_PLATES)
             .initialProperties(block::get)
             .properties(properties -> properties
@@ -4028,7 +4027,6 @@ public class ModBlocks {
         return REGISTRATE
             .block(id, plateBlockFactory)
             .tag(BlockTags.MINEABLE_WITH_PICKAXE,
-                ModBlockTags.HAMMER_REMOVABLE,
                 BlockTags.PRESSURE_PLATES)
             .initialProperties(block::get)
             .properties(properties -> properties

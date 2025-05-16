@@ -62,14 +62,8 @@ public class PlayerTickEventHandler {
             ItemEnchantments enchantments = stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
             for (Holder<Enchantment> enchantment : enchantments.keySet()) {
                 if (!enchantment.is(ModEnchantmentTags.MERCILESS_PASSED)) {
-                    if (enchantment.is(Tags.Enchantments.WEAPON_DAMAGE_ENHANCEMENTS)
-                        || enchantment.is(ModEnchantmentTags.MODIFY_ENTITY_DROPS)
-                        || enchantment.is(EnchantmentTags.SMELTS_LOOT)
-                    ) {
-                        attackDamage += stack.getEnchantmentLevel(enchantment);
-                    } else if (enchantment.is(ModEnchantmentTags.MODIFY_BLOCK_DROPS)) {
-                        miningEfficiency += stack.getEnchantmentLevel(enchantment);
-                    }
+                    attackDamage += stack.getEnchantmentLevel(enchantment);
+                    miningEfficiency += stack.getEnchantmentLevel(enchantment);
                 }
             }
 

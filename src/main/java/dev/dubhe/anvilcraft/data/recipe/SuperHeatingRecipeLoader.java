@@ -75,7 +75,7 @@ public class SuperHeatingRecipeLoader {
         SuperHeatingRecipe.builder()
             .requires(ModItemTags.DEAD_CORALS)
             .result(new ItemStack(ModItems.LIME_POWDER.asItem()))
-            .save(provider, AnvilCraft.of("super_heating/lime_powder_from_dead_tube"));
+            .save(provider, AnvilCraft.of("super_heating/lime_powder_from_dead_corals"));
         SuperHeatingRecipe.builder()
             .requires(Items.NAUTILUS_SHELL)
             .result(new ItemStack(ModItems.LIME_POWDER.asItem()))
@@ -85,12 +85,16 @@ public class SuperHeatingRecipeLoader {
             .result(new ItemStack(ModItems.LIME_POWDER.asItem()))
             .save(provider, AnvilCraft.of("super_heating/lime_powder_from_pointed_dripstone"));
         SuperHeatingRecipe.builder()
+            .requires(ModItemTags.DEAD_CORAL_BLOCKS)
+            .result(new ItemStack(ModItems.LIME_POWDER.asItem(), 4))
+            .save(provider, AnvilCraft.of("super_heating/lime_powder_from_dead_coral_blocks"));
+        SuperHeatingRecipe.builder()
             .requires(Items.DRIPSTONE_BLOCK)
             .result(new ItemStack(ModItems.LIME_POWDER.asItem(), 4))
             .save(provider, AnvilCraft.of("super_heating/lime_powder_from_dripstone_block"));
         SuperHeatingRecipe.builder()
             .requires(Items.CALCITE)
-            .result(new ItemStack(ModItems.LIME_POWDER.asItem()))
+            .result(new ItemStack(ModItems.LIME_POWDER.asItem(), 4))
             .save(provider, AnvilCraft.of("super_heating/lime_powder_from_calcite"));
 
         SuperHeatingRecipe.builder()

@@ -309,6 +309,16 @@ public class TimeWarpRecipe implements Recipe<TimeWarpRecipe.Input> {
             return this;
         }
 
+        public Builder result(ItemStack stack, float chance) {
+            results.add(ChanceItemStack.of(stack).withChance(chance));
+            return this;
+        }
+
+        public Builder result(ChanceItemStack stack) {
+            results.add(stack);
+            return this;
+        }
+
         @Override
         public TimeWarpRecipe buildRecipe() {
             if (consumeFluid) {

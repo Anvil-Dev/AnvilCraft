@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:time_warp/ember_metal_nugget_1"
+        "recipe": "anvilcraft:super_heating/lime_powder_from_dead_corals"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -15,7 +15,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:time_warp/ember_metal_nugget_1"
+      "anvilcraft:super_heating/lime_powder_from_dead_corals"
     ]
   }
 }

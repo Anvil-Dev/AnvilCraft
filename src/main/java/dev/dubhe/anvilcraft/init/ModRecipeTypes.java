@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.recipe.ChargerChargingRecipe;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.BlockCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.BlockCrushRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.BlockSmearRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.BoilingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.BulgingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.ConcreteRecipe;
@@ -66,6 +67,12 @@ public class ModRecipeTypes {
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<BlockCompressRecipe>>
         BLOCK_COMPRESS_SERIALIZER =
         RECIPE_SERIALIZERS.register("block_compress", BlockCompressRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<BlockSmearRecipe>> BLOCK_SMEAR_TYPE =
+        registerType("block_smear");
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<BlockSmearRecipe>>
+        BLOCK_SMEAR_SERIALIZER =
+        RECIPE_SERIALIZERS.register("block_smear", BlockSmearRecipe.Serializer::new);
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<ItemCompressRecipe>> ITEM_COMPRESS_TYPE =
         registerType("item_compress");

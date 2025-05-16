@@ -46,6 +46,11 @@ public class ChanceItemStack {
         return this;
     }
 
+    public ChanceItemStack withAmount(NumberProvider amount) {
+        setAmount(amount);
+        return this;
+    }
+
     @Contract(" -> new")
     public ChanceItemStack copy() {
         return new ChanceItemStack(stack.copy(), amount);

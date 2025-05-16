@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:super_heating/lime_powder_from_dead_tube"
+        "recipe": "anvilcraft:time_warp/ember_metal_ingot_1"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -15,7 +15,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:super_heating/lime_powder_from_dead_tube"
+      "anvilcraft:time_warp/ember_metal_ingot_1"
     ]
   }
 }

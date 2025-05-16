@@ -70,6 +70,7 @@
     "MouseHandlerMixin",
     "SectionCompilerMixin",
     "SoundEngineMixin",
+    "accessor.ScreenAccessor",
     "compat.EmbChunkBuilderMeshingTaskMixin",
     "compat.SodiumChunkBuilderMeshingTaskMixin"
   ],

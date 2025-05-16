@@ -611,15 +611,15 @@ public class ModItems {
 
     public static final ItemEntry<MultipleToOneTemplateItem> TWO_TO_ONE_SMITHING_TEMPLATE = REGISTRATE
         .item("two_to_one_smithing_template", properties -> new MultipleToOneTemplateItem(properties, 2))
-        .tag(ModItemTags.TEMPLATES)
+        .tag(ModItemTags.MULTIPLE_TO_ONE_SMITHING_TEMPLATES)
         .register();
     public static final ItemEntry<MultipleToOneTemplateItem> FOUR_TO_ONE_SMITHING_TEMPLATE = REGISTRATE
         .item("four_to_one_smithing_template", properties -> new MultipleToOneTemplateItem(properties, 4))
-        .tag(ModItemTags.TEMPLATES)
+        .tag(ModItemTags.MULTIPLE_TO_ONE_SMITHING_TEMPLATES)
         .register();
     public static final ItemEntry<MultipleToOneTemplateItem> EIGHT_TO_ONE_SMITHING_TEMPLATE = REGISTRATE
         .item("eight_to_one_smithing_template", properties -> new MultipleToOneTemplateItem(properties, 8))
-        .tag(ModItemTags.TEMPLATES)
+        .tag(ModItemTags.MULTIPLE_TO_ONE_SMITHING_TEMPLATES)
         .register();
 
     public static final ItemEntry<DiskItem> DISK = REGISTRATE
@@ -968,7 +968,7 @@ public class ModItems {
                 .unlockedBy(
                     AnvilCraftDatagen.hasItem(ModItems.FROST_METAL_INGOT),
                     AnvilCraftDatagen.has(ModItems.FROST_METAL_INGOT))
-                .save(provider, AnvilCraft.of(BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_from_ingot"));
+                .save(provider);
         })
         .register();
 

@@ -1,0 +1,17 @@
+{
+  "type": "anvilcraft:super_heating",
+  "ingredients": [
+    {
+      "tag": "anvilcraft:dead_coral_blocks"
+    }
+  ],
+  "results": [
+    {
+      "amount": 1.0,
+      "stack": {
+        "count": 4,
+        "id": "anvilcraft:lime_powder"
+      }
+    }
+  ]
+}

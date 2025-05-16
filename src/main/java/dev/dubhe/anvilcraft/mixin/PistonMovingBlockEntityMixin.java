@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.piston.MovingPistonBlock;
 import net.minecraft.world.level.block.piston.PistonMovingBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
@@ -41,7 +42,11 @@ abstract class PistonMovingBlockEntityMixin {
     )
     private static void slidingRail(Level level, BlockPos pos, BlockState state, PistonMovingBlockEntity blockEntity, CallbackInfo ci) {
         if (level.isClientSide) return;
-
+        switch (state.getValue(MovingPistonBlock.FACING)) {
+            case UP:
+            case DOWN:
+                return;
+        }
         if (level.getBlockState(pos.below()).is(ModBlocks.SLIDING_RAIL)) {
             MinecraftServer server = level.getServer();
             if (server == null) return;
