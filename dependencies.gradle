@@ -44,6 +44,7 @@ dependencies {
     implementation(libs.ponder)
     implementation(libs.flywheelApi)
     implementation(libs.flywheel)
+    compileOnly(libs.ae2)
 
 //    compileOnly("org.sinytra.forgified-fabric-api:fabric-api-base:0.4.42+d1308ded19")
 //    compileOnly("org.sinytra.forgified-fabric-api:fabric-renderer-api-v1:3.4.0+acb05a3919")
