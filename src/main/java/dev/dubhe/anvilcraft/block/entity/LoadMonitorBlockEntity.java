@@ -14,11 +14,14 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Objects;
 
 public class LoadMonitorBlockEntity extends BlockEntity implements IPowerConsumer {
     @Getter
     @Setter
-    private PowerGrid grid;
+    private @Nullable PowerGrid grid;
 
     private int cooldown = 0;
 
@@ -68,7 +71,7 @@ public class LoadMonitorBlockEntity extends BlockEntity implements IPowerConsume
             cooldown--;
         } else {
             if (getGrid() == null) return;
-            flushState(getLevel(), getBlockPos());
+            flushState(Objects.requireNonNull(getLevel()), getBlockPos());
             // 满载
             if (getGrid().getConsume() > getGrid().getGenerate()) return;
             int load = getGrid().getConsume() != 0
@@ -77,7 +80,7 @@ public class LoadMonitorBlockEntity extends BlockEntity implements IPowerConsume
                 : 0;
             BlockState state = getBlockState().setValue(LoadMonitorBlock.LOAD, load);
             getLevel().setBlockAndUpdate(getBlockPos(), state);
-            cooldown = AnvilCraft.config.loadMonitor;
+            cooldown = AnvilCraft.CONFIG.loadMonitor;
             getLevel().updateNeighbourForOutputSignal(getBlockPos(), state.getBlock());
         }
     }

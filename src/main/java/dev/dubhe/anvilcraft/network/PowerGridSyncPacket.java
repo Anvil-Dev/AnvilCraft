@@ -16,6 +16,8 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 @Getter
 public class PowerGridSyncPacket implements CustomPacketPayload {
     public static final Type<PowerGridSyncPacket> TYPE = new Type<>(AnvilCraft.of("power_grid_sync"));
@@ -37,9 +39,8 @@ public class PowerGridSyncPacket implements CustomPacketPayload {
      */
     public PowerGridSyncPacket(@NotNull FriendlyByteBuf buf) {
         CompoundTag tag = buf.readNbt();
-        Tag data = tag.get("data");
-        this.grid =
-            SimplePowerGrid.CODEC.decode(NbtOps.INSTANCE, data).getOrThrow().getFirst();
+        Tag data = Objects.requireNonNull(tag).get("data");
+        this.grid = SimplePowerGrid.CODEC.decode(NbtOps.INSTANCE, data).getOrThrow().getFirst();
     }
 
     public void encode(@NotNull FriendlyByteBuf buf) {

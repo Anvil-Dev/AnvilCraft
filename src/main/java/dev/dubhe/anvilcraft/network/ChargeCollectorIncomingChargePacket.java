@@ -15,6 +15,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
+import java.util.Objects;
 import java.util.Random;
 
 @MethodsReturnNonnullByDefault
@@ -49,7 +50,7 @@ public record ChargeCollectorIncomingChargePacket(
     }
 
     public static void acceptClient(ChargeCollectorIncomingChargePacket packet, IPayloadContext ctx) {
-        ClientLevel level = Minecraft.getInstance().level;
+        ClientLevel level = Objects.requireNonNull(Minecraft.getInstance().level);
         Vec3 srcPos = packet.srcPos.getCenter();
         Vec3 dstPos = packet.dstPos.getCenter();
         Vec3 offset = dstPos.subtract(srcPos);

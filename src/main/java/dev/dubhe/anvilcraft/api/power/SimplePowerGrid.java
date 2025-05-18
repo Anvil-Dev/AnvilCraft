@@ -221,6 +221,7 @@ public class SimplePowerGrid {
         return this.getConsume() > this.getGenerate();
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean shouldRender(Vec3 cameraPos) {
         int renderDistance = Minecraft.getInstance().options.getEffectiveRenderDistance() * 16;
         return powerComponentInfoList.stream()
@@ -275,7 +276,7 @@ public class SimplePowerGrid {
                     lines.add(new Line(min, max, (float) min.distanceTo(max)));
                 });
                 this.powerGridBoundLines = lines;
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 if (e instanceof ExecutionException) {
                     AnvilCraft.LOGGER.error("Exception thrown while building power grid shape.", e);
                 }

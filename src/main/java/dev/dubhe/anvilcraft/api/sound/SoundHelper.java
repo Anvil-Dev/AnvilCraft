@@ -13,7 +13,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 @Getter
 public class SoundHelper {
-    public static SoundHelper INSTANCE = new SoundHelper();
+    public static final SoundHelper INSTANCE = new SoundHelper();
 
     private final Map<ClientLevel, List<ISoundEventListener>> eventListeners = new HashMap<>();
 

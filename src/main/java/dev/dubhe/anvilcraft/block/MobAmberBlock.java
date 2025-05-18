@@ -45,6 +45,7 @@ public class MobAmberBlock extends HasMobBlock {
         return state.setValue(FACING, rot.rotate(state.getValue(FACING)));
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror) {
         return state.rotate(mirror.getRotation(state.getValue(FACING)));

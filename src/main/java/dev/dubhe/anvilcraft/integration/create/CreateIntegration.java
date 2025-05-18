@@ -31,6 +31,7 @@ import java.util.Objects;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 
+@SuppressWarnings("unused")
 @Integration("create")
 public class CreateIntegration {
     private static final BoilerHeater HEATER = CreateIntegration::heater;
@@ -41,6 +42,7 @@ public class CreateIntegration {
     public void apply() {
         BoilerHeater.REGISTRY.registerProvider(new MyProvider());
         AnvilCraft.MOD_BUS.addListener(this::registerToTab);
+        //noinspection UnstableApiUsage
         UnpackingHandler.REGISTRY.registerProvider(new BatchCrafterUnpackingHandler.Provider());
     }
 

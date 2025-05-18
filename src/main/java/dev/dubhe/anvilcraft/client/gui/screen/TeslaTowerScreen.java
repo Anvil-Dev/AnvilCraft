@@ -182,7 +182,6 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
         this.imageHeight = 166;
     }
 
-    @SuppressWarnings("ExtractMethodRecommender")
     @Override
     protected void init() {
         super.init();
@@ -303,7 +302,6 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
     /**
      * 鼠标拖动事件
      */
-    @SuppressWarnings("DuplicatedCode")
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
         int leftPos = (this.width - this.imageWidth) / 2;
         int topPos = (this.height - this.imageHeight) / 2;

@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.inventory;
 import dev.dubhe.anvilcraft.api.itemhandler.SlotItemHandlerWithFilter;
 import dev.dubhe.anvilcraft.block.entity.BaseChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntity;
+import dev.dubhe.anvilcraft.util.Util;
 import lombok.Getter;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
@@ -23,8 +24,8 @@ public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends Base
     public final T blockEntity;
     private final Level level;
 
-    public BaseChuteMenu(
-        @Nullable MenuType<?> menuType, int containerId, Inventory inventory, @NotNull FriendlyByteBuf extraData) {
+    @SuppressWarnings("DataFlowIssue")
+    public BaseChuteMenu(MenuType<?> menuType, int containerId, Inventory inventory, @NotNull FriendlyByteBuf extraData) {
         this(menuType, containerId, inventory, inventory.player.level().getBlockEntity(extraData.readBlockPos()));
     }
 
@@ -38,7 +39,7 @@ public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends Base
      */
     public BaseChuteMenu(MenuType<?> menuType, int containerId, Inventory inventory, BlockEntity blockEntity) {
         super(menuType, containerId, blockEntity);
-        this.blockEntity = (T) blockEntity;
+        this.blockEntity = Util.cast(blockEntity);
         this.level = inventory.player.level();
 
         addPlayerInventory(inventory);
@@ -58,7 +59,6 @@ public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends Base
         }
     }
 
-    @SuppressWarnings("DuplicatedCode")
     private void addPlayerInventory(Inventory playerInventory) {
         for (int i = 0; i < 3; ++i) {
             for (int l = 0; l < 9; ++l) {
@@ -67,7 +67,6 @@ public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends Base
         }
     }
 
-    @SuppressWarnings("DuplicatedCode")
     private void addPlayerHotbar(Inventory playerInventory) {
         for (int i = 0; i < 9; ++i) {
             this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 142));
@@ -92,7 +91,6 @@ public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends Base
     // THIS YOU HAVE TO DEFINE!
     private static final int TE_INVENTORY_SLOT_COUNT = 9; // must be the number of slots you have!
 
-    @SuppressWarnings("DuplicatedCode")
     @Override
     public @NotNull ItemStack quickMoveStack(@NotNull Player playerIn, int index) {
         Slot sourceSlot = slots.get(index);

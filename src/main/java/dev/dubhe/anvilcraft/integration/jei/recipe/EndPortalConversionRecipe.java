@@ -32,9 +32,7 @@ public class EndPortalConversionRecipe {
 
     public static ImmutableList<EndPortalConversionRecipe> getAllRecipes() {
         ImmutableList.Builder<EndPortalConversionRecipe> builder = ImmutableList.builder();
-        SpectralAnvilConversionUtil.SPECTRAL_ANVIL_CONVERSION_CHANCE.object2DoubleEntrySet().forEach(it -> {
-            builder.add(new EndPortalConversionRecipe(it.getKey(), (float) it.getDoubleValue()));
-        });
+        SpectralAnvilConversionUtil.SPECTRAL_ANVIL_CONVERSION_CHANCE.object2DoubleEntrySet().forEach(it -> builder.add(new EndPortalConversionRecipe(it.getKey(), (float) it.getDoubleValue())));
         return builder.build();
     }
 }

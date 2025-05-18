@@ -27,6 +27,7 @@ public record SwitchPhasePacket() implements CustomPacketPayload {
         return TYPE;
     }
 
+    @SuppressWarnings("EmptyMethod")
     public void encode(@NotNull RegistryFriendlyByteBuf buf) {
     }
 

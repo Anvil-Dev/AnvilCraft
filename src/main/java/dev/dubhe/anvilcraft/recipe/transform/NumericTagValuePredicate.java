@@ -18,25 +18,20 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.function.BiFunction;
 
-@Getter
-public class NumericTagValuePredicate {
+public record NumericTagValuePredicate(String tagKeyPath,
+                                       dev.dubhe.anvilcraft.recipe.transform.NumericTagValuePredicate.ValueFunction requirement,
+                                       long expected) {
     public static final Codec<NumericTagValuePredicate> CODEC = RecordCodecBuilder.create(ins -> ins.group(
             Codec.STRING.fieldOf("tagKeyPath").forGetter(o -> o.tagKeyPath),
             ValueFunction.CODEC.fieldOf("requirement").forGetter(o -> o.requirement),
-            Codec.LONG.fieldOf("expected").forGetter(it -> it.expected))
+            Codec.LONG.fieldOf("expected").forGetter(it -> it.expected)
+        )
         .apply(ins, NumericTagValuePredicate::new));
-
-    private final String tagKeyPath;
-    private final ValueFunction requirement;
-    private final long expected;
 
     /**
      *
      */
-    public NumericTagValuePredicate(String tagKeyPath, ValueFunction requirement, long expected) {
-        this.tagKeyPath = tagKeyPath;
-        this.requirement = requirement;
-        this.expected = expected;
+    public NumericTagValuePredicate {
     }
 
     /**

@@ -81,7 +81,6 @@ public class ItemInjectRecipe implements Recipe<ItemInjectRecipe.Input> {
         return ItemStack.EMPTY;
     }
 
-    @SuppressWarnings("DuplicatedCode")
     @Override
     public boolean matches(Input input, Level pLevel) {
         if (input.inputBlock != inputBlock) {

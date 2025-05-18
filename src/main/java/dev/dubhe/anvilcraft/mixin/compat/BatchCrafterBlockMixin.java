@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(BatchCrafterBlock.class)
 public class BatchCrafterBlockMixin {
+    @SuppressWarnings("UnresolvedMixinReference")
     @WrapOperation(
         method = "onRemove",
         at = @At(

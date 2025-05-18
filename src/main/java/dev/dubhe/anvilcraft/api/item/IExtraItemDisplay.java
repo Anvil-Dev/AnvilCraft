@@ -59,9 +59,9 @@ public interface IExtraItemDisplay {
      */
     record StoredItem(ItemStack stored) {
 
-        public static Codec<StoredItem> CODEC = ItemStack.CODEC.xmap(StoredItem::new, StoredItem::stored);
+        public static final Codec<StoredItem> CODEC = ItemStack.CODEC.xmap(StoredItem::new, StoredItem::stored);
 
-        public static StreamCodec<RegistryFriendlyByteBuf, StoredItem> STREAM_CODEC = ItemStack.STREAM_CODEC
+        public static final StreamCodec<RegistryFriendlyByteBuf, StoredItem> STREAM_CODEC = ItemStack.STREAM_CODEC
             .map(StoredItem::new, StoredItem::stored);
 
         @Override

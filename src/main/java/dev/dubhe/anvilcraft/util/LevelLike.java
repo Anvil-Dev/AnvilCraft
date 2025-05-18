@@ -24,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 @MethodsReturnNonnullByDefault
@@ -40,8 +41,8 @@ public class LevelLike implements BlockAndTintGetter {
     @Getter
     private boolean allLayersVisible = true;
 
-    public LevelLike(ClientLevel parent) {
-        this.parent = parent;
+    public LevelLike(@Nullable ClientLevel parent) {
+        this.parent = Objects.requireNonNull(parent);
     }
 
     public int horizontalSize() {
@@ -83,6 +84,7 @@ public class LevelLike implements BlockAndTintGetter {
             if (blockEntity == null) return;
             if (Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(blockEntity) == null) return;
             blockEntity.setLevel(this.parent);
+            //noinspection deprecation
             blockEntity.setBlockState(state);
             blockEntities.put(pos, blockEntity);
         }
@@ -113,6 +115,7 @@ public class LevelLike implements BlockAndTintGetter {
         }
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @Override
     public LevelLightEngine getLightEngine() {
         return null;
@@ -161,8 +164,7 @@ public class LevelLike implements BlockAndTintGetter {
     }
 
     public static class AirLevelLike extends LevelLike {
-
-        public AirLevelLike(ClientLevel parent) {
+        public AirLevelLike(@Nullable ClientLevel parent) {
             super(parent);
         }
 

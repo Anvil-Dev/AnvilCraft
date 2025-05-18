@@ -15,23 +15,9 @@ import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.List;
 
-public class ColoredConcreteRecipe {
-    public final Color color;
-    public final List<Ingredient> ingredients;
-    public final List<Object2IntMap.Entry<Ingredient>> mergedIngredients;
-    public final ChanceItemStack result;
-
-    public ColoredConcreteRecipe(
-        Color color,
-        List<Ingredient> ingredients,
-        List<Object2IntMap.Entry<Ingredient>> mergedIngredients,
-        ChanceItemStack result) {
-        this.color = color;
-        this.ingredients = ingredients;
-        this.mergedIngredients = mergedIngredients;
-        this.result = result;
-    }
-
+public record ColoredConcreteRecipe(
+    Color color, List<Ingredient> ingredients, List<Object2IntMap.Entry<Ingredient>> mergedIngredients, ChanceItemStack result
+) {
     public static ImmutableList<ColoredConcreteRecipe> getAllRecipes() {
         ImmutableList.Builder<ColoredConcreteRecipe> builder = ImmutableList.builder();
         for (ConcreteRecipe concreteRecipe : JeiRecipeUtil.getRecipesFromType(ModRecipeTypes.CONCRETE_TYPE.get())) {
@@ -42,7 +28,8 @@ public class ColoredConcreteRecipe {
                     color,
                     concreteRecipe.ingredients,
                     concreteRecipe.mergedIngredients,
-                    ChanceItemStack.of(new ItemStack(resultItem, concreteRecipe.resultCount))));
+                    ChanceItemStack.of(new ItemStack(resultItem, concreteRecipe.resultCount))
+                ));
             }
         }
         return builder.build();

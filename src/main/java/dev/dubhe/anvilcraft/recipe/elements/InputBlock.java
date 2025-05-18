@@ -62,7 +62,7 @@ public class InputBlock {
             );
         } else {
             return new InputBlock(
-                new TagKey<>(Registries.BLOCK, buf.readResourceLocation())
+                TagKey.create(Registries.BLOCK, buf.readResourceLocation())
             );
         }
     }

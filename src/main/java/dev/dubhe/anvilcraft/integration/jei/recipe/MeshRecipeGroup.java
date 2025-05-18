@@ -54,8 +54,8 @@ public record MeshRecipeGroup(Ingredient ingredient, List<Result> results) {
             List<Result> results = new ArrayList<>(values.size());
 
             for (MeshRecipe recipe : values) {
-                int resultCount = recipe.getResultAmount() instanceof ConstantValue constantValue
-                    ? Math.round(constantValue.value())
+                int resultCount = recipe.getResultAmount() instanceof ConstantValue(float value)
+                    ? Math.round(value)
                     : 1;
                 results.add(new Result(recipe.getResult().copyWithCount(resultCount), recipe.getResultAmount()));
             }

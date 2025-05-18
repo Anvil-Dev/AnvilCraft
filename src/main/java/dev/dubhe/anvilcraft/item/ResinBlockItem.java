@@ -56,11 +56,11 @@ public class ResinBlockItem extends HasMobBlockItem {
             Item item = copy.getItem();
             if (item instanceof ResinBlockItem item1) {
                 BlockState blockState = item1.getBlock().defaultBlockState();
-                SoundType soundType = blockState.getSoundType();
+                SoundType soundType = blockState.getSoundType(level, pos, player);
                 level.playSound(
                     player,
                     pos,
-                    item1.getPlaceSound(blockState),
+                    item1.getPlaceSound(blockState, level, pos, player),
                     SoundSource.BLOCKS,
                     (soundType.getVolume() + 1.0f) / 2.0f,
                     soundType.getPitch() * 0.8f);
@@ -84,11 +84,11 @@ public class ResinBlockItem extends HasMobBlockItem {
             Item item = stack.getItem();
             if (item instanceof ResinBlockItem item1) {
                 BlockState blockState = item1.getBlock().defaultBlockState();
-                SoundType soundType = blockState.getSoundType();
+                SoundType soundType = blockState.getSoundType(level, pos, null);
                 level.playSound(
                     null,
                     pos,
-                    item1.getPlaceSound(blockState),
+                    item1.getPlaceSound(blockState, level, pos, null),
                     SoundSource.BLOCKS,
                     (soundType.getVolume() + 1.0f) / 2.0f,
                     soundType.getPitch() * 0.8f);

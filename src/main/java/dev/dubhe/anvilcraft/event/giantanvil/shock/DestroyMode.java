@@ -17,11 +17,13 @@ import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 enum DestroyMode {
     NORMAL {
         public static final ItemStack TOOL = Items.NETHERITE_PICKAXE.getDefaultInstance();
 
+        @SuppressWarnings("resource")
         @Override
         public List<ItemStack> apply(BlockState blockState, BlockPos blockPos, ShockContext shockContext) {
             return blockState.getDrops(
@@ -37,6 +39,7 @@ enum DestroyMode {
         public static ItemStack TOOL;
         public static ItemStack FOR_SNOW_TOOL;
 
+        @SuppressWarnings("resource")
         @Override
         public List<ItemStack> apply(BlockState blockState, BlockPos blockPos, ShockContext shockContext, ItemStack tool) {
             LootParams.Builder builder = new LootParams.Builder((ServerLevel) shockContext.level())
@@ -47,6 +50,7 @@ enum DestroyMode {
             return blockState.getDrops(builder);
         }
 
+        @SuppressWarnings("resource")
         @Override
         public List<ItemStack> apply(BlockState blockState, BlockPos blockPos, ShockContext shockContext) {
             createTool((ServerLevel) shockContext.level());
@@ -78,9 +82,10 @@ enum DestroyMode {
     AUTO_SMELTING {
         public static final ItemStack TOOL = Items.NETHERITE_PICKAXE.getDefaultInstance();
 
+        @SuppressWarnings("resource")
         @Override
         public List<ItemStack> apply(BlockState blockState, BlockPos blockPos, ShockContext shockContext) {
-            RecipeManager recipeManager = ServerLifecycleHooks.getCurrentServer().getRecipeManager();
+            RecipeManager recipeManager = Objects.requireNonNull(ServerLifecycleHooks.getCurrentServer()).getRecipeManager();
             List<ItemStack> itemStacks = new ArrayList<>();
             for (ItemStack it : blockState.getDrops(
                 new LootParams.Builder((ServerLevel) shockContext.level())
@@ -96,9 +101,8 @@ enum DestroyMode {
                         shockContext.level()
                     ).map(it1 -> it1.value().assemble(input, shockContext.level().registryAccess()))
                     .orElse(it);
-//                if (itemStack.getItem() != Items.AIR && itemStack.getCount() == 0) {
-//                    itemStack.setCount(1);
-//                }
+                // 删除了注释掉的代码
+                // 可于VCS记录中找回
                 itemStacks.add(itemStack);
             }
             return itemStacks;

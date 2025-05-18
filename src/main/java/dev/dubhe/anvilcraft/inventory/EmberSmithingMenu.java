@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.item.template.MultipleToOneTemplateItem;
 import dev.dubhe.anvilcraft.recipe.multiple.BaseMultipleToOneSmithingRecipe;
 import dev.dubhe.anvilcraft.recipe.multiple.EightToOneSmithingRecipe;
+import dev.dubhe.anvilcraft.recipe.multiple.FourToOneSmithingRecipe;
 import dev.dubhe.anvilcraft.recipe.multiple.MultipleToOneSmithingRecipeInput;
 import dev.dubhe.anvilcraft.recipe.multiple.TwoToOneSmithingRecipe;
 import net.minecraft.world.Container;
@@ -231,12 +232,14 @@ public class EmberSmithingMenu extends ItemCombinerMenu {
         if (recipe.isMaterialIngredient(stack)) return Optional.of(1);
         if (recipe.isInputIngredient(0, stack)) return Optional.of(2);
         if (recipe.isInputIngredient(1, stack)) return Optional.of(3);
-        if (!(recipe instanceof TwoToOneSmithingRecipe<?>) && recipe.isInputIngredient(2, stack)) return Optional.of(4);
-        if (!(recipe instanceof TwoToOneSmithingRecipe<?>) && recipe.isInputIngredient(3, stack)) return Optional.of(5);
-        if (recipe instanceof EightToOneSmithingRecipe<?> && recipe.isInputIngredient(4, stack)) return Optional.of(6);
-        if (recipe instanceof EightToOneSmithingRecipe<?> && recipe.isInputIngredient(5, stack)) return Optional.of(7);
-        if (recipe instanceof EightToOneSmithingRecipe<?> && recipe.isInputIngredient(6, stack)) return Optional.of(8);
-        if (recipe instanceof EightToOneSmithingRecipe<?> && recipe.isInputIngredient(7, stack)) return Optional.of(9);
+        if (recipe instanceof TwoToOneSmithingRecipe<?>) return Optional.empty();
+        if (recipe.isInputIngredient(2, stack)) return Optional.of(4);
+        if (recipe.isInputIngredient(3, stack)) return Optional.of(5);
+        if (recipe instanceof FourToOneSmithingRecipe<?>) return Optional.empty();
+        if (recipe.isInputIngredient(4, stack)) return Optional.of(6);
+        if (recipe.isInputIngredient(5, stack)) return Optional.of(7);
+        if (recipe.isInputIngredient(6, stack)) return Optional.of(8);
+        if (recipe.isInputIngredient(7, stack)) return Optional.of(9);
         return Optional.empty();
     }
 

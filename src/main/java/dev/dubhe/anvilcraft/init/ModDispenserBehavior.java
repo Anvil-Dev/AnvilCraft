@@ -46,6 +46,7 @@ public class ModDispenserBehavior {
         DispenserBlock.registerBehavior(Items.BOWL, new DefaultDispenseItemBehavior() {
             @Override
             protected ItemStack execute(BlockSource blockSource, ItemStack bowlItem) {
+                @SuppressWarnings("resource")
                 Level level = blockSource.level();
                 BlockPos pos = blockSource.pos();
                 BlockState state = blockSource.state();
@@ -72,6 +73,7 @@ public class ModDispenserBehavior {
         DispenserBlock.registerBehavior(Items.GOLDEN_APPLE, new DefaultDispenseItemBehavior() {
             @Override
             protected ItemStack execute(BlockSource blockSource, ItemStack goldenAppleItem) {
+                @SuppressWarnings("resource")
                 Level level = blockSource.level();
                 BlockPos pos = blockSource.pos();
                 BlockState state = blockSource.state();
@@ -113,6 +115,7 @@ public class ModDispenserBehavior {
 
     private static ItemStack ironIngot(BlockSource source, ItemStack stack) {
         BlockPos blockPos = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
+        @SuppressWarnings("resource")
         ServerLevel level = source.level();
         List<IronGolem> entities =
             level

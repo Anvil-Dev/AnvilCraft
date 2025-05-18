@@ -27,7 +27,7 @@ import java.util.Optional;
 @MethodsReturnNonnullByDefault
 public class CanningFoodExtension implements ICraftingCategoryExtension<CanningFoodRecipe> {
 
-    public static CanningFoodExtension INSTANCE = new CanningFoodExtension();
+    public static final CanningFoodExtension INSTANCE = new CanningFoodExtension();
 
     @Override
     public void setRecipe(

@@ -51,7 +51,7 @@ public class ItemMeshBehavior implements IAnvilBehavior {
                     }
                     stack.shrink(1);
                     processed++;
-                    if (processed >= AnvilCraft.config.anvilEfficiency) {
+                    if (processed >= AnvilCraft.CONFIG.anvilEfficiency) {
                         break;
                     }
                 }
@@ -60,7 +60,7 @@ public class ItemMeshBehavior implements IAnvilBehavior {
                     .toList();
                 AnvilUtil.dropItems(outputs, level, pos.below().getCenter());
             }
-            if (processed >= AnvilCraft.config.anvilEfficiency) {
+            if (processed >= AnvilCraft.CONFIG.anvilEfficiency) {
                 break;
             }
         }

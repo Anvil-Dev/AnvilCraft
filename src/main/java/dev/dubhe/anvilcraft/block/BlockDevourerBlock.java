@@ -222,11 +222,11 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
         final List<BlockPos> filteredBlockPosList = new ArrayList<>();
         for (BlockPos devourBlockPos : devourBlockPosList) {
             if (
-                AnvilCraft.config.blockDevourerUpwardChainDevouring
+                AnvilCraft.CONFIG.blockDevourerUpwardChainDevouring
                     && devourBlockPos.getY() == devourBlockBoundingBox.maxY
             ) {
                 for (BlockPos chainDevourBlockPos : BlockPos.betweenClosed(
-                    devourBlockPos.above(), devourBlockPos.above(AnvilCraft.config.blockDevourerUpwardChainDevouringDistance)
+                    devourBlockPos.above(), devourBlockPos.above(AnvilCraft.CONFIG.blockDevourerUpwardChainDevouringDistance)
                 )) {
                     if (level.getBlockState(chainDevourBlockPos).is(ModBlockTags.BLOCK_DEVOURER_CHAIN_DEVOURING)) {
                         chainDevourBlockPosList.add(chainDevourBlockPos.immutable());

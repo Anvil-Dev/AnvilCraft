@@ -33,12 +33,12 @@ public abstract class DamageSourcesMixin implements ModDamageTypes.DamageSourceE
     }
 
     @Override
-    public DamageSource laser() {
+    public DamageSource anvilcraft$laser() {
         return anvilCraft$laser;
     }
 
     @Override
-    public DamageSource lostInTime() {
+    public DamageSource anvilcraft$lostInTime() {
         return anvilCraft$lostInTime;
     }
 }

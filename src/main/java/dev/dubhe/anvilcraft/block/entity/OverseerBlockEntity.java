@@ -16,6 +16,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 public class OverseerBlockEntity extends BlockEntity {
     private int waterLoggedBlockCount = 0;
 
@@ -115,10 +117,10 @@ public class OverseerBlockEntity extends BlockEntity {
     private boolean isBaseValid() {
         BlockPos thizPos = getBlockPos();
         if (!checkBlocks()) return false;
-        int supportsLevel = checkBaseSupportsLevel(level, thizPos);
+        int supportsLevel = checkBaseSupportsLevel(Objects.requireNonNull(level), thizPos);
         for (int i = 0; i < 3; i++) {
             BlockPos pos = getBlockPos().relative(Direction.Axis.Y, i);
-            BlockState state = level.getBlockState(pos);
+            BlockState state = Objects.requireNonNull(level).getBlockState(pos);
             if (level.getBlockState(pos).is(ModBlocks.OVERSEER_BLOCK)) {
                 level.setBlockAndUpdate(pos, state.setValue(OverseerBlock.LEVEL, supportsLevel));
             }
@@ -129,7 +131,7 @@ public class OverseerBlockEntity extends BlockEntity {
     private boolean checkBlocks() {
         for (int i = 0; i < 3; i++) {
             BlockPos pos = getBlockPos().relative(Direction.Axis.Y, i);
-            if (!level.getBlockState(pos).is(ModBlocks.OVERSEER_BLOCK)) {
+            if (!Objects.requireNonNull(level).getBlockState(pos).is(ModBlocks.OVERSEER_BLOCK)) {
                 return false;
             }
         }

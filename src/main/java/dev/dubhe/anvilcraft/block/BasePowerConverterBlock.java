@@ -63,6 +63,7 @@ public abstract class BasePowerConverterBlock extends BetterBaseEntityBlock impl
     }
 
 
+    @SuppressWarnings("deprecation")
     @Override
     public BlockState mirror(BlockState state, Mirror mirror) {
         return state.rotate(mirror.getRotation(state.getValue(FACING)));

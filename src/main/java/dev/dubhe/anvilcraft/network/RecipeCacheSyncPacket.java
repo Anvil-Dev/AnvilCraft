@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.network;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
+import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -25,7 +26,7 @@ public record RecipeCacheSyncPacket(
         ByteBufCodecs.map(
             HashMap::new,
             net.minecraft.world.item.ItemStack.STREAM_CODEC,
-            (StreamCodec<RegistryFriendlyByteBuf, RecipeHolder<JewelCraftingRecipe>>) (Object) RecipeHolder.STREAM_CODEC
+            Util.cast(RecipeHolder.STREAM_CODEC)
         ),
         RecipeCacheSyncPacket::data,
         RecipeCacheSyncPacket::new

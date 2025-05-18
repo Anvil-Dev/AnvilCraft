@@ -33,7 +33,6 @@ public class UtusanItem extends Item {
     }
 
     @Override
-    @SuppressWarnings("UnreachableCode")
     public @NotNull ItemStack finishUsingItem(
         @NotNull ItemStack itemStack, @NotNull Level level, @NotNull LivingEntity livingEntity) {
         if (!(livingEntity instanceof Player player)) return itemStack;

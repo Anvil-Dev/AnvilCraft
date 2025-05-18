@@ -255,6 +255,7 @@ public class LargeCakeBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> {
     }
 
 
+    @SuppressWarnings("deprecation")
     @Override
     public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
         return level.getBlockState(pos.below()).isSolid();

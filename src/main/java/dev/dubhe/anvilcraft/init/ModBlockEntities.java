@@ -235,6 +235,7 @@ public class ModBlockEntities {
         .validBlocks(ModBlocks.PULSE_GENERATOR)
         .register();
 
+    @SuppressWarnings("EmptyMethod")
     public static void register() {
     }
 }

@@ -18,17 +18,17 @@ public class ModDamageTypes {
     );
 
     public static DamageSource laser(Level level) {
-        return ((DamageSourceExtra) level.damageSources()).laser();
+        return ((DamageSourceExtra) level.damageSources()).anvilcraft$laser();
     }
 
     public static DamageSource lostInTime(Level level) {
-        return ((DamageSourceExtra) level.damageSources()).lostInTime();
+        return ((DamageSourceExtra) level.damageSources()).anvilcraft$lostInTime();
     }
 
 
     public interface DamageSourceExtra {
-        DamageSource laser();
+        DamageSource anvilcraft$laser();
 
-        DamageSource lostInTime();
+        DamageSource anvilcraft$lostInTime();
     }
 }

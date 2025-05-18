@@ -1,6 +1,6 @@
 [versions]
 minecraft = "1.21.1"
-neoForge = "21.1.130"
+neoForge = "21.1.152"
 registrate = "MC1.21-1.3.0+62"
 clothConfig = "15.0.130"
 jei = "19.21.0.247"

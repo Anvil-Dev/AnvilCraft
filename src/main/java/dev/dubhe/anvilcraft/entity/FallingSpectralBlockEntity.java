@@ -169,6 +169,7 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
     /**
      * 落下幻灵实体
      */
+    @SuppressWarnings("UnusedReturnValue")
     public static @NotNull FallingSpectralBlockEntity fall(
         Level level, BlockPos pos, BlockState blockState, boolean updateBlock, boolean isGhostEntity
     ) {

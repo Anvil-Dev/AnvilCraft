@@ -24,8 +24,8 @@ import java.util.Optional;
  */
 public class CauldronUtil {
 
-    public static IntegerProperty LEVEL_3 = LayeredCauldronBlock.LEVEL;
-    public static IntegerProperty LEVEL_4 = Layered4LevelCauldronBlock.LEVEL;
+    public static final IntegerProperty LEVEL_3 = LayeredCauldronBlock.LEVEL;
+    public static final IntegerProperty LEVEL_4 = Layered4LevelCauldronBlock.LEVEL;
 
     /**
      * 判断一个方块状态当前的炼药锅层数。如果该方块不是炼药锅，返回0。
@@ -193,6 +193,7 @@ public class CauldronUtil {
      * @apiNote 此方法会检查炼药锅内容物的合法性，若无法提取则不会提取到内容物。
      * @see net.neoforged.neoforge.fluids.capability.IFluidHandler#fill
      */
+    @SuppressWarnings("UnusedReturnValue")
     public static int drain(Level level, BlockPos pos, Block cauldronContent, int drainLevel, boolean simulate) {
         if (drainLevel <= 0) return 0;
         BlockState state = level.getBlockState(pos);
@@ -216,6 +217,7 @@ public class CauldronUtil {
      * @param drainLevel      要提取的层数
      * @return 若能提取出指定层数的炼药锅内容物，返回 {@code true}
      */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean compatibleForDrain(BlockState state, Block cauldronContent, int drainLevel) {
         if (drainLevel <= 0) return true;
         return compatibleFor(state, cauldronContent) && currentLevel(state) >= drainLevel;

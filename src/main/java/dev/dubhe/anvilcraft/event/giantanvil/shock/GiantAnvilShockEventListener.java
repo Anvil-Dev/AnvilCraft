@@ -33,6 +33,7 @@ public class GiantAnvilShockEventListener {
     private static final BehaviorTree<ShockContext> behaviorTree;
 
     static {
+        @SuppressWarnings("resource")
         TreeNode<ShockContext> root = TreeNode.<ShockContext>predicatedExecutable(
             it -> it.unwrap().level().getBlockState(it.unwrap().centerPos()).is(ModBlocks.HEAVY_IRON_BLOCK)
         ).then(
@@ -117,13 +118,14 @@ public class GiantAnvilShockEventListener {
                 it.putAttachment(NO_HURT, true);
             })
         ).executes(it -> {
-            int radius = (int) Math.min(Math.ceil(it.unwrap().fallDistance()), AnvilCraft.config.giantAnvilMaxShockRadius);
+            int radius = (int) Math.min(Math.ceil(it.unwrap().fallDistance()), AnvilCraft.CONFIG.giantAnvilMaxShockRadius);
             AABB aabb = AABB.ofSize(
                 Vec3.atCenterOf(it.unwrap().centerPos().above()),
                 radius * 2 + 1,
                 1,
                 radius * 2 + 1
             );
+            @SuppressWarnings("resource")
             List<LivingEntity> e = it.unwrap().level().getEntitiesOfClass(LivingEntity.class, aabb);
             for (LivingEntity l : e) {
                 if (it.has(HURT_TYPE)) {

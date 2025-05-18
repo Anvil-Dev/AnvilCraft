@@ -45,6 +45,7 @@ import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 @ParametersAreNonnullByDefault
@@ -204,7 +205,7 @@ public class AnvilHammerItem extends Item implements Equipable {
         ItemStack itemStack = serverPlayer.getInventory().offhand.getFirst();
         if (!itemStack.is(Items.FIREWORK_ROCKET)) return false;
         if (!itemStack.has(DataComponents.FIREWORKS)) return false;
-        int i = itemStack.get(DataComponents.FIREWORKS).flightDuration();
+        int i = Objects.requireNonNull(itemStack.get(DataComponents.FIREWORKS)).flightDuration();
         if (serverPlayer.getRotationVector().x > 70) {
             if (!serverPlayer.getAbilities().instabuild) itemStack.shrink(1);
             double power = i * 0.75 + 0.5;
@@ -302,8 +303,9 @@ public class AnvilHammerItem extends Item implements Equipable {
         isWearingPredicates.add(predicate);
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean isWearing(Player player) {
-        return switch (AnvilCraft.config.goggleMode) {
+        return switch (AnvilCraft.CONFIG.goggleMode) {
             case ALWAYS_SHOW -> true;
             case WEARING_HAMMER -> {
                 for (var it : isWearingPredicates) if (it.test(player)) yield true;

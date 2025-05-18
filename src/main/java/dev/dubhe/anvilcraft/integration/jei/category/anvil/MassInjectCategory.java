@@ -102,9 +102,7 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
             .addIngredients(recipe.getIngredient());
         builder.addSlot(RecipeIngredientRole.OUTPUT, 125, 24)
             .addItemStack(ModItems.NEUTRONIUM_INGOT.asStack())
-            .addRichTooltipCallback((recipeSlotView, tooltip) -> {
-                tooltip.add(Component.translatable(KEY_MASS_NEEDED, DISPLAYED_MASS).withStyle(ChatFormatting.GOLD));
-            });
+            .addRichTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(Component.translatable(KEY_MASS_NEEDED, DISPLAYED_MASS).withStyle(ChatFormatting.GOLD)));
     }
 
     @Override

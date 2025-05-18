@@ -46,7 +46,7 @@ public class PowerGridClient {
         Vec3 camera
     ) {
         if (!RenderState.isEnhancedRenderingAvailable() || !RenderState.isBloomEffectEnabled()) return;
-        if (!AnvilCraft.config.renderPowerTransmitterLines) return;
+        if (!AnvilCraft.CONFIG.renderPowerTransmitterLines) return;
         if (Minecraft.getInstance().level == null) return;
         if (ModRenderTargets.getBloomTarget() != null) {
             ModRenderTargets.getBloomTarget().setClearColor(0, 0, 0, 0);
@@ -70,7 +70,7 @@ public class PowerGridClient {
         Vec3 camera
     ) {
         if (RenderState.isEnhancedRenderingAvailable() && RenderState.isBloomEffectEnabled()) return;
-        if (!AnvilCraft.config.renderPowerTransmitterLines) return;
+        if (!AnvilCraft.CONFIG.renderPowerTransmitterLines) return;
         if (Minecraft.getInstance().level == null) return;
         String level = Minecraft.getInstance().level.dimension().location().toString();
         VertexConsumer consumer = bufferSource.getBuffer(RenderType.LINES);

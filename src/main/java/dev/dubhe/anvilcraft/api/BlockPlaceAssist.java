@@ -79,7 +79,7 @@ public class BlockPlaceAssist {
                 }
                 if (blockState.canBeReplaced()) {
                     level.setBlockAndUpdate(blockPos, newBlockState.setValue(propertyDef, direction.getAxis()));
-                    SoundType soundType = newBlockState.getSoundType();
+                    SoundType soundType = newBlockState.getSoundType(level, pos, player);
                     level.playSound(
                         null,
                         blockPos,

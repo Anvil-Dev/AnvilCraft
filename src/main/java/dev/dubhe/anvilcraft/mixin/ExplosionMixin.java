@@ -38,11 +38,11 @@ import java.util.List;
 abstract class ExplosionMixin implements BlockTransformExplosion {
 
     @Unique
-    public HashMap<Block, ArrayList<BlockTransform>> anvilcraft$blockTransformMap = new HashMap<>();
+    public final HashMap<Block, ArrayList<BlockTransform>> anvilcraft$blockTransformMap = new HashMap<>();
 
     @Unique
     @SuppressWarnings("FieldMayBeFinal")
-    private HashMap<BlockTransform, Integer> anvilcraft$counterMap = new HashMap<>();
+    private final HashMap<BlockTransform, Integer> anvilcraft$counterMap = new HashMap<>();
 
     @Shadow
     @Final

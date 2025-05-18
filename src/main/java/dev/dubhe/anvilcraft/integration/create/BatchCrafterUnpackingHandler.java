@@ -18,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+@SuppressWarnings("UnstableApiUsage")
 public class BatchCrafterUnpackingHandler implements UnpackingHandler {
     public static final BatchCrafterUnpackingHandler INSTANCE = new BatchCrafterUnpackingHandler();
 

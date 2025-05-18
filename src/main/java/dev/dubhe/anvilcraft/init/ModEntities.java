@@ -61,6 +61,7 @@ public class ModEntities {
         ).renderer(() -> IonocraftRenderer::new)
         .register();
 
+    @SuppressWarnings("EmptyMethod")
     public static void register() {
         // intentionally empty
     }

@@ -15,6 +15,7 @@ public class SlotItemHandlerWithFilter extends SlotItemHandler {
      *
      * @return 是否支持过滤
      */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isFilter() {
         return this.getItemHandler() instanceof FilteredItemStackHandler;
     }

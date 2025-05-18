@@ -27,7 +27,7 @@ public class MagnetItem extends Item implements IChargerChargeable {
     public @NotNull InteractionResultHolder<ItemStack> use(
         @NotNull Level level, @NotNull Player player, @NotNull InteractionHand usedHand) {
         ItemStack item = player.getItemInHand(usedHand);
-        double radius = AnvilCraft.config.magnetItemAttractsRadius;
+        double radius = AnvilCraft.CONFIG.magnetItemAttractsRadius;
         UseMagnetEvent event = new UseMagnetEvent(level, player, radius);
         ModLoader.postEvent(event);
         if (event.isCanceled()) return InteractionResultHolder.pass(item);

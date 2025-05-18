@@ -119,6 +119,7 @@ public class ModMenuTypes {
         .menu("pulse_generator", PulseGeneratorMenu::new, () -> PulseGeneratorScreen::new)
         .register();
 
+    @SuppressWarnings("EmptyMethod")
     public static void register() {
     }
 

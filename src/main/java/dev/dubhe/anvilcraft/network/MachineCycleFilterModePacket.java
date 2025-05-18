@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.network;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.inventory.ItemDetectorMenu;
-import lombok.Getter;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -14,21 +13,15 @@ import org.jetbrains.annotations.NotNull;
 
 import static dev.dubhe.anvilcraft.block.entity.ItemDetectorBlockEntity.Mode;
 
-@Getter
-public class MachineCycleFilterModePacket implements CustomPacketPayload {
+public record MachineCycleFilterModePacket(Mode filterMode) implements CustomPacketPayload {
     public static final Type<MachineCycleFilterModePacket> TYPE = new Type<>(AnvilCraft.of("machine_cycle_filter_mode"));
     public static final StreamCodec<RegistryFriendlyByteBuf, MachineCycleFilterModePacket> STREAM_CODEC =
         StreamCodec.composite(
             ByteBufCodecs.INT,
-            p -> p.getFilterMode().ordinal(),
-            i -> new MachineCycleFilterModePacket(Mode.values()[i]));
+            p -> p.filterMode().ordinal(),
+            i -> new MachineCycleFilterModePacket(Mode.values()[i])
+        );
     public static final IPayloadHandler<MachineCycleFilterModePacket> HANDLER = MachineCycleFilterModePacket::serverHandler;
-
-    private final Mode filterMode;
-
-    public MachineCycleFilterModePacket(Mode filterMode) {
-        this.filterMode = filterMode;
-    }
 
     @Override
     @NotNull

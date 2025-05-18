@@ -30,6 +30,7 @@ public class FullBrightLevel implements BlockAndTintGetter {
         return delegate.getShade(direction, shade);
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @Override
     public LevelLightEngine getLightEngine() {
         return null;

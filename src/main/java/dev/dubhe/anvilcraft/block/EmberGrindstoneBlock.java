@@ -41,7 +41,6 @@ public class EmberGrindstoneBlock extends BetterGrindstoneBlock implements IHamm
     /**
      *
      */
-    @SuppressWarnings("UnreachableCode")
     public InteractionResult use(
         BlockState state,
         Level level,

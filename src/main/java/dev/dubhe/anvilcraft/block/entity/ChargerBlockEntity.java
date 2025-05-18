@@ -36,6 +36,7 @@ public class ChargerBlockEntity extends BlockEntity
     private boolean isCharger;
     private int timeLeft = 0;
     private int powerValue = 0;
+    @SuppressWarnings("FieldCanBeLocal")
     private boolean powered = false;
 
     @Getter

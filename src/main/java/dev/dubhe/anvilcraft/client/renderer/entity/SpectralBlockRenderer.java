@@ -12,9 +12,11 @@ import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.client.model.data.ModelData;
 import org.jetbrains.annotations.NotNull;
 
 public class SpectralBlockRenderer extends EntityRenderer<FallingSpectralBlockEntity> {
@@ -57,7 +59,10 @@ public class SpectralBlockRenderer extends EntityRenderer<FallingSpectralBlockEn
                         false,
                         RandomSource.create(),
                         blockState.getSeed(entity.getStartPos()),
-                        OverlayTexture.NO_OVERLAY);
+                        OverlayTexture.NO_OVERLAY,
+                        ModelData.EMPTY,
+                        null
+                    );
                 poseStack.popPose();
                 super.render(entity, entityYaw, partialTicks, poseStack, buffer, packedLight);
             }
@@ -66,6 +71,6 @@ public class SpectralBlockRenderer extends EntityRenderer<FallingSpectralBlockEn
 
     @Override
     public @NotNull ResourceLocation getTextureLocation(@NotNull FallingSpectralBlockEntity entity) {
-        return TextureAtlas.LOCATION_BLOCKS;
+        return InventoryMenu.BLOCK_ATLAS;
     }
 }

@@ -33,7 +33,7 @@ public class InjectedBlockEntityTooltipProvider extends ITooltipProvider.BlockEn
 
     @Override
     public List<Component> tooltip(BlockEntity value) {
-        if (Util.jadePresent.get() && AnvilCraft.config.doNotShowTooltipWhenJadePresent) return null;
+        if (Util.jadePresent.get() && AnvilCraft.CONFIG.doNotShowTooltipWhenJadePresent) return null;
         return cast(value).map(IInjectedTooltipProducer::anvilcraft$getTooltip).orElse(null);
     }
 

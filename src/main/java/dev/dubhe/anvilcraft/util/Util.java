@@ -165,4 +165,12 @@ public class Util {
 
         return false;
     }
+
+    /**
+     * 一个不会报警告的cast方法，一般用于mixin强转this
+     */
+    @SuppressWarnings("unchecked")
+    public static <T, U> U cast(T value) {
+        return (U) value;
+    }
 }

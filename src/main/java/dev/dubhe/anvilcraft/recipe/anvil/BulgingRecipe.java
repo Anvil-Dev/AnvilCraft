@@ -104,7 +104,6 @@ public class BulgingRecipe implements Recipe<BulgingRecipe.Input> {
         return results.isEmpty() ? ItemStack.EMPTY : results.getFirst().getStack();
     }
 
-    @SuppressWarnings("DuplicatedCode")
     @Override
     public boolean matches(Input input, Level level) {
         if (fromWater) {
@@ -120,7 +119,6 @@ public class BulgingRecipe implements Recipe<BulgingRecipe.Input> {
         return getMaxCraftTime(input) >= 1;
     }
 
-    @SuppressWarnings("DuplicatedCode")
     public int getMaxCraftTime(Input pInput) {
         if (cacheInput == pInput) {
             return cacheMaxCraftTime;
@@ -130,7 +128,7 @@ public class BulgingRecipe implements Recipe<BulgingRecipe.Input> {
             times = times >= 1 ? 1 : 0;
         }
         cacheInput = pInput;
-        cacheMaxCraftTime = times <= AnvilCraft.config.anvilEfficiency ? times : AnvilCraft.config.anvilEfficiency;
+        cacheMaxCraftTime = times <= AnvilCraft.CONFIG.anvilEfficiency ? times : AnvilCraft.CONFIG.anvilEfficiency;
         return cacheMaxCraftTime;
     }
 

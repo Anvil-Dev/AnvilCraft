@@ -21,8 +21,8 @@ public class RedstoneEMPBehavior implements IAnvilBehavior {
         float fallDistance,
         AnvilFallOnLandEvent event
     ) {
-        int radius = AnvilCraft.config.redstoneEmpRadius;
-        int maxRadius = AnvilCraft.config.redstoneEmpMaxRadius;
+        int radius = AnvilCraft.CONFIG.redstoneEmpRadius;
+        int maxRadius = AnvilCraft.CONFIG.redstoneEmpMaxRadius;
         int distance = Math.min(((int) Math.ceil(fallDistance)) * radius, maxRadius);
         if (!level.getBlockState(pos.relative(Direction.EAST)).is(Blocks.IRON_TRAPDOOR)) {
             for (int x = 1; x < distance; x++) {

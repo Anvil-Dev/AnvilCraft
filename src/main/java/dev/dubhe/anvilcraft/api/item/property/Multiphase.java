@@ -30,10 +30,10 @@ import java.util.Optional;
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public record Multiphase(Phase alpha, Phase beta) {
-    public static final Multiphase EMPTY = make(Component.literal("Empty"));
-
-    public static final Component ALPHA_NAME_SUFFIX = Component.translatable("tooltip.anvilcraft.property.multiphase.suffix.alpha");
-    public static final Component BETA_NAME_SUFFIX = Component.translatable("tooltip.anvilcraft.property.multiphase.suffix.beta");
+    public static final Component ALPHA_NAME_SUFFIX =
+        Component.translatable("tooltip.anvilcraft.property.multiphase.suffix.alpha");
+    public static final Component BETA_NAME_SUFFIX =
+        Component.translatable("tooltip.anvilcraft.property.multiphase.suffix.beta");
 
     public static final Codec<Multiphase> CODEC = RecordCodecBuilder.create(inst -> inst.group(
         Phase.CODEC.fieldOf("alpha").forGetter(Multiphase::alpha),

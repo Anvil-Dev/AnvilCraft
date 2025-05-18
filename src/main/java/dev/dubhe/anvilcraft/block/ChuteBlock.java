@@ -169,6 +169,7 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
         return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public BlockState mirror(BlockState state, Mirror mirror) {
         return state.rotate(mirror.getRotation(state.getValue(FACING)));
@@ -245,7 +246,6 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
         return this.getShape(state, level, pos, context);
     }
 
-    @SuppressWarnings({"DuplicatedCode", "UnreachableCode"})
     @Override
     public InteractionResult use(
         BlockState state,

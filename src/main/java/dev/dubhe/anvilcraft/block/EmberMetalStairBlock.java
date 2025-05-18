@@ -12,9 +12,9 @@ import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
+@Setter
+@Getter
 public class EmberMetalStairBlock extends StairBlock implements IEmberBlock {
-    @Getter
-    @Setter
     private BlockState checkBlockState;
 
     public EmberMetalStairBlock(BlockState baseState, Properties properties) {

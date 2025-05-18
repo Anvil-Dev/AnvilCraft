@@ -129,7 +129,8 @@ public class GiantAnvilLandingEventListener {
                                 case CLOCKWISE_90 -> mpos.setWithOffset(inputCorner, size - 1 - z, y, x);
                                 default -> mpos.setWithOffset(inputCorner, x, y, z);
                             }
-                            BlockState newState = outputPattern.getPredicate(x, y, z).getDefaultState().rotate(rotation);
+                            BlockState newState = outputPattern.getPredicate(x, y, z).getDefaultState()
+                                .rotate(level, mpos.immutable(), rotation);
                             level.setBlock(mpos, newState, 18);
                         }
                     }

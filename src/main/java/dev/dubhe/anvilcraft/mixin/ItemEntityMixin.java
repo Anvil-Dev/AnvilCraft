@@ -310,7 +310,7 @@ abstract class ItemEntityMixin extends Entity implements MergeCooldownItemEntity
         this.verticalCollisionBelow = this.verticalCollision && motion.y < (double) 0.0F;
         this.minorHorizontalCollision = false;
         this.setOnGroundWithMovement(this.verticalCollisionBelow, motion2);
-        BlockPos blockpos = this.getOnPosLegacy();
+        BlockPos blockpos = this.getOnPos(0.2F);
         BlockState blockState = this.level().getBlockState(blockpos);
         if (this.horizontalCollision) {
             Vec3 vec31 = this.getDeltaMovement();

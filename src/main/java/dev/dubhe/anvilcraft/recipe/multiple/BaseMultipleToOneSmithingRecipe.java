@@ -128,6 +128,7 @@ public abstract class BaseMultipleToOneSmithingRecipe<T extends Item & IMultiple
         ByteBufCodecs.INT.encode(buf, recipe.recipeId);
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public abstract static class Builder<T extends Item & IMultipleToOneSmithingRecipeResult, R extends BaseMultipleToOneSmithingRecipe<T>>
         extends AbstractRecipeBuilder<R> {
 
@@ -148,6 +149,22 @@ public abstract class BaseMultipleToOneSmithingRecipe<T extends Item & IMultiple
         protected abstract int inputSize();
 
         protected abstract Ingredient template();
+
+        @SafeVarargs
+        public final Builder<T, R> template(NonNullSupplier<? extends Item>... templateGetters) {
+            this.template = Ingredient.of(Collections2.transform(List.of(templateGetters), NonNullSupplier::get).toArray(new Item[0]));
+            return this;
+        }
+
+        public Builder<T, R> template(ItemStack... templates) {
+            this.template = Ingredient.of(templates);
+            return this;
+        }
+
+        public Builder<T, R> template(Ingredient template) {
+            this.template = template;
+            return this;
+        }
 
         @SafeVarargs
         public final Builder<T, R> material(NonNullSupplier<? extends Item>... materialGetters) {
@@ -193,6 +210,7 @@ public abstract class BaseMultipleToOneSmithingRecipe<T extends Item & IMultiple
                 id, Ingredient.of(Collections2.transform(Lists.newArrayList(materialGetters), NonNullSupplier::get).toArray(new Item[0])));
         }
 
+        @SuppressWarnings("UnusedReturnValue")
         public Builder<T, R> input(int id, ItemStack... materials) {
             return this.input(id, Ingredient.of(materials));
         }

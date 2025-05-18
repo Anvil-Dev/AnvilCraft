@@ -142,7 +142,7 @@ public class HeliostatsItem extends BlockItem {
                     level.playSound(
                         context.getPlayer(),
                         context.getClickedPos(),
-                        blockState.getSoundType().getPlaceSound(),
+                        blockState.getSoundType(level, context.getClickedPos(), context.getPlayer()).getPlaceSound(),
                         SoundSource.BLOCKS);
                 }
                 return result;
@@ -181,8 +181,8 @@ public class HeliostatsItem extends BlockItem {
         @Override
         public boolean equals(Object obj) {
             if (obj == this) return true;
-            if (obj instanceof HeliostatsData heliostatsData) {
-                return heliostatsData.pos.equals(pos);
+            if (obj instanceof HeliostatsData(BlockPos pos1)) {
+                return pos1.equals(pos);
             } else {
                 return false;
             }

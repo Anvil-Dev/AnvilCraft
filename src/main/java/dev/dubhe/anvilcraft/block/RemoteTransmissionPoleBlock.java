@@ -95,6 +95,7 @@ public class RemoteTransmissionPoleBlock
     }
 
 
+    @SuppressWarnings("UnnecessaryDefault")
     @Override
     public VoxelShape getShape(
         BlockState state,

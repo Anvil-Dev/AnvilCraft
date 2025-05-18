@@ -28,7 +28,7 @@ public class PowerComponentTooltipProvider extends ITooltipProvider.BlockEntityT
 
     @Override
     public List<Component> tooltip(BlockEntity e) {
-        if (Util.jadePresent.get() && AnvilCraft.config.doNotShowTooltipWhenJadePresent) return null;
+        if (Util.jadePresent.get() && AnvilCraft.CONFIG.doNotShowTooltipWhenJadePresent) return null;
         boolean overloaded = false;
         BlockPos pos;
         if (e instanceof IPowerComponent) {

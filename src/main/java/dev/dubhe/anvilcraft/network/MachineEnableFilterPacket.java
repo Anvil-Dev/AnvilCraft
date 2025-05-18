@@ -16,20 +16,13 @@ import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
 
-@Getter
-public class MachineEnableFilterPacket implements CustomPacketPayload {
+public record MachineEnableFilterPacket(boolean filterEnabled) implements CustomPacketPayload {
     public static final Type<MachineEnableFilterPacket> TYPE = new Type<>(AnvilCraft.of("machine_record_material"));
     public static final StreamCodec<RegistryFriendlyByteBuf, MachineEnableFilterPacket> STREAM_CODEC =
         StreamCodec.composite(
-            ByteBufCodecs.BOOL, MachineEnableFilterPacket::isFilterEnabled, MachineEnableFilterPacket::new);
+            ByteBufCodecs.BOOL, MachineEnableFilterPacket::filterEnabled, MachineEnableFilterPacket::new);
     public static final IPayloadHandler<MachineEnableFilterPacket> HANDLER = new DirectionalPayloadHandler<>(
         MachineEnableFilterPacket::clientHandler, MachineEnableFilterPacket::serverHandler);
-
-    private final boolean filterEnabled;
-
-    public MachineEnableFilterPacket(boolean filterEnabled) {
-        this.filterEnabled = filterEnabled;
-    }
 
     @Override
     public Type<? extends CustomPacketPayload> type() {
@@ -44,9 +37,9 @@ public class MachineEnableFilterPacket implements CustomPacketPayload {
         context.enqueueWork(() -> {
             if (!player.hasContainerOpen()) return;
             if (!(player.containerMenu instanceof IFilterMenu menu)) return;
-            menu.setFilterEnabled(data.isFilterEnabled());
+            menu.setFilterEnabled(data.filterEnabled());
             menu.flush();
-            if (!data.isFilterEnabled() && menu.getFilterBlockEntity() != null) {
+            if (!data.filterEnabled() && menu.getFilterBlockEntity() != null) {
                 for (int i = 0; i < menu.getFilteredItems().size(); i++) {
                     ItemStack stack = menu.getFilteredItems().get(i);
                     if (stack.isEmpty()) continue;
@@ -65,7 +58,7 @@ public class MachineEnableFilterPacket implements CustomPacketPayload {
         Minecraft client = Minecraft.getInstance();
         context.enqueueWork(() -> {
             if (client.screen instanceof IFilterScreen<?> screen) {
-                screen.setFilterEnabled(data.isFilterEnabled());
+                screen.setFilterEnabled(data.filterEnabled());
                 screen.flush();
             }
         });

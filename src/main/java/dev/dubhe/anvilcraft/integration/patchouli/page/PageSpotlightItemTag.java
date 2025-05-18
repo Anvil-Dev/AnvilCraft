@@ -20,6 +20,7 @@ public class PageSpotlightItemTag extends PageWithText {
     String title;
     @SerializedName("link_recipe")
     boolean linkRecipe;
+    @SuppressWarnings("CanBeFinal")
     int duration = 20;
 
     protected transient ItemStack[] stacks;

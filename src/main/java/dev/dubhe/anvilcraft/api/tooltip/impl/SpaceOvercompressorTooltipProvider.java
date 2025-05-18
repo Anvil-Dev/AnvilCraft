@@ -22,7 +22,7 @@ public class SpaceOvercompressorTooltipProvider extends ITooltipProvider.BlockEn
     @Nullable
     @Override
     public List<Component> tooltip(BlockEntity e) {
-        if (Util.jadePresent.get() && AnvilCraft.config.doNotShowTooltipWhenJadePresent) return null;
+        if (Util.jadePresent.get() && AnvilCraft.CONFIG.doNotShowTooltipWhenJadePresent) return null;
         if (!(e instanceof SpaceOvercompressorBlockEntity compressor)) return null;
         return List.of(Component.translatable("tooltip.anvilcraft.space_overcompressor.stored_mass",
             compressor.displayStoredMass()));

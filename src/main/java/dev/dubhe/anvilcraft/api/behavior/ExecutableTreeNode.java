@@ -14,7 +14,7 @@ public class ExecutableTreeNode<T> extends SetTreeNode<T> {
 
     @Override
     public boolean matches(ExecutionContext<T> context) {
-        return true;
+        return super.matches(context);
     }
 
     @Override

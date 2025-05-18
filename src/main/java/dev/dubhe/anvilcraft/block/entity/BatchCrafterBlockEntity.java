@@ -53,6 +53,7 @@ import org.joml.Vector3f;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
@@ -115,7 +116,7 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
         boolean powered = state.getValue(BatchCrafterBlock.POWERED);
         this.cooldown = Math.max(0, this.cooldown - 1);
         if (powered && !poweredBefore && !level.isClientSide && this.cooldown == 0) {
-            if (this.craft(level)) this.cooldown = AnvilCraft.config.batchCrafterCooldown;
+            if (this.craft(level)) this.cooldown = AnvilCraft.CONFIG.batchCrafterCooldown;
         }
         poweredBefore = powered;
     }
@@ -130,7 +131,6 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
         return true;
     }
 
-    @SuppressWarnings("UnreachableCode")
     public boolean craft(@NotNull Level level) {
         if (craftingContainer.isEmpty()) return false;
         if (!canCraft()) return false;
@@ -184,7 +184,7 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
     }
 
     private boolean ejectItems(ItemStack result, List<ItemStack> craftRemaining, Direction direction) {
-        IItemHandler cap = getLevel()
+        IItemHandler cap = Objects.requireNonNull(getLevel())
             .getCapability(
                 Capabilities.ItemHandler.BLOCK,
                 getBlockPos().relative(direction),

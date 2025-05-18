@@ -158,7 +158,6 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.ColorRGBA;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -199,7 +198,7 @@ import static dev.dubhe.anvilcraft.api.power.IPowerComponent.SWITCH;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-@SuppressWarnings({"unused", "CodeBlock2Expr", "DataFlowIssue"})
+@SuppressWarnings({"unused", "CodeBlock2Expr"})
 public class ModBlocks {
 
     static {
@@ -1390,7 +1389,7 @@ public class ModBlocks {
         .build()
         .register();
 
-    public static BlockEntry<SlidingRailBlock> SLIDING_RAIL = REGISTRATE
+    public static final BlockEntry<SlidingRailBlock> SLIDING_RAIL = REGISTRATE
         .block("sliding_rail", SlidingRailBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(it -> it
@@ -1428,7 +1427,7 @@ public class ModBlocks {
         })
         .register();
 
-    public static BlockEntry<SlidingRailStopBlock> SLIDING_RAIL_STOP = REGISTRATE
+    public static final BlockEntry<SlidingRailStopBlock> SLIDING_RAIL_STOP = REGISTRATE
         .block("sliding_rail_stop", SlidingRailStopBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(it -> it
@@ -4142,7 +4141,7 @@ public class ModBlocks {
             .register();
     }
 
-    public static BlockEntry<LiquidBlock> MELT_GEM = REGISTRATE
+    public static final BlockEntry<LiquidBlock> MELT_GEM = REGISTRATE
         .block("melt_gem", p -> new LiquidBlock(ModFluids.MELT_GEM.get(), p))
         .properties(it -> it
             .mapColor(MapColor.EMERALD)
@@ -4158,7 +4157,7 @@ public class ModBlocks {
         .blockstate(ModelProviderUtil::liquid)
         .register();
 
-    public static BlockEntry<Block> CONFINED_TIME_ANVILON = REGISTRATE
+    public static final BlockEntry<Block> CONFINED_TIME_ANVILON = REGISTRATE
         .block("confined_time_anvilon", Block::new)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.DRAGON_IMMUNE, BlockTags.WITHER_IMMUNE)
         .properties(PropertiesProviderUtil::confinedAnvilon)
@@ -4169,7 +4168,7 @@ public class ModBlocks {
         .build()
         .register();
 
-    public static BlockEntry<Block> CONFINED_SPACE_ANVILON = REGISTRATE
+    public static final BlockEntry<Block> CONFINED_SPACE_ANVILON = REGISTRATE
         .block("confined_space_anvilon", Block::new)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.DRAGON_IMMUNE, BlockTags.WITHER_IMMUNE)
         .properties(PropertiesProviderUtil::confinedAnvilon)
@@ -4180,7 +4179,7 @@ public class ModBlocks {
         .build()
         .register();
 
-    public static BlockEntry<Block> CONFINED_MASS_ANVILON = REGISTRATE
+    public static final BlockEntry<Block> CONFINED_MASS_ANVILON = REGISTRATE
         .block("confined_mass_anvilon", Block::new)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.DRAGON_IMMUNE, BlockTags.WITHER_IMMUNE)
         .properties(PropertiesProviderUtil::confinedAnvilon)
@@ -4191,7 +4190,7 @@ public class ModBlocks {
         .build()
         .register();
 
-    public static BlockEntry<Block> CONFINED_ENERGY_ANVILON = REGISTRATE
+    public static final BlockEntry<Block> CONFINED_ENERGY_ANVILON = REGISTRATE
         .block("confined_energy_anvilon", Block::new)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.DRAGON_IMMUNE, BlockTags.WITHER_IMMUNE)
         .properties(PropertiesProviderUtil::confinedAnvilon)
@@ -4202,7 +4201,7 @@ public class ModBlocks {
         .build()
         .register();
 
-    public static BlockEntry<ConfinementChamberBlock> CONFINEMENT_CHAMBER = REGISTRATE
+    public static final BlockEntry<ConfinementChamberBlock> CONFINEMENT_CHAMBER = REGISTRATE
         .block("confinement_chamber", ConfinementChamberBlock::new)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.DRAGON_IMMUNE, BlockTags.WITHER_IMMUNE)
         .properties(PropertiesProviderUtil::confinedAnvilon)
@@ -4378,6 +4377,7 @@ public class ModBlocks {
             ModItemTags.BRASS_INGOTS
         );
 
+    @SuppressWarnings("EmptyMethod")
     public static void register() {
     }
 

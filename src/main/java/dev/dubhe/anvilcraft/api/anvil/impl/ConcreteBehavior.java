@@ -25,7 +25,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ConcreteBehavior implements IAnvilBehavior {
-    @SuppressWarnings("DuplicatedCode")
     @Override
     public boolean handle(
         Level level,

@@ -22,7 +22,7 @@ import java.util.function.BiFunction;
 public class BatchCrafterScreen extends BaseMachineScreen<BatchCrafterMenu> implements IFilterScreen<BatchCrafterMenu> {
     private static final ResourceLocation CONTAINER_LOCATION =
         AnvilCraft.of("textures/gui/container/machine/background/auto_crafter.png");
-    BiFunction<Integer, Integer, EnableFilterButton> enableFilterButtonSupplier =
+    final BiFunction<Integer, Integer, EnableFilterButton> enableFilterButtonSupplier =
         this.getEnableFilterButtonSupplier(116, 18);
 
     @Getter

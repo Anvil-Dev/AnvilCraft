@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.util.FastColor;
+import net.minecraft.world.inventory.InventoryMenu;
 
 import java.util.OptionalDouble;
 
@@ -46,7 +47,7 @@ public class ModRenderTypes {
         }
     );
 
-    public static RenderStateShard.ShaderStateShard RENDERTYPE_LASER_SHADER = new RenderStateShard.ShaderStateShard(
+    public static final RenderStateShard.ShaderStateShard RENDERTYPE_LASER_SHADER = new RenderStateShard.ShaderStateShard(
         () -> renderTypeLaserShader
     );
 
@@ -122,7 +123,7 @@ public class ModRenderTypes {
             .setLightmapState(LIGHTMAP)
             .setShaderState(RENDERTYPE_LASER_SHADER)
             .setTextureState(new RenderStateShard.TextureStateShard(
-                TextureAtlas.LOCATION_BLOCKS,
+                InventoryMenu.BLOCK_ATLAS,
                 false,
                 false
             )).setTransparencyState(LASER_TRANSPARENCY)

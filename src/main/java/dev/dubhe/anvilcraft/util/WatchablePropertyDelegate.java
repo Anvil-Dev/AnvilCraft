@@ -11,6 +11,7 @@ public class WatchablePropertyDelegate<T> {
     public WatchablePropertyDelegate() {
     }
 
+    @SuppressWarnings("EmptyMethod")
     protected void onChanged(T oldValue, T newValue) {
     }
 

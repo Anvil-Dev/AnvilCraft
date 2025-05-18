@@ -31,10 +31,10 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 public class VoidEnergyCollectorBlock extends BetterBaseEntityBlock implements IHammerRemovable {
-    public static VoxelShape SHAPE = Shapes.or(
+    public static final VoxelShape SHAPE = Shapes.or(
         Block.box(0, 0, 0, 16, 4, 16)
     );
-    public static BooleanProperty POWERED = BlockStateProperties.POWERED;
+    public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
     public VoidEnergyCollectorBlock(Properties pProperties) {
         super(pProperties);

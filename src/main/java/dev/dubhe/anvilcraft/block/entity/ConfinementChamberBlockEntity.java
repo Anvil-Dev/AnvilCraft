@@ -18,9 +18,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+@Getter
 public class ConfinementChamberBlockEntity extends BlockEntity implements IItemHandlerHolder, IHasDisplayItem {
     private static final AtomicInteger COUNTER = new AtomicInteger(0);
-    @Getter
     private final int id;
 
     public ConfinementChamberBlockEntity(BlockPos pos, BlockState blockState) {
@@ -37,7 +37,6 @@ public class ConfinementChamberBlockEntity extends BlockEntity implements IItemH
         return new ConfinementChamberBlockEntity(type, pos, blockState);
     }
 
-    @Getter
     private final ItemStackHandler itemHandler = new ItemStackHandler(1) {
         @Override
         protected void onContentsChanged(int slot) {

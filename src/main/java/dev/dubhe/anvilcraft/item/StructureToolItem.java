@@ -252,6 +252,7 @@ public class StructureToolItem extends Item implements IHandHeldItemTooltipProvi
             return this.getSizeX() == this.getSizeY() && this.getSizeY() == this.getSizeZ();
         }
 
+        @SuppressWarnings("BooleanMethodIsAlwaysInverted")
         public boolean isOddCubeWithinSize(int maxSize) {
             return this.isCube() && this.getSizeX() % 2 == 1 && this.getSizeX() <= maxSize;
         }

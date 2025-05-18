@@ -2,7 +2,10 @@ package dev.dubhe.anvilcraft.block.plate;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import com.mojang.datafixers.util.Pair;
+import it.unimi.dsi.fastutil.floats.FloatArrayList;
+import it.unimi.dsi.fastutil.floats.FloatFloatImmutablePair;
+import it.unimi.dsi.fastutil.floats.FloatFloatPair;
+import it.unimi.dsi.fastutil.floats.FloatList;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
@@ -11,11 +14,12 @@ import net.minecraft.world.entity.boss.EnderDragonPart;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.phys.AABB;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Collections;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.TreeSet;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -36,12 +40,12 @@ public class HealthPercentPressurePlateBlock extends PowerLevelPressurePlateBloc
     protected int getSignalStrength(
         Level level, AABB box, Set<Class<? extends Entity>> entityClasses
     ) {
-        Pair<Float, Float> minAndMax = getEntitiesHealthPercentMinAndMax(level, box, entityClasses);
-        float value = this.useMin ? minAndMax.getFirst() : minAndMax.getSecond();
+        FloatFloatPair minAndMax = getEntitiesHealthPercentMinAndMax(level, box, entityClasses);
+        float value = this.useMin ? minAndMax.leftFloat() : minAndMax.rightFloat();
         return (int) (value * 15);
     }
 
-    protected static Pair<Float, Float> getEntitiesHealthPercentMinAndMax(Level level, AABB box, Set<Class<? extends Entity>> entityClasses) {
+    protected static FloatFloatPair getEntitiesHealthPercentMinAndMax(Level level, AABB box, Set<Class<? extends Entity>> entityClasses) {
         Set<Entity> entities = Sets.newHashSet();
         for (Class<? extends Entity> entityClass : entityClasses) {
             entities.addAll(level.getEntitiesOfClass(
@@ -50,7 +54,16 @@ public class HealthPercentPressurePlateBlock extends PowerLevelPressurePlateBloc
             ));
         }
 
-        TreeSet<Float> set = Sets.newTreeSet();
+        FloatList healthPercents = getHealthPercents(entities);
+        try {
+            return new FloatFloatImmutablePair(Math.max(healthPercents.getFirst(), 0), Math.min(healthPercents.getLast(), 1));
+        } catch (NoSuchElementException ignored) {
+            return new FloatFloatImmutablePair(0F, 0F);
+        }
+    }
+
+    private static @NotNull FloatList getHealthPercents(Set<Entity> entities) {
+        FloatList healthPercents = new FloatArrayList();
         for (Entity entity : entities) {
             float healthPercent;
 
@@ -62,13 +75,9 @@ public class HealthPercentPressurePlateBlock extends PowerLevelPressurePlateBloc
                 continue;
             }
 
-            set.add(healthPercent);
+            healthPercents.add(healthPercent);
         }
-
-        try {
-            return new Pair<>(Math.max(set.getFirst(), 0), Math.min(set.getLast(), 1));
-        } catch (NoSuchElementException ignored) {
-            return new Pair<>(0F, 0F);
-        }
+        Collections.sort(healthPercents);
+        return healthPercents;
     }
 }

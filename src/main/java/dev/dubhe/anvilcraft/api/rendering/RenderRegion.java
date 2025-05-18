@@ -8,6 +8,7 @@ import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.RenderState;
+import dev.dubhe.anvilcraft.util.Util;
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import net.minecraft.client.Minecraft;
@@ -26,6 +27,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class RenderRegion {
     public static final List<RenderType> BLOOM_RENDERTYPES = List.of(
@@ -123,7 +125,7 @@ public class RenderRegion {
         int indexCount = indexCountMap.getInt(renderType);
         if (indexCount <= 0) return;
         renderType.setupRenderState();
-        ShaderInstance shader = RenderSystem.getShader();
+        ShaderInstance shader = Objects.requireNonNull(RenderSystem.getShader());
         shader.setDefaultUniforms(VertexFormat.Mode.QUADS, frustumMatrix, projectionMatrix, window);
         shader.apply();
         Uniform uniform = shader.CHUNK_OFFSET;
@@ -136,7 +138,7 @@ public class RenderRegion {
             uniform.upload();
         }
         vertexBuffer.bind();
-        GL11.glDrawElements(GL15.GL_TRIANGLES, indexCount, vertexBuffer.sequentialIndices.type().asGLType, 0L);
+        GL11.glDrawElements(GL15.GL_TRIANGLES, indexCount, Objects.requireNonNull(vertexBuffer.sequentialIndices).type().asGLType, 0L);
         VertexBuffer.unbind();
         if (uniform != null) {
             uniform.set(0.0F, 0.0F, 0.0F);
@@ -158,7 +160,7 @@ public class RenderRegion {
                     bufferSource.close();
                     return;
                 }
-                CacheableBlockEntityRenderer renderer = CacheableBlockEntityRenderers.get(be.getType());
+                CacheableBlockEntityRenderer<?> renderer = CacheableBlockEntityRenderers.get(be.getType());
                 if (renderer == null) continue;
                 poseStack.pushPose();
                 BlockPos pos = be.getBlockPos();
@@ -168,7 +170,7 @@ public class RenderRegion {
                     pos.getZ()
                 );
                 renderer.render(
-                    be,
+                    Util.cast(be),
                     bufferSource,
                     poseStack
                 );

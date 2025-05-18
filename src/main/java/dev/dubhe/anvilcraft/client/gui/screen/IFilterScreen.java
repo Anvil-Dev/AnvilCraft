@@ -68,6 +68,7 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> {
      * @param slot   槽位
      * @param filter 过滤
      */
+    @SuppressWarnings("UnusedReturnValue")
     default boolean setFilter(int slot, ItemStack filter) {
         return this.getFilterMenu().setFilter(slot, filter);
     }

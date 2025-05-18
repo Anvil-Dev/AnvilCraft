@@ -120,7 +120,7 @@ public class AnimateAscendingBlockEntity extends Entity {
      */
     public static void animate(
         Level level, @NotNull BlockPos startPos, @NotNull BlockState blockState, BlockPos endPos) {
-        if (!AnvilCraft.config.displayAnvilAnimation) return;
+        if (!AnvilCraft.CONFIG.displayAnvilAnimation) return;
         AnimateAscendingBlockEntity entity = new AnimateAscendingBlockEntity(
             level,
             startPos.getX() + 0.5,

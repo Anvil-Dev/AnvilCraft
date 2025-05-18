@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 @Getter
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -196,13 +197,11 @@ public class MultiblockConversionRecipe implements Recipe<MultiblockInput>, IDat
                 codeBuilder.append("BlockPredicateWithState.of(\"")
                     .append(BuiltInRegistries.BLOCK.getKey(predicate.getBlock()))
                     .append("\")\n");
-                predicate.getProperties().forEach((property, value) -> {
-                    codeBuilder.append("        .hasState(\"")
-                        .append(property.getName())
-                        .append("\", \"")
-                        .append(BlockPredicateWithState.getNameOf(value))
-                        .append("\")\n");
-                });
+                predicate.getProperties().forEach((property, value) -> codeBuilder.append("        .hasState(\"")
+                    .append(property.getName())
+                    .append("\", \"")
+                    .append(BlockPredicateWithState.getNameOf(value))
+                    .append("\")\n"));
                 codeBuilder.append("    )");
             }
             codeBuilder.append("\n");

@@ -38,6 +38,7 @@ public class TagModification implements Consumer<Tag> {
      *
      * @param tag snbt表示的nbt标签
      */
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     protected TagModification(String path, ModifyOperation op, Optional<Integer> index, String tag) {
         this.path = path;
         this.op = op;
@@ -84,7 +85,7 @@ public class TagModification implements Consumer<Tag> {
                 if (contract.size() >= 2)
                     throw new IllegalArgumentException("TagModification does not allow multiple tag at path: " + path);
                 if (contract.isEmpty()) return;
-                Tag value = contract.get(0);
+                Tag value = contract.getFirst();
                 op.accept(value, tag, 0, this.path.substring(index + 1));
                 return;
             } catch (CommandSyntaxException e) {
@@ -99,7 +100,7 @@ public class TagModification implements Consumer<Tag> {
             if (contract.size() >= 2)
                 throw new IllegalArgumentException("TagModification does not allow multiple tag at path: " + path);
             if (contract.isEmpty()) return;
-            Tag value = contract.get(0);
+            Tag value = contract.getFirst();
             op.accept(value, tag, index, path);
         } catch (CommandSyntaxException e) {
             throw new RuntimeException(e);

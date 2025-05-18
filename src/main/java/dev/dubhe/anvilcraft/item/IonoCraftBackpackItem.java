@@ -35,6 +35,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -113,7 +114,7 @@ public class IonoCraftBackpackItem extends ArmorItem implements IInventoryCarrie
     }
 
     public static void setFlightTime(ItemStack stack, int time) {
-        stack.set(ModComponents.FLIGHT_TIME, Math.clamp(time, 0, AnvilCraft.config.ionoCraftBackpackMaxFlightTime));
+        stack.set(ModComponents.FLIGHT_TIME, Math.clamp(time, 0, AnvilCraft.CONFIG.ionoCraftBackpackMaxFlightTime));
     }
 
     public static void addStackProvider(Function<Player, ItemStack> provider) {
@@ -141,7 +142,7 @@ public class IonoCraftBackpackItem extends ArmorItem implements IInventoryCarrie
                     powerComponent.getPowerConsumptions().remove(CONSUMPTION);
                 }
                 int flightTime = getFlightTime(equipped);
-                AttributeInstance instance = player.getAttributes().getInstance(NeoForgeMod.CREATIVE_FLIGHT);
+                AttributeInstance instance = Objects.requireNonNull(player.getAttributes().getInstance(NeoForgeMod.CREATIVE_FLIGHT));
                 if (flightTime > 0) {
                     if (!instance.hasModifier(CREATIVE_FLIGHT_ID)) {
                         instance.addTransientModifier(CREATIVE_FLIGHT);
@@ -153,7 +154,7 @@ public class IonoCraftBackpackItem extends ArmorItem implements IInventoryCarrie
                 }
             } else {
                 powerComponent.getPowerConsumptions().remove(CONSUMPTION);
-                AttributeInstance instance = player.getAttributes().getInstance(NeoForgeMod.CREATIVE_FLIGHT);
+                AttributeInstance instance = Objects.requireNonNull(player.getAttributes().getInstance(NeoForgeMod.CREATIVE_FLIGHT));
                 if (instance.hasModifier(CREATIVE_FLIGHT_ID)) {
                     instance.removeModifier(CREATIVE_FLIGHT);
                 }
@@ -169,13 +170,13 @@ public class IonoCraftBackpackItem extends ArmorItem implements IInventoryCarrie
                 int flightTime = IonoCraftBackpackItem.getFlightTime(itemStack);
                 flightTime--;
                 if (!(holder.anvilCraft$getPowerComponent().getPowerGrid() != null && holder.anvilCraft$getPowerComponent().getPowerGrid().isWorking())) {
-                    if (flightTime <= AnvilCraft.config.ionoCraftBackpackMaxFlightTime / 2) {
+                    if (flightTime <= AnvilCraft.CONFIG.ionoCraftBackpackMaxFlightTime / 2) {
                         Inventory inventory = player.getInventory();
                         int slot = inventory.findSlotMatchingItem(ModItems.CAPACITOR.asStack());
                         if (slot != -1) {
                             inventory.removeItem(slot, 1);
                             inventory.placeItemBackInInventory(ModItems.CAPACITOR_EMPTY.asStack());
-                            flightTime = flightTime + AnvilCraft.config.ionoCraftBackpackMaxFlightTime / 2;
+                            flightTime = flightTime + AnvilCraft.CONFIG.ionoCraftBackpackMaxFlightTime / 2;
                         }
                     }
                 }

@@ -48,6 +48,7 @@ public class ItemDetectorMenu extends AbstractContainerMenu implements IFilterMe
         this.addDataSlot(DataSlot.forContainer(this.blockEntity.getDataAccess(), 1));
     }
 
+    @SuppressWarnings("DataFlowIssue")
     public ItemDetectorMenu(
         @Nullable MenuType<?> menuType, int containerId, Inventory inventory, @NotNull FriendlyByteBuf extraData) {
         this(menuType, containerId, inventory, inventory.player.level().getBlockEntity(extraData.readBlockPos()));
@@ -168,6 +169,7 @@ public class ItemDetectorMenu extends AbstractContainerMenu implements IFilterMe
         return slot.getContainerSlot();
     }
 
+    @SuppressWarnings("EmptyMethod")
     @Override
     public void flush() {
         IFilterMenu.super.flush();

@@ -20,6 +20,7 @@ public interface IHandHeldItemTooltipProvider {
         double camZ
     );
 
+    @SuppressWarnings("EmptyMethod")
     void renderTooltip(GuiGraphics guiGraphics, int screenWidth, int screenHeight);
 
     int priority();

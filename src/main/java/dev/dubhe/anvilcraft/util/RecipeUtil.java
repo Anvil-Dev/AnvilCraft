@@ -55,7 +55,7 @@ public class RecipeUtil {
     private static final byte BINOMIAL_TYPE = 3;
     private static final byte UNKNOWN_TYPE = -1;
 
-    public static StreamCodec<RegistryFriendlyByteBuf, NumberProvider> NUMBER_PROVIDER_STREAM_CODEC = StreamCodec.of(
+    public static final StreamCodec<RegistryFriendlyByteBuf, NumberProvider> NUMBER_PROVIDER_STREAM_CODEC = StreamCodec.of(
         RecipeUtil::toNetwork,
         RecipeUtil::fromNetwork
     );
@@ -269,7 +269,9 @@ public class RecipeUtil {
     @SafeVarargs
     public static boolean ingredientMatchingTags(Ingredient ingredient, TagKey<Item>... tagKey) {
         AtomicBoolean result = new AtomicBoolean(false);
-        ICondition.IContext ctx = ServerLifecycleHooks.getCurrentServer().getServerResources().managers().getConditionContext();
+        ICondition.IContext ctx = null;
+        if (ServerLifecycleHooks.getCurrentServer() == null) return false;
+        ctx = ServerLifecycleHooks.getCurrentServer().getServerResources().managers().getConditionContext();
         Map<ResourceLocation, Collection<Holder<Item>>> allTags = ctx.getAllTags(Registries.ITEM);
         for (Ingredient.Value value : ingredient.getValues()) {
             if (value instanceof Ingredient.TagValue(TagKey<Item> tag)) {

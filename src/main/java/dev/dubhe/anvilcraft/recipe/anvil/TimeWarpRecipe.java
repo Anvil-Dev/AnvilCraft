@@ -58,6 +58,7 @@ public class TimeWarpRecipe implements Recipe<TimeWarpRecipe.Input> {
     private Input cacheInput;
     private int cacheMaxCraftTime;
 
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     public TimeWarpRecipe(
         NonNullList<Ingredient> ingredients,
         Optional<List<Ingredient>> exactIngredients,
@@ -108,7 +109,6 @@ public class TimeWarpRecipe implements Recipe<TimeWarpRecipe.Input> {
         return results.isEmpty() ? ItemStack.EMPTY : results.getFirst().getStack();
     }
 
-    @SuppressWarnings("DuplicatedCode")
     @Override
     public boolean matches(Input input, Level level) {
         if (this.requiredFluidLevel > 0 && !CauldronUtil.compatibleForDrain(input.cauldronState, this.cauldron, this.requiredFluidLevel)) {
@@ -133,7 +133,6 @@ public class TimeWarpRecipe implements Recipe<TimeWarpRecipe.Input> {
         return times;
     }
 
-    @SuppressWarnings("DuplicatedCode")
     public int getMaxCraftTime(Input pInput) {
         if (cacheInput == pInput) {
             return cacheMaxCraftTime;
@@ -143,7 +142,7 @@ public class TimeWarpRecipe implements Recipe<TimeWarpRecipe.Input> {
             times = Math.min(times, 1);
         }
         cacheInput = pInput;
-        cacheMaxCraftTime = times < AnvilCraft.config.anvilEfficiency ? times : AnvilCraft.config.anvilEfficiency;
+        cacheMaxCraftTime = times < AnvilCraft.CONFIG.anvilEfficiency ? times : AnvilCraft.CONFIG.anvilEfficiency;
         return cacheMaxCraftTime;
     }
 

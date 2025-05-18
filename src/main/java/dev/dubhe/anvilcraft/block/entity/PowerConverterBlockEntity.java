@@ -16,6 +16,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 public class PowerConverterBlockEntity extends BlockEntity implements IPowerConsumer {
     private PowerGrid grid = null;
     private int inputPower;
@@ -57,14 +59,14 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
             flushState(this.level, getBlockPos());
         }
         if (cooldown == 0) {
-            cooldown = AnvilCraft.config.powerConverter.powerConverterCountdown;
+            cooldown = AnvilCraft.CONFIG.powerConverter.powerConverterCountdown;
             if (getBlockState().getValue(BasePowerConverterBlock.OVERLOAD)) return;
             int amountTick = (int) (inputPower
-                * AnvilCraft.config.powerConverter.powerConverterEfficiency
-                * (1 - AnvilCraft.config.powerConverter.powerConverterLoss));
-            int amount = amountTick * AnvilCraft.config.powerConverter.powerConverterCountdown;
+                * AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency
+                * (1 - AnvilCraft.CONFIG.powerConverter.powerConverterLoss));
+            int amount = amountTick * AnvilCraft.CONFIG.powerConverter.powerConverterCountdown;
             Direction face = getBlockState().getValue(BasePowerConverterBlock.FACING);
-            EnergyHelper.insertEnergy(getLevel(), getBlockPos().relative(face), face.getOpposite(), amount);
+            EnergyHelper.insertEnergy(Objects.requireNonNull(getLevel()), getBlockPos().relative(face), face.getOpposite(), amount);
         } else {
             cooldown--;
         }

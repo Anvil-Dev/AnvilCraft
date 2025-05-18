@@ -2,14 +2,12 @@ package dev.dubhe.anvilcraft.recipe.generate;
 
 import com.mojang.logging.LogUtils;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.recipe.ChanceItemStack;
 import dev.dubhe.anvilcraft.recipe.anvil.CookingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.ItemCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.UnpackRecipe;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -65,37 +63,9 @@ public class RecipeGenerator {
                 .buildRecipe();
             return Optional.of(new RecipeHolder<>(generateRecipeId(recipeType, recipeHolder), newRecipe));
         }
-//        if (recipeType == RecipeType.BLASTING) {
-//            BlastingRecipe recipe = (BlastingRecipe) recipeHolder.value();
-//            AbstractItemProcessBuilder<SuperHeatingRecipe> builder =
-//                SuperHeatingRecipe.builder()
-//                    .requires(recipe.ingredient)
-//                    .generated(true);
-//            ItemStack result = recipe.result.copy();
-//            logger.debug("Result of new recipe {} is {}", newId, result);
-//            for (ItemStack item : recipe.ingredient.getItems()) {
-//                logger.debug("Ingredient Item {} has following tags:", item);
-//                item.getTags().forEach(it -> logger.debug("\t- {}", it.location()));
-//            }
-//            SuperHeatingRecipe newRecipe = builder.result(result).buildRecipe();
-//            return Optional.of(new RecipeHolder<>(newId, newRecipe));
-//        }
-//        if (recipeType == RecipeType.SMELTING) {
-//            SmeltingRecipe recipe = (SmeltingRecipe) recipeHolder.value();
-//            AbstractItemProcessBuilder<SuperHeatingRecipe> builder =
-//                SuperHeatingRecipe.builder()
-//                    .requires(recipe.ingredient)
-//                    .generated(true);
-//            ItemStack result = recipe.result.copy();
-//            logger.debug("Result of new recipe {} is {}", newId, result);
-//            for (ItemStack item : recipe.ingredient.getItems()) {
-//                logger.debug("Ingredient Item {} has following tags:", item);
-//                item.getTags().forEach(it -> logger.debug("\t- {}", it.location()));
-//            }
-//            SuperHeatingRecipe newRecipe = builder.result(result)
-//                .buildRecipe();
-//            return Optional.of(new RecipeHolder<>(newId, newRecipe));
-//        }
+        // 删除了注释掉的代码
+        // 可于VCS记录中找回
+        //noinspection ConstantValue 暂时忽略警告，待恢复上述代码后可删除本行
         if (recipeType == RecipeType.CRAFTING) {
             CraftingRecipe recipe = (CraftingRecipe) recipeHolder.value();
             if (recipe instanceof ShapedRecipe shapedRecipe) {

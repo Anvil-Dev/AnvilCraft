@@ -41,7 +41,6 @@ import java.util.stream.Collectors;
 public class TimeWarpBehavior implements IAnvilBehavior {
     public static final int SOUL_PARTICLE_COUNT = 3;
 
-    @SuppressWarnings("DuplicatedCode")
     @Override
     public boolean handle(
         Level level,

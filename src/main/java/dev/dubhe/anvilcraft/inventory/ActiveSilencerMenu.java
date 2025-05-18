@@ -35,6 +35,7 @@ public class ActiveSilencerMenu extends AbstractContainerMenu {
         this.level = inventory.player.level();
     }
 
+    @SuppressWarnings("DataFlowIssue")
     public ActiveSilencerMenu(
         @Nullable MenuType<?> menuType, int containerId, Inventory inventory, @NotNull FriendlyByteBuf extraData) {
         this(menuType, containerId, inventory, inventory.player.level().getBlockEntity(extraData.readBlockPos()));

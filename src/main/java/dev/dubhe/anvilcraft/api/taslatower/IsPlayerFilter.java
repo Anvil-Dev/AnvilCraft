@@ -5,8 +5,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 
+@Getter
 public class IsPlayerFilter extends TeslaFilter {
-    @Getter
     private final String id = "IsPlayerFilter";
 
     @Override

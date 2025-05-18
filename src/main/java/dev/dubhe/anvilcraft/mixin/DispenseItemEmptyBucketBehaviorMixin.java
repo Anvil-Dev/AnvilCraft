@@ -35,6 +35,7 @@ abstract class DispenseItemEmptyBucketBehaviorMixin extends DefaultDispenseItemB
             ordinal = 1),
         cancellable = true
     )
+    @SuppressWarnings("resource")
     public void takeMilkFromCow(@NotNull BlockSource source, ItemStack stack, CallbackInfoReturnable<ItemStack> cir) {
         BlockPos blockPos = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
         ServerLevel level = source.level();

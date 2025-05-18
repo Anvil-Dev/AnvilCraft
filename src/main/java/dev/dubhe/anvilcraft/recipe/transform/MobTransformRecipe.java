@@ -34,9 +34,11 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
+@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class MobTransformRecipe implements Recipe<MobTransformInput> {
@@ -59,7 +61,8 @@ public class MobTransformRecipe implements Recipe<MobTransformInput> {
         .apply(ins, MobTransformRecipe::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, MobTransformRecipe> STREAM_CODEC = StreamCodec.of(
-        (buf, recipe) -> buf.writeNbt(intoTag(recipe)), friendlyByteBuf -> fromTag(friendlyByteBuf.readNbt()));
+        (buf, recipe) -> buf.writeNbt(intoTag(recipe)),
+        friendlyByteBuf -> fromTag(Objects.requireNonNull(friendlyByteBuf.readNbt())));
 
     private final EntityType<?> input;
     private final List<TransformResult> results;
@@ -165,6 +168,7 @@ public class MobTransformRecipe implements Recipe<MobTransformInput> {
         });
         if (newEntity == null) return null;
         if (newEntity instanceof Mob mob) {
+            //noinspection OverrideOnly,deprecation
             mob.finalizeSpawn(
                 level,
                 level.getCurrentDifficultyAt(newEntity.blockPosition()),

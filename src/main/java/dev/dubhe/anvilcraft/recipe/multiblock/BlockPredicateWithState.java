@@ -89,6 +89,7 @@ public class BlockPredicateWithState implements Predicate<BlockState> {
         return this;
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public <T extends Comparable<T>> BlockPredicateWithState copyPropertyFrom(BlockState state, Property<T> property) {
         return this.hasState(property, state.getValue(property));
     }
@@ -156,9 +157,7 @@ public class BlockPredicateWithState implements Predicate<BlockState> {
 
     private Raw toRaw() {
         Map<String, String> propertiesMap = new HashMap<>();
-        this.properties.forEach((property, value) -> {
-            propertiesMap.put(property.getName(), getNameOf(value));
-        });
+        this.properties.forEach((property, value) -> propertiesMap.put(property.getName(), getNameOf(value)));
         return new Raw(this.block, propertiesMap);
     }
 

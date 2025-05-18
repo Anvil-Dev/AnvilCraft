@@ -11,6 +11,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 public class HasMobBlockRenderer implements BlockEntityRenderer<HasMobBlockEntity> {
     @SuppressWarnings("unused")
     public HasMobBlockRenderer(BlockEntityRendererProvider.Context context) {
@@ -25,7 +27,7 @@ public class HasMobBlockRenderer implements BlockEntityRenderer<HasMobBlockEntit
         int packedLight,
         int packedOverlay
     ) {
-        Entity entity = blockEntity.getOrCreateDisplayEntity(blockEntity.getLevel());
+        Entity entity = blockEntity.getOrCreateDisplayEntity(Objects.requireNonNull(blockEntity.getLevel()));
         if (entity == null) return;
         poseStack.pushPose();
         poseStack.translate(0.5f, 0.0f, 0.5f);

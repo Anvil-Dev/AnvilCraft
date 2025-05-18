@@ -61,7 +61,7 @@ public abstract class AbstractItemProcessRecipe implements Recipe<ItemProcessInp
         }
         int times = RecipeUtil.getMaxCraftTime(pInput, ingredients);
         cacheInput = pInput;
-        cacheMaxCraftTime = times <= AnvilCraft.config.anvilEfficiency ? times : AnvilCraft.config.anvilEfficiency;
+        cacheMaxCraftTime = times <= AnvilCraft.CONFIG.anvilEfficiency ? times : AnvilCraft.CONFIG.anvilEfficiency;
         return cacheMaxCraftTime;
     }
 }

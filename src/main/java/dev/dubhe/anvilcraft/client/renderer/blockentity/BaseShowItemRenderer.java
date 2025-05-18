@@ -64,12 +64,13 @@ abstract class BaseShowItemRenderer<B extends BlockEntity> implements BlockEntit
         Level level = blockEntity.getLevel();
         ItemStack itemStack = getDisplayItemStack(blockEntity);
         if (itemStack == null || itemStack.isEmpty()) return;
-        int seed = itemStack.isEmpty() ? 187 : Item.getId(itemStack.getItem()) + itemStack.getDamageValue();
+        int seed = Item.getId(itemStack.getItem()) + itemStack.getDamageValue();
         this.random.setSeed(seed);
         BakedModel bakedModel = this.itemRenderer.getModel(itemStack, level, null, getSeed(blockEntity));
         poseStack.pushPose();
         final boolean isGui3d = bakedModel.isGui3d();
         final int renderAmount = this.getRenderAmount(itemStack);
+        @SuppressWarnings("deprecation")
         float transformedGroundScaleY = bakedModel
             .getTransforms()
             .getTransform(ItemDisplayContext.GROUND)
@@ -78,8 +79,11 @@ abstract class BaseShowItemRenderer<B extends BlockEntity> implements BlockEntit
         poseStack.translate(0.5F, 0.5F * transformedGroundScaleY + 0.15f, 0.5F);
         float rotation = (Objects.requireNonNull(blockEntity.getLevel()).getGameTime() + partialTick) * 2f;
         poseStack.mulPose(Axis.YP.rotationDegrees(rotation));
+        @SuppressWarnings("deprecation")
         float groundScaleX = bakedModel.getTransforms().ground.scale.x();
+        @SuppressWarnings("deprecation")
         float groundScaleY = bakedModel.getTransforms().ground.scale.y();
+        @SuppressWarnings("deprecation")
         float groundScaleZ = bakedModel.getTransforms().ground.scale.z();
 
         if (!isGui3d) {

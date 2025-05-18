@@ -13,6 +13,7 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import java.util.function.BiConsumer;
 
 public class AdvancementLootSubProvider implements LootTableSubProvider {
+    @SuppressWarnings("FieldCanBeLocal")
     private final HolderLookup.Provider provider;
 
     public AdvancementLootSubProvider(HolderLookup.Provider provider) {

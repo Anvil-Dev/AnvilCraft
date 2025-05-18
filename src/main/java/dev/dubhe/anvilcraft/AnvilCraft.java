@@ -65,7 +65,7 @@ public class AnvilCraft {
     public static final Gson GSON =
         new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
     public static IEventBus MOD_BUS = null;
-    public static AnvilCraftConfig config = AutoConfig.register(AnvilCraftConfig.class, JanksonConfigSerializer::new)
+    public static final AnvilCraftConfig CONFIG = AutoConfig.register(AnvilCraftConfig.class, JanksonConfigSerializer::new)
         .getConfig();
 
     @Getter

@@ -22,6 +22,7 @@ public class IntegrationManager {
         ProgressMeter meter = StartupNotificationManager.addProgressBar("Load Integrations", LoadingModList.get().getModFiles().size());
         for (ModFileInfo modFile : LoadingModList.get().getModFiles()) {
             meter.increment();
+            @SuppressWarnings("UnstableApiUsage")
             ModFileScanData scanData = modFile.getFile().getScanResult();
             for (ModFileScanData.AnnotationData annotation : scanData.getAnnotations()) {
                 if (annotation.annotationType().getDescriptor().equals(INTEGRATION_NAME) && annotation.targetType() == ElementType.TYPE) {

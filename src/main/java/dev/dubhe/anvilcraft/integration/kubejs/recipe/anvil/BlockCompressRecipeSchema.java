@@ -20,7 +20,7 @@ import java.util.List;
 
 public interface BlockCompressRecipeSchema {
 
-    @SuppressWarnings({"DataFlowIssue", "unused"})
+    @SuppressWarnings({"unused"})
     class BlockCompressKubeRecipe extends AnvilCraftKubeRecipe {
 
         public BlockCompressKubeRecipe input(Block... block) {

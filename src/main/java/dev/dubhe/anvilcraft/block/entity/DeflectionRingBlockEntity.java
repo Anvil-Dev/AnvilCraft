@@ -165,7 +165,7 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
         if (level == null) return;
         List<Entity> entities2 = level.getEntitiesOfClass(Entity.class, new AABB(getBlockPos()), AccelerationRingBlockEntity::canBeAccelerated);
         for (Entity entity : entities2) {
-            if (entity.getDeltaMovement().length() > AnvilCraft.config.maxAccelerationSpeed * 0.99f) {
+            if (entity.getDeltaMovement().length() > AnvilCraft.CONFIG.maxAccelerationSpeed * 0.99f) {
                 overSpeed = true;
                 BlockState state = getBlockState();
                 if (!(state.getBlock() instanceof DeflectionRingBlock block)) return;
@@ -207,7 +207,6 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
         }
     }
 
-    @SuppressWarnings("DuplicatedCode")
     public void attractGianAnvil() {
         assert level != null;
         if (level.getBlockState(getBlockPos().below(2)).hasProperty(GiantAnvilBlock.HALF) && level.getBlockState(getBlockPos().below(2)).getValue(GiantAnvilBlock.HALF) == Cube3x3PartHalf.TOP_CENTER)

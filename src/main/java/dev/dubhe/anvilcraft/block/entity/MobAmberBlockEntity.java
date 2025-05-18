@@ -27,8 +27,7 @@ public class MobAmberBlockEntity extends HasMobBlockEntity {
     @OnlyIn(Dist.CLIENT)
     public void clientTick(ClientLevel level, BlockPos blockPos) {
         Entity entity = this.getOrCreateDisplayEntity(level);
-        if (!(entity instanceof LivingEntity)) return;
-        LivingEntity displayEntity = (LivingEntity) entity;
+        if (!(entity instanceof LivingEntity displayEntity)) return;
         displayEntity.setPos(blockPos.getCenter());
 
         displayEntity.setYHeadRot(level.getBlockState(blockPos).getValue(BlockStateProperties.HORIZONTAL_FACING).toYRot());

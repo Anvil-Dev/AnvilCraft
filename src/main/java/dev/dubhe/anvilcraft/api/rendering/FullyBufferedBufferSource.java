@@ -26,6 +26,7 @@ public class FullyBufferedBufferSource extends MultiBufferSource.BufferSource im
     private final Map<RenderType, BufferBuilder> bufferBuilders = new HashMap<>();
     final Reference2IntMap<RenderType> indexCountMap = new Reference2IntOpenHashMap<>();
 
+    @SuppressWarnings("DataFlowIssue")
     public FullyBufferedBufferSource() {
         super(null, null);
     }
@@ -50,6 +51,7 @@ public class FullyBufferedBufferSource extends MultiBufferSource.BufferSource im
     public void endBatch(RenderType renderType) {
     }
 
+    @SuppressWarnings("resource")
     public void upload(
         Function<RenderType, VertexBuffer> vertexBufferGetter,
         Consumer<Runnable> runner

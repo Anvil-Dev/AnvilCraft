@@ -141,7 +141,7 @@ public class CodecUtil {
 
     public static <T> StreamCodec<? super FriendlyByteBuf, T> nbtWrapped(Codec<T> codec) {
 
-        return new StreamCodec<FriendlyByteBuf, T>() {
+        return new StreamCodec<>() {
             @Override
             @ParametersAreNonnullByDefault
             @NotNull

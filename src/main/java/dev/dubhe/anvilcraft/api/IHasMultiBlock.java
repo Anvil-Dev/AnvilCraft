@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * 多方块方块
  */
+@SuppressWarnings("EmptyMethod")
 public interface IHasMultiBlock {
 
     void onRemove(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state);

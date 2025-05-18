@@ -4,8 +4,8 @@ import lombok.Getter;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
 
+@Getter
 public class IsFriendlyFilter extends TeslaFilter {
-    @Getter
     private final String id = "IsFriendlyFilter";
 
     @Override

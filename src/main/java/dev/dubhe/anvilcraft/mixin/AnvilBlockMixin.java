@@ -80,7 +80,7 @@ abstract class AnvilBlockMixin extends FallingBlock {
         BlockPos magnet = anvil;
         BlockState aboveState = level.getBlockState(anvil.above());
         if (aboveState.is(ModBlockTags.MAGNET) || aboveState.getBlock() instanceof MagnetBlock) return;
-        int distance = AnvilCraft.config.magnetAttractsDistance;
+        int distance = AnvilCraft.CONFIG.magnetAttractsDistance;
         for (int i = 0; i < distance; i++) {
             magnet = magnet.above();
             BlockState state1 = level.getBlockState(magnet);

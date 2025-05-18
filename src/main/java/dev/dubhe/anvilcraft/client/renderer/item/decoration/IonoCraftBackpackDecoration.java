@@ -17,7 +17,7 @@ public class IonoCraftBackpackDecoration implements IItemDecorator {
     public boolean render(GuiGraphics guiGraphics, Font font, ItemStack stack, int xOffset, int yOffset) {
         int flightTime = IonoCraftBackpackItem.getFlightTime(stack);
         if (flightTime > 0) {
-            int percent = Math.round((float) flightTime / AnvilCraft.config.ionoCraftBackpackMaxFlightTime * 100);
+            int percent = Math.round((float) flightTime / AnvilCraft.CONFIG.ionoCraftBackpackMaxFlightTime * 100);
 
             guiGraphics.pose().pushPose();
             guiGraphics.pose().translate(xOffset, yOffset, 200.0F);

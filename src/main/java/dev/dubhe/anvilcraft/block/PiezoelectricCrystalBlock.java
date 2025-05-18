@@ -40,7 +40,7 @@ public class PiezoelectricCrystalBlock extends Block implements IHammerRemovable
         ANVIL_TYPES.put(ModBlocks.EMBER_ANVIL.get(), List.of(1, 2, 5, 12));
     }
 
-    public static VoxelShape SHAPE =
+    public static final VoxelShape SHAPE =
         Shapes.or(Block.box(0, 14, 0, 16, 16, 16), Block.box(2, 2, 2, 14, 14, 14), Block.box(0, 0, 0, 16, 2, 16));
 
     public PiezoelectricCrystalBlock(Properties properties) {

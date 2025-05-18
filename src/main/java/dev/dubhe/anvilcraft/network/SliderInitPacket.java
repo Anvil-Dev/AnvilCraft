@@ -11,32 +11,25 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
 
-@Getter
-public class SliderInitPacket implements CustomPacketPayload {
+public record SliderInitPacket(int value, int min, int max) implements CustomPacketPayload {
     public static final Type<SliderInitPacket> TYPE = new Type<>(AnvilCraft.of("slider_init"));
     public static final StreamCodec<RegistryFriendlyByteBuf, SliderInitPacket> STREAM_CODEC = StreamCodec.composite(
         ByteBufCodecs.INT,
-        SliderInitPacket::getValue,
+        SliderInitPacket::value,
         ByteBufCodecs.INT,
-        SliderInitPacket::getMin,
+        SliderInitPacket::min,
         ByteBufCodecs.INT,
-        SliderInitPacket::getMax,
-        SliderInitPacket::new);
+        SliderInitPacket::max,
+        SliderInitPacket::new
+    );
     public static final IPayloadHandler<SliderInitPacket> HANDLER = SliderInitPacket::clientHandler;
-
-    private final int value;
-    private final int min;
-    private final int max;
 
     /**
      * @param value 当前值
      * @param min   最小值
      * @param max   最大值
      */
-    public SliderInitPacket(int value, int min, int max) {
-        this.value = value;
-        this.min = min;
-        this.max = max;
+    public SliderInitPacket {
     }
 
     @Override

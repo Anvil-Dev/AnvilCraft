@@ -139,6 +139,7 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean change(Player player, BlockPos blockPos, @NotNull Level level, ItemStack anvilHammer) {
         level.setBlock(blockPos, ModBlocks.DISCHARGER.getDefaultState(), 2);

@@ -51,9 +51,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
 
     private final WatchableCyclingValue<Integer> rangeRadius = new WatchableCyclingValue<>(
         "rangeRadius",
-        thiz -> {
-            this.setChanged();
-        },
+        thiz -> this.setChanged(),
         1,
         2,
         4,

@@ -11,7 +11,6 @@ import dev.dubhe.anvilcraft.api.tooltip.impl.PowerComponentTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.RubyPrismTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.SpaceOvercompressorTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IAffectRangeProvider;
-import dev.dubhe.anvilcraft.api.tooltip.providers.IBlockEntityTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IHandHeldItemTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.providers.ITooltipProvider;
 import dev.dubhe.anvilcraft.init.ModItems;
@@ -60,12 +59,6 @@ public class HudTooltipManager {
 
     private void registerBlockTooltip(ITooltipProvider.BlockTooltipProvider provider) {
         blockProviders.add(provider);
-    }
-
-    @SuppressWarnings("removal")
-    @Deprecated(since = "1.4.2", forRemoval = true)
-    private void registerBlockEntityTooltip(IBlockEntityTooltipProvider provider) {
-        blockEntityProviders.add(provider.toNewImplementation());
     }
 
     private void registerBlockEntityTooltip(ITooltipProvider.BlockEntityTooltipProvider provider) {

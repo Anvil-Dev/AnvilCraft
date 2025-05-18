@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.mixin;
 
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
+import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -45,8 +46,9 @@ public abstract class FlyingHitEntityMixin extends Entity {
             shift = At.Shift.AFTER))
     @SuppressWarnings("UnreachableCode")
     private void onFlyingHitEntity(Vec3 travelVector, CallbackInfo ci) {
-        if (!((Object) this instanceof ServerPlayer)) return;
-        if (!AnvilHammerItem.isWearing((Player) (Object) this)
+        LivingEntity thiS = Util.cast(this);
+        if (!(thiS instanceof ServerPlayer player)) return;
+        if (!AnvilHammerItem.isWearing(player)
             && !this.getItemBySlot(EquipmentSlot.HEAD).is(ModItems.ROYAL_ANVIL_HAMMER.get())) return;
         AABB headBlockBoundBox = AABB.ofSize(this.getEyePosition(), 1, 1, 1);
         List<LivingEntity> entities =
@@ -54,8 +56,8 @@ public abstract class FlyingHitEntityMixin extends Entity {
         Vec3 movement = getDeltaMovement();
         float amount = (float) (movement.length() * DAMAGE_FACTOR);
         for (LivingEntity entity : entities) {
-            entity.hurt(damageSources().playerAttack((ServerPlayer) (Object) this), amount);
-            anvilCraft$damageItem((Player) (Object) this, this.getItemBySlot(EquipmentSlot.HEAD));
+            entity.hurt(damageSources().playerAttack(player), amount);
+            anvilCraft$damageItem(player, this.getItemBySlot(EquipmentSlot.HEAD));
         }
     }
 

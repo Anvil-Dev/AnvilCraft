@@ -38,7 +38,6 @@ import java.util.Map;
 import java.util.Optional;
 
 public class SuperHeatingBehavior implements IAnvilBehavior {
-    @SuppressWarnings("DuplicatedCode")
     @Override
     public boolean handle(
         Level level,

@@ -58,6 +58,7 @@ import org.joml.Vector3f;
 import javax.annotation.Nullable;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -94,6 +95,7 @@ public class RenderHelper {
         if (currentClientLevel == null) return;
         getCachedBlockEntity(blockState).ifPresent(blockEntity -> {
             blockEntity.setLevel(currentClientLevel);
+            //noinspection deprecation
             blockEntity.setBlockState(blockState);
             renderBlockEntity(blockEntity, poseStack, buffers);
         });
@@ -257,7 +259,7 @@ public class RenderHelper {
 
         float offsetX = (float) -sizeX / 2;
         float offsetZ = (float) -sizeX / 2 + 1;
-        float rotationY = (clientLevel.getGameTime() + tracker.getGameTimeDeltaPartialTick(true)) * rotationSpeed;
+        float rotationY = (Objects.requireNonNull(clientLevel).getGameTime() + tracker.getGameTimeDeltaPartialTick(true)) * rotationSpeed;
 
         pose.translate(-offsetX, 0, -offsetZ);
         pose.mulPose(Axis.YP.rotationDegrees(rotationY + 45));
@@ -498,11 +500,19 @@ public class RenderHelper {
 
         for (Direction direction : Direction.values()) {
             randomsource.setSeed(42L);
-            renderQuadListWithTransparency(itemRenderer, poseStack, buffer, model.getQuads(null, direction, randomsource), stack, combinedLight, combinedOverlay, alpha);
+            renderQuadListWithTransparency(
+                itemRenderer, poseStack, buffer,
+                model.getQuads(null, direction, randomsource, ModelData.EMPTY, null),
+                stack, combinedLight, combinedOverlay, alpha
+            );
         }
 
         randomsource.setSeed(42L);
-        renderQuadListWithTransparency(itemRenderer, poseStack, buffer, model.getQuads(null, null, randomsource), stack, combinedLight, combinedOverlay, alpha);
+        renderQuadListWithTransparency(
+            itemRenderer, poseStack, buffer,
+            model.getQuads(null, null, randomsource, ModelData.EMPTY, null),
+            stack, combinedLight, combinedOverlay, alpha
+        );
     }
 
     private static void renderQuadListWithTransparency(ItemRenderer itemRenderer, PoseStack poseStack, VertexConsumer buffer, List<BakedQuad> quads, ItemStack itemStack, int combinedLight, int combinedOverlay, float alpha) {

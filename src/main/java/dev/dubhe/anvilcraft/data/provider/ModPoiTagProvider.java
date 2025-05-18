@@ -11,8 +11,10 @@ import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.concurrent.CompletableFuture;
 
+@ParametersAreNonnullByDefault
 public class ModPoiTagProvider extends TagsProvider<PoiType> {
     public ModPoiTagProvider(
         PackOutput output,

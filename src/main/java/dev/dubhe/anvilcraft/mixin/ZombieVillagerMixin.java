@@ -38,9 +38,7 @@ public abstract class ZombieVillagerMixin extends Zombie {
             serverLevel.getServer()
                 .getPlayerList()
                 .getPlayers()
-                .forEach(p -> {
-                    serverLevel.onReputationEvent(ReputationEventType.ZOMBIE_VILLAGER_CURED, p, villager);
-                });
+                .forEach(p -> serverLevel.onReputationEvent(ReputationEventType.ZOMBIE_VILLAGER_CURED, p, villager));
             this.conversionStarter = null;
         }
         original.call(villager, serverLevel);

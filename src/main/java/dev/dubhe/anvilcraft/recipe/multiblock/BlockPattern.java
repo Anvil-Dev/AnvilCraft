@@ -134,16 +134,14 @@ public class BlockPattern {
             }
         }
         Map<ItemStack, Integer> ingredients = ItemStackMap.createTypeAndTagMap();
-        states.forEach((state, stateCount) -> {
-            BlockStateUtil.ingredientsForPlacement(state)
-                .forEach(stack -> {
-                    int stackCount = stack.getCount();
-                    if (stackCount <= 0) return;
-                    stack.setCount(1);
-                    Integer totalCount = ingredients.computeIfAbsent(stack, ignore -> 0);
-                    ingredients.put(stack, totalCount + stateCount * stackCount);
-                });
-        });
+        states.forEach((state, stateCount) -> BlockStateUtil.ingredientsForPlacement(state)
+            .forEach(stack -> {
+                int stackCount = stack.getCount();
+                if (stackCount <= 0) return;
+                stack.setCount(1);
+                Integer totalCount = ingredients.computeIfAbsent(stack, ignore -> 0);
+                ingredients.put(stack, totalCount + stateCount * stackCount);
+            }));
         List<ItemStack> resultList = new ArrayList<>();
         ingredients.forEach((stack, count) -> {
             stack.setCount(count);

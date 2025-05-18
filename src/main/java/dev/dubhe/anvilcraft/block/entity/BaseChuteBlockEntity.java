@@ -193,7 +193,7 @@ public abstract class BaseChuteBlockEntity
                                     itemEntity.setDefaultPickUpDelay();
                                     getLevel().addFreshEntity(itemEntity);
                                     this.itemHandler.setStackInSlot(i, stack);
-                                    cooldown = AnvilCraft.config.chuteMaxCooldown;
+                                    cooldown = AnvilCraft.CONFIG.chuteMaxCooldown;
                                     break;
                                 }
                             }
@@ -206,7 +206,7 @@ public abstract class BaseChuteBlockEntity
                     getBlockPos(), getBlockState().getBlock());
             }
         }
-        if (resetCD) cooldown = AnvilCraft.config.chuteMaxCooldown;
+        if (resetCD) cooldown = AnvilCraft.CONFIG.chuteMaxCooldown;
     }
 
     /**

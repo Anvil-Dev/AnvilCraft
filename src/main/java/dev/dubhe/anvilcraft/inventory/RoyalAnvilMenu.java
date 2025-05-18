@@ -56,6 +56,7 @@ public class RoyalAnvilMenu extends AnvilMenu {
                 + (long) inputItemRight.getOrDefault(DataComponents.REPAIR_COST, 0);
             this.repairItemCountCost = 0;
             boolean hasStoredEnchantmentsOnInput2 = false;
+            //noinspection DataFlowIssue
             if (!CommonHooks.onAnvilChange(
                 this, inputItemLeft, inputItemRight, this.resultSlots, this.itemName, repairCost, this.player)) {
                 return;

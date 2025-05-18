@@ -12,18 +12,11 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
 
-@Getter
-public class SliderUpdatePacket implements CustomPacketPayload {
+public record SliderUpdatePacket(int value) implements CustomPacketPayload {
     public static final Type<SliderUpdatePacket> TYPE = new Type<>(AnvilCraft.of("slider_update"));
     public static final StreamCodec<RegistryFriendlyByteBuf, SliderUpdatePacket> STREAM_CODEC =
-        StreamCodec.composite(ByteBufCodecs.INT, SliderUpdatePacket::getValue, SliderUpdatePacket::new);
+        StreamCodec.composite(ByteBufCodecs.INT, SliderUpdatePacket::value, SliderUpdatePacket::new);
     public static final IPayloadHandler<SliderUpdatePacket> HANDLER = SliderUpdatePacket::serverHandler;
-
-    private final int value;
-
-    public SliderUpdatePacket(int value) {
-        this.value = value;
-    }
 
     @Override
     public Type<? extends CustomPacketPayload> type() {

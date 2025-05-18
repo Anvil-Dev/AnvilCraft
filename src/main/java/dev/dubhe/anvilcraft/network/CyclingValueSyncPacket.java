@@ -11,26 +11,17 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
 
-@Getter
-public class CyclingValueSyncPacket implements CustomPacketPayload {
-
+public record CyclingValueSyncPacket(int index, String name) implements CustomPacketPayload {
     public static final Type<CyclingValueSyncPacket> TYPE = new Type<>(AnvilCraft.of("cycling_value"));
     public static final StreamCodec<RegistryFriendlyByteBuf, CyclingValueSyncPacket> STREAM_CODEC =
         StreamCodec.composite(
             ByteBufCodecs.INT,
-            CyclingValueSyncPacket::getIndex,
+            CyclingValueSyncPacket::index,
             ByteBufCodecs.STRING_UTF8,
-            CyclingValueSyncPacket::getName,
-            CyclingValueSyncPacket::new);
+            CyclingValueSyncPacket::name,
+            CyclingValueSyncPacket::new
+        );
     public static final IPayloadHandler<CyclingValueSyncPacket> HANDLER = CyclingValueSyncPacket::serverHandler;
-
-    private final int index;
-    private final String name;
-
-    public CyclingValueSyncPacket(int index, String name) {
-        this.index = index;
-        this.name = name;
-    }
 
     @Override
     public Type<? extends CustomPacketPayload> type() {

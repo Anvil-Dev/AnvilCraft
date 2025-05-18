@@ -69,7 +69,6 @@ public class EmberSmithingTableBlock extends SmithingTableBlock implements IHamm
     /**
      *
      */
-    @SuppressWarnings("UnreachableCode")
     public @NotNull InteractionResult use(
         @NotNull BlockState state,
         @NotNull Level level,

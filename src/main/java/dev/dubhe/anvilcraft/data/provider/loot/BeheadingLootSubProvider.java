@@ -31,6 +31,7 @@ import java.util.function.BiConsumer;
 
 @ParametersAreNonnullByDefault
 public class BeheadingLootSubProvider implements LootTableSubProvider {
+    @SuppressWarnings("FieldCanBeLocal")
     private final HolderLookup.Provider provider;
 
     public BeheadingLootSubProvider(HolderLookup.Provider provider) {

@@ -14,6 +14,7 @@ import java.util.Queue;
 public class CacheableBERenderingPipeline {
     @Getter
     private static CacheableBERenderingPipeline instance;
+    @SuppressWarnings("FieldCanBeLocal")
     private final ClientLevel level;
     private final Queue<Runnable> pendingCompiles = new ArrayDeque<>();
     private final Queue<Runnable> pendingUploads = new ArrayDeque<>();

@@ -13,6 +13,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.AbstractCauldronBlock;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -35,12 +36,14 @@ public abstract class DefaultDispenseItemBehaviorMixin {
             && !item.is(Items.POTION)) return;
         Direction direction = blockSource.state().getValue(DispenserBlock.FACING);
         BlockPos targetBlockPos = blockSource.pos().relative(direction);
+        @SuppressWarnings("resource")
         BlockState targetState = blockSource.level().getBlockState(targetBlockPos);
         if (!(targetState.getBlock() instanceof AbstractCauldronBlock cauldronBlock)) return;
         Player player = AnvilCraftBlockPlacer.anvilCraftBlockPlacer.getPlayer();
         ItemStack itemStack = item.copy();
         itemStack.setCount(1);
         player.setItemInHand(player.getUsedItemHand(), itemStack);
+        //noinspection DataFlowIssue
         cauldronBlock.useItemOn(itemStack, targetState, blockSource.level(), targetBlockPos, player, player.getUsedItemHand(), null);
         ItemStack result = player.getItemInHand(player.getUsedItemHand());
         if (result.is(item.getItem())) return;

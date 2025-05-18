@@ -34,7 +34,6 @@ public class HeavyIronTrapdoorBlock extends TrapDoorBlock {
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         BlockState bs = super.getStateForPlacement(context);
-        if (bs == null) return null;
         boolean hasSignal = context.getLevel().getBestNeighborSignal(context.getClickedPos()) >= 15;
         return bs.setValue(POWERED, hasSignal).setValue(OPEN, hasSignal);
     }

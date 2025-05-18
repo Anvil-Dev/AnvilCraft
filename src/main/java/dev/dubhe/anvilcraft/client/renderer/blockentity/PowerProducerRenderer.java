@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.neoforge.client.model.data.ModelData;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class PowerProducerRenderer<T extends BlockEntity & IPowerProducer> implements BlockEntityRenderer<T> {
@@ -43,7 +44,9 @@ public abstract class PowerProducerRenderer<T extends BlockEntity & IPowerProduc
                 0,
                 0,
                 LightTexture.FULL_BLOCK,
-                packedOverlay
+                packedOverlay,
+                ModelData.EMPTY,
+                null
             );
         poseStack.popPose();
     }

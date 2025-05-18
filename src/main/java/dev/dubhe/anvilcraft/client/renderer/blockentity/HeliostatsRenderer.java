@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.phys.AABB;
+import net.neoforged.neoforge.client.model.data.ModelData;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -36,7 +37,7 @@ public class HeliostatsRenderer implements BlockEntityRenderer<HeliostatsBlockEn
 
     private ModelResourceLocation getHeadModel(HeliostatsBlockEntity blockEntity) {
         return Optional.of(blockEntity)
-            .filter(ignore -> AnvilCraft.config.heliostatsSunflowerModel)
+            .filter(ignore -> AnvilCraft.CONFIG.heliostatsSunflowerModel)
             .filter(be -> be.getLevel() != null)
             .map(be -> be.getLevel().getBiome(be.getBlockPos()))
             .map(biome -> biome.is(Biomes.SUNFLOWER_PLAINS))
@@ -73,7 +74,9 @@ public class HeliostatsRenderer implements BlockEntityRenderer<HeliostatsBlockEn
                 0,
                 0,
                 packedLight,
-                packedOverlay
+                packedOverlay,
+                ModelData.EMPTY,
+                null
             );
         poseStack.popPose();
     }

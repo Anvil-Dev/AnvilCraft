@@ -91,7 +91,6 @@ public class BatchCrafterBlock extends BetterBaseEntityBlock implements HammerRo
     }
 
     @Override
-    @SuppressWarnings({"UnreachableCode"})
     public @NotNull InteractionResult use(
         @NotNull BlockState state,
         @NotNull Level level,
@@ -244,6 +243,7 @@ public class BatchCrafterBlock extends BetterBaseEntityBlock implements HammerRo
         return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public @NotNull BlockState mirror(@NotNull BlockState state, @NotNull Mirror mirror) {
         return state.rotate(mirror.getRotation(state.getValue(FACING)));

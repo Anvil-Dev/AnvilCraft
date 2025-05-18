@@ -110,6 +110,7 @@ public class TooltipRenderHelper {
         int finalVy = vy;
         int finalWidth = width;
         int finalHeight = height + 16;
+        //noinspection deprecation
         thiz.drawManaged(() -> renderTooltipBackground(
             thiz, vx, finalVy, finalWidth, finalHeight, backgroundColor, borderTopColor, borderBottomColor));
         thiz.pose().translate(0.0F, 0.0F, 400.0F);

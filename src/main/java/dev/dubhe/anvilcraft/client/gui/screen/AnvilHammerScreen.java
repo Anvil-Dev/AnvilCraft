@@ -25,6 +25,7 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -55,6 +56,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static dev.dubhe.anvilcraft.util.RenderHelper.L1;
 import static dev.dubhe.anvilcraft.util.RenderHelper.L2;
@@ -104,13 +106,14 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
     }
 
     private final Minecraft minecraft = Minecraft.getInstance();
+    private final ClientLevel level = Objects.requireNonNull(minecraft.level);
     private final BlockPos targetBlockPos;
     private final Property<?> property;
     private final List<BlockState> possibleStates;
     private final Camera camera;
 
-    private final Level replacementLevel = VisualizationUnsupported.wrap(minecraft.level);
-    private final BlockAndTintGetter fullBrightLevel = new FullBrightLevel(minecraft.level);
+    private final Level replacementLevel = VisualizationUnsupported.wrap(level);
+    private final BlockAndTintGetter fullBrightLevel = new FullBrightLevel(level);
     private BlockState currentBlockState;
     private final List<SelectionItem> items = new ArrayList<>();
     private long displayTime = System.currentTimeMillis();
@@ -313,13 +316,14 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
             );
             buffers.endLastBatch();
         }
-        BlockEntity blockEntity = minecraft.level.getBlockEntity(targetBlockPos);
+        BlockEntity blockEntity = level.getBlockEntity(targetBlockPos);
         if (blockEntity != null) {
             BlockEntityRenderer<BlockEntity> renderer = minecraft.getBlockEntityRenderDispatcher().getRenderer(blockEntity);
             if (renderer != null) {
                 Level originalLevel = blockEntity.getLevel();
                 BlockState originalBlockState = blockEntity.getBlockState();
                 blockEntity.setLevel(replacementLevel);
+                //noinspection deprecation
                 blockEntity.setBlockState(block);
                 renderer.render(
                     blockEntity,
@@ -329,7 +333,8 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
                     LightTexture.FULL_BLOCK,
                     OverlayTexture.NO_OVERLAY
                 );
-                blockEntity.setLevel(originalLevel);
+                blockEntity.setLevel(Objects.requireNonNull(originalLevel));
+                //noinspection deprecation
                 blockEntity.setBlockState(originalBlockState);
             }
         }
@@ -558,7 +563,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
             .set(radius * guiScale);
 
         RenderSystem.setShaderColor(1, 1, 1, 1);
-        BufferUploader.drawWithShader(bufferBuilder.build());
+        BufferUploader.drawWithShader(Objects.requireNonNull(bufferBuilder.build()));
     }
 
 
@@ -572,7 +577,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
         if (!animationStarted) {
             currentBlockState = currentBlockState.cycle(property);
         }
-        Minecraft.getInstance().level.setBlock(
+        level.setBlock(
             targetBlockPos,
             currentBlockState,
             Block.UPDATE_CLIENTS,
@@ -660,7 +665,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
             .set(outerDiameter * guiScale);
 
         RenderSystem.setShaderColor(1, 1, 1, 1);
-        BufferUploader.drawWithShader(bufferBuilder.build());
+        BufferUploader.drawWithShader(Objects.requireNonNull(bufferBuilder.build()));
     }
 
     @Override

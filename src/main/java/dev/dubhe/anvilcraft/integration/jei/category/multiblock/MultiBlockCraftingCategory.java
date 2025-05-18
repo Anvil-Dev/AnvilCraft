@@ -54,6 +54,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -192,7 +193,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
 
         float offsetX = (float) -sizeX / 2;
         float offsetZ = (float) -sizeX / 2 + 1;
-        float rotationY = (clientLevel.getGameTime() + tracker.getGameTimeDeltaPartialTick(true)) * 2f;
+        float rotationY = (Objects.requireNonNull(clientLevel).getGameTime() + tracker.getGameTimeDeltaPartialTick(true)) * 2f;
 
         pose.translate(-offsetX, 0, -offsetZ);
         pose.mulPose(Axis.YP.rotationDegrees(rotationY + 45));

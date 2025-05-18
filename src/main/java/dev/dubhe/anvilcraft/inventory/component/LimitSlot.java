@@ -4,8 +4,10 @@ import net.minecraft.world.Container;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Predicate;
 
+@ParametersAreNonnullByDefault
 public class LimitSlot extends Slot {
     private final Predicate<ItemStack> limit;
 

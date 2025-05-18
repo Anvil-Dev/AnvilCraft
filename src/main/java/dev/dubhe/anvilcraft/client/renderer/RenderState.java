@@ -9,7 +9,7 @@ import net.minecraft.client.Minecraft;
 import org.slf4j.Logger;
 
 public class RenderState {
-    private static boolean IRIS_PRESENT;
+    private static final boolean IRIS_PRESENT;
     @Getter
     private static boolean bloomRenderStage;
     private static final Logger logger = LogUtils.getLogger();
@@ -35,9 +35,10 @@ public class RenderState {
     }
 
     public static boolean isBloomEffectEnabled() {
-        return AnvilCraft.config.renderBloomEffect;
+        return AnvilCraft.CONFIG.renderBloomEffect;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean hasIncompatibleMods() {
         return false;
     }

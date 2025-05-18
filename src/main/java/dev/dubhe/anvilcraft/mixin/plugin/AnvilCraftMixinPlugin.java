@@ -2,20 +2,11 @@ package dev.dubhe.anvilcraft.mixin.plugin;
 
 import net.neoforged.fml.loading.LoadingModList;
 import org.jetbrains.annotations.NotNull;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.LdcInsnNode;
-import org.objectweb.asm.tree.LineNumberNode;
-import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.VarInsnNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Set;
 
 public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {

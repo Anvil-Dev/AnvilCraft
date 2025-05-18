@@ -74,6 +74,7 @@ public class MultiblockRecipe implements Recipe<MultiblockInput>, IDatagen {
         return result;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public boolean matches(MultiblockInput input, Level level) {
         int size = input.size();

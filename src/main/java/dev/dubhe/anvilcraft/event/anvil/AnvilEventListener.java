@@ -180,13 +180,14 @@ public class AnvilEventListener {
     private static void brokeBlock(@NotNull Level level, BlockPos pos, AnvilFallOnLandEvent event) {
         if (!(level instanceof ServerLevel serverLevel)) return;
         BlockState state = level.getBlockState(pos);
+        //noinspection deprecation
         if (state.getBlock().getExplosionResistance() >= 1200.0) event.setAnvilDamage(true);
         if (state.getDestroySpeed(level, pos) < 0) return;
-        boolean smeltDrop = Optional.ofNullable(event.getEntity())
+        boolean smeltDrop = Optional.of(event.getEntity())
             .map(FallingBlockEntity::getBlockState)
             .map(b -> b.getBlock() instanceof EmberAnvilBlock)
             .orElse(false);
-        boolean silkTouch = Optional.ofNullable(event.getEntity())
+        boolean silkTouch = Optional.of(event.getEntity())
             .map(FallingBlockEntity::getBlockState)
             .map(b -> b.getBlock() instanceof RoyalAnvilBlock)
             .orElse(false);

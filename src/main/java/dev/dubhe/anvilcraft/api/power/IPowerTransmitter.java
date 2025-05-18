@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 public interface IPowerTransmitter extends IPowerComponent {
     @Override
     default int getRange() {
-        return AnvilCraft.config.powerTransmitterRange;
+        return AnvilCraft.CONFIG.powerTransmitterRange;
     }
 
     @Override

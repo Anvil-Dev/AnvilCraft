@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.datafixers.util.Pair;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.hammer.IHasHammerEffect;
+import dev.dubhe.anvilcraft.util.Util;
 import lombok.extern.slf4j.Slf4j;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -25,6 +26,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.model.data.ModelData;
 
 @Slf4j
 @EventBusSubscriber(Dist.CLIENT)
@@ -34,7 +36,7 @@ public class HammerEffectRenderEventListener {
     public static final ModelResourceLocation MODEL = ModelResourceLocation.standalone(AnvilCraft.of("block/axis"));
 
     static {
-        Pair<Direction, Component>[] texts = new Pair[Direction.values().length - 2];
+        Pair<Direction, Component>[] texts = Util.cast(new Pair[Direction.values().length - 2]);
         int idx = 0;
         for (int i = 0; i < Direction.values().length; i++) {
             Direction direction = Direction.values()[i];
@@ -77,7 +79,9 @@ public class HammerEffectRenderEventListener {
             1f,
             1f,
             LightTexture.FULL_BLOCK,
-            OverlayTexture.NO_OVERLAY
+            OverlayTexture.NO_OVERLAY,
+            ModelData.EMPTY,
+            null
         );
 
         renderer.renderModel(
@@ -89,7 +93,9 @@ public class HammerEffectRenderEventListener {
             1f,
             1f,
             LightTexture.FULL_BRIGHT,
-            OverlayTexture.NO_OVERLAY
+            OverlayTexture.NO_OVERLAY,
+            ModelData.EMPTY,
+            null
         );
         poseStack.popPose();
     }

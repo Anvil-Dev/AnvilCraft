@@ -90,11 +90,11 @@ public class Slider extends AbstractWidget {
     }
 
     @Override
-    public void onClick(double mouseX, double mouseY) {
-        super.onClick(mouseX, mouseY);
+    public void onClick(double mouseX, double mouseY, int button) {
+        super.onClick(mouseX, mouseY, button);
         if (!isInRange(mouseX, mouseY)) return;
         if (isInSlider(mouseX, mouseY)) {
-            super.onClick(mouseX, mouseY);
+            super.onClick(mouseX, mouseY, button);
             return;
         }
         double offset = 16.0 / this.length;

@@ -51,7 +51,7 @@ public class RipeningManager {
     }
 
     private void doRipen(@NotNull BlockPos pos, @NotNull HashSet<BlockPos> ripened) {
-        int rangeSize = AnvilCraft.config.inductionLightBlockRipeningRange;
+        int rangeSize = AnvilCraft.CONFIG.inductionLightBlockRipeningRange;
         for (int dx = -rangeSize / 2; dx <= rangeSize / 2; dx++) {
             for (int dy = -rangeSize / 2; dy <= rangeSize / 2; dy++) {
                 for (int dz = -rangeSize / 2; dz <= rangeSize / 2; dz++) {
@@ -122,7 +122,7 @@ public class RipeningManager {
                     }
                 }
             }));
-            cooldown = AnvilCraft.config.inductionLightBlockRipeningCooldown;
+            cooldown = AnvilCraft.CONFIG.inductionLightBlockRipeningCooldown;
         }
     }
 

@@ -27,7 +27,7 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
     implements IFilterScreen<ItemCollectorMenu> {
     private static final ResourceLocation CONTAINER_LOCATION =
         AnvilCraft.of("textures/gui/container/machine/background/item_collector.png");
-    BiFunction<Integer, Integer, EnableFilterButton> enableFilterButtonSupplier =
+    final BiFunction<Integer, Integer, EnableFilterButton> enableFilterButtonSupplier =
         this.getEnableFilterButtonSupplier(75, 54);
 
     @Getter
@@ -55,7 +55,7 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
             topPos + 24,
             20,
             8,
-            minecraft.font,
+            Minecraft.getInstance().font,
             () -> Component.literal(
                 menu.getBlockEntity().getRangeRadius().get().toString())));
         // cooldown

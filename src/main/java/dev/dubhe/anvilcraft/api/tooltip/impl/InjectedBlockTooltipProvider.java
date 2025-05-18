@@ -34,7 +34,7 @@ public class InjectedBlockTooltipProvider extends ITooltipProvider.BlockTooltipP
 
     @Override
     public List<Component> tooltip(BlockState state) {
-        if (Util.jadePresent.get() && AnvilCraft.config.doNotShowTooltipWhenJadePresent) return null;
+        if (Util.jadePresent.get() && AnvilCraft.CONFIG.doNotShowTooltipWhenJadePresent) return null;
         return cast(state.getBlock()).map(producer -> producer.anvilcraft$getTooltip(state)).orElse(null);
     }
 

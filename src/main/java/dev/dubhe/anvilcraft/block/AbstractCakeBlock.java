@@ -36,7 +36,7 @@ public class AbstractCakeBlock extends Block {
         Player pPlayer,
         BlockHitResult pHitResult
     ) {
-        return InteractionResult.PASS;
+        return super.useWithoutItem(pState, pLevel, pPos, pPlayer, pHitResult);
     }
 
     @Override

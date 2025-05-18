@@ -17,12 +17,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
-@Getter
-public class OutputBlock {
+public record OutputBlock(BlockState blockState, float chance) {
     public static final Codec<OutputBlock> CODEC = RecordCodecBuilder.create(it -> it.group(
             CodecUtil.BLOCK_CODEC.fieldOf("id").forGetter(OutputBlock::getBlock),
             Codec.unboundedMap(Codec.STRING, Codec.STRING).optionalFieldOf("states", new HashMap<>()).forGetter(OutputBlock::getStates),
-            Codec.FLOAT.orElse(1f).fieldOf("chance").forGetter(OutputBlock::getChance)
+            Codec.FLOAT.orElse(1f).fieldOf("chance").forGetter(OutputBlock::chance)
         ).apply(it, OutputBlock::apply)
     );
 
@@ -40,14 +39,6 @@ public class OutputBlock {
             CodecUtil.BLOCK_STATE_STREAM_CODEC.decode(buf),
             buf.readFloat()
         );
-    }
-
-    final BlockState blockState;
-    final float chance;
-
-    public OutputBlock(BlockState blockState, float chance) {
-        this.blockState = blockState;
-        this.chance = chance;
     }
 
     public static OutputBlock of(BlockEntry<? extends Block> block) {

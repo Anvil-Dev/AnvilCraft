@@ -43,27 +43,8 @@ public class ConfinementChamberBlock extends BaseEntityBlock {
         return RenderShape.MODEL;
     }
 
-    //Unimplemented for current version
-    /*@Override
-    protected @NotNull ItemInteractionResult useItemOn(
-            @NotNull ItemStack stack,
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull Player player,
-            @NotNull InteractionHand hand,
-            @NotNull BlockHitResult hitResult
-    ) {
-        BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (!(blockEntity instanceof ConfinementChamberBlockEntity confinementChamberBlockEntity))
-            return ItemInteractionResult.FAIL;
-        ItemStack itemStack = confinementChamberBlockEntity.getItemHandler().getStackInSlot(0);
-        ItemStack handItemStack = player.getItemInHand(hand);
-        if (itemStack.is(handItemStack.getItem())) return ItemInteractionResult.FAIL;
-        player.setItemInHand(hand, itemStack.copy());
-        confinementChamberBlockEntity.getItemHandler().setStackInSlot(0, handItemStack.copy());
-        return ItemInteractionResult.sidedSuccess(level.isClientSide);
-    }*/
+    // 删除了注释掉的 useItemOn 方法
+    // 可于VCS记录中找回
 
     @Override
     public @NotNull BlockState playerWillDestroy(Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player) {

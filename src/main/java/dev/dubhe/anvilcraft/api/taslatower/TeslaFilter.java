@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.HashMap;
 
 public abstract class TeslaFilter {
-    static TeslaFilter emptyFilter = new TeslaFilter() {
+    static final TeslaFilter EMPTY_FILTER = new TeslaFilter() {
         @Override
         public String getId() {
             return "";
@@ -30,7 +30,7 @@ public abstract class TeslaFilter {
     }
 
     public static TeslaFilter getFilter(String id) {
-        return FILTER_MAP.getOrDefault(id, emptyFilter);
+        return FILTER_MAP.getOrDefault(id, EMPTY_FILTER);
     }
 
     public static Collection<TeslaFilter> all() {

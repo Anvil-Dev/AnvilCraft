@@ -41,11 +41,12 @@ import org.joml.Vector2d;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
+@Getter
 @SuppressWarnings("LombokSetterMayBeUsed")
 public class AccelerationRingBlockEntity extends BlockEntity implements IPowerConsumer {
-    @Getter
     @Setter
     private PowerGrid grid;
 
@@ -64,7 +65,7 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
 
     @Override
     public Level getCurrentLevel() {
-        return level;
+        return Objects.requireNonNull(level);
     }
 
     @Override
@@ -161,7 +162,7 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
         );
         List<Entity> entities = level.getEntitiesOfClass(Entity.class, aabb, AccelerationRingBlockEntity::canBeAccelerated);
         for (Entity entity : entities) {
-            if (Math.abs(entity.getDeltaMovement().get(direction.getAxis())) > AnvilCraft.config.maxAccelerationSpeed) {
+            if (Math.abs(entity.getDeltaMovement().get(direction.getAxis())) > AnvilCraft.CONFIG.maxAccelerationSpeed) {
                 entity.setDeltaMovement(entity.getDeltaMovement().add(0, entity.getGravity(), 0));
                 continue;
             }
@@ -190,7 +191,6 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
         }
     }
 
-    @SuppressWarnings("DuplicatedCode")
     public void attractGianAnvil() {
         assert level != null;
         if (level.getBlockState(getBlockPos().below(2)).hasProperty(GiantAnvilBlock.HALF) && level.getBlockState(getBlockPos().below(2)).getValue(GiantAnvilBlock.HALF) == Cube3x3PartHalf.TOP_CENTER)

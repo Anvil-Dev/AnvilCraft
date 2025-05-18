@@ -49,6 +49,7 @@ public class ItemCollectorMenu extends AbstractContainerMenu implements IFilterM
         this.addSlotListener(this);
     }
 
+    @SuppressWarnings("DataFlowIssue")
     public ItemCollectorMenu(
         @Nullable MenuType<?> menuType, int containerId, Inventory inventory, @NotNull FriendlyByteBuf extraData) {
         this(menuType, containerId, inventory, inventory.player.level().getBlockEntity(extraData.readBlockPos()));
@@ -68,6 +69,7 @@ public class ItemCollectorMenu extends AbstractContainerMenu implements IFilterM
         }
     }
 
+    @SuppressWarnings("EmptyMethod")
     private void onChanged() {
     }
 

@@ -17,14 +17,14 @@ public class ModFoods {
         .saturationModifier(2.0f)
         .alwaysEdible()
         .fast()
-        .effect(new MobEffectInstance(MobEffects.DIG_SPEED, 600, 1), 1.0f)
+        .effect(() -> new MobEffectInstance(MobEffects.DIG_SPEED, 600, 1), 1.0f)
         .build();
     public static final FoodProperties CHOCOLATE_WHITE = new FoodProperties.Builder()
         .nutrition(2)
         .saturationModifier(2.0f)
         .alwaysEdible()
         .fast()
-        .effect(new MobEffectInstance(MobEffects.JUMP, 600, 1), 1.0f)
+        .effect(() -> new MobEffectInstance(MobEffects.JUMP, 600, 1), 1.0f)
         .build();
     public static final FoodProperties CREAMY_BREAD_ROLL =
         new FoodProperties.Builder().nutrition(8).saturationModifier(0.5f).build();

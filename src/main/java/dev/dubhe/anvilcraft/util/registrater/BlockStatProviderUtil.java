@@ -6,7 +6,7 @@ import dev.dubhe.anvilcraft.util.DangerUtil;
 import net.minecraft.world.level.block.Block;
 
 public class BlockStatProviderUtil {
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "EmptyMethod"})
     public static void none(DataGenContext<?, ?> context, RegistrateBlockstateProvider provider) {
     }
 

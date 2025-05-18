@@ -36,7 +36,7 @@ public record FellingEffect(int range) implements EnchantmentEntityEffect {
     public void apply(ServerLevel level, int i, EnchantedItemInUse enchantedItemInUse, Entity entity, Vec3 vec3) {
         if (!level.getBlockState(BlockPos.containing(vec3)).is(BlockTags.LOGS)) return;
         if (entity.isShiftKeyDown()) return;
-        int max = (i * AnvilCraft.config.fellingBlockPerLevel) + 1;
+        int max = (i * AnvilCraft.CONFIG.fellingBlockPerLevel) + 1;
         if (!(entity instanceof Player player)) return;
         chainMine(
             level,

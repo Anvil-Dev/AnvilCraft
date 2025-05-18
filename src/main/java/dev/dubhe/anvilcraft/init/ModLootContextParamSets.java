@@ -32,6 +32,7 @@ public class ModLootContextParamSets {
         return paramSet;
     }
 
+    @SuppressWarnings("EmptyMethod")
     public static void registerAll() {
         //intentionally empty
     }

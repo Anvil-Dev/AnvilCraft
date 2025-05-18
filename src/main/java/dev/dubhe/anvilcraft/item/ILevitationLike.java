@@ -40,7 +40,6 @@ public interface ILevitationLike<T extends Item & ILevitationLike<T>> {
      * @param player 玩家
      * @return 诅咒物品数量
      */
-    @SuppressWarnings("unchecked")
     default int hasItemNumber(@NotNull Player player) {
         Inventory inventory = player.getInventory();
         int i = 0;

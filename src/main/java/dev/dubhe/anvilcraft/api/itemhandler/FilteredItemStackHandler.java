@@ -224,7 +224,7 @@ public class FilteredItemStackHandler extends ItemStackHandler {
     public void deserializeNBT(HolderLookup.Provider provider, @NotNull CompoundTag tag) {
         if (!tag.contains("Inventory")) return;
         this.filterEnabled = tag.getBoolean("FilterEnabled");
-        ListTag inventory = (ListTag) tag.get("Inventory");
+        ListTag inventory = tag.getList("Inventory", Tag.TAG_COMPOUND);
         int size = tag.getInt("Size");
         for (Tag entry : inventory) {
             CompoundTag inventoryEntry = (CompoundTag) entry;

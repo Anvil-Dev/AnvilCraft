@@ -110,26 +110,12 @@ public abstract class SectionCompilerMixin {
         @Local(index = 11) Map<RenderType, BufferBuilder> map
     ) {
         if (!RenderState.isEnhancedRenderingAvailable()) return;
-        if (!(blockEntity instanceof BaseLaserBlockEntity baseLaserBlockEntity)) return;
-//        poseStack.pushPose();
-//        BlockPos pos = blockEntity.getBlockPos();
-//        poseStack.translate(
-//            (float) SectionPos.sectionRelative(pos.getX()),
-//            (float) SectionPos.sectionRelative(pos.getY()),
-//            (float) SectionPos.sectionRelative(pos.getZ())
-//        );
-//        LaserState laserState = LaserState.create(baseLaserBlockEntity, poseStack);
-//        if (laserState != null) {
-//            LaserCompiler.compile(
-//                laserState,
-//                renderType -> this.getOrBeginLayer(
-//                    map,
-//                    sectionBufferBuilderPack,
-//                    renderType
-//                )
-//            );
-//        }
-//        poseStack.popPose();
+        if (!(blockEntity instanceof BaseLaserBlockEntity baseLaserBlockEntity)) {
+            //noinspection UnnecessaryReturnStatement
+            return;
+        }
+        // 删除了注释掉的代码
+        // 可于VCS记录中找回
     }
 
     @WrapOperation(

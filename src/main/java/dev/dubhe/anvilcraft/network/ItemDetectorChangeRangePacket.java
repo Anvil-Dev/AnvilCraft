@@ -36,12 +36,6 @@ public record ItemDetectorChangeRangePacket(int range) implements CustomPacketPa
         });
     }
 
-//    public static void clientHandler(ItemDetectorChangeRangePacket data, IPayloadContext context) {
-//        Minecraft client = Minecraft.getInstance();
-//        context.enqueueWork(() -> {
-//            if (client.screen instanceof ItemDetectorScreen screen) {
-//                screen.getMenu().setRange(data.range);
-//            }
-//        });
-//    }
+    // 删除了注释掉的 clientHandler 方法
+    // 可于VCS记录中找回
 }

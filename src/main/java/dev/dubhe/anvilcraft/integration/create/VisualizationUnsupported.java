@@ -281,11 +281,13 @@ public class VisualizationUnsupported extends Level {
         return level.potionBrewing();
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     @Override
     public void setDayTimeFraction(float dayTimeFraction) {
         level.setDayTimeFraction(dayTimeFraction);
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     @Override
     public float getDayTimeFraction() {
         return level.getDayTimeFraction();

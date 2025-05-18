@@ -57,6 +57,7 @@ public class WatchableCyclingValue<T> {
     /**
      * 下一个
      */
+    @SuppressWarnings("UnusedReturnValue")
     public T next() {
         if (index + 1 >= values.length) {
             index = 0;
@@ -69,6 +70,7 @@ public class WatchableCyclingValue<T> {
     /**
      * 上一个
      */
+    @SuppressWarnings("UnusedReturnValue")
     public T previous() {
         if (index - 1 < 0) {
             index = values.length - 1;

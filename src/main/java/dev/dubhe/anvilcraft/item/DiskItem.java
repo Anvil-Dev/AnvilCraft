@@ -112,9 +112,8 @@ public class DiskItem extends Item {
         if (hasDataStored(stack)) {
             CompoundTag tag = getData(stack);
             if (!tag.getString("StoredFrom")
-                .equals(BuiltInRegistries.BLOCK_ENTITY_TYPE
-                    .getKey(blockEntity.getType())
-                    .toString())) {
+                .equals(String.valueOf(BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(blockEntity.getType())))
+            ) {
                 player.displayClientMessage(MESSAGE_INCOMPATIBLE, true);
                 return InteractionResult.FAIL;
             }
@@ -124,9 +123,8 @@ public class DiskItem extends Item {
             CompoundTag tag = createData(stack);
             tag.putString(
                 "StoredFrom",
-                BuiltInRegistries.BLOCK_ENTITY_TYPE
-                    .getKey(blockEntity.getType())
-                    .toString());
+                String.valueOf(BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(blockEntity.getType()))
+            );
             diskCloneable.storeDiskData(tag);
             player.displayClientMessage(MESSAGE_STORED, true);
         }
@@ -172,8 +170,8 @@ public class DiskItem extends Item {
         @Override
         public boolean equals(Object obj) {
             if (obj == this) return true;
-            if (obj instanceof DiskData diskData) {
-                return tag.equals(diskData.tag);
+            if (obj instanceof DiskData(CompoundTag tag1)) {
+                return tag.equals(tag1);
             } else {
                 return false;
             }

@@ -75,7 +75,7 @@ public class CuriosIntegration {
     }
 
     private boolean isAnvilHammerWearing(ICuriosItemHandler itemHandler) {
-        if (AnvilCraft.config.goggleMode != GoggleMode.WEARING_HAMMER) return false;
+        if (AnvilCraft.CONFIG.goggleMode != GoggleMode.WEARING_HAMMER) return false;
         else return !itemHandler.findCurios(it -> it.getItem() instanceof AnvilHammerItem).isEmpty();
     }
 

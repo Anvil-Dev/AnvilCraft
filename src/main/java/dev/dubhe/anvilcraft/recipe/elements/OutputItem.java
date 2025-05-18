@@ -16,15 +16,14 @@ import org.jetbrains.annotations.Nullable;
 
 import static net.minecraft.world.item.ItemStack.ITEM_NON_AIR_CODEC;
 
-@Getter
-public class OutputItem {
+public record OutputItem(ItemStack itemStack, float chance) {
     public static final Codec<OutputItem> CODEC = RecordCodecBuilder.create(it -> it.group(
             ITEM_NON_AIR_CODEC.fieldOf("id").forGetter(OutputItem::getItemHolder),
             ExtraCodecs.intRange(1, 99).fieldOf("count").orElse(1).forGetter(OutputItem::getCount),
             DataComponentPatch.CODEC
                 .optionalFieldOf("components", DataComponentPatch.EMPTY)
                 .forGetter(OutputItem::getDataComponentPatch),
-            Codec.FLOAT.fieldOf("chance").forGetter(OutputItem::getChance)
+            Codec.FLOAT.fieldOf("chance").forGetter(OutputItem::chance)
         ).apply(it, OutputItem::apply)
     );
 
@@ -43,14 +42,6 @@ public class OutputItem {
             new ItemStack(CodecUtil.ITEM_STREAM_CODEC.decode(buf), buf.readVarInt()),
             buf.readFloat()
         );
-    }
-
-    final ItemStack itemStack;
-    final float chance;
-
-    public OutputItem(ItemStack itemStack, float chance) {
-        this.itemStack = itemStack;
-        this.chance = chance;
     }
 
     private static OutputItem apply(Holder<Item> item, int count, DataComponentPatch dataComponentPatch, Float aFloat) {

@@ -30,9 +30,11 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 
 public abstract class BaseLaserBlockEntity extends BlockEntity {
     public static final int[] COOLDOWNS = {
@@ -42,10 +44,10 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         2 * 20,
         20
     };
-    protected int maxTransmissionDistance = 128;
+    protected static final int MAX_TRANSMISSION_DISTANCE = 128;
     protected int tickCount = 0;
 
-    protected HashSet<BaseLaserBlockEntity> irradiateSelfLaserBlockSet = new HashSet<>();
+    protected final HashSet<BaseLaserBlockEntity> irradiateSelfLaserBlockSet = new HashSet<>();
     private boolean changed = false;
     @Getter
     protected BlockPos irradiateBlockPos = null;
@@ -63,7 +65,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
             || blockState.is(Tags.Blocks.GLASS_BLOCKS)
             || blockState.is(Tags.Blocks.GLASS_PANES)
             || blockState.is(BlockTags.REPLACEABLE)) return true;
-        if (!AnvilCraft.config.isLaserDoImpactChecking) return false;
+        if (!AnvilCraft.CONFIG.isLaserDoImpactChecking) return false;
         AABB laseBoundingBox =
             switch (direction.getAxis()) {
                 case X -> Block.box(0, 7, 7, 16, 9, 9).bounds();
@@ -73,7 +75,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         return blockState.getCollisionShape(level, blockPos).toAabbs().stream().noneMatch(laseBoundingBox::intersects);
     }
 
-    public void updateIrradiateBlockPos(BlockPos newPos) {
+    public void updateIrradiateBlockPos(@Nullable BlockPos newPos) {
         if (irradiateBlockPos == null) {
             if (newPos != null)
                 markChanged();
@@ -137,7 +139,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
      */
     public void emitLaser(Direction direction) {
         if (level == null) return;
-        BlockPos tempIrradiateBlockPos = getIrradiateBlockPos(maxTransmissionDistance, direction, getBlockPos());
+        BlockPos tempIrradiateBlockPos = getIrradiateBlockPos(MAX_TRANSMISSION_DISTANCE, direction, getBlockPos());
         if (!tempIrradiateBlockPos.equals(irradiateBlockPos)) {
             if (irradiateBlockPos != null
                 && level.getBlockEntity(irradiateBlockPos)
@@ -185,7 +187,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
                     level.getBlockEntity(irradiateBlockPos)
                 );
                 Vec3 blockPos = getBlockPos().relative(direction.getOpposite()).getCenter();
-                IItemHandler cap = getLevel()
+                IItemHandler cap = Objects.requireNonNull(getLevel())
                     .getCapability(
                         Capabilities.ItemHandler.BLOCK,
                         getBlockPos().relative(getFacing().getOpposite()),

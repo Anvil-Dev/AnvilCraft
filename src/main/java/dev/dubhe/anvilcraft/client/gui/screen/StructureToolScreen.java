@@ -124,9 +124,7 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
 
             minecraft.player.closeContainer();
         }));
-        kubejsButton = addRenderableWidget(new ImageButton(offsetX + 122, offsetY + 37, 46, 16, SPRITES, button -> {
-            button.setFocused(false);
-        }));
+        kubejsButton = addRenderableWidget(new ImageButton(offsetX + 122, offsetY + 37, 46, 16, SPRITES, button -> button.setFocused(false)));
         jsonButton = addRenderableWidget(new ImageButton(offsetX + 122, offsetY + 53, 46, 16, SPRITES, button -> {
             Recipe<?> recipe = toRecipe();
             if (recipe == null) {

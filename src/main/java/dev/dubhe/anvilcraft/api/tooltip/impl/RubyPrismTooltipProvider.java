@@ -20,7 +20,7 @@ public class RubyPrismTooltipProvider extends ITooltipProvider.BlockEntityToolti
 
     @Override
     public List<Component> tooltip(BlockEntity e) {
-        if (Util.jadePresent.get() && AnvilCraft.config.doNotShowTooltipWhenJadePresent) {
+        if (Util.jadePresent.get() && AnvilCraft.CONFIG.doNotShowTooltipWhenJadePresent) {
             return null;
         }
         if (e instanceof RubyPrismBlockEntity rubyPrismBlockEntity) {

@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-@SuppressWarnings("DuplicatedCode")
 public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencerMenu> {
 
     private static final ResourceLocation CONTAINER_LOCATION =
@@ -46,9 +45,13 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     public static final int SOUND_FILTERED = 0;
     public static final int SOUND_MUTED = 1;
 
+    private final Minecraft minecraft = Minecraft.getInstance();
     private final ActiveSilencerMenu menu;
+    @SuppressWarnings("MismatchedReadAndWriteOfArray")
     private final SilencerButton[] allSoundButtons = new SilencerButton[8];
+    @SuppressWarnings("MismatchedReadAndWriteOfArray")
     private final SilencerButton[] mutedSoundButtons = new SilencerButton[8];
+    @SuppressWarnings("FieldCanBeLocal")
     private EditBox editBox;
     private int leftScrollOff;
     private int rightScrollOff;

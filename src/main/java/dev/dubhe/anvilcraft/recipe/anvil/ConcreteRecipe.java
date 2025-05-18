@@ -88,14 +88,13 @@ public class ConcreteRecipe implements Recipe<ItemProcessInput> {
         return getMaxCraftTime(input) >= 1;
     }
 
-    @SuppressWarnings("DuplicatedCode")
     public int getMaxCraftTime(ItemProcessInput pInput) {
         if (cacheInput == pInput) {
             return cacheMaxCraftTime;
         }
         int times = RecipeUtil.getMaxCraftTime(pInput, ingredients);
         cacheInput = pInput;
-        cacheMaxCraftTime = times <= AnvilCraft.config.anvilEfficiency ? times : AnvilCraft.config.anvilEfficiency;
+        cacheMaxCraftTime = times <= AnvilCraft.CONFIG.anvilEfficiency ? times : AnvilCraft.CONFIG.anvilEfficiency;
         return cacheMaxCraftTime;
     }
 

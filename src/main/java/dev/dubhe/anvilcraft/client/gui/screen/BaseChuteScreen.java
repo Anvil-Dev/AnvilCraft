@@ -29,7 +29,7 @@ public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends 
     private static final ResourceLocation CONTAINER_LOCATION =
         AnvilCraft.of("textures/gui/container/machine/background/chute.png");
 
-    BiFunction<Integer, Integer, EnableFilterButton> enableFilterButtonSupplier =
+    final BiFunction<Integer, Integer, EnableFilterButton> enableFilterButtonSupplier =
         this.getEnableFilterButtonSupplier(134, 36);
 
     @Getter

@@ -27,7 +27,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class BulgingBehavior implements IAnvilBehavior {
-    @SuppressWarnings("DuplicatedCode")
     @Override
     public boolean handle(
         Level level,

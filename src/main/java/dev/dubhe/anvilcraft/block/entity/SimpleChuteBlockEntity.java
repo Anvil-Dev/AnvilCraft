@@ -21,6 +21,7 @@ import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Objects;
 
 import static dev.dubhe.anvilcraft.util.ItemHandlerUtil.getSourceItemHandler;
 
@@ -55,7 +56,6 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemHandlerH
     /**
      * tick
      */
-    @SuppressWarnings({"UnreachableCode", "DuplicatedCode"})
     public void tick() {
         if (cooldown <= 0) {
             if (getBlockState().getValue(SimpleChuteBlock.ENABLED)) {
@@ -69,7 +69,7 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemHandlerH
                     ItemHandlerUtil.exportToTarget(this.itemHandler, 64, stack -> true, target);
                 } else {
                     Vec3 center = getBlockPos().relative(getDirection()).getCenter();
-                    List<ItemEntity> itemEntities = getLevel()
+                    List<ItemEntity> itemEntities = Objects.requireNonNull(getLevel())
                         .getEntitiesOfClass(
                             ItemEntity.class,
                             new AABB(getBlockPos().relative(getDirection())),
@@ -103,7 +103,7 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemHandlerH
                                 itemEntity.setDefaultPickUpDelay();
                                 getLevel().addFreshEntity(itemEntity);
                                 this.itemHandler.setStackInSlot(i, stack);
-                                cooldown = AnvilCraft.config.chuteMaxCooldown - 1;
+                                cooldown = AnvilCraft.CONFIG.chuteMaxCooldown - 1;
                                 break;
                             }
 

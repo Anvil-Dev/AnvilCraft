@@ -26,6 +26,7 @@ import java.util.List;
 
 enum DestroyType {
     FELLING {
+        @SuppressWarnings("resource")
         @Override
         void accept(ShockContext context, List<BlockPos> list, DestroyMode mode) {
             Level level = context.level();
@@ -97,10 +98,7 @@ enum DestroyType {
                                 DestroyType.dropItems(itemStack, it, level);
                                 return true;
                             }
-                            if (blockState.is(BlockTags.JUNGLE_LOGS)) {
-                                return true;
-                            }
-                            return false;
+                            return blockState.is(BlockTags.JUNGLE_LOGS);
                         }
                     );
                 }

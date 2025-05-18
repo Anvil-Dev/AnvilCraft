@@ -61,7 +61,7 @@ abstract class FallingBlockEntityMixin extends Entity {
         this.anvilcraft$fallDistance = this.fallDistance;
     }
 
-    @SuppressWarnings("UnreachableCode")
+    @SuppressWarnings({"UnreachableCode", "LocalMayBeArgsOnly"})
     @Inject(
         method = "tick",
         at =
@@ -89,7 +89,7 @@ abstract class FallingBlockEntityMixin extends Entity {
         }
     }
 
-    @SuppressWarnings("UnreachableCode")
+    @SuppressWarnings({"UnreachableCode", "LocalMayBeArgsOnly"})
     @Inject(
         method = "causeFallDamage",
         at =

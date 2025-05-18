@@ -29,6 +29,7 @@ public class PredicateExecutableTreeNode<T> extends SetTreeNode<T> {
         return this;
     }
 
+    @SuppressWarnings("EmptyMethod")
     private static <T> void doNothing(ExecutionContext<T> t) {
     }
 }

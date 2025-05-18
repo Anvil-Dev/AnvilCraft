@@ -68,6 +68,7 @@ public class HeliostatsBlockEntity extends BlockEntity {
         float x = vec2.x > 0 ? 0.49f : -0.49f;
         float y = vec2.y > 0 ? 0.49f : -0.49f;
         if (y / k < 0.5 && y / k > -0.5) {
+            //noinspection SuspiciousNameCombination
             return vec31.add(y, 0, y / k);
         }
         if (k * x < 0.5 && k * x > -0.5) {
@@ -173,7 +174,7 @@ public class HeliostatsBlockEntity extends BlockEntity {
      */
     public void tick() {
         if (level == null) return;
-        if (level.getGameTime() % (AnvilCraft.config.heliostatsDetectionInterval + 1) != 0) return;
+        if (level.getGameTime() % (AnvilCraft.CONFIG.heliostatsDetectionInterval + 1) != 0) return;
         if (irritatePos == null && level.isClientSide)
             PacketDistributor.sendToServer(new HeliostatsIrradiationPacket(getBlockPos(), irritatePos));
         workResult = validatePos(irritatePos);

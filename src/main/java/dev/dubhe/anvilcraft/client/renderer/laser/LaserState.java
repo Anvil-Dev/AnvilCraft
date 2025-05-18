@@ -4,10 +4,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.BaseLaserBlockEntity;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.InventoryMenu;
 
 import java.util.function.Function;
 
@@ -24,7 +24,7 @@ public record LaserState(
     public static LaserState create(BaseLaserBlockEntity blockEntity, PoseStack poseStack) {
         if (blockEntity.getIrradiateBlockPos() == null) return null;
         Function<ResourceLocation, TextureAtlasSprite> spriteGetter = Minecraft.getInstance()
-            .getTextureAtlas(TextureAtlas.LOCATION_BLOCKS);
+            .getTextureAtlas(InventoryMenu.BLOCK_ATLAS);
         poseStack.pushPose();
         poseStack.translate(0.5f, 0.5f, 0.5);
         float length = (float) (blockEntity

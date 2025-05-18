@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.mixin;
 
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
+import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
@@ -33,7 +34,7 @@ public abstract class PlayerHitEntityMixin extends LivingEntity {
     @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
     @SuppressWarnings("UnreachableCode")
     private void onFlyingHitBlock(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
-        if (!((Object) this instanceof ServerPlayer)) return;
+        ServerPlayer thiS = Util.cast(this);
         if (!this.isFallFlying()) return;
         if (!(this.getItemBySlot(EquipmentSlot.HEAD).getItem() instanceof AnvilHammerItem)
             && !this.getItemBySlot(EquipmentSlot.HEAD).is(ModItems.ROYAL_ANVIL_HAMMER.get())) return;
@@ -46,7 +47,7 @@ public abstract class PlayerHitEntityMixin extends LivingEntity {
         if (source.type().equals(level().damageSources().flyIntoWall().type())) {
             for (LivingEntity entity : entities) {
                 entity.hurt(damageSources().playerAttack((ServerPlayer) (Object) this), hurtAmount);
-                anvilCraft$damageItem((Player) (Object) this, this.getItemBySlot(EquipmentSlot.HEAD));
+                anvilCraft$damageItem(thiS, this.getItemBySlot(EquipmentSlot.HEAD));
             }
             cir.setReturnValue(false);
             cir.cancel();
@@ -54,7 +55,7 @@ public abstract class PlayerHitEntityMixin extends LivingEntity {
             if (source.type().equals(level().damageSources().fall().type())) {
                 for (LivingEntity entity : entities) {
                     entity.hurt(damageSources().playerAttack((ServerPlayer) (Object) this), hurtAmount);
-                    anvilCraft$damageItem((Player) (Object) this, this.getItemBySlot(EquipmentSlot.HEAD));
+                    anvilCraft$damageItem(thiS, this.getItemBySlot(EquipmentSlot.HEAD));
                 }
                 cir.setReturnValue(false);
                 cir.cancel();

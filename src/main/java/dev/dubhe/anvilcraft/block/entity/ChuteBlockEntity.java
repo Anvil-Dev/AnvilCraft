@@ -63,6 +63,7 @@ public class ChuteBlockEntity extends BaseChuteBlockEntity {
         return new ChuteBlockEntity(type, pos, blockState);
     }
 
+    @SuppressWarnings("EmptyMethod")
     public static void onBlockEntityRegister(BlockEntityType<ChuteBlockEntity> type) {
     }
 
