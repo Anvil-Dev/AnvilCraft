@@ -113,11 +113,15 @@ public class EmberGrindstoneMenu extends AbstractContainerMenu {
                 ItemEnchantments.Mutable enchantmentsCopy = new ItemEnchantments.Mutable(
                     toolItem.getOrDefault(componentType, ItemEnchantments.EMPTY));
                 enchantmentsCopy.removeIf(holder -> holder.equals(enchantments.get(selectedIndex).enchantment));
-                toolItem.set(componentType, enchantmentsCopy.toImmutable());
-                toolItem.set(
-                    DataComponents.REPAIR_COST,
-                    AnvilMenu.calculateIncreasedRepairCost(toolItem.getOrDefault(DataComponents.REPAIR_COST, 0)));
-                tool.setItem(0, toolItem);
+                if (toolItem.is(Items.ENCHANTED_BOOK) && enchantmentsCopy.toImmutable().isEmpty()) {
+                    tool.setItem(0, new ItemStack(Items.BOOK, toolItem.getCount()));
+                } else {
+                    toolItem.set(componentType, enchantmentsCopy.toImmutable());
+                    toolItem.set(
+                        DataComponents.REPAIR_COST,
+                        AnvilMenu.calculateIncreasedRepairCost(toolItem.getOrDefault(DataComponents.REPAIR_COST, 0)));
+                    tool.setItem(0, toolItem);
+                }
                 refreshEnchantments();
 
                 ItemStack bookItem = book.getItem(0);
@@ -171,7 +175,7 @@ public class EmberGrindstoneMenu extends AbstractContainerMenu {
         int repairCost = input.getOrDefault(DataComponents.REPAIR_COST, 0);
         int anvilCost = enchantment.enchantment.value().getAnvilCost();
         return Math.clamp(
-            (long) anvilCost * enchantment.level * input.getCount() * (repairCost <= 0 ? 1 : repairCost),
+            (long) anvilCost * enchantment.level * input.getCount() * Math.max(1, repairCost),
             0, Integer.MAX_VALUE
         );
     }
