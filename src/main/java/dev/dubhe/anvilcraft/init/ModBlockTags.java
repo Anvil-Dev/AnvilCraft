@@ -32,6 +32,7 @@ public class ModBlockTags {
     public static final TagKey<Block> VOID_DECAY_PRODUCTS = bind("void_decay_products");
     public static final TagKey<Block> CRAFTING_MATRIX_ELEMENT = bind("crafting_matrix_element");
     public static final TagKey<Block> SPECTRAL_CAN_THROUGH = bind("spectral_can_through");
+    public static final TagKey<Block> INFINIBURN_MUN = bind("infiniburn_mun");
 
     // common tags
     public static final TagKey<Block> ORES_TUNGSTEN = bindC("ores/tungsten");
