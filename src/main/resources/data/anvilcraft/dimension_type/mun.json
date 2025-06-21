@@ -5,7 +5,6 @@
   "effects": "minecraft:overworld",
   "fixed_time": 6000,
   "has_ceiling": false,
-  "cloud_height": 2048,
   "has_raids": true,
   "has_skylight": true,
   "height": 384,
