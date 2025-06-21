@@ -1,0 +1,18 @@
+{
+  "variants": {
+    "": [
+      {
+        "model": "anvilcraft:block/mun_rock"
+      },
+      {
+        "model": "anvilcraft:block/mun_rock_1"
+      },
+      {
+        "model": "anvilcraft:block/mun_rock_2"
+      },
+      {
+        "model": "anvilcraft:block/mun_rock_3"
+      }
+    ]
+  }
+}

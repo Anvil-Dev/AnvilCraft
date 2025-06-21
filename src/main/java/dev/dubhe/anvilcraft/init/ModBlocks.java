@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.init;
 
+import com.tterrag.registrate.providers.DataGenContext;
+import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.nullness.NonNullFunction;
@@ -159,7 +161,6 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.ColorRGBA;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -192,6 +193,8 @@ import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.common.Tags;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Supplier;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
@@ -200,7 +203,7 @@ import static dev.dubhe.anvilcraft.api.power.IPowerComponent.SWITCH;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-@SuppressWarnings({"unused", "CodeBlock2Expr", "DataFlowIssue"})
+@SuppressWarnings({"unused", "CodeBlock2Expr"})
 public class ModBlocks {
 
     static {
@@ -1943,11 +1946,11 @@ public class ModBlocks {
             .noOcclusion()
             .emissiveRendering(ModBlocks::always))
         .tag(BlockTags.BEACON_BASE_BLOCKS,
-             BlockTags.MINEABLE_WITH_PICKAXE,
-             Tags.Blocks.NEEDS_NETHERITE_TOOL,
-             BlockTags.WITHER_IMMUNE,
-             BlockTags.DRAGON_IMMUNE,
-             Tags.Blocks.STORAGE_BLOCKS)
+            BlockTags.MINEABLE_WITH_PICKAXE,
+            Tags.Blocks.NEEDS_NETHERITE_TOOL,
+            BlockTags.WITHER_IMMUNE,
+            BlockTags.DRAGON_IMMUNE,
+            Tags.Blocks.STORAGE_BLOCKS)
         .blockstate((context, provider) -> provider.simpleBlock(
             context.get(),
             DangerUtil.genConfiguredModel("block/transcendium_block").get()))
@@ -4265,6 +4268,25 @@ public class ModBlocks {
         })
         .register();
 
+    public static final BlockEntry<Block> MUN_SOIL = REGISTRATE
+        .block("mun_soil", Block::new)
+        .initialProperties(() -> Blocks.DIRT)
+        .properties(properties -> properties.sound(SoundType.SAND))
+        .blockstate((ctx, provider) ->
+            randomModelAndRotate(ctx, provider, 1, true)
+        )
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<Block> MUN_ROCK = REGISTRATE
+        .block("mun_rock", Block::new)
+        .initialProperties(() -> Blocks.STONE)
+        .blockstate((ctx, provider) ->
+            randomModelAndRotate(ctx, provider, 4, false)
+        )
+        .simpleItem()
+        .register();
+
     static {
         REGISTRATE.defaultCreativeTab(ModItemGroups.ANVILCRAFT_FUNCTION_BLOCK.getKey());
     }
@@ -4433,5 +4455,58 @@ public class ModBlocks {
 
     public static boolean always(BlockState state, BlockGetter blockGetter, BlockPos pos) {
         return true;
+    }
+
+    public static <T extends Block> void randomModelAndRotate(
+        DataGenContext<Block, T> ctx, RegistrateBlockstateProvider provider, int modelCount, boolean rotate
+    ) {
+        List<ConfiguredModel> list = new ArrayList<>();
+        for (int i = 0; i < modelCount; i++) {
+            String nameSuffix = i == 0 ? "" : "_" + i;
+            list.add(
+                new ConfiguredModel(
+                    provider.models().cubeAll(
+                        ctx.getName() + nameSuffix,
+                        provider.modLoc("block/" + ctx.getName() + nameSuffix)
+                    )
+                )
+            );
+            if (rotate) {
+                list.add(
+                    new ConfiguredModel(
+                        provider.models().cubeAll(
+                            ctx.getName() + "_rotated" + nameSuffix,
+                            provider.modLoc("block/" + ctx.getName() + nameSuffix)
+                        ),
+                        0,
+                        90,
+                        false
+                    )
+                );
+                list.add(
+                    new ConfiguredModel(
+                        provider.models().cubeAll(
+                            ctx.getName() + "_rotated" + nameSuffix,
+                            provider.modLoc("block/" + ctx.getName() + nameSuffix)
+                        ),
+                        0,
+                        180,
+                        false
+                    )
+                );
+                list.add(
+                    new ConfiguredModel(
+                        provider.models().cubeAll(
+                            ctx.getName() + "_rotated" + nameSuffix,
+                            provider.modLoc("block/" + ctx.getName() + nameSuffix)
+                        ),
+                        0,
+                        270,
+                        false
+                    )
+                );
+            }
+        }
+        provider.simpleBlock(ctx.get(), list.toArray(new ConfiguredModel[0]));
     }
 }

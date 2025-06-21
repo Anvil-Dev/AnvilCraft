@@ -1,0 +1,21 @@
+{
+  "variants": {
+    "": [
+      {
+        "model": "anvilcraft:block/mun_soil"
+      },
+      {
+        "model": "anvilcraft:block/mun_soil_rotated",
+        "y": 90
+      },
+      {
+        "model": "anvilcraft:block/mun_soil_rotated",
+        "y": 180
+      },
+      {
+        "model": "anvilcraft:block/mun_soil_rotated",
+        "y": 270
+      }
+    ]
+  }
+}
