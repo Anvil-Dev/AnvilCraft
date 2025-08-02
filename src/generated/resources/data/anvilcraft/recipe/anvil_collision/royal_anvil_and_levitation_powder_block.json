@@ -10,6 +10,11 @@
   "output_items": [
     {
       "chance": 1.0,
+      "count": 6,
+      "id": "anvilcraft:negative_matter_nugget"
+    },
+    {
+      "chance": 0.5,
       "count": 2,
       "id": "anvilcraft:negative_matter_nugget"
     },
