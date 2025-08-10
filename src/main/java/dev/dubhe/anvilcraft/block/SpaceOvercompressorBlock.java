@@ -20,7 +20,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 public class SpaceOvercompressorBlock extends BetterBaseEntityBlock implements IHammerRemovable, IMoveableEntityBlock {
 
     public SpaceOvercompressorBlock(Properties properties) {
-        super(properties.pushReaction(PushReaction.NORMAL));
+        super(properties);
     }
 
     @Override
@@ -37,4 +37,10 @@ public class SpaceOvercompressorBlock extends BetterBaseEntityBlock implements I
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new SpaceOvercompressorBlockEntity(pos, state);
     }
+
+    @Override
+    public PushReaction getPistonPushReaction(BlockState state) {
+        return PushReaction.NORMAL;
+    }
+
 }
