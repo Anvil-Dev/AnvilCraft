@@ -20,7 +20,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 public class SpaceOvercompressorBlock extends BetterBaseEntityBlock implements IHammerRemovable, IMoveableEntityBlock {
 
     public SpaceOvercompressorBlock(Properties properties) {
-        super(properties);
+        super(properties.pushReaction(PushReaction.NORMAL));
     }
 
     @Override
