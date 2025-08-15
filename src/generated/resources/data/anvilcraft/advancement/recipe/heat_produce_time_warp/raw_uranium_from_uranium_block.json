@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:time_warp/raw_uranium_from_plutonium_block"
+        "recipe": "anvilcraft:heat_produce_time_warp/raw_uranium_from_uranium_block"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -15,7 +15,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:time_warp/raw_uranium_from_plutonium_block"
+      "anvilcraft:heat_produce_time_warp/raw_uranium_from_uranium_block"
     ]
   }
 }

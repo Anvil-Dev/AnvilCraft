@@ -1,7 +1,13 @@
 {
-  "type": "anvilcraft:time_warp",
+  "type": "anvilcraft:heat_produce_time_warp",
   "cauldron": "minecraft:cauldron",
   "consume_fluid": false,
+  "heating": [
+    {
+      "duration": 6000,
+      "tier": "incandescent"
+    }
+  ],
   "ingredients": [
     {
       "item": "anvilcraft:uranium_block"

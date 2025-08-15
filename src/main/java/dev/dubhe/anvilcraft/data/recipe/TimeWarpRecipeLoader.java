@@ -148,16 +148,18 @@ public class TimeWarpRecipeLoader {
             .result(Items.WITHER_ROSE.getDefaultInstance(), 0.2f)
             .save(provider);
 
-        TimeWarpRecipe.builder()
+        HeatProduceTimeWarpRecipe.builder()
+            .heating(HeatTier.INCANDESCENT, 6000)
             .requires(ModBlocks.URANIUM_BLOCK)
             .result(ModItems.RAW_URANIUM.asStack(2))
             .result(ModItems.RAW_LEAD.asStack())
-            .save(provider, AnvilCraft.of("time_warp/raw_uranium_from_uranium_block"));
-        TimeWarpRecipe.builder()
+            .save(provider, AnvilCraft.of("heat_produce_time_warp/raw_uranium_from_uranium_block"));
+        HeatProduceTimeWarpRecipe.builder()
+            .heating(HeatTier.INCANDESCENT, 12000)
             .requires(ModBlocks.PLUTONIUM_BLOCK)
             .result(ModItems.RAW_URANIUM.asStack(3))
             .result(ModItems.RAW_LEAD.asStack())
-            .save(provider, AnvilCraft.of("time_warp/raw_uranium_from_plutonium_block"));
+            .save(provider, AnvilCraft.of("heat_produce_time_warp/raw_uranium_from_plutonium_block"));
     }
 
     private static void timeWarp(
